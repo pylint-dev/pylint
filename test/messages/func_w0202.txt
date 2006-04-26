@@ -1,0 +1,3 @@
+W:  8:Abcd.method1: Static method with 'self' as first argument
+W: 12:Abcd.method2: Static method with 'cls' as first argument
+

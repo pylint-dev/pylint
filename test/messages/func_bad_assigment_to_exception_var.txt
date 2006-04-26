@@ -1,0 +1,5 @@
+W: 11: Identifier e used to raise an exception is assigned to 1 line 7
+W: 15: Identifier e2 used to raise an exception is assigned to 'yo' line 8
+W: 20:func: Identifier e3 used to raise an exception is assigned to None
+W: 30: Identifier e3 used to raise an exception is assigned to None
+

@@ -1,0 +1,7 @@
+usr/lib/site-python
+usr/lib/site-python/pylint
+usr/share/doc/pylint
+usr/share/emacs/site-lisp/
+usr/share/emacs/site-lisp/pylint
+usr/share/doc/pylint
+usr/share/doc/pylint/test

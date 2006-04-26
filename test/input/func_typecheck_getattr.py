@@ -1,0 +1,60 @@
+# pylint: disable-msg=
+"""check getattr if inference succeed"""
+
+__revision__ = None
+
+class Provider:
+    """provide some attributes and method"""
+    cattr = 4
+    def __init__(self):
+        self.attr = 4
+    def method(self, val):
+        """impressive method"""
+        return self.attr * val
+    def hophop(self):
+        """hop method"""
+        print 'hop hop hop', self
+    
+
+class Client:
+    """use provider class"""
+    
+    def __init__(self):
+        self._prov = Provider()
+        self._prov_attr = Provider.cattr
+        self._prov_attr2 = Provider.cattribute
+        
+    def use_method(self):
+        """use provider's method"""
+        self._prov.hophop()
+        self._prov.hophophop()
+
+    def use_attr(self):
+        """use provider's attr"""
+        print self._prov.attr
+        print self._prov.attribute
+
+    def debug(self):
+        """print debug information"""
+        print self.__class__.__name__
+        print self.__doc__
+        print self.__dict__
+        print self.__module__
+
+    def test_bt_types(self):
+        """test access to unexistant member of builtin types"""
+        lis = []
+        lis.apppend(self)
+        dic = {}
+        dic.set(self)
+        tup = ()
+        tup.append(self)
+        string = 'toto'
+        print string.loower()
+        uni = u'toto'
+        print uni.loower()
+        integer = 1
+        print integer.whatever
+
+print object.__init__
+print property.__init__

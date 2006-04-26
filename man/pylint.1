@@ -1,0 +1,371 @@
+.TH pylint 1 "2006-4-20" pylint
+.SH NAME
+.B pylint 
+\- python code static checker
+
+.SH SYNOPSIS
+.B  pylint
+[
+.I OPTIONS
+] [
+.I <arguments>
+]
+
+.SH DESCRIPTION
+.B pylint 
+is a Python source code analyzer which looks for programming
+errors, helps enforcing a coding standard and sniffs for some code
+smells (as defined in Martin Fowler's Refactoring book)
+
+Pylint can be seen as another PyChecker since nearly all tests you
+can do with PyChecker can also be done with Pylint. However, Pylint
+offers some more features, like checking length of lines of code,
+checking if variable names are well-formed according to your coding
+standard, or checking if declared interfaces are truly implemented,
+and much more.
+
+Additionally, it is possible to write plugins to add your own checks.
+
+.SH OPTIONS
+.IP "--version"
+show program's version number and exit
+.IP "--help, -h"
+show this help message and exit
+
+.SH MASTER
+lint Python modules using external checkers.                            
+                                                                               
+    This is the main checker controling the other ones and the reports         
+    generation. It is itself both a raw checker and an astng checker in order  
+    to:                                                                        
+    * handle message activation / deactivation at the module level             
+    * handle some basic but necessary stats'data (number of classes, methods...)
+                                                                                
+This checker also defines the following reports:                                    
+  * R0001: Total errors / warnings                                              
+  * R0002: % errors / warnings by module                                        
+  * R0003: Messages                                                             
+  * R0004: Global evaluation                                                    
+
+.IP "--rcfile=<file>"
+Specify a configuration file.
+.IP "--disable-all"
+Disable all possible checkers. This option should precede enable-* options.
+.IP "--help-msg=<msg-id>"
+Display a help message for the given message id and exit. This option may be a comma separated list.
+.IP "--list-msgs"
+List and explain every available messages.
+.IP "--generate-rcfile"
+Generate a sample configuration file according to the current configuration. You can put other options before this one to use them in the configuration. This option causes the program to exit
+.IP "--generate-man"
+Generate a man page for pylint. This option causes the program to exit
+.IP "--debug-mode"
+In debug mode, checkers without error messages are disabled and for others, only the ERROR messages are displayed, and no reports are done by default
+.IP "--profile=<y_or_n>"
+Profiled execution.
+.IP "--ignore=<file>"
+Add <file or directory> to the black list. It should be a base name, not a path. You may set this option multiple times.
+.IP "--persistent=<y_or_n>"
+Pickle collected data for later comparisons.
+.IP "--cache-size=<size>"
+Set the cache size for astng objects.
+.IP "--load-plugins=<modules>"
+List of plugins (as comma separated values of python modules names) to load, usually to register additional checkers.
+
+.SH REPORTS
+Options related to messages / statistics reporting
+.IP "--reports=<y_or_n>, -r<y_or_n>"
+Tells wether to display a full report or only the messages
+.IP "--html=<y_or_n>"
+Use HTML as output format instead of text
+.IP "--parseable=<y_or_n>, -p<y_or_n>"
+Use a parseable text output format, so your favorite text editor will be able to jump to the line corresponding to a message.
+.IP "--color=<y_or_n>"
+Colorizes text output using ansi escape codes
+.IP "--files-output=<y_or_n>"
+Put messages in a separate file for each module / package specified on the command line instead of printing them on stdout. Reports (if any) will be written in a file name "pylint_global.[txt|html]".
+.IP "--evaluation=<python_expression>"
+Python expression which should return a note less than 10 (10 is the highest note).You have access to the variables errors warning, statement which respectivly contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004).
+.IP "--comment=<y_or_n>"
+Add a comment according to your evaluation note. This is used by the global evaluation report (R0004).
+.IP "--include-ids=<y_or_n>, -i<y_or_n>"
+Include message's id in output
+.IP "--enable-msg-cat=<msg cats>"
+Enable all messages in the listed categories.
+.IP "--disable-msg-cat=<msg cats>"
+Disable all messages in the listed categories.
+.IP "--enable-msg=<msg ids>"
+Enable the message with the given id.
+.IP "--disable-msg=<msg ids>"
+Disable the message with the given id.
+.IP "--enable-report=<rpt ids>"
+Enable the report with the given id.
+.IP "--disable-report=<rpt ids>"
+Disable the report with the given id.
+
+.SH DESIGN
+checks for sign of poor/misdesign:                                      
+    * number of methods, attributes, local variables...                        
+    * size, complexity of functions, methods                                   
+    
+.IP "--enable-design=<y_or_n>"
+Enable / disable this checker
+.IP "--max-args=<int>"
+Maximum number of arguments for function / method
+.IP "--max-locals=<int>"
+Maximum number of locals for function / method body
+.IP "--max-returns=<int>"
+Maximum number of return / yield for function / method body
+.IP "--max-branchs=<int>"
+Maximum number of branch for function / method body
+.IP "--max-statements=<int>"
+Maximum number of statements in function / method body
+.IP "--max-parents=<num>"
+Maximum number of parents for a class (see R0901).
+.IP "--max-attributes=<num>"
+Maximum number of attributes for a class (see R0902).
+.IP "--min-public-methods=<num>"
+Minimum number of public methods for a class (see R0903).
+.IP "--max-public-methods=<num>"
+Maximum number of public methods for a class (see R0904).
+
+.SH BASIC
+checks for :                                                            
+    * doc strings                                                              
+    * modules / classes / functions / methods / arguments / variables name     
+    * number of arguments, local variables, branchs, returns and statements in
+functions, methods                                                       
+    * required module attributes                                             
+    * dangerous default values as arguments                                    
+    * redefinition of function / method / class                                
+    * uses of the global statement                                             
+                                                                                
+This checker also defines the following reports:                                    
+  * R0101: Statistics by type                                                   
+
+.IP "--enable-basic=<y_or_n>"
+Enable / disable this checker
+.IP "--required-attributes=<attributes>"
+Required attributes for module, separated by a comma
+.IP "--no-docstring-rgx=<regexp>"
+Regular expression which should only match functions or classes name which do not require a docstring
+.IP "--module-rgx=<regexp>"
+Regular expression which should only match correct module names
+.IP "--const-rgx=<regexp>"
+Regular expression which should only match correct module level names
+.IP "--class-rgx=<regexp>"
+Regular expression which should only match correct class names
+.IP "--function-rgx=<regexp>"
+Regular expression which should only match correct function names
+.IP "--method-rgx=<regexp>"
+Regular expression which should only match correct method names
+.IP "--attr-rgx=<regexp>"
+Regular expression which should only match correct instance attribute names
+.IP "--argument-rgx=<regexp>"
+Regular expression which should only match correct argument names
+.IP "--variable-rgx=<regexp>"
+Regular expression which should only match correct variable names
+.IP "--inlinevar-rgx=<regexp>"
+Regular expression which should only match correct list comprehension / generator expression variable                           names
+.IP "--good-names=<names>"
+Good variable names which should always be accepted, separated by a comma
+.IP "--bad-names=<names>"
+Bad variable names which should always be refused, separated by a comma
+.IP "--bad-functions=<builtin function names>"
+List of builtins function names that should not be used, separated by a comma
+
+.SH CLASSES
+checks for :                                                            
+    * methods without self as first argument                                   
+    * overriden methods signature                                              
+    * access only to existant members via self                                 
+    * attributes not defined in the __init__ method                            
+    * supported interfaces implementation                                      
+    * unreachable code                                                         
+    
+.IP "--enable-classes=<y_or_n>"
+Enable / disable this checker
+.IP "--ignore-iface-methods=<method names>"
+List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class.
+.IP "--defining-attr-methods=<method names>"
+List of method names used to declare (i.e. assign) instance attributes.
+
+.SH SIMILARITIES
+checks for similarities and duplicated code. This computation may be
+    memory / CPU intensive, so you should disable it if you experiments some
+    problems.
+                                                                                
+This checker also defines the following reports:                                    
+  * R0801: Duplication                                                          
+
+.IP "--enable-similarities=<y_or_n>"
+Enable / disable this checker
+.IP "--min-similarity-lines=<int>"
+Minimum lines number of a similarity.
+.IP "--ignore-comments=<y or n>"
+Ignore comments when computing similarities.
+.IP "--ignore-docstrings=<y or n>"
+Ignore docstrings when computing similarities.
+
+.SH EXCEPTIONS
+checks for                                                              
+    * excepts without exception filter                                         
+    * string exceptions                                                        
+    
+.IP "--enable-exceptions=<y_or_n>"
+Enable / disable this checker
+
+.SH FORMAT
+checks for :                                                            
+    * unauthorized constructions                                               
+    * strict indentation                                                       
+    * line length                                                              
+    * use of <> instead of !=
+    
+.IP "--enable-format=<y_or_n>"
+Enable / disable this checker
+.IP "--max-line-length=<int>"
+Maximum number of characters on a single line.
+.IP "--max-module-lines=<int>"
+Maximum number of lines in a module
+.IP "--indent-string=<string>"
+String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab).
+
+.SH IMPORTS
+checks for                                                              
+    * external modules dependencies                                            
+    * relative / wildcard imports                                                         
+    * cyclic imports                                                           
+    * uses of deprecated modules
+                                                                                
+This checker also defines the following reports:                                    
+  * R0401: External dependencies                                                
+  * R0402: Modules dependencies graph                                           
+
+.IP "--enable-imports=<y_or_n>"
+Enable / disable this checker
+.IP "--deprecated-modules=<modules>"
+Deprecated modules which should not be used, separated by a comma
+.IP "--import-graph=<file.dot>"
+Create a graph of every (i.e. internal and external) dependencies in the given file (report R0402 must not be disabled)
+.IP "--ext-import-graph=<file.dot>"
+Create a graph of external dependencies in the given file (report R0402 must not be disabled)
+.IP "--int-import-graph=<file.dot>"
+Create a graph of internal dependencies in the given file (report R0402 must not be disabled)
+
+.SH MISCELLANEOUS
+checks for:                                                             
+    * warning notes in the code like FIXME, XXX                                
+    * PEP 263: source code with non ascii character but no encoding declaration
+    
+.IP "--enable-miscellaneous=<y_or_n>"
+Enable / disable this checker
+.IP "--notes=<comma separated values>"
+List of note tags to take in consideration, separated by a comma. Default to FIXME, XXX, TODO
+
+.SH NEWSTYLE
+checks for usage of new style capabilities on old style classes and
+    other new/old styles conflicts problems
+    * use of property, __slots__, super
+    * "super" usage
+    * raising a new style class as exception
+    
+.IP "--enable-newstyle=<y_or_n>"
+Enable / disable this checker
+
+.SH METRICS
+does not check anything but gives some raw metrics :                    
+    * total number of lines                                                    
+    * total number of code lines                                               
+    * total number of docstring lines                                          
+    * total number of comments lines                                           
+    * total number of empty lines                                              
+                                                                                
+This checker also defines the following reports:                                    
+  * R0701: Raw metrics                                                          
+
+.IP "--enable-metrics=<y_or_n>"
+Enable / disable this checker
+
+.SH TYPECHECK
+try to find bugs in the code using type inference
+    
+.IP "--enable-typecheck=<y_or_n>"
+Enable / disable this checker
+.IP "--ignore-mixin-members=<y_or_n>"
+Tells wether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive).
+.IP "--zope=<y_or_n>"
+When zope mode is activated, consider the acquired-members option to ignore access to some undefined attributes.
+.IP "--acquired-members=<members names>"
+List of members which are usually get through zope's acquisition mecanism and so shouldn't trigger E0201 when accessed (need zope=yes to be considered.
+
+.SH VARIABLES
+checks for                                                              
+    * unused variables / imports                                               
+    * undefined variables                                                      
+    * redefinition of variable from builtins or from an outer scope            
+    * use of variable before assigment                                         
+    
+.IP "--enable-variables=<y_or_n>"
+Enable / disable this checker
+.IP "--init-import=<y_or_n>"
+Tells wether we should check for unused import in __init__ files.
+.IP "--dummy-variables-rgx=<regexp>"
+A regular expression matching names used                  for dummy variables (i.e. not used).
+.IP "--additional-builtins=<comma separated list>"
+List of additional names supposed to be defined in builtins. Remember that you should avoid to define new builtins when possible.
+
+.SH ENVIRONMENT VARIABLES
+
+The following environment variables are used :                                 
+    * PYLINTHOME                                                               
+    path to the directory where data of persistent run will be stored. If not
+found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
+directory) . The current PYLINTHOME is /home/syt/.pylint.d.                    
+    * PYLINTRC                                                                 
+    path to the configuration file. If not found, it will use the first        
+existant file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
+None.                                                                 
+
+
+.SH OUTPUT
+
+Using the default text output, the message format is :                         
+        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                               
+There are 5 kind of message types :                                            
+    * (C) convention, for programming standard violation                       
+    * (R) refactor, for bad code smell                                         
+    * (W) warning, for python specific problems                                
+    * (E) error, for much probably bugs in the code                                                
+    * (F) fatal, if an error occured which prevented pylint from doing further processing.     
+        
+
+.SH SEE ALSO
+/usr/share/doc/pythonX.Y-pylint/
+
+.SH COPYRIGHT 
+Copyright (c) 2003-2006 Sylvain Thenault (thenault@gmail.com).
+Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+http://www.logilab.fr/ -- mailto:contact@logilab.fr
+
+This program is free software; you can redistribute it and/or modify 
+it under the terms of the GNU General Public License as published 
+by the Free Software Foundation; either version 2 of the License, 
+or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License 
+along with this program; if not, write to the Free Software 
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+MA 02111-1307 USA.
+.SH BUGS 
+Please report bugs on the project's mailing list:
+mailto://python-projects@logilab.org
+
+.SH AUTHOR
+Sylvain Thenault <sylvain.thenault@logilab.fr>
+

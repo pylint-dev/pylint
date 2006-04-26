@@ -1,0 +1,1 @@
+E: 10:MyClass.__init__: Explicit return in __init__

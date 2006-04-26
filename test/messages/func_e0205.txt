@@ -1,0 +1,2 @@
+E: 14:Cdef.abcd: An attribute inherited from Abcd hide this method
+

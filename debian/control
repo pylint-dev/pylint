@@ -1,0 +1,30 @@
+Source: pylint
+Section: python
+Priority: optional
+Maintainer: Sylvain Thenault <sylvain.thenault@logilab.fr>
+Uploaders: Alexandre Fayolle <afayolle@debian.org> 
+Build-Depends: debhelper (>= 4.0.0), python-dev
+Standards-Version: 3.6.2
+
+Package: pylint
+Architecture: all
+Depends: python, python-logilab-common (>= 0.13.0), python-logilab-astng (>= 0.16.0), python-tk, emacsen-common
+Provides: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
+Conflicts: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
+Replaces: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
+Description: python code static checker
+ Pylint is a Python source code analyzer which looks for programming
+ errors, helps enforcing a coding standard and sniffs for some code
+ smells (as defined in Martin Fowler's Refactoring book)
+ .
+ Pylint can be seen as another PyChecker since nearly all tests you
+ can do with PyChecker can also be done with Pylint. However, Pylint
+ offers some more features, like checking length of lines of code,
+ checking if variable names are well-formed according to your coding
+ standard, or checking if declared interfaces are truly implemented,
+ and much more.
+ .
+ Additionally, it is possible to write plugins to add your own checks.
+ .
+ Homepage: http://www.logilab.org/projects/pylint
+

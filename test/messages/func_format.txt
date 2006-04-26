@@ -1,0 +1,25 @@
+C:  6: Operator not preceded by a space
+notpreceded= 1
+           ^
+C:  7: Operator not followed by a space
+notfollowed =1
+            ^
+C:  8: Operator not followed by a space
+notfollowed <=1
+            ^^
+C: 19: Comma not followed by a space
+aaaa,bbbb = 1,2
+    ^^
+C: 24: More than one statement on a single line
+C: 26: Comma not followed by a space
+    aaaa,bbbb = 1,2
+        ^^
+C: 27: Comma not followed by a space
+    aaaa,bbbb = bbbb,aaaa
+        ^^
+C: 29: Comma not followed by a space
+bbbb = (1,2,3)
+         ^^
+C: 51:other: Operator not preceded by a space
+    funky= funky+2
+         ^
