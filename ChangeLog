@@ -1,6 +1,11 @@
 ChangeLog for PyLint
 ====================
 
+  --
+    * new W0212 message for access to protected member from client code
+    * new W0105 message extracted from W0104 (statement seems to have no effect)
+      with string
+	
 2006-04-19  --  0.11.0
     * fix crash caused by the exceptions checker in some case
     * fix some E1101 false positive with abstract method or classes defining

@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable-msg=R0903,W0212
 """test for call to __init__ from a non ancestor class
 """
 

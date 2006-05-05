@@ -1,0 +1,3 @@
+W: 19:MyClass.test: Access to a protected member _haha of a client class
+W: 28: Access to a protected member _protected of a client class
+W: 29: Access to a protected member _cls_protected of a client class

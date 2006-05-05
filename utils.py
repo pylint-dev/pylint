@@ -136,13 +136,12 @@ class MessagesHandlerMixIn:
         msg_id = self.check_message_id(msg_id)
         if scope == 'module':
             assert line > 0
-            if msg_id != 'I0011':
-                self.add_message('I0011', line=line, args=msg_id)
-            #self._module_msgs_state[msg_id] = False
             try:
                 self._module_msgs_state[msg_id][line] = False
             except KeyError:
                 self._module_msgs_state[msg_id] = {line: False}
+                if msg_id != 'I0011':
+                    self.add_message('I0011', line=line, args=msg_id)
             
         else:
             msgs = self._msgs_state
@@ -157,11 +156,11 @@ class MessagesHandlerMixIn:
         msg_id = self.check_message_id(msg_id)
         if scope == 'module':
             assert line > 0
-            self.add_message('I0012', line=line, args=msg_id)
             try:
                 self._module_msgs_state[msg_id][line] = True
             except KeyError:
                 self._module_msgs_state[msg_id] = {line: True}
+                self.add_message('I0012', line=line, args=msg_id)
         else:
             msgs = self._msgs_state
             msgs[msg_id] = True

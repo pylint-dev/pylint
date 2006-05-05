@@ -1,3 +1,4 @@
 W:  9: Statement seems to have no effect
 W: 11: Statement seems to have no effect
 W: 15: Statement seems to have no effect
+W: 18: String statement has no effect

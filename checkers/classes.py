@@ -26,25 +26,11 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import overrides_a_method
 
 MSGS = {
-##     'F0201': ('Unable to check method %r of interface %s',
-##               'Used when PyLint has been unable to fetch a
-    ##method declared in \
-##               an interface (either in the class or in the
-    ##interface) and so to\
-##               check its implementation.'),
     'F0202': ('Unable to check methods signature (%s / %s)',
               'Used when PyLint has been unable to check methods signature \
               compatibility for an unexpected raison. Please report this kind \
               if you don\'t make sense of it.'),
-##     'F0203': ('Unable to resolve %s',
-##               'Used when PyLint has been unable to resolve a name.'),
-##     'F0204': ('Name %s has not been resolved to a class as expected',
-##               'Used when PyLint try to resolve an ancestor class name but \
-##               gets something else than a Class node.'),
 
-##     'E0201': ('Access to undefined member %r',
-##               'Used when an instance member not defined in the instance, its\
-##               class or its ancestors is accessed.'),
     'E0202': ('An attribute inherited from %s hide this method',
               'Used when a class defines a method which is hiden by an \
               instance attribute from an ancestor class.'),
@@ -55,12 +41,18 @@ MSGS = {
               'Used when an instance attribute is defined outside the __init__\
               method.'),
     
+    'W0212': ('Access to a protected member %s of a client class', # E0214
+              'Used when a protected member (i.e. class member with a name \
+              beginning with an underscore) is access outside the class or a \
+              descendant of the class where it\'s defined.'),
+    
     'E0211': ('Method has no argument',
               'Used when a method which should have the bound instance as \
               first argument has no argument defined.'),
     'E0213': ('Method should have "self" as first argument',
               'Used when a method has an attribute different the "self" as\
-              first argument.'),
+              first argument. This is considered as an error since this is\
+              a soooo common convention that you should\'nt break it!'),
     'C0202': ('Class method should have "cls" as first argument', # E0212
               'Used when a class method has an attribute different than "cls"\
               as first argument, to easily differentiate them from regular \
@@ -68,6 +60,7 @@ MSGS = {
     'C0203': ('Metaclass method should have "mcs" as first argument', # E0214
               'Used when a metaclass method has an attribute different the \
               "mcs" as first argument.'),
+    
     'W0211': ('Static method with %r as first argument',
               'Used when a static method has "self" or "cls" as first argument.'
               ),
@@ -257,13 +250,35 @@ instance attributes.'}
                 self.add_message('R0201', node=node)
                 
     def visit_getattr(self, node):
-        """check if the name handle an access to a class member
-        if so, register it
+        """check if the getattr is an access to a class member
+        if so, register it. Also check for access to protected
+        class member from outside its class (but ignore __special__
+        methods)
         """
+        attrname = node.attrname
         if self._first_attrs and isinstance(node.expr, astng.Name) and \
                node.expr.name == self._first_attrs[-1]:                
-            self._accessed[-1].setdefault(node.attrname, []).append(node)
-                
+            self._accessed[-1].setdefault(attrname, []).append(node)
+        elif attrname[0] == '_' and not (attrname.startswith('__') and
+                                         attrname.endswith('__')):
+            # XXX move this in a reusable function
+            klass = node.frame()
+            while klass is not None and not isinstance(klass, astng.Class):
+                if klass.parent is None:
+                    klass = None
+                else:
+                    klass = klass.parent.frame()
+            # XXX infer to be more safe and less dirty ??
+            # in classes, check we are not getting a parent method
+            # through the class object or through super
+            if klass is None or not (
+                node.expr.as_string() in klass.basenames
+                or (isinstance(node.expr, astng.CallFunc)
+                    and isinstance(node.expr.node, astng.Name) 
+                    and node.expr.node.name == 'super')):
+                self.add_message('W0212', node=node, args=attrname)
+            
+            
     def visit_name(self, node):
         """check if the name handle an access to a class member
         if so, register it

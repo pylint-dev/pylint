@@ -85,3 +85,51 @@ class Foo(object):
         # no error
         print self.bla
         print self.blop 
+
+
+class ClassLevelMessage(object):
+    """should'nt display to much attributes/not enough methods messages
+    """
+    # pylint: disable-msg=R0902,R0903
+    
+    def __init__(self):
+        self.attr1 = 1
+        self.attr2 = 1
+        self.attr3 = 1
+        self.attr4 = 1
+        self.attr5 = 1
+        self.attr6 = 1
+        self.attr7 = 1
+        self.attr8 = 1
+        self.attr9 = 1
+        self.attr0 = 1
+
+    def too_complex_but_thats_ok(self, attr1, attr2):
+        """THIS Method has too much branchs but i don't care
+        """
+        # pylint: disable-msg=R0912
+        try:
+            attr3 = attr1+attr2
+        except ValueError:
+            attr3 = None
+        except:
+            print 'duh', self
+        if attr1:
+            for i in attr1:
+                if attr2:
+                    print i
+            else:
+                print 'duh'
+        elif attr2:
+            for i in attr2:
+                if attr2:
+                    print i
+            else:
+                print 'duh'
+        else:
+            for i in range(15):
+                if attr3:
+                    print i
+            else:
+                print 'doh'
+        

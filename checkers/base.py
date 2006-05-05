@@ -113,6 +113,11 @@ MSGS = {
     'W0104': ('Statement seems to have no effect',
               'Used when a statement doesn\'t have (or at least seems to) \
               any effect.'),
+    'W0105': ('String statement has no effect',
+              'Used when a string is used as a statement (which of course \
+              has no effect). This is a particular case of W0104 with its \
+              own message so you can easily disable it if you\'re using \
+              those strings as documentation, instead of comments.'),
 
     'W0122': ('Use of the exec statement',
               'Used when you use the "exec" statement, to discourage its \
@@ -304,7 +309,10 @@ functions, methods
 
     def visit_discard(self, node):
         """check for statement without effect"""
-        if not isinstance(node.expr, astng.CallFunc):
+        if isinstance(node.expr, astng.Const) and \
+               isinstance(node.expr.value, basestring):
+            self.add_message('W0105', node=node)            
+        elif not isinstance(node.expr, astng.CallFunc):
             self.add_message('W0104', node=node)
 
     def visit_function(self, node):
