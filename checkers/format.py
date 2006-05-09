@@ -1,3 +1,5 @@
+# Copyright (c) 2003-2006 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,10 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
-
-Python code format's checker.
+"""Python code format's checker.
 
 By default try to follow Guido's style guide :
 
@@ -37,7 +36,7 @@ from pylint.checkers import BaseRawChecker
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
               'Used when a line is longer than a given number of characters.'),
-    'W0302': ('Too many lines in module (%s)',
+    'C0302': ('Too many lines in module (%s)', # W0302
               'Used when a module has too much lines, reducing its readibility.'
               ),
 
@@ -248,7 +247,7 @@ class FormatChecker(BaseRawChecker):
                 self.check_indent_level(line, indents[-1], line_num)
                     
         if line_num > self.config.max_module_lines:
-            self.add_message('W0302', args=line_num)
+            self.add_message('C0302', args=line_num, line=0)
 
     def visit_default(self, node):
         """check the node line number and check it if not yet done

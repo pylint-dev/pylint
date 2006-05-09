@@ -291,6 +291,8 @@ instance attributes.'}
         """check that accessed members are defined"""
         # XXX refactor, probably much simpler now that E0201 is in type checker
         for attr, nodes in accessed.items():
+            # deactivate "except doesn't do anything", that's expected
+            # pylint: disable-msg=W0704
 ##             # is it a builtin attribute ?
 ##             if attr in ('__dict__', '__class__', '__doc__'):
 ##                 # FIXME: old class object doesn't have __class__
@@ -312,9 +314,10 @@ instance attributes.'}
             # is it an instance attribute ?
             try:
                 def_nodes = node.instance_attr(attr) # XXX
-                instance_attribute = True
+                #instance_attribute = True
             except astng.NotFoundError:
-                instance_attribute = False
+                pass
+                #instance_attribute = False
             else:
                 if len(def_nodes) == 1:
                     def_node = def_nodes[0]
@@ -443,7 +446,7 @@ instance attributes.'}
                     del to_call[klass]
                 except KeyError:
                     self.add_message('W0233', node=expr, args=klass.name)
-            except astng.InferenceError, ex:
+            except astng.InferenceError:
                 continue
         for klass in to_call.keys():
             if klass.name == 'object':

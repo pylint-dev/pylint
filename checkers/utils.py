@@ -1,6 +1,6 @@
 # pylint: disable-msg=W0611
 #
-# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -30,12 +30,44 @@ except AttributeError:
     COMP_NODE_TYPES = astng.ListComp
     FOR_NODE_TYPES = (astng.For, astng.ListCompFor)
 
+def safe_infer(node):
+    """return the infered value for the given node.
+    Return None if inference failed or if there is some ambiguity (more than
+    one node has been infered)
+    """
+    try:
+        inferit = node.infer()
+        value = inferit.next()
+    except astng.InferenceError:
+        return
+    try:
+        inferit.next()
+        return # None if there is ambiguity on the infered node
+    except StopIteration:
+        return value
+
+def is_super(node):
+    """return True if the node is referencing the "super" builtin function
+    """
+    if getattr(node, 'name', None) == 'super' and \
+           node.root().name == '__builtin__':
+        return True
+    return False
+
 def is_error(node):
     """return true if the function does nothing but raising an exception"""
     for child_node in node.code.getChildNodes():
         if isinstance(child_node, astng.Raise):
             return True
         return False
+
+def is_raising(stmt):
+    """return true if the given statement node raise an exception
+    """
+    for node in stmt.nodes:
+        if isinstance(node, astng.Raise):
+            return True
+    return False
 
 def is_empty(node):
     """return true if the given node does nothing but 'pass'"""
@@ -142,3 +174,11 @@ def overrides_a_method(class_node, name):
         if name in ancestor and isinstance(ancestor[name], astng.Function):
             return True
     return False
+
+def display_type(node):
+    """return the type of this node for screen display"""
+    if isinstance(node, astng.Instance):
+        return 'Instance of'
+    elif isinstance(node, astng.Module):
+        return 'Module'
+    return 'Class'

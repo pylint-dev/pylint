@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -40,18 +40,24 @@ def class_is_abstract(klass):
 
 MSGS = {
     'R0901': ('Too many ancestors (%s/%s)',
-              'Used when class has too many parent classes.'),
+              'Used when class has too many parent classes, try to reduce \
+              this to get a more simple (and so easier to use) class.'),
     'R0902': ('Too many instance attributes (%s/%s)',
-              'Used when class has too many instance attributes.'),
-    'R0903': ('Not enough public methods (%s/%s)',
-              'Used when class has not enough public methods.'),
+              'Used when class has too many instance attributes, try to reduce \
+              this to get a more simple (and so easier to use) class.'),
+    'R0903': ('To few public methods (%s/%s)',
+              'Used when class has to few public methods, so be sure it\'s \
+              really worth it.'),
     'R0904': ('Too many public methods (%s/%s)',
-              'Used when class has too many public methods.'),
+              'Used when class has too many public methods, try to reduce \
+              this to get a more simple (and so easier to use) class.'),
     
     'R0911': ('Too many return statements (%s/%s)',
-              'Used when a function or method has too many return statement.'),
+              'Used when a function or method has too many return statement, \
+              making it hard to follow.'),
     'R0912': ('Too many branches (%s/%s)',
-              'Used when a function or method has too many branches.'),
+              'Used when a function or method has too many branches, \
+              making it hard to follow.'),
     'R0913': ('Too many arguments (%s/%s)',
               'Used when a function or method takes too many arguments.'),
     'R0914': ('Too many local variables (%s/%s)',

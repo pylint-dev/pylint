@@ -40,6 +40,7 @@ NO_REQUIRED_DOC_RGX = re.compile('__.*__')
 del re
 
 def in_loop(node):
+    """return True if the node is inside a kind of for loop"""
     parent = node.parent
     while parent is not None:
         if isinstance(parent, (astng.For, astng.ListComp, astng.GenExpr)):
@@ -118,6 +119,9 @@ MSGS = {
               has no effect). This is a particular case of W0104 with its \
               own message so you can easily disable it if you\'re using \
               those strings as documentation, instead of comments.'),
+    'W0106': ('Unnecessary semi-column',
+              'Used when a statement is endend by a semi-colon (";"), which \
+              isn\'t necessary (that\'s python, not C ;)'),
 
     'W0122': ('Use of the exec statement',
               'Used when you use the "exec" statement, to discourage its \
@@ -308,11 +312,24 @@ functions, methods
             self._check_name('attr', attr, anodes[0])
 
     def visit_discard(self, node):
-        """check for statement without effect"""
-        if isinstance(node.expr, astng.Const) and \
-               isinstance(node.expr.value, basestring):
-            self.add_message('W0105', node=node)            
-        elif not isinstance(node.expr, astng.CallFunc):
+        """check for various kind of statements without effect"""
+        expr = node.expr
+        if isinstance(node.expr, astng.Const):
+            # XXX lineno maybe dynamically set incidently
+            if expr.value is None and expr.lineno is None:
+                # const None node with lineno to None are inserted
+                # on unnecessary semi-column
+                # XXX navigate to get a correct lineno
+                brothers = list(node.parent.getChildNodes())
+                previoussibling = brothers[brothers.index(node)-1]
+                self.add_message('W0106', node=previoussibling)
+                return
+            if isinstance(expr.value, basestring):
+                # tread string statement in a separated message
+                self.add_message('W0105', node=node)
+                return
+        # ignore if this is a function call (can't predicate side effects)
+        if not isinstance(node.expr, astng.CallFunc):
             self.add_message('W0104', node=node)
 
     def visit_function(self, node):

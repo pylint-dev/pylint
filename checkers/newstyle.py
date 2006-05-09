@@ -47,10 +47,10 @@ MSGS = {
 
 class NewStyleConflictChecker(BaseChecker):
     """checks for usage of new style capabilities on old style classes and
-    other new/old styles conflicts problems
-    * use of property, __slots__, super
-    * "super" usage
-    * raising a new style class as exception
+    other new/old styles conflicts problems                                    
+    * use of property, __slots__, super                                        
+    * "super" usage                                                            
+    * raising a new style class as exception                                   
     """
     
     __implements__ = (IASTNGChecker,)

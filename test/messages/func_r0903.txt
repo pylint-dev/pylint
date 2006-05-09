@@ -1,1 +1,1 @@
-R:  4:Aaaa: Not enough public methods (1/2)
+R:  4:Aaaa: To few public methods (1/2)

@@ -80,7 +80,7 @@ class EncodingChecker(BaseChecker):
                 {'type' : 'csv', 'metavar' : '<comma separated values>',
                  'default' : ('FIXME', 'XXX', 'TODO'),
                  'help' : 'List of note tags to take in consideration, \
-separated by a comma. Default to FIXME, XXX, TODO'
+separated by a comma.'
                  }),               
                )
 

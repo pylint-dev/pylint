@@ -1,1 +1,1 @@
-R:  8:Aaaa: Not enough public methods (0/2)
+R:  8:Aaaa: To few public methods (0/2)

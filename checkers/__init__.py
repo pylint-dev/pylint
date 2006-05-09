@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@ Base id of standard checkers (used in msg and report ids):
 08: similar
 09: design_analysis
 10: newstyle
+11: typecheck
 """
 
 __revision__ = "$Id: __init__.py,v 1.21 2005-11-21 23:08:11 syt Exp $"
@@ -75,13 +76,6 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
         """
         ASTWalker.__init__(self, self)
         self.name = self.name.lower()
-        if self.may_be_disabled:
-            opt_name = 'enable-' + self.name
-            self.options = (
-                (opt_name,
-                 {'type' : 'yn', 'default' : 1, 'metavar': '<y_or_n>',
-                  'help' : "Enable / disable this checker"})
-                ,) + self.options            
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
         
@@ -92,14 +86,14 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
     def is_enabled(self):
         """return true if the checker is enabled"""
         opt = 'enable_' + self.name
-        return getattr(self.config, opt, 1)
+        return getattr(self.config, opt, True)
 
     def enable(self, enable):
         """enable / disable this checker if true / false is given
 
         it false values has no effect if the checker can't be disabled
         """
-        if self.may_be_disabled:
+        if enable or self.may_be_disabled:
             setattr(self.config, 'enable_' + self.name, enable)
         
     def package_dir(self):

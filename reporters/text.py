@@ -1,3 +1,5 @@
+# Copyright (c) 2003-2006 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,10 +12,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
+"""Plain text reporters:
 
-Plain text reporter
+* the default one grouping messages by module
+* the parseable one with module path on each message
+* an ANSI colorized text reporter
 """
 
 __revision__ = "$Id: text.py,v 1.21 2005-12-28 00:24:35 syt Exp $"
@@ -51,8 +54,11 @@ class TextReporter(BaseReporter):
         """manage message of different type and in the context of path"""
         module, obj, line = location[1:]
         if not self._modules.has_key(module):
-            self.writeln('************* Module %s' % module)
-            self._modules[module] = 1
+            if module:
+                self.writeln('************* Module %s' % module)
+                self._modules[module] = 1
+            else:
+                self.writeln('************* %s' % module)
         if obj:
             obj = ':%s' % obj
         if self.include_ids:
@@ -134,8 +140,12 @@ class ColorizedTextReporter(TextReporter):
         module, obj, line = location[1:]
         if not self._modules.has_key(module):
             color, style = self._get_decoration('S')
-            modsep = colorize_ansi('************* Module %s' % module,
-                                   color, style)
+            if module:
+                modsep = colorize_ansi('************* Module %s' % module,
+                                       color, style)
+            else:
+                modsep = colorize_ansi('************* %s' % module,
+                                       color, style)
             self.writeln(modsep)
             self._modules[module] = 1
         if obj:

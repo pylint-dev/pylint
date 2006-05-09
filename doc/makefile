@@ -1,16 +1,19 @@
 MKHTML=mkdoc
-MKHTML_OPT=--doctype article --param toc.section.depth=1  --target html --stylesheet single-file
+MKHTML_OPT=--doctype article --param toc.section.depth=1 --target html --stylesheet single-file
 
 SRC=.
 
 
-all: quickstart.html features.html FAQ.html examples man
+all: manual.html quickstart.html features.html FAQ.html examples man
 
 FAQ.html: ${SRC}/FAQ.txt
 	${MKHTML} ${MKHTML_OPT} ${SRC}/FAQ.txt
 
 quickstart.html: ${SRC}/quickstart.txt
 	${MKHTML} ${MKHTML_OPT} ${SRC}/quickstart.txt
+
+manual.html: ${SRC}/manual.txt
+	${MKHTML} ${MKHTML_OPT} ${SRC}/manual.txt
 
 features.html:
 	chmod u+w ${SRC}/features.txt

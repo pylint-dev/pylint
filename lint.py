@@ -38,8 +38,7 @@ import re
 import tokenize
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
-from logilab.common.configuration import OptionsManagerMixIn, \
-     check_yn, check_csv
+from logilab.common.configuration import OptionsManagerMixIn, check_csv
 from logilab.common.modutils import modpath_from_file, get_module_files, \
      file_from_modpath, load_module_from_name
 from logilab.common.interface import implements
@@ -66,9 +65,10 @@ from pylint.__pkginfo__ import version
 
 
 OPTION_RGX = re.compile('\s*#*\s*pylint:(.*)')
-REPORTER_OPT_MAP = {'html': HTMLReporter,
+REPORTER_OPT_MAP = {'text': TextReporter,
                     'parseable': TextReporter2,
-                    'color': ColorizedTextReporter}
+                    'colorized': ColorizedTextReporter,
+                    'html': HTMLReporter,}
 
 # Python Linter class #########################################################
     
@@ -92,10 +92,10 @@ MSGS = {
               'Used when an inline option is either badly formatted or can\'t \
 be used inside modules.'),
     
-    'I0011': ('Locally disabling %r',
+    'I0011': ('Locally disabling %s',
               'Used when an inline option disable a message or a messages \
               category.'),
-    'I0012': ('Locally enabling %r',
+    'I0012': ('Locally enabling %s',
               'Used when an inline option enable a message or a messages \
               category.'),
     
@@ -105,7 +105,7 @@ be used inside modules.'),
     'E0011': ('Unrecognized file option %r',
               'Used when an unknown inline option is encountered.'),
     'E0012': ('Bad option value %r',
-              'Used when an bad value for an inline option is encountered.'),
+              'Used when a bad value for an inline option is encountered.'),
     }
 
 class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
@@ -132,6 +132,19 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                  'help' : 'Add <file or directory> to the black list. It \
 should be a base name, not a path. You may set this option multiple times.'}),
                
+               ('enable-checker',
+                {'type' : 'csv', 'metavar': '<checker ids>',
+                 'group': 'Messages control',
+                 'help' : 'Enable only checker(s) with the given id(s).\
+                 This option conflict with the disable-checker option'}),
+            
+               ('disable-checker',
+                {'type' : 'csv', 'metavar': '<checker ids>',
+                 'group': 'Messages control',
+                 'help' : 'Enable all checker(s) except those with the \
+                 given id(s).\
+                 This option conflict with the disable-checker option'}),
+               
                ('persistent',
                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : 'Pickle collected data for later comparisons.'}),
@@ -145,28 +158,19 @@ should be a base name, not a path. You may set this option multiple times.'}),
                  'help' : 'List of plugins (as comma separated values of \
 python modules names) to load, usually to register additional checkers.'}),
                
-               ('reports',
-                {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'short': 'r',
+               ('output-format',
+                {'default': 'text', 'type': 'choice', 'metavar' : '<format>',
+                 'choices': ('text', 'parseable', 'colorized', 'html'),
+                 'short': 'f',
                  'group': 'Reports',
-                 'help' : 'Tells wether to display a full report or only the\
- messages'}),
-               ('html',
-                {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'help' : 'set the output format. Available formats are text,\
+                 parseable, colorized and html'}),
+
+               ('include-ids',
+                {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
+                 'short': 'i',
                  'group': 'Reports',
-                 'help' : 'Use HTML as output format instead of text'}),
-               
-               ('parseable',
-                {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'short': 'p',
-                 'group': 'Reports',
-                 'help' : 'Use a parseable text output format, so your favorite\
- text editor will be able to jump to the line corresponding to a message.'}),
-               
-               ('color',
-                {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'group': 'Reports',
-                 'help' : 'Colorizes text output using ansi escape codes'}),
+                 'help' : 'Include message\'s id in output'}),
                
                ('files-output',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
@@ -174,6 +178,13 @@ python modules names) to load, usually to register additional checkers.'}),
                  'help' : 'Put messages in a separate file for each module / \
 package specified on the command line instead of printing them on stdout. \
 Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
+               
+               ('reports',
+                {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'short': 'r',
+                 'group': 'Reports',
+                 'help' : 'Tells wether to display a full report or only the\
+ messages'}),
                
                ('evaluation',
                 {'type' : 'string', 'metavar' : '<python_expression>',
@@ -192,46 +203,39 @@ warning, statement which respectivly contain the number of errors / warnings\
                  'help' : 'Add a comment according to your evaluation note. \
 This is used by the global evaluation report (R0004).'}),
 
-               ('include-ids',
-                {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
-                 'short': 'i',
-                 'group': 'Reports',
-                 'help' : 'Include message\'s id in output'}),
-               
-               ('enable-msg-cat',
-                {'type' : 'csv', 'metavar': '<msg cats>',
-                 'group': 'Reports',
-                 'help' : 'Enable all messages in the listed categories.'}),
-
-               ('disable-msg-cat',
-                {'type' : 'csv', 'metavar': '<msg cats>',
-                 'group': 'Reports',
-                 'help' : 'Disable all messages in the listed categories.'}),
-               
-               ('enable-msg',
-                {'type' : 'csv', 'metavar': '<msg ids>',
-                 'group': 'Reports',
-                 'help' : 'Enable the message with the given id.'}),
-            
-               ('disable-msg',
-                {'type' : 'csv', 'metavar': '<msg ids>',
-                 'group': 'Reports',
-                 'help' : 'Disable the message with the given id.'}),
-
                ('enable-report',
                 {'type' : 'csv', 'metavar': '<rpt ids>',
                  'group': 'Reports',
-                 'help' : 'Enable the report with the given id.'}),
+                 'help' : 'Enable the report(s) with the given id(s).'}),
                
                ('disable-report',
                 {'type' : 'csv', 'metavar': '<rpt ids>',
                  'group': 'Reports',
-                 'help' : 'Disable the report with the given id.'}),
+                 'help' : 'Disable the report(s) with the given id(s).'}),
                
+               ('enable-msg-cat',
+                {'type' : 'csv', 'metavar': '<msg cats>',
+                 'group': 'Messages control',
+                 'help' : 'Enable all messages in the listed categories.'}),
+
+               ('disable-msg-cat',
+                {'type' : 'csv', 'metavar': '<msg cats>',
+                 'group': 'Messages control',
+                 'help' : 'Disable all messages in the listed categories.'}),
+               
+               ('enable-msg',
+                {'type' : 'csv', 'metavar': '<msg ids>',
+                 'group': 'Messages control',
+                 'help' : 'Enable the message(s) with the given id(s).'}),
+            
+               ('disable-msg',
+                {'type' : 'csv', 'metavar': '<msg ids>',
+                 'group': 'Messages control',
+                 'help' : 'Disable the message(s) with the given id(s).'}),
                )
-    
     option_groups = (
-        ('Reports', 'Options related to messages / statistics reporting'),
+        ('Messages control', 'Options controling analysis messages'),
+        ('Reports', 'Options related to output formating and reporting'),
         )
     
     def __init__(self, options=(), reporter=None, option_groups=(),
@@ -268,10 +272,10 @@ This is used by the global evaluation report (R0004).'}),
         ReportsHandlerMixIn.__init__(self)
         BaseRawChecker.__init__(self)
         # provided reports
-        self.reports = (('R0001', 'Total errors / warnings',
-                         report_error_warning_stats),
+        self.reports = (('R0001', 'Messages by category',
+                         report_total_messages_stats),
                         ('R0002', '% errors / warnings by module',
-                         report_error_warning_by_module_stats),
+                         report_messages_by_module_stats),
                         ('R0003', 'Messages',
                          report_messages_stats),
                         ('R0004', 'Global evaluation',
@@ -311,10 +315,13 @@ This is used by the global evaluation report (R0004).'}),
                     meth(value)
         elif opt_name == 'cache-size':
             self.manager.set_cache_size(int(value))
-#        elif opt_name = 'load-plugins':
-#            self.load_plugin_modules(get_csv(value))
-        elif opt_name in REPORTER_OPT_MAP and check_yn(None, opt_name, value):
-            self.set_reporter(REPORTER_OPT_MAP[opt_name]())
+        elif opt_name == 'output-format':
+            self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
+        elif opt_name in ('enable-checker', 'disable-checker'):
+            if not value:
+                return
+            checkerids = [v.lower() for v in check_csv(None, opt_name, value)]
+            self.enable_checkers(checkerids, opt_name == 'enable-checker')
         BaseRawChecker.set_option(self, opt_name, value, action, opt_dict)
 
     # checkers manipulation methods ###########################################
@@ -329,25 +336,24 @@ This is used by the global evaluation report (R0004).'}),
         if hasattr(checker, 'reports'):
             for r_id, r_title, r_cb in checker.reports:
                 self.register_report(r_id, r_title, r_cb, checker)
-            if checker.__doc__ is None:
-                checker.__doc__ = 'no documentation available for this checker'
-            need_space = 80 - (len(checker.__doc__.splitlines()[-1]) % 80)
-            checker.__doc__ += """%s
-This checker also defines the following reports:                                    
-  * %s
-""" % (' ' * need_space,
-       '\n  * '.join(['% -76s' % ('%s: %s' % report[:2])
-                      for report in checker.reports]))
         self.register_options_provider(checker)
         if hasattr(checker, 'msgs'):
             self.register_messages(checker)
             
                 
-    def disable_all_checkers(self):
-        """disable all possible checkers """
+    def enable_checkers(self, listed, enabled):
+        """only enable/disable checkers from the given list"""
+        idmap = {}
         for checker in self._checkers.keys():
-            checker.enable(False)
-
+            checker.enable(not enabled)
+            idmap[checker.name] = checker
+        for checkerid in listed:
+            try:
+                checker = idmap[checkerid]
+            except KeyError:
+                raise Exception('no checker named %s' % checkerid)
+            checker.enable(enabled)
+            
     def disable_noerror_checkers(self):
         """disable all checkers without error messages, and the
         'miscellaneous' checker which can be safely deactivated in debug
@@ -475,6 +481,7 @@ This checker also defines the following reports:
                 self.reporter.set_output(open(reportfile, 'w'))
             self.check_file(filepath, modname, checkers)
         # notify global end
+        self.set_current_module('')
         for checker in rev_checkers:
             checker.close()
 
@@ -482,7 +489,6 @@ This checker also defines the following reports:
         """check a module or package from its name
         if modname is a package, recurse on its subpackages / submodules
         """
-##         print 'CHECKING', filepath, modname
         # get the given module representation
         self.base_name = modname
         self.base_file = normpath(filepath)
@@ -524,8 +530,12 @@ This checker also defines the following reports:
         self.stats['by_module'][modname]['statement'] = 0
         for msg_cat in MSG_TYPES.values():
             self.stats['by_module'][modname][msg_cat] = 0
-        self._module_msgs_state = {}
-        self._module_msg_cats_state = {}
+        # XXX hack, to be correct we need to keep module_msgs_state
+        # for every analyzed module (the problem stands with localized
+        # messages which are only detected in the .close step)
+        if modname:
+            self._module_msgs_state = {}
+            self._module_msg_cats_state = {}
             
     def get_astng(self, filepath, modname):
         """return a astng representation for a module"""
@@ -634,7 +644,7 @@ This checker also defines the following reports:
 
 # some reporting functions ####################################################
 
-def report_error_warning_stats(sect, stats, old_stats):
+def report_total_messages_stats(sect, stats, old_stats):
     """make total errors / warnings report"""
     lines = ['type', 'number', 'previous', 'difference']
     lines += table_lines_from_stats(stats, old_stats,
@@ -657,7 +667,7 @@ def report_messages_stats(sect, stats, _):
         lines += (msg_id, str(value))
     sect.append(Table(children=lines, cols=2, rheaders=1))
 
-def report_error_warning_by_module_stats(sect, stats, _):
+def report_messages_by_module_stats(sect, stats, _):
     """make errors / warnings by modules report"""
     if len(stats['by_module']) == 1:
         # don't print this report when we are analysing a single module
@@ -713,7 +723,6 @@ def preprocess_options(args, search_for):
     """
     for i, arg in enumerate(args):
         for option in search_for:
-            ##print arg, option
             if arg.startswith('--%s=' % option):
                 search_for[option](option, arg[len(option)+3:])
                 del args[i]
@@ -726,6 +735,10 @@ class Run:
     
     run(*sys.argv[1:])
     """
+    option_groups = (
+        ('Commands', 'Options which are actually commands. Options in this \
+group are mutually exclusive.'),
+        )
     
     def __init__(self, args, reporter=None, quiet=0):
         self._rcfile = None
@@ -738,36 +751,34 @@ class Run:
               'type': 'string', 'metavar': '<file>',
               'help' : 'Specify a configuration file.'}),
 
-            ('disable-all',
-             {'action' : 'callback',
-              'callback' : self.cb_disable_all_checkers,
-              'help' : '''Disable all possible checkers. This option should 
-              precede enable-* options.'''}),
-
             ('help-msg',
              {'action' : 'callback', 'type' : 'string', 'metavar': '<msg-id>',
               'callback' : self.cb_help_message,
+              'group': 'Commands',
               'help' : '''Display a help message for the given message id and \
-exit. This option may be a comma separated list.'''}),
+exit. The value may be a comma separated list of message ids.'''}),
 
             ('list-msgs',
              {'action' : 'callback', 'metavar': '<msg-id>',
               'callback' : self.cb_list_messages,
-              'help' : 'List and explain every available messages.'}),
+              'group': 'Commands',
+              'help' : "Generate pylint's full documentation."}),
 
             ('generate-rcfile',
              {'action' : 'callback', 'callback' : self.cb_generate_config,
+              'group': 'Commands',
               'help' : '''Generate a sample configuration file according to \
-the current configuration. You can put other options before this one to use \
-them in the configuration. This option causes the program to exit'''}),
+the current configuration. You can put other options before this one to get \
+them in the generated configuration.'''}),
             
             ('generate-man',
              {'action' : 'callback', 'callback' : self.cb_generate_manpage,
-              'help' : '''Generate a man page for pylint. This option causes \
-the program to exit'''}),
+              'group': 'Commands',
+              'help' : "Generate pylint's man page."}),
             
-            ('debug-mode',
+            ('errors-only',
              {'action' : 'callback', 'callback' : self.cb_debug_mode,
+              'short': 'e', 
               'help' : '''In debug mode, checkers without error messages are \
 disabled and for others, only the ERROR messages are displayed, and no reports \
 are done by default'''}),
@@ -777,7 +788,8 @@ are done by default'''}),
               'default': False,
               'help' : 'Profiled execution.'}),
 
-            ), reporter=reporter, pylintrc=self._rcfile)
+            ), option_groups=self.option_groups,
+               reporter=reporter, pylintrc=self._rcfile)
         linter.quiet = quiet
         # register standard checkers
         from pylint import checkers
@@ -836,10 +848,6 @@ processing.
         """callback for option preprocessing (ie before optik parsing)"""
         self._plugins.extend(get_csv(value))
                 
-    def cb_disable_all_checkers(self, *args, **kwargs):
-        """optik callback for disabling all checkers"""
-        self.linter.disable_all_checkers()
-
     def cb_debug_mode(self, *args, **kwargs):
         """debug mode:
         * checkers without error messages are disabled 

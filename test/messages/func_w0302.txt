@@ -1,2 +1,2 @@
-W:  0: Too many lines in module (1017)
+C:  0: Too many lines in module (1017)
 

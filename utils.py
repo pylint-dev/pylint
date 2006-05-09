@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2005 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2006 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -20,11 +20,14 @@ main pylint class
 
 __revision__ = "$Id: utils.py,v 1.13 2006-04-19 09:17:40 syt Exp $"
 
+import sys
 from os import linesep
 
-from logilab.astng import Module
 from logilab.common.textutils import normalize_text
+from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
+
+from logilab.astng import Module
 
 from pylint.checkers import EmptyReport
 
@@ -55,7 +58,7 @@ def sort_checkers(checkers, enabled_only=True):
 
 def sort_msgs(msg_ids):
     """sort message identifiers according to their category first"""
-    msg_order = ['I', 'C', 'R', 'W', 'E', 'F']
+    msg_order = ['E', 'W', 'R', 'C', 'I', 'F']
     def cmp_func(msgid1, msgid2):
         """comparison function for two message identifiers"""
         if msgid1[0] != msgid2[0]:
@@ -117,18 +120,25 @@ class MessagesHandlerMixIn:
             assert msg_id[0] in MSG_CATEGORIES, \
                    'Bad message type %s in %r' % (msg_id[0], msg_id)
             chk_id = msg_id[1:3]
-            if checker is not None:
-                add = ' This message belongs to the %s checker.' % checker.name
-                msg_help += add
             self._messages_help[msg_id] = msg_help
             self._messages[msg_id] = msg
 
-    def get_message_help(self, msg_id):
+    def get_message_help(self, msg_id, checkerref=False):
         """return the help string for the given message id"""
         msg_id = self.check_message_id(msg_id)
         msg = self._messages_help[msg_id]
         msg = normalize_text(' '.join(msg.split()), indent='  ')
-        return '%s:\n%s' % (msg_id, msg)
+        if checkerref:
+            for checker in self._checkers:
+                if msg_id in checker.msgs:
+                    msg += ' This message belongs to the %s checker.' % \
+                           checker.name
+                    break
+        title = self._messages[msg_id]
+        if title != '%s':
+            title = title.splitlines()[0]
+            return ':%s: *%s*\n%s' % (msg_id, title, msg)
+        return ':%s:\n%s' % (msg_id, msg)
 
     def disable_message(self, msg_id, scope='package', line=None):
         """don't output message of the given id"""
@@ -205,7 +215,7 @@ class MessagesHandlerMixIn:
             if not self._msg_cats_state.get(msg_id[0], True):
                 return False
         if line is None:
-            return self._msgs_state.get(msg_id, True)            
+            return self._msgs_state.get(msg_id, True)
         try:
             return self._module_msgs_state[msg_id][line]
         except (KeyError, TypeError):
@@ -252,7 +262,7 @@ class MessagesHandlerMixIn:
         """display help messages for the given message identifiers"""
         for msg_id in msgids:
             try:
-                print self.get_message_help(msg_id)
+                print self.get_message_help(msg_id, True)
                 print
             except UnknownMessage, ex:
                 print ex
@@ -260,25 +270,49 @@ class MessagesHandlerMixIn:
                 continue
         
     def list_messages(self):
-        """list available messages"""
-        for checker in sort_checkers(self._checkers.keys()):
-            print checker.name.capitalize()
-            print '-' * len(checker.name)
-            print
-            if checker.__doc__: # __doc__ is None with -OO
-                print 'Description'
-                print '~~~~~~~~~~~'
-                print linesep.join([line.strip()
-                                    for line in checker.__doc__.splitlines()])
+        """output a full documentation in ReST format"""
+        for checker in sort_checkers(self._checkers):
+            if checker.name == 'master':
+                prefix = 'Main '
+                if checker.options:
+                    for section, options in checker.options_by_section():
+                        if section is None:
+                            title = 'General options'
+                        else:
+                            title = '%s options' % section.capitalize()
+                        print title
+                        print '~' * len(title)
+                        rest_format_section(sys.stdout, None, options)
+                        print
+            else:
+                prefix = ''
+                title = '%s checker' % checker.name.capitalize()
+                print title
+                print '-' * len(title)
+                if checker.__doc__: # __doc__ is None with -OO
+                    print linesep.join([line.strip()
+                                        for line in checker.__doc__.splitlines()])
+                if checker.options:
+                    title = 'Options'
+                    print title
+                    print '~' * len(title)
+                    for section, options in checker.options_by_section():
+                        rest_format_section(sys.stdout, section, options)
+                        print
+            if checker.msgs:
+                title = ('%smessages' % prefix).capitalize()
+                print title
+                print '~' * len(title)
+                for msg_id in sort_msgs(checker.msgs.keys()):
+                    print self.get_message_help(msg_id, False)
                 print
-            if not checker.msgs:
-                continue
-            print 'Messages'
-            print '~~~~~~~~'
-            for msg_id in sort_msgs(checker.msgs.keys()):
-                print self.get_message_help(msg_id)
+            if getattr(checker, 'reports', None):
+                title = ('%sreports' % prefix).capitalize()
+                print title
+                print '~' * len(title)
+                for report in checker.reports:
+                    print ':%s: %s' % report[:2]
                 print
-            print
             print
         
 

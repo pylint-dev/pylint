@@ -22,6 +22,7 @@ from logilab import astng
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
+from pylint.checkers.utils import safe_infer, is_super, display_type
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -36,7 +37,6 @@ MSGS = {
               'Used when an assigment is done on a function call but the \
               infered function returns nothing but None.'),
     }
-
 
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
@@ -70,61 +70,64 @@ acquired-members option to ignore access to some undefined attributes.'}
                  'metavar' : '<members names>',
                  'help' : 'List of members which are usually get through \
 zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
-(need zope=yes to be considered.'}
+(need zope=yes to be considered).'}
                 ),
         )
 
     def visit_getattr(self, node):
-        """check that the accessed attribute exists"""
-        # if we are running in zope mode, is it an acquired attribute ?
+        """check that the accessed attribute exists
+
+        to avoid to much false positives for now, we'll consider the code as
+        correct if a single of the infered nodes has the accessed attribute.
+
+        function/method, super call and metaclasses are ignored
+        """
+        # if we are running in zope mode and this is an acquired attribute,
+        # stop there
         if self.config.zope and node.attrname in self.config.acquired_members:
             return
         try:
             infered = list(node.expr.infer())
-            for owner in infered:
-                # skip yes object
-                if owner is astng.YES:
-                    continue
-                # if there is ambiguity, skip None
-                if len(infered) > 1 and isinstance(owner, astng.Const) \
-                       and owner.value is None:
-                    continue
-                # XXX "super" call
-                owner_name = getattr(owner, 'name', 'None')
-                if owner_name == 'super' and \
-                   owner.root().name == '__builtin__':
-                    continue
-                if getattr(owner, 'type', None) == 'metaclass':
-                    continue
-                if self.config.ignore_mixin_members \
-                       and owner_name[-5:].lower() == 'mixin':
-                    continue
-                #print owner.name, owner.root().name
-                try:
-                    owner.getattr(node.attrname)
-                except AttributeError:
-                    # XXX method / function
-                    continue
-                except astng.NotFoundError:
-                    if isinstance(owner, astng.Instance):
-                        if hasattr(owner, 'has_dynamic_getattr') and owner.has_dynamic_getattr():
-                            continue
-                        # XXX
-                        if getattr(owner, 'name', None) == 'Values' and \
-                               owner.root().name == 'optparse':
-                            continue
-                        _type = 'Instance of'
-                    elif isinstance(owner, astng.Module):
-                        _type = 'Module'
-                    else:
-                        _type = 'Class'
-                    self.add_message('E1101', node=node,
-                                     args=(_type, owner_name, node.attrname))
-                # XXX: stop on the first found
-                # this is a bad solution to fix func_noerror_socket_member.py
-                break
         except astng.InferenceError:
-            pass
+            return
+        # list of (node, nodename) which are missing the attribute
+        missingattr = []
+        ignoremim = self.config.ignore_mixin_members
+        for owner in infered:
+            # skip yes object
+            if owner is astng.YES:
+                continue
+            # if there is ambiguity, skip None
+            if len(infered) > 1 and isinstance(owner, astng.Const) \
+                   and owner.value is None:
+                continue
+            # XXX "super" / metaclass call
+            if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
+                continue
+            name = getattr(owner, 'name', 'None')
+            if ignoremim and name[-5:].lower() == 'mixin':
+                continue
+            try:
+                owner.getattr(node.attrname)
+            except AttributeError:
+                # XXX method / function
+                continue
+            except astng.NotFoundError:
+                if isinstance(owner, astng.Instance) \
+                       and owner.has_dynamic_getattr():
+                    continue
+                missingattr.append((owner, name))
+                continue
+            # stop on the first found
+            break
+        else:
+            # we have not found any node with the attributes, display the
+            # message for infered nodes
+            for owner, name in missingattr:
+                self.add_message('E1101', node=node,
+                                 args=(display_type(owner), name,
+                                       node.attrname))
+
 
     def visit_assign(self, node):
         """check that if assigning to a function call, the function is
@@ -132,7 +135,7 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
         """
         if not isinstance(node.expr, astng.CallFunc):
             return
-        function_node = self._safe_infer(node.expr.node)
+        function_node = safe_infer(node.expr.node)
         # skip class, generator and uncomplete function definition
         if not (isinstance(function_node, astng.Function) and
                 function_node.root().fully_defined()):
@@ -155,26 +158,11 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
     def visit_callfunc(self, node):
         """check that called method are infered to callable objects
         """
-        called = self._safe_infer(node.node)
+        called = safe_infer(node.node)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
             self.add_message('E1102', node=node, args=node.node.as_string())
         
-    def _safe_infer(self, node):
-        """return the infered value for the given node.
-        Return None if inference failed or if there is some ambiguity (more than
-        one node has been infered)
-        """
-        try:
-            inferit = node.infer()
-            value = inferit.next()
-        except astng.InferenceError:
-            return
-        try:
-            inferit.next()
-            return # None if there is ambiguity on the infered node
-        except StopIteration:
-            return value
     
 def register(linter):
     """required method to auto register this checker """

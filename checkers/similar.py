@@ -1,5 +1,5 @@
-# pylint: disable-msg=w0622
-# Copyright (c) 2004 LOGILAB S.A. (Paris, FRANCE).
+# pylint: disable-msg=W0622
+# Copyright (c) 2004-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -32,7 +32,8 @@ from pylint.checkers import BaseChecker, table_lines_from_stats
 class Similar:
     """finds copy-pasted lines of code in a project"""
     
-    def __init__(self, min_lines=4, ignore_comments=False, ignore_docstrings=False):
+    def __init__(self, min_lines=4, ignore_comments=False,
+                 ignore_docstrings=False):
         self.min_lines = min_lines
         self.ignore_comments = ignore_comments
         self.ignore_docstrings = ignore_docstrings
@@ -79,6 +80,7 @@ class Similar:
             couples.sort()
             for lineset, idx in couples:
                 print "==%s:%s" % (lineset.name, idx)
+            # pylint: disable-msg=W0631
             for line in lineset._real_lines[idx:idx+num]:
                 print "  ", line,
             nb_lignes_dupliquees += num * (len(couples)-1)
@@ -141,16 +143,18 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings):
                 line = ''
         # XXX cut when a line begins with code but end with a comment
         if ignore_comments and line.startswith('#'):
-                line = ''
+            line = ''
         strippedlines.append(line)
     return strippedlines
 
 class LineSet:
     """Holds and indexes all the lines of a single source file"""
-    def __init__(self, name, lines, ignore_comments=False, ignore_docstrings=False):
+    def __init__(self, name, lines, ignore_comments=False,
+                 ignore_docstrings=False):
         self.name = name
         self._real_lines = lines
-        self._stripped_lines = stripped_lines(lines, ignore_comments, ignore_docstrings)
+        self._stripped_lines = stripped_lines(lines, ignore_comments,
+                                              ignore_docstrings)
         self._index = self._mk_index()
             
     def __str__(self):
@@ -282,6 +286,7 @@ class SimilarChecker(BaseChecker, Similar):
             for lineset, idx in couples:
                 msg.append("==%s:%s" % (lineset.name, idx))
             msg.sort()
+            # pylint: disable-msg=W0631
             for line in lineset._real_lines[idx:idx+num]:
                 msg.append(line.rstrip())
             self.add_message('R0801', args=(len(couples), '\n'.join(msg)))

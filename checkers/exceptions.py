@@ -1,3 +1,5 @@
+# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,10 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
-
-exceptions checkers for Python code
+"""exceptions handling (raising, catching, exceptions classes) checker
 """
 
 __revision__ = '$Id: exceptions.py,v 1.27 2006-03-08 15:53:42 syt Exp $'
@@ -23,7 +22,7 @@ from logilab import astng
 from logilab.astng.inference import unpack_infer
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_empty
+from pylint.checkers.utils import is_empty, is_raising
 from pylint.interfaces import IASTNGChecker
 
 MSGS = {
@@ -51,14 +50,6 @@ MSGS = {
     'Used when a variable used to raise an exception is initially \
     assigned to a value which can\'t be used as an exception.'),
     }
-
-def is_raising(stmt):
-    """return true if the given statement node raise an exception
-    """
-    for node in stmt.nodes:
-        if isinstance(node, astng.Raise):
-            return 1
-    return 0
     
 class ExceptionsChecker(BaseChecker):
     """checks for                                                              
@@ -97,14 +88,12 @@ class ExceptionsChecker(BaseChecker):
                 value = unpack_infer(expr).next()
             except astng.InferenceError:
                 return
-            if value is astng.YES:
-                return
-            # must to be carefull since Const, Dict, .. inherit from
+            # have to be careful since Const, Dict, .. inherit from
             # Instance now
-            if isinstance(value, (astng.Class, astng.Module)):
-                return
-            if isinstance(value, astng.Instance) and \
-               isinstance(value._proxied, astng.Class):
+            if (value is astng.YES or
+                isinstance(value, (astng.Class, astng.Module)) or
+                (isinstance(value, astng.Instance) and 
+                 isinstance(value._proxied, astng.Class))):
                 return
             if isinstance(value, astng.Const) and \
                (value.value is None or 
@@ -145,10 +134,9 @@ class ExceptionsChecker(BaseChecker):
                 except astng.InferenceError:
                     continue
                 for exc in excs:
-                    if exc is astng.YES:
+                    # XXX skip other non class nodes 
+                    if exc is astng.YES or not isinstance(exc, astng.Class):
                         continue
-                    if not isinstance(exc, astng.Class):
-                        continue # XXX
                     exc_ancestors = [anc for anc in exc.ancestors()
                                      if isinstance(anc, astng.Class)]
                     for previous_exc in exceptions_classes:
