@@ -3,8 +3,8 @@ Section: python
 Priority: optional
 Maintainer: Sylvain Thénault <sylvain.thenault@logilab.fr>
 Uploaders: Alexandre Fayolle <afayolle@debian.org> 
-Build-Depends: debhelper (>= 4.0.0), python-dev
-Standards-Version: 3.6.2
+Build-Depends: debhelper (>= 5.0.0), python-dev
+Standards-Version: 3.7.2
 
 Package: pylint
 Architecture: all
