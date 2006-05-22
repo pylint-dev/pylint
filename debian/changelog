@@ -1,6 +1,8 @@
 pylint (0.11.0-1) unstable; urgency=low
 
   * new upstream release, depending on python-astng 0.16
+  * Applied Sebastian Rittau's patch to avoid NameError on InferenceError
+    exception (closes: #358194)
 
  -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed, 19 Apr 2006 18:10:47 +0200
 
