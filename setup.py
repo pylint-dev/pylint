@@ -138,7 +138,7 @@ class MyInstallLib(install_lib.install_lib):
     include_dirs variable if necessary
     """
     def run(self):
-        """overriden from install_lib class"""
+        """overridden from install_lib class"""
         install_lib.install_lib.run(self)
         # create Products.__init__.py if needed
         if subpackage_of:

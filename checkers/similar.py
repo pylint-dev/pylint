@@ -251,7 +251,7 @@ class SimilarChecker(BaseChecker, Similar):
     def set_option(self, opt_name, value, action=None, opt_dict=None):
         """method called to set an option (registered in the options list)
 
-        overriden to report options setting to Similar
+        overridden to report options setting to Similar
         """
         BaseChecker.set_option(self, opt_name, value, action, opt_dict)
         if opt_name == 'min-similarity-lines':

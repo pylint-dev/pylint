@@ -49,7 +49,7 @@ class HTMLReporter(BaseReporter):
     def _display(self, layout):
         """launch layouts display
         
-        overriden from BaseReporter to add insert the messages section
+        overridden from BaseReporter to add insert the messages section
         (in add_message, message is not displayed, just collected so it
         can be displayed in an html table)
         """

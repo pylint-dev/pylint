@@ -169,7 +169,7 @@ def overrides_an_abstract_method(class_node, name):
     return False
 
 def overrides_a_method(class_node, name):
-    """return True if <name> is a method overriden from an ancestor"""
+    """return True if <name> is a method overridden from an ancestor"""
     for ancestor in class_node.ancestors():
         if name in ancestor and isinstance(ancestor[name], astng.Function):
             return True

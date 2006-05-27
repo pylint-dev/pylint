@@ -301,7 +301,7 @@ This is used by the global evaluation report (R0004).'}),
         reporter.linter = self
             
     def set_option(self, opt_name, value, action=None, opt_dict=None):
-        """overriden from configuration.OptionsProviderMixin to handle some
+        """overridden from configuration.OptionsProviderMixin to handle some
         special options
         """
         if opt_name in self._options_methods:

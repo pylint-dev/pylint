@@ -77,13 +77,13 @@ MSGS = {
               class implementing this interface'),
     'W0221': ('Arguments number differs from %s method',
               'Used when a method has a different number of arguments than in \
-              the implemented interface or in an overriden method.'),
+              the implemented interface or in an overridden method.'),
     'W0222': ('Signature differs from %s method',
               'Used when a method signature is different than in the \
-              implemented interface or in an overriden method.'),
-    'W0223': ('Method %r is abstract in class %r but is not overriden',
+              implemented interface or in an overridden method.'),
+    'W0223': ('Method %r is abstract in class %r but is not overridden',
               'Used when an abstract method (ie raise NotImplementedError) is \
-              not overriden in concrete class.'
+              not overridden in concrete class.'
               ),
     'F0220': ('failed to resolve interfaces implemented by %s (%s)', # W0224
               'Used when a PyLint as failed to find interfaces implemented by \
@@ -106,7 +106,7 @@ MSGS = {
 class ClassChecker(BaseChecker):
     """checks for :                                                            
     * methods without self as first argument                                   
-    * overriden methods signature                                              
+    * overridden methods signature                                              
     * access only to existant members via self                                 
     * attributes not defined in the __init__ method                            
     * supported interfaces implementation                                      
@@ -209,10 +209,10 @@ instance attributes.'}
             self._check_init(node)
             return
         # check signature if the method overrload an herited method
-        for overriden in klass.local_attr_ancestors(node.name):
+        for overridden in klass.local_attr_ancestors(node.name):
             # get astng for the searched method
             try:
-                meth_node = overriden[node.name]
+                meth_node = overridden[node.name]
             except KeyError:
                 # we have found the method but it's not in the local
                 # dictionnary.
@@ -220,14 +220,14 @@ instance attributes.'}
                 continue
             if not isinstance(meth_node, astng.Function):
                 continue
-            self._check_signature(node, meth_node, 'overriden')
+            self._check_signature(node, meth_node, 'overridden')
             break
         # check if the method overload an attribute
         try:
-            overriden = klass.instance_attr(node.name)[0] # XXX
-            while not isinstance(overriden, astng.Class):
-                overriden = overriden.parent.frame()
-            self.add_message('E0202', args=overriden.name, node=node)
+            overridden = klass.instance_attr(node.name)[0] # XXX
+            while not isinstance(overridden, astng.Class):
+                overridden = overridden.parent.frame()
+            self.add_message('E0202', args=overridden.name, node=node)
         except astng.NotFoundError:
             pass
                 
@@ -235,7 +235,7 @@ instance attributes.'}
         """on method node, check if this method couldn't be a function
         
         ignore class, static and abstract methods, initializer,
-        methods overriden from a parent class and any
+        methods overridden from a parent class and any
         kind of method defined in an interface for this warning
         """
         if node.is_method():

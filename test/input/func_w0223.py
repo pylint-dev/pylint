@@ -8,12 +8,12 @@ class Abstract:
     """abstract class
     """
     def aaaa(self):
-        """should be overriden in concrete class"""
+        """should be overridden in concrete class"""
         raise NotImplementedError()
 
 
     def bbbb(self):
-        """should be overriden in concrete class"""
+        """should be overridden in concrete class"""
         raise NotImplementedError()
 
     def __init__(self):
