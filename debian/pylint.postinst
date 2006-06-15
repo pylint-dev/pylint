@@ -1,24 +1,6 @@
 #! /bin/sh -e
 #
 
-
-
-# precompile python files
-VERSION=2.3
-PACKAGEDIR=/usr/lib/site-python/pylint
-case "$1" in
-    configure|abort-upgrade|abort-remove|abort-deconfigure)
-	python$VERSION -O /usr/lib/python$VERSION/compileall.py -q $PACKAGEDIR
-	python$VERSION /usr/lib/python$VERSION/compileall.py -q $PACKAGEDIR
-    ;;
-
-    *)
-        echo "postinst called with unknown argument \`$1'" >&2
-        exit 1
-    ;;
-esac
-
-
 #DEBHELPER#
 
 exit 0

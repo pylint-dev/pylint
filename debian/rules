@@ -11,11 +11,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# This is the debhelper compatability version to use.
-export DH_COMPAT=5
-
-
-
 build: build-stamp
 build-stamp: 
 	dh_testdir
@@ -36,11 +31,9 @@ install: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	python setup.py -q install_lib --no-compile --install-dir=debian/pylint/usr/lib/site-python
-	python setup.py -q install_headers --install-dir=debian/pylint/usr/include/
-	python setup.py -q install_scripts --install-dir=debian/pylint/usr/bin/
-	# remove test directory (installed in a separated package)
-	rm -rf debian/pylint/usr/lib/site-python/pylint/test
+	python setup.py -q install --no-compile --prefix=debian/pylint/usr/
+
+	rm -rf debian/pylint/usr/lib/python*/site-packages/pylint/test
 	if head -1 debian/pylint/usr/bin/pylint | grep "^#! */usr/bin" | grep "python" >/dev/null ; then \
 		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/pylint/usr/bin/pylint; \
 	fi
@@ -63,6 +56,8 @@ binary-indep: build install
 	dh_testdir 
 	dh_testroot 
 	dh_install -i
+	dh_pycentral -i
+	dh_python -i
 	gzip -9 -c ChangeLog > changelog.gz
 	dh_installchangelogs -i
 	dh_installexamples -i
@@ -77,8 +72,8 @@ binary-indep: build install
 	dh_md5sums -i
 	dh_builddeb -i
 
-
+binary-arch:
 
 binary: binary-indep
-.PHONY: build clean binary binary-indep
+.PHONY: build clean binary binary-indep binary-arch
 
