@@ -150,5 +150,20 @@ Answer:
 
   * ".pylint.d" directory in the current directory
 
+Question:
+  How can I know the option name (for pylintrc) corresponding to a
+  specific command line option ?
+
+Answer:
+  You can always generate a sample pylintrc file with --generate-rcfile
+  Every options present on the command line before this will be included in
+  the rc file
+  
+  For example::
+
+    pylint --disable-msg=W0702,C0103 --class-rgx='[A-Z][a-z]+' --generate-rcfile
+
+
+
 
 .. _psyco: http://psyco.sf.net
