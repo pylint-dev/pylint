@@ -294,7 +294,7 @@ This is used by the global evaluation report (R0004).'}),
             self._dynamic_plugins.append(modname)
             module = load_module_from_name(modname)
             module.register(self)
-
+            
     def set_reporter(self, reporter):
         """set the reporter used to display messages and reports"""
         self.reporter = reporter
@@ -339,8 +339,8 @@ This is used by the global evaluation report (R0004).'}),
         self.register_options_provider(checker)
         if hasattr(checker, 'msgs'):
             self.register_messages(checker)
-            
-                
+        # XXX adim should we load_defaults() here ?: checker.load_defaults()
+        
     def enable_checkers(self, listed, enabled):
         """only enable/disable checkers from the given list"""
         idmap = {}
@@ -810,6 +810,7 @@ There are 5 kind of message types :
 processing.     
         ''')
         # read configuration
+        linter.load_provider_defaults()
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter._config_parser
