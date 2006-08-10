@@ -67,88 +67,6 @@ F0003:
 
 
 
-Basic
------
-
-Description
-~~~~~~~~~~~
-checks for :
-* doc strings
-* modules / classes / functions / methods / arguments / variables name
-* number of arguments, local variables, branchs, returns and statements in
-functions, methods
-* required module attributes
-* dangerous default values as arguments
-* redefinition of function / method / class
-* uses of the global statement
-
-This checker also defines the following reports:
-* R0101: Statistics by type
-
-Messages
-~~~~~~~~
-C0102:
-  Used when the name is listed in the black list (unauthorized names). This
-  message belongs to the basic checker.
-
-C0103:
-  Used when the name doesn't match the regular expression associated to its type
-  (constant, variable, class...). This message belongs to the basic checker.
-
-C0111:
-  Used when a module, function, class or method has no docstring. Some special
-  methods like __init__ doesn't necessary require a docstring. This message
-  belongs to the basic checker.
-
-C0112:
-  Used when a module, function, class or method has an empty docstring (it would
-  be to easy ;). This message belongs to the basic checker.
-
-C0121:
-  Used when an attribute required for modules is missing. This message belongs
-  to the basic checker.
-
-W0101:
-  Used when there is some code behind a "return" or "raise" statement, which
-  will never be accessed. This message belongs to the basic checker.
-
-W0102:
-  Used when a mutable value as list or dictionary is detected in a default value
-  for an argument. This message belongs to the basic checker.
-
-W0104:
-  Used when a statement doesn't have (or at least seems to) any effect. This
-  message belongs to the basic checker.
-
-W0122:
-  Used when you use the "exec" statement, to discourage its usage. That doesn't
-  mean you can not use it ! This message belongs to the basic checker.
-
-W0141:
-  Used when a black listed builtin function is used (see the bad-function
-  option). Usual black listed functions are the ones like map, or filter , where
-  Python offers now some cleaner alternative like list comprehension. This
-  message belongs to the basic checker.
-
-W0142:
-  Used when a function or method is called using `*args` or `**kwargs` to
-  dispatch arguments. This doesn't improve readility and should be used with
-  care. This message belongs to the basic checker.
-
-E0101:
-  Used when the special class method __ini__ has an explicit return value. This
-  message belongs to the basic checker.
-
-E0102:
-  Used when a function / class / method is redefined. This message belongs to
-  the basic checker.
-
-E0103:
-  Used when break or continue keywords are used outside a loop. This message
-  belongs to the basic checker.
-
-
-
 Variables
 ---------
 
@@ -249,65 +167,85 @@ E1111:
 
 
 
-Design
-------
+Basic
+-----
 
 Description
 ~~~~~~~~~~~
-checks for sign of poor/misdesign:
-* number of methods, attributes, local variables...
-* size, complexity of functions, methods
+checks for :
+* doc strings
+* modules / classes / functions / methods / arguments / variables name
+* number of arguments, local variables, branchs, returns and statements in
+functions, methods
+* required module attributes
+* dangerous default values as arguments
+* redefinition of function / method / class
+* uses of the global statement
 
+This checker also defines the following reports:
+* R0101: Statistics by type
 
 Messages
 ~~~~~~~~
-R0901:
-  Used when class has too many parent classes. This message belongs to the
-  design checker.
+C0102:
+  Used when the name is listed in the black list (unauthorized names). This
+  message belongs to the basic checker.
 
-R0902:
-  Used when class has too many instance attributes. This message belongs to the
-  design checker.
+C0103:
+  Used when the name doesn't match the regular expression associated to its type
+  (constant, variable, class...). This message belongs to the basic checker.
 
-R0903:
-  Used when class has not enough public methods. This message belongs to the
-  design checker.
+C0111:
+  Used when a module, function, class or method has no docstring. Some special
+  methods like __init__ doesn't necessary require a docstring. This message
+  belongs to the basic checker.
 
-R0904:
-  Used when class has too many public methods. This message belongs to the
-  design checker.
+C0112:
+  Used when a module, function, class or method has an empty docstring (it would
+  be to easy ;). This message belongs to the basic checker.
 
-R0911:
-  Used when a function or method has too many return statement. This message
-  belongs to the design checker.
+C0121:
+  Used when an attribute required for modules is missing. This message belongs
+  to the basic checker.
 
-R0912:
-  Used when a function or method has too many branches. This message belongs to
-  the design checker.
+W0101:
+  Used when there is some code behind a "return" or "raise" statement, which
+  will never be accessed. This message belongs to the basic checker.
 
-R0913:
-  Used when a function or method takes too many arguments. This message belongs
-  to the design checker.
+W0102:
+  Used when a mutable value as list or dictionary is detected in a default value
+  for an argument. This message belongs to the basic checker.
 
-R0914:
-  Used when a function or method has too many local variables. This message
-  belongs to the design checker.
+W0104:
+  Used when a statement doesn't have (or at least seems to) any effect. This
+  message belongs to the basic checker.
 
-R0915:
-  Used when a function or method has too many statements. You should then split
-  it in smaller functions / methods. This message belongs to the design checker.
+W0122:
+  Used when you use the "exec" statement, to discourage its usage. That doesn't
+  mean you can not use it ! This message belongs to the basic checker.
 
-R0921:
-  Used when an abstract class is not used as ancestor anywhere. This message
-  belongs to the design checker.
+W0141:
+  Used when a black listed builtin function is used (see the bad-function
+  option). Usual black listed functions are the ones like map, or filter , where
+  Python offers now some cleaner alternative like list comprehension. This
+  message belongs to the basic checker.
 
-R0922:
-  Used when an abstract class is used less than X times as ancestor. This
-  message belongs to the design checker.
+W0142:
+  Used when a function or method is called using `*args` or `**kwargs` to
+  dispatch arguments. This doesn't improve readility and should be used with
+  care. This message belongs to the basic checker.
 
-R0923:
-  Used when an interface class is not implemented anywhere. This message belongs
-  to the design checker.
+E0101:
+  Used when the special class method __ini__ has an explicit return value. This
+  message belongs to the basic checker.
+
+E0102:
+  Used when a function / class / method is redefined. This message belongs to
+  the basic checker.
+
+E0103:
+  Used when break or continue keywords are used outside a loop. This message
+  belongs to the basic checker.
 
 
 
@@ -500,6 +438,68 @@ E1010:
 
 
 
+Design
+------
+
+Description
+~~~~~~~~~~~
+checks for sign of poor/misdesign:
+* number of methods, attributes, local variables...
+* size, complexity of functions, methods
+
+
+Messages
+~~~~~~~~
+R0901:
+  Used when class has too many parent classes. This message belongs to the
+  design checker.
+
+R0902:
+  Used when class has too many instance attributes. This message belongs to the
+  design checker.
+
+R0903:
+  Used when class has not enough public methods. This message belongs to the
+  design checker.
+
+R0904:
+  Used when class has too many public methods. This message belongs to the
+  design checker.
+
+R0911:
+  Used when a function or method has too many return statement. This message
+  belongs to the design checker.
+
+R0912:
+  Used when a function or method has too many branches. This message belongs to
+  the design checker.
+
+R0913:
+  Used when a function or method takes too many arguments. This message belongs
+  to the design checker.
+
+R0914:
+  Used when a function or method has too many local variables. This message
+  belongs to the design checker.
+
+R0915:
+  Used when a function or method has too many statements. You should then split
+  it in smaller functions / methods. This message belongs to the design checker.
+
+R0921:
+  Used when an abstract class is not used as ancestor anywhere. This message
+  belongs to the design checker.
+
+R0922:
+  Used when an abstract class is used less than X times as ancestor. This
+  message belongs to the design checker.
+
+R0923:
+  Used when an interface class is not implemented anywhere. This message belongs
+  to the design checker.
+
+
+
 Exceptions
 ----------
 
@@ -545,6 +545,21 @@ E0702:
   exceptions checker.
 
 
+
+Metrics
+-------
+
+Description
+~~~~~~~~~~~
+does not check anything but gives some raw metrics :
+* total number of lines
+* total number of code lines
+* total number of docstring lines
+* total number of comments lines
+* total number of empty lines
+
+This checker also defines the following reports:
+* R0701: Raw metrics
 
 Similarities
 ------------
@@ -660,19 +675,4 @@ E0503:
   belongs to the miscellaneous checker.
 
 
-
-Metrics
--------
-
-Description
-~~~~~~~~~~~
-does not check anything but gives some raw metrics :
-* total number of lines
-* total number of code lines
-* total number of docstring lines
-* total number of comments lines
-* total number of empty lines
-
-This checker also defines the following reports:
-* R0701: Raw metrics
 
