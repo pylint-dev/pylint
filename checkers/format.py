@@ -36,7 +36,7 @@ from pylint.checkers import BaseRawChecker
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
               'Used when a line is longer than a given number of characters.'),
-    'C0302': ('Too many lines in module (%s)', # W0302
+    'C0302': ('Too many lines in module (%s)', # was W0302
               'Used when a module has too much lines, reducing its readibility.'
               ),
 
@@ -247,7 +247,7 @@ class FormatChecker(BaseRawChecker):
                 self.check_indent_level(line, indents[-1], line_num)
                     
         if line_num > self.config.max_module_lines:
-            self.add_message('C0302', args=line_num, line=0)
+            self.add_message('C0302', args=line_num, line=1)
 
     def visit_default(self, node):
         """check the node line number and check it if not yet done
