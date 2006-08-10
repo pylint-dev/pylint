@@ -1,4 +1,4 @@
-R:  0: Similar lines in 2 files
+R:  1: Similar lines in 2 files
 ==input.func_w0801:3
 ==input.w0801_same:3
 __revision__ = 'id'
