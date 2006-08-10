@@ -283,6 +283,7 @@ This is used by the global evaluation report (R0004).'}),
                         )
         self.register_checker(self)
         self._dynamic_plugins = []
+        self.load_provider_defaults()
         
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
@@ -340,6 +341,7 @@ This is used by the global evaluation report (R0004).'}),
         if hasattr(checker, 'msgs'):
             self.register_messages(checker)
         # XXX adim should we load_defaults() here ?: checker.load_defaults()
+        checker.load_defaults()
         
     def enable_checkers(self, listed, enabled):
         """only enable/disable checkers from the given list"""
@@ -524,6 +526,8 @@ This is used by the global evaluation report (R0004).'}),
         """set the name of the currently analyzed module and
         init statistics for it
         """
+        if not modname and filepath is None:
+            return
         self.current_name = modname 
         self.current_file = filepath or modname
         self.stats['by_module'][modname] = {}
@@ -810,7 +814,7 @@ There are 5 kind of message types :
 processing.     
         ''')
         # read configuration
-        linter.load_provider_defaults()
+        # linter.load_provider_defaults()
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter._config_parser
