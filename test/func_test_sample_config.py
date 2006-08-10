@@ -25,6 +25,7 @@ from os.path import join
 import pylint
 sample_config = join(pylint.__path__[0], 'examples', 'pylintrc')
 linter.load_file_configuration(sample_config)
+linter.set_reporter(test_reporter)
 
 if __name__=='__main__':
     unittest.main(defaultTest='suite')
