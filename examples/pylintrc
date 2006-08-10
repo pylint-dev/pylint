@@ -6,11 +6,6 @@
 # * handle message activation / deactivation at the module level
 # * handle some basic but necessary stats'data (number of classes, methods...)
 # 
-# This checker also defines the following reports:
-# * R0001: Total errors / warnings
-# * R0002: % errors / warnings by module
-# * R0003: Messages
-# * R0004: Global evaluation
 [MASTER]
 
 # Profiled execution.
@@ -31,25 +26,26 @@ cache-size=500
 load-plugins=
 
 
+
+
+
+
 [REPORTS]
 
-# Tells wether to display a full report or only the messages
-reports=yes
+# set the output format. Available formats are text, parseable, colorized and
+# html
+output-format=text
 
-# Use HTML as output format instead of text
-html=no
-
-# Use a parseable text output format, so your favorite text editor will be able
-# to jump to the line corresponding to a message.
-parseable=no
-
-# Colorizes text output using ansi escape codes
-color=no
+# Include message's id in output
+include-ids=no
 
 # Put messages in a separate file for each module / package specified on the
 # command line instead of printing them on stdout. Reports (if any) will be
 # written in a file name "pylint_global.[txt|html]".
 files-output=no
+
+# Tells wether to display a full report or only the messages
+reports=yes
 
 # Python expression which should return a note less than 10 (10 is the highest
 # note).You have access to the variables errors warning, statement which
@@ -62,9 +58,6 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 # evaluation report (R0004).
 comment=no
 
-# Include message's id in output
-include-ids=no
-
 
 # checks for :
 # * doc strings
@@ -76,12 +69,7 @@ include-ids=no
 # * redefinition of function / method / class
 # * uses of the global statement
 # 
-# This checker also defines the following reports:
-# * R0101: Statistics by type
 [BASIC]
-
-# Enable / disable this checker
-enable-basic=yes
 
 # Required attributes for module, separated by a comma
 required-attributes=__revision__
@@ -132,9 +120,6 @@ bad-functions=map,filter,apply,input
 # 
 [TYPECHECK]
 
-# Enable / disable this checker
-enable-typecheck=yes
-
 # Tells wether missing members accessed in mixin class should be ignored. A
 # mixin class is detected if its name ends with "mixin" (case insensitive).
 ignore-mixin-members=yes
@@ -144,7 +129,7 @@ ignore-mixin-members=yes
 zope=no
 
 # List of members which are usually get through zope's acquisition mecanism and
-# so shouldn't trigger E0201 when accessed (need zope=yes to be considered.
+# so shouldn't trigger E0201 when accessed (need zope=yes to be considered).
 acquired-members=REQUEST,acl_users,aq_parent
 
 
@@ -155,9 +140,6 @@ acquired-members=REQUEST,acl_users,aq_parent
 # * use of variable before assigment
 # 
 [VARIABLES]
-
-# Enable / disable this checker
-enable-variables=yes
 
 # Tells wether we should check for unused import in __init__ files.
 init-import=no
@@ -170,14 +152,29 @@ dummy-variables-rgx=_|dummy
 additional-builtins=
 
 
+# checks for :
+# * methods without self as first argument
+# * overridden methods signature
+# * access only to existant members via self
+# * attributes not defined in the __init__ method
+# * supported interfaces implementation
+# * unreachable code
+# 
+[CLASSES]
+
+# List of interface methods to ignore, separated by a comma. This is used for
+# instance to not check methods defines in Zope's Interface base class.
+ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
+
+# List of method names used to declare (i.e. assign) instance attributes.
+defining-attr-methods=__init__,__new__,setUp
+
+
 # checks for sign of poor/misdesign:
 # * number of methods, attributes, local variables...
 # * size, complexity of functions, methods
 # 
 [DESIGN]
-
-# Enable / disable this checker
-enable-design=yes
 
 # Maximum number of arguments for function / method
 max-args=5
@@ -207,40 +204,13 @@ min-public-methods=2
 max-public-methods=20
 
 
-# checks for :
-# * methods without self as first argument
-# * overriden methods signature
-# * access only to existant members via self
-# * attributes not defined in the __init__ method
-# * supported interfaces implementation
-# * unreachable code
-# 
-[CLASSES]
-
-# Enable / disable this checker
-enable-classes=yes
-
-# List of interface methods to ignore, separated by a comma. This is used for
-# instance to not check methods defines in Zope's Interface base class.
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
-
-# List of method names used to declare (i.e. assign) instance attributes.
-defining-attr-methods=__init__,__new__,setUp
-
-
 # checks for
 # * external modules dependencies
 # * relative / wildcard imports
 # * cyclic imports
 # * uses of deprecated modules
 # 
-# This checker also defines the following reports:
-# * R0401: External dependencies
-# * R0402: Modules dependencies graph
 [IMPORTS]
-
-# Enable / disable this checker
-enable-imports=yes
 
 # Deprecated modules which should not be used, separated by a comma
 deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
@@ -258,49 +228,6 @@ ext-import-graph=
 int-import-graph=
 
 
-# checks for usage of new style capabilities on old style classes and
-# other new/old styles conflicts problems
-# * use of property, __slots__, super
-# * "super" usage
-# * raising a new style class as exception
-# 
-[NEWSTYLE]
-
-# Enable / disable this checker
-enable-newstyle=yes
-
-
-# checks for
-# * excepts without exception filter
-# * string exceptions
-# 
-[EXCEPTIONS]
-
-# Enable / disable this checker
-enable-exceptions=yes
-
-
-# checks for similarities and duplicated code. This computation may be
-# memory / CPU intensive, so you should disable it if you experiments some
-# problems.
-# 
-# This checker also defines the following reports:
-# * R0801: Duplication
-[SIMILARITIES]
-
-# Enable / disable this checker
-enable-similarities=yes
-
-# Minimum lines number of a similarity.
-min-similarity-lines=4
-
-# Ignore comments when computing similarities.
-ignore-comments=yes
-
-# Ignore docstrings when computing similarities.
-ignore-docstrings=yes
-
-
 # checks for :
 # * unauthorized constructions
 # * strict indentation
@@ -308,9 +235,6 @@ ignore-docstrings=yes
 # * use of <> instead of !=
 # 
 [FORMAT]
-
-# Enable / disable this checker
-enable-format=yes
 
 # Maximum number of characters on a single line.
 max-line-length=80
@@ -329,24 +253,21 @@ indent-string='    '
 # 
 [MISCELLANEOUS]
 
-# Enable / disable this checker
-enable-miscellaneous=yes
-
-# List of note tags to take in consideration, separated by a comma. Default to
-# FIXME, XXX, TODO
+# List of note tags to take in consideration, separated by a comma.
 notes=FIXME,XXX,TODO
 
 
-# does not check anything but gives some raw metrics :
-# * total number of lines
-# * total number of code lines
-# * total number of docstring lines
-# * total number of comments lines
-# * total number of empty lines
+# checks for similarities and duplicated code. This computation may be
+# memory / CPU intensive, so you should disable it if you experiments some
+# problems.
 # 
-# This checker also defines the following reports:
-# * R0701: Raw metrics
-[METRICS]
+[SIMILARITIES]
 
-# Enable / disable this checker
-enable-metrics=yes
+# Minimum lines number of a similarity.
+min-similarity-lines=4
+
+# Ignore comments when computing similarities.
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings=yes

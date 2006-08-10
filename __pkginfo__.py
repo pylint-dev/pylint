@@ -21,7 +21,7 @@ __revision__ = '$Id: __pkginfo__.py,v 1.50 2006-04-19 09:17:40 syt Exp $'
 
 modname = 'pylint'
 
-numversion = (0, 11, 0)
+numversion = (0, 12, 0)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
