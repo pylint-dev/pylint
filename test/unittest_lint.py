@@ -35,11 +35,11 @@ class SortMessagesTC(TestCase):
     def test(self):
         l = ['E0501', 'E0503', 'F0002', 'I0201', 'W0540',
              'R0202', 'F0203', 'R0220', 'W0321', 'I0001']
-        self.assertEquals(sort_msgs(l), ['I0001', 'I0201',
-                                         'R0202', 'R0220',
+        self.assertEquals(sort_msgs(l), ['E0501', 'E0503',
                                          'W0321', 'W0540',
-                                         'E0501', 'E0503',
-                                         'F0002', 'F0203'])
+                                         'R0202', 'R0220',
+                                         'I0001', 'I0201',
+                                         'F0002', 'F0203',])
 
 try:
     optimized = True
@@ -56,7 +56,11 @@ class GetNoteMessageTC(TestCase):
             msg = note_msg
         if optimized:
             self.assertRaises(AssertionError, get_note_message, 11)
-            
+
+
+HERE = abspath(dirname(__file__))
+INPUTDIR = join(HERE, 'input')
+
 class RunTC(TestCase):
 
     def _test_run(self, args, exit_code=1, no_exit_fail=True):
@@ -78,7 +82,7 @@ class RunTC(TestCase):
         self._test_run([], 1)
         
     def test_no_ext_file(self):
-        self._test_run([join('input', 'noext')], no_exit_fail=False)
+        self._test_run([join(INPUTDIR, 'noext')], no_exit_fail=False)
 
         
 class PyLinterTC(TestCase):
@@ -89,19 +93,10 @@ class PyLinterTC(TestCase):
         self.linter.config.persistent = 0
         # register checkers
         checkers.initialize(self.linter)
-        # load default values
-        self.linter.load_provider_defaults()
-        
-    def test_disable_all(self):
-        self.linter.disable_all_checkers()
-        checkers = sort_checkers(self.linter._checkers, enabled_only=0)
-        self.assert_(len(checkers) > 1)
-        checkers = sort_checkers(self.linter._checkers, enabled_only=1)
-        self.assertEquals(checkers, [self.linter])
         
     def test_message_help(self):
-        msg = self.linter.get_message_help('F0001')
-        expected = 'F0001:\n  Used when an error occured preventing the analyzing of a module (unable to\n  find it for instance). This message belongs to the master checker.'
+        msg = self.linter.get_message_help('F0001', checkerref=True)
+        expected = ':F0001:\n  Used when an error occured preventing the analyzing of a module (unable to\n  find it for instance). This message belongs to the master checker.'
         self.assertEquals(' '.join(msg.splitlines()), ' '.join(expected.splitlines()))
         self.assertRaises(UnknownMessage, self.linter.get_message_help, 'YB12')
         
@@ -144,7 +139,7 @@ class PyLinterTC(TestCase):
     def test_enable_message_block(self):
         linter = self.linter
         linter.open()
-        filepath = join('input', 'func_block_disable_msg.py')
+        filepath = join(INPUTDIR, 'func_block_disable_msg.py')
         linter.set_current_module('func_block_disable_msg')
         linter.process_module(open(filepath))
         orig_state = linter._module_msgs_state.copy()
@@ -285,7 +280,7 @@ class ConfigTC(TestCase):
                 os.chdir(join(chroot, basedir))
                 self.assertEquals(config.find_pylintrc(), expected)
         finally:
-            os.chdir(abspath(dirname(__file__)))
+            os.chdir(HERE)
             shutil.rmtree(chroot)
      
 
@@ -304,7 +299,7 @@ class ConfigTC(TestCase):
                 os.chdir(join(chroot, basedir))
                 self.assertEquals(config.find_pylintrc(), expected)
         finally:
-            os.chdir(abspath(dirname(__file__)))
+            os.chdir(HERE)
             shutil.rmtree(chroot)
 
 if __name__ == '__main__':

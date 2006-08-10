@@ -20,10 +20,9 @@ __revision__ = '$Id: regrtest.py,v 1.12 2006-03-03 09:25:34 syt Exp $'
 
 import sys
 import os
-import unittest
 from os.path import abspath, join
 
-from logilab.common import testlib
+from logilab.common.testlib import TestCase, unittest_main
 
 from utils import TestReporter
 
@@ -40,7 +39,7 @@ checkers.initialize(linter)
 
 sys.path.insert(1, abspath('regrtest_data'))
 
-class NonRegrTC(testlib.TestCase):
+class NonRegrTC(TestCase):
     def setUp(self):
         """call reporter.finalize() to cleanup
         pending messages if a test finished badly
@@ -127,5 +126,4 @@ class NonRegrTC(testlib.TestCase):
 
 
 if __name__ == '__main__':
-    from logilab.common.testlib import unittest_main
     unittest_main()
