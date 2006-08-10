@@ -1,6 +1,6 @@
 What's new ?
 ------------
-%CHANGELOG%
+%(CHANGELOG)s
 
 
 What is pylint ?
@@ -31,12 +31,12 @@ Pylint is free software distributed under the GNU Public Licence.
 
 Home page
 ---------
-%WEB%
+%(WEB)s
 
 Download
 --------
-%FTP%
+%(FTP)s
 
 Mailing list
 ------------
-%MAILINGLIST%
+%(MAILINGLIST)s
