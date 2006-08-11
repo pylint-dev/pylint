@@ -18,11 +18,11 @@ Check source code is ascii only or has an encoding declaration (PEP 263)
 
 __revision__ = '$Id: test_encoding.py,v 1.6 2005-11-02 09:22:04 syt Exp $'
 
-import unittest
+from logilab.common.testlib import TestCase, unittest_main
 import sys
 from pylint.checkers.misc import guess_encoding
 
-class TestGuessEncoding(unittest.TestCase):
+class TestGuessEncoding(TestCase):
 
     def testEmacs(self):
         e = guess_encoding('# -*- coding: UTF-8  -*-')
@@ -59,4 +59,4 @@ class TestGuessEncoding(unittest.TestCase):
         self.failUnlessEqual(e, None)
         
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
