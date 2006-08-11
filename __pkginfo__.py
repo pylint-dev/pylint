@@ -58,7 +58,7 @@ scripts = [join('bin', filename)
 include_dirs = [join('test', 'input'), join('test', 'messages'),
                 join('test', 'regrtest_data')]
 
-pyversions = ["2.2", "2.3", "2.4"]
+pyversions = ["2.3", "2.4"]
 
 debian_uploader = 'Alexandre Fayolle <afayolle@debian.org>'
 

@@ -244,7 +244,6 @@ This is used by the global evaluation report (R0004).'}),
         #
         # checkers / reporter / astng manager
         self.reporter = None
-        self.set_reporter(reporter or TextReporter(sys.stdout))
         self.manager = ASTNGManager()
         self._checkers = {}
         # visit variables
@@ -284,6 +283,7 @@ This is used by the global evaluation report (R0004).'}),
         self.register_checker(self)
         self._dynamic_plugins = []
         self.load_provider_defaults()
+        self.set_reporter(reporter or TextReporter(sys.stdout))
         
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
