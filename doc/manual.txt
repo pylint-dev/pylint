@@ -1,0 +1,545 @@
+==================
+Pylint User Manual
+==================
+
+:Author: Sylvain Thénault
+:Author: Alexandre Fayolle
+:Organization: Logilab:Version: $Revision: 1.10 $
+:Date: $Date: 2005-04-15 10:40:17 $
+
+.. contents::
+
+
+This document is meant to be the reference user manual for Pylint_.
+This is a work in progress so some sections or parts may be missing
+(sometimes marked by a XXX).  If you think it's lacking some important
+information, please talk about it on the python-projects mailing list.
+
+.. _Pylint: http://www.logilab.org/projects/pylint
+
+Introduction
+============
+
+What is pylint?
+---------------
+
+Pylint is a tool that checks for errors in python code, tries to
+enforce a coding standard and looks for smelling code . This is
+similar but nevertheless different from what pychecker_ provides,
+especially since pychecker explicitely does not bother with coding
+style. The default coding style used by pylint is close to `PEP 008`_
+(aka `Guido's style guide`_). For more information about code smells,
+refer to Martin Fowler's `refactoring book`_
+
+One important thing to note is that Pylint isn't smarter than you are:
+it may warn you about things that you have consciensiously
+done. That's for example because it tries to detect things that may be
+dangerous in a context, but maybe not in others, or because it checks
+for some things that you don't care about. Generally, you shouldn't
+expect to be pylint totally quiet about your code, so don't
+necessarily be alarmed if it give you a hell lot of messages for your
+proudly(XXX) project ;)
+
+Pylint will display a number of messages as it analyzes the code, as
+well as some statistics about the number of warnings and errors found
+in different files. The messages are classified under various
+categories such as errors and warnings (more below). If you run pylint
+twice, it will display the statistics from the previous run together
+with the ones from the current run, so that you can see if the code
+has improved or not.
+
+Last but not least, the code is given an overall mark, based on the
+number an severity of the warnings and errors. This has proven to
+be very motivating for programmers.
+
+
+Installation
+------------
+
+Dependancies
+''''''''''''
+Pylint requires the latest `logilab-astng`_ and `logilab-common`_
+packages. It should be compatible with any python version greater than
+2.2.0 (python 2.2 users will have to install the optik_ package).
+
+.. _`logilab-astng`: http://www.logilab.org/projects/astng
+.. _`logilab-common`: http://www.logilab.org/projects/common
+.. _optik: http://optik.sourceforge.net/
+
+
+Distributions
+'''''''''''''
+The source tarball is available at ftp://ftp.logilab.fr/pub/pylint.
+
+You may apt-get a debian package by adding ::
+
+    deb ftp://ftp.logilab.org/pub/debian unstable/
+
+to your */etc/apt/sources.list* file. Pylint is also available in the 
+standard Debian distribution (but add our public debian repository
+anyway if you want to get the latest releases and upgrades earlier)
+
+Contributed RPM packages for pylint and logilab-common are available at
+ftp://ftp.nest.pld-linux.org/test.
+
+Pylint is also available in Gentoo, Fedora 4, Ubuntu, FreeBSD, Darwin
+(and maybe other, if si drop us a note please!). 
+
+
+Source distribution installation
+''''''''''''''''''''''''''''''''
+From the source distribution, extract the tarball, go to the extracted
+directory and simply run ::
+
+    python setup.py install
+
+You'll have to install dependancies in a similar way.
+
+
+Note for Windows users
+''''''''''''''''''''''
+On Windows, once you have installed pylint, the command line usage is
+::
+
+pylint.bat [options] module_or_package
+
+But this will only work if *pylint.bat* is either in the current
+directory, or on your system path. (*setup.py* install install *python.bat*
+to the *Scripts* subdirectory of your Python installation -- e.g.
+C:\Python24\Scripts.) You can do any of the following to solve this:
+
+1. change to the appropriate directory before running pylint.bat
+
+2. add the Scripts directory to your path statement in your autoexec.bat
+   file (this file is found in the root directory of your boot-drive)
+
+3. create a 'redirect' batch file in a directory actually on your
+   systems path
+
+To effect (2), simply append the appropriate directory name to the PATH=
+statement in autoexec.bat. Be sure to use the Windows directory
+separator of ';' between entries. Then, once you have rebooted (this is
+necessary so that the new path statement will take effect when
+autoexec.bat is run), you will be able to invoke PyLint with
+pylint.bat on the command line.
+
+(3) is the best solution. Once done, you can call pylint at the command
+line without the .bat, just as do non-Windows users by typing: ::
+
+  pylint [options] module_or_package
+
+To effect option (3), simply create a plain text file pylint.bat with
+the single line: ::
+
+  C:\PythonDirectory\Scripts\pylint.bat
+
+(where PythonDirectory is replaced by the actual Python installation
+directory on your system -- e.g. C:\Python24\Scripts\pylint.bat).
+
+
+Invoking pylint
+---------------
+
+Pylint is meant to be called from the commant line. The usage is ::
+
+   pylint [options] module_or_package
+
+You should give pylint the name of a Python package or module. Pylint
+will ``import`` this package or module, so you should pay attention to
+your ``PYTHONPATH``, since it is a common error to analyze an
+installed version of a module instead of the development version.
+
+It is also possible to analyze python files, with a few
+restriction. The thing to keep in mind is that pylint will try to 
+convert the file name to a module name, and only be able to process
+the file if it succeeds.  ::
+
+  pylint mymodule.py 
+
+should always works since the current working
+directory is automatically added on top  of the python path ::
+
+  pylint directory/mymodule.py
+
+will work if "directory" is a python package (i.e. has an __init__.py
+file) or if "directory" is in the python path.
+
+For more details on this see the FAQ_.
+
+You can also start a thin gui around pylint (require TkInter) by
+typing ::
+
+  pylint-gui
+
+This should open a window where you can enter the name of the package
+or module to check, at pylint messages will be displayed in the user
+interface.
+
+
+Pylint output
+-------------
+
+The default format for the output is raw text. But passing pylint the
+``--html`` option will produce an HTML document.
+
+There are several sections in pylint's output. 
+
+Source code analysis section
+''''''''''''''''''''''''''''
+For each python module,
+pylint will first display a few '*' characters followed by the name
+of the module. Then, a number of messages with the following
+format: ::
+
+  MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE
+
+You can get another output format, useful since it's recognized by
+most editors or other development tools using the ``--parseable=y``
+option.
+
+The message type can be:
+
+  * [R]efactor for a "good practice" metric violation
+  * [C]onvention for coding standard violation
+  * [W]arning for stylistic problems, or minor programming issues
+  * [E]rror for important programming issues (i.e. most probably bug)
+  * [F]atal for errors which prevented further processing
+
+Sometimes the line of code which caused the error is displayed with
+a caret pointing to the error. This may be generalized in future
+versions of pylint.
+
+Example (extracted from a run of pylint on itself...): 
+
+::
+
+  ************* Module pylint.checkers.format
+  W: 50: Too long line (86/80)
+  W:108: Operator not followed by a space
+       print >>sys.stderr, 'Unable to match %r', line
+              ^
+  W:141: Too long line (81/80)
+  W: 74:searchall: Unreachable code
+  W:171:FormatChecker.process_tokens: Redefining built-in (type)
+  W:150:FormatChecker.process_tokens: Too many local variables (20/15)
+  W:150:FormatChecker.process_tokens: Too many branchs (13/12)
+
+
+Reports section
+''''''''''''''' 
+Following the analysis message, pylint will display a set of report,
+each one focusing on a particular aspect of the project, such as number
+of messages by categories, modules dependancies...
+
+For instance, the metrics report displays summaries gathered from the
+current 
+run. 
+
+  * the number of processed modules
+  * for each module, the percentage of errors and warnings
+  * the total number of errors and warnings
+  * percentage of classes, functions and modules with docstrings, and
+    a comparison from the previous run 
+  * percentage of classes, functions and modules with correct name
+  * (according the the coding standard), and a comparison from the
+    previous run 
+  * a list of external dependencies found in the code, and where they appear
+
+Also, a global evaluation for the code is computed, and an
+optional witty comment is displayed (if ``--comment=y`` was
+specified on the command line).
+
+
+
+Command line options
+--------------------
+
+First of all, we have two basic (but useful) options. 
+
+--version             show program's version number and exit
+-h, --help            show help about the command line options
+
+Pylint is architectured around several checkers. By default all
+checkers are enabled. You can disable a specific checker by specifying
+``--enable-<checker>=n``, or disable all checkers using
+``--disable-all`` and afterwards enable specific checkers with
+``--enable-<checker>=y``. See the list of available features_ for a
+description of provided checkers with their functionalities.
+
+Each checker has some specific options, which can take either a yes/no
+value, an integer, a python regular expression, or a comma separated
+list of values (which are generally used to override a regular
+expression in special cases). For a full list of options, use ``--help``
+
+Specifying all the options suitable for your setup and coding
+standards can be tedious, so it is possible to use a rc file to
+specify the default values. Pylint looks for /etc/pylintrc and
+~/.pylintrc. The ``--generate-rcfile`` option will generate a
+commented configuration file according to the current configuration on
+standard output and exit. You can put other options before this one to
+use them in the configuration, or start with the default values and
+hand tune the configuration.
+
+Other useful global options include:
+
+--zope                  Initialize Zope products before starting
+--ignore=file           Add <file> (may be a directory) to the black
+                        list. It should be a base name, not a path. 
+                        You may set this option multiple times.
+--statistics=y_or_n     Compute statistics on collected data.
+--persistent=y_or_n     Pickle collected data for later comparisons.
+--comment=y_or_n        Add a comment according to your evaluation note.
+--parseable=y_or_n      Use a parseable output format.
+--html=y_or_n           Use HTML as output format instead of text.
+--enable-msg=msgids     Enable the given messages.
+--disable-msg=msgids    Disable the given messages.
+--enable-msg-cat=cats   Enable all messages in the given categories.
+--disable-msg-cat=cats  Disable all messages in the given categories.
+
+--errors-only option     This option will kindof
+"optimize" pylint execution to only look for bugs (ie messages in the
+ERROR category). In this execution mode, only relevant checkers are 
+enabled, so it should go quickly than in "regular" mode (remember that
+disabling a message is only preventing it from being printed, but the
+analyzis work is still done). So if you're only searching for possible
+bug in your project, remember to "pylint --errors-only myproject".
+This option has originaly been named "debug-mode".
+
+
+Bug reports
+-----------
+XXX tracker
+You think you have found a bug in Pylint? Well, this may be the case
+since Pylint is under development. Please take the time to send a bug
+report to python-projects@logilab.org. This mailing list is also a
+nice place to discuss Pylint issues.
+
+
+Comments, feedback, support...
+------------------------------
+Use the python-projects@logilab.org mailing list for anything related
+to Pylint. This is in most case better than sending an email directly
+to the author, since others will benefit from the exchange, and you'll
+be more likely answered by someone subscribed to the list.
+
+You can subscribe to this mailing list at
+http://www.logilab.org/mailinglists/python_projects/mailinglist_register_form
+
+Archives are available at 
+http://lists.logilab.org/pipermail/python-projects/
+
+If you prefer speaking french instead of english, you can use the
+generic forum-fr@logilab.org mailing list.
+
+
+Advanced usage
+==============
+
+Base configuration
+------------------
+
+Environment
+-----------
+
+Messages control
+----------------
+::
+    """pylint option block-disable-msg"""
+
+    __revision__ = None
+
+    class Foo(object):
+        """block-disable-msg test"""
+
+        def __init__(self):
+            pass
+
+        def meth1(self, arg):
+            """this issues a message"""
+            print self
+
+        def meth2(self, arg):
+            """and this one not"""
+            # pylint: disable-msg=W0613
+            print self\
+                  + "foo"
+
+        def meth3(self):
+            """test one line disabling"""
+            # no error
+            print self.bla # pylint: disable-msg=E1101
+            # error
+            print self.blop 
+
+        def meth4(self):
+            """test re-enabling"""
+            # pylint: disable-msg=E1101
+            # no error
+            print self.bla
+            print self.blop 
+            # pylint: enable-msg=E1101
+            # error
+            print self.blip
+
+        def meth5(self):
+            """test IF sub-block re-enabling"""
+            # pylint: disable-msg=E1101
+            # no error
+            print self.bla
+            if self.blop:
+                # pylint: enable-msg=E1101
+                # error
+                print self.blip
+            else:
+                # no error
+                print self.blip
+            # no error
+            print self.blip
+
+        def meth6(self):
+            """test TRY/EXCEPT sub-block re-enabling"""
+            # pylint: disable-msg=E1101
+            # no error
+            print self.bla
+            try:
+                # pylint: enable-msg=E1101
+                # error
+                print self.blip
+            except UndefinedName: # pylint: disable-msg=E0602
+                # no error
+                print self.blip
+            # no error
+            print self.blip
+
+        def meth7(self):
+            """test one line block opening disabling"""
+            if self.blop: # pylint: disable-msg=E1101
+                # error
+                print self.blip
+            else:
+                # error
+                print self.blip
+            # error
+            print self.blip
+
+
+        def meth8(self):
+            """test late disabling"""
+            # error
+            print self.blip
+            # pylint: disable-msg=E1101
+            # no error
+            print self.bla
+            print self.blop 
+
+
+About analysis
+==============
+
+Pylint heuristics
+-----------------
+
+About astng inference
+---------------------
+
+Enhancing Pylint
+================
+
+Writing your own checker
+------------------------
+You can find some simple examples in the examples
+directory of the distribution (custom.py and custom_raw.py). I'll try to
+quickly explain the essential here.
+
+First, there is two kinds of checker :
+* raw checkers, which are analysing each module as a raw file stream
+* ast checkers, which are working on an ast representation of the module
+
+The ast representation used is an extension of the one provided with the
+standard python distribution in the `compiler package`_. The extension
+adds additional information and methods on the tree nodes to ease
+navigation and code introspection.
+
+An AST checker is a visitor, and should implements
+visit_<lowered class name>
+leave_<lowered class name>
+methods for the nodes it's interested in. To get description of the different
+classes used in an ast tree, look at the `compiler.ast documentation`. 
+Checkers are ordered by priority. For each module, pylint's engine:
+
+1. give the module source file as a stream to raw checkers
+2. get an ast representation for the module
+3. make a depth first descent of the tree, calling visit_<> on each AST
+   checker when entering a node, and living_<> on the back traversal
+
+Notice that the source code is probably the best source of
+documentation, it should be clear and well documented. Don't hesitate to
+ask for any information on the python-projects mailing list.
+
+.. _`compiler package`: http://python.org/doc/current/lib/module-compiler.html
+.._ `compiler.ast documentation`: http://www.python.org/doc/current/lib/module-compiler.ast.html
+
+
+Contribute !
+------------
+feedback, bug reports, patch, svn...
+
+
+Other information
+=================
+
+IDE integration
+---------------
+Pylint is integrated in the following editors/IDEs:
+
+* emacs (of course)
+* eric3
+* eclipse (using the pydev_ plugin, see also
+  http://msdl.cs.mcgill.ca/MSDL/people/denis/meetings/pythonDev) 
+
+To use pylint from within vim, see
+http://www.gonzo.kiev.ua/projects/pylint.vim 
+
+_pydev: http://pydev.sourceforge.net
+
+
+Some projects using Pylint
+--------------------------
+The following projects are known to use pylint to help develop better
+code: 
+
+* OSAF Chandler (http://www.osafoundation.org/)
+* Xen (http://www.xensource.com/)
+* CPS (http://www.nuxeo.org)
+* ERP5 (http://www.erp5.org/)
+* pyxmpp (http://pyxmpp.jabberstudio.org/)
+* mercurial 
+* eXe (http://exelearning.org/)
+* PrimaGIS (http://www.primagis.org)
+* python-cdd (http://projetos.ossystems.com.br/python-cdd/)
+* CDSWare (http://cdsware.cern.ch/)
+* ASE (http://dcwww.camp.dtu.dk/campos/ASE/intro.html)
+* RunJob (http://projects.fnal.gov/runjob/)
+* Slugathon (http://slugathon.python-hosting.com/)
+* Topographica (http://topographica.org/Home/index.html) (at least they intend to do so)
+* http://browsershots.org 
+* many more... 
+
+Also notice that the CheeseCake_ kwalitee reporting tool uses pylint to
+analyze the source code.
+
+.. _CheeseCake: http://cheesecake.sourceforge.net/
+
+
+FAQ
+===
+.. include FAX.txt
+
+
+
+.. _pychecker: http://pychecker.sf.net
+.. _features: features.html
+.. _`PEP 08`: http://www.python.org/dev/peps/pep-0008/
+.. _`Guido's style guide`: http://www.python.org/doc/essays/styleguide.html
+.. _`refactoring book`: http://www.refactoring.com/
+
