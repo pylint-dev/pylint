@@ -7,7 +7,7 @@
     
     (interactive)
     (let* ((file (buffer-file-name (current-buffer)))
-	   (command (concat "pylint --parseable=y \"" file "\"")))
+	   (command (concat "pylint --output-format=parseable \"" file "\"")))
       (save-some-buffers (not compilation-ask-about-save) nil) ; save  files.
       (compile-internal command "No more errors or warnings" "pylint")))
   (local-set-key [f1] 'pylint)

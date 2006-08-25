@@ -16,28 +16,30 @@
 
 __revision__ = '$Id: unittest_lint.py,v 1.16 2006-04-19 09:17:40 syt Exp $'
 
-import unittest
+import shutil
 import sys
 import os
 import tempfile
-from os.path import join
+from os.path import join, basename, dirname, isdir, abspath
 from cStringIO import StringIO
+
+from logilab.common.testlib import TestCase, unittest_main, create_files
 
 from pylint.config import get_note_message
 from pylint.lint import PyLinter, Run, sort_checkers, UnknownMessage
 from pylint.utils import sort_msgs
 from pylint import checkers
 
-class SortMessagesTC(unittest.TestCase):
+class SortMessagesTC(TestCase):
     
     def test(self):
         l = ['E0501', 'E0503', 'F0002', 'I0201', 'W0540',
              'R0202', 'F0203', 'R0220', 'W0321', 'I0001']
-        self.assertEquals(sort_msgs(l), ['I0001', 'I0201',
-                                         'R0202', 'R0220',
+        self.assertEquals(sort_msgs(l), ['E0501', 'E0503',
                                          'W0321', 'W0540',
-                                         'E0501', 'E0503',
-                                         'F0002', 'F0203'])
+                                         'R0202', 'R0220',
+                                         'I0001', 'I0201',
+                                         'F0002', 'F0203',])
 
 try:
     optimized = True
@@ -45,7 +47,7 @@ try:
 except AssertionError:
     optimized = False
     
-class GetNoteMessageTC(unittest.TestCase):
+class GetNoteMessageTC(TestCase):
     def test(self):
         msg = None
         for note in range(-1, 11):
@@ -54,8 +56,12 @@ class GetNoteMessageTC(unittest.TestCase):
             msg = note_msg
         if optimized:
             self.assertRaises(AssertionError, get_note_message, 11)
-            
-class RunTC(unittest.TestCase):
+
+
+HERE = abspath(dirname(__file__))
+INPUTDIR = join(HERE, 'input')
+
+class RunTC(TestCase):
 
     def _test_run(self, args, exit_code=1, no_exit_fail=True):
         sys.stdout = StringIO()
@@ -76,10 +82,10 @@ class RunTC(unittest.TestCase):
         self._test_run([], 1)
         
     def test_no_ext_file(self):
-        self._test_run([join('input', 'noext')], no_exit_fail=False)
+        self._test_run([join(INPUTDIR, 'noext')], no_exit_fail=False)
 
         
-class PyLinterTC(unittest.TestCase):
+class PyLinterTC(TestCase):
     
     def setUp(self):
         self.linter = PyLinter()
@@ -88,16 +94,9 @@ class PyLinterTC(unittest.TestCase):
         # register checkers
         checkers.initialize(self.linter)
         
-    def test_disable_all(self):
-        self.linter.disable_all_checkers()
-        checkers = sort_checkers(self.linter._checkers, enabled_only=0)
-        self.assert_(len(checkers) > 1)
-        checkers = sort_checkers(self.linter._checkers, enabled_only=1)
-        self.assertEquals(checkers, [self.linter])
-        
     def test_message_help(self):
-        msg = self.linter.get_message_help('F0001')
-        expected = 'F0001:\n  Used when an error occured preventing the analyzing of a module (unable to\n  find it for instance). This message belongs to the master checker.'
+        msg = self.linter.get_message_help('F0001', checkerref=True)
+        expected = ':F0001:\n  Used when an error occured preventing the analyzing of a module (unable to\n  find it for instance). This message belongs to the master checker.'
         self.assertEquals(' '.join(msg.splitlines()), ' '.join(expected.splitlines()))
         self.assertRaises(UnknownMessage, self.linter.get_message_help, 'YB12')
         
@@ -140,7 +139,7 @@ class PyLinterTC(unittest.TestCase):
     def test_enable_message_block(self):
         linter = self.linter
         linter.open()
-        filepath = join('input', 'func_block_disable_msg.py')
+        filepath = join(INPUTDIR, 'func_block_disable_msg.py')
         linter.set_current_module('func_block_disable_msg')
         linter.process_module(open(filepath))
         orig_state = linter._module_msgs_state.copy()
@@ -227,7 +226,10 @@ class PyLinterTC(unittest.TestCase):
 
 from pylint import config
 
-class ConfigTC(unittest.TestCase):
+class ConfigTC(TestCase):
+
+    def setUp(self):
+        os.environ.pop('PYLINTRC', None)
 
     def test_pylint_home(self):
         uhome = os.path.expanduser('~')
@@ -250,19 +252,55 @@ class ConfigTC(unittest.TestCase):
                     pass
         finally:
             del os.environ['PYLINTHOME']
-        
+
     def test_pylintrc(self):
         try:
-            self.assertEquals(config.PYLINTRC, None)
+            self.assertEquals(config.find_pylintrc(), None)
             os.environ['PYLINTRC'] = join(tempfile.gettempdir(), '.pylintrc')
-            reload(config)
-            self.assertEquals(config.PYLINTRC, None)
+            self.assertEquals(config.find_pylintrc(), None)
             os.environ['PYLINTRC'] = '.'
-            reload(config)
-            self.assertEquals(config.PYLINTRC, None)
+            self.assertEquals(config.find_pylintrc(), None)
         finally:
-            del os.environ['PYLINTRC']
+            os.environ.pop('PYLINTRC', '')
             reload(config)
-        
+
+    def test_pylintrc_parentdir(self):
+        chroot = tempfile.mkdtemp()
+        try:
+            create_files(['a/pylintrc', 'a/b/__init__.py', 'a/b/pylintrc',
+                          'a/b/c/__init__.py', 'a/b/c/d/__init__.py'], chroot)
+            os.chdir(chroot)
+            self.assertEquals(config.find_pylintrc(), None)
+            results = {'a'       : join(chroot, 'a', 'pylintrc'),
+                       'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
+                       'a/b/c'   : join(chroot, 'a', 'b', 'pylintrc'),
+                       'a/b/c/d' : join(chroot, 'a', 'b', 'pylintrc'),
+                       }
+            for basedir, expected in results.items():
+                os.chdir(join(chroot, basedir))
+                self.assertEquals(config.find_pylintrc(), expected)
+        finally:
+            os.chdir(HERE)
+            shutil.rmtree(chroot)
+     
+
+    def test_pylintrc_parentdir_no_package(self):
+        chroot = tempfile.mkdtemp()
+        try:
+            create_files(['a/pylintrc', 'a/b/pylintrc', 'a/b/c/d/__init__.py'], chroot)
+            os.chdir(chroot)
+            self.assertEquals(config.find_pylintrc(), None)
+            results = {'a'       : join(chroot, 'a', 'pylintrc'),
+                       'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
+                       'a/b/c'   : None, 
+                       'a/b/c/d' : None, 
+                       }
+            for basedir, expected in results.items():
+                os.chdir(join(chroot, basedir))
+                self.assertEquals(config.find_pylintrc(), expected)
+        finally:
+            os.chdir(HERE)
+            shutil.rmtree(chroot)
+
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()

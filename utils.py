@@ -95,7 +95,7 @@ class MessagesHandlerMixIn:
         self._messages = {}
         self._messages_help = {}
         self._msgs_state = {}
-        self._module_msgs_state = None
+        self._module_msgs_state = {} # None
         self._msg_cats_state = {}
         self._module_msg_cats_state = None
         
@@ -256,7 +256,7 @@ class MessagesHandlerMixIn:
             module, obj = get_module_and_frameid(node)
             path = node.root().file
         # add the message
-        self.reporter.add_message(msg_id, (path, module, obj, line or 0), msg)
+        self.reporter.add_message(msg_id, (path, module, obj, line or 1), msg)
 
     def help_message(self, msgids):
         """display help messages for the given message identifiers"""

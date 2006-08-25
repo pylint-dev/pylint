@@ -3,75 +3,128 @@ PyLint features
 
 .. contents::
 
-Master
-------
+General options
+~~~~~~~~~~~~~~~
+:rcfile:
+  Specify a configuration file.
+:errors-only:
+  In debug mode, checkers without error messages are disabled and for others,
+  only the ERROR messages are displayed, and no reports are done by default
+:profile:
+  Profiled execution.
+:ignore:
+  Add <file or directory> to the black list. It should be a base name, not a
+  path. You may set this option multiple times.
+  Default: CVS
+:persistent:
+  Pickle collected data for later comparisons.
+  Default: yes
+:cache-size:
+  Set the cache size for astng objects.
+  Default: 500
+:load-plugins:
+  List of plugins (as comma separated values of python modules names) to load,
+  usually to register additional checkers.
 
-Description
-~~~~~~~~~~~
-lint Python modules using external checkers.
+Commands options
+~~~~~~~~~~~~~~~~
+:help-msg:
+  Display a help message for the given message id and exit. The value may be a
+  comma separated list of message ids.
+:list-msgs:
+  Generate pylint's full documentation.
+:generate-rcfile:
+  Generate a sample configuration file according to the current configuration.
+  You can put other options before this one to get them in the generated
+  configuration.
+:generate-man:
+  Generate pylint's man page.
 
-This is the main checker controling the other ones and the reports
-generation. It is itself both a raw checker and an astng checker in order
-to:
-* handle message activation / deactivation at the module level
-* handle some basic but necessary stats'data (number of classes, methods...)
+Messages control options
+~~~~~~~~~~~~~~~~~~~~~~~~
+:enable-checker:
+  Enable only checker(s) with the given id(s). This option conflict with the
+  disable-checker option
+:disable-checker:
+  Enable all checker(s) except those with the given id(s). This option conflict
+  with the disable-checker option
+:enable-msg-cat:
+  Enable all messages in the listed categories.
+:disable-msg-cat:
+  Disable all messages in the listed categories.
+:enable-msg:
+  Enable the message(s) with the given id(s).
+:disable-msg:
+  Disable the message(s) with the given id(s).
 
-This checker also defines the following reports:
-* R0001: Total errors / warnings
-* R0002: % errors / warnings by module
-* R0003: Messages
-* R0004: Global evaluation
+Reports options
+~~~~~~~~~~~~~~~
+:output-format:
+  set the output format. Available formats are text, parseable, colorized and
+  html
+  Default: text
+:include-ids:
+  Include message's id in output
+:files-output:
+  Put messages in a separate file for each module / package specified on the
+  command line instead of printing them on stdout. Reports (if any) will be
+  written in a file name "pylint_global.[txt|html]".
+:reports:
+  Tells wether to display a full report or only the messages
+  Default: yes
+:evaluation:
+  Python expression which should return a note less than 10 (10 is the highest
+  note).You have access to the variables errors warning, statement which
+  respectivly contain the number of errors / warnings messages and the total
+  number of statements analyzed. This is used by the global evaluation report
+  (R0004).
+  Default: 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+:comment:
+  Add a comment according to your evaluation note. This is used by the global
+  evaluation report (R0004).
+:enable-report:
+  Enable the report(s) with the given id(s).
+:disable-report:
+  Disable the report(s) with the given id(s).
 
-Messages
-~~~~~~~~
-I0001:
+Main messages
+~~~~~~~~~~~~~
+:E0001:
+  Used when a syntax error is raised for a module.
+:E0011: *Unrecognized file option %r*
+  Used when an unknown inline option is encountered.
+:E0012: *Bad option value %r*
+  Used when a bad value for an inline option is encountered.
+:I0001: *Unable to run raw checkers on built-in module %s*
   Used to inform that a built-in module has not been checked using the raw
-  checkers. This message belongs to the master checker.
-
-I0010:
+  checkers.
+:I0010: *Unable to consider inline option %r*
   Used when an inline option is either badly formatted or can't be used inside
-  modules. This message belongs to the master checker.
-
-I0011:
-  Used when an inline option disable a message or a messages category. This
-  message belongs to the master checker.
-
-I0012:
-  Used when an inline option enable a message or a messages category. This
-  message belongs to the master checker.
-
-E0001:
-  Used when a syntax error is raised for a module. This message belongs to the
-  master checker.
-
-E0011:
-  Used when an unknown inline option is encountered. This message belongs to the
-  master checker.
-
-E0012:
-  Used when an bad value for an inline option is encountered. This message
-  belongs to the master checker.
-
-F0001:
+  modules.
+:I0011: *Locally disabling %s*
+  Used when an inline option disable a message or a messages category.
+:I0012: *Locally enabling %s*
+  Used when an inline option enable a message or a messages category.
+:F0001:
   Used when an error occured preventing the analyzing of a module (unable to
-  find it for instance). This message belongs to the master checker.
-
-F0002:
+  find it for instance).
+:F0002: *%s: %s*
   Used when an unexpected error occured while building the ASTNG representation.
-  This is usually accomopagned by a traceback. Please report such errors ! This
-  message belongs to the master checker.
-
-F0003:
+  This is usually accomopagned by a traceback. Please report such errors !
+:F0003: *ignored builtin module %s*
   Used to indicate that the user asked to analyze a builtin module which has
-  been skipped. This message belongs to the master checker.
+  been skipped.
+
+Main reports
+~~~~~~~~~~~~
+:R0001: Messages by category
+:R0002: % errors / warnings by module
+:R0003: Messages
+:R0004: Global evaluation
 
 
-
-Basic
------
-
-Description
-~~~~~~~~~~~
+Basic checker
+-------------
 checks for :
 * doc strings
 * modules / classes / functions / methods / arguments / variables name
@@ -82,590 +135,525 @@ functions, methods
 * redefinition of function / method / class
 * uses of the global statement
 
-This checker also defines the following reports:
-* R0101: Statistics by type
+Options
+~~~~~~~
+:required-attributes:
+  Required attributes for module, separated by a comma
+  Default: __revision__
+:no-docstring-rgx:
+  Regular expression which should only match functions or classes name which do
+  not require a docstring
+  Default: __.*__
+:module-rgx:
+  Regular expression which should only match correct module names
+  Default: (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+:const-rgx:
+  Regular expression which should only match correct module level names
+  Default: (([A-Z_][A-Z1-9_]*)|(__.*__))$
+:class-rgx:
+  Regular expression which should only match correct class names
+  Default: [A-Z_][a-zA-Z0-9]+$
+:function-rgx:
+  Regular expression which should only match correct function names
+  Default: [a-z_][a-z0-9_]{2,30}$
+:method-rgx:
+  Regular expression which should only match correct method names
+  Default: [a-z_][a-z0-9_]{2,30}$
+:attr-rgx:
+  Regular expression which should only match correct instance attribute names
+  Default: [a-z_][a-z0-9_]{2,30}$
+:argument-rgx:
+  Regular expression which should only match correct argument names
+  Default: [a-z_][a-z0-9_]{2,30}$
+:variable-rgx:
+  Regular expression which should only match correct variable names
+  Default: [a-z_][a-z0-9_]{2,30}$
+:inlinevar-rgx:
+  Regular expression which should only match correct list comprehension /
+  generator expression variable names
+  Default: [A-Za-z_][A-Za-z0-9_]*$
+:good-names:
+  Good variable names which should always be accepted, separated by a comma
+  Default: i,j,k,ex,Run,_
+:bad-names:
+  Bad variable names which should always be refused, separated by a comma
+  Default: foo,bar,baz,toto,tutu,tata
+:bad-functions:
+  List of builtins function names that should not be used, separated by a comma
+  Default: map,filter,apply,input
 
 Messages
 ~~~~~~~~
-C0102:
-  Used when the name is listed in the black list (unauthorized names). This
-  message belongs to the basic checker.
-
-C0103:
-  Used when the name doesn't match the regular expression associated to its type
-  (constant, variable, class...). This message belongs to the basic checker.
-
-C0111:
-  Used when a module, function, class or method has no docstring. Some special
-  methods like __init__ doesn't necessary require a docstring. This message
-  belongs to the basic checker.
-
-C0112:
-  Used when a module, function, class or method has an empty docstring (it would
-  be to easy ;). This message belongs to the basic checker.
-
-C0121:
-  Used when an attribute required for modules is missing. This message belongs
-  to the basic checker.
-
-W0101:
+:E0101: *Explicit return in __init__*
+  Used when the special class method __ini__ has an explicit return value.
+:E0102: *%s already defined line %s*
+  Used when a function / class / method is redefined.
+:E0103: *%r not properly in loop*
+  Used when break or continue keywords are used outside a loop.
+:W0101: *Unreachable code*
   Used when there is some code behind a "return" or "raise" statement, which
-  will never be accessed. This message belongs to the basic checker.
-
-W0102:
+  will never be accessed.
+:W0102: *Dangerous default value %s as argument*
   Used when a mutable value as list or dictionary is detected in a default value
-  for an argument. This message belongs to the basic checker.
-
-W0104:
-  Used when a statement doesn't have (or at least seems to) any effect. This
-  message belongs to the basic checker.
-
-W0122:
+  for an argument.
+:W0104: *Statement seems to have no effect*
+  Used when a statement doesn't have (or at least seems to) any effect.
+:W0105: *String statement has no effect*
+  Used when a string is used as a statement (which of course has no effect).
+  This is a particular case of W0104 with its own message so you can easily
+  disable it if you're using those strings as documentation, instead of comments.
+:W0106: *Unnecessary semi-column*
+  Used when a statement is endend by a semi-colon (";"), which isn't necessary
+  (that's python, not C ;)
+:W0122: *Use of the exec statement*
   Used when you use the "exec" statement, to discourage its usage. That doesn't
-  mean you can not use it ! This message belongs to the basic checker.
-
-W0141:
+  mean you can not use it !
+:W0141: *Used builtin function %r*
   Used when a black listed builtin function is used (see the bad-function
   option). Usual black listed functions are the ones like map, or filter , where
-  Python offers now some cleaner alternative like list comprehension. This
-  message belongs to the basic checker.
-
-W0142:
+  Python offers now some cleaner alternative like list comprehension.
+:W0142: *Used * or ** magic*
   Used when a function or method is called using `*args` or `**kwargs` to
-  dispatch arguments. This doesn't improve readility and should be used with
-  care. This message belongs to the basic checker.
+  dispatch arguments. This doesn't improve readility and should be used with care.
+:C0102: *Black listed name "%s"*
+  Used when the name is listed in the black list (unauthorized names).
+:C0103: *Invalid name "%s" (should match %s)*
+  Used when the name doesn't match the regular expression associated to its type
+  (constant, variable, class...).
+:C0111: *Missing docstring*
+  Used when a module, function, class or method has no docstring. Some special
+  methods like __init__ doesn't necessary require a docstring.
+:C0112: *Empty docstring*
+  Used when a module, function, class or method has an empty docstring (it would
+  be to easy ;).
+:C0121: *Missing required attribute "%s"*
+  Used when an attribute required for modules is missing.
 
-E0101:
-  Used when the special class method __ini__ has an explicit return value. This
-  message belongs to the basic checker.
-
-E0102:
-  Used when a function / class / method is redefined. This message belongs to
-  the basic checker.
-
-E0103:
-  Used when break or continue keywords are used outside a loop. This message
-  belongs to the basic checker.
+Reports
+~~~~~~~
+:R0101: Statistics by type
 
 
+Typecheck checker
+-----------------
+try to find bugs in the code using type inference
 
-Variables
----------
+Options
+~~~~~~~
+:ignore-mixin-members:
+  Tells wether missing members accessed in mixin class should be ignored. A
+  mixin class is detected if its name ends with "mixin" (case insensitive).
+  Default: yes
+:zope:
+  When zope mode is activated, consider the acquired-members option to ignore
+  access to some undefined attributes.
+:acquired-members:
+  List of members which are usually get through zope's acquisition mecanism and
+  so shouldn't trigger E0201 when accessed (need zope=yes to be considered).
+  Default: REQUEST,acl_users,aq_parent
 
-Description
-~~~~~~~~~~~
+Messages
+~~~~~~~~
+:E1101: *%s %r has no %r member*
+  Used when a class is accessed for an unexistant member.
+:E1102: *%s is not callable*
+  Used when an object being called has been infered to a non callable object
+:E1111: *Assigning to function call which doesn't return*
+  Used when an assigment is done on a function call but the infered function
+  doesn't return anything.
+:W1111: *Assigning to function call which only returns None*
+  Used when an assigment is done on a function call but the infered function
+  returns nothing but None.
+
+
+Variables checker
+-----------------
 checks for
 * unused variables / imports
 * undefined variables
 * redefinition of variable from builtins or from an outer scope
 * use of variable before assigment
 
+Options
+~~~~~~~
+:init-import:
+  Tells wether we should check for unused import in __init__ files.
+:dummy-variables-rgx:
+  A regular expression matching names used for dummy variables (i.e. not used).
+  Default: _|dummy
+:additional-builtins:
+  List of additional names supposed to be defined in builtins. Remember that
+  you should avoid to define new builtins when possible.
 
 Messages
 ~~~~~~~~
-W0601:
+:E0601: *Using variable %r before assignment*
+  Used when a local variable is accessed before it's assignment.
+:E0602: *Undefined variable %r*
+  Used when an undefined variable is accessed.
+:E0611: *No name %r in module %r*
+  Used when a name cannot be found in a module.
+:W0601: *Global variable %r undefined at the module level*
   Used when a variable is defined through the "global" statement but the
-  variable is not defined in the module scope. This message belongs to the
-  variables checker.
-
-W0602:
+  variable is not defined in the module scope.
+:W0602: *Using global for %r but no assigment is done*
   Used when a variable is defined through the "global" statement but no
-  assigment to this variable is done. This message belongs to the variables
-  checker.
-
-W0603:
+  assigment to this variable is done.
+:W0603: *Using the global statement*
   Used when you use the "global" statement to update a global variable. PyLint
-  just try to discourage this usage. That doesn't mean you can not use it ! This
-  message belongs to the variables checker.
-
-W0604:
+  just try to discourage this usage. That doesn't mean you can not use it !
+:W0604: *Using the global statement at the module level*
   Used when you use the "global" statement at the module level since it has no
-  effect This message belongs to the variables checker.
-
-W0611:
-  Used when an imported module or variable is not used. This message belongs to
-  the variables checker.
-
-W0612:
-  Used when a variable is defined but not used. This message belongs to the
-  variables checker.
-
-W0613:
-  Used when a function or method argument is not used. This message belongs to
-  the variables checker.
-
-W0621:
-  Used when a variable's name hide a name defined in the outer scope. This
-  message belongs to the variables checker.
-
-W0622:
-  Used when a variable or function override a built-in. This message belongs to
-  the variables checker.
-
-W0631:
+  effect
+:W0611: *Unused import %s*
+  Used when an imported module or variable is not used.
+:W0612: *Unused variable %r*
+  Used when a variable is defined but not used.
+:W0613: *Unused argument %r*
+  Used when a function or method argument is not used.
+:W0621: *Redefining name %r from outer scope (line %s)*
+  Used when a variable's name hide a name defined in the outer scope.
+:W0622: *Redefining built-in %r*
+  Used when a variable or function override a built-in.
+:W0631: *Using possibly undefined loop variable %r*
   Used when an loop variable (i.e. defined by a for loop or a list comprehension
-  or a generator expression) is used outside the loop. This message belongs to
-  the variables checker.
-
-E0601:
-  Used when a local variable is accessed before it's assignment. This message
-  belongs to the variables checker.
-
-E0602:
-  Used when an undefined variable is accessed. This message belongs to the
-  variables checker.
-
-E0611:
-  Used when a name cannot be found in a module. This message belongs to the
-  variables checker.
+  or a generator expression) is used outside the loop.
 
 
-
-Typecheck
----------
-
-Description
-~~~~~~~~~~~
-try to find bugs in the code using type inference
-
-
-Messages
-~~~~~~~~
-W1111:
-  Used when an assigment is done on a function call but the infered function
-  returns nothing but None. This message belongs to the typecheck checker.
-
-E1101:
-  Used when a class is accessed for an unexistant member. This message belongs
-  to the typecheck checker.
-
-E1102:
-  Used when an object being called has been infered to a non callable object
-  This message belongs to the typecheck checker.
-
-E1111:
-  Used when an assigment is done on a function call but the infered function
-  doesn't return anything. This message belongs to the typecheck checker.
-
-
-
-Design
-------
-
-Description
-~~~~~~~~~~~
-checks for sign of poor/misdesign:
-* number of methods, attributes, local variables...
-* size, complexity of functions, methods
-
-
-Messages
-~~~~~~~~
-R0901:
-  Used when class has too many parent classes. This message belongs to the
-  design checker.
-
-R0902:
-  Used when class has too many instance attributes. This message belongs to the
-  design checker.
-
-R0903:
-  Used when class has not enough public methods. This message belongs to the
-  design checker.
-
-R0904:
-  Used when class has too many public methods. This message belongs to the
-  design checker.
-
-R0911:
-  Used when a function or method has too many return statement. This message
-  belongs to the design checker.
-
-R0912:
-  Used when a function or method has too many branches. This message belongs to
-  the design checker.
-
-R0913:
-  Used when a function or method takes too many arguments. This message belongs
-  to the design checker.
-
-R0914:
-  Used when a function or method has too many local variables. This message
-  belongs to the design checker.
-
-R0915:
-  Used when a function or method has too many statements. You should then split
-  it in smaller functions / methods. This message belongs to the design checker.
-
-R0921:
-  Used when an abstract class is not used as ancestor anywhere. This message
-  belongs to the design checker.
-
-R0922:
-  Used when an abstract class is used less than X times as ancestor. This
-  message belongs to the design checker.
-
-R0923:
-  Used when an interface class is not implemented anywhere. This message belongs
-  to the design checker.
-
-
-
-Classes
--------
-
-Description
-~~~~~~~~~~~
+Classes checker
+---------------
 checks for :
 * methods without self as first argument
-* overriden methods signature
+* overridden methods signature
 * access only to existant members via self
 * attributes not defined in the __init__ method
 * supported interfaces implementation
 * unreachable code
 
+Options
+~~~~~~~
+:ignore-iface-methods:
+  List of interface methods to ignore, separated by a comma. This is used for
+  instance to not check methods defines in Zope's Interface base class.
+  Default: isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
+:defining-attr-methods:
+  List of method names used to declare (i.e. assign) instance attributes.
+  Default: __init__,__new__,setUp
 
 Messages
 ~~~~~~~~
-C0202:
-  Used when a class method has an attribute different than "cls" as first
-  argument, to easily differentiate them from regular instance methods. This
-  message belongs to the classes checker.
-
-C0203:
-  Used when a metaclass method has an attribute different the "mcs" as first
-  argument. This message belongs to the classes checker.
-
-R0201:
-  Used when a method doesn't use its bound instance, and so could be written as
-  a function. This message belongs to the classes checker.
-
-W0201:
-  Used when an instance attribute is defined outside the __init__ method. This
-  message belongs to the classes checker.
-
-W0211:
-  Used when a static method has "self" or "cls" as first argument. This message
-  belongs to the classes checker.
-
-W0221:
-  Used when a method has a different number of arguments than in the implemented
-  interface or in an overriden method. This message belongs to the classes
-  checker.
-
-W0222:
-  Used when a method signature is different than in the implemented interface or
-  in an overriden method. This message belongs to the classes checker.
-
-W0223:
-  Used when an abstract method (ie raise NotImplementedError) is not overriden
-  in concrete class. This message belongs to the classes checker.
-
-W0231:
-  Used when an ancestor class method has an __init__ method which is not called
-  by a derived class. This message belongs to the classes checker.
-
-W0232:
-  Used when a class has no __init__ method, neither its parent classes. This
-  message belongs to the classes checker.
-
-W0233:
-  Used when an __init__ method is called on a class which is not in the direct
-  ancestors for the analysed class. This message belongs to the classes checker.
-
-E0202:
+:E0202: *An attribute inherited from %s hide this method*
   Used when a class defines a method which is hiden by an instance attribute
-  from an ancestor class. This message belongs to the classes checker.
-
-E0203:
-  Used when an instance member is accessed before it's actually assigned. This
-  message belongs to the classes checker.
-
-E0211:
+  from an ancestor class.
+:E0203: *Access to member %r before its definition line %s*
+  Used when an instance member is accessed before it's actually assigned.
+:E0211: *Method has no argument*
   Used when a method which should have the bound instance as first argument has
-  no argument defined. This message belongs to the classes checker.
-
-E0213:
+  no argument defined.
+:E0213: *Method should have "self" as first argument*
   Used when a method has an attribute different the "self" as first argument.
-  This message belongs to the classes checker.
-
-E0221:
-  Used when a class claims to implement an interface which is not a class. This
-  message belongs to the classes checker.
-
-E0222:
+  This is considered as an error since this is a soooo common convention that
+  you should'nt break it!
+:E0221: *Interface resolved to %s is not a class*
+  Used when a class claims to implement an interface which is not a class.
+:E0222: *Missing method %r from %s interface*
   Used when a method declared in an interface is missing from a class
-  implementing this interface This message belongs to the classes checker.
-
-F0202:
+  implementing this interface
+:W0201: *Attribute %r defined outside __init__*
+  Used when an instance attribute is defined outside the __init__ method.
+:W0211: *Static method with %r as first argument*
+  Used when a static method has "self" or "cls" as first argument.
+:W0212: *Access to a protected member %s of a client class*
+  Used when a protected member (i.e. class member with a name beginning with an
+  underscore) is access outside the class or a descendant of the class where
+  it's defined.
+:W0221: *Arguments number differs from %s method*
+  Used when a method has a different number of arguments than in the implemented
+  interface or in an overridden method.
+:W0222: *Signature differs from %s method*
+  Used when a method signature is different than in the implemented interface or
+  in an overridden method.
+:W0223: *Method %r is abstract in class %r but is not overridden*
+  Used when an abstract method (ie raise NotImplementedError) is not overridden
+  in concrete class.
+:W0231: *__init__ method from base class %r is not called*
+  Used when an ancestor class method has an __init__ method which is not called
+  by a derived class.
+:W0232: *Class has no __init__ method*
+  Used when a class has no __init__ method, neither its parent classes.
+:W0233: *__init__ method from a non direct base class %r is called*
+  Used when an __init__ method is called on a class which is not in the direct
+  ancestors for the analysed class.
+:R0201: *Method could be a function*
+  Used when a method doesn't use its bound instance, and so could be written as
+  a function.
+:C0202: *Class method should have "cls" as first argument*
+  Used when a class method has an attribute different than "cls" as first
+  argument, to easily differentiate them from regular instance methods.
+:C0203: *Metaclass method should have "mcs" as first argument*
+  Used when a metaclass method has an attribute different the "mcs" as first
+  argument.
+:F0202: *Unable to check methods signature (%s / %s)*
   Used when PyLint has been unable to check methods signature compatibility for
   an unexpected raison. Please report this kind if you don't make sense of it.
-  This message belongs to the classes checker.
-
-F0220:
-  Used when a PyLint as failed to find interfaces implemented by a class This
-  message belongs to the classes checker.
+:F0220: *failed to resolve interfaces implemented by %s (%s)*
+  Used when a PyLint as failed to find interfaces implemented by a class
 
 
+Design checker
+--------------
+checks for sign of poor/misdesign:
+* number of methods, attributes, local variables...
+* size, complexity of functions, methods
 
-Imports
--------
+Options
+~~~~~~~
+:max-args:
+  Maximum number of arguments for function / method
+  Default: 5
+:max-locals:
+  Maximum number of locals for function / method body
+  Default: 15
+:max-returns:
+  Maximum number of return / yield for function / method body
+  Default: 6
+:max-branchs:
+  Maximum number of branch for function / method body
+  Default: 12
+:max-statements:
+  Maximum number of statements in function / method body
+  Default: 50
+:max-parents:
+  Maximum number of parents for a class (see R0901).
+  Default: 7
+:max-attributes:
+  Maximum number of attributes for a class (see R0902).
+  Default: 7
+:min-public-methods:
+  Minimum number of public methods for a class (see R0903).
+  Default: 2
+:max-public-methods:
+  Maximum number of public methods for a class (see R0904).
+  Default: 20
 
-Description
-~~~~~~~~~~~
+Messages
+~~~~~~~~
+:R0901: *Too many ancestors (%s/%s)*
+  Used when class has too many parent classes, try to reduce this to get a more
+  simple (and so easier to use) class.
+:R0902: *Too many instance attributes (%s/%s)*
+  Used when class has too many instance attributes, try to reduce this to get a
+  more simple (and so easier to use) class.
+:R0903: *To few public methods (%s/%s)*
+  Used when class has to few public methods, so be sure it's really worth it.
+:R0904: *Too many public methods (%s/%s)*
+  Used when class has too many public methods, try to reduce this to get a more
+  simple (and so easier to use) class.
+:R0911: *Too many return statements (%s/%s)*
+  Used when a function or method has too many return statement, making it hard
+  to follow.
+:R0912: *Too many branches (%s/%s)*
+  Used when a function or method has too many branches, making it hard to follow.
+:R0913: *Too many arguments (%s/%s)*
+  Used when a function or method takes too many arguments.
+:R0914: *Too many local variables (%s/%s)*
+  Used when a function or method has too many local variables.
+:R0915: *Too many statements (%s/%s)*
+  Used when a function or method has too many statements. You should then split
+  it in smaller functions / methods.
+:R0921: *Abstract class not referenced*
+  Used when an abstract class is not used as ancestor anywhere.
+:R0922: *Abstract class is only referenced %s times*
+  Used when an abstract class is used less than X times as ancestor.
+:R0923: *Interface not implemented*
+  Used when an interface class is not implemented anywhere.
+
+
+Imports checker
+---------------
 checks for
 * external modules dependencies
 * relative / wildcard imports
 * cyclic imports
 * uses of deprecated modules
 
-This checker also defines the following reports:
-* R0401: External dependencies
-* R0402: Modules dependencies graph
+Options
+~~~~~~~
+:deprecated-modules:
+  Deprecated modules which should not be used, separated by a comma
+  Default: regsub,string,TERMIOS,Bastion,rexec
+:import-graph:
+  Create a graph of every (i.e. internal and external) dependencies in the
+  given file (report R0402 must not be disabled)
+:ext-import-graph:
+  Create a graph of external dependencies in the given file (report R0402 must
+  not be disabled)
+:int-import-graph:
+  Create a graph of internal dependencies in the given file (report R0402 must
+  not be disabled)
 
 Messages
 ~~~~~~~~
-R0401:
-  Used when a cyclic import between two or more modules is detected. This
-  message belongs to the imports checker.
-
-W0401:
-  Used when `from module import *` is detected. This message belongs to the
-  imports checker.
-
-W0402:
-  Used a module marked as deprecated is imported. This message belongs to the
-  imports checker.
-
-W0403:
-  Used when an import relative to the package directory is detected. This
-  message belongs to the imports checker.
-
-W0404:
-  Used when a module is reimported multiple times. This message belongs to the
-  imports checker.
-
-W0406:
-  Used when a module is importing itself. This message belongs to the imports
-  checker.
-
-W0410:
+:W0401: *Wildcard import %s*
+  Used when `from module import *` is detected.
+:W0402: *Uses of a deprecated module %r*
+  Used a module marked as deprecated is imported.
+:W0403: *Relative import %r*
+  Used when an import relative to the package directory is detected.
+:W0404: *Reimport %r (imported line %s)*
+  Used when a module is reimported multiple times.
+:W0406: *Module import itself*
+  Used when a module is importing itself.
+:W0410: *__future__ import is not the first non docstring statement*
   Python 2.5 and greater require __future__ import to be the first non docstring
-  statement in the module. This message belongs to the imports checker.
+  statement in the module.
+:R0401: *Cyclic import (%s)*
+  Used when a cyclic import between two or more modules is detected.
+:F0401: *Unable to import %r (%s)*
+  Used when pylint has been unable to import a module.
 
-F0401:
-  Used when pylint has been unable to import a module. This message belongs to
-  the imports checker.
+Reports
+~~~~~~~
+:R0401: External dependencies
+:R0402: Modules dependencies graph
 
 
-
-Newstyle
---------
-
-Description
-~~~~~~~~~~~
+Newstyle checker
+----------------
 checks for usage of new style capabilities on old style classes and
 other new/old styles conflicts problems
 * use of property, __slots__, super
 * "super" usage
 * raising a new style class as exception
 
-
 Messages
 ~~~~~~~~
-W1001:
-  Used when PyLint detect the use of the builtin "property" on an old style
-  class while this is relying on new style classes features This message belongs
-  to the newstyle checker.
-
-W1010:
-  Used when a custom exception class is raised but doesn't inherit from the
-  builtin "Exception" class. This message belongs to the newstyle checker.
-
-E1001:
-  Used when an old style class use the __slots__ attribute. This message belongs
-  to the newstyle checker.
-
-E1002:
-  Used when an old style class use the super builtin. This message belongs to
-  the newstyle checker.
-
-E1003:
+:E1001: *Use __slots__ on an old style class*
+  Used when an old style class use the __slots__ attribute.
+:E1002: *Use super on an old style class*
+  Used when an old style class use the super builtin.
+:E1003: *Bad first argument %r given to super class*
   Used when another argument than the current class is given as first argument
-  of the super builtin. This message belongs to the newstyle checker.
+  of the super builtin.
+:E1010: *Raising a new style class*
+  Used when a new style class is raised since it's not yet possible.
+:W1001: *Use of "property" on an old style class*
+  Used when PyLint detect the use of the builtin "property" on an old style
+  class while this is relying on new style classes features
+:W1010: *Exception doesn't inherit from standard "Exception" class*
+  Used when a custom exception class is raised but doesn't inherit from the
+  builtin "Exception" class.
 
-E1010:
-  Used when a new style class is raised since it's not yet possible. This
-  message belongs to the newstyle checker.
 
-
-
-Exceptions
-----------
-
-Description
-~~~~~~~~~~~
+Exceptions checker
+------------------
 checks for
 * excepts without exception filter
 * string exceptions
 
-
 Messages
 ~~~~~~~~
-W0701:
-  Used when a string exception is raised. This message belongs to the exceptions
-  checker.
-
-W0702:
-  Used when an except clause doesn't specify exceptions type to catch. This
-  message belongs to the exceptions checker.
-
-W0703:
-  Used when an except catch Exception instances. This message belongs to the
-  exceptions checker.
-
-W0704:
-  Used when an except clause does nothing but "pass" and there is no "else"
-  clause. This message belongs to the exceptions checker.
-
-W0706:
-  Used when a variable used to raise an exception is initially assigned to a
-  value which can't be used as an exception. This message belongs to the
-  exceptions checker.
-
-E0701:
+:E0701: *Bad except clauses order (%s)*
   Used when except clauses are not in the correct order (from the more specific
   to the more generic). If you don't fix the order, some exceptions may not be
-  catched by the most specific handler. This message belongs to the exceptions
-  checker.
-
-E0702:
+  catched by the most specific handler.
+:E0702: *Raising %s while only classes, instances or string are allowed*
   Used when something which is neither a class, an instance or a string is
-  raised (i.e. a `TypeError` will be raised). This message belongs to the
-  exceptions checker.
+  raised (i.e. a `TypeError` will be raised).
+:W0701: *Raising a string exception*
+  Used when a string exception is raised.
+:W0702: *No exception's type specified*
+  Used when an except clause doesn't specify exceptions type to catch.
+:W0703: *Catch "Exception"*
+  Used when an except catch Exception instances.
+:W0704: *Except doesn't do anything*
+  Used when an except clause does nothing but "pass" and there is no "else"
+  clause.
+:W0706: *Identifier %s used to raise an exception is assigned to %s*
+  Used when a variable used to raise an exception is initially assigned to a
+  value which can't be used as an exception.
 
 
-
-Similarities
-------------
-
-Description
-~~~~~~~~~~~
-checks for similarities and duplicated code. This computation may be
-memory / CPU intensive, so you should disable it if you experiments some
-problems.
-
-This checker also defines the following reports:
-* R0801: Duplication
-
-Messages
-~~~~~~~~
-R0801:
-  Indicates that a set of similar lines has been detected among multiple file.
-  This usually means that the code should be refactored to avoid this
-  duplication. This message belongs to the similarities checker.
-
-
-
-Format
-------
-
-Description
-~~~~~~~~~~~
+Format checker
+--------------
 checks for :
 * unauthorized constructions
 * strict indentation
 * line length
 * use of <> instead of !=
 
+Options
+~~~~~~~
+:max-line-length:
+  Maximum number of characters on a single line.
+  Default: 80
+:max-module-lines:
+  Maximum number of lines in a module
+  Default: 1000
+:indent-string:
+  String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
+  tab).
+  Default: '    '
 
 Messages
 ~~~~~~~~
-C0301:
-  Used when a line is longer than a given number of characters. This message
-  belongs to the format checker.
-
-C0321:
-  Used when more than on statement are found on the same line. This message
-  belongs to the format checker.
-
-C0322:
-  Used when one of the following operator (!= | <= | == | >= | < | > | = | \+= |
-  -= | \*= | /= | %) is not preceded by a space. This message belongs to the
-  format checker.
-
-C0323:
-  Used when one of the following operator (!= | <= | == | >= | < | > | = | \+= |
-  -= | \*= | /= | %) is not followed by a space. This message belongs to the
-  format checker.
-
-C0324:
-  Used when a comma (",") is not followed by a space. This message belongs to
-  the format checker.
-
-W0302:
-  Used when a module has too much lines, reducing its readibility. This message
-  belongs to the format checker.
-
-W0311:
+:W0311: *Bad indentation. Found %s %s, expected %s*
   Used when an unexpected number of indentation's tabulations or spaces has been
-  found. This message belongs to the format checker.
-
-W0312:
-  Used when there are some mixed tabs and spaces in a module. This message
-  belongs to the format checker.
-
-W0331:
-  Used when the deprecated "<>" operator is used instead of "!=". This message
-  belongs to the format checker.
-
-W0332:
+  found.
+:W0312: *Found indentation with %ss instead of %ss*
+  Used when there are some mixed tabs and spaces in a module.
+:W0331: *Use of the <> operator*
+  Used when the deprecated "<>" operator is used instead of "!=".
+:W0332: *Use l as long integer identifier*
   Used when a lower case "l" is used to mark a long integer. You should use a
-  upper case "L" since the letter "l" looks too much like the digit "1" This
-  message belongs to the format checker.
-
-F0321:
+  upper case "L" since the letter "l" looks too much like the digit "1"
+:C0301: *Line too long (%s/%s)*
+  Used when a line is longer than a given number of characters.
+:C0302: *Too many lines in module (%s)*
+  Used when a module has too much lines, reducing its readibility.
+:C0321: *More than one statement on a single line*
+  Used when more than on statement are found on the same line.
+:C0322: *Operator not preceded by a space*
+  Used when one of the following operator (!= | <= | == | >= | < | > | = | \+= |
+  -= | \*= | /= | %) is not preceded by a space.
+:C0323: *Operator not followed by a space*
+  Used when one of the following operator (!= | <= | == | >= | < | > | = | \+= |
+  -= | \*= | /= | %) is not followed by a space.
+:C0324: *Comma not followed by a space*
+  Used when a comma (",") is not followed by a space.
+:F0321: *Format detection error in %r*
   Used when an unexpected error occured in bad format detection. Please report
-  the error if it occurs. This message belongs to the format checker.
+  the error if it occurs.
 
 
-
-Miscellaneous
--------------
-
-Description
-~~~~~~~~~~~
+Miscellaneous checker
+---------------------
 checks for:
 * warning notes in the code like FIXME, XXX
 * PEP 263: source code with non ascii character but no encoding declaration
 
+Options
+~~~~~~~
+:notes:
+  List of note tags to take in consideration, separated by a comma.
+  Default: FIXME,XXX,TODO
 
 Messages
 ~~~~~~~~
-W0511:
-  Used when a warning note as FIXME or XXX is detected. This message belongs to
-  the miscellaneous checker.
-
-E0501:
+:E0501: *Non ascii characters found but no encoding specified (PEP 263)*
   Used when some non ascii characters are detected but now encoding is
-  specified, as explicited in the PEP 263. This message belongs to the
-  miscellaneous checker.
-
-E0502:
+  specified, as explicited in the PEP 263.
+:E0502: *Wrong encoding specified (%s)*
   Used when a known encoding is specified but the file doesn't seem to be
-  actually in this encoding. This message belongs to the miscellaneous checker.
+  actually in this encoding.
+:E0503: *Unknown encoding specified (%s)*
+  Used when an encoding is specified, but it's unknown to Python.
+:W0511:
+  Used when a warning note as FIXME or XXX is detected.
 
-E0503:
-  Used when an encoding is specified, but it's unknown to Python. This message
-  belongs to the miscellaneous checker.
 
-
-
-Metrics
--------
-
-Description
-~~~~~~~~~~~
+Metrics checker
+---------------
 does not check anything but gives some raw metrics :
 * total number of lines
 * total number of code lines
@@ -673,6 +661,37 @@ does not check anything but gives some raw metrics :
 * total number of comments lines
 * total number of empty lines
 
-This checker also defines the following reports:
-* R0701: Raw metrics
+Reports
+~~~~~~~
+:R0701: Raw metrics
+
+
+Similarities checker
+--------------------
+checks for similarities and duplicated code. This computation may be
+memory / CPU intensive, so you should disable it if you experiments some
+problems.
+
+Options
+~~~~~~~
+:min-similarity-lines:
+  Minimum lines number of a similarity.
+  Default: 4
+:ignore-comments:
+  Ignore comments when computing similarities.
+  Default: yes
+:ignore-docstrings:
+  Ignore docstrings when computing similarities.
+  Default: yes
+
+Messages
+~~~~~~~~
+:R0801: *Similar lines in %s files*
+  Indicates that a set of similar lines has been detected among multiple file.
+  This usually means that the code should be refactored to avoid this duplication.
+
+Reports
+~~~~~~~
+:R0801: Duplication
+
 

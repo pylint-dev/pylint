@@ -1,3 +1,9 @@
+pylint (0.12.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Adrien.DiMascio <Adrien.DiMascio@logilab.fr>  Thu, 10 Aug 2006 11:18:50 +0200
+
 pylint (0.11.0-2) unstable; urgency=low
 
   * Updated standards to 3.7.2

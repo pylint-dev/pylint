@@ -71,22 +71,33 @@ def save_results(results, base):
     
 # location of the configuration file ##########################################
 
-# is there a pylint rc file in the current directory ?
-if exists('pylintrc'):
-    PYLINTRC = abspath('pylintrc')
-elif os.environ.has_key('PYLINTRC') and exists(os.environ['PYLINTRC']):
-    PYLINTRC = os.environ['PYLINTRC']
-else:
-    USER_HOME = expanduser('~')
-    if USER_HOME == '~' or USER_HOME == '/root':
-        PYLINTRC = ".pylintrc"
+
+def find_pylintrc():
+    # is there a pylint rc file in the current directory ?
+    if exists('pylintrc'):
+        return abspath('pylintrc')
+    if isfile('__init__.py'):
+        curdir = abspath(os.getcwd())
+        while isfile(join(curdir, '__init__.py')):
+            curdir = abspath(join(curdir, '..'))
+            if isfile(join(curdir, 'pylintrc')):
+                return join(curdir, 'pylintrc')
+    if os.environ.has_key('PYLINTRC') and exists(os.environ['PYLINTRC']):
+        pylintrc = os.environ['PYLINTRC']
     else:
-        PYLINTRC = join(USER_HOME, '.pylintrc')
-if not isfile(PYLINTRC):
-    if isfile('/etc/pylintrc'):
-        PYLINTRC = '/etc/pylintrc'
-    else:
-        PYLINTRC = None
+        USER_HOME = expanduser('~')
+        if USER_HOME == '~' or USER_HOME == '/root':
+            pylintrc = ".pylintrc"
+        else:
+            pylintrc = join(USER_HOME, '.pylintrc')
+    if not isfile(pylintrc):
+        if isfile('/etc/pylintrc'):
+            pylintrc = '/etc/pylintrc'
+        else:
+            pylintrc = None
+    return pylintrc
+
+PYLINTRC = find_pylintrc()
 
 ENV_HELP = '''
 The following environment variables are used :                                 

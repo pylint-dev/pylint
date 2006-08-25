@@ -38,12 +38,13 @@ class ImportCheckerTC(unittest.TestCase):
     def setUp(self):
         self.linter = l = PyLinter(reporter=TestReporter())
         initialize(l)
-        l.disable_all_checkers()
+        for checker in l._checkers:
+            checker.enable(False)
         
     def test_checker_dep_graphs(self):
         l = self.linter
         l.global_set_option('persistent', False)
-        l.global_set_option('enable-imports', True)
+        l.global_set_option('enable-checker', 'imports')
         l.global_set_option('import-graph', 'import.dot')
         l.global_set_option('ext-import-graph', 'ext_import.dot')
         l.global_set_option('int-import-graph', 'int_import.dot')

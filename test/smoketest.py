@@ -16,16 +16,17 @@
 
 __revision__ = "$Id: smoketest.py,v 1.6 2005-04-15 10:40:24 syt Exp $"
 
-import unittest
 import sys
 from cStringIO import StringIO
+
+from logilab.common.testlib import TestCase, unittest_main
 
 from pylint.lint import Run
 from pylint.reporters.text import TextReporter, TextReporter2, ColorizedTextReporter
 from pylint.reporters.html import HTMLReporter
 
     
-class LintSmokeTest(unittest.TestCase):
+class LintSmokeTest(TestCase):
         
     def test1(self):
         """make pylint checking itself"""
@@ -71,4 +72,4 @@ class LintSmokeTest(unittest.TestCase):
     
         
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
