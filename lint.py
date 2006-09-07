@@ -282,14 +282,8 @@ This is used by the global evaluation report (R0004).'}),
                         )
         self.register_checker(self)
         self._dynamic_plugins = []
-<<<<<<< /home/syt/cvs_work/hg_public/pylint/lint.py
         self.load_provider_defaults()
         self.set_reporter(reporter or TextReporter(sys.stdout))
-
-=======
-        self.load_provider_defaults()
-        self.set_reporter(reporter or TextReporter(sys.stdout))
->>>>>>> /tmp/lint.py~other.s0wdK-
         
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
