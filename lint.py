@@ -340,14 +340,8 @@ This is used by the global evaluation report (R0004).'}),
         self.register_options_provider(checker)
         if hasattr(checker, 'msgs'):
             self.register_messages(checker)
-<<<<<<< /home/syt/cvs_work/hg_public/pylint/lint.py
         checker.load_defaults()
                 
-=======
-        # XXX adim should we load_defaults() here ?: checker.load_defaults()
-        checker.load_defaults()
-        
->>>>>>> /tmp/lint.py~other.s0wdK-
     def enable_checkers(self, listed, enabled):
         """only enable/disable checkers from the given list"""
         idmap = {}
@@ -821,11 +815,7 @@ There are 5 kind of message types :
 processing.     
         ''')
         # read configuration
-<<<<<<< /home/syt/cvs_work/hg_public/pylint/lint.py
         #linter.load_provider_defaults()
-=======
-        # linter.load_provider_defaults()
->>>>>>> /tmp/lint.py~other.s0wdK-
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter._config_parser
