@@ -1,3 +1,10 @@
+pylint (0.12.0-2) unstable; urgency=low
+
+  * Upload to Debian
+  * Fixed the XS-Python-Version value (closes: #388158)
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Tue, 19 Sep 2006 09:51:03 +0200
+
 pylint (0.12.0-1) unstable; urgency=low
 
   * new upstream release
