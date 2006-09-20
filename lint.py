@@ -27,8 +27,6 @@
   Display help messages about given message identifiers and exit.
 """
 
-__revision__ = "$Id: lint.py,v 1.115 2006-04-19 09:17:40 syt Exp $"
-
 # import this first to avoid further builtins pollution possibilities
 from pylint.checkers import utils
 
@@ -345,8 +343,6 @@ This is used by the global evaluation report (R0004).'}),
     def enable_checkers(self, listed, enabled):
         """only enable/disable checkers from the given list"""
         idmap = {}
-        if not modname and filepath is None:
-            return
         for checker in self._checkers.keys():
             checker.enable(not enabled)
             idmap[checker.name] = checker

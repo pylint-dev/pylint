@@ -18,8 +18,6 @@
 main pylint class
 """
 
-__revision__ = "$Id: utils.py,v 1.13 2006-04-19 09:17:40 syt Exp $"
-
 import sys
 from os import linesep
 

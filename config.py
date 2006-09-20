@@ -18,8 +18,6 @@
    _ pylint.d (PYLINT_HOME)
 """
 
-__revision__ = "$Id: config.py,v 1.15 2005-12-13 16:26:35 syt Exp $"
-
 import pickle
 import os
 import sys
