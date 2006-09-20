@@ -16,8 +16,6 @@
  basic checker for Python code
 """
 
-__revision__ = "$Id: base.py,v 1.65 2006-01-26 00:26:23 syt Exp $"
-
 from logilab import astng
 from logilab.common.ureports import Table
 
@@ -175,7 +173,7 @@ functions, methods
     msgs = MSGS
     priority = -1
     options = (('required-attributes',
-                {'default' : ('__revision__',), 'type' : 'csv',
+                {'default' : (), 'type' : 'csv',
                  'metavar' : '<attributes>',
                  'help' : 'Required attributes for module, separated by a '
                           'comma'}
