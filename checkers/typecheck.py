@@ -16,8 +16,6 @@
 """try to find more bugs in the code using astng inference capabilities
 """
 
-__revision__ = "$Id: typecheck.py,v 1.12 2006-04-19 16:16:20 syt Exp $"
-
 from logilab import astng
 
 from pylint.interfaces import IASTNGChecker
@@ -115,6 +113,10 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
             except astng.NotFoundError:
                 if isinstance(owner, astng.Instance) \
                        and owner.has_dynamic_getattr():
+                    continue
+                # explicit skipping of optparse'Values class
+                if owner.name == 'Values' and \
+                       owner.root().name in ('optik', 'optparse'):
                     continue
                 missingattr.append((owner, name))
                 continue
