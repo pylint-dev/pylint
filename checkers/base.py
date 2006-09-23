@@ -327,7 +327,8 @@ functions, methods
                 self.add_message('W0105', node=node)
                 return
         # ignore if this is a function call (can't predicate side effects)
-        if not isinstance(node.expr, astng.CallFunc):
+        # or a yield (which are wrapped by a discard node in py >= 2.5)
+        if not isinstance(node.expr, (astng.CallFunc, astng.Yield)):
             self.add_message('W0104', node=node)
 
     def visit_function(self, node):

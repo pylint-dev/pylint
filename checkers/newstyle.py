@@ -16,7 +16,7 @@
 """check for new / old style related problems
 """
 
-__revision__ = "$Id: newstyle.py,v 1.8 2006-03-05 14:39:38 syt Exp $"
+import sys
 
 from logilab import astng
 
@@ -32,8 +32,8 @@ MSGS = {
               'Used when another argument than the current class is given as \
               first argument of the super builtin.'),
     'E1010': ('Raising a new style class',
-              'Used when a new style class is raised since it\'s not yet \
-              possible.'),
+              'Used when a new style class is raised since it\'s not \
+              possible with python < 2.5.'),
     
     'W1001': ('Use of "property" on an old style class',
               'Used when PyLint detect the use of the builtin "property" \
@@ -96,7 +96,7 @@ class NewStyleConflictChecker(BaseChecker):
                 pass
             else:
                 if isinstance(value, astng.Class):
-                    if value.newstyle:
+                    if value.newstyle and sys.version_info < (2, 5):
                         self.add_message('E1010', node=node)
                     elif not inherit_from_std_ex(value):
                         self.add_message('W1010', node=node)
