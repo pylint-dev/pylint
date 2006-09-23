@@ -10,7 +10,7 @@ class BofException:
     """mouais"""
     
 class NewException(object):
-    """non !"""
+    """non si py < 2.5 !"""
 
 def fonctionOk():
     """raise"""

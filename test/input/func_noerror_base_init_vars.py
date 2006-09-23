@@ -12,9 +12,9 @@ class BaseClass:
 
     def met(self):
         """yo"""
-    def meeting(self, with):
+    def meeting(self, with_):
         """ye"""
-        return with
+        return with_
 class MyClass(BaseClass):
     """Inherits from BaseClass
     """

@@ -1,7 +1,7 @@
 """some pylint test utilities
 """
 from glob import glob
-from os.path import join, abspath, dirname, basename
+from os.path import join, abspath, dirname, basename, exists
 from cStringIO import StringIO
 
 from pylint.interfaces import IReporter
@@ -12,7 +12,11 @@ PREFIX = abspath(dirname(__file__))
 def fix_path():
     import sys
     sys.path.insert(0, PREFIX)
-    
+
+import sys
+MSGPREFIXES = ['2.%s_'%i for i in range(5, 2, -1) if i <= sys.version_info[1]]
+MSGPREFIXES.append('')
+
 def get_tests_info(prefix=None, suffix=None):
     pattern = '*'
     if prefix:
@@ -22,9 +26,11 @@ def get_tests_info(prefix=None, suffix=None):
     result = []
     for file in glob(join(PREFIX, "input", pattern)):
         infile = basename(file)
-        outfile = join(PREFIX, "messages", infile.replace(suffix, '.txt'))
+        for msgprefix in MSGPREFIXES:
+            outfile = join(PREFIX, "messages", msgprefix + infile.replace(suffix, '.txt'))
+            if exists(outfile):
+                break
         result.append((infile, outfile))
-        
     return result
 
 

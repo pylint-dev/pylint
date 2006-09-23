@@ -1,0 +1,4 @@
+W: 21:fonctionBof: Exception doesn't inherit from standard "Exception" class
+W: 25:fonctionNew: Exception doesn't inherit from standard "Exception" class
+W: 29:fonctionBof2: Exception doesn't inherit from standard "Exception" class
+W: 33:fonctionNew2: Exception doesn't inherit from standard "Exception" class

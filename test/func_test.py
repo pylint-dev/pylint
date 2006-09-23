@@ -15,8 +15,6 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """functional/non regression tests for pylint"""
 
-__revision__ = '$Id: func_test.py,v 1.37 2005-12-28 14:58:22 syt Exp $'
-
 import unittest
 import sys
 import re
@@ -41,6 +39,7 @@ linter.global_set_option('required-attributes', ('__revision__',))
 
 PY23 = sys.version_info >= (2, 3)
 PY24 = sys.version_info >= (2, 4)
+PY25 = sys.version_info >= (2, 5)
 
 
 if linesep != '\n':
@@ -89,9 +88,10 @@ class LintTestUsingModule(testlib.TestCase):
         try:
             self.assertLinesEquals(got, expected)
         except Exception, ex:
-            ex.file = tocheck
-            ex.__str__ = new.instancemethod(exception_str, ex, None)
-            raise # AssertionError('%s: %r\n!=\n%r\n\n%s' % (self.module, got, expected, ex))
+            # doesn't work with py 2.5
+            #ex.file = tocheck
+            #ex.__str__ = new.instancemethod(exception_str, ex, None)
+            raise AssertionError('%s: %s' % (self.module, ex)), None, sys.exc_info()[-1]
 
 class LintTestUsingFile(LintTestUsingModule):            
                 
@@ -109,11 +109,12 @@ class TestTests(unittest.TestCase):
         for msg_id in test_reporter.message_ids.keys():
             todo.remove(msg_id)
         todo.sort()
-        if PY23:
+        if PY25:
+            self.assertEqual(todo, ['E0503', 'E1010', 'F0002', 'F0202', 'F0321', 'I0001'])
+        elif PY23:
             self.assertEqual(todo, ['E0503', 'F0002', 'F0202', 'F0321', 'I0001'])
-        else:
+        else: # python < 2.3
             self.assertEqual(todo, ['F0002', 'F0202', 'F0321', 'I0001'])
-
         
 def make_tests(filter_rgx):
     """generate tests classes from test info
