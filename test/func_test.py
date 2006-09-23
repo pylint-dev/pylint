@@ -37,6 +37,7 @@ linter.set_reporter(test_reporter)
 linter.config.persistent = 0
 linter.quiet = 1
 checkers.initialize(linter)
+linter.global_set_option('required-attributes', ('__revision__',))
 
 PY23 = sys.version_info >= (2, 3)
 PY24 = sys.version_info >= (2, 4)
