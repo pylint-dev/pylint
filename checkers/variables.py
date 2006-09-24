@@ -162,6 +162,17 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # do not check for not used locals here
         self._to_consume.pop()
 
+    def visit_genexpr(self, node):
+        """visit genexpr: update consumption analysis variable
+        """
+        self._to_consume.append((copy(node.locals), {}, 'genexpr'))
+            
+    def leave_genexpr(self, _):
+        """leave genexpr: update consumption analysis variable
+        """
+        # do not check for not used locals here
+        self._to_consume.pop()
+
     def visit_function(self, node):
         """visit function: update consumption analysis variable and check locals
         """
@@ -272,7 +283,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         name = node.name
         stmt = node.statement()
-        frame = stmt.frame()
+        frame = stmt.scope()
         # if the name node is used as a function default argument's value, then
         # start from the parent frame of the function instead of the function
         # frame
