@@ -1,7 +1,7 @@
 ChangeLog for PyLint
 ====================
 
- --
+2006-09-25  --  0.12.1
     * fixed python >= 2.4 format false positive with multiple lines statement
     * fixed some 2.5 issues
     * fixed generator expression scope bug (depends on astng 0.16.1)
@@ -18,7 +18,7 @@ ChangeLog for PyLint
 	
     * started a reference user manual
 
-    * new W0212 message for access to protected member from client code 
+    * new W0212 message for access to protected member from client code
       (close #14081)
 	
     * new W0105 and W0106 messages extracted from W0104 (statement seems
@@ -46,7 +46,7 @@ ChangeLog for PyLint
     * added an option in the similarity checker to ignore docstrings, enabled
       by default
 	
-    * included patch from Benjamin Niemann to allow block level 
+    * included patch from Benjamin Niemann to allow block level
       enabling/disabling of messages
 
 	

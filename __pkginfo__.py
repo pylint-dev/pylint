@@ -16,12 +16,9 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """pylint packaging information"""
 
-__revision__ = '$Id: __pkginfo__.py,v 1.50 2006-04-19 09:17:40 syt Exp $'
-
-
 modname = 'pylint'
 
-numversion = (0, 12, 0)
+numversion = (0, 12, 1)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
