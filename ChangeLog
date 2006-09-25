@@ -1,6 +1,12 @@
 ChangeLog for PyLint
 ====================
 
+ --
+    * fixed python >= 2.4 format false positive with multiple lines statement
+    * fixed some 2.5 issues
+    * fixed generator expression scope bug (depends on astng 0.16.1)
+    * stop requiring __revision__
+	
 2006-08-10  --  0.12.0
     * usability changes:
       - parseable, html and color options are now handled by a single 

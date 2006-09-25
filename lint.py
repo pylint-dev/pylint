@@ -806,7 +806,7 @@ There are 5 kind of message types :
     * (C) convention, for programming standard violation                       
     * (R) refactor, for bad code smell                                         
     * (W) warning, for python specific problems                                
-    * (E) error, for much probably bugs in the code                                                
+    * (E) error, for much probably bugs in the code
     * (F) fatal, if an error occured which prevented pylint from doing further \
 processing.     
         ''')
@@ -821,6 +821,11 @@ processing.
         # now we can load file config and command line, plugins (which can
         # provide options) have been registered
         linter.load_config_file()
+        if reporter:
+            # if a custom reporter is provided as argument, it may be overriden
+            # by file parameters, so re-set it here, but before command line
+            # parsing so it's still overrideable by command line option
+            linter.set_reporter(reporter)
         args = linter.load_command_line_configuration(args)
         if not args:
             print linter.help()
