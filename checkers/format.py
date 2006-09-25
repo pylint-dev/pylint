@@ -21,14 +21,13 @@ http://www.python.org/doc/essays/styleguide.html
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
-__revision__ = "$Id: format.py,v 1.51 2006-03-14 15:08:10 syt Exp $"
-
 import re
 import tokenize
 if not hasattr(tokenize, 'NL'):
     raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
 
 from logilab.common.textutils import pretty_match
+from logilab.astng import nodes
 
 from pylint.interfaces import IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker
@@ -98,16 +97,16 @@ BAD_CONSTRUCT_RGXS = (
 ##      re.compile(r':\s*[^\s]+.*'),
 ##      'C0321'),
     
-    (re.compile(OP_RGX_MATCH_1),
-     re.compile(OP_RGX_SEARCH_1),
+    (re.compile(OP_RGX_MATCH_1, re.M),
+     re.compile(OP_RGX_SEARCH_1, re.M),
      'C0322'),
     
-    (re.compile(OP_RGX_MATCH_2),
-     re.compile(OP_RGX_SEARCH_2),
+    (re.compile(OP_RGX_MATCH_2, re.M),
+     re.compile(OP_RGX_SEARCH_2, re.M),
      'C0323'),
     
-    (re.compile(r'.*,[^\s)].*'),
-     re.compile(r',[^\s)]'),
+    (re.compile(r'.*,[^\s)].*', re.M),
+     re.compile(r',[^\s)]', re.M),
      'C0324'),
     )
 
@@ -253,28 +252,41 @@ class FormatChecker(BaseRawChecker):
         """check the node line number and check it if not yet done
         """
         if not node.is_statement():
-            return
+            return            
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             # don't use .source_line since it causes C0321 false positive !
-            prev_line = prev_sibl.lineno
+            prev_line = prev_sibl.fromlineno
+            # discard discard nodes introducted by ending ";"
+            if isinstance(node, nodes.Discard) and isinstance(node.expr, nodes.Const) \
+                   and node.expr.lineno is None:
+                prev_line = None
         else:
             # itou ?
-            prev_line = node.parent.statement().lineno
-        line = node.source_line()
+            try:
+                prev_line = node.parent.statement().fromlineno
+            except AttributeError:
+                prev_line = node.parent.statement().lineno
+        line = node.fromlineno #source_line()
         if prev_line == line and self._visited_lines.get(line) != 2:
             self.add_message('C0321', node=node)
             self._visited_lines[line] = 2
             return
         if self._visited_lines.has_key(line):
             return
-        self._visited_lines[line] = 1
-        #print 'checking line', self._lines[line]
+        lines = []
+        for line in xrange(node.fromlineno, node.tolineno + 1):
+            self._visited_lines[line] = 1
+            try:
+                lines.append(self._lines[line].rstrip())
+            except KeyError:
+                lines.append('')
+        #print 'check', '\n'.join(lines)
         #print node
         try:
-            msg_def = check_line(self._lines[line], self)
+            msg_def = check_line('\n'.join(lines), self)
             if msg_def:
-                self.add_message(msg_def[0], node = node, args=msg_def[1])
+                self.add_message(msg_def[0], node=node, args=msg_def[1])
         except KeyError:
             # FIXME: internal error !
             pass

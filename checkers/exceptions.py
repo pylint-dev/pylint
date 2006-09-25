@@ -15,8 +15,6 @@
 """exceptions handling (raising, catching, exceptions classes) checker
 """
 
-__revision__ = '$Id: exceptions.py,v 1.27 2006-03-08 15:53:42 syt Exp $'
-
 from logilab.common.compat import enumerate
 from logilab import astng
 from logilab.astng.inference import unpack_infer
@@ -89,11 +87,12 @@ class ExceptionsChecker(BaseChecker):
             except astng.InferenceError:
                 return
             # have to be careful since Const, Dict, .. inherit from
-            # Instance now
+            # Instance now and get the original astng class as _proxied
             if (value is astng.YES or
                 isinstance(value, (astng.Class, astng.Module)) or
                 (isinstance(value, astng.Instance) and 
-                 isinstance(value._proxied, astng.Class))):
+                 isinstance(value._proxied, astng.Class) and
+                 value._proxied.root().name != '__builtin__')):
                 return
             if isinstance(value, astng.Const) and \
                (value.value is None or 
@@ -119,7 +118,7 @@ class ExceptionsChecker(BaseChecker):
             stmt = handler[2]
             # single except doing nothing but "pass" without else clause
             if nb_handlers == 1 and is_empty(stmt) and not node.else_:
-                self.add_message('W0704', node=exc_type)
+                self.add_message('W0704', node=exc_type or stmt)
             if exc_type is None:
                 if nb_handlers == 1 and not is_raising(stmt):
                     self.add_message('W0702', node=stmt.nodes[0])
