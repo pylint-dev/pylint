@@ -12,13 +12,10 @@
 # Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  """
 # library to handle diagrams definition """
 
-__revision__ = "$Id: diadefslib.py,v 1.13 2006-03-14 09:56:08 syt Exp $"
-
 import sys
 
 from logilab.common.configuration import OptionsProviderMixIn
 from logilab import astng
-from logilab.astng.astng import ancestors
 from logilab.astng.utils import LocalsVisitor
 
 from pyreverse.extensions.xmlconf import DictSaxHandlerMixIn, PrefReader
@@ -103,7 +100,7 @@ class DiadefsResolverHelper:
         """return all class defined in the given astng module 
         """
         classes = []
-        for object in module.locals.values():
+        for object in module.values():
             if isinstance(object, astng.Class):
                 classes.append((object, object.name))
         return classes
@@ -127,7 +124,7 @@ class DiadefsResolverHelper:
             print >> sys.stderr, 'Warning: no module named %s' % module
         else:
             try:
-                return module.locals[name]
+                return module[name]
             except KeyError:
                 print >> sys.stderr, 'Warning: no module class %s in %s' % (
                     name, module)
@@ -202,7 +199,7 @@ class ClassDiadefGenerator:
         else:
             module = project.modules[0]
             klass = klass.split('.')[-1]
-        klass = module.resolve(klass)
+        klass = module.ilookup(klass).next()
         self.extract_classes(diagram, klass, linker,
                              include_level, include_module_name)
         return diagram
@@ -215,7 +212,7 @@ class ClassDiadefGenerator:
             return
         self.add_class_def(diagram, klass_node, linker, include_module_name)
         # add all ancestors whatever the include_level ?
-        for ancestor in ancestors(klass_node):
+        for ancestor in klass_node.ancestors():
             self.extract_classes(diagram, ancestor, linker,
                                  include_level, include_module_name)
         include_level -= 1

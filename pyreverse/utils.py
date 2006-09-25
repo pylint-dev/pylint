@@ -17,14 +17,10 @@
 generic classes/functions for pyreverse core/extensions
 """
 
-__revision__ = "$Id: utils.py,v 1.12 2006-03-14 09:56:06 syt Exp $"
-
 import sys
 import re
 
 from logilab.astng import ASTNGManager, IgnoreChild, Project
-from logilab.astng.utils import is_interface, is_exception, \
-     get_raises, get_returns
 from logilab.astng.manager import astng_wrapper
 
 from logilab.common.configuration import ConfigurationMixIn
@@ -82,6 +78,13 @@ def is_final(node):
     """
     return FINAL.match(node.name)
 
+def is_interface(node):
+    # bw compat
+    return node.type == 'interface'
+
+def is_exception(node):
+    # bw compat
+    return node.type == 'exception'
 
 
 # Helpers #####################################################################
@@ -118,7 +121,7 @@ class FilterMixIn:
         )
     
     def __init__(self):
-        pass
+        self.load_defaults()
 
     def get_mode(self):
         """return the integer value of a mode string

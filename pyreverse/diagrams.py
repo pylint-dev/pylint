@@ -16,7 +16,7 @@
 """diagram objects
 """
 
-__revision__ = "$Id: diagrams.py,v 1.6 2006-03-14 09:56:08 syt Exp $"
+from logilab import astng
 
 from pyreverse.utils import is_interface
 from logilab import astng
@@ -120,7 +120,7 @@ class ClassDiagram(Figure):
             else:
                 obj.shape = 'class'
             # inheritance link
-            for par_node in node.baseobjects:
+            for par_node in node.ancestors(recurs=False):
                 try:
                     par_obj = self.object_from_node(par_node)
                     self.add_relationship(obj, par_obj, 'specialization')
@@ -134,12 +134,15 @@ class ClassDiagram(Figure):
                 except KeyError:
                     continue
             # associations link
-            for name, value in node.instance_attrs_type.items():
-                try:
-                    ass_obj = self.object_from_node(value)
-                    self.add_relationship(obj, ass_obj, 'association', name)
-                except KeyError:
-                    continue
+            for name, values in node.instance_attrs_type.items():
+                for value in values:
+                    if value is astng.YES:
+                        continue
+                    try:
+                        ass_obj = self.object_from_node(value)
+                        self.add_relationship(obj, ass_obj, 'association', name)
+                    except KeyError:
+                        continue
         
 class PackageDiagram(ClassDiagram):
     TYPE = 'package'
