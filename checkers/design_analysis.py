@@ -20,8 +20,6 @@
  FIXME: missing 13, 15, 16
 """
 
-__revision__ = "$Id: design_analysis.py,v 1.11 2005-12-30 15:41:29 adim Exp $"
-
 from logilab.astng import Function, InferenceError
 
 from pylint.interfaces import IASTNGChecker
@@ -45,8 +43,8 @@ MSGS = {
     'R0902': ('Too many instance attributes (%s/%s)',
               'Used when class has too many instance attributes, try to reduce \
               this to get a more simple (and so easier to use) class.'),
-    'R0903': ('To few public methods (%s/%s)',
-              'Used when class has to few public methods, so be sure it\'s \
+    'R0903': ('Too few public methods (%s/%s)',
+              'Used when class has too few public methods, so be sure it\'s \
               really worth it.'),
     'R0904': ('Too many public methods (%s/%s)',
               'Used when class has too many public methods, try to reduce \
