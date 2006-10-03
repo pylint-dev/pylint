@@ -9,7 +9,7 @@ XS-Python-Version: current
 
 Package: pylint
 Architecture: all
-Depends: ${python:Depends}, python-logilab-common (>= 0.18.0), python-logilab-astng (>= 0.16.0), python-tk, emacsen-common
+Depends: ${python:Depends}, python-logilab-common (>= 0.19.3), python-logilab-astng (>= 0.16.1), python-tk, emacsen-common
 XB-Python-Version: ${python:Versions}
 Conflicts: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
 Replaces: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test

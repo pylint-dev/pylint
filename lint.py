@@ -870,7 +870,7 @@ processing.
     
     def cb_generate_config(self, *args, **kwargs):
         """optik callback for sample config file generation"""
-        self.linter.generate_config()
+        self.linter.generate_config(skipsections=('COMMANDS',))
         sys.exit(0)
          
     def cb_generate_manpage(self, *args, **kwargs):
