@@ -59,3 +59,6 @@ yo+=4
 
 func('''<body>Hello
 </body>''')
+
+assert boo <= 10, "Note is %.2f. Either you cheated, or pylint's \
+broken!" % boo

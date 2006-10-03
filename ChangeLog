@@ -1,6 +1,8 @@
 ChangeLog for PyLint
 ====================
 
+    * fixed some format checker false positives
+	
 2006-09-25  --  0.12.1
     * fixed python >= 2.4 format false positive with multiple lines statement
     * fixed some 2.5 issues

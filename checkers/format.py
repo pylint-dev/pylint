@@ -79,9 +79,9 @@ TASTRING_RGX = r"'''([^']|'(?!''))*('''|$)"
 
 # finally, the string regular expression
 STRING_RGX = re.compile('%s|%s|%s|%s' % (TQSTRING_RGX, TASTRING_RGX,
-                                         SQSTRING_RGX, SASTRING_RGX))
+                                         SQSTRING_RGX, SASTRING_RGX), re.M)
 
-COMMENT_RGX = re.compile("#.*$")
+COMMENT_RGX = re.compile("#.*$", re.M)
 
 OPERATORS = r'!=|<=|==|>=|<|>|=|\+=|-=|\*=|/=|%'
 

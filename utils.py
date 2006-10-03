@@ -114,7 +114,7 @@ class MessagesHandlerMixIn:
                    'Message id %r is already defined' % msg_id
             assert len(msg_id) == 5, 'Invalid message id %s' % msg_id
             assert chk_id is None or chk_id == msg_id[1:3], \
-                   'Inconsistent checker part in message id %r' %msg_id
+                   'Inconsistent checker part in message id %r' % msg_id
             assert msg_id[0] in MSG_CATEGORIES, \
                    'Bad message type %s in %r' % (msg_id[0], msg_id)
             chk_id = msg_id[1:3]
