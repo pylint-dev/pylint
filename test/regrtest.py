@@ -16,7 +16,6 @@
 """non regression tests for pylint, which requires a too specific configuration
 to be incorporated in the automatic functionnal test framework
 """
-__revision__ = '$Id: regrtest.py,v 1.12 2006-03-03 09:25:34 syt Exp $'
 
 import sys
 import os
@@ -83,7 +82,7 @@ class NonRegrTC(TestCase):
         except ImportError:
             self.skip('test skipped: gtk is not available')
         except RuntimeError: # RuntimeError when missing display
-            pass
+            self.skip('no display, can\'t run this test')
         linter.check('regrtest_data/pygtk_import.py')
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
