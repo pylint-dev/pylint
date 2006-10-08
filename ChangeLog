@@ -1,6 +1,7 @@
 ChangeLog for PyLint
 ====================
 
+ --
     * fixed some format checker false positives
     * depends on common 0.19.3 to generate full configuration file
 	
