@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -16,9 +16,7 @@
 """imports checkers for Python code
 """
 
-__revision__ = "$Id: imports.py,v 1.46 2005-11-10 17:26:27 syt Exp $"
-
-from logilab.common import get_cycles
+from logilab.common.graph import get_cycles
 from logilab.common.modutils import is_standard_module, is_relative, \
      get_module_part
 from logilab.common.ureports import VerbatimText, Paragraph
