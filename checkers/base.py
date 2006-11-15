@@ -117,7 +117,7 @@ MSGS = {
               has no effect). This is a particular case of W0104 with its \
               own message so you can easily disable it if you\'re using \
               those strings as documentation, instead of comments.'),
-    'W0106': ('Unnecessary semi-column',
+    'W0106': ('Unnecessary semicolon',
               'Used when a statement is endend by a semi-colon (";"), which \
               isn\'t necessary (that\'s python, not C ;)'),
 

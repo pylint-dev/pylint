@@ -1,7 +1,5 @@
 """Tkinker gui for pylint"""
 
-__revision__ = '$Id: gui.py,v 1.8 2004-08-27 10:18:54 syt Exp $'
-
 from Tkinter import Tk, Frame, Listbox, Entry, Label, Button, Scrollbar
 from Tkinter import TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH
 import os
@@ -34,7 +32,7 @@ class LintGui:
         scrl = Scrollbar(res_frame)
         self.results = Listbox(res_frame,
                                background='white',
-                               font='fixed',
+                               font='fixedsys',
                                selectmode='browse',
                                yscrollcommand=scrl.set)
         scrl.configure(command=self.results.yview)
