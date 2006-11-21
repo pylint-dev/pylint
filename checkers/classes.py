@@ -17,8 +17,6 @@
 """
 from __future__ import generators
 
-__revision__ = "$Id: classes.py,v 1.77 2006-03-05 14:39:37 syt Exp $"
-
 from logilab import astng
 
 from pylint.interfaces import IASTNGChecker
@@ -417,7 +415,7 @@ instance attributes.'}
             implements = astng.Instance(node).getattr('__implements__')[0]
             assignment = implements.parent
             assert isinstance(assignment, astng.Assign)
-            # assignment.expr can be a Name or a Tupe or whatever.
+            # assignment.expr can be a Name or a Tuple or whatever.
             # Use as_string() for the message
             # FIXME: in case of multiple interfaces, find which one could not
             #        be resolved
@@ -442,6 +440,8 @@ instance attributes.'}
                 return
             try:
                 klass = expr.expr.infer().next()
+                if klass is astng.YES:
+                    continue
                 try:
                     del to_call[klass]
                 except KeyError:
