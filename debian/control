@@ -27,5 +27,5 @@ Description: python code static checker
  .
  Additionally, it is possible to write plugins to add your own checks.
  .
- Homepage: http://www.logilab.org/projects/pylint
+ Homepage: http://www.logilab.org/Project/name/pylint
 
