@@ -95,8 +95,11 @@ def report_by_type_stats(sect, stats, old_stats):
 
 
 MSGS = {
+    'E0100': ('__init__ method is a generator',
+              'Used when the special class method __init__ is turned into a generator \
+              by a yield in its body.'),    
     'E0101': ('Explicit return in __init__',
-              'Used when the special class method __ini__ has an explicit \
+              'Used when the special class method __init__ has an explicit \
               return value.'),    
     'E0102': ('%s already defined line %s',
               'Used when a function / class / method is redefined.'),
@@ -336,7 +339,7 @@ functions, methods
         variable names, max locals
         """
         is_method = node.is_method()
-        self._returns.append(0)
+        self._returns.append([])
         f_type = is_method and 'method' or 'function'
         self.stats[f_type] += 1
         # function name
@@ -357,9 +360,16 @@ functions, methods
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
-        nb_returns = self._returns.pop()
-        if node.is_method() and node.name == '__init__' and nb_returns:
-            self.add_message('E0101', node=node)
+        returns = self._returns.pop()
+        if node.is_method() and node.name == '__init__':
+            if  node.is_generator():
+                self.add_message('E0100', node=node)
+            else:
+                values = [r.value for r in returns]
+                if  [v for v in values if not (
+                    (isinstance(v, astng.Const) and v.value is None)
+                    or  (isinstance(v, astng.Name) and v.name == 'None'))]:
+                    self.add_message('E0101', node=node)
 
     def visit_assname(self, node):
         """check module level assigned names"""
@@ -379,14 +389,14 @@ functions, methods
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
-        self._returns[-1] += 1
+        self._returns[-1].append(node)
         self._check_unreachable(node)
         
-    def visit_yield(self, _):
+    def visit_yield(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
-        self._returns[-1] += 1
+        self._returns[-1].append(node)
 
     def visit_continue(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
