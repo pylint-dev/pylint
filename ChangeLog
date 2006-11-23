@@ -8,6 +8,9 @@ ChangeLog for PyLint
     * fix #3119: Off-by-one error counting lines in a file
     * fix #3117: ease sys.stdout overriding for reporters
     * fix #2508: E0601 false positive with lambda
+    * fix #3125: E1101 false positive and a message duplication. Only the last part
+      is actually fixed since the initial false positive is due to dynaming setting of
+      attributes on the decimal.Context class.
     * fixed some format checker false positives
 
 

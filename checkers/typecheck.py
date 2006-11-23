@@ -89,7 +89,7 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
         except astng.InferenceError:
             return
         # list of (node, nodename) which are missing the attribute
-        missingattr = []
+        missingattr = set()
         ignoremim = self.config.ignore_mixin_members
         for owner in infered:
             # skip yes object
@@ -118,14 +118,22 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
                 if owner.name == 'Values' and \
                        owner.root().name in ('optik', 'optparse'):
                     continue
-                missingattr.append((owner, name))
+                missingattr.add((owner, name))
                 continue
             # stop on the first found
             break
         else:
             # we have not found any node with the attributes, display the
             # message for infered nodes
+            done = set()
             for owner, name in missingattr:
+                if isinstance(owner, astng.Instance):
+                    actual = owner._proxied
+                else:
+                    actual = owner
+                if actual in done:
+                    continue
+                done.add(actual)
                 self.add_message('E1101', node=node,
                                  args=(display_type(owner), name,
                                        node.attrname))

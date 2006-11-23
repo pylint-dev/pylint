@@ -117,6 +117,11 @@ class NonRegrTC(TestCase):
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
 
+    def test_decimal_inference(self):
+        linter.check('regrtest_data/decimal_inference.py')
+        got = linter.reporter.finalize().strip()
+        self.failUnlessEqual(got, "E:  7: Instance of 'Context' has no 'prec' member")
+
     def test_descriptor_crash(self):
         for fname in os.listdir('regrtest_data'):
             if fname.endswith('_crash.py'):
