@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903,W0212
+# pylint: disable-msg=R0903,W0212,W0403,W0406
 """test for call to __init__ from a non ancestor class
 """
 
@@ -9,11 +9,20 @@ class AAAA:
 
     def __init__(self):
         print 'init', self
-        BBBB.__init__(self)
+        BBBBMixin.__init__(self)
 
-class BBBB:
+class BBBBMixin:
     """ancestor 2"""
 
     def __init__(self):
         print 'init', self
-        
+
+import nonexistant
+import func_w0233
+class CCC(BBBBMixin, func_w0233.AAAA, func_w0233.BBBB, nonexistant.AClass):
+    """mix different things, some inferable some not"""
+    def __init__(self):
+        BBBBMixin.__init__(self)
+        func_w0233.AAAA.__init__(self)
+        func_w0233.BBBB.__init__(self)
+        nonexistant.AClass.__init__(self)

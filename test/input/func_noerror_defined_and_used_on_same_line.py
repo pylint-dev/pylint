@@ -18,3 +18,6 @@ import sys; print sys.exc_info( )
 for i in range(10): print i
 
 j = 4; LAMB = lambda x: x+j
+
+FUNC4 = lambda a, b : a != b
+FUNC3 = lambda (a, b) : a != b
