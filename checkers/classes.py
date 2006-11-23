@@ -206,6 +206,8 @@ instance attributes.'}
         if node.name == '__init__':
             self._check_init(node)
             return
+        if not isinstance(klass, astng.Class):
+            return
         # check signature if the method overrload an herited method
         for overridden in klass.local_attr_ancestors(node.name):
             # get astng for the searched method
