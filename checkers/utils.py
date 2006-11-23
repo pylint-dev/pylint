@@ -18,7 +18,7 @@
 """some functions that may be usefull for various checkers
 """
 
-__revision__ = '$Id: utils.py,v 1.16 2006-03-03 09:25:34 syt Exp $'
+from logilab.common import flatten
 
 from logilab import astng
 from logilab.astng.utils import are_exclusive
@@ -106,7 +106,7 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, (astng.Lambda, astng.Function)):
-            if varname in _node.argnames:
+            if varname in flatten(_node.argnames):
                 return True
             if getattr(_node, 'name', None) == varname:
                 return True
