@@ -2,11 +2,13 @@ ChangeLog for PyLint
 ====================
 
  --
-    * fixed some format checker false positives
-    * fixed E0101 false positives and introduced E0100 for generator __init__ 
-      methods 
-    * fixed W0233 bug w/ YES objects (may introduce some other W0231 false 
+    * fix #3149: E0101 false positives and introduced E0100 for generator __init__ 
+      methods
+    * fix #3149: W0233 bug w/ YES objects. May introduce some other W0231 false 
       positive though if astng fail to infer parent classes
+    * fix #3119: Off-by-one error counting lines in a file
+    * fixed some format checker false positives
+    * #3117: ease sys.stdout overriding for reporters
 
 
 2006-09-25  --  0.12.1

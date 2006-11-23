@@ -244,7 +244,7 @@ class FormatChecker(BaseRawChecker):
                 # "indents" stack was seeded
                 check_equal = 0
                 self.check_indent_level(line, indents[-1], line_num)
-                    
+        line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
             self.add_message('C0302', args=line_num, line=1)
 

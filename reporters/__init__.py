@@ -16,8 +16,6 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-__revision__ = "$Id: __init__.py,v 1.14 2005-01-20 15:12:56 syt Exp $"
-
 import sys
 
 CMPS = ['=', '-', '+']
@@ -39,15 +37,17 @@ class BaseReporter:
 
     extension = ''
     
-    def __init__(self, output=sys.stdout):
+    def __init__(self, output=None):
         self.linter = None
         self.include_ids = None
         self.section = 0
         self.out = None
         self.set_output(output)
         
-    def set_output(self, output):
+    def set_output(self, output=None):
         """set output stream"""
+        if output is None:
+            output = sys.stdout
         self.out = output
         
     def writeln(self, string=''):
