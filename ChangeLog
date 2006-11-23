@@ -1,9 +1,7 @@
 ChangeLog for PyLint
 ====================
 
- --
-    * fix #3149: E0101 false positives and introduced E0100 for generator __init__ 
-      methods
+2006-11-23  --  0.12.2
     * fix #3143: W0233 bug w/ YES objects
     * fix #3119: Off-by-one error counting lines in a file
     * fix #3117: ease sys.stdout overriding for reporters
@@ -11,8 +9,9 @@ ChangeLog for PyLint
     * fix #3125: E1101 false positive and a message duplication. Only the last part
       is actually fixed since the initial false positive is due to dynaming setting of
       attributes on the decimal.Context class.
+    * fix #3149: E0101 false positives and introduced E0100 for generator __init__
+      methods
     * fixed some format checker false positives
-
 
 2006-09-25  --  0.12.1
     * fixed python >= 2.4 format false positive with multiple lines statement
