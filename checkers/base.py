@@ -389,8 +389,15 @@ functions, methods
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
+        # if self._returns is empty, we're outside a function !
         if not self._returns:
             raise SyntaxError("'return' outside function")
+        # make sure we don't mix non-None returns and yields
+        for yieldnode in self._returns[-1]:
+            if isinstance(yieldnode, astng.Yield) and \
+                   isinstance(node.value, astng.Const) and \
+                   node.value.value is not None:
+                raise SyntaxError("'return' with argument inside generator")
         self._returns[-1].append(node)
         self._check_unreachable(node)
         
@@ -398,6 +405,15 @@ functions, methods
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
+        # if self._returns is empty, we're outside a function !
+        if not self._returns:
+            raise SyntaxError("'yield' outside function")
+        # make sure we don't mix non-None returns and yields
+        for retnode in self._returns[-1]:
+            if isinstance(retnode, astng.Return) and \
+                   isinstance(retnode.value, astng.Const) and \
+                   retnode.value.value is not None:
+                raise SyntaxError("'return' with argument inside generator")
         self._returns[-1].append(node)
 
     def visit_continue(self, node):
