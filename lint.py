@@ -478,7 +478,10 @@ This is used by the global evaluation report (R0004).'}),
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
                 self.reporter.set_output(open(reportfile, 'w'))
-            self.check_file(filepath, modname, checkers)
+            try:
+                self.check_file(filepath, modname, checkers)
+            except SyntaxError, ex:
+                self.add_message('E0001', line=ex.lineno, args=ex.msg)
         # notify global end
         self.set_current_module('')
         for checker in rev_checkers:

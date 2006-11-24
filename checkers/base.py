@@ -389,6 +389,8 @@ functions, methods
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
+        if not self._returns:
+            raise SyntaxError("'return' outside function")
         self._returns[-1].append(node)
         self._check_unreachable(node)
         
