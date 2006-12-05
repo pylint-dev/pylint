@@ -16,8 +16,6 @@
 """variables checkers for Python code
 """
 
-__revision__ = "$Id: variables.py,v 1.69 2006-04-19 09:17:40 syt Exp $"
-
 from copy import copy
 
 from logilab.common.compat import enumerate
@@ -61,6 +59,9 @@ MSGS = {
               'Used when a variable is defined but not used.'),
     'W0613': ('Unused argument %r',
               'Used when a function or method argument is not used.'),
+    'W0614': ('Unused import %s from wildcard import',
+              'Used when an imported module or variable is not used from a \
+              \'from X import *\' style import.'),
     
     'W0621': ('Redefining name %r from outer scope (line %s)',
               'Used when a variable\'s name hide a name defined in the outer \
@@ -134,9 +135,13 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
         for name, stmts in not_consumed.items():
             stmt = stmts[0]
-            if isinstance(stmt, astng.Import) or (
-                isinstance(stmt, astng.From) and stmt.modname != '__future__'):
+            if isinstance(stmt, astng.Import):
                 self.add_message('W0611', args=name, node=stmt)
+            elif isinstance(stmt, astng.From) and stmt.modname != '__future__':
+                if stmt.names[0][0] == '*':
+                    self.add_message('W0614', args=name, node=stmt)
+                else:
+                    self.add_message('W0611', args=name, node=stmt)
         del self._to_consume
         del self._vars
 

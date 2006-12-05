@@ -1,1 +1,1 @@
-E:  1: 'yield' outside function
+E:  3: yield outside function

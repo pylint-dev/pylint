@@ -106,6 +106,14 @@ MSGS = {
     'E0103': ('%r not properly in loop',
               'Used when break or continue keywords are used outside a loop.'),
 
+    'E0104': ('return outside function',
+              'Used when a "return" statement is found outside a function or method.'),
+    'E0105': ('yield outside function',
+              'Used when a "yield" statement is found outside a function or method.'),
+    'E0106': ('return with argument inside generator',
+              'Used when a "return" statement with an argument is found outside in a \
+              generator function or method (e.g. with some "yield" statements).'),
+
     'W0101': ('Unreachable code',
               'Used when there is some code behind a "return" or "raise" \
               statement, which will never be accessed.'),
@@ -362,7 +370,7 @@ functions, methods
         """
         returns = self._returns.pop()
         if node.is_method() and node.name == '__init__':
-            if  node.is_generator():
+            if node.is_generator():
                 self.add_message('E0100', node=node)
             else:
                 values = [r.value for r in returns]
@@ -370,7 +378,14 @@ functions, methods
                     (isinstance(v, astng.Const) and v.value is None)
                     or  (isinstance(v, astng.Name) and v.name == 'None'))]:
                     self.add_message('E0101', node=node)
-
+        elif node.is_generator():
+            # make sure we don't mix non-None returns and yields
+            for retnode in returns:
+                if isinstance(retnode, astng.Return) and \
+                       isinstance(retnode.value, astng.Const) and \
+                       retnode.value.value is not None:
+                    self.add_message('E0106', node=node, line=retnode.fromlineno)
+            
     def visit_assname(self, node):
         """check module level assigned names"""
         frame = node.frame()
@@ -391,13 +406,8 @@ functions, methods
         """
         # if self._returns is empty, we're outside a function !
         if not self._returns:
-            raise SyntaxError("'return' outside function")
-        # make sure we don't mix non-None returns and yields
-        for yieldnode in self._returns[-1]:
-            if isinstance(yieldnode, astng.Yield) and \
-                   isinstance(node.value, astng.Const) and \
-                   node.value.value is not None:
-                raise SyntaxError("'return' with argument inside generator")
+            self.add_message('E0104', node=node)
+            return
         self._returns[-1].append(node)
         self._check_unreachable(node)
         
@@ -407,13 +417,8 @@ functions, methods
         """
         # if self._returns is empty, we're outside a function !
         if not self._returns:
-            raise SyntaxError("'yield' outside function")
-        # make sure we don't mix non-None returns and yields
-        for retnode in self._returns[-1]:
-            if isinstance(retnode, astng.Return) and \
-                   isinstance(retnode.value, astng.Const) and \
-                   retnode.value.value is not None:
-                raise SyntaxError("'return' with argument inside generator")
+            self.add_message('E0105', node=node)
+            return
         self._returns[-1].append(node)
 
     def visit_continue(self, node):

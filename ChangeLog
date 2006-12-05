@@ -1,6 +1,16 @@
 ChangeLog for PyLint
 ====================
 
+  --
+    * fix #3184: crashes on "return" outside function. New E0104 and E0105
+      messages introduced to respectivly warn about "return" and "yield"
+      outside function or method
+    * new E0106 message when "yield" and "return something" are mixed in a
+      function or method
+    * new W0614 message to differentiate between unused 'import X' and
+      unused 	'from X import *" (#3209, patch submitted by Daniel Drake)
+    * allow disable-all option inline (#3218, patch submitted by Daniel Drake)
+
 2006-11-23  --  0.12.2
     * fix #3143: W0233 bug w/ YES objects
     * fix #3119: Off-by-one error counting lines in a file

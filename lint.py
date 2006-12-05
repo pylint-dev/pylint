@@ -96,6 +96,9 @@ be used inside modules.'),
     'I0012': ('Locally enabling %s',
               'Used when an inline option enable a message or a messages \
               category.'),
+    'I0013': ('Ignoring entire file',
+              'Used to inform that the file will not be checked'),
+
     
     'E0001': ('%s',
               'Used when a syntax error is raised for a module.'),
@@ -244,6 +247,7 @@ This is used by the global evaluation report (R0004).'}),
         self.reporter = None
         self.manager = ASTNGManager()
         self._checkers = {}
+        self._ignore_file = False        
         # visit variables
         self.base_name = None
         self.base_file = None
@@ -388,6 +392,10 @@ This is used by the global evaluation report (R0004).'}),
             match = OPTION_RGX.search(line)
             if match is None:
                 continue
+            if match.group(1).strip() == "disable-all":
+                self.add_message('I0013', line=start[0])
+                self._ignore_file = True
+                return
             try:
                 opt, value = match.group(1).split('=', 1)
             except ValueError:
@@ -495,6 +503,7 @@ This is used by the global evaluation report (R0004).'}),
         self.base_name = modname
         self.base_file = normpath(filepath)
         # check this module
+        self._ignore_file = False
         astng = self._check_file(filepath, modname, checkers)
         if astng is None:
             return
@@ -519,7 +528,8 @@ This is used by the global evaluation report (R0004).'}),
             # if its actually a c extension
             self.current_file = astng.file
             # and check it
-            self.check_astng_module(astng, checkers)
+            if not self.check_astng_module(astng, checkers):
+                astng = None
         return astng
         
     def set_current_module(self, modname, filepath=None):
@@ -567,6 +577,8 @@ This is used by the global evaluation report (R0004).'}),
             # invoke IRawChecker interface on self to fetch module/block
             # level options
             self.process_module(stream)
+            if self._ignore_file:
+                return False
             # walk ast to collect line numbers
             orig_state = self._module_msgs_state.copy()
             self._module_msgs_state = {}
@@ -579,6 +591,7 @@ This is used by the global evaluation report (R0004).'}),
         # generate events to astng checkers
         self.astng_events(astng, [checker for checker in checkers
                                   if implements(checker, IASTNGChecker)])
+        return True
     
     def astng_events(self, astng, checkers, _reversed_checkers=None):
         """generate event to astng checkers according to the current astng

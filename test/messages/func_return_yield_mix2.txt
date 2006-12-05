@@ -1,1 +1,1 @@
-E:  1: 'return' with argument inside generator
+E:  8:somegen: return with argument inside generator
