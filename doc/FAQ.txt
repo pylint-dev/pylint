@@ -150,6 +150,8 @@ Answer:
 
   * ".pylint.d" directory in the current directory
 
+
+
 Question:
   How can I know the option name (for pylintrc) corresponding to a
   specific command line option ?
@@ -165,5 +167,19 @@ Answer:
 
 
 
+Question:
+  pychecker_ has no problem finding the imports and reporting on problems with 
+  them, while pylint seems unable to deal with the same imports. Why ?
+
+Answer:
+  pychecker and pylint use different approaches.  pychecker
+  imports the modules and rummages around in the result, hence it sees my
+  mangled sys.path.  pylint doesn't import any of the candidate modules and
+  thus doesn't include any of import's side effects (good and bad).  It
+  traverses an AST representation of the code.
+
+
+
 
 .. _psyco: http://psyco.sf.net
+.. _pychecker: http://pychecker.sf.net
