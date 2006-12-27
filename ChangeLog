@@ -10,7 +10,10 @@ ChangeLog for PyLint
     * new W0614 message to differentiate between unused 'import X' and
       unused 	'from X import *" (#3209, patch submitted by Daniel Drake)
     * allow disable-all option inline (#3218, patch submitted by Daniel Drake)
-
+    * included Daniel Drake's patch to have a different message E1003 instead of 
+      E1001 when a missing member is found but an inference failure has been 
+      detected
+	
 2006-11-23  --  0.12.2
     * fix #3143: W0233 bug w/ YES objects
     * fix #3119: Off-by-one error counting lines in a file

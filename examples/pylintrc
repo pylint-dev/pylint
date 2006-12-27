@@ -72,7 +72,7 @@ comment=no
 [BASIC]
 
 # Required attributes for module, separated by a comma
-required-attributes=__revision__
+required-attributes=
 
 # Regular expression which should only match functions or classes name which do
 # not require a docstring

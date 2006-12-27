@@ -123,6 +123,92 @@ Main reports
 :R0004: Global evaluation
 
 
+Typecheck checker
+-----------------
+try to find bugs in the code using type inference
+
+Options
+~~~~~~~
+:ignore-mixin-members:
+  Tells wether missing members accessed in mixin class should be ignored. A
+  mixin class is detected if its name ends with "mixin" (case insensitive).
+  Default: yes
+:zope:
+  When zope mode is activated, consider the acquired-members option to ignore
+  access to some undefined attributes.
+:acquired-members:
+  List of members which are usually get through zope's acquisition mecanism and
+  so shouldn't trigger E0201 when accessed (need zope=yes to be considered).
+  Default: REQUEST,acl_users,aq_parent
+
+Messages
+~~~~~~~~
+:E1101: *%s %r has no %r member*
+  Used when a class is accessed for an unexistant member.
+:E1102: *%s is not callable*
+  Used when an object being called has been infered to a non callable object
+:E1111: *Assigning to function call which doesn't return*
+  Used when an assigment is done on a function call but the infered function
+  doesn't return anything.
+:W1111: *Assigning to function call which only returns None*
+  Used when an assigment is done on a function call but the infered function
+  returns nothing but None.
+
+
+Variables checker
+-----------------
+checks for
+* unused variables / imports
+* undefined variables
+* redefinition of variable from builtins or from an outer scope
+* use of variable before assigment
+
+Options
+~~~~~~~
+:init-import:
+  Tells wether we should check for unused import in __init__ files.
+:dummy-variables-rgx:
+  A regular expression matching names used for dummy variables (i.e. not used).
+  Default: _|dummy
+:additional-builtins:
+  List of additional names supposed to be defined in builtins. Remember that
+  you should avoid to define new builtins when possible.
+
+Messages
+~~~~~~~~
+:E0601: *Using variable %r before assignment*
+  Used when a local variable is accessed before it's assignment.
+:E0602: *Undefined variable %r*
+  Used when an undefined variable is accessed.
+:E0611: *No name %r in module %r*
+  Used when a name cannot be found in a module.
+:W0601: *Global variable %r undefined at the module level*
+  Used when a variable is defined through the "global" statement but the
+  variable is not defined in the module scope.
+:W0602: *Using global for %r but no assigment is done*
+  Used when a variable is defined through the "global" statement but no
+  assigment to this variable is done.
+:W0603: *Using the global statement*
+  Used when you use the "global" statement to update a global variable. PyLint
+  just try to discourage this usage. That doesn't mean you can not use it !
+:W0604: *Using the global statement at the module level*
+  Used when you use the "global" statement at the module level since it has no
+  effect
+:W0611: *Unused import %s*
+  Used when an imported module or variable is not used.
+:W0612: *Unused variable %r*
+  Used when a variable is defined but not used.
+:W0613: *Unused argument %r*
+  Used when a function or method argument is not used.
+:W0621: *Redefining name %r from outer scope (line %s)*
+  Used when a variable's name hide a name defined in the outer scope.
+:W0622: *Redefining built-in %r*
+  Used when a variable or function override a built-in.
+:W0631: *Using possibly undefined loop variable %r*
+  Used when an loop variable (i.e. defined by a for loop or a list comprehension
+  or a generator expression) is used outside the loop.
+
+
 Basic checker
 -------------
 checks for :
@@ -139,7 +225,6 @@ Options
 ~~~~~~~
 :required-attributes:
   Required attributes for module, separated by a comma
-  Default: __revision__
 :no-docstring-rgx:
   Regular expression which should only match functions or classes name which do
   not require a docstring
@@ -234,92 +319,6 @@ Reports
 :R0101: Statistics by type
 
 
-Typecheck checker
------------------
-try to find bugs in the code using type inference
-
-Options
-~~~~~~~
-:ignore-mixin-members:
-  Tells wether missing members accessed in mixin class should be ignored. A
-  mixin class is detected if its name ends with "mixin" (case insensitive).
-  Default: yes
-:zope:
-  When zope mode is activated, consider the acquired-members option to ignore
-  access to some undefined attributes.
-:acquired-members:
-  List of members which are usually get through zope's acquisition mecanism and
-  so shouldn't trigger E0201 when accessed (need zope=yes to be considered).
-  Default: REQUEST,acl_users,aq_parent
-
-Messages
-~~~~~~~~
-:E1101: *%s %r has no %r member*
-  Used when a class is accessed for an unexistant member.
-:E1102: *%s is not callable*
-  Used when an object being called has been infered to a non callable object
-:E1111: *Assigning to function call which doesn't return*
-  Used when an assigment is done on a function call but the infered function
-  doesn't return anything.
-:W1111: *Assigning to function call which only returns None*
-  Used when an assigment is done on a function call but the infered function
-  returns nothing but None.
-
-
-Variables checker
------------------
-checks for
-* unused variables / imports
-* undefined variables
-* redefinition of variable from builtins or from an outer scope
-* use of variable before assigment
-
-Options
-~~~~~~~
-:init-import:
-  Tells wether we should check for unused import in __init__ files.
-:dummy-variables-rgx:
-  A regular expression matching names used for dummy variables (i.e. not used).
-  Default: _|dummy
-:additional-builtins:
-  List of additional names supposed to be defined in builtins. Remember that
-  you should avoid to define new builtins when possible.
-
-Messages
-~~~~~~~~
-:E0601: *Using variable %r before assignment*
-  Used when a local variable is accessed before it's assignment.
-:E0602: *Undefined variable %r*
-  Used when an undefined variable is accessed.
-:E0611: *No name %r in module %r*
-  Used when a name cannot be found in a module.
-:W0601: *Global variable %r undefined at the module level*
-  Used when a variable is defined through the "global" statement but the
-  variable is not defined in the module scope.
-:W0602: *Using global for %r but no assigment is done*
-  Used when a variable is defined through the "global" statement but no
-  assigment to this variable is done.
-:W0603: *Using the global statement*
-  Used when you use the "global" statement to update a global variable. PyLint
-  just try to discourage this usage. That doesn't mean you can not use it !
-:W0604: *Using the global statement at the module level*
-  Used when you use the "global" statement at the module level since it has no
-  effect
-:W0611: *Unused import %s*
-  Used when an imported module or variable is not used.
-:W0612: *Unused variable %r*
-  Used when a variable is defined but not used.
-:W0613: *Unused argument %r*
-  Used when a function or method argument is not used.
-:W0621: *Redefining name %r from outer scope (line %s)*
-  Used when a variable's name hide a name defined in the outer scope.
-:W0622: *Redefining built-in %r*
-  Used when a variable or function override a built-in.
-:W0631: *Using possibly undefined loop variable %r*
-  Used when an loop variable (i.e. defined by a for loop or a list comprehension
-  or a generator expression) is used outside the loop.
-
-
 Classes checker
 ---------------
 checks for :
@@ -398,6 +397,33 @@ Messages
   an unexpected raison. Please report this kind if you don't make sense of it.
 :F0220: *failed to resolve interfaces implemented by %s (%s)*
   Used when a PyLint as failed to find interfaces implemented by a class
+
+
+Newstyle checker
+----------------
+checks for usage of new style capabilities on old style classes and
+other new/old styles conflicts problems
+* use of property, __slots__, super
+* "super" usage
+* raising a new style class as exception
+
+Messages
+~~~~~~~~
+:E1001: *Use __slots__ on an old style class*
+  Used when an old style class use the __slots__ attribute.
+:E1002: *Use super on an old style class*
+  Used when an old style class use the super builtin.
+:E1003: *Bad first argument %r given to super class*
+  Used when another argument than the current class is given as first argument
+  of the super builtin.
+:E1010: *Raising a new style class*
+  Used when a new style class is raised since it's not possible with python < 2.5.
+:W1001: *Use of "property" on an old style class*
+  Used when PyLint detect the use of the builtin "property" on an old style
+  class while this is relying on new style classes features
+:W1010: *Exception doesn't inherit from standard "Exception" class*
+  Used when a custom exception class is raised but doesn't inherit from the
+  builtin "Exception" class.
 
 
 Design checker
@@ -518,33 +544,6 @@ Reports
 :R0402: Modules dependencies graph
 
 
-Newstyle checker
-----------------
-checks for usage of new style capabilities on old style classes and
-other new/old styles conflicts problems
-* use of property, __slots__, super
-* "super" usage
-* raising a new style class as exception
-
-Messages
-~~~~~~~~
-:E1001: *Use __slots__ on an old style class*
-  Used when an old style class use the __slots__ attribute.
-:E1002: *Use super on an old style class*
-  Used when an old style class use the super builtin.
-:E1003: *Bad first argument %r given to super class*
-  Used when another argument than the current class is given as first argument
-  of the super builtin.
-:E1010: *Raising a new style class*
-  Used when a new style class is raised since it's not yet possible.
-:W1001: *Use of "property" on an old style class*
-  Used when PyLint detect the use of the builtin "property" on an old style
-  class while this is relying on new style classes features
-:W1010: *Exception doesn't inherit from standard "Exception" class*
-  Used when a custom exception class is raised but doesn't inherit from the
-  builtin "Exception" class.
-
-
 Exceptions checker
 ------------------
 checks for
@@ -626,32 +625,6 @@ Messages
   the error if it occurs.
 
 
-Miscellaneous checker
----------------------
-checks for:
-* warning notes in the code like FIXME, XXX
-* PEP 263: source code with non ascii character but no encoding declaration
-
-Options
-~~~~~~~
-:notes:
-  List of note tags to take in consideration, separated by a comma.
-  Default: FIXME,XXX,TODO
-
-Messages
-~~~~~~~~
-:E0501: *Non ascii characters found but no encoding specified (PEP 263)*
-  Used when some non ascii characters are detected but now encoding is
-  specified, as explicited in the PEP 263.
-:E0502: *Wrong encoding specified (%s)*
-  Used when a known encoding is specified but the file doesn't seem to be
-  actually in this encoding.
-:E0503: *Unknown encoding specified (%s)*
-  Used when an encoding is specified, but it's unknown to Python.
-:W0511:
-  Used when a warning note as FIXME or XXX is detected.
-
-
 Metrics checker
 ---------------
 does not check anything but gives some raw metrics :
@@ -693,5 +666,31 @@ Messages
 Reports
 ~~~~~~~
 :R0801: Duplication
+
+
+Miscellaneous checker
+---------------------
+checks for:
+* warning notes in the code like FIXME, XXX
+* PEP 263: source code with non ascii character but no encoding declaration
+
+Options
+~~~~~~~
+:notes:
+  List of note tags to take in consideration, separated by a comma.
+  Default: FIXME,XXX,TODO
+
+Messages
+~~~~~~~~
+:E0501: *Non ascii characters found but no encoding specified (PEP 263)*
+  Used when some non ascii characters are detected but now encoding is
+  specified, as explicited in the PEP 263.
+:E0502: *Wrong encoding specified (%s)*
+  Used when a known encoding is specified but the file doesn't seem to be
+  actually in this encoding.
+:E0503: *Unknown encoding specified (%s)*
+  Used when an encoding is specified, but it's unknown to Python.
+:W0511:
+  Used when a warning note as FIXME or XXX is detected.
 
 
