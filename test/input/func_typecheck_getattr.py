@@ -23,6 +23,11 @@ class Client:
         self._prov = Provider()
         self._prov_attr = Provider.cattr
         self._prov_attr2 = Provider.cattribute
+        self.set_later = 0
+
+    def set_set_later(self, value):
+        """set set_later attribute (introduce an inference ambiguity)"""
+        self.set_later = value
         
     def use_method(self):
         """use provider's method"""
@@ -58,3 +63,4 @@ class Client:
 
 print object.__init__
 print property.__init__
+print Client().set_later.lower()

@@ -25,10 +25,14 @@ from pylint.checkers.utils import safe_infer, is_super, display_type
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
-              'Used when a class is accessed for an unexistant member.'),
+              'Used when a variable is accessed for an unexistant member.'),
     'E1102': ('%s is not callable',
               'Used when an object being called has been infered to a non \
               callable object'),
+    'E1103': ('%s %r has no %r member (but some types could not be inferred)',
+              'Used when a variable is accessed for an unexistant member, but \
+              astng was not able to interpret all possible types of this \
+              variable.'),
     'E1111': ('Assigning to function call which doesn\'t return',
               'Used when an assigment is done on a function call but the \
               infered function doesn\'t return anything.'),
@@ -92,9 +96,11 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
         # list of (node, nodename) which are missing the attribute
         missingattr = set()
         ignoremim = self.config.ignore_mixin_members
+        inference_failure = False
         for owner in infered:
             # skip yes object
             if owner is astng.YES:
+                inference_failure = True
                 continue
             # if there is ambiguity, skip None
             if len(infered) > 1 and isinstance(owner, astng.Const) \
@@ -135,7 +141,11 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
                 if actual in done:
                     continue
                 done.add(actual)
-                self.add_message('E1101', node=node,
+                if inference_failure:
+                    msgid = 'E1103'
+                else:
+                    msgid = 'E1101'
+                self.add_message(msgid, node=node,
                                  args=(display_type(owner), name,
                                        node.attrname))
 
