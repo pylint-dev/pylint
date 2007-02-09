@@ -738,14 +738,22 @@ def preprocess_options(args, search_for):
     values of <search_for> are callback functions to call when the option is
     found
     """
+    # Deleting from args on-the-fly while enumerating screws things up
+    # (indices get shifted, etc). To avoid problems, we create a list of
+    # indices to delete, and then do the deletions in reverse order after
+    # the argument processing has been completed.
+    to_del = []    
     for i, arg in enumerate(args):
         for option in search_for:
             if arg.startswith('--%s=' % option):
                 search_for[option](option, arg[len(option)+3:])
-                del args[i]
+                to_del.append(i)
             elif arg == '--%s' % option:
                 search_for[option](option, args[i + 1])
-                del args[i:i+2]
+                to_del.extend([i, i+1])
+    to_del.reverse()
+    for i in to_del:
+        del args[i]
     
 class Run:
     """helper class to use as main for pylint :
