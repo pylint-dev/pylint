@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2006 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2007 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -335,7 +335,7 @@ This is used by the global evaluation report (R0004).'}),
         checker is an object implementing IRawChecker or / and IASTNGChecker
         """
         assert checker.priority <= 0, 'checker priority can\'t be >= 0'
-        self._checkers[checker] = 1
+        self._checkers[checker.name] = checker
         if hasattr(checker, 'reports'):
             for r_id, r_title, r_cb in checker.reports:
                 self.register_report(r_id, r_title, r_cb, checker)
@@ -346,13 +346,13 @@ This is used by the global evaluation report (R0004).'}),
                 
     def enable_checkers(self, listed, enabled):
         """only enable/disable checkers from the given list"""
-        idmap = {}
-        for checker in self._checkers.keys():
+        for checker in self._checkers.values():
+            if enabled and not checker.may_be_disabled:
+                continue
             checker.enable(not enabled)
-            idmap[checker.name] = checker
         for checkerid in listed:
             try:
-                checker = idmap[checkerid]
+                checker = self._checkers[checkerid]
             except KeyError:
                 raise Exception('no checker named %s' % checkerid)
             checker.enable(enabled)
@@ -362,7 +362,7 @@ This is used by the global evaluation report (R0004).'}),
         'miscellaneous' checker which can be safely deactivated in debug
         mode
         """
-        for checker in self._checkers.keys():
+        for checker in self._checkers.values():
             if checker.name == 'miscellaneous':
                 checker.enable(False)
                 continue
@@ -447,7 +447,7 @@ This is used by the global evaluation report (R0004).'}),
         self.reporter.include_ids = self.config.include_ids
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
-        checkers = sort_checkers(self._checkers.keys())
+        checkers = sort_checkers(self._checkers.values())
         rev_checkers = checkers[:]
         rev_checkers.reverse()
         # notify global begin
@@ -760,6 +760,7 @@ class Run:
     
     run(*sys.argv[1:])
     """
+    LinterClass = PyLinter
     option_groups = (
         ('Commands', 'Options which are actually commands. Options in this \
 group are mutually exclusive.'),
@@ -768,13 +769,18 @@ group are mutually exclusive.'),
     def __init__(self, args, reporter=None, quiet=0):
         self._rcfile = None
         self._plugins = []
-        preprocess_options(args, {'rcfile': self.cb_set_rcfile,
+        preprocess_options(args, {'rpython-mode': self.cb_rpython_mode,
+                                  'rcfile': self.cb_set_rcfile,
                                   'load-plugins': self.cb_add_plugins})
-        self.linter = linter = PyLinter((
+        self.linter = linter = self.LinterClass((
             ('rcfile',
              {'action' : 'callback', 'callback' : lambda *args: 1,
               'type': 'string', 'metavar': '<file>',
               'help' : 'Specify a configuration file.'}),
+            
+            ('rpython-mode',
+             {'action' : 'callback', 'callback' : lambda *args: 1,
+              'help' : 'Run into Restricted Python analysis mode.'}),
 
             ('help-msg',
              {'action' : 'callback', 'type' : 'string', 'metavar': '<msg-id>',
@@ -830,7 +836,7 @@ There are 5 kind of message types :
     * (C) convention, for programming standard violation                       
     * (R) refactor, for bad code smell                                         
     * (W) warning, for python specific problems                                
-    * (E) error, for much probably bugs in the code
+    * (E) error, for much probably bugs in the code                            
     * (F) fatal, if an error occured which prevented pylint from doing further \
 processing.     
         ''')
@@ -871,6 +877,10 @@ processing.
             linter.check(args)
         sys.path.pop(0)
 
+    def cb_rpython_mode(self, name, value):
+        from pylint.rlint import RPyLinter
+        self.LinterClass = RPyLinter
+        
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (ie before optik parsing)"""
         self._rcfile = value

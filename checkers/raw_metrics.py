@@ -16,8 +16,6 @@
 Raw metrics checker
 """
 
-__revision__ = "$Id: raw_metrics.py,v 1.15 2005-11-02 09:21:47 syt Exp $"
-
 import tokenize
 
 # pylint now requires pylint >= 2.2, so this is no longer necessary
