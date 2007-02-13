@@ -57,11 +57,11 @@ def exception_str(ex):
     return 'in %s\n:: %s' % (ex.file, ', '.join(ex.args))
 
 class LintTestUsingModule(testlib.TestCase):            
-
+    package = 'input'
     def test_functionality(self):
-        tocheck = ['input.'+self.module]
+        tocheck = [self.package+'.'+self.module]
         if self.depends:
-            tocheck += ['input.%s' % name.replace('.py', '')
+            tocheck += [self.package+'.%s' % name.replace('.py', '')
                         for name, file in self.depends]
         self._test(tocheck)
         
@@ -96,9 +96,9 @@ class LintTestUsingModule(testlib.TestCase):
 class LintTestUsingFile(LintTestUsingModule):            
                 
     def test_functionality(self):
-        tocheck = ['input/' + self.module + '.py']
+        tocheck = [self.package+'/' + self.module + '.py']
         if self.depends:
-            tocheck += ['input/%s' % name for name, file in self.depends]
+            tocheck += [self.package+'/%s' % name for name, file in self.depends]
         self._test(tocheck)
 
 
