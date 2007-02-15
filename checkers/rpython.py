@@ -52,12 +52,17 @@ of different types assigned.'),
 rpython since globals are considered as constants.'),
 
     'E1207': ('Using negative slice %s %s (infered to %s)',
-              'Used when a negative integer is used as lower, upper or step of a slice.'),
+              'Used when a negative integer is used as lower, upper or step of \
+a slice.'),
     'E1208': ('Using non constant step',
-              'Used when a variable not annotated as a constant is used as step of a slice.'),
+              'Used when a variable not annotated as a constant is used as \
+step of a slice.'),
     
-    'E1208': ('%r format is not supported',
+    'E1209': ('%r format is not supported',
               'Used when the unavailable "%r" formatting instruction is used.'),
+    'E1210': ('generator expressions are not supported',
+              'Used when a generator expression is used while generator are \
+not available in rpython.'),
     }
 
 # XXX: nested functions/classes
@@ -261,7 +266,8 @@ class RPythonChecker(BaseChecker):
         """check we are not modifying a module attribute"""
         if not self._rpython:
             return
-        if not node.name in node.frame().locals.keys():
+        frame = node.frame()
+        if not node.name in node.frame().locals:
             self.add_message('E1206', node=node, args=(node.name, node.root().name))
             
         
@@ -327,6 +333,14 @@ class RPythonChecker(BaseChecker):
             pass
         return value
 
+    def visit_genexpr(self, node):
+        self.add_message('E1210', node=node)
+        # avoid E1206 false positive due to particular gen expr variable scope
+        self._rpython = False
+        
+    def leave_genexpr(self, node):
+        self._rpython = True
+        
     def visit_mod(self, node):
         try:
             for infered in node.left.infer():
@@ -336,7 +350,7 @@ class RPythonChecker(BaseChecker):
                     continue # XXX specific message
                 value = infered.value.replace('%%', '%%')
                 if '%r' in value or REPR_NAMED_FORMAT_INSTR.search(value):
-                    self.add_message('E1208', node=infered)
+                    self.add_message('E1209', node=infered)
                 
         except astng.InferenceError:
             pass
