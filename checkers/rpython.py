@@ -20,6 +20,8 @@ translation failures one by one.
 
 __docformat__ = "restructuredtext en"
 
+import re
+
 from logilab.common.compat import set
 from logilab import astng
 
@@ -53,16 +55,13 @@ rpython since globals are considered as constants.'),
               'Used when a negative integer is used as lower, upper or step of a slice.'),
     'E1208': ('Using non constant step',
               'Used when a variable not annotated as a constant is used as step of a slice.'),
+    
+    'E1208': ('%r format is not supported',
+              'Used when the unavailable "%r" formatting instruction is used.'),
     }
 
 # XXX: nested functions/classes
-# XXX: generator expression
-# XXX: import rules
-# XXX: dict homegeneity
-# XXX: os.path.join('a', 'b') OK but os.path.join('a', 'b', 'c') KO
-# XXX: object model (multiple inheritance), properties, __xxx__, etc
-# XXX: entry_point doit retourner un entier
-# XXX: list.sort and other non available builtin's methods
+# XXX: properties not supported ?
 
 # 'global' is available even if it doesn't help anything since globals are
 # considered immutable
@@ -90,6 +89,8 @@ del BUILTINLIST, AUTHORIZED
 
 BUILTIN_MODIFIERS = {'dict': set(('clear', 'fromkeys', 'pop', 'popitem', 'setdefault', 'update')),
                      'list': set(('append', 'extend', 'insert', 'pop', 'remove', 'reverse', 'sort')),}
+
+REPR_NAMED_FORMAT_INSTR = re.compile('%\([^)]+\)r')
 
 class RPythonChecker(BaseChecker):
     """check a python program is `Restricted Python`_ compliant. Restricted python
@@ -311,8 +312,7 @@ class RPythonChecker(BaseChecker):
             for infered in node.infer():
                 if infered is astng.YES:
                     continue
-                assert isinstance(infered, astng.Const)
-                if not isinstance(infered.value, int):
+                if not isinstance(infered, astng.Const) or not isinstance(infered.value, int):
                     continue # XXX specific message
                 if infered.value < 0:
                     if minus_one_allowed and infered.value == -1:
@@ -326,7 +326,21 @@ class RPythonChecker(BaseChecker):
         except astng.InferenceError:
             pass
         return value
-    
+
+    def visit_mod(self, node):
+        try:
+            for infered in node.left.infer():
+                if infered is astng.YES:
+                    continue
+                if not isinstance(infered, astng.Const) or not isinstance(infered.value, basestring):
+                    continue # XXX specific message
+                value = infered.value.replace('%%', '%%')
+                if '%r' in value or REPR_NAMED_FORMAT_INSTR.search(value):
+                    self.add_message('E1208', node=infered)
+                
+        except astng.InferenceError:
+            pass
+        
 # XXX: checking rpython should do an "entry point search", not a "project search" (eg from a modules/packages list)
 # more over we should differentiate between initial import vs runtime imports, no ?
 
