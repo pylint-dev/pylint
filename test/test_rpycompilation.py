@@ -28,11 +28,11 @@ class RPyCompilation(TestCase):
             
     def _compile_success(self, filename):
         status = system('%s --batch %s' % (self.trscript, filename))
-        self.assertEquals(status, 0, "%s translation succeed !!" % filename)
+        self.assertEquals(status, 0, "%s translation failed !!" % filename)
         exefile = '%s-c' % splitext(basename(filename))[0]
         status = system('./%s' % exefile)
         remove(exefile)
-        self.assertEquals(status, 0, "%s run succeed !!" % exefile)
+        self.assertEquals(status, 0, "%s run failed !!" % exefile)
             
             
     def test_translations(self):

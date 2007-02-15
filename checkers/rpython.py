@@ -49,8 +49,10 @@ of different types assigned.'),
               'Used when a module variable is modified, which is not allowed in \
 rpython since globals are considered as constants.'),
 
-    'E1207': ('Using negative slice index %s (infered to %s)',
+    'E1207': ('Using negative slice %s %s (infered to %s)',
               'Used when a negative integer is used as lower, upper or step of a slice.'),
+    'E1208': ('Using non constant step',
+              'Used when a variable not annotated as a constant is used as step of a slice.'),
     }
 
 # XXX: nested functions/classes
@@ -266,18 +268,45 @@ class RPythonChecker(BaseChecker):
         """no negative index"""
         if not self._rpython:
             return
-        for bound in (node.lower, node.upper):
-            if bound is None: continue
-            self.check_slice_arg(bound)
+        self.check_slice(node.lower, node.upper)
         
     def visit_sliceobj(self, node):
         """no negative index"""
         if not self._rpython:
             return
+        sdef = []
         for bound in node.nodes:
-            self.check_slice_arg(bound)
+            if isinstance(bound, astng.Const) and bound.value is None:
+                sdef.append(None)
+            else:
+                sdef.append(bound)
+        self.check_slice(*sdef)
             
-    def check_slice_arg(self, node):
+    def check_slice(self, start, stop, step=None):
+        """
+        * step has to be annotated as a constant and >= 0
+        * start >= 0
+        * stop >= 0
+        * [:-1] et [0:-1] OK
+        """
+
+        if start is not None:
+            value = self.check_positive_integer(start, 'start index')
+        if stop is not None:
+            self.check_positive_integer(stop, 'stop index', start is None or value == 0)
+        if step is not None:
+            try:
+                for infered in step.infer():
+                    if infered is astng.YES:
+                        self.add_message('E1208', node=step)
+                        return
+            except astng.InferenceError:
+                self.add_message('E1208', node=node)
+                return
+            self.check_positive_integer(step, 'step')
+        
+    def check_positive_integer(self, node, msg, minus_one_allowed=False):
+        value = None
         try:
             for infered in node.infer():
                 if infered is astng.YES:
@@ -286,11 +315,18 @@ class RPythonChecker(BaseChecker):
                 if not isinstance(infered.value, int):
                     continue # XXX specific message
                 if infered.value < 0:
-                    self.add_message('E1207', node=node, args=(node.as_string(),
+                    if minus_one_allowed and infered.value == -1:
+                        value = infered.value
+                        continue
+                    self.add_message('E1207', node=node, args=(msg,
+                                                               node.as_string(),
                                                                infered.value))
+                else:
+                    value = infered.value
         except astng.InferenceError:
             pass
-        
+        return value
+    
 # XXX: checking rpython should do an "entry point search", not a "project search" (eg from a modules/packages list)
 # more over we should differentiate between initial import vs runtime imports, no ?
 
