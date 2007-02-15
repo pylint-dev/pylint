@@ -127,7 +127,7 @@ class MessagesHandlerMixIn:
         msg = self._messages_help[msg_id]
         msg = normalize_text(' '.join(msg.split()), indent='  ')
         if checkerref:
-            for checker in self._checkers:
+            for checker in self._checkers.values():
                 if msg_id in checker.msgs:
                     msg += ' This message belongs to the %s checker.' % \
                            checker.name
@@ -269,7 +269,7 @@ class MessagesHandlerMixIn:
         
     def list_messages(self):
         """output a full documentation in ReST format"""
-        for checker in sort_checkers(self._checkers):
+        for checker in sort_checkers(self._checkers.values()):
             if checker.name == 'master':
                 prefix = 'Main '
                 if checker.options:

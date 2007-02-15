@@ -366,12 +366,14 @@ This is used by the global evaluation report (R0004).'}),
             if checker.name == 'miscellaneous':
                 checker.enable(False)
                 continue
-            for msgid in getattr(checker, 'msgs', {}).keys():
-                if msgid[0] == 'E':
-                    checker.enable(True)
-                    break
-            else:
-                checker.enable(False)
+            # if checker is already explicitly disabled (e.g. rpython), don't enable it
+            if checker.enabled:
+                for msgid in getattr(checker, 'msgs', {}).keys():
+                    if msgid[0] == 'E':
+                        checker.enable(True)
+                        break
+                else:
+                    checker.enable(False)
                 
     # block level option handling #############################################
     #

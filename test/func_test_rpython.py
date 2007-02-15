@@ -50,6 +50,14 @@ class RLintTestUsingFile(LintTestUsingFile):
             tocheck += ['rpythoninput/%s' % name for name, file in self.depends]
         self._test(tocheck)
 
+
+class TestTests(unittest.TestCase):
+    """check that all testable messages have been checked"""
+    def test(self):
+        # skip rpython checker messages
+        missing = [msgid for msgid in linter._messages.keys()
+                   if msgid[1:3] == '12' and not msgid in test_reporter.message_ids]
+        self.assertEqual(missing, [])
         
 def make_tests(filter_rgx):
     """generate tests classes from test info
@@ -73,6 +81,10 @@ def make_tests(filter_rgx):
             output = exists(messages_file + '2') and (messages_file + '2') or messages_file
             depends = dependancies or None
         tests.append(LintTestUsingFileTC)
+    
+    if not filter_rgx:
+        # test all features are tested :)    
+        tests.append(TestTests)
 
     return tests
 

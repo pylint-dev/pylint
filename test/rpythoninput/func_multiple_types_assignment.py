@@ -1,4 +1,5 @@
 def function(i):
+    attr = None
     if i == 1:
         attr = 1
     else:
@@ -6,7 +7,7 @@ def function(i):
     return attr
 
 def entry_point(argv):
-    attr = function(len(argv))
+    function(len(argv))
     return 0
 
 

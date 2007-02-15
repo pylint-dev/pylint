@@ -16,35 +16,36 @@ def target(*args):
     return entry_point, None
 """
 
-msg = "E:  3:function: Using unavailable builtin '%s'"
+msg = "E:  5:function: Using unavailable builtin '%s'"
 
 checks = [
-    'set([1, 2, 3]', 'frozenset()', 'file("foo.txt")', 'open("foo.txt")',
+    'set([1, 2, 3])', 'frozenset()',
     'dict()', 'unicode("f")', "complex(3, 4)",
+    'file("foo.txt")', 'open("foo.txt")',
 
+    'super(str)', 'object()', 
     
-    'raw_input()', 'input()', 
+    'raw_input()', 'input()', 'buffer()', 
+    
     'vars()', 'locals()', 'globals()', 'dir()',
-    'issubclass(function, str)',
+    
     'getattr(function, "bar")', 'delattr(function, "bar")', 'setattr(function, "bar", "baz")',
-    'sum(xrange(4))', 'enumerate(range(5))', 
-
-    'reload(module)', 'callable(function)','eval("a == b")',
-    'execfile("foo.py")',
-
-    'compile("a==b", "?", "eval")',
-    "reduce(function, [])", "filter(function, [])",
-
-    'id(function)', 'help(function)',
-    'isinstance("foo", basestring)' # test basestring, not isinstance
     'staticmethod(function)', 'classmethod(function)', 'property(function)',
-    'round(3.4)', 'iter([])',
+    
+    "reduce(function, [])", "filter(function, [])", 'map(function, [])', 
+    'sum(xrange(4))', 'enumerate(range(5))', 
     'sorted(range(5))', 'reversed(range(5))',
-    'intern("foo")', 
-    'buffer()', 'map(function, [])', 'super(str)',
-    'object()', 
-    ]
 
+    'callable(function)', 'issubclass(function, str)',
+    
+    'reload(module)',
+
+    'eval("a == b")', 'compile("a==b", "?", "eval")', 'execfile("foo.py")',
+    
+    'id(function)', 'help(function)',
+    
+    'intern("foo")',  'round(3.4)', 'iter([])',
+    ]
 
 
 for filename in glob('rpythoninput/func_nobuiltin_*'):
@@ -53,7 +54,10 @@ for filename in glob('rpythonmessages/func_nobuiltin_*'):
     remove(filename)    
 for check in checks:
     builtin, _ = check.split('(', 1)
+    if builtin == 'isinstance':
+        builtin = 'basestring'
     basename = 'func_nobuiltin_%s' % builtin
+    print basename
     file('rpythoninput/%s.py' % basename, 'w').write(code % check)
     file('rpythonmessages/%s.txt' % basename, 'w').write(msg % builtin)
-
+print 'generated %s test' % len(checks)

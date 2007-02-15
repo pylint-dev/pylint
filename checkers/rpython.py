@@ -37,12 +37,13 @@ MSGS = {
     'E1203': ('Multiple types assigned to %s %r',
               'Used when an identifier or attribut is infered as having values \
 of different types assigned.'),
-    'E1204': ('Non homogeneous values in %s %r',
-              'Used when a tuple or list is not containing homogeneous values.'),
     
-    'E1205': ('Identifier %r is not properly initialized',
-              'Used when an identifier is used in some conditional block \
-without being properly initialized before that block.'),
+    'E1204': ('Non homogeneous values in list',
+              'Used when a list is not containing homogeneous values.'),
+    
+##     'E1205': ('Identifier %r is not properly initialized',
+##               'Used when an identifier is used in some conditional block \
+## without being properly initialized before that block.'),
     
     'E1206': ('Modifying global %r from module %s',
               'Used when a module variable is modified, which is not allowed in \
@@ -53,25 +54,40 @@ rpython since globals are considered as constants.'),
     }
 
 # XXX: nested functions/classes
-# XXX: generator expression ? list comprehension ?
+# XXX: generator expression
 # XXX: import rules
-# XXX: slice indexes
 # XXX: dict homegeneity
 # XXX: os.path.join('a', 'b') OK but os.path.join('a', 'b', 'c') KO
 # XXX: object model (multiple inheritance), properties, __xxx__, etc
+# XXX: entry_point doit retourner un entier
+# XXX: list.sort and other non available builtin's methods
 
-UNAVAILABLE_KEYWORDS = set(('yield', 'global', 'exec', 'lambda', 'print'))
+# 'global' is available even if it doesn't help anything since globals are
+# considered immutable
+UNAVAILABLE_KEYWORDS = set(('yield', 'exec', 'lambda', 'print'))
 
-BUILTINLIST = set([x for x in dir(__builtins__) if x[0].islower()]) 
-AUTHORIZED = set(('abs', 'apply', 'bool', 'chr', 'cmp', 'coerce',
+import __builtin__
+BUILTINLIST = set([x for x in dir(__builtin__) if x[0].islower()]) 
+AUTHORIZED = set(('abs', 'apply',
+                  'basestring', 'bool',
+                  'chr', 'cmp', 'coerce',
                   'float', 'hasattr', 'hash', 'hex',
-                  'int', 'isinstance', 'len', 'list', 'max', 'min', 'oct', 'ord',
+                  'int', 'isinstance',
+                  'len', 'list', 'max', 'min', 'oct', 'ord',
                   'range', 'slice', 'str', 'tuple', 'type',
                   'unichr', 'xrange', 'zip'
                   ))
-UNAVAILABLE_BUILTINS = BUILTINLIST - AUTHORIZED
+
+UNAVAILABLE_BUILTINS = {
+    '__builtin__': BUILTINLIST - AUTHORIZED,
+    'site': 'help',
+    }
+#from pprint import pprint
+#pprint(sorted(BUILTINLIST - AUTHORIZED))
 del BUILTINLIST, AUTHORIZED
 
+BUILTIN_MODIFIERS = {'dict': set(('clear', 'fromkeys', 'pop', 'popitem', 'setdefault', 'update')),
+                     'list': set(('append', 'extend', 'insert', 'pop', 'remove', 'reverse', 'sort')),}
 
 class RPythonChecker(BaseChecker):
     """check a python program is `Restricted Python`_ compliant. Restricted python
@@ -95,47 +111,84 @@ class RPythonChecker(BaseChecker):
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
+        self._rpython = True
 
         
     def visit_name(self, node):
         """check unavailable builtins are not used"""
+        if not self._rpython:
+            return
         try:
             infered = node.infer().next()
         except astng.InferenceError:
             return # XXX
         if infered is astng.YES:
-            return # XXX 
-        if infered.root().name == '__builtin__' and node.name in UNAVAILABLE_BUILTINS:
+            return # XXX
+        name = node.name
+        module = infered.root().name
+        if module in UNAVAILABLE_BUILTINS and name in UNAVAILABLE_BUILTINS[module]:
             self.add_message('E1202', node=node, args=name)
-        # E1205 check, example:
-        #
-        # ...
-        # if bla:
-        #     a = 4
-        # else:
-        #     a = 5
-        # print a
-        #
-        # in such a case a should be defined before the if/else block.
-        # So here if name is a local name we have to ckeck it's defined in the
-        # same block or in a parent block
-        frame, stmts = node.lookup(name)
-        if frame is node.frame():
-            # XXX only consider the first assignment ?
-            for assign in stmts[0]:
-                assstmt = assign.statement()
-                _node = node.statement()
-                while _node:
-                    if _node is assstmt:
-                        return
-                    _node = _node.parent
-            self.add_message('E1205', node=node, args=name)
-
+##         # E1205 check, example:
+##         #
+##         # ...
+##         # if bla:
+##         #     a = 4
+##         # else:
+##         #     a = 5
+##         # print a
+##         #
+##         # in such a case a should be defined before the if/else block.
+##         # So here if name is a local name we have to ckeck it's defined in the
+##         # same block or in a parent block
+##         frame, stmts = node.lookup(name)
+##         if frame is node.frame() and len(stmts) > 1:
+##             # XXX only consider the first assignment ?
+##             assstmt = stmts[0].statement().parent
+##             _node = node.statement()
+##             while _node:
+##                 if _node is assstmt:
+##                     break
+##                 _node = _node.parent
+##             else:
+##                 self.add_message('E1205', node=node, args=name)
+        try:
+            for infered in node.infer():
+                if infered is astng.YES:
+                    continue
+                break
+            else:
+                return
+        except astng.InferenceError:
+            return
+        frame = infered.frame()
+        # check for more global alteration
+        if not frame is node.frame() and isinstance(frame, astng.Module):
+            # accessing to a global
+            if isinstance(infered, (astng.List, astng.Dict)):
+                # is it a tuple/dict item assignment ?
+                ass = node.parent
+                last = node
+                while ass and not isinstance(ass, astng.Assign):
+                    last = last
+                    ass = ass.parent
+                # "not last is ass.expr" is checking the global isn't in the rhs
+                if ass is not None and not last is ass.expr:
+                    self.add_message('E1206', node=node, args=(node.name, node.root().name))
+                    return
+                # is it a call to a tuple/dict method modifying it ?
+                if isinstance(node.parent, astng.Getattr) and \
+                       isinstance(node.parent.parent, astng.CallFunc):
+                    if node.parent.attrname in BUILTIN_MODIFIERS[infered.name]:
+                        self.add_message('E1206', node=node, args=(node.name, node.root().name))
+                        
+        
     def visit_class(self, node):
         """check class attributes have homogeneous types"""
+        if not self._rpython:
+            return
         for name in node.instance_attrs.keys():
             types = set()
-            for infered in node.igetattr(name):
+            for infered in astng.Instance(node).igetattr(name):
                 if infered is astng.YES:
                     continue
                 # skip None
@@ -147,10 +200,11 @@ class RPythonChecker(BaseChecker):
         
     def visit_function(self, node):
         """check function locals have homogeneous types"""
-        # docstring = node.docstring
-        # if docstring is not None and dosctring.starswith('NOT RPYTHON'):
-        #     # don't analyze function if it's tagged as "NOT RPYTHON"
-        #     return
+        docstring = node.doc
+        if docstring is not None and 'NOT RPYTHON' in docstring:
+            self._rpython = False
+        if not self._rpython:
+            return
         for name in node.locals.keys():
             types = set()
             for infered in node.ilookup(name):
@@ -162,9 +216,16 @@ class RPythonChecker(BaseChecker):
                 types.add(str(infered))
             if len(types) > 1:
                 self.add_message('E1203', node=node, args=('identifier', name))
-            
+
+    def leave_function(self, node):
+        docstring = node.doc
+        if docstring is not None and 'NOT RPYTHON' in docstring:
+            self._rpython = True
+        
     def visit_list(self, node):
         """check list contains homogeneous types"""
+        if not self._rpython:
+            return
         types = set()
         for node in node.nodes:
             try:
@@ -179,11 +240,13 @@ class RPythonChecker(BaseChecker):
             except astng.InferenceError:
                 continue
         if len(types) > 1:
-            self.add_message('E1204', node=node, args=('identifier', name))
+            self.add_message('E1204', node=node)
 
     
     def visit_assattr(self, node):
         """check we are not modifying a module attribute"""
+        if not self._rpython:
+            return
         try:
             infered = node.expr.infer().next()
         except astng.InferenceError:
@@ -191,14 +254,26 @@ class RPythonChecker(BaseChecker):
         if isinstance(infered, astng.Module):
             self.add_message('E1206', node=node, args=(node.attrname, infered.name))
         
+    def visit_assname(self, node):
+        """check we are not modifying a module attribute"""
+        if not self._rpython:
+            return
+        if not node.name in node.frame().locals.keys():
+            self.add_message('E1206', node=node, args=(node.name, node.root().name))
+            
+        
     def visit_slice(self, node):
         """no negative index"""
+        if not self._rpython:
+            return
         for bound in (node.lower, node.upper):
             if bound is None: continue
             self.check_slice_arg(bound)
         
     def visit_sliceobj(self, node):
         """no negative index"""
+        if not self._rpython:
+            return
         for bound in node.nodes:
             self.check_slice_arg(bound)
             
@@ -221,9 +296,11 @@ class RPythonChecker(BaseChecker):
 
 for name in UNAVAILABLE_KEYWORDS:
     def visit_unavailable_keyword(self, node, name=name):
+        if not self._rpython:
+            return
         self.add_message('E1201', node=node, args=name)
     setattr(RPythonChecker, 'visit_%s' % name, visit_unavailable_keyword)
-    
+del name
     
 def register(linter):
     """required method to auto register this checker """
