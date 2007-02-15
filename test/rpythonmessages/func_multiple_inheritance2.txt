@@ -1,0 +1,2 @@
+************* Module rpythoninput.func_multiple_inheritance2
+E:  9:C: multiple inheritance only supported under specific rules which doesn't seems to be satisfied

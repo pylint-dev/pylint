@@ -63,6 +63,12 @@ step of a slice.'),
     'E1210': ('generator expressions are not supported',
               'Used when a generator expression is used while generator are \
 not available in rpython.'),
+    
+    'E1211': ('multiple inheritance only supported under specific rules \
+which doesn\'t seems to be satisfied',
+              'Multiple inheritance is only supported using pure mixin (no \
+instance attribute defined in the mix-in) with "_mixin_" class attribute set \
+to True.'),
     }
 
 # XXX: nested functions/classes
@@ -96,6 +102,18 @@ BUILTIN_MODIFIERS = {'dict': set(('clear', 'fromkeys', 'pop', 'popitem', 'setdef
                      'list': set(('append', 'extend', 'insert', 'pop', 'remove', 'reverse', 'sort')),}
 
 REPR_NAMED_FORMAT_INSTR = re.compile('%\([^)]+\)r')
+
+
+def is_pure_mixin(node):
+    if node.instance_attrs:
+        return False
+    try:
+        for infered in node.igetattr('_mixin_'):
+            if isinstance(infered, astng.Const) and infered.value:
+                return True
+    except astng.InferenceError:
+        return False
+
 
 class RPythonChecker(BaseChecker):
     """check a python program is `Restricted Python`_ compliant. Restricted python
@@ -354,6 +372,17 @@ class RPythonChecker(BaseChecker):
                 
         except astng.InferenceError:
             pass
+
+    def visit_class(self, node):
+        # XXX recurs ?
+        ancestors = list(node.ancestors(recurs=False))
+        if len(ancestors) > 1:
+            for parent in ancestors[:]:
+                if is_pure_mixin(parent):
+                    ancestors.remove(parent)
+        if len(ancestors) > 1:
+            self.add_message('E1211', node=node)
+
         
 # XXX: checking rpython should do an "entry point search", not a "project search" (eg from a modules/packages list)
 # more over we should differentiate between initial import vs runtime imports, no ?
