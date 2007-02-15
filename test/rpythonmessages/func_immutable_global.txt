@@ -1,0 +1,1 @@
+E:  3:function: Modifying global 'GLOB' from module immutable_global

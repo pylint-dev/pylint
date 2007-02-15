@@ -42,6 +42,7 @@ from func_test import ulines, LintTestUsingFile
 
 class RLintTestUsingFile(LintTestUsingFile):            
     package = 'rpythoninput'
+    linter = linter
                 
     def test_functionality(self):
         tocheck = ['rpythoninput/' + self.module + '.py']
@@ -67,7 +68,7 @@ def make_tests(filter_rgx):
         base = module_file.replace('func_', '').replace('.py', '')
         dependancies = get_tests_info(base, '.py')
         
-        class LintTestUsingFileTC(LintTestUsingFile):
+        class LintTestUsingFileTC(RLintTestUsingFile):
             module = module_file.replace('.py', '')
             output = exists(messages_file + '2') and (messages_file + '2') or messages_file
             depends = dependancies or None

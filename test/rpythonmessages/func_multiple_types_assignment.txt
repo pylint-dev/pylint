@@ -1,0 +1,1 @@
+E:  1:function: Multiple types assigned to identifier 'attr'

@@ -48,7 +48,7 @@ without being properly initialized before that block.'),
               'Used when a module variable is modified, which is not allowed in \
 rpython since globals are considered as constants.'),
 
-    'E1207': ('Using negative slice index %s',
+    'E1207': ('Using negative slice index %s (infered to %s)',
               'Used when a negative integer is used as lower, upper or step of a slice.'),
     }
 
@@ -58,31 +58,27 @@ rpython since globals are considered as constants.'),
 # XXX: slice indexes
 # XXX: dict homegeneity
 # XXX: os.path.join('a', 'b') OK but os.path.join('a', 'b', 'c') KO
+# XXX: object model (multiple inheritance), properties, __xxx__, etc
 
-UNAVAILABLE_KEYWORDS = set(('yield', 'global')) # print, lambda ?
+UNAVAILABLE_KEYWORDS = set(('yield', 'global', 'exec', 'lambda', 'print'))
 
-UNAVAILABLE_BUILTINS = set(('dict', 'file', 'open', # super ?  set ?
-                            'enumerate', 'zip')) # range, xrange ?
-# "abs" "apply" "basestring"
-# "bool" "buffer" "callable" "chr" "classmethod"
-# "cmp" "coerce" "compile" "complex" "copyright"
-# "delattr" "dict" "dir" "divmod"
-# "filter" "float" "getattr" "globals" "hasattr"
-# "hash" "hex" "id" "input" "int" "intern"
-# "isinstance" "issubclass" "iter" "len" "license"
-# "list" "locals" "long" "map" "max" "min" "object"
-# "oct" "open" "ord" "pow" "property" "range"
-# "raw_input" "reduce" "reload" "repr" "round"
-# "setattr" "slice" "staticmethod" "str" "sum"
-# "super" "tuple" "type" "unichr" "unicode"
-# "xrange"
+BUILTINLIST = set([x for x in dir(__builtins__) if x[0].islower()]) 
+AUTHORIZED = set(('abs', 'apply', 'bool', 'chr', 'cmp', 'coerce',
+                  'float', 'hasattr', 'hash', 'hex',
+                  'int', 'isinstance', 'len', 'list', 'max', 'min', 'oct', 'ord',
+                  'range', 'slice', 'str', 'tuple', 'type',
+                  'unichr', 'xrange', 'zip'
+                  ))
+UNAVAILABLE_BUILTINS = BUILTINLIST - AUTHORIZED
+del BUILTINLIST, AUTHORIZED
+
 
 class RPythonChecker(BaseChecker):
     """check a python program is `Restricted Python`_ compliant. Restricted python
     is used in the PyPy_ project to make a python program compilable.
 
-    .. _`Restricted Python`: http://codespeak.net/pypy
-    .. _`PyPy`: http://codespeak.net/pypy/doc/XXX
+    .. _`Restricted Python`: http://codespeak.net/pypy/dist/pypy/doc/coding-guide.html
+    .. _`PyPy`: http://codespeak.net/pypy/
     """
     
     __implements__ = (IASTNGChecker,)
@@ -123,8 +119,8 @@ class RPythonChecker(BaseChecker):
         # in such a case a should be defined before the if/else block.
         # So here if name is a local name we have to ckeck it's defined in the
         # same block or in a parent block
-        frame, stmts = self.lookup(name)
-        if frame is self.frame():
+        frame, stmts = node.lookup(name)
+        if frame is node.frame():
             # XXX only consider the first assignment ?
             for assign in stmts[0]:
                 assstmt = assign.statement()
@@ -151,6 +147,10 @@ class RPythonChecker(BaseChecker):
         
     def visit_function(self, node):
         """check function locals have homogeneous types"""
+        # docstring = node.docstring
+        # if docstring is not None and dosctring.starswith('NOT RPYTHON'):
+        #     # don't analyze function if it's tagged as "NOT RPYTHON"
+        #     return
         for name in node.locals.keys():
             types = set()
             for infered in node.ilookup(name):
@@ -164,7 +164,7 @@ class RPythonChecker(BaseChecker):
                 self.add_message('E1203', node=node, args=('identifier', name))
             
     def visit_list(self, node):
-        """check list or tuple contains homogeneous types"""
+        """check list contains homogeneous types"""
         types = set()
         for node in node.nodes:
             try:
@@ -181,7 +181,6 @@ class RPythonChecker(BaseChecker):
         if len(types) > 1:
             self.add_message('E1204', node=node, args=('identifier', name))
 
-    visit_tuple = visit_list
     
     def visit_assattr(self, node):
         """check we are not modifying a module attribute"""
@@ -195,6 +194,7 @@ class RPythonChecker(BaseChecker):
     def visit_slice(self, node):
         """no negative index"""
         for bound in (node.lower, node.upper):
+            if bound is None: continue
             self.check_slice_arg(bound)
         
     def visit_sliceobj(self, node):
@@ -205,14 +205,15 @@ class RPythonChecker(BaseChecker):
     def check_slice_arg(self, node):
         try:
             for infered in node.infer():
-                if infered is YES:
+                if infered is astng.YES:
                     continue
                 assert isinstance(infered, astng.Const)
-                if not isinstance(const.value, int):
+                if not isinstance(infered.value, int):
                     continue # XXX specific message
-                if const.value < 0:
-                    self.add_message('E1207', node=node, args=node)
-        except InferenceError:
+                if infered.value < 0:
+                    self.add_message('E1207', node=node, args=(node.as_string(),
+                                                               infered.value))
+        except astng.InferenceError:
             pass
         
 # XXX: checking rpython should do an "entry point search", not a "project search" (eg from a modules/packages list)

@@ -159,7 +159,7 @@ MSGS = {
               docstring.'),
     'C0112': ('Empty docstring', # W0132
               'Used when a module, function, class or method has an empty \
-              docstring (it would be to easy ;).'),
+              docstring (it would be too easy ;).'),
 
     'C0121': ('Missing required attribute "%s"', # W0103
               'Used when an attribute required for modules is missing.'),

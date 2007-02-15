@@ -58,6 +58,7 @@ def exception_str(ex):
 
 class LintTestUsingModule(testlib.TestCase):            
     package = 'input'
+    linter = linter
     def test_functionality(self):
         tocheck = [self.package+'.'+self.module]
         if self.depends:
@@ -67,14 +68,14 @@ class LintTestUsingModule(testlib.TestCase):
         
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
-            linter.enable_message_category('I')
+            self.linter.enable_message_category('I')
         else:
-            linter.disable_message_category('I')
+            self.linter.disable_message_category('I')
         try:
-            linter.check(tocheck)
+            self.linter.check(tocheck)
         except Exception, ex:
             # need finalization to restore a correct state
-            linter.reporter.finalize()
+            self.linter.reporter.finalize()
             ex.file = tocheck
             ex.__str__ = new.instancemethod(exception_str, ex, None)
             raise
@@ -84,7 +85,7 @@ class LintTestUsingModule(testlib.TestCase):
             output = open(self.output)
             expected = output.read().strip()
             output.close()
-        got = linter.reporter.finalize().strip()
+        got = self.linter.reporter.finalize().strip()
         try:
             self.assertLinesEquals(got, expected)
         except Exception, ex:
