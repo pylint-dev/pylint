@@ -7,7 +7,7 @@ class B:
 
 class C(A, B):
     def __init__(self, a):
-        A.__init__(self, a)
+        A.__init__(self)
         self.attr = a
 
 
@@ -20,3 +20,6 @@ def entry_point(argv):
 
 def target(*args):
     return entry_point, None
+
+import os
+

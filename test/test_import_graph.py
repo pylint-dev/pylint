@@ -38,8 +38,6 @@ class ImportCheckerTC(unittest.TestCase):
     def setUp(self):
         self.linter = l = PyLinter(reporter=TestReporter())
         initialize(l)
-        for checker in l._checkers:
-            checker.enable(False)
         
     def test_checker_dep_graphs(self):
         l = self.linter
