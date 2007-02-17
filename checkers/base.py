@@ -1,3 +1,5 @@
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,10 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
-
- basic checker for Python code
+"""basic checker for Python code
 """
 
 from logilab import astng
@@ -130,7 +129,9 @@ MSGS = {
               those strings as documentation, instead of comments.'),
     'W0106': ('Unnecessary semicolon',
               'Used when a statement is endend by a semi-colon (";"), which \
-              isn\'t necessary (that\'s python, not C ;)'),
+              isn\'t necessary (that\'s python, not C ;).'),
+    'W0107': ('Unnecessary pass statement',
+              'Used when a "pass" statement that can be avoided is encountered.)'),
 
     'W0122': ('Use of the exec statement',
               'Used when you use the "exec" statement, to discourage its \
@@ -341,6 +342,13 @@ functions, methods
         # or a yield (which are wrapped by a discard node in py >= 2.5)
         if not isinstance(node.expr, (astng.CallFunc, astng.Yield)):
             self.add_message('W0104', node=node)
+        
+    def visit_pass(self, node):
+        """check is the pass statement is really necessary
+        """
+        # if self._returns is empty, we're outside a function !
+        if len(node.parent.getChildNodes()) > 1:
+            self.add_message('W0107', node=node)
 
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
