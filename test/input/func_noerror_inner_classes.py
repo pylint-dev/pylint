@@ -7,7 +7,7 @@ class Aaa(object):
     """docstring"""
     def __init__(self):
         self.__setattr__('a','b')
-        pass
+
 
     def one_public(self):
         """docstring"""
