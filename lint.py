@@ -54,8 +54,8 @@ from pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
 from pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker, EmptyReport, \
      table_lines_from_stats
-from pylint.reporters.text import TextReporter, TextReporter2, \
-     ColorizedTextReporter
+from pylint.reporters.text import TextReporter, ParseableTextReporter, \
+     VSTextReported, ColorizedTextReporter
 from pylint.reporters.html import HTMLReporter
 from pylint import config
 
@@ -64,7 +64,8 @@ from pylint.__pkginfo__ import version
 
 OPTION_RGX = re.compile('\s*#*\s*pylint:(.*)')
 REPORTER_OPT_MAP = {'text': TextReporter,
-                    'parseable': TextReporter2,
+                    'parseable': ParseableTextReporter,
+                    'msvs': VSTextReported,
                     'colorized': ColorizedTextReporter,
                     'html': HTMLReporter,}
 
@@ -161,11 +162,11 @@ python modules names) to load, usually to register additional checkers.'}),
                
                ('output-format',
                 {'default': 'text', 'type': 'choice', 'metavar' : '<format>',
-                 'choices': ('text', 'parseable', 'colorized', 'html'),
+                 'choices': ('text', 'parseable', 'msvs', 'colorized', 'html'),
                  'short': 'f',
                  'group': 'Reports',
                  'help' : 'set the output format. Available formats are text,\
-                 parseable, colorized and html'}),
+                 parseable, colorized, msvs (visual studio) and html'}),
 
                ('include-ids',
                 {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
