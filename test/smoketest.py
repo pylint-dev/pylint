@@ -10,11 +10,6 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
-"""
-
-__revision__ = "$Id: smoketest.py,v 1.6 2005-04-15 10:40:24 syt Exp $"
 
 import sys
 from cStringIO import StringIO
@@ -22,7 +17,7 @@ from cStringIO import StringIO
 from logilab.common.testlib import TestCase, unittest_main
 
 from pylint.lint import Run
-from pylint.reporters.text import TextReporter, TextReporter2, ColorizedTextReporter
+from pylint.reporters.text import *
 from pylint.reporters.html import HTMLReporter
 
     
@@ -34,7 +29,7 @@ class LintSmokeTest(TestCase):
     
     def test2(self):
         """make pylint checking itself"""
-        Run(['pylint.lint'], reporter=TextReporter2(StringIO()), quiet=1)
+        Run(['pylint.lint'], reporter=ParseableTextReporter(StringIO()), quiet=1)
     
     def test3(self):
         """make pylint checking itself"""
@@ -43,6 +38,10 @@ class LintSmokeTest(TestCase):
     def test4(self):
         """make pylint checking itself"""
         Run(['pylint.checkers'], reporter=ColorizedTextReporter(StringIO()), quiet=1)
+    
+    def test5(self):
+        """make pylint checking itself"""
+        Run(['pylint.checkers'], reporter=VSTextReporter(StringIO()), quiet=1)
     
     def test_generate_config_option(self):
         """make pylint checking itself"""
