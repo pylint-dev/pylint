@@ -117,7 +117,24 @@ class TestTests(unittest.TestCase):
             self.assertEqual(todo, ['E0503', 'F0002', 'F0202', 'F0321', 'I0001'])
         else: # python < 2.3
             self.assertEqual(todo, ['F0002', 'F0202', 'F0321', 'I0001'])
-        
+
+#bycat = {}
+#for msgid in linter._messages.keys():
+#    bycat[msgid[0]] = bycat.setdefault(msgid[0], 0) + 1
+#for cat, val in bycat.items():
+#    print '%s: %s' % (cat, val)
+#print 'total', sum(bycat.values())
+#
+# on 2007/02/17:
+#
+# W: 48
+# E: 42
+# R: 15
+# C: 13
+# F: 7
+# I: 5
+# total 130
+
 def make_tests(filter_rgx):
     """generate tests classes from test info
     

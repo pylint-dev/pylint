@@ -71,6 +71,8 @@ def save_results(results, base):
 
 
 def find_pylintrc():
+    """search the pylint rc file and return its path if it find it, else None
+    """
     # is there a pylint rc file in the current directory ?
     if exists('pylintrc'):
         return abspath('pylintrc')
@@ -83,7 +85,6 @@ def find_pylintrc():
     if os.environ.has_key('PYLINTRC') and exists(os.environ['PYLINTRC']):
         pylintrc = os.environ['PYLINTRC']
     else:
-        USER_HOME = expanduser('~')
         if USER_HOME == '~' or USER_HOME == '/root':
             pylintrc = ".pylintrc"
         else:

@@ -105,6 +105,9 @@ REPR_NAMED_FORMAT_INSTR = re.compile('%\([^)]+\)r')
 
 
 def is_pure_mixin(node):
+    """return true if the given class node can be considered as a mixin class according to
+    rpython conventions
+    """
     if node.instance_attrs:
         return False
     try:
@@ -223,6 +226,14 @@ class RPythonChecker(BaseChecker):
                 types.add(str(infered))
             if len(types) > 1:
                 self.add_message('E1203', node=node, args=('attribute', name))
+        # XXX recurs ?
+        ancestors = list(node.ancestors(recurs=False))
+        if len(ancestors) > 1:
+            for parent in ancestors[:]:
+                if is_pure_mixin(parent):
+                    ancestors.remove(parent)
+        if len(ancestors) > 1:
+            self.add_message('E1211', node=node)
         
     def visit_function(self, node):
         """check function locals have homogeneous types"""
@@ -326,7 +337,7 @@ class RPythonChecker(BaseChecker):
                         self.add_message('E1208', node=step)
                         return
             except astng.InferenceError:
-                self.add_message('E1208', node=node)
+                self.add_message('E1208', node=step)
                 return
             self.check_positive_integer(step, 'step')
         
@@ -373,15 +384,6 @@ class RPythonChecker(BaseChecker):
         except astng.InferenceError:
             pass
 
-    def visit_class(self, node):
-        # XXX recurs ?
-        ancestors = list(node.ancestors(recurs=False))
-        if len(ancestors) > 1:
-            for parent in ancestors[:]:
-                if is_pure_mixin(parent):
-                    ancestors.remove(parent)
-        if len(ancestors) > 1:
-            self.add_message('E1211', node=node)
 
         
 # XXX: checking rpython should do an "entry point search", not a "project search" (eg from a modules/packages list)

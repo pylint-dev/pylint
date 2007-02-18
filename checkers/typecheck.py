@@ -117,7 +117,9 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
             except AttributeError:
                 # XXX method / function
                 continue
-            except astng.NotFoundError:
+            except astng.NotFoundError, ex:
+                if isinstance(owner, astng.Const): # infered to None for instance
+                    continue
                 if isinstance(owner, astng.Instance) \
                        and owner.has_dynamic_getattr():
                     continue

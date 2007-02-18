@@ -15,7 +15,11 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """RPython linter class"""
 
+from logilab.common.interface import implements
+from logilab.common.fileutils import norm_open
+
 from pylint.lint import PyLinter
+from pylint.interfaces import IASTNGChecker
 
 class RPyLinter(PyLinter):
     """the RPyLinter handle analysis differently than the standar PyLinter to
