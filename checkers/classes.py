@@ -456,21 +456,21 @@ instance attributes.'}
                 continue
             self.add_message('W0231', args=klass.name, node=node)
 
-    def _check_signature(self, method1, method2, class_type):
+    def _check_signature(self, method1, refmethod, class_type):
         """check that the signature of the two given methods match
         
         class_type is in 'class', 'interface'
         """
         if not (isinstance(method1, astng.Function)
-                and isinstance(method2, astng.Function)):
-            self.add_message('F0202', args=(method1, method2), node=method1)
+                and isinstance(refmethod, astng.Function)):
+            self.add_message('F0202', args=(method1, refmethod), node=method1)
             return
         # don't care about functions with unknown argument (builtins)
-        if method1.argnames is None or method2.argnames is None:
+        if method1.argnames is None or refmethod.argnames is None:
             return
-        if len(method1.argnames) != len(method2.argnames):
+        if len(method1.argnames) != len(refmethod.argnames):
             self.add_message('W0221', args=class_type, node=method1)
-        elif len(method1.defaults) != len(method2.defaults):
+        elif len(method1.defaults) < len(refmethod.defaults):
             self.add_message('W0222', args=class_type, node=method1)
 
                         
