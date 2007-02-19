@@ -83,6 +83,16 @@ def get_module_and_frameid(node):
     return module, '.'.join(obj)
 
 
+class Message:
+    def __init__(self, checker, msgid, msg, descr):
+        assert len(msgid) == 5, 'Invalid message id %s' % msgid
+        assert msgid[0] in MSG_CATEGORIES, \
+               'Bad message type %s in %r' % (msgid[0], msgid)
+        self.msgid = msgid
+        self.msg = msg
+        self.descr = descr
+        self.checker = checker
+        
 class MessagesHandlerMixIn:
     """a mix-in class containing all the messages related methods for the main
     lint class
@@ -91,7 +101,6 @@ class MessagesHandlerMixIn:
     def __init__(self):
         # dictionary of registered messages
         self._messages = {}
-        self._messages_help = {}
         self._msgs_state = {}
         self._module_msgs_state = {} # None
         self._msg_cats_state = {}
@@ -107,53 +116,45 @@ class MessagesHandlerMixIn:
         are the checker id and the two last the message id in this checker
         """
         msgs_dict = checker.msgs
-        chk_id = None
-        for msg_id, (msg, msg_help) in msgs_dict.items():
+        chkid = None
+        for msgid, (msg, msgdescr) in msgs_dict.items():
             # avoid duplicate / malformed ids
-            assert not self._messages.has_key(msg_id), \
-                   'Message id %r is already defined' % msg_id
-            assert len(msg_id) == 5, 'Invalid message id %s' % msg_id
-            assert chk_id is None or chk_id == msg_id[1:3], \
-                   'Inconsistent checker part in message id %r' % msg_id
-            assert msg_id[0] in MSG_CATEGORIES, \
-                   'Bad message type %s in %r' % (msg_id[0], msg_id)
-            chk_id = msg_id[1:3]
-            self._messages_help[msg_id] = msg_help
-            self._messages[msg_id] = msg
+            assert not self._messages.has_key(msgid), \
+                   'Message id %r is already defined' % msgid
+            assert chkid is None or chkid == msgid[1:3], \
+                   'Inconsistent checker part in message id %r' % msgid
+            chkid = msgid[1:3]
+            self._messages[msgid] = Message(checker, msgid, msg, msgdescr)
 
     def get_message_help(self, msg_id, checkerref=False):
         """return the help string for the given message id"""
-        msg_id = self.check_message_id(msg_id)
-        msg = self._messages_help[msg_id]
-        msg = normalize_text(' '.join(msg.split()), indent='  ')
+        msg = self.check_message_id(msg_id)
+        desc = normalize_text(' '.join(msg.descr.split()), indent='  ')
         if checkerref:
-            for checker in self._checkers.values():
-                if msg_id in checker.msgs:
-                    msg += ' This message belongs to the %s checker.' % \
-                           checker.name
-                    break
-        title = self._messages[msg_id]
+            desc += ' This message belongs to the %s checker.' % \
+                   msg.checker.name
+        title = msg.msg
         if title != '%s':
             title = title.splitlines()[0]
-            return ':%s: *%s*\n%s' % (msg_id, title, msg)
-        return ':%s:\n%s' % (msg_id, msg)
+            return ':%s: *%s*\n%s' % (msg.msgid, title, desc)
+        return ':%s:\n%s' % (msg.msgid, desc)
 
     def disable_message(self, msg_id, scope='package', line=None):
         """don't output message of the given id"""
         assert scope in ('package', 'module')
-        msg_id = self.check_message_id(msg_id)
+        msg = self.check_message_id(msg_id)
         if scope == 'module':
             assert line > 0
             try:
-                self._module_msgs_state[msg_id][line] = False
+                self._module_msgs_state[msg.msgid][line] = False
             except KeyError:
-                self._module_msgs_state[msg_id] = {line: False}
+                self._module_msgs_state[msg.msgid] = {line: False}
                 if msg_id != 'I0011':
-                    self.add_message('I0011', line=line, args=msg_id)
+                    self.add_message('I0011', line=line, args=msg.msgid)
             
         else:
             msgs = self._msgs_state
-            msgs[msg_id] = False
+            msgs[msg.msgid] = False
             # sync configuration object
             self.config.disable_msg = [mid for mid, val in msgs.items()
                                        if not val] 
@@ -161,17 +162,18 @@ class MessagesHandlerMixIn:
     def enable_message(self, msg_id, scope='package', line=None):
         """reenable message of the given id"""
         assert scope in ('package', 'module')
-        msg_id = self.check_message_id(msg_id)
+        msg = self.check_message_id(msg_id)
+        msg.checker.enabled = True # ensure the related checker is enabled
         if scope == 'module':
             assert line > 0
             try:
-                self._module_msgs_state[msg_id][line] = True
+                self._module_msgs_state[msg.msgid][line] = True
             except KeyError:
-                self._module_msgs_state[msg_id] = {line: True}
-                self.add_message('I0012', line=line, args=msg_id)
+                self._module_msgs_state[msg.msgid] = {line: True}
+                self.add_message('I0012', line=line, args=msg.msgid)
         else:
             msgs = self._msgs_state
-            msgs[msg_id] = True
+            msgs[msg.msgid] = True
             # sync configuration object 
             self.config.enable_msg = [mid for mid, val in msgs.items() if val]
             
@@ -198,9 +200,10 @@ class MessagesHandlerMixIn:
     def check_message_id(self, msg_id):
         """raise UnknownMessage if the message id is not defined"""
         msg_id = msg_id.upper()
-        if not self._messages.has_key(msg_id):
+        try:
+            return self._messages[msg_id]
+        except KeyError:
             raise UnknownMessage('No such message id %s' % msg_id)
-        return msg_id
 
     def is_message_enabled(self, msg_id, line=None):
         """return true if the message associated to the given message id is
@@ -242,7 +245,7 @@ class MessagesHandlerMixIn:
             self.stats['by_msg'][msg_id] += 1
         except KeyError:
             self.stats['by_msg'][msg_id] = 1
-        msg = self._messages[msg_id]
+        msg = self._messages[msg_id].msg
         # expand message ?
         if args:
             msg %= args
