@@ -55,7 +55,7 @@ from pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker, EmptyReport, \
      table_lines_from_stats
 from pylint.reporters.text import TextReporter, ParseableTextReporter, \
-     VSTextReported, ColorizedTextReporter
+     VSTextReporter, ColorizedTextReporter
 from pylint.reporters.html import HTMLReporter
 from pylint import config
 
@@ -65,7 +65,7 @@ from pylint.__pkginfo__ import version
 OPTION_RGX = re.compile('\s*#*\s*pylint:(.*)')
 REPORTER_OPT_MAP = {'text': TextReporter,
                     'parseable': ParseableTextReporter,
-                    'msvs': VSTextReported,
+                    'msvs': VSTextReporter,
                     'colorized': ColorizedTextReporter,
                     'html': HTMLReporter,}
 

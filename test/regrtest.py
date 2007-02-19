@@ -94,7 +94,7 @@ class NonRegrTC(TestCase):
             self.skip('test skipped: numarray.random_array is not available')
         linter.check('regrtest_data/numarray_inf.py')
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.failUnlessEqual(got, "E:  5: Instance of 'int' has no 'astype' member (but some types could not be inferred)")
 
     def test_numarray_import(self):
         try:

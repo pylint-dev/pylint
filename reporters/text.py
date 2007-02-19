@@ -96,7 +96,7 @@ class ParseableTextReporter(TextReporter):
             path = path.replace(self._prefix, '')
         self.writeln(self.line_format % locals())
     
-class VSTextReported(ParseableTextReporter):
+class VSTextReporter(ParseableTextReporter):
     """Visual studio text reporter"""
     line_format = '%(path)s(%(line)s): [%(sigle)s%(obj)s] %(msg)s'
     

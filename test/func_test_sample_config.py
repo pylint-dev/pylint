@@ -16,7 +16,6 @@
 """functional tests using the sample configuration file, should behave exactly
 as with the default configuration
 """
-__revision__ = '$Id: func_test_sample_config.py,v 1.3 2005-04-15 10:40:24 syt Exp $'
 
 from func_test import *
 
@@ -25,6 +24,7 @@ from os.path import join
 import pylint
 sample_config = join(pylint.__path__[0], 'examples', 'pylintrc')
 linter.load_file_configuration(sample_config)
+linter.global_set_option('required-attributes', ('__revision__',))
 linter.set_reporter(test_reporter)
 
 if __name__=='__main__':
