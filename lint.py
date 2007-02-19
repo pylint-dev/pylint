@@ -781,6 +781,12 @@ group are mutually exclusive.'),
               'type': 'string', 'metavar': '<file>',
               'help' : 'Specify a configuration file.'}),
             
+            ('init-hook',
+             {'action' : 'callback', 'type' : 'string', 'metavar': '<code>',
+              'callback' : self.cb_init_hook,
+              'help' : 'Python code to execute, usually for sys.path \
+manipulation such as pygtk.require().'}),
+            
             ('rpython-mode',
              {'action' : 'callback', 'callback' : lambda *args: 1,
               'help' : 'Run into Restricted Python analysis mode.'}),
@@ -920,6 +926,10 @@ processing.
         """optik callback for printing some help about a particular message"""
         self.linter.help_message(get_csv(value))
         sys.exit(0)
+        
+    def cb_init_hook(self, option, opt_name, value, parser):
+        """exec arbitrary code to set sys.path for instance"""
+        exec value
         
     def cb_list_messages(self, option, opt_name, value, parser):
         """optik callback for printing available messages"""
