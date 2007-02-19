@@ -5,16 +5,20 @@ ChangeLog for PyLint
     * fix #3184: crashes on "return" outside function. New E0104 and E0105
       messages introduced to respectivly warn about "return" and "yield"
       outside function or method
+    * fix #3205: W0704 false positive
     * new E0106 message when "yield" and "return something" are mixed in a
       function or method
+    * new W0107 message for unnecessary pass statement
     * new W0614 message to differentiate between unused 'import X' and
       unused 	'from X import *" (#3209, patch submitted by Daniel Drake)
+    * implement #3285: reported for Visual Studio line number reporting (msvs)
     * allow disable-all option inline (#3218, patch submitted by Daniel Drake)
     * included Daniel Drake's patch to have a different message E1003 instead of 
       E1001 when a missing member is found but an inference failure has been 
       detected
     * One more Daniel's patch fixing a command line option parsing
       problem, this'll definitly be the DDrake release :)
+
 
 2006-11-23  --  0.12.2
     * fix #3143: W0233 bug w/ YES objects

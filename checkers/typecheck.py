@@ -102,9 +102,8 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
             if owner is astng.YES:
                 inference_failure = True
                 continue
-            # if there is ambiguity, skip None
-            if len(infered) > 1 and isinstance(owner, astng.Const) \
-                   and owner.value is None:
+            # skip None anyway
+            if isinstance(owner, astng.Const) and owner.value is None:
                 continue
             # XXX "super" / metaclass call
             if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
@@ -118,8 +117,6 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
                 # XXX method / function
                 continue
             except astng.NotFoundError, ex:
-                if isinstance(owner, astng.Const): # infered to None for instance
-                    continue
                 if isinstance(owner, astng.Instance) \
                        and owner.has_dynamic_getattr():
                     continue
