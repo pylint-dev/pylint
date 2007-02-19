@@ -17,6 +17,7 @@
 """
 from __future__ import generators
 
+from logilab.common.compat import set
 from logilab import astng
 
 from pylint.interfaces import IASTNGChecker
@@ -230,7 +231,14 @@ instance attributes.'}
             self.add_message('E0202', args=overridden.name, node=node)
         except astng.NotFoundError:
             pass
-                
+        
+    pymethods = set(('__new__', '__init__',
+                     '__getattr__', '__setattr__',
+                     '__hash__', '__cmp__',
+                     '__mul__', '__div__', '__add__', '__sub__',
+                     '__rmul__', '__rdiv__', '__radd__', '__rsub__',
+                     # To be continued
+                     ))
     def leave_function(self, node):
         """on method node, check if this method couldn't be a function
         
@@ -243,7 +251,7 @@ instance attributes.'}
                 self._first_attrs.pop()
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
-                and node.name != '__init__'
+                and not node.name in self.pymethods
                 and not (node.is_abstract() or
                          overrides_a_method(class_node, node.name))
                 and class_node.type != 'interface'):
