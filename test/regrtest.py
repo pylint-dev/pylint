@@ -87,6 +87,14 @@ class NonRegrTC(TestCase):
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
 
+    def test_numarray_inference(self):
+        try:
+            from numarray import random_array
+        except ImportError:
+            self.skip('test skipped: numarray.random_array is not available')
+        linter.check('regrtest_data/numarray_inf.py')
+        got = linter.reporter.finalize().strip()
+        self.failUnlessEqual(got, '')
 
     def test_numarray_import(self):
         try:
@@ -120,7 +128,7 @@ class NonRegrTC(TestCase):
     def test_decimal_inference(self):
         linter.check('regrtest_data/decimal_inference.py')
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, "E:  7: Instance of 'Context' has no 'prec' member (but some types could not be inferred)")
+        self.failUnlessEqual(got, "")
 
     def test_descriptor_crash(self):
         for fname in os.listdir('regrtest_data'):
