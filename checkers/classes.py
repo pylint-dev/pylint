@@ -271,8 +271,9 @@ instance attributes.'}
             # XXX infer to be more safe and less dirty ??
             # in classes, check we are not getting a parent method
             # through the class object or through super
-            if klass is None or not (
-                node.expr.as_string() in klass.basenames
+            callee = node.expr.as_string()
+            if klass is None or not (callee == klass.name or
+                callee in klass.basenames
                 or (isinstance(node.expr, astng.CallFunc)
                     and isinstance(node.expr.node, astng.Name) 
                     and node.expr.node.name == 'super')):
