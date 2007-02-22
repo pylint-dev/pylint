@@ -226,7 +226,9 @@ instance attributes.'}
         # check if the method overload an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
-            while not isinstance(overridden, astng.Class):
+            # we may be unable to get owner class if this is a monkey
+            # patched method
+            while overridden.parent and not isinstance(overridden, astng.Class):
                 overridden = overridden.parent.frame()
             self.add_message('E0202', args=overridden.name, node=node)
         except astng.NotFoundError:
