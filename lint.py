@@ -82,6 +82,9 @@ MSGS = {
     'F0003': ('ignored builtin module %s',
               'Used to indicate that the user asked to analyze a builtin module\
               which has been skipped.'),
+    'F0004': ('unexpected infered value %s',
+              'Used to indicate that some value of an unexpected type has been \
+              infered.'),
     
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'Used to inform that a built-in module has not been checked \
