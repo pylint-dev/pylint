@@ -35,40 +35,51 @@ MSGS = {
               'Used when a keyword which is not available in rpython is used.'),
     'E1202': ('Using unavailable builtin %r',
               'Used when a built-in which is not available in rpython is used.'),
+    'E1203': ('generator expressions are not supported',
+              'Used when a generator expression is used while generator are \
+not available in rpython.'),    
+    'E1204': ('multiple inheritance only supported under specific rules \
+which doesn\'t seems to be satisfied',
+              'Multiple inheritance is only supported using pure mixin (no \
+instance attribute defined in the mix-in) with "_mixin_" class attribute set \
+to True.'),
+    'E1205': ('Using unavailable protocol %r',
+              'Used when a special method not handled by rpython is used *and* \
+              that may not be used explicitly is used (see W1201).'),
+
     
-    'E1203': ('Multiple types assigned to %s %r',
+    'E1210': ('Multiple types assigned to %s %r',
               'Used when an identifier or attribut is infered as having values \
 of different types assigned.'),
-    
-    'E1204': ('Non homogeneous values in list',
+    'E1211': ('Can\'t mix %s and None on %s %r',
+              'Used when an int or float variable is assigned to None.'),    
+    'E1212': ('Non homogeneous values in list',
               'Used when a list is not containing homogeneous values.'),
+
     
 ##     'E1205': ('Identifier %r is not properly initialized',
 ##               'Used when an identifier is used in some conditional block \
 ## without being properly initialized before that block.'),
     
-    'E1206': ('Modifying global %r from module %s',
+    'E1220': ('Modifying global %r from module %s',
               'Used when a module variable is modified, which is not allowed in \
 rpython since globals are considered as constants.'),
 
-    'E1207': ('Using negative slice %s %s (infered to %s)',
+
+    'E1230': ('Using negative slice %s %s (infered to %s)',
               'Used when a negative integer is used as lower, upper or step of \
 a slice.'),
-    'E1208': ('Using non constant step',
+    'E1231': ('Using non constant step',
               'Used when a variable not annotated as a constant is used as \
 step of a slice.'),
     
-    'E1209': ('%r format is not supported',
+    'E1240': ('%r format is not supported',
               'Used when the unavailable "%r" formatting instruction is used.'),
-    'E1210': ('generator expressions are not supported',
-              'Used when a generator expression is used while generator are \
-not available in rpython.'),
     
-    'E1211': ('multiple inheritance only supported under specific rules \
-which doesn\'t seems to be satisfied',
-              'Multiple inheritance is only supported using pure mixin (no \
-instance attribute defined in the mix-in) with "_mixin_" class attribute set \
-to True.'),
+    'W1201': ('special method %s has to be called explicitly',
+              'Used when a special method is defined on a class, as rpython \
+              won\'t call the explicitly.'),
+    
     }
 
 # XXX: nested functions/classes
@@ -101,7 +112,10 @@ del BUILTINLIST, AUTHORIZED
 BUILTIN_MODIFIERS = {'dict': set(('clear', 'fromkeys', 'pop', 'popitem', 'setdefault', 'update')),
                      'list': set(('append', 'extend', 'insert', 'pop', 'remove', 'reverse', 'sort')),}
 
+UNAVAILABLE_PROTOCOLS = set(('__new__',))
+
 REPR_NAMED_FORMAT_INSTR = re.compile('%\([^)]+\)r')
+
 
 
 def is_pure_mixin(node):
@@ -202,30 +216,21 @@ class RPythonChecker(BaseChecker):
                     ass = ass.parent
                 # "not last is ass.expr" is checking the global isn't in the rhs
                 if ass is not None and not last is ass.expr:
-                    self.add_message('E1206', node=node, args=(node.name, node.root().name))
+                    self.add_message('E1220', node=node, args=(node.name, node.root().name))
                     return
                 # is it a call to a tuple/dict method modifying it ?
                 if isinstance(node.parent, astng.Getattr) and \
                        isinstance(node.parent.parent, astng.CallFunc):
                     if node.parent.attrname in BUILTIN_MODIFIERS[infered.name]:
-                        self.add_message('E1206', node=node, args=(node.name, node.root().name))
-                        
-        
+                        self.add_message('E1220', node=node, args=(node.name, node.root().name))
+                
     def visit_class(self, node):
         """check class attributes have homogeneous types"""
         if not self._rpython:
             return
         for name in node.instance_attrs.keys():
-            types = set()
-            for infered in astng.Instance(node).igetattr(name):
-                if infered is astng.YES:
-                    continue
-                # skip None
-                if isinstance(infered, astng.Const) and infered.value is None:
-                    continue
-                types.add(str(infered))
-            if len(types) > 1:
-                self.add_message('E1203', node=node, args=('attribute', name))
+            self.check_types(node, name, astng.Instance(node).igetattr(name),
+                             'attribute')
         # XXX recurs ?
         ancestors = list(node.ancestors(recurs=False))
         if len(ancestors) > 1:
@@ -233,26 +238,23 @@ class RPythonChecker(BaseChecker):
                 if is_pure_mixin(parent):
                     ancestors.remove(parent)
         if len(ancestors) > 1:
-            self.add_message('E1211', node=node)
-        
+            self.add_message('E1204', node=node)
+    
     def visit_function(self, node):
         """check function locals have homogeneous types"""
         docstring = node.doc
         if docstring is not None and 'NOT RPYTHON' in docstring:
             self._rpython = False
+        if node.name in UNAVAILABLE_PROTOCOLS:
+            self.add_message('E1205', node=node, args=node.name)
+        elif node.name.startswith('__') and node.name.endswith('__') and \
+           node.name != '__init__':
+            self.add_message('W1201', node=node, args=node.name)
+            
         if not self._rpython:
             return
         for name in node.locals.keys():
-            types = set()
-            for infered in node.ilookup(name):
-                if infered is astng.YES:
-                    continue
-                # skip None
-                if isinstance(infered, astng.Const) and infered.value is None:
-                    continue
-                types.add(str(infered))
-            if len(types) > 1:
-                self.add_message('E1203', node=node, args=('identifier', name))
+            self.check_types(node, name, node.ilookup(name), 'identifier')
 
     def leave_function(self, node):
         docstring = node.doc
@@ -277,7 +279,7 @@ class RPythonChecker(BaseChecker):
             except astng.InferenceError:
                 continue
         if len(types) > 1:
-            self.add_message('E1204', node=node)
+            self.add_message('E1212', node=node)
 
     
     def visit_assattr(self, node):
@@ -289,7 +291,7 @@ class RPythonChecker(BaseChecker):
         except astng.InferenceError:
             return # XXX
         if isinstance(infered, astng.Module):
-            self.add_message('E1206', node=node, args=(node.attrname, infered.name))
+            self.add_message('E1220', node=node, args=(node.attrname, infered.name))
         
     def visit_assname(self, node):
         """check we are not modifying a module attribute"""
@@ -297,7 +299,7 @@ class RPythonChecker(BaseChecker):
             return
         frame = node.frame()
         if not node.name in node.frame().locals:
-            self.add_message('E1206', node=node, args=(node.name, node.root().name))
+            self.add_message('E1220', node=node, args=(node.name, node.root().name))
             
         
     def visit_slice(self, node):
@@ -317,6 +319,57 @@ class RPythonChecker(BaseChecker):
             else:
                 sdef.append(bound)
         self.check_slice(*sdef)
+
+    def visit_genexpr(self, node):
+        self.add_message('E1203', node=node)
+        # avoid E1220 false positive due to particular gen expr variable scope
+        self._rpython = False
+        
+    def leave_genexpr(self, node):
+        self._rpython = True
+        
+    def visit_mod(self, node):
+        try:
+            for infered in node.left.infer():
+                if infered is astng.YES:
+                    continue
+                if not isinstance(infered, astng.Const) or not isinstance(infered.value, basestring):
+                    self.add_message('F0004',node=node, args=infered)
+                    continue
+                value = infered.value.replace('%%', '%%')
+                if '%r' in value or REPR_NAMED_FORMAT_INSTR.search(value):
+                    self.add_message('E1240', node=infered)
+                
+        except astng.InferenceError:
+            pass
+
+                        
+    def check_types(self, node, name, inferednodes, vtype):
+        """check types assigned to a name (vtype is a string telling if it's a
+        local or attribute
+
+        node is the starting node (function or class node usually)
+        infered the infered value for the name
+        """
+        types = set()
+        hasnone = False
+        for infered in inferednodes:
+            if infered is astng.YES:
+                continue
+            # skip None
+            if isinstance(infered, astng.Const) and infered.value is None:
+                hasnone = True
+                continue
+            types.add(infered.pytype())
+        if len(types) > 1:
+            self.add_message('E1210', node=node, args=(vtype, name))
+        elif hasnone and types:
+            ptype = types.pop()
+            # XXX long ? they should not been supported but this is not handled
+            # do that in visit_const ?
+            if ptype in ('__builtin__.int', '__builtin__.float'):
+                ptype = ptype.split('.')[1]
+                self.add_message('E1211', node=node, args=(ptype, vtype, name))
             
     def check_slice(self, start, stop, step=None):
         """
@@ -334,10 +387,10 @@ class RPythonChecker(BaseChecker):
             try:
                 for infered in step.infer():
                     if infered is astng.YES:
-                        self.add_message('E1208', node=step)
+                        self.add_message('E1231', node=step)
                         return
             except astng.InferenceError:
-                self.add_message('E1208', node=step)
+                self.add_message('E1231', node=step)
                 return
             self.check_positive_integer(step, 'step')
         
@@ -348,12 +401,13 @@ class RPythonChecker(BaseChecker):
                 if infered is astng.YES:
                     continue
                 if not isinstance(infered, astng.Const) or not isinstance(infered.value, int):
-                    continue # XXX specific message
+                    self.add_message('F0004',node=node, args=infered)
+                    continue
                 if infered.value < 0:
                     if minus_one_allowed and infered.value == -1:
                         value = infered.value
                         continue
-                    self.add_message('E1207', node=node, args=(msg,
+                    self.add_message('E1230', node=node, args=(msg,
                                                                node.as_string(),
                                                                infered.value))
                 else:
@@ -361,28 +415,6 @@ class RPythonChecker(BaseChecker):
         except astng.InferenceError:
             pass
         return value
-
-    def visit_genexpr(self, node):
-        self.add_message('E1210', node=node)
-        # avoid E1206 false positive due to particular gen expr variable scope
-        self._rpython = False
-        
-    def leave_genexpr(self, node):
-        self._rpython = True
-        
-    def visit_mod(self, node):
-        try:
-            for infered in node.left.infer():
-                if infered is astng.YES:
-                    continue
-                if not isinstance(infered, astng.Const) or not isinstance(infered.value, basestring):
-                    continue # XXX specific message
-                value = infered.value.replace('%%', '%%')
-                if '%r' in value or REPR_NAMED_FORMAT_INSTR.search(value):
-                    self.add_message('E1209', node=infered)
-                
-        except astng.InferenceError:
-            pass
 
 
         

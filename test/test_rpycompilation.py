@@ -11,7 +11,7 @@ class RPyCompilation(TestCase):
 
     def find_pypy(self):
         #trscript = '/home/adim/local/svn/pypy-dist/pypy/translator/goal/translate.py'
-        trscript = '/home/syt/pypy-dist/pypy/translator/goal/translate.py'
+        trscript = '/home/syt/cvs_work/pypy-dist/pypy/translator/goal/translate.py'
         if not isfile(trscript):
             self.skip('translate.py not found')
         return trscript
