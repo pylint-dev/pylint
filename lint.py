@@ -792,7 +792,8 @@ manipulation such as pygtk.require().'}),
             
             ('rpython-mode',
              {'action' : 'callback', 'callback' : lambda *args: 1,
-              'help' : 'Run into Restricted Python analysis mode.'}),
+              'help' : 'enable the rpython checker which is disabled by default'},
+             #'help' : 'Run into Restricted Python analysis mode.'}),
 
             ('help-msg',
              {'action' : 'callback', 'type' : 'string', 'metavar': '<msg-id>',
@@ -890,8 +891,10 @@ processing.
         sys.path.pop(0)
 
     def cb_rpython_mode(self, name, value):
-        from pylint.rlint import RPyLinter
-        self.LinterClass = RPyLinter
+        from pylint.checkers.rpython import RPythonChecker
+        RPythonChecker.enabled = True
+        #from pylint.rlint import RPyLinter
+        #self.LinterClass = RPyLinter
         
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (ie before optik parsing)"""
