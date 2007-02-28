@@ -1,10 +1,7 @@
 ChangeLog for PyLint
 ====================
 
-2007-02-28  --  0.13.1
-    * herrrg fix last minute syntax error :(
-	
-2007-02-26  --  0.13.0
+2007-02-28  --  0.13.0
     * new RPython (Restricted Python) checker for PyPy felow or people
       wanting to get a compiled version of their python program using the
       translator of the PyPy project. For more information about PyPy or
