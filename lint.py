@@ -792,7 +792,7 @@ manipulation such as pygtk.require().'}),
             
             ('rpython-mode',
              {'action' : 'callback', 'callback' : lambda *args: 1,
-              'help' : 'enable the rpython checker which is disabled by default'},
+              'help' : 'enable the rpython checker which is disabled by default'}),
              #'help' : 'Run into Restricted Python analysis mode.'}),
 
             ('help-msg',
