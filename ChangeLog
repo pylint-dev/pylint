@@ -1,6 +1,10 @@
 ChangeLog for PyLint
 ====================
 
+2007-03-02  --  0.13.1
+    * fix some unexplained 0.13.0 packaging issue which led a bunch of
+      files missing from the distribution
+	
 2007-02-28  --  0.13.0
     * new RPython (Restricted Python) checker for PyPy felow or people
       wanting to get a compiled version of their python program using the
@@ -32,6 +36,7 @@ ChangeLog for PyLint
     * fix #2485: W0222 false positive
     * fix #3259: when a message is explicitly enabled, check the checker
       emitting it is enabled
+
 	
 2006-11-23  --  0.12.2
     * fix #3143: W0233 bug w/ YES objects
