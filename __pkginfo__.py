@@ -52,7 +52,9 @@ from os.path import join
 scripts = [join('bin', filename)
            for filename in ('pylint', 'pylint-gui', "symilar")]
 
-include_dirs = [join('test', 'input'), join('test', 'messages'),
+include_dirs = [join('test', 'input'),
+                join('test', 'messages'),
+                join('test', 'rpythonmessages'),
                 join('test', 'regrtest_data')]
 
 pyversions = ["2.3", "2.4"]

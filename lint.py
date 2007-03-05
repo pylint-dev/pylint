@@ -744,22 +744,25 @@ def preprocess_options(args, search_for):
     values of <search_for> are callback functions to call when the option is
     found
     """
-    # Deleting from args on-the-fly while enumerating screws things up
-    # (indices get shifted, etc). To avoid problems, we create a list of
-    # indices to delete, and then do the deletions in reverse order after
-    # the argument processing has been completed.
-    to_del = []    
-    for i, arg in enumerate(args):
-        for option in search_for:
-            if arg.startswith('--%s=' % option):
-                search_for[option](option, arg[len(option)+3:])
-                to_del.append(i)
-            elif arg == '--%s' % option:
-                search_for[option](option, args[i + 1])
-                to_del.extend([i, i+1])
-    to_del.reverse()
-    for i in to_del:
-        del args[i]
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg.startswith('--'):
+            try:
+                option, val = arg[2:].split('=', 1)
+            except ValueError:
+                option, val = arg[2:], None
+            try:
+                cb, takearg = search_for[option]
+                del args[i]
+                if takearg and val is None:
+                    val = args[i]
+                    del args[i]
+                cb(option, val)
+            except KeyError:
+                i += 1
+        else:
+            i += 1
     
 class Run:
     """helper class to use as main for pylint :
@@ -775,9 +778,12 @@ group are mutually exclusive.'),
     def __init__(self, args, reporter=None, quiet=0):
         self._rcfile = None
         self._plugins = []
-        preprocess_options(args, {'rpython-mode': self.cb_rpython_mode,
-                                  'rcfile': self.cb_set_rcfile,
-                                  'load-plugins': self.cb_add_plugins})
+        preprocess_options(args, {
+            # option: (callback, takearg)
+            'rpython-mode': (self.cb_rpython_mode, False),
+            'rcfile':       (self.cb_set_rcfile, True),
+            'load-plugins': (self.cb_add_plugins, True),
+            })
         self.linter = linter = self.LinterClass((
             ('rcfile',
              {'action' : 'callback', 'callback' : lambda *args: 1,
