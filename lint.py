@@ -141,14 +141,14 @@ should be a base name, not a path. You may set this option multiple times.'}),
                 {'type' : 'csv', 'metavar': '<checker ids>',
                  'group': 'Messages control',
                  'help' : 'Enable only checker(s) with the given id(s).\
-                 This option conflict with the disable-checker option'}),
+                 This option conflicts with the disable-checker option'}),
             
                ('disable-checker',
                 {'type' : 'csv', 'metavar': '<checker ids>',
                  'group': 'Messages control',
                  'help' : 'Enable all checker(s) except those with the \
                  given id(s).\
-                 This option conflict with the disable-checker option'}),
+                 This option conflicts with the enable-checker option'}),
                
                ('persistent',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
@@ -350,10 +350,11 @@ This is used by the global evaluation report (R0004).'}),
                 
     def enable_checkers(self, listed, enabled):
         """only enable/disable checkers from the given list"""
-        for checker in self._checkers.values():
-            if enabled and not checker.may_be_disabled:
-                continue
-            checker.enable(not enabled)
+        if enabled: # if we are activating a checker; deactivate them all first
+            for checker in self._checkers.values():
+                if not checker.may_be_disabled:
+                    continue
+                checker.enable(not enabled)
         for checkerid in listed:
             try:
                 checker = self._checkers[checkerid]

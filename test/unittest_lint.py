@@ -1,3 +1,4 @@
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,11 +11,6 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
-"""
-
-__revision__ = '$Id: unittest_lint.py,v 1.16 2006-04-19 09:17:40 syt Exp $'
 
 import shutil
 import sys
@@ -223,7 +219,20 @@ class PyLinterTC(TestCase):
         self.assert_(not linter.is_message_enabled('W0142'))
         self.assert_(linter.is_message_enabled('W0113'))
 
-
+    def test_enable_checkers1(self):
+        self.linter.enable_checkers(['design'], False)
+        self.assertEquals(sorted([c.name for c in self.linter._checkers.values()
+                                  if c.is_enabled()]),
+                          ['basic', 'classes', 'exceptions', 'format', 'imports',
+                           'master', 'metrics', 'miscellaneous', 'newstyle',
+                           'similarities', 'typecheck', 'variables'])
+        
+    def test_enable_checkers2(self):
+        self.linter.enable_checkers(['design'], True)
+        self.assertEquals(sorted([c.name for c in self.linter._checkers.values()
+                           if c.is_enabled()]),
+                          ['design', 'master'])
+                          
 from pylint import config
 
 class ConfigTC(TestCase):
