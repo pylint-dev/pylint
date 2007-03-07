@@ -7,6 +7,11 @@ General options
 ~~~~~~~~~~~~~~~
 :rcfile:
   Specify a configuration file.
+:init-hook:
+  Python code to execute, usually for sys.path manipulation such as
+  pygtk.require().
+:rpython-mode:
+  enable the rpython checker which is disabled by default
 :errors-only:
   In debug mode, checkers without error messages are disabled and for others,
   only the ERROR messages are displayed, and no reports are done by default
@@ -60,8 +65,8 @@ Messages control options
 Reports options
 ~~~~~~~~~~~~~~~
 :output-format:
-  set the output format. Available formats are text, parseable, colorized and
-  html
+  set the output format. Available formats are text, parseable, colorized, msvs
+  (visual studio) and html
   Default: text
 :include-ids:
   Include message's id in output
@@ -105,6 +110,8 @@ Main messages
   Used when an inline option disable a message or a messages category.
 :I0012: *Locally enabling %s*
   Used when an inline option enable a message or a messages category.
+:I0013: *Ignoring entire file*
+  Used to inform that the file will not be checked
 :F0001:
   Used when an error occured preventing the analyzing of a module (unable to
   find it for instance).
@@ -114,6 +121,8 @@ Main messages
 :F0003: *ignored builtin module %s*
   Used to indicate that the user asked to analyze a builtin module which has
   been skipped.
+:F0004: *unexpected infered value %s*
+  Used to indicate that some value of an unexpected type has been infered.
 
 Main reports
 ~~~~~~~~~~~~
@@ -123,99 +132,13 @@ Main reports
 :R0004: Global evaluation
 
 
-Typecheck checker
------------------
-try to find bugs in the code using type inference
-
-Options
-~~~~~~~
-:ignore-mixin-members:
-  Tells wether missing members accessed in mixin class should be ignored. A
-  mixin class is detected if its name ends with "mixin" (case insensitive).
-  Default: yes
-:zope:
-  When zope mode is activated, consider the acquired-members option to ignore
-  access to some undefined attributes.
-:acquired-members:
-  List of members which are usually get through zope's acquisition mecanism and
-  so shouldn't trigger E0201 when accessed (need zope=yes to be considered).
-  Default: REQUEST,acl_users,aq_parent
-
-Messages
-~~~~~~~~
-:E1101: *%s %r has no %r member*
-  Used when a class is accessed for an unexistant member.
-:E1102: *%s is not callable*
-  Used when an object being called has been infered to a non callable object
-:E1111: *Assigning to function call which doesn't return*
-  Used when an assigment is done on a function call but the infered function
-  doesn't return anything.
-:W1111: *Assigning to function call which only returns None*
-  Used when an assigment is done on a function call but the infered function
-  returns nothing but None.
-
-
-Variables checker
------------------
-checks for
-* unused variables / imports
-* undefined variables
-* redefinition of variable from builtins or from an outer scope
-* use of variable before assigment
-
-Options
-~~~~~~~
-:init-import:
-  Tells wether we should check for unused import in __init__ files.
-:dummy-variables-rgx:
-  A regular expression matching names used for dummy variables (i.e. not used).
-  Default: _|dummy
-:additional-builtins:
-  List of additional names supposed to be defined in builtins. Remember that
-  you should avoid to define new builtins when possible.
-
-Messages
-~~~~~~~~
-:E0601: *Using variable %r before assignment*
-  Used when a local variable is accessed before it's assignment.
-:E0602: *Undefined variable %r*
-  Used when an undefined variable is accessed.
-:E0611: *No name %r in module %r*
-  Used when a name cannot be found in a module.
-:W0601: *Global variable %r undefined at the module level*
-  Used when a variable is defined through the "global" statement but the
-  variable is not defined in the module scope.
-:W0602: *Using global for %r but no assigment is done*
-  Used when a variable is defined through the "global" statement but no
-  assigment to this variable is done.
-:W0603: *Using the global statement*
-  Used when you use the "global" statement to update a global variable. PyLint
-  just try to discourage this usage. That doesn't mean you can not use it !
-:W0604: *Using the global statement at the module level*
-  Used when you use the "global" statement at the module level since it has no
-  effect
-:W0611: *Unused import %s*
-  Used when an imported module or variable is not used.
-:W0612: *Unused variable %r*
-  Used when a variable is defined but not used.
-:W0613: *Unused argument %r*
-  Used when a function or method argument is not used.
-:W0621: *Redefining name %r from outer scope (line %s)*
-  Used when a variable's name hide a name defined in the outer scope.
-:W0622: *Redefining built-in %r*
-  Used when a variable or function override a built-in.
-:W0631: *Using possibly undefined loop variable %r*
-  Used when an loop variable (i.e. defined by a for loop or a list comprehension
-  or a generator expression) is used outside the loop.
-
-
 Basic checker
 -------------
 checks for :
 * doc strings
 * modules / classes / functions / methods / arguments / variables name
 * number of arguments, local variables, branchs, returns and statements in
-functions, methods
+  functions, methods
 * required module attributes
 * dangerous default values as arguments
 * redefinition of function / method / class
@@ -269,12 +192,22 @@ Options
 
 Messages
 ~~~~~~~~
+:E0100: *__init__ method is a generator*
+  Used when the special class method __init__ is turned into a generator by a
+  yield in its body.
 :E0101: *Explicit return in __init__*
-  Used when the special class method __ini__ has an explicit return value.
+  Used when the special class method __init__ has an explicit return value.
 :E0102: *%s already defined line %s*
   Used when a function / class / method is redefined.
 :E0103: *%r not properly in loop*
   Used when break or continue keywords are used outside a loop.
+:E0104: *return outside function*
+  Used when a "return" statement is found outside a function or method.
+:E0105: *yield outside function*
+  Used when a "yield" statement is found outside a function or method.
+:E0106: *return with argument inside generator*
+  Used when a "return" statement with an argument is found outside in a
+  generator function or method (e.g. with some "yield" statements).
 :W0101: *Unreachable code*
   Used when there is some code behind a "return" or "raise" statement, which
   will never be accessed.
@@ -286,10 +219,13 @@ Messages
 :W0105: *String statement has no effect*
   Used when a string is used as a statement (which of course has no effect).
   This is a particular case of W0104 with its own message so you can easily
-  disable it if you're using those strings as documentation, instead of comments.
-:W0106: *Unnecessary semi-column*
+  disable it if you're using those strings as documentation, instead of
+  comments.
+:W0106: *Unnecessary semicolon*
   Used when a statement is endend by a semi-colon (";"), which isn't necessary
-  (that's python, not C ;)
+  (that's python, not C ;).
+:W0107: *Unnecessary pass statement*
+  Used when a "pass" statement that can be avoided is encountered.)
 :W0122: *Use of the exec statement*
   Used when you use the "exec" statement, to discourage its usage. That doesn't
   mean you can not use it !
@@ -299,7 +235,8 @@ Messages
   Python offers now some cleaner alternative like list comprehension.
 :W0142: *Used * or ** magic*
   Used when a function or method is called using `*args` or `**kwargs` to
-  dispatch arguments. This doesn't improve readility and should be used with care.
+  dispatch arguments. This doesn't improve readility and should be used with
+  care.
 :C0102: *Black listed name "%s"*
   Used when the name is listed in the black list (unauthorized names).
 :C0103: *Invalid name "%s" (should match %s)*
@@ -310,13 +247,105 @@ Messages
   methods like __init__ doesn't necessary require a docstring.
 :C0112: *Empty docstring*
   Used when a module, function, class or method has an empty docstring (it would
-  be to easy ;).
+  be too easy ;).
 :C0121: *Missing required attribute "%s"*
   Used when an attribute required for modules is missing.
 
 Reports
 ~~~~~~~
 :R0101: Statistics by type
+
+
+Typecheck checker
+-----------------
+try to find bugs in the code using type inference
+
+Options
+~~~~~~~
+:ignore-mixin-members:
+  Tells wether missing members accessed in mixin class should be ignored. A
+  mixin class is detected if its name ends with "mixin" (case insensitive).
+  Default: yes
+:zope:
+  When zope mode is activated, consider the acquired-members option to ignore
+  access to some undefined attributes.
+:acquired-members:
+  List of members which are usually get through zope's acquisition mecanism and
+  so shouldn't trigger E0201 when accessed (need zope=yes to be considered).
+  Default: REQUEST,acl_users,aq_parent
+
+Messages
+~~~~~~~~
+:E1101: *%s %r has no %r member*
+  Used when a variable is accessed for an unexistant member.
+:E1102: *%s is not callable*
+  Used when an object being called has been infered to a non callable object
+:E1103: *%s %r has no %r member (but some types could not be inferred)*
+  Used when a variable is accessed for an unexistant member, but astng was not
+  able to interpret all possible types of this variable.
+:E1111: *Assigning to function call which doesn't return*
+  Used when an assigment is done on a function call but the infered function
+  doesn't return anything.
+:W1111: *Assigning to function call which only returns None*
+  Used when an assigment is done on a function call but the infered function
+  returns nothing but None.
+
+
+Variables checker
+-----------------
+checks for
+* unused variables / imports
+* undefined variables
+* redefinition of variable from builtins or from an outer scope
+* use of variable before assigment
+
+Options
+~~~~~~~
+:init-import:
+  Tells wether we should check for unused import in __init__ files.
+:dummy-variables-rgx:
+  A regular expression matching names used for dummy variables (i.e. not used).
+  Default: _|dummy
+:additional-builtins:
+  List of additional names supposed to be defined in builtins. Remember that
+  you should avoid to define new builtins when possible.
+
+Messages
+~~~~~~~~
+:E0601: *Using variable %r before assignment*
+  Used when a local variable is accessed before it's assignment.
+:E0602: *Undefined variable %r*
+  Used when an undefined variable is accessed.
+:E0611: *No name %r in module %r*
+  Used when a name cannot be found in a module.
+:W0601: *Global variable %r undefined at the module level*
+  Used when a variable is defined through the "global" statement but the
+  variable is not defined in the module scope.
+:W0602: *Using global for %r but no assigment is done*
+  Used when a variable is defined through the "global" statement but no
+  assigment to this variable is done.
+:W0603: *Using the global statement*
+  Used when you use the "global" statement to update a global variable. PyLint
+  just try to discourage this usage. That doesn't mean you can not use it !
+:W0604: *Using the global statement at the module level*
+  Used when you use the "global" statement at the module level since it has no
+  effect
+:W0611: *Unused import %s*
+  Used when an imported module or variable is not used.
+:W0612: *Unused variable %r*
+  Used when a variable is defined but not used.
+:W0613: *Unused argument %r*
+  Used when a function or method argument is not used.
+:W0614: *Unused import %s from wildcard import*
+  Used when an imported module or variable is not used from a 'from X import *'
+  style import.
+:W0621: *Redefining name %r from outer scope (line %s)*
+  Used when a variable's name hide a name defined in the outer scope.
+:W0622: *Redefining built-in %r*
+  Used when a variable or function override a built-in.
+:W0631: *Using possibly undefined loop variable %r*
+  Used when an loop variable (i.e. defined by a for loop or a list comprehension
+  or a generator expression) is used outside the loop.
 
 
 Classes checker
@@ -399,33 +428,6 @@ Messages
   Used when a PyLint as failed to find interfaces implemented by a class
 
 
-Newstyle checker
-----------------
-checks for usage of new style capabilities on old style classes and
-other new/old styles conflicts problems
-* use of property, __slots__, super
-* "super" usage
-* raising a new style class as exception
-
-Messages
-~~~~~~~~
-:E1001: *Use __slots__ on an old style class*
-  Used when an old style class use the __slots__ attribute.
-:E1002: *Use super on an old style class*
-  Used when an old style class use the super builtin.
-:E1003: *Bad first argument %r given to super class*
-  Used when another argument than the current class is given as first argument
-  of the super builtin.
-:E1010: *Raising a new style class*
-  Used when a new style class is raised since it's not possible with python < 2.5.
-:W1001: *Use of "property" on an old style class*
-  Used when PyLint detect the use of the builtin "property" on an old style
-  class while this is relying on new style classes features
-:W1010: *Exception doesn't inherit from standard "Exception" class*
-  Used when a custom exception class is raised but doesn't inherit from the
-  builtin "Exception" class.
-
-
 Design checker
 --------------
 checks for sign of poor/misdesign:
@@ -470,8 +472,8 @@ Messages
 :R0902: *Too many instance attributes (%s/%s)*
   Used when class has too many instance attributes, try to reduce this to get a
   more simple (and so easier to use) class.
-:R0903: *To few public methods (%s/%s)*
-  Used when class has to few public methods, so be sure it's really worth it.
+:R0903: *Too few public methods (%s/%s)*
+  Used when class has too few public methods, so be sure it's really worth it.
 :R0904: *Too many public methods (%s/%s)*
   Used when class has too many public methods, try to reduce this to get a more
   simple (and so easier to use) class.
@@ -479,7 +481,8 @@ Messages
   Used when a function or method has too many return statement, making it hard
   to follow.
 :R0912: *Too many branches (%s/%s)*
-  Used when a function or method has too many branches, making it hard to follow.
+  Used when a function or method has too many branches, making it hard to
+  follow.
 :R0913: *Too many arguments (%s/%s)*
   Used when a function or method takes too many arguments.
 :R0914: *Too many local variables (%s/%s)*
@@ -542,6 +545,34 @@ Reports
 ~~~~~~~
 :R0401: External dependencies
 :R0402: Modules dependencies graph
+
+
+Newstyle checker
+----------------
+checks for usage of new style capabilities on old style classes and
+other new/old styles conflicts problems
+* use of property, __slots__, super
+* "super" usage
+* raising a new style class as exception
+
+Messages
+~~~~~~~~
+:E1001: *Use __slots__ on an old style class*
+  Used when an old style class use the __slots__ attribute.
+:E1002: *Use super on an old style class*
+  Used when an old style class use the super builtin.
+:E1003: *Bad first argument %r given to super class*
+  Used when another argument than the current class is given as first argument
+  of the super builtin.
+:E1010: *Raising a new style class*
+  Used when a new style class is raised since it's not possible with python <
+  2.5.
+:W1001: *Use of "property" on an old style class*
+  Used when PyLint detect the use of the builtin "property" on an old style
+  class while this is relying on new style classes features
+:W1010: *Exception doesn't inherit from standard "Exception" class*
+  Used when a custom exception class is raised but doesn't inherit from the
+  builtin "Exception" class.
 
 
 Exceptions checker
@@ -625,6 +656,32 @@ Messages
   the error if it occurs.
 
 
+Miscellaneous checker
+---------------------
+checks for:
+* warning notes in the code like FIXME, XXX
+* PEP 263: source code with non ascii character but no encoding declaration
+
+Options
+~~~~~~~
+:notes:
+  List of note tags to take in consideration, separated by a comma.
+  Default: FIXME,XXX,TODO
+
+Messages
+~~~~~~~~
+:E0501: *Non ascii characters found but no encoding specified (PEP 263)*
+  Used when some non ascii characters are detected but now encoding is
+  specified, as explicited in the PEP 263.
+:E0502: *Wrong encoding specified (%s)*
+  Used when a known encoding is specified but the file doesn't seem to be
+  actually in this encoding.
+:E0503: *Unknown encoding specified (%s)*
+  Used when an encoding is specified, but it's unknown to Python.
+:W0511:
+  Used when a warning note as FIXME or XXX is detected.
+
+
 Metrics checker
 ---------------
 does not check anything but gives some raw metrics :
@@ -661,36 +718,11 @@ Messages
 ~~~~~~~~
 :R0801: *Similar lines in %s files*
   Indicates that a set of similar lines has been detected among multiple file.
-  This usually means that the code should be refactored to avoid this duplication.
+  This usually means that the code should be refactored to avoid this
+  duplication.
 
 Reports
 ~~~~~~~
 :R0801: Duplication
-
-
-Miscellaneous checker
----------------------
-checks for:
-* warning notes in the code like FIXME, XXX
-* PEP 263: source code with non ascii character but no encoding declaration
-
-Options
-~~~~~~~
-:notes:
-  List of note tags to take in consideration, separated by a comma.
-  Default: FIXME,XXX,TODO
-
-Messages
-~~~~~~~~
-:E0501: *Non ascii characters found but no encoding specified (PEP 263)*
-  Used when some non ascii characters are detected but now encoding is
-  specified, as explicited in the PEP 263.
-:E0502: *Wrong encoding specified (%s)*
-  Used when a known encoding is specified but the file doesn't seem to be
-  actually in this encoding.
-:E0503: *Unknown encoding specified (%s)*
-  Used when an encoding is specified, but it's unknown to Python.
-:W0511:
-  Used when a warning note as FIXME or XXX is detected.
 
 

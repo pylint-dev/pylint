@@ -8,6 +8,13 @@
 # 
 [MASTER]
 
+# Specify a configuration file.
+#rcfile=
+
+# Python code to execute, usually for sys.path manipulation such as
+# pygtk.require().
+#init-hook=
+
 # Profiled execution.
 profile=no
 
@@ -26,14 +33,33 @@ cache-size=500
 load-plugins=
 
 
+[MESSAGES CONTROL]
 
+# Enable only checker(s) with the given id(s). This option conflict with the
+# disable-checker option
+#enable-checker=
 
+# Enable all checker(s) except those with the given id(s). This option conflict
+# with the disable-checker option
+#disable-checker=
+
+# Enable all messages in the listed categories.
+#enable-msg-cat=
+
+# Disable all messages in the listed categories.
+#disable-msg-cat=
+
+# Enable the message(s) with the given id(s).
+#enable-msg=
+
+# Disable the message(s) with the given id(s).
+#disable-msg=
 
 
 [REPORTS]
 
-# set the output format. Available formats are text, parseable, colorized and
-# html
+# set the output format. Available formats are text, parseable, colorized, msvs
+# (visual studio) and html
 output-format=text
 
 # Include message's id in output
@@ -57,6 +83,12 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 # Add a comment according to your evaluation note. This is used by the global
 # evaluation report (R0004).
 comment=no
+
+# Enable the report(s) with the given id(s).
+#enable-report=
+
+# Disable the report(s) with the given id(s).
+#disable-report=
 
 
 # checks for :
