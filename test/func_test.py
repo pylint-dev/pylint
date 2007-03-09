@@ -103,7 +103,7 @@ class LintTestUsingFile(LintTestUsingModule):
         self._test(tocheck)
 
 
-class TestTests(unittest.TestCase):
+class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
     def test(self):
         # skip rpython checker and fatal messages
@@ -212,6 +212,6 @@ if __name__=='__main__':
     if len(sys.argv) > 1:            
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    unittest.main(defaultTest='suite')
+    testlib.unittest_main(defaultTest='suite')
 
 
