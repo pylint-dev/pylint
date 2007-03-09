@@ -57,7 +57,7 @@ include_dirs = [join('test', 'input'),
                 join('test', 'rpythonmessages'),
                 join('test', 'regrtest_data')]
 
-pyversions = ["2.3", "2.4"]
+pyversions = ["2.3", "2.4", "2.5"]
 
 debian_uploader = 'Alexandre Fayolle <afayolle@debian.org>'
 
