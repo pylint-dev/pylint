@@ -56,6 +56,10 @@ class RLintTestUsingFile(LintTestUsingFile):
 
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
+    def setUp(self):
+        if sys.version_info[:2] != (2, 4):
+            self.skip('only python 2.4 supported for now')
+            
     def test(self):
         # skip rpython checker messages
         missing = [msgid for msgid in linter._messages.keys()
