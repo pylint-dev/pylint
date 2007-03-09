@@ -106,6 +106,6 @@ if __name__=='__main__':
     if len(sys.argv) > 1:            
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    testlib.unittest_main(defaultTest='suite')
+    unittest.main(defaultTest='suite')
 
 
