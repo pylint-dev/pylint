@@ -135,6 +135,7 @@ Main reports
 Basic checker
 -------------
 checks for :
+
 * doc strings
 * modules / classes / functions / methods / arguments / variables name
 * number of arguments, local variables, branchs, returns and statements in
@@ -337,7 +338,7 @@ Messages
 :W0613: *Unused argument %r*
   Used when a function or method argument is not used.
 :W0614: *Unused import %s from wildcard import*
-  Used when an imported module or variable is not used from a 'from X import *'
+  Used when an imported module or variable is not used from a 'from X import \*'
   style import.
 :W0621: *Redefining name %r from outer scope (line %s)*
   Used when a variable's name hide a name defined in the outer scope.

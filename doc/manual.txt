@@ -106,8 +106,7 @@ Windows users may get valuable information about pylint installation on
 Note for Windows users
 ''''''''''''''''''''''
 
-On Windows, once you have installed pylint, the command line usage is
-::
+On Windows, once you have installed pylint, the command line usage is ::
 
   pylint.bat [options] module_or_package
 
