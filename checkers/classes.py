@@ -269,8 +269,8 @@ instance attributes.'}
         if self._first_attrs and isinstance(node.expr, astng.Name) and \
                node.expr.name == self._first_attrs[-1]:                
             self._accessed[-1].setdefault(attrname, []).append(node)
-        elif attrname[0] == '_' and not (attrname.startswith('__') and
-                                         attrname.endswith('__')):
+        elif attrname[0] == '_' and not attrname == '_' and not (
+             attrname.startswith('__') and attrname.endswith('__')):
             # XXX move this in a reusable function
             klass = node.frame()
             while klass is not None and not isinstance(klass, astng.Class):
