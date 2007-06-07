@@ -1,10 +1,11 @@
 ChangeLog for PyLint
 ====================
 
-  --
+2007-06-07  --  0.13.2
     * fix disable-checker option so that it won't accidentally enable the
       rpython checker which is disabled by default
-    
+    * added note about the gedit plugin into documentation
+	
 2007-03-02  --  0.13.1
     * fix some unexplained 0.13.0 packaging issue which led a bunch of
       files missing from the distribution
