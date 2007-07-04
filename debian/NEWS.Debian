@@ -1,4 +1,4 @@
-pylint (0.13.2-1) unstable; urgency=low
+pylint (0.13.2-2) unstable; urgency=low
 
   * pylint.el is no longer installed for emacs, because it is not
     compatible with emacs22 and has a large number of related bugs. It

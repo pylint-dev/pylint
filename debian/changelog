@@ -1,9 +1,5 @@
-pylint (0.13.2-1) unstable; urgency=low
+pylint (0.13.2-2) unstable; urgency=low
 
-  [ Sylvain Thénault ]
-  * new upstream release  
-
-  [ Alexandre Fayolle ]
   * Upload package to debian (closes: #426418)
   * tests are no longer installed in /usr/share/doc/pylint, use the source
     package to get them
@@ -14,9 +10,16 @@ pylint (0.13.2-1) unstable; urgency=low
     about this in NEWS.Debian.
   * Only Recommend python-tk and give a nicer warning in the pylint-gui
     script if tkinter is not available.
+  * Updated versions of dependencies on logilab-common and astng
 
  -- Alexandre Fayolle <afayolle@debian.org>  Wed, 04 Jul 2007 12:21:24 +0200
 
+pylint (0.13.2-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 07 Jun 2007 16:44:53 +0200
+   
 pylint (0.13.1-1) unstable; urgency=low
 
   * new upstream release
