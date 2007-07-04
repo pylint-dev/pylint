@@ -3,13 +3,15 @@ Section: python
 Priority: optional
 Maintainer: Sylvain Thénault <sylvain.thenault@logilab.fr>
 Uploaders: Alexandre Fayolle <afayolle@debian.org> 
-Build-Depends: debhelper (>= 5.0.37.2), python (>=2.3.5-7), python-central (>=0.5)
+Build-Depends: debhelper (>= 5.0.38)
+Build-Depends-Indep: python (>=2.3.5-7), python-central (>=0.5.6)
 Standards-Version: 3.7.2
 XS-Python-Version: current
 
 Package: pylint
 Architecture: all
-Depends: ${python:Depends}, python-logilab-common (>= 0.19.3), python-logilab-astng (>= 0.16.1), python-tk, emacsen-common
+Depends: python, python-logilab-common (>= 0.22.2), python-logilab-astng (>= 0.17.1)
+Recommends: python-tk
 XB-Python-Version: ${python:Versions}
 Conflicts: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
 Replaces: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
@@ -26,6 +28,9 @@ Description: python code static checker
  and much more.
  .
  Additionally, it is possible to write plugins to add your own checks.
+ . 
+ The recommended python-tk package is only for using the pylint-gui
+ script.
  .
  Homepage: http://www.logilab.org/Project/name/pylint
 

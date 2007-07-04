@@ -1,8 +1,21 @@
 pylint (0.13.2-1) unstable; urgency=low
 
-  * new upstream release
+  [ Sylvain Thénault ]
+  * new upstream release  
 
- -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 07 Jun 2007 16:44:53 +0200
+  [ Alexandre Fayolle ]
+  * Upload package to debian (closes: #426418)
+  * tests are no longer installed in /usr/share/doc/pylint, use the source
+    package to get them
+  * pylint.el is no longer installed for emacs, because it is not
+    compatible with emacs22. It will be reenabled in a future version,
+    when all the bugs have been dealt with by upstream.  Emacs21 users may
+    get it from /usr/share/doc/pylint/examples/pylint.el. Added a note
+    about this in NEWS.Debian.
+  * Only Recommend python-tk and give a nicer warning in the pylint-gui
+    script if tkinter is not available.
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Wed, 04 Jul 2007 12:21:24 +0200
 
 pylint (0.13.1-1) unstable; urgency=low
 
