@@ -1,6 +1,6 @@
 
 ;; adapted from pychecker for pylint
-(defun my-python-hook ()
+(defun pylint-python-hook ()
   (defun pylint ()
     "Run pylint against the file behind the current buffer after
     checking if unsaved buffers should be saved."
@@ -10,9 +10,9 @@
 	   (command (concat "pylint --output-format=parseable \"" file "\"")))
       (save-some-buffers (not compilation-ask-about-save) nil) ; save  files.
       (compile-internal command "No more errors or warnings" "pylint")))
-  (local-set-key [f1] 'pylint)
-  (local-set-key [f2] 'previous-error)
-  (local-set-key [f3] 'next-error)
+;;  (local-set-key [f1] 'pylint)
+;;  (local-set-key [f2] 'previous-error)
+;;  (local-set-key [f3] 'next-error)
 
   (define-key
     py-mode-map
@@ -34,4 +34,4 @@
 
   )
 
-(add-hook 'python-mode-hook 'my-python-hook)
+(add-hook 'python-mode-hook 'pylint-python-hook)
