@@ -57,7 +57,6 @@ binary-indep: build install
 	dh_testroot 
 	dh_install -i
 	dh_pycentral -i
-	dh_python -i
 	gzip -9 -c ChangeLog > changelog.gz
 	dh_installchangelogs -i
 	dh_installexamples -i
