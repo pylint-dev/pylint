@@ -865,8 +865,8 @@ processing.
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter._config_parser
-        if config_parser.has_option('master', 'load-plugins'):
-            plugins = get_csv(config_parser.get('master', 'load-plugins'))
+        if config_parser.has_option('MASTER', 'load-plugins'):
+            plugins = get_csv(config_parser.get('MASTER', 'load-plugins'))
             linter.load_plugin_modules(plugins)
         # now we can load file config and command line, plugins (which can
         # provide options) have been registered
