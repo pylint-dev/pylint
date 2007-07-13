@@ -1,3 +1,4 @@
+(require 'compile)
 
 ;; adapted from pychecker for pylint
 (defun pylint-python-hook ()
