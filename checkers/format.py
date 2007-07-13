@@ -66,6 +66,9 @@ MSGS = {
               'Used when a lower case "l" is used to mark a long integer. You \
 should use a upper case "L" since the letter "l" looks too much like the digit \
 "1"'),
+    'W0333': ('Use of the `` operator',
+              'Used when the deprecated "``" (backtick) operator is used instead \
+              of the str() function.'),
     }
 
 # simple quoted string rgx
@@ -291,6 +294,9 @@ class FormatChecker(BaseRawChecker):
             # FIXME: internal error !
             pass
 
+    def visit_backquote(self, node):
+        self.add_message('W0333', node=node)
+        
     def check_lines(self, lines, i):
         """check lines have less than a maximum number of characters
         """
