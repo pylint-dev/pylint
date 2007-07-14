@@ -43,7 +43,6 @@ from logilab.common.interface import implements
 from logilab.common.textutils import get_csv
 from logilab.common.fileutils import norm_open
 from logilab.common.ureports import Table, Text
-from logilab.common.compat import enumerate
 from logilab.common.__pkginfo__ import version as common_version
 
 from logilab.astng import ASTNGManager
@@ -371,7 +370,8 @@ This is used by the global evaluation report (R0004).'}),
             if checker.name == 'miscellaneous':
                 checker.enable(False)
                 continue
-            # if checker is already explicitly disabled (e.g. rpython), don't enable it
+            # if checker is already explicitly disabled (e.g. rpython), don't
+            # enable it
             if checker.enabled:
                 for msgid in getattr(checker, 'msgs', {}).keys():
                     if msgid[0] == 'E':
@@ -454,15 +454,53 @@ This is used by the global evaluation report (R0004).'}),
         self.reporter.include_ids = self.config.include_ids
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
+        filemods = self.expand_files(files_or_modules)
         checkers = sort_checkers(self._checkers.values())
         rev_checkers = checkers[:]
         rev_checkers.reverse()
         # notify global begin
         for checker in checkers:
             checker.open()
+        # prebuild ast for all modules to check
+        for descr in filemods[:]:
+            modname, filepath = descr['name'], descr['path']
+            self.set_current_module(modname, filepath)
+            # get the module representation
+            try:
+                astng = self.get_astng(filepath, modname)
+            except SyntaxError, ex:
+                self.add_message('E0001', line=ex.lineno, args=ex.msg)
+                astng = None
+            if astng is None:
+                filemods.remove(descr)
+                continue
+            descr['astng'] = astng
         # check modules or packages        
+        for descr in filemods:
+            modname, filepath = descr['name'], descr['path']
+            astng = descr['astng']
+            self.base_name = descr['basename']
+            self.base_file = descr['basepath']
+            if self.config.files_output:
+                reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
+                self.reporter.set_output(open(reportfile, 'w'))
+            self.set_current_module(modname, filepath)
+            self._ignore_file = False
+            # fix the current file (if the source file was not available or
+            # if its actually a c extension
+            self.current_file = astng.file
+            self.check_astng_module(astng, checkers)
+        # notify global end
+        self.set_current_module('')
+        for checker in rev_checkers:
+            checker.close()
+
+    def expand_files(self, files_or_modules):
+        """take a list of files/modules/packages and return the list of tuple
+        (file, module name) which have to be actually checked
+        """
+        result = []
         for something in files_or_modules:
-            self.base_name = self.base_file = normpath(something)
             if exists(something):
                 # this is a file or a directory
                 try:
@@ -490,54 +528,18 @@ This is used by the global evaluation report (R0004).'}),
                     msg = str(ex).replace(os.getcwd() + os.sep, '')
                     self.add_message('F0001', args=msg)
                     continue
-            if self.config.files_output:
-                reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
-                self.reporter.set_output(open(reportfile, 'w'))
-            try:
-                self.check_file(filepath, modname, checkers)
-            except SyntaxError, ex:
-                self.add_message('E0001', line=ex.lineno, args=ex.msg)
-        # notify global end
-        self.set_current_module('')
-        for checker in rev_checkers:
-            checker.close()
-
-    def check_file(self, filepath, modname, checkers):
-        """check a module or package from its name
-        if modname is a package, recurse on its subpackages / submodules
-        """
-        # get the given module representation
-        self.base_name = modname
-        self.base_file = normpath(filepath)
-        # check this module
-        self._ignore_file = False
-        astng = self._check_file(filepath, modname, checkers)
-        if astng is None:
-            return
-        # recurse in package except if __init__ was explicitly given
-        if not modname.endswith('.__init__') and astng.package:
-            for filepath in get_module_files(dirname(filepath),
-                                             self.config.black_list):
-                if filepath == self.base_file:
-                    continue
-                modname = '.'.join(modpath_from_file(filepath))
-                self._check_file(filepath, modname, checkers)
-
-    def _check_file(self, filepath, modname, checkers):
-        """check a module by building its astng representation"""
-        self.set_current_module(modname, filepath)
-        # get the module representation
-        astng = self.get_astng(filepath, modname)
-        if astng is not None:
-            # set the base file if necessary
-            self.base_file = self.base_file or astng.file
-            # fix the current file (if the source file was not available or
-            # if its actually a c extension
-            self.current_file = astng.file
-            # and check it
-            if not self.check_astng_module(astng, checkers):
-                astng = None
-        return astng
+            filepath = normpath(filepath)
+            result.append( {'path': filepath, 'name': modname,
+                            'basepath': filepath, 'basename': modname} )
+            if not modname.endswith('.__init__') and '__init__.py' in filepath:
+                for subfilepath in get_module_files(dirname(filepath),
+                                                    self.config.black_list):
+                    if filepath == subfilepath:
+                        continue
+                    submodname = '.'.join(modpath_from_file(subfilepath))
+                    result.append( {'path': subfilepath, 'name': submodname,
+                                    'basepath': filepath, 'basename': modname} )
+        return result
         
     def set_current_module(self, modname, filepath=None):
         """set the name of the currently analyzed module and
@@ -793,13 +795,14 @@ group are mutually exclusive.'),
             
             ('init-hook',
              {'action' : 'callback', 'type' : 'string', 'metavar': '<code>',
-              'callback' : self.cb_init_hook,
+              'callback' : cb_init_hook,
               'help' : 'Python code to execute, usually for sys.path \
 manipulation such as pygtk.require().'}),
             
             ('rpython-mode',
              {'action' : 'callback', 'callback' : lambda *args: 1,
-              'help' : 'enable the rpython checker which is disabled by default'}),
+              'help' : 'enable the rpython checker which is disabled by default'
+              }),
              #'help' : 'Run into Restricted Python analysis mode.'}),
 
             ('help-msg',
@@ -940,14 +943,14 @@ processing.
         self.linter.help_message(get_csv(value))
         sys.exit(0)
         
-    def cb_init_hook(self, option, opt_name, value, parser):
-        """exec arbitrary code to set sys.path for instance"""
-        exec value
-        
     def cb_list_messages(self, option, opt_name, value, parser):
         """optik callback for printing available messages"""
         self.linter.list_messages()
         sys.exit(0)
+
+def cb_init_hook(option, opt_name, value, parser):
+    """exec arbitrary code to set sys.path for instance"""
+    exec value
 
 
 if __name__ == '__main__':
