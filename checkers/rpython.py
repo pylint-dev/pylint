@@ -27,14 +27,14 @@ from logilab import astng
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import safe_infer, is_super, display_type
 
 
 MSGS = {
     'E1201': ('Using unavailable keyword %r',
               'Used when a keyword which is not available in rpython is used.'),
     'E1202': ('Using unavailable builtin %r',
-              'Used when a built-in which is not available in rpython is used.'),
+              'Used when a built-in which is not available in rpython is used.'
+              ),
     'E1203': ('generator expressions are not supported',
               'Used when a generator expression is used while generator are \
 not available in rpython.'),    
@@ -44,13 +44,13 @@ which doesn\'t seems to be satisfied',
 instance attribute defined in the mix-in) with "_mixin_" class attribute set \
 to True.'),
     'E1205': ('Using unavailable protocol %r',
-              'Used when a special method not handled by rpython is used *and* \
-              that may not be used explicitly is used (see W1201).'),
+              'Used when a special method not handled by rpython is used *and*'
+              ' that may not be used explicitly is used (see W1201).'),
 
     
     'E1210': ('Multiple types assigned to %s %r',
-              'Used when an identifier or attribut is infered as having values \
-of different types assigned.'),
+              'Used when an identifier or attribut is infered as having values'
+              ' of different types assigned.'),
     'E1211': ('Can\'t mix %s and None on %s %r',
               'Used when an int or float variable is assigned to None.'),    
     'E1212': ('Non homogeneous values in list',
@@ -62,23 +62,24 @@ of different types assigned.'),
 ## without being properly initialized before that block.'),
     
     'E1220': ('Modifying global %r from module %s',
-              'Used when a module variable is modified, which is not allowed in \
-rpython since globals are considered as constants.'),
+              'Used when a module variable is modified, which is not allowed '
+              'in rpython since globals are considered as constants.'),
 
 
     'E1230': ('Using negative slice %s %s (infered to %s)',
-              'Used when a negative integer is used as lower, upper or step of \
-a slice.'),
+              'Used when a negative integer is used as lower, upper or step of'
+              ' a slice.'),
     'E1231': ('Using non constant step',
-              'Used when a variable not annotated as a constant is used as \
-step of a slice.'),
+              'Used when a variable not annotated as a constant is used as '
+              'step of a slice.'),
     
     'E1240': ('%r format is not supported',
-              'Used when the unavailable "%r" formatting instruction is used.'),
+              'Used when the unavailable "%r" formatting instruction is used.'
+              ),
     
     'W1201': ('special method %s has to be called explicitly',
-              'Used when a special method is defined on a class, as rpython \
-              won\'t call the explicitly.'),
+              'Used when a special method is defined on a class, as rpython '
+              'won\'t call the explicitly.'),
     
     }
 
@@ -109,8 +110,10 @@ UNAVAILABLE_BUILTINS = {
 #pprint(sorted(BUILTINLIST - AUTHORIZED))
 del BUILTINLIST, AUTHORIZED
 
-BUILTIN_MODIFIERS = {'dict': set(('clear', 'fromkeys', 'pop', 'popitem', 'setdefault', 'update')),
-                     'list': set(('append', 'extend', 'insert', 'pop', 'remove', 'reverse', 'sort')),}
+BUILTIN_MODIFIERS = {'dict': set(('clear', 'fromkeys', 'pop', 'popitem',
+                                  'setdefault', 'update')),
+                     'list': set(('append', 'extend', 'insert', 'pop',
+                                  'remove', 'reverse', 'sort')),}
 
 UNAVAILABLE_PROTOCOLS = set(('__new__',))
 
@@ -119,8 +122,8 @@ REPR_NAMED_FORMAT_INSTR = re.compile('%\([^)]+\)r')
 
 
 def is_pure_mixin(node):
-    """return true if the given class node can be considered as a mixin class according to
-    rpython conventions
+    """return true if the given class node can be considered as a mixin class
+    according to rpython conventions
     """
     if node.instance_attrs:
         return False
@@ -133,8 +136,8 @@ def is_pure_mixin(node):
 
 
 class RPythonChecker(BaseChecker):
-    """check a python program is `Restricted Python`_ compliant. Restricted python
-    is used in the PyPy_ project to make a python program compilable.
+    """check a python program is `Restricted Python`_ compliant. Restricted
+    python is used in the PyPy_ project to make a python program compilable.
 
     .. _`Restricted Python`: http://codespeak.net/pypy/dist/pypy/doc/coding-guide.html
     .. _`PyPy`: http://codespeak.net/pypy/
@@ -169,7 +172,8 @@ class RPythonChecker(BaseChecker):
             return # XXX
         name = node.name
         module = infered.root().name
-        if module in UNAVAILABLE_BUILTINS and name in UNAVAILABLE_BUILTINS[module]:
+        if module in UNAVAILABLE_BUILTINS and \
+               name in UNAVAILABLE_BUILTINS[module]:
             self.add_message('E1202', node=node, args=name)
 ##         # E1205 check, example:
 ##         #
@@ -181,8 +185,8 @@ class RPythonChecker(BaseChecker):
 ##         # print a
 ##         #
 ##         # in such a case a should be defined before the if/else block.
-##         # So here if name is a local name we have to ckeck it's defined in the
-##         # same block or in a parent block
+##         # So here if name is a local name we have to ckeck it's defined in 
+##         # the same block or in a parent block
 ##         frame, stmts = node.lookup(name)
 ##         if frame is node.frame() and len(stmts) > 1:
 ##             # XXX only consider the first assignment ?
@@ -216,13 +220,15 @@ class RPythonChecker(BaseChecker):
                     ass = ass.parent
                 # "not last is ass.expr" is checking the global isn't in the rhs
                 if ass is not None and not last is ass.expr:
-                    self.add_message('E1220', node=node, args=(node.name, node.root().name))
+                    self.add_message('E1220', node=node,
+                                     args=(node.name, node.root().name))
                     return
                 # is it a call to a tuple/dict method modifying it ?
                 if isinstance(node.parent, astng.Getattr) and \
                        isinstance(node.parent.parent, astng.CallFunc):
                     if node.parent.attrname in BUILTIN_MODIFIERS[infered.name]:
-                        self.add_message('E1220', node=node, args=(node.name, node.root().name))
+                        self.add_message('E1220', node=node,
+                                         args=(node.name, node.root().name))
                 
     def visit_class(self, node):
         """check class attributes have homogeneous types"""
@@ -273,7 +279,8 @@ class RPythonChecker(BaseChecker):
                     if infered is astng.YES:
                         continue
                     # XXX skip None ?
-                    if isinstance(infered, astng.Const) and infered.value is None:
+                    if isinstance(infered, astng.Const) and \
+                           infered.value is None:
                         continue
                     types.add(str(infered))
             except astng.InferenceError:
@@ -291,7 +298,8 @@ class RPythonChecker(BaseChecker):
         except astng.InferenceError:
             return # XXX
         if isinstance(infered, astng.Module):
-            self.add_message('E1220', node=node, args=(node.attrname, infered.name))
+            self.add_message('E1220', node=node,
+                             args=(node.attrname, infered.name))
         
     def visit_assname(self, node):
         """check we are not modifying a module attribute"""
@@ -299,7 +307,8 @@ class RPythonChecker(BaseChecker):
             return
         frame = node.frame()
         if not node.name in node.frame().locals:
-            self.add_message('E1220', node=node, args=(node.name, node.root().name))
+            self.add_message('E1220', node=node,
+                             args=(node.name, node.root().name))
             
         
     def visit_slice(self, node):
@@ -333,8 +342,9 @@ class RPythonChecker(BaseChecker):
             for infered in node.left.infer():
                 if infered is astng.YES:
                     continue
-                if not isinstance(infered, astng.Const) or not isinstance(infered.value, basestring):
-                    self.add_message('F0004',node=node, args=infered)
+                if not (isinstance(infered, astng.Const) and
+                        isinstance(infered.value, basestring)):
+                    self.add_message('F0004', node=node, args=infered)
                     continue
                 value = infered.value.replace('%%', '%%')
                 if '%r' in value or REPR_NAMED_FORMAT_INSTR.search(value):
@@ -382,7 +392,8 @@ class RPythonChecker(BaseChecker):
         if start is not None:
             value = self.check_positive_integer(start, 'start index')
         if stop is not None:
-            self.check_positive_integer(stop, 'stop index', start is None or value == 0)
+            self.check_positive_integer(stop, 'stop index',
+                                        start is None or value == 0)
         if step is not None:
             try:
                 for infered in step.infer():
@@ -400,16 +411,17 @@ class RPythonChecker(BaseChecker):
             for infered in node.infer():
                 if infered is astng.YES:
                     continue
-                if not isinstance(infered, astng.Const) or not isinstance(infered.value, int):
-                    self.add_message('F0004',node=node, args=infered)
+                if not (isinstance(infered, astng.Const) and
+                        isinstance(infered.value, int)):
+                    self.add_message('F0004', node=node, args=infered)
                     continue
                 if infered.value < 0:
                     if minus_one_allowed and infered.value == -1:
                         value = infered.value
                         continue
-                    self.add_message('E1230', node=node, args=(msg,
-                                                               node.as_string(),
-                                                               infered.value))
+                    self.add_message('E1230', node=node,
+                                     args=(msg, node.as_string(),
+                                           infered.value))
                 else:
                     value = infered.value
         except astng.InferenceError:
@@ -418,16 +430,18 @@ class RPythonChecker(BaseChecker):
 
 
         
-# XXX: checking rpython should do an "entry point search", not a "project search" (eg from a modules/packages list)
-# more over we should differentiate between initial import vs runtime imports, no ?
+# XXX: checking rpython should do an "entry point search", not a "project
+#      search" (eg from a modules/packages list)
+# moreover we should differentiate between initial import vs runtime imports,
+# no ?
 
-for name in UNAVAILABLE_KEYWORDS:
-    def visit_unavailable_keyword(self, node, name=name):
+for _kw in UNAVAILABLE_KEYWORDS:
+    def visit_unavailable_keyword(self, node, name=_kw):
         if not self._rpython:
             return
         self.add_message('E1201', node=node, args=name)
-    setattr(RPythonChecker, 'visit_%s' % name, visit_unavailable_keyword)
-del name
+    setattr(RPythonChecker, 'visit_%s' % _kw, visit_unavailable_keyword)
+del _kw
     
 def register(linter):
     """required method to auto register this checker """

@@ -48,7 +48,8 @@ class RPyLinter(PyLinter):
         """check a module from its astng representation, real work"""
         # call raw checkers if possible
         if not astng.pure_python:
-            raise Exception('only python modules can be analyzed in rpython mode')
+            msg = 'only python modules can be analyzed in rpython mode'
+            raise Exception(msg)
         # search target
         targets = astng.locals()['target']
         if len(targets) > 1:
@@ -56,7 +57,8 @@ class RPyLinter(PyLinter):
         target = targets[0]
         if not target.callable():
             raise Exception('non callable target')
-        # check target return 2 to 3 values : entry point, None (hum?) [, annotator policy]
+        # check target return 2 to 3 values :
+        #   entry point, None (hum?) [, annotator policy]
         returns = list(target.infer_call_result())
         if len(returns) > 1:
             raise Exception('target has more than one return')

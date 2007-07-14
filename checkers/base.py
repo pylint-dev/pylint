@@ -95,8 +95,8 @@ def report_by_type_stats(sect, stats, old_stats):
 
 MSGS = {
     'E0100': ('__init__ method is a generator',
-              'Used when the special class method __init__ is turned into a generator \
-              by a yield in its body.'),    
+              'Used when the special class method __init__ is turned into a '
+              'generator by a yield in its body.'),    
     'E0101': ('Explicit return in __init__',
               'Used when the special class method __init__ has an explicit \
               return value.'),    
@@ -106,12 +106,15 @@ MSGS = {
               'Used when break or continue keywords are used outside a loop.'),
 
     'E0104': ('return outside function',
-              'Used when a "return" statement is found outside a function or method.'),
+              'Used when a "return" statement is found outside a function or '
+              'method.'),
     'E0105': ('yield outside function',
-              'Used when a "yield" statement is found outside a function or method.'),
+              'Used when a "yield" statement is found outside a function or '
+              'method.'),
     'E0106': ('return with argument inside generator',
-              'Used when a "return" statement with an argument is found outside in a \
-              generator function or method (e.g. with some "yield" statements).'),
+              'Used when a "return" statement with an argument is found '
+              'outside in a generator function or method (e.g. with some '
+              '"yield" statements).'),
 
     'W0101': ('Unreachable code',
               'Used when there is some code behind a "return" or "raise" \
@@ -131,21 +134,22 @@ MSGS = {
               'Used when a statement is endend by a semi-colon (";"), which \
               isn\'t necessary (that\'s python, not C ;).'),
     'W0107': ('Unnecessary pass statement',
-              'Used when a "pass" statement that can be avoided is encountered.)'),
+              'Used when a "pass" statement that can be avoided is '
+              'encountered.)'),
 
     'W0122': ('Use of the exec statement',
               'Used when you use the "exec" statement, to discourage its \
               usage. That doesn\'t mean you can not use it !'),
     
     'W0141': ('Used builtin function %r',
-              'Used when a black listed builtin function is used (see the \
-              bad-function option). Usual black listed functions are the ones \
-              like map, or filter , where Python offers now some cleaner \
-              alternative like list comprehension.'),
+              'Used when a black listed builtin function is used (see the '
+              'bad-function option). Usual black listed functions are the ones '
+              'like map, or filter , where Python offers now some cleaner '
+              'alternative like list comprehension.'),
     'W0142': ('Used * or ** magic',
-              'Used when a function or method is called using `*args` or \
-              `**kwargs` to dispatch arguments. This doesn\'t improve readility\
-               and should be used with care.'),
+              'Used when a function or method is called using `*args` or '
+              '`**kwargs` to dispatch arguments. This doesn\'t improve '
+              'readability and should be used with care.'),
 
     'C0102': ('Black listed name "%s"',
               'Used when the name is listed in the black list (unauthorized \
@@ -392,7 +396,8 @@ functions, methods
                 if isinstance(retnode, astng.Return) and \
                        isinstance(retnode.value, astng.Const) and \
                        retnode.value.value is not None:
-                    self.add_message('E0106', node=node, line=retnode.fromlineno)
+                    self.add_message('E0106', node=node,
+                                     line=retnode.fromlineno)
             
     def visit_assname(self, node):
         """check module level assigned names"""

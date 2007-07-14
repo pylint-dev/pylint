@@ -291,8 +291,8 @@ class MessagesHandlerMixIn:
                 print title
                 print '-' * len(title)
                 if checker.__doc__: # __doc__ is None with -OO
-                    print linesep.join([line.strip()
-                                        for line in checker.__doc__.splitlines()])
+                    print linesep.join([l.strip()
+                                        for l in checker.__doc__.splitlines()])
                 if checker.options:
                     title = 'Options'
                     print title
