@@ -246,8 +246,12 @@ given file (report R0402 must not be disabled)'}
         basename = node.modname
         if basename == '__future__':
             # check this is the first non docstring statement in the module
-            if node.previous_sibling():
-                self.add_message('W0410', node=node)                    
+            prev = node.previous_sibling()
+            if prev:
+                # consecutive future statements are possible
+                if not(isinstance(prev, astng.From)
+                       and prev.modname == '__future__'):
+                    self.add_message('W0410', node=node)
         self._check_deprecated(node, basename)
         relative = self._check_relative(node, basename)
         for name, _ in node.names:
