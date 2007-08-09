@@ -4,9 +4,10 @@ ChangeLog for PyLint
 --
     * fix #3733: Messages (dis)appear depending on order of file names
     * fix #4026: pylint.el should require compile
-    * implement #4012: flag back tick as deprecated (new W0333 message)
+    * fix a bug in colorized reporter, spotted by Dave Borowitz
     * applied patch from Stefan Rank to avoid W0410 false positive when
       multiple "from __future__" import statements
+    * implement #4012: flag back tick as deprecated (new W0333 message)
 
 2007-06-07  --  0.13.2
     * fix disable-checker option so that it won't accidentally enable the

@@ -124,7 +124,7 @@ class ColorizedTextReporter(TextReporter):
         in self.color_mapping
         """
         try:
-            return self.color_mapping[msg_id]
+            return self.color_mapping[msg_id[0]]
         except KeyError:
             return None, None
 
