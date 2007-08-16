@@ -85,7 +85,7 @@ class InterfaceCantBeFound:
     def besilent(self):
         """public method 2/2"""
 
-class InterfaceCantBeFound2:
+class InterfaceCanNowBeFound:
     """docstring"""
     __implements__ = BadArgument.__implements__ + Correct2.__implements__
 

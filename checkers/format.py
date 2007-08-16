@@ -40,22 +40,22 @@ MSGS = {
               ),
 
     'W0311': ('Bad indentation. Found %s %s, expected %s',
-              'Used when an unexpected number of indentation\'s tabulations or\
-               spaces has been found.'),
+              'Used when an unexpected number of indentation\'s tabulations or '
+              'spaces has been found.'),
     'W0312': ('Found indentation with %ss instead of %ss',
               'Used when there are some mixed tabs and spaces in a module.'),
 
     'F0321': ('Format detection error in %r',
-              'Used when an unexpected error occured in bad format detection.\
-              Please report the error if it occurs.'),
+              'Used when an unexpected error occured in bad format detection.'
+              'Please report the error if it occurs.'),
     'C0321': ('More than one statement on a single line',
               'Used when more than on statement are found on the same line.'),
     'C0322': ('Operator not preceded by a space\n%s',
-              'Used when one of the following operator (!= | <= | == | >= | < \
-              | > | = | \+= | -= | \*= | /= | %) is not preceded by a space.'),
+              'Used when one of the following operator (!= | <= | == | >= | < '
+              '| > | = | \+= | -= | \*= | /= | %) is not preceded by a space.'),
     'C0323': ('Operator not followed by a space\n%s',
-              'Used when one of the following operator (!= | <= | == | >= | < \
-              | > | = | \+= | -= | \*= | /= | %) is not followed by a space.'),
+              'Used when one of the following operator (!= | <= | == | >= | < '
+              '| > | = | \+= | -= | \*= | /= | %) is not followed by a space.'),
     'C0324': ('Comma not followed by a space\n%s',
               'Used when a comma (",") is not followed by a space.'),
     
@@ -63,9 +63,12 @@ MSGS = {
               'Used when the deprecated "<>" operator is used instead \
               of "!=".'),
     'W0332': ('Use l as long integer identifier',
-              'Used when a lower case "l" is used to mark a long integer. You \
-should use a upper case "L" since the letter "l" looks too much like the digit \
-"1"'),
+              'Used when a lower case "l" is used to mark a long integer. You '
+              'should use a upper case "L" since the letter "l" looks too much '
+              'like the digit "1"'),
+    'W0333': ('Use of the `` operator',
+              'Used when the deprecated "``" (backtick) operator is used '
+              'instead  of the str() function.'),
     }
 
 # simple quoted string rgx
@@ -258,8 +261,9 @@ class FormatChecker(BaseRawChecker):
             # don't use .source_line since it causes C0321 false positive !
             prev_line = prev_sibl.fromlineno
             # discard discard nodes introducted by ending ";"
-            if isinstance(node, nodes.Discard) and isinstance(node.expr, nodes.Const) \
-                   and node.expr.lineno is None:
+            if isinstance(node, nodes.Discard) and \
+                   isinstance(node.expr, nodes.Const) and \
+                   node.expr.lineno is None:
                 prev_line = None
         else:
             # itou ?
@@ -291,6 +295,9 @@ class FormatChecker(BaseRawChecker):
             # FIXME: internal error !
             pass
 
+    def visit_backquote(self, node):
+        self.add_message('W0333', node=node)
+        
     def check_lines(self, lines, i):
         """check lines have less than a maximum number of characters
         """

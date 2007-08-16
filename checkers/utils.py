@@ -1,6 +1,6 @@
 # pylint: disable-msg=W0611
 #
-# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -71,11 +71,8 @@ def is_raising(stmt):
 
 def is_empty(node):
     """return true if the given node does nothing but 'pass'"""
-    for child_node in node.getChildNodes():
-        if isinstance(child_node, astng.Pass):
-            return True
-        else:
-            return False
+    children = node.getChildNodes()
+    return len(children) == 1 and isinstance(children[0], astng.Pass)
 
 builtins = __builtins__.copy()
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')

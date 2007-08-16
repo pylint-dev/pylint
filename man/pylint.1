@@ -1,4 +1,4 @@
-.TH pylint 1 "2006-8-10" pylint
+.TH pylint 1 "2007-3-6" pylint
 .SH NAME
 .B pylint 
 \- python code static checker
@@ -35,18 +35,22 @@ show this help message and exit
 .SH MASTER
 .IP "--rcfile=<file>"
 Specify a configuration file.
+.IP "--init-hook=<code>"
+Python code to execute, usually for sys.path manipulation such as pygtk.require().
+.IP "--rpython-mode"
+enable the rpython checker which is disabled by default
 .IP "--errors-only, -e"
 In debug mode, checkers without error messages are disabled and for others, only the ERROR messages are displayed, and no reports are done by default
 .IP "--profile=<y_or_n>"
-Profiled execution.
+Profiled execution. [current: %default]
 .IP "--ignore=<file>"
-Add <file or directory> to the black list. It should be a base name, not a path. You may set this option multiple times.
+Add <file or directory> to the black list. It should be a base name, not a path. You may set this option multiple times. [current: %default]
 .IP "--persistent=<y_or_n>"
-Pickle collected data for later comparisons.
+Pickle collected data for later comparisons. [current: %default]
 .IP "--cache-size=<size>"
-Set the cache size for astng objects.
+Set the cache size for astng objects. [current: %default]
 .IP "--load-plugins=<modules>"
-List of plugins (as comma separated values of python modules names) to load, usually to register additional checkers.
+List of plugins (as comma separated values of python modules names) to load, usually to register additional checkers. [current: %default]
 
 .SH COMMANDS
 .IP "--help-msg=<msg-id>"
@@ -73,18 +77,18 @@ Enable the message(s) with the given id(s).
 Disable the message(s) with the given id(s).
 
 .SH REPORTS
-.IP "--output-format=<format>, -f<format>"
-set the output format. Available formats are text,                 parseable, colorized and html
-.IP "--include-ids=<y_or_n>, -i<y_or_n>"
-Include message's id in output
+.IP "--output-format=<format>, -f <format>"
+set the output format. Available formats are text,                 parseable, colorized, msvs (visual studio) and html [current: %default]
+.IP "--include-ids=<y_or_n>, -i <y_or_n>"
+Include message's id in output [current: %default]
 .IP "--files-output=<y_or_n>"
-Put messages in a separate file for each module / package specified on the command line instead of printing them on stdout. Reports (if any) will be written in a file name "pylint_global.[txt|html]".
-.IP "--reports=<y_or_n>, -r<y_or_n>"
-Tells wether to display a full report or only the messages
+Put messages in a separate file for each module / package specified on the command line instead of printing them on stdout. Reports (if any) will be written in a file name "pylint_global.[txt|html]". [current: %default]
+.IP "--reports=<y_or_n>, -r <y_or_n>"
+Tells wether to display a full report or only the messages [current: %default]
 .IP "--evaluation=<python_expression>"
-Python expression which should return a note less than 10 (10 is the highest note).You have access to the variables errors warning, statement which respectivly contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004).
+Python expression which should return a note less than 10 (10 is the highest note).You have access to the variables errors warning, statement which respectivly contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004). [current: %default]
 .IP "--comment=<y_or_n>"
-Add a comment according to your evaluation note. This is used by the global evaluation report (R0004).
+Add a comment according to your evaluation note. This is used by the global evaluation report (R0004). [current: %default]
 .IP "--enable-report=<rpt ids>"
 Enable the report(s) with the given id(s).
 .IP "--disable-report=<rpt ids>"
@@ -92,105 +96,105 @@ Disable the report(s) with the given id(s).
 
 .SH BASIC
 .IP "--required-attributes=<attributes>"
-Required attributes for module, separated by a comma
+Required attributes for module, separated by a comma [current: %default]
 .IP "--no-docstring-rgx=<regexp>"
-Regular expression which should only match functions or classes name which do not require a docstring
+Regular expression which should only match functions or classes name which do not require a docstring [current: %default]
 .IP "--module-rgx=<regexp>"
-Regular expression which should only match correct module names
+Regular expression which should only match correct module names [current: %default]
 .IP "--const-rgx=<regexp>"
-Regular expression which should only match correct module level names
+Regular expression which should only match correct module level names [current: %default]
 .IP "--class-rgx=<regexp>"
-Regular expression which should only match correct class names
+Regular expression which should only match correct class names [current: %default]
 .IP "--function-rgx=<regexp>"
-Regular expression which should only match correct function names
+Regular expression which should only match correct function names [current: %default]
 .IP "--method-rgx=<regexp>"
-Regular expression which should only match correct method names
+Regular expression which should only match correct method names [current: %default]
 .IP "--attr-rgx=<regexp>"
-Regular expression which should only match correct instance attribute names
+Regular expression which should only match correct instance attribute names [current: %default]
 .IP "--argument-rgx=<regexp>"
-Regular expression which should only match correct argument names
+Regular expression which should only match correct argument names [current: %default]
 .IP "--variable-rgx=<regexp>"
-Regular expression which should only match correct variable names
+Regular expression which should only match correct variable names [current: %default]
 .IP "--inlinevar-rgx=<regexp>"
-Regular expression which should only match correct list comprehension / generator expression variable                           names
+Regular expression which should only match correct list comprehension / generator expression variable                           names [current: %default]
 .IP "--good-names=<names>"
-Good variable names which should always be accepted, separated by a comma
+Good variable names which should always be accepted, separated by a comma [current: %default]
 .IP "--bad-names=<names>"
-Bad variable names which should always be refused, separated by a comma
+Bad variable names which should always be refused, separated by a comma [current: %default]
 .IP "--bad-functions=<builtin function names>"
-List of builtins function names that should not be used, separated by a comma
+List of builtins function names that should not be used, separated by a comma [current: %default]
 
 .SH CLASSES
 .IP "--ignore-iface-methods=<method names>"
-List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class.
+List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class. [current: %default]
 .IP "--defining-attr-methods=<method names>"
-List of method names used to declare (i.e. assign) instance attributes.
+List of method names used to declare (i.e. assign) instance attributes. [current: %default]
 
 .SH DESIGN
 .IP "--max-args=<int>"
-Maximum number of arguments for function / method
+Maximum number of arguments for function / method [current: %default]
 .IP "--max-locals=<int>"
-Maximum number of locals for function / method body
+Maximum number of locals for function / method body [current: %default]
 .IP "--max-returns=<int>"
-Maximum number of return / yield for function / method body
+Maximum number of return / yield for function / method body [current: %default]
 .IP "--max-branchs=<int>"
-Maximum number of branch for function / method body
+Maximum number of branch for function / method body [current: %default]
 .IP "--max-statements=<int>"
-Maximum number of statements in function / method body
+Maximum number of statements in function / method body [current: %default]
 .IP "--max-parents=<num>"
-Maximum number of parents for a class (see R0901).
+Maximum number of parents for a class (see R0901). [current: %default]
 .IP "--max-attributes=<num>"
-Maximum number of attributes for a class (see R0902).
+Maximum number of attributes for a class (see R0902). [current: %default]
 .IP "--min-public-methods=<num>"
-Minimum number of public methods for a class (see R0903).
+Minimum number of public methods for a class (see R0903). [current: %default]
 .IP "--max-public-methods=<num>"
-Maximum number of public methods for a class (see R0904).
+Maximum number of public methods for a class (see R0904). [current: %default]
 
 .SH FORMAT
 .IP "--max-line-length=<int>"
-Maximum number of characters on a single line.
+Maximum number of characters on a single line. [current: %default]
 .IP "--max-module-lines=<int>"
-Maximum number of lines in a module
+Maximum number of lines in a module [current: %default]
 .IP "--indent-string=<string>"
-String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab).
+String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab). [current: %default]
 
 .SH IMPORTS
 .IP "--deprecated-modules=<modules>"
-Deprecated modules which should not be used, separated by a comma
+Deprecated modules which should not be used, separated by a comma [current: %default]
 .IP "--import-graph=<file.dot>"
-Create a graph of every (i.e. internal and external) dependencies in the given file (report R0402 must not be disabled)
+Create a graph of every (i.e. internal and external) dependencies in the given file (report R0402 must not be disabled) [current: %default]
 .IP "--ext-import-graph=<file.dot>"
-Create a graph of external dependencies in the given file (report R0402 must not be disabled)
+Create a graph of external dependencies in the given file (report R0402 must not be disabled) [current: %default]
 .IP "--int-import-graph=<file.dot>"
-Create a graph of internal dependencies in the given file (report R0402 must not be disabled)
+Create a graph of internal dependencies in the given file (report R0402 must not be disabled) [current: %default]
 
 .SH MISCELLANEOUS
 .IP "--notes=<comma separated values>"
-List of note tags to take in consideration, separated by a comma.
+List of note tags to take in consideration, separated by a comma. [current: %default]
 
 .SH SIMILARITIES
 .IP "--min-similarity-lines=<int>"
-Minimum lines number of a similarity.
+Minimum lines number of a similarity. [current: %default]
 .IP "--ignore-comments=<y or n>"
-Ignore comments when computing similarities.
+Ignore comments when computing similarities. [current: %default]
 .IP "--ignore-docstrings=<y or n>"
-Ignore docstrings when computing similarities.
+Ignore docstrings when computing similarities. [current: %default]
 
 .SH TYPECHECK
 .IP "--ignore-mixin-members=<y_or_n>"
-Tells wether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive).
+Tells wether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive). [current: %default]
 .IP "--zope=<y_or_n>"
-When zope mode is activated, consider the acquired-members option to ignore access to some undefined attributes.
+When zope mode is activated, consider the acquired-members option to ignore access to some undefined attributes. [current: %default]
 .IP "--acquired-members=<members names>"
-List of members which are usually get through zope's acquisition mecanism and so shouldn't trigger E0201 when accessed (need zope=yes to be considered).
+List of members which are usually get through zope's acquisition mecanism and so shouldn't trigger E0201 when accessed (need zope=yes to be considered). [current: %default]
 
 .SH VARIABLES
 .IP "--init-import=<y_or_n>"
-Tells wether we should check for unused import in __init__ files.
+Tells wether we should check for unused import in __init__ files. [current: %default]
 .IP "--dummy-variables-rgx=<regexp>"
-A regular expression matching names used                  for dummy variables (i.e. not used).
+A regular expression matching names used                  for dummy variables (i.e. not used). [current: %default]
 .IP "--additional-builtins=<comma separated list>"
-List of additional names supposed to be defined in builtins. Remember that you should avoid to define new builtins when possible.
+List of additional names supposed to be defined in builtins. Remember that you should avoid to define new builtins when possible. [current: %default]
 
 .SH ENVIRONMENT VARIABLES
 
@@ -198,12 +202,11 @@ The following environment variables are used :
     * PYLINTHOME                                                               
     path to the directory where data of persistent run will be stored. If not
 found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
-directory) . The current PYLINTHOME is /home/adim/.pylint.d.                    
+directory) . The current PYLINTHOME is /home/syt/.pylint.d.                    
     * PYLINTRC                                                                 
     path to the configuration file. If not found, it will use the first        
 existant file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
 None.                                                                 
-
 
 .SH OUTPUT
 
@@ -213,16 +216,15 @@ There are 5 kind of message types :
     * (C) convention, for programming standard violation                       
     * (R) refactor, for bad code smell                                         
     * (W) warning, for python specific problems                                
-    * (E) error, for much probably bugs in the code                                                
+    * (E) error, for much probably bugs in the code                            
     * (F) fatal, if an error occured which prevented pylint from doing further processing.     
         
-
 .SH SEE ALSO
 /usr/share/doc/pythonX.Y-pylint/
 
 .SH COPYRIGHT 
-Copyright (c) 2003-2006 Sylvain Thenault (thenault@gmail.com).
-Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+Copyright (c) 2003-2007 Sylvain Thenault (thenault@gmail.com).
+Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 This program is free software; you can redistribute it and/or modify 

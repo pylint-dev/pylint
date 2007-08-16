@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""functional/non regression tests for pylint
+"""functional/non regression tests for the rpython mode of pylint 
 """
 
 import unittest
@@ -43,13 +43,28 @@ from func_test import ulines, LintTestUsingFile
 class RLintTestUsingFile(LintTestUsingFile):            
     package = 'rpythoninput'
     linter = linter
-                
+    def setUp(self):
+        if sys.version_info[:2] != (2, 4):
+            self.skip('only python 2.4 supported for now')
+            
     def test_functionality(self):
         tocheck = ['rpythoninput/' + self.module + '.py']
         if self.depends:
             tocheck += ['rpythoninput/%s' % name for name, file in self.depends]
         self._test(tocheck)
 
+
+class TestTests(testlib.TestCase):
+    """check that all testable messages have been checked"""
+    def setUp(self):
+        if sys.version_info[:2] != (2, 4):
+            self.skip('only python 2.4 supported for now')
+            
+    def test(self):
+        # skip rpython checker messages
+        missing = [msgid for msgid in linter._messages.keys()
+                   if msgid[1:3] == '12' and not msgid in test_reporter.message_ids]
+        self.assertEqual(missing, [])
         
 def make_tests(filter_rgx):
     """generate tests classes from test info
@@ -73,6 +88,10 @@ def make_tests(filter_rgx):
             output = exists(messages_file + '2') and (messages_file + '2') or messages_file
             depends = dependancies or None
         tests.append(LintTestUsingFileTC)
+    
+    if not filter_rgx:
+        # test all features are tested :)    
+        tests.append(TestTests)
 
     return tests
 
@@ -91,6 +110,6 @@ if __name__=='__main__':
     if len(sys.argv) > 1:            
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    unittest.main(defaultTest='suite')
+    testlib.unittest_main(defaultTest='suite')
 
 

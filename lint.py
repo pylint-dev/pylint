@@ -43,7 +43,6 @@ from logilab.common.interface import implements
 from logilab.common.textutils import get_csv
 from logilab.common.fileutils import norm_open
 from logilab.common.ureports import Table, Text
-from logilab.common.compat import enumerate
 from logilab.common.__pkginfo__ import version as common_version
 
 from logilab.astng import ASTNGManager
@@ -54,8 +53,8 @@ from pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
 from pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker, EmptyReport, \
      table_lines_from_stats
-from pylint.reporters.text import TextReporter, TextReporter2, \
-     ColorizedTextReporter
+from pylint.reporters.text import TextReporter, ParseableTextReporter, \
+     VSTextReporter, ColorizedTextReporter
 from pylint.reporters.html import HTMLReporter
 from pylint import config
 
@@ -64,7 +63,8 @@ from pylint.__pkginfo__ import version
 
 OPTION_RGX = re.compile('\s*#*\s*pylint:(.*)')
 REPORTER_OPT_MAP = {'text': TextReporter,
-                    'parseable': TextReporter2,
+                    'parseable': ParseableTextReporter,
+                    'msvs': VSTextReporter,
                     'colorized': ColorizedTextReporter,
                     'html': HTMLReporter,}
 
@@ -81,6 +81,9 @@ MSGS = {
     'F0003': ('ignored builtin module %s',
               'Used to indicate that the user asked to analyze a builtin module\
               which has been skipped.'),
+    'F0004': ('unexpected infered value %s',
+              'Used to indicate that some value of an unexpected type has been \
+              infered.'),
     
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'Used to inform that a built-in module has not been checked \
@@ -137,14 +140,14 @@ should be a base name, not a path. You may set this option multiple times.'}),
                 {'type' : 'csv', 'metavar': '<checker ids>',
                  'group': 'Messages control',
                  'help' : 'Enable only checker(s) with the given id(s).\
-                 This option conflict with the disable-checker option'}),
+                 This option conflicts with the disable-checker option'}),
             
                ('disable-checker',
                 {'type' : 'csv', 'metavar': '<checker ids>',
                  'group': 'Messages control',
                  'help' : 'Enable all checker(s) except those with the \
                  given id(s).\
-                 This option conflict with the disable-checker option'}),
+                 This option conflicts with the enable-checker option'}),
                
                ('persistent',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
@@ -161,11 +164,11 @@ python modules names) to load, usually to register additional checkers.'}),
                
                ('output-format',
                 {'default': 'text', 'type': 'choice', 'metavar' : '<format>',
-                 'choices': ('text', 'parseable', 'colorized', 'html'),
+                 'choices': ('text', 'parseable', 'msvs', 'colorized', 'html'),
                  'short': 'f',
                  'group': 'Reports',
                  'help' : 'set the output format. Available formats are text,\
-                 parseable, colorized and html'}),
+                 parseable, colorized, msvs (visual studio) and html'}),
 
                ('include-ids',
                 {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
@@ -346,10 +349,11 @@ This is used by the global evaluation report (R0004).'}),
                 
     def enable_checkers(self, listed, enabled):
         """only enable/disable checkers from the given list"""
-        for checker in self._checkers.values():
-            if enabled and not checker.may_be_disabled:
-                continue
-            checker.enable(not enabled)
+        if enabled: # if we are activating a checker; deactivate them all first
+            for checker in self._checkers.values():
+                if not checker.may_be_disabled:
+                    continue
+                checker.enable(not enabled)
         for checkerid in listed:
             try:
                 checker = self._checkers[checkerid]
@@ -366,14 +370,15 @@ This is used by the global evaluation report (R0004).'}),
             if checker.name == 'miscellaneous':
                 checker.enable(False)
                 continue
-            if not checker.is_enabled():
-                continue
-            for msgid in getattr(checker, 'msgs', {}).keys():
-                if msgid[0] == 'E':
-                    checker.enable(True)
-                    break
-            else:
-                checker.enable(False)
+            # if checker is already explicitly disabled (e.g. rpython), don't
+            # enable it
+            if checker.enabled:
+                for msgid in getattr(checker, 'msgs', {}).keys():
+                    if msgid[0] == 'E':
+                        checker.enable(True)
+                        break
+                else:
+                    checker.enable(False)
                 
     # block level option handling #############################################
     #
@@ -449,15 +454,53 @@ This is used by the global evaluation report (R0004).'}),
         self.reporter.include_ids = self.config.include_ids
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
+        filemods = self.expand_files(files_or_modules)
         checkers = sort_checkers(self._checkers.values())
         rev_checkers = checkers[:]
         rev_checkers.reverse()
         # notify global begin
         for checker in checkers:
             checker.open()
+        # prebuild ast for all modules to check
+        for descr in filemods[:]:
+            modname, filepath = descr['name'], descr['path']
+            self.set_current_module(modname, filepath)
+            # get the module representation
+            try:
+                astng = self.get_astng(filepath, modname)
+            except SyntaxError, ex:
+                self.add_message('E0001', line=ex.lineno, args=ex.msg)
+                astng = None
+            if astng is None:
+                filemods.remove(descr)
+                continue
+            descr['astng'] = astng
         # check modules or packages        
+        for descr in filemods:
+            modname, filepath = descr['name'], descr['path']
+            astng = descr['astng']
+            self.base_name = descr['basename']
+            self.base_file = descr['basepath']
+            if self.config.files_output:
+                reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
+                self.reporter.set_output(open(reportfile, 'w'))
+            self.set_current_module(modname, filepath)
+            self._ignore_file = False
+            # fix the current file (if the source file was not available or
+            # if its actually a c extension
+            self.current_file = astng.file
+            self.check_astng_module(astng, checkers)
+        # notify global end
+        self.set_current_module('')
+        for checker in rev_checkers:
+            checker.close()
+
+    def expand_files(self, files_or_modules):
+        """take a list of files/modules/packages and return the list of tuple
+        (file, module name) which have to be actually checked
+        """
+        result = []
         for something in files_or_modules:
-            self.base_name = self.base_file = normpath(something)
             if exists(something):
                 # this is a file or a directory
                 try:
@@ -485,54 +528,18 @@ This is used by the global evaluation report (R0004).'}),
                     msg = str(ex).replace(os.getcwd() + os.sep, '')
                     self.add_message('F0001', args=msg)
                     continue
-            if self.config.files_output:
-                reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
-                self.reporter.set_output(open(reportfile, 'w'))
-            try:
-                self.check_file(filepath, modname, checkers)
-            except SyntaxError, ex:
-                self.add_message('E0001', line=ex.lineno, args=ex.msg)
-        # notify global end
-        self.set_current_module('')
-        for checker in rev_checkers:
-            checker.close()
-
-    def check_file(self, filepath, modname, checkers):
-        """check a module or package from its name
-        if modname is a package, recurse on its subpackages / submodules
-        """
-        # get the given module representation
-        self.base_name = modname
-        self.base_file = normpath(filepath)
-        # check this module
-        self._ignore_file = False
-        astng = self._check_file(filepath, modname, checkers)
-        if astng is None:
-            return
-        # recurse in package except if __init__ was explicitly given
-        if not modname.endswith('.__init__') and astng.package:
-            for filepath in get_module_files(dirname(filepath),
-                                             self.config.black_list):
-                if filepath == self.base_file:
-                    continue
-                modname = '.'.join(modpath_from_file(filepath))
-                self._check_file(filepath, modname, checkers)
-
-    def _check_file(self, filepath, modname, checkers):
-        """check a module by building its astng representation"""
-        self.set_current_module(modname, filepath)
-        # get the module representation
-        astng = self.get_astng(filepath, modname)
-        if astng is not None:
-            # set the base file if necessary
-            self.base_file = self.base_file or astng.file
-            # fix the current file (if the source file was not available or
-            # if its actually a c extension
-            self.current_file = astng.file
-            # and check it
-            if not self.check_astng_module(astng, checkers):
-                astng = None
-        return astng
+            filepath = normpath(filepath)
+            result.append( {'path': filepath, 'name': modname,
+                            'basepath': filepath, 'basename': modname} )
+            if not modname.endswith('.__init__') and '__init__.py' in filepath:
+                for subfilepath in get_module_files(dirname(filepath),
+                                                    self.config.black_list):
+                    if filepath == subfilepath:
+                        continue
+                    submodname = '.'.join(modpath_from_file(subfilepath))
+                    result.append( {'path': subfilepath, 'name': submodname,
+                                    'basepath': filepath, 'basename': modname} )
+        return result
         
     def set_current_module(self, modname, filepath=None):
         """set the name of the currently analyzed module and
@@ -740,22 +747,25 @@ def preprocess_options(args, search_for):
     values of <search_for> are callback functions to call when the option is
     found
     """
-    # Deleting from args on-the-fly while enumerating screws things up
-    # (indices get shifted, etc). To avoid problems, we create a list of
-    # indices to delete, and then do the deletions in reverse order after
-    # the argument processing has been completed.
-    to_del = []    
-    for i, arg in enumerate(args):
-        for option in search_for:
-            if arg.startswith('--%s=' % option):
-                search_for[option](option, arg[len(option)+3:])
-                to_del.append(i)
-            elif arg == '--%s' % option:
-                search_for[option](option, args[i + 1])
-                to_del.extend([i, i+1])
-    to_del.reverse()
-    for i in to_del:
-        del args[i]
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg.startswith('--'):
+            try:
+                option, val = arg[2:].split('=', 1)
+            except ValueError:
+                option, val = arg[2:], None
+            try:
+                cb, takearg = search_for[option]
+                del args[i]
+                if takearg and val is None:
+                    val = args[i]
+                    del args[i]
+                cb(option, val)
+            except KeyError:
+                i += 1
+        else:
+            i += 1
     
 class Run:
     """helper class to use as main for pylint :
@@ -771,18 +781,29 @@ group are mutually exclusive.'),
     def __init__(self, args, reporter=None, quiet=0):
         self._rcfile = None
         self._plugins = []
-        preprocess_options(args, {'rpython-mode': self.cb_rpython_mode,
-                                  'rcfile': self.cb_set_rcfile,
-                                  'load-plugins': self.cb_add_plugins})
+        preprocess_options(args, {
+            # option: (callback, takearg)
+            'rpython-mode': (self.cb_rpython_mode, False),
+            'rcfile':       (self.cb_set_rcfile, True),
+            'load-plugins': (self.cb_add_plugins, True),
+            })
         self.linter = linter = self.LinterClass((
             ('rcfile',
              {'action' : 'callback', 'callback' : lambda *args: 1,
               'type': 'string', 'metavar': '<file>',
               'help' : 'Specify a configuration file.'}),
             
+            ('init-hook',
+             {'action' : 'callback', 'type' : 'string', 'metavar': '<code>',
+              'callback' : cb_init_hook,
+              'help' : 'Python code to execute, usually for sys.path \
+manipulation such as pygtk.require().'}),
+            
             ('rpython-mode',
              {'action' : 'callback', 'callback' : lambda *args: 1,
-              'help' : 'Run into Restricted Python analysis mode.'}),
+              'help' : 'enable the rpython checker which is disabled by default'
+              }),
+             #'help' : 'Run into Restricted Python analysis mode.'}),
 
             ('help-msg',
              {'action' : 'callback', 'type' : 'string', 'metavar': '<msg-id>',
@@ -847,8 +868,8 @@ processing.
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter._config_parser
-        if config_parser.has_option('master', 'load-plugins'):
-            plugins = get_csv(config_parser.get('master', 'load-plugins'))
+        if config_parser.has_option('MASTER', 'load-plugins'):
+            plugins = get_csv(config_parser.get('MASTER', 'load-plugins'))
             linter.load_plugin_modules(plugins)
         # now we can load file config and command line, plugins (which can
         # provide options) have been registered
@@ -880,8 +901,10 @@ processing.
         sys.path.pop(0)
 
     def cb_rpython_mode(self, name, value):
-        from pylint.rlint import RPyLinter
-        self.LinterClass = RPyLinter
+        from pylint.checkers.rpython import RPythonChecker
+        RPythonChecker.enabled = True
+        #from pylint.rlint import RPyLinter
+        #self.LinterClass = RPyLinter
         
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (ie before optik parsing)"""
@@ -924,6 +947,10 @@ processing.
         """optik callback for printing available messages"""
         self.linter.list_messages()
         sys.exit(0)
+
+def cb_init_hook(option, opt_name, value, parser):
+    """exec arbitrary code to set sys.path for instance"""
+    exec value
 
 
 if __name__ == '__main__':

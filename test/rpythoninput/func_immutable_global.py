@@ -1,7 +1,8 @@
 GLOB = {}
 
 def function():
-    GLOB['key'] = "value"
+    v = GLOB
+    v['key'] = "value"
 
 def entry_point(argv):
     function()

@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -103,20 +103,41 @@ class LintTestUsingFile(LintTestUsingModule):
         self._test(tocheck)
 
 
-class TestTests(unittest.TestCase):
+class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
     def test(self):
-        todo = linter._messages.keys()
-        for msg_id in test_reporter.message_ids.keys():
-            todo.remove(msg_id)
+        # skip rpython checker and fatal messages
+        todo = [msgid for msgid in linter._messages.keys() if msgid[1:3] != '12' and msgid[0] != 'F']
+        for msgid in test_reporter.message_ids.keys():
+            try:
+                todo.remove(msgid)
+            except ValueError:
+                continue
         todo.sort()
         if PY25:
-            self.assertEqual(todo, ['E0503', 'E1010', 'F0002', 'F0202', 'F0321', 'I0001'])
+            self.assertEqual(todo, ['E0503', 'E1010', 'I0001'])
         elif PY23:
-            self.assertEqual(todo, ['E0503', 'F0002', 'F0202', 'F0321', 'I0001'])
+            self.assertEqual(todo, ['E0503', 'I0001'])
         else: # python < 2.3
-            self.assertEqual(todo, ['F0002', 'F0202', 'F0321', 'I0001'])
-        
+            self.assertEqual(todo, ['I0001'])
+
+#bycat = {}
+#for msgid in linter._messages.keys():
+#    bycat[msgid[0]] = bycat.setdefault(msgid[0], 0) + 1
+#for cat, val in bycat.items():
+#    print '%s: %s' % (cat, val)
+#print 'total', sum(bycat.values())
+#
+# on 2007/02/17:
+#
+# W: 48
+# E: 42
+# R: 15
+# C: 13
+# F: 7
+# I: 5
+# total 130
+
 def make_tests(filter_rgx):
     """generate tests classes from test info
     
@@ -191,6 +212,6 @@ if __name__=='__main__':
     if len(sys.argv) > 1:            
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    unittest.main(defaultTest='suite')
+    testlib.unittest_main(defaultTest='suite')
 
 

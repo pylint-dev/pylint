@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -17,6 +17,7 @@
 """
 from __future__ import generators
 
+from logilab.common.compat import set
 from logilab import astng
 
 from pylint.interfaces import IASTNGChecker
@@ -225,12 +226,21 @@ instance attributes.'}
         # check if the method overload an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
-            while not isinstance(overridden, astng.Class):
+            # we may be unable to get owner class if this is a monkey
+            # patched method
+            while overridden.parent and not isinstance(overridden, astng.Class):
                 overridden = overridden.parent.frame()
             self.add_message('E0202', args=overridden.name, node=node)
         except astng.NotFoundError:
             pass
-                
+        
+    pymethods = set(('__new__', '__init__',
+                     '__getattr__', '__setattr__',
+                     '__hash__', '__cmp__',
+                     '__mul__', '__div__', '__add__', '__sub__',
+                     '__rmul__', '__rdiv__', '__radd__', '__rsub__',
+                     # To be continued
+                     ))
     def leave_function(self, node):
         """on method node, check if this method couldn't be a function
         
@@ -243,7 +253,7 @@ instance attributes.'}
                 self._first_attrs.pop()
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
-                and node.name != '__init__'
+                and not node.name in self.pymethods
                 and not (node.is_abstract() or
                          overrides_a_method(class_node, node.name))
                 and class_node.type != 'interface'):
@@ -259,8 +269,8 @@ instance attributes.'}
         if self._first_attrs and isinstance(node.expr, astng.Name) and \
                node.expr.name == self._first_attrs[-1]:                
             self._accessed[-1].setdefault(attrname, []).append(node)
-        elif attrname[0] == '_' and not (attrname.startswith('__') and
-                                         attrname.endswith('__')):
+        elif attrname[0] == '_' and not attrname == '_' and not (
+             attrname.startswith('__') and attrname.endswith('__')):
             # XXX move this in a reusable function
             klass = node.frame()
             while klass is not None and not isinstance(klass, astng.Class):
@@ -271,8 +281,9 @@ instance attributes.'}
             # XXX infer to be more safe and less dirty ??
             # in classes, check we are not getting a parent method
             # through the class object or through super
-            if klass is None or not (
-                node.expr.as_string() in klass.basenames
+            callee = node.expr.as_string()
+            if klass is None or not (callee == klass.name or
+                callee in klass.basenames
                 or (isinstance(node.expr, astng.CallFunc)
                     and isinstance(node.expr.node, astng.Name) 
                     and node.expr.node.name == 'super')):
@@ -455,21 +466,21 @@ instance attributes.'}
                 continue
             self.add_message('W0231', args=klass.name, node=node)
 
-    def _check_signature(self, method1, method2, class_type):
+    def _check_signature(self, method1, refmethod, class_type):
         """check that the signature of the two given methods match
         
         class_type is in 'class', 'interface'
         """
         if not (isinstance(method1, astng.Function)
-                and isinstance(method2, astng.Function)):
-            self.add_message('F0202', args=(method1, method2), node=method1)
+                and isinstance(refmethod, astng.Function)):
+            self.add_message('F0202', args=(method1, refmethod), node=method1)
             return
         # don't care about functions with unknown argument (builtins)
-        if method1.argnames is None or method2.argnames is None:
+        if method1.argnames is None or refmethod.argnames is None:
             return
-        if len(method1.argnames) != len(method2.argnames):
+        if len(method1.argnames) != len(refmethod.argnames):
             self.add_message('W0221', args=class_type, node=method1)
-        elif len(method1.defaults) != len(method2.defaults):
+        elif len(method1.defaults) < len(refmethod.defaults):
             self.add_message('W0222', args=class_type, node=method1)
 
                         

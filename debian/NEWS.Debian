@@ -1,0 +1,10 @@
+pylint (0.13.2-2) unstable; urgency=low
+
+  * pylint.el is no longer installed for emacs, because it is not
+    compatible with emacs22 and has a large number of related bugs. It
+    will be reenabled in a future version, when all the bugs have been
+    dealt with by upstream (patches are welcome by the way).  Emacs21
+    users may get it from /usr/share/doc/pylint/examples/pylint.el
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Wed, 04 Jul 2007 12:18:23 +0200
+

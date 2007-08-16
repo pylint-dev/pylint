@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -354,12 +354,12 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_import(self, node):
         """check modules attribute accesses"""
         for name, _ in node.names:
-            name_parts = name.split('.')
+            parts = name.split('.')
             try:
                 module = node.infer_name_module(name_parts[0]).next()
             except astng.ResolveError:
                 continue
-            self._check_module_attrs(node, module, name_parts[1:])
+            self._check_module_attrs(node, module, parts[1:])
                                     
     def visit_from(self, node):
         """check modules attribute accesses"""

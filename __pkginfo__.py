@@ -1,5 +1,5 @@
 # pylint: disable-msg=W0622,C0103
-# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -18,12 +18,12 @@
 
 modname = 'pylint'
 
-numversion = (0, 12, 2)
+numversion = (0, 13, 2)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
-copyright = '''Copyright (c) 2003-2006 Sylvain Thenault (thenault@gmail.com).
-Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+copyright = '''Copyright (c) 2003-2007 Sylvain Thenault (thenault@gmail.com).
+Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
 short_desc = "python code static checker"
@@ -52,10 +52,12 @@ from os.path import join
 scripts = [join('bin', filename)
            for filename in ('pylint', 'pylint-gui', "symilar")]
 
-include_dirs = [join('test', 'input'), join('test', 'messages'),
+include_dirs = [join('test', 'input'),
+                join('test', 'messages'),
+                join('test', 'rpythonmessages'),
                 join('test', 'regrtest_data')]
 
-pyversions = ["2.3", "2.4"]
+pyversions = ["2.3", "2.4", "2.5"]
 
 debian_uploader = 'Alexandre Fayolle <afayolle@debian.org>'
 

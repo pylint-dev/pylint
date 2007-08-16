@@ -3,7 +3,7 @@ def function(attrname):
     # I'm free ...
     yield getattr(unicode, attrname)
     yield getattr(str, attrname)
-
+    
 def entry_point(argv):
     return 0
 

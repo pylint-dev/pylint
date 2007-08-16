@@ -106,8 +106,7 @@ Windows users may get valuable information about pylint installation on
 Note for Windows users
 ''''''''''''''''''''''
 
-On Windows, once you have installed pylint, the command line usage is
-::
+On Windows, once you have installed pylint, the command line usage is ::
 
   pylint.bat [options] module_or_package
 
@@ -592,9 +591,12 @@ http://www.gonzo.kiev.ua/projects/pylint.vim
 To use pylint from within komodo_, see
 http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/ 
 
+To use pylint from within gedit_, see
+http://live.gnome.org/Gedit/PylintPlugin
+
 .. _pydev: http://pydev.sourceforge.net
 .. _komodo: http://www.activestate.com/Products/Komodo/
-
+.. _gedit: http://www.gnome.org/projects/gedit/
 
 Some projects using Pylint
 --------------------------

@@ -6,7 +6,7 @@ class Abcd:
     '''dummy'''
     def __init__(self):
         self.aarg = False 
-    def abcd(self, aaa, bbbb=None):
+    def abcd(self, aaa=1, bbbb=None):
         """hehehe"""
         print self, aaa, bbbb
     def args(self):
@@ -19,6 +19,6 @@ class Cdef(Abcd):
         Abcd.__init__(self)
         self.aaa = aaa
 
-    def abcd(self, aaa=1, bbbb=None):
+    def abcd(self, aaa, bbbb=None):
         """hehehe"""
         print self, aaa, bbbb
