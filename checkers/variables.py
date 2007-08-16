@@ -356,7 +356,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         for name, _ in node.names:
             name_parts = name.split('.')
             try:
-                module = node.infer(name_parts[0], asname=False).next()
+                module = node.infer_name_module(name_parts[0]).next()
             except astng.ResolveError:
                 continue
             self._check_module_attrs(node, module, name_parts[1:])

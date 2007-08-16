@@ -366,6 +366,8 @@ This is used by the global evaluation report (R0004).'}),
             if checker.name == 'miscellaneous':
                 checker.enable(False)
                 continue
+            if not checker.is_enabled():
+                continue
             for msgid in getattr(checker, 'msgs', {}).keys():
                 if msgid[0] == 'E':
                     checker.enable(True)
