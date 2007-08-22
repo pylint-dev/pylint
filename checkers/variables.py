@@ -356,13 +356,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         for name, _ in node.names:
             parts = name.split('.')
             try:
-                context = astng.InferenceContext(node)
-                context.lookupname = parts[0]
-            except AttributeError:
-                # XXX bw compat
-                context = parts[0]
-            try:
-                module = node.infer(context, asname=False).next()
+                module = node.infer_name_module(parts[0]).next()
             except astng.ResolveError:
                 continue
             self._check_module_attrs(node, module, parts[1:])
