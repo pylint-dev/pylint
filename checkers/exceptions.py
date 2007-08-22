@@ -35,11 +35,11 @@ MSGS = {
     
     'W0701': ('Raising a string exception',
               'Used when a string exception is raised.'),
-    'W0702': ('No exception\'s type specified',
+    'W0702': ('No exception type(s) specified',
               'Used when an except clause doesn\'t specify exceptions type to \
               catch.'),
     'W0703': ('Catch "Exception"',
-              'Used when an except catch Exception instances.'),
+              'Used when an except catches Exception instances.'),
     'W0704': ('Except doesn\'t do anything',
               'Used when an except clause does nothing but "pass" and there is\
               no "else" clause.'),

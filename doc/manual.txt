@@ -397,8 +397,12 @@ Advanced usage
 Base configuration
 ------------------
 
+To be written...
+
 Environment
 -----------
+
+To be written...
 
 Messages control
 ----------------
