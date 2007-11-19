@@ -637,13 +637,14 @@ This is used by the global evaluation report (R0004).'}),
         
         if persistent run, pickle results for later comparison
         """
-        # load old results if any
-        old_stats = config.load_results(self.base_name)
-        if self.config.reports:
-            self.make_reports(self.stats, old_stats)
-        # save results if persistent run
-        if self.config.persistent:
-            config.save_results(self.stats, self.base_name)
+        if self.base_name is not None:
+            # load old results if any
+            old_stats = config.load_results(self.base_name)
+            if self.config.reports:
+                self.make_reports(self.stats, old_stats)
+            # save results if persistent run
+            if self.config.persistent:
+                config.save_results(self.stats, self.base_name)
             
     # specific reports ########################################################
         
