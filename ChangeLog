@@ -1,7 +1,7 @@
 ChangeLog for PyLint
 ====================
 
---
+2008-01-14  --  0.14.0
     * fix #3733: Messages (dis)appear depending on order of file names
     * fix #4026: pylint.el should require compile
     * fix a bug in colorized reporter, spotted by Dave Borowitz

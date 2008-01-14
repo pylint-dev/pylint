@@ -1,5 +1,5 @@
 # pylint: disable-msg=W0622,C0103
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -18,12 +18,12 @@
 
 modname = 'pylint'
 
-numversion = (0, 13, 2)
+numversion = (0, 14, 0)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
-copyright = '''Copyright (c) 2003-2007 Sylvain Thenault (thenault@gmail.com).
-Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+copyright = '''Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
+Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
 short_desc = "python code static checker"
