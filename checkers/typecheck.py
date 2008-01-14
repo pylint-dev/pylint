@@ -53,14 +53,21 @@ class TypeChecker(BaseChecker):
     msgs = MSGS
     priority = -1
     # configuration options
-    options = (
-               ('ignore-mixin-members',
+    options = (('ignore-mixin-members',
                 {'default' : True, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'Tells wether missing members accessed in mixin \
 class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
                 ),
-               
+
+               ('ignored-classes',
+                {'default' : ('SQLObject',),
+                 'type' : 'csv',
+                 'metavar' : '<members names>',
+                 'help' : 'List of classes names for which member attributes \
+should not be checked (useful for classes with attributes dynamicaly set).'}
+                 ),
+
                ('zope',
                 {'default' : False, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'When zope mode is activated, consider the \
@@ -109,6 +116,8 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
             if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
                 continue
             name = getattr(owner, 'name', 'None')
+            if name in self.config.ignored_classes:
+                continue
             if ignoremim and name[-5:].lower() == 'mixin':
                 continue
             try:

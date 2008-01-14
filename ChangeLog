@@ -8,7 +8,9 @@ ChangeLog for PyLint
     * applied patch from Stefan Rank to avoid W0410 false positive when
       multiple "from __future__" import statements
     * implement #4012: flag back tick as deprecated (new W0333 message)
-
+    * new ignored-class option on typecheck checker allowing to skip members
+      checking based on class name (patch provided by Thomas W Barr)
+	
 2007-06-07  --  0.13.2
     * fix disable-checker option so that it won't accidentally enable the
       rpython checker which is disabled by default
