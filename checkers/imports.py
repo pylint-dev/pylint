@@ -27,7 +27,7 @@ from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker, EmptyReport
 from pylint.checkers.utils import are_exclusive
 
-def get_first_import(context, name, base):
+def get_first_import(context, name, base, level=0):
     """return the node where [base.]<name> is imported or None if not found
     """
     for node in context.values():
@@ -35,7 +35,7 @@ def get_first_import(context, name, base):
             if name in [iname[0] for iname in node.names]:
                 return node
         if isinstance(node, astng.From):
-            if base == node.modname and \
+            if base == node.modname and level == node.level and \
                    name in [iname[0] for iname in node.names]:
                 return node
             
@@ -242,7 +242,7 @@ given file (report R0402 must not be disabled)'}
         
 
     def visit_from(self, node):
-        """triggered when an import statement is seen"""
+        """triggered when a from statement is seen"""
         basename = node.modname
         if basename == '__future__':
             # check this is the first non docstring statement in the module
@@ -253,24 +253,27 @@ given file (report R0402 must not be disabled)'}
                        and prev.modname == '__future__'):
                     self.add_message('W0410', node=node)
         self._check_deprecated(node, basename)
-        relative = self._check_relative(node, basename)
+        level = node.level
+        if level > 0: # explicit relative import (leading dots)
+            relative = True
+        else:
+            relative = self._check_relative(node, basename)
         for name, _ in node.names:
             if name == '*':
                 self.add_message('W0401', args=basename, node=node)
                 continue
             # handle reimport
-            self._check_reimport(node, name, basename)
+            self._check_reimport(node, name, basename, level)
             # analyze dependencies
-            fullname = '%s.%s' % (basename, name)
-            if fullname.find('.') > -1:
-                try:
-                    # XXXFIXME: don't use get_module_part which doesn't take
-                    # care of package precedence
-                    fullname = get_module_part(fullname,
-                                               context_file=node.root().file)
-                except ImportError, ex:
-                    self.add_message('F0401', args=(fullname, ex), node=node)
-                    continue            
+            fullname = '.' * level + '%s.%s' % (basename, name)
+            try:
+                # XXXFIXME: don't use get_module_part which doesn't take
+                # care of package precedence
+                fullname = get_module_part(fullname,
+                                           context_file=node.root().file)
+            except ImportError, ex:
+                self.add_message('F0401', args=(fullname, ex), node=node)
+                continue
             self._imported_module(node, fullname, relative)
         
     def _imported_module(self, node, mod_path, relative):
@@ -278,8 +281,15 @@ given file (report R0402 must not be disabled)'}
         """
         context_name = node.root().name
         if relative:
-            mod_path = '%s.%s' % ('.'.join(context_name.split('.')[:-1]),
-                                  mod_path)
+            context_parts = context_name.split('.')
+            if mod_path.startswith('.'):
+                while mod_path.startswith('.'):
+                    mod_path = mod_path[1:]
+                    del context_parts[-1] # one level upwards
+                context_parts.append(mod_path)
+            else:
+                context_parts[-1] = mod_path
+            mod_path = '.'.join(context_parts)
         if context_name == mod_path:
             # module importing itself !
             self.add_message('W0406', node=node)
@@ -311,11 +321,11 @@ given file (report R0402 must not be disabled)'}
                     or mod_path[len(mod_name)] == '.'):
                 self.add_message('W0402', node=node, args=mod_path)
     
-    def _check_reimport(self, node, name, basename=None):
+    def _check_reimport(self, node, name, basename=None, level=0):
         """check if the import is necessary (i.e. not already done)
         """
         frame = node.frame()
-        first = get_first_import(frame, name, basename)
+        first = get_first_import(frame, name, basename, level)
         if isinstance(first, (astng.Import, astng.From)) and first is not node \
                and not are_exclusive(first, node):
             self.add_message('W0404', node=node, args=(name, first.lineno))
