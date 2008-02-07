@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@ from logilab.common import testlib
 
 from utils import get_tests_info, fix_path, TestReporter
 
+from logilab.astng import MANAGER
 from pylint.lint import PyLinter
 from pylint import checkers
 
@@ -59,6 +60,8 @@ def exception_str(ex):
 class LintTestUsingModule(testlib.TestCase):            
     package = 'input'
     linter = linter
+    def setUp(self):
+        MANAGER.set_cache_size(200) # reset cache
     def test_functionality(self):
         tocheck = [self.package+'.'+self.module]
         if self.depends:
