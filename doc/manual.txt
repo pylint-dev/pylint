@@ -171,7 +171,7 @@ directory is automatically added on top of the python path ::
 will work if "directory" is a python package (i.e. has an __init__.py
 file) or if "directory" is in the python path.
 
-For more details on this see the FAQ_.
+For more details on this see the `Frequently Asked Questions`_.
 
 You can also start a thin gui around pylint (require TkInter) by
 typing ::

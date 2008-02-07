@@ -1,5 +1,5 @@
-Frequently Asked Questions / Usage tips for PyLint
-==================================================
+Frequently Asked Questions
+==========================
 
 
 Question:
