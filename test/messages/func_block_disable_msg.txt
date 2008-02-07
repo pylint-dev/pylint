@@ -6,4 +6,5 @@ E: 72:Foo.meth7: Instance of 'Foo' has no 'blip' member
 E: 75:Foo.meth7: Instance of 'Foo' has no 'blip' member
 E: 77:Foo.meth7: Instance of 'Foo' has no 'blip' member
 E: 83:Foo.meth8: Instance of 'Foo' has no 'blip' member
+E:102:Foo.meth9: Instance of 'Foo' has no 'blip' member
 W: 11:Foo.meth1: Unused argument 'arg'
