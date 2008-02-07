@@ -21,7 +21,7 @@ What is pylint?
 Pylint is a tool that checks for errors in python code, tries to
 enforce a coding standard and looks for smelling code . This is
 similar but nevertheless different from what pychecker_ provides,
-especially since pychecker explicitely does not bother with coding
+especially since pychecker explicitly does not bother with coding
 style. The default coding style used by pylint is close to 
 `Guido's style guide`_. For more information about code smells, refer
 to Martin Fowler's `refactoring book`_
@@ -41,7 +41,7 @@ be very motivating for programmers.
 Invoking pylint
 ---------------
 
-Pylint is meant to be called from the commant line. The usage is ::
+Pylint is meant to be called from the command line. The usage is ::
 
    pylint [options] module_or_package
 
@@ -51,7 +51,7 @@ your ``PYTHONPATH``, since it is a common error to analyze an
 installed version of a module instead of the development version.
 
 It is also possible to analyze python files, with a few
-restriction. The thing to keep in mind is that pylint will try to 
+restrictions. The thing to keep in mind is that pylint will try to 
 convert the file name to a module name, and only be able to process
 the file if it succeeds.  ::
 
@@ -130,13 +130,12 @@ Example (extracted from a run of pylint on itself...):
 Reports section
 ''''''''''''''' 
 
-Following the analysis message, pylint will display a set of report,
+Following the analysis message, pylint will display a set of reports,
 each one focusing on a particular aspect of the project, such as number
 of messages by categories, modules dependancies...
 
 For instance, the metrics report displays summaries gathered from the
-current 
-run. 
+current run. 
 
   * the number of processed modules
   * for each module, the percentage of errors and warnings
@@ -144,7 +143,7 @@ run.
   * percentage of classes, functions and modules with docstrings, and
     a comparison from the previous run 
   * percentage of classes, functions and modules with correct name
-  * (according the the coding standard), and a comparison from the
+    (according the the coding standard), and a comparison from the
     previous run 
   * a list of external dependencies found in the code, and where they appear
 

@@ -15,6 +15,9 @@ quickstart.html: ${SRC}/quickstart.txt
 manual.html: ${SRC}/manual.txt
 	${MKHTML} ${MKHTML_OPT} ${SRC}/manual.txt
 
+beginner_pylint_tutorial.html: ${SRC}/beginner_pylint_tutorial.txt
+	${MKHTML} ${MKHTML_OPT} ${SRC}/beginner_pylint_tutorial.txt
+
 features.html:
 	chmod u+w ${SRC}/features.txt
 	echo "PyLint features" > ${SRC}/features.txt

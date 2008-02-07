@@ -72,11 +72,11 @@ REPORTER_OPT_MAP = {'text': TextReporter,
     
 MSGS = {
     'F0001': ('%s',
-              'Used when an error occured preventing the analyzing of a \
+              'Used when an error occured preventing the analysis of a \
               module (unable to find it for instance).'),
     'F0002': ('%s: %s',
               'Used when an unexpected error occured while building the ASTNG \
-              representation. This is usually accomopagned by a traceback. \
+              representation. This is usually accompanied by a traceback. \
               Please report such errors !'),
     'F0003': ('ignored builtin module %s',
               'Used to indicate that the user asked to analyze a builtin module\
@@ -91,13 +91,13 @@ MSGS = {
     
     'I0010': ('Unable to consider inline option %r',
               'Used when an inline option is either badly formatted or can\'t \
-be used inside modules.'),
+              be used inside modules.'),
     
     'I0011': ('Locally disabling %s',
-              'Used when an inline option disable a message or a messages \
+              'Used when an inline option disables a message or a messages \
               category.'),
     'I0012': ('Locally enabling %s',
-              'Used when an inline option enable a message or a messages \
+              'Used when an inline option enables a message or a messages \
               category.'),
     'I0013': ('Ignoring entire file',
               'Used to inform that the file will not be checked'),
@@ -116,7 +116,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                BaseRawChecker):
     """lint Python modules using external checkers.                            
                                                                                
-    This is the main checker controling the other ones and the reports         
+    This is the main checker controlling the other ones and the reports         
     generation. It is itself both a raw checker and an astng checker in order  
     to:                                                                        
     * handle message activation / deactivation at the module level             
@@ -167,7 +167,7 @@ python modules names) to load, usually to register additional checkers.'}),
                  'choices': ('text', 'parseable', 'msvs', 'colorized', 'html'),
                  'short': 'f',
                  'group': 'Reports',
-                 'help' : 'set the output format. Available formats are text,\
+                 'help' : 'Set the output format. Available formats are text,\
                  parseable, colorized, msvs (visual studio) and html'}),
 
                ('include-ids',
@@ -196,7 +196,7 @@ Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
                  'default': '10.0 - ((float(5 * error + warning + refactor + \
 convention) / statement) * 10)', 
                  'help' : 'Python expression which should return a note less \
-than 10 (10 is the highest note).You have access to the variables errors \
+than 10 (10 is the highest note). You have access to the variables errors \
 warning, statement which respectivly contain the number of errors / warnings\
  messages and the total number of statements analyzed. This is used by the \
  global evaluation report (R0004).'}),
@@ -860,7 +860,7 @@ There are 5 kind of message types :
     * (C) convention, for programming standard violation                       
     * (R) refactor, for bad code smell                                         
     * (W) warning, for python specific problems                                
-    * (E) error, for much probably bugs in the code                            
+    * (E) error, for probable bugs in the code                            
     * (F) fatal, if an error occured which prevented pylint from doing further \
 processing.     
         ''')

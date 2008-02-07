@@ -103,7 +103,7 @@ The following environment variables are used :
     * PYLINTHOME                                                               
     path to the directory where data of persistent run will be stored. If not
 found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
-directory) . The current PYLINTHOME is %(PYLINT_HOME)s.                    
+directory) . The current PYLINTHOME is %(PYLINT_HOME)s.        
     * PYLINTRC                                                                 
     path to the configuration file. If not found, it will use the first        
 existant file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is

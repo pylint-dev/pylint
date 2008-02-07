@@ -4,3 +4,4 @@
 ^log$
 \.pyc$
 \.pyo$
+^build$

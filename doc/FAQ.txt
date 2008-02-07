@@ -71,7 +71,7 @@ Answer:
 
 
 Question:
-  When pylint is considering a class as an interface ?
+  When is pylint considering a class as an interface ?
 
 Answer:
   A class is considered as an interface if there is a class named
@@ -80,7 +80,7 @@ Answer:
 
 
 Question:
-  When pylint is considering that a class is implementing a given
+  When is pylint considering that a class is implementing a given
   interface ?
 
 Answer:
@@ -91,7 +91,7 @@ Answer:
 
 
 Question:
-  When pylint is considering a class as an abstract class ?
+  When is pylint considering a class as an abstract class ?
 
 Answer:
   A class is considered as an abstract class if at least one of its
@@ -114,7 +114,7 @@ Answer:
 
 
 Question:
-  I've a mixin class relying on attributes of the mixed class, and I
+  I have a mixin class relying on attributes of the mixed class, and I
   would like to not have the "access to undefined member" message on
   this class. Is it possible ?
 
@@ -126,8 +126,9 @@ Answer:
 
 
 Question:
-  Is it possible to locally disabling a particular message for a block
+  Is it possible to locally disable a particular message for a block
   of code or for a single line of code ?
+  
 Answer:
   Yes, this feature has been added in pylint 0.11. This may be done by
   adding "#pylint: disable-msg=W0123,E4567" at the desired block level
@@ -136,8 +137,8 @@ Answer:
 
 
 Question:
-  Where are stored persistent data necessary to make comparison between
-   to successive run ?
+  Where is the persistent data stored to make comparison between
+   two successive runs ?
 
 Answer:
   Analysis data are stored as pickle file in a directory which is 
@@ -158,7 +159,7 @@ Question:
 
 Answer:
   You can always generate a sample pylintrc file with --generate-rcfile
-  Every options present on the command line before this will be included in
+  Every option present on the command line before this will be included in
   the rc file
   
   For example::

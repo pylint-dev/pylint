@@ -25,18 +25,18 @@ What is pylint?
 ---------------
 
 Pylint is a tool that checks for errors in python code, tries to enforce a
-coding standard and looks for smelling code . This is similar but nevertheless
+coding standard and looks for smelling code. This is similar but nevertheless
 different from what pychecker_ provides, especially since pychecker explicitely
 does not bother with coding style. The default coding style used by pylint is
 close to `PEP 008`_ (aka `Guido's style guide`_). For more information about
 code smells, refer to Martin Fowler's `refactoring book`_
 
 One important thing to note is that Pylint isn't smarter than you are: it may
-warn you about things that you have consciensiously done. That's for example
+warn you about things that you have conscientiously done. That's for example
 because it tries to detect things that may be dangerous in a context, but maybe
 not in others, or because it checks for some things that you don't care
-about. Generally, you shouldn't expect to be pylint totally quiet about your
-code, so don't necessarily be alarmed if it give you a hell lot of messages for
+about. Generally, you shouldn't expect pylint to be totally quiet about your
+code, so don't necessarily be alarmed if it gives you a hell lot of messages for
 your proudly(XXX) project ;)
 
 Pylint will display a number of messages as it analyzes the code, as well as
@@ -147,7 +147,7 @@ directory on your system -- e.g. C:\Python24\Scripts\pylint.bat).
 Invoking pylint
 ---------------
 
-Pylint is meant to be called from the commant line. The usage is ::
+Pylint is meant to be called from the command line. The usage is ::
 
    pylint [options] module_or_package
 
@@ -163,8 +163,8 @@ the file if it succeeds.  ::
 
   pylint mymodule.py 
 
-should always works since the current working
-directory is automatically added on top  of the python path ::
+should always work since the current working
+directory is automatically added on top of the python path ::
 
   pylint directory/mymodule.py
 
@@ -234,13 +234,12 @@ Example (extracted from a run of pylint on itself...):
 
 Reports section
 ''''''''''''''' 
-Following the analysis message, pylint will display a set of report,
+Following the analysis message, pylint will display a set of reports,
 each one focusing on a particular aspect of the project, such as number
 of messages by categories, modules dependancies...
 
 For instance, the metrics report displays summaries gathered from the
-current 
-run. 
+current run. 
 
   * the number of processed modules
   * for each module, the percentage of errors and warnings
@@ -248,7 +247,7 @@ run.
   * percentage of classes, functions and modules with docstrings, and
     a comparison from the previous run 
   * percentage of classes, functions and modules with correct name
-  * (according the the coding standard), and a comparison from the
+    (according the the coding standard), and a comparison from the
     previous run 
   * a list of external dependencies found in the code, and where they appear
 
@@ -315,9 +314,9 @@ python makes it hard enough, it is not the case for warnings.
 :Quoting Alexandre:
   My usage pattern for pylint is to generally run pylint -e quite often to
   get stupid errors flagged before launching an application (or before
-  comitting). I generally run pyling whith the whole bells and whistles
+  comitting). I generally run pylint with all the bells and whistles
   activated some time before a release, when I want to cleanup the code.
-  And when I do that I simply ignore tons all the false warnings (and I
+  And when I do that I simply ignore tons of the false warnings (and I
   can do that without being driven mad by this dumb program which is not
   smart enough to understand the dynamicity of Python because I only run
   it once or twice a week in this mode)
@@ -356,7 +355,7 @@ lists.
 You can check for already reported bugs, planned features on pylint's tracker
 web page: http://www.logilab.org/project/name/pylint
 
-Notice that if you don't find something you have expected in the pylint's
+Notice that if you don't find something you have expected in pylint's
 tracker page, it may be on the tracker page of one of its dependancies, namely
 astng and common:
 
@@ -368,7 +367,7 @@ astng and common:
 Mailing lists
 -------------
 Use the python-projects@logilab.org mailing list for anything related
-to Pylint. This is in most case better than sending an email directly
+to Pylint. This is in most cases better than sending an email directly
 to the author, since others will benefit from the exchange, and you'll
 be more likely answered by someone subscribed to the list. This is a 
 moderated mailing list, so if you're not subscribed email you send will have to
@@ -521,9 +520,9 @@ Writing your own checker
 ------------------------
 You can find some simple examples in the examples
 directory of the distribution (custom.py and custom_raw.py). I'll try to
-quickly explain the essential here.
+quickly explain the essentials here.
 
-First, there is two kinds of checker :
+First, there are two kinds of checkers :
 * raw checkers, which are analysing each module as a raw file stream
 * ast checkers, which are working on an ast representation of the module
 
@@ -532,7 +531,7 @@ standard python distribution in the `compiler package`_. The extension
 adds additional information and methods on the tree nodes to ease
 navigation and code introspection.
 
-An AST checker is a visitor, and should implements
+An AST checker is a visitor, and should implement
 visit_<lowered class name>
 leave_<lowered class name>
 methods for the nodes it's interested in. To get description of the different
@@ -554,7 +553,7 @@ ask for any information on the python-projects mailing list.
 
 Contribute !
 ------------
-All our softwares are developped using the mercurial_ version control
+All our software is developped using the mercurial_ version control
 system. This is a very cool distributed vcs and its usage is very similar to
 other ones such as cvs or subversion (though the distributed feature introduced
 some different usage patterns). See mercurial home page for installation on
