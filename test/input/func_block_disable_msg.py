@@ -86,6 +86,20 @@ class Foo(object):
         print self.bla
         print self.blop 
 
+    def meth9(self):
+        """test re-enabling right after a block with whitespace"""
+        eris = 5
+
+        if eris:
+            print ("In block")
+
+        # pylint: disable-msg=E1101
+        # no error
+        print self.bla
+        print self.blu
+        # pylint: enable-msg=E1101
+        # error
+        print self.blip
 
 class ClassLevelMessage(object):
     """should'nt display to much attributes/not enough methods messages

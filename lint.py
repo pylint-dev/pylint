@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2007 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -426,18 +426,18 @@ This is used by the global evaluation report (R0004).'}),
         # recurse on children (depth first)
         for child in node.getChildNodes():
             self.collect_block_lines(child, msg_state)            
+        first = node.source_line()
+        last = node.last_source_line()
         for msgid, lines in msg_state.items():
-            #if msg in self._module_msgs_state:
-            #    continue
             for lineno, state in lines.items():
-                first = node.source_line()
-                last = node.last_source_line()
-                if lineno >= first and lineno <= last:
+                if first <= lineno <= last:
                     # set state for all lines for this block
                     first, last = node.block_range(lineno)
-                    for line in xrange(first, last+1):
+                    for line in xrange(first, last+1):                        
                         # do not override existing entries
                         if not line in self._module_msgs_state.get(msgid, ()):
+                            if line in lines: # state change in the same block
+                                state = lines[line] 
                             try:
                                 self._module_msgs_state[msgid][line] = state
                             except KeyError:
@@ -592,7 +592,6 @@ This is used by the global evaluation report (R0004).'}),
             orig_state = self._module_msgs_state.copy()
             self._module_msgs_state = {}
             self.collect_block_lines(astng, orig_state)
-
             for checker in checkers:
                 if implements(checker, IRawChecker) and checker is not self:
                     stream.seek(0)
