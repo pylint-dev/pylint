@@ -1,4 +1,4 @@
-.TH pylint 1 "2007-3-6" pylint
+.TH pylint 1 "2008-1-14" pylint
 .SH NAME
 .B pylint 
 \- python code static checker
@@ -64,9 +64,9 @@ Generate pylint's man page.
 
 .SH MESSAGES CONTROL
 .IP "--enable-checker=<checker ids>"
-Enable only checker(s) with the given id(s).                 This option conflict with the disable-checker option
+Enable only checker(s) with the given id(s).                 This option conflicts with the disable-checker option
 .IP "--disable-checker=<checker ids>"
-Enable all checker(s) except those with the                  given id(s).                 This option conflict with the disable-checker option
+Enable all checker(s) except those with the                  given id(s).                 This option conflicts with the enable-checker option
 .IP "--enable-msg-cat=<msg cats>"
 Enable all messages in the listed categories.
 .IP "--disable-msg-cat=<msg cats>"
@@ -183,6 +183,8 @@ Ignore docstrings when computing similarities. [current: %default]
 .SH TYPECHECK
 .IP "--ignore-mixin-members=<y_or_n>"
 Tells wether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive). [current: %default]
+.IP "--ignored-classes=<members names>"
+List of classes names for which member attributes should not be checked (useful for classes with attributes dynamicaly set). [current: %default]
 .IP "--zope=<y_or_n>"
 When zope mode is activated, consider the acquired-members option to ignore access to some undefined attributes. [current: %default]
 .IP "--acquired-members=<members names>"
@@ -223,8 +225,8 @@ There are 5 kind of message types :
 /usr/share/doc/pythonX.Y-pylint/
 
 .SH COPYRIGHT 
-Copyright (c) 2003-2007 Sylvain Thenault (thenault@gmail.com).
-Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
+Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 This program is free software; you can redistribute it and/or modify 

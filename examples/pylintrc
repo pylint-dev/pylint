@@ -35,12 +35,12 @@ load-plugins=
 
 [MESSAGES CONTROL]
 
-# Enable only checker(s) with the given id(s). This option conflict with the
+# Enable only checker(s) with the given id(s). This option conflicts with the
 # disable-checker option
 #enable-checker=
 
-# Enable all checker(s) except those with the given id(s). This option conflict
-# with the disable-checker option
+# Enable all checker(s) except those with the given id(s). This option
+# conflicts with the enable-checker option
 #disable-checker=
 
 # Enable all messages in the listed categories.
@@ -155,6 +155,10 @@ bad-functions=map,filter,apply,input
 # Tells wether missing members accessed in mixin class should be ignored. A
 # mixin class is detected if its name ends with "mixin" (case insensitive).
 ignore-mixin-members=yes
+
+# List of classes names for which member attributes should not be checked
+# (useful for classes with attributes dynamicaly set).
+ignored-classes=SQLObject
 
 # When zope mode is activated, consider the acquired-members option to ignore
 # access to some undefined attributes.
