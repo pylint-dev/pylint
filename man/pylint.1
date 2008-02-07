@@ -1,4 +1,4 @@
-.TH pylint 1 "2008-1-14" pylint
+.TH pylint 1 "2008-2-7" pylint
 .SH NAME
 .B pylint 
 \- python code static checker
@@ -78,7 +78,7 @@ Disable the message(s) with the given id(s).
 
 .SH REPORTS
 .IP "--output-format=<format>, -f <format>"
-set the output format. Available formats are text,                 parseable, colorized, msvs (visual studio) and html [current: %default]
+Set the output format. Available formats are text,                 parseable, colorized, msvs (visual studio) and html [current: %default]
 .IP "--include-ids=<y_or_n>, -i <y_or_n>"
 Include message's id in output [current: %default]
 .IP "--files-output=<y_or_n>"
@@ -86,7 +86,7 @@ Put messages in a separate file for each module / package specified on the comma
 .IP "--reports=<y_or_n>, -r <y_or_n>"
 Tells wether to display a full report or only the messages [current: %default]
 .IP "--evaluation=<python_expression>"
-Python expression which should return a note less than 10 (10 is the highest note).You have access to the variables errors warning, statement which respectivly contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004). [current: %default]
+Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectivly contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004). [current: %default]
 .IP "--comment=<y_or_n>"
 Add a comment according to your evaluation note. This is used by the global evaluation report (R0004). [current: %default]
 .IP "--enable-report=<rpt ids>"
@@ -204,7 +204,7 @@ The following environment variables are used :
     * PYLINTHOME                                                               
     path to the directory where data of persistent run will be stored. If not
 found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
-directory) . The current PYLINTHOME is /home/syt/.pylint.d.                    
+directory) . The current PYLINTHOME is /home/syt/.pylint.d.        
     * PYLINTRC                                                                 
     path to the configuration file. If not found, it will use the first        
 existant file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
@@ -218,7 +218,7 @@ There are 5 kind of message types :
     * (C) convention, for programming standard violation                       
     * (R) refactor, for bad code smell                                         
     * (W) warning, for python specific problems                                
-    * (E) error, for much probably bugs in the code                            
+    * (E) error, for probable bugs in the code                            
     * (F) fatal, if an error occured which prevented pylint from doing further processing.     
         
 .SH SEE ALSO

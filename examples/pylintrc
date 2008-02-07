@@ -1,6 +1,6 @@
 # lint Python modules using external checkers.
 # 
-# This is the main checker controling the other ones and the reports
+# This is the main checker controlling the other ones and the reports
 # generation. It is itself both a raw checker and an astng checker in order
 # to:
 # * handle message activation / deactivation at the module level
@@ -58,7 +58,7 @@ load-plugins=
 
 [REPORTS]
 
-# set the output format. Available formats are text, parseable, colorized, msvs
+# Set the output format. Available formats are text, parseable, colorized, msvs
 # (visual studio) and html
 output-format=text
 
@@ -74,7 +74,7 @@ files-output=no
 reports=yes
 
 # Python expression which should return a note less than 10 (10 is the highest
-# note).You have access to the variables errors warning, statement which
+# note). You have access to the variables errors warning, statement which
 # respectivly contain the number of errors / warnings messages and the total
 # number of statements analyzed. This is used by the global evaluation report
 # (R0004).

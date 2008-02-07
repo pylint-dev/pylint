@@ -4,7 +4,7 @@ MKHTML_OPT=--doctype article --param toc.section.depth=1 --target html --stylesh
 SRC=.
 
 
-all: manual.html quickstart.html features.html FAQ.html examples man
+all: manual.html quickstart.html features.html FAQ.html beginner_pylint_tutorial.html examples man
 
 FAQ.html: ${SRC}/FAQ.txt
 	${MKHTML} ${MKHTML_OPT} ${SRC}/FAQ.txt
@@ -12,7 +12,7 @@ FAQ.html: ${SRC}/FAQ.txt
 quickstart.html: ${SRC}/quickstart.txt
 	${MKHTML} ${MKHTML_OPT} ${SRC}/quickstart.txt
 
-manual.html: ${SRC}/manual.txt
+manual.html: ${SRC}/manual.txt ${SRC}/FAQ.txt
 	${MKHTML} ${MKHTML_OPT} ${SRC}/manual.txt
 
 beginner_pylint_tutorial.html: ${SRC}/beginner_pylint_tutorial.txt

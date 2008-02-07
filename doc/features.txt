@@ -20,7 +20,7 @@ General options
 :ignore:
   Add <file or directory> to the black list. It should be a base name, not a
   path. You may set this option multiple times.
-  Default: CSV
+  Default: CVS
 :persistent:
   Pickle collected data for later comparisons.
   Default: yes
@@ -65,7 +65,7 @@ Messages control options
 Reports options
 ~~~~~~~~~~~~~~~
 :output-format:
-  set the output format. Available formats are text, parseable, colorized, msvs
+  Set the output format. Available formats are text, parseable, colorized, msvs
   (visual studio) and html
   Default: text
 :include-ids:
@@ -79,7 +79,7 @@ Reports options
   Default: yes
 :evaluation:
   Python expression which should return a note less than 10 (10 is the highest
-  note).You have access to the variables errors warning, statement which
+  note). You have access to the variables errors warning, statement which
   respectivly contain the number of errors / warnings messages and the total
   number of statements analyzed. This is used by the global evaluation report
   (R0004).
@@ -107,17 +107,17 @@ Main messages
   Used when an inline option is either badly formatted or can't be used inside
   modules.
 :I0011: *Locally disabling %s*
-  Used when an inline option disable a message or a messages category.
+  Used when an inline option disables a message or a messages category.
 :I0012: *Locally enabling %s*
-  Used when an inline option enable a message or a messages category.
+  Used when an inline option enables a message or a messages category.
 :I0013: *Ignoring entire file*
   Used to inform that the file will not be checked
 :F0001:
-  Used when an error occured preventing the analyzing of a module (unable to
-  find it for instance).
+  Used when an error occured preventing the analysis of a module (unable to find
+  it for instance).
 :F0002: *%s: %s*
   Used when an unexpected error occured while building the ASTNG representation.
-  This is usually accomopagned by a traceback. Please report such errors !
+  This is usually accompanied by a traceback. Please report such errors !
 :F0003: *ignored builtin module %s*
   Used to indicate that the user asked to analyze a builtin module which has
   been skipped.
@@ -225,7 +225,7 @@ Messages
   Used when a statement is endend by a semi-colon (";"), which isn't necessary
   (that's python, not C ;).
 :W0107: *Unnecessary pass statement*
-  Used when a "pass" statement that can be avoided is encountered.
+  Used when a "pass" statement that can be avoided is encountered.)
 :W0122: *Use of the exec statement*
   Used when you use the "exec" statement, to discourage its usage. That doesn't
   mean you can not use it !
@@ -274,24 +274,24 @@ Options
   When zope mode is activated, consider the acquired-members option to ignore
   access to some undefined attributes.
 :acquired-members:
-  List of members which usually get through zope's acquisition mecanism and
+  List of members which are usually get through zope's acquisition mecanism and
   so shouldn't trigger E0201 when accessed (need zope=yes to be considered).
   Default: REQUEST,acl_users,aq_parent
 
 Messages
 ~~~~~~~~
 :E1101: *%s %r has no %r member*
-  Used when a variable is accessed for an nonexistent member.
+  Used when a variable is accessed for an unexistant member.
 :E1102: *%s is not callable*
-  Used when an object being called has been inferred to a non callable object
+  Used when an object being called has been infered to a non callable object
 :E1103: *%s %r has no %r member (but some types could not be inferred)*
-  Used when a variable is accessed for an nonexistent member, but astng was not
+  Used when a variable is accessed for an unexistant member, but astng was not
   able to interpret all possible types of this variable.
 :E1111: *Assigning to function call which doesn't return*
-  Used when an assigment is done on a function call but the inferred function
+  Used when an assigment is done on a function call but the infered function
   doesn't return anything.
 :W1111: *Assigning to function call which only returns None*
-  Used when an assigment is done on a function call but the inferred function
+  Used when an assigment is done on a function call but the infered function
   returns nothing but None.
 
 
@@ -312,12 +312,12 @@ Options
   Default: _|dummy
 :additional-builtins:
   List of additional names supposed to be defined in builtins. Remember that
-  you should avoid defining new builtins when possible.
+  you should avoid to define new builtins when possible.
 
 Messages
 ~~~~~~~~
 :E0601: *Using variable %r before assignment*
-  Used when a local variable is accessed before its assignment.
+  Used when a local variable is accessed before it's assignment.
 :E0602: *Undefined variable %r*
   Used when an undefined variable is accessed.
 :E0611: *No name %r in module %r*
@@ -327,13 +327,13 @@ Messages
   variable is not defined in the module scope.
 :W0602: *Using global for %r but no assigment is done*
   Used when a variable is defined through the "global" statement but no
-  assignment to this variable is done.
+  assigment to this variable is done.
 :W0603: *Using the global statement*
   Used when you use the "global" statement to update a global variable. PyLint
-  just tries to discourage this usage. That doesn't mean you can not use it !
+  just try to discourage this usage. That doesn't mean you can not use it !
 :W0604: *Using the global statement at the module level*
   Used when you use the "global" statement at the module level since it has no
-  effect.
+  effect
 :W0611: *Unused import %s*
   Used when an imported module or variable is not used.
 :W0612: *Unused variable %r*
@@ -344,40 +344,162 @@ Messages
   Used when an imported module or variable is not used from a 'from X import *'
   style import.
 :W0621: *Redefining name %r from outer scope (line %s)*
-  Used when a variable's name hides a name defined in the outer scope.
+  Used when a variable's name hide a name defined in the outer scope.
 :W0622: *Redefining built-in %r*
-  Used when a variable or function overrides a built-in.
+  Used when a variable or function override a built-in.
 :W0631: *Using possibly undefined loop variable %r*
-  Used when a loop variable (i.e. defined by a for loop or a list comprehension
+  Used when an loop variable (i.e. defined by a for loop or a list comprehension
   or a generator expression) is used outside the loop.
 
 
-Newstyle checker
-----------------
-checks for usage of new style capabilities on old style classes and
-other new/old styles conflicts problems
-* use of property, __slots__, super
-* "super" usage
-* raising a new style class as exception
+Classes checker
+---------------
+checks for :
+* methods without self as first argument
+* overridden methods signature
+* access only to existant members via self
+* attributes not defined in the __init__ method
+* supported interfaces implementation
+* unreachable code
+
+Options
+~~~~~~~
+:ignore-iface-methods:
+  List of interface methods to ignore, separated by a comma. This is used for
+  instance to not check methods defines in Zope's Interface base class.
+  Default: isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
+:defining-attr-methods:
+  List of method names used to declare (i.e. assign) instance attributes.
+  Default: __init__,__new__,setUp
 
 Messages
 ~~~~~~~~
-:E1001: *Use __slots__ on an old style class*
-  Used when an old style class use the __slots__ attribute.
-:E1002: *Use super on an old style class*
-  Used when an old style class use the super builtin.
-:E1003: *Bad first argument %r given to super class*
-  Used when another argument than the current class is given as first argument
-  of the super builtin.
-:E1010: *Raising a new style class*
-  Used when a new style class is raised since it's not possible with python <
-  2.5.
-:W1001: *Use of "property" on an old style class*
-  Used when PyLint detect the use of the builtin "property" on an old style
-  class while this is relying on new style classes features
-:W1010: *Exception doesn't inherit from standard "Exception" class*
-  Used when a custom exception class is raised but doesn't inherit from the
-  builtin "Exception" class.
+:E0202: *An attribute inherited from %s hide this method*
+  Used when a class defines a method which is hiden by an instance attribute
+  from an ancestor class.
+:E0203: *Access to member %r before its definition line %s*
+  Used when an instance member is accessed before it's actually assigned.
+:E0211: *Method has no argument*
+  Used when a method which should have the bound instance as first argument has
+  no argument defined.
+:E0213: *Method should have "self" as first argument*
+  Used when a method has an attribute different the "self" as first argument.
+  This is considered as an error since this is a soooo common convention that
+  you should'nt break it!
+:E0221: *Interface resolved to %s is not a class*
+  Used when a class claims to implement an interface which is not a class.
+:E0222: *Missing method %r from %s interface*
+  Used when a method declared in an interface is missing from a class
+  implementing this interface
+:W0201: *Attribute %r defined outside __init__*
+  Used when an instance attribute is defined outside the __init__ method.
+:W0211: *Static method with %r as first argument*
+  Used when a static method has "self" or "cls" as first argument.
+:W0212: *Access to a protected member %s of a client class*
+  Used when a protected member (i.e. class member with a name beginning with an
+  underscore) is access outside the class or a descendant of the class where
+  it's defined.
+:W0221: *Arguments number differs from %s method*
+  Used when a method has a different number of arguments than in the implemented
+  interface or in an overridden method.
+:W0222: *Signature differs from %s method*
+  Used when a method signature is different than in the implemented interface or
+  in an overridden method.
+:W0223: *Method %r is abstract in class %r but is not overridden*
+  Used when an abstract method (ie raise NotImplementedError) is not overridden
+  in concrete class.
+:W0231: *__init__ method from base class %r is not called*
+  Used when an ancestor class method has an __init__ method which is not called
+  by a derived class.
+:W0232: *Class has no __init__ method*
+  Used when a class has no __init__ method, neither its parent classes.
+:W0233: *__init__ method from a non direct base class %r is called*
+  Used when an __init__ method is called on a class which is not in the direct
+  ancestors for the analysed class.
+:R0201: *Method could be a function*
+  Used when a method doesn't use its bound instance, and so could be written as
+  a function.
+:C0202: *Class method should have "cls" as first argument*
+  Used when a class method has an attribute different than "cls" as first
+  argument, to easily differentiate them from regular instance methods.
+:C0203: *Metaclass method should have "mcs" as first argument*
+  Used when a metaclass method has an attribute different the "mcs" as first
+  argument.
+:F0202: *Unable to check methods signature (%s / %s)*
+  Used when PyLint has been unable to check methods signature compatibility for
+  an unexpected raison. Please report this kind if you don't make sense of it.
+:F0220: *failed to resolve interfaces implemented by %s (%s)*
+  Used when a PyLint as failed to find interfaces implemented by a class
+
+
+Design checker
+--------------
+checks for sign of poor/misdesign:
+* number of methods, attributes, local variables...
+* size, complexity of functions, methods
+
+Options
+~~~~~~~
+:max-args:
+  Maximum number of arguments for function / method
+  Default: 5
+:max-locals:
+  Maximum number of locals for function / method body
+  Default: 15
+:max-returns:
+  Maximum number of return / yield for function / method body
+  Default: 6
+:max-branchs:
+  Maximum number of branch for function / method body
+  Default: 12
+:max-statements:
+  Maximum number of statements in function / method body
+  Default: 50
+:max-parents:
+  Maximum number of parents for a class (see R0901).
+  Default: 7
+:max-attributes:
+  Maximum number of attributes for a class (see R0902).
+  Default: 7
+:min-public-methods:
+  Minimum number of public methods for a class (see R0903).
+  Default: 2
+:max-public-methods:
+  Maximum number of public methods for a class (see R0904).
+  Default: 20
+
+Messages
+~~~~~~~~
+:R0901: *Too many ancestors (%s/%s)*
+  Used when class has too many parent classes, try to reduce this to get a more
+  simple (and so easier to use) class.
+:R0902: *Too many instance attributes (%s/%s)*
+  Used when class has too many instance attributes, try to reduce this to get a
+  more simple (and so easier to use) class.
+:R0903: *Too few public methods (%s/%s)*
+  Used when class has too few public methods, so be sure it's really worth it.
+:R0904: *Too many public methods (%s/%s)*
+  Used when class has too many public methods, try to reduce this to get a more
+  simple (and so easier to use) class.
+:R0911: *Too many return statements (%s/%s)*
+  Used when a function or method has too many return statement, making it hard
+  to follow.
+:R0912: *Too many branches (%s/%s)*
+  Used when a function or method has too many branches, making it hard to
+  follow.
+:R0913: *Too many arguments (%s/%s)*
+  Used when a function or method takes too many arguments.
+:R0914: *Too many local variables (%s/%s)*
+  Used when a function or method has too many local variables.
+:R0915: *Too many statements (%s/%s)*
+  Used when a function or method has too many statements. You should then split
+  it in smaller functions / methods.
+:R0921: *Abstract class not referenced*
+  Used when an abstract class is not used as ancestor anywhere.
+:R0922: *Abstract class is only referenced %s times*
+  Used when an abstract class is used less than X times as ancestor.
+:R0923: *Interface not implemented*
+  Used when an interface class is not implemented anywhere.
 
 
 Imports checker
@@ -429,154 +551,32 @@ Reports
 :R0402: Modules dependencies graph
 
 
-Classes checker
----------------
-checks for :
-* methods without self as first argument
-* overridden methods signature
-* access only to existent members via self
-* attributes not defined in the __init__ method
-* supported interfaces implementation
-* unreachable code
-
-Options
-~~~~~~~
-:ignore-iface-methods:
-  List of interface methods to ignore, separated by a comma. This is used for
-  instance to not check methods defined in Zope's Interface base class.
-  Default: isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
-:defining-attr-methods:
-  List of method names used to declare (i.e. assign) instance attributes.
-  Default: __init__,__new__,setUp
+Newstyle checker
+----------------
+checks for usage of new style capabilities on old style classes and
+other new/old styles conflicts problems
+* use of property, __slots__, super
+* "super" usage
+* raising a new style class as exception
 
 Messages
 ~~~~~~~~
-:E0202: *An attribute inherited from %s hides this method*
-  Used when a class defines a method which is hiden by an instance attribute
-  from an ancestor class.
-:E0203: *Access to member %r before its definition line %s*
-  Used when an instance member is accessed before it's actually assigned.
-:E0211: *Method has no argument*
-  Used when a method which should have the bound instance as first argument has
-  no argument defined.
-:E0213: *Method should have "self" as first argument*
-  Used when a method has an attribute other than "self" as first argument.
-  This is considered an error since this is a soooo common convention that
-  you shouldn't break it!
-:E0221: *Interface resolved to %s is not a class*
-  Used when a class claims to implement an interface which is not a class.
-:E0222: *Missing method %r from %s interface*
-  Used when a method declared in an interface is missing from a class
-  implementing this interface.
-:W0201: *Attribute %r defined outside __init__*
-  Used when an instance attribute is defined outside the __init__ method.
-:W0211: *Static method with %r as first argument*
-  Used when a static method has "self" or "cls" as first argument.
-:W0212: *Access to a protected member %s of a client class*
-  Used when a protected member (i.e. class member with a name beginning with an
-  underscore) is access outside the class or a descendant of the class where
-  it's defined.
-:W0221: *Arguments number differs from %s method*
-  Used when a method has a different number of arguments than in the implemented
-  interface or in an overridden method.
-:W0222: *Signature differs from %s method*
-  Used when a method signature is different than in the implemented interface or
-  in an overridden method.
-:W0223: *Method %r is abstract in class %r but is not overridden*
-  Used when an abstract method (ie raise NotImplementedError) is not overridden
-  in concrete class.
-:W0231: *__init__ method from base class %r is not called*
-  Used when an ancestor class method has an __init__ method which is not called
-  by a derived class.
-:W0232: *Class has no __init__ method*
-  Used when a class has no __init__ method, neither its parent classes.
-:W0233: *__init__ method from a non direct base class %r is called*
-  Used when an __init__ method is called on a class which is not in the direct
-  ancestors for the analysed class.
-:R0201: *Method could be a function*
-  Used when a method doesn't use its bound instance, and so could be written as
-  a function.
-:C0202: *Class method should have "cls" as first argument*
-  Used when a class method has an attribute different than "cls" as first
-  argument, to easily differentiate them from regular instance methods.
-:C0203: *Metaclass method should have "mcs" as first argument*
-  Used when a metaclass method has an attribute different than "mcs" as first
-  argument.
-:F0202: *Unable to check methods signature (%s / %s)*
-  Used when PyLint has been unable to check methods signature compatibility for
-  an unexpected reason. Please report this kind if you don't make sense of it.
-:F0220: *failed to resolve interfaces implemented by %s (%s)*
-  Used when PyLint has failed to find interfaces implemented by a class
-
-
-Design checker
---------------
-checks for sign of poor/misdesign:
-* number of methods, attributes, local variables...
-* size, complexity of functions, methods
-
-Options
-~~~~~~~
-:max-args:
-  Maximum number of arguments for function / method
-  Default: 5
-:max-locals:
-  Maximum number of locals for function / method body
-  Default: 15
-:max-returns:
-  Maximum number of return / yield for function / method body
-  Default: 6
-:max-branchs:
-  Maximum number of branches for function / method body
-  Default: 12
-:max-statements:
-  Maximum number of statements in function / method body
-  Default: 50
-:max-parents:
-  Maximum number of parents for a class (see R0901).
-  Default: 7
-:max-attributes:
-  Maximum number of attributes for a class (see R0902).
-  Default: 7
-:min-public-methods:
-  Minimum number of public methods for a class (see R0903).
-  Default: 2
-:max-public-methods:
-  Maximum number of public methods for a class (see R0904).
-  Default: 20
-
-Messages
-~~~~~~~~
-:R0901: *Too many ancestors (%s/%s)*
-  Used when class has too many parent classes, try to reduce this to get a more
-  simple (and so easier to use) class.
-:R0902: *Too many instance attributes (%s/%s)*
-  Used when class has too many instance attributes, try to reduce this to get a
-  more simple (and so easier to use) class.
-:R0903: *Too few public methods (%s/%s)*
-  Used when class has too few public methods, so be sure it's really worth it.
-:R0904: *Too many public methods (%s/%s)*
-  Used when class has too many public methods, try to reduce this to get a more
-  simple (and so easier to use) class.
-:R0911: *Too many return statements (%s/%s)*
-  Used when a function or method has too many return statements, making it hard
-  to follow.
-:R0912: *Too many branches (%s/%s)*
-  Used when a function or method has too many branches, making it hard to
-  follow.
-:R0913: *Too many arguments (%s/%s)*
-  Used when a function or method takes too many arguments.
-:R0914: *Too many local variables (%s/%s)*
-  Used when a function or method has too many local variables.
-:R0915: *Too many statements (%s/%s)*
-  Used when a function or method has too many statements. You should then split
-  it in smaller functions / methods.
-:R0921: *Abstract class not referenced*
-  Used when an abstract class is not used as ancestor anywhere.
-:R0922: *Abstract class is only referenced %s times*
-  Used when an abstract class is used less than X times as ancestor.
-:R0923: *Interface not implemented*
-  Used when an interface class is not implemented anywhere.
+:E1001: *Use __slots__ on an old style class*
+  Used when an old style class use the __slots__ attribute.
+:E1002: *Use super on an old style class*
+  Used when an old style class use the super builtin.
+:E1003: *Bad first argument %r given to super class*
+  Used when another argument than the current class is given as first argument
+  of the super builtin.
+:E1010: *Raising a new style class*
+  Used when a new style class is raised since it's not possible with python <
+  2.5.
+:W1001: *Use of "property" on an old style class*
+  Used when PyLint detect the use of the builtin "property" on an old style
+  class while this is relying on new style classes features
+:W1010: *Exception doesn't inherit from standard "Exception" class*
+  Used when a custom exception class is raised but doesn't inherit from the
+  builtin "Exception" class.
 
 
 Exceptions checker
@@ -606,6 +606,61 @@ Messages
 :W0706: *Identifier %s used to raise an exception is assigned to %s*
   Used when a variable used to raise an exception is initially assigned to a
   value which can't be used as an exception.
+
+
+Format checker
+--------------
+checks for :
+* unauthorized constructions
+* strict indentation
+* line length
+* use of <> instead of !=
+
+Options
+~~~~~~~
+:max-line-length:
+  Maximum number of characters on a single line.
+  Default: 80
+:max-module-lines:
+  Maximum number of lines in a module
+  Default: 1000
+:indent-string:
+  String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
+  tab).
+  Default: '    '
+
+Messages
+~~~~~~~~
+:W0311: *Bad indentation. Found %s %s, expected %s*
+  Used when an unexpected number of indentation's tabulations or spaces has been
+  found.
+:W0312: *Found indentation with %ss instead of %ss*
+  Used when there are some mixed tabs and spaces in a module.
+:W0331: *Use of the <> operator*
+  Used when the deprecated "<>" operator is used instead of "!=".
+:W0332: *Use l as long integer identifier*
+  Used when a lower case "l" is used to mark a long integer. You should use a
+  upper case "L" since the letter "l" looks too much like the digit "1"
+:W0333: *Use of the `` operator*
+  Used when the deprecated "``" (backtick) operator is used instead of the str()
+  function.
+:C0301: *Line too long (%s/%s)*
+  Used when a line is longer than a given number of characters.
+:C0302: *Too many lines in module (%s)*
+  Used when a module has too much lines, reducing its readibility.
+:C0321: *More than one statement on a single line*
+  Used when more than on statement are found on the same line.
+:C0322: *Operator not preceded by a space*
+  Used when one of the following operator (!= | <= | == | >= | < | > | = | \+= |
+  -= | \*= | /= | %) is not preceded by a space.
+:C0323: *Operator not followed by a space*
+  Used when one of the following operator (!= | <= | == | >= | < | > | = | \+= |
+  -= | \*= | /= | %) is not followed by a space.
+:C0324: *Comma not followed by a space*
+  Used when a comma (",") is not followed by a space.
+:F0321: *Format detection error in %r*
+  Used when an unexpected error occured in bad format detection.Please report
+  the error if it occurs.
 
 
 Miscellaneous checker
@@ -676,60 +731,5 @@ Messages
 Reports
 ~~~~~~~
 :R0801: Duplication
-
-
-Format checker
---------------
-checks for :
-* unauthorized constructions
-* strict indentation
-* line length
-* use of <> instead of !=
-
-Options
-~~~~~~~
-:max-line-length:
-  Maximum number of characters on a single line.
-  Default: 80
-:max-module-lines:
-  Maximum number of lines in a module.
-  Default: 1000
-:indent-string:
-  String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
-  tab).
-  Default: '    '
-
-Messages
-~~~~~~~~
-:W0311: *Bad indentation. Found %s %s, expected %s*
-  Used when an unexpected number of indentation's tabulations or spaces has been
-  found.
-:W0312: *Found indentation with %ss instead of %ss*
-  Used when there are some mixed tabs and spaces in a module.
-:W0331: *Use of the <> operator*
-  Used when the deprecated "<>" operator is used instead of "!=".
-:W0332: *Use l as long integer identifier*
-  Used when a lower case "l" is used to mark a long integer. You should use a
-  upper case "L" since the letter "l" looks too much like the digit "1"
-:W0333: *Use of the `` operator*
-  Used when the deprecated "``" (backtick) operator is used instead of the str()
-  function.
-:C0301: *Line too long (%s/%s)*
-  Used when a line is longer than a given number of characters.
-:C0302: *Too many lines in module (%s)*
-  Used when a module has too much lines, reducing its readibility.
-:C0321: *More than one statement on a single line*
-  Used when more than on statement are found on the same line.
-:C0322: *Operator not preceded by a space*
-  Used when one of the following operator (!= | <= | == | >= | < | > | = | \+= |
-  -= | \*= | /= | %) is not preceded by a space.
-:C0323: *Operator not followed by a space*
-  Used when one of the following operator (!= | <= | == | >= | < | > | = | \+= |
-  -= | \*= | /= | %) is not followed by a space.
-:C0324: *Comma not followed by a space*
-  Used when a comma (",") is not followed by a space.
-:F0321: *Format detection error in %r*
-  Used when an unexpected error occured in bad format detection.Please report
-  the error if it occurs.
 
 
