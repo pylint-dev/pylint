@@ -1,8 +1,26 @@
+pylint (0.14.0-2) unstable; urgency=low
+
+  * Acknowledge NMU by Kumar Appaiah <akumar@ee.iitm.ac.in>  (Closes: #454401)
+  * Debian upload of the new upstream release
+  * Install modules for all available python versions (Closes: #438438)
+  * new standards version, no changes required
+  
+ -- Alexandre Fayolle <afayolle@debian.org>  Wed, 13 Feb 2008 17:36:30 +0100
+
 pylint (0.14.0-1) unstable; urgency=low
 
   * new upstream release
 
  -- Sylvain Thénault <Sylvain.Thenault@logilab.fr>  Mon, 14 Jan 2008 13:34:24 +0100
+
+pylint (0.13.2-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * debian/pylint.postrm:
+    + Added to remove old Emacs mode upon purge.
+      (Closes: #454401)
+
+ -- Kumar Appaiah <akumar@ee.iitm.ac.in>  Thu, 31 Jan 2008 22:27:18 +0530
 
 pylint (0.13.2-2) unstable; urgency=low
 
