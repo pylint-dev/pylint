@@ -5,6 +5,9 @@ ChangeLog for PyLint
     * included Stefan Rank's patch to deal with 2.4 relative import
     * included Robert Kirkpatrick's tutorial and typos fixes
     * fix bug in reenabling message
+    * typecheck: acquired-members option has been dropped in favor of the more
+      generic generated-members option. If the zope option is set, the behaviour
+      is now to add some default values to generated-members.
 	
 2008-01-14  --  0.14.0
     * fix #3733: Messages (dis)appear depending on order of file names
