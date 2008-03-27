@@ -12,6 +12,6 @@
 ;; installed in a subdirectory of the respective site-lisp directory.
 ;; We have to add this to the load-path:
 (setq load-path (cons (concat "/usr/share/"
-                              (symbol-name flavor)
+                              (symbol-name debian-emacs-flavor)
                               "/site-lisp/%PACKAGE%") load-path))
 (load-library "pylint")

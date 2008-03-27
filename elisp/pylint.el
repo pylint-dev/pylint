@@ -1,5 +1,27 @@
 (require 'compile)
 
+;;
+;; Modifications done by Yarosav O. Halchenko (2008):
+;;  - enable user-visible variables
+;; distributed under the same copyright/license terms as
+;; pylint itself
+;;
+(require 'compile)
+
+;; user definable variables
+;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+(defgroup pylint nil
+  "Emacs support for the Pylint Python checker"
+  :group 'languages
+  :prefix "pylint-")
+
+(defcustom pylint-options "--output-format=parseable"
+  "*Command line options to be used with pylint call"
+  :type 'string
+  :group 'pylint)
+
+
 ;; adapted from pychecker for pylint
 (defun pylint-python-hook ()
   (defun pylint ()
@@ -8,7 +30,7 @@
     
     (interactive)
     (let* ((file (buffer-file-name (current-buffer)))
-	   (command (concat "pylint --output-format=parseable \"" file "\"")))
+	   (command (concat "pylint " pylint-options " \"" file "\"")))
       (save-some-buffers (not compilation-ask-about-save) nil) ; save  files.
       (compile-internal command "No more errors or warnings" "pylint")))
 ;;  (local-set-key [f1] 'pylint)

@@ -45,7 +45,7 @@ install: build
 		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/pylint/usr/bin/symilar; \
 	fi
 	chmod a+x debian/pylint/usr/bin/symilar
-	#install -m 644 elisp/pylint.el debian/pylint/usr/share/emacs/site-lisp/pylint/
+	install -m 644 elisp/pylint.el debian/pylint/usr/share/emacs/site-lisp/pylint/
 
 	# install tests
 	#(cd test && find . -type f -not \( -path '*/CVS/*' -or -name '*.pyc' \) -exec install -D --mode=644 {} ../debian/pylint/usr/share/doc/pylint/test/{} \;)
@@ -62,7 +62,7 @@ binary-indep: build install
 	dh_installexamples -i
 	dh_installdocs -i README TODO changelog.gz debian/NEWS.Debian
 	dh_installman -i
-#	dh_installemacsen
+	dh_installemacsen
 	dh_link -i
 	dh_compress -i -X.py -X.ini -X.xml -Xtest
 	dh_fixperms -i
