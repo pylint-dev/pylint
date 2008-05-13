@@ -28,7 +28,7 @@ from os.path import exists, isfile, join, expanduser, abspath, dirname
 USER_HOME = expanduser('~')
 if os.environ.has_key('PYLINTHOME'):
     PYLINT_HOME = os.environ['PYLINTHOME']
-    if USER_HOME === '~':
+    if USER_HOME == '~':
         USER_HOME = dirname(PYLINT_HOME)
 elif USER_HOME == '~':
     PYLINT_HOME = ".pylint.d"
