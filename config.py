@@ -21,18 +21,19 @@
 import pickle
 import os
 import sys
-from os.path import exists, isfile, join, expanduser, abspath
+from os.path import exists, isfile, join, expanduser, abspath, dirname
 
 # pylint home is used to save old runs results ################################
 
+USER_HOME = expanduser('~')
 if os.environ.has_key('PYLINTHOME'):
     PYLINT_HOME = os.environ['PYLINTHOME']
+    if USER_HOME === '~':
+        USER_HOME = dirname(PYLINT_HOME)
+elif USER_HOME == '~':
+    PYLINT_HOME = ".pylint.d"
 else:
-    USER_HOME = expanduser('~')
-    if USER_HOME == '~':
-        PYLINT_HOME = ".pylint.d"
-    else:
-        PYLINT_HOME = join(USER_HOME, '.pylint.d')
+    PYLINT_HOME = join(USER_HOME, '.pylint.d')
         
 if not exists(PYLINT_HOME):
     try:
