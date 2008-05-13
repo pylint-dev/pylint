@@ -70,20 +70,25 @@ should not be checked (useful for classes with attributes dynamicaly set).'}
 
                ('zope',
                 {'default' : False, 'type' : 'yn', 'metavar': '<y_or_n>',
-                 'help' : 'When zope mode is activated, consider the \
-acquired-members option to ignore access to some undefined attributes.'}
+                 'help' : 'When zope mode is activated, add a predefined set \
+of Zope acquired attributes to generated-members.'}
                 ),
-               ('acquired-members',
+               ('generated-members',
                 {'default' : (
         'REQUEST', 'acl_users', 'aq_parent'),
                  'type' : 'csv',
                  'metavar' : '<members names>',
-                 'help' : 'List of members which are usually get through \
-zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
-(need zope=yes to be considered).'}
+                 'help' : 'List of members which are set dynamically and \
+missed by pylint inference system, and so shouldn\'t trigger E0201 when \
+accessed.'}
                 ),
         )
-
+    def __init__(self, linter=None):
+        BaseChecker.__init__(self, linter)
+        self.generated_members = list(self.config.generated_members)
+        if self.config.zope:
+            self.generated_members.extend(('REQUEST', 'acl_users', 'aq_parent'))
+            
     def visit_getattr(self, node):
         """check that the accessed attribute exists
 
@@ -92,9 +97,8 @@ zope\'s acquisition mecanism and so shouldn\'t trigger E0201 when accessed \
 
         function/method, super call and metaclasses are ignored
         """
-        # if we are running in zope mode and this is an acquired attribute,
-        # stop there
-        if self.config.zope and node.attrname in self.config.acquired_members:
+        if node.attrname in self.config.generated_members:
+            # attribute is marked as generated, stop here
             return
         try:
             infered = list(node.expr.infer())

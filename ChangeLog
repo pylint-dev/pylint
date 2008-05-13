@@ -6,8 +6,11 @@ ChangeLog for PyLint
     * included Robert Kirkpatrick's tutorial and typos fixes
     * fix bug in reenabling message
     * fix #2473: invoking pylint on __init__.py (hopefuly)
-
-
+    * typecheck: acquired-members option has been dropped in favor of the more
+      generic generated-members option. If the zope option is set, the behaviour
+      is now to add some default values to generated-members.
+    * flymake integration: added bin/epylint and elisp/pylint-flymake.el
+	
 2008-01-14  --  0.14.0
     * fix #3733: Messages (dis)appear depending on order of file names
     * fix #4026: pylint.el should require compile

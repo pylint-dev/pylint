@@ -1,8 +1,46 @@
+pylint (0.14.0-3) unstable; urgency=low
+
+  * Acknowledge NMU: thanks a lot, your patches have been backported in
+    upstream code (closes: #427244, #448102, #415485, #431653)
+
+ --
+
+pylint (0.14.0-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * BF: flavor -> debian-emacs-flavor in startup
+  * NF: added pylint-options variable visible to users to tune up (closes:
+    #427244)
+  * BF: reenabled installation of pylint.el (closes: #448102)
+  * Recent upstream of pylint.el fixed few bugs which weren't closed
+    in the upload to Debian. Since this is first upload which enables
+    pylint.el, imho it is ok to close them here (closes: #415485, #431653)
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Mon, 03 Mar 2008 22:22:07 -0500
+
+pylint (0.14.0-2) unstable; urgency=low
+
+  * Acknowledge NMU by Kumar Appaiah <akumar@ee.iitm.ac.in>  (Closes: #454401)
+  * Debian upload of the new upstream release
+  * Install modules for all available python versions (Closes: #438438)
+  * new standards version, no changes required
+  
+ -- Alexandre Fayolle <afayolle@debian.org>  Wed, 13 Feb 2008 17:36:30 +0100
+
 pylint (0.14.0-1) unstable; urgency=low
 
   * new upstream release
 
  -- Sylvain Thénault <Sylvain.Thenault@logilab.fr>  Mon, 14 Jan 2008 13:34:24 +0100
+
+pylint (0.13.2-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * debian/pylint.postrm:
+    + Added to remove old Emacs mode upon purge.
+      (Closes: #454401)
+
+ -- Kumar Appaiah <akumar@ee.iitm.ac.in>  Thu, 31 Jan 2008 22:27:18 +0530
 
 pylint (0.13.2-2) unstable; urgency=low
 
