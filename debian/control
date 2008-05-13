@@ -6,6 +6,7 @@ Uploaders: Alexandre Fayolle <afayolle@debian.org>
 Build-Depends: debhelper (>= 5.0.38)
 Build-Depends-Indep: python (>=2.3.5-7), python-central (>=0.5.6)
 Standards-Version: 3.7.3
+Homepage: http://www.logilab.org/Project/name/pylint
 XS-Python-Version: all
 
 Package: pylint
@@ -31,6 +32,5 @@ Description: python code static checker
  . 
  The recommended python-tk package is only for using the pylint-gui
  script.
- .
- Homepage: http://www.logilab.org/Project/name/pylint
+ 
 
