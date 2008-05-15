@@ -5,6 +5,7 @@ ChangeLog for PyLint
     * included Stefan Rank's patch to deal with 2.4 relative import
     * included Robert Kirkpatrick's tutorial and typos fixes
     * fix bug in reenabling message
+    * fix #2473: invoking pylint on __init__.py (hopefuly)
     * typecheck: acquired-members option has been dropped in favor of the more
       generic generated-members option. If the zope option is set, the behaviour
       is now to add some default values to generated-members.

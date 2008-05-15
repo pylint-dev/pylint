@@ -531,7 +531,8 @@ This is used by the global evaluation report (R0004).'}),
             filepath = normpath(filepath)
             result.append( {'path': filepath, 'name': modname,
                             'basepath': filepath, 'basename': modname} )
-            if not modname.endswith('.__init__') and '__init__.py' in filepath:
+            if not (modname.endswith('.__init__') or modname == '__init__') \
+                   and '__init__.py' in filepath:
                 for subfilepath in get_module_files(dirname(filepath),
                                                     self.config.black_list):
                     if filepath == subfilepath:
