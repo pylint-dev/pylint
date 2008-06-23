@@ -1,7 +1,7 @@
 ChangeLog for PyLint
 ====================
 
---
+-- 0.15.0
     * included Stefan Rank's patch to deal with 2.4 relative import
     * included Robert Kirkpatrick's tutorial and typos fixes
     * fix bug in reenabling message
@@ -41,8 +41,8 @@ ChangeLog for PyLint
     * new E0106 message when "yield" and "return something" are mixed in a
       function or method
     * new W0107 message for unnecessary pass statement
-    * new W0614 message to differentiate between unused 'import X' and
-      unused 'from X import *" (#3209, patch submitted by Daniel Drake)
+    * new W0614 message to differentiate between unused `import X` and
+      unused `from X import *` (#3209, patch submitted by Daniel Drake)
     * included Daniel Drake's patch to have a different message E1003 instead of
       E1001 when a missing member is found but an inference failure has been 
       detected
