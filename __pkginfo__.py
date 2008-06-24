@@ -50,7 +50,7 @@ mailinglist = "mailto://python-projects@logilab.org"
 
 from os.path import join
 scripts = [join('bin', filename)
-           for filename in ('pylint', 'pylint-gui', "symilar")]
+           for filename in ('pylint', 'pylint-gui', "symilar", "epylint")]
 
 include_dirs = [join('test', 'input'),
                 join('test', 'messages'),

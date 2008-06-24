@@ -154,32 +154,32 @@ Options
   Default: __.*__
 :module-rgx:
   Regular expression which should only match correct module names
-  Default: (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+  Default: `(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$`
 :const-rgx:
   Regular expression which should only match correct module level names
-  Default: (([A-Z_][A-Z1-9_]*)|(__.*__))$
+  Default: `(([A-Z_][A-Z1-9_]*)|(__.*__))$`
 :class-rgx:
   Regular expression which should only match correct class names
-  Default: [A-Z_][a-zA-Z0-9]+$
+  Default: `[A-Z_][a-zA-Z0-9]+$`
 :function-rgx:
   Regular expression which should only match correct function names
-  Default: [a-z_][a-z0-9_]{2,30}$
+  Default: `[a-z_][a-z0-9_]{2,30}$`
 :method-rgx:
   Regular expression which should only match correct method names
-  Default: [a-z_][a-z0-9_]{2,30}$
+  Default: `[a-z_][a-z0-9_]{2,30}$`
 :attr-rgx:
   Regular expression which should only match correct instance attribute names
-  Default: [a-z_][a-z0-9_]{2,30}$
+  Default: `[a-z_][a-z0-9_]{2,30}$`
 :argument-rgx:
   Regular expression which should only match correct argument names
-  Default: [a-z_][a-z0-9_]{2,30}$
+  Default: `[a-z_][a-z0-9_]{2,30}$`
 :variable-rgx:
   Regular expression which should only match correct variable names
-  Default: [a-z_][a-z0-9_]{2,30}$
+  Default: `[a-z_][a-z0-9_]{2,30}$`
 :inlinevar-rgx:
   Regular expression which should only match correct list comprehension /
   generator expression variable names
-  Default: [A-Za-z_][A-Za-z0-9_]*$
+  Default: `[A-Za-z_][A-Za-z0-9_]*$`
 :good-names:
   Good variable names which should always be accepted, separated by a comma
   Default: i,j,k,ex,Run,_
@@ -341,7 +341,7 @@ Messages
 :W0613: *Unused argument %r*
   Used when a function or method argument is not used.
 :W0614: *Unused import %s from wildcard import*
-  Used when an imported module or variable is not used from a 'from X import *'
+  Used when an imported module or variable is not used from a `from X import *`
   style import.
 :W0621: *Redefining name %r from outer scope (line %s)*
   Used when a variable's name hide a name defined in the outer scope.
