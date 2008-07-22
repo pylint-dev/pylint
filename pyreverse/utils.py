@@ -20,8 +20,10 @@ generic classes/functions for pyreverse core/extensions
 import sys
 import re
 
-from logilab.astng import ASTNGManager, IgnoreChild, Project
-from logilab.astng.manager import astng_wrapper
+# why import IgnoreChild, Project ?
+#from logilab.astng import ASTNGManager #, IgnoreChild, Project
+#from logilab.astng.manager import astng_wrapper
+from logilab.astng.manager import astng_wrapper, ASTNGManager
 
 from logilab.common.configuration import ConfigurationMixIn
 
@@ -42,23 +44,24 @@ def LOG(msg):
 def info(msg):
     """print an informal message on stdout"""
     LOG(msg)
-            
+
 
 # astng utilities #############################################################
 
-PROTECTED = re.compile('^_[A-Za-z]+(_*[A-Za-z]+)*_?$')
-PRIVATE = re.compile('^__[A-Za-z]+(_*[A-Za-z]+)*_?$')
-SPECIAL = re.compile('^__[A-Za-z]+__$')
+SPECIAL = re.compile('^__[_A-Za-z0-9]+__$')
+PRIVATE = re.compile('^__[_A-Za-z0-9]*[A-Za-z0-9]+_?$')
+PROTECTED = re.compile('^_[_A-Za-z0-9]*$')
 
 def get_visibility(name):
     """return the visibility from a name: public, protected, private or special
     """
     if SPECIAL.match(name):
         visibility = 'special'
-    elif PROTECTED.match(name):
-        visibility = 'protected'
     elif PRIVATE.match(name):
         visibility = 'private'
+    elif PROTECTED.match(name):
+        visibility = 'protected'
+
     else:
         visibility = 'public'
     return visibility
@@ -101,9 +104,8 @@ MODES = {
 }
 
 class FilterMixIn:
-    """filter nodes according to a mode and nodes'visibility
+    """filter nodes according to a mode and nodes' visibility
     """
-
 
     options = (
         ("filter-mode",
@@ -113,13 +115,13 @@ class FilterMixIn:
           <mode>. Correct modes are :
                                     'PUB_ONLY' filter all non public attributes
                                       [DEFAULT], equivalent to PRIVATE+SPECIAL_A
-                                    'ALL' no filter 
+                                    'ALL' no filter
                                     'SPECIAL' filter Python special functions
                                       except constructor
                                     'OTHER' filter protected and private
                                       attributes"""}),
         )
-    
+
     def __init__(self):
         self.load_defaults()
 
@@ -137,10 +139,11 @@ class FilterMixIn:
                     print >> sys.stderr, 'Unknown filter mode %s' % ex
             self.__mode = mode
             return mode
-        
+
     def filter(self, node):
-        """return true if the node should be treaten
+        """return true if the node should be treated
         """
+
         mode = self.get_mode()
         visibility = get_visibility(getattr(node, 'name', node))
         if mode & _SPECIAL and visibility == 'special':
@@ -156,24 +159,27 @@ class RunHelper(ConfigurationMixIn):
     """command line helper
     """
     name = 'main'
+
     options = (('quiet', {'help' : 'run quietly', 'action' : 'store_true',
-                          'short': 'q'}),
-               )
-    
-    def __init__(self, usage, options_providers):
+                          'short': 'q'}), )
+
+    def __init__(self, usage, option_providers):
+
         ConfigurationMixIn.__init__(self, """\
 USAGE: %%prog [options] <file or module>...
 %s""" % usage, version="%%prog %s" % version)
+
         config.insert_default_options()
         manager = ASTNGManager()
         # FIXME: use an infinite cache
         manager._cache = {}
         # add options
         self.register_options_provider(manager)
-        for provider in options_providers:
+        for provider in option_providers:
             self.register_options_provider(provider)
         #self.load_file_configuration()
         args = self.load_command_line_configuration()
+
         if not args:
             self.help()
         else:
@@ -181,6 +187,7 @@ USAGE: %%prog [options] <file or module>...
             LOG = self.log
             # extract project representation
             project = manager.project_from_files(args, astng_wrapper)
+
             self.do_run(project)
 
     def do_run(self, project):
@@ -192,4 +199,4 @@ USAGE: %%prog [options] <file or module>...
         if not self.config.quiet:
             print '-'*80
             print msg
-            
+
