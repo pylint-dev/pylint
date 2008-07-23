@@ -48,7 +48,7 @@ def info(msg):
 
 # astng utilities #############################################################
 
-SPECIAL = re.compile('^__[_A-Za-z0-9]+__$')
+SPECIAL = re.compile('^__[A-Za-z0-9]+[A-Za-z0-9_]*__$')
 PRIVATE = re.compile('^__[_A-Za-z0-9]*[A-Za-z0-9]+_?$')
 PROTECTED = re.compile('^_[_A-Za-z0-9]*$')
 
