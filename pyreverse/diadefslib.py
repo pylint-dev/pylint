@@ -172,7 +172,6 @@ class DefaultDiadefGenerator(LocalsVisitor):
         del node.locals['__file__']
         del node.locals['__dict__']
         del node.locals['__doc__']
-        print node.locals
         if self.pkgdiagram:
             self.linker.visit(node)
             self.pkgdiagram.add_object(node=node, title=node.name)
