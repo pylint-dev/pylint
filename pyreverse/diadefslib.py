@@ -168,10 +168,13 @@ class DefaultDiadefGenerator(LocalsVisitor):
         """
         # cleanup locals inserted by the astng builder to mimick python
         # interpretor behaviour
-        del node.locals['__name__']
-        del node.locals['__file__']
-        del node.locals['__dict__']
-        del node.locals['__doc__']
+        try:
+            del node.locals['__name__']
+            del node.locals['__file__']
+            del node.locals['__dict__']
+            del node.locals['__doc__']
+        except KeyError:
+            pass
         if self.pkgdiagram:
             self.linker.visit(node)
             self.pkgdiagram.add_object(node=node, title=node.name)
@@ -183,9 +186,12 @@ class DefaultDiadefGenerator(LocalsVisitor):
         """
         # cleanup locals inserted by the astng builder to mimick python
         # interpretor behaviour
-        del node.locals['__name__']
-        del node.locals['__dict__']
-        del node.locals['__doc__']
+        try:
+            del node.locals['__name__']
+            del node.locals['__dict__']
+            del node.locals['__doc__']
+        except KeyError:
+            pass
         self.linker.visit(node)
         self.classdiagram.add_object(node=node, title=node.name)
 
