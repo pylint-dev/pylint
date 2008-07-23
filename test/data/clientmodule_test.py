@@ -1,10 +1,10 @@
 """ docstring for file clientmodule.py """
-from data.suppliermodule_test import Interface as IFace, DoNothing
+from data.suppliermodule_test import Interface, DoNothing
 
-class Ancestor:
+class Ancestor(object):
     """ Ancestor method """
-    __implements__ = (IFace,)
-    
+    __implements__ = (Interface,)
+
     def __init__(self, value):
         local_variable = 0
         self.attr = 'this method shouldn\'t have a docstring'
@@ -17,11 +17,11 @@ class Ancestor:
     def set_value(self, value):
         self.__value = value
         return 'this method shouldn\'t have a docstring'
-    
+
 class Specialization(Ancestor):
     TYPE = 'final class'
     top = 'class'
-    
+
     def __init__(self, value, _id):
         Ancestor.__init__(self, value)
         self._id = _id
