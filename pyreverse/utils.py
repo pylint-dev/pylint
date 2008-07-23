@@ -181,7 +181,7 @@ USAGE: %%prog [options] <file or module>...
         args = self.load_command_line_configuration()
 
         if not args:
-            self.help()
+            print self.help()
         else:
             global LOG
             LOG = self.log
