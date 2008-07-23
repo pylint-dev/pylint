@@ -21,12 +21,12 @@ from logilab.astng.utils import LocalsVisitor
 from pyreverse.extensions.xmlconf import DictSaxHandlerMixIn, PrefReader
 from pyreverse.extensions.diagrams import PackageDiagram, ClassDiagram
 
-    
+
 # diadefs xml files utilities #################################################
 
 class DiaDefsSaxHandler(DictSaxHandlerMixIn):
     """
-    definition of the structure of the diadef file, which will enable the MI 
+    definition of the structure of the diadef file, which will enable the MI
     to fill the DiaDefs dictionary
     """
     _MASTER = {}
@@ -39,7 +39,7 @@ class DiaDefsSaxHandler(DictSaxHandlerMixIn):
 
 def read_diadefs_file(filename):
     """read a diadef file and return the DiaDef dictionnary"""
-    diadefs = {} 
+    diadefs = {}
     reader = PrefReader(DiaDefsSaxHandler, diadefs)
     try:
         reader.fromFile(filename)
@@ -57,7 +57,7 @@ class DiadefsResolverHelper:
     def __init__(self, project, linker):
         self._p = project
         self.linker = linker
-        
+
     def resolve_packages(self, diadef, diagram=None):
         """take a package diagram definition dictionnary and return matching
         objects
@@ -78,7 +78,7 @@ class DiadefsResolverHelper:
                     diagram.add_object(title, node)
         self.resolve_classes(diadef, diagram)
         return diagram
-    
+
     def resolve_classes(self, diadef, diagram=None):
         """take a class diagram definition dictionnary and return a Diagram
         instance (given in paramaters or created)
@@ -87,7 +87,7 @@ class DiadefsResolverHelper:
         if diagram is None:
             diagram = ClassDiagram(diadef.get('name', 'No name classes diagram'))
         for klass in class_defs:
-            name, module = klass['name'], klass.get('owner', '')            
+            name, module = klass['name'], klass.get('owner', '')
             c = self.get_class(module, name)
             if c is None:
                 continue
@@ -97,14 +97,14 @@ class DiadefsResolverHelper:
 
 
     def get_classes(self, module):
-        """return all class defined in the given astng module 
+        """return all class defined in the given astng module
         """
         classes = []
         for object in module.values():
             if isinstance(object, astng.Class):
                 classes.append((object, object.name))
         return classes
-    
+
     def get_module(self, name):
         """return the astng module corresponding to name if it exists in the
         current project
@@ -113,7 +113,7 @@ class DiadefsResolverHelper:
             return self._p.get_module(name)
         except KeyError:
             print >> sys.stderr, 'Warning: no module named %s' % name
-            
+
     def get_class(self, module, name):
         """return the astng class corresponding to module.name if it exists in
         the current project
@@ -133,14 +133,14 @@ class DiadefsResolverHelper:
 
 class DefaultDiadefGenerator(LocalsVisitor):
     """generate minimum diagram definition for the project :
-    
+
     * a package diagram including project's modules
     * a class diagram including project's classes
     """
     def __init__(self, linker):
         LocalsVisitor.__init__(self)
         self.linker = linker
-        
+
     def visit_project(self, node):
         """visit an astng.Project node
 
@@ -151,33 +151,44 @@ class DefaultDiadefGenerator(LocalsVisitor):
         else:
             self.pkgdiagram = None
         self.classdiagram = ClassDiagram('classes %s' % node.name)
-    
+
     def leave_project(self, node):
         """leave the astng.Project node
-        
+
         return the generated diagram definition
         """
         if self.pkgdiagram:
             return self.pkgdiagram, self.classdiagram
-        return self.classdiagram, 
+        return self.classdiagram,
 
     def visit_module(self, node):
         """visit an astng.Module node
 
         add this class to the package diagram definition
         """
+        # cleanup locals inserted by the astng builder to mimick python
+        # interpretor behaviour
+        del node.locals['__name__']
+        del node.locals['__file__']
+        del node.locals['__dict__']
+        del node.locals['__doc__']
+        print node.locals
         if self.pkgdiagram:
             self.linker.visit(node)
             self.pkgdiagram.add_object(node=node, title=node.name)
-    
+
     def visit_class(self, node):
         """visit an astng.Class node
 
         add this class to the class diagram definition
         """
+        # cleanup locals inserted by the astng builder to mimick python
+        # interpretor behaviour
+        del node.locals['__name__']
+        del node.locals['__dict__']
+        del node.locals['__doc__']
         self.linker.visit(node)
         self.classdiagram.add_object(node=node, title=node.name)
-
 
 class ClassDiadefGenerator:
     """generate a class diagram definition including all classes related to a
@@ -222,7 +233,7 @@ class ClassDiadefGenerator:
                 continue
             self.extract_classes(diagram, ass_node, linker,
                                  include_level, include_module_name)
-        
+
     def add_class_def(self, diagram, klass_node, linker, include_module_name):
         """add a class definition to the class diagram
         """
@@ -238,10 +249,10 @@ class ClassDiadefGenerator:
 
 class DiadefsHandler(OptionsProviderMixIn):
     """handle diagram definitions :
-    
+
     get it from user (i.e. xml files) or generate them
     """
-    
+
     name = 'Diagram definition'
     options = (
         ("diadefs",
@@ -254,7 +265,7 @@ class DiadefsHandler(OptionsProviderMixIn):
          {'action':"append", 'type':'string', 'metavar': "<class>",
           'dest':"classes",  'default':(),
           'help':"create a class diagram with all classes related to <class> "}),
-        
+
         )
 
 
@@ -279,5 +290,5 @@ class DiadefsHandler(OptionsProviderMixIn):
         if not diagrams:
             diagrams += DefaultDiadefGenerator(linker).visit(project)
         for diagram in diagrams:
-            diagram.extract_relationships()            
-        return  diagrams        
+            diagram.extract_relationships()
+        return  diagrams
