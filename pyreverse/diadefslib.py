@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr # This program
 # is free software; you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free
@@ -200,54 +200,53 @@ class ClassDiadefGenerator:
     given class
     """
 
-    def class_diagram(self, project, klass, linker,
-                      include_level=-1, include_module_name=1):
+    def __init__(self, linker):
+        self.linker = linker
+
+    def class_diagram(self, project, klass,
+                      include_level=-1, include_module_name= True):
         """return a class diagram definition for the given klass and its related
         klasses. Search deep depends on the include_level parameter (=1 will
         take all classes directly related, while =2 will also take all classes
         related to the one fecthed by=1)
         """
+        self.include_module_name = include_module_name
+
         diagram = ClassDiagram(klass)
         if len(project.modules) > 1:
-            last_dot = klass.rfind('.')
-            module = project.get_module(klass[:last_dot])
-            klass = klass[last_dot+1:]
+            module, klass = klass.rsplit('.',1)
         else:
             module = project.modules[0]
             klass = klass.split('.')[-1]
         klass = module.ilookup(klass).next()
-        self.extract_classes(diagram, klass, linker,
-                             include_level, include_module_name)
+        self.extract_classes(diagram, klass, include_level)
         return diagram
 
-    def extract_classes(self, diagram, klass_node, linker,
-                        include_level, include_module_name):
-        """extract classes related to klass_node until include_level is not 0
+    def extract_classes(self, diagram, klass_node, include_level):
+        """extract classes related to klass_node until include_level is 0
         """
         if include_level == 0 or diagram.has_node(klass_node):
             return
-        self.add_class_def(diagram, klass_node, linker, include_module_name)
+        self.add_class_def(diagram, klass_node)
         # add all ancestors whatever the include_level ?
         for ancestor in klass_node.ancestors():
-            self.extract_classes(diagram, ancestor, linker,
-                                 include_level, include_module_name)
+            self.extract_classes(diagram, ancestor, include_level)
         include_level -= 1
         # association
         for name, ass_node in klass_node.instance_attrs_type.items():
             if not isinstance(ass_node, astng.Class):
                 continue
-            self.extract_classes(diagram, ass_node, linker,
-                                 include_level, include_module_name)
+            self.extract_classes(diagram, ass_node, include_level)
 
-    def add_class_def(self, diagram, klass_node, linker, include_module_name):
+    def add_class_def(self, diagram, klass_node):
         """add a class definition to the class diagram
         """
-        if include_module_name:
+        if self.include_module_name:
             module_name = klass_node.root().name
             title =  '%s.%s' % (module_name, klass_node.name)
         else:
             title = klass_node.name
-        linker.visit(klass_node)
+        self.linker.visit(klass_node)
         diagram.add_object(node=klass_node, title=title)
 
 # diagram handler #############################################################
@@ -261,16 +260,17 @@ class DiadefsHandler(OptionsProviderMixIn):
     name = 'Diagram definition'
     options = (
         ("diadefs",
-         {'action':"store", 'type':'string', 'metavar': "<file>",
-          'short' : 'd',
-          'dest':"diadefs_file", 'default':None,
-          'help':"create diagram according to the diagrams definitions in \
-<file>"}),
+         dict(action="store", type='string', metavar="<file>",short='d',
+          dest="diadefs_file", default=None,
+          help="create diagram according to the diagrams definitions in \
+<file>")),
         ("class",
-         {'action':"append", 'type':'string', 'metavar': "<class>",
-          'dest':"classes",  'default':(),
-          'help':"create a class diagram with all classes related to <class> "}),
-
+         dict(action="append", type='string', metavar="<class>",
+          dest="classes",  default=(),
+          help="create a class diagram with all classes related to <class> ")),
+        ("search-level",
+        dict(dest="include_level", action="store",#type='int',
+        metavar='<depth>', default=2, help='depth of related class search') ),
         )
 
 
@@ -287,9 +287,10 @@ class DiadefsHandler(OptionsProviderMixIn):
                 resolver.resolve_classes(class_diagram)
             for package_diagram in diadefs.get('package-diagram', ()):
                 resolver.resolve_packages(package_diagram)
-        generator = ClassDiadefGenerator()
+        generator = ClassDiadefGenerator(linker)
+        incl_level = int(self.config.include_level)
         for klass in self.config.classes:
-            diagrams.append(generator.class_diagram(project, klass, linker))
+            diagrams.append(generator.class_diagram(project, klass, incl_level))
         # FIXME: generate only if no option provided
         # or generate one
         if not diagrams:
