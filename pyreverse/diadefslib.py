@@ -1,16 +1,18 @@
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
-# http://www.logilab.fr/ -- mailto:contact@logilab.fr # This program
-# is free software; you can redistribute it and/or modify it under the
-# terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your
-# option) any later version.  # This program is distributed in the
-# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-# PURPOSE. See the GNU General Public License for more details.  # You
-# should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation,
-# Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  """
-# library to handle diagrams definition """
+# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import sys
 
@@ -184,6 +186,9 @@ class DefaultDiadefGenerator(LocalsVisitor):
 
         add this class to the class diagram definition
         """
+        # XXX display of __builtin__.object in the diagram should be configurable
+        if node.name in ('object', 'type') and node.root().name == '__builtin__':
+            return
         # cleanup locals inserted by the astng builder to mimick python
         # interpretor behaviour
         try:
@@ -229,15 +234,23 @@ class ClassDiadefGenerator:
         self.add_class_def(diagram, klass_node, linker, include_module_name)
         # add all ancestors whatever the include_level ?
         for ancestor in klass_node.ancestors():
+            # XXX display of __builtin__.object in the diagram should be configurable
+            if ancestor.name == 'object' and ancestor.root().name == '__builtin__':
+                continue
             self.extract_classes(diagram, ancestor, linker,
                                  include_level, include_module_name)
         include_level -= 1
         # association
-        for name, ass_node in klass_node.instance_attrs_type.items():
-            if not isinstance(ass_node, astng.Class):
-                continue
-            self.extract_classes(diagram, ass_node, linker,
-                                 include_level, include_module_name)
+        for name, ass_nodes in klass_node.instance_attrs_type.items():
+            for ass_node in ass_nodes:
+                # XXX could find here class attributes and their type
+                if isinstance(ass_node, astng.Instance):
+                    ass_node = ass_node._proxied
+                if not isinstance(ass_node, astng.Class) \
+                       or ass_node.root().name == '__builtin__':
+                    continue
+                self.extract_classes(diagram, ass_node, linker,
+                                     include_level, include_module_name)
 
     def add_class_def(self, diagram, klass_node, linker, include_module_name):
         """add a class definition to the class diagram

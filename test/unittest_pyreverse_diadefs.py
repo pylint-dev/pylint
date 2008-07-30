@@ -17,8 +17,6 @@
 unittest for the extensions.diadefslib modules
 """
 
-__revision__ = "$Id: unittest_diadefs.py,v 1.9 2006-03-14 09:56:11 syt Exp $"
-
 import unittest
 import sys
 
@@ -89,8 +87,8 @@ class ClassDiadefGeneratorTC(unittest.TestCase):
         self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
         self.assertEquals(classes, [{'node': True, 'name': 'data.clientmodule_test.Ancestor'},
-                                    {'node': True, 'name': 'data.suppliermodule_test.DoNothing'},
                                     {'node': True, 'name': 'data.clientmodule_test.Specialization'},
+                                    {'node': True, 'name': 'data.suppliermodule_test.DoNothing'},
                                     ])
         
     def test_known_values2(self):
@@ -98,8 +96,8 @@ class ClassDiadefGeneratorTC(unittest.TestCase):
         self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
         self.assertEquals(classes, [{'node': True, 'name': 'Ancestor' },
-                                    {'node': True, 'name': 'Specialization'},
-                                    {'node': True, 'name': 'DoNothing'}
+                                    {'node': True, 'name': 'DoNothing'},
+                                    {'node': True, 'name': 'Specialization'}
                                     ])
 
         
