@@ -1,4 +1,4 @@
-# Copyright (c) 2002-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2002-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -20,11 +20,7 @@ generic classes/functions for pyreverse core/extensions
 import sys
 import re
 
-# why import IgnoreChild, Project ?
-#from logilab.astng import ASTNGManager #, IgnoreChild, Project
-#from logilab.astng.manager import astng_wrapper
 from logilab.astng.manager import astng_wrapper, ASTNGManager
-
 from logilab.common.configuration import ConfigurationMixIn
 
 from pyreverse.__pkginfo__ import version
@@ -102,6 +98,7 @@ MODES = {
     'SPECIAL'   : _SPECIAL,
     'OTHER'     : _PROTECTED + _PRIVATE,
 }
+VIS_MOD = {'special':_SPECIAL, 'protected': _PROTECTED, 'private': _PRIVATE, 'public': 0 }
 
 class FilterMixIn:
     """filter nodes according to a mode and nodes' visibility
@@ -146,11 +143,7 @@ class FilterMixIn:
 
         mode = self.get_mode()
         visibility = get_visibility(getattr(node, 'name', node))
-        if mode & _SPECIAL and visibility == 'special':
-            return 0
-        if mode & _PROTECTED and visibility == 'protected':
-            return 0
-        if mode & _PRIVATE and visibility == 'private':
+        if mode & VIS_MOD[visibility]:
             return 0
         return 1
 
@@ -177,16 +170,15 @@ USAGE: %%prog [options] <file or module>...
         self.register_options_provider(manager)
         for provider in option_providers:
             self.register_options_provider(provider)
-        #self.load_file_configuration()
-        args = self.load_command_line_configuration()
+        files = self.load_command_line_configuration()
 
-        if not args:
+        if not files:
             print self.help()
         else:
             global LOG
             LOG = self.log
             # extract project representation
-            project = manager.project_from_files(args, astng_wrapper)
+            project = manager.project_from_files(files, astng_wrapper)
 
             self.do_run(project)
 
