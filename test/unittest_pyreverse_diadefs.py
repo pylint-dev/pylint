@@ -83,7 +83,7 @@ class DiadefGeneratorTC(unittest.TestCase):
 
 class ClassDiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
-        cd = ClassDiadefGenerator(Linker(project)).class_diagram(project, 'data.clientmodule_test.Specialization', 
+        cd = ClassDiadefGenerator(Linker(project)).class_diagram(project, 'data.clientmodule_test.Specialization') 
         self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
         self.assertEquals(classes, [{'node': True, 'name': 'data.clientmodule_test.Ancestor'},
