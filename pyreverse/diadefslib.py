@@ -215,6 +215,7 @@ class ClassDiadefGenerator:
         diagram = ClassDiagram(klass)
         if len(project.modules) > 1:
             module, klass = klass.rsplit('.',1)
+            module = project.get_module(module)
         else:
             module = project.modules[0]
             klass = klass.split('.')[-1]
