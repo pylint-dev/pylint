@@ -138,6 +138,8 @@ class ClassDiagram(Figure):
                 for value in values:
                     if value is astng.YES:
                         continue
+                    if isinstance( value, astng.Instance):
+                        value = value._proxied
                     try:
                         ass_obj = self.object_from_node(value)
                         self.add_relationship(obj, ass_obj, 'association', name)
