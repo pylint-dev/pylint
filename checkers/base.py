@@ -105,13 +105,13 @@ MSGS = {
     'E0103': ('%r not properly in loop',
               'Used when break or continue keywords are used outside a loop.'),
 
-    'E0104': ('return outside function',
+    'E0104': ('Return outside function',
               'Used when a "return" statement is found outside a function or '
               'method.'),
-    'E0105': ('yield outside function',
+    'E0105': ('Yield outside function',
               'Used when a "yield" statement is found outside a function or '
               'method.'),
-    'E0106': ('return with argument inside generator',
+    'E0106': ('Return with argument inside generator',
               'Used when a "return" statement with an argument is found '
               'outside in a generator function or method (e.g. with some '
               '"yield" statements).'),
