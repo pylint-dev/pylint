@@ -135,7 +135,9 @@ class NonRegrTC(TestCase):
             if fname.endswith('_crash.py'):
                 linter.check(join('regrtest_data', fname))
                 linter.reporter.finalize().strip()
-
+                
+    def test_try_finally_disable_msg_crash(self):
+        linter.check(join('regrtest_data', 'try_finally_disable_msg_crash'))
 
 if __name__ == '__main__':
     unittest_main()
