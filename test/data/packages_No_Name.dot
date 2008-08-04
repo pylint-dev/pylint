@@ -1,0 +1,6 @@
+digraph packages_No_Name
+{
+  3[  shape=box,  label="data.clientmodule_test",]
+  6[  shape=box,  label="data",]
+  7[  shape=box,  label="data.suppliermodule_test",]
+}
