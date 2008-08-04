@@ -139,7 +139,8 @@ class DefaultDiadefGenerator(LocalsVisitor):
     * a package diagram including project's modules
     * a class diagram including project's classes
     """
-    def __init__(self, linker):
+    def __init__(self, linker, include_module_name = False):
+        self.include_module_name = include_module_name
         LocalsVisitor.__init__(self)
         self.linker = linker
 
@@ -183,7 +184,11 @@ class DefaultDiadefGenerator(LocalsVisitor):
             return
         self._cleanup(node)
         self.linker.visit(node)
-        self.classdiagram.add_object(node=node, title=node.name)
+        title = node.name
+        if self.include_module_name:
+            title =  '%s.%s' % (node.root().name , title)
+        print "class node title : " , title
+        self.classdiagram.add_object(node=node, title=title)
 
     def _cleanup( self, node ):
         """cleanup locals inserted by the astng builder to mimick python
@@ -202,7 +207,7 @@ class ClassDiadefGenerator:
 
     def __init__(self, linker):
         self.linker = linker
-
+    
     def class_diagram(self, project, klass,
                       include_level=-1, include_module_name= True):
         """return a class diagram definition for the given klass and its related
@@ -250,11 +255,9 @@ class ClassDiadefGenerator:
     def add_class_def(self, diagram, klass_node):
         """add a class definition to the class diagram
         """
+        title = klass_node.name
         if self.include_module_name:
-            module_name = klass_node.root().name
-            title =  '%s.%s' % (module_name, klass_node.name)
-        else:
-            title = klass_node.name
+            title =  '%s.%s' % (klass_node.root().name , title)
         self.linker.visit(klass_node)
         diagram.add_object(node=klass_node, title=title)
 
@@ -279,10 +282,13 @@ class DiadefsHandler(OptionsProviderMixIn):
           help="create a class diagram with all classes related to <class> ")),
         ("search-level",
         dict(dest="include_level", action="store",type='int',
-        metavar='<depth>', default=-1, help='depth of related class search') ),
+        metavar='<depth>', default=-1, help='depth of search for associated classes') ),
+        ("module-names",
+        dict(dest="module_names", action="store",short="m",type='yn', metavar='[yn]',
+        default=None, help='include module name in representation of classes') ),
         )
 
-
+    
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data, either from a specified file or
         generated
@@ -297,13 +303,17 @@ class DiadefsHandler(OptionsProviderMixIn):
             for package_diagram in diadefs.get('package-diagram', ()):
                 resolver.resolve_packages(package_diagram)
         generator = ClassDiadefGenerator(linker)
-        incl_level = int(self.config.include_level)
+        level = int(self.config.include_level)
+        m = self.config.module_names
+
         for klass in self.config.classes:
-            diagrams.append(generator.class_diagram(project, klass, incl_level))
+            if m == None: # show modules for classes by default 
+                m = True
+            diagrams.append(generator.class_diagram(project, klass, level, m))
         # FIXME: generate only if no option provided
         # or generate one
         if not diagrams:
-            diagrams += DefaultDiadefGenerator(linker).visit(project)
+            diagrams += DefaultDiadefGenerator(linker,m).visit(project)
         for diagram in diagrams:
             diagram.extract_relationships()
         return  diagrams
