@@ -168,15 +168,7 @@ class DefaultDiadefGenerator(LocalsVisitor):
 
         add this class to the package diagram definition
         """
-        # cleanup locals inserted by the astng builder to mimick python
-        # interpretor behaviour
-        try:
-            del node.locals['__name__']
-            del node.locals['__file__']
-            del node.locals['__dict__']
-            del node.locals['__doc__']
-        except KeyError:
-            pass
+        self._cleanup(node)
         if self.pkgdiagram:
             self.linker.visit(node)
             self.pkgdiagram.add_object(node=node, title=node.name)
@@ -189,16 +181,19 @@ class DefaultDiadefGenerator(LocalsVisitor):
         # XXX display of __builtin__.object in the diagram should be configurable
         if node.name in ('object', 'type') and node.root().name == '__builtin__':
             return
-        # cleanup locals inserted by the astng builder to mimick python
-        # interpretor behaviour
-        try:
-            del node.locals['__name__']
-            del node.locals['__dict__']
-            del node.locals['__doc__']
-        except KeyError:
-            pass
+        self._cleanup(node)
         self.linker.visit(node)
         self.classdiagram.add_object(node=node, title=node.name)
+
+    def _cleanup( self, node ):
+        """cleanup locals inserted by the astng builder to mimick python
+        interpretor behaviour
+        """
+        for loc in ['__dict__','__doc__','__file__','__name__']:
+            try:
+                 del node.locals[ loc ]
+            except:
+                pass
 
 class ClassDiadefGenerator:
     """generate a class diagram definition including all classes related to a
@@ -283,8 +278,8 @@ class DiadefsHandler(OptionsProviderMixIn):
           dest="classes",  default=(),
           help="create a class diagram with all classes related to <class> ")),
         ("search-level",
-        dict(dest="include_level", action="store",#type='int',
-        metavar='<depth>', default=2, help='depth of related class search') ),
+        dict(dest="include_level", action="store",type='int',
+        metavar='<depth>', default=-1, help='depth of related class search') ),
         )
 
 
