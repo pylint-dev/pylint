@@ -137,15 +137,12 @@ class FilterMixIn:
             self.__mode = mode
             return mode
 
-    def filter(self, node):
+    def show_attr(self, node):
         """return true if the node should be treated
         """
-
         mode = self.get_mode()
         visibility = get_visibility(getattr(node, 'name', node))
-        if mode & VIS_MOD[visibility]:
-            return 0
-        return 1
+        return mode & VIS_MOD[visibility]
 
 
 class RunHelper(ConfigurationMixIn):

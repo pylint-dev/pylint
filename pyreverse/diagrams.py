@@ -33,11 +33,11 @@ class Figure:
 class Relationship(Figure):
     """a relation ship from an object in the diagram to another
     """
-    def __init__(self, from_object, to_object, r_type, name=None):
+    def __init__(self, from_object, to_object, relation_type, name=None):
         Figure.__init__(self)
         self.from_object = from_object
         self.to_object = to_object
-        self.type = r_type
+        self.type = relation_type
         self.name = name
         
     
@@ -60,19 +60,19 @@ class ClassDiagram(Figure):
         self.relationships = {}
         self._nodes = {}
         
-    def add_relationship(self, from_object, to_object, r_type, name=None):
+    def add_relationship(self, from_object, to_object, relation_type, name=None):
         """create a relation ship
         """
-        rel = Relationship(from_object, to_object, r_type, name)
-        self.relationships.setdefault(r_type, []).append(rel)
+        rel = Relationship(from_object, to_object, relation_type, name)
+        self.relationships.setdefault(relation_type, []).append(rel)
 
-    def get_relationship(self, from_object, r_type):
+    def get_relationship(self, from_object, relation_type):
         """return a relation ship or None
         """
-        for rel in self.relationships.get(r_type, ()):
+        for rel in self.relationships.get(relation_type, ()):
             if rel.from_object is from_object:
                 return rel
-        raise KeyError(r_type)
+        raise KeyError(relation_type)
     
     def add_object(self, title, node):
         """create a diagram object
