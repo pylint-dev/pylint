@@ -142,7 +142,7 @@ class FilterMixIn:
         """
         mode = self.get_mode()
         visibility = get_visibility(getattr(node, 'name', node))
-        return mode & VIS_MOD[visibility]
+        return not (mode & VIS_MOD[visibility] )
 
 
 class RunHelper(ConfigurationMixIn):

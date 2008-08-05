@@ -146,7 +146,7 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
     * a package diagram including project's modules
     * a class diagram including project's classes
     """
-    def __init__(self, linker, include_module_name):
+    def __init__(self, linker, include_module_name= False):
         self.include_module_name = include_module_name
         LocalsVisitor.__init__(self)
         self.linker = linker
@@ -265,7 +265,7 @@ class ClassDiadefGenerator(OptionHandler):
 
 # diagram handler #############################################################
 
-class DiadefsHandler(OptionsProviderMixIn, ):
+class DiadefsHandler(OptionsProviderMixIn):
     """handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them
