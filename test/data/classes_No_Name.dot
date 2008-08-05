@@ -1,10 +1,13 @@
-digraph classes_No_Name
-{
-  4[  shape=record,  label="{Specialization|relation\l|}",]
-  5[  shape=record,  label="{Ancestor|attr\l|get_value()\lset_value()\l}",]
-  8[  shape=record,  label="{«interface»\nInterface|\l|get_value()\lset_value()\l}",]
-  9[  shape=record,  label="{DoNothing|\l|}",]
-  5 -> 4[  arrowtail=empty,  arrowhead=none,]
-  8 -> 5[  arrowtail=empty,  style=dashed,  arrowhead=none,]
-  9 -> 4[  fontcolor=green,  arrowtail=none,  arrowhead=diamond,  label="relation",]
+digraph "classes_No_Name" {
+charset="utf-8"
+"4" [shape="record", label="{Specialization|relation\l|}"];
+"5" [shape="record", label="{Ancestor|attr\l|get_value()\lset_value()\l}"];
+"8" [shape="record", label="{«interface»\nInterface|\l|get_value()\lset_value()\l}"];
+"9" [shape="record", label="{DoNothing|\l|}"];
+edge [arrowhead="none", arrowtail="empty"];
+"5" -> "4"
+edge [arrowhead="none", style="dashed", arrowtail="empty"];
+"8" -> "5"
+edge [fontcolor="green", style="solid", arrowhead="none", arrowtail="diamond", label="relation"];
+"4" -> "9"
 }
