@@ -133,13 +133,20 @@ class DiadefsResolverHelper:
 
 # diagram generators ##########################################################
 
-class DefaultDiadefGenerator(LocalsVisitor):
+class OptionHandler:
+    def get_title(self, node ):
+        title = node.name
+        if self.include_module_name:
+            title =  '%s.%s' % (node.root().name , title)
+        return title
+
+class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
     """generate minimum diagram definition for the project :
 
     * a package diagram including project's modules
     * a class diagram including project's classes
     """
-    def __init__(self, linker, include_module_name = False):
+    def __init__(self, linker, include_module_name):
         self.include_module_name = include_module_name
         LocalsVisitor.__init__(self)
         self.linker = linker
@@ -183,11 +190,8 @@ class DefaultDiadefGenerator(LocalsVisitor):
         if node.name in ('object', 'type') and node.root().name == '__builtin__':
             return
         self._cleanup(node)
-        self.linker.visit(node)
-        title = node.name
-        if self.include_module_name:
-            title =  '%s.%s' % (node.root().name , title)
-        print "class node title : " , title
+        self.linker.visit(node)     
+        title = self.get_title(node)
         self.classdiagram.add_object(node=node, title=title)
 
     def _cleanup( self, node ):
@@ -200,7 +204,7 @@ class DefaultDiadefGenerator(LocalsVisitor):
             except:
                 pass
 
-class ClassDiadefGenerator:
+class ClassDiadefGenerator(OptionHandler):
     """generate a class diagram definition including all classes related to a
     given class
     """
@@ -255,15 +259,13 @@ class ClassDiadefGenerator:
     def add_class_def(self, diagram, klass_node):
         """add a class definition to the class diagram
         """
-        title = klass_node.name
-        if self.include_module_name:
-            title =  '%s.%s' % (klass_node.root().name , title)
+        title = self.get_title(klass_node)    
         self.linker.visit(klass_node)
         diagram.add_object(node=klass_node, title=title)
 
 # diagram handler #############################################################
 
-class DiadefsHandler(OptionsProviderMixIn):
+class DiadefsHandler(OptionsProviderMixIn, ):
     """handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them
@@ -277,7 +279,7 @@ class DiadefsHandler(OptionsProviderMixIn):
           help="create diagram according to the diagrams definitions in \
 <file>")),
         ("class",
-         dict(action="append", type='string', metavar="<class>",
+         dict(action="append", type='string', metavar="<class>", short='c',
           dest="classes",  default=(),
           help="create a class diagram with all classes related to <class> ")),
         ("search-level",
@@ -292,6 +294,7 @@ class DiadefsHandler(OptionsProviderMixIn):
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data, either from a specified file or
         generated
+        :param linker: visitor ?
         """
         #  read and interpret diagram definitions
         diagrams = []
