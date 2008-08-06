@@ -1,4 +1,4 @@
-# Copyright (c) 2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2004-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -17,9 +17,7 @@
 """
 
 from logilab import astng
-
 from pyreverse.utils import is_interface
-from logilab import astng
 
 def set_counter(value):
     Figure._UID_COUNT = value
