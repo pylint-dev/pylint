@@ -137,12 +137,9 @@ class OptionHandler:
     """"handle diagram generation options
     """
     def __init__(self, linker, handler):
-        if handler:
-            self.config = handler.config
-            self.show_attr = handler.show_attr
-            self.include_module_name = self.config.module_names
-        else:
-            self.include_module_name = False
+        self.config = handler.config
+        self.show_attr = handler.show_attr
+        self.include_module_name = self.config.module_names
         self.linker = linker
 
     def get_title(self, node ):
@@ -227,7 +224,7 @@ class ClassDiadefGenerator(OptionHandler):
         if self.include_module_name == None:
             self.include_module_name = True
     
-    def class_diagram(self, project, klass, include_level=-1):
+    def class_diagram(self, project, klass):
         """return a class diagram definition for the given klass and its related
         klasses. Search deep depends on the include_level parameter (=1 will
         take all classes directly related, while =2 will also take all classes
@@ -242,7 +239,8 @@ class ClassDiadefGenerator(OptionHandler):
             module = project.modules[0]
             klass = klass.split('.')[-1]
         klass = module.ilookup(klass).next()
-        self.extract_classes(diagram, klass, include_level)
+        level = int(self.config.include_level)
+        self.extract_classes(diagram, klass, level )
         return diagram
 
     def extract_classes(self, diagram, klass_node, include_level):
@@ -326,10 +324,9 @@ class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
             for package_diagram in diadefs.get('package-diagram', ()):
                 resolver.resolve_packages(package_diagram)
         generator = ClassDiadefGenerator(linker, self)
-        level = int(self.config.include_level)
 
         for klass in self.config.classes:
-            diagrams.append(generator.class_diagram(project, klass, level))
+            diagrams.append(generator.class_diagram(project, klass))
         # FIXME: generate only if no option provided
         # or generate one
         if not diagrams:

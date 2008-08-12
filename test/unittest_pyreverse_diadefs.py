@@ -46,9 +46,11 @@ def _process_modules(modules):
     result.sort()
     return result
 
+handler = DiadefsHandler()
 class DiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
-        dd = DefaultDiadefGenerator(Linker(project)).visit(project)
+        handler = DiadefsHandler()
+        dd = DefaultDiadefGenerator(Linker(project), handler).visit(project)
         self.assertEquals(len(dd), 2)
         keys = [d.TYPE for d in dd]
         self.assertEquals(keys, ['package', 'class'])
@@ -70,7 +72,8 @@ class DiadefGeneratorTC(unittest.TestCase):
         
     def test_known_values2(self):
         project = ASTNGManager().project_from_files(['data.clientmodule_test'], astng_wrapper)
-        dd = DefaultDiadefGenerator(Linker(project)).visit(project)
+        handler = DiadefsHandler()
+        dd = DefaultDiadefGenerator(Linker(project), handler).visit(project)
         self.assertEquals(len(dd), 1)
         keys = [d.TYPE for d in dd]
         self.assertEquals(keys, ['class'])
@@ -83,7 +86,7 @@ class DiadefGeneratorTC(unittest.TestCase):
 
 class ClassDiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
-        cd = ClassDiadefGenerator(Linker(project)).class_diagram(project, 'data.clientmodule_test.Specialization') 
+        cd = ClassDiadefGenerator(Linker(project), handler).class_diagram(project, 'data.clientmodule_test.Specialization') 
         self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
         self.assertEquals(classes, [{'node': True, 'name': 'data.clientmodule_test.Ancestor'},
@@ -92,7 +95,8 @@ class ClassDiadefGeneratorTC(unittest.TestCase):
                                     ])
         
     def test_known_values2(self):
-        cd = ClassDiadefGenerator(Linker(project)).class_diagram(project, 'data.clientmodule_test.Specialization' , include_module_name=0)
+        handler.config.module_names = False
+        cd = ClassDiadefGenerator(Linker(project), handler).class_diagram(project, 'data.clientmodule_test.Specialization')
         self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
         self.assertEquals(classes, [{'node': True, 'name': 'Ancestor' },
