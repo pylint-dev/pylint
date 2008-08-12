@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+"""handle diagram generation options with diadefs or with default generator
+"""
 
 import sys
 
@@ -87,7 +89,8 @@ class DiadefsResolverHelper:
         """
         class_defs = diadef.get('class', [])
         if diagram is None:
-            diagram = ClassDiagram(diadef.get('name', 'No name classes diagram'))
+            diagram = ClassDiagram(diadef.get('name',
+                                              'No name classes diagram'))
         for klass in class_defs:
             name, module = klass['name'], klass.get('owner', '')
             c = self.get_class(module, name)
@@ -134,7 +137,7 @@ class DiadefsResolverHelper:
 # diagram generators ##########################################################
 
 class OptionHandler:
-    """"handle diagram generation options
+    """handle diagram generation options
     """
     def __init__(self, linker, handler):
         self.config = handler.config
@@ -143,11 +146,21 @@ class OptionHandler:
         self.linker = linker
 
     def get_title(self, node ):
+        """get title for objects"""
         title = node.name
         if self.include_module_name:
             title =  '%s.%s' % (node.root().name , title)
         return title
 
+    def not_builtin(self, node):
+        #cond = (not self.config.builtin  #node.name not in ('object', 'type') 
+        builtin = (node.name in ('object', 'type') or
+                   node.root().name == '__builtin__')
+
+        cond = builtin and self.config.show_builtin
+        print "not_builtin :", node, builtin
+        return cond
+    
 class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
     """generate minimum diagram definition for the project :
 
@@ -184,7 +197,6 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
 
         add this class to the package diagram definition
         """
-        #self._cleanup(node)
         if self.pkgdiagram:
             self.linker.visit(node)
             self.pkgdiagram.add_object(node=node, title=node.name)
@@ -194,25 +206,13 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
 
         add this class to the class diagram definition
         """
-        # XXX display of __builtin__.object in the diagram should be configurable
-        if node.name in ('object', 'type') and node.root().name == '__builtin__':
+        print "node", node 
+        if self.not_builtin(node):
             return
-        #self._cleanup(node)
         self.linker.visit(node)     
         title = self.get_title(node)
         self.classdiagram.add_object(node=node, title=title, show_attr=self.show_attr)
 
-
-    # locals problem seems no more reproduceable
-    #def _cleanup( self, node ):
-        #"""cleanup locals inserted by the astng builder to mimick python
-        #interpretor behaviour
-        #"""
-        #for loc in ['__dict__','__doc__','__file__','__name__']:
-            #try:
-                 #del node.locals[ loc ]
-            #except:
-                #pass
 
 class ClassDiadefGenerator(OptionHandler):
     """generate a class diagram definition including all classes related to a
@@ -225,15 +225,15 @@ class ClassDiadefGenerator(OptionHandler):
             self.include_module_name = True
     
     def class_diagram(self, project, klass):
-        """return a class diagram definition for the given klass and its related
-        klasses. Search deep depends on the include_level parameter (=1 will
-        take all classes directly related, while =2 will also take all classes
-        related to the one fecthed by=1)
+        """return a class diagram definition for the given klass and its 
+        related klasses. Search deep depends on the include_level parameter
+        (=1 will take all classes directly related, while =2 will also take
+        all classes related to the one fecthed by=1)
         """
 
         diagram = ClassDiagram(klass)
         if len(project.modules) > 1:
-            module, klass = klass.rsplit('.',1)
+            module, klass = klass.rsplit('.', 1)
             module = project.get_module(module)
         else:
             module = project.modules[0]
@@ -251,8 +251,7 @@ class ClassDiadefGenerator(OptionHandler):
         self.add_class_def(diagram, klass_node)
         # add all ancestors whatever the include_level ?
         for ancestor in klass_node.ancestors():
-            # XXX display of __builtin__.object in the diagram should be configurable
-            if ancestor.name == 'object' and ancestor.root().name == '__builtin__':
+            if self.not_builtin(ancestor):
                 continue
             self.extract_classes(diagram, ancestor, include_level)
         include_level -= 1
@@ -294,11 +293,17 @@ class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
           dest="classes",  default=(),
           help="create a class diagram with all classes related to <class> ")),
         ("search-level",
-        dict(dest="include_level", action="store",type='int',
-        metavar='<depth>', default=-1, help='depth of search for associated classes') ),
+         dict(dest="include_level", action="store", type='int',
+              metavar='<depth>', default=-1,
+              help='depth of search for associated classes') ),
         ("module-names",
-        dict(dest="module_names", action="store",short="m",type='yn', metavar='[yn]',
-        default=None, help='include module name in representation of classes') ),
+        dict(dest="module_names", action="store", short="m", type='yn',
+             metavar='[yn]', default=None,
+             help='include module name in representation of classes') ),
+        ("builtin",
+        dict(dest="show_builtin", action="store", short="b", type='yn',
+             metavar='[yn]', default='n',
+             help='include __builtin__.object in representation of classes') ),        
         )
 
     def __init__(self):
@@ -324,7 +329,7 @@ class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
             for package_diagram in diadefs.get('package-diagram', ()):
                 resolver.resolve_packages(package_diagram)
         generator = ClassDiadefGenerator(linker, self)
-
+        print "builtin :" , self.config.show_builtin
         for klass in self.config.classes:
             diagrams.append(generator.class_diagram(project, klass))
         # FIXME: generate only if no option provided
