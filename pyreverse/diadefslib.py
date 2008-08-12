@@ -196,7 +196,7 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
         """
         if self.pkgdiagram:
             self.linker.visit(node)
-            self.pkgdiagram.add_object(node=node, title=node.name)
+            self.pkgdiagram.add_object(node.name, node)
 
     def visit_class(self, node):
         """visit an astng.Class node
@@ -207,8 +207,7 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
             return
         self.linker.visit(node)     
         title = self.get_title(node)
-        self.classdiagram.add_object(node=node, title=title,
-                                     show_attr=self.show_attr)
+        self.classdiagram.add_object(title, node, self.show_attr)
 
 
 class ClassDiadefGenerator(OptionHandler):
@@ -223,7 +222,7 @@ class ClassDiadefGenerator(OptionHandler):
     
     def class_diagram(self, project, klass):
         """return a class diagram definition for the given klass and its 
-        related klasses. Search deep depends on the include_level parameter
+        related klasses. Search deep depends on the config.include_level
         (=1 will take all classes directly related, while =2 will also take
         all classes related to the one fecthed by=1)
         """
@@ -237,7 +236,7 @@ class ClassDiadefGenerator(OptionHandler):
             klass = klass.split('.')[-1]
         klass = module.ilookup(klass).next()
         level = int(self.config.include_level)
-        self.extract_classes(diagram, klass, level )
+        self.extract_classes(diagram, klass, level)
         return diagram
 
     def extract_classes(self, diagram, klass_node, include_level):
@@ -246,7 +245,8 @@ class ClassDiadefGenerator(OptionHandler):
         if include_level == 0 or diagram.has_node(klass_node):
             return
         self.add_class_def(diagram, klass_node)
-        # add all ancestors whatever the include_level ?
+        
+        # TODO : add all ancestors whatever the include_level ?
         for ancestor in klass_node.ancestors():
             if self.not_builtin(ancestor):
                 continue
@@ -268,8 +268,7 @@ class ClassDiadefGenerator(OptionHandler):
         """
         title = self.get_title(klass_node)    
         self.linker.visit(klass_node)
-        diagram.add_object(node=klass_node, title=title,
-                           show_attr=self.show_attr)
+        diagram.add_object(title, klass_node, self.show_attr)
 
 # diagram handler #############################################################
 
