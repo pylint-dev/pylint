@@ -22,7 +22,7 @@ from logilab.astng.utils import LocalsVisitor
 
 from pyreverse.extensions.xmlconf import DictSaxHandlerMixIn, PrefReader
 from pyreverse.extensions.diagrams import PackageDiagram, ClassDiagram
-
+from pyreverse.utils import FilterMixIn
 
 # diadefs xml files utilities #################################################
 
@@ -134,6 +134,17 @@ class DiadefsResolverHelper:
 # diagram generators ##########################################################
 
 class OptionHandler:
+    """"handle diagram generation options
+    """
+    def __init__(self, linker, handler):
+        if handler:
+            self.config = handler.config
+            self.show_attr = handler.show_attr
+            self.include_module_name = self.config.module_names
+        else:
+            self.include_module_name = False
+        self.linker = linker
+
     def get_title(self, node ):
         title = node.name
         if self.include_module_name:
@@ -146,10 +157,10 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
     * a package diagram including project's modules
     * a class diagram including project's classes
     """
-    def __init__(self, linker, include_module_name= False):
-        self.include_module_name = include_module_name
+    
+    def __init__(self, linker, handler):
+        OptionHandler.__init__(self, linker, handler)
         LocalsVisitor.__init__(self)
-        self.linker = linker
 
     def visit_project(self, node):
         """visit an astng.Project node
@@ -176,7 +187,7 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
 
         add this class to the package diagram definition
         """
-        self._cleanup(node)
+        #self._cleanup(node)
         if self.pkgdiagram:
             self.linker.visit(node)
             self.pkgdiagram.add_object(node=node, title=node.name)
@@ -189,37 +200,39 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
         # XXX display of __builtin__.object in the diagram should be configurable
         if node.name in ('object', 'type') and node.root().name == '__builtin__':
             return
-        self._cleanup(node)
+        #self._cleanup(node)
         self.linker.visit(node)     
         title = self.get_title(node)
-        self.classdiagram.add_object(node=node, title=title)
+        self.classdiagram.add_object(node=node, title=title, show_attr=self.show_attr)
 
-    def _cleanup( self, node ):
-        """cleanup locals inserted by the astng builder to mimick python
-        interpretor behaviour
-        """
-        for loc in ['__dict__','__doc__','__file__','__name__']:
-            try:
-                 del node.locals[ loc ]
-            except:
-                pass
+
+    # locals problem seems no more reproduceable
+    #def _cleanup( self, node ):
+        #"""cleanup locals inserted by the astng builder to mimick python
+        #interpretor behaviour
+        #"""
+        #for loc in ['__dict__','__doc__','__file__','__name__']:
+            #try:
+                 #del node.locals[ loc ]
+            #except:
+                #pass
 
 class ClassDiadefGenerator(OptionHandler):
     """generate a class diagram definition including all classes related to a
     given class
     """
 
-    def __init__(self, linker):
-        self.linker = linker
+    def __init__(self, linker, handler):
+        OptionHandler.__init__(self, linker, handler)
+        if self.include_module_name == None:
+            self.include_module_name = True
     
-    def class_diagram(self, project, klass,
-                      include_level=-1, include_module_name= True):
+    def class_diagram(self, project, klass, include_level=-1):
         """return a class diagram definition for the given klass and its related
         klasses. Search deep depends on the include_level parameter (=1 will
         take all classes directly related, while =2 will also take all classes
         related to the one fecthed by=1)
         """
-        self.include_module_name = include_module_name
 
         diagram = ClassDiagram(klass)
         if len(project.modules) > 1:
@@ -261,11 +274,11 @@ class ClassDiadefGenerator(OptionHandler):
         """
         title = self.get_title(klass_node)    
         self.linker.visit(klass_node)
-        diagram.add_object(node=klass_node, title=title)
+        diagram.add_object(node=klass_node, title=title, show_attr=self.show_attr)
 
 # diagram handler #############################################################
 
-class DiadefsHandler(OptionsProviderMixIn):
+class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
     """handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them
@@ -290,12 +303,19 @@ class DiadefsHandler(OptionsProviderMixIn):
         default=None, help='include module name in representation of classes') ),
         )
 
+    def __init__(self):
+
+        self.options += FilterMixIn.options
+        OptionsProviderMixIn.__init__(self)
+
     
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data, either from a specified file or
         generated
-        :param linker: visitor ?
+        :param linker: astng.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
+        :param project: astng.manager.Project        
         """
+
         #  read and interpret diagram definitions
         diagrams = []
         if self.config.diadefs_file is not None:
@@ -305,18 +325,15 @@ class DiadefsHandler(OptionsProviderMixIn):
                 resolver.resolve_classes(class_diagram)
             for package_diagram in diadefs.get('package-diagram', ()):
                 resolver.resolve_packages(package_diagram)
-        generator = ClassDiadefGenerator(linker)
+        generator = ClassDiadefGenerator(linker, self)
         level = int(self.config.include_level)
-        m = self.config.module_names
 
         for klass in self.config.classes:
-            if m == None: # show modules for classes by default 
-                m = True
-            diagrams.append(generator.class_diagram(project, klass, level, m))
+            diagrams.append(generator.class_diagram(project, klass, level))
         # FIXME: generate only if no option provided
         # or generate one
         if not diagrams:
-            diagrams += DefaultDiadefGenerator(linker,m).visit(project)
+            diagrams += DefaultDiadefGenerator(linker, self).visit(project)
         for diagram in diagrams:
             diagram.extract_relationships()
         return  diagrams

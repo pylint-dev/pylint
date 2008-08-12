@@ -72,11 +72,16 @@ class ClassDiagram(Figure):
                 return rel
         raise KeyError(relation_type)
     
-    def add_object(self, title, node):
+    def add_object(self, title, node, show_attr = None):
         """create a diagram object
         """
         assert not self._nodes.has_key(node)
         ent = DiagramEntity(title, node)
+        if isinstance(node, astng.Class) and show_attr:
+            ent.methods = [m for m in node.values()
+                       if isinstance(m, astng.Function) and show_attr(m.name)]
+            ent.attrs = [name for (name,v) in node.instance_attrs_type.items()
+                         if show_attr(name)]
         self._nodes[node] = ent
         self.objects.append(ent)
 
