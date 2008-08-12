@@ -153,14 +153,11 @@ class OptionHandler:
         return title
 
     def not_builtin(self, node):
-        #cond = (not self.config.builtin  #node.name not in ('object', 'type') 
-        builtin = (node.name in ('object', 'type') or
-                   node.root().name == '__builtin__')
+        "filter out builtins except if show_builtin option"
+        # FIXME : does it work as it should ?
+        return (not self.config.show_builtin) and \
+           (node.name in ('object', 'type') or node.root().name == '__builtin__')
 
-        cond = builtin and self.config.show_builtin
-        print "not_builtin :", node, builtin
-        return cond
-    
 class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
     """generate minimum diagram definition for the project :
 
@@ -206,12 +203,12 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
 
         add this class to the class diagram definition
         """
-        print "node", node 
         if self.not_builtin(node):
             return
         self.linker.visit(node)     
         title = self.get_title(node)
-        self.classdiagram.add_object(node=node, title=title, show_attr=self.show_attr)
+        self.classdiagram.add_object(node=node, title=title,
+                                     show_attr=self.show_attr)
 
 
 class ClassDiadefGenerator(OptionHandler):
@@ -262,7 +259,7 @@ class ClassDiadefGenerator(OptionHandler):
                 if isinstance(ass_node, astng.Instance):
                     ass_node = ass_node._proxied
                 if not isinstance(ass_node, astng.Class) \
-                       or ass_node.root().name == '__builtin__':
+                       or self.not_builtin(ass_node):
                     continue
                 self.extract_classes(diagram, ass_node, include_level)
 
@@ -271,7 +268,8 @@ class ClassDiadefGenerator(OptionHandler):
         """
         title = self.get_title(klass_node)    
         self.linker.visit(klass_node)
-        diagram.add_object(node=klass_node, title=title, show_attr=self.show_attr)
+        diagram.add_object(node=klass_node, title=title,
+                           show_attr=self.show_attr)
 
 # diagram handler #############################################################
 
@@ -287,7 +285,7 @@ class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
          dict(action="store", type='string', metavar="<file>",short='d',
           dest="diadefs_file", default=None,
           help="create diagram according to the diagrams definitions in \
-<file>")),
+          <file>")),
         ("class",
          dict(action="append", type='string', metavar="<class>", short='c',
           dest="classes",  default=(),
@@ -303,7 +301,7 @@ class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
         ("builtin",
         dict(dest="show_builtin", action="store", short="b", type='yn',
              metavar='[yn]', default='n',
-             help='include __builtin__.object in representation of classes') ),        
+             help='include __builtin__.object in representation of classes')),      
         )
 
     def __init__(self):
@@ -329,11 +327,9 @@ class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
             for package_diagram in diadefs.get('package-diagram', ()):
                 resolver.resolve_packages(package_diagram)
         generator = ClassDiadefGenerator(linker, self)
-        print "builtin :" , self.config.show_builtin
         for klass in self.config.classes:
             diagrams.append(generator.class_diagram(project, klass))
-        # FIXME: generate only if no option provided
-        # or generate one
+
         if not diagrams:
             diagrams += DefaultDiadefGenerator(linker, self).visit(project)
         for diagram in diagrams:
