@@ -18,7 +18,6 @@
 
 import sys
 
-from logilab.common.configuration import OptionsProviderMixIn
 from logilab import astng
 from logilab.astng.utils import LocalsVisitor
 
@@ -142,6 +141,7 @@ class OptionHandler:
     def __init__(self, linker, handler):
         self.config = handler.config
         self.show_attr = handler.show_attr
+        print "OptionHandler self.config =", self.config
         self.include_module_name = self.config.module_names
         self.linker = linker
 
@@ -274,40 +274,16 @@ class ClassDiadefGenerator(OptionHandler):
 
 # diagram handler #############################################################
 
-class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
+class DiadefsHandler(FilterMixIn):
     """handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them
     """
 
-    name = 'Diagram definition'
-    options = (
-        ("diadefs",
-         dict(action="store", type='string', metavar="<file>",short='d',
-          dest="diadefs_file", default=None,
-          help="create diagram according to the diagrams definitions in \
-          <file>")),
-        ("class",
-         dict(action="append", type='string', metavar="<class>", short='c',
-          dest="classes",  default=(),
-          help="create a class diagram with all classes related to <class> ")),
-        ("search-level",
-         dict(dest="include_level", action="store", type='int',
-              metavar='<depth>', default=-1,
-              help='depth of search for associated classes') ),
-        ("module-names",
-        dict(dest="module_names", action="store", short="m", type='yn',
-             metavar='[yn]', default=None,
-             help='include module name in representation of classes') ),
-        ("builtin",
-        dict(dest="show_builtin", action="store", short="b", type='yn',
-             metavar='[yn]', default='n',
-             help='include builtin objects in representation of classes')),
-        )
-
     def __init__(self, config = None):
         if config:
             self.config = config
+            print "Diadef config : " , config
 
 
     def get_diadefs(self, project, linker):

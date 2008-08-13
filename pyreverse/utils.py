@@ -21,10 +21,7 @@ import sys
 import re
 
 from logilab.astng.manager import astng_wrapper, ASTNGManager
-from logilab.common.configuration import ConfigurationMixIn
-
 from pyreverse.__pkginfo__ import version
-from pyreverse import config
 
 def time_tag():
     """
@@ -32,15 +29,6 @@ def time_tag():
     """
     from time import time, localtime, strftime
     return strftime('%b %d at %T', localtime(time()))
-
-def LOG(msg):
-    """LOG doesn't do anything by default"""
-    pass
-
-def info(msg):
-    """print an informal message on stdout"""
-    LOG(msg)
-
 
 # astng utilities #############################################################
 
@@ -104,21 +92,6 @@ class FilterMixIn:
     """filter nodes according to a mode and nodes' visibility
     """
 
-    options = (
-        ("filter-mode",
-         {'default': 'PUB_ONLY', 'dest' : 'mode',
-          'type' : 'string', 'action' : 'store', 'metavar' : '<mode>',
-          'help' : """filter attributes and functions according to
-          <mode>. Correct modes are :
-                                    'PUB_ONLY' filter all non public attributes
-                                      [DEFAULT], equivalent to PRIVATE+SPECIAL_A
-                                    'ALL' no filter
-                                    'SPECIAL' filter Python special functions
-                                      except constructor
-                                    'OTHER' filter protected and private
-                                      attributes"""}),
-        )
-
     def __init__(self):
         self.load_defaults()
 
@@ -143,49 +116,4 @@ class FilterMixIn:
         mode = self.get_mode()
         visibility = get_visibility(getattr(node, 'name', node))
         return not (mode & VIS_MOD[visibility] )
-
-
-class RunHelper(ConfigurationMixIn):
-    """command line helper
-    """
-    name = 'main'
-
-    options = (('quiet', {'help' : 'run quietly', 'action' : 'store_true',
-                          'short': 'q'}), )
-
-    def __init__(self, usage, option_providers):
-
-        ConfigurationMixIn.__init__(self, """\
-USAGE: %%prog [options] <file or module>...
-%s""" % usage, version="%%prog %s" % version)
-
-        config.insert_default_options()
-        manager = ASTNGManager()
-        # FIXME: use an infinite cache
-        manager._cache = {}
-        # add options
-        self.register_options_provider(manager)
-        for provider in option_providers:
-            self.register_options_provider(provider)
-        files = self.load_command_line_configuration()
-
-        if not files:
-            print self.help()
-        else:
-            global LOG
-            LOG = self.log
-            # extract project representation
-            project = manager.project_from_files(files, astng_wrapper)
-
-            self.do_run(project)
-
-    def do_run(self, project):
-        """method to override in concrete classes"""
-        raise NotImplementedError()
-
-    def log(self, msg):
-        """print an informal message on stdout"""
-        if not self.config.quiet:
-            print '-'*80
-            print msg
 
