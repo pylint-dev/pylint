@@ -24,11 +24,17 @@ from logilab import astng
 from logilab.astng import ASTNGManager
 from pyreverse.extensions.diadefslib import *
 from logilab.astng.inspector import Linker
+from utils import Config
 
 def astng_wrapper(func, modname):
     return func(modname)
 
 project = ASTNGManager().project_from_files(['data'], astng_wrapper)
+attrs = {'module_names': None, 'output_format': None, 'diadefs_file': None,
+        'quiet': 0, 'classes': (), 'mode': 'PUB_ONLY', 
+        'show_builtin': False, 'include_level': -1}
+config = Config(attrs)
+handler = DiadefsHandler(config)
 
 def _process_classes(classes):
     result = []
@@ -46,10 +52,8 @@ def _process_modules(modules):
     result.sort()
     return result
 
-handler = DiadefsHandler()
 class DiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
-        handler = DiadefsHandler()
         dd = DefaultDiadefGenerator(Linker(project), handler).visit(project)
         self.assertEquals(len(dd), 2)
         keys = [d.TYPE for d in dd]
@@ -66,13 +70,11 @@ class DiadefGeneratorTC(unittest.TestCase):
         self.assertEquals(classes, [{'node': True, 'name': 'Ancestor'},
                                     {'node': True, 'name': 'DoNothing'},
                                     {'node': True, 'name': 'Interface'},
-                               #     {'node': True, 'name': 'NotImplemented'},
                                     {'node': True, 'name': 'Specialization'}]
                           )
         
     def test_known_values2(self):
         project = ASTNGManager().project_from_files(['data.clientmodule_test'], astng_wrapper)
-        handler = DiadefsHandler()
         dd = DefaultDiadefGenerator(Linker(project), handler).visit(project)
         self.assertEquals(len(dd), 1)
         keys = [d.TYPE for d in dd]
@@ -86,6 +88,7 @@ class DiadefGeneratorTC(unittest.TestCase):
 
 class ClassDiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
+        handler.config.classes = ['Specialization']
         cd = ClassDiadefGenerator(Linker(project), handler).class_diagram(project, 'data.clientmodule_test.Specialization') 
         self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
