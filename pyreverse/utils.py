@@ -20,7 +20,6 @@ generic classes/functions for pyreverse core/extensions
 import sys
 import re
 
-from logilab.astng.manager import astng_wrapper, ASTNGManager
 from pyreverse.__pkginfo__ import version
 
 def time_tag():

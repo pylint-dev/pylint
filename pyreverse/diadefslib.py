@@ -141,7 +141,6 @@ class OptionHandler:
     def __init__(self, linker, handler):
         self.config = handler.config
         self.show_attr = handler.show_attr
-        print "OptionHandler self.config =", self.config
         self.include_module_name = self.config.module_names
         self.linker = linker
 
@@ -280,11 +279,8 @@ class DiadefsHandler(FilterMixIn):
     get it from user (i.e. xml files) or generate them
     """
 
-    def __init__(self, config = None):
-        if config:
-            self.config = config
-            print "Diadef config : " , config
-
+    def __init__(self, config):
+        self.config = config
 
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data, either from a specified file or
