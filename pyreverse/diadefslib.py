@@ -242,16 +242,18 @@ class ClassDiadefGenerator(OptionHandler):
     def extract_classes(self, diagram, klass_node, include_level):
         """extract classes related to klass_node until include_level is 0
         """
-        if include_level == 0 or diagram.has_node(klass_node):
+        if diagram.has_node(klass_node):
             return
         self.add_class_def(diagram, klass_node)
-        
         # TODO : add all ancestors whatever the include_level ?
+        include_level -= 1
         for ancestor in klass_node.ancestors():
             if self.not_builtin(ancestor):
                 continue
             self.extract_classes(diagram, ancestor, include_level)
-        include_level -= 1
+
+        if include_level == 0:
+            return
         # association
         for name, ass_nodes in klass_node.instance_attrs_type.items():
             for ass_node in ass_nodes:
@@ -300,15 +302,14 @@ class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
         ("builtin",
         dict(dest="show_builtin", action="store", short="b", type='yn',
              metavar='[yn]', default='n',
-             help='include __builtin__.object in representation of classes')),      
+             help='include builtin objects in representation of classes')),
         )
 
-    def __init__(self):
+    def __init__(self, config = None):
+        if config:
+            self.config = config
 
-        self.options += FilterMixIn.options
-        OptionsProviderMixIn.__init__(self)
 
-    
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data, either from a specified file or
         generated
@@ -316,7 +317,7 @@ class DiadefsHandler(OptionsProviderMixIn, FilterMixIn):
         :param project: astng.manager.Project        
         """
 
-        #  read and interpret diagram definitions
+        #  read and interpret diagram definitions (Diadefs)
         diagrams = []
         if self.config.diadefs_file is not None:
             diadefs = read_diadefs_file(self.config.diadefs_file)
