@@ -91,9 +91,6 @@ class FilterMixIn:
     """filter nodes according to a mode and nodes' visibility
     """
 
-    def __init__(self):
-        self.load_defaults()
-
     def get_mode(self):
         """return the integer value of a mode string
         """
