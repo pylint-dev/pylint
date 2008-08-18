@@ -79,12 +79,9 @@ class ClassDiagram(Figure, FilterMixIn):
         for node_name, ass_nodes in node.instance_attrs_type.items():
             if not self.show_attr(node_name):
                 continue
-            for ass_node in ass_nodes:
-                if isinstance(ass_node, astng.Instance):
-                    ass_node = ass_node._proxied
-                if isinstance(ass_node, astng.Class) \
-                   and hasattr(ass_node, "name") and not self.has_node(ass_node):
-                    node_name = "%s : %s" % (node_name, ass_node.name)
+            names = self.class_names(ass_nodes)
+            if names:
+                node_name = "%s : %s" % (node_name, ", ".join(names))
             attrs.append(node_name)
         return attrs
 
@@ -100,6 +97,18 @@ class ClassDiagram(Figure, FilterMixIn):
         ent = DiagramEntity(title, node)
         self._nodes[node] = ent
         self.objects.append(ent)
+
+    def class_names(self, nodes):
+        """return class names if needed in diagram"""
+        names = []
+        for ass_node in nodes:
+            if isinstance(ass_node, astng.Instance):
+                ass_node = ass_node._proxied
+            if isinstance(ass_node, astng.Class) \
+                and hasattr(ass_node, "name") and not self.has_node(ass_node):
+                if ass_node.name not in names:
+                    names.append(ass_node.name)
+        return names
 
     def nodes(self):
         """return the list of underlying nodes
