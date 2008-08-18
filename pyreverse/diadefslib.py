@@ -148,7 +148,7 @@ class OptionHandler:
         """get title for objects"""
         title = node.name
         if self.include_module_name:
-            title =  '%s.%s' % (node.root().name , title)
+            title =  '%s.%s' % (node.root().name, title)
         return title
 
     def show_builtin(self, node):
@@ -206,8 +206,7 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
         """
         if not self.show_builtin(node):
             return
-        print "node", node
-        self.linker.visit(node)     
+        self.linker.visit(node)
         title = self.get_title(node)
         self.classdiagram.add_object(title, node)
 
