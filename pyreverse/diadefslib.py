@@ -151,11 +151,12 @@ class OptionHandler:
             title =  '%s.%s' % (node.root().name , title)
         return title
 
-    def not_builtin(self, node):
-        "filter out builtins except if show_builtin option"
+    def show_builtin(self, node):
+        "true if builtins and  show_builtin option"
         # FIXME : does it work as it should ?
-        return (not self.config.show_builtin) and \
+        return (self.config.show_builtin) or not \
            (node.name in ('object', 'type') or node.root().name == '__builtin__')
+           
 
 class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
     """generate minimum diagram definition for the project :
@@ -173,11 +174,12 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
 
         create a diagram definition for packages
         """
+        mode = self.config.mode
         if len(node.modules) > 1:
-            self.pkgdiagram = PackageDiagram('packages %s' % node.name)
+            self.pkgdiagram = PackageDiagram('packages %s' % node.name, mode)
         else:
             self.pkgdiagram = None
-        self.classdiagram = ClassDiagram('classes %s' % node.name)
+        self.classdiagram = ClassDiagram('classes %s' % node.name, mode)
 
     def leave_project(self, node):
         """leave the astng.Project node
@@ -202,11 +204,12 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
 
         add this class to the class diagram definition
         """
-        if self.not_builtin(node):
+        if not self.show_builtin(node):
             return
+        print "node", node
         self.linker.visit(node)     
         title = self.get_title(node)
-        self.classdiagram.add_object(title, node, self.show_attr)
+        self.classdiagram.add_object(title, node)
 
 
 class ClassDiadefGenerator(OptionHandler):
@@ -226,7 +229,7 @@ class ClassDiadefGenerator(OptionHandler):
         all classes related to the one fecthed by=1)
         """
 
-        diagram = ClassDiagram(klass)
+        diagram = ClassDiagram(klass, self.config.mode)
         if len(project.modules) > 1:
             module, klass = klass.rsplit('.', 1)
             module = project.get_module(module)
@@ -247,7 +250,7 @@ class ClassDiadefGenerator(OptionHandler):
         # TODO : add all ancestors whatever the include_level ?
         include_level -= 1
         for ancestor in klass_node.ancestors():
-            if self.not_builtin(ancestor):
+            if not self.show_builtin(ancestor):
                 continue
             self.extract_classes(diagram, ancestor, include_level)
 
@@ -260,7 +263,7 @@ class ClassDiadefGenerator(OptionHandler):
                 if isinstance(ass_node, astng.Instance):
                     ass_node = ass_node._proxied
                 if not isinstance(ass_node, astng.Class) \
-                       or self.not_builtin(ass_node):
+                       or not self.show_builtin(ass_node):
                     continue
                 self.extract_classes(diagram, ass_node, include_level)
 
@@ -269,7 +272,7 @@ class ClassDiadefGenerator(OptionHandler):
         """
         title = self.get_title(klass_node)    
         self.linker.visit(klass_node)
-        diagram.add_object(title, klass_node, self.show_attr)
+        diagram.add_object(title, klass_node)
 
 # diagram handler #############################################################
 

@@ -17,7 +17,7 @@
 """
 
 from logilab import astng
-from pyreverse.utils import is_interface
+from pyreverse.utils import is_interface, FilterMixIn
 
 def set_counter(value):
     Figure._UID_COUNT = value
@@ -47,11 +47,12 @@ class DiagramEntity(Figure):
         self.title = title
         self.node = node
 
-class ClassDiagram(Figure):
+class ClassDiagram(Figure, FilterMixIn):
     """a class diagram objet
     """
     TYPE = 'class'
-    def __init__(self, title='No name'):
+    def __init__(self, title, mode):
+        FilterMixIn.__init__(self, mode)
         Figure.__init__(self)
         self.title = title
         self.objects = []
@@ -72,22 +73,23 @@ class ClassDiagram(Figure):
                 return rel
         raise KeyError(relation_type)
 
-    def get_attrs(self, node, show_attr):
+    def get_attrs(self, node):
         return [name for (name,v) in node.instance_attrs_type.items()
-                if show_attr(name)]
+                if self.show_attr(name)]
     
-    def get_methods(self, node, show_attr):
+    def get_methods(self, node):
         return [m for m in node.values()
-                       if isinstance(m, astng.Function) and show_attr(m.name)]
-    
-    def add_object(self, title, node, show_attr = None):
+                       if isinstance(m, astng.Function) and self.show_attr(m.name)]
+
+    def get_attributs(self, obj):
+        obj.attrs = self.get_attrs(obj.node)
+        obj.methods = self.get_methods(obj.node)
+
+    def add_object(self, title, node):
         """create a diagram object
         """
         assert not self._nodes.has_key(node)
         ent = DiagramEntity(title, node)
-        if isinstance(node, astng.Class)and show_attr:
-            ent.methods = self.get_methods(node, show_attr)
-            ent.attrs = self.get_attrs(node, show_attr)
         self._nodes[node] = ent
         self.objects.append(ent)
 
@@ -123,6 +125,7 @@ class ClassDiagram(Figure):
         """
         for obj in self.classes():
             node = obj.node
+            self.get_attributs(obj)
             # shape
             if is_interface(node):
                 obj.shape = 'interface'

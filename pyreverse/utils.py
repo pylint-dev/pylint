@@ -90,26 +90,20 @@ VIS_MOD = {'special':_SPECIAL, 'protected': _PROTECTED, 'private': _PRIVATE, 'pu
 class FilterMixIn:
     """filter nodes according to a mode and nodes' visibility
     """
+    def __init__(self, mode):
+        "init filter modes"
+        __mode = 0
+        for nummod in mode.split('+'):
+            try:
+                __mode += MODES[nummod]
+            except KeyError, ex:
+                print >> sys.stderr, 'Unknown filter mode %s' % ex
+        self.__mode = __mode
 
-    def get_mode(self):
-        """return the integer value of a mode string
-        """
-        try:
-            return self.__mode
-        except AttributeError:
-            mode = 0
-            for nummod in self.config.mode.split('+'):
-                try:
-                    mode += MODES[nummod]
-                except KeyError, ex:
-                    print >> sys.stderr, 'Unknown filter mode %s' % ex
-            self.__mode = mode
-            return mode
 
     def show_attr(self, node):
         """return true if the node should be treated
         """
-        mode = self.get_mode()
         visibility = get_visibility(getattr(node, 'name', node))
-        return not (mode & VIS_MOD[visibility] )
+        return not (__mode & VIS_MOD[visibility] )
 
