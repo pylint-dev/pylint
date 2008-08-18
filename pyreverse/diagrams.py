@@ -74,16 +74,24 @@ class ClassDiagram(Figure, FilterMixIn):
         raise KeyError(relation_type)
 
     def get_attrs(self, node):
-        return [name for (name,v) in node.instance_attrs_type.items()
-                if self.show_attr(name)]
-    
-    def get_methods(self, node):
-        return [m for m in node.values()
-                       if isinstance(m, astng.Function) and self.show_attr(m.name)]
+        """return visible attributs, possibly with class name"""
+        attrs = []
+        for node_name, ass_nodes in node.instance_attrs_type.items():
+            if not self.show_attr(node_name):
+                continue
+            for ass_node in ass_nodes:
+                if isinstance(ass_node, astng.Instance):
+                    ass_node = ass_node._proxied
+                if isinstance(ass_node, astng.Class) \
+                   and hasattr(ass_node, "name") and not self.has_node(ass_node):
+                    node_name = "%s : %s" % (node_name, ass_node.name)
+            attrs.append(node_name)
+        return attrs
 
-    def get_attributs(self, obj):
-        obj.attrs = self.get_attrs(obj.node)
-        obj.methods = self.get_methods(obj.node)
+    def get_methods(self, node):
+        """return visible methods"""
+        return [m for m in node.values()
+                if isinstance(m, astng.Function) and self.show_attr(m.name)]
 
     def add_object(self, title, node):
         """create a diagram object
@@ -125,7 +133,8 @@ class ClassDiagram(Figure, FilterMixIn):
         """
         for obj in self.classes():
             node = obj.node
-            self.get_attributs(obj)
+            obj.attrs = self.get_attrs(obj.node)
+            obj.methods = self.get_methods(obj.node)
             # shape
             if is_interface(node):
                 obj.shape = 'interface'
@@ -187,7 +196,7 @@ class PackageDiagram(ClassDiagram):
                 continue
         for obj in self.modules():
             obj.shape = 'package'
-            # dependancies
+            # dependencies
             for dep in obj.node.depends:
                 try:
                     dep = self.module(dep)
