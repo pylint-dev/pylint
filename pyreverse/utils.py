@@ -105,5 +105,5 @@ class FilterMixIn:
         """return true if the node should be treated
         """
         visibility = get_visibility(getattr(node, 'name', node))
-        return not (__mode & VIS_MOD[visibility] )
+        return not (self.__mode & VIS_MOD[visibility] )
 

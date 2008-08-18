@@ -61,13 +61,13 @@ class DiadefsResolverHelper:
         self._p = project
         self.linker = linker
 
-    def resolve_packages(self, diadef, diagram=None):
+    def resolve_packages(self, diadef, mode, diagram=None):
         """take a package diagram definition dictionnary and return matching
         objects
         """
         if diagram is None:
             diagram = PackageDiagram(diadef.get('name',
-                                                'No name packages diagram'))
+                                                'No name packages diagram'), mode)
         for package in diadef['package']:
             name = package['name']
             module = self.get_module(name)
@@ -79,17 +79,17 @@ class DiadefsResolverHelper:
                 for node, title in self.get_classes(module):
                     self.linker.visit(node)
                     diagram.add_object(title, node)
-        self.resolve_classes(diadef, diagram)
+        self.resolve_classes(diadef, mode, diagram)
         return diagram
 
-    def resolve_classes(self, diadef, diagram=None):
+    def resolve_classes(self, diadef, mode, diagram=None):
         """take a class diagram definition dictionnary and return a Diagram
         instance (given in paramaters or created)
         """
         class_defs = diadef.get('class', [])
         if diagram is None:
             diagram = ClassDiagram(diadef.get('name',
-                                              'No name classes diagram'))
+                                              'No name classes diagram'), mode)
         for klass in class_defs:
             name, module = klass['name'], klass.get('owner', '')
             c = self.get_class(module, name)
