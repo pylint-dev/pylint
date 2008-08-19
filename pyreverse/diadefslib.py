@@ -210,6 +210,12 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
         title = self.get_title(node)
         self.classdiagram.add_object(title, node)
 
+    def visit_from(self, node):
+        """visit astng.From  and catch modules for package diagram
+        """
+        if self.pkgdiagram:
+            self.pkgdiagram.add_depend_relation( node, node.modname )
+
 
 class ClassDiadefGenerator(OptionHandler):
     """generate a class diagram definition including all classes related to a
@@ -258,7 +264,6 @@ class ClassDiadefGenerator(OptionHandler):
         # association
         for name, ass_nodes in klass_node.instance_attrs_type.items():
             for ass_node in ass_nodes:
-                # XXX could find here class attributes and their type
                 if isinstance(ass_node, astng.Instance):
                     ass_node = ass_node._proxied
                 if not isinstance(ass_node, astng.Class) \

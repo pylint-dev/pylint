@@ -58,7 +58,8 @@ class ClassDiagram(Figure, FilterMixIn):
         self.objects = []
         self.relationships = {}
         self._nodes = {}
-        
+        self.depends = []
+
     def add_relationship(self, from_object, to_object, relation_type, name=None):
         """create a relation ship
         """
@@ -107,7 +108,8 @@ class ClassDiagram(Figure, FilterMixIn):
             if isinstance(ass_node, astng.Class) \
                 and hasattr(ass_node, "name") and not self.has_node(ass_node):
                 if ass_node.name not in names:
-                    names.append(ass_node.name)
+                    ass_name = ass_node.name
+                    names.append(ass_name)
         return names
 
     def nodes(self):
@@ -142,8 +144,8 @@ class ClassDiagram(Figure, FilterMixIn):
         """
         for obj in self.classes():
             node = obj.node
-            obj.attrs = self.get_attrs(obj.node)
-            obj.methods = self.get_methods(obj.node)
+            obj.attrs = self.get_attrs(node)
+            obj.methods = self.get_methods(node)
             # shape
             if is_interface(node):
                 obj.shape = 'interface'
@@ -190,25 +192,38 @@ class PackageDiagram(ClassDiagram):
             if mod.node.name == name:
                 return mod
         raise KeyError(name)
-    
+
+    def add_depend_relation(self, node, from_module):
+        """add dependencies created by from-imports
+        """
+        mod_name = node.root().name
+        obj = self.module( mod_name )
+        if from_module not in obj.node.depends:
+            obj.node.depends.append(from_module)
+
     def extract_relationships(self):
         """extract relation ships between nodes in the diagram
         """
         ClassDiagram.extract_relationships(self)
         for obj in self.classes():
-            node = obj.node
             # ownership
             try:
-                mod = self.object_from_node(node.root())
+                mod = self.object_from_node(obj.node.root())
                 self.add_relationship(obj, mod, 'ownership')
             except KeyError:
                 continue
         for obj in self.modules():
             obj.shape = 'package'
             # dependencies
-            for dep in obj.node.depends:
+            for dep_name in obj.node.depends:
                 try:
-                    dep = self.module(dep)
+                    dep = self.module(dep_name)
                 except KeyError:
-                    continue
+                    # relative imports
+                    package = obj.node.root().name.rsplit('.', 1)[0]
+                    dep_name = "%s.%s" % (package, dep_name)
+                    try:
+                        dep = self.module(dep_name)
+                    except KeyError:
+                        continue
                 self.add_relationship(obj, dep, 'depends')
