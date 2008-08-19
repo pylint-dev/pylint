@@ -3,4 +3,6 @@ charset="utf-8"
 "3" [shape="box", label="data.clientmodule_test"];
 "6" [shape="box", label="data"];
 "7" [shape="box", label="data.suppliermodule_test"];
+edge [arrowtail="none", arrowhead="open"];
+"3" -> "7"
 }
