@@ -116,7 +116,7 @@ class ReadDiadefsFileTC(unittest.TestCase):
         self.assertEquals(keys, ['class-diagram', 'package-diagram'])
         self.assertEquals(len(dd['package-diagram']), 1)
         pd = dd['package-diagram'][0]
-        self.assertEquals(pd['name'], 'packages dependencies')
+        self.assertEquals(pd['name'], 'package dependencies')
         self.assertEquals(pd['package'], [{'name': 'base'},
                                           {'name': 'pyparser'},
                                           {'name': 'xmi_uml'},
