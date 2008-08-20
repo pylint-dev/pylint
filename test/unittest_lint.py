@@ -65,7 +65,7 @@ class RunTC(TestCase):
         sys.sterr = StringIO()
         try:
             try:
-                Run(args, quiet=1)
+                Run(args)
             except SystemExit, ex:
                 self.assertEquals(ex.code, exit_code)
             else:

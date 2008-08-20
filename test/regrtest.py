@@ -33,7 +33,6 @@ linter = PyLinter()
 linter.set_reporter(test_reporter)
 linter.disable_message_category('I')
 linter.config.persistent = 0
-linter.quiet = 1
 checkers.initialize(linter)
 
 sys.path.insert(1, abspath('regrtest_data'))

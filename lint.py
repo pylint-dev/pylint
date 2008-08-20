@@ -779,7 +779,7 @@ class Run:
 group are mutually exclusive.'),
         )
     
-    def __init__(self, args, reporter=None, quiet=0):
+    def __init__(self, args, reporter=None):
         self._rcfile = None
         self._plugins = []
         preprocess_options(args, {
@@ -845,7 +845,6 @@ are done by default'''}),
 
             ), option_groups=self.option_groups,
                reporter=reporter, pylintrc=self._rcfile)
-        linter.quiet = quiet
         # register standard checkers
         from pylint import checkers
         checkers.initialize(linter)

@@ -25,23 +25,23 @@ class LintSmokeTest(TestCase):
         
     def test1(self):
         """make pylint checking itself"""
-        Run(['--include-ids=y', 'pylint'], reporter=TextReporter(StringIO()), quiet=1)
+        Run(['--include-ids=y', 'pylint'], reporter=TextReporter(StringIO()))
     
     def test2(self):
         """make pylint checking itself"""
-        Run(['pylint.lint'], reporter=ParseableTextReporter(StringIO()), quiet=1)
+        Run(['pylint.lint'], reporter=ParseableTextReporter(StringIO()))
     
     def test3(self):
         """make pylint checking itself"""
-        Run(['pylint.checkers'], reporter=HTMLReporter(StringIO()), quiet=1)
+        Run(['pylint.checkers'], reporter=HTMLReporter(StringIO()))
     
     def test4(self):
         """make pylint checking itself"""
-        Run(['pylint.checkers'], reporter=ColorizedTextReporter(StringIO()), quiet=1)
+        Run(['pylint.checkers'], reporter=ColorizedTextReporter(StringIO()))
     
     def test5(self):
         """make pylint checking itself"""
-        Run(['pylint.checkers'], reporter=VSTextReporter(StringIO()), quiet=1)
+        Run(['pylint.checkers'], reporter=VSTextReporter(StringIO()))
     
     def test_generate_config_option(self):
         """make pylint checking itself"""
@@ -49,8 +49,7 @@ class LintSmokeTest(TestCase):
         try:
             self.assertRaises(SystemExit, Run, 
                               ['--generate-rcfile'],
-                              reporter=HTMLReporter(StringIO()),
-                              quiet=1)
+                              reporter=HTMLReporter(StringIO()))
         finally:
             sys.stdout = sys.__stdout__
     
@@ -60,12 +59,10 @@ class LintSmokeTest(TestCase):
         try:
             self.assertRaises(SystemExit, Run, 
                               ['--help-msg', 'W0101'],
-                              reporter=HTMLReporter(StringIO()),
-                              quiet=1)
+                              reporter=HTMLReporter(StringIO()))
             self.assertRaises(SystemExit, Run, 
                               ['--help-msg', 'WX101'],
-                              reporter=HTMLReporter(StringIO()),
-                              quiet=1)
+                              reporter=HTMLReporter(StringIO()))
         finally:
             sys.stdout = sys.__stdout__
     
