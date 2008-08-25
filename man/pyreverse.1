@@ -5,7 +5,7 @@ them.
 
 .SH SYNOPSIS
 .B pyreverse 
-.I {dot|tests|vcg|xmi}
+.I {diagram|test|xmi}
 .I [options]
 <modules>
 
@@ -13,8 +13,7 @@ them.
 .B pyreverse
  is a python source analyzer. It can parse a python package and produce UML
  diagrams in different output formats. (dot, all formats available for dot, 
- vcg and xmi). 
- (For now, the 'xmi' and 'tests' commands are not under developpement.)
+and vcg). (For now, the 'xmi' and 'tests' commands are not under developpement.)
 
  With different options, you can have fine tuning on what and how modules, 
  classes and attributes will be shown in the diagram.
@@ -31,12 +30,12 @@ them.
 .IP "-i<file>, --ignore=<file>"
  add <file> (may be a directory) to the black list (not parsed)
 .IP "-f<mode>, --filter-mode=<mode>"
-filter attributes and functions according to <mode>. You can combine 
+ filter attributes and functions according to <mode>. You can combine 
  modes using '+' like 'SPECIAL+OTHER'. Correct modes are :
-  'PUB_ONLY' filter all non public attributes (default)
-  'ALL' no filter
-  'SPECIAL' filter Python special functions except constructor
-  'OTHER' filter protected and private attributes
+ 'PUB_ONLY' filter all non public attributes (default)
+ 'ALL' no filter
+ 'SPECIAL' filter Python special functions except constructor
+ 'OTHER' filter protected and private attributes
 
 .IP "-d<file>, --diadefs=<file>"
  create diagram according to the diagrams definitions in <file>
@@ -45,31 +44,32 @@ filter attributes and functions according to <mode>. You can combine
   the class must be in the file <modules>. By default, this will include all
   ancestors of <class> and include module names (i.e. '-my' ).
 .IP  "-l <depth>, --search-level=<depth>"
- limit depth of search for associated classes [default: not limited].
- (<depth>=1 will only take classes directly related to the classes in the project, 
- while <depth>=2 will also take all classes related to those fecthed by=1)
+In combination with
+.B -c
+, limit depth of search for associated classes [default: not limited].
+ For example, <depth>=1 will only take classes directly related to the classes 
+ in the project, while <depth>=2 will also take all classes related to those 
+ fecthed by<depth>=1.
 .IP   "-m [yn], --module-names=[yn]"
-                        include module name in representation of classes
-                        [current: none]
+ include module name in representation of classes [current: none]
 .IP  "-b [yn], --builtin=[yn]"
-                        include builtin objects in representation of classes
-                        [current: none]
+ include builtin objects in representation of classes [current: none]
 
-.SH DOT, VCG OPTIONS
- If no -c and no --diadefs option specified, pyreverse {dot|vcg} will create 
-    \- a diagram 'classes_<name>.{dot|vcg}' for the classes in <modules> and
-    \- a diagram 'packages_<name>.{dot|vcg}' for the packages in <modules>.
-
-
-.SH DOT OPTIONS
-creates a dot diagram for packages and a dot file for classes.
+.SH PYREVERSE DIAGRAM
+ If no -c and no --diadefs option specified, 
+.B pyreverse diagram
+will create 
+    \- a diagram 'classes_<name>' for the classes in <modules> and
+    \- a diagram 'packages_<name>' for the packages in <modules>.
+ With -c,
+.B pyreverse diagram
+creates a diagram for each <class> with same name (adding an output file extension).
 .IP "-o <format>, --output=<format>"
-create an additionnal *.<format> output file if format available
-[default: None]
+create a *.<format> output file if format available. Available formats
+are all formats that dot can produce and 
+.B vcg.
+[default: dot]
 
-.SH VCG OPTIONS
-.IP "-u, --uml"
-make a UML like diagram [default: no]
 
 .SH REQUIRES
 Python
