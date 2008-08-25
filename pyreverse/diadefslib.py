@@ -204,11 +204,17 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
 
         add this class to the class diagram definition
         """
-        if not self.show_builtin(node):
+        self._do_class(node)
+        if self.config.show_ancestors:
+            for ancestor in node.ancestors(recurs=False):
+                self._do_class(ancestor)
+
+    def _do_class(self, node):
+        """visit one class"""
+        if (not self.show_builtin(node))  or self.classdiagram.has_node(node):
             return
         self.linker.visit(node)
-        title = self.get_title(node)
-        self.classdiagram.add_object(title, node)
+        self.classdiagram.add_object(self.get_title(node), node)
 
     def visit_from(self, node):
         """visit astng.From  and catch modules for package diagram
