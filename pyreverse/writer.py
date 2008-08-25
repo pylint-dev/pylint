@@ -122,12 +122,12 @@ class VCGWriter(DiagramWriter):
         self.printer.emit_edge = self.printer.edge
         self.pkg_edges = dict(arrowstyle='solid', backarrowstyle='none',
                               backarrowsize=0)
-        self.inh_edges = dict(arrowstyle='none',
-                              backarrowstyle='solid', backarrowsize=10)
-        self.impl_edges = dict(arrowstyle='none', linestyle='dotted',
-                              backarrowstyle='solid', backarrowsize=10)
+        self.inh_edges = dict(arrowstyle='solid',
+                              backarrowstyle='none', backarrowsize=10)
+        self.impl_edges = dict(arrowstyle='solid', linestyle='dotted',
+                              backarrowstyle='none', backarrowsize=10)
         self.ass_edges = dict(textcolor='black',
-                              arrowstyle='none', backarrowstyle='none')
+                              arrowstyle='solid', backarrowstyle='none')
 
     def get_title(self, obj):
         return r'\fb%s\fn' % obj.title
