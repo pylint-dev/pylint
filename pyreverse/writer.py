@@ -15,7 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """
-Utilities for VCG diagram output.
+Utilities for creating VCG and Dot diagrams.
 """
 
 from logilab.common.vcgutils import VCGPrinter
@@ -30,7 +30,7 @@ class DiagramWriter:
         self.config = config
 
     def write(self, diadefs):
-        """write vcg files for <project> according to <diadefs>
+        """write files for <project> according to <diadefs>
         """
         for diagram in diadefs:
             basename = diagram.title.strip().replace(' ', '_')
@@ -44,7 +44,7 @@ class DiagramWriter:
             self.close_graph()
 
     def write_packages(self, diagram):
-        """write a packages diagram using the VCGPrinter"""
+        """write a package diagram"""
         for obj in diagram.modules():
             label = self.get_title(obj)
             self.printer.emit_node(obj.fig_id, label=label, shape='box')
@@ -55,7 +55,7 @@ class DiagramWriter:
 
 
     def write_classes(self, diagram):
-        """write a classes diagram"""
+        """write a class diagram"""
         for obj in diagram.objects:
             label, shape = self.get_label(obj)
             self.printer.emit_node(obj.fig_id, label=label, shape=shape)
@@ -78,6 +78,8 @@ class DotWriter(DiagramWriter):
     """
 
     def set_writer(self, file_name, basename):
+        """initialize DotWriter and add options for layout.
+        """
         layout = dict(rankdir="BT", concentrate="true")
         self.printer = DotBackend(basename, additionnal_param=layout)
         self.file_name = file_name
@@ -88,9 +90,14 @@ class DotWriter(DiagramWriter):
                                 style='solid')
 
     def get_title(self, obj):
+        """get project title"""
         return obj.title
 
     def get_label(self, obj):
+        """get label and shape for classes.
+        
+        The label contains all attributes and methods
+        """
         # TODO ? if is_exception(obj.node):
         label =  obj.title
         shape = 'record'
@@ -105,6 +112,7 @@ class DotWriter(DiagramWriter):
         return label, shape
 
     def close_graph(self):
+        """print the dot graph into <file_name>"""
         self.printer.generate(self.file_name)
 
 
@@ -113,6 +121,7 @@ class VCGWriter(DiagramWriter):
     """
 
     def set_writer(self, file_name, basename):
+        """initialize VCGWriter for a UML graph"""
         self.graph_file = open(file_name, 'w+')
         self.printer = VCGPrinter(self.graph_file)
         self.printer.open_graph(title=basename, layoutalgorithm='dfs',
@@ -130,9 +139,14 @@ class VCGWriter(DiagramWriter):
                               arrowstyle='solid', backarrowstyle='none')
 
     def get_title(self, obj):
+        """get project title in vcg format"""
         return r'\fb%s\fn' % obj.title
 
     def get_label(self, obj):
+        """get label and shape for classes.
+        
+        The label contains all attributes and methods
+        """
         if is_exception(obj.node):
             label = r'\fb\f09%s\fn' % obj.title
         else:
@@ -155,6 +169,7 @@ class VCGWriter(DiagramWriter):
         return label, shape
 
     def close_graph(self):
+        """close graph and file"""
         self.printer.close_graph()
         self.graph_file.close()
 
