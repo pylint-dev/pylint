@@ -174,7 +174,7 @@ class ClassDiagram(Figure, FilterMixIn):
                         value = value._proxied
                     try:
                         ass_obj = self.object_from_node(value)
-                        self.add_relationship(obj, ass_obj, 'association', name)
+                        self.add_relationship(ass_obj, obj, 'association', name)
                     except KeyError:
                         continue
         
