@@ -26,8 +26,8 @@ from pyreverse.utils import is_exception
 class DiagramWriter:
     """base class for writing project diagrams
     """
-    #def __init__(self, config):
-        #self.config = config
+    def __init__(self, config):
+        self.config = config
 
     def write(self, diadefs):
         """write vcg files for <project> according to <diadefs>
@@ -70,14 +70,12 @@ class DiagramWriter:
         # generate associations
         for rel in diagram.relationships.get('association', ()):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                            **self.ass_edges)
+                            label=rel.name, **self.ass_edges)
 
 
 class DotWriter(DiagramWriter):
     """write dot graphs from a diagram definition and a project
     """
-    def __init__(self, config):
-        self.config = config
 
     def set_writer(self, file_name, basename):
         layout = dict(rankdir="BT", concentrate="true")
@@ -86,8 +84,8 @@ class DotWriter(DiagramWriter):
         self.pkg_edges = dict(arrowtail='none', arrowhead = "open")
         self.inh_edges = dict(arrowtail = "none",arrowhead ='empty')
         self.impl_edges = dict(arrowtail="node",arrowhead ='empty',style='dashed')
-        self.ass_edges = dict(arrowtail='none',arrowhead='diamond',
-                                fontcolor='green',style='solid')
+        self.ass_edges = dict(fontcolor='green',arrowtail='none',arrowhead='diamond',
+                                style='solid')
 
     def get_title(self, obj):
         return obj.title
@@ -99,10 +97,8 @@ class DotWriter(DiagramWriter):
         if obj.shape == 'interface':
             # TODO : font italic ...
             label = "«interface»\\n%s" % label
-        methods = obj.methods
-        attrs = obj.attrs
-        label = "%s|%s\l|" % (label,  r"\l".join(attrs) )
-        for func in methods:
+        label = "%s|%s\l|" % (label,  r"\l".join(obj.attrs) )
+        for func in obj.methods:
             label = r'%s%s()\l' % (label, func.name)
         if shape == "record":
             label = '{%s}' % label
@@ -115,9 +111,6 @@ class DotWriter(DiagramWriter):
 class VCGWriter(DiagramWriter):
     """write vcg graphs from a diagram definition and a project
     """
-
-    def __init__(self, config):
-        self.config = config
 
     def set_writer(self, file_name, basename):
         self.graph_file = open(file_name, 'w+')
@@ -135,20 +128,9 @@ class VCGWriter(DiagramWriter):
                               backarrowstyle='solid', backarrowsize=10)
         self.ass_edges = dict(textcolor='black',
                               arrowstyle='none', backarrowstyle='none')
+
     def get_title(self, obj):
         return r'\fb%s\fn' % obj.title
-
-    def _get_boxsize(self,obj):
-        """calculate boxsize"""
-        #maxlen = max(len(name) for name in [obj.title] + obj.methods + obj.attrs])
-        maxlen = len(obj.title) + 2
-        for method in obj.methods:
-            the_len = len(method.name) + 2
-            maxlen = max(maxlen, the_len)
-        for attrname in obj.attrs:
-            the_len = len(attrname) + 2
-            maxlen = max(maxlen, the_len)
-        return maxlen
 
     def get_label(self, obj):
         if is_exception(obj.node):
@@ -159,14 +141,17 @@ class VCGWriter(DiagramWriter):
             shape = 'ellipse'
         else:
             shape = 'box'
-        maxlen = self.get_boxsize(obj)
+        attrs = obj.attrs
+        methods = [func.name for func in obj.methods]
+        # box width for UML like diagram
+        maxlen = max(len(name) for name in [obj.title] + methods + attrs) + 2
         label = r'%s\n\f%s' % (label, "_" * maxlen)
         for attr in attrs:
             label = r'%s\n\f08%s' % (label, attr)
         if attrs:
             label = r'%s\n\f%s' % (label, "_" * maxlen)
         for func in methods:
-            label = r'%s\n\f10%s()' % (label, func.name)
+            label = r'%s\n\f10%s()' % (label, func)
         return label, shape
 
     def close_graph(self):
