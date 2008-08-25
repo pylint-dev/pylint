@@ -1,13 +1,15 @@
 digraph "classes_No_Name" {
 charset="utf-8"
+rankdir=BT
+concentrate=true
 "4" [shape="record", label="{Specialization|relation\l|}"];
 "5" [shape="record", label="{Ancestor|attr : str\l|get_value()\lset_value()\l}"];
 "8" [shape="record", label="{«interface»\nInterface|\l|get_value()\lset_value()\l}"];
 "9" [shape="record", label="{DoNothing|\l|}"];
-edge [arrowhead="none", arrowtail="empty"];
-"5" -> "4"
-edge [arrowhead="none", style="dashed", arrowtail="empty"];
-"8" -> "5"
-edge [fontcolor="green", style="solid", arrowhead="none", arrowtail="diamond", label="relation"];
-"4" -> "9"
+edge [arrowtail="none", arrowhead="empty"];
+"4" -> "5"
+edge [arrowtail="node", style="dashed", arrowhead="empty"];
+"5" -> "8"
+edge [arrowhead="diamond", style="solid", arrowtail="none", fontcolor="green", label="relation"];
+"9" -> "4"
 }
