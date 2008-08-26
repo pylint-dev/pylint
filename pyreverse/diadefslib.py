@@ -139,6 +139,7 @@ class OptionHandler:
     """handle diagram generation options
     """
     def __init__(self, linker, handler):
+        """common Diagram Handler initialization"""
         self.config = handler.config
         self.show_attr = handler.show_attr
         self._set_default_options()
@@ -151,16 +152,72 @@ class OptionHandler:
             title =  '%s.%s' % (node.root().name, title)
         return title
 
-    def show_builtin(self, node):
-        "true if builtins and  show_builtin option"
-        # FIXME : does it work as it should ?
-        return (self.config.show_builtin) or not \
-           (node.name in ('object', 'type') or node.root().name == '__builtin__')
-    
+
     def _set_default_options(self):
+        """set different default options with _default dictionary"""
         self.module_names = self._default[self.config.module_names]
         self.all_ancestors = self._default[self.config.all_ancestors]
         self.all_associated = self._default[self.config.all_associated]
+
+    def _get_levels(self):
+        """help function for search levels"""
+        if self.all_ancestors:
+            anc_level = -1
+        else:
+            anc_level = self.config.show_ancestors
+        if self.all_associated:
+            ass_level = -1
+        else:
+            ass_level = self.config.show_associated
+        return anc_level, ass_level
+
+    def show_builtin(self, node):
+        """true if builtins and  show_builtin option"""
+        # FIXME : does it work as it should ?
+        return (self.config.show_builtin) or not \
+           (node.name in ('object', 'type') or node.root().name == '__builtin__')
+
+    def add_class(self, node):
+        """visit one class and add it to diagram"""
+        if (not self.show_builtin(node)):
+            return
+        self.linker.visit(node)
+        self.classdiagram.add_object(self.get_title(node), node)
+
+    def get_ancestors(self, node, level):
+        """return ancestor nodes of a class node"""
+        if level == 0:
+            return
+        for ancestor in node.ancestors(recurs=False):
+            if not self.show_builtin(ancestor):
+                continue
+            yield ancestor
+
+    def get_associated(self, klass_node, level):
+        """return associated nodes of a class node"""
+        if level == 0:
+            return
+        for name, ass_nodes in klass_node.instance_attrs_type.items():
+            for ass_node in ass_nodes:
+                if isinstance(ass_node, astng.Instance):
+                    ass_node = ass_node._proxied
+                if not isinstance(ass_node, astng.Class) \
+                       or not self.show_builtin(ass_node):
+                    continue
+                yield ass_node
+
+    def extract_classes(self, klass_node, anc_level, ass_level):
+        """extract recursively classes related to klass_node
+        """
+        if self.classdiagram.has_node(klass_node):
+            return
+        self.add_class(klass_node)
+
+        for ancestor in self.get_ancestors(klass_node, anc_level):
+            self.extract_classes(ancestor, anc_level-1, ass_level)
+
+        for ass_node in self.get_associated(klass_node, ass_level):
+            self.extract_classes(ass_node, anc_level, ass_level-1)
 
 
 class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
@@ -169,7 +226,7 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
     * a package diagram including project's modules
     * a class diagram including project's classes
     """
-    
+
     def __init__(self, linker, handler):
         self._default = {None:False, True:True, False:False}
         OptionHandler.__init__(self, linker, handler)
@@ -210,17 +267,8 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
 
         add this class to the class diagram definition
         """
-        self._do_class(node)
-        if self.config.show_ancestors or self.all_ancestors:
-            for ancestor in node.ancestors(recurs=False):
-                self._do_class(ancestor)
-
-    def _do_class(self, node):
-        """visit one class"""
-        if (not self.show_builtin(node))  or self.classdiagram.has_node(node):
-            return
-        self.linker.visit(node)
-        self.classdiagram.add_object(self.get_title(node), node)
+        anc_level, ass_level = self._get_levels()
+        self.extract_classes(node, anc_level, ass_level)
 
     def visit_from(self, node):
         """visit astng.From  and catch modules for package diagram
@@ -240,12 +288,12 @@ class ClassDiadefGenerator(OptionHandler):
 
     def class_diagram(self, project, klass):
         """return a class diagram definition for the given klass and its 
-        related klasses. Search deep depends on the associated_level
+        related klasses. Search deep depends on the ass_level
         (=1 will take all classes directly related, while =2 will also take
         all classes related to the one fecthed by=1)
         """
 
-        diagram = ClassDiagram(klass, self.config.mode)
+        self.classdiagram = ClassDiagram(klass, self.config.mode)
         if len(project.modules) > 1:
             module, klass = klass.rsplit('.', 1)
             module = project.get_module(module)
@@ -253,41 +301,10 @@ class ClassDiadefGenerator(OptionHandler):
             module = project.modules[0]
             klass = klass.split('.')[-1]
         klass = module.ilookup(klass).next()
-        level = int(self.config.show_associated)
-        self.extract_classes(diagram, klass, level)
-        return diagram
 
-    def extract_classes(self, diagram, klass_node, associated_level):
-        """extract classes related to klass_node until associated_level is 0
-        """
-        if diagram.has_node(klass_node):
-            return
-        self.add_class_def(diagram, klass_node)
-        # TODO : add ancestors depending on show_ancestors
-        associated_level -= 1
-        for ancestor in klass_node.ancestors():
-            if not self.show_builtin(ancestor):
-                continue
-            self.extract_classes(diagram, ancestor, associated_level)
-
-        if associated_level == 0:
-            return
-        # association
-        for name, ass_nodes in klass_node.instance_attrs_type.items():
-            for ass_node in ass_nodes:
-                if isinstance(ass_node, astng.Instance):
-                    ass_node = ass_node._proxied
-                if not isinstance(ass_node, astng.Class) \
-                       or not self.show_builtin(ass_node):
-                    continue
-                self.extract_classes(diagram, ass_node, associated_level)
-
-    def add_class_def(self, diagram, klass_node):
-        """add a class definition to the class diagram
-        """
-        title = self.get_title(klass_node)    
-        self.linker.visit(klass_node)
-        diagram.add_object(title, klass_node)
+        anc_level, ass_level = self._get_levels()
+        self.extract_classes(klass, anc_level, ass_level)
+        return self.classdiagram
 
 # diagram handler #############################################################
 
