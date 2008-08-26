@@ -30,10 +30,8 @@ def astng_wrapper(func, modname):
     return func(modname)
 
 project = ASTNGManager().project_from_files(['data'], astng_wrapper)
-attrs = {'module_names': None, 'output_format': None, 'diadefs_file': None,
-        'quiet': 0, 'classes': (), 'mode': 'PUB_ONLY', 
-        'show_builtin': False, 'include_level': -1}
-config = Config(attrs)
+
+config = Config()
 handler = DiadefsHandler(config)
 
 def _process_classes(classes):

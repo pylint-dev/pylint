@@ -42,18 +42,25 @@ and vcg). (For now, the 'xmi' and 'tests' commands are not under developpement.)
 .IP "-c <class>, --class=<class>"
   create a class diagram with all classes related to <class>  [current: none]
   the class must be in the file <modules>. By default, this will include all
-  ancestors of <class> and include module names (i.e. '-my' ).
-.IP  "-l <depth>, --search-level=<depth>"
-In combination with
-.B -c
-, limit depth of search for associated classes [default: not limited].
- For example, <depth>=1 will only take classes directly related to the classes 
- in the project, while <depth>=2 will also take all classes related to those 
- fecthed by<depth>=1.
+  ancestors and associated classes of <class> and include module names 
+      (i.e. '-ASmy' ).
+
+.IP   -a <ancestor>, --show-ancestors=<ancestor>
+    show <ancestor> generations of ancestor classes not in <projects>
+.IP   -A, --all-ancestors=[yn]
+    show all ancestors off all classes in <projects> [current: none]
+.IP   -s <ass_level>, --show-associated=<associated>
+    show <ass_level> associated classes. <ass_level>=1 will only take classes
+    directly related to the classes  in the project,  while <ass_level>=2 
+    will also take all classes related to those fecthed by<depth>=1.
+.IP   -S, --all-associated=[yn]
+    show recursively all associated off all associated classes [current: none]
+
+.IP  "-b, --builtin"
+ include builtin objects in representation of classes [current: False]
 .IP   "-m [yn], --module-names=[yn]"
- include module name in representation of classes [current: none]
-.IP  "-b [yn], --builtin=[yn]"
- include builtin objects in representation of classes [current: none]
+ include module name in representation of classes. This will include full module path in the class name. [current: none]
+
 
 .SH PYREVERSE DIAGRAM
  If no -c and no --diadefs option specified, 
