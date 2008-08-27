@@ -50,7 +50,39 @@ def _process_modules(modules):
     result.sort()
     return result
 
-class DiadefGeneratorTC(unittest.TestCase):
+class DiaDefGeneratorTC(unittest.TestCase):
+    def test_known_values(self):
+        handler = DiadefsHandler( Config())
+        df_h = DiaDefGenerator(Linker(project), handler)
+        cl_config = Config()
+        cl_config.classes = ['Specialization']
+        cl_h = DiaDefGenerator(Linker(project), DiadefsHandler(cl_config) )
+        self.assertEquals( (0, 0), df_h._get_levels())
+        self.assertEquals( False, df_h.module_names)
+        self.assertEquals( (-1, -1), cl_h._get_levels())
+        self.assertEquals( True, cl_h.module_names)
+        for hndl in [df_h, cl_h]:
+            hndl.config.all_ancestors = True
+            hndl.config.all_associated = True
+            hndl.config.module_names = True
+            hndl._set_default_options()
+            self.assertEquals( (-1, -1), hndl._get_levels())
+            self.assertEquals( True, hndl.module_names)
+        handler = DiadefsHandler( Config())
+        df_h = DiaDefGenerator(Linker(project), handler)
+        cl_config = Config()
+        cl_config.classes = ['Specialization']
+        cl_h = DiaDefGenerator(Linker(project), DiadefsHandler(cl_config) )
+        for hndl in [df_h, cl_h]:
+            hndl.config.show_ancestors = 2
+            hndl.config.show_associated = 1
+            hndl.config.module_names = False
+            hndl._set_default_options()
+            self.assertEquals( (2, 1), hndl._get_levels())
+            self.assertEquals( False, hndl.module_names)
+
+
+class DefaultDiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
         dd = DefaultDiadefGenerator(Linker(project), handler).visit(project)
         self.assertEquals(len(dd), 2)
@@ -81,13 +113,15 @@ class DiadefGeneratorTC(unittest.TestCase):
         self.assertEquals(cd.title, 'classes No Name')
         classes = _process_classes(cd.objects)
         self.assertEquals(classes, [{'node': True, 'name': 'Ancestor'},
+                                    {'node': True, 'name': 'DoNothing'},
                                     {'node': True, 'name': 'Specialization'}]
                           )
 
 class ClassDiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
         handler.config.classes = ['Specialization']
-        cd = ClassDiadefGenerator(Linker(project), handler).class_diagram(project, 'data.clientmodule_test.Specialization') 
+        cdg = ClassDiadefGenerator(Linker(project), handler)
+        cd = cdg.class_diagram(project, 'data.clientmodule_test.Specialization')
         self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
         self.assertEquals(classes, [{'node': True, 'name': 'data.clientmodule_test.Ancestor'},
