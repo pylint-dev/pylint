@@ -135,7 +135,7 @@ class DiadefsResolverHelper:
 
 # diagram generators ##########################################################
 
-class OptionHandler:
+class DiaDefGenerator:
     """handle diagram generation options
     """
     def __init__(self, linker, handler):
@@ -145,31 +145,35 @@ class OptionHandler:
         self._set_default_options()
         self.linker = linker
 
-    def get_title(self, node ):
+    def get_title(self, node):
         """get title for objects"""
         title = node.name
         if self.module_names:
             title =  '%s.%s' % (node.root().name, title)
         return title
 
-
     def _set_default_options(self):
         """set different default options with _default dictionary"""
-        self.module_names = self._default[self.config.module_names]
-        self.all_ancestors = self._default[self.config.all_ancestors]
-        self.all_associated = self._default[self.config.all_associated]
+        mod = {None:False, True:True, False:False}
+        if self.config.classes:
+            mod[None] = True
+        self.module_names = mod[self.config.module_names]
+        self._all_ancestors = mod[self.config.all_ancestors]
+        self._all_associated = mod[self.config.all_associated]
+        anc_level, ass_level = (0,0)
+        if  self._all_ancestors:
+            anc_level = -1
+        if self._all_associated:
+            ass_level = -1
+        if self.config.show_ancestors is not None:
+            anc_level = self.config.show_ancestors
+        if self.config.show_associated is not None:
+            ass_level = self.config.show_associated
+        self.anc_level, self.ass_level = anc_level, ass_level
 
     def _get_levels(self):
         """help function for search levels"""
-        if self.all_ancestors:
-            anc_level = -1
-        else:
-            anc_level = self.config.show_ancestors
-        if self.all_associated:
-            ass_level = -1
-        else:
-            ass_level = self.config.show_associated
-        return anc_level, ass_level
+        return self.anc_level, self.ass_level
 
     def show_builtin(self, node):
         """true if builtins and  show_builtin option"""
@@ -220,7 +224,7 @@ class OptionHandler:
             self.extract_classes(ass_node, anc_level, ass_level-1)
 
 
-class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
+class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
     """generate minimum diagram definition for the project :
 
     * a package diagram including project's modules
@@ -228,8 +232,7 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
     """
 
     def __init__(self, linker, handler):
-        self._default = {None:False, True:True, False:False}
-        OptionHandler.__init__(self, linker, handler)
+        DiaDefGenerator.__init__(self, linker, handler)
         LocalsVisitor.__init__(self)
 
     def visit_project(self, node):
@@ -277,20 +280,17 @@ class DefaultDiadefGenerator(LocalsVisitor, OptionHandler):
             self.pkgdiagram.add_depend_relation( node, node.modname )
 
 
-class ClassDiadefGenerator(OptionHandler):
+class ClassDiadefGenerator(DiaDefGenerator):
     """generate a class diagram definition including all classes related to a
     given class
     """
 
     def __init__(self, linker, handler):
-        self._default = {None:True, True:True, False:False}
-        OptionHandler.__init__(self, linker, handler)
+        DiaDefGenerator.__init__(self, linker, handler)
 
     def class_diagram(self, project, klass):
-        """return a class diagram definition for the given klass and its 
-        related klasses. Search deep depends on the ass_level
-        (=1 will take all classes directly related, while =2 will also take
-        all classes related to the one fecthed by=1)
+        """return a class diagram definition for the given klass and its
+        related klasses
         """
 
         self.classdiagram = ClassDiagram(klass, self.config.mode)
