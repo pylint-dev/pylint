@@ -93,7 +93,8 @@ class PyLinterTC(TestCase):
         
     def test_message_help(self):
         msg = self.linter.get_message_help('F0001', checkerref=True)
-        expected = ':F0001:\n  Used when an error occured preventing the analyzing of a module (unable to\n  find it for instance). This message belongs to the master checker.'
+        expected = ':F0001:\n  Used when an error occured preventing the analysis of a module (unable to find\n  it for instance). This message belongs to the master checker.'
+        self.assertTextEqual(msg, expected)
         self.assertEquals(' '.join(msg.splitlines()), ' '.join(expected.splitlines()))
         self.assertRaises(UnknownMessage, self.linter.get_message_help, 'YB12')
         
