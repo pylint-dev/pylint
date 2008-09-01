@@ -58,6 +58,8 @@ class DiagramWriter:
         """write a class diagram"""
         for obj in diagram.objects:
             label, shape = self.get_label(obj)
+            if self.config.only_classnames:
+                label = self.get_title(obj)
             self.printer.emit_node(obj.fig_id, label=label, shape=shape)
         # inheritance links
         for rel in diagram.relationships.get('specialization', ()):
