@@ -26,8 +26,6 @@ from pyreverse.utils import is_exception
 class DiagramWriter:
     """base class for writing project diagrams
     """
-    def __init__(self, config):
-        self.config = config
 
     def write(self, diadefs):
         """write files for <project> according to <diadefs>
@@ -53,14 +51,10 @@ class DiagramWriter:
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
                               **self.pkg_edges)
 
-
     def write_classes(self, diagram):
         """write a class diagram"""
         for obj in diagram.objects:
-            label, shape = self.get_label(obj)
-            if self.config.only_classnames:
-                label = self.get_title(obj)
-            self.printer.emit_node(obj.fig_id, label=label, shape=shape)
+            self.printer.emit_node(obj.fig_id, **self.get_values(obj) )
         # inheritance links
         for rel in diagram.relationships.get('specialization', ()):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
@@ -79,39 +73,42 @@ class DotWriter(DiagramWriter):
     """write dot graphs from a diagram definition and a project
     """
 
+    def __init__(self, config):
+        self.config = config
+        self.pkg_edges = dict(arrowtail='none', arrowhead="open")
+        self.inh_edges = dict(arrowtail = "none", arrowhead='empty')
+        self.impl_edges = dict(arrowtail="node", arrowhead='empty', 
+                                style='dashed')
+        self.ass_edges = dict(fontcolor='green', arrowtail='none',
+                    arrowhead='diamond', style='solid')
+
     def set_writer(self, file_name, basename):
         """initialize DotWriter and add options for layout.
         """
         layout = dict(rankdir="BT", concentrate="true")
         self.printer = DotBackend(basename, additionnal_param=layout)
         self.file_name = file_name
-        self.pkg_edges = dict(arrowtail='none', arrowhead = "open")
-        self.inh_edges = dict(arrowtail = "none",arrowhead ='empty')
-        self.impl_edges = dict(arrowtail="node",arrowhead ='empty',style='dashed')
-        self.ass_edges = dict(fontcolor='green',arrowtail='none',arrowhead='diamond',
-                                style='solid')
 
     def get_title(self, obj):
         """get project title"""
         return obj.title
 
-    def get_label(self, obj):
+    def get_values(self, obj):
         """get label and shape for classes.
         
         The label contains all attributes and methods
         """
-        # TODO ? if is_exception(obj.node):
         label =  obj.title
-        shape = 'record'
         if obj.shape == 'interface':
-            # TODO : font italic ...
             label = "«interface»\\n%s" % label
-        label = "%s|%s\l|" % (label,  r"\l".join(obj.attrs) )
-        for func in obj.methods:
-            label = r'%s%s()\l' % (label, func.name)
-        if shape == "record":
+        if not self.config.only_classnames:
+            label = "%s|%s\l|" % (label,  r"\l".join(obj.attrs) )
+            for func in obj.methods:
+                label = r'%s%s()\l' % (label, func.name)
             label = '{%s}' % label
-        return label, shape
+        if is_exception(obj.node):
+            return dict(fontcolor="red", label=label, shape="record")
+        return dict(label=label, shape="record")
 
     def close_graph(self):
         """print the dot graph into <file_name>"""
@@ -121,6 +118,16 @@ class DotWriter(DiagramWriter):
 class VCGWriter(DiagramWriter):
     """write vcg graphs from a diagram definition and a project
     """
+    def __init__(self, config):
+        self.config = config
+        self.pkg_edges = dict(arrowstyle='solid', backarrowstyle='none',
+                              backarrowsize=0)
+        self.inh_edges = dict(arrowstyle='solid',
+                              backarrowstyle='none', backarrowsize=10)
+        self.impl_edges = dict(arrowstyle='solid', linestyle='dotted',
+                              backarrowstyle='none', backarrowsize=10)
+        self.ass_edges = dict(textcolor='black',
+                              arrowstyle='solid', backarrowstyle='none')
 
     def set_writer(self, file_name, basename):
         """initialize VCGWriter for a UML graph"""
@@ -131,20 +138,12 @@ class VCGWriter(DiagramWriter):
                                 manhattan_edges='yes')
         self.printer.emit_node = self.printer.node
         self.printer.emit_edge = self.printer.edge
-        self.pkg_edges = dict(arrowstyle='solid', backarrowstyle='none',
-                              backarrowsize=0)
-        self.inh_edges = dict(arrowstyle='solid',
-                              backarrowstyle='none', backarrowsize=10)
-        self.impl_edges = dict(arrowstyle='solid', linestyle='dotted',
-                              backarrowstyle='none', backarrowsize=10)
-        self.ass_edges = dict(textcolor='black',
-                              arrowstyle='solid', backarrowstyle='none')
 
     def get_title(self, obj):
         """get project title in vcg format"""
         return r'\fb%s\fn' % obj.title
 
-    def get_label(self, obj):
+    def get_values(self, obj):
         """get label and shape for classes.
         
         The label contains all attributes and methods
@@ -157,18 +156,20 @@ class VCGWriter(DiagramWriter):
             shape = 'ellipse'
         else:
             shape = 'box'
-        attrs = obj.attrs
-        methods = [func.name for func in obj.methods]
-        # box width for UML like diagram
-        maxlen = max(len(name) for name in [obj.title] + methods + attrs) + 2
-        label = r'%s\n\f%s' % (label, "_" * maxlen)
-        for attr in attrs:
-            label = r'%s\n\f08%s' % (label, attr)
-        if attrs:
-            label = r'%s\n\f%s' % (label, "_" * maxlen)
-        for func in methods:
-            label = r'%s\n\f10%s()' % (label, func)
-        return label, shape
+        if not self.config.only_classnames:
+            attrs = obj.attrs
+            methods = [func.name for func in obj.methods]
+            # box width for UML like diagram
+            maxlen = max(len(name) for name in [obj.title] + methods + attrs)
+            line =  "_" * (maxlen + 2)
+            label = r'%s\n\f%s' % (label, line)
+            for attr in attrs:
+                label = r'%s\n\f08%s' % (label, attr)
+            if attrs:
+                label = r'%s\n\f%s' % (label, line)
+            for func in methods:
+                label = r'%s\n\f10%s()' % (label, func)
+        return dict(label=label, shape=shape)
 
     def close_graph(self):
         """close graph and file"""
