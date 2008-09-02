@@ -56,17 +56,18 @@ class DiadefsResolverHelper:
     """fetch objects in the project according to the diagram definition
     from a XML file
     """
-    def __init__(self, project, linker):
+    def __init__(self, project, linker, config):
+        self.mode = config.mode
         self._p = project
         self.linker = linker
 
-    def resolve_packages(self, diadef, mode, diagram=None):
+    def resolve_packages(self, diadef, diagram=None):
         """take a package diagram definition dictionnary and return matching
         objects
         """
         if diagram is None:
             diagram = PackageDiagram(diadef.get('name',
-                                       'No name packages diagram'), mode)
+                                     'No name packages diagram'), self.mode)
         for package in diadef['package']:
             name = package['name']
             module = self.get_module(name)
@@ -78,17 +79,17 @@ class DiadefsResolverHelper:
                 for node, title in self.get_classes(module):
                     self.linker.visit(node)
                     diagram.add_object(title, node)
-        self.resolve_classes(diadef, mode, diagram)
+        self.resolve_classes(diadef, diagram)
         return diagram
 
-    def resolve_classes(self, diadef, mode, diagram=None):
+    def resolve_classes(self, diadef, diagram=None):
         """take a class diagram definition dictionnary and return a Diagram
         instance (given in paramaters or created)
         """
         class_defs = diadef.get('class', [])
         if diagram is None:
             diagram = ClassDiagram(diadef.get('name',
-                                    'No name classes diagram'), mode)
+                                   'No name classes diagram'), self.mode)
         for klass in class_defs:
             name, module = klass['name'], klass.get('owner', '')
             c = self.get_class(module, name)
@@ -153,15 +154,15 @@ class DiaDefGenerator:
     def _set_default_options(self):
         """set different default options with _default dictionary"""
         mod = {None:False, True:True, False:False}
-        if self.config.classes:
+        if self.config.classes: # defaults for class diagram
             mod[None] = True
         self.module_names = mod[self.config.module_names]
-        self._all_ancestors = mod[self.config.all_ancestors]
-        self._all_associated = mod[self.config.all_associated]
+        all_ancestors = mod[self.config.all_ancestors]
+        all_associated = mod[self.config.all_associated]
         anc_level, ass_level = (0, 0)
-        if  self._all_ancestors:
+        if  all_ancestors:
             anc_level = -1
-        if self._all_associated:
+        if all_associated:
             ass_level = -1
         if self.config.show_ancestors is not None:
             anc_level = self.config.show_ancestors
@@ -323,7 +324,7 @@ class DiadefsHandler:
         diagrams = []
         if self.config.diadefs_file is not None:
             diadefs = read_diadefs_file(self.config.diadefs_file)
-            resolver = DiadefsResolverHelper(project, linker)
+            resolver = DiadefsResolverHelper(project, linker, self.config)
             for class_diagram in diadefs.get('class-diagram', ()):
                 resolver.resolve_classes(class_diagram)
             for package_diagram in diadefs.get('package-diagram', ()):

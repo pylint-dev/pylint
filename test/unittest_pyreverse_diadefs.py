@@ -174,7 +174,7 @@ class ReadDiadefsFileTC(unittest.TestCase):
         
 class DiadefsResolverHelperTC(unittest.TestCase):
     def setUp(self):
-        self.helper = DiadefsResolverHelper(project, Linker(project))
+        self.helper = DiadefsResolverHelper(project, Linker(project), config)
 
     def _assert_class(self, objects, klass):
         for object in objects:
@@ -182,22 +182,22 @@ class DiadefsResolverHelperTC(unittest.TestCase):
         
     def test_resolve_packages_include_all(self):
         data = {'package': [{'name': 'data.clientmodule_test', 'include': 'all'}]}
-        diagram = self.helper.resolve_packages(data, config.mode)
+        diagram = self.helper.resolve_packages(data)
         self._test_resolve_packages_included(diagram)
            
     def test_resolve_packages_include_yes(self):
         data = {'package': [{'name': 'data.clientmodule_test', 'include': 'yes'}]}
-        diagram = self.helper.resolve_packages(data, config.mode )
+        diagram = self.helper.resolve_packages(data)
         self._test_resolve_packages_included(diagram)
         
     def test_resolve_packages_include_no(self):
         data = {'package': [{'name': 'data.clientmodule_test', 'include': 'no'}]}
-        diagram = self.helper.resolve_packages(data, config.mode)
+        diagram = self.helper.resolve_packages(data)
         self._test_resolve_packages_not_included(diagram)
            
     def test_resolve_packages(self):
         data = {'package': [{'name': 'data.clientmodule_test'}]}
-        diagram = self.helper.resolve_packages(data, config.mode)
+        diagram = self.helper.resolve_packages(data)
         self._test_resolve_packages_not_included(diagram)
 
     def _test_resolve_packages_included(self, data):
@@ -213,8 +213,7 @@ class DiadefsResolverHelperTC(unittest.TestCase):
            
     def test_resolve_classes(self):
         data = {'class': [{'name' : 'Specialization', 'owner': 'data.clientmodule_test'}]}
-        self.helper.resolve_classes(data, config.mode)
-        # FIXME ???
-        
+        self.helper.resolve_classes(data)
+
 if __name__ == '__main__':
     unittest.main()

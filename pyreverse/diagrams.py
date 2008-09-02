@@ -20,9 +20,11 @@ from logilab import astng
 from pyreverse.utils import is_interface, FilterMixIn
 
 def set_counter(value):
+    """Figure counter (re)set"""
     Figure._UID_COUNT = value
     
 class Figure:
+    """base class for counter handling"""
     _UID_COUNT = 0
     def __init__(self):
         Figure._UID_COUNT += 1
@@ -48,7 +50,7 @@ class DiagramEntity(Figure):
         self.node = node
 
 class ClassDiagram(Figure, FilterMixIn):
-    """a class diagram objet
+    """main class diagram handling
     """
     TYPE = 'class'
     def __init__(self, title, mode):
@@ -60,7 +62,8 @@ class ClassDiagram(Figure, FilterMixIn):
         self._nodes = {}
         self.depends = []
 
-    def add_relationship(self, from_object, to_object, relation_type, name=None):
+    def add_relationship(self, from_object, to_object, 
+                         relation_type, name=None):
         """create a relation ship
         """
         rel = Relationship(from_object, to_object, relation_type, name)
@@ -179,6 +182,8 @@ class ClassDiagram(Figure, FilterMixIn):
                         continue
         
 class PackageDiagram(ClassDiagram):
+    """package diagram handling
+    """
     TYPE = 'package'
     
     def modules(self):
