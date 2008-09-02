@@ -23,7 +23,6 @@ from logilab.astng.utils import LocalsVisitor
 
 from pyreverse.extensions.xmlconf import DictSaxHandlerMixIn, PrefReader
 from pyreverse.extensions.diagrams import PackageDiagram, ClassDiagram
-from pyreverse.utils import FilterMixIn
 
 # diadefs xml files utilities #################################################
 
@@ -67,7 +66,7 @@ class DiadefsResolverHelper:
         """
         if diagram is None:
             diagram = PackageDiagram(diadef.get('name',
-                                                'No name packages diagram'), mode)
+                                       'No name packages diagram'), mode)
         for package in diadef['package']:
             name = package['name']
             module = self.get_module(name)
@@ -89,7 +88,7 @@ class DiadefsResolverHelper:
         class_defs = diadef.get('class', [])
         if diagram is None:
             diagram = ClassDiagram(diadef.get('name',
-                                              'No name classes diagram'), mode)
+                                    'No name classes diagram'), mode)
         for klass in class_defs:
             name, module = klass['name'], klass.get('owner', '')
             c = self.get_class(module, name)
@@ -141,7 +140,6 @@ class DiaDefGenerator:
     def __init__(self, linker, handler):
         """common Diagram Handler initialization"""
         self.config = handler.config
-        self.show_attr = handler.show_attr
         self._set_default_options()
         self.linker = linker
 
@@ -160,7 +158,7 @@ class DiaDefGenerator:
         self.module_names = mod[self.config.module_names]
         self._all_ancestors = mod[self.config.all_ancestors]
         self._all_associated = mod[self.config.all_associated]
-        anc_level, ass_level = (0,0)
+        anc_level, ass_level = (0, 0)
         if  self._all_ancestors:
             anc_level = -1
         if self._all_associated:
@@ -175,16 +173,14 @@ class DiaDefGenerator:
         """help function for search levels"""
         return self.anc_level, self.ass_level
 
-    def show_builtin(self, node):
-        """true if builtins and  show_builtin option"""
-        # FIXME : does it work as it should ?
-        return (self.config.show_builtin) or not \
-           (node.name in ('object', 'type') or node.root().name == '__builtin__')
+    def not_show_builtin(self, node):
+        """true if builtins and not show_builtins"""
+        builtin = (node.name in ('object', 'type') or 
+                    node.root().name == '__builtin__')
+        return builtin and not (self.config.show_builtin)
 
     def add_class(self, node):
         """visit one class and add it to diagram"""
-        if (not self.show_builtin(node)):
-            return
         self.linker.visit(node)
         self.classdiagram.add_object(self.get_title(node), node)
 
@@ -193,7 +189,7 @@ class DiaDefGenerator:
         if level == 0:
             return
         for ancestor in node.ancestors(recurs=False):
-            if not self.show_builtin(ancestor):
+            if self.not_show_builtin(ancestor):
                 continue
             yield ancestor
 
@@ -206,7 +202,7 @@ class DiaDefGenerator:
                 if isinstance(ass_node, astng.Instance):
                     ass_node = ass_node._proxied
                 if not isinstance(ass_node, astng.Class) \
-                       or not self.show_builtin(ass_node):
+                       or self.not_show_builtin(ass_node):
                     continue
                 yield ass_node
 
@@ -279,7 +275,6 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         if self.pkgdiagram:
             self.pkgdiagram.add_depend_relation( node, node.modname )
 
-
 class ClassDiadefGenerator(DiaDefGenerator):
     """generate a class diagram definition including all classes related to a
     given class
@@ -308,7 +303,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
 # diagram handler #############################################################
 
-class DiadefsHandler(FilterMixIn):
+class DiadefsHandler:
     """handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them
@@ -336,9 +331,8 @@ class DiadefsHandler(FilterMixIn):
         generator = ClassDiadefGenerator(linker, self)
         for klass in self.config.classes:
             diagrams.append(generator.class_diagram(project, klass))
-
         if not diagrams:
-            diagrams += DefaultDiadefGenerator(linker, self).visit(project)
+            diagrams = DefaultDiadefGenerator(linker, self).visit(project)
         for diagram in diagrams:
             diagram.extract_relationships()
         return  diagrams
