@@ -35,7 +35,7 @@ and vcg). (For now, the 'xmi' and 'tests' commands are not under developpement.)
  'PUB_ONLY' filter all non public attributes (default)
  'ALL' no filter
  'SPECIAL' filter Python special functions except constructor
- 'OTHER' filter protected and private attributes
+ 'OTHER' filter protected and private attributes [currentt: PUB_ONLY]
 
 .IP "-d<file>, --diadefs=<file>"
  create diagram according to the diagrams definitions in <file>
@@ -46,21 +46,25 @@ and vcg). (For now, the 'xmi' and 'tests' commands are not under developpement.)
       (i.e. '-ASmy' ).
 
 .IP   -a <ancestor>, --show-ancestors=<ancestor>
-    show <ancestor> generations of ancestor classes not in <projects>
+ show <ancestor> generations of ancestor classes not in <projects>
 .IP   -A, --all-ancestors=[yn]
-    show all ancestors off all classes in <projects> [current: none]
+ show all ancestors off all classes in <projects> [current: none]
 .IP   -s <ass_level>, --show-associated=<associated>
-    show <ass_level> associated classes. <ass_level>=1 will only take classes
-    directly related to the classes  in the project,  while <ass_level>=2 
-    will also take all classes related to those fecthed by<depth>=1.
+ show <ass_level> associated classes. <ass_level>=1 will only take classes
+ directly related to the classes  in the project,  while <ass_level>=2 
+ will also take all classes related to those fecthed by<depth>=1.
 .IP   -S, --all-associated=[yn]
-    show recursively all associated off all associated classes [current: none]
+ show recursively all associated off all associated classes [current: none]
 
 .IP  "-b, --builtin"
  include builtin objects in representation of classes [current: False]
 .IP   "-m [yn], --module-names=[yn]"
- include module name in representation of classes. This will include full module path in the class name. [current: none]
+ include module name in representation of classes. This will include full 
+ module path in the class name. [current: none]
 
+.IP  "-k, --only-classnames"
+  don't show attributes and methods in the class boxes;  
+  this disables -f values [current: False]
 
 .SH PYREVERSE DIAGRAM
  If no -c and no --diadefs option specified, 
@@ -77,6 +81,25 @@ are all formats that dot can produce and
 .B vcg.
 [default: dot]
 
+.SH EXAMPLES
+ Here are some examples for command line options :
+
+.IP "pyreverse diagram <project> -a1 -s1 -m"
+
+ -a1 -s1 will include one level of ancestor and associated classes in the 
+ diagram  of the <project> modules, while -m will show the full module 
+ path of each class. You can use the same way the 
+.B -a, -s, -A, -S
+options. 
+ Note that on class diagrams (using
+.B -c
+) -a and -s will rather reduce than enlarge your diagram.
+
+.IP "pyreverse diagram mod/foo.py mod/fee.py -k"
+
+ This is interesting if the diagram for <project>=mod is too complicated:  
+ you can show only the class names (no attributes or methods, option -k); 
+ or take only the modules you are interested in (here fee.py and foo.py).
 
 .SH REQUIRES
 Python
