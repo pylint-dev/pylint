@@ -1,0 +1,1 @@
+E:  3: yield outside function

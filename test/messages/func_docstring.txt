@@ -1,0 +1,4 @@
+C:  1: Missing docstring
+C:  5:function1: Missing docstring
+C: 17:AAAA: Missing docstring
+C: 33:AAAA.method1: Missing docstring

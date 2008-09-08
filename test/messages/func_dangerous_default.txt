@@ -1,0 +1,2 @@
+W:  7:function1: Dangerous default value [] as argument
+W: 11:function2: Dangerous default value HEHE ({}) as argument

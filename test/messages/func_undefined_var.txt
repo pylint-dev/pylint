@@ -1,0 +1,5 @@
+E:  8: Undefined variable 'unknown'
+E: 14:in_method: Undefined variable 'nomoreknown'
+E: 22:bad_default: Undefined variable 'unknown2'
+E: 25:bad_default: Undefined variable 'xxxx'
+E: 26:bad_default: Undefined variable 'xxxx'

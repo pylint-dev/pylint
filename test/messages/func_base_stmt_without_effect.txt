@@ -1,0 +1,6 @@
+W: 17: Statement seems to have no effect
+W: 19: Statement seems to have no effect
+W: 23: Statement seems to have no effect
+W: 26: String statement has no effect
+W: 28: Unnecessary semicolon
+

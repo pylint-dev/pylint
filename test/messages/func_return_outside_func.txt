@@ -1,0 +1,1 @@
+E:  3: return outside function

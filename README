@@ -1,0 +1,59 @@
+README for PyLint
+=================
+
+Dependencies
+------------
+Pylint requires the logilab-astng (version >= 0.14), logilab-common
+(version >= 0.13) and the optik (only for python < 2.3) packages. 
+Pylint should be compatible with any python >= 2.2.
+
+* http://www.logilab.org/projects/astng
+* http://www.logilab.org/projects/common
+* http://optik.sourceforge.net/
+
+
+Install
+-------
+From the source distribution, extract the tarball and run ::
+
+    python setup.py install
+
+You'll have to install dependancies in a similar way. For debian and
+rpm packages, use your usual tools according to your Linux distribution. 
+
+More information about installation and available distribution format
+may be found in the user manual in the *doc* subdirectory.
+
+
+Documentation
+-------------
+Look in the doc/ subdirectory.
+
+
+Comments, support, bug reports
+------------------------------
+Use the python-projects@logilab.org mailing list. Since we do not have
+publicly available bug tracker yet, bug reports should be emailed
+there too. 
+
+You can subscribe to this mailing list at
+http://www.logilab.org/mailinglists/python_projects/mailinglist_register_form
+
+Archives are available at 
+http://lists.logilab.org/pipermail/python-projects/
+
+
+Contributors
+------------
+* Sylvain Thénault: main author / maintainer
+* Alexandre Fayolle: TkInter gui, documentation, debian support
+* Brian van den Broek: windows installation documentation
+* Amaury Forgeot d'Arc: patch to check names imported from a module
+  exists in the module
+* Benjamin Niemann: patch to allow block level enabling/disabling of messages
+* Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,  
+  Maarten ter Huurne, Mirko Friedenhagen (among others): 
+  bug reports, feedback, feature requests...
+* All the Logilab's team: daily use, bug reports, feature requests
+* Other people have contributed by their feedback, if I've forgotten
+  you, send me a note !

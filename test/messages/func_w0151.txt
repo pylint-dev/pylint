@@ -1,0 +1,2 @@
+W:  4: Used builtin function 'apply'
+W:  6: Used builtin function 'map'

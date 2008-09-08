@@ -1,0 +1,6 @@
+E: 46:MissingMethod: Missing method 'truc' from IMachin interface
+E: 77:InterfaceCantBeFound: Undefined variable 'undefined'
+E: 88:InterfaceCanNowBeFound: Missing method 'troc' from IMachin interface
+E: 88:InterfaceCanNowBeFound: Missing method 'truc' from IMachin interface
+F: 77:InterfaceCantBeFound: failed to resolve interfaces implemented by InterfaceCantBeFound (undefined)
+W: 71:BadArgument.troc: Arguments number differs from IMachin interface method

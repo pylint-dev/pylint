@@ -1,0 +1,1 @@
+E: 10:HaNonNonNon: Use __slots__ on an old style class

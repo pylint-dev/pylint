@@ -1,0 +1,2 @@
+E: 20: Assigning to function call which doesn't return
+W: 28: Assigning to function call which only returns None

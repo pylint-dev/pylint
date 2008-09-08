@@ -1,0 +1,1 @@
+E:  9:Aaaa.__init__: Access to member '_var2' before its definition line 10

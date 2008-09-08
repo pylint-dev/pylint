@@ -1,0 +1,42 @@
+What's new ?
+------------
+%(CHANGELOG)s
+
+
+What is pylint ?
+----------------
+
+Pylint is a python tool that checks if a module satisfy a coding
+standard. Pylint can be seen as another pychecker since nearly all
+tests you can do with pychecker can also be done with Pylint. But
+Pylint offers some more features, like checking line-code's length,
+checking if variable names are well-formed according to your coding
+standard, or checking if declared interfaces are truly implemented,
+and much more (see http://www.logilab.org/projects/pylint/ for the
+complete check list). The big advantage with Pylint is that it is
+highly configurable, customizable, and you can easily write a small
+plugin to add a personal feature.
+
+The usage it quite simple :
+
+$ pylint mypackage.mymodule
+        
+
+This command will output all the errors and warnings related to the
+tested code (here : mypackage.mymodule), will dump a little summary at
+the end, and will give a mark to the tested code.
+
+Pylint is free software distributed under the GNU Public Licence.
+
+
+Home page
+---------
+%(WEB)s
+
+Download
+--------
+%(FTP)s
+
+Mailing list
+------------
+%(MAILINGLIST)s

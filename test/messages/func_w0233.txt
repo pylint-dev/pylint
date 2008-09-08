@@ -1,0 +1,1 @@
+W: 12:AAAA.__init__: __init__ method from a non direct base class 'BBBBMixin' is called

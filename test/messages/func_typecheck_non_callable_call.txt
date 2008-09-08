@@ -1,0 +1,6 @@
+E: 10: __revision__ is not callable
+E: 29: INSTANCE is not callable
+E: 31: LIST is not callable
+E: 33: DICT is not callable
+E: 35: TUPLE is not callable
+E: 37: INT is not callable

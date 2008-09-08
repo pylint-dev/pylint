@@ -1,0 +1,52 @@
+# pylint: disable-msg=R0903,R0922,W0232
+"""test detection of method which could be a function"""
+
+__revision__ = None
+
+class Toto(object):
+    """bla bal abl"""
+
+    def __init__(self):
+        self.aaa = 2
+        
+    def regular_method(self):
+        """this method is a real method since it access to self"""
+        self.function_method()
+
+    def function_method(self):
+        """this method isn' a real method since it doesn't need self"""
+        print 'hello'
+
+
+class Base:
+    """an abstract class"""
+    
+    def __init__(self):
+        self.aaa = 2
+
+    def check(self, arg):
+        """an abstract method, could not be a function"""
+        raise NotImplementedError
+
+
+class Sub(Base):
+    """a concret class"""
+    
+    def check(self, arg):
+        """a concret method, could not be a function since it need
+        polymorphism benefits
+        """
+        return arg == 0
+
+class Super:
+    """same as before without abstract"""
+    x = 1
+    def method(self):
+        """regular"""
+        print self.x
+
+class Sub1(Super):
+    """override method with need for self"""
+    def method(self):
+        """no i can not be a function"""
+        print 42

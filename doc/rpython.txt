@@ -1,0 +1,30 @@
+Since 0.17, pylint contains a Restricted python checker (rpython). 
+It contains the following checks:
+
+* unavailable keywords / builtins
+* multiple inheritance
+* mixing multiple types
+* non homogeneous list
+* global modification
+* negative slice index
+* using %r in format string
+* warn about special methods that are not implicitly called
+
+By default the rpython checker is deactivated. Activate it using :
+
+  pylint --rpython-mode -rn ...
+
+(-rn is disabling statistics reports) or
+
+  pylint --enable-checker=rpython ...
+
+to get only rpython checks (though in this case you won't be warned about
+regular errors).
+
+Another interesting thing is the rpython dedicated testing framework,
+testing that checked things are actually not translatable. I have the idea
+that this may be useful to generate some kind of documentation for
+features supported by rpython or not, and help spread information when a
+feature that wasn't supported is introduced in rpython. That's another
+story though... If you're interested, check
+pylint/test/test_rpycompilation.py.

@@ -1,0 +1,215 @@
+=================
+Pylint Quickstart
+=================
+
+:Author: Alexandre Fayolle
+:Organization: Logilab
+:Version: $Revision: 1.10 $
+:Date: $Date: 2005-04-15 10:40:17 $
+
+.. contents::
+
+
+This document is meant to get you started with Pylint. It assumes that
+you have installed pylint following the instructions in the README
+document found in the source documentation.
+
+
+What is pylint?
+---------------
+
+Pylint is a tool that checks for errors in python code, tries to
+enforce a coding standard and looks for smelling code . This is
+similar but nevertheless different from what pychecker_ provides,
+especially since pychecker explicitly does not bother with coding
+style. The default coding style used by pylint is close to 
+`Guido's style guide`_. For more information about code smells, refer
+to Martin Fowler's `refactoring book`_
+
+Pylint will display a number of errors and warnings as it analyzes the
+code, as well as some statistics about the number of warnings and
+errors found in different files. If you run pylint twice, it will
+display the statistics from the previous run together with the ones
+from the current run, so that you can see if the code has improved or
+not.
+
+Last but not least, the code is given an overall mark, based on the
+number an severity of the warnings and errors. This has proven to
+be very motivating for programmers.
+
+
+Invoking pylint
+---------------
+
+Pylint is meant to be called from the command line. The usage is ::
+
+   pylint [options] module_or_package
+
+You should give pylint the name of a Python package or module. Pylint
+will ``import`` this package or module, so you should pay attention to
+your ``PYTHONPATH``, since it is a common error to analyze an
+installed version of a module instead of the development version.
+
+It is also possible to analyze python files, with a few
+restrictions. The thing to keep in mind is that pylint will try to 
+convert the file name to a module name, and only be able to process
+the file if it succeeds.  ::
+
+  pylint mymodule.py 
+
+should always works since the current working
+directory is automatically added on top  of the python path ::
+
+  pylint directory/mymodule.py
+
+will work if "directory" is a python package (i.e. has an __init__.py
+file) or if "directory" is in the python path.
+
+For more details on this see the FAQ_.
+
+You can also start a thin gui around pylint (require TkInter) by
+typing ::
+
+  pylint-gui
+
+This should open a window where you can enter the name of the package
+or module to check, at pylint messages will be displayed in the user
+interface.
+
+
+Pylint output
+-------------
+
+The default format for the output is raw text. But passing pylint the
+``--html`` option will produce an HTML document.
+
+There are several sections in pylint's output. 
+
+Source code analysis section
+''''''''''''''''''''''''''''
+   
+For each python module,
+pylint will first display a few '*' characters followed by the name
+of the module. Then, a number of messages with the following
+format: ::
+
+  MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE
+
+You can get another output format, useful since it's recognized by
+most editors or other development tools using the ``--parseable=y``
+option.
+
+The message type can be:
+
+  * [R]efactor for a "good practice" metric violation
+  * [C]onvention for coding standard violation
+  * [W]arning for stylistic problems, or minor programming issues
+  * [E]rror for important programming issues (i.e. most probably bug)
+  * [F]atal for errors which prevented further processing
+
+Sometimes the line of code which caused the error is displayed with
+a caret pointing to the error. This may be generalized in future
+versions of pylint.
+
+Example (extracted from a run of pylint on itself...): 
+
+::
+
+  ************* Module pylint.checkers.format
+  W: 50: Too long line (86/80)
+  W:108: Operator not followed by a space
+       print >>sys.stderr, 'Unable to match %r', line
+              ^
+  W:141: Too long line (81/80)
+  W: 74:searchall: Unreachable code
+  W:171:FormatChecker.process_tokens: Redefining built-in (type)
+  W:150:FormatChecker.process_tokens: Too many local variables (20/15)
+  W:150:FormatChecker.process_tokens: Too many branchs (13/12)
+
+
+Reports section
+''''''''''''''' 
+
+Following the analysis message, pylint will display a set of reports,
+each one focusing on a particular aspect of the project, such as number
+of messages by categories, modules dependancies...
+
+For instance, the metrics report displays summaries gathered from the
+current run. 
+
+  * the number of processed modules
+  * for each module, the percentage of errors and warnings
+  * the total number of errors and warnings
+  * percentage of classes, functions and modules with docstrings, and
+    a comparison from the previous run 
+  * percentage of classes, functions and modules with correct name
+    (according the the coding standard), and a comparison from the
+    previous run 
+  * a list of external dependencies found in the code, and where they appear
+
+Also, a global evaluation for the code is computed, and an
+optional witty comment is displayed (if ``--comment=y`` was
+specified on the command line).
+
+
+Command line options
+--------------------
+
+First of all, we have two basic (but useful) options. 
+
+--version             show program's version number and exit
+-h, --help            show help about the command line options
+
+Pylint is architectured around several checkers. By default all
+checkers are enabled. You can disable a specific checker by specifying
+``--enable-<checker>=n``, or disable all checkers using
+``--disable-all`` and afterwards enable specific checkers with
+``--enable-<checker>=y``. See the list of available features_ for a
+description of provided checkers with their functionalities.
+
+Each checker has some specific options, which can take either a yes/no
+value, an integer, a python regular expression, or a comma separated
+list of values (which are generally used to override a regular
+expression in special cases). For a full list of options, use ``--help``
+
+Specifying all the options suitable for your setup and coding
+standards can be tedious, so it is possible to use a rc file to
+specify the default values. Pylint looks for /etc/pylintrc and
+~/.pylintrc. The ``--generate-rcfile`` option will generate a
+commented configuration file according to the current configuration on
+standard output and exit. You can put other options before this one to
+use them in the configuration, or start with the default values and
+hand tune the configuration.
+
+Other useful global options include:
+
+--zope                  Initialize Zope products before starting
+--ignore=file           Add <file> (may be a directory) to the black
+                        list. It should be a base name, not a path. 
+                        You may set this option multiple times.
+--statistics=y_or_n     Compute statistics on collected data.
+--persistent=y_or_n     Pickle collected data for later comparisons.
+--comment=y_or_n        Add a comment according to your evaluation note.
+--parseable=y_or_n      Use a parseable output format.
+--html=y_or_n           Use HTML as output format instead of text.
+--enable-msg=msgids     Enable the given messages.
+--disable-msg=msgids    Disable the given messages.
+--enable-msg-cat=cats   Enable all messages in the given categories.
+--disable-msg-cat=cats  Disable all messages in the given categories.
+
+
+
+Bug reports
+-----------
+
+You think you have found a bug in Pylint? Well, this may be the case
+since Pylint is under development. Please take the time to send a bug
+report to python-projects@logilab.org. This mailing list is also a
+nice place to discuss Pylint issues.
+
+
+.. _pychecker: http://pychecker.sf.net
+.. _features: features.html
+.. _FAQ: FAQ.html
+.. _`Guido's style guide`: http://www.python.org/doc/essays/styleguide.html
+.. _`refactoring book`: http://www.refactoring.com/

@@ -1,0 +1,186 @@
+Frequently Asked Questions
+==========================
+
+
+Question:
+  Is it possible to give file as argument to pylint, instead of module ?
+
+Answer:
+  pylint expects the name of a package or module as argument. As a convenience,
+  you can give to it a file name if it's possible to guess a module name from
+  the file's path, using the python path. Some examples :
+
+  "pylint mymodule.py" should always works since the current working
+  directory is automatically added on top  of the python path
+
+  "pylint directory/mymodule.py" will work if "directory" is a python
+  package (i.e. has an __init__.py file) or if "directory" is in the
+  python path.
+
+  "pylint /whatever/directory/mymodule.py" will work if either:
+
+    - "/whatever/directory" is in the python path
+
+    - your cwd is "/whatever/directory"
+
+    - "directory" is a python package and "/whatever" is in the python
+      path
+
+    - "directory" is a python package and your cwd is "/whatever"
+      and so on...
+
+
+
+Question:
+  I'm using psyobj from psyco_ and get a lot of spurious "unused variables
+  messages". Is it normal ?
+
+Answer: 
+  Yes. That's actually due to a bug in psyco, making the locals()
+  function for objects inheriting from *psyobj* returning an empty
+  dictionary. For the moment, the only way to fix this is to use the
+  PYLINT_IMPORT environment variable to not use psyco during pylint
+  checking. Sample code ::
+
+    import os
+    try:
+        if os.environ.has_key('PYLINT_IMPORT'):
+            raise ImportError()
+	from psyco.classes import psyobj
+    except ImportError:
+	    class psyobj:
+	        pass
+
+  NOTICE: this problem should not occurs with pylint >= 0.5 since from
+  this version pylint is not looking anymore for information in living
+  objects (i.e. it doesn't anymore import analysed modules)
+
+
+
+Question:
+  I've a function / method which is a callback where I do not have any
+  control on received argument, and pylint is complaining about unused
+  arguments. What can I do to avoid those warnings ?
+
+Answer:
+  prefix (ui) the callback's name by `cb_`, as in cb_onclick(...). By
+  doing so arguments usage won't be checked. Another solution is to
+  use one of the name defined in the "dummy-variables" configuration
+  variable for unused argument ("_" and "dummy" by default).
+
+
+
+Question:
+  When is pylint considering a class as an interface ?
+
+Answer:
+  A class is considered as an interface if there is a class named
+  "Interface" somewhere in it ancestor's tree.
+
+
+
+Question:
+  When is pylint considering that a class is implementing a given
+  interface ?
+
+Answer:
+  Pylint is using the Zope 2 interfaces conventions, and so is
+  considering that a class is implementing interfaces listed in its
+  __implements__ attribute.
+
+
+
+Question:
+  When is pylint considering a class as an abstract class ?
+
+Answer:
+  A class is considered as an abstract class if at least one of its
+  methods is doing nothing but raising NotImplementedError
+
+
+
+Question:
+  Is there some way to disable some message for a particular module
+  only ?
+
+Answer:
+  Yes, you can disable or enable (globally disabled) message at the
+  module level by adding the corresponding option in a comment at the
+  top of the file: ::
+
+    # pylint: disable-msg=W0401, E0202
+    # pylint: enable-msg=C0302
+
+
+
+Question:
+  I have a mixin class relying on attributes of the mixed class, and I
+  would like to not have the "access to undefined member" message on
+  this class. Is it possible ?
+
+Answer:
+  Yes :o) To do so you have to set the ignore-mixin-members option to
+  "yes" (this is the default value) and to name your mixin class with
+  a name which ends with "mixin" (whatever case)
+
+
+
+Question:
+  Is it possible to locally disable a particular message for a block
+  of code or for a single line of code ?
+  
+Answer:
+  Yes, this feature has been added in pylint 0.11. This may be done by
+  adding "#pylint: disable-msg=W0123,E4567" at the desired block level
+  or at the end of the desired line of code
+
+
+
+Question:
+  Where is the persistent data stored to make comparison between
+   two successive runs ?
+
+Answer:
+  Analysis data are stored as pickle file in a directory which is 
+  localized using the following rules:
+
+  * value of the PYLINTHOME environment variable if set
+
+  * ".pylint.d" subdirectory of the user's home directory if it is found
+    (not always findable on Windows platforms)
+
+  * ".pylint.d" directory in the current directory
+
+
+
+Question:
+  How can I know the option name (for pylintrc) corresponding to a
+  specific command line option ?
+
+Answer:
+  You can always generate a sample pylintrc file with --generate-rcfile
+  Every option present on the command line before this will be included in
+  the rc file
+  
+  For example::
+
+    pylint --disable-msg=W0702,C0103 --class-rgx='[A-Z][a-z]+' --generate-rcfile
+
+
+
+Question:
+  pychecker_ has no problem finding the imports and reporting on problems with 
+  them, while pylint seems unable to deal with the same imports. Why ?
+
+Answer:
+  pychecker and pylint use different approaches.  pychecker
+  imports the modules and rummages around in the result, hence it sees my
+  mangled sys.path.  pylint doesn't import any of the candidate modules and
+  thus doesn't include any of import's side effects (good and bad).  It
+  traverses an AST representation of the code.
+
+
+
+
+.. _psyco: http://psyco.sf.net
+.. _pychecker: http://pychecker.sf.net

@@ -1,0 +1,318 @@
+pylint (0.14.0-3) unstable; urgency=low
+
+  * Acknowledge NMU: thanks a lot, your patches have been backported in
+    upstream code (closes: #427244, #448102, #415485, #431653)
+
+ --
+
+pylint (0.14.0-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * BF: flavor -> debian-emacs-flavor in startup
+  * NF: added pylint-options variable visible to users to tune up (closes:
+    #427244)
+  * BF: reenabled installation of pylint.el (closes: #448102)
+  * Recent upstream of pylint.el fixed few bugs which weren't closed
+    in the upload to Debian. Since this is first upload which enables
+    pylint.el, imho it is ok to close them here (closes: #415485, #431653)
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Mon, 03 Mar 2008 22:22:07 -0500
+
+pylint (0.14.0-2) unstable; urgency=low
+
+  * Acknowledge NMU by Kumar Appaiah <akumar@ee.iitm.ac.in>  (Closes: #454401)
+  * Debian upload of the new upstream release
+  * Install modules for all available python versions (Closes: #438438)
+  * new standards version, no changes required
+  
+ -- Alexandre Fayolle <afayolle@debian.org>  Wed, 13 Feb 2008 17:36:30 +0100
+
+pylint (0.14.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <Sylvain.Thenault@logilab.fr>  Mon, 14 Jan 2008 13:34:24 +0100
+
+pylint (0.13.2-2.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * debian/pylint.postrm:
+    + Added to remove old Emacs mode upon purge.
+      (Closes: #454401)
+
+ -- Kumar Appaiah <akumar@ee.iitm.ac.in>  Thu, 31 Jan 2008 22:27:18 +0530
+
+pylint (0.13.2-2) unstable; urgency=low
+
+  * Upload package to debian (closes: #426418)
+  * tests are no longer installed in /usr/share/doc/pylint, use the source
+    package to get them
+  * pylint.el is no longer installed for emacs, because it is not
+    compatible with emacs22. It will be reenabled in a future version,
+    when all the bugs have been dealt with by upstream.  Emacs21 users may
+    get it from /usr/share/doc/pylint/examples/pylint.el. Added a note
+    about this in NEWS.Debian.
+  * Only Recommend python-tk and give a nicer warning in the pylint-gui
+    script if tkinter is not available.
+  * Updated versions of dependencies on logilab-common and astng
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Wed, 04 Jul 2007 12:21:24 +0200
+
+pylint (0.13.2-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 07 Jun 2007 16:44:53 +0200
+   
+pylint (0.13.1-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Fri,  2 Mar 2007 08:24:08 +0100
+
+pylint (0.13.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 22 Feb 2007 11:28:23 +0100
+
+pylint (0.12.2-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 23 Nov 2006 16:08:28 +0100
+
+pylint (0.12.1-1) unstable; urgency=low
+
+  * new uptream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Mon, 25 Sep 2006 16:46:40 +0200
+
+pylint (0.12.0-2) unstable; urgency=low
+
+  * Upload to Debian
+  * Fixed the XS-Python-Version value (closes: #388158)
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Tue, 19 Sep 2006 09:51:03 +0200
+
+pylint (0.12.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Adrien.DiMascio <Adrien.DiMascio@logilab.fr>  Thu, 10 Aug 2006 11:18:50 +0200
+
+pylint (0.11.0-2) unstable; urgency=low
+
+  * Updated standards to 3.7.2
+  * use debhelper 5
+  * new python policy
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Thu, 15 Jun 2006 10:38:32 +0200
+
+pylint (0.11.0-1) unstable; urgency=low
+
+  * new upstream release, depending on python-astng 0.16
+  * Applied Sebastian Rittau's patch to avoid NameError on InferenceError
+    exception (closes: #358194)
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed, 19 Apr 2006 18:10:47 +0200
+
+pylint (0.10.0-1) unstable; urgency=low
+
+  * new upstream release, depending on python-astng 0.15
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Mon,  6 Mar 2006 09:43:19 +0100
+
+pylint (0.9.0-3) unstable; urgency=low
+
+  * Added missing provides/replaces/conflicts on pylint-test (closes: #352316)
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Mon, 13 Feb 2006 10:07:26 +0100
+
+pylint (0.9.0-2) unstable; urgency=low
+
+  * Build a single package which installs modules in /usr/lib/site-python
+    (closes: #351130)
+  * Remove duplication from man page (closes: #349689)
+  * Fixed typo in control file
+  * upload new release to Debian
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Fri, 10 Feb 2006 16:03:37 +0100
+
+pylint (0.9.0-1) unstable; urgency=low
+
+  * fix false positive with staticmethod used on a metaclass (closes: #341121)
+  * reorganization to install into site-python, removing the need for 
+    pythonX.X- packages and for the pylint-common and pylint-test packages
+	
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 10 Jan 2006 14:19:57 +0100
+
+pylint (0.8.1-1) unstable; urgency=low
+
+  * added missing dependancy to logilab-astng
+  * added missing .docs and .examples files
+  * update control'standards-version to 3.6.2
+  * fixed FSF address in the copyright file
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Mon,  7 Nov 2005 15:40:52 +0100
+
+pylint (0.8.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Fri, 21 Oct 2005 18:44:24 +0200
+
+pylint (0.7.0-1) unstable; urgency=low
+
+  * new upstream release (closes: #310957)
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Fri, 27 May 2005 11:17:44 +0200
+
+pylint (0.6.4-1) unstable; urgency=low
+
+  * new upstream release
+  * added man page for pylint 
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 14 Apr 2005 12:02:15 +0200
+
+pylint (0.6.3-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 24 Feb 2005 17:44:35 +0100
+
+pylint (0.6.2-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed, 16 Feb 2005 12:00:47 +0100
+
+pylint (0.6.1-1) unstable; urgency=low
+
+  * new upstream release
+  * added option to specify rc file location (closes: #265159)
+  
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Fri,  4 Feb 2005 16:48:09 +0100
+
+pylint (0.6.0-1) unstable; urgency=low
+
+  * new upstream release
+  * build package for python 2.4
+  * remove unused directory from logilab-common.dirs
+  * updated copyright
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 20 Jan 2005 18:06:29 +0100
+
+pylint (0.5.0-2) unstable; urgency=low
+
+  * Patched pylint.el using latest upsrteam CVS (closes: #280870)
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Mon, 15 Nov 2004 10:59:51 +0100
+
+pylint (0.5.0-1) unstable; urgency=low
+  
+  * use Build-depends instead of Build-depends-indep in control
+  * new upstream release
+  * updated debian/watch file to version 2
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Tue,  9 Nov 2004 16:22:47 +0100
+
+pylint (0.4.2-2) unstable; urgency=low
+
+  * fixed typos in debian/control (closes: #265156)
+  * updated description of pylint-test
+  * changed dependency on pylint-common to a recommendation (closes: #265157)
+  * updated maintainer address 
+
+ -- Alexandre Fayolle <afayolle@debian.org>  Sun, 15 Aug 2004 10:39:06 +0200
+
+pylint (0.4.2-1) unstable; urgency=low
+
+  * new upstream release
+  * initial upload to Debian (closes: #258235)
+
+ -- Alexandre Fayolle <alexandre.fayolle@logilab.fr>  Thu,  8 Jul 2004 12:54:18 +0200
+
+pylint (0.4.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Mon, 10 May 2004 17:03:04 +0200
+
+pylint (0.3.3-1) unstable; urgency=low
+
+  * new upstream release
+  * emacs lisp for pylint in a new pylint-common package
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Mon, 16 Feb 2004 18:09:23 +0100
+
+pylint (0.3.2-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 23 Dec 2003 14:56:04 +0100
+
+pylint (0.3.1-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Fri,  5 Dec 2003 16:20:44 +0100
+
+pylint (0.3.0-1) unstable; urgency=low
+
+  * new upstream release
+  * depends on logilab.common >= 0.4
+  * build depends on debhelper >= 4.0
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed, 19 Nov 2003 11:07:45 +0100
+
+pylint (0.2.1-2) unstable; urgency=low
+
+  * fixed dependency on logilab-common (>=0.3.4) since earlier versions
+    caused bugs with some python2.3 code
+  * included sample pylintrc files with the documentation
+  * added documentation that had disappeared in the previous 0.2.1-1
+  * only puts html documentation in doc/html/, all others in doc/
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Fri, 10 Oct 2003 12:11:53 +0200
+
+pylint (0.2.1-1) unstable; urgency=low
+
+  * new upstream release
+  * package renamed to pylint instead of logilab-pylint
+  * move tests in a separated package
+  
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Fri, 10 Oct 2003 09:39:22 +0200
+
+logilab-pylint (0.2.0-1) unstable; urgency=low
+
+  * new upstream release
+  * dropped python2.1 support
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Fri, 12 Sep 2003 18:26:15 +0200
+
+logilab-pylint (0.1.2-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed, 11 Jun 2003 15:21:44 +0200
+
+logilab-pylint (0.1.1-2) unstable; urgency=low
+
+  * fix dependencie to logilab.common
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed,  4 Jun 2003 18:07:45 +0200
+
+logilab-pylint (0.1.1-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Mon, 19 May 2003 15:10:25 +0200
+
+logilab-pylint (0.1.0-1) unstable; urgency=low
+
+  * Initial Release. 
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed, 23 Apr 2003 14:42:05 +0200
+

@@ -1,0 +1,2 @@
+E: 10:MyClass.__init__: Explicit return in __init__
+E: 28:MyClass4.__init__: __init__ method is a generator

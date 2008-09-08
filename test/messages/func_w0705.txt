@@ -1,0 +1,5 @@
+E: 10: Bad except clauses order (Exception is an ancestor class of TypeError)
+E: 17: Bad except clauses order (LookupError is an ancestor class of IndexError)
+E: 24: Bad except clauses order (LookupError is an ancestor class of IndexError)
+E: 24: Bad except clauses order (NameError is an ancestor class of UnboundLocalError)
+E: 27: Bad except clauses order (empty except clause should always appears last)

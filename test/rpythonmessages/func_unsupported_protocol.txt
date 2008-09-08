@@ -1,0 +1,2 @@
+E:  5:C.__new__: Using unavailable protocol '__new__'
+W: 12:C.__add__: special method __add__ has to be called explicitly

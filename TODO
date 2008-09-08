@@ -1,0 +1,46 @@
+PyLint's TODO list
+------------------
+
+
+- un rapport avec les métriques vues dans TDD
+- métrique manquantes
+- tests
+
+* faire tourner sur wxpython...
+
+* test external dependancies
+
+
+* avoir les options liés à un message id dans son aide
+
+* avoir les messages id géré par un checker dans --help
+
+* avoir la valeur courante des options dans --help
+
+* doc développeur
+
+* supporter des wildcards dans disable-msg ?
+
+* voir notes gvr sur main
+
+* récupérer les phrases d'évaluation dans un fichier texte
+
+* i18n avec gettext
+
+* commenter les regexp de format.py
+
+* gestion nested_scopes (modes py2.1, 2.2... ?)
+
+* checkers :
+  - vérifier arguments __new__
+  - compléter format checker 
+    voir http://www.python.org/peps/pep-0008.html
+  - vérifier classes sans __init__ mais avec plusieurs ancêtres ayant
+    un __init__
+  - opérateur % avec des formats ne correspondant pas aux arguments
+  - mauvais nombre d'arguments passés à une méthode ou fonction
+  - utilisation constante dans condition
+  - gestion del statements
+  - vérification utilisation __getattribute__, __slots__ dans new
+  style class seulement
+  - vérification assignements quand __slots__

@@ -1,0 +1,4 @@
+E:  7:Aaaa.hop: Use super on an old style class
+E: 11:Aaaa.__init__: Use super on an old style class
+E: 20:NewAaaa.__init__: Bad first argument 'object' given to super class
+
