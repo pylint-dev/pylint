@@ -19,17 +19,38 @@ generic classes/functions for pyreverse core/extensions
 
 import sys
 import re
+import os
 
-from pyreverse.__pkginfo__ import version
+########### pyreverse option utils ##############################
 
-def time_tag():
+
+RCFILE = '.pyreverserc'
+
+def get_default_options():
     """
-    return a timestamp as string
+    Read config file and return list of options
     """
-    from time import time, localtime, strftime
-    return strftime('%b %d at %T', localtime(time()))
+    options = []
+    home = os.environ.get('HOME', '')
+    if home:
+        rcfile = os.path.join(home, RCFILE)
+        try:
+            options = open(rcfile).read().split()
+        except IOError:
+            pass # ignore if no config file found
+    return options
 
-# astng utilities #############################################################
+def insert_default_options():
+    """insert default options to sys.argv
+    """
+    options = get_default_options()
+    options.reverse()
+    for arg in options:
+        sys.argv.insert(1, arg)
+
+
+
+# astng utilities ###########################################################
 
 SPECIAL = re.compile('^__[A-Za-z0-9]+[A-Za-z0-9_]*__$')
 PRIVATE = re.compile('^__[_A-Za-z0-9]*[A-Za-z0-9]+_?$')

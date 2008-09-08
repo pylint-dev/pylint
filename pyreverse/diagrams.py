@@ -17,7 +17,7 @@
 """
 
 from logilab import astng
-from pyreverse.utils import is_interface, FilterMixIn
+from pylint.pyreverse.utils import is_interface, FilterMixIn
 
 def set_counter(value):
     """Figure counter (re)set"""

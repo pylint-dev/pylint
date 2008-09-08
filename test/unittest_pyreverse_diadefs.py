@@ -22,7 +22,7 @@ import sys
 
 from logilab import astng
 from logilab.astng import ASTNGManager
-from pyreverse.extensions.diadefslib import *
+from pylint.pyreverse.diadefslib import *
 from logilab.astng.inspector import Linker
 from utils import Config
 
@@ -51,7 +51,8 @@ def _process_modules(modules):
     return result
 
 class DiaDefGeneratorTC(unittest.TestCase):
-    def test_known_values(self):
+    def test_option_values(self):
+        """test for ancestor, associated and module options"""
         handler = DiadefsHandler( Config())
         df_h = DiaDefGenerator(Linker(project), handler)
         cl_config = Config()
@@ -139,81 +140,6 @@ class ClassDiadefGeneratorTC(unittest.TestCase):
                                     {'node': True, 'name': 'Specialization'}
                                     ])
 
-        
-class ReadDiadefsFileTC(unittest.TestCase):
-    def test_known_values(self):
-        dd = read_diadefs_file('data/diadefs.xml')
-        keys = dd.keys()
-        keys.sort()
-        self.assertEquals(keys, ['class-diagram', 'package-diagram'])
-        self.assertEquals(len(dd['package-diagram']), 1)
-        pd = dd['package-diagram'][0]
-        self.assertEquals(pd['name'], 'package dependencies')
-        self.assertEquals(pd['package'], [{'name': 'base'},
-                                          {'name': 'pyparser'},
-                                          {'name': 'xmi_uml'},
-                                          {'name': 'xmlconf'},
-                                          {'name': 'pyargo'},
-                                          {'name': 'pystats'}])
-        self.assertEquals(len(dd['class-diagram']), 2)
-        cd = dd['class-diagram'][0]
-        self.assertEquals(cd['name'], 'object hierarchy')
-        self.assertEquals(cd['class'], [{'name': 'FrameMixIn'}, {'name': 'VisitedMixIn'},
-                                        {'name': 'AbstractBase'}, {'name': 'AbstractFinal'},
-                                        {'name': 'AbstractAttr'}, {'name': 'Project'},
-                                        {'name': 'Module'}, {'name': 'Klass'},
-                                        {'name': 'Function'}, {'name': 'Attribute'},
-                                        {'name': 'Parameter'}])
-        cd = dd['class-diagram'][1]
-        self.assertEquals(cd['name'], 'pyargo')
-        self.assertEquals(cd['class'], [{'name': 'DiaDefsSaxHandler'}, {'name': 'PyParser'},
-                                        {'name': 'ArgoWriter'}, {'name': 'IdGeneratorMixIn'},
-                                        {'name': 'DiadefsResolverMixIn'}, {'name': 'Visitor'},
-                                        {'name': 'FilteredVisitor'}, {'name': 'XMIUMLVisitor'},
-                                        {'name': 'DictSaxHandlerMixin'}, {'name': 'PrefReader'}])
-        
-class DiadefsResolverHelperTC(unittest.TestCase):
-    def setUp(self):
-        self.helper = DiadefsResolverHelper(project, Linker(project), config)
-
-    def _assert_class(self, objects, klass):
-        for object in objects:
-            self.assert_(isinstance(object, klass))
-        
-    def test_resolve_packages_include_all(self):
-        data = {'package': [{'name': 'data.clientmodule_test', 'include': 'all'}]}
-        diagram = self.helper.resolve_packages(data)
-        self._test_resolve_packages_included(diagram)
-           
-    def test_resolve_packages_include_yes(self):
-        data = {'package': [{'name': 'data.clientmodule_test', 'include': 'yes'}]}
-        diagram = self.helper.resolve_packages(data)
-        self._test_resolve_packages_included(diagram)
-        
-    def test_resolve_packages_include_no(self):
-        data = {'package': [{'name': 'data.clientmodule_test', 'include': 'no'}]}
-        diagram = self.helper.resolve_packages(data)
-        self._test_resolve_packages_not_included(diagram)
-           
-    def test_resolve_packages(self):
-        data = {'package': [{'name': 'data.clientmodule_test'}]}
-        diagram = self.helper.resolve_packages(data)
-        self._test_resolve_packages_not_included(diagram)
-
-    def _test_resolve_packages_included(self, data):
-        classes = [o for o in data.objects if isinstance(o.node, astng.Class)]
-        modules = [o for o in data.objects if isinstance(o.node, astng.Module)]
-        self.assertEqual(len(classes), 2)
-        self.assertEqual(len(modules), 1)
-        
-    def _test_resolve_packages_not_included(self, data):
-        modules = data.objects
-        self.assertEqual(len(modules), 1)
-        self._assert_class([c.node for c in modules], astng.Module)
-           
-    def test_resolve_classes(self):
-        data = {'class': [{'name' : 'Specialization', 'owner': 'data.clientmodule_test'}]}
-        self.helper.resolve_classes(data)
 
 if __name__ == '__main__':
     unittest.main()

@@ -21,7 +21,7 @@ Utilities for creating VCG and Dot diagrams.
 from logilab.common.vcgutils import VCGPrinter
 from logilab.common.graph import DotBackend
 
-from pyreverse.utils import is_exception
+from pylint.pyreverse.utils import is_exception
 
 class DiagramWriter:
     """base class for writing project diagrams
