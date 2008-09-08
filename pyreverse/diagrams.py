@@ -198,7 +198,23 @@ class PackageDiagram(ClassDiagram):
                 return mod
         raise KeyError(name)
 
-    def add_depend_relation(self, node, from_module):
+    def get_module(self, name, node):
+        """return a module by its name, looking also for relative imports;
+        raise KeyError if not found
+        """
+        for mod in self.modules():
+            mod_name = mod.node.name
+            if mod_name == name:
+                return mod
+            #search for fullname of relative import modules
+            package = node.root().name
+            if mod_name == "%s.%s" % (package, name):
+                return mod
+            if mod_name == "%s.%s" % (package.rsplit('.', 1)[0], name):
+                return mod
+        raise KeyError(name)
+        
+    def add_from_depend(self, node, from_module):
         """add dependencies created by from-imports
         """
         mod_name = node.root().name
@@ -222,13 +238,7 @@ class PackageDiagram(ClassDiagram):
             # dependencies
             for dep_name in obj.node.depends:
                 try:
-                    dep = self.module(dep_name)
+                    dep = self.get_module(dep_name, obj.node)
                 except KeyError:
-                    # relative imports
-                    package = obj.node.root().name.rsplit('.', 1)[0]
-                    dep_name = "%s.%s" % (package, dep_name)
-                    try:
-                        dep = self.module(dep_name)
-                    except KeyError:
-                        continue
+                    continue
                 self.add_relationship(obj, dep, 'depends')

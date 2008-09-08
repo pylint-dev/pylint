@@ -198,7 +198,7 @@ class DiaDefGenerator:
         """return associated nodes of a class node"""
         if level == 0:
             return
-        for name, ass_nodes in klass_node.instance_attrs_type.items():
+        for ass_nodes in klass_node.instance_attrs_type.values():
             for ass_node in ass_nodes:
                 if isinstance(ass_node, astng.Instance):
                     ass_node = ass_node._proxied
@@ -274,7 +274,8 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         """visit astng.From  and catch modules for package diagram
         """
         if self.pkgdiagram:
-            self.pkgdiagram.add_depend_relation( node, node.modname )
+            self.pkgdiagram.add_from_depend(node, node.modname)
+
 
 class ClassDiadefGenerator(DiaDefGenerator):
     """generate a class diagram definition including all classes related to a
