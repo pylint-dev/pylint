@@ -33,7 +33,7 @@ class DiagramWriter:
         for diagram in diadefs:
             basename = diagram.title.strip().replace(' ', '_')
             file_name = '%s.%s' % (basename, self.config.output_format)
-            self.set_writer(file_name, basename)
+            self.set_printer(file_name, basename)
             print 'creating diagram %s' % file_name
             if diagram.TYPE == 'class':
                 self.write_classes(diagram)
@@ -68,6 +68,18 @@ class DiagramWriter:
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
                             label=rel.name, **self.ass_edges)
 
+    def set_printer(self, file_name, basename):
+        """set printer"""
+        raise NotImplementedError
+
+    def get_title(self, obj):
+        """get project title"""
+        raise NotImplementedError
+
+    def get_values(self, obj):
+        """get label and shape for classes."""
+        raise NotImplementedError
+
 
 class DotWriter(DiagramWriter):
     """write dot graphs from a diagram definition and a project
@@ -82,7 +94,7 @@ class DotWriter(DiagramWriter):
         self.ass_edges = dict(fontcolor='green', arrowtail='none',
                     arrowhead='diamond', style='solid')
 
-    def set_writer(self, file_name, basename):
+    def set_printer(self, file_name, basename):
         """initialize DotWriter and add options for layout.
         """
         layout = dict(rankdir="BT", concentrate="true")
@@ -129,7 +141,7 @@ class VCGWriter(DiagramWriter):
         self.ass_edges = dict(textcolor='black',
                               arrowstyle='solid', backarrowstyle='none')
 
-    def set_writer(self, file_name, basename):
+    def set_printer(self, file_name, basename):
         """initialize VCGWriter for a UML graph"""
         self.graph_file = open(file_name, 'w+')
         self.printer = VCGPrinter(self.graph_file)
