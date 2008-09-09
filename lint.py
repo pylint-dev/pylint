@@ -456,8 +456,6 @@ This is used by the global evaluation report (R0004).'}),
             files_or_modules = (files_or_modules,)
         filemods = self.expand_files(files_or_modules)
         checkers = sort_checkers(self._checkers.values())
-        rev_checkers = checkers[:]
-        rev_checkers.reverse()
         # notify global begin
         for checker in checkers:
             checker.open()
@@ -492,7 +490,8 @@ This is used by the global evaluation report (R0004).'}),
             self.check_astng_module(astng, checkers)
         # notify global end
         self.set_current_module('')
-        for checker in rev_checkers:
+        checkers.reverse()
+        for checker in  checkers:
             checker.close()
 
     def expand_files(self, files_or_modules):

@@ -44,15 +44,12 @@ MSG_TYPES = {
 MSG_CATEGORIES = MSG_TYPES.keys()
 
 
-def sort_checkers(checkers, enabled_only=True):
+def sort_checkers(checkers, enabled_only=True): # XXX enabled_only never used ?
     """return a list of enabled checker sorted by priority"""
     if enabled_only:
-        checkers = [(-checker.priority, checker) for checker in checkers
-                    if checker.is_enabled()]
-    else:
-        checkers = [(-checker.priority, checker) for checker in checkers]
-    checkers.sort()
-    return [item[1] for item in checkers]
+        checkers = [checker for checker in checkers if checker.is_enabled()]
+    checkers.sort(lambda x, y: cmp(-x.priority, -y.priority) )
+    return checkers
 
 def sort_msgs(msg_ids):
     """sort message identifiers according to their category first"""
