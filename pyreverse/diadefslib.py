@@ -16,8 +16,6 @@
 """handle diagram generation options for class diagram or default diagrams
 """
 
-import sys
-
 from logilab import astng
 from logilab.astng.utils import LocalsVisitor
 
@@ -33,6 +31,7 @@ class DiaDefGenerator:
         self.config = handler.config
         self._set_default_options()
         self.linker = linker
+        self.classdiagram = None # defined by subclasses
 
     def get_title(self, node):
         """get title for objects"""

@@ -26,6 +26,10 @@ from pylint.pyreverse.utils import is_exception
 class DiagramWriter:
     """base class for writing project diagrams
     """
+    def __init__(self, config, styles):
+        self.config = config
+        self.pkg_edges, self.inh_edges, self.imp_edges, self.ass_edges = styles
+        self.printer = None # defined in set_printer
 
     def write(self, diadefs):
         """write files for <project> according to <diadefs>
@@ -62,11 +66,11 @@ class DiagramWriter:
         # implementation links
         for rel in diagram.relationships.get('implements', ()):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                            **self.impl_edges)
+                              **self.imp_edges)
         # generate associations
         for rel in diagram.relationships.get('association', ()):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                            label=rel.name, **self.ass_edges)
+                              label=rel.name, **self.ass_edges)
 
     def set_printer(self, file_name, basename):
         """set printer"""
@@ -80,19 +84,22 @@ class DiagramWriter:
         """get label and shape for classes."""
         raise NotImplementedError
 
+    def close_graph(self):
+        """finalize the graph"""
+        raise NotImplementedError
+
 
 class DotWriter(DiagramWriter):
     """write dot graphs from a diagram definition and a project
     """
 
     def __init__(self, config):
-        self.config = config
-        self.pkg_edges = dict(arrowtail='none', arrowhead="open")
-        self.inh_edges = dict(arrowtail = "none", arrowhead='empty')
-        self.impl_edges = dict(arrowtail="node", arrowhead='empty', 
-                                style='dashed')
-        self.ass_edges = dict(fontcolor='green', arrowtail='none',
-                    arrowhead='diamond', style='solid')
+        styles = [dict(arrowtail='none', arrowhead="open"), 
+                  dict(arrowtail = "none", arrowhead='empty'), 
+                  dict(arrowtail="node", arrowhead='empty', style='dashed'),
+                  dict(fontcolor='green', arrowtail='none',
+                       arrowhead='diamond', style='solid') ]
+        DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
         """initialize DotWriter and add options for layout.
@@ -131,15 +138,15 @@ class VCGWriter(DiagramWriter):
     """write vcg graphs from a diagram definition and a project
     """
     def __init__(self, config):
-        self.config = config
-        self.pkg_edges = dict(arrowstyle='solid', backarrowstyle='none',
-                              backarrowsize=0)
-        self.inh_edges = dict(arrowstyle='solid',
-                              backarrowstyle='none', backarrowsize=10)
-        self.impl_edges = dict(arrowstyle='solid', linestyle='dotted',
-                              backarrowstyle='none', backarrowsize=10)
-        self.ass_edges = dict(textcolor='black',
-                              arrowstyle='solid', backarrowstyle='none')
+        styles = [dict(arrowstyle='solid', backarrowstyle='none',
+                       backarrowsize=0),
+                  dict(arrowstyle='solid', backarrowstyle='none', 
+                       backarrowsize=10),
+                  dict(arrowstyle='solid', backarrowstyle='none',
+                       linestyle='dotted', backarrowsize=10),
+                  dict(arrowstyle='solid', backarrowstyle='none',
+                       textcolor='green') ]
+        DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
         """initialize VCGWriter for a UML graph"""

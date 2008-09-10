@@ -106,7 +106,8 @@ MODES = {
     'SPECIAL'   : _SPECIAL,
     'OTHER'     : _PROTECTED + _PRIVATE,
 }
-VIS_MOD = {'special':_SPECIAL, 'protected': _PROTECTED, 'private': _PRIVATE, 'public': 0 }
+VIS_MOD = {'special': _SPECIAL, 'protected': _PROTECTED, \
+            'private': _PRIVATE, 'public': 0 }
 
 class FilterMixIn:
     """filter nodes according to a mode and nodes' visibility

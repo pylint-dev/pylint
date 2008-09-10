@@ -107,10 +107,10 @@ class PyreverseCommand(ConfigurationMixIn):#  OptionsManagerMixIn
         if not args:
             print self.help()
             return
-        self.project = self.manager.project_from_files(args, astng_wrapper)
-        self.linker = Linker(self.project, tag=True)
+        project = self.manager.project_from_files(args, astng_wrapper)
+        linker = Linker(project, tag=True)
         handler = DiadefsHandler(self.config)
-        diadefs = handler.get_diadefs(self.project, self.linker)
+        diadefs = handler.get_diadefs(project, linker)
         if self.config.output_format == "vcg":
             writer.VCGWriter(self.config).write(diadefs)
         else:
@@ -123,7 +123,7 @@ class Run:
     """pyreverse main class"""
     def __init__(self, args):
         """run pyreverse"""
-        pyreverse = PyreverseCommand(args)
+        PyreverseCommand(args)
 
 if __name__ == '__main__':
     Run(sys.argv[1:])
