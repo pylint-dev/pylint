@@ -1,7 +1,8 @@
 ChangeLog for PyLint
 ====================
 
--- 0.15.0
+2008-09-10  --  0.15.0
+    * include pyreverse package and class diagram generation
     * included Stefan Rank's patch to deal with 2.4 relative import
     * included Robert Kirkpatrick's tutorial and typos fixes
     * fix bug in reenabling message

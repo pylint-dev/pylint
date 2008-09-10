@@ -1,9 +1,10 @@
-pylint (0.14.0-3) unstable; urgency=low
+pylint (0.15.0-1) unstable; urgency=low
 
+  * new upstream release
   * Acknowledge NMU: thanks a lot, your patches have been backported in
     upstream code (closes: #427244, #448102, #415485, #431653)
 
- --
+ -- Emile Anclin <emile.anclin@logilab.fr>  Wed,  10 Sep 2008 12:16:00 +0200
 
 pylint (0.14.0-2.1) unstable; urgency=low
 

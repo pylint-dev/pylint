@@ -5,13 +5,13 @@ Maintainer: Sylvain Thénault <sylvain.thenault@logilab.fr>
 Uploaders: Alexandre Fayolle <afayolle@debian.org> 
 Build-Depends: debhelper (>= 5.0.38)
 Build-Depends-Indep: python (>=2.3.5-7), python-central (>=0.5.6)
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0
 Homepage: http://www.logilab.org/Project/name/pylint
 XS-Python-Version: all
 
 Package: pylint
 Architecture: all
-Depends: python, python-logilab-common (>= 0.22.2), python-logilab-astng (>= 0.17.1)
+Depends: python, python-logilab-common (>= 0.35.0), python-logilab-astng (>= 0.17.3)
 Recommends: python-tk
 XB-Python-Version: ${python:Versions}
 Conflicts: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
@@ -27,6 +27,9 @@ Description: python code static checker
  checking if variable names are well-formed according to your coding
  standard, or checking if declared interfaces are truly implemented,
  and much more.
+ .
+ Pylint can generate UML class and package diagrams with the pyreverse
+ command.
  .
  Additionally, it is possible to write plugins to add your own checks.
  . 
