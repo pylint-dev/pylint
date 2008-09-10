@@ -21,16 +21,17 @@ class DependenciesGraphTC(unittest.TestCase):
                                                'hoho': ['yep']})
         self.assertEquals(open(self.dest).read().strip(),
                           '''
-digraph g {
-rankdir="LR" URL="." concentrate=false
-edge[fontsize="10" ]
+digraph "dependencies_graph" {
+rankdir=LR
+charset="utf-8"
+URL="." concentrate=false edge[fontsize="10"]
 node[width="0" height="0" fontsize="12" fontcolor="black"]
-"hoho" [ label="hoho" ];
-"yep" [ label="yep" ];
-"labas" [ label="labas" ];
-"yep" -> "hoho" [ ] ;
-"hoho" -> "labas" [ ] ;
-"yep" -> "labas" [ ] ;
+"hoho" [];
+"yep" [];
+"labas" [];
+"yep" -> "hoho" edge [];
+"hoho" -> "labas" edge [];
+"yep" -> "labas" edge [];
 }
 '''.strip())
                           
