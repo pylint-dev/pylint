@@ -121,7 +121,7 @@ class BaseRawChecker(BaseChecker):
         
         the module's content is accessible via the stream object
         
-        stream must implements the readline method
+        stream must implement the readline method
         """
         self.process_tokens(tokenize.generate_tokens(stream.readline))
     

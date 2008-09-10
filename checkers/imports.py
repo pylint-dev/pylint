@@ -16,7 +16,7 @@
 """imports checkers for Python code
 """
 
-from logilab.common.graph import get_cycles
+from logilab.common.graph import get_cycles, DotBackend
 from logilab.common.modutils import is_standard_module, is_relative, \
      get_module_part
 from logilab.common.ureports import VerbatimText, Paragraph
@@ -92,38 +92,28 @@ def repr_tree_defs(data, indent_str=None):
             lines.append(repr_tree_defs(sub, sub_indent_str))
     return '\n'.join(lines)
 
-def dot_node(modname):
-    """return the string representation for a dot node"""
-    return '"%s" [ label="%s" ];' % (modname, modname)
 
-def dot_edge(from_, to_):
-    """return the string representation for a dot edge between two nodes"""
-    return'"%s" -> "%s" [ ] ;' % (from_, to_)
-
-DOT_HEADERS = '''rankdir="LR" URL="." concentrate=false
-edge[fontsize="10" ]
+DOT_HEADERS = '''URL="." concentrate=false edge[fontsize="10"]
 node[width="0" height="0" fontsize="12" fontcolor="black"]'''
 
 def dependencies_graph(filename, dep_info):
-    """write dependencies as defined in the dep_info dictionary as a dot
-    (graphviz) file
+    """write dependencies as a dot (graphviz) file 
     """
     done = {}
-    stream = open(filename, 'w')
-    print >> stream, "digraph g {"
-    print >> stream, DOT_HEADERS
+    printer = DotBackend(filename[:-4], rankdir = "LR")
+    printer.emit(DOT_HEADERS)
     for modname, dependencies in dep_info.items():
         done[modname] = 1
-        print >> stream, dot_node(modname)
+        printer.emit_node(modname)
         for modname in dependencies:
             if not done.has_key(modname):
                 done[modname] = 1
-                print >> stream, dot_node(modname)
+                printer.emit_node(modname)
     for depmodname, dependencies in dep_info.items():
         for modname in dependencies:
-            print >> stream, dot_edge(modname, depmodname)
-    print >> stream,'}'
-    stream.close()
+            printer.emit_edge(modname, depmodname)
+    printer.generate(filename)
+
 
 def make_graph(filename, dep_info, sect, gtype):
     """generate a dependencies graph and add some information about it in the
@@ -245,11 +235,11 @@ given file (report R0402 must not be disabled)'}
         """triggered when a from statement is seen"""
         basename = node.modname
         if basename == '__future__':
-            # check this is the first non docstring statement in the module
+            # check if this is the first non-docstring statement in the module
             prev = node.previous_sibling()
             if prev:
                 # consecutive future statements are possible
-                if not(isinstance(prev, astng.From)
+                if not (isinstance(prev, astng.From)
                        and prev.modname == '__future__'):
                     self.add_message('W0410', node=node)
         self._check_deprecated(node, basename)
@@ -306,7 +296,6 @@ given file (report R0402 must not be disabled)'}
 
     def _check_relative(self, node, mod_path):
         """check relative import module"""
-        # check for relative import
         context_file = node.root().file
         relative = is_relative(mod_path, context_file)
         if relative:
