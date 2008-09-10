@@ -104,7 +104,7 @@ class DotWriter(DiagramWriter):
     def set_printer(self, file_name, basename):
         """initialize DotWriter and add options for layout.
         """
-        layout = dict(rankdir="BT", concentrate="true")
+        layout = dict(rankdir="BT")
         self.printer = DotBackend(basename, additionnal_param=layout)
         self.file_name = file_name
 
