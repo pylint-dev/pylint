@@ -459,33 +459,24 @@ This is used by the global evaluation report (R0004).'}),
         # notify global begin
         for checker in checkers:
             checker.open()
-        # prebuild ast for all modules to check
+        # build ast and check modules or packages
         for descr in filemods[:]:
             modname, filepath = descr['name'], descr['path']
             self.set_current_module(modname, filepath)
             # get the module representation
-            try:
-                astng = self.get_astng(filepath, modname)
-            except SyntaxError, ex:
-                self.add_message('E0001', line=ex.lineno, args=ex.msg)
-                astng = None
+            astng = self.get_astng(filepath, modname)
             if astng is None:
                 filemods.remove(descr)
                 continue
             descr['astng'] = astng
-        # check modules or packages        
-        for descr in filemods:
-            modname, filepath = descr['name'], descr['path']
-            astng = descr['astng']
             self.base_name = descr['basename']
             self.base_file = descr['basepath']
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
                 self.reporter.set_output(open(reportfile, 'w'))
-            self.set_current_module(modname, filepath)
             self._ignore_file = False
             # fix the current file (if the source file was not available or
-            # if its actually a c extension
+            # if it's actually a c extension)
             self.current_file = astng.file
             self.check_astng_module(astng, checkers)
         # notify global end
@@ -610,7 +601,7 @@ This is used by the global evaluation report (R0004).'}),
             _reversed_checkers.reverse()
         if astng.is_statement():
             self.stats['statement'] += 1
-        # generate events for this node on each checkers
+        # generate events for this node on each checker
         for checker in checkers:
             checker.visit(astng)
         # recurse on children
