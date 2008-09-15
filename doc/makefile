@@ -1,5 +1,5 @@
 MKHTML=mkdoc
-MKHTML_OPT=--doctype article --param toc.section.depth=1 --target html --stylesheet single-file
+MKHTML_OPT=--doctype article --param toc.section.depth=1 --target html --stylesheet standard 
 
 SRC=.
 
