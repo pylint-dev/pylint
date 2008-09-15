@@ -1,6 +1,11 @@
 ChangeLog for PyLint
 ====================
 
+2008-09-15  --  0.15.1
+    * fix #4910: default values are missing in manpage
+    * fix #5991: missing files in 0.15.0 tarball
+    * fix #5993: epylint should work with python 2.3
+
 2008-09-10  --  0.15.0
     * include pyreverse package and class diagram generation
     * included Stefan Rank's patch to deal with 2.4 relative import

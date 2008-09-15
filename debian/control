@@ -16,7 +16,7 @@ Recommends: python-tk
 XB-Python-Version: ${python:Versions}
 Conflicts: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
 Replaces: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
-Description: python code static checker
+Description: python code static checker and UML diagram generator
  Pylint is a Python source code analyzer which looks for programming
  errors, helps enforcing a coding standard and sniffs for some code
  smells (as defined in Martin Fowler's Refactoring book)
@@ -28,10 +28,10 @@ Description: python code static checker
  standard, or checking if declared interfaces are truly implemented,
  and much more.
  .
- Pylint can generate UML class and package diagrams with the pyreverse
- command.
- .
  Additionally, it is possible to write plugins to add your own checks.
+ . 
+ The included command pyreverse generates UML class and package 
+ diagrams.
  . 
  The recommended python-tk package is only for using the pylint-gui
  script.
