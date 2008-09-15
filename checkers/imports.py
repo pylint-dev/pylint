@@ -93,15 +93,12 @@ def repr_tree_defs(data, indent_str=None):
     return '\n'.join(lines)
 
 
-DOT_HEADERS = '''URL="." concentrate=false edge[fontsize="10"]
-node[width="0" height="0" fontsize="12" fontcolor="black"]'''
-
 def dependencies_graph(filename, dep_info):
     """write dependencies as a dot (graphviz) file 
     """
     done = {}
     printer = DotBackend(filename[:-4], rankdir = "LR")
-    printer.emit(DOT_HEADERS)
+    printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in dep_info.items():
         done[modname] = 1
         printer.emit_node(modname)

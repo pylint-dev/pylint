@@ -24,8 +24,7 @@ class DependenciesGraphTC(unittest.TestCase):
 digraph "dependencies_graph" {
 rankdir=LR
 charset="utf-8"
-URL="." concentrate=false edge[fontsize="10"]
-node[width="0" height="0" fontsize="12" fontcolor="black"]
+URL="." node[shape="box"]
 "hoho" [];
 "yep" [];
 "labas" [];
