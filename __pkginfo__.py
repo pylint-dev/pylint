@@ -18,7 +18,7 @@
 
 modname = 'pylint'
 
-numversion = (0, 15, 0)
+numversion = (0, 15, 1)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
@@ -49,8 +49,8 @@ ftp = "ftp://ftp.logilab.org/pub/%s" % modname
 mailinglist = "mailto://python-projects@logilab.org"
 
 from os.path import join
-scripts = [join('bin', filename)
-           for filename in ('pylint', 'pylint-gui', "symilar", "epylint")]
+scripts = [join('bin', filename) for filename in 
+            ('pylint', 'pylint-gui', "symilar", "epylint", "pyreverse")]
 
 include_dirs = [join('test', 'input'),
                 join('test', 'messages'),
