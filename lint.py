@@ -454,11 +454,11 @@ This is used by the global evaluation report (R0004).'}),
         self.reporter.include_ids = self.config.include_ids
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
-        filemods = self.expand_files(files_or_modules)
         checkers = sort_checkers(self._checkers.values())
         # notify global begin
         for checker in checkers:
             checker.open()
+        filemods = self.expand_files(files_or_modules)
         # build ast and check modules or packages
         for descr in filemods[:]:
             modname, filepath = descr['name'], descr['path']
@@ -511,9 +511,6 @@ This is used by the global evaluation report (R0004).'}),
                         self.add_message('F0003', args=modname)
                         continue
                 except ImportError, ex:
-                    #if __debug__:
-                    #    import traceback
-                    #    traceback.print_exc()
                     self.set_current_module(modname)
                     msg = str(ex).replace(os.getcwd() + os.sep, '')
                     self.add_message('F0001', args=msg)
