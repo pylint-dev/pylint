@@ -41,9 +41,7 @@ OPTIONS = (
                                 except constructor
                             'OTHER' filter protected and private
                                 attributes""")),
-#("diadefs-file",
-#dict(short='d', metavar="<file>", action="store",
-    #help="create diagram according to the diagrams definitions in <file>")),
+
 ("class",
 dict(short='c', action="append", metavar="<class>", dest="classes", default=[],
     help="create a class diagram with all classes related to <class>;\
@@ -82,17 +80,15 @@ this disables -f values")),
                  default="dot", metavar="<format>",
                 help="create a *.<format> output file if format available.")),
 )
+# FIXME : quiet mode
 #( ('quiet', 
                 #dict(help='run quietly', action='store_true', short='q')), )
 
 
-class PyreverseCommand(ConfigurationMixIn):#  OptionsManagerMixIn 
+class PyreverseCommand(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
-    name = 'pyreverse'
-
     options = OPTIONS
-    priority = 0
 
     def __init__(self, args):
         ConfigurationMixIn.__init__(self, usage=__doc__)
@@ -116,8 +112,6 @@ class PyreverseCommand(ConfigurationMixIn):#  OptionsManagerMixIn
         else:
             writer.DotWriter(self.config).write(diadefs)
 
-
-#register_commands( (DiagramCommand,) )
 
 class Run:
     """pyreverse main class"""
