@@ -380,4 +380,50 @@ class ReportsHandlerMixIn:
             assert not self.stats.has_key(key)
             self.stats[key] = value
         return self.stats
-    
+
+###     ###     - - - -   import utils    - - - -     ###     ###
+
+from os.path import dirname, basename, splitext, exists, isdir, join, normpath
+from logilab.common.modutils import modpath_from_file, get_module_files, \
+                                    file_from_modpath, is_relative
+
+def expand_modules(files_or_modules, black_list):
+    """take a list of files/modules/packages and return the list of tuple
+    (file, module name) which have to be actually checked
+    """
+    result = []
+    errors = []
+    for something in files_or_modules:
+        if exists(something):
+            # this is a file or a directory
+            try:
+                modname = '.'.join(modpath_from_file(something))
+            except ImportError:
+                modname = splitext(basename(something))[0]
+            if isdir(something):
+                filepath = join(something, '__init__.py')
+            else:
+                filepath = something
+        else:
+            # suppose it's a module or package
+            modname = something
+            try:
+                filepath = file_from_modpath(modname.split('.'))
+                if filepath is None:
+                    errors.append( {'key' : 'F0003', 'mod': modname} )
+                    continue
+            except ImportError, ex:
+                    errors.append( {'key': 'F0001', 'mod': modname, 'ex': ex} )
+                    continue
+        filepath = normpath(filepath)
+        result.append( {'path': filepath, 'name': modname,
+                        'basepath': filepath, 'basename': modname} )
+        if not (modname.endswith('.__init__') or modname == '__init__') \
+                and '__init__.py' in filepath:
+            for subfilepath in get_module_files(dirname(filepath), black_list):
+                if filepath == subfilepath:
+                    continue
+                submodname = '.'.join(modpath_from_file(subfilepath))
+                result.append( {'path': subfilepath, 'name': submodname,
+                                'basepath': filepath, 'basename': modname} )
+    return result, errors

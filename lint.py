@@ -34,11 +34,9 @@ import sys
 import os
 import re
 import tokenize
-from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 from logilab.common.configuration import OptionsManagerMixIn, check_csv
-from logilab.common.modutils import modpath_from_file, get_module_files, \
-     file_from_modpath, load_module_from_name
+from logilab.common.modutils import load_module_from_name
 from logilab.common.interface import implements
 from logilab.common.textutils import get_csv
 from logilab.common.fileutils import norm_open
@@ -49,7 +47,7 @@ from logilab.astng import ASTNGManager
 from logilab.astng.__pkginfo__ import version as astng_version
 
 from pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
-     ReportsHandlerMixIn, MSG_TYPES, sort_checkers
+     ReportsHandlerMixIn, MSG_TYPES, sort_checkers, expand_modules
 from pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker, EmptyReport, \
      table_lines_from_stats
@@ -458,17 +456,14 @@ This is used by the global evaluation report (R0004).'}),
         # notify global begin
         for checker in checkers:
             checker.open()
-        filemods = self.expand_files(files_or_modules)
         # build ast and check modules or packages
-        for descr in filemods[:]:
+        for descr in self.expand_files(files_or_modules):
             modname, filepath = descr['name'], descr['path']
             self.set_current_module(modname, filepath)
             # get the module representation
             astng = self.get_astng(filepath, modname)
             if astng is None:
-                filemods.remove(descr)
                 continue
-            descr['astng'] = astng
             self.base_name = descr['basename']
             self.base_file = descr['basepath']
             if self.config.files_output:
@@ -485,50 +480,19 @@ This is used by the global evaluation report (R0004).'}),
         for checker in  checkers:
             checker.close()
 
-    def expand_files(self, files_or_modules):
-        """take a list of files/modules/packages and return the list of tuple
-        (file, module name) which have to be actually checked
+    def expand_files(self, modules):
+        """get modules and errors from a list of modules and handle errors
         """
-        result = []
-        for something in files_or_modules:
-            if exists(something):
-                # this is a file or a directory
-                try:
-                    modname = '.'.join(modpath_from_file(something))
-                except ImportError:
-                    modname = splitext(basename(something))[0]
-                if isdir(something):
-                    filepath = join(something, '__init__.py')
-                else:
-                    filepath = something
-            else:
-                # suppose it's a module or package
-                modname = something
-                try:
-                    filepath = file_from_modpath(modname.split('.'))
-                    if filepath is None:
-                        self.set_current_module(modname)
-                        self.add_message('F0003', args=modname)
-                        continue
-                except ImportError, ex:
-                    self.set_current_module(modname)
-                    msg = str(ex).replace(os.getcwd() + os.sep, '')
-                    self.add_message('F0001', args=msg)
-                    continue
-            filepath = normpath(filepath)
-            result.append( {'path': filepath, 'name': modname,
-                            'basepath': filepath, 'basename': modname} )
-            if not (modname.endswith('.__init__') or modname == '__init__') \
-                   and '__init__.py' in filepath:
-                for subfilepath in get_module_files(dirname(filepath),
-                                                    self.config.black_list):
-                    if filepath == subfilepath:
-                        continue
-                    submodname = '.'.join(modpath_from_file(subfilepath))
-                    result.append( {'path': subfilepath, 'name': submodname,
-                                    'basepath': filepath, 'basename': modname} )
+        result, errors = expand_modules(modules, self.config.black_list)
+        for error in errors:
+            message = error["mod"]
+            key = error["key"]
+            self.set_current_module(modname)
+            if key == "F0001":
+                message = str(error["ex"]).replace(os.getcwd() + os.sep, '')
+            self.add_message(key, args=message)
         return result
-        
+
     def set_current_module(self, modname, filepath=None):
         """set the name of the currently analyzed module and
         init statistics for it
