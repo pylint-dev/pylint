@@ -4,6 +4,6 @@ C: 26:HOHOHOHO: Invalid name "HOHOHOHO" (should match [a-z_][a-z0-9_]{2,30}$)
 C: 28:HOHOHOHO: Invalid name "HIHIHI" (should match [a-z_][a-z0-9_]{2,30}$)
 C: 31:xyz: Invalid name "xyz" (should match [A-Z_][a-zA-Z0-9]+$)
 C: 36:xyz.Youplapoum: Invalid name "Youplapoum" (should match [a-z_][a-z0-9_]{2,30}$)
-C: 46: Invalid name "benpasceluila" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
+C: 46: Invalid name "benpasceluila" (should match (([A-Z_][A-Z0-9_]*)|(__.*__))$)
 C: 52:Correct.__init__: Invalid name "_Ca_va_Pas" (should match [a-z_][a-z0-9_]{2,30}$)
 W:  8:Run.B: Unused variable 'B'
