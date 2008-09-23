@@ -485,7 +485,7 @@ This is used by the global evaluation report (R0004).'}),
         """
         result, errors = expand_modules(modules, self.config.black_list)
         for error in errors:
-            message = error["mod"]
+            message = modname = error["mod"]
             key = error["key"]
             self.set_current_module(modname)
             if key == "F0001":
