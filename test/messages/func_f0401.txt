@@ -1,2 +1,2 @@
-F:  8:function: Unable to import 'tutu.toto' (No module named tutu)
+F:  8:function: Unable to import 'tutu' (No module named tutu)
 

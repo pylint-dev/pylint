@@ -23,6 +23,7 @@ from logilab.common.ureports import VerbatimText, Paragraph
 
 from logilab import astng
 
+from pylint.utils import expand_modules
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker, EmptyReport
 from pylint.checkers.utils import are_exclusive
@@ -221,6 +222,8 @@ given file (report R0402 must not be disabled)'}
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         for name, _ in node.names:
+            if self._module_not_exists(node, name):
+                continue
             self._check_deprecated(node, name)
             relative = self._check_relative(node, name)
             self._imported_module(node, name, relative)
@@ -231,6 +234,8 @@ given file (report R0402 must not be disabled)'}
     def visit_from(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
+        if self._module_not_exists(node, basename):
+            return
         if basename == '__future__':
             # check if this is the first non-docstring statement in the module
             prev = node.previous_sibling()
@@ -253,16 +258,22 @@ given file (report R0402 must not be disabled)'}
             self._check_reimport(node, name, basename, level)
             # analyze dependencies
             fullname = '.' * level + '%s.%s' % (basename, name)
-            try:
-                # XXXFIXME: don't use get_module_part which doesn't take
-                # care of package precedence
-                fullname = get_module_part(fullname,
-                                           context_file=node.root().file)
-            except ImportError, ex:
-                self.add_message('F0401', args=(fullname, ex), node=node)
-                continue
+            fullname = get_module_part(fullname,context_file=node.root().file)
             self._imported_module(node, fullname, relative)
-        
+
+    def _module_not_exists(self, node, modname):
+        """check if module exists and possibly add message"""
+        result, errors = expand_modules([modname], [])
+        if not errors or is_relative(modname, node.root().file):
+            return False
+        error = errors[0]
+        if error["key"] == "F0001":
+            args = (error["mod"], error["ex"])
+            self.add_message("F0401", args=args, node=node)
+            return True
+        assert error["key"] == "F0003"
+        return False
+
     def _imported_module(self, node, mod_path, relative):
         """notify an imported module, used to analyze dependencies
         """
