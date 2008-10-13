@@ -37,7 +37,7 @@ linter.config.persistent = 0
 checkers.initialize(linter)
 linter.enable_checkers(['rpython'], True)
                        
-from func_test import ulines, LintTestUsingFile
+from test_func import ulines, LintTestUsingFile
 
 class RLintTestUsingFile(LintTestUsingFile):            
     package = 'rpythoninput'

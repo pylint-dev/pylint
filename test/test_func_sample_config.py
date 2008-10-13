@@ -17,7 +17,7 @@
 as with the default configuration
 """
 
-from func_test import *
+from test_func import *
 
 from os.path import join
 
