@@ -117,7 +117,7 @@ class TestTests(testlib.TestCase):
                 continue
         todo.sort()
         if PY25:
-            self.assertEqual(todo, ['E0503', 'E1010', 'I0001'])
+            self.assertEqual(todo, ['E0503', 'I0001'])
         elif PY23:
             self.assertEqual(todo, ['E0503', 'I0001'])
         else: # python < 2.3
