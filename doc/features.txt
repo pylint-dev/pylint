@@ -187,7 +187,7 @@ Messages
 :W0613: *Unused argument %r*
   Used when a function or method argument is not used.
 :W0614: *Unused import %s from wildcard import*
-  Used when an imported module or variable is not used from a 'from X import \*'
+  Used when an imported module or variable is not used from a 'from X import *'
   style import.
 :W0621: *Redefining name %r from outer scope (line %s)*
   Used when a variable's name hide a name defined in the outer scope.
@@ -594,7 +594,6 @@ checks for usage of new style capabilities on old style classes and
 other new/old styles conflicts problems
 * use of property, __slots__, super
 * "super" usage
-* raising a new style class as exception
 
 Messages
 ~~~~~~~~
@@ -605,22 +604,16 @@ Messages
 :E1003: *Bad first argument %r given to super class*
   Used when another argument than the current class is given as first argument
   of the super builtin.
-:E1010: *Raising a new style class*
-  Used when a new style class is raised since it's not possible with python <
-  2.5.
 :W1001: *Use of "property" on an old style class*
   Used when PyLint detect the use of the builtin "property" on an old style
   class while this is relying on new style classes features
-:W1010: *Exception doesn't inherit from standard "Exception" class*
-  Used when a custom exception class is raised but doesn't inherit from the
-  builtin "Exception" class.
 
 
 Exceptions checker
 ------------------
 checks for
 * excepts without exception filter
-* string exceptions
+* type of raise argument : string, Exceptions, other values
 
 Messages
 ~~~~~~~~
@@ -631,6 +624,9 @@ Messages
 :E0702: *Raising %s while only classes, instances or string are allowed*
   Used when something which is neither a class, an instance or a string is
   raised (i.e. a `TypeError` will be raised).
+:E0710: *Raising a new style class which doesn't inherit from BaseException*
+  Used when a new style class which doesn't inherit from BaseException raised
+  since it's not possible with python < 2.5.
 :W0701: *Raising a string exception*
   Used when a string exception is raised.
 :W0702: *No exception type(s) specified*
@@ -640,9 +636,9 @@ Messages
 :W0704: *Except doesn't do anything*
   Used when an except clause does nothing but "pass" and there is no "else"
   clause.
-:W0706: *Identifier %s used to raise an exception is assigned to %s*
-  Used when a variable used to raise an exception is initially assigned to a
-  value which can't be used as an exception.
+:W0710: *Exception doesn't inherit from standard "Exception" class*
+  Used when a custom exception class is raised but doesn't inherit from the
+  builtin "Exception" class.
 
 
 Similarities checker
