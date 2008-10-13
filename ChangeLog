@@ -1,5 +1,10 @@
 ChangeLog for PyLint
 ====================
+2008-10-13  --  0.15.2
+    * fix #5672: W0706 weirdness ( W0706 removed )
+    * fix #5998: documentation points to wrong url for mailing list
+    * fix #6022: no error message on wrong module names
+    * fix #6040: pytest doesn't run test/func_test.py
 
 2008-09-15  --  0.15.1
     * fix #4910: default values are missing in manpage

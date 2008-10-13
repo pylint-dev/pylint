@@ -18,7 +18,7 @@
 
 modname = 'pylint'
 
-numversion = (0, 15, 1)
+numversion = (0, 15, 2)
 version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
