@@ -1,5 +1,5 @@
-W: 11: Identifier e used to raise an exception is assigned to 1 line 7
-W: 15: Identifier e2 used to raise an exception is assigned to 'yo' line 8
-W: 20:func: Identifier e3 used to raise an exception is assigned to None
-W: 30: Identifier e3 used to raise an exception is assigned to None
+E: 11: Raising int while only classes, instances or string are allowed
+E: 20:func: Raising NoneType while only classes, instances or string are allowed
+E: 30: Raising NoneType while only classes, instances or string are allowed
+W: 15: Raising a string exception
 
