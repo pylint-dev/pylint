@@ -43,12 +43,22 @@ MSGS = {
     'W0704': ('Except doesn\'t do anything',
               'Used when an except clause does nothing but "pass" and there is\
               no "else" clause.'),
-    'W0706': (
-    'Identifier %s used to raise an exception is assigned to %s',
-    'Used when a variable used to raise an exception is initially \
-    assigned to a value which can\'t be used as an exception.'),
+    'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
+              'Used when a custom exception class is raised but doesn\'t \
+              inherit from the builtin "Exception" class.'),
     }
-    
+if sys.version_info < (2, 5):
+    MSGS['E0710'] = ('Raising a new style class',
+                     'Used when a new style class is raised since it\'s not \
+                      possible with python < 2.5.')
+else:
+    MSGS['E0710'] = ('Raising a new style class which doesn\'t inherit from \
+BaseException',
+                     'Used when a new style class which doesn\'t inherit from \
+                      BaseException raised since it\'s not possible with \
+                      python < 2.5.')
+
+
 class ExceptionsChecker(BaseChecker):
     """checks for                                                              
     * excepts without exception filter                                         
