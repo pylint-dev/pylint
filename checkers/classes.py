@@ -200,14 +200,12 @@ instance attributes.'}
         # ignore actual functions
         if not node.is_method():
             return
+        klass = node.parent.frame()
         self._meth_could_be_func = True
         # check first argument is self if this is actually a method 
-        klass = node.parent.frame()
         self._check_first_arg_for_type(node, klass.type == 'metaclass')
         if node.name == '__init__':
             self._check_init(node)
-            return
-        if not isinstance(klass, astng.Class):
             return
         # check signature if the method overrload an herited method
         for overridden in klass.local_attr_ancestors(node.name):
