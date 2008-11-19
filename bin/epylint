@@ -5,7 +5,7 @@ import sys
 
 from popen2 import popen3
 
-p, _in, _err = popen3("pylint -f parseable -r n --disable-msg-cat=C,R %s" % sys.argv[1])
+p, _in, _err = popen3("pylint -f parseable -r n --disable-msg-cat=C,R,I %s" % sys.argv[1])
 
 for line in p:
     match = re.search("\\[([WE])(, (.+?))?\\]", line)

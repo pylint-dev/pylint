@@ -1,4 +1,4 @@
-.TH pylint 1 "2008-2-7" pylint
+.TH pylint 1 "2008-10-13" pylint
 .SH NAME
 .B pylint 
 \- python code static checker
@@ -62,11 +62,11 @@ Generate a sample configuration file according to the current configuration. You
 .IP "--generate-man"
 Generate pylint's man page.
 
-.SH MESSAGE CONTROL
+.SH MESSAGES CONTROL
 .IP "--enable-checker=<checker ids>"
-Enable only checker(s) with the given id(s). This option conflicts with the disable-checker option
+Enable only checker(s) with the given id(s).                 This option conflicts with the disable-checker option
 .IP "--disable-checker=<checker ids>"
-Enable all checker(s) except those with the given id(s). This option conflicts with the enable-checker option
+Enable all checker(s) except those with the                  given id(s).                 This option conflicts with the enable-checker option
 .IP "--enable-msg-cat=<msg cats>"
 Enable all messages in the listed categories.
 .IP "--disable-msg-cat=<msg cats>"
@@ -78,7 +78,7 @@ Disable the message(s) with the given id(s).
 
 .SH REPORTS
 .IP "--output-format=<format>, -f <format>"
-Set the output format. Available formats are text, parseable, colorized, msvs (visual studio) and html [current: text]
+Set the output format. Available formats are text,                 parseable, colorized, msvs (visual studio) and html [current: text]
 .IP "--include-ids=<y_or_n>, -i <y_or_n>"
 Include message's id in output [current: no]
 .IP "--files-output=<y_or_n>"
@@ -86,49 +86,13 @@ Put messages in a separate file for each module / package specified on the comma
 .IP "--reports=<y_or_n>, -r <y_or_n>"
 Tells wether to display a full report or only the messages [current: yes]
 .IP "--evaluation=<python_expression>"
-Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectivly contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004). [current:  10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)]
+Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectivly contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004). [current: 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)]
 .IP "--comment=<y_or_n>"
 Add a comment according to your evaluation note. This is used by the global evaluation report (R0004). [current: no]
 .IP "--enable-report=<rpt ids>"
 Enable the report(s) with the given id(s).
 .IP "--disable-report=<rpt ids>"
 Disable the report(s) with the given id(s).
-
-.SH BASIC
-.IP "--required-attributes=<attributes>"
-Required attributes for module, separated by a comma [current: none]
-.IP "--no-docstring-rgx=<regexp>"
-Regular expression which should only match functions or classes name which do not require a docstring [current: __.*__]
-.IP "--module-rgx=<regexp>"
-Regular expression which should only match correct module names [current: (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$]
-.IP "--const-rgx=<regexp>"
-Regular expression which should only match correct module level names [current: (([A-Z_][A-Z0-9_]*)|(__.*__))$]
-.IP "--class-rgx=<regexp>"
-Regular expression which should only match correct class names [current:  [A-Z_][a-zA-Z0-9]+$]
-.IP "--function-rgx=<regexp>"
-Regular expression which should only match correct function names [current:  [a-z_][a-z0-9_]{2,30}$]
-.IP "--method-rgx=<regexp>"
-Regular expression which should only match correct method names [current: [a-z_][a-z0-9_]{2,30}$]
-.IP "--attr-rgx=<regexp>"
-Regular expression which should only match correct instance attribute names [current: [a-z_][a-z0-9_]{2,30}$]
-.IP "--argument-rgx=<regexp>"
-Regular expression which should only match correct argument names [current: [a-z_][a-z0-9_]{2,30}]
-.IP "--variable-rgx=<regexp>"
-Regular expression which should only match correct variable names [current: [a-z_][a-z0-9_]{2,30}$]
-.IP "--inlinevar-rgx=<regexp>"
-Regular expression which should only match correct list comprehension / generator expression variable names [current: [A-Za-z_][A-Za-z0-9_]*$]
-.IP "--good-names=<names>"
-Good variable names which should always be accepted, separated by a comma [current: i,j,k,ex,Run,_]
-.IP "--bad-names=<names>"
-Bad variable names which should always be refused, separated by a comma [current: foo,bar,baz,toto,tutu,tata ]
-.IP "--bad-functions=<builtin function names>"
-List of builtins function names that should not be used, separated by a comma [current: map,filter,apply,input]
-
-.SH CLASSES
-.IP "--ignore-iface-methods=<method names>"
-List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class. [current: isIm plementedBy,deferred,extends,names,namesAndDescription     s,queryDescriptionFor,getBases,getDescriptionFor,getDo  c,getName,getTaggedValue,getTaggedValueTags,isEqualOrE xtendedBy,setTaggedValue,isImplementedByInstancesOf,ad aptWith,is_implemented_by]
-.IP "--defining-attr-methods=<method names>"
-List of method names used to declare (i.e. assign) instance attributes. [current: __init__,__new__,setUp]
 
 .SH DESIGN
 .IP "--max-args=<int>"
@@ -150,14 +114,11 @@ Minimum number of public methods for a class (see R0903). [current: 2]
 .IP "--max-public-methods=<num>"
 Maximum number of public methods for a class (see R0904). [current: 20]
 
-.SH FORMAT
-.IP "--max-line-length=<int>"
-Maximum number of characters on a single line. [current: 80]
-.IP "--max-module-lines=<int>"
-Maximum number of lines in a module [current: 1000]
-.IP "--indent-string=<string>"
-String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab). 
- [current: "    "]
+.SH CLASSES
+.IP "--ignore-iface-methods=<method names>"
+List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class. [current: isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by]
+.IP "--defining-attr-methods=<method names>"
+List of method names used to declare (i.e. assign) instance attributes. [current: __init__,__new__,setUp]
 
 .SH IMPORTS
 .IP "--deprecated-modules=<modules>"
@@ -169,9 +130,13 @@ Create a graph of external dependencies in the given file (report R0402 must not
 .IP "--int-import-graph=<file.dot>"
 Create a graph of internal dependencies in the given file (report R0402 must not be disabled) [current: none]
 
-.SH MISCELLANEOUS
-.IP "--notes=<comma separated values>"
-List of note tags to take in consideration, separated by a comma. [current: FIXME,TODO,XXX]
+.SH FORMAT
+.IP "--max-line-length=<int>"
+Maximum number of characters on a single line. [current: 80]
+.IP "--max-module-lines=<int>"
+Maximum number of lines in a module [current: 1000]
+.IP "--indent-string=<string>"
+String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab). [current: '    ']
 
 .SH SIMILARITIES
 .IP "--min-similarity-lines=<int>"
@@ -184,12 +149,12 @@ Ignore docstrings when computing similarities. [current: yes]
 .SH TYPECHECK
 .IP "--ignore-mixin-members=<y_or_n>"
 Tells wether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive). [current: yes]
-.IP "--ignored-classes=<names>"
-List of class names for which member attributes should not be checked (useful for classes with attributes dynamicaly set). [current: SQLObject]
+.IP "--ignored-classes=<members names>"
+List of classes names for which member attributes should not be checked (useful for classes with attributes dynamicaly set). [current: SQLObject]
 .IP "--zope=<y_or_n>"
-When zope mode is activated, consider the acquired-members option to ignore access to some undefined attributes. [current: no]
-.IP "--generated-members=<members>"
-List of members which are usually get through zope's acquisition mecanism and so shouldn't trigger E0201 when accessed (need zope=yes to be considered). [current: REQUEST,acl_users,aq_parent]
+When zope mode is activated, add a predefined set of Zope acquired attributes to generated-members. [current: no]
+.IP "--generated-members=<members names>"
+List of members which are set dynamically and missed by pylint inference system, and so shouldn't trigger E0201 when accessed. [current: REQUEST,acl_users,aq_parent]
 
 .SH VARIABLES
 .IP "--init-import=<y_or_n>"
@@ -199,13 +164,47 @@ A regular expression matching names used                  for dummy variables (i
 .IP "--additional-builtins=<comma separated list>"
 List of additional names supposed to be defined in builtins. Remember that you should avoid to define new builtins when possible. [current: none]
 
+.SH MISCELLANEOUS
+.IP "--notes=<comma separated values>"
+List of note tags to take in consideration, separated by a comma. [current: FIXME,XXX,TODO]
+
+.SH BASIC
+.IP "--required-attributes=<attributes>"
+Required attributes for module, separated by a comma [current: none]
+.IP "--no-docstring-rgx=<regexp>"
+Regular expression which should only match functions or classes name which do not require a docstring [current: __.*__]
+.IP "--module-rgx=<regexp>"
+Regular expression which should only match correct module names [current: (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$]
+.IP "--const-rgx=<regexp>"
+Regular expression which should only match correct module level names [current: (([A-Z_][A-Z0-9_]*)|(__.*__))$]
+.IP "--class-rgx=<regexp>"
+Regular expression which should only match correct class names [current: [A-Z_][a-zA-Z0-9]+$]
+.IP "--function-rgx=<regexp>"
+Regular expression which should only match correct function names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--method-rgx=<regexp>"
+Regular expression which should only match correct method names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--attr-rgx=<regexp>"
+Regular expression which should only match correct instance attribute names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--argument-rgx=<regexp>"
+Regular expression which should only match correct argument names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--variable-rgx=<regexp>"
+Regular expression which should only match correct variable names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--inlinevar-rgx=<regexp>"
+Regular expression which should only match correct list comprehension / generator expression variable                           names [current: [A-Za-z_][A-Za-z0-9_]*$]
+.IP "--good-names=<names>"
+Good variable names which should always be accepted, separated by a comma [current: i,j,k,ex,Run,_]
+.IP "--bad-names=<names>"
+Bad variable names which should always be refused, separated by a comma [current: foo,bar,baz,toto,tutu,tata]
+.IP "--bad-functions=<builtin function names>"
+List of builtins function names that should not be used, separated by a comma [current: map,filter,apply,input]
+
 .SH ENVIRONMENT VARIABLES
 
 The following environment variables are used :                                 
     * PYLINTHOME                                                               
     path to the directory where data of persistent run will be stored. If not
 found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
-directory) . The current PYLINTHOME is /home/syt/.pylint.d.        
+directory) . The current PYLINTHOME is ~/.pylint.d.        
     * PYLINTRC                                                                 
     path to the configuration file. If not found, it will use the first        
 existant file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
@@ -223,7 +222,7 @@ There are 5 kind of message types :
     * (F) fatal, if an error occured which prevented pylint from doing further processing.     
         
 .SH SEE ALSO
-/usr/share/doc/pythonX.Y-pylint/
+/usr/share/doc/pylint/
 
 .SH COPYRIGHT 
 Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).

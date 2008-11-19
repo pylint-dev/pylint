@@ -780,7 +780,7 @@ them in the generated configuration.'''}),
             ('generate-man',
              {'action' : 'callback', 'callback' : self.cb_generate_manpage,
               'group': 'Commands',
-              'help' : "Generate pylint's man page."}),
+              'help' : "Generate pylint's man page.",'hide': 'True'}),
             
             ('errors-only',
              {'action' : 'callback', 'callback' : self.cb_debug_mode,
