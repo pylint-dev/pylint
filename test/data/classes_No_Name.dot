@@ -5,7 +5,7 @@ rankdir=BT
 "5" [shape="record", label="{Ancestor|attr : str\l|get_value()\lset_value()\l}"];
 "8" [shape="record", label="{«interface»\nInterface|\l|get_value()\lset_value()\l}"];
 "9" [shape="record", label="{DoNothing|\l|}"];
-"4" -> "5" edge [arrowtail="none", arrowhead="empty"];
-"5" -> "8" edge [arrowtail="node", style="dashed", arrowhead="empty"];
-"9" -> "4" edge [arrowhead="diamond", style="solid", arrowtail="none", fontcolor="green", label="relation"];
+"4" -> "5" [arrowtail="none", arrowhead="empty"];
+"5" -> "8" [arrowtail="node", style="dashed", arrowhead="empty"];
+"9" -> "4" [arrowhead="diamond", style="solid", arrowtail="none", fontcolor="green", label="relation"];
 }
