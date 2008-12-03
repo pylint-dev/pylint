@@ -4,10 +4,10 @@ include ChangeLog
 include TODO
 include bin/symilar
 include bin/pylint
-include bin/*.bat
 include bin/pylint-gui
 include bin/epylint
 include bin/pyreverse
+include bin/*.bat
 include examples/pylintrc*
 include examples/*.py
 include elisp/*.el

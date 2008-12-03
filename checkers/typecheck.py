@@ -129,7 +129,7 @@ accessed.'}
             except AttributeError:
                 # XXX method / function
                 continue
-            except astng.NotFoundError, ex:
+            except astng.NotFoundError:
                 if isinstance(owner, astng.Instance) \
                        and owner.has_dynamic_getattr():
                     continue

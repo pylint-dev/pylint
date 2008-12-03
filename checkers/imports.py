@@ -263,7 +263,7 @@ given file (report R0402 must not be disabled)'}
 
     def _module_not_exists(self, node, modname):
         """check if module exists and possibly add message"""
-        result, errors = expand_modules([modname], [])
+        errors = expand_modules([modname], [])[1]
         if not errors or is_relative(modname, node.root().file):
             return False
         error = errors[0]

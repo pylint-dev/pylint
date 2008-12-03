@@ -305,11 +305,9 @@ class RPythonChecker(BaseChecker):
         """check we are not modifying a module attribute"""
         if not self._rpython:
             return
-        frame = node.frame()
         if not node.name in node.frame().locals:
             self.add_message('E1220', node=node,
                              args=(node.name, node.root().name))
-            
         
     def visit_slice(self, node):
         """no negative index"""

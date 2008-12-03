@@ -385,7 +385,7 @@ class ReportsHandlerMixIn:
 
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 from logilab.common.modutils import modpath_from_file, get_module_files, \
-                                    file_from_modpath, is_relative
+                                    file_from_modpath
 
 def expand_modules(files_or_modules, black_list):
     """take a list of files/modules/packages and return the list of tuple
@@ -413,8 +413,8 @@ def expand_modules(files_or_modules, black_list):
                     errors.append( {'key' : 'F0003', 'mod': modname} )
                     continue
             except ImportError, ex:
-                    errors.append( {'key': 'F0001', 'mod': modname, 'ex': ex} )
-                    continue
+                errors.append( {'key': 'F0001', 'mod': modname, 'ex': ex} )
+                continue
         filepath = normpath(filepath)
         result.append( {'path': filepath, 'name': modname,
                         'basepath': filepath, 'basename': modname} )
