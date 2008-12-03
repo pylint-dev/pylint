@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -28,6 +28,23 @@ from pylint.checkers.utils import is_error, is_builtin, is_func_default, \
      is_ancestor_name, assign_parent, are_exclusive, \
      is_defined_before #, is_parent, FOR_NODE_TYPES
 
+
+def overridden_method(klass, name):
+    """get overriden method if any"""
+    try:
+        parent = klass.local_attr_ancestors(name).next()
+    except (StopIteration, KeyError):
+        return None
+    try:
+        meth_node = parent[name]
+    except KeyError:
+        # We have found an ancestor defining <name> but it's not in the local
+        # dictionary. This may happen with astng built from living objects.
+        return None
+    # check its a method
+    if getattr(meth_node, 'argnames', None) is not None:
+        return meth_node
+    return None
 
     
 MSGS = {
@@ -192,19 +209,20 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         self._vars.append({})
         
     def leave_function(self, node):
-        """leave function: check function's locals are consumed
-        """
+        """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
         self._vars.pop(0)
-        is_method = node.is_method()
-        klass = node.parent.frame()
-        # don't check arguments of abstract methods or within an interface
-        if is_method and (klass.type == 'interface' or node.is_abstract()):
-            return
+        # don't check arguments of function which are only raising an exception
         if is_error(node):
             return
+        # don't check arguments of abstract methods or within an interface
+        is_method = node.is_method()
+        klass = node.parent.frame()
+        if is_method and (klass.type == 'interface' or node.is_abstract()):
+            return
         authorized_rgx = self.config.dummy_variables_rgx
-        for name, stmts in not_consumed.items():
+        overridden = marker = []
+        for name, stmts in not_consumed.iteritems():
             # ignore some special names specified by user configuration
             if authorized_rgx.match(name):
                 continue
@@ -215,9 +233,16 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             # care about functions with unknown argument (builtins)
             if node.argnames is not None and name in node.argnames:
-                # don't warn if the first argument of a method is not used
-                if is_method and node.argnames and name == node.argnames[0]:
-                    continue
+                if is_method:
+                    # don't warn for the first argument of a (non static) method
+                    if node.type != 'staticmethod' and \
+                       node.argnames and name == node.argnames[0]:
+                        continue
+                    # don't warn for argument of an overridden method
+                    if overridden is marker:
+                        overridden = overridden_method(klass, node.name)
+                    if overridden is not None and name in overridden.argnames:
+                        continue
                 # don't check callback arguments
                 if node.name.startswith('cb_') or \
                        node.name.endswith('_cb'):

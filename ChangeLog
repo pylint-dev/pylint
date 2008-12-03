@@ -1,5 +1,10 @@
 ChangeLog for PyLint
 ====================
+	
+ --
+    * include a modified version of Maarten ter Huurne patch of avoid W0613
+      warning on arguments from overridden method
+	
 2008-10-13  --  0.15.2
     * fix #5672: W0706 weirdness ( W0706 removed )
     * fix #5998: documentation points to wrong url for mailing list
