@@ -107,10 +107,7 @@ class ExceptionsChecker(BaseChecker):
         elif isinstance(expr, astng.Mod):
             self.add_message('W0701', node=node)
         elif isinstance(expr, (astng.Instance, astng.Class)):
-            # XXX: bugfix for nested function instances
-            #      fixed in astng > 0.17.3, replace while-loop by if
-            #      once release
-            while isinstance(expr, astng.Instance):
+            if isinstance(expr, astng.Instance):
                 expr = expr._proxied
             if (isinstance(expr, astng.Class) and
                     not inherit_from_std_ex(expr) and
