@@ -28,9 +28,9 @@ URL="." node[shape="box"]
 "hoho" [];
 "yep" [];
 "labas" [];
-"yep" -> "hoho" edge [];
-"hoho" -> "labas" edge [];
-"yep" -> "labas" edge [];
+"yep" -> "hoho" [];
+"hoho" -> "labas" [];
+"yep" -> "labas" [];
 }
 '''.strip())
                           
