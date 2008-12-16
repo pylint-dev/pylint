@@ -19,3 +19,9 @@ for note in __revision__:
 for line in __revision__:
     for note in line:
         A = note.anotherthing()
+
+
+for x in []:
+    pass
+for x in range(3):
+    print (lambda : x)() # OK
