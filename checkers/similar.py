@@ -309,7 +309,8 @@ def usage(status=0):
     
 def run(argv=None):
     """standalone command line access point"""
-    argv = argv or sys.argv[1:]
+    if argv is None:
+        argv = sys.argv[1:]
     from getopt import getopt
     s_opts = 'hd:'
     l_opts = ('help', 'duplicates=', 'ignore-comments')
