@@ -102,6 +102,9 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
             for ass_node in _node.assign.nodes_of_class(astng.AssName):
                 if ass_node.name == varname:
                     return True
+        elif isinstance(_node, astng.With):
+            if _node.vars.name == varname:
+                return True
         elif isinstance(_node, (astng.Lambda, astng.Function)):
             if varname in flatten(_node.argnames):
                 return True
