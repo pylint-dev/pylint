@@ -289,7 +289,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def _loopvar_name(self, node, name):
         # filter variables according to node's scope
         # XXX used to filter parents but don't remember why, and removing this
-        # fixes a W0631 false positive reportedby  Paul Hachmann on 2008/12 on
+        # fixes a W0631 false positive reported by Paul Hachmann on 2008/12 on
         # python-projects (added to func_use_for_or_listcomp_var test)
         #astmts = [stmt for stmt in node.lookup(name)[1]
         #          if hasattr(stmt, 'ass_type')] and
