@@ -132,7 +132,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
-        self._to_consume = [(copy(node.locals), {}, 'module')]
+        mlocals = copy(node.locals)
+        # __dict__ is added to module's locals but not available in module's namespace
+        # (unlike __doc__, __name__, etc...). But take care __dict__ may be assigned
+        # somewhere in the module, so remove astng inserted nodes (having None lineno)
+        mlocals['__dict__'] = [n for n in mlocals['__dict__'] if n.lineno is not None]
+        if not mlocals['__dict__']:
+            del mlocals['__dict__']
+        self._to_consume = [(mlocals, {}, 'module')]
         self._vars = []
         for name, stmts in node.locals.items():
             if name in ('__name__', '__doc__', '__file__', '__path__') \
