@@ -136,7 +136,17 @@ def is_func_default(node):
            node in parent.defaults:
         return 1
     return is_func_default(parent)
-    
+
+def is_func_decorator(node):
+    """return true if the name is used in function decorator
+    """
+    parent = node.parent
+    if parent is None:
+        return 0
+    if isinstance(parent, astng.Decorators):
+        return 1
+    return is_func_decorator(parent)
+
 def is_ancestor_name(frame, node):
     """return True if `frame` is a astng.Class node with `node` in the
     subtree of its bases attribute
