@@ -35,7 +35,7 @@ import os
 import re
 import tokenize
 
-from logilab.common.configuration import OptionsManagerMixIn, check_csv
+from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn, check_csv
 from logilab.common.modutils import load_module_from_name
 from logilab.common.interface import implements
 from logilab.common.textutils import get_csv
@@ -326,7 +326,10 @@ This is used by the global evaluation report (R0004).'}),
                 return
             checkerids = [v.lower() for v in check_csv(None, opt_name, value)]
             self.enable_checkers(checkerids, opt_name == 'enable-checker')
-        BaseRawChecker.set_option(self, opt_name, value, action, opt_dict)
+        try:
+            BaseRawChecker.set_option(self, opt_name, value, action, opt_dict)
+        except UnsupportedAction:
+            print >>sys.stderr, 'option %s can\'t be read from config file' % opt_name
 
     # checkers manipulation methods ###########################################
     
