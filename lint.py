@@ -254,6 +254,7 @@ This is used by the global evaluation report (R0004).'}),
         self.base_file = None
         self.current_name = None
         self.current_file = None
+        self.msg_counter = None 
         self.stats = None
         # init options
         self.options = options + PyLinter.options
@@ -579,6 +580,7 @@ This is used by the global evaluation report (R0004).'}),
         
     def open(self):
         """initialize counters"""
+        self.msg_counter = 0
         self.stats = { 'by_module' : {},
                        'by_msg' : {},
                        'statement' : 0
@@ -853,6 +855,8 @@ processing.
         else:
             linter.check(args)
         sys.path.pop(0)
+        if self.linter.msg_counter:
+            sys.exit(2)
 
     def cb_rpython_mode(self, name, value):
         from pylint.checkers.rpython import RPythonChecker

@@ -234,6 +234,7 @@ class MessagesHandlerMixIn:
         if not self.is_message_enabled(msg_id, line):
             return        
         # update stats
+        self.msg_counter += 1
         msg_cat = MSG_TYPES[msg_id[0]]
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
