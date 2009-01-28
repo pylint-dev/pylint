@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,6 +16,7 @@
 """
 
 from logilab import astng
+from logilab.common.compat import any
 from logilab.common.ureports import Table
 
 from pylint.interfaces import IASTNGChecker
@@ -344,7 +345,7 @@ functions, methods
                 return
         # ignore if this is a function call (can't predicate side effects)
         # or a yield (which are wrapped by a discard node in py >= 2.5)
-        if not isinstance(node.expr, (astng.CallFunc, astng.Yield)):
+        if not any(node.expr.nodes_of_class((astng.CallFunc, astng.Yield))):
             self.add_message('W0104', node=node)
         
     def visit_pass(self, node):

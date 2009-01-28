@@ -11,7 +11,8 @@ ChangeLog for PyLint
       warning on arguments from overridden method
     * implement #5575  drop dumb W0704 message) by adding W0704 to ignored
       messages by default
-    * fix W0631 false positive reported by Paul Hachmann
+    * fix W0631, false positive reported by Paul Hachmann
+    * fix #6951: false positive with W0104
     * fix #6949
     * patches by Mads Kiilerich:
 	* implement #4691, with a new zero-status-cat option to control which
