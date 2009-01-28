@@ -74,12 +74,6 @@ class RunTC(TestCase):
         finally:
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
-        
-    def test_no_args(self):
-        self._test_run([], 1)
-        
-    def test_no_ext_file(self):
-        self._test_run([join(INPUTDIR, 'noext')], 0)
 
         
 class PyLinterTC(TestCase):

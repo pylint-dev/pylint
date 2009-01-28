@@ -827,6 +827,7 @@ processing.
         ''')
         # read configuration
         #linter.load_provider_defaults()
+        linter.disable_message('W0704')
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter._config_parser

@@ -12,6 +12,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import sys
+from os.path import join, dirname, abspath
 from cStringIO import StringIO
 
 from logilab.common.testlib import TestCase, unittest_main
@@ -20,12 +21,13 @@ from pylint.lint import Run
 from pylint.reporters.text import *
 from pylint.reporters.html import HTMLReporter
 
+HERE = abspath(dirname(__file__))
     
-class LintSmokeTest(TestCase):
+class RunTC(TestCase):
 
-    def _runtest(self, args, reporter, code=2):
+    def _runtest(self, args, reporter=None, code=2):
         try:
-            sys.stderr = sys.stdout = StringIO()
+            sys.stderr = sys.stdout = stream = StringIO()
             try:
                 Run(args, reporter=reporter)
             except SystemExit, ex:
@@ -60,6 +62,15 @@ class LintSmokeTest(TestCase):
     def test5(self):
         """make pylint checking itself"""
         self._runtest(['pylint.lint'], reporter=VSTextReporter(StringIO()))
+        
+    def test_no_args(self):
+        self._runtest([], code=1)
+        
+    def test_no_ext_file(self):
+        self._runtest([join(HERE, 'input', 'noext')], code=0)
+        
+    def test_w0704_ignored(self):
+        self._runtest([join(HERE, 'input', 'ignore_except_pass_by_default.py')], code=0)
     
     def test_generate_config_option(self):
         """make pylint checking itself"""
