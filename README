@@ -3,8 +3,8 @@ README for PyLint
 
 Dependencies
 ------------
-Pylint requires the logilab-astng (version >= 0.14), logilab-common
-(version >= 0.13) and the optik (only for python < 2.3) packages. 
+Pylint requires the logilab-astng (version >= 0.17.4), logilab-common
+(version >= 0.38) and the optik (only for python < 2.3) packages. 
 Pylint should be compatible with any python >= 2.2.
 
 * http://www.logilab.org/projects/astng
@@ -47,6 +47,7 @@ Contributors
 ------------
 * Sylvain Thénault: main author / maintainer
 * Alexandre Fayolle: TkInter gui, documentation, debian support
+* Mads Kiilerich: various patches
 * Brian van den Broek: windows installation documentation
 * Amaury Forgeot d'Arc: patch to check names imported from a module
   exists in the module
