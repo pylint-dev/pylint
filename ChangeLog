@@ -11,6 +11,8 @@ ChangeLog for PyLint
       warning on arguments from overridden method
     * implement #5575  drop dumb W0704 message) by adding W0704 to ignored
       messages by default
+    * new W0108 message, checking for suspicious lambda (provided by  Nathaniel
+      Manista)
     * fix W0631, false positive reported by Paul Hachmann
     * fix #6951: false positive with W0104
     * fix #6949
