@@ -41,7 +41,6 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-MSG_CATEGORIES = MSG_TYPES.keys()
 
 
 def sort_checkers(checkers):
@@ -52,7 +51,7 @@ def sort_checkers(checkers):
 
 def sort_msgs(msg_ids):
     """sort message identifiers according to their category first"""
-    msg_order = ['E', 'W', 'R', 'C', 'I', 'F']
+    msg_order = 'EWRCIF'
     def cmp_func(msgid1, msgid2):
         """comparison function for two message identifiers"""
         if msgid1[0] != msgid2[0]:
@@ -82,7 +81,7 @@ def get_module_and_frameid(node):
 class Message:
     def __init__(self, checker, msgid, msg, descr):
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
-        assert msgid[0] in MSG_CATEGORIES, \
+        assert msgid[0] in MSG_TYPES, \
                'Bad message type %s in %r' % (msgid[0], msgid)
         self.msgid = msgid
         self.msg = msg
@@ -241,8 +240,9 @@ class MessagesHandlerMixIn:
         if not self.is_message_enabled(msg_id, line):
             return        
         # update stats
-        self.msg_counter += 1
         msg_cat = MSG_TYPES[msg_id[0]]
+        if msg_id[0] not in self.config.zero_status_cat:
+            self.msg_counter += 1
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:

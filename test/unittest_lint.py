@@ -61,12 +61,12 @@ INPUTDIR = join(HERE, 'input')
 class RunTC(TestCase):
 
     def _test_run(self, args, exit_code=1, no_exit_fail=True):
-        sys.stdout = StringIO()
-        sys.sterr = StringIO()
+        sys.stdout = sys.sterr = StringIO()
         try:
             try:
                 Run(args)
             except SystemExit, ex:
+                print sys.stdout.getvalue()
                 self.assertEquals(ex.code, exit_code)
             else:
                 if no_exit_fail:
@@ -79,7 +79,7 @@ class RunTC(TestCase):
         self._test_run([], 1)
         
     def test_no_ext_file(self):
-        self._test_run([join(INPUTDIR, 'noext')], no_exit_fail=False)
+        self._test_run([join(INPUTDIR, 'noext')], 0)
 
         
 class PyLinterTC(TestCase):
@@ -122,13 +122,13 @@ class PyLinterTC(TestCase):
         self.assert_(linter.is_message_enabled('W0101'))
         self.assert_(linter.is_message_enabled('R0102'))
         linter.disable_message_category('W', scope='package')
-        linter.disable_message_category('REFACTOR', scope='module')
+        linter.disable_message_category('R', scope='module')
         self.assert_(not linter.is_message_enabled('W0101'))
         self.assert_(not linter.is_message_enabled('R0102'))
         linter.set_current_module('tutu')
         self.assert_(not linter.is_message_enabled('W0101'))
         self.assert_(linter.is_message_enabled('R0102'))        
-        linter.enable_message_category('WARNING', scope='package')
+        linter.enable_message_category('W', scope='package')
         linter.enable_message_category('R', scope='module')
         self.assert_(linter.is_message_enabled('W0101'))
         self.assert_(linter.is_message_enabled('R0102'))

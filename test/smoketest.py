@@ -22,49 +22,62 @@ from pylint.reporters.html import HTMLReporter
 
     
 class LintSmokeTest(TestCase):
+
+    def _runtest(self, args, reporter, code=2):
+        try:
+            sys.stderr = sys.stdout = StringIO()
+            try:
+                Run(args, reporter=reporter)
+            except SystemExit, ex:
+                self.assertEquals(ex.code, code)
+            else:
+                self.fail('expected system exit')
+        finally:
+            sys.stderr = sys.__stderr__
+            sys.stdout = sys.__stdout__
+            
+    def test0(self):
+        """make pylint checking itself"""
+        self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(StringIO()),
+                      code=0)
         
     def test1(self):
         """make pylint checking itself"""
-        Run(['--include-ids=y', 'pylint'], reporter=TextReporter(StringIO()))
+        self._runtest(['--include-ids=y', 'pylint.lint'], reporter=TextReporter(StringIO()))
     
     def test2(self):
         """make pylint checking itself"""
-        Run(['pylint.lint'], reporter=ParseableTextReporter(StringIO()))
+        self._runtest(['pylint.lint'], reporter=ParseableTextReporter(StringIO()))
     
     def test3(self):
         """make pylint checking itself"""
-        Run(['pylint.checkers'], reporter=HTMLReporter(StringIO()))
+        self._runtest(['pylint.lint'], reporter=HTMLReporter(StringIO()))
     
     def test4(self):
         """make pylint checking itself"""
-        Run(['pylint.checkers'], reporter=ColorizedTextReporter(StringIO()))
+        self._runtest(['pylint.lint'], reporter=ColorizedTextReporter(StringIO()))
     
     def test5(self):
         """make pylint checking itself"""
-        Run(['pylint.checkers'], reporter=VSTextReporter(StringIO()))
+        self._runtest(['pylint.lint'], reporter=VSTextReporter(StringIO()))
     
     def test_generate_config_option(self):
         """make pylint checking itself"""
-        sys.stdout = StringIO()
-        try:
-            self.assertRaises(SystemExit, Run, 
-                              ['--generate-rcfile'],
-                              reporter=HTMLReporter(StringIO()))
-        finally:
-            sys.stdout = sys.__stdout__
+        self._runtest(['--generate-rcfile'], reporter=HTMLReporter(StringIO()),
+                      code=0)
     
     def test_help_message_option(self):
         """make pylint checking itself"""
-        sys.stdout = StringIO()
-        try:
-            self.assertRaises(SystemExit, Run, 
-                              ['--help-msg', 'W0101'],
-                              reporter=HTMLReporter(StringIO()))
-            self.assertRaises(SystemExit, Run, 
-                              ['--help-msg', 'WX101'],
-                              reporter=HTMLReporter(StringIO()))
-        finally:
-            sys.stdout = sys.__stdout__
+        self._runtest(['--help-msg', 'W0101'], reporter=HTMLReporter(StringIO()),
+                      code=0)
+        
+    def test_error_help_message_option(self):
+        self._runtest(['--help-msg', 'WX101'], reporter=HTMLReporter(StringIO()),
+                      code=0)
+        
+    def test_error_missing_arguments(self):
+        self._runtest([], reporter=HTMLReporter(StringIO()),
+                      code=1)
     
         
 if __name__ == '__main__':

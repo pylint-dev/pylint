@@ -234,6 +234,12 @@ This is used by the global evaluation report (R0004).'}),
                 {'type' : 'csv', 'metavar': '<msg ids>',
                  'group': 'Messages control',
                  'help' : 'Disable the message(s) with the given id(s).'}),
+               
+               ('zero-status-cat',
+                {'type' : 'string', 'metavar': '<msg cats>', 'default': 'IRC',
+                 'group': 'Messages control',
+                 'help' : 'Messages in listed categories (IRCWEF) won\'t \
+make pylint exits with a non zero return status.'}),
                )
     option_groups = (
         ('Messages control', 'Options controling analysis messages'),
@@ -788,9 +794,9 @@ them in the generated configuration.'''}),
               'help' : "Generate pylint's man page.",'hide': 'True'}),
             
             ('errors-only',
-             {'action' : 'callback', 'callback' : self.cb_debug_mode,
+             {'action' : 'callback', 'callback' : self.cb_error_mode,
               'short': 'e', 
-              'help' : '''In debug mode, checkers without error messages are \
+              'help' : '''In error mode, checkers without error messages are \
 disabled and for others, only the ERROR messages are displayed, and no reports \
 are done by default'''}),
             
@@ -857,6 +863,7 @@ processing.
         sys.path.pop(0)
         if self.linter.msg_counter:
             sys.exit(2)
+        sys.exit(0)
 
     def cb_rpython_mode(self, name, value):
         from pylint.checkers.rpython import RPythonChecker
@@ -872,8 +879,8 @@ processing.
         """callback for option preprocessing (ie before optik parsing)"""
         self._plugins.extend(get_csv(value))
                 
-    def cb_debug_mode(self, *args, **kwargs):
-        """debug mode:
+    def cb_error_mode(self, *args, **kwargs):
+        """error mode:
         * checkers without error messages are disabled 
         * for others, only the ERROR messages are displayed
         * disable reports
