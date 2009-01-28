@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -216,14 +216,14 @@ This is used by the global evaluation report (R0004).'}),
                  'help' : 'Disable the report(s) with the given id(s).'}),
                
                ('enable-msg-cat',
-                {'type' : 'csv', 'metavar': '<msg cats>',
+                {'type' : 'string', 'metavar': '<msg cats>',
                  'group': 'Messages control',
-                 'help' : 'Enable all messages in the listed categories.'}),
+                 'help' : 'Enable all messages in the listed categories (IRCWEF).'}),
 
                ('disable-msg-cat',
-                {'type' : 'csv', 'metavar': '<msg cats>',
+                {'type' : 'string', 'metavar': '<msg cats>',
                  'group': 'Messages control',
-                 'help' : 'Disable all messages in the listed categories.'}),
+                 'help' : 'Disable all messages in the listed categories (IRCWEF).'}),
                
                ('enable-msg',
                 {'type' : 'csv', 'metavar': '<msg ids>',
@@ -880,11 +880,10 @@ processing.
         * do not save execution information
         """
         self.linter.disable_noerror_checkers()
-        self.linter.set_option('disable-msg-cat', ('W', 'C', 'R', 'F', 'I'))
+        self.linter.set_option('disable-msg-cat', 'WCRFI')
         self.linter.set_option('reports', False)
         self.linter.set_option('persistent', False)
         
-    
     def cb_generate_config(self, *args, **kwargs):
         """optik callback for sample config file generation"""
         self.linter.generate_config(skipsections=('COMMANDS',))

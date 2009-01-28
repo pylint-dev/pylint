@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -172,26 +172,33 @@ class MessagesHandlerMixIn:
             msgs[msg.msgid] = True
             # sync configuration object 
             self.config.enable_msg = [mid for mid, val in msgs.items() if val]
+
+    def _cat_ids(self, categories):
+        for catid in categories:
+            catid = catid.upper()
+            if not catid in MSG_TYPES:
+                raise Exception('Unknown category identifier %s' % catid)
+            yield catid
             
-    def disable_message_category(self, msg_cat_id, scope='package', line=None):
+    def disable_message_category(self, categories, scope='package', line=None):
         """don't output message in the given category"""
         assert scope in ('package', 'module')
-        msg_cat_id = msg_cat_id[0].upper()
-        if scope == 'module':
-            self.add_message('I0011', line=line, args=msg_cat_id)
-            self._module_msg_cats_state[msg_cat_id] = False
-        else:
-            self._msg_cats_state[msg_cat_id] = False
+        for catid in self._cat_ids(categories):
+            if scope == 'module':
+                self.add_message('I0011', line=line, args=catid)
+                self._module_msg_cats_state[catid] = False
+            else:
+                self._msg_cats_state[catid] = False
         
-    def enable_message_category(self, msg_cat_id, scope='package', line=None):
+    def enable_message_category(self, categories, scope='package', line=None):
         """reenable message of the given category"""
         assert scope in ('package', 'module')
-        msg_cat_id = msg_cat_id[0].upper()
-        if scope == 'module':
-            self.add_message('I0012', line=line, args=msg_cat_id)
-            self._module_msg_cats_state[msg_cat_id] = True
-        else:
-            self._msg_cats_state[msg_cat_id] = True
+        for catid in self._cat_ids(categories):
+            if scope == 'module':
+                self.add_message('I0012', line=line, args=catid)
+                self._module_msg_cats_state[catid] = True
+            else:
+                self._msg_cats_state[catid] = True
             
     def check_message_id(self, msg_id):
         """raise UnknownMessage if the message id is not defined"""
