@@ -52,6 +52,7 @@ Contributors
 * Amaury Forgeot d'Arc: patch to check names imported from a module
   exists in the module
 * Benjamin Niemann: patch to allow block level enabling/disabling of messages
+* Nathaniel Manista: suspcicious lambda checking
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,  
   Maarten ter Huurne, Mirko Friedenhagen (among others): 
   bug reports, feedback, feature requests...

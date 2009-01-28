@@ -17,9 +17,8 @@ ChangeLog for PyLint
     * fix #6951: false positive with W0104
     * fix #6949
     * patches by Mads Kiilerich:
-	* implement #4691, with a new zero-status-cat option to control which
-	  categories of message won't make pylint exits with a non zero return
-	  status if any
+	* implement #4691, make pylint exits with a non zero return
+	  status if any messages other then Information are issued
 	* fix #3711, #5626 (name resolution bug w/ decorator and class members)
 	* fix #6954
 	

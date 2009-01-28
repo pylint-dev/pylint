@@ -25,7 +25,7 @@ HERE = abspath(dirname(__file__))
     
 class RunTC(TestCase):
 
-    def _runtest(self, args, reporter=None, code=2):
+    def _runtest(self, args, reporter=None, code=20):
         try:
             sys.stderr = sys.stdout = stream = StringIO()
             try:
@@ -63,9 +63,6 @@ class RunTC(TestCase):
         """make pylint checking itself"""
         self._runtest(['pylint.lint'], reporter=VSTextReporter(StringIO()))
         
-    def test_no_args(self):
-        self._runtest([], code=1)
-        
     def test_no_ext_file(self):
         self._runtest([join(HERE, 'input', 'noext')], code=0)
         
@@ -88,7 +85,7 @@ class RunTC(TestCase):
         
     def test_error_missing_arguments(self):
         self._runtest([], reporter=HTMLReporter(StringIO()),
-                      code=1)
+                      code=32)
     
         
 if __name__ == '__main__':

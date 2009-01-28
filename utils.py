@@ -41,7 +41,14 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-
+MSG_TYPES_STATUS = {
+    'I' : 0,
+    'C' : 16,
+    'R' : 8,
+    'W' : 4,
+    'E' : 2,
+    'F' : 1
+    }
 
 def sort_checkers(checkers):
     """return a list of enabled checker sorted by priority"""
@@ -100,6 +107,7 @@ class MessagesHandlerMixIn:
         self._module_msgs_state = {} # None
         self._msg_cats_state = {}
         self._module_msg_cats_state = None
+        self.msg_status = 0
         
     def register_messages(self, checker):
         """register a dictionary of messages
@@ -241,8 +249,7 @@ class MessagesHandlerMixIn:
             return        
         # update stats
         msg_cat = MSG_TYPES[msg_id[0]]
-        if msg_id[0] not in self.config.zero_status_cat:
-            self.msg_counter += 1
+        self.msg_status ^= MSG_TYPES_STATUS[msg_id[0]]
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:

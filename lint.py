@@ -234,13 +234,8 @@ This is used by the global evaluation report (R0004).'}),
                 {'type' : 'csv', 'metavar': '<msg ids>',
                  'group': 'Messages control',
                  'help' : 'Disable the message(s) with the given id(s).'}),
-               
-               ('zero-status-cat',
-                {'type' : 'string', 'metavar': '<msg cats>', 'default': 'IRC',
-                 'group': 'Messages control',
-                 'help' : 'Messages in listed categories (IRCWEF) won\'t \
-make pylint exits with a non zero return status.'}),
                )
+    
     option_groups = (
         ('Messages control', 'Options controling analysis messages'),
         ('Reports', 'Options related to output formating and reporting'),
@@ -260,7 +255,6 @@ make pylint exits with a non zero return status.'}),
         self.base_file = None
         self.current_name = None
         self.current_file = None
-        self.msg_counter = None 
         self.stats = None
         # init options
         self.options = options + PyLinter.options
@@ -586,7 +580,6 @@ make pylint exits with a non zero return status.'}),
         
     def open(self):
         """initialize counters"""
-        self.msg_counter = 0
         self.stats = { 'by_module' : {},
                        'by_msg' : {},
                        'statement' : 0
@@ -825,8 +818,20 @@ There are 5 kind of message types :
     * (F) fatal, if an error occured which prevented pylint from doing further \
 processing.     
         ''')
+        linter.add_help_section('Output status code', '''
+Pylint should leave with following status code:                                
+    * 0 if everything went fine                                                
+    * 1 if some fatal message issued                                           
+    * 2 if some error message issued                                           
+    * 4 if some warning message issued                                         
+    * 8 if some refactor message issued                                        
+    * 16 if some convention message issued                                     
+    * 32 on usage error                                                        
+    
+status 1 to 16 will be bit-ORed so you can know which different categories has
+been issued by analysing pylint output status code
+        ''')
         # read configuration
-        #linter.load_provider_defaults()
         linter.disable_message('W0704')
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
@@ -845,7 +850,7 @@ processing.
         args = linter.load_command_line_configuration(args)
         if not args:
             print linter.help()
-            sys.exit(1)
+            sys.exit(32)
         # insert current working directory to the python path to have a correct
         # behaviour
         sys.path.insert(0, os.getcwd())
@@ -862,9 +867,7 @@ processing.
         else:
             linter.check(args)
         sys.path.pop(0)
-        if self.linter.msg_counter:
-            sys.exit(2)
-        sys.exit(0)
+        sys.exit(self.linter.msg_status)
 
     def cb_rpython_mode(self, name, value):
         from pylint.checkers.rpython import RPythonChecker
