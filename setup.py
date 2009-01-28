@@ -175,6 +175,8 @@ def install(**kwargs):
         packages = [modname] + get_packages(os.getcwd(), modname)
     if USE_SETUPTOOLS and install_requires:
         kwargs['install_requires'] = install_requires
+    if USE_SETUPTOOLS and '--force-manifest' in sys.argv:
+        sys.argv.remove('--force-manifest')
     kwargs['packages'] = packages
     return setup(name = distname,
                  version = version,
