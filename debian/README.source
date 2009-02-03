@@ -1,0 +1,4 @@
+This package uses dpatch to handle patches against upstream source code; you
+can find additional information about dpatch at
+
+    /usr/share/doc/dpatch/
