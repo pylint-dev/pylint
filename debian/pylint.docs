@@ -1,6 +1,3 @@
-doc/features.html
-doc/quickstart.html
-doc/FAQ.html
-doc/FAQ.txt
-doc/quickstart.txt
-doc/features.txt
+doc/*
+README
+TODO
