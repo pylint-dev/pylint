@@ -1,17 +1,19 @@
 Source: pylint
 Section: python
 Priority: optional
-Maintainer: Sylvain Thénault <sylvain.thenault@logilab.fr>
-Uploaders: Alexandre Fayolle <afayolle@debian.org> 
-Build-Depends: debhelper (>= 5.0.38)
-Build-Depends-Indep: python (>=2.3.5-7), python-central (>=0.5.6)
+Maintainer: Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Uploaders: Sylvain Thénault <sylvain.thenault@logilab.fr>, Alexandre Fayolle <afayolle@debian.org>, Sandro Tosi <morph@debian.org>
+Build-Depends: debhelper (>= 5.0.38), python
+Build-Depends-Indep: python-central (>=0.5.6)
 Standards-Version: 3.8.0
-Homepage: http://www.logilab.org/Project/name/pylint
 XS-Python-Version: all
+Homepage: http://www.logilab.org/Project/name/pylint
+Vcs-Svn: svn://svn.debian.org/svn/python-apps/packages/pylint/trunk/
+Vcs-Browser: http://svn.debian.org/viewsvn/python-apps/packages/pylint/trunk/
 
 Package: pylint
 Architecture: all
-Depends: python, python-logilab-common (>= 0.35.0), python-logilab-astng (>= 0.17.3)
+Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.35.0), python-logilab-astng (>= 0.17.3)
 Recommends: python-tk
 XB-Python-Version: ${python:Versions}
 Conflicts: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test
@@ -35,5 +37,3 @@ Description: python code static checker and UML diagram generator
  . 
  The recommended python-tk package is only for using the pylint-gui
  script.
- 
-
