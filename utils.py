@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -41,8 +41,14 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-MSG_CATEGORIES = MSG_TYPES.keys()
-
+MSG_TYPES_STATUS = {
+    'I' : 0,
+    'C' : 16,
+    'R' : 8,
+    'W' : 4,
+    'E' : 2,
+    'F' : 1
+    }
 
 def sort_checkers(checkers):
     """return a list of enabled checker sorted by priority"""
@@ -52,7 +58,7 @@ def sort_checkers(checkers):
 
 def sort_msgs(msg_ids):
     """sort message identifiers according to their category first"""
-    msg_order = ['E', 'W', 'R', 'C', 'I', 'F']
+    msg_order = 'EWRCIF'
     def cmp_func(msgid1, msgid2):
         """comparison function for two message identifiers"""
         if msgid1[0] != msgid2[0]:
@@ -82,7 +88,7 @@ def get_module_and_frameid(node):
 class Message:
     def __init__(self, checker, msgid, msg, descr):
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
-        assert msgid[0] in MSG_CATEGORIES, \
+        assert msgid[0] in MSG_TYPES, \
                'Bad message type %s in %r' % (msgid[0], msgid)
         self.msgid = msgid
         self.msg = msg
@@ -101,6 +107,7 @@ class MessagesHandlerMixIn:
         self._module_msgs_state = {} # None
         self._msg_cats_state = {}
         self._module_msg_cats_state = None
+        self.msg_status = 0
         
     def register_messages(self, checker):
         """register a dictionary of messages
@@ -172,26 +179,33 @@ class MessagesHandlerMixIn:
             msgs[msg.msgid] = True
             # sync configuration object 
             self.config.enable_msg = [mid for mid, val in msgs.items() if val]
+
+    def _cat_ids(self, categories):
+        for catid in categories:
+            catid = catid.upper()
+            if not catid in MSG_TYPES:
+                raise Exception('Unknown category identifier %s' % catid)
+            yield catid
             
-    def disable_message_category(self, msg_cat_id, scope='package', line=None):
+    def disable_message_category(self, categories, scope='package', line=None):
         """don't output message in the given category"""
         assert scope in ('package', 'module')
-        msg_cat_id = msg_cat_id[0].upper()
-        if scope == 'module':
-            self.add_message('I0011', line=line, args=msg_cat_id)
-            self._module_msg_cats_state[msg_cat_id] = False
-        else:
-            self._msg_cats_state[msg_cat_id] = False
+        for catid in self._cat_ids(categories):
+            if scope == 'module':
+                self.add_message('I0011', line=line, args=catid)
+                self._module_msg_cats_state[catid] = False
+            else:
+                self._msg_cats_state[catid] = False
         
-    def enable_message_category(self, msg_cat_id, scope='package', line=None):
+    def enable_message_category(self, categories, scope='package', line=None):
         """reenable message of the given category"""
         assert scope in ('package', 'module')
-        msg_cat_id = msg_cat_id[0].upper()
-        if scope == 'module':
-            self.add_message('I0012', line=line, args=msg_cat_id)
-            self._module_msg_cats_state[msg_cat_id] = True
-        else:
-            self._msg_cats_state[msg_cat_id] = True
+        for catid in self._cat_ids(categories):
+            if scope == 'module':
+                self.add_message('I0012', line=line, args=catid)
+                self._module_msg_cats_state[catid] = True
+            else:
+                self._msg_cats_state[catid] = True
             
     def check_message_id(self, msg_id):
         """raise UnknownMessage if the message id is not defined"""
@@ -235,6 +249,7 @@ class MessagesHandlerMixIn:
             return        
         # update stats
         msg_cat = MSG_TYPES[msg_id[0]]
+        self.msg_status ^= MSG_TYPES_STATUS[msg_id[0]]
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:

@@ -110,7 +110,7 @@ def export(from_dir, to_dir,
                 continue
             if filename[-1] == '~':
                 continue
-            src = '%s/%s' % (directory, filename)
+            src = join(directory, filename)
             dest = to_dir + src[len(from_dir):]
             print >> sys.stderr, src, '->', dest
             if os.path.isdir(src):
@@ -175,6 +175,8 @@ def install(**kwargs):
         packages = [modname] + get_packages(os.getcwd(), modname)
     if USE_SETUPTOOLS and install_requires:
         kwargs['install_requires'] = install_requires
+    if USE_SETUPTOOLS and '--force-manifest' in sys.argv:
+        sys.argv.remove('--force-manifest')
     kwargs['packages'] = packages
     return setup(name = distname,
                  version = version,

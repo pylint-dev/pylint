@@ -10,46 +10,45 @@
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
+
 build: build-stamp
-build-stamp: 
+build-stamp:
 	dh_testdir
 	python setup.py -q build
 	touch build-stamp
 
-clean: 
+clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp configure-stamp
-	rm -rf build
-	find . -name "*.pyc" | xargs rm -f
-	rm -f changelog.gz
-	dh_clean
+
+	python setup.py clean
+
+	find . -name "*.pyc" -delete
+
+	dh_clean build-stamp build
 
 install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
+
 	python setup.py -q install --no-compile --prefix=debian/pylint/usr/
 
 	rm -rf debian/pylint/usr/lib/python*/site-packages/pylint/test
-	if head -1 debian/pylint/usr/bin/pylint | grep "^#! */usr/bin" | grep "python" >/dev/null ; then \
-		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/pylint/usr/bin/pylint; \
-	fi
-	chmod a+x debian/pylint/usr/bin/pylint
-	if head -1 debian/pylint/usr/bin/pylint-gui | grep "^#! */usr/bin" | grep "python" >/dev/null ; then \
-		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/pylint/usr/bin/pylint-gui; \
-	fi
-	chmod a+x debian/pylint/usr/bin/pylint-gui
-	if head -1 debian/pylint/usr/bin/symilar | grep "^#! */usr/bin" | grep "python" >/dev/null ; then \
-		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/pylint/usr/bin/symilar; \
-	fi
-	chmod a+x debian/pylint/usr/bin/symilar
+
+	# fixes shebangs
+	for exec in pylint pylint-gui symilar ; do \
+	  if head -1 debian/pylint/usr/bin/$$exec | grep "^#! */usr/bin" | grep "python" >/dev/null ; then \
+		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/pylint/usr/bin/$$exec; \
+	  fi ; \
+	  chmod a+x debian/pylint/usr/bin/$$exec; \
+	done
+
 	install -m 644 elisp/pylint.el debian/pylint/usr/share/emacs/site-lisp/pylint/
 
 	# install tests
 	#(cd test && find . -type f -not \( -path '*/CVS/*' -or -name '*.pyc' \) -exec install -D --mode=644 {} ../debian/pylint/usr/share/doc/pylint/test/{} \;)
-
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -57,10 +56,9 @@ binary-indep: build install
 	dh_testroot 
 	dh_install -i
 	dh_pycentral -i
-	gzip -9 -c ChangeLog > changelog.gz
-	dh_installchangelogs -i
+	dh_installchangelogs -i ChangeLog
 	dh_installexamples -i
-	dh_installdocs -i README TODO changelog.gz debian/NEWS.Debian
+	dh_installdocs -i
 	dh_installman -i
 	dh_installemacsen
 	dh_link -i
@@ -75,4 +73,3 @@ binary-arch:
 
 binary: binary-indep
 .PHONY: build clean binary binary-indep binary-arch
-

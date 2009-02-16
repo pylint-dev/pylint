@@ -26,3 +26,5 @@ __revision__.lower() # ok
 """inline doc string should use a separated message"""
 
 __revision__.lower(); # unnecessary ;
+
+list() and tuple() # ok

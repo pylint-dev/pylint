@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -216,14 +216,14 @@ This is used by the global evaluation report (R0004).'}),
                  'help' : 'Disable the report(s) with the given id(s).'}),
                
                ('enable-msg-cat',
-                {'type' : 'csv', 'metavar': '<msg cats>',
+                {'type' : 'string', 'metavar': '<msg cats>',
                  'group': 'Messages control',
-                 'help' : 'Enable all messages in the listed categories.'}),
+                 'help' : 'Enable all messages in the listed categories (IRCWEF).'}),
 
                ('disable-msg-cat',
-                {'type' : 'csv', 'metavar': '<msg cats>',
+                {'type' : 'string', 'metavar': '<msg cats>',
                  'group': 'Messages control',
-                 'help' : 'Disable all messages in the listed categories.'}),
+                 'help' : 'Disable all messages in the listed categories (IRCWEF).'}),
                
                ('enable-msg',
                 {'type' : 'csv', 'metavar': '<msg ids>',
@@ -235,6 +235,7 @@ This is used by the global evaluation report (R0004).'}),
                  'group': 'Messages control',
                  'help' : 'Disable the message(s) with the given id(s).'}),
                )
+    
     option_groups = (
         ('Messages control', 'Options controling analysis messages'),
         ('Reports', 'Options related to output formating and reporting'),
@@ -786,9 +787,9 @@ them in the generated configuration.'''}),
               'help' : "Generate pylint's man page.",'hide': 'True'}),
             
             ('errors-only',
-             {'action' : 'callback', 'callback' : self.cb_debug_mode,
+             {'action' : 'callback', 'callback' : self.cb_error_mode,
               'short': 'e', 
-              'help' : '''In debug mode, checkers without error messages are \
+              'help' : '''In error mode, checkers without error messages are \
 disabled and for others, only the ERROR messages are displayed, and no reports \
 are done by default'''}),
             
@@ -817,8 +818,21 @@ There are 5 kind of message types :
     * (F) fatal, if an error occured which prevented pylint from doing further \
 processing.     
         ''')
+        linter.add_help_section('Output status code', '''
+Pylint should leave with following status code:                                
+    * 0 if everything went fine                                                
+    * 1 if some fatal message issued                                           
+    * 2 if some error message issued                                           
+    * 4 if some warning message issued                                         
+    * 8 if some refactor message issued                                        
+    * 16 if some convention message issued                                     
+    * 32 on usage error                                                        
+    
+status 1 to 16 will be bit-ORed so you can know which different categories has
+been issued by analysing pylint output status code
+        ''')
         # read configuration
-        #linter.load_provider_defaults()
+        linter.disable_message('W0704')
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter._config_parser
@@ -836,7 +850,7 @@ processing.
         args = linter.load_command_line_configuration(args)
         if not args:
             print linter.help()
-            sys.exit(1)
+            sys.exit(32)
         # insert current working directory to the python path to have a correct
         # behaviour
         sys.path.insert(0, os.getcwd())
@@ -853,6 +867,7 @@ processing.
         else:
             linter.check(args)
         sys.path.pop(0)
+        sys.exit(self.linter.msg_status)
 
     def cb_rpython_mode(self, name, value):
         from pylint.checkers.rpython import RPythonChecker
@@ -868,19 +883,18 @@ processing.
         """callback for option preprocessing (ie before optik parsing)"""
         self._plugins.extend(get_csv(value))
                 
-    def cb_debug_mode(self, *args, **kwargs):
-        """debug mode:
+    def cb_error_mode(self, *args, **kwargs):
+        """error mode:
         * checkers without error messages are disabled 
         * for others, only the ERROR messages are displayed
         * disable reports
         * do not save execution information
         """
         self.linter.disable_noerror_checkers()
-        self.linter.set_option('disable-msg-cat', ('W', 'C', 'R', 'F', 'I'))
+        self.linter.set_option('disable-msg-cat', 'WCRFI')
         self.linter.set_option('reports', False)
         self.linter.set_option('persistent', False)
         
-    
     def cb_generate_config(self, *args, **kwargs):
         """optik callback for sample config file generation"""
         self.linter.generate_config(skipsections=('COMMANDS',))

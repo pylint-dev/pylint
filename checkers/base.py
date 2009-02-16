@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -15,7 +15,10 @@
 """basic checker for Python code
 """
 
+import compiler.consts
+
 from logilab import astng
+from logilab.common.compat import any
 from logilab.common.ureports import Table
 
 from pylint.interfaces import IASTNGChecker
@@ -136,6 +139,11 @@ MSGS = {
     'W0107': ('Unnecessary pass statement',
               'Used when a "pass" statement that can be avoided is '
               'encountered.)'),
+    'W0108': ('Lambda may not be necessary',
+              'Used when the body of a lambda expression is a function call \
+              on the same argument list as the lambda itself; such lambda \
+              expressions are in all but a few cases replaceable with the \
+              function being called in the body of the lambda.'),
 
     'W0122': ('Use of the exec statement',
               'Used when you use the "exec" statement, to discourage its \
@@ -344,7 +352,7 @@ functions, methods
                 return
         # ignore if this is a function call (can't predicate side effects)
         # or a yield (which are wrapped by a discard node in py >= 2.5)
-        if not isinstance(node.expr, (astng.CallFunc, astng.Yield)):
+        if not any(node.expr.nodes_of_class((astng.CallFunc, astng.Yield))):
             self.add_message('W0104', node=node)
         
     def visit_pass(self, node):
@@ -353,6 +361,56 @@ functions, methods
         # if self._returns is empty, we're outside a function !
         if len(node.parent.getChildNodes()) > 1:
             self.add_message('W0107', node=node)
+
+    def visit_lambda(self, node):
+        """check whether or not the lambda is suspicious
+        """
+        # if the body of the lambda is a call expression with the same
+        # argument list as the lambda itself, then the lambda is
+        # possibly unnecessary and at least suspicious.
+        if node.defaults:
+            # If the arguments of the lambda include defaults, then a
+            # judgment cannot be made because there is no way to check
+            # that the defaults defined by the lambda are the same as
+            # the defaults defined by the function called in the body
+            # of the lambda.
+            return
+        if not isinstance(node.code, astng.CallFunc):
+            # The body of the lambda must be a function call expression
+            # for the lambda to be unnecessary.
+            return
+
+        # *args and **kwargs need to be treated specially, since they
+        # are structured differently between the lambda and the function
+        # call (in the lambda they appear in the argnames list and are
+        # indicated as * and ** by two bits in the lambda's flags, but
+        # in the function call they are omitted from the args list and
+        # are indicated by separate attributes on the function call node).
+        ordinary_args = list(node.argnames)
+        if node.flags & compiler.consts.CO_VARKEYWORDS:
+            if (not node.code.dstar_args
+                or not isinstance(node.code.dstar_args, astng.Name)
+                or ordinary_args[-1] != node.code.dstar_args.name):
+                return
+            ordinary_args = ordinary_args[:-1]
+        if node.flags & compiler.consts.CO_VARARGS:
+            if (not node.code.star_args
+                or not isinstance(node.code.star_args, astng.Name)
+                or ordinary_args[-1] != node.code.star_args.name):
+                return
+            ordinary_args = ordinary_args[:-1]
+
+        # The remaining arguments (the "ordinary" arguments) must be
+        # in a correspondence such that:
+        # ordinary_args[i] == node.code.args[i].name.
+        if len(ordinary_args) != len(node.code.args):
+            return
+        for i in xrange(len(ordinary_args)):
+            if not isinstance(node.code.args[i], astng.Name):
+                return
+            if node.argnames[i] != node.code.args[i].name:
+                return
+        self.add_message('W0108', line=node.lineno, node=node)
 
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
@@ -553,4 +611,3 @@ functions, methods
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(BasicChecker(linter))
-

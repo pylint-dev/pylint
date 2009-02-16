@@ -2,9 +2,25 @@ ChangeLog for PyLint
 ====================
 	
  --
-    * include a modified version of Maarten ter Huurne patch of avoid W0613
-      warning on arguments from overridden method
+    * change [en|dis]able-msg-cat options: only accept message categories
+      identified by their first letter (eg IRCWEF) without the need for comma
+      as separator
     * add epylint.bat script to fix Windows installation
+    * setuptools/easy_install support
+    * include a modified version of Maarten ter Huurne patch to avoid W0613
+      warning on arguments from overridden method
+    * implement #5575  drop dumb W0704 message) by adding W0704 to ignored
+      messages by default
+    * new W0108 message, checking for suspicious lambda (provided by  Nathaniel
+      Manista)
+    * fix W0631, false positive reported by Paul Hachmann
+    * fix #6951: false positive with W0104
+    * fix #6949
+    * patches by Mads Kiilerich:
+	* implement #4691, make pylint exits with a non zero return
+	  status if any messages other then Information are issued
+	* fix #3711, #5626 (name resolution bug w/ decorator and class members)
+	* fix #6954
 	
 2008-10-13  --  0.15.2
     * fix #5672: W0706 weirdness ( W0706 removed )

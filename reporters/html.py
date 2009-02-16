@@ -12,10 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""HTML reporter
-"""
-
-__revision__ = "$Id: html.py,v 1.14 2006-03-08 15:53:41 syt Exp $"
+"""HTML reporter"""
 
 import sys
 from cgi import escape
@@ -27,8 +24,7 @@ from pylint.reporters import BaseReporter
 
 
 class HTMLReporter(BaseReporter):
-    """report messages and layouts in HTML
-    """
+    """report messages and layouts in HTML"""
 
     __implements__ = IReporter
     extension = 'html'
@@ -45,7 +41,15 @@ class HTMLReporter(BaseReporter):
         else:
             sigle = msg_id[0]
         self.msgs += [sigle, module, obj, str(line), escape(msg)]
-
+        
+    def set_output(self, output=None):
+        """set output stream
+        
+        messages buffered for old output is processed first"""
+        if self.out and self.msgs:
+            self._display(Section())
+        BaseReporter.set_output(self, output)
+        
     def _display(self, layout):
         """launch layouts display
         

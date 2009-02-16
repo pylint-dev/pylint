@@ -1,5 +1,47 @@
+pylint (0.16.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed, 28 Jan 2009 12:15:07 +0100
+
+pylint (0.15.2-2) UNRELEASED; urgency=low
+
+  * debian/control
+    - added Vcs-{Svn,Browser} field
+
+ -- Sandro Tosi <morph@debian.org>  Sat, 29 Nov 2008 14:44:41 +0100
 
 pylint (0.15.2-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/control
+    - added under PAPT umbrella (in agreement with Alexandre Fayolle)
+    - added me to uploaders
+    - moved Homepage field to source stanza
+    - bump Standards-Version to 3.8.0
+      + added debian/README.source
+    - moved python (removing version, since we are in a 2.4+2.5 distribution) to
+      build-dep from build-dep-indep (to satisfy clean target needs)
+    - added ${python:Depends}, ${misc:Depends} to depends instead of directly
+      depending on "python" package
+  * debian/watch
+    - bump verstion to 3
+    - left only the url to scan, adding "opts=pasv" for ftp scan
+  * debian/pylint.docs
+    - install all doc/ directory files
+    - added README and TODO (from debian/rules)
+  * debian/rules
+    - merged 'rm -f' commands into dh_clean call
+    - added "python setup.py clean" call in clean target
+    - install upstream "Changelog" using dh_installchangelog
+    - removed files passed to dh_installdocs since using debian/pylint.docs and
+      because debian/NEWS.Debian is automatically installed
+    - using '-delete' find option instead of xargs
+    - fix executables shebang with a for loop
+
+ -- Sandro Tosi <morph@debian.org>  Wed, 26 Nov 2008 16:45:36 +0100
+
+pylint (0.15.2-0) unstable; urgency=low
 
   * new upstream release
 
@@ -18,6 +60,12 @@ pylint (0.15.0-1) unstable; urgency=low
     upstream code (closes: #427244, #448102, #415485, #431653)
 
  -- Emile Anclin <emile.anclin@logilab.fr>  Wed,  10 Sep 2008 12:16:00 +0200
+
+pylint (0.14.0-2.2) unstable; urgency=low
+
+  * NMU. Rebuild to move files to /usr/share/pyshared. Closes: #490488.
+
+ -- Matthias Klose <doko@debian.org>  Fri, 18 Jul 2008 15:53:30 +0000
 
 pylint (0.14.0-2.1) unstable; urgency=low
 
