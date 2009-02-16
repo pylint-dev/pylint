@@ -81,7 +81,7 @@ Pylint output
 -------------
 
 The default format for the output is raw text. But passing pylint the
-``--html`` option will produce an HTML document.
+``--output-format=html`` option will produce an HTML document.
 
 There are several sections in pylint's output. 
 
