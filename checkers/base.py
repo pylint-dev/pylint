@@ -342,7 +342,7 @@ functions, methods
                 # const None node with lineno to None are inserted
                 # on unnecessary semi-column
                 # XXX navigate to get a correct lineno
-                brothers = list(node.parent.getChildNodes())
+                brothers = tuple(node.parent.get_children())
                 previoussibling = brothers[brothers.index(node)-1]
                 self.add_message('W0106', node=previoussibling)
                 return
@@ -359,7 +359,7 @@ functions, methods
         """check is the pass statement is really necessary
         """
         # if self._returns is empty, we're outside a function !
-        if len(node.parent.getChildNodes()) > 1:
+        if len(tuple(node.parent.get_children())) > 1:
             self.add_message('W0107', node=node)
 
     def visit_lambda(self, node):
@@ -461,7 +461,7 @@ functions, methods
         """check module level assigned names"""
         frame = node.frame()
         ass_type = node.ass_type()
-        if isinstance(ass_type, (astng.ListCompFor, astng.GenExprFor)):
+        if isinstance(ass_type, (astng.Comprehension, astng.Comprehension)):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astng.Module):
             if isinstance(ass_type, astng.Assign) and not in_loop(ass_type):

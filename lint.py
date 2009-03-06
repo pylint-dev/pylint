@@ -426,7 +426,7 @@ This is used by the global evaluation report (R0004).'}),
     def collect_block_lines(self, node, msg_state):
         """walk ast to collect block level options line numbers"""
         # recurse on children (depth first)
-        for child in node.getChildNodes():
+        for child in node.get_children():
             self.collect_block_lines(child, msg_state)            
         first = node.source_line()
         last = node.last_source_line()
@@ -564,13 +564,13 @@ This is used by the global evaluation report (R0004).'}),
         if _reversed_checkers is None:
             _reversed_checkers = checkers[:]
             _reversed_checkers.reverse()
-        if astng.is_statement():
+        if astng.is_statement:
             self.stats['statement'] += 1
         # generate events for this node on each checker
         for checker in checkers:
             checker.visit(astng)
         # recurse on children
-        for child in astng.getChildNodes():
+        for child in astng.get_children():
             self.astng_events(child, checkers, _reversed_checkers)
         for checker in _reversed_checkers:
             checker.leave(astng)

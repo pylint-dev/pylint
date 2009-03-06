@@ -254,7 +254,7 @@ class FormatChecker(BaseRawChecker):
     def visit_default(self, node):
         """check the node line number and check it if not yet done
         """
-        if not node.is_statement():
+        if not node.is_statement:
             return            
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
@@ -279,6 +279,7 @@ class FormatChecker(BaseRawChecker):
         if self._visited_lines.has_key(line):
             return
         lines = []
+        assert node.fromlineno and node.tolineno, node
         for line in xrange(node.fromlineno, node.tolineno + 1):
             self._visited_lines[line] = 1
             try:

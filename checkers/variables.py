@@ -136,6 +136,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # __dict__ is added to module's locals but not available in module's namespace
         # (unlike __doc__, __name__, etc...). But take care __dict__ may be assigned
         # somewhere in the module, so remove astng inserted nodes (having None lineno)
+        # XXX this could probably be handled in astng
         mlocals['__dict__'] = [n for n in mlocals['__dict__'] if n.lineno is not None]
         if not mlocals['__dict__']:
             del mlocals['__dict__']
@@ -315,7 +316,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         astmts = _astmts
         if len(astmts) == 1:
             ass = astmts[0].ass_type()
-            if isinstance(ass, (astng.For, astng.ListCompFor, astng.GenExpr)) \
+            if isinstance(ass, (astng.For, astng.Comprehension, astng.GenExpr)) \
                    and not ass.statement() is node.statement():
                 self.add_message('W0631', args=name, node=node)
     

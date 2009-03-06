@@ -284,13 +284,13 @@ class MisdesignChecker(BaseChecker):
         """default visit method -> increments the statements counter if
         necessary
         """
-        if node.is_statement():
+        if node.is_statement:
             self._stmts += 1
 
     def visit_tryexcept(self, node):
         """increments the branchs counter"""
         branchs = len(node.handlers)
-        if node.else_:
+        if node.orelse:
             branchs += 1
         self._inc_branch(branchs)
         self._stmts += branchs
@@ -303,7 +303,7 @@ class MisdesignChecker(BaseChecker):
     def visit_if(self, node):
         """increments the branchs counter"""
         branchs = len(node.tests)
-        if node.else_:
+        if node.orelse:
             branchs += 1
         self._inc_branch(branchs)
         self._stmts += branchs
@@ -311,7 +311,7 @@ class MisdesignChecker(BaseChecker):
     def visit_while(self, node):
         """increments the branchs counter"""
         branchs = 1
-        if node.else_:
+        if node.orelse:
             branchs += 1
         self._inc_branch(branchs)
         

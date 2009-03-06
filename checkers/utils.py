@@ -25,10 +25,10 @@ from logilab.astng.utils import are_exclusive
 try:
     # python >= 2.4
     COMP_NODE_TYPES = (astng.ListComp, astng.GenExpr)
-    FOR_NODE_TYPES = (astng.For, astng.ListCompFor, astng.GenExprFor)
+    FOR_NODE_TYPES = (astng.For, astng.Comprehension, astng.Comprehension)
 except AttributeError:
     COMP_NODE_TYPES = astng.ListComp
-    FOR_NODE_TYPES = (astng.For, astng.ListCompFor)
+    FOR_NODE_TYPES = (astng.For, astng.Comprehension)
 
 def safe_infer(node):
     """return the infered value for the given node.
@@ -56,23 +56,21 @@ def is_super(node):
 
 def is_error(node):
     """return true if the function does nothing but raising an exception"""
-    for child_node in node.code.getChildNodes():
+    for child_node in node.code.get_children():
         if isinstance(child_node, astng.Raise):
             return True
         return False
 
-def is_raising(stmt):
-    """return true if the given statement node raise an exception
-    """
-    for node in stmt.nodes:
+def is_raising(body):
+    """return true if the given statement node raise an exception"""
+    for node in body:
         if isinstance(node, astng.Raise):
             return True
     return False
 
-def is_empty(node):
+def is_empty(body):
     """return true if the given node does nothing but 'pass'"""
-    children = node.getChildNodes()
-    return len(children) == 1 and isinstance(children[0], astng.Pass)
+    return len(body) == 1 and isinstance(body[0], astng.Pass)
 
 builtins = __builtins__.copy()
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')

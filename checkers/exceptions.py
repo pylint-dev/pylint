@@ -124,19 +124,16 @@ class ExceptionsChecker(BaseChecker):
 
 
     def visit_tryexcept(self, node):
-        """check for empty except
-        """
+        """check for empty except"""
         exceptions_classes = []
         nb_handlers = len(node.handlers)
         for index, handler  in enumerate(node.handlers):
-            exc_type = handler[0]
-            stmt = handler[2]
             # single except doing nothing but "pass" without else clause
-            if nb_handlers == 1 and is_empty(stmt) and not node.else_:
-                self.add_message('W0704', node=exc_type or stmt)
-            if exc_type is None:
-                if nb_handlers == 1 and not is_raising(stmt):
-                    self.add_message('W0702', node=stmt.nodes[0])
+            if nb_handlers == 1 and is_empty(handler.body) and not node.orelse:
+                self.add_message('W0704', node=handler.type or handler.body[0])
+            if handler.type is None:
+                if nb_handlers == 1 and not is_raising(handler.body):
+                    self.add_message('W0702', node=handler.body[0])
                 # check if a "except:" is followed by some other
                 # except
                 elif index < (nb_handlers - 1):
@@ -144,7 +141,7 @@ class ExceptionsChecker(BaseChecker):
                     self.add_message('E0701', node=node, args=msg)
             else:
                 try:
-                    excs = list(unpack_infer(exc_type))
+                    excs = list(unpack_infer(handler.type))
                 except astng.InferenceError:
                     continue
                 for exc in excs:
@@ -157,11 +154,11 @@ class ExceptionsChecker(BaseChecker):
                         if previous_exc in exc_ancestors:
                             msg = '%s is an ancestor class of %s' % (
                                 previous_exc.name, exc.name)
-                            self.add_message('E0701', node=exc_type, args=msg)
+                            self.add_message('E0701', node=handler.type, args=msg)
                     if (exc.name == 'Exception'
                         and exc.root().name == 'exceptions'
-                        and nb_handlers == 1 and not is_raising(stmt)):
-                        self.add_message('W0703', node=exc_type)
+                        and nb_handlers == 1 and not is_raising(handler.body)):
+                        self.add_message('W0703', node=handler.type)
                 exceptions_classes += excs
 
 def inherit_from_std_ex(node):
