@@ -11,7 +11,6 @@ Pylint should be compatible with any python >= 2.2.
 * http://www.logilab.org/projects/common
 * http://optik.sourceforge.net/
 
-
 Install
 -------
 From the source distribution, extract the tarball and run ::
@@ -24,14 +23,16 @@ rpm packages, use your usual tools according to your Linux distribution.
 More information about installation and available distribution format
 may be found in the user manual in the *doc* subdirectory.
 
-
 Documentation
 -------------
 Look in the doc/ subdirectory.
 
-
 Comments, support, bug reports
 ------------------------------
+
+Project page on : 
+http://www.logilab.org/project/pylint
+
 Use the python-projects@logilab.org mailing list. Since we do not have
 publicly available bug tracker yet, bug reports should be emailed
 there too. 
@@ -41,7 +42,6 @@ http://lists.logilab.org/mailman/listinfo/python-projects
 
 Archives are available at 
 http://lists.logilab.org/pipermail/python-projects/
-
 
 Contributors
 ------------
