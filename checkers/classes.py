@@ -431,7 +431,7 @@ instance attributes.'}
             # FIXME: in case of multiple interfaces, find which one could not
             #        be resolved
             self.add_message('F0220', node=implements,
-                             args=(node.name, assignment.expr.as_string()))
+                             args=(node.name, assignment.value.as_string()))
 
     def _check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
@@ -446,8 +446,8 @@ instance attributes.'}
                 continue
             # skip the test if using super
             if isinstance(expr.expr, astng.CallFunc) and \
-               isinstance(expr.expr.node, astng.Name) and \
-               expr.expr.node.name == 'super':
+               isinstance(expr.expr.func, astng.Name) and \
+               expr.expr.func.name == 'super':
                 return
             try:
                 klass = expr.expr.infer().next()

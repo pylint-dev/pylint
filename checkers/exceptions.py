@@ -76,9 +76,9 @@ class ExceptionsChecker(BaseChecker):
     def visit_raise(self, node):
         """visit raise possibly infering value"""
         # ignore empty raise
-        if node.expr1 is None:
+        if node.type is None:
             return
-        expr = node.expr1
+        expr = node.type
         if self._check_raise_value(node, expr):
             return
         else:

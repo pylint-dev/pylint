@@ -335,8 +335,8 @@ functions, methods
 
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
-        expr = node.expr
-        if isinstance(node.expr, astng.Const):
+        expr = node.value
+        if isinstance(expr, astng.Const):
             # XXX lineno maybe dynamically set incidently
             if expr.value is None and expr.lineno is None:
                 # const None node with lineno to None are inserted
@@ -352,7 +352,7 @@ functions, methods
                 return
         # ignore if this is a function call (can't predicate side effects)
         # or a yield (which are wrapped by a discard node in py >= 2.5)
-        if not any(node.expr.nodes_of_class((astng.CallFunc, astng.Yield))):
+        if not any(expr.nodes_of_class((astng.CallFunc, astng.Yield))):
             self.add_message('W0104', node=node)
         
     def visit_pass(self, node):
@@ -375,7 +375,8 @@ functions, methods
             # the defaults defined by the function called in the body
             # of the lambda.
             return
-        if not isinstance(node.code, astng.CallFunc):
+        call = node.body
+        if not isinstance(call, astng.CallFunc):
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
@@ -386,29 +387,29 @@ functions, methods
         # indicated as * and ** by two bits in the lambda's flags, but
         # in the function call they are omitted from the args list and
         # are indicated by separate attributes on the function call node).
-        ordinary_args = list(node.argnames)
+        ordinary_args = list(node.args.args)
         if node.flags & compiler.consts.CO_VARKEYWORDS:
-            if (not node.code.dstar_args
-                or not isinstance(node.code.dstar_args, astng.Name)
-                or ordinary_args[-1] != node.code.dstar_args.name):
+            if (not call.kwargs
+                or not isinstance(call.kwargs, astng.Name)
+                or ordinary_args[-1] != call.kwargs.name):
                 return
             ordinary_args = ordinary_args[:-1]
         if node.flags & compiler.consts.CO_VARARGS:
-            if (not node.code.star_args
-                or not isinstance(node.code.star_args, astng.Name)
-                or ordinary_args[-1] != node.code.star_args.name):
+            if (not call.starargs
+                or not isinstance(call.starargs, astng.Name)
+                or ordinary_args[-1] != call.starargs.name):
                 return
             ordinary_args = ordinary_args[:-1]
 
         # The remaining arguments (the "ordinary" arguments) must be
         # in a correspondence such that:
-        # ordinary_args[i] == node.code.args[i].name.
-        if len(ordinary_args) != len(node.code.args):
+        # ordinary_args[i] == call.args[i].name.
+        if len(ordinary_args) != len(call.args):
             return
         for i in xrange(len(ordinary_args)):
-            if not isinstance(node.code.args[i], astng.Name):
+            if not isinstance(call.args[i], astng.Name):
                 return
-            if node.argnames[i] != node.code.args[i].name:
+            if node.argnames[i] != call.args[i].name:
                 return
         self.add_message('W0108', line=node.lineno, node=node)
 
@@ -521,14 +522,14 @@ functions, methods
         call and check for * or ** use
         """
         if isinstance(node.node, astng.Name):
-            name = node.node.name
+            name = node.func.name
             # ignore the name if it's not a builtin (ie not defined in the
             # locals nor globals scope)
             if not (node.frame().has_key(name) or
                     node.root().has_key(name)):
                 if name in self.config.bad_functions:
                     self.add_message('W0141', node=node, args=name)
-        if node.star_args or node.dstar_args:
+        if node.starargs or node.kwargs:
             self.add_message('W0142', node=node.node)
             
 
@@ -589,7 +590,7 @@ functions, methods
 
     def _check_defaults(self, node):
         """check for dangerous default values as arguments"""
-        for default in node.defaults:
+        for default in node.args.defaults:
             try:
                 value = default.infer().next()
             except astng.InferenceError:

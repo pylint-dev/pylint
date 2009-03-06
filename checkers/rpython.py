@@ -272,7 +272,7 @@ class RPythonChecker(BaseChecker):
         if not self._rpython:
             return
         types = set()
-        for node in node.nodes:
+        for node in node.elts:
             try:
                 # XXX use ifilter + filter to factorize filtering below
                 for infered in node.infer():
@@ -308,24 +308,25 @@ class RPythonChecker(BaseChecker):
         if not node.name in node.frame().locals:
             self.add_message('E1220', node=node,
                              args=(node.name, node.root().name))
+    
+    # FIXME : We have no more Slice and SliceObj nodes 
+    #def visit_slice(self, node):
+        #"""no negative index"""
+        #if not self._rpython:
+            #return
+        #self.check_slice(node.lower, node.upper)
         
-    def visit_slice(self, node):
-        """no negative index"""
-        if not self._rpython:
-            return
-        self.check_slice(node.lower, node.upper)
-        
-    def visit_sliceobj(self, node):
-        """no negative index"""
-        if not self._rpython:
-            return
-        sdef = []
-        for bound in node.nodes:
-            if isinstance(bound, astng.Const) and bound.value is None:
-                sdef.append(None)
-            else:
-                sdef.append(bound)
-        self.check_slice(*sdef)
+    #def visit_sliceobj(self, node):
+        #"""no negative index"""
+        #if not self._rpython:
+            #return
+        #sdef = []
+        #for bound in node.nodes:
+            #if isinstance(bound, astng.Const) and bound.value is None:
+                #sdef.append(None)
+            #else:
+                #sdef.append(bound)
+        #self.check_slice(*sdef)
 
     def visit_genexpr(self, node):
         self.add_message('E1203', node=node)

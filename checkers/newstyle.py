@@ -67,8 +67,8 @@ class NewStyleConflictChecker(BaseChecker):
         parent = node.parent.frame()
         if (isinstance(parent, astng.Class) and
             not parent.newstyle and
-            isinstance(node.node, astng.Name)):
-            name = node.node.name
+            isinstance(node.func, astng.Name)):
+            name = node.func.name
             if name == 'property':
                 self.add_message('W1001', node=node)
 
@@ -85,8 +85,8 @@ class NewStyleConflictChecker(BaseChecker):
             call = expr.expr
             # skip the test if using super
             if isinstance(call, astng.CallFunc) and \
-               isinstance(call.node, astng.Name) and \
-               call.node.name == 'super':
+               isinstance(call.func, astng.Name) and \
+               call.func.name == 'super':
                 if not klass.newstyle:
                     # super should not be used on an old style class
                     self.add_message('E1002', node=node)

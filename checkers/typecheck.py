@@ -166,9 +166,9 @@ accessed.'}
         """check that if assigning to a function call, the function is
         possibly returning something valuable
         """
-        if not isinstance(node.expr, astng.CallFunc):
+        if not isinstance(node.value, astng.CallFunc):
             return
-        function_node = safe_infer(node.expr.node)
+        function_node = safe_infer(node.value.func)
         # skip class, generator and uncomplete function definition
         if not (isinstance(function_node, astng.Function) and
                 function_node.root().fully_defined()):
@@ -191,10 +191,10 @@ accessed.'}
     def visit_callfunc(self, node):
         """check that called method are infered to callable objects
         """
-        called = safe_infer(node.node)
+        called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
-            self.add_message('E1102', node=node, args=node.node.as_string())
+            self.add_message('E1102', node=node, args=node.func.as_string())
         
     
 def register(linter):

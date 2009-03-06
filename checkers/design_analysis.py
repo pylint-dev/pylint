@@ -302,7 +302,8 @@ class MisdesignChecker(BaseChecker):
         
     def visit_if(self, node):
         """increments the branchs counter"""
-        branchs = len(node.tests)
+        #FIXME:len(node.test) doesn't work with astng2 / elif becomes else:if
+        branchs = 1 # len(node.test) # 
         if node.orelse:
             branchs += 1
         self._inc_branch(branchs)

@@ -262,7 +262,7 @@ class FormatChecker(BaseRawChecker):
             prev_line = prev_sibl.fromlineno
             # discard discard nodes introducted by ending ";"
             if isinstance(node, nodes.Discard) and \
-                   isinstance(node.expr, nodes.Const) and \
+                   isinstance(node.value, nodes.Const) and \
                    node.expr.lineno is None:
                 prev_line = None
         else:
