@@ -21,7 +21,8 @@ except ImportError:
     from distutils.core import setup
     from distutils.command import install_lib
     USE_SETUPTOOLS = 0
-    
+
+assert USE_SETUPTOOLS
 
 # import required features
 from __pkginfo__ import modname, version, license, short_desc, long_desc, \
@@ -60,7 +61,6 @@ STD_BLACKLIST = ('CVS', '.svn', '.hg', 'debian', 'dist', 'build')
 
 IGNORED_EXTENSIONS = ('.pyc', '.pyo', '.elc', '~')
 
-    
 
 def ensure_scripts(linux_scripts):
     """
@@ -82,8 +82,7 @@ def get_packages(directory, prefix):
     for package in os.listdir(directory):
         absfile = join(directory, package)
         if isdir(absfile):
-            if exists(join(absfile, '__init__.py')) or \
-                   package in ('test', 'tests'):
+            if exists(join(absfile, '__init__.py')):
                 if prefix:
                     result.append('%s.%s' % (prefix, package))
                 else:
@@ -129,54 +128,16 @@ def export(from_dir, to_dir,
             raise
     walk(from_dir, make_mirror, None)
 
-
-EMPTY_FILE = '''"""generated file, don\'t modify or your data will be lost"""
-try:
-    __import__('pkg_resources').declare_namespace(__name__)
-except ImportError:
-    pass
-'''
-
-class MyInstallLib(install_lib.install_lib):
-    """extend install_lib command to handle  package __init__.py and
-    include_dirs variable if necessary
-    """
-    def run(self):
-        """overridden from install_lib class"""
-        install_lib.install_lib.run(self)
-        # create Products.__init__.py if needed
-        if subpackage_of:
-            product_init = join(self.install_dir, subpackage_of, '__init__.py')
-            if not exists(product_init):
-                self.announce('creating %s' % product_init)
-                stream = open(product_init, 'w')
-                stream.write(EMPTY_FILE)
-                stream.close()
-        # manually install included directories if any
-        if include_dirs:
-            if subpackage_of:
-                base = join(subpackage_of, modname)
-            else:
-                base = modname
-            for directory in include_dirs:
-                dest = join(self.install_dir, base, directory)
-                export(directory, dest)
         
 def install(**kwargs):
     """setup entry point"""
-    if subpackage_of:
-        package = subpackage_of + '.' + modname
-        kwargs['package_dir'] = {package : '.'}
-        packages = [package] + get_packages(os.getcwd(), package)
-        if USE_SETUPTOOLS:
-            kwargs['namespace_packages'] = [subpackage_of]
-    else:
-        kwargs['package_dir'] = {modname : '.'}
-        packages = [modname] + get_packages(os.getcwd(), modname)
-    if USE_SETUPTOOLS and install_requires:
-        kwargs['install_requires'] = install_requires
-    if USE_SETUPTOOLS and '--force-manifest' in sys.argv:
-        sys.argv.remove('--force-manifest')
+    kwargs['package_dir'] = {modname : '.'}
+    packages = [modname] + get_packages(os.getcwd(), modname)
+    if USE_SETUPTOOLS:
+        if install_requires:
+            kwargs['install_requires'] = install_requires
+        if '--force-manifest' in sys.argv:
+            sys.argv.remove('--force-manifest')
     kwargs['packages'] = packages
     return setup(name = distname,
                  version = version,
@@ -190,7 +151,6 @@ def install(**kwargs):
                  scripts = ensure_scripts(scripts),
                  data_files = data_files,
                  ext_modules = ext_modules,
-                 cmdclass = {'install_lib': MyInstallLib},
                  **kwargs
                  )
             
