@@ -79,7 +79,7 @@ class NewStyleConflictChecker(BaseChecker):
             return
         klass = node.parent.frame()
         for stmt in node.nodes_of_class(astng.CallFunc):
-            expr = stmt.node
+            expr = stmt.func
             if not isinstance(expr, astng.Getattr):
                 continue
             call = expr.expr

@@ -440,7 +440,7 @@ instance attributes.'}
         klass_node = node.parent.frame()        
         to_call = _ancestors_to_call(klass_node)
         for stmt in node.nodes_of_class(astng.CallFunc):
-            expr = stmt.node
+            expr = stmt.func
             if not isinstance(expr, astng.Getattr) \
                    or expr.attrname != '__init__':
                 continue
@@ -478,7 +478,7 @@ instance attributes.'}
             return
         if len(method1.args.args) != len(refmethod.args.args):
             self.add_message('W0221', args=class_type, node=method1)
-        elif len(method1.defaults) < len(refmethod.defaults):
+        elif len(method1.args.defaults) < len(refmethod.args.defaults):
             self.add_message('W0222', args=class_type, node=method1)
 
                         

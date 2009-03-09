@@ -104,7 +104,7 @@ class ExceptionsChecker(BaseChecker):
              isinstance(expr, (astng.List, astng.Dict, astng.Tuple, 
                                 astng.Module, astng.Function)):
             self.add_message('E0702', node=node, args=expr.name)
-        elif isinstance(expr, astng.Mod):
+        elif isinstance(expr, astng.BinOp) and expr.op == '%':
             self.add_message('W0701', node=node)
         elif isinstance(expr, (astng.Instance, astng.Class)):
             if isinstance(expr, astng.Instance):

@@ -368,7 +368,7 @@ functions, methods
         # if the body of the lambda is a call expression with the same
         # argument list as the lambda itself, then the lambda is
         # possibly unnecessary and at least suspicious.
-        if node.defaults:
+        if node.args.defaults:
             # If the arguments of the lambda include defaults, then a
             # judgment cannot be made because there is no way to check
             # that the defaults defined by the lambda are the same as
@@ -521,7 +521,7 @@ functions, methods
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
-        if isinstance(node.node, astng.Name):
+        if isinstance(node.func, astng.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (ie not defined in the
             # locals nor globals scope)
@@ -530,7 +530,7 @@ functions, methods
                 if name in self.config.bad_functions:
                     self.add_message('W0141', node=node, args=name)
         if node.starargs or node.kwargs:
-            self.add_message('W0142', node=node.node)
+            self.add_message('W0142', node=node.func)
             
 
     def _check_unreachable(self, node):
@@ -569,10 +569,11 @@ functions, methods
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
-            if type(arg) is type(''):
-                self._check_name('argument', arg, node)
+            #if type(arg) is type(''):
+            if isinstance(arg, astng.AssName):
+                self._check_name('argument', arg.name, node)
             else:
-                self._recursive_check_names(arg, node)
+                self._recursive_check_names(arg.elts, node)
     
     def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""

@@ -56,7 +56,7 @@ def is_super(node):
 
 def is_error(node):
     """return true if the function does nothing but raising an exception"""
-    for child_node in node.code.get_children():
+    for child_node in node.get_children():
         if isinstance(child_node, astng.Raise):
             return True
         return False
@@ -130,8 +130,8 @@ def is_func_default(node):
     parent = node.parent
     if parent is None:
         return 0
-    if isinstance(parent, astng.Function) and parent.defaults and \
-           node in parent.defaults:
+    if isinstance(parent, astng.Function) and parent.args.defaults and \
+           node in parent.args.defaults:
         return 1
     return is_func_default(parent)
 
@@ -163,8 +163,8 @@ def assign_parent(node):
     node
     """
     while node and isinstance(node, (astng.AssName,
-                                     astng.AssTuple,
-                                     astng.AssList)):
+                                     astng.Tuple,
+                                     astng.List)):
         node = node.parent
     return node
 
