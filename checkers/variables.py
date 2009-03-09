@@ -373,7 +373,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         if defframe.root().lookup(name)[1]:
                             maybee0601 = False
                     if (maybee0601
-                        and stmt.source_line() <= defstmt.source_line()
+                        and stmt.fromlineno <= defstmt.fromlineno
                         and not is_defined_before(node)
                         and not are_exclusive(stmt, defstmt)):
                         self.add_message('E0601', args=name, node=node)

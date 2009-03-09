@@ -258,7 +258,6 @@ class FormatChecker(BaseRawChecker):
             return            
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
-            # don't use .source_line since it causes C0321 false positive !
             prev_line = prev_sibl.fromlineno
             # discard discard nodes introducted by ending ";"
             if isinstance(node, nodes.Discard) and \
@@ -271,7 +270,7 @@ class FormatChecker(BaseRawChecker):
                 prev_line = node.parent.statement().fromlineno
             except AttributeError:
                 prev_line = node.parent.statement().lineno
-        line = node.fromlineno #source_line()
+        line = node.fromlineno
         if prev_line == line and self._visited_lines.get(line) != 2:
             self.add_message('C0321', node=node)
             self._visited_lines[line] = 2

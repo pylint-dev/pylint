@@ -333,7 +333,7 @@ instance attributes.'}
                     # check that if the node is accessed in the same method as
                     # it's defined, it's accessed after the initial assigment
                     frame = def_node.frame()
-                    lno = def_node.source_line()
+                    lno = def_node.fromlineno
                     for _node in nodes:
                         if _node.frame() is frame and _node.lineno < lno:
                             self.add_message('E0203', node=_node,

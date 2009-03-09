@@ -428,8 +428,8 @@ This is used by the global evaluation report (R0004).'}),
         # recurse on children (depth first)
         for child in node.get_children():
             self.collect_block_lines(child, msg_state)            
-        first = node.source_line()
-        last = node.last_source_line()
+        first = node.fromlineno
+        last = node.tolineno
         for msgid, lines in msg_state.items():
             for lineno, state in lines.items():
                 if first <= lineno <= last:
