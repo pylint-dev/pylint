@@ -262,7 +262,7 @@ class FormatChecker(BaseRawChecker):
             # discard discard nodes introducted by ending ";"
             if isinstance(node, nodes.Discard) and \
                    isinstance(node.value, nodes.Const) and \
-                   node.expr.lineno is None:
+                   node.value.lineno is None:
                 prev_line = None
         else:
             # itou ?

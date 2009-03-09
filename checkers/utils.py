@@ -97,7 +97,7 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astng.For):
-            for ass_node in _node.assign.nodes_of_class(astng.AssName):
+            for ass_node in _node.target.nodes_of_class(astng.AssName):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astng.With):
