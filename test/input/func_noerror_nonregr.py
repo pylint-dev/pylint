@@ -6,8 +6,8 @@ __revision__ = 1
 def function1(cbarg = lambda: None):
     """
   File "/usr/lib/python2.4/site-packages/logilab/astng/scoped_nodes.py", line
-391, in mularg_class
-    i = self.argnames.index(argname)
+391, in mularg_class # FIXME this method doesn't exist anymore
+    i = self.args.args.index(argname)
 ValueError: list.index(x): x not in list
     """
     cbarg().x

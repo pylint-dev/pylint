@@ -380,10 +380,10 @@ functions, methods
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-
+        # XXX are lambda still different with astng >= 0.18 ?
         # *args and **kwargs need to be treated specially, since they
         # are structured differently between the lambda and the function
-        # call (in the lambda they appear in the argnames list and are
+        # call (in the lambda they appear in the args.args list and are
         # indicated as * and ** by two bits in the lambda's flags, but
         # in the function call they are omitted from the args list and
         # are indicated by separate attributes on the function call node).
@@ -409,7 +409,7 @@ functions, methods
         for i in xrange(len(ordinary_args)):
             if not isinstance(call.args[i], astng.Name):
                 return
-            if node.argnames[i] != call.args[i].name:
+            if node.args.args[i] != call.args[i].name:
                 return
         self.add_message('W0108', line=node.lineno, node=node)
 
@@ -429,7 +429,7 @@ functions, methods
         # check default arguments'value
         self._check_defaults(node)
         # check arguments name
-        args = node.argnames
+        args = node.args.args
         if args is not None:
             self._recursive_check_names(args, node)
         # check for redefinition

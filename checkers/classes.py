@@ -247,7 +247,7 @@ instance attributes.'}
         kind of method defined in an interface for this warning
         """
         if node.is_method():
-            if node.argnames is not None:
+            if node.args.args is not None:
                 self._first_attrs.pop()
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
@@ -348,16 +348,16 @@ instance attributes.'}
         * not one of the above for a static method
         """
         # don't care about functions with unknown argument (builtins)
-        if node.argnames is None:
+        if node.args.args is None:
             return
-        self._first_attrs.append(node.argnames and node.argnames[0])
+        self._first_attrs.append(node.args.args and node.args.args[0])
         # static method
         if node.type == 'staticmethod':
-            if node.argnames and node.argnames[0] in ('self', 'cls', 'mcs'):
-                self.add_message('W0211', args=node.argnames[0], node=node)
+            if node.args.args and node.args.args[0] in ('self', 'cls', 'mcs'):
+                self.add_message('W0211', args=node.args.args[0], node=node)
             self._first_attrs[-1] = None
         # class / regular method with no args
-        elif not node.argnames:
+        elif not node.args.args:
             self.add_message('E0211', node=node)
         # metaclass method
         elif metaclass:
@@ -474,9 +474,9 @@ instance attributes.'}
             self.add_message('F0202', args=(method1, refmethod), node=method1)
             return
         # don't care about functions with unknown argument (builtins)
-        if method1.argnames is None or refmethod.argnames is None:
+        if method1.args.args is None or refmethod.args.args is None:
             return
-        if len(method1.argnames) != len(refmethod.argnames):
+        if len(method1.args.args) != len(refmethod.args.args):
             self.add_message('W0221', args=class_type, node=method1)
         elif len(method1.defaults) < len(refmethod.defaults):
             self.add_message('W0222', args=class_type, node=method1)

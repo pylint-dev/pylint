@@ -239,7 +239,7 @@ class MisdesignChecker(BaseChecker):
         self._returns.append(0)
         self._branchs.append(0)
         # check number of arguments
-        args = node.argnames
+        args = node.args.args
         if args is not None and len(args) > self.config.max_args:
             self.add_message('R0913', node=node,
                              args=(len(args), self.config.max_args))

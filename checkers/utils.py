@@ -104,7 +104,7 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
             if _node.vars.name == varname:
                 return True
         elif isinstance(_node, (astng.Lambda, astng.Function)):
-            if varname in flatten(_node.argnames):
+            if varname in flatten(_node.args.args):
                 return True
             if getattr(_node, 'name', None) == varname:
                 return True
