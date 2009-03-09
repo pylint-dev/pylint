@@ -41,14 +41,6 @@ try:
 except ImportError:
     data_files = None
 try:
-    from __pkginfo__ import subpackage_of
-except ImportError:
-    subpackage_of = None
-try:
-    from __pkginfo__ import include_dirs
-except ImportError:
-    include_dirs = []
-try:
     from __pkginfo__ import ext_modules
 except ImportError:
     ext_modules = None
