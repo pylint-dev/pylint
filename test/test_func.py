@@ -146,7 +146,7 @@ def make_tests(filter_rgx):
     return the list of generated test classes
     """
     if filter_rgx:
-        is_to_run = re.compile(filter_rgx).match
+        is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = lambda x: 1
     tests = []
