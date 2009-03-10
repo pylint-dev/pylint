@@ -122,16 +122,32 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
         _node = _node.previous_sibling()
     return False
 
-def is_func_default(node):
+def is_func_default(node, name):
     """return true if the name is used in function default argument's value
     """
     parent = node.parent
     if parent is None:
         return 0
-    if isinstance(parent, astng.Function) and parent.args.defaults and \
-           node in parent.args.defaults:
-        return 1
-    return is_func_default(parent)
+    if isinstance(parent, astng.Function):
+        defaults = parent.args.defaults
+        if name in _child_names(defaults):
+            return 1
+    return is_func_default(parent, name)
+
+def _child_names(node, names=None):
+    """return a list of all names in arg.defaults, including func calls"""
+    if names is None:
+        names = []
+    if isinstance(node, (list, tuple)):
+        for elt in node:
+            _child_names(elt, names)
+    else:
+        for child in node.get_children():
+            if isinstance(child, astng.Name):
+                names.append(child.name)
+            else:
+                _child_names(child, names)
+    return names
 
 def is_func_decorator(node):
     """return true if the name is used in function decorator
