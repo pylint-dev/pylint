@@ -34,9 +34,7 @@ class SeeTelnet(telnetlib.Telnet):
         """
         self.process_rawq()
         maxLength = 0
-        index = -1
         for match in matches:
-            index += 1
             if len(match) > maxLength:
                 maxLength = len(match)
 
