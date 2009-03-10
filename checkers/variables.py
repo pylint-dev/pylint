@@ -230,7 +230,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
         authorized_rgx = self.config.dummy_variables_rgx
         overridden = marker = []
-        args = node.args.args
+        argnames = node.argnames()
         for name, stmts in not_consumed.iteritems():
             # ignore some special names specified by user configuration
             if authorized_rgx.match(name):
@@ -241,15 +241,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if isinstance(stmt, astng.Global):
                 continue
             # care about functions with unknown argument (builtins)
-            if args and name in args:
+            if name in argnames:
                 if is_method:
                     # don't warn for the first argument of a (non static) method
-                    if node.type != 'staticmethod' and name == args[0]:
+                    if node.type != 'staticmethod' and name == argnames[0]:
                         continue
                     # don't warn for argument of an overridden method
                     if overridden is marker:
                         overridden = overridden_method(klass, node.name)
-                    if overridden is not None and name in overridden.args.args:
+                    if overridden is not None and name in overridden.argnames():
                         continue
                 # don't check callback arguments
                 if node.name.startswith('cb_') or \

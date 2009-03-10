@@ -350,25 +350,26 @@ instance attributes.'}
         # don't care about functions with unknown argument (builtins)
         if node.args.args is None:
             return
-        self._first_attrs.append(node.args.args and node.args.args[0])
+        first = node.argnames()[0]
+        self._first_attrs.append(first)
         # static method
         if node.type == 'staticmethod':
-            if node.args.args and node.args.args[0] in ('self', 'cls', 'mcs'):
-                self.add_message('W0211', args=node.args.args[0], node=node)
+            if first in ('self', 'cls', 'mcs'):
+                self.add_message('W0211', args=first, node=node)
             self._first_attrs[-1] = None
         # class / regular method with no args
-        elif not node.args.args:
+        elif not first:
             self.add_message('E0211', node=node)
         # metaclass method
         elif metaclass:
-            if self._first_attrs[-1] != 'mcs':
+            if first != 'mcs':
                 self.add_message('C0203', node=node)
         # class method
         elif node.type == 'classmethod':
-            if self._first_attrs[-1] != 'cls':
+            if first != 'cls':
                 self.add_message('C0202', node=node)
         # regular method without self as argument
-        elif self._first_attrs[-1] != 'self':
+        elif first != 'self':
             self.add_message('E0213', node=node)
 
     def _check_bases_classes(self, node):

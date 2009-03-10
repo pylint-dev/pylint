@@ -409,7 +409,7 @@ functions, methods
         for i in xrange(len(ordinary_args)):
             if not isinstance(call.args[i], astng.Name):
                 return
-            if node.args.args[i] != call.args[i].name:
+            if node.args.args[i].name != call.args[i].name:
                 return
         self.add_message('W0108', line=node.lineno, node=node)
 
