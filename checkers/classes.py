@@ -350,15 +350,16 @@ instance attributes.'}
         # don't care about functions with unknown argument (builtins)
         if node.args.args is None:
             return
-        first = node.argnames()[0]
-        self._first_attrs.append(first)
+        first_arg = node.args.args and node.argnames()[0]
+        self._first_attrs.append(first_arg)
+        first = self._first_attrs[-1]
         # static method
         if node.type == 'staticmethod':
-            if first in ('self', 'cls', 'mcs'):
+            if first_arg in ('self', 'cls', 'mcs'):
                 self.add_message('W0211', args=first, node=node)
             self._first_attrs[-1] = None
         # class / regular method with no args
-        elif not first:
+        elif not node.args.args:
             self.add_message('E0211', node=node)
         # metaclass method
         elif metaclass:

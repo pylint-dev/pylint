@@ -351,7 +351,7 @@ functions, methods
                 self.add_message('W0105', node=node)
                 return
         # ignore if this is a function call (can't predicate side effects)
-        # or a yield (which are wrapped by a discard node in py >= 2.5)
+        # XXX ? or a yield (which are wrapped by a discard node in _ast)
         if not any(expr.nodes_of_class((astng.CallFunc, astng.Yield))):
             self.add_message('W0104', node=node)
         
@@ -445,7 +445,7 @@ functions, methods
                 self.add_message('E0100', node=node)
             else:
                 values = [r.value for r in returns]
-                if  [v for v in values if not (
+                if  [v for v in values if not (v is None or
                     (isinstance(v, astng.Const) and v.value is None)
                     or  (isinstance(v, astng.Name) and v.name == 'None'))]:
                     self.add_message('E0101', node=node)
