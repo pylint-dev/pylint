@@ -342,7 +342,7 @@ functions, methods
                 # const None node with lineno to None are inserted
                 # on unnecessary semi-column
                 # XXX navigate to get a correct lineno
-                brothers = tuple(node.parent.get_children())
+                brothers = node.parent.child_sequence(node)
                 previoussibling = brothers[brothers.index(node)-1]
                 self.add_message('W0106', node=previoussibling)
                 return
@@ -359,7 +359,7 @@ functions, methods
         """check is the pass statement is really necessary
         """
         # if self._returns is empty, we're outside a function !
-        if len(tuple(node.parent.get_children())) > 1:
+        if len(node.parent.child_sequence(node)) > 1:
             self.add_message('W0107', node=node)
 
     def visit_lambda(self, node):
