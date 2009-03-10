@@ -18,8 +18,6 @@
 """some functions that may be usefull for various checkers
 """
 
-from logilab.common import flatten
-
 from logilab import astng
 from logilab.astng.utils import are_exclusive
 try:
@@ -104,7 +102,7 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
             if _node.vars.name == varname:
                 return True
         elif isinstance(_node, (astng.Lambda, astng.Function)):
-            if varname in flatten(_node.args.args):
+            if varname in _node.argnames():
                 return True
             if getattr(_node, 'name', None) == varname:
                 return True
