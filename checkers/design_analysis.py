@@ -20,7 +20,7 @@
  FIXME: missing 13, 15, 16
 """
 
-from logilab.astng import Function, InferenceError
+from logilab.astng import Function, If, InferenceError
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
@@ -302,9 +302,10 @@ class MisdesignChecker(BaseChecker):
         
     def visit_if(self, node):
         """increments the branchs counter"""
-        #FIXME:len(node.test) doesn't work with astng2 / elif becomes else:if
-        branchs = 1 # len(node.test) # 
-        if node.orelse:
+        branchs = 1
+        # don't double count If nodes coming from some 'elif'
+        if node.orelse and (len(node.orelse)>1 or
+                            not isinstance(node.orelse[0], If)):
             branchs += 1
         self._inc_branch(branchs)
         self._stmts += branchs
@@ -325,7 +326,7 @@ class MisdesignChecker(BaseChecker):
             branchs[i] += branchsnum
 
     # FIXME: make a nice report...
-        
+
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(MisdesignChecker(linter))
