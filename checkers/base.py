@@ -15,7 +15,6 @@
 """basic checker for Python code
 """
 
-import compiler.consts
 
 from logilab import astng
 from logilab.common.compat import any
@@ -388,22 +387,19 @@ functions, methods
         # in the function call they are omitted from the args list and
         # are indicated by separate attributes on the function call node).
         ordinary_args = list(node.args.args)
-        if node.flags & compiler.consts.CO_VARKEYWORDS:
+        if node.args.kwarg:
             if (not call.kwargs
                 or not isinstance(call.kwargs, astng.Name)
-                or ordinary_args[-1] != call.kwargs.name):
+                or node.args.kwarg != call.kwargs.name):
                 return
-            ordinary_args = ordinary_args[:-1]
-        if node.flags & compiler.consts.CO_VARARGS:
+        if node.args.vararg:
             if (not call.starargs
                 or not isinstance(call.starargs, astng.Name)
-                or ordinary_args[-1] != call.starargs.name):
+                or node.args.vararg != call.starargs.name):
                 return
-            ordinary_args = ordinary_args[:-1]
 
-        # The remaining arguments (the "ordinary" arguments) must be
-        # in a correspondence such that:
-        # ordinary_args[i] == call.args[i].name.
+        # The "ordinary" arguments must be in a correspondence such that:
+        # ordinary_args[i].name == call.args[i].name.
         if len(ordinary_args) != len(call.args):
             return
         for i in xrange(len(ordinary_args)):
