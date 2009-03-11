@@ -122,9 +122,11 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
         _node = _node.previous_sibling()
     return False
 
-def is_func_default(node, name):
+def is_func_default(node, name=None):
     """return true if the name is used in function default argument's value
     """
+    if name == None:
+        name = node.name
     parent = node.parent
     if parent is None:
         return 0
@@ -134,19 +136,11 @@ def is_func_default(node, name):
             return 1
     return is_func_default(parent, name)
 
-def _child_names(node, names=None):
-    """return a list of all names in arg.defaults, including func calls"""
-    if names is None:
-        names = []
-    if isinstance(node, (list, tuple)):
-        for elt in node:
-            _child_names(elt, names)
-    else:
-        for child in node.get_children():
-            if isinstance(child, astng.Name):
-                names.append(child.name)
-            else:
-                _child_names(child, names)
+def _child_names(nodes):
+    """return a list of all Name in a list 'nodes' """
+    names = []
+    for node in nodes:
+        names.extend(n.name for n in node.nodes_of_class(astng.Name))
     return names
 
 def is_func_decorator(node):
@@ -173,8 +167,7 @@ def is_ancestor_name(frame, node):
     return False
 
 def assign_parent(node):
-    """return the higher parent which is not an AssName, AssTuple or AssList
-    node
+    """return the higher parent which is not an AssName, Tuple or List node
     """
     while node and isinstance(node, (astng.AssName,
                                      astng.Tuple,

@@ -133,11 +133,13 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         checks globals doesn't overrides builtins
         """
         mlocals = copy(node.locals)
-        # __dict__ is added to module's locals but not available in module's namespace
-        # (unlike __doc__, __name__, etc...). But take care __dict__ may be assigned
-        # somewhere in the module, so remove astng inserted nodes (having None lineno)
+        # __dict__ is added to module's locals but not available in module's
+        # namespace (unlike __doc__, __name__, etc...). But take care __dict__
+        # may be assigned somewhere in the module, so remove astng inserted
+        # nodes (having None lineno)
         # XXX this could probably be handled in astng
-        mlocals['__dict__'] = [n for n in mlocals['__dict__'] if n.lineno is not None]
+        mlocals['__dict__'] = [n for n in mlocals['__dict__']
+                                if n.lineno is not None]
         if not mlocals['__dict__']:
             del mlocals['__dict__']
         self._to_consume = [(mlocals, {}, 'module')]
@@ -327,11 +329,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         name = node.name
         stmt = node.statement()
         frame = stmt.scope()
-        # if the name node is used as a function default argument's value or as a decorator, then
-        # start from the parent frame of the function instead of the function
-        # frame - and thus open an inner class scope
-        default = is_func_default(node, node.name)
-        if default or is_func_decorator(node) or is_ancestor_name(frame, node):
+        # if the name node is used as a function default argument's value or as
+        # a decorator, then start from the parent frame of the function instead
+        # of the function frame - and thus open an inner class scope
+        if (is_func_default(node, node.name) or is_func_decorator(node)
+                                        or is_ancestor_name(frame, node)):
             start_index = len(self._to_consume) - 2
         else:
             start_index = len(self._to_consume) - 1
@@ -350,7 +352,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self._loopvar_name(node, name)
                 break
             # mark the name as consumed if it's defined in this scope
-            # (ie no KeyError is raise by "to_consume[name]"
+            # (i.e. no KeyError is raised by "to_consume[name]"
             try:
                 consumed[name] = to_consume[name]
                 # checks for use before assigment
