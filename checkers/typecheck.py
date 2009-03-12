@@ -182,7 +182,7 @@ accessed.'}
             self.add_message('E1111', node=node)
         else:
             for rnode in returns:
-                if not (isinstance(rnode.value, astng.Name)
+                if not (isinstance(rnode.value, astng.Const)
                         and rnode.value.name == 'None'):
                     break
             else:
