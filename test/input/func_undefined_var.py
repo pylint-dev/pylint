@@ -27,7 +27,7 @@ def bad_default(var, default=unknown2):
     augvar += 1
     del vardel
 
-# XXX : Warning for Attribute access to undefinde attributes ?
+# Warning for Attribute access to undefinde attributes ?
 #class Attrs(object): 
     #"""dummy class for wrong attribute access"""
 #AOU = Attrs()
