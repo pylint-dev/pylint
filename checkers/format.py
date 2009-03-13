@@ -123,8 +123,7 @@ def get_string_coords(line):
     return result
 
 def in_coords(match, string_coords):
-    """return true if the match in in the string coord
-    """
+    """return true if the match in in the string coord"""
     mstart = match.start()
     for start, end in string_coords:
         if mstart >= start and mstart < end:
@@ -145,8 +144,7 @@ def check_line(line, writer):
                 if not in_coords(match, string_positions):
                     return msg_id, pretty_match(match, line.rstrip())
             writer.add_message('F0321', line=line, args=line)
-
-            
+        
  
 class FormatChecker(BaseRawChecker):
     """checks for :                                                            
@@ -252,8 +250,7 @@ class FormatChecker(BaseRawChecker):
             self.add_message('C0302', args=line_num, line=1)
 
     def visit_default(self, node):
-        """check the node line number and check it if not yet done
-        """
+        """check the node line number and check it if not yet done"""
         if not node.is_statement:
             return            
         prev_sibl = node.previous_sibling()
@@ -278,8 +275,13 @@ class FormatChecker(BaseRawChecker):
         if self._visited_lines.has_key(line):
             return
         lines = []
-        assert node.fromlineno and node.tolineno, node
-        for line in xrange(node.fromlineno, node.tolineno + 1):
+        assert node.fromlineno, node
+        try:
+            tolineno = node.blockstart_tolineno
+        except AttributeError:
+            tolineno = node.tolineno
+        assert tolineno, node
+        for line in xrange(node.fromlineno, tolineno + 1):
             self._visited_lines[line] = 1
             try:
                 lines.append(self._lines[line].rstrip())
