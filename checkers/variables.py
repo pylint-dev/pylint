@@ -139,7 +139,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # nodes (having None lineno)
         # XXX this could probably be handled in astng
         mlocals['__dict__'] = [n for n in mlocals['__dict__']
-                                if n.lineno is not None]
+                               if n.lineno is not None]
         if not mlocals['__dict__']:
             del mlocals['__dict__']
         self._to_consume = [(mlocals, {}, 'module')]
@@ -321,13 +321,21 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if isinstance(ass, (astng.For, astng.Comprehension, astng.GenExpr)) \
                    and not ass.statement() is node.statement():
                 self.add_message('W0631', args=name, node=node)
-    
+
+    def visit_assname(self, node):
+        if isinstance(node.ass_type(), astng.AugAssign):
+            self.visit_name(node)
+            
+    def visit_delname(self, node):
+        self.visit_name(node)
+        
     def visit_name(self, node):
         """check that a name is defined if the current scope and doesn't
         redefine a built-in
         """
         name = node.name
         stmt = node.statement()
+        assert stmt.fromlineno, stmt # probably is_statement = True missing in astng
         frame = stmt.scope()
         # if the name node is used as a function default argument's value or as
         # a decorator, then start from the parent frame of the function instead
@@ -355,6 +363,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # (i.e. no KeyError is raised by "to_consume[name]"
             try:
                 consumed[name] = to_consume[name]
+            except KeyError:
+                continue
+            else:
                 # checks for use before assigment
                 # FIXME: the last condition should just check attribute access
                 # is protected by a try: except NameError: (similar to #9219)
@@ -379,13 +390,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         and stmt.fromlineno <= defstmt.fromlineno
                         and not is_defined_before(node)
                         and not are_exclusive(stmt, defstmt)):
-                        self.add_message('E0601', args=name, node=node)
-                del to_consume[name]
+                        if stmt is defstmt: # Aug AssName
+                            self.add_message('E0602', args=name, node=node)
+                        else:
+                            self.add_message('E0601', args=name, node=node)
+                if not isinstance(node, astng.AssName): # Aug AssName
+                    del to_consume[name]
                 # check it's not a loop variable used outside the loop
                 self._loopvar_name(node, name)
                 break
-            except KeyError:
-                continue
         else:
             # we have not found the name, if it isn't a builtin, that's an
             # undefined name !
