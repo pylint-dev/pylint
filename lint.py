@@ -43,7 +43,7 @@ from logilab.common.fileutils import norm_open
 from logilab.common.ureports import Table, Text
 from logilab.common.__pkginfo__ import version as common_version
 
-from logilab.astng import ASTNGManager
+from logilab.astng import ASTNGManager, nodes
 from logilab.astng.__pkginfo__ import version as astng_version
 
 from pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
@@ -430,16 +430,37 @@ This is used by the global evaluation report (R0004).'}),
             self.collect_block_lines(child, msg_state)            
         first = node.fromlineno
         last = node.tolineno
-        for msgid, lines in msg_state.items():
+        # first child line number used to distinguate between disable-msg
+        # which are the first child of scoped node with those defined later.
+        # For instance in the code below:
+        #
+        # 1.   def meth8(self):
+        # 2.        """test late disabling"""
+        # 3.        # pylint: disable-msg=E1102
+        # 4.        print self.blip
+        # 5.        # pylint: disable-msg=E1101
+        # 6.        print self.bla
+        #
+        # E1102 should be disabled from line 1 to 6 while E1101 from line 5 to 6
+        #
+        # this is necessary to disable locally messages applying to class /
+        # function using their fromlineno 
+        if isinstance(node, (nodes.Module, nodes.Class, nodes.Function)) and node.body:
+            firstchildlineno = node.body[0].fromlineno
+        else:
+            firstchildlineno = last
+        for msgid, lines in msg_state.iteritems():
             for lineno, state in lines.items():
                 if first <= lineno <= last:
+                    if lineno > firstchildlineno:
+                        state = True
                     # set state for all lines for this block
                     first, last = node.block_range(lineno)
                     for line in xrange(first, last+1):                        
                         # do not override existing entries
                         if not line in self._module_msgs_state.get(msgid, ()):
                             if line in lines: # state change in the same block
-                                state = lines[line] 
+                                state = lines[line]
                             try:
                                 self._module_msgs_state[msgid][line] = state
                             except KeyError:
