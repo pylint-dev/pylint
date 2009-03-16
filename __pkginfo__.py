@@ -53,9 +53,7 @@ scripts = [join('bin', filename) for filename in
             ('pylint', 'pylint-gui', "symilar", "epylint", "pyreverse")]
 
 include_dirs = [join('test', 'input'),
-                join('test', 'messages'),
-                join('test', 'rpythonmessages'),
-                join('test', 'regrtest_data')]
+                join('test', 'messages')]
 
 pyversions = ["2.3", "2.4", "2.5"]
 

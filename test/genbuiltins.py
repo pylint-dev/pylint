@@ -48,16 +48,10 @@ checks = [
     ]
 
 
-for filename in glob('rpythoninput/func_nobuiltin_*'):
-    remove(filename)
-for filename in glob('rpythonmessages/func_nobuiltin_*'):
-    remove(filename)    
 for check in checks:
     builtin, _ = check.split('(', 1)
     if builtin == 'isinstance':
         builtin = 'basestring'
     basename = 'func_nobuiltin_%s' % builtin
     print basename
-    file('rpythoninput/%s.py' % basename, 'w').write(code % check)
-    file('rpythonmessages/%s.txt' % basename, 'w').write(msg % builtin)
 print 'generated %s test' % len(checks)
