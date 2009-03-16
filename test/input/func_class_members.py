@@ -14,6 +14,7 @@ class MyClass:
         """test"""
         self.correct += 2
         self.incorrect += 2
+        del self.havenot
         self.nonexistent1.truc()
         self.nonexistent2[1] = 'hehe'
 
