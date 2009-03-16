@@ -1,1 +1,1 @@
-E:  8:function: Using variable 'aaaa' before assignment
+E:  8:function: Undefined variable 'aaaa'
