@@ -1,2 +1,0 @@
-E:  3:function1: Multiple types assigned to identifier 'attr'
-E: 11:function2: Can't mix int and None on identifier 'attr'
