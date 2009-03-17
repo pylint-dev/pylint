@@ -79,7 +79,7 @@ import os
 import sys
 from os.path import join
 
-from logilab.astng import ASTNGManager
+from logilab.astng import MANAGER
 
 
 
@@ -98,7 +98,7 @@ def _sorted_file(path):
 def get_project(module, name=None):
     """return a astng project representation
     """
-    manager = ASTNGManager()
+    manager = MANAGER
     # flush cache
     manager._modules_by_name = {}
     return manager.project_from_files([module], _astng_wrapper,
