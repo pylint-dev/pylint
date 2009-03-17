@@ -289,7 +289,7 @@ instance attributes.'}
                 callee in klass.basenames
                 or (isinstance(node.expr, astng.CallFunc)
                     and isinstance(node.expr.func, astng.Name) 
-                    and node.expr.node.name == 'super')):
+                    and node.expr.func.name == 'super')):
                 self.add_message('W0212', node=node, args=attrname)
             
             
