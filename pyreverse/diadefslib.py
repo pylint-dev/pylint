@@ -63,11 +63,11 @@ class DiaDefGenerator:
         """help function for search levels"""
         return self.anc_level, self.ass_level
 
-    def not_show_builtin(self, node):
+    def show_node(self, node):
         """true if builtins and not show_builtins"""
-        builtin = (node.name in ('object', 'type') or 
-                    node.root().name == '__builtin__')
-        return builtin and not (self.config.show_builtin)
+        if self.config.show_builtin:
+            return True
+        return node.root().name != '__builtin__'
 
     def add_class(self, node):
         """visit one class and add it to diagram"""
@@ -79,7 +79,7 @@ class DiaDefGenerator:
         if level == 0:
             return
         for ancestor in node.ancestors(recurs=False):
-            if self.not_show_builtin(ancestor):
+            if not self.show_node(ancestor):
                 continue
             yield ancestor
 
@@ -91,15 +91,14 @@ class DiaDefGenerator:
             for ass_node in ass_nodes:
                 if isinstance(ass_node, astng.Instance):
                     ass_node = ass_node._proxied
-                if not isinstance(ass_node, astng.Class) \
-                       or self.not_show_builtin(ass_node):
+                if not (isinstance(ass_node, astng.Class) 
+                        and self.show_node(ass_node)):
                     continue
                 yield ass_node
 
     def extract_classes(self, klass_node, anc_level, ass_level):
-        """extract recursively classes related to klass_node
-        """
-        if self.classdiagram.has_node(klass_node):
+        """extract recursively classes related to klass_node"""
+        if self.classdiagram.has_node(klass_node) or not self.show_node(klass_node):
             return
         self.add_class(klass_node)
 
