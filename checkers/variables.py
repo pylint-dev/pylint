@@ -392,12 +392,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         and stmt.fromlineno <= defstmt.fromlineno
                         and not is_defined_before(node)
                         and not are_exclusive(stmt, defstmt)):
-                        if (stmt is defstmt
-                            and not isinstance(stmt, astng.AugAssign)
-                            and not isinstance(node, astng.DelName)):
-                            self.add_message('E0601', args=name, node=node)
-                        else:
+                        if defstmt is stmt and isinstance(node, (astng.DelName,
+                                                               astng.AssName)):
                             self.add_message('E0602', args=name, node=node)
+                        else:
+                            self.add_message('E0601', args=name, node=node)
                 if not isinstance(node, astng.AssName): # Aug AssName
                     del to_consume[name]
                 # check it's not a loop variable used outside the loop

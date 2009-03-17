@@ -134,7 +134,10 @@ accessed.'}
             if ignoremim and name[-5:].lower() == 'mixin':
                 continue
             try:
-                owner.getattr(node.attrname)
+                if not [n for n in owner.getattr(node.attrname)
+                        if not isinstance(n.statement(), astng.AugAssign)]:
+                    missingattr.add((owner, name))
+                    continue
             except AttributeError:
                 # XXX method / function
                 continue

@@ -175,6 +175,10 @@ instance attributes.'}
         # checks attributes are defined in an allowed method such as __init__
         defining_methods = self.config.defining_attr_methods
         for attr, nodes in cnode.instance_attrs.items():
+            nodes = [n for n in nodes if not
+                    isinstance(n.statement(), (astng.Delete, astng.AugAssign))]
+            if not nodes:
+                continue # error detected by typechecking
             node = nodes[0] # XXX
             frame = node.frame()
             if frame.name not in defining_methods:
