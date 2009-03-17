@@ -366,7 +366,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     elif defframe.parent is None:
                         # we are at the module level, check the name is not
                         # defined in builtins
-                        if builtin_lookup(name)[1]:
+                        if name in defframe.scope_attrs or builtin_lookup(name)[1]:
                             maybee0601 = False
                     else:
                         # we are in a local scope, check the name is not
