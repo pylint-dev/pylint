@@ -22,11 +22,12 @@ from logilab.common.modutils import is_standard_module, is_relative, \
 from logilab.common.ureports import VerbatimText, Paragraph
 
 from logilab import astng
+from logilab.astng.utils import are_exclusive
 
 from pylint.utils import expand_modules
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker, EmptyReport
-from pylint.checkers.utils import are_exclusive
+
 
 def get_first_import(context, name, base, level=0):
     """return the node where [base.]<name> is imported or None if not found

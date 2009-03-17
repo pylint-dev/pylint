@@ -19,7 +19,7 @@
 """
 
 from logilab import astng
-from logilab.astng.utils import are_exclusive
+
 try:
     # python >= 2.4
     COMP_NODE_TYPES = (astng.ListComp, astng.GenExpr)

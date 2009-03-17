@@ -21,11 +21,12 @@ from copy import copy
 from logilab.common.compat import enumerate
 from logilab import astng
 from logilab.astng.lookup import builtin_lookup
+from logilab.astng.utils import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_error, is_builtin, is_func_default, is_func_decorator, \
-     is_ancestor_name, assign_parent, are_exclusive, \
+     is_ancestor_name, assign_parent, \
      is_defined_before #, is_parent, FOR_NODE_TYPES
 
 
