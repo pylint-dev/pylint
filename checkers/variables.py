@@ -337,7 +337,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         name = node.name
         stmt = node.statement()
         # probably "is_statement == True" missing somewhere in astng
-        assert stmt.fromlineno is not None, stmt # fromlineno = 0 is ok
+        assert stmt.fromlineno, (stmt, node, node.fromlineno)
         frame = stmt.scope()
         # if the name node is used as a function default argument's value or as
         # a decorator, then start from the parent frame of the function instead
