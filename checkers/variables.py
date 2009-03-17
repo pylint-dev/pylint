@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -21,13 +21,12 @@ from copy import copy
 from logilab.common.compat import enumerate
 from logilab import astng
 from logilab.astng.lookup import builtin_lookup
-from logilab.astng.utils import are_exclusive
+from logilab.astng.infutils import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_error, is_builtin, is_func_default, is_func_decorator, \
-     is_ancestor_name, assign_parent, \
-     is_defined_before #, is_parent, FOR_NODE_TYPES
+     is_ancestor_name, is_defined_before, assign_parent
 
 
 def overridden_method(klass, name):
@@ -133,23 +132,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
-        mlocals = copy(node.locals)
-        # __dict__ is added to module's locals but not available in module's
-        # namespace (unlike __doc__, __name__, etc...). But take care __dict__
-        # may be assigned somewhere in the module, so remove astng inserted
-        # nodes (having None lineno)
-        # XXX this could probably be handled in astng
-        mlocals['__dict__'] = [n for n in mlocals['__dict__']
-                               if n.lineno is not None]
-        if not mlocals['__dict__']:
-            del mlocals['__dict__']
-        self._to_consume = [(mlocals, {}, 'module')]
+        self._to_consume = [(copy(node.locals), {}, 'module')]
         self._vars = []
         for name, stmts in node.locals.items():
-            if name in ('__name__', '__doc__', '__file__', '__path__') \
-                   and len(stmts) == 1:
-                # only the definition added by the astng builder, continue
-                continue
             if self._is_builtin(name):
                 self.add_message('W0622', args=name, node=stmts[0])
         

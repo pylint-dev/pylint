@@ -18,7 +18,7 @@ import sys
 
 from logilab.common.compat import enumerate
 from logilab import astng
-from logilab.astng.inference import unpack_infer
+from logilab.astng.infutils import YES, Instance, unpack_infer
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_empty, is_raising
@@ -106,8 +106,8 @@ class ExceptionsChecker(BaseChecker):
             self.add_message('E0702', node=node, args=expr.name)
         elif isinstance(expr, astng.BinOp) and expr.op == '%':
             self.add_message('W0701', node=node)
-        elif isinstance(expr, (astng.Instance, astng.Class)):
-            if isinstance(expr, astng.Instance):
+        elif isinstance(expr, (Instance, astng.Class)):
+            if isinstance(expr, Instance):
                 expr = expr._proxied
             if (isinstance(expr, astng.Class) and
                     not inherit_from_std_ex(expr) and
@@ -146,7 +146,7 @@ class ExceptionsChecker(BaseChecker):
                     continue
                 for exc in excs:
                     # XXX skip other non class nodes 
-                    if exc is astng.YES or not isinstance(exc, astng.Class):
+                    if exc is YES or not isinstance(exc, astng.Class):
                         continue
                     exc_ancestors = [anc for anc in exc.ancestors()
                                      if isinstance(anc, astng.Class)]

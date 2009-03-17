@@ -17,7 +17,11 @@
 """
 
 from logilab.common.compat import set
+
+
 from logilab import astng
+from logilab.astng import InferenceError, NotFoundError
+from logilab.astng.infutils import YES, Instance
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
@@ -111,7 +115,7 @@ accessed.'}
             return
         try:
             infered = list(node.expr.infer())
-        except astng.InferenceError:
+        except InferenceError:
             return
         # list of (node, nodename) which are missing the attribute
         missingattr = set()
@@ -119,7 +123,7 @@ accessed.'}
         inference_failure = False
         for owner in infered:
             # skip yes object
-            if owner is astng.YES:
+            if owner is YES:
                 inference_failure = True
                 continue
             # skip None anyway
@@ -141,9 +145,8 @@ accessed.'}
             except AttributeError:
                 # XXX method / function
                 continue
-            except astng.NotFoundError:
-                if isinstance(owner, astng.Instance) \
-                       and owner.has_dynamic_getattr():
+            except NotFoundError:
+                if isinstance(owner, Instance) and owner.has_dynamic_getattr():
                     continue
                 # explicit skipping of optparse'Values class
                 if owner.name == 'Values' and \
@@ -158,7 +161,7 @@ accessed.'}
             # message for infered nodes
             done = set()
             for owner, name in missingattr:
-                if isinstance(owner, astng.Instance):
+                if isinstance(owner, Instance):
                     actual = owner._proxied
                 else:
                     actual = owner

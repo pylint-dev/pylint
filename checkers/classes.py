@@ -19,6 +19,7 @@ from __future__ import generators
 
 from logilab.common.compat import set
 from logilab import astng
+from logilab.astng.infutils import YES, Instance
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
@@ -429,7 +430,7 @@ instance attributes.'}
         except astng.InferenceError:
             if e0221_hack[0]:
                 return
-            implements = astng.Instance(node).getattr('__implements__')[0]
+            implements = Instance(node).getattr('__implements__')[0]
             assignment = implements.parent
             assert isinstance(assignment, astng.Assign)
             # assignment.expr can be a Name or a Tuple or whatever.
@@ -457,7 +458,7 @@ instance attributes.'}
                 return
             try:
                 klass = expr.expr.infer().next()
-                if klass is astng.YES:
+                if klass is YES:
                     continue
                 try:
                     del to_call[klass]

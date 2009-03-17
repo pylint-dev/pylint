@@ -22,7 +22,7 @@ from logilab.common.modutils import is_standard_module, is_relative, \
 from logilab.common.ureports import VerbatimText, Paragraph
 
 from logilab import astng
-from logilab.astng.utils import are_exclusive
+from logilab.astng.infutils import are_exclusive
 
 from pylint.utils import expand_modules
 from pylint.interfaces import IASTNGChecker

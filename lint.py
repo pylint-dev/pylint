@@ -43,7 +43,7 @@ from logilab.common.fileutils import norm_open
 from logilab.common.ureports import Table, Text
 from logilab.common.__pkginfo__ import version as common_version
 
-from logilab.astng import ASTNGManager, nodes
+from logilab.astng import MANAGER, nodes
 from logilab.astng.__pkginfo__ import version as astng_version
 
 from pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
@@ -247,7 +247,6 @@ This is used by the global evaluation report (R0004).'}),
         #
         # checkers / reporter / astng manager
         self.reporter = None
-        self.manager = ASTNGManager()
         self._checkers = {}
         self._ignore_file = False        
         # visit variables
@@ -319,7 +318,7 @@ This is used by the global evaluation report (R0004).'}),
                 else :
                     meth(value)
         elif opt_name == 'cache-size':
-            self.manager.set_cache_size(int(value))
+            MANAGER.set_cache_size(int(value))
         elif opt_name == 'output-format':
             self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
         elif opt_name in ('enable-checker', 'disable-checker'):
@@ -540,7 +539,7 @@ This is used by the global evaluation report (R0004).'}),
     def get_astng(self, filepath, modname):
         """return a astng representation for a module"""
         try:
-            return self.manager.astng_from_file(filepath, modname)
+            return MANAGER.astng_from_file(filepath, modname)
         except SyntaxError, ex:
             self.add_message('E0001', line=ex.lineno, args=ex.msg)
         except KeyboardInterrupt:

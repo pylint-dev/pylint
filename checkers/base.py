@@ -19,7 +19,7 @@
 from logilab import astng
 from logilab.common.compat import any
 from logilab.common.ureports import Table
-from logilab.astng.utils import are_exclusive
+from logilab.astng.infutils import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.reporters import diff_string

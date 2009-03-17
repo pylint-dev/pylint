@@ -153,6 +153,7 @@ def package_load(linter, directory):
                 # empty module name (usually emacs auto-save files)
                 continue
             except ImportError:
+                raise
                 import sys
                 print >> sys.stderr, "Problem importing module: %s" % filename
             else:
