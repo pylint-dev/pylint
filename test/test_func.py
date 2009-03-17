@@ -154,9 +154,10 @@ def make_tests(filter_rgx):
         # skip those tests with python >= 2.3 since py2.3 detects them by itself
         if PY23 and module_file == "func_unknown_encoding.py": #"func_nonascii_noencoding.py"):
             continue
-        if not PY24:
-            if module_file == "func_noerror_staticmethod_as_decorator.py" or \
-                   module_file.endswith('py24.py'):
+        pyrestr = module_file.rsplit('_py', 1)[-1][:-3]
+        if pyrestr.isdigit(): # '24', '25'...
+            if sys.version_info < tuple([int(i) for i in pyrestr]):
+                print 'skip', module_file
                 continue
         if not is_to_run(module_file):
             continue
