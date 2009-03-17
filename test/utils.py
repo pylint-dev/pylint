@@ -104,15 +104,16 @@ def get_project(module, name=None):
     return manager.project_from_files([module], _astng_wrapper,
                                       project_name=name)
 
-attrs = {'all_ancestors': None, 'show_associated': None, 'module_names': None,
-         'output_format': 'dot', 'diadefs_file': None, 'quiet': 0,
-         'show_ancestors': None, 'classes': (), 'all_associated': None,
-         'mode': 'PUB_ONLY', 'show_builtin': False, 'only_classnames': False}
+DEFAULTS = {'all_ancestors': None, 'show_associated': None,
+            'module_names': None,
+            'output_format': 'dot', 'diadefs_file': None, 'quiet': 0,
+            'show_ancestors': None, 'classes': (), 'all_associated': None,
+            'mode': 'PUB_ONLY', 'show_builtin': False, 'only_classnames': False}
 
 class Config(object):
     """config object for tests"""
     def __init__(self):
-        for attr, value in attrs.items():
+        for attr, value in DEFAULTS.items():
             setattr(self, attr, value)
 
 class FileTC(unittest.TestCase):

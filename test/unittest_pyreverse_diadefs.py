@@ -35,6 +35,7 @@ CONFIG = Config()
 HANDLER = DiadefsHandler(CONFIG)
 
 def _process_classes(classes):
+    """extract class names of a list"""
     result = []
     for classe in classes:
         result.append({'node' : isinstance(classe.node, astng.Class),
@@ -43,12 +44,26 @@ def _process_classes(classes):
     return result
 
 def _process_modules(modules):
+    """extract module names from a list"""
     result = []
     for module in modules:
         result.append({'node' : isinstance(module.node, astng.Module),
                        'name': module.title})
     result.sort()
     return result
+
+def _process_relations(relations):
+    """extract relation indices from a relation list"""
+    result = []
+    print "processing relations"
+    for rel_type, rels  in relations.items():
+        print rel_type
+        for rel in rels:
+            result.append( (rel_type, rel.from_object.title,
+                            rel.to_object.title) )
+    result.sort()
+    return result
+
 
 class DiaDefGeneratorTC(unittest.TestCase):
     def test_option_values(self):
@@ -106,6 +121,29 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
                                     {'node': True, 'name': 'Interface'},
                                     {'node': True, 'name': 'Specialization'}]
                           )
+
+    def test_exctract_relations(self):
+        """test extract_relations between classes"""
+        cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
+        cd.extract_relationships()
+        relations = _process_relations(cd.relationships)
+        should = [('association', 'DoNothing', 'Specialization'),
+                  ('implements', 'Ancestor', 'Interface'),
+                  ('specialization', 'Specialization', 'Ancestor')]
+        self._relations = should
+        self.assertEquals(relations, should)
+
+    def test_functional_relation_extraction(self):
+        """functional test of relations extraction;
+        different classes possibly in different modules"""
+        # XXX should be catching pyreverse environnement problem but doesn't
+        # pyreverse doesn't extracts the relations but this test ok
+        project = ASTNGManager().project_from_files(['data'], astng_wrapper)
+        handler = DiadefsHandler( Config() )
+        diadefs = handler.get_diadefs(project, Linker(project, tag=True) )
+        cd = diadefs[1]
+        relations = _process_relations(cd.relationships)
+        self.assertEquals(relations, self._relations)
 
     def test_known_values2(self):
         project = ASTNGManager().project_from_files(['data.clientmodule_test'], astng_wrapper)
