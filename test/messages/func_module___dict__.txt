@@ -1,1 +1,1 @@
-E:  5: Undefined variable '__dict__'
+E:  5: Using variable '__dict__' before assignment
