@@ -25,7 +25,7 @@ HERE = abspath(dirname(__file__))
     
 class RunTC(TestCase):
 
-    def _runtest(self, args, reporter=None, code=20):
+    def _runtest(self, args, reporter=None, code=28):
         try:
             sys.stderr = sys.stdout = stream = StringIO()
             try:
