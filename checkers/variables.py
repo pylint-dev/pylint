@@ -41,7 +41,7 @@ def overridden_method(klass, name):
         # We have found an ancestor defining <name> but it's not in the local
         # dictionary. This may happen with astng built from living objects.
         return None
-    if isinstance(meth_node, Function):
+    if isinstance(meth_node, astng.Function):
         return meth_node
     return None
 
