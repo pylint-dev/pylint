@@ -288,7 +288,7 @@ instance attributes.'}
             if klass is None or not (callee == klass.name or
                 callee in klass.basenames
                 or (isinstance(node.expr, astng.CallFunc)
-                    and isinstance(node.expr.node, astng.Name) 
+                    and isinstance(node.expr.func, astng.Name) 
                     and node.expr.node.name == 'super')):
                 self.add_message('W0212', node=node, args=attrname)
             
