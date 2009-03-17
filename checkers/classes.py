@@ -502,10 +502,10 @@ def node_method(node, method_name):
     """get astng for <method_name> on the given class node, ensuring it
     is a Function node
     """
-    stmt = node.local_attr(method_name)
-    if not isinstance(stmt, astng.Function):
-        raise astng.NotFoundError(method_name)
-    return stmt
+    for n in node.local_attr(method_name):
+        if isinstance(n, astng.Function):
+            return n
+    raise astng.NotFoundError(method_name)
         
 def register(linter):
     """required method to auto register this checker """
