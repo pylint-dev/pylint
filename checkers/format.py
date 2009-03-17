@@ -44,6 +44,9 @@ MSGS = {
               'spaces has been found.'),
     'W0312': ('Found indentation with %ss instead of %ss',
               'Used when there are some mixed tabs and spaces in a module.'),
+    'W0301': ('Unnecessary semicolon', # was W0106
+              'Used when a statement is endend by a semi-colon (";"), which \
+              isn\'t necessary (that\'s python, not C ;).'),
 
     'F0321': ('Format detection error in %r',
               'Used when an unexpected error occured in bad format detection.'
@@ -201,12 +204,20 @@ class FormatChecker(BaseRawChecker):
         indents = [0]
         check_equal = 0
         line_num = 0
+        previous = None
         self._lines = {}
         self._visited_lines = {}
         for (tok_type, token, start, _, line) in tokens:
             if start[0] != line_num:
+
+                if previous is not None and previous[0] == tokenize.OP and previous[1] == ';':
+                    self.add_message('W0301', line=previous[2])
+                previous = None
                 line_num = start[0]
                 self.new_line(tok_type, line, line_num, junk)
+            if tok_type not in (indent, dedent, newline) + junk:
+                previous = tok_type, token, start[0]
+
             if tok_type == tokenize.OP:
                 if token == '<>':
                     self.add_message('W0331', line=line_num)
@@ -245,6 +256,7 @@ class FormatChecker(BaseRawChecker):
                 # "indents" stack was seeded
                 check_equal = 0
                 self.check_indent_level(line, indents[-1], line_num)
+                
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
             self.add_message('C0302', args=line_num, line=1)

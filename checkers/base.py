@@ -19,11 +19,12 @@
 from logilab import astng
 from logilab.common.compat import any
 from logilab.common.ureports import Table
+from logilab.astng.utils import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import are_exclusive
+
 
 import re
 
@@ -132,9 +133,6 @@ MSGS = {
               has no effect). This is a particular case of W0104 with its \
               own message so you can easily disable it if you\'re using \
               those strings as documentation, instead of comments.'),
-    'W0106': ('Unnecessary semicolon',
-              'Used when a statement is endend by a semi-colon (";"), which \
-              isn\'t necessary (that\'s python, not C ;).'),
     'W0107': ('Unnecessary pass statement',
               'Used when a "pass" statement that can be avoided is '
               'encountered.)'),
@@ -335,20 +333,10 @@ functions, methods
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
-        if isinstance(expr, astng.Const):
-            # XXX lineno maybe dynamically set incidently
-            if expr.value is None and expr.lineno is None:
-                # const None node with lineno to None are inserted
-                # on unnecessary semi-column
-                # XXX navigate to get a correct lineno
-                brothers = node.parent.child_sequence(node)
-                previoussibling = brothers[brothers.index(node)-1]
-                self.add_message('W0106', node=previoussibling)
-                return
-            if isinstance(expr.value, basestring):
-                # tread string statement in a separated message
-                self.add_message('W0105', node=node)
-                return
+        if isinstance(expr, astng.Const) and isinstance(expr.value, basestring):
+            # treat string statement in a separated message
+            self.add_message('W0105', node=node)
+            return
         # ignore if this is a function call (can't predicate side effects)
         # XXX ? or a yield (which are wrapped by a discard node in _ast)
         if not any(expr.nodes_of_class((astng.CallFunc, astng.Yield))):
