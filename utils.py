@@ -249,7 +249,7 @@ class MessagesHandlerMixIn:
             return        
         # update stats
         msg_cat = MSG_TYPES[msg_id[0]]
-        self.msg_status ^= MSG_TYPES_STATUS[msg_id[0]]
+        self.msg_status |= MSG_TYPES_STATUS[msg_id[0]]
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:
