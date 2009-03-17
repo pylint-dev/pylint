@@ -40,14 +40,22 @@ class DiaDefGenerator:
             title =  '%s.%s' % (node.root().name, title)
         return title
 
+    def _set_option(self, option):
+        """activate some options if not explicitely desactivated"""
+        # if we have a class diagram, we want more information by default;
+        # so if the option is None, we return True
+        if option is None:
+            if self.config.classes:
+                return True
+            else:
+                return False
+        return option
+
     def _set_default_options(self):
         """set different default options with _default dictionary"""
-        mod = {None:False, True:True, False:False}
-        if self.config.classes: # defaults for class diagram
-            mod[None] = True
-        self.module_names = mod[self.config.module_names]
-        all_ancestors = mod[self.config.all_ancestors]
-        all_associated = mod[self.config.all_associated]
+        self.module_names = self._set_option(self.config.module_names)
+        all_ancestors = self._set_option(self.config.all_ancestors)
+        all_associated = self._set_option(self.config.all_associated)
         anc_level, ass_level = (0, 0)
         if  all_ancestors:
             anc_level = -1
