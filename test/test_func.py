@@ -157,7 +157,7 @@ def make_tests(filter_rgx):
         pyrestr = module_file.rsplit('_py', 1)[-1][:-3]
         if pyrestr.isdigit(): # '24', '25'...
             if sys.version_info < tuple([int(i) for i in pyrestr]):
-                print 'skip', module_file
+                #print 'skip', module_file
                 continue
         if not is_to_run(module_file):
             continue

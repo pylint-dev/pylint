@@ -124,16 +124,15 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
                                     {'node': True, 'name': 'Specialization'}]
                           )
 
+    _should_rels = [('association', 'DoNothing', 'Specialization'),
+                  ('implements', 'Ancestor', 'Interface'),
+                  ('specialization', 'Specialization', 'Ancestor')]
     def test_exctract_relations(self):
         """test extract_relations between classes"""
         cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
         cd.extract_relationships()
         relations = _process_relations(cd.relationships)
-        should = [('association', 'DoNothing', 'Specialization'),
-                  ('implements', 'Ancestor', 'Interface'),
-                  ('specialization', 'Specialization', 'Ancestor')]
-        self._relations = should
-        self.assertEquals(relations, should)
+        self.assertEquals(relations, self._should_rels)
 
     def test_functional_relation_extraction(self):
         """functional test of relations extraction;
@@ -145,7 +144,7 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         diadefs = handler.get_diadefs(project, Linker(project, tag=True) )
         cd = diadefs[1]
         relations = _process_relations(cd.relationships)
-        self.assertEquals(relations, self._relations)
+        self.assertEquals(relations, self._should_rels)
 
     def test_known_values2(self):
         project = MANAGER.project_from_files(['data.clientmodule_test'], astng_wrapper)
