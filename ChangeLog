@@ -1,12 +1,13 @@
 ChangeLog for PyLint
 ====================
 	
- --
-2009-03-16 -- 0.17
-    * remove rpython : remove all rpython checker, modules and tests
-    * astng0.18 compatibility: support for _ast module modifies interfaces
 
-2009-01-28 -- 0.16
+ -- 
+    * semicolon check : move W0601 to W0301
+    * remove rpython : remove all rpython checker, modules and tests
+    * astng 0.18 compatibility: support for _ast module modifies interfaces
+
+2009-01-28 -- 0.16.0
     * change [en|dis]able-msg-cat options: only accept message categories
       identified by their first letter (eg IRCWEF) without the need for comma
       as separator
@@ -26,6 +27,7 @@ ChangeLog for PyLint
 	  status if any messages other then Information are issued
 	* fix #3711, #5626 (name resolution bug w/ decorator and class members)
 	* fix #6954
+
 2008-10-13  --  0.15.2
     * fix #5672: W0706 weirdness ( W0706 removed )
     * fix #5998: documentation points to wrong url for mailing list
