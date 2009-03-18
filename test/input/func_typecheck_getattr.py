@@ -64,3 +64,6 @@ class Client:
 print object.__init__
 print property.__init__
 print Client().set_later.lower()
+
+# should detect mixing new style / old style classes
+Client.__bases__ += (object,) 
