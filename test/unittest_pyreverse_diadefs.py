@@ -57,9 +57,7 @@ def _process_modules(modules):
 def _process_relations(relations):
     """extract relation indices from a relation list"""
     result = []
-    print "processing relations"
     for rel_type, rels  in relations.items():
-        print rel_type
         for rel in rels:
             result.append( (rel_type, rel.from_object.title,
                             rel.to_object.title) )
