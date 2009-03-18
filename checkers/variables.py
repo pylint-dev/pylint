@@ -242,7 +242,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if node.name.startswith('cb_') or \
                        node.name.endswith('_cb'):
                     continue
-                self.add_message('W0613', args=name, node=node)
+                self.add_message('W0613', args=name, node=stmt)
             else:
                 self.add_message('W0612', args=name, node=stmt)
 
