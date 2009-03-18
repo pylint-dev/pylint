@@ -27,6 +27,9 @@
   Display help messages about given message identifiers and exit.
 """
 
+# import this first to avoid builtin namespace pollution
+from pylint.checkers import utils
+
 import sys
 import os
 import re
