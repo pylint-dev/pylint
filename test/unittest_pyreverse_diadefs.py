@@ -21,15 +21,17 @@ import unittest
 import sys
 
 from logilab import astng
-from logilab.astng import ASTNGManager
-from pylint.pyreverse.diadefslib import *
+from logilab.astng import MANAGER
 from logilab.astng.inspector import Linker
+
+from pylint.pyreverse.diadefslib import *
+
 from utils import Config
 
 def astng_wrapper(func, modname):
     return func(modname)
 
-PROJECT = ASTNGManager().project_from_files(['data'], astng_wrapper)
+PROJECT = MANAGER.project_from_files(['data'], astng_wrapper)
 
 CONFIG = Config()
 HANDLER = DiadefsHandler(CONFIG)
@@ -138,7 +140,7 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         different classes possibly in different modules"""
         # XXX should be catching pyreverse environnement problem but doesn't
         # pyreverse doesn't extracts the relations but this test ok
-        project = ASTNGManager().project_from_files(['data'], astng_wrapper)
+        project = MANAGER.project_from_files(['data'], astng_wrapper)
         handler = DiadefsHandler( Config() )
         diadefs = handler.get_diadefs(project, Linker(project, tag=True) )
         cd = diadefs[1]
@@ -146,7 +148,7 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         self.assertEquals(relations, self._relations)
 
     def test_known_values2(self):
-        project = ASTNGManager().project_from_files(['data.clientmodule_test'], astng_wrapper)
+        project = MANAGER.project_from_files(['data.clientmodule_test'], astng_wrapper)
         dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
         self.assertEquals(len(dd), 1)
         keys = [d.TYPE for d in dd]
