@@ -16,3 +16,9 @@ class AAAA:
         print self
     def __init__(self):
         pass
+
+    @classmethod
+    def selected(cls, *args, **kwargs):
+        """called by the registry when the vobject has been selected.
+        """
+        return cls
