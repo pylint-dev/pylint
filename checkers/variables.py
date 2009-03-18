@@ -383,6 +383,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             self.add_message('E0601', args=name, node=node)
                 if not isinstance(node, astng.AssName): # Aug AssName
                     del to_consume[name]
+                else:
+                    del consumed[name]
                 # check it's not a loop variable used outside the loop
                 self._loopvar_name(node, name)
                 break
