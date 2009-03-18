@@ -108,8 +108,8 @@ class LintTestUsingFile(LintTestUsingModule):
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
     def test(self):
-        # skip rpython checker and fatal messages
-        todo = [msgid for msgid in linter._messages.keys() if msgid[1:3] != '12' and msgid[0] != 'F']
+        # skip fatal messages
+        todo = [msgid for msgid in linter._messages.keys() if msgid[0] != 'F']
         for msgid in test_reporter.message_ids.keys():
             try:
                 todo.remove(msgid)
