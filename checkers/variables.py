@@ -389,7 +389,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         else:
             # we have not found the name, if it isn't a builtin, that's an
             # undefined name !
-            if not self._is_builtin(name):
+            if not (name in astng.Module.scope_attrs or self._is_builtin(name)):
                 self.add_message('E0602', args=name, node=node)
                 
     def visit_import(self, node):
