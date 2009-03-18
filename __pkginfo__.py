@@ -70,4 +70,4 @@ classifiers =  ['Development Status :: 4 - Beta',
                 'Topic :: Software Development :: Testing',
                 ]
 
-install_requires = ['logilab-common', 'logilab-astng >= 0.17.4']
+install_requires = ['logilab-common', 'logilab-astng >= 0.18.0']
