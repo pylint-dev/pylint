@@ -18,17 +18,15 @@
 """some functions that may be usefull for various checkers
 """
 
-from logilab.common import flatten
-
 from logilab import astng
-from logilab.astng.utils import are_exclusive
+
 try:
     # python >= 2.4
     COMP_NODE_TYPES = (astng.ListComp, astng.GenExpr)
-    FOR_NODE_TYPES = (astng.For, astng.ListCompFor, astng.GenExprFor)
+    FOR_NODE_TYPES = (astng.For, astng.Comprehension, astng.Comprehension)
 except AttributeError:
     COMP_NODE_TYPES = astng.ListComp
-    FOR_NODE_TYPES = (astng.For, astng.ListCompFor)
+    FOR_NODE_TYPES = (astng.For, astng.Comprehension)
 
 def safe_infer(node):
     """return the infered value for the given node.
@@ -56,23 +54,21 @@ def is_super(node):
 
 def is_error(node):
     """return true if the function does nothing but raising an exception"""
-    for child_node in node.code.getChildNodes():
+    for child_node in node.get_children():
         if isinstance(child_node, astng.Raise):
             return True
         return False
 
-def is_raising(stmt):
-    """return true if the given statement node raise an exception
-    """
-    for node in stmt.nodes:
+def is_raising(body):
+    """return true if the given statement node raise an exception"""
+    for node in body:
         if isinstance(node, astng.Raise):
             return True
     return False
 
-def is_empty(node):
+def is_empty(body):
     """return true if the given node does nothing but 'pass'"""
-    children = node.getChildNodes()
-    return len(children) == 1 and isinstance(children[0], astng.Pass)
+    return len(body) == 1 and isinstance(body[0], astng.Pass)
 
 builtins = __builtins__.copy()
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
@@ -99,14 +95,14 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astng.For):
-            for ass_node in _node.assign.nodes_of_class(astng.AssName):
+            for ass_node in _node.target.nodes_of_class(astng.AssName):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astng.With):
             if _node.vars.name == varname:
                 return True
         elif isinstance(_node, (astng.Lambda, astng.Function)):
-            if varname in flatten(_node.argnames):
+            if _node.args.is_argument(varname):
                 return True
             if getattr(_node, 'name', None) == varname:
                 return True
@@ -115,8 +111,8 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()
     _node = stmt.previous_sibling()
-    lineno = stmt.lineno
-    while _node and _node.lineno == lineno:
+    lineno = stmt.fromlineno
+    while _node and _node.fromlineno == lineno:
         for ass_node in _node.nodes_of_class(astng.AssName):
             if ass_node.name == varname:
                 return True
@@ -126,16 +122,26 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
         _node = _node.previous_sibling()
     return False
 
-def is_func_default(node):
+def is_func_default(node, name=None):
     """return true if the name is used in function default argument's value
     """
+    if name == None:
+        name = node.name
     parent = node.parent
     if parent is None:
         return 0
-    if isinstance(parent, astng.Function) and parent.defaults and \
-           node in parent.defaults:
-        return 1
-    return is_func_default(parent)
+    if isinstance(parent, astng.Function):
+        defaults = parent.args.defaults
+        if name in _child_names(defaults):
+            return 1
+    return is_func_default(parent, name)
+
+def _child_names(nodes):
+    """return a list of all Name in a list 'nodes' """
+    names = []
+    for node in nodes:
+        names.extend(n.name for n in node.nodes_of_class(astng.Name))
+    return names
 
 def is_func_decorator(node):
     """return true if the name is used in function decorator
@@ -161,12 +167,11 @@ def is_ancestor_name(frame, node):
     return False
 
 def assign_parent(node):
-    """return the higher parent which is not an AssName, AssTuple or AssList
-    node
+    """return the higher parent which is not an AssName, Tuple or List node
     """
     while node and isinstance(node, (astng.AssName,
-                                     astng.AssTuple,
-                                     astng.AssList)):
+                                     astng.Tuple,
+                                     astng.List)):
         node = node.parent
     return node
 

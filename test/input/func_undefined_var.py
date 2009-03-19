@@ -24,3 +24,12 @@ def bad_default(var, default=unknown2):
     print var, default
     print xxxx
     print xxxx #see story #1000
+    augvar += 1
+    del vardel
+
+# Warning for Attribute access to undefinde attributes ?
+#class Attrs(object): 
+    #"""dummy class for wrong attribute access"""
+#AOU = Attrs()
+#AOU.number *= 1.3
+#del AOU.badattr

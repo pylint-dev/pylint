@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -21,12 +21,12 @@ from copy import copy
 from logilab.common.compat import enumerate
 from logilab import astng
 from logilab.astng.lookup import builtin_lookup
+from logilab.astng.infutils import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_error, is_builtin, is_func_default, is_func_decorator, \
-     is_ancestor_name, assign_parent, are_exclusive, \
-     is_defined_before #, is_parent, FOR_NODE_TYPES
+     is_ancestor_name, is_defined_before, assign_parent
 
 
 def overridden_method(klass, name):
@@ -41,8 +41,7 @@ def overridden_method(klass, name):
         # We have found an ancestor defining <name> but it's not in the local
         # dictionary. This may happen with astng built from living objects.
         return None
-    # check its a method
-    if getattr(meth_node, 'argnames', None) is not None:
+    if isinstance(meth_node, astng.Function):
         return meth_node
     return None
 
@@ -132,20 +131,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
-        mlocals = copy(node.locals)
-        # __dict__ is added to module's locals but not available in module's namespace
-        # (unlike __doc__, __name__, etc...). But take care __dict__ may be assigned
-        # somewhere in the module, so remove astng inserted nodes (having None lineno)
-        mlocals['__dict__'] = [n for n in mlocals['__dict__'] if n.lineno is not None]
-        if not mlocals['__dict__']:
-            del mlocals['__dict__']
-        self._to_consume = [(mlocals, {}, 'module')]
+        self._to_consume = [(copy(node.locals), {}, 'module')]
         self._vars = []
         for name, stmts in node.locals.items():
-            if name in ('__name__', '__doc__', '__file__', '__path__') \
-                   and len(stmts) == 1:
-                # only the definition added by the astng builder, continue
-                continue
             if self._is_builtin(name):
                 self.add_message('W0622', args=name, node=stmts[0])
         
@@ -229,6 +217,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
         authorized_rgx = self.config.dummy_variables_rgx
         overridden = marker = []
+        argnames = node.argnames()
         for name, stmts in not_consumed.iteritems():
             # ignore some special names specified by user configuration
             if authorized_rgx.match(name):
@@ -239,22 +228,21 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if isinstance(stmt, astng.Global):
                 continue
             # care about functions with unknown argument (builtins)
-            if node.argnames is not None and name in node.argnames:
+            if name in argnames:
                 if is_method:
                     # don't warn for the first argument of a (non static) method
-                    if node.type != 'staticmethod' and \
-                       node.argnames and name == node.argnames[0]:
+                    if node.type != 'staticmethod' and name == argnames[0]:
                         continue
                     # don't warn for argument of an overridden method
                     if overridden is marker:
                         overridden = overridden_method(klass, node.name)
-                    if overridden is not None and name in overridden.argnames:
+                    if overridden is not None and name in overridden.argnames():
                         continue
                 # don't check callback arguments
                 if node.name.startswith('cb_') or \
                        node.name.endswith('_cb'):
                     continue
-                self.add_message('W0613', args=name, node=node)
+                self.add_message('W0613', args=name, node=stmt)
             else:
                 self.add_message('W0612', args=name, node=stmt)
 
@@ -315,21 +303,31 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         astmts = _astmts
         if len(astmts) == 1:
             ass = astmts[0].ass_type()
-            if isinstance(ass, (astng.For, astng.ListCompFor, astng.GenExpr)) \
+            if isinstance(ass, (astng.For, astng.Comprehension, astng.GenExpr)) \
                    and not ass.statement() is node.statement():
                 self.add_message('W0631', args=name, node=node)
-    
+
+    def visit_assname(self, node):
+        if isinstance(node.ass_type(), astng.AugAssign):
+            self.visit_name(node)
+            
+    def visit_delname(self, node):
+        self.visit_name(node)
+        
     def visit_name(self, node):
         """check that a name is defined if the current scope and doesn't
         redefine a built-in
         """
         name = node.name
         stmt = node.statement()
+        # probably "is_statement == True" missing somewhere in astng
+        assert stmt.fromlineno, (stmt, node, node.fromlineno)
         frame = stmt.scope()
-        # if the name node is used as a function default argument's value or as a decorator, then
-        # start from the parent frame of the function instead of the function
-        # frame - and thus open an inner class scope
-        if is_func_default(node) or is_func_decorator(node) or is_ancestor_name(frame, node):
+        # if the name node is used as a function default argument's value or as
+        # a decorator, then start from the parent frame of the function instead
+        # of the function frame - and thus open an inner class scope
+        if (is_func_default(node, node.name) or is_func_decorator(node)
+                                        or is_ancestor_name(frame, node)):
             start_index = len(self._to_consume) - 2
         else:
             start_index = len(self._to_consume) - 1
@@ -348,9 +346,12 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self._loopvar_name(node, name)
                 break
             # mark the name as consumed if it's defined in this scope
-            # (ie no KeyError is raise by "to_consume[name]"
+            # (i.e. no KeyError is raised by "to_consume[name]"
             try:
                 consumed[name] = to_consume[name]
+            except KeyError:
+                continue
+            else:
                 # checks for use before assigment
                 # FIXME: the last condition should just check attribute access
                 # is protected by a try: except NameError: (similar to #9219)
@@ -364,7 +365,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     elif defframe.parent is None:
                         # we are at the module level, check the name is not
                         # defined in builtins
-                        if builtin_lookup(name)[1]:
+                        if name in defframe.scope_attrs or builtin_lookup(name)[1]:
                             maybee0601 = False
                     else:
                         # we are in a local scope, check the name is not
@@ -372,20 +373,25 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         if defframe.root().lookup(name)[1]:
                             maybee0601 = False
                     if (maybee0601
-                        and stmt.source_line() <= defstmt.source_line()
+                        and stmt.fromlineno <= defstmt.fromlineno
                         and not is_defined_before(node)
                         and not are_exclusive(stmt, defstmt)):
-                        self.add_message('E0601', args=name, node=node)
-                del to_consume[name]
+                        if defstmt is stmt and isinstance(node, (astng.DelName,
+                                                               astng.AssName)):
+                            self.add_message('E0602', args=name, node=node)
+                        else:
+                            self.add_message('E0601', args=name, node=node)
+                if not isinstance(node, astng.AssName): # Aug AssName
+                    del to_consume[name]
+                else:
+                    del consumed[name]
                 # check it's not a loop variable used outside the loop
                 self._loopvar_name(node, name)
                 break
-            except KeyError:
-                continue
         else:
             # we have not found the name, if it isn't a builtin, that's an
             # undefined name !
-            if not self._is_builtin(name):
+            if not (name in astng.Module.scope_attrs or self._is_builtin(name)):
                 self.add_message('E0602', args=name, node=node)
                 
     def visit_import(self, node):

@@ -241,15 +241,13 @@ class MessagesHandlerMixIn:
         provide the line argument.
         """
         if line is None and node is not None:
-            line = node.fromlineno#lineno or node.statement().lineno
-            #if not isinstance(node, Module):
-            #    assert line > 0, node.__class__
+            line = node.fromlineno
         # should this message be displayed
         if not self.is_message_enabled(msg_id, line):
             return        
         # update stats
         msg_cat = MSG_TYPES[msg_id[0]]
-        self.msg_status ^= MSG_TYPES_STATUS[msg_id[0]]
+        self.msg_status |= MSG_TYPES_STATUS[msg_id[0]]
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:

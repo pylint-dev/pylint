@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -44,6 +44,9 @@ MSGS = {
               'spaces has been found.'),
     'W0312': ('Found indentation with %ss instead of %ss',
               'Used when there are some mixed tabs and spaces in a module.'),
+    'W0301': ('Unnecessary semicolon', # was W0106
+              'Used when a statement is endend by a semi-colon (";"), which \
+              isn\'t necessary (that\'s python, not C ;).'),
 
     'F0321': ('Format detection error in %r',
               'Used when an unexpected error occured in bad format detection.'
@@ -123,8 +126,7 @@ def get_string_coords(line):
     return result
 
 def in_coords(match, string_coords):
-    """return true if the match in in the string coord
-    """
+    """return true if the match in in the string coord"""
     mstart = match.start()
     for start, end in string_coords:
         if mstart >= start and mstart < end:
@@ -145,8 +147,7 @@ def check_line(line, writer):
                 if not in_coords(match, string_positions):
                     return msg_id, pretty_match(match, line.rstrip())
             writer.add_message('F0321', line=line, args=line)
-
-            
+        
  
 class FormatChecker(BaseRawChecker):
     """checks for :                                                            
@@ -203,12 +204,20 @@ class FormatChecker(BaseRawChecker):
         indents = [0]
         check_equal = 0
         line_num = 0
+        previous = None
         self._lines = {}
         self._visited_lines = {}
         for (tok_type, token, start, _, line) in tokens:
             if start[0] != line_num:
+
+                if previous is not None and previous[0] == tokenize.OP and previous[1] == ';':
+                    self.add_message('W0301', line=previous[2])
+                previous = None
                 line_num = start[0]
                 self.new_line(tok_type, line, line_num, junk)
+            if tok_type not in (indent, dedent, newline) + junk:
+                previous = tok_type, token, start[0]
+
             if tok_type == tokenize.OP:
                 if token == '<>':
                     self.add_message('W0331', line=line_num)
@@ -247,31 +256,21 @@ class FormatChecker(BaseRawChecker):
                 # "indents" stack was seeded
                 check_equal = 0
                 self.check_indent_level(line, indents[-1], line_num)
+                
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
             self.add_message('C0302', args=line_num, line=1)
 
     def visit_default(self, node):
-        """check the node line number and check it if not yet done
-        """
-        if not node.is_statement():
+        """check the node line number and check it if not yet done"""
+        if not node.is_statement:
             return            
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
-            # don't use .source_line since it causes C0321 false positive !
             prev_line = prev_sibl.fromlineno
-            # discard discard nodes introducted by ending ";"
-            if isinstance(node, nodes.Discard) and \
-                   isinstance(node.expr, nodes.Const) and \
-                   node.expr.lineno is None:
-                prev_line = None
         else:
-            # itou ?
-            try:
-                prev_line = node.parent.statement().fromlineno
-            except AttributeError:
-                prev_line = node.parent.statement().lineno
-        line = node.fromlineno #source_line()
+            prev_line = node.parent.statement().fromlineno
+        line = node.fromlineno
         if prev_line == line and self._visited_lines.get(line) != 2:
             self.add_message('C0321', node=node)
             self._visited_lines[line] = 2
@@ -279,14 +278,18 @@ class FormatChecker(BaseRawChecker):
         if self._visited_lines.has_key(line):
             return
         lines = []
-        for line in xrange(node.fromlineno, node.tolineno + 1):
+        assert node.fromlineno, node
+        try:
+            tolineno = node.blockstart_tolineno
+        except AttributeError:
+            tolineno = node.tolineno
+        assert tolineno, node
+        for line in xrange(node.fromlineno, tolineno + 1):
             self._visited_lines[line] = 1
             try:
                 lines.append(self._lines[line].rstrip())
             except KeyError:
                 lines.append('')
-        #print 'check', '\n'.join(lines)
-        #print node
         try:
             msg_def = check_line('\n'.join(lines), self)
             if msg_def:

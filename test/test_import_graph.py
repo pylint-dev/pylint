@@ -46,6 +46,9 @@ class ImportCheckerTC(unittest.TestCase):
         l.global_set_option('import-graph', 'import.dot')
         l.global_set_option('ext-import-graph', 'ext_import.dot')
         l.global_set_option('int-import-graph', 'int_import.dot')
+        l.global_set_option('int-import-graph', 'int_import.dot')
+        # ignore this file causing spurious MemoryError w/ some python version (>=2.3?)
+        l.global_set_option('ignore', ('func_unknown_encoding.py',))
         try:
             l.check('input')
             self.assert_(exists('import.dot'))

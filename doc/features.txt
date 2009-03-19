@@ -12,8 +12,6 @@ General options
 :init-hook:
   Python code to execute, usually for sys.path manipulation such as
   pygtk.require().
-:rpython-mode:
-  enable the rpython checker which is disabled by default
 :errors-only:
   In debug mode, checkers without error messages are disabled and for others,
   only the ERROR messages are displayed, and no reports are done by default

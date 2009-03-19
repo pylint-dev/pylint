@@ -1,11 +1,11 @@
 digraph "classes_No_Name" {
 charset="utf-8"
 rankdir=BT
-"4" [shape="record", label="{Specialization|relation\l|}"];
-"5" [shape="record", label="{Ancestor|attr : str\l|get_value()\lset_value()\l}"];
+"4" [shape="record", label="{Ancestor|attr : str\l|get_value()\lset_value()\l}"];
+"5" [shape="record", label="{Specialization|relation\l|}"];
 "8" [shape="record", label="{«interface»\nInterface|\l|get_value()\lset_value()\l}"];
 "9" [shape="record", label="{DoNothing|\l|}"];
-"4" -> "5" [arrowtail="none", arrowhead="empty"];
-"5" -> "8" [arrowtail="node", style="dashed", arrowhead="empty"];
-"9" -> "4" [arrowhead="diamond", style="solid", arrowtail="none", fontcolor="green", label="relation"];
+"5" -> "4" [arrowtail="none", arrowhead="empty"];
+"4" -> "8" [arrowtail="node", style="dashed", arrowhead="empty"];
+"9" -> "5" [arrowhead="diamond", style="solid", arrowtail="none", fontcolor="green", label="relation"];
 }

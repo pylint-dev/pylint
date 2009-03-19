@@ -1,4 +1,4 @@
-# Copyright (c) 2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2006-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -17,7 +17,11 @@
 """
 
 from logilab.common.compat import set
+
+
 from logilab import astng
+from logilab.astng import InferenceError, NotFoundError
+from logilab.astng.infutils import YES, Instance
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
@@ -88,7 +92,14 @@ accessed.'}
         self.generated_members = list(self.config.generated_members)
         if self.config.zope:
             self.generated_members.extend(('REQUEST', 'acl_users', 'aq_parent'))
+        
+    def visit_assattr(self, node):
+        if isinstance(node.ass_type(), astng.AugAssign):
+            self.visit_getattr(node)
             
+    def visit_delattr(self, node):
+        self.visit_getattr(node)
+        
     def visit_getattr(self, node):
         """check that the accessed attribute exists
 
@@ -102,7 +113,7 @@ accessed.'}
             return
         try:
             infered = list(node.expr.infer())
-        except astng.InferenceError:
+        except InferenceError:
             return
         # list of (node, nodename) which are missing the attribute
         missingattr = set()
@@ -110,7 +121,7 @@ accessed.'}
         inference_failure = False
         for owner in infered:
             # skip yes object
-            if owner is astng.YES:
+            if owner is YES:
                 inference_failure = True
                 continue
             # skip None anyway
@@ -125,13 +136,15 @@ accessed.'}
             if ignoremim and name[-5:].lower() == 'mixin':
                 continue
             try:
-                owner.getattr(node.attrname)
+                if not [n for n in owner.getattr(node.attrname)
+                        if not isinstance(n.statement(), astng.AugAssign)]:
+                    missingattr.add((owner, name))
+                    continue
             except AttributeError:
                 # XXX method / function
                 continue
-            except astng.NotFoundError:
-                if isinstance(owner, astng.Instance) \
-                       and owner.has_dynamic_getattr():
+            except NotFoundError:
+                if isinstance(owner, Instance) and owner.has_dynamic_getattr():
                     continue
                 # explicit skipping of optparse'Values class
                 if owner.name == 'Values' and \
@@ -146,7 +159,7 @@ accessed.'}
             # message for infered nodes
             done = set()
             for owner, name in missingattr:
-                if isinstance(owner, astng.Instance):
+                if isinstance(owner, Instance):
                     actual = owner._proxied
                 else:
                     actual = owner
@@ -166,9 +179,9 @@ accessed.'}
         """check that if assigning to a function call, the function is
         possibly returning something valuable
         """
-        if not isinstance(node.expr, astng.CallFunc):
+        if not isinstance(node.value, astng.CallFunc):
             return
-        function_node = safe_infer(node.expr.node)
+        function_node = safe_infer(node.value.func)
         # skip class, generator and uncomplete function definition
         if not (isinstance(function_node, astng.Function) and
                 function_node.root().fully_defined()):
@@ -182,8 +195,8 @@ accessed.'}
             self.add_message('E1111', node=node)
         else:
             for rnode in returns:
-                if not (isinstance(rnode.value, astng.Name)
-                        and rnode.value.name == 'None'):
+                if not (isinstance(rnode.value, astng.Const) 
+                        and rnode.value.value is None):
                     break
             else:
                 self.add_message('W1111', node=node)
@@ -191,10 +204,10 @@ accessed.'}
     def visit_callfunc(self, node):
         """check that called method are infered to callable objects
         """
-        called = safe_infer(node.node)
+        called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
-            self.add_message('E1102', node=node, args=node.node.as_string())
+            self.add_message('E1102', node=node, args=node.func.as_string())
         
     
 def register(linter):

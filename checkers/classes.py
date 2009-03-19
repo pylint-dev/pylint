@@ -19,6 +19,7 @@ from __future__ import generators
 
 from logilab.common.compat import set
 from logilab import astng
+from logilab.astng.infutils import YES, Instance
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
@@ -175,6 +176,10 @@ instance attributes.'}
         # checks attributes are defined in an allowed method such as __init__
         defining_methods = self.config.defining_attr_methods
         for attr, nodes in cnode.instance_attrs.items():
+            nodes = [n for n in nodes if not
+                    isinstance(n.statement(), (astng.Delete, astng.AugAssign))]
+            if not nodes:
+                continue # error detected by typechecking
             node = nodes[0] # XXX
             frame = node.frame()
             if frame.name not in defining_methods:
@@ -247,7 +252,7 @@ instance attributes.'}
         kind of method defined in an interface for this warning
         """
         if node.is_method():
-            if node.argnames is not None:
+            if node.args.args is not None:
                 self._first_attrs.pop()
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
@@ -283,8 +288,8 @@ instance attributes.'}
             if klass is None or not (callee == klass.name or
                 callee in klass.basenames
                 or (isinstance(node.expr, astng.CallFunc)
-                    and isinstance(node.expr.node, astng.Name) 
-                    and node.expr.node.name == 'super')):
+                    and isinstance(node.expr.func, astng.Name) 
+                    and node.expr.func.name == 'super')):
                 self.add_message('W0212', node=node, args=attrname)
             
             
@@ -333,9 +338,9 @@ instance attributes.'}
                     # check that if the node is accessed in the same method as
                     # it's defined, it's accessed after the initial assigment
                     frame = def_node.frame()
-                    lno = def_node.source_line()
+                    lno = def_node.fromlineno
                     for _node in nodes:
-                        if _node.frame() is frame and _node.lineno < lno:
+                        if _node.frame() is frame and _node.fromlineno < lno:
                             self.add_message('E0203', node=_node,
                                              args=(attr, lno))
         
@@ -348,27 +353,29 @@ instance attributes.'}
         * not one of the above for a static method
         """
         # don't care about functions with unknown argument (builtins)
-        if node.argnames is None:
+        if node.args.args is None:
             return
-        self._first_attrs.append(node.argnames and node.argnames[0])
+        first_arg = node.args.args and node.argnames()[0]
+        self._first_attrs.append(first_arg)
+        first = self._first_attrs[-1]
         # static method
         if node.type == 'staticmethod':
-            if node.argnames and node.argnames[0] in ('self', 'cls', 'mcs'):
-                self.add_message('W0211', args=node.argnames[0], node=node)
+            if first_arg in ('self', 'cls', 'mcs'):
+                self.add_message('W0211', args=first, node=node)
             self._first_attrs[-1] = None
         # class / regular method with no args
-        elif not node.argnames:
+        elif not node.args.args:
             self.add_message('E0211', node=node)
         # metaclass method
         elif metaclass:
-            if self._first_attrs[-1] != 'mcs':
+            if first != 'mcs':
                 self.add_message('C0203', node=node)
         # class method
         elif node.type == 'classmethod':
-            if self._first_attrs[-1] != 'cls':
+            if first != 'cls':
                 self.add_message('C0202', node=node)
         # regular method without self as argument
-        elif self._first_attrs[-1] != 'self':
+        elif first != 'self':
             self.add_message('E0213', node=node)
 
     def _check_bases_classes(self, node):
@@ -423,7 +430,7 @@ instance attributes.'}
         except astng.InferenceError:
             if e0221_hack[0]:
                 return
-            implements = astng.Instance(node).getattr('__implements__')[0]
+            implements = Instance(node).getattr('__implements__')[0]
             assignment = implements.parent
             assert isinstance(assignment, astng.Assign)
             # assignment.expr can be a Name or a Tuple or whatever.
@@ -431,7 +438,7 @@ instance attributes.'}
             # FIXME: in case of multiple interfaces, find which one could not
             #        be resolved
             self.add_message('F0220', node=implements,
-                             args=(node.name, assignment.expr.as_string()))
+                             args=(node.name, assignment.value.as_string()))
 
     def _check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
@@ -440,18 +447,18 @@ instance attributes.'}
         klass_node = node.parent.frame()        
         to_call = _ancestors_to_call(klass_node)
         for stmt in node.nodes_of_class(astng.CallFunc):
-            expr = stmt.node
+            expr = stmt.func
             if not isinstance(expr, astng.Getattr) \
                    or expr.attrname != '__init__':
                 continue
             # skip the test if using super
             if isinstance(expr.expr, astng.CallFunc) and \
-               isinstance(expr.expr.node, astng.Name) and \
-               expr.expr.node.name == 'super':
+               isinstance(expr.expr.func, astng.Name) and \
+               expr.expr.func.name == 'super':
                 return
             try:
                 klass = expr.expr.infer().next()
-                if klass is astng.YES:
+                if klass is YES:
                     continue
                 try:
                     del to_call[klass]
@@ -474,11 +481,11 @@ instance attributes.'}
             self.add_message('F0202', args=(method1, refmethod), node=method1)
             return
         # don't care about functions with unknown argument (builtins)
-        if method1.argnames is None or refmethod.argnames is None:
+        if method1.args.args is None or refmethod.args.args is None:
             return
-        if len(method1.argnames) != len(refmethod.argnames):
+        if len(method1.args.args) != len(refmethod.args.args):
             self.add_message('W0221', args=class_type, node=method1)
-        elif len(method1.defaults) < len(refmethod.defaults):
+        elif len(method1.args.defaults) < len(refmethod.args.defaults):
             self.add_message('W0222', args=class_type, node=method1)
 
                         
@@ -500,10 +507,10 @@ def node_method(node, method_name):
     """get astng for <method_name> on the given class node, ensuring it
     is a Function node
     """
-    stmt = node.local_attr(method_name)
-    if not isinstance(stmt, astng.Function):
-        raise astng.NotFoundError(method_name)
-    return stmt
+    for n in node.local_attr(method_name):
+        if isinstance(n, astng.Function):
+            return n
+    raise astng.NotFoundError(method_name)
         
 def register(linter):
     """required method to auto register this checker """

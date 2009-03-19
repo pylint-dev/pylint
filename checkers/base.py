@@ -15,16 +15,16 @@
 """basic checker for Python code
 """
 
-import compiler.consts
 
 from logilab import astng
 from logilab.common.compat import any
 from logilab.common.ureports import Table
+from logilab.astng.infutils import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import are_exclusive
+
 
 import re
 
@@ -133,9 +133,6 @@ MSGS = {
               has no effect). This is a particular case of W0104 with its \
               own message so you can easily disable it if you\'re using \
               those strings as documentation, instead of comments.'),
-    'W0106': ('Unnecessary semicolon',
-              'Used when a statement is endend by a semi-colon (";"), which \
-              isn\'t necessary (that\'s python, not C ;).'),
     'W0107': ('Unnecessary pass statement',
               'Used when a "pass" statement that can be avoided is '
               'encountered.)'),
@@ -335,31 +332,21 @@ functions, methods
 
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
-        expr = node.expr
-        if isinstance(node.expr, astng.Const):
-            # XXX lineno maybe dynamically set incidently
-            if expr.value is None and expr.lineno is None:
-                # const None node with lineno to None are inserted
-                # on unnecessary semi-column
-                # XXX navigate to get a correct lineno
-                brothers = list(node.parent.getChildNodes())
-                previoussibling = brothers[brothers.index(node)-1]
-                self.add_message('W0106', node=previoussibling)
-                return
-            if isinstance(expr.value, basestring):
-                # tread string statement in a separated message
-                self.add_message('W0105', node=node)
-                return
+        expr = node.value
+        if isinstance(expr, astng.Const) and isinstance(expr.value, basestring):
+            # treat string statement in a separated message
+            self.add_message('W0105', node=node)
+            return
         # ignore if this is a function call (can't predicate side effects)
-        # or a yield (which are wrapped by a discard node in py >= 2.5)
-        if not any(node.expr.nodes_of_class((astng.CallFunc, astng.Yield))):
+        # XXX ? or a yield (which are wrapped by a discard node in _ast)
+        if not any(expr.nodes_of_class((astng.CallFunc, astng.Yield))):
             self.add_message('W0104', node=node)
         
     def visit_pass(self, node):
         """check is the pass statement is really necessary
         """
         # if self._returns is empty, we're outside a function !
-        if len(node.parent.getChildNodes()) > 1:
+        if len(node.parent.child_sequence(node)) > 1:
             self.add_message('W0107', node=node)
 
     def visit_lambda(self, node):
@@ -368,49 +355,47 @@ functions, methods
         # if the body of the lambda is a call expression with the same
         # argument list as the lambda itself, then the lambda is
         # possibly unnecessary and at least suspicious.
-        if node.defaults:
+        if node.args.defaults:
             # If the arguments of the lambda include defaults, then a
             # judgment cannot be made because there is no way to check
             # that the defaults defined by the lambda are the same as
             # the defaults defined by the function called in the body
             # of the lambda.
             return
-        if not isinstance(node.code, astng.CallFunc):
+        call = node.body
+        if not isinstance(call, astng.CallFunc):
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-
+        # XXX are lambda still different with astng >= 0.18 ?
         # *args and **kwargs need to be treated specially, since they
         # are structured differently between the lambda and the function
-        # call (in the lambda they appear in the argnames list and are
+        # call (in the lambda they appear in the args.args list and are
         # indicated as * and ** by two bits in the lambda's flags, but
         # in the function call they are omitted from the args list and
         # are indicated by separate attributes on the function call node).
-        ordinary_args = list(node.argnames)
-        if node.flags & compiler.consts.CO_VARKEYWORDS:
-            if (not node.code.dstar_args
-                or not isinstance(node.code.dstar_args, astng.Name)
-                or ordinary_args[-1] != node.code.dstar_args.name):
+        ordinary_args = list(node.args.args)
+        if node.args.kwarg:
+            if (not call.kwargs
+                or not isinstance(call.kwargs, astng.Name)
+                or node.args.kwarg != call.kwargs.name):
                 return
-            ordinary_args = ordinary_args[:-1]
-        if node.flags & compiler.consts.CO_VARARGS:
-            if (not node.code.star_args
-                or not isinstance(node.code.star_args, astng.Name)
-                or ordinary_args[-1] != node.code.star_args.name):
+        if node.args.vararg:
+            if (not call.starargs
+                or not isinstance(call.starargs, astng.Name)
+                or node.args.vararg != call.starargs.name):
                 return
-            ordinary_args = ordinary_args[:-1]
 
-        # The remaining arguments (the "ordinary" arguments) must be
-        # in a correspondence such that:
-        # ordinary_args[i] == node.code.args[i].name.
-        if len(ordinary_args) != len(node.code.args):
+        # The "ordinary" arguments must be in a correspondence such that:
+        # ordinary_args[i].name == call.args[i].name.
+        if len(ordinary_args) != len(call.args):
             return
         for i in xrange(len(ordinary_args)):
-            if not isinstance(node.code.args[i], astng.Name):
+            if not isinstance(call.args[i], astng.Name):
                 return
-            if node.argnames[i] != node.code.args[i].name:
+            if node.args.args[i].name != call.args[i].name:
                 return
-        self.add_message('W0108', line=node.lineno, node=node)
+        self.add_message('W0108', line=node.fromlineno, node=node)
 
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
@@ -428,7 +413,7 @@ functions, methods
         # check default arguments'value
         self._check_defaults(node)
         # check arguments name
-        args = node.argnames
+        args = node.args.args
         if args is not None:
             self._recursive_check_names(args, node)
         # check for redefinition
@@ -444,7 +429,7 @@ functions, methods
                 self.add_message('E0100', node=node)
             else:
                 values = [r.value for r in returns]
-                if  [v for v in values if not (
+                if  [v for v in values if not (v is None or
                     (isinstance(v, astng.Const) and v.value is None)
                     or  (isinstance(v, astng.Name) and v.name == 'None'))]:
                     self.add_message('E0101', node=node)
@@ -461,7 +446,7 @@ functions, methods
         """check module level assigned names"""
         frame = node.frame()
         ass_type = node.ass_type()
-        if isinstance(ass_type, (astng.ListCompFor, astng.GenExprFor)):
+        if isinstance(ass_type, (astng.Comprehension, astng.Comprehension)):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astng.Module):
             if isinstance(ass_type, astng.Assign) and not in_loop(ass_type):
@@ -520,16 +505,16 @@ functions, methods
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
-        if isinstance(node.node, astng.Name):
-            name = node.node.name
+        if isinstance(node.func, astng.Name):
+            name = node.func.name
             # ignore the name if it's not a builtin (ie not defined in the
             # locals nor globals scope)
             if not (node.frame().has_key(name) or
                     node.root().has_key(name)):
                 if name in self.config.bad_functions:
                     self.add_message('W0141', node=node, args=name)
-        if node.star_args or node.dstar_args:
-            self.add_message('W0142', node=node.node)
+        if node.starargs or node.kwargs:
+            self.add_message('W0142', node=node.func)
             
 
     def _check_unreachable(self, node):
@@ -553,7 +538,7 @@ functions, methods
         defined_self = node.parent.frame()[node.name]
         if defined_self is not node and not are_exclusive(node, defined_self):
             self.add_message('E0102', node=node,
-                             args=(redef_type, defined_self.lineno))
+                             args=(redef_type, defined_self.fromlineno))
         
     def _check_docstring(self, node_type, node):
         """check the node has a non empty docstring"""
@@ -568,10 +553,11 @@ functions, methods
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
-            if type(arg) is type(''):
-                self._check_name('argument', arg, node)
+            #if type(arg) is type(''):
+            if isinstance(arg, astng.AssName):
+                self._check_name('argument', arg.name, node)
             else:
-                self._recursive_check_names(arg, node)
+                self._recursive_check_names(arg.elts, node)
     
     def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""
@@ -589,7 +575,7 @@ functions, methods
 
     def _check_defaults(self, node):
         """check for dangerous default values as arguments"""
-        for default in node.defaults:
+        for default in node.args.defaults:
             try:
                 value = default.infer().next()
             except astng.InferenceError:

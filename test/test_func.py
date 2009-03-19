@@ -108,8 +108,8 @@ class LintTestUsingFile(LintTestUsingModule):
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
     def test(self):
-        # skip rpython checker and fatal messages
-        todo = [msgid for msgid in linter._messages.keys() if msgid[1:3] != '12' and msgid[0] != 'F']
+        # skip fatal messages
+        todo = [msgid for msgid in linter._messages.keys() if msgid[0] != 'F']
         for msgid in test_reporter.message_ids.keys():
             try:
                 todo.remove(msgid)
@@ -146,7 +146,7 @@ def make_tests(filter_rgx):
     return the list of generated test classes
     """
     if filter_rgx:
-        is_to_run = re.compile(filter_rgx).match
+        is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = lambda x: 1
     tests = []
@@ -154,9 +154,9 @@ def make_tests(filter_rgx):
         # skip those tests with python >= 2.3 since py2.3 detects them by itself
         if PY23 and module_file == "func_unknown_encoding.py": #"func_nonascii_noencoding.py"):
             continue
-        if not PY24:
-            if module_file == "func_noerror_staticmethod_as_decorator.py" or \
-                   module_file.endswith('py24.py'):
+        pyrestr = module_file.rsplit('_py', 1)[-1][:-3]
+        if pyrestr.isdigit(): # '24', '25'...
+            if sys.version_info < tuple([int(i) for i in pyrestr]):
                 continue
         if not is_to_run(module_file):
             continue

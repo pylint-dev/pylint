@@ -1,2 +1,0 @@
-E:  4:function: %r format is not supported
-E:  5:function: %r format is not supported

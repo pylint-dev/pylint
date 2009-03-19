@@ -138,5 +138,12 @@ class NonRegrTC(TestCase):
     def test_try_finally_disable_msg_crash(self):
         linter.check(join('regrtest_data', 'try_finally_disable_msg_crash'))
 
+
+    def test___path__(self):
+        linter.check('pylint.checkers.__init__')
+        messages = linter.reporter.finalize().strip()
+        self.failIf('__path__' in messages, messages)
+
+    
 if __name__ == '__main__':
     unittest_main()

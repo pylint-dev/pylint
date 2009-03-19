@@ -27,7 +27,7 @@
   Display help messages about given message identifiers and exit.
 """
 
-# import this first to avoid further builtins pollution possibilities
+# import this first to avoid builtin namespace pollution
 from pylint.checkers import utils
 
 import sys
@@ -43,7 +43,7 @@ from logilab.common.fileutils import norm_open
 from logilab.common.ureports import Table, Text
 from logilab.common.__pkginfo__ import version as common_version
 
-from logilab.astng import ASTNGManager
+from logilab.astng import MANAGER, nodes
 from logilab.astng.__pkginfo__ import version as astng_version
 
 from pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
@@ -247,7 +247,6 @@ This is used by the global evaluation report (R0004).'}),
         #
         # checkers / reporter / astng manager
         self.reporter = None
-        self.manager = ASTNGManager()
         self._checkers = {}
         self._ignore_file = False        
         # visit variables
@@ -319,7 +318,7 @@ This is used by the global evaluation report (R0004).'}),
                 else :
                     meth(value)
         elif opt_name == 'cache-size':
-            self.manager.set_cache_size(int(value))
+            MANAGER.set_cache_size(int(value))
         elif opt_name == 'output-format':
             self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
         elif opt_name in ('enable-checker', 'disable-checker'):
@@ -426,20 +425,41 @@ This is used by the global evaluation report (R0004).'}),
     def collect_block_lines(self, node, msg_state):
         """walk ast to collect block level options line numbers"""
         # recurse on children (depth first)
-        for child in node.getChildNodes():
+        for child in node.get_children():
             self.collect_block_lines(child, msg_state)            
-        first = node.source_line()
-        last = node.last_source_line()
-        for msgid, lines in msg_state.items():
+        first = node.fromlineno
+        last = node.tolineno
+        # first child line number used to distinguate between disable-msg
+        # which are the first child of scoped node with those defined later.
+        # For instance in the code below:
+        #
+        # 1.   def meth8(self):
+        # 2.        """test late disabling"""
+        # 3.        # pylint: disable-msg=E1102
+        # 4.        print self.blip
+        # 5.        # pylint: disable-msg=E1101
+        # 6.        print self.bla
+        #
+        # E1102 should be disabled from line 1 to 6 while E1101 from line 5 to 6
+        #
+        # this is necessary to disable locally messages applying to class /
+        # function using their fromlineno 
+        if isinstance(node, (nodes.Module, nodes.Class, nodes.Function)) and node.body:
+            firstchildlineno = node.body[0].fromlineno
+        else:
+            firstchildlineno = last
+        for msgid, lines in msg_state.iteritems():
             for lineno, state in lines.items():
                 if first <= lineno <= last:
+                    if lineno > firstchildlineno:
+                        state = True
                     # set state for all lines for this block
                     first, last = node.block_range(lineno)
                     for line in xrange(first, last+1):                        
                         # do not override existing entries
                         if not line in self._module_msgs_state.get(msgid, ()):
                             if line in lines: # state change in the same block
-                                state = lines[line] 
+                                state = lines[line]
                             try:
                                 self._module_msgs_state[msgid][line] = state
                             except KeyError:
@@ -519,7 +539,7 @@ This is used by the global evaluation report (R0004).'}),
     def get_astng(self, filepath, modname):
         """return a astng representation for a module"""
         try:
-            return self.manager.astng_from_file(filepath, modname)
+            return MANAGER.astng_from_file(filepath, modname)
         except SyntaxError, ex:
             self.add_message('E0001', line=ex.lineno, args=ex.msg)
         except KeyboardInterrupt:
@@ -564,13 +584,13 @@ This is used by the global evaluation report (R0004).'}),
         if _reversed_checkers is None:
             _reversed_checkers = checkers[:]
             _reversed_checkers.reverse()
-        if astng.is_statement():
+        if astng.is_statement:
             self.stats['statement'] += 1
         # generate events for this node on each checker
         for checker in checkers:
             checker.visit(astng)
         # recurse on children
-        for child in astng.getChildNodes():
+        for child in astng.get_children():
             self.astng_events(child, checkers, _reversed_checkers)
         for checker in _reversed_checkers:
             checker.leave(astng)
@@ -739,7 +759,6 @@ group are mutually exclusive.'),
         self._plugins = []
         preprocess_options(args, {
             # option: (callback, takearg)
-            'rpython-mode': (self.cb_rpython_mode, False),
             'rcfile':       (self.cb_set_rcfile, True),
             'load-plugins': (self.cb_add_plugins, True),
             })
@@ -754,12 +773,6 @@ group are mutually exclusive.'),
               'callback' : cb_init_hook,
               'help' : 'Python code to execute, usually for sys.path \
 manipulation such as pygtk.require().'}),
-            
-            ('rpython-mode',
-             {'action' : 'callback', 'callback' : lambda *args: 1,
-              'help' : 'enable the rpython checker which is disabled by default'
-              }),
-             #'help' : 'Run into Restricted Python analysis mode.'}),
 
             ('help-msg',
              {'action' : 'callback', 'type' : 'string', 'metavar': '<msg-id>',
@@ -869,12 +882,6 @@ been issued by analysing pylint output status code
         sys.path.pop(0)
         sys.exit(self.linter.msg_status)
 
-    def cb_rpython_mode(self, name, value):
-        from pylint.checkers.rpython import RPythonChecker
-        RPythonChecker.enabled = True
-        #from pylint.rlint import RPyLinter
-        #self.LinterClass = RPyLinter
-        
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (ie before optik parsing)"""
         self._rcfile = value

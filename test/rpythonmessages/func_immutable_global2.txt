@@ -1,1 +1,0 @@
-E:  5:function: Modifying global 'GLOB' from module rpythoninput.func_immutable_global2

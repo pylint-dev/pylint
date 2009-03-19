@@ -22,11 +22,12 @@ from logilab.common.modutils import is_standard_module, is_relative, \
 from logilab.common.ureports import VerbatimText, Paragraph
 
 from logilab import astng
+from logilab.astng.infutils import are_exclusive
 
 from pylint.utils import expand_modules
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker, EmptyReport
-from pylint.checkers.utils import are_exclusive
+
 
 def get_first_import(context, name, base, level=0):
     """return the node where [base.]<name> is imported or None if not found
@@ -325,7 +326,7 @@ given file (report R0402 must not be disabled)'}
         first = get_first_import(frame, name, basename, level)
         if isinstance(first, (astng.Import, astng.From)) and first is not node \
                and not are_exclusive(first, node):
-            self.add_message('W0404', node=node, args=(name, first.lineno))
+            self.add_message('W0404', node=node, args=(name, first.fromlineno))
         else:
             root = node.root()
             if root is frame:
@@ -335,7 +336,7 @@ given file (report R0402 must not be disabled)'}
                 return
             if first is not node and not are_exclusive(first, node):
                 self.add_message('W0404', node=node,
-                                 args=(name, first.lineno))
+                                 args=(name, first.fromlineno))
 
         
     def report_external_dependencies(self, sect, _, dummy):

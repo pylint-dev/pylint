@@ -21,20 +21,23 @@ import unittest
 import sys
 
 from logilab import astng
-from logilab.astng import ASTNGManager
-from pylint.pyreverse.diadefslib import *
+from logilab.astng import MANAGER
 from logilab.astng.inspector import Linker
+
+from pylint.pyreverse.diadefslib import *
+
 from utils import Config
 
 def astng_wrapper(func, modname):
     return func(modname)
 
-project = ASTNGManager().project_from_files(['data'], astng_wrapper)
+PROJECT = MANAGER.project_from_files(['data'], astng_wrapper)
 
-config = Config()
-handler = DiadefsHandler(config)
+CONFIG = Config()
+HANDLER = DiadefsHandler(CONFIG)
 
 def _process_classes(classes):
+    """extract class names of a list"""
     result = []
     for classe in classes:
         result.append({'node' : isinstance(classe.node, astng.Class),
@@ -43,6 +46,7 @@ def _process_classes(classes):
     return result
 
 def _process_modules(modules):
+    """extract module names from a list"""
     result = []
     for module in modules:
         result.append({'node' : isinstance(module.node, astng.Module),
@@ -50,14 +54,25 @@ def _process_modules(modules):
     result.sort()
     return result
 
+def _process_relations(relations):
+    """extract relation indices from a relation list"""
+    result = []
+    for rel_type, rels  in relations.items():
+        for rel in rels:
+            result.append( (rel_type, rel.from_object.title,
+                            rel.to_object.title) )
+    result.sort()
+    return result
+
+
 class DiaDefGeneratorTC(unittest.TestCase):
     def test_option_values(self):
         """test for ancestor, associated and module options"""
         handler = DiadefsHandler( Config())
-        df_h = DiaDefGenerator(Linker(project), handler)
+        df_h = DiaDefGenerator(Linker(PROJECT), handler)
         cl_config = Config()
         cl_config.classes = ['Specialization']
-        cl_h = DiaDefGenerator(Linker(project), DiadefsHandler(cl_config) )
+        cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config) )
         self.assertEquals( (0, 0), df_h._get_levels())
         self.assertEquals( False, df_h.module_names)
         self.assertEquals( (-1, -1), cl_h._get_levels())
@@ -70,10 +85,10 @@ class DiaDefGeneratorTC(unittest.TestCase):
             self.assertEquals( (-1, -1), hndl._get_levels())
             self.assertEquals( True, hndl.module_names)
         handler = DiadefsHandler( Config())
-        df_h = DiaDefGenerator(Linker(project), handler)
+        df_h = DiaDefGenerator(Linker(PROJECT), handler)
         cl_config = Config()
         cl_config.classes = ['Specialization']
-        cl_h = DiaDefGenerator(Linker(project), DiadefsHandler(cl_config) )
+        cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config) )
         for hndl in [df_h, cl_h]:
             hndl.config.show_ancestors = 2
             hndl.config.show_associated = 1
@@ -81,11 +96,14 @@ class DiaDefGeneratorTC(unittest.TestCase):
             hndl._set_default_options()
             self.assertEquals( (2, 1), hndl._get_levels())
             self.assertEquals( False, hndl.module_names)
-
+    #def test_default_values(self):
+        """test efault values for package or class diagrams"""
+        # TODO : should test difference between default values for package
+        # or class diagrams
 
 class DefaultDiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
-        dd = DefaultDiadefGenerator(Linker(project), handler).visit(project)
+        dd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)
         self.assertEquals(len(dd), 2)
         keys = [d.TYPE for d in dd]
         self.assertEquals(keys, ['package', 'class'])
@@ -103,10 +121,32 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
                                     {'node': True, 'name': 'Interface'},
                                     {'node': True, 'name': 'Specialization'}]
                           )
-        
+
+    _should_rels = [('association', 'DoNothing', 'Specialization'),
+                  ('implements', 'Ancestor', 'Interface'),
+                  ('specialization', 'Specialization', 'Ancestor')]
+    def test_exctract_relations(self):
+        """test extract_relations between classes"""
+        cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
+        cd.extract_relationships()
+        relations = _process_relations(cd.relationships)
+        self.assertEquals(relations, self._should_rels)
+
+    def test_functional_relation_extraction(self):
+        """functional test of relations extraction;
+        different classes possibly in different modules"""
+        # XXX should be catching pyreverse environnement problem but doesn't
+        # pyreverse doesn't extracts the relations but this test ok
+        project = MANAGER.project_from_files(['data'], astng_wrapper)
+        handler = DiadefsHandler( Config() )
+        diadefs = handler.get_diadefs(project, Linker(project, tag=True) )
+        cd = diadefs[1]
+        relations = _process_relations(cd.relationships)
+        self.assertEquals(relations, self._should_rels)
+
     def test_known_values2(self):
-        project = ASTNGManager().project_from_files(['data.clientmodule_test'], astng_wrapper)
-        dd = DefaultDiadefGenerator(Linker(project), handler).visit(project)
+        project = MANAGER.project_from_files(['data.clientmodule_test'], astng_wrapper)
+        dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
         self.assertEquals(len(dd), 1)
         keys = [d.TYPE for d in dd]
         self.assertEquals(keys, ['class'])
@@ -120,19 +160,22 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
 
 class ClassDiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
-        handler.config.classes = ['Specialization']
-        cdg = ClassDiadefGenerator(Linker(project), handler)
-        cd = cdg.class_diagram(project, 'data.clientmodule_test.Specialization')
-        self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
+        HANDLER.config.classes = ['Specialization']
+        cdg = ClassDiadefGenerator(Linker(PROJECT), HANDLER)
+        special = 'data.clientmodule_test.Specialization'
+        cd = cdg.class_diagram(PROJECT, special)
+        self.assertEquals(cd.title, special)
         classes = _process_classes(cd.objects)
-        self.assertEquals(classes, [{'node': True, 'name': 'data.clientmodule_test.Ancestor'},
-                                    {'node': True, 'name': 'data.clientmodule_test.Specialization'},
-                                    {'node': True, 'name': 'data.suppliermodule_test.DoNothing'},
+        self.assertEquals(classes, [{'node': True,
+                                    'name': 'data.clientmodule_test.Ancestor'},
+                                    {'node': True, 'name': special},
+                                    {'node': True,
+                                    'name': 'data.suppliermodule_test.DoNothing'},
                                     ])
         
     def test_known_values2(self):
-        handler.config.module_names = False
-        cd = ClassDiadefGenerator(Linker(project), handler).class_diagram(project, 'data.clientmodule_test.Specialization')
+        HANDLER.config.module_names = False
+        cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(PROJECT, 'data.clientmodule_test.Specialization')
         self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
         self.assertEquals(classes, [{'node': True, 'name': 'Ancestor' },

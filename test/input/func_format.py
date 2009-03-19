@@ -62,3 +62,14 @@ func('''<body>Hello
 
 assert boo <= 10, "Note is %.2f. Either you cheated, or pylint's \
 broken!" % boo
+
+def _gc_debug(gcc):
+    """bad format undetected w/ py2.5"""
+    ocount = {}
+    for obj in gcc.get_objects():
+        try:
+            ocount[obj.__class__]+= 1
+        except KeyError:
+            ocount[obj.__class__]=1
+        except AttributeError:
+            pass

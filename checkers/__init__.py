@@ -27,7 +27,6 @@ Base id of standard checkers (used in msg and report ids):
 09: design_analysis
 10: newstyle
 11: typecheck
-12: rpython
 
 The raw_metrics checker has no number associated since it doesn't emit any
 messages nor reports. XXX not true, emit a 07 report !

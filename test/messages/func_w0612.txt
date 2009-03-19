@@ -1,1 +1,2 @@
 W:  8:function: Unused variable 'aaaa'
+W:  9:function: Unused variable 'index'

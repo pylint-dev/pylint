@@ -1,1 +1,0 @@
-E:  7:C: multiple inheritance only supported under specific rules which doesn't seems to be satisfied

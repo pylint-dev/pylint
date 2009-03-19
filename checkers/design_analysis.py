@@ -20,7 +20,7 @@
  FIXME: missing 13, 15, 16
 """
 
-from logilab.astng import Function, InferenceError
+from logilab.astng import Function, If, InferenceError
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
@@ -239,7 +239,7 @@ class MisdesignChecker(BaseChecker):
         self._returns.append(0)
         self._branchs.append(0)
         # check number of arguments
-        args = node.argnames
+        args = node.args.args
         if args is not None and len(args) > self.config.max_args:
             self.add_message('R0913', node=node,
                              args=(len(args), self.config.max_args))
@@ -284,13 +284,13 @@ class MisdesignChecker(BaseChecker):
         """default visit method -> increments the statements counter if
         necessary
         """
-        if node.is_statement():
+        if node.is_statement:
             self._stmts += 1
 
     def visit_tryexcept(self, node):
         """increments the branchs counter"""
         branchs = len(node.handlers)
-        if node.else_:
+        if node.orelse:
             branchs += 1
         self._inc_branch(branchs)
         self._stmts += branchs
@@ -302,8 +302,10 @@ class MisdesignChecker(BaseChecker):
         
     def visit_if(self, node):
         """increments the branchs counter"""
-        branchs = len(node.tests)
-        if node.else_:
+        branchs = 1
+        # don't double count If nodes coming from some 'elif'
+        if node.orelse and (len(node.orelse)>1 or
+                            not isinstance(node.orelse[0], If)):
             branchs += 1
         self._inc_branch(branchs)
         self._stmts += branchs
@@ -311,7 +313,7 @@ class MisdesignChecker(BaseChecker):
     def visit_while(self, node):
         """increments the branchs counter"""
         branchs = 1
-        if node.else_:
+        if node.orelse:
             branchs += 1
         self._inc_branch(branchs)
         
@@ -324,7 +326,7 @@ class MisdesignChecker(BaseChecker):
             branchs[i] += branchsnum
 
     # FIXME: make a nice report...
-        
+
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(MisdesignChecker(linter))

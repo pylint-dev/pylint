@@ -1,3 +1,0 @@
-E:  4:function: Using unavailable keyword 'yield'
-E:  5:function: Using unavailable keyword 'yield'
-E:  6:function: Using unavailable keyword 'yield'
