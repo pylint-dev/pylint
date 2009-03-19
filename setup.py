@@ -13,16 +13,18 @@ import sys
 import shutil
 from os.path import isdir, exists, join, walk
 
-try:
-    from setuptools import setup
-    from setuptools.command import install_lib
-    USE_SETUPTOOLS = 1
-except ImportError:    
-    from distutils.core import setup
-    from distutils.command import install_lib
-    USE_SETUPTOOLS = 0
+# FIXME : setup.py doesn't work with setuptools so we use distutils
 
-assert USE_SETUPTOOLS
+#try:
+    #from setuptools import setup
+    #from setuptools.command import install_lib
+    #USE_SETUPTOOLS = 1
+#except ImportError:    
+from distutils.core import setup
+from distutils.command import install_lib
+USE_SETUPTOOLS = 0
+
+#assert USE_SETUPTOOLS
 
 # import required features
 from __pkginfo__ import modname, version, license, short_desc, long_desc, \
