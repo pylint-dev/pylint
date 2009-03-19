@@ -23,3 +23,10 @@ bbbb = (1,2,3)
 C: 51:other: Operator not preceded by a space
     funky= funky+2
          ^
+C: 71:_gc_debug: Operator not preceded by a space
+            ocount[obj.__class__]+= 1
+                                 ^^
+C: 72:_gc_debug: Operator not preceded by a space
+        except KeyError:
+            ocount[obj.__class__]=1
+                                 ^
