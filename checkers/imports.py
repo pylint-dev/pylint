@@ -326,7 +326,7 @@ given file (report R0402 must not be disabled)'}
         first = get_first_import(frame, name, basename, level)
         if isinstance(first, (astng.Import, astng.From)) and first is not node \
                and not are_exclusive(first, node):
-            self.add_message('W0404', node=node, args=(name, first.lineno))
+            self.add_message('W0404', node=node, args=(name, first.fromlineno))
         else:
             root = node.root()
             if root is frame:
@@ -336,7 +336,7 @@ given file (report R0402 must not be disabled)'}
                 return
             if first is not node and not are_exclusive(first, node):
                 self.add_message('W0404', node=node,
-                                 args=(name, first.lineno))
+                                 args=(name, first.fromlineno))
 
         
     def report_external_dependencies(self, sect, _, dummy):

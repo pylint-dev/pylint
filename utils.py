@@ -241,9 +241,7 @@ class MessagesHandlerMixIn:
         provide the line argument.
         """
         if line is None and node is not None:
-            line = node.fromlineno#lineno or node.statement().lineno
-            #if not isinstance(node, Module):
-            #    assert line > 0, node.__class__
+            line = node.fromlineno
         # should this message be displayed
         if not self.is_message_enabled(msg_id, line):
             return        

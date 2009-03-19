@@ -395,7 +395,7 @@ functions, methods
                 return
             if node.args.args[i].name != call.args[i].name:
                 return
-        self.add_message('W0108', line=node.lineno, node=node)
+        self.add_message('W0108', line=node.fromlineno, node=node)
 
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
@@ -538,7 +538,7 @@ functions, methods
         defined_self = node.parent.frame()[node.name]
         if defined_self is not node and not are_exclusive(node, defined_self):
             self.add_message('E0102', node=node,
-                             args=(redef_type, defined_self.lineno))
+                             args=(redef_type, defined_self.fromlineno))
         
     def _check_docstring(self, node_type, node):
         """check the node has a non empty docstring"""

@@ -94,7 +94,6 @@ accessed.'}
             self.generated_members.extend(('REQUEST', 'acl_users', 'aq_parent'))
         
     def visit_assattr(self, node):
-        #print "visit", repr(node), node.attrname, node.lineno
         if isinstance(node.ass_type(), astng.AugAssign):
             self.visit_getattr(node)
             
@@ -109,7 +108,6 @@ accessed.'}
 
         function/method, super call and metaclasses are ignored
         """
-        #print "visit", repr(node), node.attrname, node.lineno
         if node.attrname in self.config.generated_members:
             # attribute is marked as generated, stop here
             return
@@ -172,7 +170,6 @@ accessed.'}
                     msgid = 'E1103'
                 else:
                     msgid = 'E1101'
-                    #print "msg!", node, msgid, node.lineno
                 self.add_message(msgid, node=node,
                                  args=(display_type(owner), name,
                                        node.attrname))

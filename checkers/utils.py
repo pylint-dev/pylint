@@ -111,8 +111,8 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()
     _node = stmt.previous_sibling()
-    lineno = stmt.lineno
-    while _node and _node.lineno == lineno:
+    lineno = stmt.fromlineno
+    while _node and _node.fromlineno == lineno:
         for ass_node in _node.nodes_of_class(astng.AssName):
             if ass_node.name == varname:
                 return True

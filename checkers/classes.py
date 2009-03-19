@@ -340,7 +340,7 @@ instance attributes.'}
                     frame = def_node.frame()
                     lno = def_node.fromlineno
                     for _node in nodes:
-                        if _node.frame() is frame and _node.lineno < lno:
+                        if _node.frame() is frame and _node.fromlineno < lno:
                             self.add_message('E0203', node=_node,
                                              args=(attr, lno))
         
