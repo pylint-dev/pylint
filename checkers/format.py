@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -268,17 +268,8 @@ class FormatChecker(BaseRawChecker):
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
-            # discard discard nodes introducted by ending ";"
-            if isinstance(node, nodes.Discard) and \
-                   isinstance(node.value, nodes.Const) and \
-                   node.value.lineno is None:
-                prev_line = None
         else:
-            # itou ?
-            try:
-                prev_line = node.parent.statement().fromlineno
-            except AttributeError:
-                prev_line = node.parent.statement().lineno
+            prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
         if prev_line == line and self._visited_lines.get(line) != 2:
             self.add_message('C0321', node=node)
@@ -299,8 +290,6 @@ class FormatChecker(BaseRawChecker):
                 lines.append(self._lines[line].rstrip())
             except KeyError:
                 lines.append('')
-        #print 'check', '\n'.join(lines)
-        #print node
         try:
             msg_def = check_line('\n'.join(lines), self)
             if msg_def:
