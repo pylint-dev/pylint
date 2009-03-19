@@ -2,8 +2,6 @@ ChangeLog for PyLint
 ====================
 	
 
- -- 
-
 2009-03-19 -- 0.17.0
     * semicolon check : move W0601 to W0301
     * remove rpython : remove all rpython checker, modules and tests

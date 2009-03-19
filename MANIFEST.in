@@ -19,7 +19,5 @@ include test/data/classes_No_Name.dot
 recursive-include doc *.txt *.html
 recursive-include test/input *.py similar* noext
 recursive-include test/messages *.txt *.txt2
-recursive-include test/rpythoninput *.py
-recursive-include test/rpythonmessages *.txt
 recursive-include test/regrtest_data *.py
 include test/fulltest.sh
