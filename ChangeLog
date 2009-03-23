@@ -3,9 +3,11 @@ ChangeLog for PyLint
 	
 --
     * fix #8687, W0613 false positive on inner function
+    * fix #8332: set E0501 line no to the first line where non ascii character
+      has been found
     * implements #4037: don't issue W0142 (* or ** magic) when they are barely
       passed from */** arguments
-	
+ 
 2009-03-19 -- 0.17.0
     * semicolon check : move W0601 to W0301
     * remove rpython : remove all rpython checker, modules and tests

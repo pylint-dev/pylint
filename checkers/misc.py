@@ -11,13 +11,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2000-2009 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 Check source code is ascii only or has an encoding declaration (PEP 263)
 """
-
-__revision__ = '$Id: misc.py,v 1.19 2005-11-02 09:21:47 syt Exp $'
 
 import re
 
@@ -26,10 +24,12 @@ from pylint.checkers import BaseChecker
 
 def is_ascii(string):
     """return true if non ascii characters are detected in the given string
+    and line number where non-ascii has been encountered.
     """
-    if string:
-        return max([ord(char) for char in string]) < 128
-    return True
+    for i, line in enumerate(string.splitlines()):
+        if line and max([ord(char) for char in line]) >= 128:
+            return False, i + 1
+    return True, 0
     
 # regexp matching both emacs and vim declaration
 ENCODING_RGX = re.compile("[^#]*#*.*coding[:=]\s*([^\s]+)")
@@ -93,10 +93,11 @@ separated by a comma.'
         """
         # source encoding
         data = stream.read()
-        if not is_ascii(data):
+        ascii, lineno = is_ascii(data)
+        if not ascii:
             encoding = guess_encoding(data)
             if encoding is None:
-                self.add_message('E0501', line=1)
+                self.add_message('E0501', line=lineno)
             else:
                 try:
                     unicode(data, encoding)

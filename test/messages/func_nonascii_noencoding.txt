@@ -1,1 +1,1 @@
-E:  1: Non ascii characters found but no encoding specified (PEP 263)
+E:  5: Non ascii characters found but no encoding specified (PEP 263)
