@@ -196,5 +196,11 @@ PYMETHODS = set(('__new__', '__init__',
                  '__getattribute__', '__getattr__', '__setattr__', '__delattr__',
                  '__cmp__', '__ge__', '__gt__', '__le__', '__lt__', '__eq__',
                  '__nonzero__',
+                 '__mul__', '__imul__', '__rmul__',
+                 '__div__', '__idiv__', '__rdiv__',
+                 '__add__', '__iadd__', '__radd__',
+                 '__sub__', '__isub__', '__rsub__',
+                 '__pow__', '__ipow__', '__rpow__',
+                 '__mod__', '__imod__', '__rmod__',
                  # XXX To be continued
                  ))
