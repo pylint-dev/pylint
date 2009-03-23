@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -19,7 +19,7 @@ from __future__ import generators
 
 from logilab.common.compat import set
 from logilab import astng
-from logilab.astng.infutils import YES, Instance
+from logilab.astng.infutils import YES, Instance, are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
@@ -300,10 +300,6 @@ instance attributes.'}
         for attr, nodes in accessed.items():
             # deactivate "except doesn't do anything", that's expected
             # pylint: disable-msg=W0704
-##             # is it a builtin attribute ?
-##             if attr in ('__dict__', '__class__', '__doc__'):
-##                 # FIXME: old class object doesn't have __class__
-##                 continue
             # is it a class attribute ?
             try:
                 node.local_attr(attr)
@@ -320,20 +316,21 @@ instance attributes.'}
                 pass
             # is it an instance attribute ?
             try:
-                def_nodes = node.instance_attr(attr) # XXX
-                #instance_attribute = True
+                defstmts = node.instance_attr(attr) 
             except astng.NotFoundError:
                 pass
-                #instance_attribute = False
             else:
-                if len(def_nodes) == 1:
-                    def_node = def_nodes[0]
+                if len(defstmts) == 1:
+                    defstmt = defstmts[0]
                     # check that if the node is accessed in the same method as
                     # it's defined, it's accessed after the initial assigment
-                    frame = def_node.frame()
-                    lno = def_node.fromlineno
+                    frame = defstmt.frame()
+                    lno = defstmt.fromlineno
                     for _node in nodes:
-                        if _node.frame() is frame and _node.fromlineno < lno:
+                        # XXX should check for catched AttributeError,
+                        #     not simply are_exclusive
+                        if _node.frame() is frame and _node.fromlineno < lno \
+                           and not are_exclusive(_node.statement(), defstmt):
                             self.add_message('E0203', node=_node,
                                              args=(attr, lno))
         
