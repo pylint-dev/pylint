@@ -126,7 +126,7 @@ def is_func_default(node):
     """return true if the given Name node is used in function default argument's
     value
     """
-    parent = node.parent
+    parent = node.scope()
     if isinstance(parent, astng.Function):
         for default_node in parent.args.defaults:
             for default_name_node in default_node.nodes_of_class(astng.Name):
@@ -135,14 +135,15 @@ def is_func_default(node):
     return False
 
 def is_func_decorator(node):
-    """return true if the name is used in function decorator
-    """
+    """return true if the name is used in function decorator"""
     parent = node.parent
-    if parent is None:
-        return 0
-    if isinstance(parent, astng.Decorators):
-        return 1
-    return is_func_decorator(parent)
+    while parent is not None:
+        if isinstance(parent, astng.Decorators):
+            return True
+        if parent.is_statement:
+            break
+        parent = parent.parent
+    return False
 
 def is_ancestor_name(frame, node):
     """return True if `frame` is a astng.Class node with `node` in the
