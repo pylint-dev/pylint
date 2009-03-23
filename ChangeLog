@@ -3,6 +3,8 @@ ChangeLog for PyLint
 	
 --
     * fix #8687, W0613 false positive on inner function
+    * implements #4037: don't issue W0142 (* or ** magic) when they are barely
+      passed from */** arguments
 	
 2009-03-19 -- 0.17.0
     * semicolon check : move W0601 to W0301

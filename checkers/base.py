@@ -513,7 +513,17 @@ functions, methods
                     node.root().has_key(name)):
                 if name in self.config.bad_functions:
                     self.add_message('W0141', node=node, args=name)
-        if node.starargs or node.kwargs:
+        if node.starargs or node.kwargs:            
+            scope = node.scope()
+            if isinstance(scope, astng.Function):
+                toprocess = [(n, vn) for (n, vn) in ((node.starargs, scope.args.vararg),
+                                                     (node.kwargs, scope.args.kwarg)) if n]
+                if toprocess:
+                    for cfnode, fargname in toprocess[:]:
+                        if getattr(cfnode, 'name', None) == fargname:
+                            toprocess.remove((cfnode, fargname))
+                    if not toprocess:
+                        return # W0142 can be skipped
             self.add_message('W0142', node=node.func)
             
 

@@ -12,3 +12,7 @@ def func(arg1, arg2):
 
 MYDICT = {'arg1':2, 'arg2': 4}
 func(**MYDICT)
+
+def coolfunc(*args, **kwargs):
+    """magic function"""
+    return func(*args, **kwargs)
