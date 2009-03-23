@@ -1,5 +1,3 @@
-(require 'compile)
-
 ;;
 ;; Modifications done by Yarosav O. Halchenko (2008):
 ;;  - enable user-visible variables

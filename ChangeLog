@@ -1,7 +1,9 @@
 ChangeLog for PyLint
 ====================
 	
-
+--
+    * fix #8687, W0613 false positive on inner function
+	
 2009-03-19 -- 0.17.0
     * semicolon check : move W0601 to W0301
     * remove rpython : remove all rpython checker, modules and tests

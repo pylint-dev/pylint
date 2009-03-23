@@ -326,8 +326,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # if the name node is used as a function default argument's value or as
         # a decorator, then start from the parent frame of the function instead
         # of the function frame - and thus open an inner class scope
-        if (is_func_default(node, node.name) or is_func_decorator(node)
-                                        or is_ancestor_name(frame, node)):
+        if (is_func_default(node) or is_func_decorator(node)
+            or is_ancestor_name(frame, node)):
             start_index = len(self._to_consume) - 2
         else:
             start_index = len(self._to_consume) - 1
