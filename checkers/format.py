@@ -209,7 +209,6 @@ class FormatChecker(BaseRawChecker):
         self._visited_lines = {}
         for (tok_type, token, start, _, line) in tokens:
             if start[0] != line_num:
-
                 if previous is not None and previous[0] == tokenize.OP and previous[1] == ';':
                     self.add_message('W0301', line=previous[2])
                 previous = None
@@ -271,20 +270,20 @@ class FormatChecker(BaseRawChecker):
         else:
             prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
+        assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
             self.add_message('C0321', node=node)
             self._visited_lines[line] = 2
             return
         if self._visited_lines.has_key(line):
             return
-        lines = []
-        assert node.fromlineno, node
         try:
             tolineno = node.blockstart_tolineno
         except AttributeError:
             tolineno = node.tolineno
         assert tolineno, node
-        for line in xrange(node.fromlineno, tolineno + 1):
+        lines = []
+        for line in xrange(line, tolineno + 1):
             self._visited_lines[line] = 1
             try:
                 lines.append(self._lines[line].rstrip())
@@ -293,6 +292,7 @@ class FormatChecker(BaseRawChecker):
         try:
             msg_def = check_line('\n'.join(lines), self)
             if msg_def:
+                print node, line, tolineno
                 self.add_message(msg_def[0], node=node, args=msg_def[1])
         except KeyError:
             # FIXME: internal error !
