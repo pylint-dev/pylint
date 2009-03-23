@@ -25,8 +25,8 @@ from logilab.astng.infutils import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_error, is_builtin, is_func_default, is_func_decorator, \
-     is_ancestor_name, is_defined_before, assign_parent
+from pylint.checkers.utils import PYMETHODS, is_ancestor_name, is_builtin, \
+     is_defined_before, is_error, is_func_default, is_func_decorator, assign_parent
 
 
 def overridden_method(klass, name):
@@ -238,9 +238,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         overridden = overridden_method(klass, node.name)
                     if overridden is not None and name in overridden.argnames():
                         continue
-                # don't check callback arguments
-                if node.name.startswith('cb_') or \
-                       node.name.endswith('_cb'):
+                    if node.name in PYMETHODS:
+                        continue
+                # don't check callback arguments XXX should be configurable
+                if node.name.startswith('cb_') or node.name.endswith('_cb'):
                     continue
                 self.add_message('W0613', args=name, node=stmt)
             else:

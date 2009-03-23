@@ -188,3 +188,12 @@ def display_type(node):
     elif isinstance(node, astng.Module):
         return 'Module'
     return 'Class'
+
+PYMETHODS = set(('__new__', '__init__',
+                 '__len__', '__iter__',
+                 '__getitem__', '__setitem__', '__delitem__',
+                 '__getattribute__', '__getattr__', '__setattr__', '__delattr__',
+                 '__cmp__', '__ge__', '__gt__', '__le__', '__lt__', '__eq__',
+                 '__nonzero__',
+                 # XXX To be continued
+                 ))

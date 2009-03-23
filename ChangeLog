@@ -7,7 +7,9 @@ ChangeLog for PyLint
       has been found
     * implements #4037: don't issue W0142 (* or ** magic) when they are barely
       passed from */** arguments
- 
+    * complete #5573: more complete list of special methods, also skip W0613
+      for python internal method
+	
 2009-03-19 -- 0.17.0
     * semicolon check : move W0601 to W0301
     * remove rpython : remove all rpython checker, modules and tests

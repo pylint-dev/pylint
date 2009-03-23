@@ -51,3 +51,17 @@ else:
     def exclusive_func2():
         "this one redefine the one defined line 42"
 
+
+def with_inner_function_1():
+    """docstring"""
+    def callback():
+        """callback docstring"""
+        pass
+    return callback
+
+def with_inner_function_2():
+    """docstring"""
+    def callback():
+        """does not redefine callback returned by with_inner_function_1"""
+        pass
+    return callback

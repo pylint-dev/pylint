@@ -23,7 +23,7 @@ from logilab.astng.infutils import YES, Instance
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import overrides_a_method
+from pylint.checkers.utils import PYMETHODS, overrides_a_method
 
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
@@ -237,13 +237,6 @@ instance attributes.'}
         except astng.NotFoundError:
             pass
         
-    pymethods = set(('__new__', '__init__',
-                     '__getattr__', '__setattr__',
-                     '__hash__', '__cmp__',
-                     '__mul__', '__div__', '__add__', '__sub__',
-                     '__rmul__', '__rdiv__', '__radd__', '__rsub__',
-                     # To be continued
-                     ))
     def leave_function(self, node):
         """on method node, check if this method couldn't be a function
         
@@ -256,7 +249,7 @@ instance attributes.'}
                 self._first_attrs.pop()
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
-                and not node.name in self.pymethods
+                and not node.name in PYMETHODS
                 and not (node.is_abstract() or
                          overrides_a_method(class_node, node.name))
                 and class_node.type != 'interface'):

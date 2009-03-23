@@ -50,3 +50,11 @@ class Sub1(Super):
     def method(self):
         """no i can not be a function"""
         print 42
+
+    def __len__(self):
+        """no i can not be a function"""
+        print 42
+
+    def __cmp__(self, other):
+        """no i can not be a function"""
+        print 42
