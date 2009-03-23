@@ -26,7 +26,6 @@ C: 51:other: Operator not preceded by a space
 C: 71:_gc_debug: Operator not preceded by a space
             ocount[obj.__class__]+= 1
                                  ^^
-C: 72:_gc_debug: Operator not preceded by a space
-        except KeyError:
+C: 73:_gc_debug: Operator not preceded by a space
             ocount[obj.__class__]=1
                                  ^

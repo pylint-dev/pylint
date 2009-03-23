@@ -75,17 +75,18 @@ MSGS = {
     }
 
 # simple quoted string rgx
-SQSTRING_RGX = r'"([^"\\]|\\.)*("|\\$)'
-# triple quoted string rgx
-TQSTRING_RGX = r'"""([^"]|"(?!""))*("""|$)'
+SQSTRING_RGX = r'"([^"\\]|\\.)*?"'
 # simple apostrophed rgx
-SASTRING_RGX = r"'([^'\\]|\\.)*('|\\$)"
+SASTRING_RGX = r"'([^'\\]|\\.)*?'"
+# triple quoted string rgx
+TQSTRING_RGX = r'"""([^"]|("(?!"")))*?(""")'
 # triple apostrophed string rgx # FIXME english please
-TASTRING_RGX = r"'''([^']|'(?!''))*('''|$)"
+TASTRING_RGX = r"'''([^']|('(?!'')))*?(''')"
 
 # finally, the string regular expression
-STRING_RGX = re.compile('%s|%s|%s|%s' % (TQSTRING_RGX, TASTRING_RGX,
-                                         SQSTRING_RGX, SASTRING_RGX), re.M)
+STRING_RGX = re.compile('(%s)|(%s)|(%s)|(%s)' % (TQSTRING_RGX, TASTRING_RGX,
+                                                 SQSTRING_RGX, SASTRING_RGX),
+                        re.MULTILINE|re.DOTALL)
 
 COMMENT_RGX = re.compile("#.*$", re.M)
 
@@ -130,23 +131,22 @@ def in_coords(match, string_coords):
     mstart = match.start()
     for start, end in string_coords:
         if mstart >= start and mstart < end:
-            return 1
-    return 0
+            return True
+    return False
 
 def check_line(line, writer):
     """check a line for a bad construction
     if it founds one, return a message describing the problem
     else return None
     """
-    clean_str = STRING_RGX.sub('', line)
-    clean_str = COMMENT_RGX.sub('', clean_str)
+    cleanstr = COMMENT_RGX.sub('', STRING_RGX.sub('', line))
     for rgx_match, rgx_search, msg_id in BAD_CONSTRUCT_RGXS:
-        if rgx_match.match(clean_str):
+        if rgx_match.match(cleanstr):
             string_positions = get_string_coords(line)
             for match in re.finditer(rgx_search, line):
                 if not in_coords(match, string_positions):
                     return msg_id, pretty_match(match, line.rstrip())
-            writer.add_message('F0321', line=line, args=line)
+            #writer.add_message('F0321', line=line, args=line)
         
  
 class FormatChecker(BaseRawChecker):
@@ -185,7 +185,7 @@ class FormatChecker(BaseRawChecker):
     def new_line(self, tok_type, line, line_num, junk):
         """a new line has been encountered, process it if necessary"""
         if not tok_type in junk:
-            self._lines[line_num] = line
+            self._lines[line_num] = line.split('\n')[0]
         self.check_lines(line, line_num)
         
     def process_tokens(self, tokens):
@@ -292,7 +292,6 @@ class FormatChecker(BaseRawChecker):
         try:
             msg_def = check_line('\n'.join(lines), self)
             if msg_def:
-                print node, line, tolineno
                 self.add_message(msg_def[0], node=node, args=msg_def[1])
         except KeyError:
             # FIXME: internal error !
