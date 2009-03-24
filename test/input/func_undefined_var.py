@@ -58,3 +58,12 @@ except ValueError:
     PLOUF = 'something'
 
 print PLOUF
+
+def if_branch_test(something):
+    """hop"""
+    if something == 0:
+        if xxx == 1:
+            pass
+    else:
+        print xxx
+        xxx = 3

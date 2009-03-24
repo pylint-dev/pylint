@@ -6,4 +6,5 @@ E: 26:bad_default: Undefined variable 'xxxx'
 E: 27:bad_default: Undefined variable 'augvar'
 E: 28:bad_default: Undefined variable 'vardel'
 E: 56: Using variable 'PLOUF' before assignment
+E: 65:if_branch_test: Using variable 'xxx' before assignment
 W: 27:bad_default: Unused variable 'augvar'

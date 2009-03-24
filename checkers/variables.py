@@ -376,7 +376,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         and not is_defined_before(node)
                         and not are_exclusive(stmt, defstmt, ('NameError', 'Exception', 'BaseException'))):
                         if defstmt is stmt and isinstance(node, (astng.DelName,
-                                                               astng.AssName)):
+                                                                 astng.AssName)):
                             self.add_message('E0602', args=name, node=node)
                         else:
                             self.add_message('E0601', args=name, node=node)
