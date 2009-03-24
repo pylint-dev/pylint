@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@ from logilab.common.graph import get_cycles, DotBackend
 from logilab.common.modutils import is_standard_module, is_relative, \
      get_module_part
 from logilab.common.ureports import VerbatimText, Paragraph
+from logilab.common.compat import sorted, enumerate
 
 from logilab import astng
 from logilab.astng.infutils import are_exclusive
@@ -75,8 +76,7 @@ def repr_tree_defs(data, indent_str=None):
     """return a string which represents imports as a tree"""
     lines = []
     nodes = data.items()
-    for i in range(len(nodes)):
-        mod, (sub, files) = nodes[i]
+    for i, (mod, (sub, files)) in enumerate(sorted(nodes, key=lambda x: x[0])):
         if not files:
             files = ''
         else:
