@@ -23,7 +23,7 @@ version = '.'.join([str(num) for num in numversion])
 
 license = 'GPL'
 copyright = '''Copyright (c) 2003-2009 Sylvain Thenault (thenault@gmail.com).
-Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
 
 short_desc = "python code static checker"

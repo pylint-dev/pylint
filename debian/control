@@ -4,10 +4,10 @@ Priority: optional
 Maintainer: Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
 Uploaders: Sylvain Thénault <sylvain.thenault@logilab.fr>, Alexandre Fayolle <afayolle@debian.org>, Sandro Tosi <morph@debian.org>
 Build-Depends: debhelper (>= 5.0.38), python
-Build-Depends-Indep: python-central (>=0.5.6)
-Standards-Version: 3.8.0
+Build-Depends-Indep: python-support
+Standards-Version: 3.8.1
 XS-Python-Version: all
-Homepage: http://www.logilab.org/Project/name/pylint
+Homepage: http://www.logilab.org/project/pylint
 Vcs-Svn: svn://svn.debian.org/svn/python-apps/packages/pylint/trunk/
 Vcs-Browser: http://svn.debian.org/viewsvn/python-apps/packages/pylint/trunk/
 
