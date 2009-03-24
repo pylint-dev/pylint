@@ -337,9 +337,12 @@ functions, methods
             # treat string statement in a separated message
             self.add_message('W0105', node=node)
             return
-        # ignore if this is a function call (can't predicate side effects)
-        # XXX ? or a yield (which are wrapped by a discard node in _ast)
-        if not any(expr.nodes_of_class((astng.CallFunc, astng.Yield))):
+        # ignore if this is :
+        # * a function call (can't predicate side effects)
+        # * the unique children of a try/except body
+        # * a yield (which are wrapped by a discard node in _ast XXX)
+        if not (any(expr.nodes_of_class((astng.CallFunc, astng.Yield)))
+                or isinstance(node.parent, astng.TryExcept) and node.parent.body == [node]):
             self.add_message('W0104', node=node)
         
     def visit_pass(self, node):
@@ -607,3 +610,4 @@ functions, methods
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(BasicChecker(linter))
+

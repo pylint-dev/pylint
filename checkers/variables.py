@@ -347,7 +347,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self._loopvar_name(node, name)
                 break
             # mark the name as consumed if it's defined in this scope
-            # (i.e. no KeyError is raised by "to_consume[name]"
+            # (i.e. no KeyError is raised by "to_consume[name]")
             try:
                 consumed[name] = to_consume[name]
             except KeyError:
@@ -377,7 +377,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     if (maybee0601
                         and stmt.fromlineno <= defstmt.fromlineno
                         and not is_defined_before(node)
-                        and not are_exclusive(stmt, defstmt)):
+                        and not are_exclusive(stmt, defstmt, ('NameError', 'Exception', 'BaseException'))):
                         if defstmt is stmt and isinstance(node, (astng.DelName,
                                                                astng.AssName)):
                             self.add_message('E0602', args=name, node=node)

@@ -5,4 +5,5 @@ E: 25:bad_default: Undefined variable 'xxxx'
 E: 26:bad_default: Undefined variable 'xxxx'
 E: 27:bad_default: Undefined variable 'augvar'
 E: 28:bad_default: Undefined variable 'vardel'
+E: 56: Using variable 'PLOUF' before assignment
 W: 27:bad_default: Unused variable 'augvar'

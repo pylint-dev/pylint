@@ -33,3 +33,28 @@ def bad_default(var, default=unknown2):
 #AOU = Attrs()
 #AOU.number *= 1.3
 #del AOU.badattr
+
+try:
+    POUET # don't catch me
+except NameError:
+    POUET = 'something'
+
+try:
+    POUETT # don't catch me
+except Exception: # pylint:disable-msg = W0703
+    POUETT = 'something'
+
+try:
+    POUETTT # don't catch me
+except: # pylint:disable-msg = W0702
+    POUETTT = 'something'
+
+print POUET, POUETT, POUETTT
+
+
+try:
+    PLOUF # catch me
+except ValueError:
+    PLOUF = 'something'
+
+print PLOUF
