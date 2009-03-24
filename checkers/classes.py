@@ -327,8 +327,6 @@ instance attributes.'}
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
                     for _node in nodes:
-                        # XXX should check for catched AttributeError,
-                        #     not simply are_exclusive
                         if _node.frame() is frame and _node.fromlineno < lno \
                            and not are_exclusive(_node.statement(), defstmt, ('AttributeError', 'Exception', 'BaseException')):
                             self.add_message('E0203', node=_node,
