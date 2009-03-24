@@ -21,3 +21,13 @@ class Bbbb(object):
         except AttributeError:
             self.__repo = attr
             return attr
+
+    
+    def catchme(self, attr):
+        """no AttributeError catched"""
+        # pylint: disable-msg=W0201
+        try:
+            return self._repo
+        except ValueError:
+            self._repo = attr
+            return attr

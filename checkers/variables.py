@@ -371,9 +371,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         # defined in global or builtin scope
                         if defframe.root().lookup(name)[1]:
                             maybee0601 = False
-                    # FIXME: the last condition should just check attribute
-                    # access is protected by a try: except NameError: (similar
-                    # to #9219), we simply test using are_exclusive
                     if (maybee0601
                         and stmt.fromlineno <= defstmt.fromlineno
                         and not is_defined_before(node)
