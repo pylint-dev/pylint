@@ -221,7 +221,7 @@ This is used by the global evaluation report (R0004).'}),
                  'help' : 'Enable all messages in the listed categories (IRCWEF).'}),
 
                ('disable-msg-cat',
-                {'type' : 'string', 'metavar': '<msg cats>',
+                {'type' : 'string', 'metavar': '<msg cats>', 'default': 'I',
                  'group': 'Messages control',
                  'help' : 'Disable all messages in the listed categories (IRCWEF).'}),
                
