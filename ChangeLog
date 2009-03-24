@@ -6,6 +6,8 @@ ChangeLog for PyLint
     * fix #8350, C0322 false positive on multi-line string 
     * fix #8332: set E0501 line no to the first line where non ascii character
       has been found
+    * avoid some E0203 / E0602 false negatives by detecting respectivly
+      AttributeError / NameError
     * implements #4037: don't issue W0142 (* or ** magic) when they are barely
       passed from */** arguments
     * complete #5573: more complete list of special methods, also skip W0613
