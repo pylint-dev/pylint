@@ -44,7 +44,7 @@ long_desc = """\
 author = "Sylvain Thenault"
 author_email = "sylvain.thenault@logilab.fr"
 
-web = "http://www.logilab.org/project/name/%s" % modname
+web = "http://www.logilab.org/project/%s" % modname
 ftp = "ftp://ftp.logilab.org/pub/%s" % modname
 mailinglist = "mailto://python-projects@logilab.org"
 

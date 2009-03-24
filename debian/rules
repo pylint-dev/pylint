@@ -5,7 +5,7 @@
 # adapted by Logilab for automatic generation by debianize
 # (part of the devtools project, http://www.logilab.org/projects/devtools)
 #
-# Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 # Uncomment this to turn on verbose mode.
@@ -14,14 +14,14 @@
 build: build-stamp
 build-stamp:
 	dh_testdir
-	python setup.py -q build
+	NO_SETUPTOOLS=1 python setup.py -q build
 	touch build-stamp
 
 clean:
 	dh_testdir
 	dh_testroot
 
-	python setup.py clean
+	NO_SETUPTOOLS=1 python setup.py clean
 
 	find . -name "*.pyc" -delete
 
@@ -33,7 +33,7 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	python setup.py -q install --no-compile --prefix=debian/pylint/usr/
+	NO_SETUPTOOLS=1 python setup.py -q install --no-compile --prefix=debian/pylint/usr/
 
 	rm -rf debian/pylint/usr/lib/python*/site-packages/pylint/test
 

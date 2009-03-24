@@ -15,17 +15,19 @@ from os.path import isdir, exists, join, walk
 
 # FIXME : setup.py doesn't work with setuptools so we use distutils
 
-#try:
-    #from setuptools import setup
-    #from setuptools.command import install_lib
-    #USE_SETUPTOOLS = 1
-#except ImportError:    
-from distutils.core import setup
-from distutils.command import install_lib
-USE_SETUPTOOLS = 0
-
+try:
+    if os.environ.get('NO_SETUPTOOLS'):
+        raise ImportError()
+    from setuptools import setup
+    from setuptools.command import install_lib
+    USE_SETUPTOOLS = 1
+except ImportError:    
+    from distutils.core import setup
+    from distutils.command import install_lib
+    USE_SETUPTOOLS = 0
 #assert USE_SETUPTOOLS
 
+sys.modules.pop('__pkginfo__', None)
 # import required features
 from __pkginfo__ import modname, version, license, short_desc, long_desc, \
      web, author, author_email, classifiers
