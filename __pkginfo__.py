@@ -16,15 +16,34 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """pylint packaging information"""
 
-modname = 'pylint'
+modname = distname = 'pylint'
 
-numversion = (0, 17, 0)
+numversion = (0, 18, 0)
 version = '.'.join([str(num) for num in numversion])
 
+
+install_requires = ['logilab-common', 'logilab-astng >= 0.19.0']
+
+pyversions = ["2.3", "2.4", "2.5", '2.6'] # maybe 2.2 as well
+
+author = 'Logilab'
+author_email = 'python-projects@lists.logilab.org'
+mailinglist = "mailto://%s" % author_email
+web = "http://www.logilab.org/project/%s" % distname
+ftp = "ftp://ftp.logilab.org/pub/%s" % modname
 license = 'GPL'
-copyright = '''Copyright (c) 2003-2009 Sylvain Thenault (thenault@gmail.com).
-Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
-http://www.logilab.fr/ -- mailto:contact@logilab.fr'''
+
+classifiers =  ['Development Status :: 4 - Beta',
+                'Environment :: Console',
+                'Intended Audience :: Developers',
+                'License :: OSI Approved :: GNU General Public License (GPL)',
+                'Operating System :: OS Independent',
+                'Programming Language :: Python',
+                'Topic :: Software Development :: Debuggers',
+                'Topic :: Software Development :: Quality Assurance',
+                'Topic :: Software Development :: Testing',
+                ]
+
 
 short_desc = "python code static checker"
 long_desc = """\
@@ -41,30 +60,7 @@ long_desc = """\
  .
  Additionally, it is possible to write plugins to add your own checks."""
 
-author = "Sylvain Thenault"
-author_email = "sylvain.thenault@logilab.fr"
-
-web = "http://www.logilab.org/project/%s" % modname
-ftp = "ftp://ftp.logilab.org/pub/%s" % modname
-mailinglist = "mailto://python-projects@logilab.org"
-
 from os.path import join
 scripts = [join('bin', filename) for filename in 
             ('pylint', 'pylint-gui', "symilar", "epylint", "pyreverse")]
 
-pyversions = ["2.3", "2.4", "2.5"]
-
-debian_uploader = 'Alexandre Fayolle <afayolle@debian.org>'
-
-classifiers =  ['Development Status :: 4 - Beta',
-                'Environment :: Console',
-                'Intended Audience :: Developers',
-                'License :: OSI Approved :: GNU General Public License (GPL)',
-                'Operating System :: OS Independent',
-                'Programming Language :: Python',
-                'Topic :: Software Development :: Debuggers',
-                'Topic :: Software Development :: Quality Assurance',
-                'Topic :: Software Development :: Testing',
-                ]
-
-install_requires = ['logilab-common', 'logilab-astng >= 0.18.0']

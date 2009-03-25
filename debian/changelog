@@ -1,9 +1,10 @@
-pylint (0.17.0-2) unstable; urgency=low
+pylint (0.18.0-1) unstable; urgency=low
 
   * change to python-support
   * update StandardVersion to 3.8.1
+  * debian/rules: set NO_SETUPTOOLS when calling python setup.py
 
- --
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed, 25 Mar 2009 09:39:37 +0100
 
 pylint (0.17.0-1) unstable; urgency=low
 
