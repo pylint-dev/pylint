@@ -41,13 +41,13 @@ class StringRgxTest(unittest.TestCase):
         self.assertEqual(STRING_RGX.sub('', '"""yo"""'), '')
         
     def test_known_values_tq_2(self):
-        self.assertEqual(STRING_RGX.sub('', '"""yo\n'), '')
+        self.assertEqual(STRING_RGX.sub('', '"""yo\n"""'), '')
         
     def test_known_values_ta_1(self):
         self.assertEqual(STRING_RGX.sub('', "'''yo'''"), '')
         
     def test_known_values_ta_2(self):
-        self.assertEqual(STRING_RGX.sub('', "'''yo\n"), '')
+        self.assertEqual(STRING_RGX.sub('', "'''yo\n'''"), '')
         
     def test_known_values_5(self):
         self.assertEqual(STRING_RGX.sub('', r'"yo\"yo"'), '')
@@ -59,10 +59,10 @@ class StringRgxTest(unittest.TestCase):
         self.assertEqual(STRING_RGX.sub('', '"yo"upi"yo"upi'), 'upiupi')
 
     def test_known_values_8(self):
-        self.assertEqual(STRING_RGX.sub('', "'yo\\'yo\\"), '')
+        self.assertEqual(STRING_RGX.sub('', r"'yo\'yo\''"), '')
         
     def test_known_values_9(self):
-        self.assertEqual(STRING_RGX.sub('', '"yoyo\\'), '')
+        self.assertEqual(STRING_RGX.sub('', r'"yoyo\""'), '')
 
     def test_known_values_10(self):
         self.assertEqual(STRING_RGX.sub('', 'self.filterFunc = eval(\'lambda %s: %s\'%(\',\'.join(variables),formula),{},{})'),
@@ -159,10 +159,10 @@ class ChecklineFunctionTest(unittest.TestCase):
                          ('C0324', "self.filterFunc = eval('lambda %s: %s'%(','.join(variables),formula),{},{})\n                                                           ^^"))
 
     def test_known_values_tqstring(self):
-        self.assertEqual(check_line('print """<a="=")', REPORTER), None)
+        self.assertEqual(check_line('print """<a="=")\n"""', REPORTER), None)
         
     def test_known_values_tastring(self):
-        self.assertEqual(check_line("print '''<a='=')", REPORTER), None)
+        self.assertEqual(check_line("print '''<a='=')\n'''", REPORTER), None)
         
 if __name__ == '__main__':
     unittest.main()
