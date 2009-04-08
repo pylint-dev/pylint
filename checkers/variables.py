@@ -134,7 +134,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         self._to_consume = [(copy(node.locals), {}, 'module')]
         self._vars = []
         for name, stmts in node.locals.items():
-            if self._is_builtin(name):
+            if is_builtin(name):
+                # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmts[0])
         
     def leave_module(self, node):
@@ -198,7 +199,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if globs.has_key(name) and not isinstance(stmt, astng.Global):
                 line = globs[name][0].lineno
                 self.add_message('W0621', args=(name, line), node=stmt)
-            elif self._is_builtin(name):
+            elif is_builtin(name):
+                # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmt)
         self._to_consume.append((copy(node.locals), {}, 'function'))
         self._vars.append({})
@@ -390,7 +392,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         else:
             # we have not found the name, if it isn't a builtin, that's an
             # undefined name !
-            if not (name in astng.Module.scope_attrs or self._is_builtin(name)):
+            if not (name in astng.Module.scope_attrs or is_builtin(name)
+                    or name in self.config.additional_builtins):
                 self.add_message('E0602', args=name, node=node)
                 
     def visit_import(self, node):
@@ -474,11 +477,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return module
         return None
     
-    def _is_builtin(self, name):
-        """return True if the name is defined in the native builtin or
-        in the user specific builtins
-        """
-        return is_builtin(name) or name in self.config.additional_builtins
+
     
 
 def register(linter):
