@@ -190,17 +190,24 @@ def display_type(node):
         return 'Module'
     return 'Class'
 
-PYMETHODS = set(('__new__', '__init__',
+PYMETHODS = set(('__new__', '__init__', '__del__', '__hash__',
+                 '__str__', '__repr__',
                  '__len__', '__iter__',
-                 '__getitem__', '__setitem__', '__delitem__',
+                 '__get__', '__set__',
+                 '__getitem__', '__setitem__', '__delitem__', '__contains__',
                  '__getattribute__', '__getattr__', '__setattr__', '__delattr__',
+                 '__call__',
+                 '__enter__', '__exit__',
                  '__cmp__', '__ge__', '__gt__', '__le__', '__lt__', '__eq__',
-                 '__nonzero__',
+                 '__nonzero__', '__neg__', '__invert__',
                  '__mul__', '__imul__', '__rmul__',
                  '__div__', '__idiv__', '__rdiv__',
                  '__add__', '__iadd__', '__radd__',
                  '__sub__', '__isub__', '__rsub__',
                  '__pow__', '__ipow__', '__rpow__',
                  '__mod__', '__imod__', '__rmod__',
+                 '__and__', '__iand__', '__rand__',
+                 '__or__', '__ior__', '__ror__',
+                 '__xor__', '__ixor__', '__rxor__',
                  # XXX To be continued
                  ))
