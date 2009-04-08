@@ -99,10 +99,6 @@ OP_RGX_MATCH_2 = r'[^(]*(%s)(?!\s|=|>|<).*' % OPERATORS
 OP_RGX_SEARCH_2 = r'(%s)(?!\s|=|>)' % OPERATORS
 
 BAD_CONSTRUCT_RGXS = (
-##     (re.compile(
-##     r'\s*(class|def|if|for|while)\s+([^:\[\]]|\[.*:?.*\])*?:\s*\w+(\s|\w)*'),
-##      re.compile(r':\s*[^\s]+.*'),
-##      'C0321'),
     
     (re.compile(OP_RGX_MATCH_1, re.M),
      re.compile(OP_RGX_SEARCH_1, re.M),
