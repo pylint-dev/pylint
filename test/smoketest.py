@@ -26,6 +26,8 @@ HERE = abspath(dirname(__file__))
 class RunTC(TestCase):
 
     def _runtest(self, args, reporter=None, code=28):
+        if sys.version_info < (2, 5) and 'pylint.lint' in args:
+            code = 30
         try:
             sys.stderr = sys.stdout = stream = StringIO()
             try:
