@@ -268,8 +268,12 @@ class FormatChecker(BaseRawChecker):
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
-            self.add_message('C0321', node=node)
-            self._visited_lines[line] = 2
+            # py2.5 try: except: finally:
+            if not (isinstance(node, nodes.TryExcept)
+                    and isinstance(node.parent, nodes.TryFinally)
+                    and node.fromlineno == node.parent.fromlineno):
+                self.add_message('C0321', node=node)
+                self._visited_lines[line] = 2
             return
         if self._visited_lines.has_key(line):
             return
