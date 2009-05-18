@@ -383,11 +383,15 @@ functions, methods
                 or not isinstance(call.kwargs, astng.Name)
                 or node.args.kwarg != call.kwargs.name):
                 return
+        elif call.kwargs:
+            return
         if node.args.vararg:
             if (not call.starargs
                 or not isinstance(call.starargs, astng.Name)
                 or node.args.vararg != call.starargs.name):
                 return
+        elif call.starargs:
+            return
 
         # The "ordinary" arguments must be in a correspondence such that:
         # ordinary_args[i].name == call.args[i].name.
@@ -610,4 +614,3 @@ functions, methods
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(BasicChecker(linter))
-
