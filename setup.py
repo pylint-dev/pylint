@@ -21,7 +21,7 @@ try:
     from setuptools import setup
     from setuptools.command import install_lib
     USE_SETUPTOOLS = 1
-except ImportError:    
+except ImportError:
     from distutils.core import setup
     from distutils.command import install_lib
     USE_SETUPTOOLS = 0

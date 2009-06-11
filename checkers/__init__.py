@@ -61,7 +61,7 @@ def table_lines_from_stats(stats, old_stats, columns):
         lines += (m_type.replace('_', ' '), format(new), old, diff_str)
     return lines
 
-    
+
 class BaseChecker(OptionsProviderMixIn, ASTWalker):
     """base class for checkers"""
 
@@ -70,7 +70,7 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
     enabled = True
     may_be_disabled = True
     name = None
-    
+
     def __init__(self, linter=None):
         """checker instances should have the linter as argument
 
@@ -80,7 +80,7 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
         self.name = self.name.lower()
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
-        
+
     def add_message(self, msg_id, line=None, node=None, args=None):
         """add a message of a given type"""
         self.linter.add_message(msg_id, line, node, args)
@@ -98,32 +98,32 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
             raise Exception("can't disable %s checker" % self.name)
         if enabled or self.may_be_disabled:
             self.enabled = enabled
-        
+
     def package_dir(self):
         """return the base directory for the analysed package"""
         return dirname(self.linter.base_file)
 
 
     # dummy methods implementing the IChecker interface
-    
+
     def open(self):
         """called before visiting project (i.e set of modules)"""
-    
+
     def close(self):
         """called after visiting project (i.e set of modules)"""
 
 class BaseRawChecker(BaseChecker):
     """base class for raw checkers"""
-    
+
     def process_module(self, stream):
         """process a module
-        
+
         the module's content is accessible via the stream object
-        
+
         stream must implement the readline method
         """
         self.process_tokens(tokenize.generate_tokens(stream.readline))
-    
+
     def process_tokens(self, tokens):
         """should be overiden by subclasses"""
         raise NotImplementedError()
@@ -159,5 +159,5 @@ def package_load(linter, directory):
                 if hasattr(module, 'register'):
                     module.register(linter)
                     imported[basename] = 1
-                
+
 __all__ = ('CheckerHandler', 'BaseChecker', 'initialize', 'package_load')
