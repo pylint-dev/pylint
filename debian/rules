@@ -25,7 +25,9 @@ clean:
 
 	find . -name "*.pyc" -delete
 
-	dh_clean build-stamp build
+	rm -rf build
+
+	dh_clean build-stamp
 
 install: build
 	dh_testdir
@@ -33,9 +35,11 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	NO_SETUPTOOLS=1 python setup.py -q install --no-compile --prefix=debian/pylint/usr/
+	NO_SETUPTOOLS=1 python setup.py -q install --no-compile \
+			--root=$(CURDIR)/debian/pylint \
+			--install-layout=deb
 
-	rm -rf debian/pylint/usr/lib/python*/site-packages/pylint/test
+	rm -rf debian/pylint/usr/lib/python*/*-packages/pylint/test
 
 	# fixes shebangs
 	for exec in pylint pylint-gui symilar ; do \
