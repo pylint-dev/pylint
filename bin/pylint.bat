@@ -14,6 +14,7 @@ lint.Run(sys.argv[1:])
 
 DosExitLabel = """
 :exit
+exit(ERRORLEVEL)
 rem """
 
 
