@@ -2,6 +2,7 @@ ChangeLog for PyLint
 ====================
 
 --
+    * improved flymake code and doc provided by Derek Harland
     * fix #8764: More than one statement on a single line false positive with
       try/except/finally
 	* Nathaniel's fix for w0108 false positive
