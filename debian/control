@@ -3,7 +3,7 @@ Section: python
 Priority: optional
 Maintainer: Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
 Uploaders: Sylvain Thénault <sylvain.thenault@logilab.fr>, Alexandre Fayolle <afayolle@debian.org>, Sandro Tosi <morph@debian.org>
-Build-Depends: debhelper (>= 5.0.38), python
+Build-Depends: debhelper (>= 5.0.38), python (>= 2.4)
 Build-Depends-Indep: python-support
 Standards-Version: 3.8.1
 XS-Python-Version: all
@@ -13,7 +13,7 @@ Vcs-Browser: http://svn.debian.org/viewsvn/python-apps/packages/pylint/trunk/
 
 Package: pylint
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.35.0), python-logilab-astng (>= 0.19.0)
+Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.39.0), python-logilab-astng (>= 0.19.0)
 Recommends: python-tk
 XB-Python-Version: ${python:Versions}
 Conflicts: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test

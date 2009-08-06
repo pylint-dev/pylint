@@ -1,3 +1,12 @@
+pylint (0.18.0-2) UNRELEASED; urgency=low
+
+  * Python transition, thanks Alessio Treglia for the patch (Closes: #530509)
+   - Use --install-layout=deb for setup.py install.
+   - Replace site-packages by *-packages.
+   - Build-depends on python >= 2.5.4-1~ for --install-layout=deb.
+
+ -- Julien Lavergne <julien.lavergne@gmail.com>  Sun, 31 May 2009 01:24:53 +0200
+
 pylint (0.18.0-1) unstable; urgency=low
 
   * change to python-support
