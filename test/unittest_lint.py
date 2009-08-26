@@ -28,7 +28,7 @@ from pylint.utils import sort_msgs
 from pylint import checkers
 
 class SortMessagesTC(TestCase):
-    
+
     def test(self):
         l = ['E0501', 'E0503', 'F0002', 'I0201', 'W0540',
              'R0202', 'F0203', 'R0220', 'W0321', 'I0001']
@@ -43,7 +43,7 @@ try:
     raise AssertionError
 except AssertionError:
     optimized = False
-    
+
 class GetNoteMessageTC(TestCase):
     def test(self):
         msg = None
@@ -75,22 +75,22 @@ class RunTC(TestCase):
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
 
-        
+
 class PyLinterTC(TestCase):
-    
+
     def setUp(self):
         self.linter = PyLinter()
         self.linter.disable_message_category('I')
         self.linter.config.persistent = 0
         # register checkers
         checkers.initialize(self.linter)
-        
+
     def test_message_help(self):
         msg = self.linter.get_message_help('F0001', checkerref=True)
         expected = ':F0001:\n  Used when an error occured preventing the analysis of a module (unable to find\n  it for instance). This message belongs to the master checker.'
         self.assertTextEqual(msg, expected)
         self.assertRaises(UnknownMessage, self.linter.get_message_help, 'YB12')
-        
+
     def test_enable_message(self):
         linter = self.linter
         linter.open()
@@ -103,7 +103,7 @@ class PyLinterTC(TestCase):
         self.assert_(not linter.is_message_enabled('W0102', 1))
         linter.set_current_module('tutu')
         self.assert_(not linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('W0102'))        
+        self.assert_(linter.is_message_enabled('W0102'))
         linter.enable_message('W0101', scope='package')
         linter.enable_message('W0102', scope='module', line=1)
         self.assert_(linter.is_message_enabled('W0101'))
@@ -121,7 +121,7 @@ class PyLinterTC(TestCase):
         self.assert_(not linter.is_message_enabled('R0102'))
         linter.set_current_module('tutu')
         self.assert_(not linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('R0102'))        
+        self.assert_(linter.is_message_enabled('R0102'))
         linter.enable_message_category('W', scope='package')
         linter.enable_message_category('R', scope='module')
         self.assert_(linter.is_message_enabled('W0101'))
@@ -146,7 +146,7 @@ class PyLinterTC(TestCase):
         # meth3
         self.assert_(not linter.is_message_enabled('E1101', 24))
         self.assert_(linter.is_message_enabled('E1101', 26))
-        # meth4        
+        # meth4
         self.assert_(not linter.is_message_enabled('E1101', 32))
         self.assert_(linter.is_message_enabled('E1101', 36))
         # meth5
@@ -160,7 +160,7 @@ class PyLinterTC(TestCase):
         self.assert_(linter.is_message_enabled('E1101', 61))
         self.assert_(not linter.is_message_enabled('E1101', 64))
         self.assert_(not linter.is_message_enabled('E1101', 66))
-        
+
         self.assert_(linter.is_message_enabled('E0602', 57))
         self.assert_(linter.is_message_enabled('E0602', 61))
         self.assert_(not linter.is_message_enabled('E0602', 62))
@@ -171,7 +171,7 @@ class PyLinterTC(TestCase):
         self.assert_(linter.is_message_enabled('E1101', 72))
         self.assert_(linter.is_message_enabled('E1101', 75))
         self.assert_(linter.is_message_enabled('E1101', 77))
-        
+
     def test_list_messages(self):
         sys.stdout = StringIO()
         try:
@@ -219,15 +219,15 @@ class PyLinterTC(TestCase):
         self.assertEquals(sorted([c.name for c in self.linter._checkers.values()
                                   if c.is_enabled()]),
                           ['basic', 'classes', 'exceptions', 'format', 'imports',
-                           'master', 'metrics', 'miscellaneous', 'newstyle',
+                           'logging', 'master', 'metrics', 'miscellaneous', 'newstyle',
                            'similarities', 'typecheck', 'variables'])
-        
+
     def test_enable_checkers2(self):
         self.linter.enable_checkers(['design'], True)
         self.assertEquals(sorted([c.name for c in self.linter._checkers.values()
                            if c.is_enabled()]),
                           ['design', 'master'])
-                          
+
 from pylint import config
 
 class ConfigTC(TestCase):
@@ -286,7 +286,7 @@ class ConfigTC(TestCase):
         finally:
             os.chdir(HERE)
             shutil.rmtree(chroot)
-     
+
 
     def test_pylintrc_parentdir_no_package(self):
         chroot = tempfile.mkdtemp()
@@ -296,8 +296,8 @@ class ConfigTC(TestCase):
             self.assertEquals(config.find_pylintrc(), None)
             results = {'a'       : join(chroot, 'a', 'pylintrc'),
                        'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
-                       'a/b/c'   : None, 
-                       'a/b/c/d' : None, 
+                       'a/b/c'   : None,
+                       'a/b/c/d' : None,
                        }
             for basedir, expected in results.items():
                 os.chdir(join(chroot, basedir))
