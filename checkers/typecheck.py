@@ -48,7 +48,7 @@ MSGS = {
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
-    
+
     __implements__ = (IASTNGChecker,)
 
     # configuration section name
@@ -92,14 +92,14 @@ accessed.'}
         self.generated_members = list(self.config.generated_members)
         if self.config.zope:
             self.generated_members.extend(('REQUEST', 'acl_users', 'aq_parent'))
-        
+
     def visit_assattr(self, node):
         if isinstance(node.ass_type(), astng.AugAssign):
             self.visit_getattr(node)
-            
+
     def visit_delattr(self, node):
         self.visit_getattr(node)
-        
+
     def visit_getattr(self, node):
         """check that the accessed attribute exists
 
@@ -195,7 +195,7 @@ accessed.'}
             self.add_message('E1111', node=node)
         else:
             for rnode in returns:
-                if not (isinstance(rnode.value, astng.Const) 
+                if not (isinstance(rnode.value, astng.Const)
                         and rnode.value.value is None):
                     break
             else:
@@ -208,8 +208,8 @@ accessed.'}
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
             self.add_message('E1102', node=node, args=node.func.as_string())
-        
-    
+
+
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(TypeChecker(linter))
