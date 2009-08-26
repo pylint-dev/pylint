@@ -61,7 +61,7 @@ MSGS = {
               '| > | = | \+= | -= | \*= | /= | %) is not followed by a space.'),
     'C0324': ('Comma not followed by a space\n%s',
               'Used when a comma (",") is not followed by a space.'),
-    
+
     'W0331': ('Use of the <> operator',
               'Used when the deprecated "<>" operator is used instead \
               of "!=".'),
@@ -99,21 +99,21 @@ OP_RGX_MATCH_2 = r'[^(]*(%s)(?!\s|=|>|<).*' % OPERATORS
 OP_RGX_SEARCH_2 = r'(%s)(?!\s|=|>)' % OPERATORS
 
 BAD_CONSTRUCT_RGXS = (
-    
+
     (re.compile(OP_RGX_MATCH_1, re.M),
      re.compile(OP_RGX_SEARCH_1, re.M),
      'C0322'),
-    
+
     (re.compile(OP_RGX_MATCH_2, re.M),
      re.compile(OP_RGX_SEARCH_2, re.M),
      'C0323'),
-    
+
     (re.compile(r'.*,[^\s)].*', re.M),
      re.compile(r',[^\s)]', re.M),
      'C0324'),
     )
 
-    
+
 def get_string_coords(line):
     """return a list of string positions (tuple (start, end)) in the line
     """
@@ -143,16 +143,16 @@ def check_line(line, writer):
                 if not in_coords(match, string_positions):
                     return msg_id, pretty_match(match, line.rstrip())
             #writer.add_message('F0321', line=line, args=line)
-        
- 
+
+
 class FormatChecker(BaseRawChecker):
-    """checks for :                                                            
-    * unauthorized constructions                                               
-    * strict indentation                                                       
-    * line length                                                              
+    """checks for :
+    * unauthorized constructions
+    * strict indentation
+    * line length
     * use of <> instead of !=
     """
-    
+
     __implements__ = (IRawChecker, IASTNGChecker)
 
     # configuration section name
@@ -183,10 +183,10 @@ class FormatChecker(BaseRawChecker):
         if not tok_type in junk:
             self._lines[line_num] = line.split('\n')[0]
         self.check_lines(line, line_num)
-        
+
     def process_tokens(self, tokens):
         """process tokens and search for :
-    
+
          _ non strict indentation (i.e. not always using the <indent> parameter as
            indent unit)
          _ too long lines (i.e. longer than <max_chars>)
@@ -219,7 +219,7 @@ class FormatChecker(BaseRawChecker):
             elif tok_type == tokenize.NUMBER:
                 if token.endswith('l'):
                     self.add_message('W0332', line=line_num)
-                
+
             elif tok_type == newline:
                 # a program statement, or ENDMARKER, will eventually follow,
                 # after some (possibly empty) run of tokens of the form
@@ -251,7 +251,7 @@ class FormatChecker(BaseRawChecker):
                 # "indents" stack was seeded
                 check_equal = 0
                 self.check_indent_level(line, indents[-1], line_num)
-                
+
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
             self.add_message('C0302', args=line_num, line=1)
@@ -259,9 +259,9 @@ class FormatChecker(BaseRawChecker):
     def visit_default(self, node):
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
-            return           
+            return
         if not node.root().pure_python:
-            return # XXX block visit of child nodes 
+            return # XXX block visit of child nodes
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
@@ -301,7 +301,7 @@ class FormatChecker(BaseRawChecker):
 
     def visit_backquote(self, node):
         self.add_message('W0333', node=node)
-        
+
     def check_lines(self, lines, i):
         """check lines have less than a maximum number of characters
         """
@@ -310,7 +310,7 @@ class FormatChecker(BaseRawChecker):
             if len(line) > max_chars:
                 self.add_message('C0301', line=i, args=(len(line), max_chars))
             i += 1
-        
+
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
         """
@@ -339,7 +339,7 @@ class FormatChecker(BaseRawChecker):
                 i_type = 'tabs'
             self.add_message('W0311', line=line_num,
                              args=(level * unit_size + len(suppl), i_type,
-                                   expected * unit_size))    
+                                   expected * unit_size))
 
 
 def register(linter):

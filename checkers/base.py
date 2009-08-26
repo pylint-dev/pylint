@@ -67,7 +67,7 @@ def report_by_type_stats(sect, stats, old_stats):
     * percentage of different types with a bad name
     """
     # percentage of different types documented and/or with a bad name
-    nice_stats = {} 
+    nice_stats = {}
     for node_type in ('module', 'class', 'method', 'function'):
         nice_stats[node_type] = {}
         total = stats[node_type]
@@ -99,10 +99,10 @@ def report_by_type_stats(sect, stats, old_stats):
 MSGS = {
     'E0100': ('__init__ method is a generator',
               'Used when the special class method __init__ is turned into a '
-              'generator by a yield in its body.'),    
+              'generator by a yield in its body.'),
     'E0101': ('Explicit return in __init__',
               'Used when the special class method __init__ has an explicit \
-              return value.'),    
+              return value.'),
     'E0102': ('%s already defined line %s',
               'Used when a function / class / method is redefined.'),
     'E0103': ('%r not properly in loop',
@@ -145,7 +145,7 @@ MSGS = {
     'W0122': ('Use of the exec statement',
               'Used when you use the "exec" statement, to discourage its \
               usage. That doesn\'t mean you can not use it !'),
-    
+
     'W0141': ('Used builtin function %r',
               'Used when a black listed builtin function is used (see the '
               'bad-function option). Usual black listed functions are the ones '
@@ -162,7 +162,7 @@ MSGS = {
     'C0103': ('Invalid name "%s" (should match %s)',
               'Used when the name doesn\'t match the regular expression \
               associated to its type (constant, variable, class...).'),
-    
+
     'C0111': ('Missing docstring', # W0131
               'Used when a module, function, class or method has no docstring.\
               Some special methods like __init__ doesn\'t necessary require a \
@@ -173,21 +173,21 @@ MSGS = {
 
     'C0121': ('Missing required attribute "%s"', # W0103
               'Used when an attribute required for modules is missing.'),
-    
+
     }
 
 class BasicChecker(BaseChecker):
-    """checks for :                                                            
-    * doc strings                                                              
-    * modules / classes / functions / methods / arguments / variables name     
+    """checks for :
+    * doc strings
+    * modules / classes / functions / methods / arguments / variables name
     * number of arguments, local variables, branchs, returns and statements in
-functions, methods                                                       
-    * required module attributes                                             
-    * dangerous default values as arguments                                    
-    * redefinition of function / method / class                                
-    * uses of the global statement                                             
+functions, methods
+    * required module attributes
+    * dangerous default values as arguments
+    * redefinition of function / method / class
+    * uses of the global statement
     """
-    
+
     __implements__ = IASTNGChecker
 
     name = 'basic'
@@ -277,7 +277,7 @@ functions, methods
                  'help' : 'Bad variable names which should always be refused, '
                           'separated by a comma'}
                 ),
-               
+
                ('bad-functions',
                 {'default' : ('map', 'filter', 'apply', 'input'),
                  'type' :'csv', 'metavar' : '<builtin function names>',
@@ -286,12 +286,12 @@ functions, methods
                 ),
                )
     reports = ( ('R0101', 'Statistics by type', report_by_type_stats), )
-    
+
     def __init__(self, linter):
         BaseChecker.__init__(self, linter)
         self.stats = None
         self._returns = None
-        
+
     def open(self):
         """initialize visit variables and statistics
         """
@@ -317,7 +317,7 @@ functions, methods
         self._check_name('module', node.name.split('.')[-1], node)
         self._check_docstring('module', node)
         self._check_required_attributes(node, self.config.required_attributes)
-            
+
     def visit_class(self, node):
         """check module name, docstring and redefinition
         increment branch counter
@@ -344,7 +344,7 @@ functions, methods
         if not (any(expr.nodes_of_class((astng.CallFunc, astng.Yield)))
                 or isinstance(node.parent, astng.TryExcept) and node.parent.body == [node]):
             self.add_message('W0104', node=node)
-        
+
     def visit_pass(self, node):
         """check is the pass statement is really necessary
         """
@@ -448,7 +448,7 @@ functions, methods
                        retnode.value.value is not None:
                     self.add_message('E0106', node=node,
                                      line=retnode.fromlineno)
-            
+
     def visit_assname(self, node):
         """check module level assigned names"""
         frame = node.frame()
@@ -462,7 +462,7 @@ functions, methods
             # global introduced variable aren't in the function locals
             if node.name in frame:
                 self._check_name('variable', node.name, node)
-    
+
     def visit_return(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
@@ -473,7 +473,7 @@ functions, methods
             return
         self._returns[-1].append(node)
         self._check_unreachable(node)
-        
+
     def visit_yield(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
@@ -520,7 +520,7 @@ functions, methods
                     node.root().has_key(name)):
                 if name in self.config.bad_functions:
                     self.add_message('W0141', node=node, args=name)
-        if node.starargs or node.kwargs:            
+        if node.starargs or node.kwargs:
             scope = node.scope()
             if isinstance(scope, astng.Function):
                 toprocess = [(n, vn) for (n, vn) in ((node.starargs, scope.args.vararg),
@@ -532,14 +532,14 @@ functions, methods
                     if not toprocess:
                         return # W0142 can be skipped
             self.add_message('W0142', node=node.func)
-            
+
 
     def _check_unreachable(self, node):
         """check unreachable code"""
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
             self.add_message('W0101', node=unreach_stmt)
-            
+
     def _check_in_loop(self, node, node_name):
         """check that a node is inside a for or while loop"""
         _node = node.parent
@@ -549,14 +549,14 @@ functions, methods
             _node = _node.parent
         else:
             self.add_message('E0103', node=node, args=node_name)
-        
+
     def _check_redefinition(self, redef_type, node):
         """check for redefinition of a function / method / class name"""
         defined_self = node.parent.frame()[node.name]
         if defined_self is not node and not are_exclusive(node, defined_self):
             self.add_message('E0102', node=node,
                              args=(redef_type, defined_self.fromlineno))
-        
+
     def _check_docstring(self, node_type, node):
         """check the node has a non empty docstring"""
         docstring = node.doc
@@ -566,7 +566,7 @@ functions, methods
         elif not docstring.strip():
             self.stats['undocumented_'+node_type] += 1
             self.add_message('C0112', node=node)
-            
+
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
@@ -575,7 +575,7 @@ functions, methods
                 self._check_name('argument', arg.name, node)
             else:
                 self._recursive_check_names(arg.elts, node)
-    
+
     def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""
         if name in self.config.good_names:
@@ -588,7 +588,7 @@ functions, methods
         if regexp.match(name) is None:
             self.add_message('C0103', node=node, args=(name, regexp.pattern))
             self.stats['badname_' + node_type] += 1
-            
+
 
     def _check_defaults(self, node):
         """check for dangerous default values as arguments"""
@@ -603,14 +603,14 @@ functions, methods
                 else:
                     msg = '%s (%s)' % (default.as_string(), value.as_string())
                 self.add_message('W0102', node=node, args=(msg,))
-        
+
     def _check_required_attributes(self, node, attributes):
         """check for required attributes"""
         for attr in attributes:
             if not node.has_key(attr):
                 self.add_message('C0121', node=node, args=attr)
 
-    
+
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(BasicChecker(linter))
