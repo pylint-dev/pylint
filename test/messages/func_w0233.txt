@@ -1,2 +1,2 @@
-F: 20: Unable to import 'nonexistant' (No module named nonexistant)
+F: 20: Unable to import 'nonexistant'
 W: 12:AAAA.__init__: __init__ method from a non direct base class 'BBBBMixin' is called

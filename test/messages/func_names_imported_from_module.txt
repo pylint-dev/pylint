@@ -6,5 +6,5 @@ E: 13: Module 'logilab.common.modutils' has no 'yo' member
 E: 17: Module 'sys' has no 'stdoout' member
 E: 24: No name 'compiile' in module 're'
 E: 24: No name 'findiiter' in module 're'
-F:  6: Unable to import 'logilab.common.tutu' (No module named tutu)
-F: 23: Unable to import 'rie' (No module named rie)
+F:  6: Unable to import 'logilab.common.tutu'
+F: 23: Unable to import 'rie'

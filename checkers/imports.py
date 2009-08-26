@@ -13,19 +13,16 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""imports checkers for Python code
-"""
+"""imports checkers for Python code"""
 
 from logilab.common.graph import get_cycles, DotBackend
-from logilab.common.modutils import is_standard_module, is_relative, \
-     get_module_part
+from logilab.common.modutils import is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
 from logilab.common.compat import sorted, enumerate
 
 from logilab import astng
 from logilab.astng.infutils import are_exclusive
 
-from pylint.utils import expand_modules
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker, EmptyReport
 
@@ -41,8 +38,8 @@ def get_first_import(context, name, base, level=0):
             if base == node.modname and level == node.level and \
                    name in [iname[0] for iname in node.names]:
                 return node
-            
-        
+
+
 # utilities to represents import dependencies as tree and dot graph ###########
 
 def filter_dependencies_info(dep_info, package_dir, mode='external'):
@@ -96,7 +93,7 @@ def repr_tree_defs(data, indent_str=None):
 
 
 def dependencies_graph(filename, dep_info):
-    """write dependencies as a dot (graphviz) file 
+    """write dependencies as a dot (graphviz) file
     """
     done = {}
     printer = DotBackend(filename[:-4], rankdir = "LR")
@@ -126,43 +123,43 @@ def make_graph(filename, dep_info, sect, gtype):
 # the import checker itself ###################################################
 
 MSGS = {
-    'F0401': ('Unable to import %r (%s)' ,
+    'F0401': ('Unable to import %r' ,
               'Used when pylint has been unable to import a module.'),
     'R0401': ('Cyclic import (%s)',
               'Used when a cyclic import between two or more modules is \
               detected.'),
-    
+
     'W0401': ('Wildcard import %s',
               'Used when `from module import *` is detected.'),
     'W0402': ('Uses of a deprecated module %r',
               'Used a module marked as deprecated is imported.'),
-    'W0403': ('Relative import %r',
+    'W0403': ('Relative import %r, should be %r',
               'Used when an import relative to the package directory is \
               detected.'),
     'W0404': ('Reimport %r (imported line %s)',
               'Used when a module is reimported multiple times.'),
     'W0406': ('Module import itself',
               'Used when a module is importing itself.'),
-    
+
     'W0410': ('__future__ import is not the first non docstring statement',
               'Python 2.5 and greater require __future__ import to be the \
               first non docstring statement in the module.'),
     }
 
 class ImportsChecker(BaseChecker):
-    """checks for                                                              
-    * external modules dependencies                                            
-    * relative / wildcard imports                                                         
-    * cyclic imports                                                           
+    """checks for
+    * external modules dependencies
+    * relative / wildcard imports
+    * cyclic imports
     * uses of deprecated modules
     """
-    
+
     __implements__ = IASTNGChecker
 
     name = 'imports'
     msgs = MSGS
     priority = -2
-    
+
     options = (('deprecated-modules',
                 {'default' : ('regsub','string', 'TERMIOS',
                               'Bastion', 'rexec'),
@@ -192,7 +189,7 @@ given file (report R0402 must not be disabled)'}
                  'help' : 'Create a graph of internal dependencies in the \
 given file (report R0402 must not be disabled)'}
                 ),
-               
+
                )
 
     def __init__(self, linter=None):
@@ -205,38 +202,37 @@ given file (report R0402 must not be disabled)'}
                         ('R0402', 'Modules dependencies graph',
                          self.report_dependencies_graph),
                         )
-        
+
     def open(self):
         """called before visiting project (i.e set of modules)"""
         self.linter.add_stats(dependencies={})
         self.linter.add_stats(cycles=[])
         self.stats = self.linter.stats
         self.import_graph = {}
-        
+
     def close(self):
         """called before visiting project (i.e set of modules)"""
         # don't try to compute cycles if the associated message is disabled
         if self.linter.is_message_enabled('R0401'):
             for cycle in get_cycles(self.import_graph):
                 self.add_message('R0401', args=' -> '.join(cycle))
-         
+
     def visit_import(self, node):
         """triggered when an import statement is seen"""
+        modnode = node.root()
         for name, _ in node.names:
-            if self._module_not_exists(node, name):
+            importedmodnode = self.get_imported_module(modnode, node, name)
+            if importedmodnode is None:
                 continue
-            self._check_deprecated(node, name)
-            relative = self._check_relative(node, name)
-            self._imported_module(node, name, relative)
-            # handle reimport
+            self._check_relative_import(modnode, node, importedmodnode, name)
+            self._add_imported_module(node, importedmodnode.name)
+            self._check_deprecated_module(node, name)
             self._check_reimport(node, name)
-        
+
 
     def visit_from(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
-        if self._module_not_exists(node, basename):
-            return
         if basename == '__future__':
             # check if this is the first non-docstring statement in the module
             prev = node.previous_sibling()
@@ -245,83 +241,76 @@ given file (report R0402 must not be disabled)'}
                 if not (isinstance(prev, astng.From)
                        and prev.modname == '__future__'):
                     self.add_message('W0410', node=node)
-        self._check_deprecated(node, basename)
-        level = node.level
-        if level > 0: # explicit relative import (leading dots)
-            relative = True
-        else:
-            relative = self._check_relative(node, basename)
+            return
+        modnode = node.root()
+        importedmodnode = self.get_imported_module(modnode, node, basename)
+        if importedmodnode is None:
+            return
+        self._check_relative_import(modnode, node, importedmodnode, basename)
+        self._check_deprecated_module(node, basename)
         for name, _ in node.names:
             if name == '*':
                 self.add_message('W0401', args=basename, node=node)
                 continue
-            # handle reimport
-            self._check_reimport(node, name, basename, level)
-            # analyze dependencies
-            fullname = '.' * level + '%s.%s' % (basename, name)
-            fullname = get_module_part(fullname,context_file=node.root().file)
-            self._imported_module(node, fullname, relative)
+            self._add_imported_module(node, '%s.%s' % (importedmodnode.name, name))
+            self._check_reimport(node, name, basename, node.level)
 
-    def _module_not_exists(self, node, modname):
-        """check if module exists and possibly add message"""
-        errors = expand_modules([modname], [])[1]
-        if not errors or is_relative(modname, node.root().file):
-            return False
-        error = errors[0]
-        if error["key"] == "F0001":
-            args = (error["mod"], error["ex"])
-            self.add_message("F0401", args=args, node=node)
-            return True
-        assert error["key"] == "F0003"
-        return False
-
-    def _imported_module(self, node, mod_path, relative):
-        """notify an imported module, used to analyze dependencies
-        """
-        context_name = node.root().name
-        if relative:
-            context_parts = context_name.split('.')
-            if mod_path.startswith('.'):
-                while mod_path.startswith('.'):
-                    mod_path = mod_path[1:]
-                    del context_parts[-1] # one level upwards
-                context_parts.append(mod_path)
+    def get_imported_module(self, modnode, importnode, modname):
+        try:
+            return importnode.do_import_module(modname)
+        except astng.InferenceError, ex:
+            if str(ex).startswith('module importing itself'): # XXX
+                return modnode
             else:
-                context_parts[-1] = mod_path
-            mod_path = '.'.join(context_parts)
-        if context_name == mod_path:
+                self.add_message("F0401", args=modname, node=importnode)
+                return
+
+    def _check_relative_import(self, modnode, importnode, importedmodnode,
+                               importedasname):
+        """check relative import. node is either an Import or From node, modname
+        the imported module name.
+        """
+        if importedmodnode.file is None:
+            return False # built-in module
+        if modnode is importedmodnode:
+            return False # module importing itself
+        if modnode.absolute_import_activated() or getattr(importnode, 'level', None):
+            return False
+        if importedmodnode.name != importedasname:
+            # this must be a relative import...
+            self.add_message('W0403', args=(importedasname, importedmodnode.name),
+                             node=importnode)
+
+    def _add_imported_module(self, node, importedmodname):
+        """notify an imported module, used to analyze dependencies"""
+        context_name = node.root().name
+        if context_name == importedmodname:
             # module importing itself !
             self.add_message('W0406', node=node)
-        elif not is_standard_module(mod_path):
+        elif not is_standard_module(importedmodname):
             # handle dependencies
-            mod_paths = self.stats['dependencies'].setdefault(mod_path, [])
-            if not context_name in mod_paths:
-                mod_paths.append(context_name)
-            if is_standard_module( mod_path, (self.package_dir(),) ):
+            importedmodnames = self.stats['dependencies'].setdefault(
+                importedmodname, set())
+            if not context_name in importedmodnames:
+                importedmodnames.add(context_name)
+            if is_standard_module( importedmodname, (self.package_dir(),) ):
                 # update import graph
-                mgraph = self.import_graph.setdefault(context_name, [])
-                if not mod_path in mgraph:
-                    mgraph.append(mod_path)
+                mgraph = self.import_graph.setdefault(context_name, set())
+                if not importedmodname in mgraph:
+                    mgraph.add(importedmodname)
 
-    def _check_relative(self, node, mod_path):
-        """check relative import module"""
-        context_file = node.root().file
-        relative = is_relative(mod_path, context_file)
-        if relative:
-            self.add_message('W0403', args=mod_path, node=node)
-        return relative
-    
-    def _check_deprecated(self, node, mod_path):
+    def _check_deprecated_module(self, node, mod_path):
         """check if the module is deprecated"""
+        # XXX rewrite
         for mod_name in self.config.deprecated_modules:
             if mod_path.startswith(mod_name) and \
                    (len(mod_path) == len(mod_name)
                     or mod_path[len(mod_name)] == '.'):
                 self.add_message('W0402', node=node, args=mod_path)
-    
+
     def _check_reimport(self, node, name, basename=None, level=0):
-        """check if the import is necessary (i.e. not already done)
-        """
+        """check if the import is necessary (i.e. not already done)"""
+        # XXX rewrite
         frame = node.frame()
         first = get_first_import(frame, name, basename, level)
         if isinstance(first, (astng.Import, astng.From)) and first is not node \
@@ -338,10 +327,9 @@ given file (report R0402 must not be disabled)'}
                 self.add_message('W0404', node=node,
                                  args=(name, first.fromlineno))
 
-        
+
     def report_external_dependencies(self, sect, _, dummy):
-        """return a verbatim layout for displaying dependencies
-        """
+        """return a verbatim layout for displaying dependencies"""
         dep_info = make_tree_defs(self._external_dependencies_info().items())
         if not dep_info:
             raise EmptyReport()
@@ -350,7 +338,7 @@ given file (report R0402 must not be disabled)'}
 
     def report_dependencies_graph(self, sect, _, dummy):
         """write dependencies as a dot (graphviz) file"""
-        dep_info = self.stats['dependencies']        
+        dep_info = self.stats['dependencies']
         if not dep_info or not (self.config.import_graph
                                 or self.config.ext_import_graph
                                 or self.config.int_import_graph):
@@ -366,7 +354,7 @@ given file (report R0402 must not be disabled)'}
         if filename:
             make_graph(filename, self._internal_dependencies_info(),
                        sect, 'internal ')
-            
+
     def _external_dependencies_info(self):
         """return cached external dependencies information or build and
         cache them
@@ -375,7 +363,7 @@ given file (report R0402 must not be disabled)'}
             self.__ext_dep_info = filter_dependencies_info(
                 self.stats['dependencies'], self.package_dir(), 'external')
         return self.__ext_dep_info
-        
+
     def _internal_dependencies_info(self):
         """return cached internal dependencies information or build and
         cache them
@@ -384,8 +372,8 @@ given file (report R0402 must not be disabled)'}
             self.__int_dep_info = filter_dependencies_info(
                 self.stats['dependencies'], self.package_dir(), 'internal')
         return self.__int_dep_info
-        
-            
+
+
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(ImportsChecker(linter))
