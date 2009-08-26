@@ -17,7 +17,6 @@
 """
 from __future__ import generators
 
-from logilab.common.compat import set
 from logilab import astng
 from logilab.astng.infutils import YES, Instance, are_exclusive
 
@@ -40,12 +39,12 @@ MSGS = {
     'W0201': ('Attribute %r defined outside __init__',
               'Used when an instance attribute is defined outside the __init__\
               method.'),
-    
+
     'W0212': ('Access to a protected member %s of a client class', # E0214
               'Used when a protected member (i.e. class member with a name \
               beginning with an underscore) is access outside the class or a \
               descendant of the class where it\'s defined.'),
-    
+
     'E0211': ('Method has no argument',
               'Used when a method which should have the bound instance as \
               first argument has no argument defined.'),
@@ -60,7 +59,7 @@ MSGS = {
     'C0203': ('Metaclass method should have "mcs" as first argument', # E0214
               'Used when a metaclass method has an attribute different the \
               "mcs" as first argument.'),
-    
+
     'W0211': ('Static method with %r as first argument',
               'Used when a static method has "self" or "cls" as first argument.'
               ),
@@ -68,7 +67,7 @@ MSGS = {
               'Used when a method doesn\'t use its bound instance, and so could\
               be written as a function.'
               ),
-    
+
     'E0221': ('Interface resolved to %s is not a class',
               'Used when a class claims to implement an interface which is not \
               a class.'),
@@ -88,8 +87,8 @@ MSGS = {
     'F0220': ('failed to resolve interfaces implemented by %s (%s)', # W0224
               'Used when a PyLint as failed to find interfaces implemented by \
                a class'),
-    
-    
+
+
     'W0231': ('__init__ method from base class %r is not called',
               'Used when an ancestor class method has an __init__ method \
               which is not called by a derived class.'),
@@ -99,20 +98,20 @@ MSGS = {
     'W0233': ('__init__ method from a non direct base class %r is called',
               'Used when an __init__ method is called on a class which is not \
               in the direct ancestors for the analysed class.'),
-    
+
     }
 
 
 class ClassChecker(BaseChecker):
-    """checks for :                                                            
-    * methods without self as first argument                                   
-    * overridden methods signature                                              
-    * access only to existant members via self                                 
-    * attributes not defined in the __init__ method                            
-    * supported interfaces implementation                                      
-    * unreachable code                                                         
+    """checks for :
+    * methods without self as first argument
+    * overridden methods signature
+    * access only to existant members via self
+    * attributes not defined in the __init__ method
+    * supported interfaces implementation
+    * unreachable code
     """
-    
+
     __implements__ = (IASTNGChecker,)
 
     # configuration section name
@@ -138,7 +137,7 @@ class ClassChecker(BaseChecker):
 separated by a comma. This is used for instance to not check methods defines \
 in Zope\'s Interface base class.'}
                 ),
-               
+
                ('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
                  'type' : 'csv',
@@ -154,10 +153,10 @@ instance attributes.'}
         self._accessed = []
         self._first_attrs = []
         self._meth_could_be_func = None
-        
+
     def visit_class(self, node):
         """init visit variable _accessed and check interfaces
-        """        
+        """
         self._accessed.append({})
         self._check_bases_classes(node)
         self._check_interfaces(node)
@@ -167,7 +166,7 @@ instance attributes.'}
                 node.local_attr('__init__')
             except astng.NotFoundError:
                 self.add_message('W0232', args=node, node=node)
-            
+
     def leave_class(self, cnode):
         """close a class node:
         check that instance attributes are defined in __init__ and check
@@ -199,7 +198,7 @@ instance attributes.'}
         accessed = self._accessed.pop()
         if cnode.type != 'metaclass':
             self._check_accessed_members(cnode, accessed)
-            
+
     def visit_function(self, node):
         """check method arguments, overriding"""
         # ignore actual functions
@@ -207,7 +206,7 @@ instance attributes.'}
             return
         klass = node.parent.frame()
         self._meth_could_be_func = True
-        # check first argument is self if this is actually a method 
+        # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == 'metaclass')
         if node.name == '__init__':
             self._check_init(node)
@@ -236,10 +235,10 @@ instance attributes.'}
             self.add_message('E0202', args=overridden.name, node=node)
         except astng.NotFoundError:
             pass
-        
+
     def leave_function(self, node):
         """on method node, check if this method couldn't be a function
-        
+
         ignore class, static and abstract methods, initializer,
         methods overridden from a parent class and any
         kind of method defined in an interface for this warning
@@ -254,7 +253,7 @@ instance attributes.'}
                          overrides_a_method(class_node, node.name))
                 and class_node.type != 'interface'):
                 self.add_message('R0201', node=node)
-                
+
     def visit_getattr(self, node):
         """check if the getattr is an access to a class member
         if so, register it. Also check for access to protected
@@ -263,7 +262,7 @@ instance attributes.'}
         """
         attrname = node.attrname
         if self._first_attrs and isinstance(node.expr, astng.Name) and \
-               node.expr.name == self._first_attrs[-1]:                
+               node.expr.name == self._first_attrs[-1]:
             self._accessed[-1].setdefault(attrname, []).append(node)
         elif attrname[0] == '_' and not attrname == '_' and not (
              attrname.startswith('__') and attrname.endswith('__')):
@@ -281,11 +280,11 @@ instance attributes.'}
             if klass is None or not (callee == klass.name or
                 callee in klass.basenames
                 or (isinstance(node.expr, astng.CallFunc)
-                    and isinstance(node.expr.func, astng.Name) 
+                    and isinstance(node.expr.func, astng.Name)
                     and node.expr.func.name == 'super')):
                 self.add_message('W0212', node=node, args=attrname)
-            
-            
+
+
     def visit_name(self, node):
         """check if the name handle an access to a class member
         if so, register it
@@ -293,7 +292,7 @@ instance attributes.'}
         if self._first_attrs and (node.name == self._first_attrs[-1] or
                                   not self._first_attrs[-1]):
             self._meth_could_be_func = False
-                
+
     def _check_accessed_members(self, node, accessed):
         """check that accessed members are defined"""
         # XXX refactor, probably much simpler now that E0201 is in type checker
@@ -316,7 +315,7 @@ instance attributes.'}
                 pass
             # is it an instance attribute ?
             try:
-                defstmts = node.instance_attr(attr) 
+                defstmts = node.instance_attr(attr)
             except astng.NotFoundError:
                 pass
             else:
@@ -331,10 +330,10 @@ instance attributes.'}
                            and not are_exclusive(_node.statement(), defstmt, ('AttributeError', 'Exception', 'BaseException')):
                             self.add_message('E0203', node=_node,
                                              args=(attr, lno))
-        
+
     def _check_first_arg_for_type(self, node, metaclass=0):
         """check the name of first argument, expect:
-        
+
         * 'self' for a regular method
         * 'cls' for a class method
         * 'mcs' for a metaclass
@@ -372,14 +371,14 @@ instance attributes.'}
         """
         for method in node.methods():
             owner = method.parent.frame()
-            if owner is node: 
+            if owner is node:
                 continue
             # owner is not this class, it must be a parent class
             # check that the ancestor's method is not abstract
             if method.is_abstract(pass_is_abstract=False):
                 self.add_message('W0223', node=node,
                                  args=(method.name, owner.name))
-                    
+
     def _check_interfaces(self, node):
         """check that the given class node really implements declared
         interfaces
@@ -432,7 +431,7 @@ instance attributes.'}
         """check that the __init__ method call super or ancestors'__init__
         method
         """
-        klass_node = node.parent.frame()        
+        klass_node = node.parent.frame()
         to_call = _ancestors_to_call(klass_node)
         for stmt in node.nodes_of_class(astng.CallFunc):
             expr = stmt.func
@@ -461,7 +460,7 @@ instance attributes.'}
 
     def _check_signature(self, method1, refmethod, class_type):
         """check that the signature of the two given methods match
-        
+
         class_type is in 'class', 'interface'
         """
         if not (isinstance(method1, astng.Function)
@@ -476,7 +475,7 @@ instance attributes.'}
         elif len(method1.args.defaults) < len(refmethod.args.defaults):
             self.add_message('W0222', args=class_type, node=method1)
 
-                        
+
 def _ancestors_to_call(klass_node, method='__init__'):
     """return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node
@@ -489,7 +488,7 @@ def _ancestors_to_call(klass_node, method='__init__'):
         except astng.NotFoundError:
             continue
     return to_call
-        
+
 
 def node_method(node, method_name):
     """get astng for <method_name> on the given class node, ensuring it
@@ -499,7 +498,7 @@ def node_method(node, method_name):
         if isinstance(n, astng.Function):
             return n
     raise astng.NotFoundError(method_name)
-        
+
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(ClassChecker(linter))

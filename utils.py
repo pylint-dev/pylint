@@ -94,12 +94,12 @@ class Message:
         self.msg = msg
         self.descr = descr
         self.checker = checker
-        
+
 class MessagesHandlerMixIn:
     """a mix-in class containing all the messages related methods for the main
     lint class
     """
-    
+
     def __init__(self):
         # dictionary of registered messages
         self._messages = {}
@@ -108,7 +108,7 @@ class MessagesHandlerMixIn:
         self._msg_cats_state = {}
         self._module_msg_cats_state = None
         self.msg_status = 0
-        
+
     def register_messages(self, checker):
         """register a dictionary of messages
 
@@ -154,14 +154,14 @@ class MessagesHandlerMixIn:
                 self._module_msgs_state[msg.msgid] = {line: False}
                 if msg_id != 'I0011':
                     self.add_message('I0011', line=line, args=msg.msgid)
-            
+
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = False
             # sync configuration object
             self.config.disable_msg = [mid for mid, val in msgs.items()
-                                       if not val] 
-            
+                                       if not val]
+
     def enable_message(self, msg_id, scope='package', line=None):
         """reenable message of the given id"""
         assert scope in ('package', 'module')
@@ -177,7 +177,7 @@ class MessagesHandlerMixIn:
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = True
-            # sync configuration object 
+            # sync configuration object
             self.config.enable_msg = [mid for mid, val in msgs.items() if val]
 
     def _cat_ids(self, categories):
@@ -186,7 +186,7 @@ class MessagesHandlerMixIn:
             if not catid in MSG_TYPES:
                 raise Exception('Unknown category identifier %s' % catid)
             yield catid
-            
+
     def disable_message_category(self, categories, scope='package', line=None):
         """don't output message in the given category"""
         assert scope in ('package', 'module')
@@ -196,7 +196,7 @@ class MessagesHandlerMixIn:
                 self._module_msg_cats_state[catid] = False
             else:
                 self._msg_cats_state[catid] = False
-        
+
     def enable_message_category(self, categories, scope='package', line=None):
         """reenable message of the given category"""
         assert scope in ('package', 'module')
@@ -206,7 +206,7 @@ class MessagesHandlerMixIn:
                 self._module_msg_cats_state[catid] = True
             else:
                 self._msg_cats_state[catid] = True
-            
+
     def check_message_id(self, msg_id):
         """raise UnknownMessage if the message id is not defined"""
         msg_id = msg_id.upper()
@@ -231,12 +231,12 @@ class MessagesHandlerMixIn:
             return self._module_msgs_state[msg_id][line]
         except (KeyError, TypeError):
             return self._msgs_state.get(msg_id, True)
-        
+
     def add_message(self, msg_id, line=None, node=None, args=None):
         """add the message corresponding to the given id.
 
         If provided, msg is expanded using args
-        
+
         astng checkers should provide the node argument, raw checkers should
         provide the line argument.
         """
@@ -244,7 +244,7 @@ class MessagesHandlerMixIn:
             line = node.fromlineno
         # should this message be displayed
         if not self.is_message_enabled(msg_id, line):
-            return        
+            return
         # update stats
         msg_cat = MSG_TYPES[msg_id[0]]
         self.msg_status |= MSG_TYPES_STATUS[msg_id[0]]
@@ -278,7 +278,7 @@ class MessagesHandlerMixIn:
                 print ex
                 print
                 continue
-        
+
     def list_messages(self):
         """output a full documentation in ReST format"""
         for checker in sort_checkers(self._checkers.values()):
@@ -324,7 +324,7 @@ class MessagesHandlerMixIn:
                     print ':%s: %s' % report[:2]
                 print
             print
-        
+
 
 class ReportsHandlerMixIn:
     """a mix-in class containing all the reports and stats manipulation
@@ -333,10 +333,10 @@ class ReportsHandlerMixIn:
     def __init__(self):
         self._reports = {}
         self._reports_state = {}
-    
+
     def register_report(self, r_id, r_title, r_cb, checker):
         """register a report
-        
+
         r_id is the unique identifier for the report
         r_title the report's title
         r_cb the method to call to make the report
@@ -344,23 +344,23 @@ class ReportsHandlerMixIn:
         """
         r_id = r_id.upper()
         self._reports.setdefault(checker, []).append( (r_id, r_title, r_cb) )
-        
+
     def enable_report(self, r_id):
         """disable the report of the given id"""
         r_id = r_id.upper()
         self._reports_state[r_id] = True
-        
+
     def disable_report(self, r_id):
         """disable the report of the given id"""
         r_id = r_id.upper()
         self._reports_state[r_id] = False
-        
+
     def is_report_enabled(self, r_id):
         """return true if the report associated to the given identifier is
         enabled
         """
         return self._reports_state.get(r_id, True)
-        
+
     def make_reports(self, stats, old_stats):
         """render registered reports"""
         if self.config.files_output:
@@ -382,7 +382,7 @@ class ReportsHandlerMixIn:
                 report_sect.report_id = r_id
                 sect.append(report_sect)
         self.reporter.display_results(sect)
-            
+
     def add_stats(self, **kwargs):
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
