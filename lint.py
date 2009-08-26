@@ -822,26 +822,28 @@ are done by default'''}),
         # add some help section
         linter.add_help_section('Environment variables', config.ENV_HELP)
         linter.add_help_section('Output', '''
-Using the default text output, the message format is :
-        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE
-There are 5 kind of message types :
-    * (C) convention, for programming standard violation
-    * (R) refactor, for bad code smell
-    * (W) warning, for python specific problems
-    * (E) error, for probable bugs in the code
-    * (F) fatal, if an error occured which prevented pylint from doing further \
+Using the default text output, the message format is :                          
+                                                                                
+        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                                
+                                                                                
+There are 5 kind of message types :                                             
+    * (C) convention, for programming standard violation                        
+    * (R) refactor, for bad code smell                                          
+    * (W) warning, for python specific problems                                 
+    * (E) error, for probable bugs in the code                                  
+    * (F) fatal, if an error occured which prevented pylint from doing further
 processing.
         ''')
         linter.add_help_section('Output status code', '''
-Pylint should leave with following status code:
-    * 0 if everything went fine
-    * 1 if some fatal message issued
-    * 2 if some error message issued
-    * 4 if some warning message issued
-    * 8 if some refactor message issued
-    * 16 if some convention message issued
-    * 32 on usage error
-
+Pylint should leave with following status code:                                 
+    * 0 if everything went fine                                                 
+    * 1 if some fatal message issued                                            
+    * 2 if some error message issued                                            
+    * 4 if some warning message issued                                          
+    * 8 if some refactor message issued                                         
+    * 16 if some convention message issued                                      
+    * 32 on usage error                                                         
+                                                                                
 status 1 to 16 will be bit-ORed so you can know which different categories has
 been issued by analysing pylint output status code
         ''')
