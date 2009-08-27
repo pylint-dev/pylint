@@ -140,7 +140,7 @@ def is_func_decorator(node):
     while parent is not None:
         if isinstance(parent, astng.Decorators):
             return True
-        if parent.is_statement:
+        if parent.is_statement or isinstance(parent, astng.Lambda):
             break
         parent = parent.parent
     return False
