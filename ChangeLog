@@ -7,6 +7,7 @@ ChangeLog for PyLint
     * fix #8764: More than one statement on a single line false positive with
       try/except/finally
     * Nathaniel's fix for w0108 false positive
+    * fix 9215: false undefined variable error in lambda function
 
 2009-03-25  --  0.18.0
     * tests ok with python 2.4, 2.5, 2.6. 2.3 not tested
