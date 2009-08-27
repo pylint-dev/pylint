@@ -45,7 +45,7 @@ def overridden_method(klass, name):
         return meth_node
     return None
 
-    
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'Used when a local variable is accessed before it\'s \
@@ -55,7 +55,7 @@ MSGS = {
 
     'E0611': ('No name %r in module %r',
               'Used when a name cannot be found in a module.'),
-    
+
     'W0601': ('Global variable %r undefined at the module level',
               'Used when a variable is defined through the "global" statement \
               but the variable is not defined in the module scope.'),
@@ -78,7 +78,7 @@ MSGS = {
     'W0614': ('Unused import %s from wildcard import',
               'Used when an imported module or variable is not used from a \
               \'from X import *\' style import.'),
-    
+
     'W0621': ('Redefining name %r from outer scope (line %s)',
               'Used when a variable\'s name hide a name defined in the outer \
               scope.'),
@@ -92,13 +92,13 @@ MSGS = {
     }
 
 class VariablesChecker(BaseChecker):
-    """checks for                                                              
-    * unused variables / imports                                               
-    * undefined variables                                                      
-    * redefinition of variable from builtins or from an outer scope            
-    * use of variable before assigment                                         
+    """checks for
+    * unused variables / imports
+    * undefined variables
+    * redefinition of variable from builtins or from an outer scope
+    * use of variable before assigment
     """
-    
+
     __implements__ = IASTNGChecker
 
     name = 'variables'
@@ -110,7 +110,7 @@ class VariablesChecker(BaseChecker):
                  'help' : 'Tells wether we should check for unused import in \
 __init__ files.'}),
                ("dummy-variables-rgx",
-                {'default': ('_|dummy'), 
+                {'default': ('_|dummy'),
                  'type' :'regexp', 'metavar' : '<regexp>',
                  'help' : 'A regular expression matching names used \
                  for dummy variables (i.e. not used).'}),
@@ -126,7 +126,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         self._to_consume = None
         self._checking_mod_attr = None
         self._vars = None
-        
+
     def visit_module(self, node):
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
@@ -137,7 +137,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if is_builtin(name):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmts[0])
-        
+
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -162,7 +162,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """visit class: update consumption analysis variable
         """
         self._to_consume.append((copy(node.locals), {}, 'class'))
-            
+
     def leave_class(self, _):
         """leave class: update consumption analysis variable
         """
@@ -173,7 +173,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """visit lambda: update consumption analysis variable
         """
         self._to_consume.append((copy(node.locals), {}, 'lambda'))
-            
+
     def leave_lambda(self, _):
         """leave lambda: update consumption analysis variable
         """
@@ -184,7 +184,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """visit genexpr: update consumption analysis variable
         """
         self._to_consume.append((copy(node.locals), {}, 'genexpr'))
-            
+
     def leave_genexpr(self, _):
         """leave genexpr: update consumption analysis variable
         """
@@ -204,7 +204,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self.add_message('W0622', args=name, node=stmt)
         self._to_consume.append((copy(node.locals), {}, 'function'))
         self._vars.append({})
-        
+
     def leave_function(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
@@ -254,7 +254,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         frame = node.frame()
         if isinstance(frame, astng.Module):
             self.add_message('W0604', node=node)
-            return        
+            return
         module = frame.root()
         default_message = True
         for name in node.names:
@@ -282,7 +282,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self.add_message('W0601', args=name, node=node)
                 default_message = False
         if default_message:
-            self.add_message('W0603', node=node) 
+            self.add_message('W0603', node=node)
 
     def _loopvar_name(self, node, name):
         # filter variables according to node's scope
@@ -313,10 +313,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_assname(self, node):
         if isinstance(node.ass_type(), astng.AugAssign):
             self.visit_name(node)
-            
+
     def visit_delname(self, node):
         self.visit_name(node)
-        
+
     def visit_name(self, node):
         """check that a name is defined if the current scope and doesn't
         redefine a built-in
@@ -395,7 +395,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if not (name in astng.Module.scope_attrs or is_builtin(name)
                     or name in self.config.additional_builtins):
                 self.add_message('E0602', args=name, node=node)
-                
+
     def visit_import(self, node):
         """check modules attribute accesses"""
         for name, _ in node.names:
@@ -405,7 +405,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             except astng.ResolveError:
                 continue
             self._check_module_attrs(node, module, parts[1:])
-                                    
+
     def visit_from(self, node):
         """check modules attribute accesses"""
         name_parts = node.modname.split('.')
@@ -425,7 +425,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
 ##     def leave_getattr(self, node):
 ##         """check modules attribute accesses
-        
+
 ##         this function is a "leave_" because when parsing 'a.b.c'
 ##         we want to check the innermost expression first.
 ##         """
@@ -447,7 +447,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 ##     def leave_default(self, node):
 ##         """by default, reset the _checking_mod_attr attribute"""
 ##         self._checking_mod_attr = None
-        
+
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
         given module
@@ -476,9 +476,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if isinstance(module, astng.Module):
             return module
         return None
-    
 
-    
+
+
 
 def register(linter):
     """required method to auto register this checker"""
