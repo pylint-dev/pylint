@@ -1,23 +1,11 @@
+include ChangeLog
 include COPYING
 include DEPENDS
-include ChangeLog
-include TODO
-include bin/symilar
-include bin/pylint
-include bin/pylint-gui
-include bin/epylint
-include bin/pyreverse
-include bin/*.bat
-include examples/pylintrc*
-include examples/*.py
-include elisp/*.el
-include elisp/startup
-include man/pylint.1
-include man/pyreverse.1
-include test/data/packages_No_Name.dot
-include test/data/classes_No_Name.dot
+include bin/*
+include examples/*
+include elisp/*
+include man/*
 recursive-include doc *.txt *.html
-recursive-include test/input *.py similar* noext
-recursive-include test/messages *.txt *.txt2
-recursive-include test/regrtest_data *.py
-include test/fulltest.sh
+recursive-include test *.py *.txt *.txt2 *.dot *.sh
+include test/input/similar* noext
+include test/input/noext
