@@ -161,12 +161,12 @@ def make_tests(filter_rgx):
         if not is_to_run(module_file):
             continue
         base = module_file.replace('func_', '').replace('.py', '')
-        dependancies = get_tests_info(base, '.py')
+        dependencies = get_tests_info(base, '.py')
         
         class LintTestUsingModuleTC(LintTestUsingModule):
             module = module_file.replace('.py', '')
             output = messages_file
-            depends = dependancies or None
+            depends = dependencies or None
         tests.append(LintTestUsingModuleTC)
 
         if MODULES_ONLY:
@@ -175,7 +175,7 @@ def make_tests(filter_rgx):
         class LintTestUsingFileTC(LintTestUsingFile):
             module = module_file.replace('.py', '')
             output = exists(messages_file + '2') and (messages_file + '2') or messages_file
-            depends = dependancies or None
+            depends = dependencies or None
         tests.append(LintTestUsingFileTC)
         
 ##     # special test for f0003
@@ -183,7 +183,7 @@ def make_tests(filter_rgx):
 ##     class LintTestSubclass(LintTest):
 ##         module = module_file.replace('.pyc', '')
 ##         output = messages_file
-##         depends = dependancies or None
+##         depends = dependencies or None
 ##     tests.append(LintTestSubclass)
             
     class LintBuiltinModuleTest(LintTestUsingModule):

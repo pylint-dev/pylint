@@ -560,7 +560,7 @@ ChangeLog for PyLint
       both using a specific command line tool and integrated as a
       pylint's checker
 
-    * imports checker may report import dependancies as a dot graph
+    * imports checker may report import dependencies as a dot graph
 
     * new checker regrouping most Refactor detection (with some new metrics)
 

@@ -95,7 +95,7 @@ directory and simply run ::
 
     python setup.py install
 
-You'll have to install dependancies in a similar way.
+You'll have to install dependencies in a similar way.
 
 Windows users may get valuable information about pylint installation on 
 `this page`_.
@@ -236,7 +236,7 @@ Reports section
 ''''''''''''''' 
 Following the analysis message, pylint will display a set of reports,
 each one focusing on a particular aspect of the project, such as number
-of messages by categories, modules dependancies...
+of messages by categories, modules dependencies...
 
 For instance, the metrics report displays summaries gathered from the
 current run. 
@@ -356,7 +356,7 @@ You can check for already reported bugs, planned features on pylint's tracker
 web page: http://www.logilab.org/project/name/pylint
 
 Notice that if you don't find something you have expected in pylint's
-tracker page, it may be on the tracker page of one of its dependancies, namely
+tracker page, it may be on the tracker page of one of its dependencies, namely
 astng and common:
 
 * http://www.logilab.org/project/name/logilab-astng
@@ -565,7 +565,7 @@ repository:
 
 http://www.logilab.org/src/pylint
 
-The same is true for pylint dependancies (if you use pylint code from the
+The same is true for pylint dependencies (if you use pylint code from the
 repository, you should usually use code from the repository as well for astng
 and common):
 
