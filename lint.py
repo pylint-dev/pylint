@@ -35,7 +35,8 @@ import os
 import re
 import tokenize
 
-from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn, check_csv
+from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
+from logilab.common.optik_ext import check_csv
 from logilab.common.modutils import load_module_from_name
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip
