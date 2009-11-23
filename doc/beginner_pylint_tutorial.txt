@@ -76,7 +76,7 @@ Pylint is going to 'pick on': ::
     * (R) refactor, for bad code smell
     * (W) warning, for python specific problems
     * (E) error, for much probably bugs in the code
-    * (F) fatal, if an error occured which prevented pylint from doing
+    * (F) fatal, if an error occurred which prevented pylint from doing
     further processing.
 
 When Pylint is first run on a fresh piece of code, a common complaint is that it
@@ -211,7 +211,7 @@ If we run this: ::
   --------
 
   +-----------+-----------+
-  |message id |occurences |
+  |message id |occurrences |
   +===========+===========+
   |C0103      |5          |
   +-----------+-----------+
@@ -301,7 +301,7 @@ a docstring to line 2, put spaces around the = sign on line 16 and use the
 Here's the updated code: ::
 
    1  #!/usr/bin/env python
-   2  """This script prompts a user to enter a messsage to encode or decode
+   2  """This script prompts a user to enter a message to encode or decode
    3  using a classic Caeser shift substitution (3 letter shift)"""
    4  
    5  import string

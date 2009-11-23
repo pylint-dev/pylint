@@ -102,7 +102,7 @@ class Foo(object):
         print self.blip
 
 class ClassLevelMessage(object):
-    """should'nt display to much attributes/not enough methods messages
+    """shouldn't display to much attributes/not enough methods messages
     """
     # pylint: disable-msg=R0902,R0903
     
@@ -119,7 +119,7 @@ class ClassLevelMessage(object):
         self.attr0 = 1
 
     def too_complex_but_thats_ok(self, attr1, attr2):
-        """THIS Method has too much branchs and returns but i don't care
+        """THIS Method has too much branches and returns but i don't care
         """
         # pylint: disable-msg=R0912,R0911
         try:

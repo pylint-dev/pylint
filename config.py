@@ -107,7 +107,7 @@ found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
 directory) . The current PYLINTHOME is %(PYLINT_HOME)s.        
     * PYLINTRC                                                                 
     path to the configuration file. If not found, it will use the first        
-existant file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
+existent file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
 %(PYLINTRC)s.                                                                 
 ''' % globals()
 

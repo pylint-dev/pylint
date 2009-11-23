@@ -82,9 +82,9 @@ Include message's id in output [current: no]
 .IP "--files-output=<y_or_n>"
 Put messages in a separate file for each module / package specified on the command line instead of printing them on stdout. Reports (if any) will be written in a file name "pylint_global.[txt|html]". [current: no]
 .IP "--reports=<y_or_n>, -r <y_or_n>"
-Tells wether to display a full report or only the messages [current: yes]
+Tells whether to display a full report or only the messages [current: yes]
 .IP "--evaluation=<python_expression>"
-Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectivly contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004). [current: 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)]
+Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectively contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004). [current: 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)]
 .IP "--comment=<y_or_n>"
 Add a comment according to your evaluation note. This is used by the global evaluation report (R0004). [current: no]
 .IP "--enable-report=<rpt ids>"
@@ -146,9 +146,9 @@ Ignore docstrings when computing similarities. [current: yes]
 
 .SH TYPECHECK
 .IP "--ignore-mixin-members=<y_or_n>"
-Tells wether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive). [current: yes]
+Tells whether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive). [current: yes]
 .IP "--ignored-classes=<members names>"
-List of classes names for which member attributes should not be checked (useful for classes with attributes dynamicaly set). [current: SQLObject]
+List of classes names for which member attributes should not be checked (useful for classes with attributes dynamically set). [current: SQLObject]
 .IP "--zope=<y_or_n>"
 When zope mode is activated, add a predefined set of Zope acquired attributes to generated-members. [current: no]
 .IP "--generated-members=<members names>"
@@ -156,7 +156,7 @@ List of members which are set dynamically and missed by pylint inference system,
 
 .SH VARIABLES
 .IP "--init-import=<y_or_n>"
-Tells wether we should check for unused import in __init__ files. [current: no]
+Tells whether we should check for unused import in __init__ files. [current: no]
 .IP "--dummy-variables-rgx=<regexp>"
 A regular expression matching names used                  for dummy variables (i.e. not used). [current: _|dummy]
 .IP "--additional-builtins=<comma separated list>"
@@ -205,7 +205,7 @@ found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
 directory) . The current PYLINTHOME is ~/.pylint.d.        
     * PYLINTRC                                                                 
     path to the configuration file. If not found, it will use the first        
-existant file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
+existent file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
 None.                                                                 
 
 .SH OUTPUT
@@ -217,7 +217,7 @@ There are 5 kind of message types :
     * (R) refactor, for bad code smell                                         
     * (W) warning, for python specific problems                                
     * (E) error, for probable bugs in the code                            
-    * (F) fatal, if an error occured which prevented pylint from doing further processing.     
+    * (F) fatal, if an error occurred which prevented pylint from doing further processing.     
         
 .SH SEE ALSO
 /usr/share/doc/pylint/

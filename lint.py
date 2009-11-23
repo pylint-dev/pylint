@@ -70,18 +70,18 @@ REPORTER_OPT_MAP = {'text': TextReporter,
 
 MSGS = {
     'F0001': ('%s',
-              'Used when an error occured preventing the analysis of a \
+              'Used when an error occurred preventing the analysis of a \
               module (unable to find it for instance).'),
     'F0002': ('%s: %s',
-              'Used when an unexpected error occured while building the ASTNG \
+              'Used when an unexpected error occurred while building the ASTNG \
               representation. This is usually accompanied by a traceback. \
               Please report such errors !'),
     'F0003': ('ignored builtin module %s',
               'Used to indicate that the user asked to analyze a builtin module\
               which has been skipped.'),
-    'F0004': ('unexpected infered value %s',
+    'F0004': ('unexpected inferred value %s',
               'Used to indicate that some value of an unexpected type has been \
-              infered.'),
+              inferred.'),
 
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'Used to inform that a built-in module has not been checked \
@@ -185,7 +185,7 @@ Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'short': 'r',
                  'group': 'Reports',
-                 'help' : 'Tells wether to display a full report or only the\
+                 'help' : 'Tells whether to display a full report or only the\
  messages'}),
 
                ('evaluation',
@@ -195,7 +195,7 @@ Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
 convention) / statement) * 10)',
                  'help' : 'Python expression which should return a note less \
 than 10 (10 is the highest note). You have access to the variables errors \
-warning, statement which respectivly contain the number of errors / warnings\
+warning, statement which respectively contain the number of errors / warnings\
  messages and the total number of statements analyzed. This is used by the \
  global evaluation report (R0004).'}),
 
@@ -430,7 +430,7 @@ This is used by the global evaluation report (R0004).'}),
             self.collect_block_lines(child, msg_state)
         first = node.fromlineno
         last = node.tolineno
-        # first child line number used to distinguate between disable-msg
+        # first child line number used to distinguish between disable-msg
         # which are the first child of scoped node with those defined later.
         # For instance in the code below:
         #
@@ -635,7 +635,7 @@ This is used by the global evaluation report (R0004).'}),
         try:
             note = eval(evaluation, {}, self.stats)
         except Exception, ex:
-            msg = 'An exception occured while rating: %s' % ex
+            msg = 'An exception occurred while rating: %s' % ex
         else:
             stats['global_note'] = note
             msg = 'Your code has been rated at %.2f/10' % note
@@ -665,7 +665,7 @@ def report_messages_stats(sect, stats, _):
                 if not msg_id.startswith('I')]
     in_order.sort()
     in_order.reverse()
-    lines = ('message id', 'occurences')
+    lines = ('message id', 'occurrences')
     for value, msg_id in in_order:
         lines += (msg_id, str(value))
     sect.append(Table(children=lines, cols=2, rheaders=1))
@@ -831,7 +831,7 @@ There are 5 kind of message types :
     * (R) refactor, for bad code smell                                          
     * (W) warning, for python specific problems                                 
     * (E) error, for probable bugs in the code                                  
-    * (F) fatal, if an error occured which prevented pylint from doing further
+    * (F) fatal, if an error occurred which prevented pylint from doing further
 processing.
         ''')
         linter.add_help_section('Output status code', '''
@@ -859,7 +859,7 @@ been issued by analysing pylint output status code
         # provide options) have been registered
         linter.load_config_file()
         if reporter:
-            # if a custom reporter is provided as argument, it may be overriden
+            # if a custom reporter is provided as argument, it may be overridden
             # by file parameters, so re-set it here, but before command line
             # parsing so it's still overrideable by command line option
             linter.set_reporter(reporter)
@@ -886,11 +886,11 @@ been issued by analysing pylint output status code
         sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):
-        """callback for option preprocessing (ie before optik parsing)"""
+        """callback for option preprocessing (i.e. before optik parsing)"""
         self._rcfile = value
 
     def cb_add_plugins(self, name, value):
-        """callback for option preprocessing (ie before optik parsing)"""
+        """callback for option preprocessing (i.e. before optik parsing)"""
         self._plugins.extend(splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):

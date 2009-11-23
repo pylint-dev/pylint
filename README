@@ -17,7 +17,7 @@ From the source distribution, extract the tarball and run ::
 
     python setup.py install
 
-You'll have to install dependancies in a similar way. For debian and
+You'll have to install dependencies in a similar way. For debian and
 rpm packages, use your usual tools according to your Linux distribution. 
 
 More information about installation and available distribution format
@@ -52,7 +52,7 @@ Contributors
 * Amaury Forgeot d'Arc: patch to check names imported from a module
   exists in the module
 * Benjamin Niemann: patch to allow block level enabling/disabling of messages
-* Nathaniel Manista: suspcicious lambda checking
+* Nathaniel Manista: suspicious lambda checking
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,  
   Maarten ter Huurne, Mirko Friedenhagen (among others): 
   bug reports, feedback, feature requests...

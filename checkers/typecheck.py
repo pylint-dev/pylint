@@ -29,20 +29,20 @@ from pylint.checkers.utils import safe_infer, is_super, display_type
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
-              'Used when a variable is accessed for an unexistant member.'),
+              'Used when a variable is accessed for an unexistent member.'),
     'E1102': ('%s is not callable',
-              'Used when an object being called has been infered to a non \
+              'Used when an object being called has been inferred to a non \
               callable object'),
     'E1103': ('%s %r has no %r member (but some types could not be inferred)',
-              'Used when a variable is accessed for an unexistant member, but \
+              'Used when a variable is accessed for an unexistent member, but \
               astng was not able to interpret all possible types of this \
               variable.'),
     'E1111': ('Assigning to function call which doesn\'t return',
-              'Used when an assigment is done on a function call but the \
-              infered function doesn\'t return anything.'),
+              'Used when an assignment is done on a function call but the \
+              inferred function doesn\'t return anything.'),
     'W1111': ('Assigning to function call which only returns None',
-              'Used when an assigment is done on a function call but the \
-              infered function returns nothing but None.'),
+              'Used when an assignment is done on a function call but the \
+              inferred function returns nothing but None.'),
     }
 
 class TypeChecker(BaseChecker):
@@ -59,7 +59,7 @@ class TypeChecker(BaseChecker):
     # configuration options
     options = (('ignore-mixin-members',
                 {'default' : True, 'type' : 'yn', 'metavar': '<y_or_n>',
-                 'help' : 'Tells wether missing members accessed in mixin \
+                 'help' : 'Tells whether missing members accessed in mixin \
 class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
                 ),
@@ -69,7 +69,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                  'type' : 'csv',
                  'metavar' : '<members names>',
                  'help' : 'List of classes names for which member attributes \
-should not be checked (useful for classes with attributes dynamicaly set).'}
+should not be checked (useful for classes with attributes dynamically set).'}
                  ),
 
                ('zope',
@@ -104,7 +104,7 @@ accessed.'}
         """check that the accessed attribute exists
 
         to avoid to much false positives for now, we'll consider the code as
-        correct if a single of the infered nodes has the accessed attribute.
+        correct if a single of the inferred nodes has the accessed attribute.
 
         function/method, super call and metaclasses are ignored
         """
@@ -182,7 +182,7 @@ accessed.'}
         if not isinstance(node.value, astng.CallFunc):
             return
         function_node = safe_infer(node.value.func)
-        # skip class, generator and uncomplete function definition
+        # skip class, generator and incomplete function definition
         if not (isinstance(function_node, astng.Function) and
                 function_node.root().fully_defined()):
             return

@@ -79,13 +79,13 @@ Reports options
   command line instead of printing them on stdout. Reports (if any) will be
   written in a file name "pylint_global.[txt|html]".
 :reports:
-  Tells wether to display a full report or only the messages
+  Tells whether to display a full report or only the messages
 
   Default: ``yes``
 :evaluation:
   Python expression which should return a note less than 10 (10 is the highest
   note). You have access to the variables errors warning, statement which
-  respectivly contain the number of errors / warnings messages and the total
+  respectively contain the number of errors / warnings messages and the total
   number of statements analyzed. This is used by the global evaluation report
   (R0004).
 
@@ -119,16 +119,16 @@ Main messages
 :I0013: *Ignoring entire file*
   Used to inform that the file will not be checked
 :F0001:
-  Used when an error occured preventing the analysis of a module (unable to find
+  Used when an error occurred preventing the analysis of a module (unable to find
   it for instance).
 :F0002: *%s: %s*
-  Used when an unexpected error occured while building the ASTNG representation.
+  Used when an unexpected error occurred while building the ASTNG representation.
   This is usually accompanied by a traceback. Please report such errors !
 :F0003: *ignored builtin module %s*
   Used to indicate that the user asked to analyze a builtin module which has
   been skipped.
-:F0004: *unexpected infered value %s*
-  Used to indicate that some value of an unexpected type has been infered.
+:F0004: *unexpected inferred value %s*
+  Used to indicate that some value of an unexpected type has been inferred.
 
 Main reports
 ~~~~~~~~~~~~
@@ -144,12 +144,12 @@ checks for
 * unused variables / imports
 * undefined variables
 * redefinition of variable from builtins or from an outer scope
-* use of variable before assigment
+* use of variable before assignment
 
 Options
 ~~~~~~~
 :init-import:
-  Tells wether we should check for unused import in __init__ files.
+  Tells whether we should check for unused import in __init__ files.
 :dummy-variables-rgx:
   A regular expression matching names used for dummy variables (i.e. not used).
 
@@ -169,9 +169,9 @@ Messages
 :W0601: *Global variable %r undefined at the module level*
   Used when a variable is defined through the "global" statement but the
   variable is not defined in the module scope.
-:W0602: *Using global for %r but no assigment is done*
+:W0602: *Using global for %r but no assignment is done*
   Used when a variable is defined through the "global" statement but no
-  assigment to this variable is done.
+  assignment to this variable is done.
 :W0603: *Using the global statement*
   Used when you use the "global" statement to update a global variable. PyLint
   just try to discourage this usage. That doesn't mean you can not use it !
@@ -201,7 +201,7 @@ Basic checker
 checks for :
 * doc strings
 * modules / classes / functions / methods / arguments / variables name
-* number of arguments, local variables, branchs, returns and statements in
+* number of arguments, local variables, branches, returns and statements in
 functions, methods
 * required module attributes
 * dangerous default values as arguments
@@ -299,7 +299,7 @@ Messages
   disable it if you're using those strings as documentation, instead of
   comments.
 :W0106: *Unnecessary semicolon*
-  Used when a statement is endend by a semi-colon (";"), which isn't necessary
+  Used when a statement is ended by a semi-colon (";"), which isn't necessary
   (that's python, not C ;).
 :W0107: *Unnecessary pass statement*
   Used when a "pass" statement that can be avoided is encountered.)
@@ -340,13 +340,13 @@ try to find bugs in the code using type inference
 Options
 ~~~~~~~
 :ignore-mixin-members:
-  Tells wether missing members accessed in mixin class should be ignored. A
+  Tells whether missing members accessed in mixin class should be ignored. A
   mixin class is detected if its name ends with "mixin" (case insensitive).
 
   Default: ``yes``
 :ignored-classes:
   List of classes names for which member attributes should not be checked
-  (useful for classes with attributes dynamicaly set).
+  (useful for classes with attributes dynamically set).
 
   Default: ``SQLObject``
 :zope:
@@ -361,17 +361,17 @@ Options
 Messages
 ~~~~~~~~
 :E1101: *%s %r has no %r member*
-  Used when a variable is accessed for an unexistant member.
+  Used when a variable is accessed for an unexistent member.
 :E1102: *%s is not callable*
-  Used when an object being called has been infered to a non callable object
+  Used when an object being called has been inferred to a non callable object
 :E1103: *%s %r has no %r member (but some types could not be inferred)*
-  Used when a variable is accessed for an unexistant member, but astng was not
+  Used when a variable is accessed for an unexistent member, but astng was not
   able to interpret all possible types of this variable.
 :E1111: *Assigning to function call which doesn't return*
-  Used when an assigment is done on a function call but the infered function
+  Used when an assignment is done on a function call but the inferred function
   doesn't return anything.
 :W1111: *Assigning to function call which only returns None*
-  Used when an assigment is done on a function call but the infered function
+  Used when an assignment is done on a function call but the inferred function
   returns nothing but None.
 
 
@@ -430,7 +430,7 @@ Classes checker
 checks for :
 * methods without self as first argument
 * overridden methods signature
-* access only to existant members via self
+* access only to existent members via self
 * attributes not defined in the __init__ method
 * supported interfaces implementation
 * unreachable code
@@ -450,7 +450,7 @@ Options
 Messages
 ~~~~~~~~
 :E0202: *An attribute inherited from %s hide this method*
-  Used when a class defines a method which is hiden by an instance attribute
+  Used when a class defines a method which is hidden by an instance attribute
   from an ancestor class.
 :E0203: *Access to member %r before its definition line %s*
   Used when an instance member is accessed before it's actually assigned.
@@ -459,8 +459,8 @@ Messages
   no argument defined.
 :E0213: *Method should have "self" as first argument*
   Used when a method has an attribute different the "self" as first argument.
-  This is considered as an error since this is a soooo common convention that
-  you should'nt break it!
+  This is considered as an error since this is a so common convention that
+  you shouldn't break it!
 :E0221: *Interface resolved to %s is not a class*
   Used when a class claims to implement an interface which is not a class.
 :E0222: *Missing method %r from %s interface*
@@ -481,7 +481,7 @@ Messages
   Used when a method signature is different than in the implemented interface or
   in an overridden method.
 :W0223: *Method %r is abstract in class %r but is not overridden*
-  Used when an abstract method (ie raise NotImplementedError) is not overridden
+  Used when an abstract method (i.e. raise NotImplementedError) is not overridden
   in concrete class.
 :W0231: *__init__ method from base class %r is not called*
   Used when an ancestor class method has an __init__ method which is not called
@@ -502,7 +502,7 @@ Messages
   argument.
 :F0202: *Unable to check methods signature (%s / %s)*
   Used when PyLint has been unable to check methods signature compatibility for
-  an unexpected raison. Please report this kind if you don't make sense of it.
+  an unexpected reason. Please report this kind if you don't make sense of it.
 :F0220: *failed to resolve interfaces implemented by %s (%s)*
   Used when a PyLint as failed to find interfaces implemented by a class
 
@@ -714,7 +714,7 @@ Messages
 :C0301: *Line too long (%s/%s)*
   Used when a line is longer than a given number of characters.
 :C0302: *Too many lines in module (%s)*
-  Used when a module has too much lines, reducing its readibility.
+  Used when a module has too much lines, reducing its readability.
 :C0321: *More than one statement on a single line*
   Used when more than on statement are found on the same line.
 :C0322: *Operator not preceded by a space*
@@ -726,7 +726,7 @@ Messages
 :C0324: *Comma not followed by a space*
   Used when a comma (",") is not followed by a space.
 :F0321: *Format detection error in %r*
-  Used when an unexpected error occured in bad format detection.Please report
+  Used when an unexpected error occurred in bad format detection.Please report
   the error if it occurs.
 
 

@@ -42,7 +42,7 @@ class Relationship(Figure):
         
     
 class DiagramEntity(Figure):
-    """a diagram object, ie a label associated to an astng node
+    """a diagram object, i.e. a label associated to an astng node
     """
     def __init__(self, title='No name', node=None):
         Figure.__init__(self)
@@ -78,7 +78,7 @@ class ClassDiagram(Figure, FilterMixIn):
         raise KeyError(relation_type)
 
     def get_attrs(self, node):
-        """return visible attributs, possibly with class name"""
+        """return visible attributes, possibly with class name"""
         attrs = []
         for node_name, ass_nodes in node.instance_attrs_type.items():
             if not self.show_attr(node_name):
@@ -135,7 +135,7 @@ class ClassDiagram(Figure, FilterMixIn):
         return [o for o in self.objects if isinstance(o.node, astng.Class)]
 
     def classe(self, name):
-        """return a klass by its name, raise KeyError if not found
+        """return a class by its name, raise KeyError if not found
         """
         for klass in self.classes():
             if klass.node.name == name:

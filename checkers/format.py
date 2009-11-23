@@ -36,7 +36,7 @@ MSGS = {
     'C0301': ('Line too long (%s/%s)',
               'Used when a line is longer than a given number of characters.'),
     'C0302': ('Too many lines in module (%s)', # was W0302
-              'Used when a module has too much lines, reducing its readibility.'
+              'Used when a module has too much lines, reducing its readability.'
               ),
 
     'W0311': ('Bad indentation. Found %s %s, expected %s',
@@ -45,11 +45,11 @@ MSGS = {
     'W0312': ('Found indentation with %ss instead of %ss',
               'Used when there are some mixed tabs and spaces in a module.'),
     'W0301': ('Unnecessary semicolon', # was W0106
-              'Used when a statement is endend by a semi-colon (";"), which \
+              'Used when a statement is ended by a semi-colon (";"), which \
               isn\'t necessary (that\'s python, not C ;).'),
 
     'F0321': ('Format detection error in %r',
-              'Used when an unexpected error occured in bad format detection.'
+              'Used when an unexpected error occurred in bad format detection.'
               'Please report the error if it occurs.'),
     'C0321': ('More than one statement on a single line',
               'Used when more than on statement are found on the same line.'),
@@ -123,7 +123,7 @@ def get_string_coords(line):
     return result
 
 def in_coords(match, string_coords):
-    """return true if the match in in the string coord"""
+    """return true if the match is in the string coord"""
     mstart = match.start()
     for start, end in string_coords:
         if mstart >= start and mstart < end:

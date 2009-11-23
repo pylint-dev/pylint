@@ -44,7 +44,7 @@ class LintGui:
         self.txtModule.focus_set()
         
     def mainloop(self):
-        """lauch the mainloop of the application"""
+        """launch the mainloop of the application"""
         self.root.mainloop()
 
     def quit(self, _=None):
@@ -52,7 +52,7 @@ class LintGui:
         self.root.quit()
 
     def run_lint(self, _=None):
-        """lauches pylint"""
+        """launches pylint"""
         colors = {'W:':'red1', 'E:': 'red4',
                   'W:': 'red3', '**': 'navy'}
         

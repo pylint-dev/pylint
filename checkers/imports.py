@@ -59,7 +59,7 @@ def filter_dependencies_info(dep_info, package_dir, mode='external'):
 
 def make_tree_defs(mod_files_list):
     """get a list of 2-uple (module, list_of_files_which_import_this_module),
-    it will return a dictionnary to represent this as a tree
+    it will return a dictionary to represent this as a tree
     """
     tree_defs = {}
     for mod, files in mod_files_list:

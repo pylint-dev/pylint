@@ -30,7 +30,7 @@ from pylint.checkers.utils import PYMETHODS, is_ancestor_name, is_builtin, \
 
 
 def overridden_method(klass, name):
-    """get overriden method if any"""
+    """get overridden method if any"""
     try:
         parent = klass.local_attr_ancestors(name).next()
     except (StopIteration, KeyError):
@@ -59,9 +59,9 @@ MSGS = {
     'W0601': ('Global variable %r undefined at the module level',
               'Used when a variable is defined through the "global" statement \
               but the variable is not defined in the module scope.'),
-    'W0602': ('Using global for %r but no assigment is done',
+    'W0602': ('Using global for %r but no assignment is done',
               'Used when a variable is defined through the "global" statement \
-              but no assigment to this variable is done.'),
+              but no assignment to this variable is done.'),
     'W0603': ('Using the global statement', # W0121
               'Used when you use the "global" statement to update a global \
               variable. PyLint just try to discourage this \
@@ -96,7 +96,7 @@ class VariablesChecker(BaseChecker):
     * unused variables / imports
     * undefined variables
     * redefinition of variable from builtins or from an outer scope
-    * use of variable before assigment
+    * use of variable before assignment
     """
 
     __implements__ = IASTNGChecker
@@ -107,7 +107,7 @@ class VariablesChecker(BaseChecker):
     options = (
                ("init-import",
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'help' : 'Tells wether we should check for unused import in \
+                 'help' : 'Tells whether we should check for unused import in \
 __init__ files.'}),
                ("dummy-variables-rgx",
                 {'default': ('_|dummy'),
@@ -265,17 +265,17 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 assign_nodes = []
             for anode in assign_nodes:
                 if anode.frame() is frame:
-                    # same scope level assigment
+                    # same scope level assignment
                     break
             else:
-                # global but no assigment
+                # global but no assignment
                 self.add_message('W0602', args=name, node=node)
                 default_message = False
             if not assign_nodes:
                 continue
             for anode in assign_nodes:
                 if anode.frame() is module:
-                    # module level assigment
+                    # module level assignment
                     break
             else:
                 # global undefined at the module scope
@@ -355,7 +355,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             except KeyError:
                 continue
             else:
-                # checks for use before assigment
+                # checks for use before assignment
                 defnode = assign_parent(to_consume[name][0])
                 if defnode is not None:
                     defstmt = defnode.statement()

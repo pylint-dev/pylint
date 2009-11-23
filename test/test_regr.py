@@ -14,7 +14,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """non regression tests for pylint, which requires a too specific configuration
-to be incorporated in the automatic functionnal test framework
+to be incorporated in the automatic functional test framework
 """
 
 import sys

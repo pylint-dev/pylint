@@ -27,11 +27,11 @@ from pylint.checkers.utils import PYMETHODS, overrides_a_method
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
               'Used when PyLint has been unable to check methods signature \
-              compatibility for an unexpected raison. Please report this kind \
+              compatibility for an unexpected reason. Please report this kind \
               if you don\'t make sense of it.'),
 
     'E0202': ('An attribute inherited from %s hide this method',
-              'Used when a class defines a method which is hiden by an \
+              'Used when a class defines a method which is hidden by an \
               instance attribute from an ancestor class.'),
     'E0203': ('Access to member %r before its definition line %s',
               'Used when an instance member is accessed before it\'s actually\
@@ -51,7 +51,7 @@ MSGS = {
     'E0213': ('Method should have "self" as first argument',
               'Used when a method has an attribute different the "self" as\
               first argument. This is considered as an error since this is\
-              a soooo common convention that you should\'nt break it!'),
+              a so common convention that you shouldn\'t break it!'),
     'C0202': ('Class method should have "cls" as first argument', # E0212
               'Used when a class method has an attribute different than "cls"\
               as first argument, to easily differentiate them from regular \
@@ -81,7 +81,7 @@ MSGS = {
               'Used when a method signature is different than in the \
               implemented interface or in an overridden method.'),
     'W0223': ('Method %r is abstract in class %r but is not overridden',
-              'Used when an abstract method (ie raise NotImplementedError) is \
+              'Used when an abstract method (i.e. raise NotImplementedError) is \
               not overridden in concrete class.'
               ),
     'F0220': ('failed to resolve interfaces implemented by %s (%s)', # W0224
@@ -106,7 +106,7 @@ class ClassChecker(BaseChecker):
     """checks for :
     * methods without self as first argument
     * overridden methods signature
-    * access only to existant members via self
+    * access only to existent members via self
     * attributes not defined in the __init__ method
     * supported interfaces implementation
     * unreachable code
@@ -170,7 +170,7 @@ instance attributes.'}
     def leave_class(self, cnode):
         """close a class node:
         check that instance attributes are defined in __init__ and check
-        access to existant members
+        access to existent members
         """
         # checks attributes are defined in an allowed method such as __init__
         defining_methods = self.config.defining_attr_methods
@@ -194,7 +194,7 @@ instance attributes.'}
                         cnode.local_attr(attr)
                     except astng.NotFoundError:
                         self.add_message('W0201', args=attr, node=node)
-        # check access to existant members on non metaclass classes
+        # check access to existent members on non metaclass classes
         accessed = self._accessed.pop()
         if cnode.type != 'metaclass':
             self._check_accessed_members(cnode, accessed)
@@ -211,14 +211,14 @@ instance attributes.'}
         if node.name == '__init__':
             self._check_init(node)
             return
-        # check signature if the method overrload an herited method
+        # check signature if the method overloads inherited method
         for overridden in klass.local_attr_ancestors(node.name):
             # get astng for the searched method
             try:
                 meth_node = overridden[node.name]
             except KeyError:
                 # we have found the method but it's not in the local
-                # dictionnary.
+                # dictionary.
                 # This may happen with astng build from living objects
                 continue
             if not isinstance(meth_node, astng.Function):
@@ -322,7 +322,7 @@ instance attributes.'}
                 if len(defstmts) == 1:
                     defstmt = defstmts[0]
                     # check that if the node is accessed in the same method as
-                    # it's defined, it's accessed after the initial assigment
+                    # it's defined, it's accessed after the initial assignment
                     frame = defstmt.frame()
                     lno = defstmt.fromlineno
                     for _node in nodes:
@@ -398,7 +398,7 @@ instance attributes.'}
                 for imethod in iface.methods():
                     name = imethod.name
                     if name.startswith('_') or name in ignore_iface_methods:
-                        # don't check method begining with an underscore,
+                        # don't check method beginning with an underscore,
                         # usually belonging to the interface implementation
                         continue
                     # get class method astng

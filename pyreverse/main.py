@@ -99,7 +99,7 @@ class PyreverseCommand(ConfigurationMixIn):
         self.run(args)
 
     def run(self, args):
-        """checking argmuents and run project"""
+        """checking arguments and run project"""
         if not args:
             print self.help()
             return

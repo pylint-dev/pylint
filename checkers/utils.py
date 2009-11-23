@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""some functions that may be usefull for various checkers
+"""some functions that may be useful for various checkers
 """
 
 from logilab import astng
@@ -29,9 +29,9 @@ except AttributeError:
     FOR_NODE_TYPES = (astng.For, astng.Comprehension)
 
 def safe_infer(node):
-    """return the infered value for the given node.
+    """return the inferred value for the given node.
     Return None if inference failed or if there is some ambiguity (more than
-    one node has been infered)
+    one node has been inferred)
     """
     try:
         inferit = node.infer()
@@ -40,7 +40,7 @@ def safe_infer(node):
         return
     try:
         inferit.next()
-        return # None if there is ambiguity on the infered node
+        return # None if there is ambiguity on the inferred node
     except StopIteration:
         return value
 

@@ -125,7 +125,7 @@ class BaseRawChecker(BaseChecker):
         self.process_tokens(tokenize.generate_tokens(stream.readline))
 
     def process_tokens(self, tokens):
-        """should be overiden by subclasses"""
+        """should be overridden by subclasses"""
         raise NotImplementedError()
 
 

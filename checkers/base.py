@@ -28,7 +28,7 @@ from pylint.checkers import BaseChecker
 
 import re
 
-# regex for class/function/variable/constant nane
+# regex for class/function/variable/constant name
 CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
 MOD_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$')
 CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
@@ -180,7 +180,7 @@ class BasicChecker(BaseChecker):
     """checks for :
     * doc strings
     * modules / classes / functions / methods / arguments / variables name
-    * number of arguments, local variables, branchs, returns and statements in
+    * number of arguments, local variables, branches, returns and statements in
 functions, methods
     * required module attributes
     * dangerous default values as arguments
@@ -505,7 +505,7 @@ functions, methods
         self._check_unreachable(node)
 
     def visit_exec(self, node):
-        """just pring a warning on exec statements"""
+        """just print a warning on exec statements"""
         self.add_message('W0122', node=node)
 
     def visit_callfunc(self, node):
@@ -514,7 +514,7 @@ functions, methods
         """
         if isinstance(node.func, astng.Name):
             name = node.func.name
-            # ignore the name if it's not a builtin (ie not defined in the
+            # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
             if not (node.frame().has_key(name) or
                     node.root().has_key(name)):

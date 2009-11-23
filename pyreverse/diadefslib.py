@@ -41,7 +41,7 @@ class DiaDefGenerator:
         return title
 
     def _set_option(self, option):
-        """activate some options if not explicitely desactivated"""
+        """activate some options if not explicitly deactivated"""
         # if we have a class diagram, we want more information by default;
         # so if the option is None, we return True
         if option is None:

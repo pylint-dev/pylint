@@ -20,7 +20,7 @@ For example:
 
        cd a/c; pylint y.py
 
-   - THe following obviously doesn't
+   - The following obviously doesn't
 
        pylint a/c/y.py
 

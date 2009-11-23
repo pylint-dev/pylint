@@ -60,7 +60,7 @@ class ILinter(Interface):
     """interface for the linter class
 
     the linter class will generate events to its registered checkers.
-    Each ckecker may interact with the linter instance using this API
+    Each checker may interact with the linter instance using this API
     """
     
     def register_checker(self, checker):
