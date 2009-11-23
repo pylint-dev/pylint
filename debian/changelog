@@ -240,7 +240,7 @@ pylint (0.9.0-1) unstable; urgency=low
 
 pylint (0.8.1-1) unstable; urgency=low
 
-  * added missing dependancy to logilab-astng
+  * added missing dependency to logilab-astng
   * added missing .docs and .examples files
   * update control'standards-version to 3.6.2
   * fixed FSF address in the copyright file

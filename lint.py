@@ -35,7 +35,8 @@ import os
 import re
 import tokenize
 
-from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn, check_csv
+from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
+from logilab.common.optik_ext import check_csv
 from logilab.common.modutils import load_module_from_name
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip
@@ -837,11 +838,11 @@ processing.
         linter.add_help_section('Output status code', '''
 Pylint should leave with following status code:                                 
     * 0 if everything went fine                                                 
-    * 1 if some fatal message issued                                            
-    * 2 if some error message issued                                            
-    * 4 if some warning message issued                                          
-    * 8 if some refactor message issued                                         
-    * 16 if some convention message issued                                      
+    * 1 if a fatal message was issued                                           
+    * 2 if an error message was issued                                          
+    * 4 if a warning message was issued                                         
+    * 8 if a refactor message was issued                                        
+    * 16 if a convention message was issued                                     
     * 32 on usage error                                                         
                                                                                 
 status 1 to 16 will be bit-ORed so you can know which different categories has

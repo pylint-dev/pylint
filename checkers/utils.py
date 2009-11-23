@@ -193,7 +193,7 @@ def display_type(node):
 PYMETHODS = set(('__new__', '__init__', '__del__', '__hash__',
                  '__str__', '__repr__',
                  '__len__', '__iter__',
-                 '__get__', '__set__',
+                 '__delete__', '__get__', '__set__',
                  '__getitem__', '__setitem__', '__delitem__', '__contains__',
                  '__getattribute__', '__getattr__', '__setattr__', '__delattr__',
                  '__call__',

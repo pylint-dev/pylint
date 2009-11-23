@@ -1,4 +1,4 @@
-"""w0401 dependancy
+"""w0401 dependency
 """
 
 __revision__ = 0

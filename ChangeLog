@@ -30,6 +30,7 @@ ChangeLog for PyLint
 
     * don't show information messages by default
 
+    * integration of Yuen Ho Wong's patches on emacs lisp files
 
 
 2009-03-19  --  0.17.0

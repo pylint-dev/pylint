@@ -1,3 +1,5 @@
+;; Fixed bug where py-mode-map is undefined in Gnu Emacs 22 and 23
+;; Yuen Ho Wong (2009)
 ;;
 ;; Modifications done by Yarosav O. Halchenko (2008):
 ;;  - enable user-visible variables
@@ -25,34 +27,38 @@
   (defun pylint ()
     "Run pylint against the file behind the current buffer after
     checking if unsaved buffers should be saved."
-    
+
     (interactive)
     (let* ((file (buffer-file-name (current-buffer)))
-	   (command (concat "pylint " pylint-options " \"" file "\"")))
+           (command (concat "pylint " pylint-options " \"" file "\"")))
       (save-some-buffers (not compilation-ask-about-save) nil) ; save  files.
-      (compile-internal command "No more errors or warnings" "pylint")))
-;;  (local-set-key [f1] 'pylint)
-;;  (local-set-key [f2] 'previous-error)
-;;  (local-set-key [f3] 'next-error)
+      (compilation-start command)))
 
-  (define-key
-    py-mode-map
-    [menu-bar Python pylint-separator]
-    '("--" . pylint-seperator))
+  (let ((python-mode-map (cond ((boundp 'py-mode-map) py-mode-map)
+                               ((boundp 'python-mode-map) python-mode-map))))
 
-  (define-key
-    py-mode-map
-    [menu-bar Python next-error]
-    '("Next error" . next-error))
-  (define-key
-    py-mode-map
-    [menu-bar Python prev-error]
-    '("Previous error" . previous-error))
-  (define-key
-    py-mode-map
-    [menu-bar Python lint]
-    '("Pylint" . pylint))
+    ;; shortcuts in the tradition of python-mode and ropemacs
+    (define-key python-mode-map (kbd "C-c m l") 'pylint)
+    (define-key python-mode-map (kbd "C-c m p") 'previous-error)
+    (define-key python-mode-map (kbd "C-c m n") 'next-error)
 
-  )
+    (define-key
+      python-mode-map
+      [menu-bar Python pylint-separator]
+      '("--" . pylint-seperator))
+
+    (define-key
+      python-mode-map
+      [menu-bar Python next-error]
+      '("Next error" . next-error))
+    (define-key
+      python-mode-map
+      [menu-bar Python prev-error]
+      '("Previous error" . previous-error))
+    (define-key
+      python-mode-map
+      [menu-bar Python lint]
+      '("Pylint" . pylint))
+    ))
 
 (add-hook 'python-mode-hook 'pylint-python-hook)
