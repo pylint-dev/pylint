@@ -57,10 +57,29 @@ def exception_str(ex):
     return 'in %s\n:: %s' % (ex.file, ', '.join(ex.args))
 
 class LintTestUsingModule(testlib.TestCase):            
-    package = 'input'
+    DEFAULT_PACKAGE = 'input'
+    package = DEFAULT_PACKAGE
     linter = linter
+    module = None
+    depends = None
+
+    _TEST_TYPE = 'module'
+
+    def shortDescription(self):
+        values = { 'mode' : self._TEST_TYPE,
+                   'input': self.module,
+                   'pkg':   self.package,
+                   'cls':   self.__class__.__name__}
+
+        if self.package == self.DEFAULT_PACKAGE:
+            msg = '%(mode)s test of input file "%(input)s" (%(cls)s)'
+        else:
+            msg = '%(mode)s test of input file "%(input)s" in "%(pkg)s" (%(cls)s)'
+        return msg % values
+
     def setUp(self):
         MANAGER.set_cache_size(200) # reset cache
+
     def test_functionality(self):
         tocheck = [self.package+'.'+self.module]
         if self.depends:
@@ -98,6 +117,8 @@ class LintTestUsingModule(testlib.TestCase):
 
 class LintTestUsingFile(LintTestUsingModule):            
                 
+    _TEST_TYPE = 'file'
+
     def test_functionality(self):
         tocheck = [self.package+'/' + self.module + '.py']
         if self.depends:
@@ -168,6 +189,7 @@ def make_tests(filter_rgx):
             module = module_file.replace('.py', '')
             output = messages_file
             depends = dependencies or None
+            tags = testlib.Tags(('generated',))
         tests.append(LintTestUsingModuleTC)
 
         if MODULES_ONLY:
@@ -177,6 +199,7 @@ def make_tests(filter_rgx):
             module = module_file.replace('.py', '')
             output = exists(messages_file + '2') and (messages_file + '2') or messages_file
             depends = dependencies or None
+            tags = testlib.Tags(('generated',))
         tests.append(LintTestUsingFileTC)
         
 ##     # special test for f0003
