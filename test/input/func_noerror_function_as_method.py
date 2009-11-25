@@ -1,6 +1,7 @@
 # pylint: disable-msg=R0903
 '''Test that a function is considered a method when looked up through a class.
 '''
+__revision__ = 1
 
 class Clazz(object):
     'test class'
