@@ -38,7 +38,6 @@ class DiagramWriter:
             basename = diagram.title.strip().replace(' ', '_')
             file_name = '%s.%s' % (basename, self.config.output_format)
             self.set_printer(file_name, basename)
-            print 'creating diagram %s' % file_name
             if diagram.TYPE == 'class':
                 self.write_classes(diagram)
             else:
