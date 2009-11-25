@@ -182,14 +182,6 @@ def overrides_a_method(class_node, name):
             return True
     return False
 
-def display_type(node):
-    """return the type of this node for screen display"""
-    if isinstance(node, astng.Instance):
-        return 'Instance of'
-    elif isinstance(node, astng.Module):
-        return 'Module'
-    return 'Class'
-
 PYMETHODS = set(('__new__', '__init__', '__del__', '__hash__',
                  '__str__', '__repr__',
                  '__len__', '__iter__',

@@ -25,7 +25,7 @@ from logilab.astng.infutils import YES, Instance
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import safe_infer, is_super, display_type
+from pylint.checkers.utils import safe_infer, is_super
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -187,7 +187,7 @@ accessed.'}
                 else:
                     msgid = 'E1101'
                 self.add_message(msgid, node=node,
-                                 args=(display_type(owner), name,
+                                 args=(owner.display_type(), name,
                                        node.attrname))
 
 
