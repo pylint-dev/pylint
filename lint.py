@@ -908,7 +908,7 @@ been issued by analysing pylint output status code
         * do not save execution information
         """
         self.linter.disable_noerror_checkers()
-        self.linter.set_option('disable-msg-cat', 'WCRFI')
+        self.linter.set_option('disable-msg-cat', 'WCRI')
         self.linter.set_option('reports', False)
         self.linter.set_option('persistent', False)
 

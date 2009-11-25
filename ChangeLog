@@ -2,6 +2,8 @@ ChangeLog for PyLint
 ====================
 
 --
+
+    * --errors-only does not hide fatal error anymore
     * include james Lingar patches for ++/-- and duplicate key in dicts
     * include James Lingar patches for function call arguments checker
     * improved flymake code and doc provided by Derek Harland
