@@ -43,6 +43,22 @@ MSGS = {
     'W1111': ('Assigning to function call which only returns None',
               'Used when an assignment is done on a function call but the \
               inferred function returns nothing but None.'),
+
+    'E1120': ('No value passed for parameter %s in function call',
+              'Used when a function call passes too few arguments.'),
+    'E1121': ('Too many positional arguments for function call',
+              'Used when a function call passes too many positional \
+              arguments.'),
+    'E1122': ('Duplicate keyword argument %r in function call',
+              'Used when a function call passes the same keyword argument \
+              multiple times.'),
+    'E1123': ('Passing unexpected keyword argument %r in function call',
+              'Used when a function call passes a keyword argument that \
+              doesn\'t correspond to one of the function\'s parameter names.'),
+    'E1124': ('Multiple values passed for parameter %r in function call',
+              'Used when a function call would result in assigning multiple \
+              values to a function parameter, one value from a positional \
+              argument and one from a keyword argument.'),
     }
 
 class TypeChecker(BaseChecker):
@@ -202,13 +218,144 @@ accessed.'}
                 self.add_message('W1111', node=node)
 
     def visit_callfunc(self, node):
-        """check that called method are infered to callable objects
+        """check that called functions/methods are inferred to callable objects,
+        and that the arguments passed to the function match the parameters in
+        the inferred function's definition
         """
+
+        # Build the set of keyword arguments, checking for duplicate keywords,
+        # and count the positional arguments.
+        keyword_args = set()
+        num_positional_args = 0
+        for arg in node.args:
+            if isinstance(arg, astng.Keyword):
+                keyword = arg.arg
+                if keyword in keyword_args:
+                    self.add_message('E1122', node=node, args=keyword)
+                keyword_args.add(keyword)
+            else:
+                num_positional_args += 1
+
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
             self.add_message('E1102', node=node, args=node.func.as_string())
 
+        # Note that BoundMethod is a subclass of UnboundMethod (huh?), so must
+        # come first in this 'if..else'.
+        if isinstance(called, astng.BoundMethod):
+            # Bound methods have an extra implicit 'self' argument.
+            num_positional_args += 1
+        elif isinstance(called, astng.UnboundMethod):
+            if called.decorators is not None:
+                for d in called.decorators.nodes:
+                    if isinstance(d, astng.Name) and (d.name == 'classmethod'):
+                        # Class methods have an extra implicit 'cls' argument.
+                        num_positional_args += 1
+                        break
+        elif (isinstance(called, astng.Function) or
+              isinstance(called, astng.Lambda)):
+            pass
+        else:
+            return
+
+        if called.args.args is None:
+            # Built-in functions have no argument information.
+            return
+
+        if len( called.argnames() ) != len( set( called.argnames() ) ):
+            # Duplicate parameter name (see E9801).  We can't really make sense
+            # of the function call in this case, so just return.
+            return
+
+        # Analyze the list of formal parameters.
+        num_mandatory_parameters = len(called.args.args) - len(called.args.defaults)
+        parameters = []
+        parameter_name_to_index = {}
+        for i, arg in enumerate(called.args.args):
+            if isinstance(arg, astng.Tuple):
+                name = None
+                # Don't store any parameter names within the tuple, since those
+                # are not assignable from keyword arguments.
+            else:
+                if isinstance(arg, astng.Keyword):
+                    name = arg.arg
+                else:
+                    assert isinstance(arg, astng.AssName)
+                    # This occurs with:
+                    #    def f( (a), (b) ): pass
+                    name = arg.name
+                parameter_name_to_index[name] = i
+            if i >= num_mandatory_parameters:
+                defval = called.args.defaults[i - num_mandatory_parameters]
+            else:
+                defval = None
+            parameters.append([(name, defval), False])
+
+        # Match the supplied arguments against the function parameters.
+
+        # 1. Match the positional arguments.
+        for i in range(num_positional_args):
+            if i < len(parameters):
+                parameters[i][1] = True
+            elif called.args.vararg is not None:
+                # The remaining positional arguments get assigned to the *args
+                # parameter.
+                break
+            else:
+                # Too many positional arguments.
+                self.add_message('E1121', node=node)
+                break
+
+        # 2. Match the keyword arguments.
+        for keyword in keyword_args:
+            if keyword in parameter_name_to_index:
+                i = parameter_name_to_index[keyword]
+                if parameters[i][1]:
+                    # Duplicate definition of function parameter.
+                    self.add_message('E1124', node=node, args=keyword)
+                else:
+                    parameters[i][1] = True
+            elif called.args.kwarg is not None:
+                # The keyword argument gets assigned to the **kwargs parameter.
+                pass
+            else:
+                # Unexpected keyword argument.
+                self.add_message('E1123', node=node, args=keyword)
+
+        # 3. Match the *args, if any.  Note that Python actually processes
+        #    *args _before_ any keyword arguments, but we wait until after
+        #    looking at the keyword arguments so as to make a more conservative
+        #    guess at how many values are in the *args sequence.
+        if node.starargs is not None:
+            for i in range(num_positional_args, len(parameters)):
+                [(name, defval), assigned] = parameters[i]
+                # Assume that *args provides just enough values for all
+                # non-default parameters after the last parameter assigned by
+                # the positional arguments but before the first parameter
+                # assigned by the keyword arguments.  This is the best we can
+                # get without generating any false positives.
+                if (defval is not None) or assigned:
+                    break
+                parameters[i][1] = True
+
+        # 4. Match the **kwargs, if any.
+        if node.kwargs is not None:
+            for i, [(name, defval), assigned] in enumerate(parameters):
+                # Assume that *kwargs provides values for all remaining
+                # unassigned named parameters.
+                if name is not None:
+                    parameters[i][1] = True
+                else:
+                    # **kwargs can't assign to tuples.
+                    pass
+
+        # Check that any parameters without a default have been assigned
+        # values.
+        for [(name, defval), assigned] in parameters:
+            if (defval is None) and not assigned:
+                display_name = repr(name) if (name is not None) else '<tuple>'
+                self.add_message('E1120', node=node, args=display_name)
 
 def register(linter):
     """required method to auto register this checker """

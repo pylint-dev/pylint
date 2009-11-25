@@ -4,4 +4,4 @@ __revision__ = 1
 
 from numarray import zeros
 
-zeros()
+zeros(shape=(4, 5))

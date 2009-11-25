@@ -21,5 +21,4 @@ class MyClass:
 
 if __name__ == '__main__':
     OBJ = MyClass()
-    OBJ.met()
 
