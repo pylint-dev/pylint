@@ -189,7 +189,7 @@ def make_tests(filter_rgx):
             module = module_file.replace('.py', '')
             output = messages_file
             depends = dependencies or None
-            tags = testlib.Tags(('generated',))
+            tags = testlib.Tags(('generated','pylint_input_%s' % module))
         tests.append(LintTestUsingModuleTC)
 
         if MODULES_ONLY:
@@ -199,7 +199,7 @@ def make_tests(filter_rgx):
             module = module_file.replace('.py', '')
             output = exists(messages_file + '2') and (messages_file + '2') or messages_file
             depends = dependencies or None
-            tags = testlib.Tags(('generated',))
+            tags = testlib.Tags(('generated', 'pylint_input_%s' % module))
         tests.append(LintTestUsingFileTC)
         
 ##     # special test for f0003
