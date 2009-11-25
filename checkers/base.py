@@ -1,4 +1,5 @@
 # Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2009 Arista Networks, Inc.
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -118,7 +119,12 @@ MSGS = {
               'Used when a "return" statement with an argument is found '
               'outside in a generator function or method (e.g. with some '
               '"yield" statements).'),
-
+    'E0107': ("Use of the non-existent ++ operator",
+              "Used when you attempt to use the C-style pre-increment operator "
+              "(++), which doesn't exist in Python."),
+    'E0108': ("Use of the non-existent -- operator",
+              "Used when you attempt to use the C-style pre-increment operator "
+              "(--), which doesn't exist in Python."),
     'W0101': ('Unreachable code',
               'Used when there is some code behind a "return" or "raise" \
               statement, which will never be accessed.'),
@@ -141,7 +147,9 @@ MSGS = {
               on the same argument list as the lambda itself; such lambda \
               expressions are in all but a few cases replaceable with the \
               function being called in the body of the lambda.'),
-
+    'W0109': ("Duplicate key %r in dictionary",
+              "Used when a dictionary expression binds the same key multiple \
+              times."),
     'W0122': ('Use of the exec statement',
               'Used when you use the "exec" statement, to discourage its \
               usage. That doesn\'t mean you can not use it !'),
@@ -532,6 +540,25 @@ functions, methods
                     if not toprocess:
                         return # W0142 can be skipped
             self.add_message('W0142', node=node.func)
+
+    def visit_unaryop(self, node):
+        """check use of the non-existent ++ adn -- operator operator"""
+        if ((node.op in '+-') and
+            isinstance(node.operand, astng.UnaryOp) and
+            (node.operand.op == node.op)):
+            message = { '+': 'E0107',
+                        '-': 'E0108',}[node.op]
+            self.add_message(message, node=node)
+
+    def visit_dict(self, node):
+        """check duplicate key in dictionary"""
+        keys = set()
+        for k, v in node.items:
+            if isinstance(k, astng.Const):
+                key = k.value
+                if key in keys:
+                    self.add_message('W0109', node=node, args=key)
+                keys.add(key)
 
 
     def _check_unreachable(self, node):

@@ -1,0 +1,6 @@
+E: 10: Use of the non-existent ++ operator
+E: 11: Use of the non-existent ++ operator
+E: 12: Use of the non-existent ++ operator
+E: 16: Use of the non-existent -- operator
+E: 18: Use of the non-existent -- operator
+E: 19: Use of the non-existent -- operator
