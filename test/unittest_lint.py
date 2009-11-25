@@ -12,10 +12,10 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-import shutil
 import sys
 import os
 import tempfile
+from shutil import rmtree
 from os.path import join, basename, dirname, isdir, abspath
 from cStringIO import StringIO
 
@@ -258,7 +258,10 @@ class ConfigTC(TestCase):
             del os.environ['PYLINTHOME']
 
     def test_pylintrc(self):
+        fake_home = tempfile.mkdtemp('fake-home')
+        home = os.environ['HOME']
         try:
+            os.environ['HOME'] = fake_home
             self.assertEquals(config.find_pylintrc(), None)
             os.environ['PYLINTRC'] = join(tempfile.gettempdir(), '.pylintrc')
             self.assertEquals(config.find_pylintrc(), None)
@@ -266,6 +269,8 @@ class ConfigTC(TestCase):
             self.assertEquals(config.find_pylintrc(), None)
         finally:
             os.environ.pop('PYLINTRC', '')
+            os.environ['HOME'] = home
+            rmtree(fake_home, ignore_errors=True)
             reload(config)
 
     def test_pylintrc_parentdir(self):
@@ -274,7 +279,14 @@ class ConfigTC(TestCase):
             create_files(['a/pylintrc', 'a/b/__init__.py', 'a/b/pylintrc',
                           'a/b/c/__init__.py', 'a/b/c/d/__init__.py'], chroot)
             os.chdir(chroot)
-            self.assertEquals(config.find_pylintrc(), None)
+            fake_home = tempfile.mkdtemp('fake-home')
+            home = os.environ['HOME']
+            try:
+                os.environ['HOME'] = fake_home
+                self.assertEquals(config.find_pylintrc(), None)
+            finally:
+                os.environ['HOME'] = home
+                os.rmdir(fake_home)
             results = {'a'       : join(chroot, 'a', 'pylintrc'),
                        'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
                        'a/b/c'   : join(chroot, 'a', 'b', 'pylintrc'),
@@ -285,11 +297,14 @@ class ConfigTC(TestCase):
                 self.assertEquals(config.find_pylintrc(), expected)
         finally:
             os.chdir(HERE)
-            shutil.rmtree(chroot)
+            rmtree(chroot)
 
 
     def test_pylintrc_parentdir_no_package(self):
         chroot = tempfile.mkdtemp()
+        fake_home = tempfile.mkdtemp('fake-home')
+        home = os.environ['HOME']
+        os.environ['HOME'] = fake_home
         try:
             create_files(['a/pylintrc', 'a/b/pylintrc', 'a/b/c/d/__init__.py'], chroot)
             os.chdir(chroot)
@@ -303,8 +318,10 @@ class ConfigTC(TestCase):
                 os.chdir(join(chroot, basedir))
                 self.assertEquals(config.find_pylintrc(), expected)
         finally:
+            os.environ['HOME'] = home
+            rmtree(fake_home, ignore_errors=True)
             os.chdir(HERE)
-            shutil.rmtree(chroot)
+            rmtree(chroot)
 
 if __name__ == '__main__':
     unittest_main()

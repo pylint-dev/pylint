@@ -86,10 +86,11 @@ def find_pylintrc():
     if os.environ.has_key('PYLINTRC') and exists(os.environ['PYLINTRC']):
         pylintrc = os.environ['PYLINTRC']
     else:
-        if USER_HOME == '~' or USER_HOME == '/root':
+        user_home = expanduser('~')
+        if user_home == '~' or user_home == '/root':
             pylintrc = ".pylintrc"
         else:
-            pylintrc = join(USER_HOME, '.pylintrc')
+            pylintrc = join(user_home, '.pylintrc')
     if not isfile(pylintrc):
         if isfile('/etc/pylintrc'):
             pylintrc = '/etc/pylintrc'
