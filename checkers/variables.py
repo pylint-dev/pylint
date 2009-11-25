@@ -380,7 +380,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         if defstmt is stmt and isinstance(node, (astng.DelName,
                                                                  astng.AssName)):
                             self.add_message('E0602', args=name, node=node)
-                        else:
+                        elif self._to_consume[-1][-1] != 'lambda':
+                            # E0601 may *not* occurs in lambda scope
                             self.add_message('E0601', args=name, node=node)
                 if not isinstance(node, astng.AssName): # Aug AssName
                     del to_consume[name]
