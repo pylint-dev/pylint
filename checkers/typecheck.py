@@ -354,7 +354,10 @@ accessed.'}
         # values.
         for [(name, defval), assigned] in parameters:
             if (defval is None) and not assigned:
-                display_name = repr(name) if (name is not None) else '<tuple>'
+                if name is None:
+                    display = '<tuple>'
+                else:
+                    display_name = repr(name)
                 self.add_message('E1120', node=node, args=display_name)
 
 def register(linter):
