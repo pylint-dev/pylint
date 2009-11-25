@@ -279,7 +279,12 @@ class MessagesHandlerMixIn:
                 print
                 continue
 
-    def list_messages(self):
+    def list_checkers_messages(self, checker):
+        """print checker's messages in reST format"""
+        for msg_id in sort_msgs(checker.msgs.keys()):
+            print self.get_message_help(msg_id, False)
+
+    def print_full_documentation(self):
         """output a full documentation in ReST format"""
         for checker in sort_checkers(self._checkers.values()):
             if checker.name == 'master':
@@ -313,8 +318,7 @@ class MessagesHandlerMixIn:
                 title = ('%smessages' % prefix).capitalize()
                 print title
                 print '~' * len(title)
-                for msg_id in sort_msgs(checker.msgs.keys()):
-                    print self.get_message_help(msg_id, False)
+                self.list_checkers_messages( checker)
                 print
             if getattr(checker, 'reports', None):
                 title = ('%sreports' % prefix).capitalize()
@@ -324,6 +328,24 @@ class MessagesHandlerMixIn:
                     print ':%s: %s' % report[:2]
                 print
             print
+
+    def list_messages(self):
+        """output full messages list documentation in ReST format"""
+        for checker in sort_checkers(self._checkers.values()):
+            if checker.msgs:
+                self.list_checkers_messages( checker)
+        print
+
+    def list_sorted_messages(self):
+        """output full sorted messages list in ReST format"""
+        msg_ids = []
+        for checker in self._checkers.values():
+            for msg_id in checker.msgs.keys():
+                msg_ids.append(msg_id)
+        msg_ids.sort()
+        for msg_id in msg_ids:
+            print self.get_message_help(msg_id, False)
+        print
 
 
 class ReportsHandlerMixIn:
