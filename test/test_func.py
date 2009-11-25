@@ -107,7 +107,8 @@ class LintTestUsingFile(LintTestUsingModule):
 
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
-    def test(self):
+    @testlib.tag('coverage')
+    def test_exhaustivity(self):
         # skip fatal messages
         todo = [msgid for msgid in linter._messages.keys() if msgid[0] != 'F']
         for msgid in test_reporter.message_ids.keys():
