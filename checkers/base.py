@@ -119,12 +119,9 @@ MSGS = {
               'Used when a "return" statement with an argument is found '
               'outside in a generator function or method (e.g. with some '
               '"yield" statements).'),
-    'E0107': ("Use of the non-existent ++ operator",
-              "Used when you attempt to use the C-style pre-increment operator "
-              "(++), which doesn't exist in Python."),
-    'E0108': ("Use of the non-existent -- operator",
-              "Used when you attempt to use the C-style pre-increment operator "
-              "(--), which doesn't exist in Python."),
+    'E0107': ("Use of the non-existent %s operator",
+              "Used when you attempt to use the C-style pre-increment or"
+              "pre-decrement operator -- and ++, which doesn't exist in Python."),
     'W0101': ('Unreachable code',
               'Used when there is some code behind a "return" or "raise" \
               statement, which will never be accessed.'),
@@ -546,9 +543,7 @@ functions, methods
         if ((node.op in '+-') and
             isinstance(node.operand, astng.UnaryOp) and
             (node.operand.op == node.op)):
-            message = { '+': 'E0107',
-                        '-': 'E0108',}[node.op]
-            self.add_message(message, node=node)
+            self.add_message('E0107', node=node, args=node.op*2)
 
     def visit_dict(self, node):
         """check duplicate key in dictionary"""
