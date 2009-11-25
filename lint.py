@@ -787,6 +787,12 @@ exit. The value may be a comma separated list of message ids.'''}),
              {'action' : 'callback', 'metavar': '<msg-id>',
               'callback' : self.cb_list_messages,
               'group': 'Commands',
+              'help' : "Generate pylint's messages."}),
+
+            ('full-documentation',
+             {'action' : 'callback', 'metavar': '<msg-id>',
+              'callback' : self.cb_full_documentation,
+              'group': 'Commands',
               'help' : "Generate pylint's full documentation."}),
 
             ('generate-rcfile',
@@ -922,9 +928,14 @@ been issued by analysing pylint output status code
         self.linter.help_message(splitstrip(value))
         sys.exit(0)
 
-    def cb_list_messages(self, option, opt_name, value, parser):
+    def cb_full_documentation(self, option, opt_name, value, parser):
+        """optik callback for printing full documentation"""
+        self.linter.print_full_documentation()
+        sys.exit(0)
+
+    def cb_list_messages(self, option, opt_name, value, parser): # FIXME
         """optik callback for printing available messages"""
-        self.linter.list_messages()
+        self.linter.list_sorted_messages()
         sys.exit(0)
 
 def cb_init_hook(option, opt_name, value, parser):
