@@ -1,11 +1,11 @@
 # pylint: disable-msg=R0921
-"""check assigment to function call where the function doesn't return
+"""check assignment to function call where the function doesn't return
 
     'E1111': ('Assigning to function call which doesn\'t return',
-              'Used when an assigment is done on a function call but the \
+              'Used when an assignment is done on a function call but the \
               infered function doesn\'t return anything.'),
     'W1111': ('Assigning to function call which only returns None',
-              'Used when an assigment is done on a function call but the \
+              'Used when an assignment is done on a function call but the \
               infered function returns nothing but None.'),
 
 """

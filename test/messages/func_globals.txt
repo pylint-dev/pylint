@@ -2,5 +2,5 @@ E: 27: Undefined variable 'CSTE'
 E: 32:other: Undefined variable 'HOP'
 W: 23:fix_contant: Using the global statement
 W: 26: Using the global statement at the module level
-W: 31:other: Using global for 'HOP' but no assigment is done
+W: 31:other: Using global for 'HOP' but no assignment is done
 W: 39:define_constant: Global variable 'somevar' undefined at the module level

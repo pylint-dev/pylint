@@ -2,9 +2,9 @@
 'W0601': ('global variable %s undefined at the module level',
           'Used when a variable is defined through the "global" statement \
           but the variable is not defined in the module scope.'),
-'W0602': ('Using global for %s but no assigment is done',
+'W0602': ('Using global for %s but no assignment is done',
           'Used when a variable is defined through the "global" statement \
-          but no assigment to this variable is done.'),
+          but no assignment to this variable is done.'),
 'W0603': ('Using the global statement', # W0121
           'Used when you use the "global" statement to update a global \
           variable. PyLint just try to discourage this \

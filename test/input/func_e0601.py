@@ -1,4 +1,4 @@
-"""test local variable used before assigment
+"""test local variable used before assignment
 """
 
 __revision__ = 0
