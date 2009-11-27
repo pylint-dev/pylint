@@ -220,7 +220,7 @@ class PyLinterTC(TestCase):
                                   if c.is_enabled()]),
                           ['basic', 'classes', 'exceptions', 'format', 'imports',
                            'logging', 'master', 'metrics', 'miscellaneous', 'newstyle',
-                           'similarities', 'typecheck', 'variables'])
+                           'similarities', 'string_format', 'typecheck', 'variables'])
 
     def test_enable_checkers2(self):
         self.linter.enable_checkers(['design'], True)
