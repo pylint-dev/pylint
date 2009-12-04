@@ -2,12 +2,12 @@ ChangeLog for PyLint
 ====================
 
 --
-
+    * include James Lingard string format checker
     * fix test/fulltest.sh
     * include simple message (ids) listing by Vincent Férotin (#9791)
     * --errors-only does not hide fatal error anymore
-    * include james Lingar patches for ++/-- and duplicate key in dicts
-    * include James Lingar patches for function call arguments checker
+    * include james Lingard patches for ++/-- and duplicate key in dicts
+    * include James Lingard patches for function call arguments checker
     * improved flymake code and doc provided by Derek Harland
     * refactor & fix the imports checker
     * fix #18862: E0601 false positive with lambda functions
