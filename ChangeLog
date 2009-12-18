@@ -1,21 +1,35 @@
 ChangeLog for PyLint
 ====================
 
---
+2009-12-18  --  0.19.0
     * include James Lingard string format checker
+
     * include simple message (ids) listing by Vincent Férotin (#9791)
+
     * --errors-only does not hide fatal error anymore
+
     * include james Lingard patches for ++/-- and duplicate key in dicts
+
     * include James Lingard patches for function call arguments checker
+
     * improved flymake code and doc provided by Derek Harland
+
     * refactor and fix the imports checker
+
     * fix #18862: E0601 false positive with lambda functions
+
     * fix #8764: More than one statement on a single line false positive with
       try/except/finally
+
     * fix #9215: false undefined variable error in lambda function
+
     * fix for w0108 false positive (Nathaniel)
+
     * fix test/fulltest.sh
+
     * #5821 added a utility function to run pylint in another process (patch provide by Vincent Férotin)
+
+
 
 2009-03-25  --  0.18.0
     * tests ok with python 2.4, 2.5, 2.6. 2.3 not tested
@@ -39,6 +53,7 @@ ChangeLog for PyLint
     * don't show information messages by default
 
     * integration of Yuen Ho Wong's patches on emacs lisp files
+
 
 
 2009-03-19  --  0.17.0
