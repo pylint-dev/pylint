@@ -315,6 +315,8 @@ Other useful global options include:
 --enable-msg-cat=cats   Enable all messages in the given categories.
 --disable-msg-cat=cats  Disable all messages in the given categories.
 --errors-only           Enable only checkers from the error category.
+--list-msgs             Generate pylint's messages.
+--full-documentation    Generate pylint's full documentation, in reST format.
 
 .. _features: features.html
 
