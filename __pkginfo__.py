@@ -22,7 +22,7 @@ numversion = (0, 19, 0)
 version = '.'.join([str(num) for num in numversion])
 
 
-install_requires = ['logilab-common', 'logilab-astng >= 0.19.2']
+install_requires = ['logilab-common >= 0.46.0', 'logilab-astng >= 0.19.2']
 
 pyversions = ["2.3", "2.4", "2.5", '2.6'] # maybe 2.2 as well
 
