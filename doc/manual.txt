@@ -612,9 +612,13 @@ http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/
 To use pylint from within gedit_, see
 http://live.gnome.org/Gedit/PylintPlugin
 
+To use pylint from within WingIDE_, see
+http://www.wingware.com/doc/edit/pylint
+
 .. _pydev: http://pydev.sourceforge.net
 .. _komodo: http://www.activestate.com/Products/Komodo/
 .. _gedit: http://www.gnome.org/projects/gedit/
+.. _WingIDE: http://www.wingware.com/
 
 Some projects using Pylint
 --------------------------
