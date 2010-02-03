@@ -124,7 +124,7 @@ accessed.'}
 
         function/method, super call and metaclasses are ignored
         """
-        if node.attrname in self.config.generated_members:
+        if node.attrname in self.generated_members:
             # attribute is marked as generated, stop here
             return
         try:
