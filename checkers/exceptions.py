@@ -33,6 +33,9 @@ MSGS = {
     'E0702': ('Raising %s while only classes, instances or string are allowed',
               'Used when something which is neither a class, an instance or a \
               string is raised (i.e. a `TypeError` will be raised).'),
+    'E0711': ('NotImplemented raised - should raise NotImplementedError',
+              'Used when NotImplemented is raised instead of \
+              NotImplementedError'),
     
     'W0701': ('Raising a string exception',
               'Used when a string exception is raised.'),
@@ -99,11 +102,13 @@ class ExceptionsChecker(BaseChecker):
             else:
                 self.add_message('E0702', node=node,
                                  args=value.__class__.__name__)
-        elif isinstance(expr, astng.Name) and \
-             expr.name in ('None', 'True', 'False') or \
-             isinstance(expr, (astng.List, astng.Dict, astng.Tuple, 
-                                astng.Module, astng.Function)):
+        elif (isinstance(expr, astng.Name) and \
+                 expr.name in ('None', 'True', 'False')) or \
+                 isinstance(expr, (astng.List, astng.Dict, astng.Tuple, 
+                                   astng.Module, astng.Function)):
             self.add_message('E0702', node=node, args=expr.name)
+        elif isinstance(expr, astng.Name) and expr.name == 'NotImplemented':
+            self.add_message('E0711', node=node)
         elif isinstance(expr, astng.BinOp) and expr.op == '%':
             self.add_message('W0701', node=node)
         elif isinstance(expr, (Instance, astng.Class)):
