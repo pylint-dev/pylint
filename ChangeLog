@@ -1,6 +1,9 @@
 ChangeLog for PyLint
 ====================
- -- 
+ --
+    * fix #5977, yield and return statement have their own counters, no more R0911
+      (Too many return statements) when a function have many yield stamtements.
+
     * implement #5564, function / methode arguments with leading "_" are ignored in
       arguments / local variables count.
 

@@ -287,15 +287,9 @@ class MisdesignChecker(BaseChecker):
                              args=(self._stmts, self.config.max_statements))
 
     def visit_return(self, _):
-        """count number of returns/yields"""
+        """count number of returns"""
         if not self._returns:
             return # return outside function, reported by the base checker
-        self._returns[-1] += 1
-        
-    def visit_yield(self, _):
-        """count number of returns/yields"""
-        if not self._returns:
-            return # yield outside function, reported by the base checker
         self._returns[-1] += 1
         
     def visit_default(self, node):
