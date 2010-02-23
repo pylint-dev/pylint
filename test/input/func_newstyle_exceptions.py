@@ -31,5 +31,7 @@ def fonctionBof2():
 def fonctionNew2():
     """raise"""
     raise NewException
-    
 
+def fonctionNotImplemented():
+    """raise"""
+    raise NotImplemented, 'hop'
