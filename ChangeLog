@@ -1,6 +1,9 @@
 ChangeLog for PyLint
 ====================
  --
+    * implement #9776, 'W0150' break or return statement in finally block may
+      swallow exception.
+
     * fix #5977, yield and return statement have their own counters, no more R0911
       (Too many return statements) when a function have many yield stamtements.
 

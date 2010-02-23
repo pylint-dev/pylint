@@ -1,0 +1,2 @@
+W: 18:insidious_break_and_return: break statement in finally block may swallow exception
+W: 20:insidious_break_and_return: return statement in finally block may swallow exception

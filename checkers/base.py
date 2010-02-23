@@ -160,6 +160,11 @@ MSGS = {
               'Used when a function or method is called using `*args` or '
               '`**kwargs` to dispatch arguments. This doesn\'t improve '
               'readability and should be used with care.'),
+    'W0150': ("%s statement in finally block may swallow exception",
+              "Used when a break or a return statement is found inside the \
+              finally clause of a try...finally block: the exceptions raised \
+              in the try clause will be silently swallowed instead of being \
+              re-raised."),
 
     'C0102': ('Black listed name "%s"',
               'Used when the name is listed in the black list (unauthorized \
@@ -296,11 +301,13 @@ functions, methods
         BaseChecker.__init__(self, linter)
         self.stats = None
         self._returns = None
+        self._tryfinallys = None
 
     def open(self):
         """initialize visit variables and statistics
         """
         self._returns = []
+        self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0,
                                            method=0, class_=0,
                                            badname_module=0,
@@ -469,8 +476,10 @@ functions, methods
                 self._check_name('variable', node.name, node)
 
     def visit_return(self, node):
-        """check is the node has a right sibling (if so, that's some unreachable
-        code)
+        """1 - check is the node has a right sibling (if so, that's some
+        unreachable code)
+        2 - check is the node is inside the finally clause of a try...finally
+        block
         """
         # if self._returns is empty, we're outside a function !
         if not self._returns:
@@ -478,6 +487,8 @@ functions, methods
             return
         self._returns[-1].append(node)
         self._check_unreachable(node)
+        # Is it inside final body of a try...finally bloc ?
+        self._check_not_in_finally(node, 'return', (astng.Function,))
 
     def visit_yield(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
@@ -497,11 +508,16 @@ functions, methods
         self._check_in_loop(node, 'continue')
 
     def visit_break(self, node):
-        """check is the node has a right sibling (if so, that's some unreachable
-        code)
+        """1 - check is the node has a right sibling (if so, that's some
+        unreachable code)
+        2 - check is the node is inside the finally clause of a try...finally
+        block
         """
+        # 1 - Is it right sibling ?
         self._check_unreachable(node)
         self._check_in_loop(node, 'break')
+        # 2 - Is it inside final body of a try...finally bloc ?
+        self._check_not_in_finally(node, 'break', (astng.For, astng.While,))
 
     def visit_raise(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
@@ -554,6 +570,14 @@ functions, methods
                 if key in keys:
                     self.add_message('W0109', node=node, args=key)
                 keys.add(key)
+
+    def visit_tryfinally(self, node):
+        """update try...finally flag"""
+        self._tryfinallys.append(node)
+
+    def leave_tryfinally(self, node):
+        """update try...finally flag"""
+        self._tryfinallys.pop()
 
 
     def _check_unreachable(self, node):
@@ -632,6 +656,23 @@ functions, methods
             if not node.has_key(attr):
                 self.add_message('C0121', node=node, args=attr)
 
+    def _check_not_in_finally(self, node, node_name, breaker_classes=()):
+        """check that a node is not inside a finally clause of a
+        try...finally statement.
+        If we found before a try...finally bloc a parent which its type is
+        in breaker_classes, we skip the whole check."""
+        # if self._tryfinallys is empty, we're not a in try...finally bloc
+        if not self._tryfinallys:
+            return
+        # the node could be a grand-grand...-children of the try...finally
+        _parent = node.parent
+        _node = node
+        while _parent and not isinstance(_parent, breaker_classes):
+            if hasattr(_parent, 'finalbody') and _node in _parent.finalbody:
+                self.add_message('W0150', node=node, args=node_name)
+                return
+            _node = _parent
+            _parent = _node.parent
 
 def register(linter):
     """required method to auto register this checker"""
