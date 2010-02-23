@@ -25,6 +25,11 @@ from logilab.astng import Function, If, InferenceError
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 
+import re
+
+# regexp for ignored argument name
+IGNORED_ARGUMENT_NAMES = re.compile('_.*')
+
 def class_is_abstract(klass):
     """return true if the given class node should be considered as an abstract
     class
@@ -91,6 +96,12 @@ class MisdesignChecker(BaseChecker):
     options = (('max-args',
                 {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of arguments for function / method'}
+                ),
+               ('ignored-argument-names',
+                {'default' : IGNORED_ARGUMENT_NAMES,
+                 'type' :'regexp', 'metavar' : '<regexp>',
+                 'help' : 'Argument names that match this expression will be '
+                          'ignored. Default to name with leading underscore'}
                 ),
                ('max-locals',
                 {'default' : 15, 'type' : 'int', 'metavar' : '<int>',
@@ -240,11 +251,18 @@ class MisdesignChecker(BaseChecker):
         self._branchs.append(0)
         # check number of arguments
         args = node.args.args
-        if args is not None and len(args) > self.config.max_args:
-            self.add_message('R0913', node=node,
-                             args=(len(args), self.config.max_args))
+        if args is not None:
+            ignored_args_num = len(
+                [arg for arg in args
+                 if self.config.ignored_argument_names.match(arg.name)])
+            argnum = len(args) - ignored_args_num
+            if  argnum > self.config.max_args:
+                self.add_message('R0913', node=node,
+                                 args=(len(args), self.config.max_args))
+        else:
+            ignored_args_num = 0
         # check number of local variables
-        locnum = len(node.locals)
+        locnum = len(node.locals) - ignored_args_num
         if locnum > self.config.max_locals:
             self.add_message('R0914', node=node,
                              args=(locnum, self.config.max_locals))

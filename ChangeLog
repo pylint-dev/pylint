@@ -1,5 +1,10 @@
 ChangeLog for PyLint
 ====================
+ -- 
+    * implement #5564, function / methode arguments with leading "_" are ignored in
+      arguments / local variables count.
+
+    * implement #9982, E0711 specific error message when raising NotImplemented
 
 2009-12-18  --  0.19.0
     * include James Lingard string format checker
