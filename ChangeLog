@@ -1,6 +1,8 @@
 ChangeLog for PyLint
 ====================
  --
+    * fix #20991, class scope definitions ignored in a genexpr
+
     * implement #9776, 'W0150' break or return statement in finally block may
       swallow exception.
 

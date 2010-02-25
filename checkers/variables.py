@@ -335,13 +335,17 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         else:
             start_index = len(self._to_consume) - 1
         # iterates through parent scopes, from the inner to the outer
+        base_scope_type = self._to_consume[start_index][-1]
         for i in range(start_index, -1, -1):
             to_consume, consumed, scope_type = self._to_consume[i]
             # if the current scope is a class scope but it's not the inner
             # scope, ignore it. This prevents to access this scope instead of
             # the globals one in function members when there are some common
-            # names
-            if scope_type == 'class' and i != start_index:
+            # names. The only exception is when the starting scope is a
+            # genexpr and its direct outer scope is a class
+            if scope_type == 'class' and i != start_index and not (
+                base_scope_type == 'genexpr' and i == start_index-1):
+                # XXX find a way to handle class scope in a smoother way
                 continue
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
