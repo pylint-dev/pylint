@@ -65,8 +65,8 @@ def save_results(results, base):
     data_file = get_pdata_path(base, 1)
     try:
         pickle.dump(results, open(data_file, 'w'))
-    except OSError:
-        print >> sys.stderr, 'Unable to create file %s' % data_file
+    except (IOError, OSError), ex:
+        print >> sys.stderr, 'Unable to create file %s: %s' % (data_file, ex)
     
 # location of the configuration file ##########################################
 
