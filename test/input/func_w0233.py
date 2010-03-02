@@ -26,3 +26,11 @@ class CCC(BBBBMixin, func_w0233.AAAA, func_w0233.BBBB, nonexistant.AClass):
         func_w0233.AAAA.__init__(self)
         func_w0233.BBBB.__init__(self)
         nonexistant.AClass.__init__(self)
+
+class DDDD(AAAA):
+    """call superclass constructor in disjunct branches"""
+    def __init__(self, value):
+        if value:
+            AAAA.__init__(self)
+        else:
+            AAAA.__init__(self)

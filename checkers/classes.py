@@ -433,6 +433,7 @@ instance attributes.'}
         """
         klass_node = node.parent.frame()
         to_call = _ancestors_to_call(klass_node)
+        not_called_yet = dict(to_call)
         for stmt in node.nodes_of_class(astng.CallFunc):
             expr = stmt.func
             if not isinstance(expr, astng.Getattr) \
@@ -448,12 +449,13 @@ instance attributes.'}
                 if klass is YES:
                     continue
                 try:
-                    del to_call[klass]
+                    del not_called_yet[klass]
                 except KeyError:
-                    self.add_message('W0233', node=expr, args=klass.name)
+                    if klass not in to_call:
+                        self.add_message('W0233', node=expr, args=klass.name)
             except astng.InferenceError:
                 continue
-        for klass in to_call.keys():
+        for klass in not_called_yet.keys():
             if klass.name == 'object':
                 continue
             self.add_message('W0231', args=klass.name, node=node)
