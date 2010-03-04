@@ -240,7 +240,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         overridden = overridden_method(klass, node.name)
                     if overridden is not None and name in overridden.argnames():
                         continue
-                    if node.name in PYMETHODS:
+                    if node.name in PYMETHODS and node.name not in ('__init__', '__new__'):
                         continue
                 # don't check callback arguments XXX should be configurable
                 if node.name.startswith('cb_') or node.name.endswith('_cb'):
