@@ -20,8 +20,7 @@ from logilab.common.compat import set
 
 
 from logilab import astng
-from logilab.astng import InferenceError, NotFoundError
-from logilab.astng.infutils import YES, Instance
+from logilab.astng import InferenceError, NotFoundError, YES, Instance
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker

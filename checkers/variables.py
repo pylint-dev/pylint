@@ -20,8 +20,7 @@ from copy import copy
 
 from logilab.common.compat import enumerate
 from logilab import astng
-from logilab.astng.lookup import builtin_lookup
-from logilab.astng.infutils import are_exclusive
+from logilab.astng import are_exclusive, builtin_lookup
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
