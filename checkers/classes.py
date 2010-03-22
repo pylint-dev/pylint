@@ -18,7 +18,7 @@
 from __future__ import generators
 
 from logilab import astng
-from logilab.astng.infutils import YES, Instance, are_exclusive
+from logilab.astng import YES, Instance, are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker

@@ -21,7 +21,7 @@ from logilab.common.ureports import VerbatimText, Paragraph
 from logilab.common.compat import sorted, enumerate
 
 from logilab import astng
-from logilab.astng.infutils import are_exclusive
+from logilab.astng import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker, EmptyReport

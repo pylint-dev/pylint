@@ -18,7 +18,7 @@ import sys
 
 from logilab.common.compat import enumerate
 from logilab import astng
-from logilab.astng.infutils import YES, Instance, unpack_infer
+from logilab.astng import YES, Instance, unpack_infer
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_empty, is_raising
