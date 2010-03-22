@@ -17,15 +17,13 @@ class MyASTNGChecker(BaseChecker):
     priority = -1 
 
     def visit_callfunc(self, node):
-        """called when a CallFunc node is encountered. See compiler.ast
-        documentation for a description of available nodes:
-        http://www.python.org/doc/current/lib/module-compiler.ast.html
-        )
-        """
-        if not (isinstance(node.node, astng.Getattr)
-                and isinstance(node.node.expr, astng.Name)
-                and node.node.expr.name == 'properties'
-                and node.node.attrname == 'create'):
+        """called when a CallFunc node is encountered.
+
+        See logilab.astng for the description of available nodes."""
+        if not (isinstance(node.func, astng.Getattr)
+                and isinstance(node.func.expr, astng.Name)
+                and node.func.expr.name == 'properties'
+                and node.func.attrname == 'create'):
             return
         in_class = node.frame()
         for param in node.args:
