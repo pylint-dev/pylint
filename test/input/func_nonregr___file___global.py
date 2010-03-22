@@ -5,4 +5,4 @@ def func():
     global __file__
     __file__ = 'hop'
 
-
+__revision__ = 'pouet'
