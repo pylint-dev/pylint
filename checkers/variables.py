@@ -264,6 +264,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # unassigned global, skip
                 assign_nodes = []
             for anode in assign_nodes:
+                if anode.parent is None:
+                    # node returned for builtin attribute such as __file__,
+                    # __doc__, etc...
+                    continue
                 if anode.frame() is frame:
                     # same scope level assignment
                     break
@@ -274,6 +278,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if not assign_nodes:
                 continue
             for anode in assign_nodes:
+                if anode.parent is None:
+                    self.add_message('W0622', args=name, node=node)
+                    break
                 if anode.frame() is module:
                     # module level assignment
                     break
