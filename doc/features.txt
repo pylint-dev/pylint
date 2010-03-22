@@ -9,27 +9,27 @@ General options
 ~~~~~~~~~~~~~~~
 :rcfile:
   Specify a configuration file.
+
 :init-hook:
   Python code to execute, usually for sys.path manipulation such as
   pygtk.require().
+
 :errors-only:
   In debug mode, checkers without error messages are disabled and for others,
   only the ERROR messages are displayed, and no reports are done by default
+
 :profile:
   Profiled execution.
+
 :ignore:
   Add <file or directory> to the black list. It should be a base name, not a
   path. You may set this option multiple times.
-
   Default: ``CVS``
+
 :persistent:
   Pickle collected data for later comparisons.
-
   Default: ``yes``
-:cache-size:
-  Set the cache size for astng objects.
 
-  Default: ``500``
 :load-plugins:
   List of plugins (as comma separated values of python modules names) to load,
   usually to register additional checkers.

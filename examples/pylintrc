@@ -25,9 +25,6 @@ ignore=CVS
 # Pickle collected data for later comparisons.
 persistent=yes
 
-# Set the cache size for astng objects.
-cache-size=500
-
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
 load-plugins=

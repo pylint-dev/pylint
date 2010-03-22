@@ -1,7 +1,9 @@
 ChangeLog for PyLint
 ====================
  --
-	* fix #9263, __init__ and __new__ are checked for unused arguments.
+    * remove --cache-size option
+
+    * fix #9263, __init__ and __new__ are checked for unused arguments.
 
     * fix #20991, class scope definitions ignored in a genexpr
 

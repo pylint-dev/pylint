@@ -77,9 +77,6 @@ class LintTestUsingModule(testlib.TestCase):
             msg = '%(mode)s test of input file "%(input)s" in "%(pkg)s" (%(cls)s)'
         return msg % values
 
-    def setUp(self):
-        MANAGER.set_cache_size(200) # reset cache
-
     def test_functionality(self):
         tocheck = [self.package+'.'+self.module]
         if self.depends:

@@ -152,10 +152,6 @@ should be a base name, not a path. You may set this option multiple times.'}),
                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : 'Pickle collected data for later comparisons.'}),
 
-               ('cache-size',
-                {'default': 500, 'type' : 'int', 'metavar': '<size>',
-                 'help' : 'Set the cache size for astng objects.'}),
-
                ('load-plugins',
                 {'type' : 'csv', 'metavar' : '<modules>', 'default' : (),
                  'help' : 'List of plugins (as comma separated values of \
@@ -318,8 +314,6 @@ This is used by the global evaluation report (R0004).'}),
                         meth(_id)
                 else :
                     meth(value)
-        elif opt_name == 'cache-size':
-            MANAGER.set_cache_size(int(value))
         elif opt_name == 'output-format':
             self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
         elif opt_name in ('enable-checker', 'disable-checker'):
