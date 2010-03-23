@@ -42,23 +42,27 @@
     (define-key python-mode-map (kbd "C-c m p") 'previous-error)
     (define-key python-mode-map (kbd "C-c m n") 'next-error)
 
-    (define-key
-      python-mode-map
-      [menu-bar Python pylint-separator]
-      '("--" . pylint-seperator))
-
-    (define-key
-      python-mode-map
-      [menu-bar Python next-error]
-      '("Next error" . next-error))
-    (define-key
-      python-mode-map
-      [menu-bar Python prev-error]
-      '("Previous error" . previous-error))
-    (define-key
-      python-mode-map
-      [menu-bar Python lint]
-      '("Pylint" . pylint))
+  (let ((map))
+    (if(boundp 'py-mode-map)
+        (setq map py-mode-map)
+      (setq map python-mode-map)
+      (define-key
+        map
+        [menu-bar Python pylint-separator]
+        '("--" . pylint-seperator))
+      (define-key
+        map
+        [menu-bar Python next-error]
+        '("Next error" . next-error))
+      (define-key
+        map
+        [menu-bar Python prev-error]
+        '("Previous error" . previous-error))
+      (define-key
+        map
+        [menu-bar Python lint]
+        '("Pylint" . pylint))
+      ))
     ))
 
 (add-hook 'python-mode-hook 'pylint-python-hook)
