@@ -1,5 +1,5 @@
-# Copyright (c) 2009 Arista Networks, Inc. - James Lingard
-# Copyright (c) 2004-2009 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2009-2010 Arista Networks, Inc. - James Lingard
+# Copyright (c) 2004-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
