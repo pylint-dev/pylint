@@ -28,6 +28,9 @@ ChangeLog for PyLint
     * remove --cache-size option
 
 2009-12-18  --  0.19.0
+
+    * implement #18947, #5561: checker for function arguments
+
     * include James Lingard string format checker
 
     * include simple message (ids) listing by Vincent Férotin (#9791)
