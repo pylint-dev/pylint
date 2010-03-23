@@ -165,6 +165,10 @@ MSGS = {
               finally clause of a try...finally block: the exceptions raised \
               in the try clause will be silently swallowed instead of being \
               re-raised."),
+    'W0199': ('Assert called on a 2-uple. Did you mean \'assert x,y\'?',
+              'A call of assert on a tuple will always evaluate to true if '
+              'the tuple is not empty, and will always evaluate to false if '
+              'it is.'),
 
     'C0102': ('Black listed name "%s"',
               'Used when the name is listed in the black list (unauthorized \
@@ -560,6 +564,12 @@ functions, methods
             isinstance(node.operand, astng.UnaryOp) and
             (node.operand.op == node.op)):
             self.add_message('E0107', node=node, args=node.op*2)
+    
+    def visit_assert(self, node):
+        """check the use of an assert statement on a tuple."""
+        if node.fail is None and isinstance(node.test, astng.Tuple) and \
+           len(node.test.elts) == 2:
+             self.add_message('W0199', line=node.fromlineno, node=node)
 
     def visit_dict(self, node):
         """check duplicate key in dictionary"""

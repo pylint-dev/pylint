@@ -1,22 +1,24 @@
 ChangeLog for PyLint
 ====================
  --
-    * remove --cache-size option
-
-    * fix #9263, __init__ and __new__ are checked for unused arguments.
-
-    * fix #20991, class scope definitions ignored in a genexpr
+    * implement #18860, new W0199 message on assert (a, b)
 
     * implement #9776, 'W0150' break or return statement in finally block may
       swallow exception.
 
-    * fix #5977, yield and return statement have their own counters, no more R0911
-      (Too many return statements) when a function have many yield stamtements.
+    * fix #9263, __init__ and __new__ are checked for unused arguments
 
-    * implement #5564, function / methode arguments with leading "_" are ignored in
+    * fix #20991, class scope definitions ignored in a genexpr
+
+    * fix #5977, yield and return statement have their own counters, no more R0911
+      (Too many return statements) when a function have many yield stamtements
+
+    * implement #5564, function / method arguments with leading "_" are ignored in
       arguments / local variables count.
 
     * implement #9982, E0711 specific error message when raising NotImplemented
+
+    * remove --cache-size option
 
 2009-12-18  --  0.19.0
     * include James Lingard string format checker
