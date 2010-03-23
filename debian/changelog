@@ -1,3 +1,11 @@
+pylint (0.20.0-1) unstable; urgency=low
+
+  * new upstream release
+   - use Daniel Harding patch for windows batch (Closes: #475939)
+
+ -- Emile Anclin <emile.anclin@logilab.fr>  Thu, 23 Jan 2010 16:54:44 +0100
+
+
 pylint (0.19.0-1) unstable; urgency=low
 
   * new upstream release

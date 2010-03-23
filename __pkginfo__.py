@@ -1,5 +1,5 @@
 # pylint: disable-msg=W0622,C0103
-# Copyright (c) 2003-2009 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -18,11 +18,11 @@
 
 modname = distname = 'pylint'
 
-numversion = (0, 19, 0)
+numversion = (0, 20, 0)
 version = '.'.join([str(num) for num in numversion])
 
 
-install_requires = ['logilab-common >= 0.46.0', 'logilab-astng >= 0.19.3']
+install_requires = ['logilab-common >= 0.49.0', 'logilab-astng >= 0.20.0']
 
 pyversions = ["2.3", "2.4", "2.5", '2.6'] # maybe 2.2 as well
 
@@ -32,6 +32,7 @@ mailinglist = "mailto://%s" % author_email
 web = "http://www.logilab.org/project/%s" % distname
 ftp = "ftp://ftp.logilab.org/pub/%s" % modname
 license = 'GPL'
+copyright = 'Logilab S.A.'
 
 classifiers =  ['Development Status :: 4 - Beta',
                 'Environment :: Console',
