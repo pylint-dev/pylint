@@ -10,6 +10,8 @@ ChangeLog for PyLint
 
     * fix #20991, class scope definitions ignored in a genexpr
 
+    * fix #5975, Abstract intermediate class not recognized as such
+
     * fix #5977, yield and return statement have their own counters, no more R0911
       (Too many return statements) when a function have many yield stamtements
 

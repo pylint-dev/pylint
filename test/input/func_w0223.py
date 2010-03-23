@@ -19,6 +19,15 @@ class Abstract:
     def __init__(self):
         pass
 
+class AbstractB(Abstract):
+    """abstract class
+    this class is checking that it does not output an error msg for
+    unimplemeted methods in abstract classes
+    """
+    def cccc(self):
+        """should be overridden in concrete class"""
+        raise NotImplementedError()
+
 class Concret(Abstract):
     """concret class"""
 

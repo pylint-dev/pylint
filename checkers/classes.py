@@ -24,6 +24,17 @@ from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import PYMETHODS, overrides_a_method
 
+def class_is_abstract(node):
+    """return true if the given class node should be considered as an abstract
+    class
+    """
+    for method in node.methods():
+        if method.parent.frame() is node:
+            if method.is_abstract(pass_is_abstract=False):
+                return True
+    return False
+
+
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
               'Used when PyLint has been unable to check methods signature \
@@ -369,6 +380,9 @@ instance attributes.'}
         """check that the given class node implements abstract methods from
         base classes
         """
+        # check if this class abstract
+        if class_is_abstract(node):
+            return
         for method in node.methods():
             owner = method.parent.frame()
             if owner is node:
