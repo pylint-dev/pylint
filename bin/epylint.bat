@@ -1,16 +1,5 @@
 @echo off
-rem = """-*-Python-*- script
-rem -------------------- DOS section --------------------
-rem You could set PYTHONPATH or TK environment variables here
-python -x "%~f0" %*
-goto exit
- 
-"""
-# -------------------- Python section --------------------
-from pylint import epylint
-epylint.Run()
- 
-
-DosExitLabel = """
-:exit
-rem """
+rem Use python to execute the python script having the same name as this batch
+rem file, but without any extension, located in the same directory as this
+rem batch file
+python "%~dpn0" %*

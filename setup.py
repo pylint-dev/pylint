@@ -63,7 +63,8 @@ def ensure_scripts(linux_scripts):
     """
     from distutils import util
     if util.get_platform()[:3] == 'win':
-        scripts_ = [script + '.bat' for script in linux_scripts]
+        scripts_ = linux_scripts + [script + '.bat'
+                for script in linux_scripts]
     else:
         scripts_ = linux_scripts
     return scripts_
