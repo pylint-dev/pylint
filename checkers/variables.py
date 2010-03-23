@@ -327,10 +327,12 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """check that a name is defined if the current scope and doesn't
         redefine a built-in
         """
-        name = node.name
         stmt = node.statement()
-        # probably "is_statement == True" missing somewhere in astng
-        assert stmt.fromlineno, (stmt, node, node.fromlineno)
+        if stmt.fromlineno is None:
+            # name node from a astng built from live code, skip
+            assert not stmt.root().file.endswith('.py')
+            return
+        name = node.name
         frame = stmt.scope()
         # if the name node is used as a function default argument's value or as
         # a decorator, then start from the parent frame of the function instead
