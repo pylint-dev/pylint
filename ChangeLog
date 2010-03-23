@@ -1,6 +1,11 @@
 ChangeLog for PyLint
 ====================
  --
+    * fix #19498: fix windows batch file
+
+    * fix #19339: pylint.el : non existing py-mod-map
+      (closes Debian Bug report logs - #475939)
+
     * implement #18860, new W0199 message on assert (a, b)
 
     * implement #9776, 'W0150' break or return statement in finally block may
