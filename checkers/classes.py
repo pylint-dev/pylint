@@ -190,13 +190,20 @@ instance attributes.'}
                     isinstance(n.statement(), (astng.Delete, astng.AugAssign))]
             if not nodes:
                 continue # error detected by typechecking
-            node = nodes[0] # XXX
-            frame = node.frame()
-            if frame.name not in defining_methods:
+            attr_defined = False
+            # check if any method attr is defined in is a defining method
+            for node in nodes:
+                if node.frame().name in defining_methods:
+                    attr_defined = True
+            if not attr_defined:
                 # check attribute is defined in a parent's __init__
                 for parent in cnode.instance_attr_ancestors(attr):
-                    frame = parent.instance_attrs[attr][0].frame() # XXX
-                    if frame.name in defining_methods:
+                    attr_defined = False
+                    # check if any parent method attr is defined in is a defining method
+                    for node in parent.instance_attrs[attr]:
+                        if node.frame().name in defining_methods:
+                            attr_defined = True
+                    if attr_defined:
                         # we're done :)
                         break
                 else:
