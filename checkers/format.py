@@ -108,7 +108,7 @@ BAD_CONSTRUCT_RGXS = (
      re.compile(OP_RGX_SEARCH_2, re.M),
      'C0323'),
 
-    (re.compile(r'.*,[^\s)].*', re.M),
+    (re.compile(r'.*,[^(\s|\]|}|\))].*', re.M), 
      re.compile(r',[^\s)]', re.M),
      'C0324'),
     )

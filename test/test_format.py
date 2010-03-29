@@ -147,6 +147,18 @@ class ChecklineFunctionTest(unittest.TestCase):
                          ('C0324', 'a, b = 1,2\n        ^^'))
 
         
+    def test_known_values_commaspace_2(self):
+        self.assertEqual(check_line('should_not_warn = [1, 2, 3,]\n', REPORTER),
+                         None)
+
+    def test_known_values_commaspace_3(self):
+        self.assertEqual(check_line('should_not_warn = {1:2, 3:4,}\n', REPORTER),
+                         None)
+
+    def test_known_values_commaspace_4(self):
+        self.assertEqual(check_line('should_not_warn = (1, 2, 3,)\n', REPORTER),
+                         None)
+                
     def test_known_values_instring_1(self):
         self.assertEqual(check_line('f("a=1")', REPORTER), None)
         
