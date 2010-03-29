@@ -432,7 +432,18 @@ functions, methods
         self._check_name(f_type, node.name, node)
         # docstring
         if self.config.no_docstring_rgx.match(node.name) is None:
-            self._check_docstring(f_type, node)
+            if isinstance(node.parent.frame(), astng.Class):
+                overridden = False
+                # check if node is from a method overridden by its ancestor
+                for ancestor in node.parent.frame().ancestors():
+                    if node.name in ancestor and \
+                       isinstance(ancestor[node.name], astng.Function):
+                        overridden = True
+                        break
+                if not overridden:
+                    self._check_docstring(f_type, node)
+            else:
+                self._check_docstring(f_type, node)
         # check default arguments'value
         self._check_defaults(node)
         # check arguments name
