@@ -31,6 +31,7 @@ from logilab.astng import nodes
 
 from pylint.interfaces import IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker
+from pylint.checkers.misc import guess_encoding, is_ascii
 
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
@@ -177,6 +178,25 @@ class FormatChecker(BaseRawChecker):
         BaseRawChecker.__init__(self, linter)
         self._lines = None
         self._visited_lines = None
+
+    def process_module(self, stream):
+        """extracts encoding from the stream and
+        decodes each line, so that international
+        text's lenght properly calculated.
+        """
+        data = stream.read()
+        line_generator = stream.readline
+
+        ascii, lineno = is_ascii(data)
+        if not ascii:
+            encoding = guess_encoding(data)
+            if encoding is not None:
+                line_generator = lambda: stream.readline().decode(encoding,
+                                                                  'replace')
+        del data
+
+        stream.seek(0)
+        self.process_tokens(tokenize.generate_tokens(line_generator))
 
     def new_line(self, tok_type, line, line_num, junk):
         """a new line has been encountered, process it if necessary"""
