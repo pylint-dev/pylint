@@ -327,6 +327,7 @@ class FormatChecker(BaseRawChecker):
         """
         max_chars = self.config.max_line_length
         for line in lines.splitlines():
+            print 'hopp', repr(line), len(line)
             if len(line) > max_chars:
                 self.add_message('C0301', line=i, args=(len(line), max_chars))
             i += 1

@@ -19,7 +19,7 @@ What is pylint?
 ---------------
 
 Pylint is a tool that checks for errors in python code, tries to
-enforce a coding standard and looks for smelling code . This is
+enforce a coding standard and looks for bad code smells. This is
 similar but nevertheless different from what pychecker_ provides,
 especially since pychecker explicitly does not bother with coding
 style. The default coding style used by pylint is close to 
@@ -81,7 +81,7 @@ Pylint output
 -------------
 
 The default format for the output is raw text. But passing pylint the
-``--output-format=html`` option will produce an HTML document.
+``--output-format=html`` or ``-f html`` option will produce an HTML document.
 
 There are several sections in pylint's output. 
 

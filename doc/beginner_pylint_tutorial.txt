@@ -19,7 +19,7 @@ in open source.  Whatever the motivation, your good intentions may not have the
 desired outcome if people find your code hard to use or understand.  The Python
 community has formalized some recommended programming styles to help everyone 
 write code in a common, agreed-upon style that makes the most sense for shared 
-code.  This style is captured in PEP-8.  Pylint can be a quick and easy way of 
+code.  This style is captured in PEP-8_.  Pylint can be a quick and easy way of 
 seeing if your code has captured the essence of PEP-8 and is therefore 
 'friendly' to other potential users.
 
@@ -35,6 +35,8 @@ equivalent of skipping the manual and jumping right in.
 My command line prompt for these examples is: ::
 
   robertk01 Desktop$
+
+.. _PEP-8: http://www.python.org/dev/peps/pep-0008/
 
 Getting Started
 ---------------
@@ -90,7 +92,7 @@ Your First Pylint'ing
 
 We'll use a basic python script as fodder for our tutorial.  I borrowed 
 extensively from the code here: http://www.daniweb.com/code/snippet748.html
-The starting code we will use is called simplecaeser.py and is here in it's 
+The starting code we will use is called simplecaeser.py and is here in its 
 entirety: ::
 
    1  #!/usr/bin/env python
@@ -246,6 +248,10 @@ what rule I violated.  Knowing only that I violated a convention isn't much help
 if I'm a newbie.  So let's turn on a bit more info by using the option 
 "--include-ids=y".
 
+.. tip:: Many of Pylint's commonly used command line options have shortcuts.
+ for example, "--reports=n" can be abbreviated to "-r n", and "--include-ids=y"
+ can be abbreviated to "-i y". Pylint's man page lists all these shortcuts.
+
 Let's do it again! ::
 
   robertk01 Desktop$ pylint --reports=n --include-ids=y simplecaeser.py 
@@ -364,13 +370,17 @@ will now be quite quiet: ::
   No config file found, using default configuration
 
 Regular expressions can be quite a beast so take my word on this particular 
-example but go ahead and read up on them if you want.
+example but go ahead and `read up`_ on them if you want.
 
-It would really be a pain in the butt to have to use all these options on the 
-command line all the time.  That's what the rc file is for.  We can configure
-our Pylint to store our options for us so we don't have to declare them on the 
-command line.  Using the rc file is a nice way of formalizing your rules and 
-quickly sharing them with others and/or forcing your style on them.  Go ahead, 
-conquer the standards world by spreading your rc file...I dare you.
+.. tip::
+ It would really be a pain in the butt to have to use all these options
+ on the command line all the time.  That's what the rc file is for.  We can
+ configure our Pylint to store our options for us so we don't have to declare 
+ them on the command line.  Using the rc file is a nice way of formalizing your
+ rules and quickly sharing them with others. Invoking 'pylint
+ --generate-rcfile' will create a sample rcfile with all the options set and
+ explained in comments.
 
 That's it for the basic intro.  More tutorials will follow.
+
+.. _`read up`: http://docs.python.org/library/re.html

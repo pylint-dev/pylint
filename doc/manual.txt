@@ -62,11 +62,10 @@ Dependencies
 ''''''''''''
 Pylint requires the latest `logilab-astng`_ and `logilab-common`_
 packages. It should be compatible with any python version greater than
-2.2.0 (python 2.2 users will have to install the optik_ package).
+2.2.0.
 
 .. _`logilab-astng`: http://www.logilab.org/project/name/astng
 .. _`logilab-common`: http://www.logilab.org/project/name/common
-.. _optik: http://optik.sourceforge.net/
 
 
 Distributions
@@ -113,7 +112,7 @@ On Windows, once you have installed pylint, the command line usage is ::
 But this will only work if *pylint.bat* is either in the current
 directory, or on your system path. (*setup.py* install install *python.bat*
 to the *Scripts* subdirectory of your Python installation -- e.g.
-C:\Python24\Scripts.) You can do any of the following to solve this:
+C:/Python24/Scripts.) You can do any of the following to solve this:
 
 1. change to the appropriate directory before running pylint.bat
 
@@ -138,10 +137,10 @@ line without the .bat, just as do non-Windows users by typing: ::
 To effect option (3), simply create a plain text file pylint.bat with
 the single line: ::
 
-  C:\PythonDirectory\Scripts\pylint.bat
+  C:/PythonDirectory/Scripts/pylint.bat
 
 (where PythonDirectory is replaced by the actual Python installation
-directory on your system -- e.g. C:\Python24\Scripts\pylint.bat).
+directory on your system -- e.g. C:/Python24/Scripts/pylint.bat).
 
 
 Invoking pylint
@@ -171,7 +170,7 @@ directory is automatically added on top of the python path ::
 will work if "directory" is a python package (i.e. has an __init__.py
 file) or if "directory" is in the python path.
 
-For more details on this see the `Frequently Asked Questions`_.
+For more details on this see the Frequently Asked Questions.
 
 You can also start a thin gui around pylint (require TkInter) by
 typing ::
@@ -183,7 +182,7 @@ or module to check, at pylint messages will be displayed in the user
 interface.
 
 It is also possible to call Pylint from an other Python program,
-thanks ``py_run()`` function in ``lint`` module,
+thanks to ``py_run()`` function in ``lint`` module,
 assuming Pylint options are stored in ``pylint_options`` string, as ::
 
   from pylint import lint
@@ -200,7 +199,7 @@ Pylint output
 -------------
 
 The default format for the output is raw text. But passing pylint the
-``--output-format=html`` option will produce an HTML document.
+``--output-format=html`` or ``-h y`` or ``-o html`` option will produce an HTML document.
 
 There are several sections in pylint's output. 
 
@@ -589,8 +588,25 @@ http://www.logilab.org/src/logilab/common
 
 .. _mercurial: http://www.selenic.com/mercurial/
 
+Contribution Instructions
+--------------------------
+Got a patch for pylint?  There a few steps you must take to make sure your 
+patch gets accepted.
 
+* Test your code
+    * Pylint keeps a set of unit tests in the /test directory. To get your 
+      patch accepted you must write (or change) a test input file and message 
+      file in the appropriate input and messages folders. 
+    * In the test folder of pylint run ./fulltest.sh (python version), make sure
+      all tests pass before submitting a patch
+* Create a diff file
+    * To create a diff from the command line invoke (from a directory under
+      version control) ::
 
+            hg diff  > <yourname>.diff
+    
+* E-mail the mailing list with your diff file
+      
 Other information
 =================
 
@@ -633,7 +649,7 @@ code:
 * mercurial 
 * eXe (http://exelearning.org/)
 * PrimaGIS (http://www.primagis.org)
-* python-cdd (http://projetos.ossystems.com.br/python-cdd/)
+* python-cdd (https://projetos.ossystems.com.br/projects/python-cdd)
 * CDSWare (http://cdsware.cern.ch/)
 * ASE (http://dcwww.camp.dtu.dk/campos/ASE/intro.html)
 * RunJob (http://projects.fnal.gov/runjob/)
@@ -646,10 +662,6 @@ Also notice that the CheeseCake_ kwalitee reporting tool uses pylint to
 analyze the source code.
 
 .. _CheeseCake: http://cheesecake.sourceforge.net/
-
-
-
-.. include:: FAQ.txt
 
 
 
