@@ -1,6 +1,17 @@
 ChangeLog for PyLint
 ====================
+
  --
+
+   * fix #21591: html reporter produces no output if reports is set to 'no'
+   * fix #4581: not Missing docstring (C0111) warning if a method is overridden
+   * fix #4683: Non-ASCII characters count double if utf8 encode
+   * fix #9018: when using defining-attr-method, method order matters
+   * fix #4595: Comma not followed by a space should not occurs on trailing comma 
+     in list/tuple/dict definition
+
+
+2010-03-01  --  0.20.0
     * fix #19498: fix windows batch file
 
     * fix #19339: pylint.el : non existing py-mod-map
@@ -27,8 +38,9 @@ ChangeLog for PyLint
 
     * remove --cache-size option
 
-2009-12-18  --  0.19.0
 
+
+2009-12-18  --  0.19.0
     * implement #18947, #5561: checker for function arguments
 
     * include James Lingard string format checker
