@@ -41,7 +41,7 @@ from logilab.common.modutils import load_module_from_name
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip
 from logilab.common.fileutils import norm_open
-from logilab.common.ureports import Table, Text
+from logilab.common.ureports import Table, Text, Section
 from logilab.common.__pkginfo__ import version as common_version
 
 from logilab.astng import MANAGER, nodes
@@ -613,6 +613,8 @@ This is used by the global evaluation report (R0004).'}),
             old_stats = config.load_results(self.base_name)
             if self.config.reports:
                 self.make_reports(self.stats, old_stats)
+            elif self.config.output_format == 'html':
+                self.reporter.display_results(Section())
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.base_name)
