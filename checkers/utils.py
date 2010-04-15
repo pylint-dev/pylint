@@ -99,6 +99,9 @@ def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astng.With):
+            if _node.vars is None:
+                # quickfix : case in which 'with' is used without 'as'
+                return False
             if _node.vars.name == varname:
                 return True
         elif isinstance(_node, (astng.Lambda, astng.Function)):
