@@ -119,13 +119,38 @@ class PyLintASTWalker(object):
         self.leave_events = {}
 
     def add_checker(self, checker):
+        hasvdefault = False
+        vcids = set()
+        hasldefault = False
+        lcids = set()
         for member in dir(checker):
             if member.startswith('visit_'):
-                cbs = self.visit_events.setdefault(cid, [])
-                cbs.append(getattr(checker, member[6:]))
+                cid = member[6:]
+                if cid != 'default':
+                    cbs = self.visit_events.setdefault(cid, [])
+                    cbs.append(getattr(checker, cid))
+                    vcids.add(cid)
+                else:
+                    hasvdefault = getattr(checker, cid)
             if member.startswith('leave_'):
-                cbs = self.leave_events.setdefault(cid, [])
-                cbs.insert(0, getattr(checker, member[6:]))
+                if cid != 'default':
+                    cbs = self.leave_events.setdefault(cid, [])
+                    cbs.append(getattr(checker, cid))
+                    lcids.add(cid)
+                else:
+                    hasldefault = getattr(checker, cid)
+        if hasvdefault:
+            for cls in nodes.ALL_NODE_CLASSES:
+                cid = cls.__name__.lower()
+                if cid not in vcids:
+                    cbs = self.visit_events.setdefault(cid, [])
+                    cbs.append(getattr(checker, hasvdefault))
+        if hasldefault:
+            for cls in nodes.ALL_NODE_CLASSES:
+                cid = cls.__name__.lower()
+                if cid not in lcids:
+                    cbs = self.leave_events.setdefault(cid, [])
+                    cbs.append(getattr(checker, hasldefault))
 
     def walk(self, astng):
         """call visit events of astng checkers for the given node, recurse on
@@ -133,12 +158,12 @@ class PyLintASTWalker(object):
         """
         cid = node.__class__.__name__.lower()
         # generate events for this node on each checker
-        for cb in self.visit_events[cid]:
+        for cb in self.visit_events.get(cid, ()):
             cb(astng)
         # recurse on children
         for child in astng.get_children():
             self.walk(child)
-        for cb in self.leave_events[cid]:
+        for cb in self.leave_events.get(cid, ()):
             cb(astng)
 
 
