@@ -30,7 +30,7 @@ def is_ascii(string):
         if line and max([ord(char) for char in line]) >= 128:
             return False, i + 1
     return True, 0
-    
+
 # regexp matching both emacs and vim declaration
 ENCODING_RGX = re.compile("[^#]*#*.*coding[:=]\s*([^\s]+)")
 
@@ -49,7 +49,7 @@ def guess_encoding(string):
         if match is not None:
             return match.group(1)
 
-        
+
 MSGS = {
     'E0501': ('Non ascii characters found but no encoding specified (PEP 263)',
               'Used when some non ascii characters are detected but now \
@@ -60,14 +60,14 @@ MSGS = {
     'E0503': ('Unknown encoding specified (%s)',
               'Used when an encoding is specified, but it\'s unknown to Python.'
               ),
-    
+
     'W0511': ('%s',
               'Used when a warning note as FIXME or XXX is detected.'),
     }
 
 class EncodingChecker(BaseChecker):
-    """checks for:                                                             
-    * warning notes in the code like FIXME, XXX                                
+    """checks for:
+    * warning notes in the code like FIXME, XXX
     * PEP 263: source code with non ascii character but no encoding declaration
     """
     __implements__ = IRawChecker
@@ -81,12 +81,12 @@ class EncodingChecker(BaseChecker):
                  'default' : ('FIXME', 'XXX', 'TODO'),
                  'help' : 'List of note tags to take in consideration, \
 separated by a comma.'
-                 }),               
+                 }),
                )
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-    
+
     def process_module(self, stream):
         """inspect the source file to found encoding problem or fixmes like
         notes
@@ -120,9 +120,9 @@ separated by a comma.'
                                      line=linenum)
                     break
             linenum += 1
-                    
-                
-            
+
+
+
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(EncodingChecker(linter))
