@@ -24,6 +24,7 @@ from os import linesep
 from logilab.common.textutils import normalize_text
 from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
+from logilab.common.graph import ordered_nodes
 
 from logilab.astng import Module
 
@@ -41,6 +42,8 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
+MSG_TYPES_LONG = dict([(v, k) for k, v in MSG_TYPES.iteritems()])
+
 MSG_TYPES_STATUS = {
     'I' : 0,
     'C' : 16,
@@ -51,12 +54,14 @@ MSG_TYPES_STATUS = {
     }
 
 def sort_checkers(checkers):
-    """return a list of enabled checker sorted by priority"""
-    checkers = [checker for checker in checkers if checker.is_enabled()]
-    checkers.sort(lambda x, y: cmp(-x.priority, -y.priority) )
-    return checkers
+    graph = {}
+    cls_instance = {}
+    for checker in checkers:
+        graph[cube.__class__] = set(checker.needs_checkers)
+        cls_instance[cube.__class__] = checker
+    return [cls_instance.get(cls) for cls in ordered_nodes(graph)]
 
-def sort_msgs(msg_ids):
+def sort_msgs(msgids):
     """sort message identifiers according to their category first"""
     msg_order = 'EWRCIF'
     def cmp_func(msgid1, msgid2):
@@ -65,8 +70,8 @@ def sort_msgs(msg_ids):
             return cmp(msg_order.index(msgid1[0]), msg_order.index(msgid2[0]))
         else:
             return cmp(msgid1, msgid2)
-    msg_ids.sort(cmp_func)
-    return msg_ids
+    msgids.sort(cmp_func)
+    return msgids
 
 def get_module_and_frameid(node):
     """return the module name and the frame id in the module"""
@@ -83,6 +88,12 @@ def get_module_and_frameid(node):
             frame = None
     obj.reverse()
     return module, '.'.join(obj)
+
+def category_id(id):
+    id = id.upper()
+    if id in MSG_TYPES:
+        return id
+    return MSG_TYPES_LONG.get(id)
 
 
 class Message:
@@ -105,8 +116,7 @@ class MessagesHandlerMixIn:
         self._messages = {}
         self._msgs_state = {}
         self._module_msgs_state = {} # None
-        self._msg_cats_state = {}
-        self._module_msg_cats_state = None
+        self._msgs_by_category = {}
         self.msg_status = 0
 
     def register_messages(self, checker):
@@ -128,10 +138,11 @@ class MessagesHandlerMixIn:
                    'Inconsistent checker part in message id %r' % msgid
             chkid = msgid[1:3]
             self._messages[msgid] = Message(checker, msgid, msg, msgdescr)
+            self._msgs_by_category.setdefault(msgid[0], []).append(msgid)
 
-    def get_message_help(self, msg_id, checkerref=False):
+    def get_message_help(self, msgid, checkerref=False):
         """return the help string for the given message id"""
-        msg = self.check_message_id(msg_id)
+        msg = self.check_message_id(msgid)
         desc = normalize_text(' '.join(msg.descr.split()), indent='  ')
         if checkerref:
             desc += ' This message belongs to the %s checker.' % \
@@ -142,17 +153,25 @@ class MessagesHandlerMixIn:
             return ':%s: *%s*\n%s' % (msg.msgid, title, desc)
         return ':%s:\n%s' % (msg.msgid, desc)
 
-    def disable_message(self, msg_id, scope='package', line=None):
+    def disable_message(self, msgid, scope='package', line=None):
         """don't output message of the given id"""
         assert scope in ('package', 'module')
-        msg = self.check_message_id(msg_id)
+        catid = category_id(msgid)
+        if catid is not None:
+            self._activate_msgs_cat(catid, scope, line, False, 'I0011')
+            return
+        # msgid is a checker name?
+        if msgid.lower() in self._checkers:
+            self._activate_checker_msgs(msgid.lower(), True)
+            return
+        msg = self.check_message_id(msgid)
         if scope == 'module':
             assert line > 0
             try:
                 self._module_msgs_state[msg.msgid][line] = False
             except KeyError:
                 self._module_msgs_state[msg.msgid] = {line: False}
-                if msg_id != 'I0011':
+                if msgid != 'I0011':
                     self.add_message('I0011', line=line, args=msg.msgid)
 
         else:
@@ -162,11 +181,20 @@ class MessagesHandlerMixIn:
             self.config.disable_msg = [mid for mid, val in msgs.items()
                                        if not val]
 
-    def enable_message(self, msg_id, scope='package', line=None):
+    def enable_message(self, msgid, scope='package', line=None):
         """reenable message of the given id"""
         assert scope in ('package', 'module')
-        msg = self.check_message_id(msg_id)
-        msg.checker.enabled = True # ensure the related checker is enabled
+        catid = category_id(msgid)
+        # msgid is a category?
+        if catid is not None:
+            self._activate_msgs_cat(catid, scope, line, True, 'I0012')
+            return
+        # msgid is a checker name?
+        if msgid.lower() in self._checkers:
+            self._activate_checker_msgs(msgid.lower(), True)
+            return
+        # msgid is a msgid.
+        msg = self.check_message_id(msgid)
         if scope == 'module':
             assert line > 0
             try:
@@ -180,59 +208,41 @@ class MessagesHandlerMixIn:
             # sync configuration object
             self.config.enable_msg = [mid for mid, val in msgs.items() if val]
 
-    def _cat_ids(self, categories):
-        for catid in categories:
-            catid = catid.upper()
-            if not catid in MSG_TYPES:
-                raise Exception('Unknown category identifier %s' % catid)
-            yield catid
+    def _activate_checker_msgs(self, checkername, value):
+        for checker in self._checkers[checkername]:
+            for msgid in checker.msgs:
+                msgsdict[msgid] = value
 
-    def disable_message_category(self, categories, scope='package', line=None):
-        """don't output message in the given category"""
+    def _activate_msgs_cat(self, catid, scope, line, value, warnmsgid):
         assert scope in ('package', 'module')
-        for catid in self._cat_ids(categories):
-            if scope == 'module':
-                self.add_message('I0011', line=line, args=catid)
-                self._module_msg_cats_state[catid] = False
-            else:
-                self._msg_cats_state[catid] = False
+        if scope == 'module':
+            self.add_message(warnmsgid, line=line, args=catid)
+            msgsdict = self._module_msgs_state
+        else:
+            msgsdict = self._msgs_state
+        for msgid in self._msgs_by_category.get(catid):
+            msgsdict[msgid] = value
 
-    def enable_message_category(self, categories, scope='package', line=None):
-        """reenable message of the given category"""
-        assert scope in ('package', 'module')
-        for catid in self._cat_ids(categories):
-            if scope == 'module':
-                self.add_message('I0012', line=line, args=catid)
-                self._module_msg_cats_state[catid] = True
-            else:
-                self._msg_cats_state[catid] = True
-
-    def check_message_id(self, msg_id):
+    def check_message_id(self, msgid):
         """raise UnknownMessage if the message id is not defined"""
-        msg_id = msg_id.upper()
+        msgid = msgid.upper()
         try:
-            return self._messages[msg_id]
+            return self._messages[msgid]
         except KeyError:
-            raise UnknownMessage('No such message id %s' % msg_id)
+            raise UnknownMessage('No such message id %s' % msgid)
 
-    def is_message_enabled(self, msg_id, line=None):
+    def is_message_enabled(self, msgid, line=None):
         """return true if the message associated to the given message id is
         enabled
         """
-        try:
-            if not self._module_msg_cats_state[msg_id[0]]:
-                return False
-        except (KeyError, TypeError):
-            if not self._msg_cats_state.get(msg_id[0], True):
-                return False
         if line is None:
-            return self._msgs_state.get(msg_id, True)
+            return self._msgs_state.get(msgid, True)
         try:
-            return self._module_msgs_state[msg_id][line]
+            return self._module_msgs_state[msgid][line]
         except (KeyError, TypeError):
-            return self._msgs_state.get(msg_id, True)
+            return self._msgs_state.get(msgid, True)
 
-    def add_message(self, msg_id, line=None, node=None, args=None):
+    def add_message(self, msgid, line=None, node=None, args=None):
         """add the message corresponding to the given id.
 
         If provided, msg is expanded using args
@@ -243,18 +253,18 @@ class MessagesHandlerMixIn:
         if line is None and node is not None:
             line = node.fromlineno
         # should this message be displayed
-        if not self.is_message_enabled(msg_id, line):
+        if not self.is_message_enabled(msgid, line):
             return
         # update stats
-        msg_cat = MSG_TYPES[msg_id[0]]
-        self.msg_status |= MSG_TYPES_STATUS[msg_id[0]]
+        msg_cat = MSG_TYPES[msgid[0]]
+        self.msg_status |= MSG_TYPES_STATUS[msgid[0]]
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:
-            self.stats['by_msg'][msg_id] += 1
+            self.stats['by_msg'][msgid] += 1
         except KeyError:
-            self.stats['by_msg'][msg_id] = 1
-        msg = self._messages[msg_id].msg
+            self.stats['by_msg'][msgid] = 1
+        msg = self._messages[msgid].msg
         # expand message ?
         if args:
             msg %= args
@@ -266,13 +276,13 @@ class MessagesHandlerMixIn:
             module, obj = get_module_and_frameid(node)
             path = node.root().file
         # add the message
-        self.reporter.add_message(msg_id, (path, module, obj, line or 1), msg)
+        self.reporter.add_message(msgid, (path, module, obj, line or 1), msg)
 
     def help_message(self, msgids):
         """display help messages for the given message identifiers"""
-        for msg_id in msgids:
+        for msgid in msgids:
             try:
-                print self.get_message_help(msg_id, True)
+                print self.get_message_help(msgid, True)
                 print
             except UnknownMessage, ex:
                 print ex
@@ -281,8 +291,8 @@ class MessagesHandlerMixIn:
 
     def list_checkers_messages(self, checker):
         """print checker's messages in reST format"""
-        for msg_id in sort_msgs(checker.msgs.keys()):
-            print self.get_message_help(msg_id, False)
+        for msgid in sort_msgs(checker.msgs.keys()):
+            print self.get_message_help(msgid, False)
 
     def print_full_documentation(self):
         """output a full documentation in ReST format"""
@@ -338,13 +348,13 @@ class MessagesHandlerMixIn:
 
     def list_sorted_messages(self):
         """output full sorted messages list in ReST format"""
-        msg_ids = []
+        msgids = []
         for checker in self._checkers.values():
-            for msg_id in checker.msgs.keys():
-                msg_ids.append(msg_id)
-        msg_ids.sort()
-        for msg_id in msg_ids:
-            print self.get_message_help(msg_id, False)
+            for msgid in checker.msgs.keys():
+                msgids.append(msgid)
+        msgids.sort()
+        for msgid in msgids:
+            print self.get_message_help(msgid, False)
         print
 
 

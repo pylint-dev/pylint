@@ -111,6 +111,37 @@ MSGS = {
               'Used when a bad value for an inline option is encountered.'),
     }
 
+
+class PyLintASTWalker(object):
+    def __init__(self):
+        # callbacks per node types
+        self.visit_events = {}
+        self.leave_events = {}
+
+    def add_checker(self, checker):
+        for member in dir(checker):
+            if member.startswith('visit_'):
+                cbs = self.visit_events.setdefault(cid, [])
+                cbs.append(getattr(checker, member[6:]))
+            if member.startswith('leave_'):
+                cbs = self.leave_events.setdefault(cid, [])
+                cbs.insert(0, getattr(checker, member[6:]))
+
+    def walk(self, astng):
+        """call visit events of astng checkers for the given node, recurse on
+        its children, then leave events.
+        """
+        cid = node.__class__.__name__.lower()
+        # generate events for this node on each checker
+        for cb in self.visit_events[cid]:
+            cb(astng)
+        # recurse on children
+        for child in astng.get_children():
+            self.walk(child)
+        for cb in self.leave_events[cid]:
+            cb(astng)
+
+
 class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                BaseRawChecker):
     """lint Python modules using external checkers.
@@ -135,19 +166,6 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                  'dest' : 'black_list', 'default' : ('CVS',),
                  'help' : 'Add <file or directory> to the black list. It \
 should be a base name, not a path. You may set this option multiple times.'}),
-
-               ('enable-checker',
-                {'type' : 'csv', 'metavar': '<checker ids>',
-                 'group': 'Messages control',
-                 'help' : 'Enable only checker(s) with the given id(s).\
-                 This option conflicts with the disable-checker option'}),
-
-               ('disable-checker',
-                {'type' : 'csv', 'metavar': '<checker ids>',
-                 'group': 'Messages control',
-                 'help' : 'Enable all checker(s) except those with the \
-                 given id(s).\
-                 This option conflicts with the enable-checker option'}),
 
                ('persistent',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
@@ -214,25 +232,19 @@ This is used by the global evaluation report (R0004).'}),
                  'group': 'Reports',
                  'help' : 'Disable the report(s) with the given id(s).'}),
 
-               ('enable-msg-cat',
-                {'type' : 'string', 'metavar': '<msg cats>',
-                 'group': 'Messages control',
-                 'help' : 'Enable all messages in the listed categories (IRCWEF).'}),
-
-               ('disable-msg-cat',
-                {'type' : 'string', 'metavar': '<msg cats>', 'default': 'I',
-                 'group': 'Messages control',
-                 'help' : 'Disable all messages in the listed categories (IRCWEF).'}),
-
-               ('enable-msg',
+               ('enable',
                 {'type' : 'csv', 'metavar': '<msg ids>',
                  'group': 'Messages control',
-                 'help' : 'Enable the message(s) with the given id(s).'}),
+                 'help' : 'Enable the message or category or checker with the '
+                 'given id(s). You can either give multiple identifier '
+                 'separated by comma (,) or put this option multiple time.'}),
 
-               ('disable-msg',
+               ('disable',
                 {'type' : 'csv', 'metavar': '<msg ids>',
                  'group': 'Messages control',
-                 'help' : 'Disable the message(s) with the given id(s).'}),
+                 'help' : 'Disable themessage or category or checker with the '
+                 'given id(s). You can either give multiple identifier '
+                 'separated by comma (,) or put this option multiple time.'}),
                )
 
     option_groups = (
@@ -261,9 +273,7 @@ This is used by the global evaluation report (R0004).'}),
             'enable-report': self.enable_report,
             'disable-report': self.disable_report,
             'enable-msg': self.enable_message,
-            'disable-msg': self.disable_message,
-            'enable-msg-cat': self.enable_message_category,
-            'disable-msg-cat': self.disable_message_category}
+            'disable-msg': self.disable_message}
         full_version = '%%prog %s, \nastng %s, common %s\nPython %s' % (
             version, astng_version, common_version, sys.version)
         OptionsManagerMixIn.__init__(self, usage=__doc__,
@@ -318,11 +328,6 @@ This is used by the global evaluation report (R0004).'}),
                     meth(value)
         elif opt_name == 'output-format':
             self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
-        elif opt_name in ('enable-checker', 'disable-checker'):
-            if not value:
-                return
-            checkerids = [v.lower() for v in check_csv(None, opt_name, value)]
-            self.enable_checkers(checkerids, opt_name == 'enable-checker')
         try:
             BaseRawChecker.set_option(self, opt_name, value, action, opt_dict)
         except UnsupportedAction:
@@ -337,7 +342,7 @@ This is used by the global evaluation report (R0004).'}),
         checker is an object implementing IRawChecker or / and IASTNGChecker
         """
         assert checker.priority <= 0, 'checker priority can\'t be >= 0'
-        self._checkers[checker.name] = checker
+        self._checkers.setdefault(checker.name, []).append(checker)
         if hasattr(checker, 'reports'):
             for r_id, r_title, r_cb in checker.reports:
                 self.register_report(r_id, r_title, r_cb, checker)
@@ -346,38 +351,14 @@ This is used by the global evaluation report (R0004).'}),
             self.register_messages(checker)
         checker.load_defaults()
 
-    def enable_checkers(self, listed, enabled):
-        """only enable/disable checkers from the given list"""
-        if enabled: # if we are activating a checker; deactivate them all first
-            for checker in self._checkers.values():
-                if not checker.may_be_disabled:
-                    continue
-                checker.enable(not enabled)
-        for checkerid in listed:
-            try:
-                checker = self._checkers[checkerid]
-            except KeyError:
-                raise Exception('no checker named %s' % checkerid)
-            checker.enable(enabled)
-
-    def disable_noerror_checkers(self):
-        """disable all checkers without error messages, and the
-        'miscellaneous' checker which can be safely deactivated in debug
-        mode
-        """
-        for checker in self._checkers.values():
-            if checker.name == 'miscellaneous':
-                checker.enable(False)
-                continue
-            # if checker is already explicitly disabled (e.g. rpython), don't
-            # enable it
-            if checker.enabled:
-                for msgid in getattr(checker, 'msgs', {}).keys():
-                    if msgid[0] == 'E':
-                        checker.enable(True)
-                        break
-                else:
-                    checker.enable(False)
+    def disable_noerror_messages(self):
+        for msgcat, msgids in self._msgs_by_category.iteritems():
+            if msgcat == 'E':
+                for msgid in msgids:
+                    self.enable_message(msgid)
+            else:
+                for msgid in msgids:
+                    self.disable_message(msgid)
 
     # block level option handling #############################################
     #
@@ -474,10 +455,22 @@ This is used by the global evaluation report (R0004).'}),
         self.reporter.include_ids = self.config.include_ids
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
-        checkers = sort_checkers(self._checkers.values())
+        rawcheckers = []
+        walker = PyLintASTWalker()
+        #
+        neededcheckers = set()
+        for checker in self._checkers.values():
+            for msgid in checker.msgs:
+                if self._msgs_state.get(msgid, True):
+                    neededcheckers.add(checker)
+                    break
         # notify global begin
-        for checker in checkers:
+        for checker in sort_checkers(neededcheckers):
             checker.open()
+            if implements(checker, IASTNGChecker):
+                walker.add_checker(checker)
+            if implements(checker, IRawChecker) and checker is not self: #XXX
+                rawcheckers.append(checker)
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
             modname, filepath = descr['name'], descr['path']
@@ -495,11 +488,11 @@ This is used by the global evaluation report (R0004).'}),
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
             self.current_file = astng.file
-            self.check_astng_module(astng, checkers)
+            self.check_astng_module(astng, walker, rawcheckers)
         # notify global end
         self.set_current_module('')
         checkers.reverse()
-        for checker in  checkers:
+        for checker in checkers:
             checker.close()
 
     def expand_files(self, modules):
@@ -548,8 +541,7 @@ This is used by the global evaluation report (R0004).'}),
             #    traceback.print_exc()
             self.add_message('F0002', args=(ex.__class__, ex))
 
-
-    def check_astng_module(self, astng, checkers):
+    def check_astng_module(self, astng, walker, rawcheckers):
         """check a module from its astng representation, real work"""
         # call raw checkers if possible
         if not astng.pure_python:
@@ -566,33 +558,12 @@ This is used by the global evaluation report (R0004).'}),
             orig_state = self._module_msgs_state.copy()
             self._module_msgs_state = {}
             self.collect_block_lines(astng, orig_state)
-            for checker in checkers:
-                if implements(checker, IRawChecker) and checker is not self:
-                    stream.seek(0)
-                    checker.process_module(stream)
+            for checker in rawcheckers:
+                stream.seek(0)
+                checker.process_module(stream)
         # generate events to astng checkers
-        self.astng_events(astng, [checker for checker in checkers
-                                  if implements(checker, IASTNGChecker)])
+        walker.walk(astng)
         return True
-
-    def astng_events(self, astng, checkers, _reversed_checkers=None):
-        """generate event to astng checkers according to the current astng
-        node and recurse on its children
-        """
-        if _reversed_checkers is None:
-            _reversed_checkers = checkers[:]
-            _reversed_checkers.reverse()
-        if astng.is_statement:
-            self.stats['statement'] += 1
-        # generate events for this node on each checker
-        for checker in checkers:
-            checker.visit(astng)
-        # recurse on children
-        for child in astng.get_children():
-            self.astng_events(child, checkers, _reversed_checkers)
-        for checker in _reversed_checkers:
-            checker.leave(astng)
-
 
     # IASTNGChecker interface #################################################
 
@@ -900,13 +871,14 @@ been issued by analysing pylint output status code
 
     def cb_error_mode(self, *args, **kwargs):
         """error mode:
-        * checkers without error messages are disabled
-        * for others, only the ERROR messages are displayed
+        * disable all but error messages
+        * disable the 'miscellaneous' checker which can be safely deactivated in
+          debug
         * disable reports
         * do not save execution information
         """
-        self.linter.disable_noerror_checkers()
-        self.linter.set_option('disable-msg-cat', 'WCRI')
+        self.linter.disable_noerror_messages()
+        self.disable_message('miscellaneous')
         self.linter.set_option('reports', False)
         self.linter.set_option('persistent', False)
 

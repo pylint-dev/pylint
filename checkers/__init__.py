@@ -66,9 +66,7 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
     """base class for checkers"""
 
     options = ()
-    priority = -9
-    enabled = True
-    may_be_disabled = True
+    needs_checkers = ()
     name = None
     level = 1
 
@@ -85,20 +83,6 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
     def add_message(self, msg_id, line=None, node=None, args=None):
         """add a message of a given type"""
         self.linter.add_message(msg_id, line, node, args)
-
-    def is_enabled(self):
-        """return true if the checker is enabled"""
-        return self.enabled
-
-    def enable(self, enabled):
-        """enable / disable this checker if true / false is given
-
-        it false values has no effect if the checker can't be disabled
-        """
-        if not enabled and not self.may_be_disabled:
-            raise Exception("can't disable %s checker" % self.name)
-        if enabled or self.may_be_disabled:
-            self.enabled = enabled
 
     def package_dir(self):
         """return the base directory for the analysed package"""
