@@ -126,6 +126,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
     name = 'master'
     priority = 0
+    level = 0
     msgs = MSGS
     may_be_disabled = False
 
@@ -150,6 +151,7 @@ should be a base name, not a path. You may set this option multiple times.'}),
 
                ('persistent',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'level': 1,
                  'help' : 'Pickle collected data for later comparisons.'}),
 
                ('load-plugins',
@@ -173,7 +175,7 @@ python modules names) to load, usually to register additional checkers.'}),
 
                ('files-output',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'group': 'Reports',
+                 'group': 'Reports', 'level': 1,
                  'help' : 'Put messages in a separate file for each module / \
 package specified on the command line instead of printing them on stdout. \
 Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
@@ -187,7 +189,7 @@ Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
 
                ('evaluation',
                 {'type' : 'string', 'metavar' : '<python_expression>',
-                 'group': 'Reports',
+                 'group': 'Reports', 'level': 1,
                  'default': '10.0 - ((float(5 * error + warning + refactor + \
 convention) / statement) * 10)',
                  'help' : 'Python expression which should return a note less \
@@ -768,7 +770,7 @@ group are mutually exclusive.'),
 
             ('init-hook',
              {'action' : 'callback', 'type' : 'string', 'metavar': '<code>',
-              'callback' : cb_init_hook,
+              'callback' : cb_init_hook, 'level': 1,
               'help' : 'Python code to execute, usually for sys.path \
 manipulation such as pygtk.require().'}),
 
@@ -801,7 +803,7 @@ them in the generated configuration.'''}),
             ('generate-man',
              {'action' : 'callback', 'callback' : self.cb_generate_manpage,
               'group': 'Commands',
-              'help' : "Generate pylint's man page.",'hide': 'True'}),
+              'help' : "Generate pylint's man page.",'hide': True}),
 
             ('errors-only',
              {'action' : 'callback', 'callback' : self.cb_error_mode,
@@ -812,7 +814,7 @@ are done by default'''}),
 
             ('profile',
              {'type' : 'yn', 'metavar' : '<y_or_n>',
-              'default': False,
+              'default': False, 'level': 2,
               'help' : 'Profiled execution.'}),
 
             ), option_groups=self.option_groups,
@@ -823,7 +825,7 @@ are done by default'''}),
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
         # add some help section
-        linter.add_help_section('Environment variables', config.ENV_HELP)
+        linter.add_help_section('Environment variables', config.ENV_HELP, level=1)
         linter.add_help_section('Output', '''
 Using the default text output, the message format is :                          
                                                                                 
@@ -836,7 +838,7 @@ There are 5 kind of message types :
     * (E) error, for probable bugs in the code                                  
     * (F) fatal, if an error occurred which prevented pylint from doing further
 processing.
-        ''')
+        ''', level=1)
         linter.add_help_section('Output status code', '''
 Pylint should leave with following status code:                                 
     * 0 if everything went fine                                                 
@@ -849,7 +851,7 @@ Pylint should leave with following status code:
                                                                                 
 status 1 to 16 will be bit-ORed so you can know which different categories has
 been issued by analysing pylint output status code
-        ''')
+        ''', level=2)
         # read configuration
         linter.disable_message('W0704')
         linter.read_config_file()

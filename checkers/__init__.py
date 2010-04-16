@@ -70,6 +70,7 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
     enabled = True
     may_be_disabled = True
     name = None
+    level = 1
 
     def __init__(self, linter=None):
         """checker instances should have the linter as argument
