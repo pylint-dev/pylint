@@ -490,7 +490,8 @@ This is used by the global evaluation report (R0004).'}),
                     neededcheckers.add(checker)
                     break
         # notify global begin
-        for checker in sort_checkers(neededcheckers):
+        checkers = sort_checkers(neededcheckers)
+        for checker in checkers:
             checker.open()
             if implements(checker, IASTNGChecker):
                 walker.add_checker(checker)
