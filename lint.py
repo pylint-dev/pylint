@@ -750,13 +750,13 @@ exit. The value may be a comma separated list of message ids.'''}),
             ('list-msgs',
              {'action' : 'callback', 'metavar': '<msg-id>',
               'callback' : self.cb_list_messages,
-              'group': 'Commands',
+              'group': 'Commands', 'level': 1,
               'help' : "Generate pylint's messages."}),
 
             ('full-documentation',
              {'action' : 'callback', 'metavar': '<msg-id>',
               'callback' : self.cb_full_documentation,
-              'group': 'Commands',
+              'group': 'Commands', 'level': 1,
               'help' : "Generate pylint's full documentation."}),
 
             ('generate-rcfile',
@@ -780,7 +780,7 @@ are done by default'''}),
 
             ('profile',
              {'type' : 'yn', 'metavar' : '<y_or_n>',
-              'default': False, 'level': 2,
+              'default': False, 'hide': True,
               'help' : 'Profiled execution.'}),
 
             ), option_groups=self.option_groups,
@@ -817,7 +817,7 @@ Pylint should leave with following status code:
                                                                                 
 status 1 to 16 will be bit-ORed so you can know which different categories has
 been issued by analysing pylint output status code
-        ''', level=2)
+        ''', level=1)
         # read configuration
         linter.disable('W0704')
         linter.read_config_file()
