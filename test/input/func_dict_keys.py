@@ -1,5 +1,5 @@
 """Check multiple key definition"""
-#pylint: disable-msg=C0103
+#pylint: disable=C0103
 __revision__ = 5
 
 correct_dict = {

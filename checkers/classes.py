@@ -316,7 +316,7 @@ instance attributes.'}
         # XXX refactor, probably much simpler now that E0201 is in type checker
         for attr, nodes in accessed.items():
             # deactivate "except doesn't do anything", that's expected
-            # pylint: disable-msg=W0704
+            # pylint: disable=W0704
             # is it a class attribute ?
             try:
                 node.local_attr(attr)

@@ -1,4 +1,4 @@
-# pylint: disable-msg=W0622
+# pylint: disable=W0622
 # Copyright (c) 2004-2006 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -80,7 +80,7 @@ class Similar:
             couples.sort()
             for lineset, idx in couples:
                 print "==%s:%s" % (lineset.name, idx)
-            # pylint: disable-msg=W0631
+            # pylint: disable=W0631
             for line in lineset._real_lines[idx:idx+num]:
                 print "  ", line,
             nb_lignes_dupliquees += num * (len(couples)-1)
@@ -286,14 +286,14 @@ class SimilarChecker(BaseChecker, Similar):
             for lineset, idx in couples:
                 msg.append("==%s:%s" % (lineset.name, idx))
             msg.sort()
-            # pylint: disable-msg=W0631
+            # pylint: disable=W0631
             for line in lineset._real_lines[idx:idx+num]:
                 msg.append(line.rstrip())
             self.add_message('R0801', args=(len(couples), '\n'.join(msg)))
             duplicated += num * (len(couples) - 1)
         stats['nb_duplicated_lines'] = duplicated
         stats['percent_duplicated_lines'] = total and duplicated * 100. / total
-        
+
 
 def register(linter):
     """required method to auto register this checker """

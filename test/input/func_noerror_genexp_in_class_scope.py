@@ -1,4 +1,4 @@
-# pylint: disable-msg=W0232,R0903
+# pylint: disable=W0232,R0903
 """class scope must be handled correctly in genexps"""
 
 __revision__ = ''

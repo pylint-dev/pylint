@@ -439,9 +439,9 @@ This is used by the global evaluation report (R0004).'}),
         #
         # 1.   def meth8(self):
         # 2.        """test late disabling"""
-        # 3.        # pylint: disable-msg=E1102
+        # 3.        # pylint: disable=E1102
         # 4.        print self.blip
-        # 5.        # pylint: disable-msg=E1101
+        # 5.        # pylint: disable=E1101
         # 6.        print self.bla
         #
         # E1102 should be disabled from line 1 to 6 while E1101 from line 5 to 6
@@ -850,7 +850,7 @@ status 1 to 16 will be bit-ORed so you can know which different categories has
 been issued by analysing pylint output status code
         ''', level=2)
         # read configuration
-        linter.disable_message('W0704')
+        linter.disable('W0704')
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter._config_parser
@@ -904,7 +904,7 @@ been issued by analysing pylint output status code
         * do not save execution information
         """
         self.linter.disable_noerror_messages()
-        self.disable_message('miscellaneous')
+        self.linter.disable('miscellaneous')
         self.linter.set_option('reports', False)
         self.linter.set_option('persistent', False)
 

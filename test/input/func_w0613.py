@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """test unused argument
 """
 
@@ -29,9 +29,9 @@ class AAAA:
                     description=[(etype,)]*size)
         def inner(row, col=0, etype=etype, req=self, rset=rset):
             """inner using all its argument"""
-            # pylint: disable-msg = E1103
+            # pylint: disable = E1103
             return req.vreg.etype_class(etype)(req, rset, row, col)
-        # pylint: disable-msg = W0201
+        # pylint: disable = W0201
         rset.get_entity = inner
 
 class BBBB:

@@ -31,7 +31,7 @@ from pylint import checkers
 test_reporter = TestReporter()
 linter = PyLinter()
 linter.set_reporter(test_reporter)
-linter.disable_message_category('I')
+linter.disable('I')
 linter.config.persistent = 0
 checkers.initialize(linter)
 

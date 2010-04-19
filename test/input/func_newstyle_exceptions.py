@@ -1,4 +1,4 @@
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 """test pb with exceptions and old/new style classes"""
 
 __revision__ = 1

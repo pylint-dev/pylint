@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903,R0201
+# pylint: disable=R0903,R0201
 """test Invalid name"""
 
 __revision__ = 1

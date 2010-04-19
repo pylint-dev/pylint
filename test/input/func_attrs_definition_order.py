@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """yo"""
 
 __revision__ = '$I$'
@@ -15,7 +15,7 @@ class Bbbb(object):
     __revision__ = __revision__ # no problemo marge
     
     def __getattr__(self, attr):
-        # pylint: disable-msg=W0201
+        # pylint: disable=W0201
         try:
             return self.__repo
         except AttributeError:
@@ -25,7 +25,7 @@ class Bbbb(object):
     
     def catchme(self, attr):
         """no AttributeError catched"""
-        # pylint: disable-msg=W0201
+        # pylint: disable=W0201
         try:
             return self._repo
         except ValueError:

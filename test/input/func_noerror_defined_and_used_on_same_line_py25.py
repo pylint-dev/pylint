@@ -1,4 +1,4 @@
-# pylint: disable-msg=C0321
+# pylint: disable=C0321
 """test http://www.logilab.org/ticket/6954"""
 
 from __future__ import with_statement

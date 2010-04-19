@@ -1,4 +1,4 @@
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 """test built-in redefinition 
 """
 __revision__ = 0

@@ -1,4 +1,4 @@
-#pylint: disable-msg=C0103,R0904,R0903,W0201
+#pylint: disable=C0103,R0904,R0903,W0201
 """
 This module demonstrates a possible problem of pyLint with calling __init__ s
 from inherited classes.

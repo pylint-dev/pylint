@@ -1,4 +1,4 @@
-# pylint:disable-msg=C0103
+# pylint:disable=C0103
 """ho ho ho"""
 __revision__ = 'toto'
 

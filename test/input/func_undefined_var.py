@@ -41,12 +41,12 @@ except NameError:
 
 try:
     POUETT # don't catch me
-except Exception: # pylint:disable-msg = W0703
+except Exception: # pylint:disable = W0703
     POUETT = 'something'
 
 try:
     POUETTT # don't catch me
-except: # pylint:disable-msg = W0702
+except: # pylint:disable = W0702
     POUETTT = 'something'
 
 print POUET, POUETT, POUETTT

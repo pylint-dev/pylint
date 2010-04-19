@@ -1,5 +1,5 @@
 """see ticket #5672"""
-# pylint: disable-msg=R0903,W0232,C0111,C0103
+# pylint: disable=R0903,W0232,C0111,C0103
 
 __revision__ = 0
 

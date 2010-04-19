@@ -1,4 +1,4 @@
-# pylint:disable-msg=C0103,W0104,W0105
+# pylint:disable=C0103,W0104,W0105
 """Check format
 """
 __revision__ = ''

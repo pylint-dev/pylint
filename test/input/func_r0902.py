@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """test max instance attributes"""
 __revision__ = None
 

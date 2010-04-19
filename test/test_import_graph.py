@@ -42,7 +42,7 @@ class ImportCheckerTC(unittest.TestCase):
     def test_checker_dep_graphs(self):
         l = self.linter
         l.global_set_option('persistent', False)
-        l.global_set_option('enable-checker', 'imports')
+        l.global_set_option('enable', 'imports')
         l.global_set_option('import-graph', 'import.dot')
         l.global_set_option('ext-import-graph', 'ext_import.dot')
         l.global_set_option('int-import-graph', 'int_import.dot')
@@ -60,6 +60,6 @@ class ImportCheckerTC(unittest.TestCase):
                     os.remove(fname)
                 except:
                     pass
-                    
+
 if __name__ == '__main__':
     unittest.main()

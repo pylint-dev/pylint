@@ -1,4 +1,4 @@
-# pylint: disable-msg=W0142
+# pylint: disable=W0142
 """test suspicious lambda expressions
 """
 

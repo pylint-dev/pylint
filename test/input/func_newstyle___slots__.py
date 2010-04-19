@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """test __slots__ on old style class"""
 
 __revision__ = 1

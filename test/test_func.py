@@ -86,9 +86,9 @@ class LintTestUsingModule(testlib.TestCase):
         
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
-            self.linter.enable_message_category('I')
+            self.linter.enable('I')
         else:
-            self.linter.disable_message_category('I')
+            self.linter.disable('I')
         try:
             self.linter.check(tocheck)
         except Exception, ex:

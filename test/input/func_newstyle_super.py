@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """check use of super"""
 __revision__ = None
 

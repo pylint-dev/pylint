@@ -1,4 +1,4 @@
-# pylint: disable-msg=W0104
+# pylint: disable=W0104
 """snippets of codes which have at some point made pylint crash"""
 
 __revision__ = 1

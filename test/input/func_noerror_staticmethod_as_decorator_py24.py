@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """test staticmethod and classmethod as decorator"""
 
 __revision__ = None

@@ -1,4 +1,4 @@
-# pylint: disable-msg=I0011,C0301,W0611
+# pylint: disable=I0011,C0301,W0611
 """I found some of my scripts trigger off an AttributeError in pylint
 0.8.1 (with common 0.12.0 and astng 0.13.1).
 

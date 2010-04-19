@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """check for interface which are not classes"""
 
 __revision__ = None

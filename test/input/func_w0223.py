@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903,R0922
+# pylint: disable=R0903,R0922
 """test overriding of abstract method
 """
 

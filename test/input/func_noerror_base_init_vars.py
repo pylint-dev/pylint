@@ -1,4 +1,4 @@
-# pylint:disable-msg=R0201
+# pylint:disable=R0201
 """Checks that class variables are seen as inherited !
 """
 __revision__ = ''

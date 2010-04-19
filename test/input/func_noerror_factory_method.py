@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """use new astng context sensitive inference"""
 __revision__ = 1
 

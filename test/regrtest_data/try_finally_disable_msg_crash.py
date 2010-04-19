@@ -1,5 +1,5 @@
 try:
     pass
 finally:
-    # pylint: disable-msg=W0201
+    # pylint: disable=W0201
     pass

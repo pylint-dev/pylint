@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903,W0142
+# pylint: disable=R0903,W0142
 """test access to __name__ gives undefined member on new/old class instances
 but not on new/old class object
 """

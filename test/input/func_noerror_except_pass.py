@@ -7,5 +7,5 @@ __revision__ = None
 try:
     A = 2
 except ValueError:
-    pass # pylint: disable-msg=W0107
+    pass # pylint: disable=W0107
     print A

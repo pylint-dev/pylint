@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# pylint: disable-msg=W0404,W0622,W0704,W0613,W0152
+# pylint: disable=W0404,W0622,W0704,W0613
 """Generic Setup script, takes package info from __pkginfo__.py file.
 
 :copyright: 2003-2010 LOGILAB S.A. (Paris, FRANCE), all rights reserved.

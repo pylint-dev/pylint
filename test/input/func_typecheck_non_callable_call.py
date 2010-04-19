@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """
     'E1102': ('%s is not callable',
               'Used when an object being called has been infered to a non \

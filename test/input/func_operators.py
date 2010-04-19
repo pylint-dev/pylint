@@ -1,6 +1,6 @@
 """check operator use"""
-#pylint: disable-msg=C0103
-#pylint: disable-msg=W0104
+#pylint: disable=C0103
+#pylint: disable=W0104
 
 __revision__ = 42
 

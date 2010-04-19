@@ -1,4 +1,4 @@
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 
 ''' Test that y is defined properly, z is not.
     Default defining methods are __init__, 

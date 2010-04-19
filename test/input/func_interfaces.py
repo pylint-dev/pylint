@@ -1,4 +1,4 @@
-# pylint:disable-msg=R0201
+# pylint:disable=R0201
 """docstring"""
 __revision__ = ''
 

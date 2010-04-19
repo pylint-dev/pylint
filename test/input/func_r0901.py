@@ -1,4 +1,4 @@
-# pylint: disable-msg=W0232, R0903
+# pylint: disable=W0232, R0903
 """test max parents"""
 __revision__ = None
 

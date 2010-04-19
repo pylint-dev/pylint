@@ -153,16 +153,20 @@ class MessagesHandlerMixIn:
             return ':%s: *%s*\n%s' % (msg.msgid, title, desc)
         return ':%s:\n%s' % (msg.msgid, desc)
 
-    def disable_message(self, msgid, scope='package', line=None):
+    def disable(self, msgid, scope='package', line=None):
         """don't output message of the given id"""
         assert scope in ('package', 'module')
+        # msgid is a category?
         catid = category_id(msgid)
         if catid is not None:
-            self._activate_msgs_cat(catid, scope, line, False, 'I0011')
+            for msgid in self._msgs_by_category.get(catid):
+                self.disable(msgid, scope, line)
             return
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
-            self._activate_checker_msgs(msgid.lower(), True)
+            for checker in self._checkers[msgid.lower()]:
+                for msgid in checker.msgs:
+                    self.disable(msgid, scope, line)
             return
         msg = self.check_message_id(msgid)
         if scope == 'module':
@@ -181,13 +185,14 @@ class MessagesHandlerMixIn:
             self.config.disable_msg = [mid for mid, val in msgs.items()
                                        if not val]
 
-    def enable_message(self, msgid, scope='package', line=None):
+    def enable(self, msgid, scope='package', line=None):
         """reenable message of the given id"""
         assert scope in ('package', 'module')
         catid = category_id(msgid)
         # msgid is a category?
         if catid is not None:
-            self._activate_msgs_cat(catid, scope, line, True, 'I0012')
+            for msgid in self._msgs_by_category.get(catid):
+                self.enable(msgid, scope, line)
             return
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
@@ -206,22 +211,7 @@ class MessagesHandlerMixIn:
             msgs = self._msgs_state
             msgs[msg.msgid] = True
             # sync configuration object
-            self.config.enable_msg = [mid for mid, val in msgs.items() if val]
-
-    def _activate_checker_msgs(self, checkername, value):
-        for checker in self._checkers[checkername]:
-            for msgid in checker.msgs:
-                msgsdict[msgid] = value
-
-    def _activate_msgs_cat(self, catid, scope, line, value, warnmsgid):
-        assert scope in ('package', 'module')
-        if scope == 'module':
-            self.add_message(warnmsgid, line=line, args=catid)
-            msgsdict = self._module_msgs_state
-        else:
-            msgsdict = self._msgs_state
-        for msgid in self._msgs_by_category.get(catid):
-            msgsdict[msgid] = value
+            self.config.enable = [mid for mid, val in msgs.items() if val]
 
     def check_message_id(self, msgid):
         """raise UnknownMessage if the message id is not defined"""

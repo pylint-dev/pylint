@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """regression test: setup() leads to "unable to load module..."
 """
 

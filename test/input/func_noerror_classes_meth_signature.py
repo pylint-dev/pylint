@@ -1,4 +1,4 @@
-# pylint: disable-msg=C0111,R0922,R0903
+# pylint: disable=C0111,R0922,R0903
 """#2485
 W0222 "Signature differs from overriden method" false positive
 """

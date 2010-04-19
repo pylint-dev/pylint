@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903,W0232
+# pylint: disable=R0903,W0232
 """check for scope problems"""
 
 __revision__ = None

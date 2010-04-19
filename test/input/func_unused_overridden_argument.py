@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """for Sub.inherited, only the warning for "aay" is desired.
 The warnings for "aab" and "aac"  are most likely false positives though,
 because there could be another subclass that overrides the same method and does

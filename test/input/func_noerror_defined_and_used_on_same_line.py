@@ -1,4 +1,4 @@
-#pylint: disable-msg=C0111,C0321
+#pylint: disable=C0111,C0321
 """pylint complains about 'index' being used before definition"""
 
 __revision__ = None

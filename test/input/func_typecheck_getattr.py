@@ -1,4 +1,4 @@
-# pylint: disable-msg=
+# pylint: disable=
 """check getattr if inference succeed"""
 
 __revision__ = None

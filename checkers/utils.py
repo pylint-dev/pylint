@@ -1,4 +1,4 @@
-# pylint: disable-msg=W0611
+# pylint: disable=W0611
 #
 # Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr

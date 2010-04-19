@@ -1,4 +1,4 @@
-# pylint: disable-msg=C0111,R0903,W0232
+# pylint: disable=C0111,R0903,W0232
 """
 #2479
 
@@ -18,7 +18,7 @@ class Aimpl:
     # disable "method could be a function" on classes which are not overriding
     # the factory method because in that case the usage of polymorphism is not
     # detected
-    # pylint: disable-msg=R0201
+    # pylint: disable=R0201
     def makex(self): 
         return XAsub() 
 

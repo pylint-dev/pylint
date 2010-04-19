@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """Test case for the problem described below :
  - A class extends 'object'
  - This class defines its own __init__()

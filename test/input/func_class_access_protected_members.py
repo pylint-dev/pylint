@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """test external access to protected class members"""
 
 __revision__ = ''

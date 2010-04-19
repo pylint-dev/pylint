@@ -1,4 +1,4 @@
-# -*- pylint: disable-msg=W0232,R0903
+# -*- pylint: disable=W0232,R0903
 """Test that decorators sees the class namespace - just like
 function default values does but function body doesn't.
 

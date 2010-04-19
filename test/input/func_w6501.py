@@ -1,4 +1,4 @@
-# pylint: disable-msg=E1101
+# pylint: disable=E1101
 """test checking use of the logging module
 """
 

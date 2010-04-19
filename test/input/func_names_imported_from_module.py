@@ -1,4 +1,4 @@
-#pylint: disable-msg=W0401,W0611
+#pylint: disable=W0401,W0611
 """check unexistant names imported are reported"""
 
 __revision__ = None

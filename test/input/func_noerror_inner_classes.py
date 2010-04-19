@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903
+# pylint: disable=R0903
 """Backend Base Classes for the schwelm user DB"""
 
 __revision__ = "alpha"

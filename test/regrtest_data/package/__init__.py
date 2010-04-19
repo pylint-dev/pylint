@@ -1,4 +1,4 @@
-# pylint: disable-msg=R0903,W0403
+# pylint: disable=R0903,W0403
 """package's __init__ file"""
 
 __revision__ = 0
