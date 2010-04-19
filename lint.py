@@ -457,7 +457,6 @@ This is used by the global evaluation report (R0004).'}),
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
         checkers = self._get_checkers()
-        #print 'checkers', checkers
         rawcheckers = []
         walker = PyLintASTWalker()
         # notify global begin
