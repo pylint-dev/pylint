@@ -284,14 +284,10 @@ class MessagesHandlerMixIn:
                 print
                 continue
 
-    def list_checkers_messages(self, checker):
-        """print checker's messages in reST format"""
-        for msgid in sort_msgs(checker.msgs.keys()):
-            print self.get_message_help(msgid, False)
-
     def print_full_documentation(self):
         """output a full documentation in ReST format"""
-        for checker in sort_checkers(self._checkers.values()):
+        by_checker = {}
+        for checker in self.sort_checkers():
             if checker.name == 'master':
                 prefix = 'Main '
                 if checker.options:
@@ -305,31 +301,37 @@ class MessagesHandlerMixIn:
                         rest_format_section(sys.stdout, None, options)
                         print
             else:
-                prefix = ''
-                title = '%s checker' % checker.name.capitalize()
+                try:
+                    by_checker[checker.name][0] += checker.options_and_values()
+                    by_checker[checker.name][1].update(checker.msgs)
+                    by_checker[checker.name][2] += checker.reports
+                except KeyError:
+                    by_checker[checker.name] = [list(checker.options_and_values()),
+                                                dict(checker.msgs),
+                                                list(checker.reports)]
+        for checker, (options, msgs, reports) in by_checker.items():
+            prefix = ''
+            title = '%s checker' % checker
+            print title
+            print '-' * len(title)
+            if options:
+                title = 'Options'
                 print title
-                print '-' * len(title)
-                if checker.__doc__: # __doc__ is None with -OO
-                    print linesep.join([l.strip()
-                                        for l in checker.__doc__.splitlines()])
-                if checker.options:
-                    title = 'Options'
-                    print title
-                    print '~' * len(title)
-                    for section, options in checker.options_by_section():
-                        rest_format_section(sys.stdout, section, options)
-                        print
-            if checker.msgs:
+                print '~' * len(title)
+                rest_format_section(sys.stdout, None, options)
+                print
+            if msgs:
                 title = ('%smessages' % prefix).capitalize()
                 print title
                 print '~' * len(title)
-                self.list_checkers_messages( checker)
+                for msgid in sort_msgs(msgs.keys()):
+                    print self.get_message_help(msgid, False)
                 print
-            if getattr(checker, 'reports', None):
+            if reports:
                 title = ('%sreports' % prefix).capitalize()
                 print title
                 print '~' * len(title)
-                for report in checker.reports:
+                for report in reports:
                     print ':%s: %s' % report[:2]
                 print
             print
