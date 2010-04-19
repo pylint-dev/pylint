@@ -15,7 +15,7 @@ class DependenciesGraphTC(unittest.TestCase):
     dest = 'dependencies_graph.dot'
     def tearDown(self):
         os.remove(self.dest)
-        
+
     def test_dependencies_graph(self):
         imports.dependencies_graph(self.dest, {'labas': ['hoho', 'yep'],
                                                'hoho': ['yep']})
@@ -33,12 +33,12 @@ URL="." node[shape="box"]
 "yep" -> "labas" [];
 }
 '''.strip())
-                          
+
 class ImportCheckerTC(unittest.TestCase):
     def setUp(self):
         self.linter = l = PyLinter(reporter=TestReporter())
         initialize(l)
-        
+
     def test_checker_dep_graphs(self):
         l = self.linter
         l.global_set_option('persistent', False)

@@ -64,11 +64,18 @@ def table_lines_from_stats(stats, old_stats, columns):
 
 class BaseChecker(OptionsProviderMixIn, ASTWalker):
     """base class for checkers"""
-
-    options = ()
-    needs_checkers = ()
+    # checker name (you may reuse an existing one)
     name = None
+    # options level (0 will be displaying in --help, 1 in --long-help)
     level = 1
+    # ordered list of options to control the ckecker behaviour
+    options = ()
+    # checker that should be run before this one
+    needs_checkers = ()
+    # messages issued by this checker
+    msgs = {}
+    # reports issued by this checker
+    reports = ()
 
     def __init__(self, linter=None):
         """checker instances should have the linter as argument

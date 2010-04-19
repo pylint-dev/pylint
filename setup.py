@@ -39,14 +39,6 @@ try:
 except ImportError:
     scripts = []
 try:
-    from __pkginfo__ import data_files
-except ImportError:
-    data_files = None
-try:
-    from __pkginfo__ import ext_modules
-except ImportError:
-    ext_modules = None
-try:
     from __pkginfo__ import install_requires
 except ImportError:
     install_requires = None
@@ -123,7 +115,7 @@ def export(from_dir, to_dir,
             raise
     walk(from_dir, make_mirror, None)
 
-        
+
 def install(**kwargs):
     """setup entry point"""
     kwargs['package_dir'] = {modname : '.'}
@@ -144,10 +136,8 @@ def install(**kwargs):
                  url = web,
                  classifiers = classifiers,
                  scripts = ensure_scripts(scripts),
-                 data_files = data_files,
-                 ext_modules = ext_modules,
                  **kwargs
                  )
-            
+
 if __name__ == '__main__' :
     install()

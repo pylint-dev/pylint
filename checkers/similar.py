@@ -18,8 +18,6 @@
 """
 from __future__ import generators
 
-__revision__ = '$Id: similar.py,v 1.14 2006-03-29 08:24:32 syt Exp $'
-
 import sys
 
 from logilab.common.compat import set, izip, sum, enumerate
@@ -31,7 +29,7 @@ from pylint.checkers import BaseChecker, table_lines_from_stats
 
 class Similar:
     """finds copy-pasted lines of code in a project"""
-    
+
     def __init__(self, min_lines=4, ignore_comments=False,
                  ignore_docstrings=False):
         self.min_lines = min_lines
@@ -45,11 +43,11 @@ class Similar:
                                      stream.readlines(),
                                      self.ignore_comments,
                                      self.ignore_docstrings))
-        
+
     def run(self):
         """start looking for similarities and display results on stdout"""
         self._display_sims(self._compute_sims())
-        
+
     def _compute_sims(self):
         """compute similarities in appended files"""
         no_duplicates = {}
@@ -69,12 +67,12 @@ class Similar:
         sims.sort()
         sims.reverse()
         return sims
-    
+
     def _display_sims(self, sims):
         """display computed similarities on stdout"""
         nb_lignes_dupliquees = 0
         for num, couples in sims:
-            print 
+            print
             print num, "similar lines in", len(couples), "files"
             couples = list(couples)
             couples.sort()
@@ -117,7 +115,7 @@ class Similar:
                         yield num, lineset1, index1, lineset2, index2
                     skip = max(skip, num)
             index1 += skip
-        
+
     def _iter_sims(self):
         """iterate on similarities among all files, by making a cartesian
         product
@@ -156,7 +154,7 @@ class LineSet:
         self._stripped_lines = stripped_lines(lines, ignore_comments,
                                               ignore_docstrings)
         self._index = self._mk_index()
-            
+
     def __str__(self):
         return '<Lineset for %s>' % self.name
 
@@ -168,10 +166,10 @@ class LineSet:
 
     def __cmp__(self, other):
         return cmp(self.name, other.name)
-    
+
     def __hash__(self):
         return id(self)
-    
+
     def enumerate_stripped(self, start_at=0):
         """return an iterator on stripped lines, starting from a given index
         if specified, else 0
@@ -189,7 +187,7 @@ class LineSet:
     def find(self, stripped_line):
         """return positions of the given stripped line in this set"""
         return self._index.get(stripped_line, ())
-    
+
     def _mk_index(self):
         """create the index for this set"""
         index = {}
@@ -219,7 +217,7 @@ class SimilarChecker(BaseChecker, Similar):
     memory / CPU intensive, so you should disable it if you experiments some
     problems.
     """
-    
+
     __implements__ = (IRawChecker,)
     # configuration section name
     name = 'similarities'
@@ -241,37 +239,37 @@ class SimilarChecker(BaseChecker, Similar):
                )
     # reports
     reports = ( ('R0801', 'Duplication', report_similarities), )
-    
+
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         Similar.__init__(self, min_lines=4,
                          ignore_comments=True, ignore_docstrings=True)
         self.stats = None
 
-    def set_option(self, opt_name, value, action=None, opt_dict=None):
+    def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)
 
         overridden to report options setting to Similar
         """
-        BaseChecker.set_option(self, opt_name, value, action, opt_dict)
-        if opt_name == 'min-similarity-lines':
+        BaseChecker.set_option(self, optname, value, action, optdict)
+        if optname == 'min-similarity-lines':
             self.min_lines = self.config.min_similarity_lines
-        elif opt_name == 'ignore-comments':
+        elif optname == 'ignore-comments':
             self.ignore_comments = self.config.ignore_comments
-        elif opt_name == 'ignore-docstrings':
+        elif optname == 'ignore-docstrings':
             self.ignore_docstrings = self.config.ignore_docstrings
-        
+
     def open(self):
         """init the checkers: reset linesets and statistics information"""
         self.linesets = []
         self.stats = self.linter.add_stats(nb_duplicated_lines=0,
                                            percent_duplicated_lines=0)
-        
+
     def process_module(self, stream):
         """process a module
-        
+
         the module's content is accessible via the stream object
-        
+
         stream must implements the readlines method
         """
         self.append_stream(self.linter.current_name, stream)
@@ -306,7 +304,7 @@ def usage(status=0):
     print 'Usage: similar [-d|--duplicates min_duplicated_lines] \
 [--ignore-comments] file1...'
     sys.exit(status)
-    
+
 def run(argv=None):
     """standalone command line access point"""
     if argv is None:

@@ -10,7 +10,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2003-2005 LOGILAB S.A. (Paris, FRANCE).
+""" Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 Raw metrics checker
@@ -27,7 +27,6 @@ from logilab.common.ureports import Table
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseRawChecker, EmptyReport
 from pylint.reporters import diff_string
-
 
 def report_raw_stats(sect, stats, old_stats):
     """calculate percentage of code / doc / comment / empty
@@ -50,7 +49,7 @@ def report_raw_stats(sect, stats, old_stats):
                   str(old), diff_str)
     sect.append(Table(children=lines, cols=5, rheaders=1))
 
- 
+
 class RawMetricsChecker(BaseRawChecker):
     """does not check anything but gives some raw metrics :                    
     * total number of lines                                                    
@@ -59,7 +58,7 @@ class RawMetricsChecker(BaseRawChecker):
     * total number of comments lines                                           
     * total number of empty lines                                              
     """
-    
+
     __implements__ = (IRawChecker,)
 
     # configuration section name
@@ -69,18 +68,18 @@ class RawMetricsChecker(BaseRawChecker):
     # messages
     msgs = {}
     # reports
-    reports = ( ('R0701', 'Raw metrics', report_raw_stats), )
-    
+    reports = ( ('RP0701', 'Raw metrics', report_raw_stats), )
+
     def __init__(self, linter):
         BaseRawChecker.__init__(self, linter)
         self.stats = None
-        
+
     def open(self):
         """init statistics"""
         self.stats = self.linter.add_stats(total_lines=0, code_lines=0,
                                            empty_lines=0, docstring_lines=0,
                                            comment_lines=0)
-        
+
     def process_tokens(self, tokens):
         """update stats"""
         i = 0
@@ -90,12 +89,11 @@ class RawMetricsChecker(BaseRawChecker):
             self.stats['total_lines'] += lines_number
             self.stats[line_type] += lines_number
 
-        
+
 JUNK = (tokenize.NL, tokenize.INDENT, tokenize.NEWLINE, tokenize.ENDMARKER)
 
 def get_type(tokens, start_index):
-    """return the line type : docstring, comment, code, empty
-    """
+    """return the line type : docstring, comment, code, empty"""
     i = start_index
     tok_type = tokens[i][0]
     start = tokens[i][2]
@@ -114,15 +112,14 @@ def get_type(tokens, start_index):
             else:
                 line_type = 'code_lines'
         i += 1
-        
     if line_type is None:
         line_type = 'empty_lines'
     elif i < len(tokens) and tok_type == tokenize.NEWLINE:
         i += 1
     return i, pos[0] - start[0] + 1, line_type
-    
+
 
 def register(linter):
     """ required method to auto register this checker """
     linter.register_checker(RawMetricsChecker(linter))
-                
+

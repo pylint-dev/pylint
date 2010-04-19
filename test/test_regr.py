@@ -43,12 +43,12 @@ class NonRegrTC(TestCase):
         pending messages if a test finished badly
         """
         linter.reporter.finalize()
-        
+
     def test_package___path___manipulation(self):
         linter.check('package.__init__')
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
-        
+
     def test_package___init___precedence(self):
         linter.check('precedence_test')
         got = linter.reporter.finalize().strip()
@@ -134,7 +134,7 @@ class NonRegrTC(TestCase):
             if fname.endswith('_crash.py'):
                 linter.check(join('regrtest_data', fname))
                 linter.reporter.finalize().strip()
-                
+
     def test_try_finally_disable_msg_crash(self):
         linter.check(join('regrtest_data', 'try_finally_disable_msg_crash'))
 
@@ -144,6 +144,6 @@ class NonRegrTC(TestCase):
         messages = linter.reporter.finalize().strip()
         self.failIf('__path__' in messages, messages)
 
-    
+
 if __name__ == '__main__':
     unittest_main()

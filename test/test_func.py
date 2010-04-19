@@ -56,7 +56,7 @@ def exception_str(ex):
     """function used to replace default __str__ method of exception instances"""
     return 'in %s\n:: %s' % (ex.file, ', '.join(ex.args))
 
-class LintTestUsingModule(testlib.TestCase):            
+class LintTestUsingModule(testlib.TestCase):
     DEFAULT_PACKAGE = 'input'
     package = DEFAULT_PACKAGE
     linter = linter
@@ -83,7 +83,7 @@ class LintTestUsingModule(testlib.TestCase):
             tocheck += [self.package+'.%s' % name.replace('.py', '')
                         for name, file in self.depends]
         self._test(tocheck)
-        
+
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
             self.linter.enable('I')
@@ -112,8 +112,8 @@ class LintTestUsingModule(testlib.TestCase):
             #ex.__str__ = new.instancemethod(exception_str, ex, None)
             raise AssertionError('%s: %s' % (self.module, ex)), None, sys.exc_info()[-1]
 
-class LintTestUsingFile(LintTestUsingModule):            
-                
+class LintTestUsingFile(LintTestUsingModule):
+
     _TEST_TYPE = 'file'
 
     def test_functionality(self):
@@ -161,7 +161,7 @@ class TestTests(testlib.TestCase):
 
 def make_tests(filter_rgx):
     """generate tests classes from test info
-    
+
     return the list of generated test classes
     """
     if filter_rgx:
@@ -181,7 +181,7 @@ def make_tests(filter_rgx):
             continue
         base = module_file.replace('func_', '').replace('.py', '')
         dependencies = get_tests_info(base, '.py')
-        
+
         class LintTestUsingModuleTC(LintTestUsingModule):
             module = module_file.replace('.py', '')
             output = messages_file
@@ -191,14 +191,14 @@ def make_tests(filter_rgx):
 
         if MODULES_ONLY:
             continue
-        
+
         class LintTestUsingFileTC(LintTestUsingFile):
             module = module_file.replace('.py', '')
             output = exists(messages_file + '2') and (messages_file + '2') or messages_file
             depends = dependencies or None
             tags = testlib.Tags(('generated', 'pylint_input_%s' % module))
         tests.append(LintTestUsingFileTC)
-        
+
 ##     # special test for f0003
 ##     module_file, messages_file in get_tests_info('func_f0003', '.pyc')
 ##     class LintTestSubclass(LintTest):
@@ -206,16 +206,16 @@ def make_tests(filter_rgx):
 ##         output = messages_file
 ##         depends = dependencies or None
 ##     tests.append(LintTestSubclass)
-            
+
     class LintBuiltinModuleTest(LintTestUsingModule):
         output = 'messages/builtin_module.txt'
         module = 'sys'
         def test_functionality(self):
             self._test(['sys'])
     tests.append(LintBuiltinModuleTest)
-    
+
     if not filter_rgx:
-        # test all features are tested :)    
+        # test all features are tested :)
         tests.append(TestTests)
 
     return tests
@@ -231,8 +231,8 @@ if __name__=='__main__':
     if '-m' in sys.argv:
         MODULES_ONLY = True
         sys.argv.remove('-m')
-    
-    if len(sys.argv) > 1:            
+
+    if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
     testlib.unittest_main(defaultTest='suite')

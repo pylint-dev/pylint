@@ -20,13 +20,15 @@ main pylint class
 
 import sys
 from os import linesep
+from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
+from logilab.common.modutils import modpath_from_file, get_module_files, \
+                                    file_from_modpath
 from logilab.common.textutils import normalize_text
 from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
-from logilab.common.graph import ordered_nodes
 
-from logilab.astng import Module
+from logilab.astng import nodes, Module
 
 from pylint.checkers import EmptyReport
 
@@ -52,14 +54,6 @@ MSG_TYPES_STATUS = {
     'E' : 2,
     'F' : 1
     }
-
-def sort_checkers(checkers):
-    graph = {}
-    cls_instance = {}
-    for checker in checkers:
-        graph[cube.__class__] = set(checker.needs_checkers)
-        cls_instance[cube.__class__] = checker
-    return [cls_instance.get(cls) for cls in ordered_nodes(graph)]
 
 def sort_msgs(msgids):
     """sort message identifiers according to their category first"""
@@ -331,15 +325,8 @@ class MessagesHandlerMixIn:
 
     def list_messages(self):
         """output full messages list documentation in ReST format"""
-        for checker in sort_checkers(self._checkers.values()):
-            if checker.msgs:
-                self.list_checkers_messages( checker)
-        print
-
-    def list_sorted_messages(self):
-        """output full sorted messages list in ReST format"""
         msgids = []
-        for checker in self._checkers.values():
+        for checker in self.sort_checkers():
             for msgid in checker.msgs.keys():
                 msgids.append(msgid)
         msgids.sort()
@@ -356,32 +343,32 @@ class ReportsHandlerMixIn:
         self._reports = {}
         self._reports_state = {}
 
-    def register_report(self, r_id, r_title, r_cb, checker):
+    def register_report(self, reportid, r_title, r_cb, checker):
         """register a report
 
-        r_id is the unique identifier for the report
+        reportid is the unique identifier for the report
         r_title the report's title
         r_cb the method to call to make the report
         checker is the checker defining the report
         """
-        r_id = r_id.upper()
-        self._reports.setdefault(checker, []).append( (r_id, r_title, r_cb) )
+        reportid = reportid.upper()
+        self._reports.setdefault(checker, []).append( (reportid, r_title, r_cb) )
 
-    def enable_report(self, r_id):
+    def enable_report(self, reportid):
         """disable the report of the given id"""
-        r_id = r_id.upper()
-        self._reports_state[r_id] = True
+        reportid = reportid.upper()
+        self._reports_state[reportid] = True
 
-    def disable_report(self, r_id):
+    def disable_report(self, reportid):
         """disable the report of the given id"""
-        r_id = r_id.upper()
-        self._reports_state[r_id] = False
+        reportid = reportid.upper()
+        self._reports_state[reportid] = False
 
-    def is_report_enabled(self, r_id):
+    def is_report_enabled(self, reportid):
         """return true if the report associated to the given identifier is
         enabled
         """
-        return self._reports_state.get(r_id, True)
+        return self._reports_state.get(reportid, True)
 
     def make_reports(self, stats, old_stats):
         """render registered reports"""
@@ -390,18 +377,18 @@ class ReportsHandlerMixIn:
             self.reporter.set_output(open(filename, 'w'))
         sect = Section('Report',
                        '%s statements analysed.'% (self.stats['statement']))
-        checkers = sort_checkers(self._reports.keys())
+        checkers = self.sort_checkers(self._reports)
         checkers.reverse()
         for checker in checkers:
-            for r_id, r_title, r_cb in self._reports[checker]:
-                if not self.is_report_enabled(r_id):
+            for reportid, r_title, r_cb in self._reports[checker]:
+                if not self.is_report_enabled(reportid):
                     continue
                 report_sect = Section(r_title)
                 try:
                     r_cb(report_sect, stats, old_stats)
                 except EmptyReport:
                     continue
-                report_sect.report_id = r_id
+                report_sect.report_id = reportid
                 sect.append(report_sect)
         self.reporter.display_results(sect)
 
@@ -416,11 +403,6 @@ class ReportsHandlerMixIn:
             self.stats[key] = value
         return self.stats
 
-###     ###     - - - -   import utils    - - - -     ###     ###
-
-from os.path import dirname, basename, splitext, exists, isdir, join, normpath
-from logilab.common.modutils import modpath_from_file, get_module_files, \
-                                    file_from_modpath
 
 def expand_modules(files_or_modules, black_list):
     """take a list of files/modules/packages and return the list of tuple
@@ -462,3 +444,59 @@ def expand_modules(files_or_modules, black_list):
                 result.append( {'path': subfilepath, 'name': submodname,
                                 'basepath': filepath, 'basename': modname} )
     return result, errors
+
+
+class PyLintASTWalker(object):
+    def __init__(self):
+        # callbacks per node types
+        self.visit_events = {}
+        self.leave_events = {}
+
+    def add_checker(self, checker):
+        hasvdefault = False
+        vcids = set()
+        hasldefault = False
+        lcids = set()
+        for member in dir(checker):
+            if member.startswith('visit_'):
+                cid = member[6:]
+                if cid != 'default':
+                    cbs = self.visit_events.setdefault(cid, [])
+                    cbs.append(getattr(checker, member))
+                    vcids.add(cid)
+                else:
+                    hasvdefault = getattr(checker, member)
+            elif member.startswith('leave_'):
+                cid = member[6:]
+                if cid != 'default':
+                    cbs = self.leave_events.setdefault(cid, [])
+                    cbs.append(getattr(checker, member))
+                    lcids.add(cid)
+                else:
+                    hasldefault = getattr(checker, member)
+        if hasvdefault:
+            for cls in nodes.ALL_NODE_CLASSES:
+                cid = cls.__name__.lower()
+                if cid not in vcids:
+                    cbs = self.visit_events.setdefault(cid, [])
+                    cbs.append(hasvdefault)
+        if hasldefault:
+            for cls in nodes.ALL_NODE_CLASSES:
+                cid = cls.__name__.lower()
+                if cid not in lcids:
+                    cbs = self.leave_events.setdefault(cid, [])
+                    cbs.append(hasldefault)
+
+    def walk(self, astng):
+        """call visit events of astng checkers for the given node, recurse on
+        its children, then leave events.
+        """
+        cid = astng.__class__.__name__.lower()
+        # generate events for this node on each checker
+        for cb in self.visit_events.get(cid, ()):
+            cb(astng)
+        # recurse on children
+        for child in astng.get_children():
+            self.walk(child)
+        for cb in self.leave_events.get(cid, ()):
+            cb(astng)

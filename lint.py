@@ -34,6 +34,7 @@ import sys
 import os
 import re
 import tokenize
+from warnings import warn
 
 from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
 from logilab.common.optik_ext import check_csv
@@ -42,13 +43,14 @@ from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip
 from logilab.common.fileutils import norm_open
 from logilab.common.ureports import Table, Text, Section
+from logilab.common.graph import ordered_nodes
 from logilab.common.__pkginfo__ import version as common_version
 
 from logilab.astng import MANAGER, nodes
 from logilab.astng.__pkginfo__ import version as astng_version
 
-from pylint.utils import UnknownMessage, MessagesHandlerMixIn, \
-     ReportsHandlerMixIn, MSG_TYPES, sort_checkers, expand_modules
+from pylint.utils import PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,\
+     ReportsHandlerMixIn, MSG_TYPES, expand_modules
 from pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker, EmptyReport, \
      table_lines_from_stats
@@ -66,6 +68,7 @@ REPORTER_OPT_MAP = {'text': TextReporter,
                     'msvs': VSTextReporter,
                     'colorized': ColorizedTextReporter,
                     'html': HTMLReporter,}
+
 
 # Python Linter class #########################################################
 
@@ -112,61 +115,6 @@ MSGS = {
     }
 
 
-class PyLintASTWalker(object):
-    def __init__(self):
-        # callbacks per node types
-        self.visit_events = {}
-        self.leave_events = {}
-
-    def add_checker(self, checker):
-        hasvdefault = False
-        vcids = set()
-        hasldefault = False
-        lcids = set()
-        for member in dir(checker):
-            if member.startswith('visit_'):
-                cid = member[6:]
-                if cid != 'default':
-                    cbs = self.visit_events.setdefault(cid, [])
-                    cbs.append(getattr(checker, cid))
-                    vcids.add(cid)
-                else:
-                    hasvdefault = getattr(checker, cid)
-            if member.startswith('leave_'):
-                if cid != 'default':
-                    cbs = self.leave_events.setdefault(cid, [])
-                    cbs.append(getattr(checker, cid))
-                    lcids.add(cid)
-                else:
-                    hasldefault = getattr(checker, cid)
-        if hasvdefault:
-            for cls in nodes.ALL_NODE_CLASSES:
-                cid = cls.__name__.lower()
-                if cid not in vcids:
-                    cbs = self.visit_events.setdefault(cid, [])
-                    cbs.append(getattr(checker, hasvdefault))
-        if hasldefault:
-            for cls in nodes.ALL_NODE_CLASSES:
-                cid = cls.__name__.lower()
-                if cid not in lcids:
-                    cbs = self.leave_events.setdefault(cid, [])
-                    cbs.append(getattr(checker, hasldefault))
-
-    def walk(self, astng):
-        """call visit events of astng checkers for the given node, recurse on
-        its children, then leave events.
-        """
-        cid = node.__class__.__name__.lower()
-        # generate events for this node on each checker
-        for cb in self.visit_events.get(cid, ()):
-            cb(astng)
-        # recurse on children
-        for child in astng.get_children():
-            self.walk(child)
-        for cb in self.leave_events.get(cid, ()):
-            cb(astng)
-
-
 class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                BaseRawChecker):
     """lint Python modules using external checkers.
@@ -178,7 +126,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     * handle some basic but necessary stats'data (number of classes, methods...)
     """
 
-    __implements__ = (ILinter, IRawChecker, IASTNGChecker)
+    __implements__ = (ILinter, IRawChecker)
 
     name = 'master'
     priority = 0
@@ -199,6 +147,7 @@ should be a base name, not a path. You may set this option multiple times.'}),
 
                ('load-plugins',
                 {'type' : 'csv', 'metavar' : '<modules>', 'default' : (),
+                 'level': 1,
                  'help' : 'List of plugins (as comma separated values of \
 python modules names) to load, usually to register additional checkers.'}),
 
@@ -243,7 +192,7 @@ warning, statement which respectively contain the number of errors / warnings\
 
                ('comment',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'group': 'Reports',
+                 'group': 'Reports', 'level': 1,
                  'help' : 'Add a comment according to your evaluation note. \
 This is used by the global evaluation report (R0004).'}),
 
@@ -338,26 +287,31 @@ This is used by the global evaluation report (R0004).'}),
         self.reporter = reporter
         reporter.linter = self
 
-    def set_option(self, opt_name, value, action=None, opt_dict=None):
+    def set_option(self, optname, value, action=None, optdict=None):
         """overridden from configuration.OptionsProviderMixin to handle some
         special options
         """
-        if opt_name in self._options_methods:
+        if optname in self._options_methods or optname in self._bw_options_methods:
             if value:
-                meth = self._options_methods[opt_name]
-                value = check_csv(None, opt_name, value)
+                try:
+                    meth = self._options_methods[optname]
+                except KeyError:
+                    meth = self._bw_options_methods[optname]
+                    warn('%s is deprecated, replace it by %s' % (
+                        optname, optname.split('-')[0]), DeprecationWarning)
+                value = check_csv(None, optname, value)
                 if isinstance(value, (list, tuple)):
                     for _id in value :
                         meth(_id)
                 else :
                     meth(value)
-        elif opt_name == 'output-format':
+        elif optname == 'output-format':
             self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
         try:
-            BaseRawChecker.set_option(self, opt_name, value, action, opt_dict)
+            BaseRawChecker.set_option(self, optname, value, action, optdict)
         except UnsupportedAction:
             print >> sys.stderr, 'option %s can\'t be read from config file' % \
-                  opt_name
+                  optname
 
     # checkers manipulation methods ############################################
 
@@ -380,10 +334,10 @@ This is used by the global evaluation report (R0004).'}),
         for msgcat, msgids in self._msgs_by_category.iteritems():
             if msgcat == 'E':
                 for msgid in msgids:
-                    self.enable_message(msgid)
+                    self.enable(msgid)
             else:
                 for msgid in msgids:
-                    self.disable_message(msgid)
+                    self.disable(msgid)
 
     # block level option handling #############################################
     #
@@ -395,12 +349,9 @@ This is used by the global evaluation report (R0004).'}),
         """
         comment = tokenize.COMMENT
         newline = tokenize.NEWLINE
-        #line_num = 0
         for (tok_type, _, start, _, line) in tokens:
             if tok_type not in (comment, newline):
                 continue
-            #if start[0] == line_num:
-            #    continue
             match = OPTION_RGX.search(line)
             if match is None:
                 continue
@@ -415,9 +366,14 @@ This is used by the global evaluation report (R0004).'}),
                                  line=start[0])
                 continue
             opt = opt.strip()
-            #line_num = start[0]
-            if opt in self._options_methods and not opt.endswith('-report'):
-                meth = self._options_methods[opt]
+            if opt in self._options_methods or opt in self._bw_options_methods:
+                try:
+                    meth = self._options_methods[opt]
+                except KeyError:
+                    meth = self._bw_options_methods[opt]
+                    warn('%s is deprecated, replace it by %s (%s)' % (
+                        opt, opt.split('-')[0], self.current_file),
+                         DeprecationWarning)
                 for msgid in splitstrip(value):
                     try:
                         meth(msgid, 'module', start[0])
@@ -433,7 +389,7 @@ This is used by the global evaluation report (R0004).'}),
             self.collect_block_lines(child, msg_state)
         first = node.fromlineno
         last = node.tolineno
-        # first child line number used to distinguish between disable-msg
+        # first child line number used to distinguish between disable
         # which are the first child of scoped node with those defined later.
         # For instance in the code below:
         #
@@ -473,6 +429,36 @@ This is used by the global evaluation report (R0004).'}),
 
     # code checking methods ###################################################
 
+    def sort_checkers(self, checkers=None):
+        if checkers is None:
+            checkers = [checker for checkers in self._checkers.values()
+                        for checker in checkers]
+        graph = {}
+        cls_instance = {}
+        for checker in checkers:
+            graph[checker.__class__] = set(checker.needs_checkers)
+            cls_instance[checker.__class__] = checker
+        checkers = [cls_instance.get(cls) for cls in ordered_nodes(graph)]
+        checkers.remove(self)
+        checkers.insert(0, self)
+        return checkers
+
+    def _get_checkers(self):
+        # compute checkers needed according to activated messages and reports
+        neededcheckers = set()
+        for checkers in self._checkers.values():
+            for checker in checkers:
+                for msgid in checker.msgs:
+                    if self._msgs_state.get(msgid, True):
+                        neededcheckers.add(checker)
+                        break
+                else:
+                    for reportid, _, _ in checker.reports:
+                        if self.is_report_enabled(reportid):
+                            neededcheckers.add(checker)
+                            break
+        return self.sort_checkers(neededcheckers)
+
     def check(self, files_or_modules):
         """main checking entry: check a list of files or modules from their
         name.
@@ -480,17 +466,11 @@ This is used by the global evaluation report (R0004).'}),
         self.reporter.include_ids = self.config.include_ids
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
+        checkers = self._get_checkers()
+        #print 'checkers', checkers
         rawcheckers = []
         walker = PyLintASTWalker()
-        #
-        neededcheckers = set()
-        for checker in self._checkers.values():
-            for msgid in checker.msgs:
-                if self._msgs_state.get(msgid, True):
-                    neededcheckers.add(checker)
-                    break
         # notify global begin
-        checkers = sort_checkers(neededcheckers)
         for checker in checkers:
             checker.open()
             if implements(checker, IASTNGChecker):
@@ -700,7 +680,6 @@ def report_messages_by_module_stats(sect, stats, _):
     if len(lines) == 5:
         raise EmptyReport()
     sect.append(Table(children=lines, cols=5, rheaders=1))
-
 
 
 # utilities ###################################################################
@@ -919,22 +898,22 @@ been issued by analysing pylint output status code
         self.linter.generate_manpage(__pkginfo__)
         sys.exit(0)
 
-    def cb_help_message(self, option, opt_name, value, parser):
+    def cb_help_message(self, option, optname, value, parser):
         """optik callback for printing some help about a particular message"""
         self.linter.help_message(splitstrip(value))
         sys.exit(0)
 
-    def cb_full_documentation(self, option, opt_name, value, parser):
+    def cb_full_documentation(self, option, optname, value, parser):
         """optik callback for printing full documentation"""
         self.linter.print_full_documentation()
         sys.exit(0)
 
-    def cb_list_messages(self, option, opt_name, value, parser): # FIXME
+    def cb_list_messages(self, option, optname, value, parser): # FIXME
         """optik callback for printing available messages"""
-        self.linter.list_sorted_messages()
+        self.linter.list_messages()
         sys.exit(0)
 
-def cb_init_hook(option, opt_name, value, parser):
+def cb_init_hook(option, optname, value, parser):
     """exec arbitrary code to set sys.path for instance"""
     exec value
 

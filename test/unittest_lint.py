@@ -22,8 +22,9 @@ from cStringIO import StringIO
 from logilab.common.testlib import TestCase, unittest_main, create_files
 from logilab.common.compat import sorted
 
-from pylint.config import get_note_message
-from pylint.lint import PyLinter, Run, sort_checkers, UnknownMessage
+
+from pylint import config
+from pylint.lint import PyLinter, Run, UnknownMessage
 from pylint.utils import sort_msgs
 from pylint import checkers
 
@@ -48,11 +49,11 @@ class GetNoteMessageTC(TestCase):
     def test(self):
         msg = None
         for note in range(-1, 11):
-            note_msg = get_note_message(note)
+            note_msg = config.get_note_message(note)
             self.assertNotEquals(msg, note_msg)
             msg = note_msg
         if optimized:
-            self.assertRaises(AssertionError, get_note_message, 11)
+            self.assertRaises(AssertionError, config.get_note_message, 11)
 
 
 HERE = abspath(dirname(__file__))
@@ -80,7 +81,7 @@ class PyLinterTC(TestCase):
 
     def setUp(self):
         self.linter = PyLinter()
-        self.linter.disable_message_category('I')
+        self.linter.disable('I')
         self.linter.config.persistent = 0
         # register checkers
         checkers.initialize(self.linter)
@@ -97,15 +98,15 @@ class PyLinterTC(TestCase):
         linter.set_current_module('toto')
         self.assert_(linter.is_message_enabled('W0101'))
         self.assert_(linter.is_message_enabled('W0102'))
-        linter.disable_message('W0101', scope='package')
-        linter.disable_message('W0102', scope='module', line=1)
+        linter.disable('W0101', scope='package')
+        linter.disable('W0102', scope='module', line=1)
         self.assert_(not linter.is_message_enabled('W0101'))
         self.assert_(not linter.is_message_enabled('W0102', 1))
         linter.set_current_module('tutu')
         self.assert_(not linter.is_message_enabled('W0101'))
         self.assert_(linter.is_message_enabled('W0102'))
-        linter.enable_message('W0101', scope='package')
-        linter.enable_message('W0102', scope='module', line=1)
+        linter.enable('W0101', scope='package')
+        linter.enable('W0102', scope='module', line=1)
         self.assert_(linter.is_message_enabled('W0101'))
         self.assert_(linter.is_message_enabled('W0102', 1))
 
@@ -114,18 +115,20 @@ class PyLinterTC(TestCase):
         linter.open()
         linter.set_current_module('toto')
         self.assert_(linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('R0102'))
-        linter.disable_message_category('W', scope='package')
-        linter.disable_message_category('R', scope='module')
+        self.assert_(linter.is_message_enabled('C0121'))
+        linter.disable('W', scope='package')
+        linter.disable('C', scope='module', line=1)
         self.assert_(not linter.is_message_enabled('W0101'))
-        self.assert_(not linter.is_message_enabled('R0102'))
+        self.assert_(linter.is_message_enabled('C0121'))
+        self.assert_(not linter.is_message_enabled('C0121', line=1))
         linter.set_current_module('tutu')
         self.assert_(not linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('R0102'))
-        linter.enable_message_category('W', scope='package')
-        linter.enable_message_category('R', scope='module')
+        self.assert_(linter.is_message_enabled('C0121'))
+        linter.enable('W', scope='package')
+        linter.enable('C', scope='module', line=1)
         self.assert_(linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('R0102'))
+        self.assert_(linter.is_message_enabled('C0121'))
+        self.assert_(linter.is_message_enabled('C0121', line=1))
 
     def test_enable_message_block(self):
         linter = self.linter
@@ -194,41 +197,32 @@ class PyLinterTC(TestCase):
                 pass
 
     def test_enable_report(self):
-        self.assertEquals(self.linter.is_report_enabled('R0001'), True)
-        self.linter.disable_report('R0001')
-        self.assertEquals(self.linter.is_report_enabled('R0001'), False)
-        self.linter.enable_report('R0001')
-        self.assertEquals(self.linter.is_report_enabled('R0001'), True)
+        self.assertEquals(self.linter.is_report_enabled('RP0001'), True)
+        self.linter.disable('RP0001')
+        self.assertEquals(self.linter.is_report_enabled('RP0001'), False)
+        self.linter.enable('RP0001')
+        self.assertEquals(self.linter.is_report_enabled('RP0001'), True)
 
     def test_set_option_1(self):
         linter = self.linter
-        linter.set_option('disable-msg', 'C0111,W0142')
+        linter.set_option('disable', 'C0111,W0142')
         self.assert_(not linter.is_message_enabled('C0111'))
         self.assert_(not linter.is_message_enabled('W0142'))
         self.assert_(linter.is_message_enabled('W0113'))
 
     def test_set_option_2(self):
         linter = self.linter
-        linter.set_option('disable-msg', ('C0111', 'W0142') )
+        linter.set_option('disable', ('C0111', 'W0142') )
         self.assert_(not linter.is_message_enabled('C0111'))
         self.assert_(not linter.is_message_enabled('W0142'))
         self.assert_(linter.is_message_enabled('W0113'))
 
-    def test_enable_checkers1(self):
-        self.linter.enable_checkers(['design'], False)
-        self.assertEquals(sorted([c.name for c in self.linter._checkers.values()
-                                  if c.is_enabled()]),
-                          ['basic', 'classes', 'exceptions', 'format', 'imports',
-                           'logging', 'master', 'metrics', 'miscellaneous', 'newstyle',
-                           'similarities', 'string_format', 'typecheck', 'variables'])
+    def test_enable_checkers(self):
+        self.linter.disable('design')
+        self.failIf('design' in set([c.name for c in self.linter._get_checkers()]))
+        self.linter.enable('design')
+        self.failUnless('design' in set([c.name for c in self.linter._get_checkers()]))
 
-    def test_enable_checkers2(self):
-        self.linter.enable_checkers(['design'], True)
-        self.assertEquals(sorted([c.name for c in self.linter._checkers.values()
-                           if c.is_enabled()]),
-                          ['design', 'master'])
-
-from pylint import config
 
 class ConfigTC(TestCase):
 
