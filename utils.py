@@ -162,6 +162,11 @@ class MessagesHandlerMixIn:
                 for msgid in checker.msgs:
                     self.disable(msgid, scope, line)
             return
+        # msgid is report id?
+        if msgid.lower().startswith('rp'):
+            self.disable_report(msgid)
+            return
+        # msgid is a msgid.
         msg = self.check_message_id(msgid)
         if scope == 'module':
             assert line > 0
@@ -190,7 +195,13 @@ class MessagesHandlerMixIn:
             return
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
-            self._activate_checker_msgs(msgid.lower(), True)
+            for checker in self._checkers[msgid.lower()]:
+                for msgid in checker.msgs:
+                    self.enable(msgid, scope, line)
+            return
+        # msgid is report id?
+        if msgid.lower().startswith('rp'):
+            self.enable_report(msgid)
             return
         # msgid is a msgid.
         msg = self.check_message_id(msgid)

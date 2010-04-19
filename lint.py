@@ -196,27 +196,17 @@ warning, statement which respectively contain the number of errors / warnings\
                  'help' : 'Add a comment according to your evaluation note. \
 This is used by the global evaluation report (R0004).'}),
 
-               ('enable-report',
-                {'type' : 'csv', 'metavar': '<rpt ids>',
-                 'group': 'Reports',
-                 'help' : 'Enable the report(s) with the given id(s).'}),
-
-               ('disable-report',
-                {'type' : 'csv', 'metavar': '<rpt ids>',
-                 'group': 'Reports',
-                 'help' : 'Disable the report(s) with the given id(s).'}),
-
                ('enable',
                 {'type' : 'csv', 'metavar': '<msg ids>',
                  'group': 'Messages control',
-                 'help' : 'Enable the message or category or checker with the '
+                 'help' : 'Enable the message, report, category or checker with the '
                  'given id(s). You can either give multiple identifier '
                  'separated by comma (,) or put this option multiple time.'}),
 
                ('disable',
                 {'type' : 'csv', 'metavar': '<msg ids>',
                  'group': 'Messages control',
-                 'help' : 'Disable themessage or category or checker with the '
+                 'help' : 'Disable the message, report, category or checker with the '
                  'given id(s). You can either give multiple identifier '
                  'separated by comma (,) or put this option multiple time.'}),
                )
@@ -244,10 +234,10 @@ This is used by the global evaluation report (R0004).'}),
         self.options = options + PyLinter.options
         self.option_groups = option_groups + PyLinter.option_groups
         self._options_methods = {
-            'enable-report': self.enable_report,
-            'disable-report': self.disable_report,
-            'enable-msg': self.enable_message,
-            'disable-msg': self.disable_message}
+            'enable': self.enable,
+            'disable': self.disable}
+        self._bw_options_methods = {'disable-msg': self.disable,
+                                    'enable-msg': self.enable}
         full_version = '%%prog %s, \nastng %s, common %s\nPython %s' % (
             version, astng_version, common_version, sys.version)
         OptionsManagerMixIn.__init__(self, usage=__doc__,
@@ -257,13 +247,13 @@ This is used by the global evaluation report (R0004).'}),
         ReportsHandlerMixIn.__init__(self)
         BaseRawChecker.__init__(self)
         # provided reports
-        self.reports = (('R0001', 'Messages by category',
+        self.reports = (('RP0001', 'Messages by category',
                          report_total_messages_stats),
-                        ('R0002', '% errors / warnings by module',
+                        ('RP0002', '% errors / warnings by module',
                          report_messages_by_module_stats),
-                        ('R0003', 'Messages',
+                        ('RP0003', 'Messages',
                          report_messages_stats),
-                        ('R0004', 'Global evaluation',
+                        ('RP0004', 'Global evaluation',
                          self.report_evaluation),
                         )
         self.register_checker(self)
