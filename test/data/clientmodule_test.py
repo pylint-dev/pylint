@@ -4,6 +4,7 @@ from data.suppliermodule_test import Interface, DoNothing
 class Ancestor(object):
     """ Ancestor method """
     __implements__ = (Interface,)
+    cls_member = DoNothing()
 
     def __init__(self, value):
         local_variable = 0

@@ -122,9 +122,10 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
                                     {'node': True, 'name': 'Specialization'}]
                           )
 
-    _should_rels = [('association', 'DoNothing', 'Specialization'),
-                  ('implements', 'Ancestor', 'Interface'),
-                  ('specialization', 'Specialization', 'Ancestor')]
+    _should_rels = [('association', 'DoNothing', 'Ancestor'),
+                    ('association', 'DoNothing', 'Specialization'),
+                    ('implements', 'Ancestor', 'Interface'),
+                    ('specialization', 'Specialization', 'Ancestor')]
     def test_exctract_relations(self):
         """test extract_relations between classes"""
         cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
