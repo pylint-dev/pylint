@@ -721,7 +721,7 @@ class Run:
 group are mutually exclusive.'),
         )
 
-    def __init__(self, args, reporter=None):
+    def __init__(self, args, reporter=None, exit=True):
         self._rcfile = None
         self._plugins = []
         preprocess_options(args, {
@@ -855,7 +855,8 @@ been issued by analysing pylint output status code
         else:
             linter.check(args)
         sys.path.pop(0)
-        sys.exit(self.linter.msg_status)
+        if exit:
+            sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):
         """callback for option preprocessing (i.e. before optik parsing)"""
