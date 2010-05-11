@@ -488,6 +488,7 @@ This is used by the global evaluation report (R0004).'}),
             self.check_astng_module(astng, walker, rawcheckers)
         # notify global end
         self.set_current_module('')
+        self.stats['statement'] = walker.nbstatements
         checkers.reverse()
         for checker in checkers:
             checker.close()
@@ -568,7 +569,6 @@ This is used by the global evaluation report (R0004).'}),
         """initialize counters"""
         self.stats = { 'by_module' : {},
                        'by_msg' : {},
-                       'statement' : 0
                        }
         for msg_cat in MSG_TYPES.values():
             self.stats[msg_cat] = 0

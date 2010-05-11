@@ -462,6 +462,7 @@ def expand_modules(files_or_modules, black_list):
 class PyLintASTWalker(object):
     def __init__(self):
         # callbacks per node types
+        self.nbstatements = 1
         self.visit_events = {}
         self.leave_events = {}
 
@@ -505,6 +506,8 @@ class PyLintASTWalker(object):
         its children, then leave events.
         """
         cid = astng.__class__.__name__.lower()
+        if astng.is_statement:
+            self.nbstatements += 1
         # generate events for this node on each checker
         for cb in self.visit_events.get(cid, ()):
             cb(astng)
