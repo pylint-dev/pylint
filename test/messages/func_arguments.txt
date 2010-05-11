@@ -5,8 +5,6 @@ E: 22: No value passed for parameter 'first_argument' in function call
 E: 22: No value passed for parameter 'second_argument' in function call
 E: 22: No value passed for parameter 'third_argument' in function call
 E: 24: Too many positional arguments for function call
-E: 28: Duplicate keyword argument 'two' in function call
-E: 29: Duplicate keyword argument 'one' in function call
 E: 31: No value passed for parameter 'first_argument' in function call
 E: 31: Passing unexpected keyword argument 'bob' in function call
 E: 32: Passing unexpected keyword argument 'coin' in function call

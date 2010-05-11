@@ -25,8 +25,8 @@ function_3_args('bab', 'bebe', None, 5.6)
 
 function_default_arg(1, two=5)
 function_default_arg(two=5)
-function_default_arg(two=5, two=7)
-function_default_arg(two=5, one=7, one='bob')
+# repeated keyword is syntax error in python >= 2.6:
+# tests are moved to func_keyword_repeat_py25- / func_keyword_repeat_py26
 
 function_1_arg(bob=4)
 function_default_arg(1, 4, coin="hello")

@@ -38,8 +38,7 @@ checkers.initialize(linter)
 linter.global_set_option('required-attributes', ('__revision__',))
 
 PY23 = sys.version_info >= (2, 3)
-PY24 = sys.version_info >= (2, 4)
-PY25 = sys.version_info >= (2, 5)
+PY26 = sys.version_info >= (2, 6)
 
 
 if linesep != '\n':
@@ -135,8 +134,8 @@ class TestTests(testlib.TestCase):
             except ValueError:
                 continue
         todo.sort()
-        if PY25:
-            self.assertEqual(todo, ['E0503', 'I0001'])
+        if PY26:
+            self.assertEqual(todo, ['E0503', 'E1122', 'I0001'])
         elif PY23:
             self.assertEqual(todo, ['E0503', 'I0001'])
         else: # python < 2.3
@@ -176,6 +175,10 @@ def make_tests(filter_rgx):
         pyrestr = module_file.rsplit('_py', 1)[-1][:-3]
         if pyrestr.isdigit(): # '24', '25'...
             if sys.version_info < tuple([int(i) for i in pyrestr]):
+                continue
+        if pyrestr.startswith('_') and  pyrestr[1:].isdigit():
+            # skip test for higher python versions
+            if sys.version_info >= ( int(pyrestr[1]), int(pyrestr[2]) ):
                 continue
         if not is_to_run(module_file):
             continue
