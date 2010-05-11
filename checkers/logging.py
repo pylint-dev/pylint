@@ -94,5 +94,5 @@ class LoggingChecker(checkers.BaseChecker):
             self.add_message(EAGER_STRING_INTERPOLATION, node=node)
 
 def register(linter):
-  """Required method to auto-register this checker."""
-  linter.register_checker(LoggingChecker(linter))
+    """Required method to auto-register this checker."""
+    linter.register_checker(LoggingChecker(linter))
