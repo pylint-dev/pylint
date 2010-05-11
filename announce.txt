@@ -1,6 +1,4 @@
-What's new ?
-------------
-%(CHANGELOG)s
+Hi there!
 
 
 What is pylint ?
@@ -19,8 +17,8 @@ plugin to add a personal feature.
 
 The usage it quite simple :
 
-$ pylint mypackage.mymodule
-        
+  $ pylint mypackage.mymodule
+
 
 This command will output all the errors and warnings related to the
 tested code (here : mypackage.mymodule), will dump a little summary at
@@ -31,12 +29,18 @@ Pylint is free software distributed under the GNU Public Licence.
 
 Home page
 ---------
-%(WEB)s
+http://www.logilab.org/project/pylint
+http://www.logilab.org/project/logilab-astng
 
 Download
 --------
-%(FTP)s
+http://www.logilab.org/ftp/pub/pylint
+http://www.logilab.org/ftp/pub/logilab/astng
 
 Mailing list
 ------------
-%(MAILINGLIST)s
+python-projects@logilab.org (moderated)
+
+Register, archive on http://lists.logilab.org/mailman/listinfo/python-projects
+
+Enjoy!
