@@ -198,6 +198,7 @@ This is used by the global evaluation report (R0004).'}),
 
                ('enable',
                 {'type' : 'csv', 'metavar': '<msg ids>',
+                 'short': 'e',
                  'group': 'Messages control',
                  'help' : 'Enable the message, report, category or checker with the '
                  'given id(s). You can either give multiple identifier '
@@ -205,6 +206,7 @@ This is used by the global evaluation report (R0004).'}),
 
                ('disable',
                 {'type' : 'csv', 'metavar': '<msg ids>',
+                 'short': 'd',
                  'group': 'Messages control',
                  'help' : 'Disable the message, report, category or checker with the '
                  'given id(s). You can either give multiple identifier '
@@ -772,7 +774,7 @@ them in the generated configuration.'''}),
 
             ('errors-only',
              {'action' : 'callback', 'callback' : self.cb_error_mode,
-              'short': 'e',
+              'short': 'E',
               'help' : '''In error mode, checkers without error messages are \
 disabled and for others, only the ERROR messages are displayed, and no reports \
 are done by default'''}),
