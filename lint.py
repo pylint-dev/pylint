@@ -823,7 +823,7 @@ been issued by analysing pylint output status code
         linter.disable('W0704')
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
-        config_parser = linter._config_parser
+        config_parser = linter.cfgfile_parser
         if config_parser.has_option('MASTER', 'load-plugins'):
             plugins = splitstrip(config_parser.get('MASTER', 'load-plugins'))
             linter.load_plugin_modules(plugins)
