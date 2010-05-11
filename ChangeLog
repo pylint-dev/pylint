@@ -2,14 +2,22 @@ ChangeLog for PyLint
 ====================
 
  --
-
+   * command line updated (closes #9774, #9787, #9992, #22962):
+     * all enable-* / disable-* options have been merged into --enable / --disable
+     * BACKWARD INCOMPATIBLE CHANGE: short name of --errors-only becomes -E, -e being
+       affected to --enable
+     * pylint --help output much simplified, with --long-help available to get the
+       complete one
+   * revisited gui, thanks to students from Toronto university (they are great
+     contributors to this release!)
    * fix #21591: html reporter produces no output if reports is set to 'no'
    * fix #4581: not Missing docstring (C0111) warning if a method is overridden
    * fix #4683: Non-ASCII characters count double if utf8 encode
    * fix #9018: when using defining-attr-method, method order matters
    * fix #4595: Comma not followed by a space should not occurs on trailing comma 
      in list/tuple/dict definition
-
+   * fix #22585: [Patch] fix man warnings for pyreverse.1 manpage
+   * fix #20067: AttributeError: 'NoneType' object has no attribute 'name' with with
 
 2010-03-01  --  0.20.0
     * fix #19498: fix windows batch file

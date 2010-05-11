@@ -1,3 +1,9 @@
+pylint (0.21.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Tue, 11 May 2010 12:27:09 +0200
+
 pylint (0.20.0-1) unstable; urgency=low
 
   * new upstream release
