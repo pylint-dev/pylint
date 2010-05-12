@@ -1,6 +1,9 @@
 ChangeLog for PyLint
 ====================
 
+-- 
+    * fix #28962: pylint crash with new options, due to missing stats data while writing the Statistics by types report
+
 2010-05-11  --  0.21.0
     * command line updated (closes #9774, #9787, #9992, #22962):
 

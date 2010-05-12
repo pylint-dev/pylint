@@ -13,8 +13,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""basic checker for Python code
-"""
+"""basic checker for Python code"""
 
 
 from logilab import astng
@@ -24,7 +23,7 @@ from logilab.astng import are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.reporters import diff_string
-from pylint.checkers import BaseChecker
+from pylint.checkers import BaseChecker, EmptyReport
 
 
 import re
@@ -70,18 +69,23 @@ def report_by_type_stats(sect, stats, old_stats):
     # percentage of different types documented and/or with a bad name
     nice_stats = {}
     for node_type in ('module', 'class', 'method', 'function'):
+        try:
+            total = stats[node_type]
+        except KeyError:
+            raise EmptyReport()
         nice_stats[node_type] = {}
-        total = stats[node_type]
-        if total == 0:
-            doc_percent = 0
-            badname_percent = 0
-        else:
-            documented = total - stats['undocumented_'+node_type]
-            doc_percent = float((documented)*100) / total
-            badname_percent = (float((stats['badname_'+node_type])*100)
-                               / total)
-        nice_stats[node_type]['percent_documented'] = doc_percent
-        nice_stats[node_type]['percent_badname'] = badname_percent
+        if total != 0:
+            try:
+                documented = total - stats['undocumented_'+node_type]
+                percent = (documented * 100.) / total
+                nice_stats[node_type]['percent_documented'] = '%.2f' % percent
+            except KeyError:
+                nice_stats[node_type]['percent_documented'] = 'NC'
+            try:
+                percent = (stats['badname_'+node_type] * 100.) / total
+                nice_stats[node_type]['percent_badname'] = '%.2f' % percent
+            except KeyError:
+                nice_stats[node_type]['percent_badname'] = 'NC'
     lines = ('type', 'number', 'old number', 'difference',
              '%documented', '%badname')
     for node_type in ('module', 'class', 'method', 'function'):
@@ -92,8 +96,8 @@ def report_by_type_stats(sect, stats, old_stats):
         else:
             old, diff_str = 'NC', 'NC'
         lines += (node_type, str(new), str(old), diff_str,
-                  '%.2f' % nice_stats[node_type]['percent_documented'],
-                  '%.2f' % nice_stats[node_type]['percent_badname'])
+                  nice_stats[node_type].get('percent_documented', '0'),
+                  nice_stats[node_type].get('percent_badname', '0'))
     sect.append(Table(children=lines, cols=6, rheaders=1))
 
 class _BasicChecker(BaseChecker):
