@@ -1,6 +1,5 @@
 """ reporter used by gui.py """
 
-import os
 import sys
 
 from pylint.interfaces import IReporter
@@ -13,7 +12,7 @@ class GUIReporter(BaseReporter):
 
     __implements__ = IReporter
     extension = ''
-    
+
     def __init__(self, gui, output=sys.stdout):
         """init"""
         BaseReporter.__init__(self, output)
@@ -27,12 +26,11 @@ class GUIReporter(BaseReporter):
             sigle = msg_id
         else:
             sigle = msg_id[0]
-            
+
         full_msg = [sigle, module, obj, str(line), msg]
         self.msgs += [[sigle, module, obj, str(line)]]
         self.gui.msg_queue.put(full_msg)
-        
+
     def _display(self, layout):
         """launch layouts display"""
         TextWriter().format(layout, self.out)
-        

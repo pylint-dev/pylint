@@ -94,9 +94,9 @@ def parse_format_string(format_string):
                 key_start = i
                 while depth != 0:
                     if c == '(':
-                       depth += 1
+                        depth += 1
                     elif c == ')':
-                       depth -= 1
+                        depth -= 1
                     i, c = next_char(i)
                 key_end = i - 1
                 key = format_string[key_start:key_end]
