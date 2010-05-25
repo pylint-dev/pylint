@@ -294,7 +294,7 @@ functions, methods
                           'used, separated by a comma'}
                 ),
                )
-    reports = ( ('R0101', 'Statistics by type', report_by_type_stats), )
+    reports = ( ('RP0101', 'Statistics by type', report_by_type_stats), )
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)

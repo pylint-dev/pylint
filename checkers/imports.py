@@ -125,7 +125,7 @@ def make_graph(filename, dep_info, sect, gtype):
 MSGS = {
     'F0401': ('Unable to import %r' ,
               'Used when pylint has been unable to import a module.'),
-    'R0401': ('Cyclic import (%s)',
+    'RP0401': ('Cyclic import (%s)',
               'Used when a cyclic import between two or more modules is \
               detected.'),
 
@@ -173,21 +173,21 @@ separated by a comma'}
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of every (i.e. internal and \
-external) dependencies in the given file (report R0402 must not be disabled)'}
+external) dependencies in the given file (report RP0402 must not be disabled)'}
                 ),
                ('ext-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of external dependencies in the \
-given file (report R0402 must not be disabled)'}
+given file (report RP0402 must not be disabled)'}
                 ),
                ('int-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of internal dependencies in the \
-given file (report R0402 must not be disabled)'}
+given file (report RP0402 must not be disabled)'}
                 ),
 
                )
@@ -197,9 +197,9 @@ given file (report R0402 must not be disabled)'}
         self.stats = None
         self.import_graph = None
         self.__int_dep_info = self.__ext_dep_info = None
-        self.reports = (('R0401', 'External dependencies',
+        self.reports = (('RP0401', 'External dependencies',
                          self.report_external_dependencies),
-                        ('R0402', 'Modules dependencies graph',
+                        ('RP0402', 'Modules dependencies graph',
                          self.report_dependencies_graph),
                         )
 
@@ -213,9 +213,9 @@ given file (report R0402 must not be disabled)'}
     def close(self):
         """called before visiting project (i.e set of modules)"""
         # don't try to compute cycles if the associated message is disabled
-        if self.linter.is_message_enabled('R0401'):
+        if self.linter.is_message_enabled('RP0401'):
             for cycle in get_cycles(self.import_graph):
-                self.add_message('R0401', args=' -> '.join(cycle))
+                self.add_message('RP0401', args=' -> '.join(cycle))
 
     def visit_import(self, node):
         """triggered when an import statement is seen"""

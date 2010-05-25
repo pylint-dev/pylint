@@ -238,7 +238,7 @@ class SimilarChecker(BaseChecker, Similar):
                 ),
                )
     # reports
-    reports = ( ('R0801', 'Duplication', report_similarities), )
+    reports = ( ('R0801', 'Duplication', report_similarities), ) # XXX actually a Refactoring message
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)

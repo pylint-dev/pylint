@@ -330,7 +330,7 @@ Messages
 
 Reports
 ~~~~~~~
-:R0101: Statistics by type
+:RP0101: Statistics by type
 
 
 Typecheck checker
@@ -391,12 +391,12 @@ Options
   Default: ``regsub,string,TERMIOS,Bastion,rexec``
 :import-graph:
   Create a graph of every (i.e. internal and external) dependencies in the
-  given file (report R0402 must not be disabled)
+  given file (report RP0402 must not be disabled)
 :ext-import-graph:
-  Create a graph of external dependencies in the given file (report R0402 must
+  Create a graph of external dependencies in the given file (report RP0402 must
   not be disabled)
 :int-import-graph:
-  Create a graph of internal dependencies in the given file (report R0402 must
+  Create a graph of internal dependencies in the given file (report RP0402 must
   not be disabled)
 
 Messages
@@ -414,15 +414,15 @@ Messages
 :W0410: *__future__ import is not the first non docstring statement*
   Python 2.5 and greater require __future__ import to be the first non docstring
   statement in the module.
-:R0401: *Cyclic import (%s)*
+:RP0401: *Cyclic import (%s)*
   Used when a cyclic import between two or more modules is detected.
 :F0401: *Unable to import %r (%s)*
   Used when pylint has been unable to import a module.
 
 Reports
 ~~~~~~~
-:R0401: External dependencies
-:R0402: Modules dependencies graph
+:RP0401: External dependencies
+:RP0402: Modules dependencies graph
 
 
 Classes checker
