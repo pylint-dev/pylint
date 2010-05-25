@@ -1,6 +1,6 @@
-.TH pylint 1 "2008-10-13" pylint
+.TH pylint 1 "2010-5-25" pylint
 .SH NAME
-.B pylint 
+.B pylint
 \- python code static checker
 
 .SH SYNOPSIS
@@ -12,7 +12,7 @@
 ]
 
 .SH DESCRIPTION
-.B pylint 
+.B pylint
 is a Python source code analyzer which looks for programming
 errors, helps enforcing a coding standard and sniffs for some code
 smells (as defined in Martin Fowler's Refactoring book)
@@ -31,16 +31,16 @@ Additionally, it is possible to write plugins to add your own checks.
 show program's version number and exit
 .IP "--help, -h"
 show this help message and exit
+.IP "--long-help"
+more verbose help.
 
 .SH MASTER
 .IP "--rcfile=<file>"
 Specify a configuration file.
 .IP "--init-hook=<code>"
 Python code to execute, usually for sys.path manipulation such as pygtk.require().
-.IP "--errors-only, -e"
-In debug mode, checkers without error messages are disabled and for others, only the ERROR messages are displayed, and no reports are done by default
-.IP "--profile=<y_or_n>"
-Profiled execution. [current: no]
+.IP "--errors-only, -E"
+In error mode, checkers without error messages are disabled and for others, only the ERROR messages are displayed, and no reports are done by default
 .IP "--ignore=<file>"
 Add <file or directory> to the black list. It should be a base name, not a path. You may set this option multiple times. [current: CVS]
 .IP "--persistent=<y_or_n>"
@@ -52,25 +52,17 @@ List of plugins (as comma separated values of python modules names) to load, usu
 .IP "--help-msg=<msg-id>"
 Display a help message for the given message id and exit. The value may be a comma separated list of message ids.
 .IP "--list-msgs"
+Generate pylint's messages.
+.IP "--full-documentation"
 Generate pylint's full documentation.
 .IP "--generate-rcfile"
 Generate a sample configuration file according to the current configuration. You can put other options before this one to get them in the generated configuration.
-.IP "--generate-man"
-Generate pylint's man page.
 
 .SH MESSAGES CONTROL
-.IP "--enable-checker=<checker ids>"
-Enable only checker(s) with the given id(s).                 This option conflicts with the disable-checker option
-.IP "--disable-checker=<checker ids>"
-Enable all checker(s) except those with the                  given id(s).                 This option conflicts with the enable-checker option
-.IP "--enable-msg-cat=<msg cats>"
-Enable all messages in the listed categories.
-.IP "--disable-msg-cat=<msg cats>"
-Disable all messages in the listed categories.
-.IP "--enable-msg=<msg ids>"
-Enable the message(s) with the given id(s).
-.IP "--disable-msg=<msg ids>"
-Disable the message(s) with the given id(s).
+.IP "--enable=<msg ids>, -e <msg ids>"
+Enable the message, report, category or checker with the given id(s). You can either give multiple identifier separated by comma (,) or put this option multiple time.
+.IP "--disable=<msg ids>, -d <msg ids>"
+Disable the message, report, category or checker with the given id(s). You can either give multiple identifier separated by comma (,) or put this option multiple time.
 
 .SH REPORTS
 .IP "--output-format=<format>, -f <format>"
@@ -85,90 +77,12 @@ Tells whether to display a full report or only the messages [current: yes]
 Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectively contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (R0004). [current: 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)]
 .IP "--comment=<y_or_n>"
 Add a comment according to your evaluation note. This is used by the global evaluation report (R0004). [current: no]
-.IP "--enable-report=<rpt ids>"
-Enable the report(s) with the given id(s).
-.IP "--disable-report=<rpt ids>"
-Disable the report(s) with the given id(s).
-
-.SH DESIGN
-.IP "--max-args=<int>"
-Maximum number of arguments for function / method [current: 5]
-.IP "--max-locals=<int>"
-Maximum number of locals for function / method body [current: 15]
-.IP "--max-returns=<int>"
-Maximum number of return / yield for function / method body [current: 6]
-.IP "--max-branchs=<int>"
-Maximum number of branch for function / method body [current: 12]
-.IP "--max-statements=<int>"
-Maximum number of statements in function / method body [current: 50]
-.IP "--max-parents=<num>"
-Maximum number of parents for a class (see R0901). [current: 7]
-.IP "--max-attributes=<num>"
-Maximum number of attributes for a class (see R0902). [current: 7]
-.IP "--min-public-methods=<num>"
-Minimum number of public methods for a class (see R0903). [current: 2]
-.IP "--max-public-methods=<num>"
-Maximum number of public methods for a class (see R0904). [current: 20]
-
-.SH CLASSES
-.IP "--ignore-iface-methods=<method names>"
-List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class. [current: isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by]
-.IP "--defining-attr-methods=<method names>"
-List of method names used to declare (i.e. assign) instance attributes. [current: __init__,__new__,setUp]
-
-.SH IMPORTS
-.IP "--deprecated-modules=<modules>"
-Deprecated modules which should not be used, separated by a comma [current: regsub,string,TERMIOS,Bastion,rexec]
-.IP "--import-graph=<file.dot>"
-Create a graph of every (i.e. internal and external) dependencies in the given file (report R0402 must not be disabled) [current: none]
-.IP "--ext-import-graph=<file.dot>"
-Create a graph of external dependencies in the given file (report R0402 must not be disabled) [current: none]
-.IP "--int-import-graph=<file.dot>"
-Create a graph of internal dependencies in the given file (report R0402 must not be disabled) [current: none]
-
-.SH FORMAT
-.IP "--max-line-length=<int>"
-Maximum number of characters on a single line. [current: 80]
-.IP "--max-module-lines=<int>"
-Maximum number of lines in a module [current: 1000]
-.IP "--indent-string=<string>"
-String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab). [current: '    ']
-
-.SH SIMILARITIES
-.IP "--min-similarity-lines=<int>"
-Minimum lines number of a similarity. [current: 4]
-.IP "--ignore-comments=<y or n>"
-Ignore comments when computing similarities. [current: yes]
-.IP "--ignore-docstrings=<y or n>"
-Ignore docstrings when computing similarities. [current: yes]
-
-.SH TYPECHECK
-.IP "--ignore-mixin-members=<y_or_n>"
-Tells whether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive). [current: yes]
-.IP "--ignored-classes=<members names>"
-List of classes names for which member attributes should not be checked (useful for classes with attributes dynamically set). [current: SQLObject]
-.IP "--zope=<y_or_n>"
-When zope mode is activated, add a predefined set of Zope acquired attributes to generated-members. [current: no]
-.IP "--generated-members=<members names>"
-List of members which are set dynamically and missed by pylint inference system, and so shouldn't trigger E0201 when accessed. [current: REQUEST,acl_users,aq_parent]
-
-.SH VARIABLES
-.IP "--init-import=<y_or_n>"
-Tells whether we should check for unused import in __init__ files. [current: no]
-.IP "--dummy-variables-rgx=<regexp>"
-A regular expression matching names used                  for dummy variables (i.e. not used). [current: _|dummy]
-.IP "--additional-builtins=<comma separated list>"
-List of additional names supposed to be defined in builtins. Remember that you should avoid to define new builtins when possible. [current: none]
-
-.SH MISCELLANEOUS
-.IP "--notes=<comma separated values>"
-List of note tags to take in consideration, separated by a comma. [current: FIXME,XXX,TODO]
 
 .SH BASIC
 .IP "--required-attributes=<attributes>"
 Required attributes for module, separated by a comma [current: none]
-.IP "--no-docstring-rgx=<regexp>"
-Regular expression which should only match functions or classes name which do not require a docstring [current: __.*__]
+.IP "--bad-functions=<builtin function names>"
+List of builtins function names that should not be used, separated by a comma [current: map,filter,apply,input]
 .IP "--module-rgx=<regexp>"
 Regular expression which should only match correct module names [current: (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$]
 .IP "--const-rgx=<regexp>"
@@ -191,8 +105,84 @@ Regular expression which should only match correct list comprehension / generato
 Good variable names which should always be accepted, separated by a comma [current: i,j,k,ex,Run,_]
 .IP "--bad-names=<names>"
 Bad variable names which should always be refused, separated by a comma [current: foo,bar,baz,toto,tutu,tata]
-.IP "--bad-functions=<builtin function names>"
-List of builtins function names that should not be used, separated by a comma [current: map,filter,apply,input]
+.IP "--no-docstring-rgx=<regexp>"
+Regular expression which should only match functions or classes name which do not require a docstring [current: __.*__]
+
+.SH MISCELLANEOUS
+.IP "--notes=<comma separated values>"
+List of note tags to take in consideration, separated by a comma. [current: FIXME,XXX,TODO]
+
+.SH SIMILARITIES
+.IP "--min-similarity-lines=<int>"
+Minimum lines number of a similarity. [current: 4]
+.IP "--ignore-comments=<y or n>"
+Ignore comments when computing similarities. [current: yes]
+.IP "--ignore-docstrings=<y or n>"
+Ignore docstrings when computing similarities. [current: yes]
+
+.SH IMPORTS
+.IP "--deprecated-modules=<modules>"
+Deprecated modules which should not be used, separated by a comma [current: regsub,string,TERMIOS,Bastion,rexec]
+.IP "--import-graph=<file.dot>"
+Create a graph of every (i.e. internal and external) dependencies in the given file (report RP0402 must not be disabled) [current: none]
+.IP "--ext-import-graph=<file.dot>"
+Create a graph of external dependencies in the given file (report RP0402 must not be disabled) [current: none]
+.IP "--int-import-graph=<file.dot>"
+Create a graph of internal dependencies in the given file (report RP0402 must not be disabled) [current: none]
+
+.SH TYPECHECK
+.IP "--ignore-mixin-members=<y_or_n>"
+Tells whether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive). [current: yes]
+.IP "--ignored-classes=<members names>"
+List of classes names for which member attributes should not be checked (useful for classes with attributes dynamically set). [current: SQLObject]
+.IP "--zope=<y_or_n>"
+When zope mode is activated, add a predefined set of Zope acquired attributes to generated-members. [current: no]
+.IP "--generated-members=<members names>"
+List of members which are set dynamically and missed by pylint inference system, and so shouldn't trigger E0201 when accessed. [current: REQUEST,acl_users,aq_parent]
+
+.SH CLASSES
+.IP "--ignore-iface-methods=<method names>"
+List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class. [current: isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by]
+.IP "--defining-attr-methods=<method names>"
+List of method names used to declare (i.e. assign) instance attributes. [current: __init__,__new__,setUp]
+
+.SH DESIGN
+.IP "--max-args=<int>"
+Maximum number of arguments for function / method [current: 5]
+.IP "--ignored-argument-names=<regexp>"
+Argument names that match this expression will be ignored. Default to name with leading underscore [current: _.*]
+.IP "--max-locals=<int>"
+Maximum number of locals for function / method body [current: 15]
+.IP "--max-returns=<int>"
+Maximum number of return / yield for function / method body [current: 6]
+.IP "--max-branchs=<int>"
+Maximum number of branch for function / method body [current: 12]
+.IP "--max-statements=<int>"
+Maximum number of statements in function / method body [current: 50]
+.IP "--max-parents=<num>"
+Maximum number of parents for a class (see R0901). [current: 7]
+.IP "--max-attributes=<num>"
+Maximum number of attributes for a class (see R0902). [current: 7]
+.IP "--min-public-methods=<num>"
+Minimum number of public methods for a class (see R0903). [current: 2]
+.IP "--max-public-methods=<num>"
+Maximum number of public methods for a class (see R0904). [current: 20]
+
+.SH VARIABLES
+.IP "--init-import=<y_or_n>"
+Tells whether we should check for unused import in __init__ files. [current: no]
+.IP "--dummy-variables-rgx=<regexp>"
+A regular expression matching names used for dummy variables (i.e. not used). [current: _|dummy]
+.IP "--additional-builtins=<comma separated list>"
+List of additional names supposed to be defined in builtins. Remember that you should avoid to define new builtins when possible. [current: none]
+
+.SH FORMAT
+.IP "--max-line-length=<int>"
+Maximum number of characters on a single line. [current: 80]
+.IP "--max-module-lines=<int>"
+Maximum number of lines in a module [current: 1000]
+.IP "--indent-string=<string>"
+String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab). [current: '    ']
 
 .SH ENVIRONMENT VARIABLES
 
@@ -200,49 +190,49 @@ The following environment variables are used :
     * PYLINTHOME                                                               
     path to the directory where data of persistent run will be stored. If not
 found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
-directory) . The current PYLINTHOME is ~/.pylint.d.        
+directory).
     * PYLINTRC                                                                 
     path to the configuration file. If not found, it will use the first        
-existent file in ~/.pylintrc, /etc/pylintrc. The current PYLINTRC is
-None.                                                                 
+existent file in ~/.pylintrc, /etc/pylintrc.
 
 .SH OUTPUT
 
-Using the default text output, the message format is :                         
-        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                               
-There are 5 kind of message types :                                            
-    * (C) convention, for programming standard violation                       
-    * (R) refactor, for bad code smell                                         
-    * (W) warning, for python specific problems                                
-    * (E) error, for probable bugs in the code                            
-    * (F) fatal, if an error occurred which prevented pylint from doing further processing.     
+Using the default text output, the message format is :                          
+                                                                                
+        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                                
+                                                                                
+There are 5 kind of message types :                                             
+    * (C) convention, for programming standard violation                        
+    * (R) refactor, for bad code smell                                          
+    * (W) warning, for python specific problems                                 
+    * (E) error, for probable bugs in the code                                  
+    * (F) fatal, if an error occurred which prevented pylint from doing further
+processing.
+        
+.SH OUTPUT STATUS CODE
+
+Pylint should leave with following status code:                                 
+    * 0 if everything went fine                                                 
+    * 1 if a fatal message was issued                                           
+    * 2 if an error message was issued                                          
+    * 4 if a warning message was issued                                         
+    * 8 if a refactor message was issued                                        
+    * 16 if a convention message was issued                                     
+    * 32 on usage error                                                         
+                                                                                
+status 1 to 16 will be bit-ORed so you can know which different categories has
+been issued by analysing pylint output status code
         
 .SH SEE ALSO
-/usr/share/doc/pylint/
+/usr/share/doc/pythonX.Y-pylint/
 
-.SH COPYRIGHT 
-Copyright (c) 2003-2008 Sylvain Thenault (thenault@gmail.com).
-Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
-http://www.logilab.fr/ -- mailto:contact@logilab.fr
+.SH COPYRIGHT
+Logilab S.A.
 
-This program is free software; you can redistribute it and/or modify 
-it under the terms of the GNU General Public License as published 
-by the Free Software Foundation; either version 2 of the License, 
-or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, 
-but WITHOUT ANY WARRANTY; without even the implied warranty of 
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License 
-along with this program; if not, write to the Free Software 
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
-MA 02111-1307 USA.
-.SH BUGS 
+.SH BUGS
 Please report bugs on the project's mailing list:
-mailto://python-projects@logilab.org
+mailto://python-projects@lists.logilab.org
 
 .SH AUTHOR
-Sylvain Thenault <sylvain.thenault@logilab.fr>
+Logilab <python-projects@lists.logilab.org>
 

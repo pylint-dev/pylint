@@ -1,3 +1,9 @@
+pylint (0.21.0-2) unstable; urgency=low
+
+  * update man-page according to 0.21 usage (Closes: #582494)
+
+ --
+
 pylint (0.21.0-1) unstable; urgency=low
 
   * new upstream release
