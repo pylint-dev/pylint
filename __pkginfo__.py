@@ -46,7 +46,7 @@ classifiers =  ['Development Status :: 4 - Beta',
                 ]
 
 
-short_desc = "python code static checker"
+description = "python code static checker"
 long_desc = """\
  Pylint is a Python source code analyzer which looks for programming
  errors, helps enforcing a coding standard and sniffs for some code

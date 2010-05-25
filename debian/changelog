@@ -1,5 +1,6 @@
 pylint (0.21.0-2) unstable; urgency=low
 
+  [ Sylvain Thénault ]
   * update man-page according to 0.21 usage (Closes: #582494)
 
  --
@@ -30,7 +31,7 @@ pylint (0.18.1-1) unstable; urgency=low
 
  -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Thu, 27 Aug 2009 08:37:00 +0200
 
-pylint (0.18.0-2) UNRELEASED; urgency=low
+pylint (0.18.0-2) unstable; urgency=low
 
   * Python transition, thanks Alessio Treglia for the patch (Closes: #530509)
    - Use --install-layout=deb for setup.py install.

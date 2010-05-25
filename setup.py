@@ -27,7 +27,7 @@ except ImportError:
 
 sys.modules.pop('__pkginfo__', None)
 # import required features
-from __pkginfo__ import modname, version, license, short_desc, long_desc, \
+from __pkginfo__ import modname, version, license, description, long_desc, \
      web, author, author_email, classifiers
 # import optional features
 try:
@@ -129,7 +129,7 @@ def install(**kwargs):
     return setup(name = distname,
                  version = version,
                  license = license,
-                 description = short_desc,
+                 description = description,
                  long_description = long_desc,
                  author = author,
                  author_email = author_email,
