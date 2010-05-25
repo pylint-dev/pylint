@@ -1,9 +1,12 @@
-pylint (0.21.0-2) unstable; urgency=low
+pylint (0.21.0-2) UNRELEASED; urgency=low
+
+  [ Julien Jehannet ]
+  * can now retrieve pristine tarball thanks to optional get-orig-source target
 
   [ Sylvain Thénault ]
   * update man-page according to 0.21 usage (Closes: #582494)
 
- --
+ -- Julien Jehannet <julien.jehannet@logilab.fr>  Tue, 25 May 2010 12:49:44 +0200
 
 pylint (0.21.0-1) unstable; urgency=low
 
