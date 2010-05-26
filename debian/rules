@@ -55,7 +55,7 @@ install: build
 	#(cd test && find . -type f -not \( -path '*/CVS/*' -or -name '*.pyc' \) -exec install -D --mode=644 {} ../debian/pylint/usr/share/doc/pylint/test/{} \;)
 
 get-orig-source:
-	uscan --verbose --force-download --no-symlink --destdir .
+	uscan --verbose --force-download --destdir .
 
 # Build architecture-independent files here.
 binary-indep: build install
