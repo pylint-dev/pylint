@@ -125,7 +125,7 @@ def make_graph(filename, dep_info, sect, gtype):
 MSGS = {
     'F0401': ('Unable to import %r' ,
               'Used when pylint has been unable to import a module.'),
-    'RP0401': ('Cyclic import (%s)',
+    'R0401': ('Cyclic import (%s)',
               'Used when a cyclic import between two or more modules is \
               detected.'),
 
