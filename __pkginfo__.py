@@ -18,7 +18,7 @@
 
 modname = distname = 'pylint'
 
-numversion = (0, 21, 0)
+numversion = (0, 21, 1)
 version = '.'.join([str(num) for num in numversion])
 
 

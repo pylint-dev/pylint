@@ -1,9 +1,12 @@
 ChangeLog for PyLint
 ====================
 
--- 
+2010-06-04  --  0.21.1
     * fix #28962: pylint crash with new options, due to missing stats data while writing the Statistics by types report
+
     * updated man page to 0.21 or greater command line usage (fix debian #582494)
+
+
 
 2010-05-11  --  0.21.0
     * command line updated (closes #9774, #9787, #9992, #22962):
