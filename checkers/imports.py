@@ -213,9 +213,9 @@ given file (report RP0402 must not be disabled)'}
     def close(self):
         """called before visiting project (i.e set of modules)"""
         # don't try to compute cycles if the associated message is disabled
-        if self.linter.is_message_enabled('RP0401'):
+        if self.linter.is_message_enabled('R0401'):
             for cycle in get_cycles(self.import_graph):
-                self.add_message('RP0401', args=' -> '.join(cycle))
+                self.add_message('R0401', args=' -> '.join(cycle))
 
     def visit_import(self, node):
         """triggered when an import statement is seen"""

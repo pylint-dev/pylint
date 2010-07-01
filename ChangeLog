@@ -1,8 +1,13 @@
 ChangeLog for PyLint
 ====================
 
+	--
+    * fix #36193: import checker raise exception on cyclic import
+
+
 2010-06-04  --  0.21.1
-    * fix #28962: pylint crash with new options, due to missing stats data while writing the Statistics by types report
+    * fix #28962: pylint crash with new options, due to missing stats data while
+      writing the Statistics by types report
 
     * updated man page to 0.21 or greater command line usage (fix debian #582494)
 
