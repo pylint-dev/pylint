@@ -97,3 +97,18 @@ class InterfaceCanNowBeFound:
 
     def besilent(self):
         """public method 2/2"""
+
+
+class EmptyImplements:
+    """no pb"""
+    __implements__ = ()
+    def __init__(self):
+        """only to make pylint happier"""
+
+    def please(self):
+        """public method 1/2"""
+
+    def besilent(self):
+        """public method 2/2"""
+
+
