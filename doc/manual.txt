@@ -76,7 +76,7 @@ You may apt-get a debian package by adding ::
 
     deb ftp://ftp.logilab.org/pub/debian unstable/
 
-to your */etc/apt/sources.list* file. Pylint is also available in the 
+to your */etc/apt/sources.list* file. Pylint is also available in the
 standard Debian distribution (but add our public debian repository
 anyway if you want to get the latest releases and upgrades earlier)
 
@@ -96,7 +96,7 @@ directory and simply run ::
 
 You'll have to install dependencies in a similar way.
 
-Windows users may get valuable information about pylint installation on 
+Windows users may get valuable information about pylint installation on
 `this page`_.
 
 .. _`this page`: http://thinkhole.org/wp/2006/01/16/installing-pylint-on-windows/
@@ -156,11 +156,11 @@ your ``PYTHONPATH``, since it is a common error to analyze an
 installed version of a module instead of the development version.
 
 It is also possible to analyze python files, with a few
-restriction. The thing to keep in mind is that pylint will try to 
+restriction. The thing to keep in mind is that pylint will try to
 convert the file name to a module name, and only be able to process
 the file if it succeeds.  ::
 
-  pylint mymodule.py 
+  pylint mymodule.py
 
 should always work since the current working
 directory is automatically added on top of the python path ::
@@ -201,7 +201,7 @@ Pylint output
 The default format for the output is raw text. But passing pylint the
 ``--output-format=html`` or ``-h y`` or ``-o html`` option will produce an HTML document.
 
-There are several sections in pylint's output. 
+There are several sections in pylint's output.
 
 Source code analysis section
 ''''''''''''''''''''''''''''
@@ -228,7 +228,7 @@ Sometimes the line of code which caused the error is displayed with
 a caret pointing to the error. This may be generalized in future
 versions of pylint.
 
-Example (extracted from a run of pylint on itself...): 
+Example (extracted from a run of pylint on itself...):
 
 ::
 
@@ -245,22 +245,22 @@ Example (extracted from a run of pylint on itself...):
 
 
 Reports section
-''''''''''''''' 
+'''''''''''''''
 Following the analysis message, pylint will display a set of reports,
 each one focusing on a particular aspect of the project, such as number
 of messages by categories, modules dependencies...
 
 For instance, the metrics report displays summaries gathered from the
-current run. 
+current run.
 
   * the number of processed modules
   * for each module, the percentage of errors and warnings
   * the total number of errors and warnings
   * percentage of classes, functions and modules with docstrings, and
-    a comparison from the previous run 
+    a comparison from the previous run
   * percentage of classes, functions and modules with correct name
     (according to the coding standard), and a comparison from the
-    previous run 
+    previous run
   * a list of external dependencies found in the code, and where they appear
 
 Also, a global evaluation for the code is computed, and an
@@ -272,7 +272,7 @@ specified on the command line).
 Command line options
 --------------------
 
-First of all, we have two basic (but useful) options. 
+First of all, we have two basic (but useful) options.
 
 --version             show program's version number and exit
 -h, --help            show help about the command line options
@@ -302,7 +302,7 @@ Other useful global options include:
 
 --zope                  Initialize Zope products before starting
 --ignore=file           Add <file> (may be a directory) to the black
-                          list. It should be a base name, not a path. 
+                          list. It should be a base name, not a path.
                           You may set this option multiple times.
 --statistics=y_or_n     Compute statistics on collected data.
 --persistent=y_or_n     Pickle collected data for later comparisons.
@@ -383,14 +383,14 @@ Mailing lists
 Use the python-projects@logilab.org mailing list for anything related
 to Pylint. This is in most cases better than sending an email directly
 to the author, since others will benefit from the exchange, and you'll
-be more likely answered by someone subscribed to the list. This is a 
+be more likely answered by someone subscribed to the list. This is a
 moderated mailing list, so if you're not subscribed email you send will have to
 be validated first before actually being sent on the list.
 
 You can subscribe to this mailing list at
 http://lists.logilab.org/mailman/listinfo/python-projects
 
-Archives are available at 
+Archives are available at
 http://lists.logilab.org/pipermail/python-projects/
 
 If you prefer speaking french instead of english, you can use the
@@ -400,7 +400,7 @@ generic forum-fr@logilab.org mailing list:
 * archives: http://lists.logilab.org/pipermail/forum-fr
 
 Notice though that this list has a very low traffic since most pylint related
-discussions are done on the python-projects mailing list. 
+discussions are done on the python-projects mailing list.
 
 
 
@@ -447,14 +447,14 @@ An example available from the examples directory::
             # no error
             print self.bla # pylint: disable-msg=E1101
             # error
-            print self.blop 
+            print self.blop
 
         def meth4(self):
             """test re-enabling"""
             # pylint: disable-msg=E1101
             # no error
             print self.bla
-            print self.blop 
+            print self.blop
             # pylint: enable-msg=E1101
             # error
             print self.blip
@@ -508,7 +508,7 @@ An example available from the examples directory::
             # pylint: disable-msg=E1101
             # no error
             print self.bla
-            print self.blop 
+            print self.blop
 
 
 
@@ -549,7 +549,7 @@ An AST checker is a visitor, and should implement
 visit_<lowered class name>
 leave_<lowered class name>
 methods for the nodes it's interested in. To get description of the different
-classes used in an ast tree, look at the `compiler.ast documentation`. 
+classes used in an ast tree, look at the `compiler.ast documentation`.
 Checkers are ordered by priority. For each module, pylint's engine:
 
 1. give the module source file as a stream to raw checkers
@@ -590,13 +590,13 @@ http://www.logilab.org/src/logilab/common
 
 Contribution Instructions
 --------------------------
-Got a patch for pylint?  There a few steps you must take to make sure your 
+Got a patch for pylint?  There a few steps you must take to make sure your
 patch gets accepted.
 
 * Test your code
-    * Pylint keeps a set of unit tests in the /test directory. To get your 
-      patch accepted you must write (or change) a test input file and message 
-      file in the appropriate input and messages folders. 
+    * Pylint keeps a set of unit tests in the /test directory. To get your
+      patch accepted you must write (or change) a test input file and message
+      file in the appropriate input and messages folders.
     * In the test folder of pylint run ./fulltest.sh (python version), make sure
       all tests pass before submitting a patch
 * Create a diff file
@@ -604,9 +604,9 @@ patch gets accepted.
       version control) ::
 
             hg diff  > <yourname>.diff
-    
+
 * E-mail the mailing list with your diff file
-      
+
 Other information
 =================
 
@@ -617,13 +617,13 @@ Pylint is integrated in the following editors/IDEs:
 * emacs (of course)
 * eric3
 * eclipse (using the pydev_ plugin, see also
-  http://msdl.cs.mcgill.ca/MSDL/people/denis/meetings/pythonDev) 
+  http://msdl.cs.mcgill.ca/MSDL/people/denis/meetings/pythonDev)
 
 To use pylint from within vim, see
-http://www.gonzo.kiev.ua/projects/pylint.vim 
+http://www.vim.org/scripts/script.php?script_id=891
 
 To use pylint from within komodo_, see
-http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/ 
+http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/
 
 To use pylint from within gedit_, see
 http://live.gnome.org/Gedit/PylintPlugin
@@ -631,22 +631,26 @@ http://live.gnome.org/Gedit/PylintPlugin
 To use pylint from within WingIDE_, see
 http://www.wingware.com/doc/edit/pylint
 
+Pylint is also integrated in spyder_, a matlab-like environnement.
+
 .. _pydev: http://pydev.sourceforge.net
 .. _komodo: http://www.activestate.com/Products/Komodo/
 .. _gedit: http://www.gnome.org/projects/gedit/
 .. _WingIDE: http://www.wingware.com/
+.. _spyder: http://code.google.com/p/spyderlib/
+
 
 Some projects using Pylint
 --------------------------
 The following projects are known to use pylint to help develop better
-code: 
+code:
 
 * OSAF Chandler (http://www.osafoundation.org/)
 * Xen (http://www.xensource.com/)
 * CPS (http://www.nuxeo.org)
 * ERP5 (http://www.erp5.org/)
 * pyxmpp (http://pyxmpp.jabberstudio.org/)
-* mercurial 
+* mercurial
 * eXe (http://exelearning.org/)
 * PrimaGIS (http://www.primagis.org)
 * python-cdd (https://projetos.ossystems.com.br/projects/python-cdd)
@@ -655,8 +659,8 @@ code:
 * RunJob (http://projects.fnal.gov/runjob/)
 * Slugathon (http://slugathon.python-hosting.com/)
 * Topographica (http://topographica.org/Home/index.html) (at least they intend to do so)
-* http://browsershots.org 
-* many more... 
+* http://browsershots.org
+* many more...
 
 Also notice that the CheeseCake_ kwalitee reporting tool uses pylint to
 analyze the source code.
