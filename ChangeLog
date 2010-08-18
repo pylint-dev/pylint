@@ -3,7 +3,7 @@ ChangeLog for PyLint
 
 	--
     * fix #36193: import checker raise exception on cyclic import
-
+    * fix #28796: regression in --generated-members introduced pylint 0.20
 
 2010-06-04  --  0.21.1
     * fix #28962: pylint crash with new options, due to missing stats data while

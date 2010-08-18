@@ -102,8 +102,9 @@ missed by pylint inference system, and so shouldn\'t trigger E0201 when \
 accessed.'}
                 ),
         )
-    def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
+
+    def open(self):
+        # do this in open since config not fully initialized in __init__
         self.generated_members = list(self.config.generated_members)
         if self.config.zope:
             self.generated_members.extend(('REQUEST', 'acl_users', 'aq_parent'))
