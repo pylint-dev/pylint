@@ -233,6 +233,16 @@ top of the file: ::
 	# pylint: disable-msg=W0401, E0202
 	# pylint: enable-msg=C0302
 
+4.5 What is the format of the configuration file?
+---------------------------------------------------
+
+pylint uses ConfigParser from the standard library to parse the configuration file.
+It means that if you need to disable a lot of messages, you can use tricks like: ::
+
+    disable= W0401, # because I do not want it
+     E0202, # I have a good reason, trust me
+     C0302  # that's it
+
 5. Classes and Inheritance
 ==========================
 
