@@ -28,7 +28,7 @@ license = 'GPL'
 description = "python code static checker"
 web = "http://www.logilab.org/project/%s" % distname
 ftp = "ftp://ftp.logilab.org/pub/%s" % modname
-mailinglist = "mailto://%s" % author_email
+mailinglist = "mailto://python-projects@lists.logilab.org"
 author = 'Logilab'
 author_email = 'python-projects@lists.logilab.org'
 
