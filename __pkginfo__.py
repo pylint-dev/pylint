@@ -18,21 +18,19 @@
 
 modname = distname = 'pylint'
 
-numversion = (0, 21, 1)
+numversion = (0, 21, 2)
 version = '.'.join([str(num) for num in numversion])
 
+install_requires = ['logilab-common >= 0.50.1',
+                    'logilab-astng >= 0.20.1']
 
-install_requires = ['logilab-common >= 0.50.1', 'logilab-astng >= 0.20.1']
-
-pyversions = ["2.3", "2.4", "2.5", '2.6'] # maybe 2.2 as well
-
-author = 'Logilab'
-author_email = 'python-projects@lists.logilab.org'
-mailinglist = "mailto://%s" % author_email
+license = 'GPL'
+description = "python code static checker"
 web = "http://www.logilab.org/project/%s" % distname
 ftp = "ftp://ftp.logilab.org/pub/%s" % modname
-license = 'GPL'
-copyright = 'Logilab S.A.'
+mailinglist = "mailto://%s" % author_email
+author = 'Logilab'
+author_email = 'python-projects@lists.logilab.org'
 
 classifiers =  ['Development Status :: 4 - Beta',
                 'Environment :: Console',
@@ -46,7 +44,6 @@ classifiers =  ['Development Status :: 4 - Beta',
                 ]
 
 
-description = "python code static checker"
 long_desc = """\
  Pylint is a Python source code analyzer which looks for programming
  errors, helps enforcing a coding standard and sniffs for some code
@@ -61,7 +58,9 @@ long_desc = """\
  .
  Additionally, it is possible to write plugins to add your own checks."""
 
+pyversions = ["2.3", "2.4", "2.5", '2.6'] # maybe 2.2 as well
+
 from os.path import join
-scripts = [join('bin', filename) for filename in 
-            ('pylint', 'pylint-gui', "symilar", "epylint", "pyreverse")]
+scripts = [join('bin', filename)
+           for filename in ('pylint', 'pylint-gui', "symilar", "epylint", "pyreverse")]
 
