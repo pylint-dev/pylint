@@ -212,7 +212,7 @@ This is used by the global evaluation report (R0004).'}),
                  'with the given id(s). You can either give multiple identifier'
                  ' separated by comma (,) or put this option multiple time '
                  '(only on the command line, not in the configuration file '
-                 'where it should appears only once).'}),
+                 'where it should appear only once).'}),
                )
 
     option_groups = (
