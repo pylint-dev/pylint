@@ -21,7 +21,7 @@
 
 import sys
 from logilab.common.configuration import ConfigurationMixIn
-from logilab.astng.manager import astng_wrapper, ASTNGManager
+from logilab.astng.manager import ASTNGManager
 from logilab.astng.inspector import Linker
 
 from pylint.pyreverse.diadefslib import DiadefsHandler
@@ -103,7 +103,7 @@ class PyreverseCommand(ConfigurationMixIn):
         if not args:
             print self.help()
             return
-        project = self.manager.project_from_files(args, astng_wrapper)
+        project = self.manager.project_from_files(args)
         linker = Linker(project, tag=True)
         handler = DiadefsHandler(self.config)
         diadefs = handler.get_diadefs(project, linker)
