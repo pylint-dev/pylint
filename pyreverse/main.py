@@ -19,9 +19,9 @@
   create UML diagrams for classes and modules in <packages> 
 """
 
-import sys
+import sys, os
 from logilab.common.configuration import ConfigurationMixIn
-from logilab.astng.manager import astng_wrapper, ASTNGManager
+from logilab.astng.manager import ASTNGManager
 from logilab.astng.inspector import Linker
 
 from pylint.pyreverse.diadefslib import DiadefsHandler
@@ -84,7 +84,6 @@ this disables -f values")),
 #( ('quiet', 
                 #dict(help='run quietly', action='store_true', short='q')), )
 
-
 class PyreverseCommand(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
@@ -103,10 +102,17 @@ class PyreverseCommand(ConfigurationMixIn):
         if not args:
             print self.help()
             return
-        project = self.manager.project_from_files(args, astng_wrapper)
-        linker = Linker(project, tag=True)
-        handler = DiadefsHandler(self.config)
-        diadefs = handler.get_diadefs(project, linker)
+        # insert current working directory to the python path to recognize
+        # dependencies to local modules even if cwd is not in the PYTHONPATH
+        sys.path.insert(0, os.getcwd())
+        try:
+            project = self.manager.project_from_files(args)
+            linker = Linker(project, tag=True)
+            handler = DiadefsHandler(self.config)
+            diadefs = handler.get_diadefs(project, linker)
+        finally:
+            sys.path.pop(0)
+
         if self.config.output_format == "vcg":
             writer.VCGWriter(self.config).write(diadefs)
         else:
