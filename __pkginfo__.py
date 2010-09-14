@@ -62,5 +62,6 @@ pyversions = ["2.3", "2.4", "2.5", '2.6'] # maybe 2.2 as well
 
 from os.path import join
 scripts = [join('bin', filename)
-           for filename in ('pylint', 'pylint-gui', "symilar", "epylint", "pyreverse")]
+           for filename in ('pylint', 'pylint-gui', "symilar", "epylint",
+                            "pyreverse")]
 
