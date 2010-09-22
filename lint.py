@@ -45,6 +45,7 @@ from logilab.common.fileutils import norm_open
 from logilab.common.ureports import Table, Text, Section
 from logilab.common.graph import ordered_nodes
 from logilab.common.__pkginfo__ import version as common_version
+from logilab.common.compat import set
 
 from logilab.astng import MANAGER, nodes
 from logilab.astng.__pkginfo__ import version as astng_version

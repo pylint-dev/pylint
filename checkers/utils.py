@@ -19,6 +19,7 @@
 """
 
 from logilab import astng
+from logilab.common.compat import set
 
 try:
     # python >= 2.4

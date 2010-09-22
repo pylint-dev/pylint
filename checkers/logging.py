@@ -17,6 +17,7 @@
 from logilab import astng
 from pylint import checkers
 from pylint import interfaces
+from logilab.common.compat import set
 
 
 EAGER_STRING_INTERPOLATION = 'W6501'

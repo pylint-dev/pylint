@@ -17,7 +17,7 @@
 
 
 from logilab import astng
-from logilab.common.compat import any
+from logilab.common.compat import any, set
 from logilab.common.ureports import Table
 from logilab.astng import are_exclusive
 
