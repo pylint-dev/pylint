@@ -104,7 +104,7 @@ class LintTestUsingModule(testlib.TestCase):
             output.close()
         got = self.linter.reporter.finalize().strip()
         try:
-            self.assertLinesEquals(got, expected)
+            self.assertMultiLineEqual(got, expected)
         except Exception, ex:
             # doesn't work with py 2.5
             #ex.file = tocheck
@@ -227,8 +227,8 @@ FILTER_RGX = None
 MODULES_ONLY = False
 
 def suite():
-    return unittest.TestSuite([unittest.makeSuite(test)
-                               for test in make_tests(FILTER_RGX)])
+    return testlib.TestSuite([unittest.makeSuite(test, suiteClass=testlib.TestSuite)
+                              for test in make_tests(FILTER_RGX)])
 
 if __name__=='__main__':
     if '-m' in sys.argv:

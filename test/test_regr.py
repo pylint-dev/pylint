@@ -79,9 +79,9 @@ class NonRegrTC(TestCase):
         try:
             import gtk
         except ImportError:
-            self.skip('test skipped: gtk is not available')
+            self.skipTest('test skipped: gtk is not available')
         except RuntimeError: # RuntimeError when missing display
-            self.skip('no display, can\'t run this test')
+            self.skipTest('no display, can\'t run this test')
         linter.check('regrtest_data/pygtk_import.py')
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
@@ -90,7 +90,7 @@ class NonRegrTC(TestCase):
         try:
             from numarray import random_array
         except ImportError:
-            self.skip('test skipped: numarray.random_array is not available')
+            self.skipTest('test skipped: numarray.random_array is not available')
         linter.check('regrtest_data/numarray_inf.py')
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, "E:  5: Instance of 'int' has no 'astype' member (but some types could not be inferred)")
@@ -99,7 +99,7 @@ class NonRegrTC(TestCase):
         try:
             import numarray
         except ImportError:
-            self.skip('test skipped: numarray is not available')
+            self.skipTest('test skipped: numarray is not available')
         linter.check('regrtest_data/numarray_import.py')
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')

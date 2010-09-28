@@ -33,7 +33,7 @@ class SortMessagesTC(TestCase):
     def test(self):
         l = ['E0501', 'E0503', 'F0002', 'I0201', 'W0540',
              'R0202', 'F0203', 'R0220', 'W0321', 'I0001']
-        self.assertEquals(sort_msgs(l), ['E0501', 'E0503',
+        self.assertEqual(sort_msgs(l), ['E0501', 'E0503',
                                          'W0321', 'W0540',
                                          'R0202', 'R0220',
                                          'I0001', 'I0201',
@@ -50,7 +50,7 @@ class GetNoteMessageTC(TestCase):
         msg = None
         for note in range(-1, 11):
             note_msg = config.get_note_message(note)
-            self.assertNotEquals(msg, note_msg)
+            self.assertNotEqual(msg, note_msg)
             msg = note_msg
         if optimized:
             self.assertRaises(AssertionError, config.get_note_message, 11)
@@ -68,7 +68,7 @@ class RunTC(TestCase):
                 Run(args)
             except SystemExit, ex:
                 print sys.stdout.getvalue()
-                self.assertEquals(ex.code, exit_code)
+                self.assertEqual(ex.code, exit_code)
             else:
                 if no_exit_fail:
                     self.fail()
@@ -89,7 +89,7 @@ class PyLinterTC(TestCase):
     def test_message_help(self):
         msg = self.linter.get_message_help('F0001', checkerref=True)
         expected = ':F0001:\n  Used when an error occurred preventing the analysis of a module (unable to\n  find it for instance). This message belongs to the master checker.'
-        self.assertTextEqual(msg, expected)
+        self.assertMultiLineEqual(msg, expected)
         self.assertRaises(UnknownMessage, self.linter.get_message_help, 'YB12')
 
     def test_enable_message(self):
@@ -197,11 +197,11 @@ class PyLinterTC(TestCase):
                 pass
 
     def test_enable_report(self):
-        self.assertEquals(self.linter.is_report_enabled('RP0001'), True)
+        self.assertEqual(self.linter.is_report_enabled('RP0001'), True)
         self.linter.disable('RP0001')
-        self.assertEquals(self.linter.is_report_enabled('RP0001'), False)
+        self.assertEqual(self.linter.is_report_enabled('RP0001'), False)
         self.linter.enable('RP0001')
-        self.assertEquals(self.linter.is_report_enabled('RP0001'), True)
+        self.assertEqual(self.linter.is_report_enabled('RP0001'), True)
 
     def test_set_option_1(self):
         linter = self.linter
@@ -235,14 +235,14 @@ class ConfigTC(TestCase):
             expected = '.pylint.d'
         else:
             expected = os.path.join(uhome, '.pylint.d')
-        self.assertEquals(config.PYLINT_HOME, expected)
+        self.assertEqual(config.PYLINT_HOME, expected)
 
         try:
             pylintd = join(tempfile.gettempdir(), '.pylint.d')
             os.environ['PYLINTHOME'] = pylintd
             try:
                 reload(config)
-                self.assertEquals(config.PYLINT_HOME, pylintd)
+                self.assertEqual(config.PYLINT_HOME, pylintd)
             finally:
                 try:
                     os.remove(pylintd)
@@ -256,11 +256,11 @@ class ConfigTC(TestCase):
         home = os.environ['HOME']
         try:
             os.environ['HOME'] = fake_home
-            self.assertEquals(config.find_pylintrc(), None)
+            self.assertEqual(config.find_pylintrc(), None)
             os.environ['PYLINTRC'] = join(tempfile.gettempdir(), '.pylintrc')
-            self.assertEquals(config.find_pylintrc(), None)
+            self.assertEqual(config.find_pylintrc(), None)
             os.environ['PYLINTRC'] = '.'
-            self.assertEquals(config.find_pylintrc(), None)
+            self.assertEqual(config.find_pylintrc(), None)
         finally:
             os.environ.pop('PYLINTRC', '')
             os.environ['HOME'] = home
@@ -277,7 +277,7 @@ class ConfigTC(TestCase):
             home = os.environ['HOME']
             try:
                 os.environ['HOME'] = fake_home
-                self.assertEquals(config.find_pylintrc(), None)
+                self.assertEqual(config.find_pylintrc(), None)
             finally:
                 os.environ['HOME'] = home
                 os.rmdir(fake_home)
@@ -288,7 +288,7 @@ class ConfigTC(TestCase):
                        }
             for basedir, expected in results.items():
                 os.chdir(join(chroot, basedir))
-                self.assertEquals(config.find_pylintrc(), expected)
+                self.assertEqual(config.find_pylintrc(), expected)
         finally:
             os.chdir(HERE)
             rmtree(chroot)
@@ -302,7 +302,7 @@ class ConfigTC(TestCase):
         try:
             create_files(['a/pylintrc', 'a/b/pylintrc', 'a/b/c/d/__init__.py'], chroot)
             os.chdir(chroot)
-            self.assertEquals(config.find_pylintrc(), None)
+            self.assertEqual(config.find_pylintrc(), None)
             results = {'a'       : join(chroot, 'a', 'pylintrc'),
                        'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
                        'a/b/c'   : None,
@@ -310,7 +310,7 @@ class ConfigTC(TestCase):
                        }
             for basedir, expected in results.items():
                 os.chdir(join(chroot, basedir))
-                self.assertEquals(config.find_pylintrc(), expected)
+                self.assertEqual(config.find_pylintrc(), expected)
         finally:
             os.environ['HOME'] = home
             rmtree(fake_home, ignore_errors=True)

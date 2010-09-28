@@ -33,7 +33,7 @@ class RunTC(TestCase):
             try:
                 Run(args, reporter=reporter)
             except SystemExit, ex:
-                self.assertEquals(ex.code, code)
+                self.assertEqual(ex.code, code)
             else:
                 self.fail('expected system exit')
         finally:

@@ -30,19 +30,19 @@ except AttributeError:
 class UtilsTC(unittest.TestCase):
     
 ##     def test_is_native_builtin(self):
-##         self.assertEquals(utils.is_native_builtin('min'), True)
-##         self.assertEquals(utils.is_native_builtin('__path__'), True)
-##         self.assertEquals(utils.is_native_builtin('__file__'), True)
-##         self.assertEquals(utils.is_native_builtin('whatever'), False)
-##         self.assertEquals(utils.is_native_builtin('mybuiltin'), False)
+##         self.assertEqual(utils.is_native_builtin('min'), True)
+##         self.assertEqual(utils.is_native_builtin('__path__'), True)
+##         self.assertEqual(utils.is_native_builtin('__file__'), True)
+##         self.assertEqual(utils.is_native_builtin('whatever'), False)
+##         self.assertEqual(utils.is_native_builtin('mybuiltin'), False)
 
     def test_is_builtin(self):
-        self.assertEquals(utils.is_builtin('min'), True)
-        self.assertEquals(utils.is_builtin('__builtins__'), True)
-        self.assertEquals(utils.is_builtin('__path__'), False)
-        self.assertEquals(utils.is_builtin('__file__'), False)
-        self.assertEquals(utils.is_builtin('whatever'), False)
-        self.assertEquals(utils.is_builtin('mybuiltin'), False)
+        self.assertEqual(utils.is_builtin('min'), True)
+        self.assertEqual(utils.is_builtin('__builtins__'), True)
+        self.assertEqual(utils.is_builtin('__path__'), False)
+        self.assertEqual(utils.is_builtin('__file__'), False)
+        self.assertEqual(utils.is_builtin('whatever'), False)
+        self.assertEqual(utils.is_builtin('mybuiltin'), False)
 
 if __name__ == '__main__':
     unittest.main()

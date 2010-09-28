@@ -55,21 +55,21 @@ class GetVisibilityTC(TestCase):
 
     def test_special(self):
         for name in ["__reduce_ex__",  "__setattr__"]:
-            self.assertEquals(get_visibility(name), 'special')
+            self.assertEqual(get_visibility(name), 'special')
 
     def test_private(self):
         for name in ["__g_", "____dsf", "__23_9"]:
             got = get_visibility(name)
-            self.assertEquals(got, 'private',
+            self.assertEqual(got, 'private',
                               'got %s instead of private for value %s' % (got, name))
 
     def test_public(self):
-        self.assertEquals(get_visibility('simple'), 'public')
+        self.assertEqual(get_visibility('simple'), 'public')
 
     def test_protected(self):
         for name in ["_","__", "___", "____", "_____", "___e__", "_nextsimple", "_filter_it_"]:
             got = get_visibility(name)
-            self.assertEquals(got, 'protected',
+            self.assertEqual(got, 'protected',
                               'got %s instead of protected for value %s' % (got, name))
 
 

@@ -73,17 +73,17 @@ class DiaDefGeneratorTC(unittest.TestCase):
         cl_config = Config()
         cl_config.classes = ['Specialization']
         cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config) )
-        self.assertEquals( (0, 0), df_h._get_levels())
-        self.assertEquals( False, df_h.module_names)
-        self.assertEquals( (-1, -1), cl_h._get_levels())
-        self.assertEquals( True, cl_h.module_names)
+        self.assertEqual( (0, 0), df_h._get_levels())
+        self.assertEqual( False, df_h.module_names)
+        self.assertEqual( (-1, -1), cl_h._get_levels())
+        self.assertEqual( True, cl_h.module_names)
         for hndl in [df_h, cl_h]:
             hndl.config.all_ancestors = True
             hndl.config.all_associated = True
             hndl.config.module_names = True
             hndl._set_default_options()
-            self.assertEquals( (-1, -1), hndl._get_levels())
-            self.assertEquals( True, hndl.module_names)
+            self.assertEqual( (-1, -1), hndl._get_levels())
+            self.assertEqual( True, hndl.module_names)
         handler = DiadefsHandler( Config())
         df_h = DiaDefGenerator(Linker(PROJECT), handler)
         cl_config = Config()
@@ -94,8 +94,8 @@ class DiaDefGeneratorTC(unittest.TestCase):
             hndl.config.show_associated = 1
             hndl.config.module_names = False
             hndl._set_default_options()
-            self.assertEquals( (2, 1), hndl._get_levels())
-            self.assertEquals( False, hndl.module_names)
+            self.assertEqual( (2, 1), hndl._get_levels())
+            self.assertEqual( False, hndl.module_names)
     #def test_default_values(self):
         """test efault values for package or class diagrams"""
         # TODO : should test difference between default values for package
@@ -104,19 +104,19 @@ class DiaDefGeneratorTC(unittest.TestCase):
 class DefaultDiadefGeneratorTC(unittest.TestCase):
     def test_known_values1(self):
         dd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)
-        self.assertEquals(len(dd), 2)
+        self.assertEqual(len(dd), 2)
         keys = [d.TYPE for d in dd]
-        self.assertEquals(keys, ['package', 'class'])
+        self.assertEqual(keys, ['package', 'class'])
         pd = dd[0]
-        self.assertEquals(pd.title, 'packages No Name')
+        self.assertEqual(pd.title, 'packages No Name')
         modules = _process_modules(pd.objects)
-        self.assertEquals(modules, [{'node': True, 'name': 'data'},
+        self.assertEqual(modules, [{'node': True, 'name': 'data'},
                                     {'node': True, 'name': 'data.clientmodule_test'},
                                     {'node': True, 'name': 'data.suppliermodule_test'}])
         cd = dd[1]
-        self.assertEquals(cd.title, 'classes No Name')
+        self.assertEqual(cd.title, 'classes No Name')
         classes = _process_classes(cd.objects)
-        self.assertEquals(classes, [{'node': True, 'name': 'Ancestor'},
+        self.assertEqual(classes, [{'node': True, 'name': 'Ancestor'},
                                     {'node': True, 'name': 'DoNothing'},
                                     {'node': True, 'name': 'Interface'},
                                     {'node': True, 'name': 'Specialization'}]
@@ -131,7 +131,7 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
         cd.extract_relationships()
         relations = _process_relations(cd.relationships)
-        self.assertEquals(relations, self._should_rels)
+        self.assertEqual(relations, self._should_rels)
 
     def test_functional_relation_extraction(self):
         """functional test of relations extraction;
@@ -143,18 +143,18 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         diadefs = handler.get_diadefs(project, Linker(project, tag=True) )
         cd = diadefs[1]
         relations = _process_relations(cd.relationships)
-        self.assertEquals(relations, self._should_rels)
+        self.assertEqual(relations, self._should_rels)
 
     def test_known_values2(self):
         project = MANAGER.project_from_files(['data.clientmodule_test'], astng_wrapper)
         dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
-        self.assertEquals(len(dd), 1)
+        self.assertEqual(len(dd), 1)
         keys = [d.TYPE for d in dd]
-        self.assertEquals(keys, ['class'])
+        self.assertEqual(keys, ['class'])
         cd = dd[0]
-        self.assertEquals(cd.title, 'classes No Name')
+        self.assertEqual(cd.title, 'classes No Name')
         classes = _process_classes(cd.objects)
-        self.assertEquals(classes, [{'node': True, 'name': 'Ancestor'},
+        self.assertEqual(classes, [{'node': True, 'name': 'Ancestor'},
                                     {'node': True, 'name': 'DoNothing'},
                                     {'node': True, 'name': 'Specialization'}]
                           )
@@ -165,9 +165,9 @@ class ClassDiadefGeneratorTC(unittest.TestCase):
         cdg = ClassDiadefGenerator(Linker(PROJECT), HANDLER)
         special = 'data.clientmodule_test.Specialization'
         cd = cdg.class_diagram(PROJECT, special)
-        self.assertEquals(cd.title, special)
+        self.assertEqual(cd.title, special)
         classes = _process_classes(cd.objects)
-        self.assertEquals(classes, [{'node': True,
+        self.assertEqual(classes, [{'node': True,
                                     'name': 'data.clientmodule_test.Ancestor'},
                                     {'node': True, 'name': special},
                                     {'node': True,
@@ -177,9 +177,9 @@ class ClassDiadefGeneratorTC(unittest.TestCase):
     def test_known_values2(self):
         HANDLER.config.module_names = False
         cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(PROJECT, 'data.clientmodule_test.Specialization')
-        self.assertEquals(cd.title, 'data.clientmodule_test.Specialization')
+        self.assertEqual(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
-        self.assertEquals(classes, [{'node': True, 'name': 'Ancestor' },
+        self.assertEqual(classes, [{'node': True, 'name': 'Ancestor' },
                                     {'node': True, 'name': 'DoNothing'},
                                     {'node': True, 'name': 'Specialization'}
                                     ])

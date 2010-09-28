@@ -14,7 +14,7 @@ class SimilarTC(unittest.TestCase):
             output = sys.stdout.getvalue()
         finally:
             sys.stdout = sys.__stdout__
-        self.assertEquals(output.strip(), """
+        self.assertEqual(output.strip(), """
 7 similar lines in 2 files
 ==input/similar1:5
 ==input/similar2:5
@@ -34,7 +34,7 @@ TOTAL lines=38 duplicates=7 percent=0.184210526316
             try:
                 similar.run(['--help'])
             except SystemExit, ex:
-                self.assertEquals(ex.code, 0)
+                self.assertEqual(ex.code, 0)
             else:
                 self.fail()
         finally:
@@ -46,7 +46,7 @@ TOTAL lines=38 duplicates=7 percent=0.184210526316
             try:
                 similar.run([])
             except SystemExit, ex:
-                self.assertEquals(ex.code, 1)
+                self.assertEqual(ex.code, 1)
             else:
                 self.fail()
         finally:
