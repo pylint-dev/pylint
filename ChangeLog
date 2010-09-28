@@ -1,6 +1,13 @@
 ChangeLog for PyLint
 ====================
 
+2010-09-28  --  0.21.3
+    * restored python 2.3 compatibility. Along with logilab-astng
+      0.21.3 and logilab-common 0.52, this will much probably be the
+      latest release supporting python < 2.5.
+
+
+
 2010-08-26  --  0.21.2
     * fix #36193: import checker raise exception on cyclic import
 

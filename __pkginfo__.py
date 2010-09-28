@@ -18,7 +18,7 @@
 
 modname = distname = 'pylint'
 
-numversion = (0, 21, 2)
+numversion = (0, 21, 3)
 version = '.'.join([str(num) for num in numversion])
 
 install_requires = ['logilab-common >= 0.50.1',
