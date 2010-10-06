@@ -19,8 +19,9 @@
 from __future__ import generators
 
 import sys
+from itertools import izip
 
-from logilab.common.compat import set, izip, sum, enumerate
+from logilab.common.compat import set
 from logilab.common.ureports import Table
 
 from pylint.interfaces import IRawChecker

@@ -18,7 +18,6 @@
 
 from copy import copy
 
-from logilab.common.compat import enumerate
 from logilab import astng
 from logilab.astng import are_exclusive, builtin_lookup
 

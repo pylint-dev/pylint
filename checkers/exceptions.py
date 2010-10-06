@@ -16,7 +16,6 @@
 """
 import sys
 
-from logilab.common.compat import enumerate
 from logilab import astng
 from logilab.astng import YES, Instance, unpack_infer
 
