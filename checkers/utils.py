@@ -23,11 +23,10 @@ from logilab.common.compat import set
 
 try:
     # python >= 2.4
-    COMP_NODE_TYPES = (astng.ListComp, astng.GenExpr)
-    FOR_NODE_TYPES = (astng.For, astng.Comprehension, astng.Comprehension)
+    COMP_NODE_TYPES = (astng.ListComp, astng.SetComp, astng.DictComp,
+                       astng.GenExpr)
 except AttributeError:
     COMP_NODE_TYPES = astng.ListComp
-    FOR_NODE_TYPES = (astng.For, astng.Comprehension)
 
 def safe_infer(node):
     """return the inferred value for the given node.
@@ -83,15 +82,15 @@ def is_builtin(name): # was is_native_builtin
         return True
     return False
 
-def is_defined_before(var_node, comp_node_types=COMP_NODE_TYPES):
-    """return True if the variable node is defined by a parent node (list
-    or generator comprehension, lambda) or in a previous sibling node
-    one the same line (statement_defining ; statement_using)
+def is_defined_before(var_node):
+    """return True if the variable node is defined by a parent node (list,
+    set, dict, or generator comprehension, lambda) or in a previous sibling
+    node on the same line (statement_defining ; statement_using)
     """
     varname = var_node.name
     _node = var_node.parent
     while _node:
-        if isinstance(_node, comp_node_types):
+        if isinstance(_node, COMP_NODE_TYPES):
             for ass_node in _node.nodes_of_class(astng.AssName):
                 if ass_node.name == varname:
                     return True

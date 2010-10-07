@@ -43,7 +43,8 @@ def in_loop(node):
     """return True if the node is inside a kind of for loop"""
     parent = node.parent
     while parent is not None:
-        if isinstance(parent, (astng.For, astng.ListComp, astng.GenExpr)):
+        if isinstance(parent, (astng.For, astng.ListComp, astng.SetComp,
+                               astng.DictComp, astng.GenExpr)):
             return True
         parent = parent.parent
     return False

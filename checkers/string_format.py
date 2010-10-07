@@ -197,6 +197,7 @@ class StringFormatChecker(BaseChecker):
                           isinstance(args, astng.Tuple) or
                           isinstance(args, astng.List) or
                           isinstance(args, astng.ListComp) or
+                          isinstance(args, astng.SetComp) or
                           isinstance(args, astng.GenExpr) or
                           isinstance(args, astng.Backquote) or
                           isinstance(args, astng.Lambda)):
@@ -218,6 +219,8 @@ class StringFormatChecker(BaseChecker):
                           isinstance(args, astng.Dict) or
                           isinstance(args, astng.List) or
                           isinstance(args, astng.ListComp) or
+                          isinstance(args, astng.SetComp) or
+                          isinstance(args, astng.DictComp) or
                           isinstance(args, astng.GenExpr) or
                           isinstance(args, astng.Backquote) or
                           isinstance(args, astng.Lambda) or
