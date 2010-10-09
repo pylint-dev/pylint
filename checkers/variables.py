@@ -181,10 +181,32 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_genexpr(self, node):
         """visit genexpr: update consumption analysis variable
         """
-        self._to_consume.append((copy(node.locals), {}, 'genexpr'))
+        self._to_consume.append((copy(node.locals), {}, 'comprehension'))
 
     def leave_genexpr(self, _):
         """leave genexpr: update consumption analysis variable
+        """
+        # do not check for not used locals here
+        self._to_consume.pop()
+
+    def visit_dictcomp(self, node):
+        """visit dictcomp: update consumption analysis variable
+        """
+        self._to_consume.append((copy(node.locals), {}, 'comprehension'))
+
+    def leave_dictcomp(self, _):
+        """leave dictcomp: update consumption analysis variable
+        """
+        # do not check for not used locals here
+        self._to_consume.pop()
+
+    def visit_setcomp(self, node):
+        """visit setcomp: update consumption analysis variable
+        """
+        self._to_consume.append((copy(node.locals), {}, 'comprehension'))
+
+    def leave_setcomp(self, _):
+        """leave setcomp: update consumption analysis variable
         """
         # do not check for not used locals here
         self._to_consume.pop()
@@ -349,9 +371,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # scope, ignore it. This prevents to access this scope instead of
             # the globals one in function members when there are some common
             # names. The only exception is when the starting scope is a
-            # genexpr and its direct outer scope is a class
+            # comprehension and its direct outer scope is a class
             if scope_type == 'class' and i != start_index and not (
-                base_scope_type == 'genexpr' and i == start_index-1):
+                base_scope_type == 'comprehension' and i == start_index-1):
                 # XXX find a way to handle class scope in a smoother way
                 continue
             # the name has already been consumed, only check it's not a loop
