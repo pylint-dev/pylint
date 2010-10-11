@@ -531,15 +531,14 @@ This is used by the global evaluation report (R0004).'}),
     def get_astng(self, filepath, modname):
         """return a astng representation for a module"""
         try:
-            return MANAGER.astng_from_file(filepath, modname)
+            return MANAGER.astng_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
             self.add_message('E0001', line=ex.lineno, args=ex.msg)
         except KeyboardInterrupt:
             raise
         except Exception, ex:
-            #if __debug__:
-            #    import traceback
-            #    traceback.print_exc()
+            # import traceback
+            # traceback.print_exc()
             self.add_message('F0002', args=(ex.__class__, ex))
 
     def check_astng_module(self, astng, walker, rawcheckers):
