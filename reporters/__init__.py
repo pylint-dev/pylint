@@ -12,8 +12,8 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """utilities methods and classes for reporters
 
- Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
+Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
+http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
 import sys, locale
@@ -48,14 +48,18 @@ class BaseReporter:
     def set_output(self, output=None):
         """set output stream"""
         self.out = output or sys.stdout
-        self.out_encoding = (self.out.encoding or
-                             locale.getdefaultlocale()[1] or
-                             sys.getdefaultencoding())
+        def encode(string):
+            if not isinstance(string, unicode):
+                return string
+            encoding = (getattr(self.out, 'encoding', None) or
+                        locale.getdefaultlocale()[1] or
+                        sys.getdefaultencoding())
+            return string.encode(encoding)
+        self.encode = encode
 
     def writeln(self, string=''):
         """write a line in the output buffer"""
-        print >> self.out, (isinstance(string, unicode) and
-                            string.encode(self.out_encoding) or string)
+        print >> self.out, self.encode(string)
 
     def display_results(self, layout):
         """display results encapsulated in the layout tree"""
