@@ -16,7 +16,7 @@
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 """
 
-import sys
+import sys, locale
 
 CMPS = ['=', '-', '+']
 
@@ -36,32 +36,35 @@ class BaseReporter:
     """base class for reporters"""
 
     extension = ''
-    
+
     def __init__(self, output=None):
         self.linter = None
         self.include_ids = None
         self.section = 0
         self.out = None
+        self.out_encoding = None
         self.set_output(output)
-        
+
     def set_output(self, output=None):
         """set output stream"""
-        if output is None:
-            output = sys.stdout
-        self.out = output
-        
+        self.out = output or sys.stdout
+        self.out_encoding = (self.out.encoding or
+                             locale.getdefaultlocale()[1] or
+                             sys.getdefaultencoding())
+
     def writeln(self, string=''):
         """write a line in the output buffer"""
-        print >> self.out, string
-        
+        print >> self.out, (isinstance(string, unicode) and
+                            string.encode(self.out_encoding) or string)
+
     def display_results(self, layout):
         """display results encapsulated in the layout tree"""
         self.section = 0
         if self.include_ids and hasattr(layout, 'report_id'):
             layout.children[0].children[0].data += ' (%s)' % layout.report_id
         self._display(layout)
-        
+
     def _display(self, layout):
         """display the layout"""
         raise NotImplementedError()
-        
+
