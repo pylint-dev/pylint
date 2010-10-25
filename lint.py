@@ -189,13 +189,13 @@ convention) / statement) * 10)',
 than 10 (10 is the highest note). You have access to the variables errors \
 warning, statement which respectively contain the number of errors / warnings\
  messages and the total number of statements analyzed. This is used by the \
- global evaluation report (R0004).'}),
+ global evaluation report (RP0004).'}),
 
                ('comment',
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'group': 'Reports', 'level': 1,
                  'help' : 'Add a comment according to your evaluation note. \
-This is used by the global evaluation report (R0004).'}),
+This is used by the global evaluation report (RP0004).'}),
 
                ('enable',
                 {'type' : 'csv', 'metavar': '<msg ids>',
