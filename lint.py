@@ -837,7 +837,12 @@ been issued by analysing pylint output status code
             # by file parameters, so re-set it here, but before command line
             # parsing so it's still overrideable by command line option
             linter.set_reporter(reporter)
-        args = linter.load_command_line_configuration(args)
+        try:
+            args = linter.load_command_line_configuration(args)
+        except SystemExit, exc:
+            if exc.code == 2: # bad options
+                exc.code = 32
+            raise
         if not args:
             print linter.help()
             sys.exit(32)
