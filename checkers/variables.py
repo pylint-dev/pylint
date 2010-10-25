@@ -110,8 +110,8 @@ __init__ files.'}),
                ("dummy-variables-rgx",
                 {'default': ('_|dummy'),
                  'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'A regular expression matching names used \
-                 for dummy variables (i.e. not used).'}),
+                 'help' : 'A regular expression matching the beginning of \
+                  the name of dummy variables (i.e. not used).'}),
                ("additional-builtins",
                 {'default': (), 'type' : 'csv',
                  'metavar' : '<comma separated list>',
