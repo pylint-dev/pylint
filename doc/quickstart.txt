@@ -161,11 +161,14 @@ First of all, we have two basic (but useful) options.
 -h, --help            show help about the command line options
 
 Pylint is architectured around several checkers. By default all
-checkers are enabled. You can disable a specific checker by specifying
-``--enable-<checker>=n``, or disable all checkers using
-``--disable-all`` and afterwards enable specific checkers with
-``--enable-<checker>=y``. See the list of available features_ for a
+checkers are enabled. You can disable a specific checker or some of its
+messages or messages categories by specifying
+``--disable=<id>``. A more general disable can be enabled with
+or disable all checkers using
+``--enable=w<id>``. See the list of available features_ for a
 description of provided checkers with their functionalities.
+The ``--disable`` and ``--enable`` options can be used with comma separated lists
+mixing checkers, message ids and categories like ``-d C,W,E0611,design``
 
 Each checker has some specific options, which can take either a yes/no
 value, an integer, a python regular expression, or a comma separated
@@ -192,12 +195,6 @@ Other useful global options include:
 --comment=y_or_n        Add a comment according to your evaluation note.
 --parseable=y_or_n      Use a parseable output format.
 --html=y_or_n           Use HTML as output format instead of text.
---enable-msg=msgids     Enable the given messages.
---disable-msg=msgids    Disable the given messages.
---enable-msg-cat=cats   Enable all messages in the given categories.
---disable-msg-cat=cats  Disable all messages in the given categories.
-
-
 
 Bug reports
 -----------

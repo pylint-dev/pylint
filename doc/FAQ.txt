@@ -150,7 +150,7 @@ the rc file
 
 For example::
 
-	pylint --disable-msg=W0702,C0103 --class-rgx='[A-Z][a-z]+' --generate-rcfile
+	pylint --disable=W0702,C0103 --class-rgx='[A-Z][a-z]+' --generate-rcfile
 
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ http://www.wingware.com/doc/edit/pylint
 -----------------------------------------------------------
   
 Yes, this feature has been added in pylint 0.11. This may be done by
-adding "#pylint: disable-msg=W0123,E4567" at the desired block level
+adding "#pylint: disable=W0123,E4567" at the desired block level
 or at the end of the desired line of code
 
 
@@ -230,7 +230,7 @@ Yes, you can disable or enable (globally disabled) messages at the
 module level by adding the corresponding option in a comment at the
 top of the file: ::
 
-	# pylint: disable-msg=W0401, E0202
+	# pylint: disable=W0401, E0202
 	# pylint: enable-msg=C0302
 
 4.5 What is the format of the configuration file?

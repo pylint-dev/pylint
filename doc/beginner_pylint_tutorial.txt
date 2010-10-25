@@ -54,13 +54,13 @@ idea of the arguments available to you.  Do that now, i.e.:  ::
 A couple of the options that we'll focus on here are: ::
 
   Master:
-    --rcfile=<file>
+    --generate-rcfile=<file>
   Commands:
     --help-msg=<msg-id>
   Commands:
     --help-msg=<msg-id>
   Message control:
-    --disable-msg=<msg-ids>
+    --disable=<msg-ids>
   Reports:
     --files-output=<y_or_n>
     --reports=<y_or_n>
@@ -302,7 +302,7 @@ may not support that code so my code may break in the future.  There are 5 C0103
 messages that we will get to later.  Lastly, I violated the convention of using
 spaces around an operator such as "=" so I'll fix that too.  To sum up, I'll add
 a docstring to line 2, put spaces around the = sign on line 16 and use the 
-"--disable-msg=W0402" to ignore the deprecation warning.
+"--disable=W0402" to ignore the deprecation warning.
 
 Here's the updated code: ::
 
@@ -334,9 +334,9 @@ Here's the updated code: ::
   26  
   27  print encoded
 
-And here's what happens when we run it with our --disable-msg=W0402 option: ::
+And here's what happens when we run it with our --disable=W0402 option: ::
 
-  robertk01 Desktop$ pylint --reports=n --include-ids=y --disable-msg=W0402 simplecaeser.py 
+  robertk01 Desktop$ pylint --reports=n --include-ids=y --disable=W0402 simplecaeser.py 
   No config file found, using default configuration
   ************* Module simplecaeser
   C0103:  7: Invalid name "shift" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
@@ -345,7 +345,7 @@ And here's what happens when we run it with our --disable-msg=W0402 option: ::
   C0103: 10: Invalid name "letters" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
   C0103: 11: Invalid name "encoded" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
 
-Nice!  We're down to just the C0103 messages.  
+Nice!  We're down to just the C0103 messages.
 
 There are fairly well defined conventions around naming things like instance 
 variables, functions, classes, etc.  The conventions focus on the use of 
@@ -366,7 +366,7 @@ regular expression (a-z versus A-Z).
 If we run that rule using a --const-rgx='[a-z\_][a-z0-9\_]{2,30}$' option, it 
 will now be quite quiet: ::
 
-  robertk01 Desktop$ pylint --reports=n --include-ids=y --disable-msg=W0402 --const-rgx='[a-z_][a-z0-9_]{2,30}$'  simplecaeser.py 
+  robertk01 Desktop$ pylint --reports=n --include-ids=y --disable=W0402 --const-rgx='[a-z_][a-z0-9_]{2,30}$'  simplecaeser.py 
   No config file found, using default configuration
 
 Regular expressions can be quite a beast so take my word on this particular 
