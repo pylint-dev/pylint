@@ -291,6 +291,8 @@ class MessagesHandlerMixIn:
         for checker in self.sort_checkers():
             if checker.name == 'master':
                 prefix = 'Main '
+                print "Options"
+                print '-------\n'
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:
@@ -315,6 +317,7 @@ class MessagesHandlerMixIn:
             title = '%s checker' % checker
             print title
             print '-' * len(title)
+            print
             if options:
                 title = 'Options'
                 print title
