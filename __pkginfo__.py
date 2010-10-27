@@ -18,11 +18,11 @@
 
 modname = distname = 'pylint'
 
-numversion = (0, 21, 3)
+numversion = (0, 21, 4)
 version = '.'.join([str(num) for num in numversion])
 
-install_requires = ['logilab-common >= 0.50.1',
-                    'logilab-astng >= 0.20.1']
+install_requires = ['logilab-common >= 0.52.1',
+                    'logilab-astng >= 0.20.4']
 
 license = 'GPL'
 description = "python code static checker"
@@ -58,7 +58,7 @@ long_desc = """\
  .
  Additionally, it is possible to write plugins to add your own checks."""
 
-pyversions = ["2.3", "2.4", "2.5", '2.6'] # maybe 2.2 as well
+pyversions = ["2.3", "2.4", "2.5", '2.6', "2.7"]
 
 from os.path import join
 scripts = [join('bin', filename)

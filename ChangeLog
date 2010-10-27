@@ -1,6 +1,14 @@
 ChangeLog for PyLint
 ====================
 
+2010-10-27  --  0.21.4
+
+    * fix #48066: pylint crashes when redirecting output containing non-ascii characters
+
+    * fix #19799: "pylint -blah" exit with status 2
+
+    * update documentation
+
 2010-09-28  --  0.21.3
     * restored python 2.3 compatibility. Along with logilab-astng
       0.21.3 and logilab-common 0.52, this will much probably be the
