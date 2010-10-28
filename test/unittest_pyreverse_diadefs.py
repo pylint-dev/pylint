@@ -38,26 +38,12 @@ HANDLER = DiadefsHandler(CONFIG)
 
 def _process_classes(classes):
     """extract class names of a list"""
-    result = []
-    for classe in classes:
-        result.append({'node' : isinstance(classe.node, astng.Class),
-                       'name' : classe.title})
-    result.sort()
-    return result
-
-def _process_modules(modules):
-    """extract module names from a list"""
-    result = []
-    for module in modules:
-        result.append({'node' : isinstance(module.node, astng.Module),
-                       'name': module.title})
-    result.sort()
-    return result
+    return sorted([(isinstance(c.node, astng.Class), c.title) for c in classes])
 
 def _process_relations(relations):
     """extract relation indices from a relation list"""
     result = []
-    for rel_type, rels  in relations.items():
+    for rel_type, rels  in relations.iteritems():
         for rel in rels:
             result.append( (rel_type, rel.from_object.title,
                             rel.to_object.title) )
@@ -109,17 +95,18 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         self.assertEqual(keys, ['package', 'class'])
         pd = dd[0]
         self.assertEqual(pd.title, 'packages No Name')
-        modules = _process_modules(pd.objects)
-        self.assertEqual(modules, [{'node': True, 'name': 'data'},
-                                    {'node': True, 'name': 'data.clientmodule_test'},
-                                    {'node': True, 'name': 'data.suppliermodule_test'}])
+        modules = sorted([(isinstance(m.node, astng.Module), m.title)
+                         for m in pd.objects])
+        self.assertEqual(modules, [(True, 'data'),
+                                   (True, 'data.clientmodule_test'),
+                                   (True, 'data.suppliermodule_test')])
         cd = dd[1]
         self.assertEqual(cd.title, 'classes No Name')
         classes = _process_classes(cd.objects)
-        self.assertEqual(classes, [{'node': True, 'name': 'Ancestor'},
-                                    {'node': True, 'name': 'DoNothing'},
-                                    {'node': True, 'name': 'Interface'},
-                                    {'node': True, 'name': 'Specialization'}]
+        self.assertEqual(classes, [(True, 'Ancestor'),
+                                   (True, 'DoNothing'),
+                                   (True, 'Interface'),
+                                   (True, 'Specialization')]
                           )
 
     _should_rels = [('association', 'DoNothing', 'Ancestor'),
@@ -154,9 +141,9 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         cd = dd[0]
         self.assertEqual(cd.title, 'classes No Name')
         classes = _process_classes(cd.objects)
-        self.assertEqual(classes, [{'node': True, 'name': 'Ancestor'},
-                                    {'node': True, 'name': 'DoNothing'},
-                                    {'node': True, 'name': 'Specialization'}]
+        self.assertEqual(classes, [(True, 'Ancestor'),
+                                   (True, 'DoNothing'),
+                                   (True, 'Specialization')]
                           )
 
 class ClassDiadefGeneratorTC(unittest.TestCase):
@@ -167,22 +154,20 @@ class ClassDiadefGeneratorTC(unittest.TestCase):
         cd = cdg.class_diagram(PROJECT, special)
         self.assertEqual(cd.title, special)
         classes = _process_classes(cd.objects)
-        self.assertEqual(classes, [{'node': True,
-                                    'name': 'data.clientmodule_test.Ancestor'},
-                                    {'node': True, 'name': special},
-                                    {'node': True,
-                                    'name': 'data.suppliermodule_test.DoNothing'},
-                                    ])
+        self.assertEqual(classes, [(True, 'data.clientmodule_test.Ancestor'),
+                                   (True, special),
+                                   (True, 'data.suppliermodule_test.DoNothing'),
+                                  ])
         
     def test_known_values2(self):
         HANDLER.config.module_names = False
         cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(PROJECT, 'data.clientmodule_test.Specialization')
         self.assertEqual(cd.title, 'data.clientmodule_test.Specialization')
         classes = _process_classes(cd.objects)
-        self.assertEqual(classes, [{'node': True, 'name': 'Ancestor' },
-                                    {'node': True, 'name': 'DoNothing'},
-                                    {'node': True, 'name': 'Specialization'}
-                                    ])
+        self.assertEqual(classes, [(True, 'Ancestor'),
+                                   (True, 'DoNothing'),
+                                   (True, 'Specialization')
+                                  ])
 
 
 if __name__ == '__main__':
