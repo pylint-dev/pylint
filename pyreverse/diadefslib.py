@@ -16,6 +16,8 @@
 """handle diagram generation options for class diagram or default diagrams
 """
 
+from logilab.common.compat import set, builtins
+BUILTINS_NAME = builtins.__name__
 from logilab import astng
 from logilab.astng.utils import LocalsVisitor
 
@@ -75,7 +77,7 @@ class DiaDefGenerator:
         """true if builtins and not show_builtins"""
         if self.config.show_builtin:
             return True
-        return node.root().name != '__builtin__'
+        return node.root().name != BUILTINS_NAME
 
     def add_class(self, node):
         """visit one class and add it to diagram"""

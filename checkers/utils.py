@@ -19,7 +19,8 @@
 """
 
 from logilab import astng
-from logilab.common.compat import set
+from logilab.common.compat import set, builtins
+BUILTINS_NAME = builtins.__name__
 
 try:
     # python >= 2.4
@@ -48,7 +49,7 @@ def is_super(node):
     """return True if the node is referencing the "super" builtin function
     """
     if getattr(node, 'name', None) == 'super' and \
-           node.root().name == '__builtin__':
+           node.root().name == BUILTINS_NAME:
         return True
     return False
 
@@ -70,13 +71,13 @@ def is_empty(body):
     """return true if the given node does nothing but 'pass'"""
     return len(body) == 1 and isinstance(body[0], astng.Pass)
 
-builtins = __builtins__.copy()
+builtins =  __builtins__.copy()
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
 
 def is_builtin(name): # was is_native_builtin
     """return true if <name> could be considered as a builtin defined by python
     """
-    if builtins.has_key(name):
+    if name in builtins:
         return True
     if name in SPECIAL_BUILTINS:
         return True

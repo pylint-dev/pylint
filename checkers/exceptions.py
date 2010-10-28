@@ -16,12 +16,15 @@
 """
 import sys
 
+from logilab.common.compat import builtins
+BUILTINS_NAME = builtins.__name__
 from logilab import astng
 from logilab.astng import YES, Instance, unpack_infer
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_empty, is_raising
 from pylint.interfaces import IASTNGChecker
+
 
 MSGS = {
     'E0701': (
@@ -115,7 +118,7 @@ class ExceptionsChecker(BaseChecker):
                 expr = expr._proxied
             if (isinstance(expr, astng.Class) and
                     not inherit_from_std_ex(expr) and
-                    expr.root().name != '__builtin__'):
+                    expr.root().name != BUILTINS_NAME):
                 if expr.newstyle:
                     self.add_message('E0710', node=node)
                 else:
