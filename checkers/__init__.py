@@ -135,10 +135,11 @@ def package_load(linter, directory):
     imported = {}
     for filename in listdir(directory):
         basename, extension = splitext(filename)
-        if not imported.has_key(basename) and (
-            (extension in PY_EXTS and basename != '__init__') or (
-             not extension and not basename == 'CVS' and
-             isdir(join(directory, basename)))):
+        if basename in imported or basename == '__pycache__':
+            continue
+        if extension in PY_EXTS and basename != '__init__' or (
+             not extension and basename != 'CVS' and
+             isdir(join(directory, basename))):
             try:
                 module = __import__(basename, globs, globs, None)
             except ValueError:
