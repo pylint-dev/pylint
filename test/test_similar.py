@@ -25,7 +25,7 @@ class SimilarTC(unittest.TestCase):
    detected
    
    
-TOTAL lines=38 duplicates=7 percent=0.184210526316        
+TOTAL lines=38 duplicates=7 percent=18.42
 """.strip())
                           
     def test_help(self):

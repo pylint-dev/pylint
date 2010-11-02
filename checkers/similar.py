@@ -21,7 +21,7 @@ from __future__ import generators
 import sys
 from itertools import izip
 
-from logilab.common.compat import set
+from logilab.common.compat import set, sorted
 from logilab.common.ureports import Table
 
 from pylint.interfaces import IRawChecker
@@ -75,8 +75,7 @@ class Similar:
         for num, couples in sims:
             print
             print num, "similar lines in", len(couples), "files"
-            couples = list(couples)
-            couples.sort()
+            couples = sorted(couples)
             for lineset, idx in couples:
                 print "==%s:%s" % (lineset.name, idx)
             # pylint: disable=W0631
@@ -84,9 +83,9 @@ class Similar:
                 print "  ", line,
             nb_lignes_dupliquees += num * (len(couples)-1)
         nb_total_lignes = sum([len(lineset) for lineset in self.linesets])
-        print "TOTAL lines=%s duplicates=%s percent=%s" \
+        print "TOTAL lines=%s duplicates=%s percent=%.2f" \
             % (nb_total_lignes, nb_lignes_dupliquees,
-               nb_lignes_dupliquees*1. / nb_total_lignes)
+               nb_lignes_dupliquees*100. / nb_total_lignes)
 
     def _find_common(self, lineset1, lineset2):
         """find similarities in the two given linesets"""
@@ -165,8 +164,8 @@ class LineSet:
     def __getitem__(self, index):
         return self._stripped_lines[index]
 
-    def __cmp__(self, other):
-        return cmp(self.name, other.name)
+    def __ltp__(self, other):
+        return self.name < other.name
 
     def __hash__(self):
         return id(self)
@@ -215,7 +214,7 @@ def report_similarities(sect, stats, old_stats):
 # wrapper to get a pylint checker from the similar class
 class SimilarChecker(BaseChecker, Similar):
     """checks for similarities and duplicated code. This computation may be
-    memory / CPU intensive, so you should disable it if you experiments some
+    memory / CPU intensive, so you should disable it if you experiment some
     problems.
     """
 
@@ -271,7 +270,7 @@ class SimilarChecker(BaseChecker, Similar):
 
         the module's content is accessible via the stream object
 
-        stream must implements the readlines method
+        stream must implement the readlines method
         """
         self.append_stream(self.linter.current_name, stream)
 
