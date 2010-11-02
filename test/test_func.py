@@ -106,7 +106,7 @@ class LintTestUsingModule(testlib.TestCase):
         try:
             self.assertMultiLineEqual(got, expected)
         except Exception, ex:
-            raise AssertionError('%s: %s' % (self.module, ex)), None, sys.exc_info()[-1]
+            raise AssertionError, '%s: %s' % (self.module, ex), sys.exc_info()[-1]
 
 class LintTestUsingFile(LintTestUsingModule):
 
