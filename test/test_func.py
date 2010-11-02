@@ -18,7 +18,6 @@
 import unittest
 import sys
 import re
-import new
 from os import linesep
 from os.path import exists
 
@@ -51,7 +50,7 @@ else:
 
 INFO_TEST_RGX = re.compile('^func_i\d\d\d\d$')
 
-def exception_str(ex):
+def exception_str(self, ex):
     """function used to replace default __str__ method of exception instances"""
     return 'in %s\n:: %s' % (ex.file, ', '.join(ex.args))
 
@@ -94,7 +93,8 @@ class LintTestUsingModule(testlib.TestCase):
             # need finalization to restore a correct state
             self.linter.reporter.finalize()
             ex.file = tocheck
-            ex.__str__ = new.instancemethod(exception_str, ex, None)
+            print ex
+            ex.__str__ = exception_str
             raise
         if self.module.startswith('func_noerror_'):
             expected = ''
@@ -106,9 +106,6 @@ class LintTestUsingModule(testlib.TestCase):
         try:
             self.assertMultiLineEqual(got, expected)
         except Exception, ex:
-            # doesn't work with py 2.5
-            #ex.file = tocheck
-            #ex.__str__ = new.instancemethod(exception_str, ex, None)
             raise AssertionError('%s: %s' % (self.module, ex)), None, sys.exc_info()[-1]
 
 class LintTestUsingFile(LintTestUsingModule):
