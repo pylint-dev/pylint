@@ -60,14 +60,19 @@ def load_results(base):
     except:
         return {}
 
+if sys.version_info < (3, 0):
+    _PICK_MOD = 'w'
+else:
+    _PICK_MOD = 'wb'
+
 def save_results(results, base):
     """pickle results"""
     data_file = get_pdata_path(base, 1)
     try:
-        pickle.dump(results, open(data_file, 'w'))
+        pickle.dump(results, open(data_file, _PICK_MOD))
     except (IOError, OSError), ex:
         print >> sys.stderr, 'Unable to create file %s: %s' % (data_file, ex)
-    
+
 # location of the configuration file ##########################################
 
 
