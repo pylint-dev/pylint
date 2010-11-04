@@ -73,8 +73,7 @@ class TestReporter(BaseReporter):
 
 # # # # #  pyreverse unittest utilities  # # # # # #
 
-
-import unittest
+from logilab.common.testlib import TestCase
 import os
 import sys
 from os.path import join
@@ -116,13 +115,13 @@ class Config(object):
         for attr, value in DEFAULTS.items():
             setattr(self, attr, value)
 
-class FileTC(unittest.TestCase):
+class FileTC(TestCase):
     """base test case for testing file output"""
 
     generated_files = ()
 
     def setUp(self):
-        self.expected_files = [join('data', file)
+        self.expected_files = [join(dirname(abspath(__file__)), 'data', file)
                                for file in self.generated_files]
 
     def tearDown(self):

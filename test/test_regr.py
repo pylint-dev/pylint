@@ -19,7 +19,7 @@ to be incorporated in the automatic functional test framework
 
 import sys
 import os
-from os.path import abspath, join
+from os.path import abspath, dirname, join
 
 from logilab.common.testlib import TestCase, unittest_main
 
@@ -35,7 +35,8 @@ linter.disable('I')
 linter.config.persistent = 0
 checkers.initialize(linter)
 
-sys.path.insert(1, abspath('regrtest_data'))
+REGR_DATA = join(dirname(abspath(__file__)), 'regrtest_data')
+sys.path.insert(1, REGR_DATA)
 
 class NonRegrTC(TestCase):
     def setUp(self):
@@ -55,14 +56,14 @@ class NonRegrTC(TestCase):
         self.failUnlessEqual(got, '')
 
     def test_check_package___init__(self):
-        for variation in ('package.__init__', 'regrtest_data/package/__init__.py'):
+        for variation in ('package.__init__', join(REGR_DATA, 'package', '__init__.py')):
             linter.check(variation)
             got = linter.reporter.finalize().strip()
             checked = linter.stats['by_module'].keys()
             self.failUnlessEqual(checked, ['package.__init__'],
                                  '%s: %s' % (variation, checked))
         cwd = os.getcwd()
-        os.chdir('regrtest_data/package')
+        os.chdir(join(REGR_DATA, 'package'))
         sys.path.insert(0, '')
         try:
             for variation in ('__init__', '__init__.py'):
@@ -82,7 +83,7 @@ class NonRegrTC(TestCase):
             self.skipTest('test skipped: gtk is not available')
         except RuntimeError: # RuntimeError when missing display
             self.skipTest('no display, can\'t run this test')
-        linter.check('regrtest_data/pygtk_import.py')
+        linter.check(join(REGR_DATA, 'pygtk_import.py'))
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
 
@@ -91,7 +92,7 @@ class NonRegrTC(TestCase):
             from numarray import random_array
         except ImportError:
             self.skipTest('test skipped: numarray.random_array is not available')
-        linter.check('regrtest_data/numarray_inf.py')
+        linter.check(join(REGR_DATA, 'numarray_inf.py'))
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, "E:  5: Instance of 'int' has no 'astype' member (but some types could not be inferred)")
 
@@ -100,17 +101,17 @@ class NonRegrTC(TestCase):
             import numarray
         except ImportError:
             self.skipTest('test skipped: numarray is not available')
-        linter.check('regrtest_data/numarray_import.py')
+        linter.check(join(REGR_DATA, 'numarray_import.py'))
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
 
     def test_socketerror_import(self):
-        linter.check('regrtest_data/socketerror_import.py')
+        linter.check(join(REGR_DATA, 'socketerror_import.py'))
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
 
     def test_class__doc__usage(self):
-        linter.check('regrtest_data/classdoc_usage.py')
+        linter.check(join(REGR_DATA, 'classdoc_usage.py'))
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
 
@@ -120,23 +121,23 @@ class NonRegrTC(TestCase):
         self.failUnlessEqual(got, '')
 
     def test_module_global_crash(self):
-        linter.check('regrtest_data/module_global.py')
+        linter.check(join(REGR_DATA, 'module_global.py'))
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
 
     def test_decimal_inference(self):
-        linter.check('regrtest_data/decimal_inference.py')
+        linter.check(join(REGR_DATA, 'decimal_inference.py'))
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, "")
 
     def test_descriptor_crash(self):
-        for fname in os.listdir('regrtest_data'):
+        for fname in os.listdir(REGR_DATA):
             if fname.endswith('_crash.py'):
-                linter.check(join('regrtest_data', fname))
+                linter.check(join(REGR_DATA, fname))
                 linter.reporter.finalize().strip()
 
     def test_try_finally_disable_msg_crash(self):
-        linter.check(join('regrtest_data', 'try_finally_disable_msg_crash'))
+        linter.check(join(REGR_DATA, 'try_finally_disable_msg_crash'))
 
 
     def test___path__(self):

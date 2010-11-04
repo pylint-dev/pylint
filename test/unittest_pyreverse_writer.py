@@ -17,8 +17,7 @@
 unittest for visitors.diadefs and extensions.diadefslib modules
 """
 
-import unittest
-
+from os.path import abspath, dirname, join
 from logilab.astng.inspector import Linker
 from logilab.common.testlib import TestCase, unittest_main
 
@@ -29,7 +28,7 @@ from pylint.pyreverse.writer import DotWriter
 from pylint.pyreverse.utils import get_visibility
 from utils import FileTC, build_file_case, get_project, Config
 
-project = get_project('data')
+project = get_project(join(dirname(abspath(__file__)), 'data'))
 linker = Linker(project)
 set_counter(0)
 
@@ -74,4 +73,4 @@ class GetVisibilityTC(TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()

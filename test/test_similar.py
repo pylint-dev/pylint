@@ -1,23 +1,27 @@
 import sys
-import unittest
+from logilab.common.testlib import TestCase, unittest_main
+
 from cStringIO import StringIO
+from os.path import join, dirname, abspath
 
 from pylint.checkers import similar
 
+SIMILAR1 = join(dirname(abspath(__file__)), 'input', 'similar1')
+SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
 
-class SimilarTC(unittest.TestCase):
+class SimilarTC(TestCase):
     """test the similar command line utility"""
     def test(self):
         sys.stdout = StringIO()
         try:
-            similar.run(['--ignore-comments', 'input/similar1', 'input/similar2'])
+            similar.run(['--ignore-comments', SIMILAR1, SIMILAR2])
             output = sys.stdout.getvalue()
         finally:
             sys.stdout = sys.__stdout__
-        self.assertEqual(output.strip(), """
+        self.assertMultiLineEqual(output.strip(), ("""
 7 similar lines in 2 files
-==input/similar1:5
-==input/similar2:5
+==%s:5
+==%s:5
    same file as this one. 
    more than 4
    identical lines should
@@ -26,7 +30,7 @@ class SimilarTC(unittest.TestCase):
    
    
 TOTAL lines=38 duplicates=7 percent=18.42
-""".strip())
+""" % (SIMILAR1, SIMILAR2)).strip())
                           
     def test_help(self):
         sys.stdout = StringIO()
@@ -53,4 +57,4 @@ TOTAL lines=38 duplicates=7 percent=18.42
             sys.stdout = sys.__stdout__
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()

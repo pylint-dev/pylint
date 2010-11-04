@@ -18,8 +18,8 @@
 import unittest
 import sys
 import re
-from os import linesep
-from os.path import exists
+from os import linesep, getcwd
+from os.path import exists, abspath, dirname, join
 
 from logilab.common import testlib
 
@@ -49,6 +49,9 @@ else:
         return string
 
 INFO_TEST_RGX = re.compile('^func_i\d\d\d\d$')
+
+MSG_DIR = join(dirname(abspath(__file__)), 'messages')
+INPUT_DIR = join(dirname(abspath(__file__)), 'input')
 
 def exception_str(self, ex):
     """function used to replace default __str__ method of exception instances"""
@@ -96,26 +99,26 @@ class LintTestUsingModule(testlib.TestCase):
             print ex
             ex.__str__ = exception_str
             raise
+        got = self.linter.reporter.finalize().strip()
+        self.assertMultiLineEqual(got, self._get_expected())
+
+    def _get_expected(self):
         if self.module.startswith('func_noerror_'):
             expected = ''
         else:
             output = open(self.output)
             expected = output.read().strip()
             output.close()
-        got = self.linter.reporter.finalize().strip()
-        try:
-            self.assertMultiLineEqual(got, expected)
-        except Exception, ex:
-            raise AssertionError, '%s: %s' % (self.module, ex), sys.exc_info()[-1]
+        return expected
 
 class LintTestUsingFile(LintTestUsingModule):
 
     _TEST_TYPE = 'file'
 
     def test_functionality(self):
-        tocheck = [self.package+'/' + self.module + '.py']
+        tocheck = [join(INPUT_DIR, self.module + '.py')]
         if self.depends:
-            tocheck += [self.package+'/%s' % name for name, file in self.depends]
+            tocheck += [join(INPUT_DIR, name) for name, _file in self.depends]
         self._test(tocheck)
 
 
@@ -155,6 +158,18 @@ class TestTests(testlib.TestCase):
 # I: 5
 # total 130
 
+class LintTestNonExistentModuleTC(LintTestUsingModule):
+    module = 'nonexistent'
+    _get_expected = lambda self: 'F:  1: No module named nonexistent'
+    tags = testlib.Tags(('generated','pylint_input_%s' % module))
+
+class LintTestNonExistentFileTC(LintTestUsingFile):
+    module = join(INPUT_DIR, 'nonexistent.py')
+    _get_expected = lambda self: 'F:  1: No module named %s' % self.module[len(getcwd())+1 :]
+    tags = testlib.Tags(('generated', 'pylint_input_%s' % module))
+    def test_functionality(self):
+        self._test([self.module])
+
 def make_tests(filter_rgx):
     """generate tests classes from test info
 
@@ -165,7 +180,7 @@ def make_tests(filter_rgx):
     else:
         is_to_run = lambda x: 1
     tests = []
-    for module_file, messages_file in get_tests_info('func_', '.py') + [('nonexistant', 'messages/nonexistant.txt')]:
+    for module_file, messages_file in get_tests_info('func_', '.py'):
         # skip those tests with python >= 2.3 since py2.3 detects them by itself
         if PY23 and module_file == "func_unknown_encoding.py": #"func_nonascii_noencoding.py"):
             continue
@@ -194,7 +209,7 @@ def make_tests(filter_rgx):
 
         class LintTestUsingFileTC(LintTestUsingFile):
             module = module_file.replace('.py', '')
-            output = exists(messages_file + '2') and (messages_file + '2') or messages_file
+            output = messages_file
             depends = dependencies or None
             tags = testlib.Tags(('generated', 'pylint_input_%s' % module))
         tests.append(LintTestUsingFileTC)
@@ -207,8 +222,13 @@ def make_tests(filter_rgx):
 ##         depends = dependencies or None
 ##     tests.append(LintTestSubclass)
 
+    if is_to_run('nonexistent'):
+        tests.append(LintTestNonExistentModuleTC)
+        if not MODULES_ONLY:
+            tests.append(LintTestNonExistentFileTC)
+
     class LintBuiltinModuleTest(LintTestUsingModule):
-        output = 'messages/builtin_module.txt'
+        output = join(MSG_DIR, 'builtin_module.txt')
         module = 'sys'
         def test_functionality(self):
             self._test(['sys'])
