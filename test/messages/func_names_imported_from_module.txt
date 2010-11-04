@@ -8,3 +8,4 @@ E: 24: No name 'compiile' in module 're'
 E: 24: No name 'findiiter' in module 're'
 F:  6: Unable to import 'logilab.common.tutu'
 F: 23: Unable to import 'rie'
+W: 27: Statement seems to have no effect

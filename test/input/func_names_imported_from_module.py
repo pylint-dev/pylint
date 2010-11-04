@@ -24,8 +24,5 @@ from rie import *
 from re import findiiter, compiile
 
 import os
-os.environ.has_key('SOMEVAR')
+'SOMEVAR' in os.environ
 
-import exceptions
-print exceptions.__dict__
-print exceptions.__dict__.get('Exception')

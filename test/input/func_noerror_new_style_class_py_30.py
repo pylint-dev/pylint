@@ -1,5 +1,5 @@
 """check builtin data descriptors such as mode and name attributes
-on a file are correctly handler
+on a file are correctly handled
 
 bug notified by Pierre Rouleau on 2005-04-24
 """
