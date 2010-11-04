@@ -378,7 +378,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
-            if consumed.has_key(name):
+            if name in consumed:
                 self._loopvar_name(node, name)
                 break
             # mark the name as consumed if it's defined in this scope
@@ -387,42 +387,41 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 consumed[name] = to_consume[name]
             except KeyError:
                 continue
-            else:
-                # checks for use before assignment
-                defnode = assign_parent(to_consume[name][0])
-                if defnode is not None:
-                    defstmt = defnode.statement()
-                    defframe = defstmt.frame()
-                    maybee0601 = True
-                    if not frame is defframe:
+            # checks for use before assignment
+            defnode = assign_parent(to_consume[name][0])
+            if defnode is not None:
+                defstmt = defnode.statement()
+                defframe = defstmt.frame()
+                maybee0601 = True
+                if not frame is defframe:
+                    maybee0601 = False
+                elif defframe.parent is None:
+                    # we are at the module level, check the name is not
+                    # defined in builtins
+                    if name in defframe.scope_attrs or builtin_lookup(name)[1]:
                         maybee0601 = False
-                    elif defframe.parent is None:
-                        # we are at the module level, check the name is not
-                        # defined in builtins
-                        if name in defframe.scope_attrs or builtin_lookup(name)[1]:
-                            maybee0601 = False
-                    else:
-                        # we are in a local scope, check the name is not
-                        # defined in global or builtin scope
-                        if defframe.root().lookup(name)[1]:
-                            maybee0601 = False
-                    if (maybee0601
-                        and stmt.fromlineno <= defstmt.fromlineno
-                        and not is_defined_before(node)
-                        and not are_exclusive(stmt, defstmt, ('NameError', 'Exception', 'BaseException'))):
-                        if defstmt is stmt and isinstance(node, (astng.DelName,
-                                                                 astng.AssName)):
-                            self.add_message('E0602', args=name, node=node)
-                        elif self._to_consume[-1][-1] != 'lambda':
-                            # E0601 may *not* occurs in lambda scope
-                            self.add_message('E0601', args=name, node=node)
-                if not isinstance(node, astng.AssName): # Aug AssName
-                    del to_consume[name]
                 else:
-                    del consumed[name]
-                # check it's not a loop variable used outside the loop
-                self._loopvar_name(node, name)
-                break
+                    # we are in a local scope, check the name is not
+                    # defined in global or builtin scope
+                    if defframe.root().lookup(name)[1]:
+                        maybee0601 = False
+                if (maybee0601
+                    and stmt.fromlineno <= defstmt.fromlineno
+                    and not is_defined_before(node)
+                    and not are_exclusive(stmt, defstmt, ('NameError', 'Exception', 'BaseException'))):
+                    if defstmt is stmt and isinstance(node, (astng.DelName,
+                                                             astng.AssName)):
+                        self.add_message('E0602', args=name, node=node)
+                    elif self._to_consume[-1][-1] != 'lambda':
+                        # E0601 may *not* occurs in lambda scope
+                        self.add_message('E0601', args=name, node=node)
+            if not isinstance(node, astng.AssName): # Aug AssName
+                del to_consume[name]
+            else:
+                del consumed[name]
+            # check it's not a loop variable used outside the loop
+            self._loopvar_name(node, name)
+            break
         else:
             # we have not found the name, if it isn't a builtin, that's an
             # undefined name !
