@@ -512,6 +512,24 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         return None
 
 
+class VariablesChecker3k(VariablesChecker):
+    '''Modified variables checker for 3k'''
+    # listcomp have now also their scope
+
+    def visit_listcomp(self, node):
+        """visit dictcomp: update consumption analysis variable
+        """
+        self._to_consume.append((copy(node.locals), {}, 'comprehension'))
+
+    def leave_listcomp(self, _):
+        """leave dictcomp: update consumption analysis variable
+        """
+        # do not check for not used locals here
+        self._to_consume.pop()
+
+import sys
+if sys.version_info >= (3, 0):
+    VariablesChecker = VariablesChecker3k
 
 
 def register(linter):
