@@ -61,8 +61,8 @@ else:
     MSGS['E0710'] = ('Raising a new style class which doesn\'t inherit from \
 BaseException',
                      'Used when a new style class which doesn\'t inherit from \
-                      BaseException raised since it\'s not possible with \
-                      python < 2.5.')
+                      BaseException is raised since it\'s not possible with \
+                      python >= 2.5.')
 
 
 class ExceptionsChecker(BaseChecker):
@@ -168,12 +168,18 @@ class ExceptionsChecker(BaseChecker):
                         self.add_message('W0703', node=handler.type)
                 exceptions_classes += excs
 
+
+if sys.version_info < (3, 0):
+    EXCEPTIONS_MODULE = "exceptions"
+else:
+    EXCEPTIONS_MODULE = "builtins"
+
 def inherit_from_std_ex(node):
     """return true if the given class node is subclass of
     exceptions.Exception
     """
     if node.name in ('Exception', 'BaseException') \
-            and node.root().name == 'exceptions':
+            and node.root().name == EXCEPTIONS_MODULE:
         return True
     for parent in node.ancestors(recurs=False):
         if inherit_from_std_ex(parent):
@@ -183,3 +189,4 @@ def inherit_from_std_ex(node):
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(ExceptionsChecker(linter))
+
