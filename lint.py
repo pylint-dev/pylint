@@ -851,11 +851,9 @@ been issued by analysing pylint output status code
         sys.path.insert(0, os.getcwd())
         if self.linter.config.profile:
             print >> sys.stderr, '** profiled run'
-            from hotshot import Profile, stats
-            prof = Profile('stones.prof')
-            prof.runcall(linter.check, args)
-            prof.close()
-            data = stats.load('stones.prof')
+            import cProfile, pstats
+            cProfile.runctx('linter.check(%r)' % args, globals(), locals(), 'stones.prof' )
+            data = pstats.Stats('stones.prof')
             data.strip_dirs()
             data.sort_stats('time', 'calls')
             data.print_stats(30)
