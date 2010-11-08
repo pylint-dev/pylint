@@ -57,10 +57,6 @@ MSGS = {
     'E0502': ('Wrong encoding specified (%s)',
               'Used when a known encoding is specified but the file doesn\'t \
               seem to be actually in this encoding.'),
-    'E0503': ('Unknown encoding specified (%s)',
-              'Used when an encoding is specified, but it\'s unknown to Python.'
-              ),
-
     'W0511': ('%s',
               'Used when a warning note as FIXME or XXX is detected.'),
     }
@@ -103,8 +99,6 @@ separated by a comma.'
                     unicode(data, encoding)
                 except UnicodeError:
                     self.add_message('E0502', args=encoding, line=1)
-                except LookupError:
-                    self.add_message('E0503', args=encoding, line=1)
         del data
         # warning notes in the code
         stream.seek(0)

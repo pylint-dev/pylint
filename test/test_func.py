@@ -36,7 +36,6 @@ linter.config.persistent = 0
 checkers.initialize(linter)
 linter.global_set_option('required-attributes', ('__revision__',))
 
-PY23 = sys.version_info >= (2, 3)
 PY26 = sys.version_info >= (2, 6)
 
 
@@ -127,18 +126,16 @@ class TestTests(testlib.TestCase):
     @testlib.tag('coverage')
     def test_exhaustivity(self):
         # skip fatal messages
-        todo = [msgid for msgid in linter._messages.keys() if msgid[0] != 'F']
-        for msgid in test_reporter.message_ids.keys():
+        todo = [msgid for msgid in linter._messages if msgid[0] != 'F']
+        for msgid in test_reporter.message_ids:
             try:
                 todo.remove(msgid)
             except ValueError:
                 continue
         todo.sort()
         if PY26:
-            self.assertEqual(todo, ['E0503', 'E1122', 'I0001'])
-        elif PY23:
-            self.assertEqual(todo, ['E0503', 'I0001'])
-        else: # python < 2.3
+            self.assertEqual(todo, ['E1122', 'I0001'])
+        else:
             self.assertEqual(todo, ['I0001'])
 
 #bycat = {}
@@ -181,9 +178,6 @@ def make_tests(filter_rgx):
         is_to_run = lambda x: 1
     tests = []
     for module_file, messages_file in get_tests_info('func_', '.py'):
-        # skip those tests with python >= 2.3 since py2.3 detects them by itself
-        if PY23 and module_file == "func_unknown_encoding.py": #"func_nonascii_noencoding.py"):
-            continue
         pyrestr = module_file.rsplit('_py', 1)[-1][:-3]
         if pyrestr.isdigit(): # '24', '25'...
             if sys.version_info < tuple([int(i) for i in pyrestr]):
