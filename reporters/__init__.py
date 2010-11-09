@@ -48,6 +48,11 @@ class BaseReporter:
     def set_output(self, output=None):
         """set output stream"""
         self.out = output or sys.stdout
+        # py3k streams handle their encoding :
+        if sys.version_info >= (3, 0):
+            self.encode = lambda x: x
+            return
+
         def encode(string):
             if not isinstance(string, unicode):
                 return string

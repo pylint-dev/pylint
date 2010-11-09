@@ -21,7 +21,7 @@ http://www.python.org/doc/essays/styleguide.html
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
-import re
+import re, sys
 import tokenize
 if not hasattr(tokenize, 'NL'):
     raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
@@ -180,23 +180,21 @@ class FormatChecker(BaseRawChecker):
         self._visited_lines = None
 
     def process_module(self, stream):
-        """extracts encoding from the stream and
-        decodes each line, so that international
-        text's lenght properly calculated.
+        """extracts encoding from the stream and decodes each line, so that
+        international text's length is properly calculated.
         """
-        data = stream.read()
-        line_generator = stream.readline
-
-        ascii, lineno = is_ascii(data)
-        if not ascii:
-            encoding = guess_encoding(data)
-            if encoding is not None:
-                line_generator = lambda: stream.readline().decode(encoding,
-                                                                  'replace')
-        del data
+        line_reader = stream.readline
+        if sys.version_info < (3, 0):
+            data = stream.read()
+            if not is_ascii(data)[0]:
+                encoding = guess_encoding(data)
+                if encoding is not None:
+                    line_reader = lambda: stream.readline().decode(encoding,
+                                                                   'replace')
+            del data
 
         stream.seek(0)
-        self.process_tokens(tokenize.generate_tokens(line_generator))
+        self.process_tokens(tokenize.generate_tokens(line_reader))
 
     def new_line(self, tok_type, line, line_num, junk):
         """a new line has been encountered, process it if necessary"""
