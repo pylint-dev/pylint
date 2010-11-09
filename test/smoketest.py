@@ -14,6 +14,7 @@
 import sys
 from os.path import join, dirname, abspath
 from cStringIO import StringIO
+import tempfile
 
 from logilab.common.testlib import TestCase, unittest_main, tag
 
@@ -25,11 +26,13 @@ HERE = abspath(dirname(__file__))
 
 class RunTC(TestCase):
 
-    def _runtest(self, args, reporter=None, code=28):
+    def _runtest(self, args, reporter=None, out=None, code=28):
+        if out is None:
+            out = StringIO()
         if sys.version_info < (2, 5) and 'pylint.lint' in args:
             code = 30
         try:
-            sys.stderr = sys.stdout = stream = StringIO()
+            sys.stderr = sys.stdout = out
             try:
                 Run(args, reporter=reporter)
             except SystemExit, ex:
@@ -100,6 +103,18 @@ class RunTC(TestCase):
     def test_error_missing_arguments(self):
         self._runtest([], reporter=HTMLReporter(StringIO()),
                       code=32)
+
+    @tag('smoke', 'encoding')
+    def test_no_out_encoding(self):
+        """test redirection of stdout with non ascii caracters
+        """
+        #This test reproduces bug #48066 ; it happens when stdout is redirected
+        # through '>' : the sys.stdout.encoding becomes then None, and if the
+        # output contains non ascii, pylint will crash
+        strio = tempfile.TemporaryFile()
+        assert strio.encoding is None
+        self._runtest([join(HERE, 'regrtest_data/no_stdout_encoding.py')],
+                      out=strio)
 
 
 if __name__ == '__main__':
