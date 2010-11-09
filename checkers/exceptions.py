@@ -144,7 +144,7 @@ class ExceptionsChecker(BaseChecker):
                 # check if a "except:" is followed by some other
                 # except
                 elif index < (nb_handlers - 1):
-                    msg = 'empty except clause should always appears last'
+                    msg = 'empty except clause should always appear last'
                     self.add_message('E0701', node=node, args=msg)
             else:
                 try:
