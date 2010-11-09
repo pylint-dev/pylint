@@ -259,11 +259,7 @@ given file (report RP0402 must not be disabled)'}
         try:
             return importnode.do_import_module(modname)
         except astng.InferenceError, ex:
-            if str(ex).startswith('module importing itself'): # XXX
-                return modnode
-            else:
-                self.add_message("F0401", args=modname, node=importnode)
-                return
+            self.add_message("F0401", args=modname, node=importnode)
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,
                                importedasname):

@@ -1,2 +1,4 @@
+E: 22:CCC: Module 'input.func_w0233' has no 'BBBB' member
+E: 27:CCC.__init__: Module 'input.func_w0233' has no 'BBBB' member
 F: 20: Unable to import 'nonexistant'
 W: 12:AAAA.__init__: __init__ method from a non direct base class 'BBBBMixin' is called
