@@ -56,17 +56,18 @@ MSG_TYPES_STATUS = {
     'F' : 1
     }
 
+_MSG_ORDER = 'EWRCIF'
+
 def sort_msgs(msgids):
     """sort message identifiers according to their category first"""
-    msg_order = 'EWRCIF'
-    def cmp_func(msgid1, msgid2):
-        """comparison function for two message identifiers"""
-        if msgid1[0] != msgid2[0]:
-            return cmp(msg_order.index(msgid1[0]), msg_order.index(msgid2[0]))
-        else:
-            return cmp(msgid1, msgid2)
-    msgids.sort(cmp_func)
-    return msgids
+    msgs = {}
+    for msg in msgids:
+        msgs.setdefault(msg[0], []).append(msg)
+    result = []
+    for m_id in _MSG_ORDER:
+        if m_id in msgs:
+            result.extend( sorted(msgs[m_id]) )
+    return result
 
 def get_module_and_frameid(node):
     """return the module name and the frame id in the module"""
