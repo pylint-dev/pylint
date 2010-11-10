@@ -1,0 +1,70 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+#
+# adapted by Logilab for automatic generation by debianize
+# (part of the devtools project, http://www.logilab.org/projects/devtools)
+#
+# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+PACKAGE:=$(shell grep Package debian/control | cut -d ' ' -f2)
+
+
+include /usr/share/python/python.mk
+
+build: build-stamp
+
+build-stamp:
+	dh_testdir
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+
+	NO_SETUPTOOLS=1 python setup.py clean
+	[ ! -d build ] || rm -rf build
+	find . -name "*.pyc" -delete
+	dh_clean build-stamp
+
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	NO_SETUPTOOLS=1 python3 setup.py -q install --no-compile \
+		--root=$(CURDIR)/debian/$(PACKAGE)/ \
+		${py_setup_install_args}
+	find $(CURDIR)/debian/$(PACKAGE)/usr/lib/python*/*-packages/ ! -path "*/test/*py" -name "*py" -exec 2to3-3.1 -wn {} \;
+
+	# remove test directory
+	rm -rf debian/$(PACKAGE)/usr/lib/python*/*-packages/pylint/test
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_install -i
+	dh_pysupport -i
+	dh_installchangelogs -i ChangeLog
+	dh_installexamples -i
+	dh_installdocs -i README
+	dh_installman -i
+	dh_link -i
+	dh_compress -i -X.py -X.ini -X.xml -Xtest/
+	dh_fixperms -i
+	dh_installdeb -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
+
+binary-arch:
+
+binary: binary-indep
+.PHONY: build clean binary binary-indep binary-arch

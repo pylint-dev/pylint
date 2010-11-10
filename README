@@ -45,8 +45,9 @@ http://lists.logilab.org/pipermail/python-projects/
 
 Contributors
 ------------
-* Sylvain Thénault: main author / maintainer
+* Sylvain Thenault: main author / maintainer
 * Alexandre Fayolle: TkInter gui, documentation, debian support
+* Emile Anclin: maintainer
 * Mads Kiilerich: various patches
 * Brian van den Broek: windows installation documentation
 * Amaury Forgeot d'Arc: patch to check names imported from a module
