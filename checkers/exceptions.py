@@ -53,12 +53,8 @@ MSGS = {
               'Used when a custom exception class is raised but doesn\'t \
               inherit from the builtin "Exception" class.'),
     }
-if sys.version_info < (2, 5):
-    MSGS['E0710'] = ('Raising a new style class',
-                     'Used when a new style class is raised since it\'s not \
-                      possible with python < 2.5.')
-else:
-    MSGS['E0710'] = ('Raising a new style class which doesn\'t inherit from \
+
+MSGS['E0710'] = ('Raising a new style class which doesn\'t inherit from \
 BaseException',
                      'Used when a new style class which doesn\'t inherit from \
                       BaseException is raised since it\'s not possible with \

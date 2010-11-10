@@ -29,8 +29,6 @@ class RunTC(TestCase):
     def _runtest(self, args, reporter=None, out=None, code=28):
         if out is None:
             out = StringIO()
-        if sys.version_info < (2, 5) and 'pylint.lint' in args:
-            code = 30
         try:
             sys.stderr = sys.stdout = out
             try:
