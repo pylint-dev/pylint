@@ -41,7 +41,6 @@ from logilab.common.optik_ext import check_csv
 from logilab.common.modutils import load_module_from_name
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip
-from logilab.common.fileutils import norm_open
 from logilab.common.ureports import Table, Text, Section
 from logilab.common.graph import ordered_nodes
 from logilab.common.__pkginfo__ import version as common_version
@@ -548,7 +547,7 @@ This is used by the global evaluation report (RP0004).'}),
             self.add_message('I0001', args=astng.name)
         else:
             #assert astng.file.endswith('.py')
-            stream = norm_open(astng.file)
+            stream = open(astng.file, 'U')
             # invoke IRawChecker interface on self to fetch module/block
             # level options
             self.process_module(stream)
