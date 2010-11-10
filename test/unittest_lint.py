@@ -183,14 +183,19 @@ class PyLinterTC(TestCase):
             sys.stdout = sys.__stdout__
 
     def test_lint_ext_module_with_file_output(self):
+        if sys.version_info < (3, 0):
+            strio = 'StringIO'
+        else:
+            strio = 'io'
         self.linter.config.files_output = True
+        pylint_strio = 'pylint_%s.txt' % strio
         try:
-            self.linter.check('StringIO')
-            self.assert_(os.path.exists('pylint_StringIO.txt'))
+            self.linter.check(strio)
+            self.assert_(os.path.exists(pylint_strio))
             self.assert_(os.path.exists('pylint_global.txt'))
         finally:
             try:
-                os.remove('pylint_StringIO.txt')
+                os.remove(pylint_strio)
                 os.remove('pylint_global.txt')
             except:
                 pass
