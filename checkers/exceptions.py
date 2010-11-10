@@ -109,7 +109,10 @@ class ExceptionsChecker(BaseChecker):
                  isinstance(expr, (astng.List, astng.Dict, astng.Tuple, 
                                    astng.Module, astng.Function)):
             self.add_message('E0702', node=node, args=expr.name)
-        elif isinstance(expr, astng.Name) and expr.name == 'NotImplemented':
+        elif ( (isinstance(expr, astng.Name) and expr.name == 'NotImplemented')
+               or (isinstance(expr, astng.CallFunc) and
+                   isinstance(expr.func, astng.Name) and
+                   expr.func.name == 'NotImplemented') ):
             self.add_message('E0711', node=node)
         elif isinstance(expr, astng.BinOp) and expr.op == '%':
             self.add_message('W0701', node=node)
