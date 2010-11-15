@@ -42,9 +42,14 @@ install: build
 		--root=$(CURDIR)/debian/$(PACKAGE)/ \
 		${py_setup_install_args}
 	find $(CURDIR)/debian/$(PACKAGE)/usr/lib/python*/*-packages/ ! -path "*/test/*py" -name "*py" -exec 2to3-3.1 -wn {} \;
+	for executable in pylint pylint-gui symilar epylint pyreverse ; do \
+		new_exec="$$executable"3; \
+		mv -v $(CURDIR)/debian/$(PACKAGE)/usr/bin/$$executable $(CURDIR)/debian/$(PACKAGE)/usr/bin/$$new_exec; \
+	done
 
 	# remove test directory
 	rm -rf debian/$(PACKAGE)/usr/lib/python*/*-packages/pylint/test
+
 
 # Build architecture-independent files here.
 binary-indep: build install

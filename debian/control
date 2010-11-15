@@ -13,7 +13,7 @@ Vcs-Browser: http://svn.debian.org/viewsvn/python-apps/packages/pylint/trunk/
 
 Package: pylint
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.52.1), python-logilab-astng (>= 0.20.4)
+Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.53.0), python-logilab-astng (>= 0.21.0)
 Recommends: python-tk
 XB-Python-Version: ${python:Versions}
 Conflicts: python2.2-pylint, python2.3-pylint, python2.4-pylint, pylint-common, pylint-test

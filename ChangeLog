@@ -1,6 +1,10 @@
 ChangeLog for PyLint
 ====================
 
+2010-11-15  --  0.22.0
+
+   * python versions: minimal python3.x support; drop python < 2.5 support
+
 2010-10-27  --  0.21.4
 
     * fix #48066: pylint crashes when redirecting output containing non-ascii characters

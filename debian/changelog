@@ -1,3 +1,9 @@
+pylint (0.22.0-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Émile Anclin <emile.anclin@logilab.fr>  Mon, 15 Nov 2010 15:54:44 +0100
+
 pylint (0.21.4-1) unstable; urgency=low
 
   * new upstream release
