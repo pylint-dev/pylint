@@ -5,6 +5,9 @@ PyLint features
 
 .. contents::
 
+Options
+-------
+
 General options
 ~~~~~~~~~~~~~~~
 :rcfile:
@@ -89,8 +92,17 @@ Reports options
   Add a comment according to your evaluation note. This is used by the global
   evaluation report (RP0004).
 
+metrics checker
+---------------
+
+Reports
+~~~~~~~
+:RP0701: Raw metrics
+
+
 logging checker
 ---------------
+
 Messages
 ~~~~~~~~
 :W6501: *Specify string format arguments as logging function parameters*
@@ -104,6 +116,7 @@ Messages
 
 similarities checker
 --------------------
+
 Options
 ~~~~~~~
 :min-similarity-lines:
@@ -133,6 +146,7 @@ Reports
 
 string_format checker
 ---------------------
+
 Messages
 ~~~~~~~~
 :E9900: *Unsupported format character %r (%#02x) at index %d*
@@ -165,6 +179,7 @@ Messages
 
 format checker
 --------------
+
 Options
 ~~~~~~~
 :max-line-length:
@@ -218,52 +233,63 @@ Messages
   the error if it occurs.
 
 
-imports checker
----------------
+typecheck checker
+-----------------
+
 Options
 ~~~~~~~
-:deprecated-modules:
-  Deprecated modules which should not be used, separated by a comma
+:ignore-mixin-members:
+  Tells whether missing members accessed in mixin class should be ignored. A
+  mixin class is detected if its name ends with "mixin" (case insensitive).
 
-  Default: ``regsub,string,TERMIOS,Bastion,rexec``
-:import-graph:
-  Create a graph of every (i.e. internal and external) dependencies in the
-  given file (report RP0402 must not be disabled)
-:ext-import-graph:
-  Create a graph of external dependencies in the given file (report RP0402 must
-  not be disabled)
-:int-import-graph:
-  Create a graph of internal dependencies in the given file (report RP0402 must
-  not be disabled)
+  Default: ``yes``
+:ignored-classes:
+  List of classes names for which member attributes should not be checked
+  (useful for classes with attributes dynamically set).
+
+  Default: ``SQLObject``
+:zope:
+  When zope mode is activated, add a predefined set of Zope acquired attributes
+  to generated-members.
+:generated-members:
+  List of members which are set dynamically and missed by pylint inference
+  system, and so shouldn't trigger E0201 when accessed.
+
+  Default: ``REQUEST,acl_users,aq_parent``
 
 Messages
 ~~~~~~~~
-:W0401: *Wildcard import %s*
-  Used when `from module import *` is detected.
-:W0402: *Uses of a deprecated module %r*
-  Used a module marked as deprecated is imported.
-:W0403: *Relative import %r, should be %r*
-  Used when an import relative to the package directory is detected.
-:W0404: *Reimport %r (imported line %s)*
-  Used when a module is reimported multiple times.
-:W0406: *Module import itself*
-  Used when a module is importing itself.
-:W0410: *__future__ import is not the first non docstring statement*
-  Python 2.5 and greater require __future__ import to be the first non docstring
-  statement in the module.
-:R0401: *Cyclic import (%s)*
-  Used when a cyclic import between two or more modules is detected.
-:F0401: *Unable to import %r*
-  Used when pylint has been unable to import a module.
-
-Reports
-~~~~~~~
-:RP0401: External dependencies
-:RP0402: Modules dependencies graph
+:E1101: *%s %r has no %r member*
+  Used when a variable is accessed for an unexistent member.
+:E1102: *%s is not callable*
+  Used when an object being called has been inferred to a non callable object
+:E1103: *%s %r has no %r member (but some types could not be inferred)*
+  Used when a variable is accessed for an unexistent member, but astng was not
+  able to interpret all possible types of this variable.
+:E1111: *Assigning to function call which doesn't return*
+  Used when an assignment is done on a function call but the inferred function
+  doesn't return anything.
+:E1120: *No value passed for parameter %s in function call*
+  Used when a function call passes too few arguments.
+:E1121: *Too many positional arguments for function call*
+  Used when a function call passes too many positional arguments.
+:E1122: *Duplicate keyword argument %r in function call*
+  Used when a function call passes the same keyword argument multiple times.
+:E1123: *Passing unexpected keyword argument %r in function call*
+  Used when a function call passes a keyword argument that doesn't correspond to
+  one of the function's parameter names.
+:E1124: *Multiple values passed for parameter %r in function call*
+  Used when a function call would result in assigning multiple values to a
+  function parameter, one value from a positional argument and one from a
+  keyword argument.
+:W1111: *Assigning to function call which only returns None*
+  Used when an assignment is done on a function call but the inferred function
+  returns nothing but None.
 
 
 variables checker
 -----------------
+
 Options
 ~~~~~~~
 :init-import:
@@ -317,6 +343,7 @@ Messages
 
 miscellaneous checker
 ---------------------
+
 Options
 ~~~~~~~
 :notes:
@@ -332,21 +359,58 @@ Messages
 :E0502: *Wrong encoding specified (%s)*
   Used when a known encoding is specified but the file doesn't seem to be
   actually in this encoding.
-:E0503: *Unknown encoding specified (%s)*
-  Used when an encoding is specified, but it's unknown to Python.
 :W0511:
   Used when a warning note as FIXME or XXX is detected.
 
 
-metrics checker
+imports checker
 ---------------
+
+Options
+~~~~~~~
+:deprecated-modules:
+  Deprecated modules which should not be used, separated by a comma
+
+  Default: ``regsub,string,TERMIOS,Bastion,rexec``
+:import-graph:
+  Create a graph of every (i.e. internal and external) dependencies in the
+  given file (report RP0402 must not be disabled)
+:ext-import-graph:
+  Create a graph of external dependencies in the given file (report RP0402 must
+  not be disabled)
+:int-import-graph:
+  Create a graph of internal dependencies in the given file (report RP0402 must
+  not be disabled)
+
+Messages
+~~~~~~~~
+:W0401: *Wildcard import %s*
+  Used when `from module import *` is detected.
+:W0402: *Uses of a deprecated module %r*
+  Used a module marked as deprecated is imported.
+:W0403: *Relative import %r, should be %r*
+  Used when an import relative to the package directory is detected.
+:W0404: *Reimport %r (imported line %s)*
+  Used when a module is reimported multiple times.
+:W0406: *Module import itself*
+  Used when a module is importing itself.
+:W0410: *__future__ import is not the first non docstring statement*
+  Python 2.5 and greater require __future__ import to be the first non docstring
+  statement in the module.
+:R0401: *Cyclic import (%s)*
+  Used when a cyclic import between two or more modules is detected.
+:F0401: *Unable to import %r*
+  Used when pylint has been unable to import a module.
+
 Reports
 ~~~~~~~
-:RP0701: Raw metrics
+:RP0401: External dependencies
+:RP0402: Modules dependencies graph
 
 
 classes checker
 ---------------
+
 Options
 ~~~~~~~
 :ignore-iface-methods:
@@ -421,6 +485,7 @@ Messages
 
 design checker
 --------------
+
 Options
 ~~~~~~~
 :max-args:
@@ -501,6 +566,7 @@ Messages
 
 basic checker
 -------------
+
 Options
 ~~~~~~~
 :module-rgx:
@@ -642,6 +708,7 @@ Reports
 
 exceptions checker
 ------------------
+
 Messages
 ~~~~~~~~
 :E0701: *Bad except clauses order (%s)*
@@ -652,8 +719,8 @@ Messages
   Used when something which is neither a class, an instance or a string is
   raised (i.e. a `TypeError` will be raised).
 :E0710: *Raising a new style class which doesn't inherit from BaseException*
-  Used when a new style class which doesn't inherit from BaseException raised
-  since it's not possible with python < 2.5.
+  Used when a new style class which doesn't inherit from BaseException is raised
+  since it's not possible with python >= 2.5.
 :E0711: *NotImplemented raised - should raise NotImplementedError*
   Used when NotImplemented is raised instead of NotImplementedError
 :W0701: *Raising a string exception*
@@ -672,6 +739,7 @@ Messages
 
 newstyle checker
 ----------------
+
 Messages
 ~~~~~~~~
 :E1001: *Use __slots__ on an old style class*
@@ -684,58 +752,5 @@ Messages
 :W1001: *Use of "property" on an old style class*
   Used when PyLint detect the use of the builtin "property" on an old style
   class while this is relying on new style classes features
-
-
-typecheck checker
------------------
-Options
-~~~~~~~
-:ignore-mixin-members:
-  Tells whether missing members accessed in mixin class should be ignored. A
-  mixin class is detected if its name ends with "mixin" (case insensitive).
-
-  Default: ``yes``
-:ignored-classes:
-  List of classes names for which member attributes should not be checked
-  (useful for classes with attributes dynamically set).
-
-  Default: ``SQLObject``
-:zope:
-  When zope mode is activated, add a predefined set of Zope acquired attributes
-  to generated-members.
-:generated-members:
-  List of members which are set dynamically and missed by pylint inference
-  system, and so shouldn't trigger E0201 when accessed.
-
-  Default: ``REQUEST,acl_users,aq_parent``
-
-Messages
-~~~~~~~~
-:E1101: *%s %r has no %r member*
-  Used when a variable is accessed for an unexistent member.
-:E1102: *%s is not callable*
-  Used when an object being called has been inferred to a non callable object
-:E1103: *%s %r has no %r member (but some types could not be inferred)*
-  Used when a variable is accessed for an unexistent member, but astng was not
-  able to interpret all possible types of this variable.
-:E1111: *Assigning to function call which doesn't return*
-  Used when an assignment is done on a function call but the inferred function
-  doesn't return anything.
-:E1120: *No value passed for parameter %s in function call*
-  Used when a function call passes too few arguments.
-:E1121: *Too many positional arguments for function call*
-  Used when a function call passes too many positional arguments.
-:E1122: *Duplicate keyword argument %r in function call*
-  Used when a function call passes the same keyword argument multiple times.
-:E1123: *Passing unexpected keyword argument %r in function call*
-  Used when a function call passes a keyword argument that doesn't correspond to
-  one of the function's parameter names.
-:E1124: *Multiple values passed for parameter %r in function call*
-  Used when a function call would result in assigning multiple values to a
-  function parameter, one value from a positional argument and one from a
-  keyword argument.
-:W1111: *Assigning to function call which only returns None*
-  Used when an assignment is done on a function call but the inferred function
-  returns nothing but None.
 
 
