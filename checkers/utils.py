@@ -19,7 +19,7 @@
 """
 
 from logilab import astng
-from logilab.common.compat import set, builtins
+from logilab.common.compat import builtins
 BUILTINS_NAME = builtins.__name__
 
 try:

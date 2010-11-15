@@ -27,7 +27,6 @@ from logilab.common.modutils import modpath_from_file, get_module_files, \
 from logilab.common.textutils import normalize_text
 from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
-from logilab.common.compat import set
 
 from logilab.astng import nodes, Module
 

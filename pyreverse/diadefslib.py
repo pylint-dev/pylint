@@ -16,7 +16,7 @@
 """handle diagram generation options for class diagram or default diagrams
 """
 
-from logilab.common.compat import set, builtins
+from logilab.common.compat import builtins
 BUILTINS_NAME = builtins.__name__
 from logilab import astng
 from logilab.astng.utils import LocalsVisitor

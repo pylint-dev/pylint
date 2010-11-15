@@ -20,7 +20,7 @@ from os.path import join, basename, dirname, isdir, abspath
 from cStringIO import StringIO
 
 from logilab.common.testlib import TestCase, unittest_main, create_files
-from logilab.common.compat import sorted, reload
+from logilab.common.compat import reload
 
 from pylint import config
 from pylint.lint import PyLinter, Run, UnknownMessage

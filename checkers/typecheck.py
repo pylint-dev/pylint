@@ -16,9 +16,6 @@
 """try to find more bugs in the code using astng inference capabilities
 """
 
-from logilab.common.compat import set
-
-
 from logilab import astng
 from logilab.astng import InferenceError, NotFoundError, YES, Instance
 

@@ -21,7 +21,6 @@ from __future__ import generators
 import sys
 from itertools import izip
 
-from logilab.common.compat import set, sorted
 from logilab.common.ureports import Table
 
 from pylint.interfaces import IRawChecker

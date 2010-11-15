@@ -18,7 +18,6 @@
 from logilab.common.graph import get_cycles, DotBackend
 from logilab.common.modutils import is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
-from logilab.common.compat import sorted, set
 
 from logilab import astng
 from logilab.astng import are_exclusive

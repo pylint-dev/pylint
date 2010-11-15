@@ -22,7 +22,6 @@ import string
 from logilab import astng
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from logilab.common.compat import set
 
 MSGS = {
     'E9900': ("Unsupported format character %r (%#02x) at index %d",
