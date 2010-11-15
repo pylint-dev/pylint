@@ -101,7 +101,7 @@ def dependencies_graph(filename, dep_info):
         done[modname] = 1
         printer.emit_node(modname)
         for modname in dependencies:
-            if not done.has_key(modname):
+            if modname not in done:
                 done[modname] = 1
                 printer.emit_node(modname)
     for depmodname, dependencies in dep_info.items():
@@ -122,7 +122,7 @@ def make_graph(filename, dep_info, sect, gtype):
 # the import checker itself ###################################################
 
 MSGS = {
-    'F0401': ('Unable to import %r' ,
+    'F0401': ('Unable to import %r',
               'Used when pylint has been unable to import a module.'),
     'R0401': ('Cyclic import (%s)',
               'Used when a cyclic import between two or more modules is \
@@ -160,7 +160,7 @@ class ImportsChecker(BaseChecker):
     priority = -2
 
     options = (('deprecated-modules',
-                {'default' : ('regsub','string', 'TERMIOS',
+                {'default' : ('regsub', 'string', 'TERMIOS',
                               'Bastion', 'rexec'),
                  'type' : 'csv',
                  'metavar' : '<modules>',

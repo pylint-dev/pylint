@@ -82,7 +82,7 @@ MSGS = {
     'E0221': ('Interface resolved to %s is not a class',
               'Used when a class claims to implement an interface which is not \
               a class.'),
-    'E0222': ('Missing method %r from %s interface' ,
+    'E0222': ('Missing method %r from %s interface',
               'Used when a method declared in an interface is missing from a \
               class implementing this interface'),
     'W0221': ('Arguments number differs from %s method',

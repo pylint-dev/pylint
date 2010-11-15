@@ -48,7 +48,7 @@ class TextReporter(BaseReporter):
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
         module, obj, line = location[1:]
-        if not self._modules.has_key(module):
+        if module not in self._modules:
             if module:
                 self.writeln('************* Module %s' % module)
                 self._modules[module] = 1
@@ -133,7 +133,7 @@ class ColorizedTextReporter(TextReporter):
         using ansi escape codes
         """
         module, obj, line = location[1:]
-        if not self._modules.has_key(module):
+        if module not in self._modules:
             color, style = self._get_decoration('S')
             if module:
                 modsep = colorize_ansi('************* Module %s' % module,

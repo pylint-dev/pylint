@@ -439,8 +439,8 @@ functions, methods
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (node.frame().has_key(name) or
-                    node.root().has_key(name)):
+            if not (name in node.frame() or
+                    name in node.root()):
                 if name in self.config.bad_functions:
                     self.add_message('W0141', node=node, args=name)
         if node.starargs or node.kwargs:
@@ -504,7 +504,7 @@ functions, methods
     def _check_required_attributes(self, node, attributes):
         """check for required attributes"""
         for attr in attributes:
-            if not node.has_key(attr):
+            if attr not in node:
                 self.add_message('C0121', node=node, args=attr)
 
     def _check_not_in_finally(self, node, node_name, breaker_classes=()):

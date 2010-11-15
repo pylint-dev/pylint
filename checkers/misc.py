@@ -38,7 +38,7 @@ def guess_encoding(string):
     """try to guess encoding from a python file as string
     return None if not found
     """
-    assert type(string) is type(''), type(string)
+    assert isinstance(string, str), type(string)
     # check for UTF-8 byte-order mark
     if string.startswith('\xef\xbb\xbf'):
         return 'UTF-8'

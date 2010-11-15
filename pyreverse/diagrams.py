@@ -98,7 +98,7 @@ class ClassDiagram(Figure, FilterMixIn):
     def add_object(self, title, node):
         """create a diagram object
         """
-        assert not self._nodes.has_key(node)
+        assert node not in self._nodes
         ent = DiagramEntity(title, node)
         self._nodes[node] = ent
         self.objects.append(ent)
@@ -124,7 +124,7 @@ class ClassDiagram(Figure, FilterMixIn):
     def has_node(self, node):
         """return true if the given node is included in the diagram
         """
-        return self._nodes.has_key(node)
+        return node in self._nodes
         
     def object_from_node(self, node):
         """return the diagram object mapped to node

@@ -26,7 +26,7 @@ from os.path import exists, isfile, join, expanduser, abspath, dirname
 # pylint home is used to save old runs results ################################
 
 USER_HOME = expanduser('~')
-if os.environ.has_key('PYLINTHOME'):
+if 'PYLINTHOME' in os.environ:
     PYLINT_HOME = os.environ['PYLINTHOME']
     if USER_HOME == '~':
         USER_HOME = dirname(PYLINT_HOME)
@@ -88,7 +88,7 @@ def find_pylintrc():
             curdir = abspath(join(curdir, '..'))
             if isfile(join(curdir, 'pylintrc')):
                 return join(curdir, 'pylintrc')
-    if os.environ.has_key('PYLINTRC') and exists(os.environ['PYLINTRC']):
+    if 'PYLINTRC' in os.environ and exists(os.environ['PYLINTRC']):
         pylintrc = os.environ['PYLINTRC']
     else:
         user_home = expanduser('~')

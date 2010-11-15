@@ -127,7 +127,7 @@ class MessagesHandlerMixIn:
         chkid = None
         for msgid, (msg, msgdescr) in msgs_dict.items():
             # avoid duplicate / malformed ids
-            assert not self._messages.has_key(msgid), \
+            assert msgid not in self._messages, \
                    'Message id %r is already defined' % msgid
             assert chkid is None or chkid == msgid[1:3], \
                    'Inconsistent checker part in message id %r' % msgid
@@ -416,7 +416,7 @@ class ReportsHandlerMixIn:
         for key, value in kwargs.items():
             if key[-1] == '_':
                 key = key[:-1]
-            assert not self.stats.has_key(key)
+            assert key not in self.stats
             self.stats[key] = value
         return self.stats
 

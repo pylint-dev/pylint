@@ -606,7 +606,7 @@ This is used by the global evaluation report (RP0004).'}),
         else:
             stats['global_note'] = note
             msg = 'Your code has been rated at %.2f/10' % note
-            if old_stats.has_key('global_note'):
+            if 'global_note' in old_stats:
                 msg += ' (previous run: %.2f/10)' % old_stats['global_note']
             if self.config.comment:
                 msg = '%s\n%s' % (msg, config.get_note_message(note))
@@ -627,10 +627,9 @@ def report_messages_stats(sect, stats, _):
     if not stats['by_msg']:
         # don't print this report when we didn't detected any errors
         raise EmptyReport()
-    in_order = [(value, msg_id)
-                for msg_id, value in stats['by_msg'].items()
-                if not msg_id.startswith('I')]
-    in_order.sort()
+    in_order = sorted([(value, msg_id) 
+                       for msg_id, value in stats['by_msg'].items()
+                       if not msg_id.startswith('I')])
     in_order.reverse()
     lines = ('message id', 'occurrences')
     for value, msg_id in in_order:

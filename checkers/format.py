@@ -295,7 +295,7 @@ class FormatChecker(BaseRawChecker):
                 self.add_message('C0321', node=node)
                 self._visited_lines[line] = 2
             return
-        if self._visited_lines.has_key(line):
+        if line in self._visited_lines:
             return
         try:
             tolineno = node.blockstart_tolineno

@@ -216,7 +216,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         globs = node.root().globals
         for name, stmt in node.items():
-            if globs.has_key(name) and not isinstance(stmt, astng.Global):
+            if name in globs and not isinstance(stmt, astng.Global):
                 line = globs[name][0].lineno
                 self.add_message('W0621', args=(name, line), node=stmt)
             elif is_builtin(name):
