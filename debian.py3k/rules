@@ -13,31 +13,12 @@
 
 PACKAGE:=$(shell grep Package debian/control | cut -d ' ' -f2)
 
+include /usr/share/python3/python.mk
 
-include /usr/share/python/python.mk
+%:
+	dh --with python3 $@
 
-build: build-stamp
-
-build-stamp:
-	dh_testdir
-	touch build-stamp
-
-clean:
-	dh_testdir
-	dh_testroot
-
-	NO_SETUPTOOLS=1 python setup.py clean
-	[ ! -d build ] || rm -rf build
-	find . -name "*.pyc" -delete
-	dh_clean build-stamp
-
-
-install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	dh_installdirs
-
+override_dh_install:
 	NO_SETUPTOOLS=1 python3 setup.py -q install --no-compile \
 		--root=$(CURDIR)/debian/$(PACKAGE)/ \
 		${py_setup_install_args}
@@ -46,30 +27,10 @@ install: build
 		new_exec="$$executable"3; \
 		mv -v $(CURDIR)/debian/$(PACKAGE)/usr/bin/$$executable $(CURDIR)/debian/$(PACKAGE)/usr/bin/$$new_exec; \
 	done
-
 	# remove test directory
 	rm -rf debian/$(PACKAGE)/usr/lib/python*/*-packages/pylint/test
 
-
-# Build architecture-independent files here.
-binary-indep: build install
-	dh_testdir
-	dh_testroot
-	dh_install -i
-	dh_pysupport -i
+override_dh_installdocs:
+	dh_installdocs README*
 	dh_installchangelogs -i ChangeLog
-	dh_installexamples -i
-	dh_installdocs -i README
-	dh_installman -i
-	dh_link -i
-	dh_compress -i -X.py -X.ini -X.xml -Xtest/
-	dh_fixperms -i
-	dh_installdeb -i
-	dh_gencontrol -i
-	dh_md5sums -i
-	dh_builddeb -i
 
-binary-arch:
-
-binary: binary-indep
-.PHONY: build clean binary binary-indep binary-arch

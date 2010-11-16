@@ -2,18 +2,17 @@ Source: pylint
 Section: python
 Priority: optional
 Maintainer: Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
-Uploaders: Sylvain Thénault <sylvain.thenault@logilab.fr>, Alexandre Fayolle <afayolle@debian.org>, Sandro Tosi <morph@debian.org>
-Build-Depends: debhelper (>= 5.0.38), python3
-Build-Depends-Indep: python-support
-Standards-Version: 3.8.1
-XS-Python-Version: all
+Uploaders: Sylvain Thénault <sylvain.thenault@logilab.fr>, Alexandre Fayolle <afayolle@debian.org>,
+           Sandro Tosi <morph@debian.org>, Julien Jehannet <julien.jehannet@logilab.fr>
+Build-Depends: debhelper (>= 7.0.50~), python3-all
+Standards-Version: 3.9.1
 Homepage: http://www.logilab.org/project/pylint
-Vcs-Svn: svn://svn.debian.org/svn/python-apps/packages/pylint/trunk/
-Vcs-Browser: http://svn.debian.org/viewsvn/python-apps/packages/pylint/trunk/
+Vcs-Hg: http://hg.logilab.org/pylint
+Vcs-Browser: http://hg.logilab.org/pylint
 
 Package: pylint3
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python3-logilab-common (>= 0.52.1), python3-logilab-astng (>= 0.20.4)
+Depends: ${python:Depends}, ${misc:Depends}, python3-logilab-common (>= 0.53), python3-logilab-astng (>= 0.22)
 Recommends: python3-tk
 XB-Python-Version: ${python:Versions}
 Description: python code static checker and UML diagram generator
