@@ -208,14 +208,6 @@ def make_tests(filter_rgx):
             tags = testlib.Tags(('generated', 'pylint_input_%s' % module))
         tests.append(LintTestUsingFileTC)
 
-##     # special test for f0003
-##     module_file, messages_file in get_tests_info('func_f0003', '.pyc')
-##     class LintTestSubclass(LintTest):
-##         module = module_file.replace('.pyc', '')
-##         output = messages_file
-##         depends = dependencies or None
-##     tests.append(LintTestSubclass)
-
     if is_to_run('nonexistent'):
         tests.append(LintTestNonExistentModuleTC)
         if not MODULES_ONLY:

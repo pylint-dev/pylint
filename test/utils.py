@@ -17,17 +17,14 @@ import sys
 MSGPREFIXES = ['2.%s_'%i for i in range(5, 2, -1) if i <= sys.version_info[1]]
 MSGPREFIXES.append('')
 
-def get_tests_info(prefix=None, suffix=None, inputdir='input', msgdir='messages'):
-    pattern = '*'
-    if prefix:
-        pattern = prefix + pattern
-    if suffix:
-        pattern = pattern + suffix
+def get_tests_info(prefix, suffix, inputdir='input', msgdir='messages'):
+    """get python input examples and output messages"""
     result = []
-    for file in glob(join(PREFIX, inputdir, pattern)):
+    for file in glob(join(PREFIX, 'input', prefix + '*' + suffix)):
         infile = basename(file)
         for msgprefix in MSGPREFIXES:
-            outfile = join(PREFIX, msgdir, msgprefix + infile.replace(suffix, '.txt'))
+            outfile = join(PREFIX, 'messages',
+                           msgprefix + infile.replace(suffix, '.txt'))
             if exists(outfile):
                 break
         result.append((infile, outfile))
