@@ -1,7 +1,7 @@
 Source: pylint
 Section: python
 Priority: optional
-Maintainer: Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Maintainer: Logilab S.A. <contact@logilab.fr>
 Uploaders: Sylvain Thénault <sylvain.thenault@logilab.fr>, Alexandre Fayolle <afayolle@debian.org>,
            Sandro Tosi <morph@debian.org>, Julien Jehannet <julien.jehannet@logilab.fr>
 Build-Depends: debhelper (>= 7.0.50~), python3-all
