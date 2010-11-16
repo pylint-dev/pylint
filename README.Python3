@@ -1,0 +1,32 @@
+Python3
+=======
+
+Source
+------
+
+Python3 portage is made by running the 2to3 script on all modules::
+
+  find . ! -path "*/test/*py" -name "*py" -exec 2to3-3.1 -wn {} \;
+
+
+Dev
+---
+
+If you want to run the tests, simply remove the "! -path ..." option, hence
+also refactoring the test files, including all data files.
+Note that when running 2to3 on some test/input/ files, it will crash since
+this folder contains corrupted files. Hence, we can not run directly
+*2to3* on the test folder::
+
+  $ 2to3 test/
+
+But it will work nice with *find*.
+
+Debian
+------
+
+For the Debian packaging, you can use the debian.py3k/ content against
+the debian/ folder::
+
+  cp debian.py3k/* debian/
+
