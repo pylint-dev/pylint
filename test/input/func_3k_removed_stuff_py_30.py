@@ -1,7 +1,7 @@
 """test relative import
 """
-
 __revision__ = apply(map, (str, (1, 2, 3)))
+from __future__ import generators
 
 import func_w0302
 

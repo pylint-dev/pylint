@@ -12,7 +12,7 @@ def pprint():
     print "%s" % (PARG_1, PARG_2) # E9905
     print "%(PARG_1)d %d" % {'PARG_1': 1, 'PARG_2': 2} # E9902
     print "%(PARG_1)d %(PARG_2)d" % {'PARG_1': 1} # E9904
-    print "%(PARG_1)d %(PARG_2)d" % {'PARG_1': 1, 'PARG_2':2, 'PARG_3':3} # W9901
+    print "%(PARG_1)d %(PARG_2)d" % {'PARG_1': 1, 'PARG_2':2, 'PARG_3':3}#W9901
     print "%(PARG_1)d %(PARG_2)d" % {'PARG_1': 1, 2:3} # W9900 E9904
     print "%(PARG_1)d %(PARG_2)d" % (2, 3) # 9903
     print "%(PARG_1)d %(PARG_2)d" % [2, 3] # 9903

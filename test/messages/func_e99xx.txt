@@ -1,4 +1,3 @@
-C: 15: Line too long (81/80)
 E: 11:pprint: Not enough arguments for format string
 E: 12:pprint: Too many arguments for format string
 E: 13:pprint: Mixing named and unnamed conversion specifiers in format string
