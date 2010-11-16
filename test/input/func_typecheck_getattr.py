@@ -56,8 +56,8 @@ class Client:
         tup.append(self)
         string = 'toto'
         print string.loower()
-        uni = u'toto'
-        print uni.loower()
+        # unicode : moved to func_3k_removed_stuff_py_30.py
+        #
         integer = 1
         print integer.whatever
 

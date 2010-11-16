@@ -7,7 +7,7 @@ __revision__ = 32321313
 def do_nothing(arg):
     'ho foo'
     print arg
-    with file('x'):
+    with open('x'):
         base.baz
         base = 7
 
