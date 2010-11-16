@@ -35,6 +35,9 @@ MSGS = {
     'E0702': ('Raising %s while only classes, instances or string are allowed',
               'Used when something which is neither a class, an instance or a \
               string is raised (i.e. a `TypeError` will be raised).'),
+    'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
+              'Used when a new style class which doesn\'t inherit from \
+               BaseException is raised.'),
     'E0711': ('NotImplemented raised - should raise NotImplementedError',
               'Used when NotImplemented is raised instead of \
               NotImplementedError'),
@@ -54,11 +57,6 @@ MSGS = {
               inherit from the builtin "Exception" class.'),
     }
 
-MSGS['E0710'] = ('Raising a new style class which doesn\'t inherit from \
-BaseException',
-                     'Used when a new style class which doesn\'t inherit from \
-                      BaseException is raised since it\'s not possible with \
-                      python >= 2.5.')
 
 
 class ExceptionsChecker(BaseChecker):
