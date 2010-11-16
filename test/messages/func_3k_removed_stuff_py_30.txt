@@ -1,2 +1,3 @@
 E: 12:function: Instance of 'unicode' has no 'looower' member
+W:  4: Used builtin function 'apply'
 W:  6: Relative import 'func_w0302', should be 'input.func_w0302'

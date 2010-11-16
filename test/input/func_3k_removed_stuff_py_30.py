@@ -1,7 +1,7 @@
 """test relative import
 """
 
-__revision__ = 0
+__revision__ = apply(map, (str, (1, 2, 3)))
 
 import func_w0302
 
