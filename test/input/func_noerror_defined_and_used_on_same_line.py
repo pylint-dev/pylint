@@ -1,5 +1,6 @@
 #pylint: disable=C0111,C0321
 """pylint complains about 'index' being used before definition"""
+from __future__ import with_statement
 
 __revision__ = None
 
