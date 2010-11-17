@@ -1,7 +1,8 @@
 """some pylint test utilities
 """
+import sys
 from glob import glob
-from os.path import join, abspath, dirname, basename, exists
+from os.path import join, abspath, dirname, basename, exists, splitext
 from cStringIO import StringIO
 
 from pylint.interfaces import IReporter
@@ -10,23 +11,43 @@ from pylint.reporters import BaseReporter
 PREFIX = abspath(dirname(__file__))
 
 def fix_path():
-    import sys
     sys.path.insert(0, PREFIX)
 
-import sys
-MSGPREFIXES = ['2.%s_'%i for i in range(5, 2, -1) if i <= sys.version_info[1]]
-MSGPREFIXES.append('')
+SYS_VERS_STR = '%d%d' % sys.version_info[:2]
 
-def get_tests_info(prefix, suffix, inputdir='input', msgdir='messages'):
-    """get python input examples and output messages"""
+def get_tests_info(prefix, suffix):
+    """get python input examples and output messages
+    
+    We use following conventions for input files and messages:
+    for different inputs:
+        don't test for python  <   x.y    ->  input   =  <name>_pyxy.py
+        don't test for python  >=  x.y    ->  input   =  <name>_py_xy.py
+    for one input and different messages:
+        message for python     <=  x.y    ->  message =  <name>_pyxy.txt
+        higher versions                   ->  message with highest num
+    """
     result = []
-    for file in glob(join(PREFIX, 'input', prefix + '*' + suffix)):
-        infile = basename(file)
-        for msgprefix in MSGPREFIXES:
-            outfile = join(PREFIX, 'messages',
-                           msgprefix + infile.replace(suffix, '.txt'))
-            if exists(outfile):
-                break
+    for fname in glob(join(PREFIX, 'input', prefix + '*' + suffix)):
+        infile = basename(fname)
+        fbase = splitext(infile)[0]
+        # filter input files :
+        pyrestr = fbase.rsplit('_py', 1)[-1] # like _26 or 26
+        if pyrestr.isdigit(): # '24', '25'...
+            if SYS_VERS_STR < pyrestr:
+                continue
+        if pyrestr.startswith('_') and  pyrestr[1:].isdigit():
+            # skip test for higher python versions
+            if SYS_VERS_STR >= pyrestr[1:]:
+                continue
+        messages = glob(join(PREFIX, 'messages', fbase + '*.txt'))
+        # the last one will be without ext, i.e. for all or upper versions:
+        if messages:
+            for outfile in sorted(messages, reverse=True):
+                py_rest = outfile.rsplit('_py', 1)[-1][:-4]
+                if py_rest.isdigit() and SYS_VERS_STR >= py_rest:
+                    break
+        else:
+            outfile = None
         result.append((infile, outfile))
     return result
 
