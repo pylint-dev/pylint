@@ -8,7 +8,7 @@ e = 1
 e2 = 'yo'
 e3 = None
 try:
-    raise e, 'toto'
+    raise e
 except Exception, ex:
     print ex
     _, _, tb = sys.exc_info()
