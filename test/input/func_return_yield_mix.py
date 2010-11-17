@@ -6,3 +6,11 @@ def somegen():
         return 1
     else:
         yield 2
+
+def moregen():
+    """this is another bad generator"""
+    if True:
+        yield 1
+    else:
+        return 2
+
