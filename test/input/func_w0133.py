@@ -37,8 +37,8 @@ class xyz:
         """bad method name"""
 
 
-def nested_args(arg1, (arg21, arg22)):
-    """function with nested arguments"""
+def no_nested_args(arg1, arg21, arg22):
+    """a function which had nested arguments but no more"""
     print arg1, arg21, arg22
 
 
