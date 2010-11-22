@@ -445,7 +445,9 @@ def expand_modules(files_or_modules, black_list):
                 if filepath is None:
                     errors.append( {'key' : 'F0003', 'mod': modname} )
                     continue
-            except ImportError, ex:
+            except (ImportError, SyntaxError), ex:
+                # FIXME p3k : the SyntaxError is a Python bug and should be
+                # removed as soon as possible http://bugs.python.org/issue10588
                 errors.append( {'key': 'F0001', 'mod': modname, 'ex': ex} )
                 continue
         filepath = normpath(filepath)
