@@ -5,30 +5,44 @@
 # adapted by Logilab for automatic generation by debianize
 # (part of the devtools project, http://www.logilab.org/projects/devtools)
 #
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
 PACKAGE:=$(shell grep Package debian/control | cut -d ' ' -f2)
+PYDEF:=$(shell py3versions -dv)
 
 include /usr/share/python3/python.mk
 
 %:
 	dh --with python3 $@
 
+override_dh_auto_build:
+	# python module build
+	NO_SETUPTOOLS=1 python3 setup.py -q build --build-purelib $(CURDIR)/build/lib
+
 override_dh_install:
 	NO_SETUPTOOLS=1 python3 setup.py -q install --no-compile \
 		--root=$(CURDIR)/debian/$(PACKAGE)/ \
 		${py_setup_install_args}
-	find $(CURDIR)/debian/$(PACKAGE)/usr/lib/python*/*-packages/ ! -path "*/test/*py" -name "*py" -exec 2to3-3.1 -wn {} \;
+	find $(CURDIR)/debian/$(PACKAGE)/usr/lib/python*/*-packages/ ! -path "*/test/*py" -name "*py" -exec 2to3-$(PYDEF) -wn {} \;
+	# rename executables
 	for executable in pylint pylint-gui symilar epylint pyreverse ; do \
 		new_exec="$$executable"3; \
-		mv -v $(CURDIR)/debian/$(PACKAGE)/usr/bin/$$executable $(CURDIR)/debian/$(PACKAGE)/usr/bin/$$new_exec; \
+		mv $(CURDIR)/debian/$(PACKAGE)/usr/bin/$$executable $(CURDIR)/debian/$(PACKAGE)/usr/bin/$$new_exec; \
 	done
 	# remove test directory
 	rm -rf debian/$(PACKAGE)/usr/lib/python*/*-packages/pylint/test
+	# generate pylint man page automatically (only when sources are py3k compatible)
+	PYTHONPATH=debian/$(PACKAGE)/usr/lib/python3/dist-packages python3 $(CURDIR)/bin/pylint --generate-man > $(CURDIR)/man/pylint.1
+	# rename and install man pages
+	for manpage in man/* ; do \
+		new_manpage="$(shell basename ${manpage} .1)"3.1; \
+		mv $$manpage $$new_manpage; \
+	done
+	dh_installman man/*
 
 override_dh_installdocs:
 	dh_installdocs README*

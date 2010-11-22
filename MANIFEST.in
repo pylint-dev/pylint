@@ -1,6 +1,7 @@
 include ChangeLog
 include COPYING
 include DEPENDS
+include README*
 include bin/*
 include examples/*
 include elisp/*
