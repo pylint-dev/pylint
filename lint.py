@@ -364,8 +364,8 @@ This is used by the global evaluation report (RP0004).'}),
                     meth = self._options_methods[opt]
                 except KeyError:
                     meth = self._bw_options_methods[opt]
-                    warn('%s is deprecated, replace it by %s (%s)' % (
-                        opt, opt.split('-')[0], self.current_file),
+                    warn('%s is deprecated, replace it by %s (%s, line %s)' % (
+                        opt, opt.split('-')[0], self.current_file, line),
                          DeprecationWarning)
                 for msgid in splitstrip(value):
                     try:
