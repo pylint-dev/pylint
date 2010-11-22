@@ -1,6 +1,11 @@
 ChangeLog for PyLint
 ====================
 
+   * drop E0501 and E0502 messages about wrong source encoding: not anymore
+     interesting since it's a syntax error for python >= 2.5 and we now only
+     support this python version and above.
+
+
 2010-11-15  --  0.22.0
 
    * python versions: minimal python3.x support; drop python < 2.5 support

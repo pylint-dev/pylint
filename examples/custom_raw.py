@@ -5,7 +5,7 @@ class MyRawChecker(BaseChecker):
     """check for line continuations with '\' instead of using triple
     quoted string or parenthesis
     """
-    
+
     __implements__ = IRawChecker
 
     name = 'custom_raw'
@@ -15,17 +15,19 @@ class MyRawChecker(BaseChecker):
             }
     options = ()
 
-    def process_module(self, stream):
+    def process_module(self, node):
         """process a module
-        
-        the module's content is accessible via the stream object
+
+        the module's content is accessible via node.file_stream object
         """
+        stream = node.file_stream
+        stream.seek(0)
         for (lineno, line) in enumerate(stream):
             if line.rstrip().endswith('\\'):
                 self.add_message('W9901', line=lineno)
 
-    
+
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(MyRawChecker(linter))
-        
+

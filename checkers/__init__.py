@@ -107,13 +107,15 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
 class BaseRawChecker(BaseChecker):
     """base class for raw checkers"""
 
-    def process_module(self, stream):
+    def process_module(self, node):
         """process a module
 
         the module's content is accessible via the stream object
 
         stream must implement the readline method
         """
+        stream = node.file_stream
+        stream.seek(0)
         self.process_tokens(tokenize.generate_tokens(stream.readline))
 
     def process_tokens(self, tokens):

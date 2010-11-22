@@ -17,46 +17,13 @@
 Check source code is ascii only or has an encoding declaration (PEP 263)
 """
 
-import re
+import re, sys
 
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
 
-def is_ascii(string):
-    """return true if non ascii characters are detected in the given string
-    and line number where non-ascii has been encountered.
-    """
-    for i, line in enumerate(string.splitlines()):
-        if line and max([ord(char) for char in line]) >= 128:
-            return False, i + 1
-    return True, 0
-
-# regexp matching both emacs and vim declaration
-ENCODING_RGX = re.compile("[^#]*#*.*coding[:=]\s*([^\s]+)")
-
-def guess_encoding(string):
-    """try to guess encoding from a python file as string
-    return None if not found
-    """
-    assert isinstance(string, str), type(string)
-    # check for UTF-8 byte-order mark
-    if string.startswith('\xef\xbb\xbf'):
-        return 'UTF-8'
-    first_lines = string.split('\n', 2)[:2]
-    for line in first_lines:
-        # check for emacs / vim encoding declaration
-        match = ENCODING_RGX.match(line)
-        if match is not None:
-            return match.group(1)
-
 
 MSGS = {
-    'E0501': ('Non ascii characters found but no encoding specified (PEP 263)',
-              'Used when some non ascii characters are detected but now \
-              encoding is specified, as explicited in the PEP 263.'),
-    'E0502': ('Wrong encoding specified (%s)',
-              'Used when a known encoding is specified but the file doesn\'t \
-              seem to be actually in this encoding.'),
     'W0511': ('%s',
               'Used when a warning note as FIXME or XXX is detected.'),
     }
@@ -83,25 +50,13 @@ separated by a comma.'
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
 
-    def process_module(self, stream):
+    def process_module(self, node):
         """inspect the source file to found encoding problem or fixmes like
         notes
         """
-        # source encoding
-        data = stream.read()
-        ascii, lineno = is_ascii(data)
-        if not ascii:
-            encoding = guess_encoding(data)
-            if encoding is None:
-                self.add_message('E0501', line=lineno)
-            else:
-                try:
-                    unicode(data, encoding)
-                except UnicodeError:
-                    self.add_message('E0502', args=encoding, line=1)
-        del data
-        # warning notes in the code
+        stream = node.file_stream
         stream.seek(0)
+        # warning notes in the code
         notes = []
         for note in self.config.notes:
             notes.append(re.compile(note))

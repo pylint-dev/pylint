@@ -31,7 +31,6 @@ from logilab.astng import nodes
 
 from pylint.interfaces import IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker
-from pylint.checkers.misc import guess_encoding, is_ascii
 from pylint.checkers.utils import check_messages
 
 MSGS = {
@@ -180,22 +179,17 @@ class FormatChecker(BaseRawChecker):
         self._lines = None
         self._visited_lines = None
 
-    def process_module(self, stream):
+    def process_module(self, node):
         """extracts encoding from the stream and decodes each line, so that
         international text's length is properly calculated.
         """
-        line_reader = stream.readline
-        if sys.version_info < (3, 0):
-            data = stream.read()
-            if not is_ascii(data)[0]:
-                encoding = guess_encoding(data)
-                if encoding is not None:
-                    line_reader = lambda: stream.readline().decode(encoding,
-                                                                   'replace')
-            del data
-
+        stream = node.file_stream
         stream.seek(0)
-        self.process_tokens(tokenize.generate_tokens(line_reader))
+        readline = stream.readline
+        if sys.version_info < (3, 0):
+            if node.file_encoding is not None:
+                readline = lambda: stream.readline().decode(node.file_encoding, 'replace')
+        self.process_tokens(tokenize.generate_tokens(readline))
 
     def new_line(self, tok_type, line, line_num, junk):
         """a new line has been encountered, process it if necessary"""

@@ -39,6 +39,7 @@ class Similar:
 
     def append_stream(self, streamid, stream):
         """append a file to search for similarities"""
+        stream.seek(0)
         self.linesets.append(LineSet(streamid,
                                      stream.readlines(),
                                      self.ignore_comments,
@@ -264,14 +265,14 @@ class SimilarChecker(BaseChecker, Similar):
         self.stats = self.linter.add_stats(nb_duplicated_lines=0,
                                            percent_duplicated_lines=0)
 
-    def process_module(self, stream):
+    def process_module(self, node):
         """process a module
 
         the module's content is accessible via the stream object
 
         stream must implement the readlines method
         """
-        self.append_stream(self.linter.current_name, stream)
+        self.append_stream(self.linter.current_name, node.file_stream)
 
     def close(self):
         """compute and display similarities on closing (i.e. end of parsing)"""

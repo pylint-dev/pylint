@@ -44,7 +44,7 @@ from logilab.common.textutils import splitstrip
 from logilab.common.ureports import Table, Text, Section
 from logilab.common.__pkginfo__ import version as common_version
 
-from logilab.astng import MANAGER, nodes
+from logilab.astng import MANAGER, nodes, ASTNGBuildingException
 from logilab.astng.__pkginfo__ import version as astng_version
 
 from pylint.utils import PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,\
@@ -84,6 +84,10 @@ MSGS = {
     'F0004': ('unexpected inferred value %s',
               'Used to indicate that some value of an unexpected type has been \
               inferred.'),
+    'F0010': ('error while code parsing: %s',
+              'Used when an exception occured while building the ASTNG \
+               representation which could be handled by astng.'),
+
 
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'Used to inform that a built-in module has not been checked \
@@ -532,6 +536,8 @@ This is used by the global evaluation report (RP0004).'}),
             return MANAGER.astng_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
             self.add_message('E0001', line=ex.lineno, args=ex.msg)
+        except ASTNGBuildingException, ex:
+            self.add_message('F0010', args=ex)
         except Exception, ex:
             # import traceback
             # traceback.print_exc()
@@ -544,10 +550,9 @@ This is used by the global evaluation report (RP0004).'}),
             self.add_message('I0001', args=astng.name)
         else:
             #assert astng.file.endswith('.py')
-            stream = open(astng.file, 'U')
             # invoke IRawChecker interface on self to fetch module/block
             # level options
-            self.process_module(stream)
+            self.process_module(astng)
             if self._ignore_file:
                 return False
             # walk ast to collect line numbers
@@ -555,8 +560,7 @@ This is used by the global evaluation report (RP0004).'}),
             self._module_msgs_state = {}
             self.collect_block_lines(astng, orig_state)
             for checker in rawcheckers:
-                stream.seek(0)
-                checker.process_module(stream)
+                checker.process_module(astng)
         # generate events to astng checkers
         walker.walk(astng)
         return True

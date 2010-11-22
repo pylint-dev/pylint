@@ -28,25 +28,25 @@ class IChecker(Interface):
 
     def open(self):
         """called before visiting project (i.e set of modules)"""
-        
+
     def close(self):
         """called after visiting project (i.e set of modules)"""
 
 ##     def open_module(self):
 ##         """called before visiting a module"""
-        
+
 ##     def close_module(self):
 ##         """called after visiting a module"""
-        
-    
+
+
 class IRawChecker(IChecker):
     """interface for checker which need to parse the raw file
     """
-    
-    def process_module(self, stream):
+
+    def process_module(self, astng):
         """ process a module
-        
-        the module's content is accessible via the stream object
+
+        the module's content is accessible via astng.file_stream
         """
 
 
@@ -62,7 +62,7 @@ class ILinter(Interface):
     the linter class will generate events to its registered checkers.
     Each checker may interact with the linter instance using this API
     """
-    
+
     def register_checker(self, checker):
         """register a new checker class
 
@@ -73,11 +73,11 @@ class ILinter(Interface):
         """add the message corresponding to the given id.
 
         If provided, msg is expanded using args
-        
+
         astng checkers should provide the node argument,
         raw checkers should provide the line argument.
         """
-        
+
 
 class IReporter(Interface):
     """ reporter collect messages and display results encapsulated in a layout
@@ -89,10 +89,10 @@ class IReporter(Interface):
         location is a 3-uple (module, object, line)
         msg is the actual message
         """
-        
+
     def display_results(self, layout):
         """display results encapsulated in the layout tree
         """
-        
-    
+
+
 __all__ = ('IRawChecker', 'IStatable', 'ILinter', 'IReporter')

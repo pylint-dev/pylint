@@ -134,10 +134,11 @@ class PyLinterTC(TestCase):
         linter.open()
         filepath = join(INPUTDIR, 'func_block_disable_msg.py')
         linter.set_current_module('func_block_disable_msg')
-        linter.process_module(open(filepath))
+        astng = linter.get_astng(filepath, 'func_block_disable_msg')
+        linter.process_module(astng)
         orig_state = linter._module_msgs_state.copy()
         linter._module_msgs_state = {}
-        linter.collect_block_lines(linter.get_astng(filepath, 'func_block_disable_msg'), orig_state)
+        linter.collect_block_lines(astng, orig_state)
         # global (module level)
         self.assert_(linter.is_message_enabled('W0613'))
         self.assert_(linter.is_message_enabled('E1101'))
