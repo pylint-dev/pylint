@@ -38,11 +38,13 @@ override_dh_install:
 	# generate pylint man page automatically (only when sources are py3k compatible)
 	PYTHONPATH=debian/$(PACKAGE)/usr/lib/python3/dist-packages python3 $(CURDIR)/bin/pylint --generate-man > $(CURDIR)/man/pylint.1
 	# rename and install man pages
-	for manpage in man/* ; do \
-		new_manpage="$(shell basename ${manpage} .1)"3.1; \
-		mv $$manpage $$new_manpage; \
-	done
-	dh_installman man/*
+	#for manpage in man/* ; do \
+	#	new_manpage="$(shell basename ${manpage} .1)"3.1; \
+	#	mv $$manpage $$new_manpage; \
+	#done
+	mv man/pylint.1 man/pylint3.1
+	mv man/pyreverse.1 man/pyreverse3.1
+	dh_installman man/*.1
 
 override_dh_installdocs:
 	dh_installdocs README*
