@@ -532,8 +532,6 @@ This is used by the global evaluation report (RP0004).'}),
             return MANAGER.astng_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
             self.add_message('E0001', line=ex.lineno, args=ex.msg)
-        except KeyboardInterrupt:
-            raise
         except Exception, ex:
             # import traceback
             # traceback.print_exc()
