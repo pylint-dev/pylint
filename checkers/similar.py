@@ -163,7 +163,7 @@ class LineSet:
     def __getitem__(self, index):
         return self._stripped_lines[index]
 
-    def __ltp__(self, other):
+    def __lt__(self, other):
         return self.name < other.name
 
     def __hash__(self):
