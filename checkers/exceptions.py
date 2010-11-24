@@ -58,6 +58,10 @@ MSGS = {
     }
 
 
+if sys.version_info < (3, 0):
+    EXCEPTIONS_MODULE = "exceptions"
+else:
+    EXCEPTIONS_MODULE = "builtins"
 
 class ExceptionsChecker(BaseChecker):
     """checks for                                                              
@@ -160,16 +164,11 @@ class ExceptionsChecker(BaseChecker):
                                 previous_exc.name, exc.name)
                             self.add_message('E0701', node=handler.type, args=msg)
                     if (exc.name == 'Exception'
-                        and exc.root().name == 'exceptions'
+                        and exc.root().name == EXCEPTIONS_MODULE
                         and nb_handlers == 1 and not is_raising(handler.body)):
                         self.add_message('W0703', node=handler.type)
                 exceptions_classes += excs
 
-
-if sys.version_info < (3, 0):
-    EXCEPTIONS_MODULE = "exceptions"
-else:
-    EXCEPTIONS_MODULE = "builtins"
 
 def inherit_from_std_ex(node):
     """return true if the given class node is subclass of
