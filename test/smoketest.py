@@ -109,7 +109,10 @@ class RunTC(TestCase):
         #This test reproduces bug #48066 ; it happens when stdout is redirected
         # through '>' : the sys.stdout.encoding becomes then None, and if the
         # output contains non ascii, pylint will crash
-        strio = tempfile.TemporaryFile()
+        if sys.version_info < (3, 0):
+            strio = tempfile.TemporaryFile()
+        else:
+            strio = StringIO()
         assert strio.encoding is None
         self._runtest([join(HERE, 'regrtest_data/no_stdout_encoding.py')],
                       out=strio)
