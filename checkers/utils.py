@@ -22,12 +22,7 @@ from logilab import astng
 from logilab.common.compat import builtins
 BUILTINS_NAME = builtins.__name__
 
-try:
-    # python >= 2.4
-    COMP_NODE_TYPES = (astng.ListComp, astng.SetComp, astng.DictComp,
-                       astng.GenExpr)
-except AttributeError:
-    COMP_NODE_TYPES = astng.ListComp
+COMP_NODE_TYPES = astng.ListComp, astng.SetComp, astng.DictComp, astng.GenExpr
 
 def safe_infer(node):
     """return the inferred value for the given node.
