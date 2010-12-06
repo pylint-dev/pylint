@@ -456,31 +456,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             self._check_module_attrs(node, module, name.split('.'))
 
-##     def leave_getattr(self, node):
-##         """check modules attribute accesses
-
-##         this function is a "leave_" because when parsing 'a.b.c'
-##         we want to check the innermost expression first.
-##         """
-##         if isinstance(node.expr, astng.Name):
-##             try:
-##                 module = node.expr.infer().next()
-##             except astng.InferenceError:
-##                 return
-##             if not isinstance(module, astng.Module):
-##                 # Not a module, don't check
-##                 return
-##         elif self._checking_mod_attr is not None:
-##             module = self._checking_mod_attr
-##         else:
-##             return
-##         self._checking_mod_attr = self._check_module_attrs(node, module,
-##                                                            [node.attrname])
-
-##     def leave_default(self, node):
-##         """by default, reset the _checking_mod_attr attribute"""
-##         self._checking_mod_attr = None
-
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
         given module
