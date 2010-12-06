@@ -38,6 +38,34 @@ except ImportError:
     from distutils.command import install_lib
     USE_SETUPTOOLS = 0
 
+# pylint needs to filter some test files expected to be wrong
+P3K_FILES_TO_IGNORE= ['test/input/func_wrong_encoding.py',
+                      'test/input/func_noerror_encoding.py',
+                      'test/input/func_unknown_encoding.py',
+                      'test/input/func_nonascii_noencoding.py']
+try:
+    # python3
+    from distutils.command.build_py import build_py_2to3 as build_py
+    def run(self):
+        self.updated_files = []
+        # Base class code
+        if self.py_modules:
+            self.build_modules()
+        if self.packages:
+            self.build_packages()
+            self.build_package_data()
+        # filter test files
+        self.updated_files = [f for f in self.updated_files
+                              if not f.endswith(tuple(P3K_FILES_TO_IGNORE))]
+        # 2to3
+        self.run_2to3(self.updated_files)
+        # Remaining base class code
+        self.byte_compile(self.get_outputs(include_bytecode=0))
+    build_py.run = run
+except ImportError:
+    # python2.x
+    from distutils.command.build_py import build_py
+
 sys.modules.pop('__pkginfo__', None)
 # import optional features
 __pkginfo__ = __import__("__pkginfo__")
@@ -154,7 +182,8 @@ def install(**kwargs):
                  scripts = ensure_scripts(scripts),
                  data_files = data_files,
                  ext_modules = ext_modules,
-                 cmdclass = {'install_lib': MyInstallLib},
+                 cmdclass = {'install_lib': MyInstallLib,
+                             'build_py':    build_py},
                  **kwargs
                  )
 

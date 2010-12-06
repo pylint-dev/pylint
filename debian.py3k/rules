@@ -12,22 +12,16 @@
 #export DH_VERBOSE=1
 
 PACKAGE:=$(shell grep Package debian/control | cut -d ' ' -f2)
-PYDEF:=$(shell py3versions -dv)
 
 include /usr/share/python3/python.mk
 
 %:
 	dh --with python3 $@
 
-override_dh_auto_build:
-	# python module build
-	NO_SETUPTOOLS=1 python3 setup.py -q build --build-purelib $(CURDIR)/build/lib
-
 override_dh_install:
 	NO_SETUPTOOLS=1 python3 setup.py -q install --no-compile \
 		--root=$(CURDIR)/debian/$(PACKAGE)/ \
 		${py_setup_install_args}
-	find $(CURDIR)/debian/$(PACKAGE)/usr/lib/python*/*-packages/ ! -path "*/test/*py" -name "*py" -exec 2to3-$(PYDEF) -wn {} \;
 	# rename executables
 	for executable in pylint pylint-gui symilar epylint pyreverse ; do \
 		new_exec="$$executable"3; \
