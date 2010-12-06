@@ -120,7 +120,7 @@ class MessagesHandlerMixIn:
         Keys are message ids, values are a 2-uple with the message type and the
         message itself
 
-        message ids should be a string of len 4, where the to first characters
+        message ids should be a string of len 4, where the two first characters
         are the checker id and the two last the message id in this checker
         """
         msgs_dict = checker.msgs
@@ -471,39 +471,29 @@ class PyLintASTWalker(object):
         self.leave_events = {}
 
     def add_checker(self, checker):
-        hasvdefault = False
+        """walk to the checker's dir and collect visit and leave methods"""
         vcids = set()
-        hasldefault = False
         lcids = set()
+        visits = self.visit_events
+        leaves = self.leave_events
         for member in dir(checker):
+            cid = member[6:]
+            if cid == 'default':
+                continue
             if member.startswith('visit_'):
-                cid = member[6:]
-                if cid != 'default':
-                    cbs = self.visit_events.setdefault(cid, [])
-                    cbs.append(getattr(checker, member))
-                    vcids.add(cid)
-                else:
-                    hasvdefault = getattr(checker, member)
+                visits.setdefault(cid, []).append(getattr(checker, member))
+                vcids.add(cid)
             elif member.startswith('leave_'):
-                cid = member[6:]
-                if cid != 'default':
-                    cbs = self.leave_events.setdefault(cid, [])
-                    cbs.append(getattr(checker, member))
-                    lcids.add(cid)
-                else:
-                    hasldefault = getattr(checker, member)
-        if hasvdefault:
+                leaves.setdefault(cid, []).append(getattr(checker, member))
+                lcids.add(cid)
+        visit_default = getattr(checker, 'visit_default', None)
+        if visit_default:
             for cls in nodes.ALL_NODE_CLASSES:
                 cid = cls.__name__.lower()
                 if cid not in vcids:
-                    cbs = self.visit_events.setdefault(cid, [])
-                    cbs.append(hasvdefault)
-        if hasldefault:
-            for cls in nodes.ALL_NODE_CLASSES:
-                cid = cls.__name__.lower()
-                if cid not in lcids:
-                    cbs = self.leave_events.setdefault(cid, [])
-                    cbs.append(hasldefault)
+                    visits.setdefault(cid, []).append(visit_default)
+        # for now we have no "leave_default" method in Pylint
+
 
     def walk(self, astng):
         """call visit events of astng checkers for the given node, recurse on
