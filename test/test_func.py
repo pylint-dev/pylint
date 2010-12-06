@@ -37,6 +37,7 @@ checkers.initialize(linter)
 linter.global_set_option('required-attributes', ('__revision__',))
 
 PY26 = sys.version_info >= (2, 6)
+PY3K = sys.version_info >= (3, 0)
 
 
 if linesep != '\n':
@@ -85,6 +86,14 @@ class LintTestUsingModule(testlib.TestCase):
         self._test(tocheck)
 
     def _test(self, tocheck):
+        if PY3K: # XXX remove this if block as soon as python bugs fixed
+            module = tocheck[0]
+            if module == 'input.func_unknown_encoding':
+                self.skipTest('FIXME: http://bugs.python.org/issue10588 '
+                              '(unexpected SyntaxError)')
+            elif 'func_w0613' in module:
+                self.skipTest('FIXME: http://bugs.python.org/issue10445 '
+                              '(no line number on function args)')
         if INFO_TEST_RGX.match(self.module):
             self.linter.enable('I')
         else:
@@ -134,7 +143,20 @@ class TestTests(testlib.TestCase):
             except ValueError:
                 continue
         todo.sort()
-        if PY26:
+        if PY3K:
+            rest = [# encoding errors now handled by astng:
+                    'E0501', 'E0502',
+                    # ...
+                    'E1122', 'I0001',
+                    # deprecated syntax removed from py3k :
+                    'W0122', 'W0331', 'W0332', 'W0333',
+                    # XXX : no use case for now :
+                    'W0402', # deprecated module
+                    'W0403', # implicit relative import
+                    'W0410', # __future__ import not first statement
+                    ]
+            self.assertEqual(todo, rest)
+        elif PY26:
             self.assertEqual(todo, ['E1122', 'I0001'])
         else:
             self.assertEqual(todo, ['I0001'])
