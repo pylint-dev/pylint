@@ -145,9 +145,9 @@ def package_load(linter, directory):
             except ValueError:
                 # empty module name (usually emacs auto-save files)
                 continue
-            except ImportError:
+            except ImportError, exc:
                 import sys
-                print >> sys.stderr, "Problem importing module: %s" % filename
+                print >> sys.stderr, "Problem importing module %s: %s" % (filename, exc)
             else:
                 if hasattr(module, 'register'):
                     module.register(linter)
