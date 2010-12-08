@@ -57,11 +57,11 @@ MSGS = {
               specifiers is given too many arguments"),
     }
 
-class IncompleteFormatStringException(Exception):
+class IncompleteFormatString(Exception):
     """A format string ended in the middle of a format specifier."""
     pass
 
-class UnsupportedFormatCharacterException(Exception):
+class UnsupportedFormatCharacter(Exception):
     """A format character in a format string is not one of the supported
     format characters."""
     def __init__(self, index):
@@ -72,14 +72,14 @@ def parse_format_string(format_string):
     """Parses a format string, returning a tuple of (keys, num_args), where keys
     is the set of mapping keys in the format string, and num_args is the number
     of arguments required by the format string.  Raises
-    IncompleteFormatStringException or UnsupportedFormatCharacterException if a
+    IncompleteFormatString or UnsupportedFormatCharacter if a
     parse error occurs."""
     keys = set()
     num_args = 0
     def next_char(i):
         i += 1
         if i == len(format_string):
-            raise IncompleteFormatStringException
+            raise IncompleteFormatString
         return (i, format_string[i])
     i = 0
     while i < len(format_string):
@@ -125,7 +125,7 @@ def parse_format_string(format_string):
                 i, c = next_char(i)
             # Parse the conversion type (mandatory).
             if c not in 'diouxXeEfFgGcrs%':
-                raise UnsupportedFormatCharacterException(i)
+                raise UnsupportedFormatCharacter(i)
             if key:
                 keys.add(key)
             elif c != '%':
@@ -133,108 +133,97 @@ def parse_format_string(format_string):
         i += 1
     return keys, num_args
 
+OTHER_NODES = (astng.Const, astng.List, astng.Backquote,
+               astng.Lambda, astng.Function,
+               astng.ListComp, astng.SetComp, astng.GenExpr)
+
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
     is valid and the arguments match the format string.
     """
+
     __implements__ = (IASTNGChecker,)
     name = 'string_format'
     msgs = MSGS
+
     def visit_binop(self, node):
         if node.op != '%':
             return
-        f = node.left
+        left = node.left
         args = node.right
-        if isinstance(f, astng.Const) and isinstance(f.value, basestring):
-            format_string = f.value
-            try:
-                required_keys, required_num_args = \
-                    parse_format_string(format_string)
-            except UnsupportedFormatCharacterException, e:
-                c = format_string[e.index]
-                self.add_message('E9900', node=node, args=(c, ord(c), e.index))
-            except IncompleteFormatStringException:
-                self.add_message('E9901', node=node)
+
+        if not (isinstance(left, astng.Const)
+            and isinstance(left.value, basestring)):
+            return
+        format_string = left.value
+        try:
+            required_keys, required_num_args = \
+                parse_format_string(format_string)
+        except UnsupportedFormatCharacter, e:
+            c = format_string[e.index]
+            self.add_message('E9900', node=node, args=(c, ord(c), e.index))
+            return
+        except IncompleteFormatString:
+            self.add_message('E9901', node=node)
+            return
+        if required_keys and required_num_args:
+            # The format string uses both named and unnamed format
+            # specifiers.
+            self.add_message('E9902', node=node)
+        elif required_keys:
+            # The format string uses only named format specifiers.
+            # Check that the RHS of the % operator is a mapping object
+            # that contains precisely the set of keys required by the
+            # format string.
+            if isinstance(args, astng.Dict):
+                keys = set()
+                unknown_keys = False
+                for k, v in args.items:
+                    if isinstance(k, astng.Const):
+                        key = k.value
+                        if isinstance(key, basestring):
+                            keys.add(key)
+                        else:
+                            self.add_message('W9900', node=node, args=key)
+                    else:
+                        # One of the keys was something other than a
+                        # constant.  Since we can't tell what it is,
+                        # supress checks for missing keys in the
+                        # dictionary.
+                        unknown_keys = True
+                if not unknown_keys:
+                    for key in required_keys:
+                        if key not in keys:
+                            self.add_message('E9904', node=node, args=key)
+                for key in keys:
+                    if key not in required_keys:
+                        self.add_message('W9901', node=node, args=key)
+            elif isinstance(args, OTHER_NODES + (astng.Tuple,)):
+                type_name = type(args).__name__
+                self.add_message('E9903', node=node, args=type_name)
+            # else:
+                # The RHS of the format specifier is a name or
+                # expression.  It may be a mapping object, so
+                # there's nothing we can check.
+        else:
+            # The format string uses only unnamed format specifiers.
+            # Check that the number of arguments passed to the RHS of
+            # the % operator matches the number required by the format
+            # string.
+            if isinstance(args, astng.Tuple):
+                num_args = len(args.elts)
+            elif isinstance(args, OTHER_NODES + (astng.Dict, astng.DictComp)):
+                num_args = 1
             else:
-                if required_keys and required_num_args:
-                    # The format string uses both named and unnamed format
-                    # specifiers.
-                    self.add_message('E9902', node=node)
-                elif required_keys:
-                    # The format string uses only named format specifiers.
-                    # Check that the RHS of the % operator is a mapping object
-                    # that contains precisely the set of keys required by the
-                    # format string.
-                    if isinstance(args, astng.Dict):
-                        keys = set()
-                        unknown_keys = False
-                        for k, v in args.items:
-                            if isinstance(k, astng.Const):
-                                key = k.value
-                                if isinstance(key, basestring):
-                                    keys.add(key)
-                                else:
-                                    self.add_message('W9900',
-                                                     node=node,
-                                                     args=key)
-                            else:
-                                # One of the keys was something other than a
-                                # constant.  Since we can't tell what it is,
-                                # supress checks for missing keys in the
-                                # dictionary.
-                                unknown_keys = True
-                        if not unknown_keys:
-                            for key in required_keys:
-                                if key not in keys:
-                                    self.add_message('E9904',
-                                                     node=node,
-                                                     args=key)
-                        for key in keys:
-                            if key not in required_keys:
-                                self.add_message('W9901', node=node, args=key)
-                    elif (isinstance(args, astng.Const) or
-                          isinstance(args, astng.Tuple) or
-                          isinstance(args, astng.List) or
-                          isinstance(args, astng.ListComp) or
-                          isinstance(args, astng.SetComp) or
-                          isinstance(args, astng.GenExpr) or
-                          isinstance(args, astng.Backquote) or
-                          isinstance(args, astng.Lambda)):
-                        type_name = type(args).__name__
-                        self.add_message('E9903', node=node, args=type_name)
-                    else:
-                        # The RHS of the format specifier is a name or
-                        # expression.  It may be a mapping object, so
-                        # there's nothing we can check.
-                        pass
-                else:
-                    # The format string uses only unnamed format specifiers.
-                    # Check that the number of arguments passed to the RHS of
-                    # the % operator matches the number required by the format
-                    # string.
-                    if isinstance(args, astng.Tuple):
-                        num_args = len(args.elts)
-                    elif (isinstance(args, astng.Const) or
-                          isinstance(args, astng.Dict) or
-                          isinstance(args, astng.List) or
-                          isinstance(args, astng.ListComp) or
-                          isinstance(args, astng.SetComp) or
-                          isinstance(args, astng.DictComp) or
-                          isinstance(args, astng.GenExpr) or
-                          isinstance(args, astng.Backquote) or
-                          isinstance(args, astng.Lambda) or
-                          isinstance(args, astng.Function)):
-                        num_args = 1
-                    else:
-                        # The RHS of the format specifier is a name or
-                        # expression.  It could be a tuple of unknown size, so
-                        # there's nothing we can check.
-                        num_args = None
-                    if num_args is not None:
-                        if num_args > required_num_args:
-                            self.add_message('E9905', node=node)
-                        elif num_args < required_num_args:
-                            self.add_message('E9906', node=node)
+                # The RHS of the format specifier is a name or
+                # expression.  It could be a tuple of unknown size, so
+                # there's nothing we can check.
+                num_args = None
+            if num_args is not None:
+                if num_args > required_num_args:
+                    self.add_message('E9905', node=node)
+                elif num_args < required_num_args:
+                    self.add_message('E9906', node=node)
 
 
 def register(linter):
