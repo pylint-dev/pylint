@@ -19,7 +19,7 @@
 from copy import copy
 
 from logilab import astng
-from logilab.astng import are_exclusive, builtin_lookup
+from logilab.astng import are_exclusive, builtin_lookup, ASTNGBuildingException
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
@@ -446,9 +446,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         name_parts = node.modname.split('.')
         try:
             module = node.root().import_module(name_parts[0])
-        except KeyboardInterrupt:
-            raise
-        except:
+        except ASTNGBuildingException:
+            return
+        except Exception, exc:
+            print 'Unhandled exception in VariablesChecker:', exc
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:
