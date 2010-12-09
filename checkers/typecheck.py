@@ -21,7 +21,7 @@ from logilab.astng import InferenceError, NotFoundError, YES, Instance
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import safe_infer, is_super
+from pylint.checkers.utils import safe_infer, is_super, check_messages
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -113,6 +113,7 @@ accessed.'}
     def visit_delattr(self, node):
         self.visit_getattr(node)
 
+    @check_messages('E1101', 'E1103')
     def visit_getattr(self, node):
         """check that the accessed attribute exists
 

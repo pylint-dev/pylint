@@ -23,6 +23,7 @@ from logilab.astng import are_exclusive
 from pylint.interfaces import IASTNGChecker
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker, EmptyReport
+from pylint.checkers.utils import check_messages
 
 
 import re
@@ -134,23 +135,17 @@ class BasicErrorChecker(_BasicChecker):
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
-        self._returns = None
 
-    def open(self):
-        self._returns = []
-
+    @check_messages('E0102')
     def visit_class(self, node):
         self._check_redefinition('class', node)
 
+    @check_messages('E0100', 'E0101', 'E0102', 'E0106')
     def visit_function(self, node):
-        self._returns.append([])
         self._check_redefinition(node.is_method() and 'method' or 'function', node)
-
-    def leave_function(self, node):
-        """most of the work is done here on close:
-        checks for max returns, branch, return in __init__
-        """
-        returns = self._returns.pop()
+        # checks for max returns, branch, return in __init__
+        returns = node.nodes_of_class(astng.Return,
+                                      skip_klass=(astng.Function, astng.Class))
         if node.is_method() and node.name == '__init__':
             if node.is_generator():
                 self.add_message('E0100', node=node)
@@ -163,32 +158,30 @@ class BasicErrorChecker(_BasicChecker):
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
             for retnode in returns:
-                if isinstance(retnode, astng.Return) and \
-                       isinstance(retnode.value, astng.Const) and \
+                if isinstance(retnode.value, astng.Const) and \
                        retnode.value.value is not None:
                     self.add_message('E0106', node=node,
                                      line=retnode.fromlineno)
 
+    @check_messages('E0104')
     def visit_return(self, node):
-        # if self._returns is empty, we're outside a function
-        if not self._returns:
+        if not isinstance(node.frame(), astng.Function):
             self.add_message('E0104', node=node)
-            return
-        self._returns[-1].append(node)
 
+    @check_messages('E0105')
     def visit_yield(self, node):
-        # if self._returns is empty, we're outside a function
-        if not self._returns:
+        if not isinstance(node.frame(), astng.Function):
             self.add_message('E0105', node=node)
-            return
-        self._returns[-1].append(node)
 
+    @check_messages('E0103')
     def visit_continue(self, node):
         self._check_in_loop(node, 'continue')
 
+    @check_messages('E0103')
     def visit_break(self, node):
         self._check_in_loop(node, 'break')
 
+    @check_messages('E0107')
     def visit_unaryop(self, node):
         """check use of the non-existent ++ adn -- operator operator"""
         if ((node.op in '+-') and
@@ -312,7 +305,9 @@ functions, methods
         """check module name, docstring and required arguments
         """
         self.stats['module'] += 1
-        self._check_required_attributes(node, self.config.required_attributes)
+        for attr in self.config.required_attributes:
+            if attr not in node:
+                self.add_message('C0121', node=node, args=attr)
 
     def visit_class(self, node):
         """check module name, docstring and redefinition
@@ -320,6 +315,7 @@ functions, methods
         """
         self.stats['class'] += 1
 
+    @check_messages('W0104', 'W0105')
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
@@ -335,6 +331,7 @@ functions, methods
                 or isinstance(node.parent, astng.TryExcept) and node.parent.body == [node]):
             self.add_message('W0104', node=node)
 
+    @check_messages('W0108')
     def visit_lambda(self, node):
         """check whether or not the lambda is suspicious
         """
@@ -391,9 +388,20 @@ functions, methods
         variable names, max locals
         """
         self.stats[node.is_method() and 'method' or 'function'] += 1
-        # check default arguments'value
-        self._check_defaults(node)
+        # check for dangerous default values as arguments
+        for default in node.args.defaults:
+            try:
+                value = default.infer().next()
+            except astng.InferenceError:
+                continue
+            if isinstance(value, (astng.Dict, astng.List)):
+                if value is default:
+                    msg = default.as_string()
+                else:
+                    msg = '%s (%s)' % (default.as_string(), value.as_string())
+                self.add_message('W0102', node=node, args=(msg,))
 
+    @check_messages('W0101', 'W0150')
     def visit_return(self, node):
         """1 - check is the node has a right sibling (if so, that's some
         unreachable code)
@@ -404,12 +412,14 @@ functions, methods
         # Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'return', (astng.Function,))
 
+    @check_messages('W0101')
     def visit_continue(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
 
+    @check_messages('W0101', 'W0150')
     def visit_break(self, node):
         """1 - check is the node has a right sibling (if so, that's some
         unreachable code)
@@ -421,16 +431,19 @@ functions, methods
         # 2 - Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'break', (astng.For, astng.While,))
 
+    @check_messages('W0101')
     def visit_raise(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
 
+    @check_messages('W0122')
     def visit_exec(self, node):
         """just print a warning on exec statements"""
         self.add_message('W0122', node=node)
 
+    @check_messages('W0141', 'W0142')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -456,12 +469,14 @@ functions, methods
                         return # W0142 can be skipped
             self.add_message('W0142', node=node.func)
 
+    @check_messages('W0199')
     def visit_assert(self, node):
         """check the use of an assert statement on a tuple."""
         if node.fail is None and isinstance(node.test, astng.Tuple) and \
            len(node.test.elts) == 2:
              self.add_message('W0199', line=node.fromlineno, node=node)
 
+    @check_messages('W0109')
     def visit_dict(self, node):
         """check duplicate key in dictionary"""
         keys = set()
@@ -480,32 +495,11 @@ functions, methods
         """update try...finally flag"""
         self._tryfinallys.pop()
 
-
     def _check_unreachable(self, node):
         """check unreachable code"""
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
             self.add_message('W0101', node=unreach_stmt)
-
-    def _check_defaults(self, node):
-        """check for dangerous default values as arguments"""
-        for default in node.args.defaults:
-            try:
-                value = default.infer().next()
-            except astng.InferenceError:
-                continue
-            if isinstance(value, (astng.Dict, astng.List)):
-                if value is default:
-                    msg = default.as_string()
-                else:
-                    msg = '%s (%s)' % (default.as_string(), value.as_string())
-                self.add_message('W0102', node=node, args=(msg,))
-
-    def _check_required_attributes(self, node, attributes):
-        """check for required attributes"""
-        for attr in attributes:
-            if attr not in node:
-                self.add_message('C0121', node=node, args=attr)
 
     def _check_not_in_finally(self, node, node_name, breaker_classes=()):
         """check that a node is not inside a finally clause of a
@@ -615,14 +609,17 @@ class NameChecker(_BasicChecker):
                                            badname_inlinevar=0,
                                            badname_argument=0)
 
+    @check_messages('C0102', 'C0103')
     def visit_module(self, node):
         self._check_name('module', node.name.split('.')[-1], node)
 
+    @check_messages('C0102', 'C0103')
     def visit_class(self, node):
         self._check_name('class', node.name, node)
         for attr, anodes in node.instance_attrs.items():
             self._check_name('attr', attr, anodes[0])
 
+    @check_messages('C0102', 'C0103')
     def visit_function(self, node):
         self._check_name(node.is_method() and 'method' or 'function',
                          node.name, node)
@@ -631,6 +628,7 @@ class NameChecker(_BasicChecker):
         if args is not None:
             self._recursive_check_names(args, node)
 
+    @check_messages('C0102', 'C0103')
     def visit_assname(self, node):
         """check module level assigned names"""
         frame = node.frame()
@@ -648,7 +646,6 @@ class NameChecker(_BasicChecker):
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
-            #if type(arg) is type(''):
             if isinstance(arg, astng.AssName):
                 self._check_name('argument', arg.name, node)
             else:

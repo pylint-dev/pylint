@@ -23,9 +23,9 @@ from logilab.astng import are_exclusive, builtin_lookup
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import PYMETHODS, is_ancestor_name, is_builtin, \
-     is_defined_before, is_error, is_func_default, is_func_decorator, assign_parent
-
+from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
+     is_defined_before, is_error, is_func_default, is_func_decorator,
+     assign_parent, check_messages)
 
 def overridden_method(klass, name):
     """get overridden method if any"""
@@ -136,6 +136,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmts[0])
 
+    @check_messages('W0611', 'W0614')
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -269,6 +270,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             else:
                 self.add_message('W0612', args=name, node=stmt)
 
+    @check_messages('W0601', 'W0602', 'W0603', 'W0604', 'W0622')
     def visit_global(self, node):
         """check names imported exists in the global scope"""
         frame = node.frame()

@@ -32,6 +32,7 @@ from logilab.astng import nodes
 from pylint.interfaces import IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker
 from pylint.checkers.misc import guess_encoding, is_ascii
+from pylint.checkers.utils import check_messages
 
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
@@ -274,6 +275,7 @@ class FormatChecker(BaseRawChecker):
         if line_num > self.config.max_module_lines:
             self.add_message('C0302', args=line_num, line=1)
 
+    @check_messages('C0321' ,'C03232', 'C0323', 'C0324')
     def visit_default(self, node):
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
@@ -317,6 +319,7 @@ class FormatChecker(BaseRawChecker):
             # FIXME: internal error !
             pass
 
+    @check_messages('W0333')
     def visit_backquote(self, node):
         self.add_message('W0333', node=node)
 

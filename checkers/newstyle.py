@@ -20,6 +20,7 @@ from logilab import astng
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
+from pylint.checkers.utils import check_messages
 
 MSGS = {
     'E1001': ('Use __slots__ on an old style class',
@@ -53,15 +54,14 @@ class NewStyleConflictChecker(BaseChecker):
     # configuration options
     options = ()
 
-#    def __init__(self, linter=None):
-#        BaseChecker.__init__(self, linter)
-        
+    @check_messages('E1001')
     def visit_class(self, node):
         """check __slots__ usage
         """        
         if '__slots__' in node and not node.newstyle:
             self.add_message('E1001', node=node)
-        
+
+    @check_messages('W1001')
     def visit_callfunc(self, node):
         """check property usage"""
         parent = node.parent.frame()
@@ -72,6 +72,7 @@ class NewStyleConflictChecker(BaseChecker):
             if name == 'property':
                 self.add_message('W1001', node=node)
 
+    @check_messages('E1002', 'E1003')
     def visit_function(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
