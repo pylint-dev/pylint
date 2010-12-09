@@ -423,16 +423,16 @@ This is used by the global evaluation report (RP0004).'}),
     def get_checkers(self):
         """return all available checkers as a list"""
         return [self] + [c for checkers in self._checkers.values()
-                        for c in checkers if c is not self]
+                         for c in checkers if c is not self]
 
     def needed_checkers(self):
         """return checkers needed for activated messages and reports"""
-        neededcheckers = []
+        neededcheckers = [self]
         get_msg = self._msgs_state.get
-        for checker in self.get_checkers():
-            if ( any(get_msg(msg, True) for msg in checker.msgs) or
-                 any(get_msg(msg[0], True) for msg in checker.reports) ):
-                 neededcheckers.append(checker)
+        for checker in self.get_checkers()[1:]:
+            if (any(get_msg(msg, True) for msg in checker.msgs) or
+                any(self.is_report_enabled(r[0]) for r in checker.reports)):
+                neededcheckers.append(checker)
         return neededcheckers
 
     def check(self, files_or_modules):
