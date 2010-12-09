@@ -42,7 +42,6 @@ from logilab.common.modutils import load_module_from_name
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip
 from logilab.common.ureports import Table, Text, Section
-from logilab.common.graph import ordered_nodes
 from logilab.common.__pkginfo__ import version as common_version
 
 from logilab.astng import MANAGER, nodes
@@ -422,35 +421,20 @@ This is used by the global evaluation report (RP0004).'}),
 
     # code checking methods ###################################################
 
-    def sort_checkers(self, checkers=None):
-        if checkers is None:
-            checkers = [checker for checkers in self._checkers.values()
-                        for checker in checkers]
-        graph = {}
-        cls_instance = {}
-        for checker in checkers:
-            graph[checker.__class__] = set(checker.needs_checkers)
-            cls_instance[checker.__class__] = checker
-        checkers = [cls_instance.get(cls) for cls in ordered_nodes(graph)]
-        checkers.remove(self)
-        checkers.insert(0, self)
-        return checkers
+    def get_checkers(self):
+        """return all available checkers as a list"""
+        return [self] + [c for checkers in self._checkers.values()
+                        for c in checkers if c is not self]
 
-    def _get_checkers(self):
-        # compute checkers needed according to activated messages and reports
-        neededcheckers = set()
-        for checkers in self._checkers.values():
-            for checker in checkers:
-                for msgid in checker.msgs:
-                    if self._msgs_state.get(msgid, True):
-                        neededcheckers.add(checker)
-                        break
-                else:
-                    for reportid, _, _ in checker.reports:
-                        if self.is_report_enabled(reportid):
-                            neededcheckers.add(checker)
-                            break
-        return self.sort_checkers(neededcheckers)
+    def needed_checkers(self):
+        """return checkers needed for activated messages and reports"""
+        neededcheckers = []
+        get_msg = self._msgs_state.get
+        for checker in self.get_checkers():
+            if ( any(get_msg(msg, True) for msg in checker.msgs) or
+                 any(get_msg(msg, True) for msg in checker.reports) ):
+                 neededcheckers.append(checker)
+        return neededcheckers
 
     def check(self, files_or_modules):
         """main checking entry: check a list of files or modules from their
@@ -459,7 +443,7 @@ This is used by the global evaluation report (RP0004).'}),
         self.reporter.include_ids = self.config.include_ids
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
-        checkers = self._get_checkers()
+        checkers = self.needed_checkers()
         rawcheckers = []
         walker = PyLintASTWalker()
         # notify global begin

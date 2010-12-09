@@ -70,8 +70,6 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
     level = 1
     # ordered list of options to control the ckecker behaviour
     options = ()
-    # checker that should be run before this one
-    needs_checkers = ()
     # messages issued by this checker
     msgs = {}
     # reports issued by this checker

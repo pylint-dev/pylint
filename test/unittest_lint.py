@@ -223,9 +223,9 @@ class PyLinterTC(TestCase):
 
     def test_enable_checkers(self):
         self.linter.disable('design')
-        self.failIf('design' in set([c.name for c in self.linter._get_checkers()]))
+        self.failIf('design' in [c.name for c in self.linter.needed_checkers()])
         self.linter.enable('design')
-        self.failUnless('design' in set([c.name for c in self.linter._get_checkers()]))
+        self.failUnless('design' in [c.name for c in self.linter.needed_checkers()])
 
 
 class ConfigTC(TestCase):

@@ -288,7 +288,7 @@ class MessagesHandlerMixIn:
     def print_full_documentation(self):
         """output a full documentation in ReST format"""
         by_checker = {}
-        for checker in self.sort_checkers():
+        for checker in self.get_checkers():
             if checker.name == 'master':
                 prefix = 'Main '
                 print "Options"
@@ -343,7 +343,7 @@ class MessagesHandlerMixIn:
     def list_messages(self):
         """output full messages list documentation in ReST format"""
         msgids = []
-        for checker in self.sort_checkers():
+        for checker in self.get_checkers():
             for msgid in checker.msgs.keys():
                 msgids.append(msgid)
         msgids.sort()
@@ -394,9 +394,7 @@ class ReportsHandlerMixIn:
             self.reporter.set_output(open(filename, 'w'))
         sect = Section('Report',
                        '%s statements analysed.'% (self.stats['statement']))
-        checkers = self.sort_checkers(self._reports)
-        checkers.reverse()
-        for checker in checkers:
+        for checker in self._reports:
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.is_report_enabled(reportid):
                     continue
