@@ -24,7 +24,7 @@ from logilab.common.compat import reload
 
 from pylint import config
 from pylint.lint import PyLinter, Run, UnknownMessage
-from pylint.utils import sort_msgs
+from pylint.utils import sort_msgs, PyLintASTWalker
 from pylint import checkers
 
 class SortMessagesTC(TestCase):

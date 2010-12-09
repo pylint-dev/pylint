@@ -32,6 +32,7 @@ from logilab.astng import nodes, Module
 
 from pylint.checkers import EmptyReport
 
+
 class UnknownMessage(Exception):
     """raised when a unregistered message id is encountered"""
 
@@ -462,27 +463,41 @@ def expand_modules(files_or_modules, black_list):
 
 
 class PyLintASTWalker(object):
-    def __init__(self):
+
+    def __init__(self, linter):
         # callbacks per node types
         self.nbstatements = 1
         self.visit_events = {}
         self.leave_events = {}
+        self.linter = linter
 
     def add_checker(self, checker):
         """walk to the checker's dir and collect visit and leave methods"""
+        # XXX : should be possible to merge needed_checkers and add_checker
         vcids = set()
         lcids = set()
         visits = self.visit_events
         leaves = self.leave_events
+        msgs = self.linter._msgs_state
         for member in dir(checker):
             cid = member[6:]
             if cid == 'default':
                 continue
             if member.startswith('visit_'):
-                visits.setdefault(cid, []).append(getattr(checker, member))
+                v_meth = getattr(checker, member)
+                # don't use visit_methods with no activated message:
+                if hasattr(v_meth, 'checks_msgs'):
+                    if not any(msgs.get(m, True) for m in v_meth.checks_msgs):
+                        continue
+                visits.setdefault(cid, []).append(v_meth)
                 vcids.add(cid)
             elif member.startswith('leave_'):
-                leaves.setdefault(cid, []).append(getattr(checker, member))
+                l_meth = getattr(checker, member)
+                # don't use leave_methods with no activated message:
+                if hasattr(l_meth, 'checks_msgs'):
+                    if not any(msgs.get(m, True) for m in l_meth.checks_msgs):
+                        continue
+                leaves.setdefault(cid, []).append(l_meth)
                 lcids.add(cid)
         visit_default = getattr(checker, 'visit_default', None)
         if visit_default:
@@ -491,7 +506,6 @@ class PyLintASTWalker(object):
                 if cid not in vcids:
                     visits.setdefault(cid, []).append(visit_default)
         # for now we have no "leave_default" method in Pylint
-
 
     def walk(self, astng):
         """call visit events of astng checkers for the given node, recurse on
@@ -508,3 +522,4 @@ class PyLintASTWalker(object):
             self.walk(child)
         for cb in self.leave_events.get(cid, ()):
             cb(astng)
+

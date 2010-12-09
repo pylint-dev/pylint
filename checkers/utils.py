@@ -202,3 +202,12 @@ PYMETHODS = set(('__new__', '__init__', '__del__', '__hash__',
                  '__xor__', '__ixor__', '__rxor__',
                  # XXX To be continued
                  ))
+
+def check_messages(*messages):
+    """decorator to store messages that are handled by a checker method"""
+
+    def store_messages(func):
+        func.checks_msgs = messages
+        return func
+    return store_messages
+

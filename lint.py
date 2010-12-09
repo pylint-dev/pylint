@@ -447,15 +447,15 @@ This is used by the global evaluation report (RP0004).'}),
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
         checkers = self.needed_checkers()
-        rawcheckers = []
-        walker = PyLintASTWalker()
+        walker = PyLintASTWalker(self)
+        checkers = self.needed_checkers()
+        rawcheckers = [c for c in checkers if implements(c, IRawChecker)
+                       and c is not self]
         # notify global begin
         for checker in checkers:
             checker.open()
             if implements(checker, IASTNGChecker):
                 walker.add_checker(checker)
-            if implements(checker, IRawChecker) and checker is not self: #XXX
-                rawcheckers.append(checker)
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
             modname, filepath = descr['name'], descr['path']
