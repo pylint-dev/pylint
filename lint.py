@@ -314,9 +314,8 @@ This is used by the global evaluation report (RP0004).'}),
         """
         assert checker.priority <= 0, 'checker priority can\'t be >= 0'
         self._checkers.setdefault(checker.name, []).append(checker)
-        if hasattr(checker, 'reports'):
-            for r_id, r_title, r_cb in checker.reports:
-                self.register_report(r_id, r_title, r_cb, checker)
+        for r_id, r_title, r_cb in checker.reports:
+            self.register_report(r_id, r_title, r_cb, checker)
         self.register_options_provider(checker)
         if hasattr(checker, 'msgs'):
             self.register_messages(checker)
@@ -432,7 +431,7 @@ This is used by the global evaluation report (RP0004).'}),
         get_msg = self._msgs_state.get
         for checker in self.get_checkers():
             if ( any(get_msg(msg, True) for msg in checker.msgs) or
-                 any(get_msg(msg, True) for msg in checker.reports) ):
+                 any(get_msg(msg[0], True) for msg in checker.reports) ):
                  neededcheckers.append(checker)
         return neededcheckers
 
@@ -441,6 +440,10 @@ This is used by the global evaluation report (RP0004).'}),
         name.
         """
         self.reporter.include_ids = self.config.include_ids
+        if not self.config.reports:
+            for reporters in self._reports.values():
+                for report_id, _title, _cb in reporters:
+                    self.disable_report(report_id)
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
         checkers = self.needed_checkers()
