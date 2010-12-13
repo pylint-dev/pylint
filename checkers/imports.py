@@ -26,18 +26,20 @@ from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker, EmptyReport
 
 
-def get_first_import(context, name, base, level=0):
+def get_first_import(node, context, name, base, level):
     """return the node where [base.]<name> is imported or None if not found
     """
-    for node in context.values():
-        if isinstance(node, astng.Import):
-            if name in [iname[0] for iname in node.names]:
-                return node
-        if isinstance(node, astng.From):
-            if base == node.modname and level == node.level and \
-                   name in [iname[0] for iname in node.names]:
-                return node
-
+    first = None
+    for first in context.values():
+        if isinstance(first, astng.Import):
+            if name in [iname[0] for iname in first.names]:
+                break
+        elif isinstance(first, astng.From):
+            if base == first.modname and level == first.level and \
+                   name in [iname[0] for iname in first.names]:
+                break
+    if first is not node and not are_exclusive(first, node):
+        return first
 
 # utilities to represents import dependencies as tree and dot graph ###########
 
@@ -296,29 +298,20 @@ given file (report RP0402 must not be disabled)'}
 
     def _check_deprecated_module(self, node, mod_path):
         """check if the module is deprecated"""
-        # XXX rewrite
         for mod_name in self.config.deprecated_modules:
-            if mod_path.startswith(mod_name) and \
-                   (len(mod_path) == len(mod_name)
-                    or mod_path[len(mod_name)] == '.'):
+            if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 self.add_message('W0402', node=node, args=mod_path)
 
     def _check_reimport(self, node, name, basename=None, level=0):
         """check if the import is necessary (i.e. not already done)"""
-        # XXX rewrite
         frame = node.frame()
-        first = get_first_import(frame, name, basename, level)
-        if isinstance(first, (astng.Import, astng.From)) and first is not node \
-               and not are_exclusive(first, node):
-            self.add_message('W0404', node=node, args=(name, first.fromlineno))
-        else:
-            root = node.root()
-            if root is frame:
-                return
-            first = get_first_import(root, name, basename)
-            if not isinstance(first, (astng.Import, astng.From)):
-                return
-            if first is not node and not are_exclusive(first, node):
+        root = node.root()
+        contexts = [(frame, level)]
+        if root is not frame:
+            contexts.append((root, 0))
+        for context, level in contexts:
+            first = get_first_import(node, context, name, basename, level)
+            if first is not None:
                 self.add_message('W0404', node=node,
                                  args=(name, first.fromlineno))
 
