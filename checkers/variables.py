@@ -16,6 +16,7 @@
 """variables checkers for Python code
 """
 
+import sys
 from copy import copy
 
 from logilab import astng
@@ -239,7 +240,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if is_method and (klass.type == 'interface' or node.is_abstract()):
             return
         authorized_rgx = self.config.dummy_variables_rgx
-        overridden = marker = []
+        called_overridden = False
         argnames = node.argnames()
         for name, stmts in not_consumed.iteritems():
             # ignore some special names specified by user configuration
@@ -257,8 +258,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     if node.type != 'staticmethod' and name == argnames[0]:
                         continue
                     # don't warn for argument of an overridden method
-                    if overridden is marker:
+                    if not called_overridden:
                         overridden = overridden_method(klass, node.name)
+                        called_overridden = True
                     if overridden is not None and name in overridden.argnames():
                         continue
                     if node.name in PYMETHODS and node.name not in ('__init__', '__new__'):
@@ -504,7 +506,6 @@ class VariablesChecker3k(VariablesChecker):
         # do not check for not used locals here
         self._to_consume.pop()
 
-import sys
 if sys.version_info >= (3, 0):
     VariablesChecker = VariablesChecker3k
 
