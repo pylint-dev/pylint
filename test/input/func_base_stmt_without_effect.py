@@ -7,9 +7,9 @@
               has no effect). This is a particular case of W0104 with its \
               own message so you can easily disable it if you\'re using \
               those strings as documentation, instead of comments.'),
-    'W0106': ('Unnecessary semi-column',
-              'Used when a statement is endend by a semi-colon (";"), which \
-              isn\'t necessary (that\'s python, not C ;)'),
+    'W0106': ('Expression "%s" is assigned to nothing',
+              'Used when an expression that is not a function call is assigned\
+              to nothing. Probably something else was intended.'),
 """
 
 __revision__ = ''
@@ -27,4 +27,15 @@ __revision__.lower() # ok
 
 __revision__.lower(); # unnecessary ;
 
-list() and tuple() # ok
+list() and tuple() # W0106
+
+def to_be():
+    """return 42"""
+    return 42
+
+ANSWER = to_be() # ok
+ANSWER == to_be() # W0106, typical typo
+
+to_be() or not to_be() # W0106, strange conditional function call (or nonsens)
+to_be().real # W0106, very strange, maybe typo
+

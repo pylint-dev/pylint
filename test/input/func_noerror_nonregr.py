@@ -1,4 +1,4 @@
-# pylint: disable=W0104
+# pylint: disable=W0106
 """snippets of codes which have at some point made pylint crash"""
 
 __revision__ = 1

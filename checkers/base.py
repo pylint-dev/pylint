@@ -238,6 +238,9 @@ functions, methods
               has no effect). This is a particular case of W0104 with its \
               own message so you can easily disable it if you\'re using \
               those strings as documentation, instead of comments.'),
+    'W0106': ('Expression "%s" is assigned to nothing',
+              'Used when an expression that is not a function call is assigned\
+              to nothing. Probably something else was intended.'),
     'W0108': ('Lambda may not be necessary',
               'Used when the body of a lambda expression is a function call \
               on the same argument list as the lambda itself; such lambda \
@@ -319,16 +322,24 @@ functions, methods
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
-        if isinstance(expr, astng.Const) and isinstance(expr.value, basestring):
+        if isinstance(expr, astng.Const) and isinstance(expr.value,
+                                                        basestring):
             # treat string statement in a separated message
             self.add_message('W0105', node=node)
             return
         # ignore if this is :
-        # * a function call (can't predicate side effects)
-        # * the unique children of a try/except body
+        # * a direct function call
+        # * the unique child of a try/except body
         # * a yield (which are wrapped by a discard node in _ast XXX)
-        if not (any(expr.nodes_of_class((astng.CallFunc, astng.Yield)))
-                or isinstance(node.parent, astng.TryExcept) and node.parent.body == [node]):
+        # warn W0106 if we have any underlying function call (we can't predict
+        # side effects), else W0104
+        if (isinstance(expr, (astng.Yield, astng.CallFunc)) or
+            (isinstance(node.parent, astng.TryExcept) and
+             node.parent.body == [node])):
+            return
+        if any(expr.nodes_of_class(astng.CallFunc)):
+            self.add_message('W0106', node=node, args=expr.as_string())
+        else:
             self.add_message('W0104', node=node)
 
     @check_messages('W0108')
