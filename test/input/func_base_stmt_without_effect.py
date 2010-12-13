@@ -31,11 +31,11 @@ list() and tuple() # W0106
 
 def to_be():
     """return 42"""
-    return 42
+    return "42"
 
 ANSWER = to_be() # ok
 ANSWER == to_be() # W0106, typical typo
 
 to_be() or not to_be() # W0106, strange conditional function call (or nonsens)
-to_be().real # W0106, very strange, maybe typo
+to_be().title # W0106, very strange, maybe typo
 
