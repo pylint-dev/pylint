@@ -201,11 +201,11 @@ class PyLinterTC(TestCase):
                 pass
 
     def test_enable_report(self):
-        self.assertEqual(self.linter.is_report_enabled('RP0001'), True)
+        self.assertEqual(self.linter.report_is_enabled('RP0001'), True)
         self.linter.disable('RP0001')
-        self.assertEqual(self.linter.is_report_enabled('RP0001'), False)
+        self.assertEqual(self.linter.report_is_enabled('RP0001'), False)
         self.linter.enable('RP0001')
-        self.assertEqual(self.linter.is_report_enabled('RP0001'), True)
+        self.assertEqual(self.linter.report_is_enabled('RP0001'), True)
 
     def test_set_option_1(self):
         linter = self.linter
@@ -223,9 +223,39 @@ class PyLinterTC(TestCase):
 
     def test_enable_checkers(self):
         self.linter.disable('design')
-        self.failIf('design' in [c.name for c in self.linter.needed_checkers()])
+        self.failIf('design' in [c.name for c in self.linter.prepare_checkers()])
         self.linter.enable('design')
-        self.failUnless('design' in [c.name for c in self.linter.needed_checkers()])
+        self.failUnless('design' in [c.name for c in self.linter.prepare_checkers()])
+
+    def test_errors_only(self):
+        linter = self.linter
+        self.linter.error_mode()
+        checkers = self.linter.prepare_checkers()
+        checker_names = tuple(c.name for c in checkers)
+        should_not = ('design', 'format', 'imports', 'logging', 'metrics',
+                      'miscellaneous', 'similarities')
+        self.failIf(any(name in checker_names for name in should_not))
+
+    def test_disable_similar(self):
+        # XXX we have to disable them both, that's no good
+        self.linter.set_option('reports', False)
+        self.linter.set_option('disable', 'R0801')
+        self.failIf('similarities' in [c.name for c in self.linter.prepare_checkers()])
+
+    def test_disable_alot(self):
+        """check that we disabled a lot of checkers"""
+        self.linter.set_option('reports', False)
+        # FIXME should it be necessary to explicitly desactivate failures ?
+        self.linter.set_option('disable', 'R,C,W')
+        checker_names = [c.name for c in self.linter.prepare_checkers()]
+        should_not = ('design', 'logging', 'metrics', 'similarities')
+        rest = [name for name in checker_names if name in should_not]
+        self.assertListEqual(rest, [])
+        self.linter.set_option('disable', 'R,C,W,F')
+        checker_names = [c.name for c in self.linter.prepare_checkers()]
+        should_not +=  ('format', 'imports')
+        rest = [name for name in checker_names if name in should_not]
+        self.assertListEqual(rest, [])
 
 
 class ConfigTC(TestCase):
