@@ -84,6 +84,8 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
         self.name = self.name.lower()
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
+        # messages that are active for the current check
+        self.active_msgs = set()
 
     def add_message(self, msg_id, line=None, node=None, args=None):
         """add a message of a given type"""

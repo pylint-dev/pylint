@@ -216,6 +216,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_function(self, node):
         """visit function: update consumption analysis variable and check locals
         """
+        self._to_consume.append((copy(node.locals), {}, 'function'))
+        self._vars.append({})
+        if not set(('W0621', 'W0622')) & self.active_msgs:
+            return
         globs = node.root().globals
         for name, stmt in node.items():
             if name in globs and not isinstance(stmt, astng.Global):
@@ -224,13 +228,13 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             elif is_builtin(name):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmt)
-        self._to_consume.append((copy(node.locals), {}, 'function'))
-        self._vars.append({})
 
     def leave_function(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
         self._vars.pop(0)
+        if not set(('W0612', 'W0613')) & self.active_msgs:
+            return
         # don't check arguments of function which are only raising an exception
         if is_error(node):
             return
@@ -323,6 +327,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         #astmts = [stmt for stmt in node.lookup(name)[1]
         #          if hasattr(stmt, 'ass_type')] and
         #          not stmt.statement().parent_of(node)]
+        if 'W0631' not in self.active_msgs:
+            return
         astmts = [stmt for stmt in node.lookup(name)[1]
                   if hasattr(stmt, 'ass_type')]
         # filter variables according their respective scope
@@ -433,6 +439,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     or name in self.config.additional_builtins):
                 self.add_message('E0602', args=name, node=node)
 
+    @check_messages('E0611')
     def visit_import(self, node):
         """check modules attribute accesses"""
         for name, _ in node.names:
@@ -443,6 +450,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             self._check_module_attrs(node, module, parts[1:])
 
+    @check_messages('E0611')
     def visit_from(self, node):
         """check modules attribute accesses"""
         name_parts = node.modname.split('.')

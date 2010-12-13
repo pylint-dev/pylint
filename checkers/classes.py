@@ -22,7 +22,7 @@ from logilab.astng import YES, Instance, are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import PYMETHODS, overrides_a_method
+from pylint.checkers.utils import PYMETHODS, overrides_a_method, check_messages
 
 def class_is_abstract(node):
     """return true if the given class node should be considered as an abstract
@@ -178,12 +178,19 @@ instance attributes.'}
             except astng.NotFoundError:
                 self.add_message('W0232', args=node, node=node)
 
+    @check_messages('E0203', 'W0201')
     def leave_class(self, cnode):
         """close a class node:
         check that instance attributes are defined in __init__ and check
         access to existent members
         """
+        # check access to existent members on non metaclass classes
+        accessed = self._accessed.pop()
+        if cnode.type != 'metaclass':
+            self._check_accessed_members(cnode, accessed)
         # checks attributes are defined in an allowed method such as __init__
+        if 'W0201' not in self.active_msgs:
+            return
         defining_methods = self.config.defining_attr_methods
         for attr, nodes in cnode.instance_attrs.items():
             nodes = [n for n in nodes if not
@@ -212,10 +219,6 @@ instance attributes.'}
                         cnode.local_attr(attr)
                     except astng.NotFoundError:
                         self.add_message('W0201', args=attr, node=node)
-        # check access to existent members on non metaclass classes
-        accessed = self._accessed.pop()
-        if cnode.type != 'metaclass':
-            self._check_accessed_members(cnode, accessed)
 
     def visit_function(self, node):
         """check method arguments, overriding"""
@@ -264,6 +267,8 @@ instance attributes.'}
         if node.is_method():
             if node.args.args is not None:
                 self._first_attrs.pop()
+            if 'R0201' not in self.active_msgs:
+                return
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
                 and not node.name in PYMETHODS
@@ -282,7 +287,10 @@ instance attributes.'}
         if self._first_attrs and isinstance(node.expr, astng.Name) and \
                node.expr.name == self._first_attrs[-1]:
             self._accessed[-1].setdefault(attrname, []).append(node)
-        elif attrname[0] == '_' and not attrname == '_' and not (
+            return
+        if 'W0212' not in self.active_msgs:
+            return
+        if attrname[0] == '_' and not attrname == '_' and not (
              attrname.startswith('__') and attrname.endswith('__')):
             # XXX move this in a reusable function
             klass = node.frame()
@@ -452,6 +460,8 @@ instance attributes.'}
         """check that the __init__ method call super or ancestors'__init__
         method
         """
+        if not set(('W0231', 'W0233')) & self.active_msgs:
+            return
         klass_node = node.parent.frame()
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)

@@ -267,6 +267,8 @@ given file (report RP0402 must not be disabled)'}
         """check relative import. node is either an Import or From node, modname
         the imported module name.
         """
+        if 'W0403' not in self.active_msgs:
+            return
         if importedmodnode.file is None:
             return False # built-in module
         if modnode is importedmodnode:
@@ -304,6 +306,8 @@ given file (report RP0402 must not be disabled)'}
 
     def _check_reimport(self, node, name, basename=None, level=0):
         """check if the import is necessary (i.e. not already done)"""
+        if 'W0404' not in self.active_msgs:
+            return
         frame = node.frame()
         root = node.root()
         contexts = [(frame, level)]
