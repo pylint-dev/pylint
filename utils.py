@@ -382,7 +382,7 @@ class ReportsHandlerMixIn:
         reportid = reportid.upper()
         self._reports_state[reportid] = False
 
-    def is_report_enabled(self, reportid):
+    def report_is_enabled(self, reportid):
         """return true if the report associated to the given identifier is
         enabled
         """
@@ -397,7 +397,7 @@ class ReportsHandlerMixIn:
                        '%s statements analysed.'% (self.stats['statement']))
         for checker in self._reports:
             for reportid, r_title, r_cb in self._reports[checker]:
-                if not self.is_report_enabled(reportid):
+                if not self.report_is_enabled(reportid):
                     continue
                 report_sect = Section(r_title)
                 try:

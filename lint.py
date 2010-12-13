@@ -330,6 +330,19 @@ This is used by the global evaluation report (RP0004).'}),
                 for msgid in msgids:
                     self.disable(msgid)
 
+    def disable_reporters(self):
+       """disable all reporters"""
+       for reporters in self._reports.values():
+           for report_id, _title, _cb in reporters:
+               self.disable_report(report_id)
+
+    def error_mode(self):
+        """error mode: enable only errors; no reports, no persistent"""
+        self.disable_noerror_messages()
+        self.disable('miscellaneous')
+        self.set_option('reports', False)
+        self.set_option('persistent', False)
+
     # block level option handling #############################################
     #
     # see func_block_disable_msg.py test case for expected behaviour
@@ -425,13 +438,15 @@ This is used by the global evaluation report (RP0004).'}),
         return [self] + [c for checkers in self._checkers.values()
                          for c in checkers if c is not self]
 
-    def needed_checkers(self):
+    def prepare_checkers(self):
         """return checkers needed for activated messages and reports"""
+        if not self.config.reports:
+            self.disable_reporters()
+        # get needed checkers
         neededcheckers = [self]
-        get_msg = self._msgs_state.get
         for checker in self.get_checkers()[1:]:
-            if (any(get_msg(msg, True) for msg in checker.msgs) or
-                any(self.is_report_enabled(r[0]) for r in checker.reports)):
+            if (any(self.is_message_enabled(msg) for msg in checker.msgs) or
+                any(self.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)
         return neededcheckers
 
@@ -440,15 +455,10 @@ This is used by the global evaluation report (RP0004).'}),
         name.
         """
         self.reporter.include_ids = self.config.include_ids
-        if not self.config.reports:
-            for reporters in self._reports.values():
-                for report_id, _title, _cb in reporters:
-                    self.disable_report(report_id)
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
-        checkers = self.needed_checkers()
         walker = PyLintASTWalker(self)
-        checkers = self.needed_checkers()
+        checkers = self.prepare_checkers()
         rawcheckers = [c for c in checkers if implements(c, IRawChecker)
                        and c is not self]
         # notify global begin
@@ -861,10 +871,7 @@ been issued by analysing pylint output status code
         * disable reports
         * do not save execution information
         """
-        self.linter.disable_noerror_messages()
-        self.linter.disable('miscellaneous')
-        self.linter.set_option('reports', False)
-        self.linter.set_option('persistent', False)
+        self.linter.error_mode()
 
     def cb_generate_config(self, *args, **kwargs):
         """optik callback for sample config file generation"""
