@@ -93,76 +93,76 @@ class ChecklineFunctionTest(TestCase):
     """test the check_line method"""
 
     def test_known_values_opspace_1(self):
-        self.assertEqual(ulines(check_line('a=1', REPORTER)), ('C0322', 'a=1\n ^'))
+        self.assertEqual(ulines(check_line('a=1')), ('C0322', 'a=1\n ^'))
 
     def test_known_values_opspace_2(self):
-        self.assertEqual(ulines(check_line('a= 1', REPORTER)), ('C0322', 'a= 1\n ^') )
+        self.assertEqual(ulines(check_line('a= 1')), ('C0322', 'a= 1\n ^') )
 
     def test_known_values_opspace_3(self):
-        self.assertEqual(ulines(check_line('a =1', REPORTER)), ('C0323', 'a =1\n  ^'))
+        self.assertEqual(ulines(check_line('a =1')), ('C0323', 'a =1\n  ^'))
 
     def test_known_values_opspace_4(self):
-        self.assertEqual(check_line('f(a=1)', REPORTER), None)
+        self.assertEqual(check_line('f(a=1)'), None)
 
     def test_known_values_opspace_4(self):
-        self.assertEqual(check_line('f(a=1)', REPORTER), None)
+        self.assertEqual(check_line('f(a=1)'), None)
 
     def test_known_values_colonnl_2(self):
-        self.assertEqual(check_line('a[:1]', REPORTER), None)
+        self.assertEqual(check_line('a[:1]'), None)
 
     def test_known_values_colonnl_3(self):
-        self.assertEqual(check_line('a[1:]', REPORTER), None)
+        self.assertEqual(check_line('a[1:]'), None)
 
     def test_known_values_colonnl_4(self):
-        self.assertEqual(check_line('a[1:2]', REPORTER), None)
+        self.assertEqual(check_line('a[1:2]'), None)
 
     def test_known_values_colonnl_5(self):
-        self.assertEqual(check_line('def intersection(list1, list2):', REPORTER), None)
+        self.assertEqual(check_line('def intersection(list1, list2):'), None)
 
     def test_known_values_colonnl_6(self):
-        self.assertEqual(check_line('def intersection(list1, list2):\n', REPORTER), None)
+        self.assertEqual(check_line('def intersection(list1, list2):\n'), None)
 
     def test_known_values_colonnl_7(self):
-        self.assertEqual(check_line('if file[:pfx_len] == path:\n', REPORTER), None)
+        self.assertEqual(check_line('if file[:pfx_len] == path:\n'), None)
 
     def test_known_values_colonnl_9(self):
-        self.assertEqual(check_line('if file[:pfx_len[1]] == path:\n', REPORTER), None)
+        self.assertEqual(check_line('if file[:pfx_len[1]] == path:\n'), None)
 
     def test_known_values_colonnl_10(self):
-        self.assertEqual(check_line('if file[pfx_len[1]] == path:\n', REPORTER), None)
+        self.assertEqual(check_line('if file[pfx_len[1]] == path:\n'), None)
 
     def test_known_values_commaspace_1(self):
-        self.assertEqual(ulines(check_line('a, b = 1,2', REPORTER)),
+        self.assertEqual(ulines(check_line('a, b = 1,2')),
                          ('C0324', 'a, b = 1,2\n        ^^'))
 
     def test_known_values_commaspace_2(self):
-        self.assertEqual(check_line('should_not_warn = [1, 2, 3,]\n', REPORTER),
+        self.assertEqual(check_line('should_not_warn = [1, 2, 3,]\n'),
                          None)
 
     def test_known_values_commaspace_3(self):
-        self.assertEqual(check_line('should_not_warn = {1:2, 3:4,}\n', REPORTER),
+        self.assertEqual(check_line('should_not_warn = {1:2, 3:4,}\n'),
                          None)
 
     def test_known_values_commaspace_4(self):
-        self.assertEqual(check_line('should_not_warn = (1, 2, 3,)\n', REPORTER),
+        self.assertEqual(check_line('should_not_warn = (1, 2, 3,)\n'),
                          None)
 
     def test_known_values_instring_1(self):
-        self.assertEqual(check_line('f("a=1")', REPORTER), None)
+        self.assertEqual(check_line('f("a=1")'), None)
 
     def test_known_values_instring_2(self):
-        self.assertEqual(ulines(check_line('print >>1, ("a:1")', REPORTER)),
+        self.assertEqual(ulines(check_line('print >>1, ("a:1")')),
                          ('C0323', 'print >>1, ("a:1")\n       ^'))
 
     def test_known_values_all_1(self):
-        self.assertEqual(ulines(check_line("self.filterFunc = eval('lambda %s: %s'%(','.join(variables),formula),{},{})", REPORTER)),
+        self.assertEqual(ulines(check_line("self.filterFunc = eval('lambda %s: %s'%(','.join(variables),formula),{},{})")),
                          ('C0324', "self.filterFunc = eval('lambda %s: %s'%(','.join(variables),formula),{},{})\n                                                           ^^"))
 
     def test_known_values_tqstring(self):
-        self.assertEqual(check_line('print """<a="=")\n"""', REPORTER), None)
+        self.assertEqual(check_line('print """<a="=")\n"""'), None)
 
     def test_known_values_tastring(self):
-        self.assertEqual(check_line("print '''<a='=')\n'''", REPORTER), None)
+        self.assertEqual(check_line("print '''<a='=')\n'''"), None)
 
 if __name__ == '__main__':
     unittest.main()
