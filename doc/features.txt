@@ -228,9 +228,6 @@ Messages
   -= | \*= | /= | %) is not followed by a space.
 :C0324: *Comma not followed by a space*
   Used when a comma (",") is not followed by a space.
-:F0321: *Format detection error in %r*
-  Used when an unexpected error occurred in bad format detection.Please report
-  the error if it occurs.
 
 
 typecheck checker

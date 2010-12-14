@@ -48,10 +48,6 @@ MSGS = {
     'W0301': ('Unnecessary semicolon', # was W0106
               'Used when a statement is ended by a semi-colon (";"), which \
               isn\'t necessary (that\'s python, not C ;).'),
-
-    'F0321': ('Format detection error in %r',
-              'Used when an unexpected error occurred in bad format detection.'
-              'Please report the error if it occurs.'),
     'C0321': ('More than one statement on a single line',
               'Used when more than on statement are found on the same line.'),
     'C0322': ('Operator not preceded by a space\n%s',
@@ -131,7 +127,7 @@ def in_coords(match, string_coords):
             return True
     return False
 
-def check_line(line, writer):
+def check_line(line):
     """check a line for a bad construction
     if it founds one, return a message describing the problem
     else return None
@@ -143,7 +139,6 @@ def check_line(line, writer):
             for match in re.finditer(rgx_search, line):
                 if not in_coords(match, string_positions):
                     return msg_id, pretty_match(match, line.rstrip())
-            #writer.add_message('F0321', line=line, args=line)
 
 
 class FormatChecker(BaseRawChecker):
@@ -306,7 +301,7 @@ class FormatChecker(BaseRawChecker):
             except KeyError:
                 lines.append('')
         try:
-            msg_def = check_line('\n'.join(lines), self)
+            msg_def = check_line('\n'.join(lines))
             if msg_def:
                 self.add_message(msg_def[0], node=node, args=msg_def[1])
         except KeyError:
