@@ -302,7 +302,7 @@ def usage(status=0):
     """display command line usage information"""
     print "finds copy pasted blocks in a set of files"
     print
-    print 'Usage: similar [-d|--duplicates min_duplicated_lines] \
+    print 'Usage: symilar [-d|--duplicates min_duplicated_lines] \
 [-i|--ignore-comments] file1...'
     sys.exit(status)
 

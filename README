@@ -24,18 +24,23 @@ may be found in the user manual in the *doc* subdirectory.
 
 Documentation
 -------------
-Look in the doc/ subdirectory.
+Look in the doc/ subdirectory or at the project home page
+http://www.logilab.org/project/pylint
+
+Pylint is shipped with following additional commands:
+
+* pyreverse: an UML diagram generator
+* symilar: an independent similarities checker
+* epylint: Emacs and Flymake compatible Pylint
+* pylint-gui: a graphical interface
 
 Comments, support, bug reports
 ------------------------------
 
-Project page on : 
+Project page and tracker on :
 http://www.logilab.org/project/pylint
 
-Use the python-projects@logilab.org mailing list. Since we do not have
-publicly available bug tracker yet, bug reports should be emailed
-there too. 
-
+Use the python-projects@logilab.org mailing list.
 You can subscribe to this mailing list at
 http://lists.logilab.org/mailman/listinfo/python-projects
 

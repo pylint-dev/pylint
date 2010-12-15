@@ -56,7 +56,10 @@ long_desc = """\
  standard, or checking if declared interfaces are truly implemented,
  and much more.
  .
- Additionally, it is possible to write plugins to add your own checks."""
+ Additionally, it is possible to write plugins to add your own checks.
+ .
+ Pylint is shipped with "pylint-gui", "pyreverse" (UML diagram generator)
+ and "symilar" (an independent similarities checker)."""
 
 from os.path import join
 scripts = [join('bin', filename)

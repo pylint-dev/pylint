@@ -5,8 +5,10 @@ import sys
 import re
 import Queue
 from threading import Thread
-from Tkinter import Tk, Frame, Listbox, Entry, Label, Button, Scrollbar, Checkbutton, Radiobutton, IntVar, StringVar
-from Tkinter import TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH, SUNKEN, W, HORIZONTAL, DISABLED, NORMAL, W, E
+from Tkinter import (Tk, Frame, Listbox, Entry, Label, Button, Scrollbar,
+                     Checkbutton, Radiobutton, IntVar, StringVar)
+from Tkinter import (TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH, SUNKEN, W,
+                     HORIZONTAL, DISABLED, NORMAL, W, E)
 from tkFileDialog import askopenfilename, askdirectory
 
 import pylint.lint
@@ -194,7 +196,8 @@ class LintGui:
 
         #buttons
         Button(top_frame, text='Open', command=self.file_open).pack(side=LEFT)
-        Button(top_frame, text='Open Package', command=(lambda : self.file_open(package=True))).pack(side=LEFT)
+        Button(top_frame, text='Open Package', 
+               command=(lambda : self.file_open(package=True))).pack(side=LEFT)
 
         self.btnRun = Button(top_frame, text='Run', command=self.run_lint)
         self.btnRun.pack(side=LEFT)
@@ -207,12 +210,18 @@ class LintGui:
         self.warning_box = IntVar()
         self.error_box = IntVar()
         self.fatal_box = IntVar()
-        i = Checkbutton(check_frame, text="Information", fg=COLORS['(I)'], variable=self.information_box, command=self.refresh_msg_window)
-        c = Checkbutton(check_frame, text="Convention", fg=COLORS['(C)'], variable=self.convention_box, command=self.refresh_msg_window)
-        r = Checkbutton(check_frame, text="Refactor", fg=COLORS['(R)'], variable=self.refactor_box, command=self.refresh_msg_window)
-        w = Checkbutton(check_frame, text="Warning", fg=COLORS['(W)'], variable=self.warning_box, command=self.refresh_msg_window)
-        e = Checkbutton(check_frame, text="Error", fg=COLORS['(E)'], variable=self.error_box, command=self.refresh_msg_window)
-        f = Checkbutton(check_frame, text="Fatal", fg=COLORS['(F)'], variable=self.fatal_box, command=self.refresh_msg_window)
+        i = Checkbutton(check_frame, text="Information", fg=COLORS['(I)'],
+                        variable=self.information_box, command=self.refresh_msg_window)
+        c = Checkbutton(check_frame, text="Convention", fg=COLORS['(C)'],
+                        variable=self.convention_box, command=self.refresh_msg_window)
+        r = Checkbutton(check_frame, text="Refactor", fg=COLORS['(R)'],
+                        variable=self.refactor_box, command=self.refresh_msg_window)
+        w = Checkbutton(check_frame, text="Warning", fg=COLORS['(W)'],
+                        variable=self.warning_box, command=self.refresh_msg_window)
+        e = Checkbutton(check_frame, text="Error", fg=COLORS['(E)'],
+                        variable=self.error_box, command=self.refresh_msg_window)
+        f = Checkbutton(check_frame, text="Fatal", fg=COLORS['(F)'],
+                        variable=self.fatal_box, command=self.refresh_msg_window)
         i.select()
         c.select()
         r.select()
@@ -229,13 +238,23 @@ class LintGui:
         #check boxes
         self.box = StringVar()
         # XXX should be generated
-        report = Radiobutton(radio_frame, text="Report", variable=self.box, value="Report", command=self.refresh_results_window)
-        rawMet = Radiobutton(radio_frame, text="Raw metrics", variable=self.box, value="Raw metrics", command=self.refresh_results_window)
-        dup = Radiobutton(radio_frame, text="Duplication", variable=self.box, value="Duplication", command=self.refresh_results_window)
-        ext = Radiobutton(radio_frame, text="External dependencies", variable=self.box, value="External dependencies", command=self.refresh_results_window)
-        stat = Radiobutton(radio_frame, text="Statistics by type", variable=self.box, value="Statistics by type", command=self.refresh_results_window)
-        msgCat = Radiobutton(radio_frame, text="Messages by category", variable=self.box, value="Messages by category", command=self.refresh_results_window)
-        msg = Radiobutton(radio_frame, text="Messages", variable=self.box, value="Messages", command=self.refresh_results_window)
+        report = Radiobutton(radio_frame, text="Report", variable=self.box,
+                             value="Report", command=self.refresh_results_window)
+        rawMet = Radiobutton(radio_frame, text="Raw metrics", variable=self.box,
+                             value="Raw metrics", command=self.refresh_results_window)
+        dup = Radiobutton(radio_frame, text="Duplication", variable=self.box,
+                          value="Duplication", command=self.refresh_results_window)
+        ext = Radiobutton(radio_frame, text="External dependencies",
+                          variable=self.box, value="External dependencies",
+                          command=self.refresh_results_window)
+        stat = Radiobutton(radio_frame, text="Statistics by type",
+                           variable=self.box, value="Statistics by type",
+                           command=self.refresh_results_window)
+        msgCat = Radiobutton(radio_frame, text="Messages by category",
+                             variable=self.box, value="Messages by category",
+                             command=self.refresh_results_window)
+        msg = Radiobutton(radio_frame, text="Messages", variable=self.box,
+                            value="Messages", command=self.refresh_results_window)
         report.select()
         report.grid(column=0, row=0, sticky=W)
         rawMet.grid(column=1, row=0, sticky=W)

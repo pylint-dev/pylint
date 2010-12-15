@@ -4,9 +4,9 @@
 
 This script is for integration with emacs and is compatible with flymake mode.
 
-This version of epylint traverses out of packages before invoking pylint.  This avoids the reporting
-of errors that occur when a module within package uses a full package import path to get hold of
-another module within this package.
+epylint walks out of python packages before invoking pylint. This avoids
+reporting import errors that occur when a module within a package uses the
+absolute import path to get another module within this package.
 
 For example:
     - Suppose a package is structured as
@@ -23,8 +23,8 @@ For example:
 
        pylint a/c/y.py
 
-   - As this script will be invoked by emacs within the directory of the file we are checking
-     we need to traverse down out of it to avoid these false positives.
+   - As this script will be invoked by emacs within the directory of the file
+     we are checking we need to go out of it to avoid these false positives.
 
 
 You may also use py_run to run pylint with desired options and get back (or not) its output.
@@ -94,7 +94,7 @@ def Run():
 
 
 def py_run(command_options='', return_std=False, stdout=None, stderr=None,
-           script='pylint'):
+           script='epylint'):
     """Run pylint from python (needs Python >= 2.4).
 
     ``command_options`` is a string containing ``pylint`` command line options;
