@@ -539,8 +539,8 @@ This is used by the global evaluation report (RP0004).'}),
         except ASTNGBuildingException, ex:
             self.add_message('F0010', args=ex)
         except Exception, ex:
-            # import traceback
-            # traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             self.add_message('F0002', args=(ex.__class__, ex))
 
     def check_astng_module(self, astng, walker, rawcheckers):
