@@ -11,7 +11,8 @@ SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
 
 class SimilarTC(TestCase):
     """test the similar command line utility"""
-    def test(self):
+
+    def test_ignore_comments(self):
         sys.stdout = StringIO()
         try:
             similar.run(['--ignore-comments', SIMILAR1, SIMILAR2])
@@ -31,7 +32,19 @@ class SimilarTC(TestCase):
    
 TOTAL lines=38 duplicates=7 percent=18.42
 """ % (SIMILAR1, SIMILAR2)).strip())
-                          
+
+
+    def test_dont_ignore_comments(self):
+        sys.stdout = StringIO()
+        try:
+            similar.run([SIMILAR1, SIMILAR2])
+            output = sys.stdout.getvalue()
+        finally:
+            sys.stdout = sys.__stdout__
+        self.assertMultiLineEqual(output.strip(), """
+TOTAL lines=38 duplicates=0 percent=0.00
+        """.strip())
+
     def test_help(self):
         sys.stdout = StringIO()
         try:

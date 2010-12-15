@@ -6,7 +6,7 @@ see the similar2 file which is almost the
 same file as this one. 
 more than 4
 identical lines should
-be
+be # ignore comments !
 detected
 
 

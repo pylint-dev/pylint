@@ -139,9 +139,10 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings):
                 if line.endswith(docstring):
                     docstring = None
                 line = ''
-        # XXX cut when a line begins with code but end with a comment
-        if ignore_comments and line.startswith('#'):
-            line = ''
+        if ignore_comments:
+            # XXX should use regex in checkers/format to avoid cutting
+            # at a "#" in a string
+            line = line.split('#', 1)[0].strip()
         strippedlines.append(line)
     return strippedlines
 
@@ -302,7 +303,7 @@ def usage(status=0):
     print "finds copy pasted blocks in a set of files"
     print
     print 'Usage: similar [-d|--duplicates min_duplicated_lines] \
-[--ignore-comments] file1...'
+[-i|--ignore-comments] file1...'
     sys.exit(status)
 
 def run(argv=None):
@@ -310,7 +311,7 @@ def run(argv=None):
     if argv is None:
         argv = sys.argv[1:]
     from getopt import getopt
-    s_opts = 'hd:'
+    s_opts = 'hdi'
     l_opts = ('help', 'duplicates=', 'ignore-comments')
     min_lines = 4
     ignore_comments = False
@@ -320,7 +321,7 @@ def run(argv=None):
             min_lines = int(val)
         elif opt in ('-h', '--help'):
             usage()
-        elif opt == '--ignore-comments':
+        elif opt in ('-i', '--ignore-comments'):
             ignore_comments = True
     if not args:
         usage(1)
