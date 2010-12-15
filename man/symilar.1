@@ -1,0 +1,37 @@
+.TH symilar 1 "December 15, 2010" symilar
+
+.SH NAME
+.B symilar
+\- tool for checking similarities in different files
+
+.SH SYNOPSIS
+.B  symilar
+[
+.I options
+] [
+.I <files>
+]
+
+.SH DESCRIPTION
+.B symilar
+is a tool for searching blocks of identical lines in different files. It can be
+used to find copy pasted blocks of code, or stuff that could be refactored.
+Differences concerning only stuff behind a '#' (Python comments) can be ignored.
+The size of identical blocks can be optionally modified.
+.B symilar
+\'s functionality is integrated in
+.B pylint
+with the refactoring message 'R0801'.
+
+.SH OPTIONS
+
+.IP "-h, --help"
+show help message and exit
+.IP "-d <min_duplicated_lines>, --duplicates <min_duplicated_lines>"
+minimum number of identical lines that should trigger a similarity message.
+Default is 4. So if it finds 3 identical lines, there will be no message, but
+4 identical lines will be mentionned.
+.IP "-i, --ignore-comments"
+ignore differences concerning only stuff behind a '#' (Python comments). This
+means that if just a comment was added, the message will still be triggered.
+
