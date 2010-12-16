@@ -144,12 +144,9 @@ class TestTests(testlib.TestCase):
                 continue
         todo.sort()
         if PY3K:
-            rest = [# encoding errors now handled by astng:
-                    'E0501', 'E0502',
-                    # ...
-                    'E1122', 'I0001',
-                    # deprecated syntax removed from py3k :
-                    'W0122', 'W0331', 'W0332', 'W0333',
+            rest = ['E1122', 'I0001',
+                    # deprecated exec statement removed from py3k :
+                    'W0122',
                     # XXX : no use case for now :
                     'W0402', # deprecated module
                     'W0403', # implicit relative import

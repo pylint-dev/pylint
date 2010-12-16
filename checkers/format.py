@@ -73,7 +73,7 @@ if sys.version_info < (3, 0):
     'W0333': ('Use of the `` operator',
               'Used when the deprecated "``" (backtick) operator is used '
               'instead  of the str() function.'),
-    }
+    })
 
 # simple quoted string rgx
 SQSTRING_RGX = r'"([^"\\]|\\.)*?"'
