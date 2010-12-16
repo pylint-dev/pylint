@@ -1,6 +1,6 @@
 import sys
 import os
-import unittest
+from logilab.common.testlib import unittest_main, TestCase
 from os.path import exists
 from cStringIO import StringIO
 
@@ -9,7 +9,7 @@ from pylint.lint import PyLinter
 
 from utils import TestReporter
 
-class DependenciesGraphTC(unittest.TestCase):
+class DependenciesGraphTC(TestCase):
     """test the imports graph function"""
 
     dest = 'dependencies_graph.dot'
@@ -34,7 +34,7 @@ URL="." node[shape="box"]
 }
 '''.strip())
 
-class ImportCheckerTC(unittest.TestCase):
+class ImportCheckerTC(TestCase):
     def setUp(self):
         self.linter = l = PyLinter(reporter=TestReporter())
         initialize(l)
@@ -62,4 +62,4 @@ class ImportCheckerTC(unittest.TestCase):
                     pass
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
