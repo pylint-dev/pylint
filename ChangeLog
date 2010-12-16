@@ -1,6 +1,14 @@
 ChangeLog for PyLint
 ====================
 
+2010-12-16 -- 0.23.0
+
+   * documentation: update, add manpages
+   * performance: several improvements
+   * python3: finalize python3 support
+
+   * W0106: new warning 'Expression "%s" is assigned to nothing'
+
    * drop E0501 and E0502 messages about wrong source encoding: not anymore
      interesting since it's a syntax error for python >= 2.5 and we now only
      support this python version and above.
