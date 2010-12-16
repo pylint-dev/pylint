@@ -58,7 +58,11 @@ MSGS = {
               '| > | = | \+= | -= | \*= | /= | %) is not followed by a space.'),
     'C0324': ('Comma not followed by a space\n%s',
               'Used when a comma (",") is not followed by a space.'),
+    }
 
+if sys.version_info < (3, 0):
+
+    MSGS.update({
     'W0331': ('Use of the <> operator',
               'Used when the deprecated "<>" operator is used instead \
               of "!=".'),
