@@ -39,10 +39,8 @@ except ImportError:
     USE_SETUPTOOLS = 0
 
 # pylint needs to filter some test files expected to be wrong
-P3K_FILES_TO_IGNORE= ['test/input/func_wrong_encoding.py',
-                      'test/input/func_noerror_encoding.py',
-                      'test/input/func_unknown_encoding.py',
-                      'test/input/func_nonascii_noencoding.py']
+P3K_FILES_TO_IGNORE= ('test/input/func_noerror_encoding.py',
+                      'test/input/func_unknown_encoding.py',)
 try:
     # python3
     from distutils.command.build_py import build_py_2to3 as build_py
@@ -56,7 +54,7 @@ try:
             self.build_package_data()
         # filter test files
         self.updated_files = [f for f in self.updated_files
-                              if not f.endswith(tuple(P3K_FILES_TO_IGNORE))]
+                              if not f.endswith(P3K_FILES_TO_IGNORE)]
         # 2to3
         self.run_2to3(self.updated_files)
         # Remaining base class code
