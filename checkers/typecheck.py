@@ -161,8 +161,7 @@ accessed.'}
                 if isinstance(owner, Instance) and owner.has_dynamic_getattr():
                     continue
                 # explicit skipping of optparse'Values class
-                if owner.name == 'Values' and \
-                       owner.root().name in ('optik', 'optparse'):
+                if owner.name == 'Values' and owner.root().name == 'optparse':
                     continue
                 missingattr.add((owner, name))
                 continue

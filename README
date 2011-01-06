@@ -8,7 +8,6 @@ Pylint requires the logilab-astng (version >= 0.21.0), logilab-common
 
 * http://www.logilab.org/projects/astng
 * http://www.logilab.org/projects/common
-* http://optik.sourceforge.net/
 
 Install
 -------
