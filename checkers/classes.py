@@ -503,6 +503,9 @@ instance attributes.'}
         # don't care about functions with unknown argument (builtins)
         if method1.args.args is None or refmethod.args.args is None:
             return
+        # if we use *args, **kwargs, skip the below checks
+        if method1.args.vararg or method1.args.kwarg:
+            return
         if len(method1.args.args) != len(refmethod.args.args):
             self.add_message('W0221', args=class_type, node=method1)
         elif len(method1.args.defaults) < len(refmethod.args.defaults):
