@@ -47,7 +47,7 @@ class TextReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        module, obj, line = location[1:]
+        module, obj, line, col_offset = location[1:]
         if module not in self._modules:
             if module:
                 self.writeln('************* Module %s' % module)
@@ -60,7 +60,7 @@ class TextReporter(BaseReporter):
             sigle = msg_id
         else:
             sigle = msg_id[0]
-        self.writeln('%s:%3s%s: %s' % (sigle, line, obj, msg))
+        self.writeln('%s:%3s,%s%s: %s' % (sigle, line, col_offset, obj, msg))
 
     def _display(self, layout):
         """launch layouts display"""
@@ -85,7 +85,7 @@ class ParseableTextReporter(TextReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        path, _, obj, line = location
+        path, _, obj, line, _ = location
         if obj:
             obj = ', %s' % obj
         if self.include_ids:

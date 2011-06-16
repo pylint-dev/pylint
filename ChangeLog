@@ -1,6 +1,9 @@
 ChangeLog for PyLint
 ====================
 
+	--
+    * #69220: add column offset to the reports
+
 2011-01-11  --  0.23.0
     * documentation update, add manpages
 
