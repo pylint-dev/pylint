@@ -249,11 +249,10 @@ class MessagesHandlerMixIn:
         """
         if line is None and node is not None:
             line = node.fromlineno
-        
-        col_offset = None
         if hasattr(node, 'col_offset'):
-            col_offset = node.col_offset #measured in bytes for utf-8, divide by two for chars?
-            
+            col_offset = node.col_offset # XXX measured in bytes for utf-8, divide by two for chars?
+        else:
+            col_offset = None
         # should this message be displayed
         if not self.is_message_enabled(msgid, line):
             return

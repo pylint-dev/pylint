@@ -2,7 +2,9 @@ ChangeLog for PyLint
 ====================
 
 	--
-    * #69220: add column offset to the reports
+    * #69220: add column offset to the reports. If you've a custom reporter,
+      this change may break it has now location gain a new item giving the
+      column offset.
 
 2011-01-11  --  0.23.0
     * documentation update, add manpages
