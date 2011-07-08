@@ -126,6 +126,10 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     to:
     * handle message activation / deactivation at the module level
     * handle some basic but necessary stats'data (number of classes, methods...)
+
+    IDE plugins developpers: you may have to call
+    `logilab.astng.builder.MANAGER.astng_cache.clear()` accross run if you want
+    to ensure the latest code version is actually checked.
     """
 
     __implements__ = (ILinter, IRawChecker)
