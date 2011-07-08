@@ -30,15 +30,18 @@ def get_first_import(node, context, name, base, level):
     """return the node where [base.]<name> is imported or None if not found
     """
     first = None
+    found = False
     for first in context.values():
         if isinstance(first, astng.Import):
             if name in [iname[0] for iname in first.names]:
+                found = True
                 break
         elif isinstance(first, astng.From):
             if base == first.modname and level == first.level and \
                    name in [iname[0] for iname in first.names]:
+                found = True
                 break
-    if first is not node and not are_exclusive(first, node):
+    if found and first is not node and not are_exclusive(first, node):
         return first
 
 # utilities to represents import dependencies as tree and dot graph ###########

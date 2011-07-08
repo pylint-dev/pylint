@@ -11,6 +11,8 @@ ChangeLog for PyLint
       this change may break it has now location gain a new item giving the
       column offset.
 
+    * #60828: Fix false positive in reimport check
+
 2011-01-11  --  0.23.0
     * documentation update, add manpages
 
