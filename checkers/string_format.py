@@ -26,35 +26,35 @@ from pylint.checkers import utils
 
 
 MSGS = {
-    'E9900': ("Unsupported format character %r (%#02x) at index %d",
+    'E1300': ("Unsupported format character %r (%#02x) at index %d",
               "Used when a unsupported format character is used in a format\
               string."),
-    'E9901': ("Format string ends in middle of conversion specifier",
+    'E1301': ("Format string ends in middle of conversion specifier",
               "Used when a format string terminates before the end of a \
               conversion specifier."),
-    'E9902': ("Mixing named and unnamed conversion specifiers in format string",
+    'E1302': ("Mixing named and unnamed conversion specifiers in format string",
               "Used when a format string contains both named (e.g. '%(foo)d') \
               and unnamed (e.g. '%d') conversion specifiers.  This is also \
               used when a named conversion specifier contains * for the \
               minimum field width and/or precision."),
-    'E9903': ("Expected mapping for format string, not %s",
+    'E1303': ("Expected mapping for format string, not %s",
               "Used when a format string that uses named conversion specifiers \
               is used with an argument that is not a mapping."),
-    'W9900': ("Format string dictionary key should be a string, not %s",
+    'W1300': ("Format string dictionary key should be a string, not %s",
               "Used when a format string that uses named conversion specifiers \
               is used with a dictionary whose keys are not all strings."),
-    'W9901': ("Unused key %r in format string dictionary",
+    'W1301': ("Unused key %r in format string dictionary",
               "Used when a format string that uses named conversion specifiers \
               is used with a dictionary that conWtains keys not required by the \
               format string."),
-    'E9904': ("Missing key %r in format string dictionary",
+    'E1304': ("Missing key %r in format string dictionary",
               "Used when a format string that uses named conversion specifiers \
               is used with a dictionary that doesn't contain all the keys \
               required by the format string."),
-    'E9905': ("Too many arguments for format string",
+    'E1305': ("Too many arguments for format string",
               "Used when a format string that uses unnamed conversion \
               specifiers is given too few arguments."),
-    'E9906': ("Not enough arguments for format string",
+    'E1306': ("Not enough arguments for format string",
               "Used when a format string that uses unnamed conversion \
               specifiers is given too many arguments"),
     }
@@ -87,15 +87,15 @@ class StringFormatChecker(BaseChecker):
                 utils.parse_format_string(format_string)
         except utils.UnsupportedFormatCharacter, e:
             c = format_string[e.index]
-            self.add_message('E9900', node=node, args=(c, ord(c), e.index))
+            self.add_message('E1300', node=node, args=(c, ord(c), e.index))
             return
         except utils.IncompleteFormatString:
-            self.add_message('E9901', node=node)
+            self.add_message('E1301', node=node)
             return
         if required_keys and required_num_args:
             # The format string uses both named and unnamed format
             # specifiers.
-            self.add_message('E9902', node=node)
+            self.add_message('E1302', node=node)
         elif required_keys:
             # The format string uses only named format specifiers.
             # Check that the RHS of the % operator is a mapping object
@@ -110,7 +110,7 @@ class StringFormatChecker(BaseChecker):
                         if isinstance(key, basestring):
                             keys.add(key)
                         else:
-                            self.add_message('W9900', node=node, args=key)
+                            self.add_message('W1300', node=node, args=key)
                     else:
                         # One of the keys was something other than a
                         # constant.  Since we can't tell what it is,
@@ -120,13 +120,13 @@ class StringFormatChecker(BaseChecker):
                 if not unknown_keys:
                     for key in required_keys:
                         if key not in keys:
-                            self.add_message('E9904', node=node, args=key)
+                            self.add_message('E1304', node=node, args=key)
                 for key in keys:
                     if key not in required_keys:
-                        self.add_message('W9901', node=node, args=key)
+                        self.add_message('W1301', node=node, args=key)
             elif isinstance(args, OTHER_NODES + (astng.Tuple,)):
                 type_name = type(args).__name__
-                self.add_message('E9903', node=node, args=type_name)
+                self.add_message('E1303', node=node, args=type_name)
             # else:
                 # The RHS of the format specifier is a name or
                 # expression.  It may be a mapping object, so
@@ -147,9 +147,9 @@ class StringFormatChecker(BaseChecker):
                 num_args = None
             if num_args is not None:
                 if num_args > required_num_args:
-                    self.add_message('E9905', node=node)
+                    self.add_message('E1305', node=node)
                 elif num_args < required_num_args:
-                    self.add_message('E9906', node=node)
+                    self.add_message('E1306', node=node)
 
 
 def register(linter):

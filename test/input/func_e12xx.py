@@ -10,12 +10,12 @@ def pprint():
     """Test string format in logging statements.
     """
     # These should all emit lint errors:
-    logging.info(0, '') # 6505
-    logging.info('', '') # 6505
-    logging.info('%s%', '') # 6501
-    logging.info('%s%s', '') # 6506
-    logging.info('%s%a', '', '') # 6500
-    logging.info('%s%s', '', '', '') # 6505
+    logging.info(0, '') # 1205
+    logging.info('', '') # 1205
+    logging.info('%s%', '') # 1201
+    logging.info('%s%s', '') # 1206
+    logging.info('%s%a', '', '') # 1200
+    logging.info('%s%s', '', '', '') # 1205
 
     # These should be okay:
     logging.info(1)

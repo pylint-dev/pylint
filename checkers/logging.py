@@ -21,7 +21,7 @@ from pylint.checkers import utils
 
 
 MSGS = {
-    'W6501': ('Specify string format arguments as logging function parameters',
+    'W1201': ('Specify string format arguments as logging function parameters',
              'Used when a logging statement has a call form of '
              '"logging.<logging method>(format_string % (format_args...))". '
              'Such calls should leave string interpolation to the logging '
@@ -31,15 +31,15 @@ MSGS = {
              'interpolation in those cases in which no message will be '
              'logged. For more, see '
              'http://www.python.org/dev/peps/pep-0282/.'),
-    'E6500': ('Unsupported logging format character %r (%#02x) at index %d',
+    'E1200': ('Unsupported logging format character %r (%#02x) at index %d',
               'Used when an unsupported format character is used in a logging\
               statement format string.'),
-    'E6501': ('Logging format string ends in middle of conversion specifier',
+    'E1201': ('Logging format string ends in middle of conversion specifier',
               'Used when a logging statement format string terminates before\
               the end of a conversion specifier.'),
-    'E6505': ('Too many arguments for logging format string',
+    'E1205': ('Too many arguments for logging format string',
               'Used when a logging format string is given too few arguments.'),
-    'E6506': ('Not enough arguments for logging format string',
+    'E1206': ('Not enough arguments for logging format string',
               'Used when a logging format string is given too many arguments'),
     }
 
@@ -90,7 +90,7 @@ class LoggingChecker(checkers.BaseChecker):
             # scope of this checker.
             return
         if isinstance(node.args[0], astng.BinOp) and node.args[0].op == '%':
-            self.add_message('W6501', node=node)
+            self.add_message('W1201', node=node)
         elif isinstance(node.args[0], astng.Const):
             self._check_format_string(node, 0)
 
@@ -103,7 +103,7 @@ class LoggingChecker(checkers.BaseChecker):
             # the scope of this checker.
             return
         if isinstance(node.args[1], astng.BinOp) and node.args[1].op == '%':
-            self.add_message('W6501', node=node)
+            self.add_message('W1201', node=node)
         elif isinstance(node.args[1], astng.Const):
             self._check_format_string(node, 1)
 
@@ -134,15 +134,15 @@ class LoggingChecker(checkers.BaseChecker):
                     return
             except utils.UnsupportedFormatCharacter, e:
                 c = format_string[e.index]
-                self.add_message('E6500', node=node, args=(c, ord(c), e.index))
+                self.add_message('E1200', node=node, args=(c, ord(c), e.index))
                 return
             except utils.IncompleteFormatString:
-                self.add_message('E6501', node=node)
+                self.add_message('E1201', node=node)
                 return
         if num_args > required_num_args:
-            self.add_message('E6505', node=node)
+            self.add_message('E1205', node=node)
         elif num_args < required_num_args:
-            self.add_message('E6506', node=node)
+            self.add_message('E1206', node=node)
 
     def _count_supplied_tokens(self, args):
         """Counts the number of tokens in an args list.
