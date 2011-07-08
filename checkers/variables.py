@@ -454,8 +454,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_from(self, node):
         """check modules attribute accesses"""
         name_parts = node.modname.split('.')
+        level = getattr(node, 'level', None)
         try:
-            module = node.root().import_module(name_parts[0])
+            module = node.root().import_module(name_parts[0], level=level)
         except ASTNGBuildingException:
             return
         except Exception, exc:
