@@ -29,6 +29,11 @@ class RunTC(TestCase):
     def _runtest(self, args, reporter=None, out=None, code=28):
         if out is None:
             out = StringIO()
+        if args and args[-1].startswith('pylint.lint'):
+            try:
+                import cProfile, pstats
+            except ImportError:
+                code += 1
         try:
             sys.stderr = sys.stdout = out
             try:
