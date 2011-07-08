@@ -22,6 +22,8 @@ import string
 from logilab import astng
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
+from pylint.checkers import utils
+
 
 MSGS = {
     'E9900': ("Unsupported format character %r (%#02x) at index %d",
@@ -57,82 +59,6 @@ MSGS = {
               specifiers is given too many arguments"),
     }
 
-class IncompleteFormatString(Exception):
-    """A format string ended in the middle of a format specifier."""
-    pass
-
-class UnsupportedFormatCharacter(Exception):
-    """A format character in a format string is not one of the supported
-    format characters."""
-    def __init__(self, index):
-        Exception.__init__(self, index)
-        self.index = index
-
-def parse_format_string(format_string):
-    """Parses a format string, returning a tuple of (keys, num_args), where keys
-    is the set of mapping keys in the format string, and num_args is the number
-    of arguments required by the format string.  Raises
-    IncompleteFormatString or UnsupportedFormatCharacter if a
-    parse error occurs."""
-    keys = set()
-    num_args = 0
-    def next_char(i):
-        i += 1
-        if i == len(format_string):
-            raise IncompleteFormatString
-        return (i, format_string[i])
-    i = 0
-    while i < len(format_string):
-        c = format_string[i]
-        if c == '%':
-            i, c = next_char(i)
-            # Parse the mapping key (optional).
-            key = None
-            if c == '(':
-                depth = 1
-                i, c = next_char(i)
-                key_start = i
-                while depth != 0:
-                    if c == '(':
-                        depth += 1
-                    elif c == ')':
-                        depth -= 1
-                    i, c = next_char(i)
-                key_end = i - 1
-                key = format_string[key_start:key_end]
-
-            # Parse the conversion flags (optional).
-            while c in '#0- +':
-                i, c = next_char(i)
-            # Parse the minimum field width (optional).
-            if c == '*':
-                num_args += 1
-                i, c = next_char(i)
-            else:
-                while c in string.digits:
-                    i, c = next_char(i)
-            # Parse the precision (optional).
-            if c == '.':
-                i, c = next_char(i)
-                if c == '*':
-                    num_args += 1
-                    i, c = next_char(i)
-                else:
-                    while c in string.digits:
-                        i, c = next_char(i)
-            # Parse the length modifier (optional).
-            if c in 'hlL':
-                i, c = next_char(i)
-            # Parse the conversion type (mandatory).
-            if c not in 'diouxXeEfFgGcrs%':
-                raise UnsupportedFormatCharacter(i)
-            if key:
-                keys.add(key)
-            elif c != '%':
-                num_args += 1
-        i += 1
-    return keys, num_args
-
 OTHER_NODES = (astng.Const, astng.List, astng.Backquote,
                astng.Lambda, astng.Function,
                astng.ListComp, astng.SetComp, astng.GenExpr)
@@ -158,12 +84,12 @@ class StringFormatChecker(BaseChecker):
         format_string = left.value
         try:
             required_keys, required_num_args = \
-                parse_format_string(format_string)
-        except UnsupportedFormatCharacter, e:
+                utils.parse_format_string(format_string)
+        except utils.UnsupportedFormatCharacter, e:
             c = format_string[e.index]
             self.add_message('E9900', node=node, args=(c, ord(c), e.index))
             return
-        except IncompleteFormatString:
+        except utils.IncompleteFormatString:
             self.add_message('E9901', node=node)
             return
         if required_keys and required_num_args:

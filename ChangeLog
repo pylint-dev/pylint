@@ -2,6 +2,11 @@ ChangeLog for PyLint
 ====================
 
 	--
+	
+    * #69993: Additional string format checks for logging module:
+      check for missing arguments, too many arguments, or invalid string
+      formats in the logging checker module. Contributed by Daniel Arena
+	
     * #69220: add column offset to the reports. If you've a custom reporter,
       this change may break it has now location gain a new item giving the
       column offset.
