@@ -132,7 +132,7 @@ class ColorizedTextReporter(TextReporter):
         """manage message of different types, and colorize output
         using ansi escape codes
         """
-        module, obj, line = location[1:]
+        module, obj, line, _ = location[1:]
         if module not in self._modules:
             color, style = self._get_decoration('S')
             if module:
@@ -153,4 +153,3 @@ class ColorizedTextReporter(TextReporter):
         msg = colorize_ansi(msg, color, style)
         sigle = colorize_ansi(sigle, color, style)
         self.writeln('%s:%3s%s: %s' % (sigle, line, obj, msg))
-
