@@ -1,7 +1,7 @@
 ChangeLog for PyLint
 ====================
 
-
+--
     * #69738: add regular expressions support for "generated-members"
 
     * ids of logging and string_format checkers have been changed:
@@ -20,6 +20,8 @@ ChangeLog for PyLint
     * #60828: Fix false positive in reimport check
 
     * #70495: absolute imports fail depending on module path (patch by Jacek Konieczny)
+
+    * #22273: Fix --ignore option documentation to match reality
 
 
 2011-01-11  --  0.23.0

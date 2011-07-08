@@ -141,11 +141,10 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     may_be_disabled = False
 
     options = (('ignore',
-                {'type' : 'csv', 'metavar' : '<file>',
+                {'type' : 'csv', 'metavar' : '<file>[,<file>...]',
                  'dest' : 'black_list', 'default' : ('CVS',),
-                 'help' : 'Add <file or directory> to the black list. It \
-should be a base name, not a path. You may set this option multiple times.'}),
-
+                 'help' : 'Add files or directories to the blacklist. \
+They should be base names, not paths.'}),
                ('persistent',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'level': 1,
