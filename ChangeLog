@@ -1,7 +1,9 @@
 ChangeLog for PyLint
 ====================
 
-	--
+
+    * #69738: add regular expressions support for "generated-members"
+
     * ids of logging and string_format checkers have been changed:
       logging: 65 -> 12, string_format: 99 -> 13
       Also add documentation to say that ids of range 1-50 shall be reserved

@@ -16,6 +16,9 @@
 """try to find more bugs in the code using astng inference capabilities
 """
 
+import re
+import shlex
+
 from logilab import astng
 from logilab.astng import InferenceError, NotFoundError, YES, Instance
 
@@ -92,11 +95,11 @@ of Zope acquired attributes to generated-members.'}
                ('generated-members',
                 {'default' : (
         'REQUEST', 'acl_users', 'aq_parent'),
-                 'type' : 'csv',
+                 'type' : 'string',
                  'metavar' : '<members names>',
                  'help' : 'List of members which are set dynamically and \
 missed by pylint inference system, and so shouldn\'t trigger E0201 when \
-accessed.'}
+accessed. Python regular expressions are accepted.'}
                 ),
         )
 
@@ -122,9 +125,18 @@ accessed.'}
 
         function/method, super call and metaclasses are ignored
         """
-        if node.attrname in self.generated_members:
+        # generated_members may containt regular expressions
+        # (surrounded by quote `"` and followed by a comma `,`)
+        # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
+        # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
+        if isinstance(self.config.generated_members, str):
+            gen = shlex.shlex(self.config.generated_members)
+            gen.whitespace += ','
+            self.config.generated_members = tuple(tok.strip('"') for tok in gen)
+        for pattern in self.config.generated_members:
             # attribute is marked as generated, stop here
-            return
+            if re.match(pattern, node.attrname):
+                return
         try:
             infered = list(node.expr.infer())
         except InferenceError:
