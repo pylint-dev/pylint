@@ -113,8 +113,9 @@ ignored-classes=SQLObject
 zope=no
 
 # List of members which are set dynamically and missed by pylint inference
-# system, and so shouldn't trigger E0201 when accessed.
-generated-members=REQUEST,acl_users,aq_parent
+# system, and so shouldn't trigger E0201 when accessed. Note that regular
+# expressions are accepted (surrounded by quote `"` and followed by a comma `,`)
+generated-members=REQUEST,acl_users,aq_parent,"[a-zA-Z]+_set{1,2}",
 
 
 [BASIC]

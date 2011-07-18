@@ -105,7 +105,7 @@ logging checker
 
 Messages
 ~~~~~~~~
-:W6501: *Specify string format arguments as logging function parameters*
+:W1201: *Specify string format arguments as logging function parameters*
   Used when a logging statement has a call form of "logging.<logging
   method>(format_string % (format_args...))". Such calls should leave string
   interpolation to the logging method itself and be written "logging.<logging
@@ -113,6 +113,19 @@ Messages
   incurring the cost of the interpolation in those cases in which no message
   will be logged. For more, see http://www.python.org/dev/peps/pep-0282/.
 
+:E1200: *Unsupported logging format character %r (%#02x) at index %d*
+  Used when an unsupported format character is used in a logging statement 
+  format string.
+
+:E1201: *'Logging format string ends in middle of conversion specifier*
+  Used when a logging statement format string terminates before the end of a
+  conversion specifier.
+
+:E1205: *Too many arguments for logging format string*
+  Used when a logging format string is given too few arguments.
+
+:E1206: *Not enough arguments for logging format string*
+  Used when a logging format string is given too many arguments.
 
 similarities checker
 --------------------
@@ -149,30 +162,30 @@ string_format checker
 
 Messages
 ~~~~~~~~
-:E9900: *Unsupported format character %r (%#02x) at index %d*
+:E1300: *Unsupported format character %r (%#02x) at index %d*
   Used when a unsupported format character is used in a format string.
-:E9901: *Format string ends in middle of conversion specifier*
+:E1301: *Format string ends in middle of conversion specifier*
   Used when a format string terminates before the end of a conversion specifier.
-:E9902: *Mixing named and unnamed conversion specifiers in format string*
+:E1302: *Mixing named and unnamed conversion specifiers in format string*
   Used when a format string contains both named (e.g. '%(foo)d') and unnamed
   (e.g. '%d') conversion specifiers. This is also used when a named conversion
   specifier contains * for the minimum field width and/or precision.
-:E9903: *Expected mapping for format string, not %s*
+:E1303: *Expected mapping for format string, not %s*
   Used when a format string that uses named conversion specifiers is used with
   an argument that is not a mapping.
-:E9904: *Missing key %r in format string dictionary*
+:E1304: *Missing key %r in format string dictionary*
   Used when a format string that uses named conversion specifiers is used with a
   dictionary that doesn't contain all the keys required by the format string.
-:E9905: *Too many arguments for format string*
+:E1305: *Too many arguments for format string*
   Used when a format string that uses unnamed conversion specifiers is given too
   few arguments.
-:E9906: *Not enough arguments for format string*
+:E1306: *Not enough arguments for format string*
   Used when a format string that uses unnamed conversion specifiers is given too
   many arguments
-:W9900: *Format string dictionary key should be a string, not %s*
+:W1300: *Format string dictionary key should be a string, not %s*
   Used when a format string that uses named conversion specifiers is used with a
   dictionary whose keys are not all strings.
-:W9901: *Unused key %r in format string dictionary*
+:W1301: *Unused key %r in format string dictionary*
   Used when a format string that uses named conversion specifiers is used with a
   dictionary that conWtains keys not required by the format string.
 
@@ -657,6 +670,9 @@ Messages
   This is a particular case of W0104 with its own message so you can easily
   disable it if you're using those strings as documentation, instead of
   comments.
+:W0106: *Expression "%s" is assigned to nothing',*
+  Used when an expression that is not a function call is assigned to nothing. 
+  Probably something else was intended.
 :W0107: *Unnecessary pass statement*
   Used when a "pass" statement that can be avoided is encountered.)
 :W0108: *Lambda may not be necessary*

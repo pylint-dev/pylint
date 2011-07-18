@@ -42,8 +42,8 @@ Specify a configuration file.
 Python code to execute, usually for sys.path manipulation such as pygtk.require().
 .IP "--errors-only, -E"
 In error mode, checkers without error messages are disabled and for others, only the ERROR messages are displayed, and no reports are done by default
-.IP "--ignore=<file>"
-Add <file or directory> to the black list. It should be a base name, not a path. You may set this option multiple times. [current: CVS]
+.IP "--ignore=<file>[,<file>...]"
+Add files or directories to the blacklist. They should be base names, not paths.
 .IP "--persistent=<y_or_n>"
 Pickle collected data for later comparisons. [current: yes]
 .IP "--load-plugins=<modules>"

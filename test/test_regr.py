@@ -139,12 +139,15 @@ class NonRegrTC(TestCase):
     def test_try_finally_disable_msg_crash(self):
         linter.check(join(REGR_DATA, 'try_finally_disable_msg_crash'))
 
-
     def test___path__(self):
         linter.check('pylint.checkers.__init__')
         messages = linter.reporter.finalize().strip()
         self.failIf('__path__' in messages, messages)
 
+    def test_absolute_import(self):
+        linter.check(join(REGR_DATA, 'absimp', 'string.py'))
+        got = linter.reporter.finalize().strip()
+        self.failUnlessEqual(got, "W:  6: Uses of a deprecated module 'string'")
 
 if __name__ == '__main__':
     unittest_main()

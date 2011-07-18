@@ -27,9 +27,14 @@ Base id of standard checkers (used in msg and report ids):
 09: design_analysis
 10: newstyle
 11: typecheck
+12: logging
+13: string_format
+14-50: not yet used: reserved for future internal checkers.
+51-99: perhaps used: reserved for external checkers
 
 The raw_metrics checker has no number associated since it doesn't emit any
 messages nor reports. XXX not true, emit a 07 report !
+
 """
 
 import tokenize

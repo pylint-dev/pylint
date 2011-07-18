@@ -1,5 +1,5 @@
 # Copyright (c) 2003-2007 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2011 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -17,7 +17,7 @@
 :text: the default one grouping messages by module
 :parseable:
   standard parseable output with full module path on each message (for
-  editor integration) 
+  editor integration)
 :colorized: an ANSI colorized text reporter
 
 """
@@ -37,17 +37,17 @@ TITLE_UNDERLINES = ['', '=', '-', '.']
 class TextReporter(BaseReporter):
     """reports messages and layouts in plain text
     """
-    
+
     __implements__ = IReporter
     extension = 'txt'
-    
+
     def __init__(self, output=sys.stdout):
         BaseReporter.__init__(self, output)
         self._modules = {}
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        module, obj, line = location[1:]
+        module, obj, line, col_offset = location[1:]
         if module not in self._modules:
             if module:
                 self.writeln('************* Module %s' % module)
@@ -60,22 +60,22 @@ class TextReporter(BaseReporter):
             sigle = msg_id
         else:
             sigle = msg_id[0]
-        self.writeln('%s:%3s%s: %s' % (sigle, line, obj, msg))
+        self.writeln('%s:%3s,%s%s: %s' % (sigle, line, col_offset, obj, msg))
 
     def _display(self, layout):
         """launch layouts display"""
-        print >> self.out 
+        print >> self.out
         TextWriter().format(layout, self.out)
 
 
 class ParseableTextReporter(TextReporter):
     """a reporter very similar to TextReporter, but display messages in a form
     recognized by most text editors :
-    
+
     <filename>:<linenum>:<msg>
     """
     line_format = '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
-    
+
     def __init__(self, output=sys.stdout, relative=True):
         TextReporter.__init__(self, output)
         if relative:
@@ -85,7 +85,7 @@ class ParseableTextReporter(TextReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        path, _, obj, line = location
+        path, _, obj, line, _ = location
         if obj:
             obj = ', %s' % obj
         if self.include_ids:
@@ -95,11 +95,11 @@ class ParseableTextReporter(TextReporter):
         if self._prefix:
             path = path.replace(self._prefix, '')
         self.writeln(self.line_format % locals())
-    
+
 class VSTextReporter(ParseableTextReporter):
     """Visual studio text reporter"""
     line_format = '%(path)s(%(line)s): [%(sigle)s%(obj)s] %(msg)s'
-    
+
 class ColorizedTextReporter(TextReporter):
     """Simple TextReporter that colorizes text output"""
 
@@ -117,7 +117,7 @@ class ColorizedTextReporter(TextReporter):
         TextReporter.__init__(self, output)
         self.color_mapping = color_mapping or \
                              dict(ColorizedTextReporter.COLOR_MAPPING)
-       
+
 
     def _get_decoration(self, msg_id):
         """Returns the tuple color, style associated with msg_id as defined
@@ -132,7 +132,7 @@ class ColorizedTextReporter(TextReporter):
         """manage message of different types, and colorize output
         using ansi escape codes
         """
-        module, obj, line = location[1:]
+        module, obj, line, _ = location[1:]
         if module not in self._modules:
             color, style = self._get_decoration('S')
             if module:
@@ -153,4 +153,3 @@ class ColorizedTextReporter(TextReporter):
         msg = colorize_ansi(msg, color, style)
         sigle = colorize_ansi(sigle, color, style)
         self.writeln('%s:%3s%s: %s' % (sigle, line, obj, msg))
- 

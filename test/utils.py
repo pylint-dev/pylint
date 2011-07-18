@@ -70,7 +70,7 @@ class TestReporter(BaseReporter):
         
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path """
-        fpath, module, object, line = location
+        fpath, module, object, line, _ = location
         self.message_ids[msg_id] = 1
         if object:
             object = ':%s' % object

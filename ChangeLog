@@ -1,6 +1,29 @@
 ChangeLog for PyLint
 ====================
 
+--
+    * #69738: add regular expressions support for "generated-members"
+
+    * ids of logging and string_format checkers have been changed:
+      logging: 65 -> 12, string_format: 99 -> 13
+      Also add documentation to say that ids of range 1-50 shall be reserved
+      to pylint internal checkers
+
+    * #69993: Additional string format checks for logging module:
+      check for missing arguments, too many arguments, or invalid string
+      formats in the logging checker module. Contributed by Daniel Arena
+
+    * #69220: add column offset to the reports. If you've a custom reporter,
+      this change may break it has now location gain a new item giving the
+      column offset.
+
+    * #60828: Fix false positive in reimport check
+
+    * #70495: absolute imports fail depending on module path (patch by Jacek Konieczny)
+
+    * #22273: Fix --ignore option documentation to match reality
+
+
 2011-01-11  --  0.23.0
     * documentation update, add manpages
 

@@ -30,15 +30,18 @@ def get_first_import(node, context, name, base, level):
     """return the node where [base.]<name> is imported or None if not found
     """
     first = None
+    found = False
     for first in context.values():
         if isinstance(first, astng.Import):
             if name in [iname[0] for iname in first.names]:
+                found = True
                 break
         elif isinstance(first, astng.From):
             if base == first.modname and level == first.level and \
                    name in [iname[0] for iname in first.names]:
+                found = True
                 break
-    if first is not node and not are_exclusive(first, node):
+    if found and first is not node and not are_exclusive(first, node):
         return first
 
 # utilities to represents import dependencies as tree and dot graph ###########
@@ -124,7 +127,7 @@ def make_graph(filename, dep_info, sect, gtype):
 # the import checker itself ###################################################
 
 MSGS = {
-    'F0401': ('Unable to import %r',
+    'F0401': ('Unable to import %s',
               'Used when pylint has been unable to import a module.'),
     'R0401': ('Cyclic import (%s)',
               'Used when a cyclic import between two or more modules is \
@@ -260,7 +263,11 @@ given file (report RP0402 must not be disabled)'}
         try:
             return importnode.do_import_module(modname)
         except astng.InferenceError, ex:
-            self.add_message("F0401", args=modname, node=importnode)
+            if str(ex) != modname:
+                args = '%r (%s)' % (modname, ex)
+            else:
+                args = repr(modname)
+            self.add_message("F0401", args=args, node=importnode)
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,
                                importedasname):

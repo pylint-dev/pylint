@@ -233,7 +233,7 @@ class PyLinterTC(TestCase):
         self.linter.error_mode()
         checkers = self.linter.prepare_checkers()
         checker_names = tuple(c.name for c in checkers)
-        should_not = ('design', 'format', 'imports', 'logging', 'metrics',
+        should_not = ('design', 'format', 'imports', 'metrics',
                       'miscellaneous', 'similarities')
         self.failIf(any(name in checker_names for name in should_not))
 
@@ -249,7 +249,7 @@ class PyLinterTC(TestCase):
         # FIXME should it be necessary to explicitly desactivate failures ?
         self.linter.set_option('disable', 'R,C,W')
         checker_names = [c.name for c in self.linter.prepare_checkers()]
-        should_not = ('design', 'logging', 'metrics', 'similarities')
+        should_not = ('design', 'metrics', 'similarities')
         rest = [name for name in checker_names if name in should_not]
         self.assertListEqual(rest, [])
         self.linter.set_option('disable', 'R,C,W,F')

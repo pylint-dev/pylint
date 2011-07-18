@@ -35,7 +35,7 @@ class HTMLReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        module, obj, line = location[1:]
+        module, obj, line, col_offset = location[1:]
         if self.include_ids:
             sigle = msg_id
         else:
@@ -59,7 +59,7 @@ class HTMLReporter(BaseReporter):
         """
         if self.msgs:
             # add stored messages to the layout
-            msgs = ['type', 'module', 'object', 'line', 'message']
+            msgs = ['type', 'module', 'object', 'line', 'col_offset', 'message']
             msgs += self.msgs
             sect = Section('Messages')
             layout.append(sect)

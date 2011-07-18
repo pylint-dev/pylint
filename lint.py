@@ -126,6 +126,10 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     to:
     * handle message activation / deactivation at the module level
     * handle some basic but necessary stats'data (number of classes, methods...)
+
+    IDE plugins developpers: you may have to call
+    `logilab.astng.builder.MANAGER.astng_cache.clear()` accross run if you want
+    to ensure the latest code version is actually checked.
     """
 
     __implements__ = (ILinter, IRawChecker)
@@ -137,11 +141,10 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     may_be_disabled = False
 
     options = (('ignore',
-                {'type' : 'csv', 'metavar' : '<file>',
+                {'type' : 'csv', 'metavar' : '<file>[,<file>...]',
                  'dest' : 'black_list', 'default' : ('CVS',),
-                 'help' : 'Add <file or directory> to the black list. It \
-should be a base name, not a path. You may set this option multiple times.'}),
-
+                 'help' : 'Add files or directories to the blacklist. \
+They should be base names, not paths.'}),
                ('persistent',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'level': 1,

@@ -249,6 +249,10 @@ class MessagesHandlerMixIn:
         """
         if line is None and node is not None:
             line = node.fromlineno
+        if hasattr(node, 'col_offset'):
+            col_offset = node.col_offset # XXX measured in bytes for utf-8, divide by two for chars?
+        else:
+            col_offset = None
         # should this message be displayed
         if not self.is_message_enabled(msgid, line):
             return
@@ -273,7 +277,7 @@ class MessagesHandlerMixIn:
             module, obj = get_module_and_frameid(node)
             path = node.root().file
         # add the message
-        self.reporter.add_message(msgid, (path, module, obj, line or 1), msg)
+        self.reporter.add_message(msgid, (path, module, obj, line or 1, col_offset or 0), msg)
 
     def help_message(self, msgids):
         """display help messages for the given message identifiers"""
