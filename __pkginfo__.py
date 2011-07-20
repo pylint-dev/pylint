@@ -1,5 +1,5 @@
 # pylint: disable=W0622,C0103
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2011 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
 
 modname = distname = 'pylint'
 
-numversion = (0, 23, 0)
+numversion = (0, 24, 0)
 version = '.'.join([str(num) for num in numversion])
 
 install_requires = ['logilab-common >= 0.53.0', 'logilab-astng >= 0.21.1']
