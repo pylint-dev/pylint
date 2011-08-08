@@ -69,18 +69,18 @@ packages. It should be compatible with any python version >= 2.5.
 
 Distributions
 '''''''''''''
-The source tarball is available at ftp://ftp.logilab.fr/pub/pylint.
+The source tarball is available at ftp://download.logilab.org/pub/pylint.
 
-You may apt-get a debian package by adding ::
+You may apt-get a well-tested debian or ubuntu package by adding one of::
 
-    deb ftp://ftp.logilab.org/pub/debian unstable/
+    deb http://download.logilab.org/production unstable/
+    deb http://download.logilab.org/production sid/
+    deb http://download.logilab.org/production squeeze/
+    deb http://download.logilab.org/production lenny/
 
 to your */etc/apt/sources.list* file. Pylint is also available in the
 standard Debian distribution (but add our public debian repository
 anyway if you want to get the latest releases and upgrades earlier)
-
-Contributed RPM packages for pylint and logilab-common are available at
-ftp://ftp.nest.pld-linux.org/test.
 
 Pylint is also available in Gentoo, Fedora 4, Ubuntu, FreeBSD, Darwin
 (and maybe others, if you know about more OSes, please drop us a note!).
@@ -111,7 +111,7 @@ On Windows, once you have installed pylint, the command line usage is ::
 But this will only work if *pylint.bat* is either in the current
 directory, or on your system path. (*setup.py* install install *python.bat*
 to the *Scripts* subdirectory of your Python installation -- e.g.
-C:/Python24/Scripts.) You can do any of the following to solve this:
+C:\Python24\Scripts.) You can do any of the following to solve this:
 
 1. change to the appropriate directory before running pylint.bat
 
@@ -136,10 +136,10 @@ line without the .bat, just as do non-Windows users by typing: ::
 To effect option (3), simply create a plain text file pylint.bat with
 the single line: ::
 
-  C:/PythonDirectory/Scripts/pylint.bat
+  C:\PythonDirectory\Scripts\pylint.bat
 
 (where PythonDirectory is replaced by the actual Python installation
-directory on your system -- e.g. C:/Python24/Scripts/pylint.bat).
+directory on your system -- e.g. C:\Python24\Scripts\pylint.bat).
 
 
 Invoking pylint
@@ -329,7 +329,7 @@ python makes it hard enough, it is not the case for warnings.
   activated some time before a release, when I want to cleanup the code.
   And when I do that I simply ignore tons of the false warnings (and I
   can do that without being driven mad by this dumb program which is not
-  smart enough to understand the dynamically of Python because I only run
+  smart enough to understand the dynamicity of Python because I only run
   it once or twice a week in this mode)
 
 :Quoting Marteen Ter Huurne:
@@ -558,13 +558,13 @@ Notice that the source code is probably the best source of
 documentation, it should be clear and well documented. Don't hesitate to
 ask for any information on the python-projects mailing list.
 
-.. _`compiler package`: http://python.org/doc/current/lib/module-compiler.html
-.. _`compiler.ast documentation`: http://www.python.org/doc/current/lib/module-compiler.ast.html
+.. _`compiler package`: http://docs.python.org/library/compiler
+.. _`compiler.ast documentation`: http://docs.python.org/library/compiler#module-compiler.ast
 
 
 Contribute !
 ------------
-All our software is developed using the mercurial_ version control
+All our software is developped using the mercurial_ version control
 system. This is a very cool distributed vcs and its usage is very similar to
 other ones such as cvs or subversion (though the distributed feature introduced
 some different usage patterns). See mercurial home page for installation on
@@ -628,8 +628,11 @@ http://live.gnome.org/Gedit/PylintPlugin
 To use pylint from within WingIDE_, see
 http://www.wingware.com/doc/edit/pylint
 
-Pylint is also integrated in spyder_, a matlab-like environnement.
+Pylint is integrated in spyder_, a matlab-like environnement.
 
+Pylint is integrated in pyscripter_.
+
+.. _pyscripter: http://code.google.com/p/pyscripter/
 .. _pydev: http://pydev.sourceforge.net
 .. _komodo: http://www.activestate.com/Products/Komodo/
 .. _gedit: http://www.gnome.org/projects/gedit/
