@@ -23,10 +23,10 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 
 MSGS = {
-    'E1001': ('Use __slots__ on an old style class',
-              'Used when an old style class use the __slots__ attribute.'),
-    'E1002': ('Use super on an old style class',
-              'Used when an old style class use the super builtin.'),
+    'E1001': ('Use of __slots__ on an old style class',
+              'Used when an old style class uses the __slots__ attribute.'),
+    'E1002': ('Use of super on an old style class',
+              'Used when an old style class uses the super builtin.'),
     'E1003': ('Bad first argument %r given to super class',
               'Used when another argument than the current class is given as \
               first argument of the super builtin.'),
