@@ -1,5 +1,9 @@
 ChangeLog for PyLint
 ====================
+--
+    * #74742: make allowed name for first argument of class method
+      configurable (patch by Google)
+
 
 2011-07-18  --  0.24.0
     * #69738: add regular expressions support for "generated-members"

@@ -63,7 +63,7 @@ MSGS = {
               'Used when a method has an attribute different the "self" as\
               first argument. This is considered as an error since this is\
               a so common convention that you shouldn\'t break it!'),
-    'C0202': ('Class method should have "cls" as first argument', # E0212
+    'C0202': ('Class method should have %s as first argument', # E0212
               'Used when a class method has an attribute different than "cls"\
               as first argument, to easily differentiate them from regular \
               instance methods.'),
@@ -155,6 +155,13 @@ in Zope\'s Interface base class.'}
                  'metavar' : '<method names>',
                  'help' : 'List of method names used to declare (i.e. assign) \
 instance attributes.'}
+                ),
+               ('valid-classmethod-first-arg',
+                {'default' : ('cls',),
+                 'type' : 'csv',
+                 'metavar' : '<argument names>',
+                 'help' : 'List of valid names for the first argument in \
+a class method.'}
                 ),
 
                )
@@ -385,8 +392,16 @@ instance attributes.'}
                 self.add_message('C0203', node=node)
         # class method
         elif node.type == 'classmethod':
-            if first != 'cls':
-                self.add_message('C0202', node=node)
+            if first not in self.config.valid_classmethod_first_arg:
+                if len(self.config.valid_classmethod_first_arg) == 1:
+                    valid = repr(self.config.valid_classmethod_first_arg[0])
+                else:
+                    valid = ', '.join(
+                      repr(v)
+                      for v in self.config.valid_classmethod_first_arg[:-1])
+                    valid = '%s or %r' % (
+                        valid, self.config.valid_classmethod_first_arg[-1])
+                self.add_message('C0202', args=valid, node=node)
         # regular method without self as argument
         elif first != 'self':
             self.add_message('E0213', node=node)
