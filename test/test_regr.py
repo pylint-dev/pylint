@@ -120,6 +120,9 @@ class NonRegrTC(TestCase):
         got = linter.reporter.finalize().strip()
         self.failUnlessEqual(got, '')
 
+    def test_import_assign_crash(self):
+        linter.check(join(REGR_DATA, 'import_assign.py'))
+
     def test_module_global_crash(self):
         linter.check(join(REGR_DATA, 'module_global.py'))
         got = linter.reporter.finalize().strip()

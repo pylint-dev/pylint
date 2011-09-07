@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2011 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -483,6 +483,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 break
             try:
                 module = module.getattr(name)[0].infer().next()
+                if module is astng.YES:
+                    return None
             except astng.NotFoundError:
                 self.add_message('E0611', args=(name, module.name), node=node)
                 return None
