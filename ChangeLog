@@ -11,7 +11,10 @@ ChangeLog for PyLint
 
     * #74745: make "too general" exception names configurable (patch by Google)
 
+    * #74747: crash occurs when lookup up a special attribute in class scope
+      (patch by google)
 
+	
 2011-07-18  --  0.24.0
     * #69738: add regular expressions support for "generated-members"
 

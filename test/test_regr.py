@@ -123,6 +123,9 @@ class NonRegrTC(TestCase):
     def test_import_assign_crash(self):
         linter.check(join(REGR_DATA, 'import_assign.py'))
 
+    def test_special_attr_scope_lookup_crash(self):
+        linter.check(join(REGR_DATA, 'special_attr_scope_lookup_crash.py'))
+
     def test_module_global_crash(self):
         linter.check(join(REGR_DATA, 'module_global.py'))
         got = linter.reporter.finalize().strip()

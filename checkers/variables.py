@@ -331,8 +331,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
         astmts = [stmt for stmt in node.lookup(name)[1]
                   if hasattr(stmt, 'ass_type')]
-        # filter variables according their respective scope
-        if not astmts or astmts[0].statement().parent_of(node):
+        # filter variables according their respective scope test is_statement
+        # and parent to avoid #74747. This is not a total fix, which would
+        # introduce a mechanism similar to special attribute lookup in
+        # modules. Also, in order to get correct inference in this case, the
+        # scope lookup rules would need to be changed to return the initial
+        # assignment (which does not exist in code per se) as well as any later
+        # modifications.
+        if not astmts or (astmts[0].is_statement or astmts[0].parent) \
+             and astmts[0].statement().parent_of(node):
             _astmts = []
         else:
             _astmts = astmts[:1]
