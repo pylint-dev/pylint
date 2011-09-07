@@ -26,6 +26,8 @@ from pylint.checkers.utils import is_empty, is_raising
 from pylint.interfaces import IASTNGChecker
 
 
+OVERGENERAL_EXCEPTIONS = ('Exception',)
+
 MSGS = {
     'E0701': (
     'Bad except clauses order (%s)',
@@ -47,8 +49,9 @@ MSGS = {
     'W0702': ('No exception type(s) specified',
               'Used when an except clause doesn\'t specify exceptions type to \
               catch.'),
-    'W0703': ('Catch "Exception"',
-              'Used when an except catches Exception instances.'),
+    'W0703': ('Catching too general exception %s',
+              'Used when an except catches a too general exception, \
+              possibly burying unrelated errors.'),
     'W0704': ('Except doesn\'t do anything',
               'Used when an except clause does nothing but "pass" and there is\
               no "else" clause.'),
@@ -74,7 +77,14 @@ class ExceptionsChecker(BaseChecker):
     name = 'exceptions'
     msgs = MSGS
     priority = -4
-    options = ()
+    options = (('overgeneral-exceptions',
+                {'default' : OVERGENERAL_EXCEPTIONS,
+                 'type' :'csv', 'metavar' : '<comma-separated class names>',
+                 'help' : 'Exceptions that will emit a warning '
+                          'when being caught. Defaults to "%s"' % (
+                              ', '.join(OVERGENERAL_EXCEPTIONS),)}
+                ),
+               )
 
     def visit_raise(self, node):
         """visit raise possibly inferring value"""
@@ -163,10 +173,10 @@ class ExceptionsChecker(BaseChecker):
                             msg = '%s is an ancestor class of %s' % (
                                 previous_exc.name, exc.name)
                             self.add_message('E0701', node=handler.type, args=msg)
-                    if (exc.name == 'Exception'
+                    if (exc.name in self.config.overgeneral_exceptions
                         and exc.root().name == EXCEPTIONS_MODULE
                         and nb_handlers == 1 and not is_raising(handler.body)):
-                        self.add_message('W0703', node=handler.type)
+                        self.add_message('W0703', args=exc.name, node=handler.type)
                 exceptions_classes += excs
 
 
@@ -185,4 +195,3 @@ def inherit_from_std_ex(node):
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(ExceptionsChecker(linter))
-

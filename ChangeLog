@@ -1,5 +1,6 @@
 ChangeLog for PyLint
 ====================
+
 --
     * #74742: make allowed name for first argument of class method configurable
       (patch by Google)
@@ -7,6 +8,8 @@ ChangeLog for PyLint
     * #74087: handle case where inference of a module return YES; this avoid
       some cases of "TypeError: '_Yes' object does not support indexing" (patch
       by Google)
+
+    * #74745: make "too general" exception names configurable (patch by Google)
 
 
 2011-07-18  --  0.24.0
