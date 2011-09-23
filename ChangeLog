@@ -14,7 +14,9 @@ ChangeLog for PyLint
     * #74747: crash occurs when lookup up a special attribute in class scope
       (patch by google)
 
-	
+    * #76920: crash if on eg "pylint --rcfile"(patch by Torsten Marek)
+
+
 2011-07-18  --  0.24.0
     * #69738: add regular expressions support for "generated-members"
 

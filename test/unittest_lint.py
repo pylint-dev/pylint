@@ -23,7 +23,8 @@ from logilab.common.testlib import TestCase, unittest_main, create_files
 from logilab.common.compat import reload
 
 from pylint import config
-from pylint.lint import PyLinter, Run, UnknownMessage
+from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
+     ArgumentPreprocessingError
 from pylint.utils import sort_msgs, PyLintASTWalker
 from pylint import checkers
 
@@ -351,6 +352,32 @@ class ConfigTC(TestCase):
             rmtree(fake_home, ignore_errors=True)
             os.chdir(HERE)
             rmtree(chroot)
+
+
+class PreprocessOptionsTC(TestCase):
+    def _callback(self, name, value):
+        self.args.append((name, value))
+
+    def test_preprocess(self):
+        self.args = []
+        preprocess_options(['--foo', '--bar=baz', '--qu=ux'],
+                           {'foo' : (self._callback, False),
+                            'qu' : (self._callback, True)})
+        self.assertEqual(
+            [('foo', None), ('qu', 'ux')], self.args)
+
+    def test_preprocessing_error(self):
+        self.assertRaises(
+            ArgumentPreprocessingError,
+            preprocess_options,
+            ['--foo', '--bar', '--qu=ux'],
+            {'bar' : (None, True)})
+        self.assertRaises(
+            ArgumentPreprocessingError,
+            preprocess_options,
+            ['--foo', '--bar'],
+            {'bar' : (None, True)})
+
 
 if __name__ == '__main__':
     unittest_main()

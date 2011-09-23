@@ -687,6 +687,10 @@ except AttributeError:
     __builtins__['_'] = str
 
 
+class ArgumentPreprocessingError(Exception):
+    """Raised if an error occurs during argument preprocessing."""
+
+
 def preprocess_options(args, search_for):
     """look for some options (keys of <search_for>) which have to be processed
     before others
@@ -706,6 +710,8 @@ def preprocess_options(args, search_for):
                 cb, takearg = search_for[option]
                 del args[i]
                 if takearg and val is None:
+                    if i >= len(args) or args[i].startswith('-'):
+                        raise ArgumentPreprocessingError(arg)
                     val = args[i]
                     del args[i]
                 cb(option, val)
@@ -728,11 +734,16 @@ group are mutually exclusive.'),
     def __init__(self, args, reporter=None, exit=True):
         self._rcfile = None
         self._plugins = []
-        preprocess_options(args, {
-            # option: (callback, takearg)
-            'rcfile':       (self.cb_set_rcfile, True),
-            'load-plugins': (self.cb_add_plugins, True),
-            })
+        try:
+            preprocess_options(args, {
+                # option: (callback, takearg)
+                'rcfile':       (self.cb_set_rcfile, True),
+                'load-plugins': (self.cb_add_plugins, True),
+                })
+        except ArgumentPreprocessingError, e:
+            print >> sys.stderr, 'Argument %s expects a value.' % (e.args[0],)
+            sys.exit(32)
+
         self.linter = linter = self.LinterClass((
             ('rcfile',
              {'action' : 'callback', 'callback' : lambda *args: 1,
