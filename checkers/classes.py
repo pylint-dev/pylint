@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2011 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -41,9 +41,10 @@ MSGS = {
               compatibility for an unexpected reason. Please report this kind \
               if you don\'t make sense of it.'),
 
-    'E0202': ('An attribute inherited from %s hide this method',
-              'Used when a class defines a method which is hidden by an \
-              instance attribute from an ancestor class.'),
+    'E0202': ('An attribute affected in %s line %s hide this method',
+              'Used when a class defines a method which is hidden by an '
+              'instance attribute from an ancestor class or set by some '
+              'client code.'),
     'E0203': ('Access to member %r before its definition line %s',
               'Used when an instance member is accessed before it\'s actually\
               assigned.'),
@@ -256,11 +257,8 @@ a class method.'}
         # check if the method overload an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
-            # we may be unable to get owner class if this is a monkey
-            # patched method
-            while overridden.parent and not isinstance(overridden, astng.Class):
-                overridden = overridden.parent.frame()
-            self.add_message('E0202', args=overridden.name, node=node)
+            args = (overridden.root().name, overridden.fromlineno)
+            self.add_message('E0202', args=args, node=node)
         except astng.NotFoundError:
             pass
 

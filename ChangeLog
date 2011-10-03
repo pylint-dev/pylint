@@ -16,6 +16,8 @@ ChangeLog for PyLint
 
     * #76920: crash if on eg "pylint --rcfile"(patch by Torsten Marek)
 
+    * #77237: warning for E0202 may be very misleading
+
 
 2011-07-18  --  0.24.0
     * #69738: add regular expressions support for "generated-members"
