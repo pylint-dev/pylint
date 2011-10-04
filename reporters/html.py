@@ -1,5 +1,5 @@
 # Copyright (c) 2003-2006 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2011 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -28,7 +28,7 @@ class HTMLReporter(BaseReporter):
 
     __implements__ = IReporter
     extension = 'html'
-    
+
     def __init__(self, output=sys.stdout):
         BaseReporter.__init__(self, output)
         self.msgs = []
@@ -40,19 +40,19 @@ class HTMLReporter(BaseReporter):
             sigle = msg_id
         else:
             sigle = msg_id[0]
-        self.msgs += [sigle, module, obj, str(line), escape(msg)]
-        
+        self.msgs += [sigle, module, obj, str(line), str(col_offset), escape(msg)]
+
     def set_output(self, output=None):
         """set output stream
-        
+
         messages buffered for old output is processed first"""
         if self.out and self.msgs:
             self._display(Section())
         BaseReporter.set_output(self, output)
-        
+
     def _display(self, layout):
         """launch layouts display
-        
+
         overridden from BaseReporter to add insert the messages section
         (in add_message, message is not displayed, just collected so it
         can be displayed in an html table)
@@ -63,7 +63,7 @@ class HTMLReporter(BaseReporter):
             msgs += self.msgs
             sect = Section('Messages')
             layout.append(sect)
-            sect.append(Table(cols=5, children=msgs, rheaders=1))
+            sect.append(Table(cols=6, children=msgs, rheaders=1))
             self.msgs = []
         HTMLWriter().format(layout, self.out)
 

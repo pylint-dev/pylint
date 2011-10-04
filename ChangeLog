@@ -18,6 +18,8 @@ ChangeLog for PyLint
 
     * #77237: warning for E0202 may be very misleading
 
+    * #73941: HTML report messages table is badly rendered
+
 
 2011-07-18  --  0.24.0
     * #69738: add regular expressions support for "generated-members"
