@@ -1,7 +1,7 @@
 ChangeLog for PyLint
 ====================
 
---
+2011-10-07  --  0.25.0
     * #74742: make allowed name for first argument of class method configurable
       (patch by Google)
 
@@ -19,6 +19,7 @@ ChangeLog for PyLint
     * #77237: warning for E0202 may be very misleading
 
     * #73941: HTML report messages table is badly rendered
+
 
 
 2011-07-18  --  0.24.0
