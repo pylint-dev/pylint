@@ -225,9 +225,9 @@ class PyLinterTC(TestCase):
 
     def test_enable_checkers(self):
         self.linter.disable('design')
-        self.failIf('design' in [c.name for c in self.linter.prepare_checkers()])
+        self.assertFalse('design' in [c.name for c in self.linter.prepare_checkers()])
         self.linter.enable('design')
-        self.failUnless('design' in [c.name for c in self.linter.prepare_checkers()])
+        self.assertTrue('design' in [c.name for c in self.linter.prepare_checkers()])
 
     def test_errors_only(self):
         linter = self.linter
@@ -236,13 +236,13 @@ class PyLinterTC(TestCase):
         checker_names = tuple(c.name for c in checkers)
         should_not = ('design', 'format', 'imports', 'metrics',
                       'miscellaneous', 'similarities')
-        self.failIf(any(name in checker_names for name in should_not))
+        self.assertFalse(any(name in checker_names for name in should_not))
 
     def test_disable_similar(self):
         # XXX we have to disable them both, that's no good
         self.linter.set_option('reports', False)
         self.linter.set_option('disable', 'R0801')
-        self.failIf('similarities' in [c.name for c in self.linter.prepare_checkers()])
+        self.assertFalse('similarities' in [c.name for c in self.linter.prepare_checkers()])
 
     def test_disable_alot(self):
         """check that we disabled a lot of checkers"""

@@ -48,19 +48,19 @@ class NonRegrTC(TestCase):
     def test_package___path___manipulation(self):
         linter.check('package.__init__')
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.assertEqual(got, '')
 
     def test_package___init___precedence(self):
         linter.check('precedence_test')
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.assertEqual(got, '')
 
     def test_check_package___init__(self):
         for variation in ('package.__init__', join(REGR_DATA, 'package', '__init__.py')):
             linter.check(variation)
             got = linter.reporter.finalize().strip()
             checked = linter.stats['by_module'].keys()
-            self.failUnlessEqual(checked, ['package.__init__'],
+            self.assertEqual(checked, ['package.__init__'],
                                  '%s: %s' % (variation, checked))
         cwd = os.getcwd()
         os.chdir(join(REGR_DATA, 'package'))
@@ -70,7 +70,7 @@ class NonRegrTC(TestCase):
                 linter.check(variation)
                 got = linter.reporter.finalize().strip()
                 checked = linter.stats['by_module'].keys()
-                self.failUnlessEqual(checked, ['__init__'],
+                self.assertEqual(checked, ['__init__'],
                                  '%s: %s' % (variation, checked))
         finally:
             sys.path.pop(0)
@@ -85,7 +85,7 @@ class NonRegrTC(TestCase):
             self.skipTest('no display, can\'t run this test')
         linter.check(join(REGR_DATA, 'pygtk_import.py'))
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.assertEqual(got, '')
 
     def test_numarray_inference(self):
         try:
@@ -94,7 +94,7 @@ class NonRegrTC(TestCase):
             self.skipTest('test skipped: numarray.random_array is not available')
         linter.check(join(REGR_DATA, 'numarray_inf.py'))
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, "E:  5: Instance of 'int' has no 'astype' member (but some types could not be inferred)")
+        self.assertEqual(got, "E:  5: Instance of 'int' has no 'astype' member (but some types could not be inferred)")
 
     def test_numarray_import(self):
         try:
@@ -103,22 +103,22 @@ class NonRegrTC(TestCase):
             self.skipTest('test skipped: numarray is not available')
         linter.check(join(REGR_DATA, 'numarray_import.py'))
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.assertEqual(got, '')
 
     def test_socketerror_import(self):
         linter.check(join(REGR_DATA, 'socketerror_import.py'))
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.assertEqual(got, '')
 
     def test_class__doc__usage(self):
         linter.check(join(REGR_DATA, 'classdoc_usage.py'))
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.assertEqual(got, '')
 
     def test_package_import_relative_subpackage_no_attribute_error(self):
         linter.check('import_package_subpackage_module')
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.assertEqual(got, '')
 
     def test_import_assign_crash(self):
         linter.check(join(REGR_DATA, 'import_assign.py'))
@@ -129,12 +129,12 @@ class NonRegrTC(TestCase):
     def test_module_global_crash(self):
         linter.check(join(REGR_DATA, 'module_global.py'))
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, '')
+        self.assertEqual(got, '')
 
     def test_decimal_inference(self):
         linter.check(join(REGR_DATA, 'decimal_inference.py'))
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, "")
+        self.assertEqual(got, "")
 
     def test_descriptor_crash(self):
         for fname in os.listdir(REGR_DATA):
@@ -148,12 +148,12 @@ class NonRegrTC(TestCase):
     def test___path__(self):
         linter.check('pylint.checkers.__init__')
         messages = linter.reporter.finalize().strip()
-        self.failIf('__path__' in messages, messages)
+        self.assertFalse('__path__' in messages, messages)
 
     def test_absolute_import(self):
         linter.check(join(REGR_DATA, 'absimp', 'string.py'))
         got = linter.reporter.finalize().strip()
-        self.failUnlessEqual(got, "W:  6: Uses of a deprecated module 'string'")
+        self.assertEqual(got, "W:  6: Uses of a deprecated module 'string'")
 
 if __name__ == '__main__':
     unittest_main()
