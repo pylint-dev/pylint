@@ -1,11 +1,11 @@
 C: 28:some_function: Invalid name "FOO" (should match [a-z_][a-z0-9_]{2,30}$)
-C: 37: Invalid name "exc3" (should match (([A-Z_][A-Z0-9_]*)|(__.*__))$)
-C: 51: Invalid name "OOPS" (should match [a-z_][a-z0-9_]{2,30}$)
+C: 41: Invalid name "exc3" (should match (([A-Z_][A-Z0-9_]*)|(__.*__))$)
+C: 55: Invalid name "OOPS" (should match [a-z_][a-z0-9_]{2,30}$)
 W: 18:some_function: Redefining name 'RuntimeError' from object 'exceptions' in exception handler
 W: 20:some_function: Redefining name 'OSError' from builtins in exception handler
 W: 20:some_function: Unused variable 'OSError'
 W: 22:some_function: Redefining name 'MyError' from outer scope (line 7) in exception handler
 W: 22:some_function: Unused variable 'MyError'
-W: 41: Redefining name 'RuntimeError' from object 'exceptions' in exception handler
-W: 43: Redefining name 'OSError' from builtins in exception handler
-W: 45: Redefining name 'MyOtherError' from outer scope (line 32) in exception handler
+W: 45: Redefining name 'RuntimeError' from object 'exceptions' in exception handler
+W: 47: Redefining name 'OSError' from builtins in exception handler
+W: 49: Redefining name 'MyOtherError' from outer scope (line 36) in exception handler

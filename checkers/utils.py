@@ -45,7 +45,9 @@ def clobber_in_except(node):
             return (True, (name, 'builtins'))
         else:
             scope, stmts = node.lookup(name)
-            if stmts and not isinstance(stmts[0].ass_type(), (astng.Assign, astng.AugAssign)):
+            if (stmts and 
+                not isinstance(stmts[0].ass_type(), 
+                               (astng.Assign, astng.AugAssign, astng.ExceptHandler))):
                 return (True, (name, 'outer scope (line %i)' % (stmts[0].lineno,)))
     return (False, None)
 

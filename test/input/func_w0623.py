@@ -28,6 +28,10 @@ def some_function():
     except KeyError, FOO: # C0103
         print FOO
 
+    try:
+        pass
+    except KeyError, exc1: # this is fine
+        print exc1
 
 class MyOtherError(Exception):
     """Special exception class."""
@@ -50,3 +54,12 @@ except KeyError, exc4: # this is fine
     print exc4
 except KeyError, OOPS: # C0103
     print OOPS
+
+try:
+    pass
+except KeyError, exc4: # this is fine
+    print exc4
+except IOError, exc5: # this is fine
+    print exc5
+except MyOtherError, exc5: # this is fine
+    print exc5
