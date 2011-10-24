@@ -25,6 +25,31 @@ BUILTINS_NAME = builtins.__name__
 
 COMP_NODE_TYPES = astng.ListComp, astng.SetComp, astng.DictComp, astng.GenExpr
 
+def is_inside_except(node):
+    """Returns true if node is directly inside an exception handler"""
+    return isinstance(node.parent, astng.ExceptHandler)
+
+
+def clobber_in_except(node):
+    """Checks if an assignment node in an except handler clobbers an existing
+    variable.
+
+    Returns (True, args for W0623) if assignment clobbers an existing variable,
+    (False, None) otherwise.
+    """
+    if isinstance(node, astng.AssAttr):
+        return (True, (node.attrname, 'object %r' % (node.expr.name,)))
+    elif node is not None:
+        name = node.name
+        if is_builtin(name):
+            return (True, (name, 'builtins'))
+        else:
+            scope, stmts = node.lookup(name)
+            if stmts and not isinstance(stmts[0].ass_type(), (astng.Assign, astng.AugAssign)):
+                return (True, (name, 'outer scope (line %i)' % (stmts[0].lineno,)))
+    return (False, None)
+
+
 def safe_infer(node):
     """return the inferred value for the given node.
     Return None if inference failed or if there is some ambiguity (more than

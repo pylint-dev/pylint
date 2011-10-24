@@ -26,7 +26,7 @@ from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
      is_defined_before, is_error, is_func_default, is_func_decorator,
-     assign_parent, check_messages)
+     assign_parent, check_messages, is_inside_except, clobber_in_except)
 
 def overridden_method(klass, name):
     """get overridden method if any"""
@@ -51,7 +51,6 @@ MSGS = {
               assignment.'),
     'E0602': ('Undefined variable %r',
               'Used when an undefined variable is accessed.'),
-
     'E0611': ('No name %r in module %r',
               'Used when a name cannot be found in a module.'),
 
@@ -83,6 +82,9 @@ MSGS = {
               scope.'),
     'W0622': ('Redefining built-in %r',
               'Used when a variable or function override a built-in.'),
+    'W0623': ('Redefining name %r from %s in exception handler',
+              'Used when an exception handler assigns the exception \
+               to an existing name'),
 
     'W0631': ('Using possibly undefined loop variable %r',
               'Used when an loop variable (i.e. defined by a for loop or \
@@ -133,7 +135,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         self._to_consume = [(copy(node.locals), {}, 'module')]
         self._vars = []
         for name, stmts in node.locals.items():
-            if is_builtin(name):
+            if is_builtin(name) and not is_inside_except(stmts[0]):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmts[0])
 
@@ -222,6 +224,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
         globs = node.root().globals
         for name, stmt in node.items():
+            if is_inside_except(stmt):
+                continue
             if name in globs and not isinstance(stmt, astng.Global):
                 line = globs[name][0].lineno
                 self.add_message('W0621', args=(name, line), node=stmt)
@@ -353,6 +357,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if isinstance(ass, (astng.For, astng.Comprehension, astng.GenExpr)) \
                    and not ass.statement() is node.statement():
                 self.add_message('W0631', args=name, node=node)
+
+    def visit_excepthandler(self, node):
+        clobbering, args = clobber_in_except(node.name)
+        if clobbering:
+            self.add_message('W0623', args=args, node=node)
 
     def visit_assname(self, node):
         if isinstance(node.ass_type(), astng.AugAssign):

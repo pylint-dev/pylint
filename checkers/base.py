@@ -23,7 +23,7 @@ from logilab.astng import are_exclusive
 from pylint.interfaces import IASTNGChecker
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker, EmptyReport
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, clobber_in_except, is_inside_except
 
 
 import re
@@ -649,6 +649,8 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, astng.Module):
             if isinstance(ass_type, astng.Assign) and not in_loop(ass_type):
                 self._check_name('const', node.name, node)
+            elif isinstance(ass_type, astng.ExceptHandler):
+                self._check_name('variable', node.name, node)
         elif isinstance(frame, astng.Function):
             # global introduced variable aren't in the function locals
             if node.name in frame:
@@ -664,6 +666,11 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""
+        if is_inside_except(node):
+            clobbering, _ = clobber_in_except(node)
+            if clobbering:
+                return
+
         if name in self.config.good_names:
             return
         if name in self.config.bad_names:
@@ -674,7 +681,6 @@ class NameChecker(_BasicChecker):
         if regexp.match(name) is None:
             self.add_message('C0103', node=node, args=(name, regexp.pattern))
             self.stats['badname_' + node_type] += 1
-
 
 
 class DocStringChecker(_BasicChecker):
