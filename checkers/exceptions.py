@@ -151,7 +151,7 @@ class ExceptionsChecker(BaseChecker):
                 self.add_message('W0704', node=handler.type or handler.body[0])
             if handler.type is None:
                 if nb_handlers == 1 and not is_raising(handler.body):
-                    self.add_message('W0702', node=handler.body[0])
+                    self.add_message('W0702', node=handler)
                 # check if a "except:" is followed by some other
                 # except
                 elif index < (nb_handlers - 1):

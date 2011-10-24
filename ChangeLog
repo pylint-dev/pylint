@@ -2,8 +2,13 @@ ChangeLog for PyLint
 ====================
 
 --
-    * #81078: Warn if names in  exception handlers clobber overwrite 
+    * #81078: Warn if names in  exception handlers clobber overwrite
       existing names (patch by tmarek@google.com)
+
+    * #81113: Fix W0702 messages appearing with the wrong line number.
+      (patch by tmarek@google.com)
+
+
 
 2011-10-07  --  0.25.0
     * #74742: make allowed name for first argument of class method configurable
