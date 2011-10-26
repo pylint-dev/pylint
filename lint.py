@@ -140,84 +140,86 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     msgs = MSGS
     may_be_disabled = False
 
-    options = (('ignore',
-                {'type' : 'csv', 'metavar' : '<file>[,<file>...]',
-                 'dest' : 'black_list', 'default' : ('CVS',),
-                 'help' : 'Add files or directories to the blacklist. \
+    @staticmethod
+    def make_options():
+        return (('ignore',
+                 {'type' : 'csv', 'metavar' : '<file>[,<file>...]',
+                  'dest' : 'black_list', 'default' : ('CVS',),
+                  'help' : 'Add files or directories to the blacklist. \
 They should be base names, not paths.'}),
-               ('persistent',
-                {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'level': 1,
-                 'help' : 'Pickle collected data for later comparisons.'}),
+                ('persistent',
+                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                  'level': 1,
+                  'help' : 'Pickle collected data for later comparisons.'}),
 
-               ('load-plugins',
-                {'type' : 'csv', 'metavar' : '<modules>', 'default' : (),
-                 'level': 1,
-                 'help' : 'List of plugins (as comma separated values of \
+                ('load-plugins',
+                 {'type' : 'csv', 'metavar' : '<modules>', 'default' : (),
+                  'level': 1,
+                  'help' : 'List of plugins (as comma separated values of \
 python modules names) to load, usually to register additional checkers.'}),
 
-               ('output-format',
-                {'default': 'text', 'type': 'choice', 'metavar' : '<format>',
-                 'choices': ('text', 'parseable', 'msvs', 'colorized', 'html'),
-                 'short': 'f',
-                 'group': 'Reports',
-                 'help' : 'Set the output format. Available formats are text,\
+                ('output-format',
+                 {'default': 'text', 'type': 'choice', 'metavar' : '<format>',
+                  'choices': REPORTER_OPT_MAP.keys(),
+                  'short': 'f',
+                  'group': 'Reports',
+                  'help' : 'Set the output format. Available formats are text,\
                  parseable, colorized, msvs (visual studio) and html'}),
 
-               ('include-ids',
-                {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
-                 'short': 'i',
-                 'group': 'Reports',
-                 'help' : 'Include message\'s id in output'}),
+                ('include-ids',
+                 {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
+                  'short': 'i',
+                  'group': 'Reports',
+                  'help' : 'Include message\'s id in output'}),
 
-               ('files-output',
-                {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'group': 'Reports', 'level': 1,
-                 'help' : 'Put messages in a separate file for each module / \
+                ('files-output',
+                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                  'group': 'Reports', 'level': 1,
+                  'help' : 'Put messages in a separate file for each module / \
 package specified on the command line instead of printing them on stdout. \
 Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
 
-               ('reports',
-                {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'short': 'r',
-                 'group': 'Reports',
-                 'help' : 'Tells whether to display a full report or only the\
+                ('reports',
+                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                  'short': 'r',
+                  'group': 'Reports',
+                  'help' : 'Tells whether to display a full report or only the\
  messages'}),
 
-               ('evaluation',
-                {'type' : 'string', 'metavar' : '<python_expression>',
-                 'group': 'Reports', 'level': 1,
-                 'default': '10.0 - ((float(5 * error + warning + refactor + \
+                ('evaluation',
+                 {'type' : 'string', 'metavar' : '<python_expression>',
+                  'group': 'Reports', 'level': 1,
+                  'default': '10.0 - ((float(5 * error + warning + refactor + \
 convention) / statement) * 10)',
-                 'help' : 'Python expression which should return a note less \
+                  'help' : 'Python expression which should return a note less \
 than 10 (10 is the highest note). You have access to the variables errors \
 warning, statement which respectively contain the number of errors / warnings\
  messages and the total number of statements analyzed. This is used by the \
  global evaluation report (RP0004).'}),
 
-               ('comment',
-                {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'group': 'Reports', 'level': 1,
-                 'help' : 'Add a comment according to your evaluation note. \
+                ('comment',
+                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                  'group': 'Reports', 'level': 1,
+                  'help' : 'Add a comment according to your evaluation note. \
 This is used by the global evaluation report (RP0004).'}),
 
-               ('enable',
-                {'type' : 'csv', 'metavar': '<msg ids>',
-                 'short': 'e',
-                 'group': 'Messages control',
-                 'help' : 'Enable the message, report, category or checker with the '
-                 'given id(s). You can either give multiple identifier '
-                 'separated by comma (,) or put this option multiple time.'}),
+                ('enable',
+                 {'type' : 'csv', 'metavar': '<msg ids>',
+                  'short': 'e',
+                  'group': 'Messages control',
+                  'help' : 'Enable the message, report, category or checker with the '
+                  'given id(s). You can either give multiple identifier '
+                  'separated by comma (,) or put this option multiple time.'}),
 
-               ('disable',
-                {'type' : 'csv', 'metavar': '<msg ids>',
-                 'short': 'd',
-                 'group': 'Messages control',
-                 'help' : 'Disable the message, report, category or checker '
-                 'with the given id(s). You can either give multiple identifier'
-                 ' separated by comma (,) or put this option multiple time '
-                 '(only on the command line, not in the configuration file '
-                 'where it should appear only once).'}),
+                ('disable',
+                 {'type' : 'csv', 'metavar': '<msg ids>',
+                  'short': 'd',
+                  'group': 'Messages control',
+                  'help' : 'Disable the message, report, category or checker '
+                  'with the given id(s). You can either give multiple identifier'
+                  ' separated by comma (,) or put this option multiple time '
+                  '(only on the command line, not in the configuration file '
+                  'where it should appear only once).'}),
                )
 
     option_groups = (
@@ -240,7 +242,7 @@ This is used by the global evaluation report (RP0004).'}),
         self.current_file = None
         self.stats = None
         # init options
-        self.options = options + PyLinter.options
+        self.options = options + PyLinter.make_options()
         self.option_groups = option_groups + PyLinter.option_groups
         self._options_methods = {
             'enable': self.enable,
@@ -269,6 +271,10 @@ This is used by the global evaluation report (RP0004).'}),
         self._dynamic_plugins = []
         self.load_provider_defaults()
         self.set_reporter(reporter or TextReporter(sys.stdout))
+
+    def load_default_plugins(self):
+        from pylint import checkers
+        checkers.initialize(self)
 
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
@@ -802,8 +808,7 @@ are done by default'''}),
             ), option_groups=self.option_groups,
                reporter=reporter, pylintrc=self._rcfile)
         # register standard checkers
-        from pylint import checkers
-        checkers.initialize(linter)
+        linter.load_default_plugins()
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
         # add some help section
