@@ -183,7 +183,7 @@ class FormatChecker(BaseRawChecker):
         international text's length is properly calculated.
         """
         stream = node.file_stream
-        stream.seek(0)
+        stream.seek(0) # XXX may be removed with astng > 0.23
         readline = stream.readline
         if sys.version_info < (3, 0):
             if node.file_encoding is not None:

@@ -39,7 +39,7 @@ class Similar:
 
     def append_stream(self, streamid, stream):
         """append a file to search for similarities"""
-        stream.seek(0)
+        stream.seek(0) # XXX may be removed with astng > 0.23
         self.linesets.append(LineSet(streamid,
                                      stream.readlines(),
                                      self.ignore_comments,

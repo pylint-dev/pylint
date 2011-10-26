@@ -20,9 +20,7 @@ class MyRawChecker(BaseChecker):
 
         the module's content is accessible via node.file_stream object
         """
-        stream = node.file_stream
-        stream.seek(0)
-        for (lineno, line) in enumerate(stream):
+        for (lineno, line) in enumerate(node.file_stream):
             if line.rstrip().endswith('\\'):
                 self.add_message('W9901', line=lineno)
 

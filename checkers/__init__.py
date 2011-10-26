@@ -120,7 +120,7 @@ class BaseRawChecker(BaseChecker):
         stream must implement the readline method
         """
         stream = node.file_stream
-        stream.seek(0)
+        stream.seek(0) # XXX may be removed with astng > 0.23
         self.process_tokens(tokenize.generate_tokens(stream.readline))
 
     def process_tokens(self, tokens):
