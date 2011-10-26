@@ -170,6 +170,8 @@ accessed. Python regular expressions are accepted.'}
                 # XXX method / function
                 continue
             except NotFoundError:
+                if isinstance(owner, astng.Function) and owner.decorators:
+                   continue
                 if isinstance(owner, Instance) and owner.has_dynamic_getattr():
                     continue
                 # explicit skipping of optparse'Values class

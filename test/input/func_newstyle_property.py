@@ -1,5 +1,5 @@
 # pylint: disable=R0903
-"""test property on old style class"""
+"""test property on old style class and property.setter/deleter usage"""
 
 __revision__ = 1
 
@@ -17,3 +17,24 @@ class HaNonNonNon:
     
     def __init__(self):
         pass
+
+class SomeClass(object):
+    """another docstring"""
+
+    def __init__(self):
+        self._prop = None
+
+    @property
+    def prop(self):
+        """I'm the 'prop' property."""
+        return self._prop
+
+    @prop.setter
+    def prop(self, value):
+        """I'm the 'prop' property."""
+        self._prop = value
+
+    @prop.deleter
+    def prop(self):
+        """I'm the 'prop' property."""
+        del self._prop

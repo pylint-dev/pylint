@@ -101,6 +101,22 @@ def report_by_type_stats(sect, stats, old_stats):
                   nice_stats[node_type].get('percent_badname', '0'))
     sect.append(Table(children=lines, cols=6, rheaders=1))
 
+def redefined_by_decorator(node):
+    """return True if the object is a method redefined via decorator.
+
+    For example:
+        @property
+        def x(self): return self._x
+        @x.setter
+        def x(self, value): self._x = value
+    """
+    if node.decorators:
+        for decorator in node.decorators.nodes:
+            if (isinstance(decorator, astng.Getattr) and
+                decorator.expr.name == node.name):
+                return True
+    return False
+
 class _BasicChecker(BaseChecker):
     __implements__ = IASTNGChecker
     name = 'basic'
@@ -142,7 +158,8 @@ class BasicErrorChecker(_BasicChecker):
 
     @check_messages('E0100', 'E0101', 'E0102', 'E0106')
     def visit_function(self, node):
-        self._check_redefinition(node.is_method() and 'method' or 'function', node)
+        if not redefined_by_decorator(node):
+            self._check_redefinition(node.is_method() and 'method' or 'function', node)
         # checks for max returns, branch, return in __init__
         returns = node.nodes_of_class(astng.Return,
                                       skip_klass=(astng.Function, astng.Class))

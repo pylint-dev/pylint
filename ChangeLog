@@ -8,6 +8,9 @@ ChangeLog for PyLint
     * #81113: Fix W0702 messages appearing with the wrong line number.
       (patch by tmarek@google.com)
 
+    * #50461, #52020, #51222: Do not issue warnings when using 2.6's
+      property.setter/deleter functionality (patch by dneil@google.com)
+
 
 
 2011-10-07  --  0.25.0
