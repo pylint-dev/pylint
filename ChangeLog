@@ -11,6 +11,9 @@ ChangeLog for PyLint
     * #50461, #52020, #51222: Do not issue warnings when using 2.6's
       property.setter/deleter functionality (patch by dneil@google.com)
 
+    * #9188, #4024: Do not trigger W0631 if a loop variable is assigned
+      in the else branch of a for loop.
+
 
 
 2011-10-07  --  0.25.0

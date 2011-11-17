@@ -28,6 +28,12 @@ from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
      is_defined_before, is_error, is_func_default, is_func_decorator,
      assign_parent, check_messages, is_inside_except, clobber_in_except)
 
+
+def in_for_else_branch(parent, stmt):
+  """Returns True if stmt in inside the else branch for a parent For stmt."""
+  return (isinstance(parent, astng.For) and
+          any(else_stmt.parent_of(stmt) for else_stmt in parent.orelse))
+
 def overridden_method(klass, name):
     """get overridden method if any"""
     try:
@@ -348,7 +354,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         else:
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
-            if astmts[i].statement().parent_of(stmt):
+            if (astmts[i].statement().parent_of(stmt)
+                and not in_for_else_branch(astmts[i].statement(), stmt)):
                 continue
             _astmts.append(stmt)
         astmts = _astmts
