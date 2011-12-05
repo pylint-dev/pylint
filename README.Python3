@@ -1,26 +1,27 @@
 Python3
 =======
 
-Source
-------
+Compatibility
+-------------
 
-Python3 portage is made by running the 2to3 script on all modules::
-
-  find . ! -path "*/test/*py" -name "*py" -exec 2to3-3.1 -wn {} \;
+Please, consider python3 >= 3.2 only.
 
 
-Dev
----
+Approach
+--------
 
-If you want to run the tests, simply remove the "! -path ..." option, hence
-also refactoring the test files, including all data files.
-Note that when running 2to3 on some test/input/ files, it will crash since
-this folder contains corrupted files. Hence, we can not run directly
-*2to3* on the test folder::
+We maintain a Python 2 base and use 2to3 to generate Python 3 code.
 
-  $ 2to3 test/
+2to3 is integrated into the distutils installation process and will be run as a
+build step when invoked by the python3 interpreter::
 
-But it will work nice with *find*.
+  NO_SETUPTOOLS=1 python3 setup.py install --no-compile
+
+In order to run pylint locally, you have to install the dependencies::
+
+  easy_install-3.2 logilab-common
+  easy_install-3.2 logilab-astng
+
 
 Debian
 ------
@@ -30,3 +31,7 @@ the debian/ folder::
 
   cp debian.py3k/* debian/
 
+
+Resources
+---------
+http://wiki.python.org/moin/PortingPythonToPy3k

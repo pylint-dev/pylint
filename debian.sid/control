@@ -4,17 +4,42 @@ Priority: optional
 Maintainer: Logilab S.A. <contact@logilab.fr>
 Uploaders: Sylvain Thénault <sylvain.thenault@logilab.fr>, Alexandre Fayolle <afayolle@debian.org>,
            Sandro Tosi <morph@debian.org>, Julien Jehannet <julien.jehannet@logilab.fr>
-Build-Depends: debhelper (>= 7.0.50~), python3-all, python3-logilab-common, python3-logilab-astng
-Standards-Version: 3.9.1
+Build-Depends: debhelper (>= 7.0.50~), python-all, python3-all
+Standards-Version: 3.9.2
 Homepage: http://www.logilab.org/project/pylint
 Vcs-Hg: http://hg.logilab.org/pylint
 Vcs-Browser: http://hg.logilab.org/pylint
 
+Package: pylint
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.53), python-logilab-astng (>= 0.21)
+Recommends: python-tk
+XB-Python-Version: ${python:Versions}
+Description: python code static checker and UML diagram generator
+ Pylint is a Python source code analyzer which looks for programming
+ errors, helps enforcing a coding standard and sniffs for some code
+ smells (as defined in Martin Fowler's Refactoring book)
+ .
+ Pylint can be seen as another PyChecker since nearly all tests you
+ can do with PyChecker can also be done with Pylint. However, Pylint
+ offers some more features, like checking length of lines of code,
+ checking if variable names are well-formed according to your coding
+ standard, or checking if declared interfaces are truly implemented,
+ and much more.
+ .
+ Additionally, it is possible to write plugins to add your own checks.
+ .
+ The included command pyreverse generates UML class and package
+ diagrams.
+ .
+ The recommended python-tk package is only for using the pylint-gui
+ script.
+
 Package: pylint3
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python3-logilab-common (>= 0.53), python3-logilab-astng (>= 0.21)
+Depends: ${python3:Depends}, ${misc:Depends}, python3-logilab-common (>= 0.53), python3-logilab-astng (>= 0.21)
 Recommends: python3-tk
-XB-Python-Version: ${python:Versions}
+XB-Python-Version: ${python3:Versions}
 Description: python code static checker and UML diagram generator
  Pylint is a Python source code analyzer which looks for programming
  errors, helps enforcing a coding standard and sniffs for some code
