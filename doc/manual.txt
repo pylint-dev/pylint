@@ -184,13 +184,13 @@ It is also possible to call Pylint from an other Python program,
 thanks to ``py_run()`` function in ``lint`` module,
 assuming Pylint options are stored in ``pylint_options`` string, as ::
 
-  from pylint import lint
+  from pylint import epylint as lint
   lint.py_run( pylint_options)
 
 To silently run Pylint on a ``module_name.py`` module,
 and get its standart output and error::
 
-  from pylint import lint
+  from pylint import epylint as lint
   (pylint_stdout, pylint_stderr) = lint.py_run( 'module_name.py', True)
 
 
