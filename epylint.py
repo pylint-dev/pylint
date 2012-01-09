@@ -58,10 +58,11 @@ def lint(filename):
         parentPath = os.path.dirname(parentPath)
 
     # Start pylint
-    process = Popen('pylint -f parseable -r n --disable=C,R,I "%s"' %
-                    childPath, shell=True, stdout=PIPE, stderr=PIPE,
-                    cwd=parentPath)
-    p = process.stdout
+    # Ensure we use the python and pylint associated with the running epylint
+    lintPath = os.path.join(os.path.dirname(__file__), 'lint.py')
+    cmd = [sys.executable, lintPath, '-f', 'parseable', '-r', 'n',
+           '--disable=C,R,I', childPath]
+    process = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=parentPath)
 
     # The parseable line format is '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
     # NOTE: This would be cleaner if we added an Emacs reporter to pylint.reporters.text ..
@@ -76,7 +77,7 @@ def lint(filename):
         # replace as "Warning (W0511, funcName): Warning Text"
         return "%s (%s%s):" % (replacement, mObj.group("type"), mObj.group("remainder"))
 
-    for line in p:
+    for line in process.stdout:
         # remove pylintrc warning
         if line.startswith("No config file found"):
             continue
@@ -87,10 +88,11 @@ def lint(filename):
             line = ":".join([filename] + parts[1:])
         print line,
 
-    p.close()
+    process.wait()
+    return process.returncode
 
 def Run():
-    lint(sys.argv[1])
+    sys.exit(lint(sys.argv[1]))
 
 
 def py_run(command_options='', return_std=False, stdout=None, stderr=None,
