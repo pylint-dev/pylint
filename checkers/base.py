@@ -113,7 +113,7 @@ def redefined_by_decorator(node):
     if node.decorators:
         for decorator in node.decorators.nodes:
             if (isinstance(decorator, astng.Getattr) and
-                decorator.expr.name == node.name):
+                getattr(decorator.expr, 'name', None) == node.name):
                 return True
     return False
 

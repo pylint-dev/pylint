@@ -1,6 +1,11 @@
 ChangeLog for PyLint
 ====================
 
+	--
+
+    * #87192 fix crash when decorators are accessed through more than one dot
+      (for instance @a.b is fine, @a.b.c crash)
+
 2011-12-08  --  0.25.1
     * #81078: Warn if names in  exception handlers clobber overwrite
       existing names (patch by tmarek@google.com)
