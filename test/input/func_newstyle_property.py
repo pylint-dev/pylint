@@ -10,11 +10,11 @@ def getter(self):
 class OkOk(object):
     """correct usage"""
     method = property(getter, doc='hop')
-    
+
 class HaNonNonNon:
     """bad usage"""
     method = property(getter, doc='hop')
-    
+
     def __init__(self):
         pass
 
