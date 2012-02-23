@@ -65,6 +65,8 @@ def safe_infer(node):
     try:
         inferit.next()
         return # None if there is ambiguity on the inferred node
+    except astng.InferenceError:
+        return # there is some kind of ambiguity
     except StopIteration:
         return value
 
