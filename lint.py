@@ -526,6 +526,7 @@ This is used by the global evaluation report (RP0004).'}),
         """
         if not modname and filepath is None:
             return
+        self.reporter.on_set_current_module(modname, filepath)
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats['by_module'][modname] = {}

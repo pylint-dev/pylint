@@ -77,3 +77,9 @@ class BaseReporter:
         """display the layout"""
         raise NotImplementedError()
 
+    # Event callbacks
+
+    def on_set_current_module(self, module, filepath):
+        """starting analyzis of a module"""
+        pass
+
