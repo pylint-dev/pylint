@@ -5,6 +5,7 @@ ChangeLog for PyLint
 
     * #87192 fix crash when decorators are accessed through more than one dot
       (for instance @a.b is fine, @a.b.c crash)
+    * #89092: don't emit E0202 (attribute hiding a method) on @property methods
     * fix potential crashes with utils.safe_infer raising InferenceError
 
 2011-12-08  --  0.25.1

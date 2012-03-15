@@ -254,7 +254,17 @@ a class method.'}
                 continue
             self._check_signature(node, meth_node, 'overridden')
             break
-        # check if the method overload an attribute
+        if node.decorators:
+            for decorator in node.decorators.nodes:
+                if isinstance(decorator, astng.Getattr) and \
+                        decorator.attrname in ('getter', 'setter', 'deleter'):
+                    # attribute affectation will call this method, not hiding it
+                    return
+                if isinstance(decorator, astng.Name) and decorator.name == 'property':
+                    # attribute affectation will either call a setter or raise
+                    # an attribute error, anyway not hiding the function
+                    return
+        # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
             args = (overridden.root().name, overridden.fromlineno)
