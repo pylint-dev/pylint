@@ -3,6 +3,9 @@ ChangeLog for PyLint
 
 	--
 
+    * #77982 Do not emit E0602 for loop variables of comprehensions
+      used as argument values inside a decorator (patch by tmarek@google.com)
+
     * #87192 fix crash when decorators are accessed through more than one dot
       (for instance @a.b is fine, @a.b.c crash)
     * #89092: don't emit E0202 (attribute hiding a method) on @property methods

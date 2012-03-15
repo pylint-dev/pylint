@@ -67,3 +67,19 @@ def if_branch_test(something):
     else:
         print xxx
         xxx = 3
+
+
+def decorator(arg):
+    """Decorator with one argument."""
+    return lambda: list(arg)
+
+
+@decorator(arg=[i * 2 for i in range(15)])
+def func1():
+    """A function with a decorator that contains a listcomp."""
+    pass
+
+@decorator(arg=(i * 2 for i in range(15)))
+def func2():
+    """A function with a decorator that contains a genexpr."""
+    pass
