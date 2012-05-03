@@ -594,6 +594,7 @@ This is used by the global evaluation report (RP0004).'}),
             # load previous results if any
             previous_stats = config.load_results(self.base_name)
             # XXX code below needs refactoring to be more reporter agnostic
+            self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
                 sect = self.make_reports(self.stats, previous_stats)
                 if self.config.files_output:

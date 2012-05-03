@@ -81,3 +81,8 @@ class BaseReporter:
         """starting analyzis of a module"""
         pass
 
+    def on_close(self, stats, previous_stats):
+        """global end of analyzis"""
+        pass
+
+
