@@ -1,5 +1,5 @@
 # Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -591,19 +591,25 @@ This is used by the global evaluation report (RP0004).'}),
         if persistent run, pickle results for later comparison
         """
         if self.base_name is not None:
-            # load old results if any
-            old_stats = config.load_results(self.base_name)
+            # load previous results if any
+            previous_stats = config.load_results(self.base_name)
+            # XXX code below needs refactoring to be more reporter agnostic
             if self.config.reports:
-                self.make_reports(self.stats, old_stats)
-            elif self.config.output_format == 'html':
-                self.reporter.display_results(Section())
+                sect = self.make_reports(self.stats, previous_stats)
+                if self.config.files_output:
+                    filename = 'pylint_global.' + self.reporter.extension
+                    self.reporter.set_output(open(filename, 'w'))
+            else:
+                sect = Section()
+            if self.config.reports or self.config.output_format == 'html':
+                self.reporter.display_results(sect)
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.base_name)
 
     # specific reports ########################################################
 
-    def report_evaluation(self, sect, stats, old_stats):
+    def report_evaluation(self, sect, stats, previous_stats):
         """make the global evaluation report"""
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
@@ -618,18 +624,18 @@ This is used by the global evaluation report (RP0004).'}),
         else:
             stats['global_note'] = note
             msg = 'Your code has been rated at %.2f/10' % note
-            if 'global_note' in old_stats:
-                msg += ' (previous run: %.2f/10)' % old_stats['global_note']
+            if 'global_note' in previous_stats:
+                msg += ' (previous run: %.2f/10)' % previous_stats['global_note']
             if self.config.comment:
                 msg = '%s\n%s' % (msg, config.get_note_message(note))
         sect.append(Text(msg))
 
 # some reporting functions ####################################################
 
-def report_total_messages_stats(sect, stats, old_stats):
+def report_total_messages_stats(sect, stats, previous_stats):
     """make total errors / warnings report"""
     lines = ['type', 'number', 'previous', 'difference']
-    lines += table_lines_from_stats(stats, old_stats,
+    lines += table_lines_from_stats(stats, previous_stats,
                                     ('convention', 'refactor',
                                      'warning', 'error'))
     sect.append(Table(children=lines, cols=4, rheaders=1))
@@ -639,7 +645,7 @@ def report_messages_stats(sect, stats, _):
     if not stats['by_msg']:
         # don't print this report when we didn't detected any errors
         raise EmptyReport()
-    in_order = sorted([(value, msg_id) 
+    in_order = sorted([(value, msg_id)
                        for msg_id, value in stats['by_msg'].items()
                        if not msg_id.startswith('I')])
     in_order.reverse()

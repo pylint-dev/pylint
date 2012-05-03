@@ -1,3 +1,5 @@
+# Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,11 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""utilities methods and classes for reporters
-
-Copyright (c) 2000-2003 LOGILAB S.A. (Paris, FRANCE).
-http://www.logilab.fr/ -- mailto:contact@logilab.fr
-"""
+"""utilities methods and classes for reporters"""
 
 import sys, locale
 

@@ -1,5 +1,5 @@
 # Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -394,9 +394,6 @@ class ReportsHandlerMixIn:
 
     def make_reports(self, stats, old_stats):
         """render registered reports"""
-        if self.config.files_output:
-            filename = 'pylint_global.' + self.reporter.extension
-            self.reporter.set_output(open(filename, 'w'))
         sect = Section('Report',
                        '%s statements analysed.'% (self.stats['statement']))
         for checker in self._reports:
@@ -410,7 +407,7 @@ class ReportsHandlerMixIn:
                     continue
                 report_sect.report_id = reportid
                 sect.append(report_sect)
-        self.reporter.display_results(sect)
+        return sect
 
     def add_stats(self, **kwargs):
         """add some stats entries to the statistic dictionary
