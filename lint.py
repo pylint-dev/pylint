@@ -68,6 +68,18 @@ REPORTER_OPT_MAP = {'text': TextReporter,
                     'html': HTMLReporter,}
 
 
+def _get_python_path(filepath):
+    dirname = os.path.dirname(os.path.realpath(
+            os.path.expanduser(filepath)))
+    while True:
+        if not os.path.exists(os.path.join(dirname, "__init__.py")):
+            return dirname
+        old_dirname = dirname
+        dirname = os.path.dirname(dirname)
+        if old_dirname == dirname:
+            return os.getcwd()
+
+
 # Python Linter class #########################################################
 
 MSGS = {
@@ -874,7 +886,10 @@ been issued by analysing pylint output status code
             sys.exit(32)
         # insert current working directory to the python path to have a correct
         # behaviour
-        sys.path.insert(0, os.getcwd())
+        if len(args) == 1:
+            sys.path.insert(0, _get_python_path(args[0]))
+        else:
+            sys.path.insert(0, os.getcwd())
         if self.linter.config.profile:
             print >> sys.stderr, '** profiled run'
             import cProfile, pstats
