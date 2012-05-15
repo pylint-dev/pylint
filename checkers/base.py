@@ -428,6 +428,12 @@ functions, methods
                 else:
                     msg = '%s (%s)' % (default.as_string(), value.as_string())
                 self.add_message('W0102', node=node, args=(msg,))
+            if value.qname() == '__builtin__.set':
+                if isinstance(default, astng.CallFunc):
+                    msg = default.as_string()
+                else:
+                    msg = '%s (%s)' % (default.as_string(), value.qname())
+                self.add_message('W0102', node=node, args=(msg,))
 
     @check_messages('W0101', 'W0150')
     def visit_return(self, node):

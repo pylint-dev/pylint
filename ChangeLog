@@ -3,6 +3,9 @@ ChangeLog for PyLint
 
 	--
 
+    * Emit W0102 when sets are used as default arguments in functions
+      (patch by tmarek@google.com)
+
     * #77982 Do not emit E0602 for loop variables of comprehensions
       used as argument values inside a decorator (patch by tmarek@google.com)
 
