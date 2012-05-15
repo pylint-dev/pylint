@@ -3,16 +3,21 @@ ChangeLog for PyLint
 
 	--
 
-    * Emit W0102 when sets are used as default arguments in functions
+    * #92911: emit W0102 when sets are used as default arguments in functions
       (patch by tmarek@google.com)
 
-    * #77982 Do not emit E0602 for loop variables of comprehensions
+    * #77982: do not emit E0602 for loop variables of comprehensions
       used as argument values inside a decorator (patch by tmarek@google.com)
+
+    * #89092: don't emit E0202 (attribute hiding a method) on @property methods
+
+    * #92584 fix pylint-gui crash due to internal API change
 
     * #87192 fix crash when decorators are accessed through more than one dot
       (for instance @a.b is fine, @a.b.c crash)
-    * #89092: don't emit E0202 (attribute hiding a method) on @property methods
+
     * fix potential crashes with utils.safe_infer raising InferenceError
+
 
 2011-12-08  --  0.25.1
     * #81078: Warn if names in  exception handlers clobber overwrite

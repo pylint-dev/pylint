@@ -21,7 +21,7 @@ class GUIReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        module, obj, line = location[1:]
+        module, obj, line, col_offset = location[1:]
         if self.include_ids:
             sigle = msg_id
         else:
