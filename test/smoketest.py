@@ -82,6 +82,11 @@ class RunTC(TestCase):
         self._runtest([join(HERE, 'input', 'noext')], code=0)
 
     @tag('smoke')
+    def test_generated_members(self):
+        # XXX dual end quotation since optparse buggily remove one...
+        self._runtest(['--generated-members=objects,DoesNotExist,delay,retry,"[a-zA-Z]+_set{1,2}""', 'pylint.lint'])
+
+    @tag('smoke')
     def test_w0704_ignored(self):
         self._runtest([join(HERE, 'input', 'ignore_except_pass_by_default.py')], code=0)
 

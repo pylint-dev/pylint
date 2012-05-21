@@ -132,6 +132,7 @@ accessed. Python regular expressions are accepted.'}
         if isinstance(self.config.generated_members, str):
             gen = shlex.shlex(self.config.generated_members)
             gen.whitespace += ','
+            gen.wordchars += '[]-+'
             self.config.generated_members = tuple(tok.strip('"') for tok in gen)
         for pattern in self.config.generated_members:
             # attribute is marked as generated, stop here

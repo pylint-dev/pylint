@@ -11,10 +11,13 @@ ChangeLog for PyLint
 
     * #89092: don't emit E0202 (attribute hiding a method) on @property methods
 
-    * #92584 fix pylint-gui crash due to internal API change
+    * #92584: fix pylint-gui crash due to internal API change
 
-    * #87192 fix crash when decorators are accessed through more than one dot
+    * #87192: fix crash when decorators are accessed through more than one dot
       (for instance @a.b is fine, @a.b.c crash)
+
+    * #88914: fix parsing of --generated-members options, leading to crash
+      when using a regexp value set
 
     * fix potential crashes with utils.safe_infer raising InferenceError
 
