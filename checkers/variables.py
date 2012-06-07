@@ -26,7 +26,8 @@ from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
      is_defined_before, is_error, is_func_default, is_func_decorator,
-     assign_parent, check_messages, is_inside_except, clobber_in_except)
+     assign_parent, check_messages, is_inside_except, clobber_in_except,
+     get_all_elements)
 
 
 def in_for_else_branch(parent, stmt):
@@ -366,14 +367,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self.add_message('W0631', args=name, node=node)
 
     def visit_excepthandler(self, node):
-        clobbering, args = clobber_in_except(node.name)
-        if clobbering:
-            self.add_message('W0623', args=args, node=node)
+        for name in get_all_elements(node.name):
+            clobbering, args = clobber_in_except(name)
+            if clobbering:
+                self.add_message('W0623', args=args, node=name)
 
     def visit_assname(self, node):
         if isinstance(node.ass_type(), astng.AugAssign):
             self.visit_name(node)
-
+          
     def visit_delname(self, node):
         self.visit_name(node)
 

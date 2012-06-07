@@ -9,3 +9,5 @@ W: 22:some_function: Unused variable 'MyError'
 W: 45: Redefining name 'RuntimeError' from object 'exceptions' in exception handler
 W: 47: Redefining name 'OSError' from builtins in exception handler
 W: 49: Redefining name 'MyOtherError' from outer scope (line 36) in exception handler
+W: 73:new_style: Redefining name 'new_style' from outer scope (line 67) in exception handler
+W: 73:new_style: Redefining name 'tuple' from builtins in exception handler

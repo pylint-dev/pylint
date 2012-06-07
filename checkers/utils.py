@@ -27,9 +27,24 @@ BUILTINS_NAME = builtins.__name__
 
 COMP_NODE_TYPES = astng.ListComp, astng.SetComp, astng.DictComp, astng.GenExpr
 
+
 def is_inside_except(node):
-    """Returns true if node is directly inside an exception handler"""
-    return isinstance(node.parent, astng.ExceptHandler)
+    """Returns true if node is inside the name of an except handler."""
+    current = node
+    while current and not isinstance(current.parent, astng.ExceptHandler):
+        current = current.parent
+    
+    return current and current is current.parent.name
+
+
+def get_all_elements(node):
+    """Recursively returns all atoms in nested lists and tuples."""
+    if isinstance(node, (astng.Tuple, astng.List)):
+        for child in node.elts:
+            for e in get_all_elements(child):
+                yield e
+    else:
+        yield node
 
 
 def clobber_in_except(node):
@@ -41,7 +56,7 @@ def clobber_in_except(node):
     """
     if isinstance(node, astng.AssAttr):
         return (True, (node.attrname, 'object %r' % (node.expr.name,)))
-    elif node is not None:
+    elif isinstance(node, astng.AssName):
         name = node.name
         if is_builtin(name):
             return (True, (name, 'builtins'))
