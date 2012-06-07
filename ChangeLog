@@ -3,7 +3,10 @@ ChangeLog for PyLint
 
 	--
 
-    * #18772 no prototype consistency check for mangled methods (patch by
+    * #7394: W0212 (access to protected member) not emited on assigments
+    (patch by lothiraldan@gmail.com)
+
+    * #18772; no prototype consistency check for mangled methods (patch by
     lothiraldan@gmail.com)
 
     * #92911: emit W0102 when sets are used as default arguments in functions
