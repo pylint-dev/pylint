@@ -22,7 +22,8 @@ from logilab.astng import YES, Instance, are_exclusive
 
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import PYMETHODS, overrides_a_method, check_messages
+from pylint.checkers.utils import (PYMETHODS, overrides_a_method,
+    check_messages, is_attr_private)
 
 def class_is_abstract(node):
     """return true if the given class node should be considered as an abstract
@@ -528,6 +529,8 @@ a class method.'}
             return
         # if we use *args, **kwargs, skip the below checks
         if method1.args.vararg or method1.args.kwarg:
+            return
+        if is_attr_private(method1.name):
             return
         if len(method1.args.args) != len(refmethod.args.args):
             self.add_message('W0221', args=class_type, node=method1)

@@ -3,6 +3,9 @@ ChangeLog for PyLint
 
 	--
 
+    * #18772 no prototype consistency check for mangled methods (patch by
+    lothiraldan@gmail.com)
+
     * #92911: emit W0102 when sets are used as default arguments in functions
       (patch by tmarek@google.com)
 
@@ -387,7 +390,7 @@ ChangeLog for PyLint
       unused `from X import *` (#3209, patch submitted by Daniel Drake)
 
     * included Daniel Drake's patch to have a different message E1003 instead of
-      E1001 when a missing member is found but an inference failure has been 
+      E1001 when a missing member is found but an inference failure has been
       detected
 
     * msvs reporter for Visual Studio line number reporting (#3285)
@@ -450,7 +453,7 @@ ChangeLog for PyLint
         - parseable, html and color options are now handled by a single
 	output-format option
         - enable-<checkerid> and disable-all options are now handled by
-	two (exclusive) enable-checker and disable-checker options 
+	two (exclusive) enable-checker and disable-checker options
 	taking a comma separated list of checker names as value
         - renamed debug-mode option to errors-only
 
@@ -482,7 +485,7 @@ ChangeLog for PyLint
       __getattr__
 
     * dirty fix to avoid "_socketobject" has not "connect" member. The actual
-      problem is that astng isn't able to understand the code used to create 
+      problem is that astng isn't able to understand the code used to create
       socket.socket object with exec
 
     * added an option in the similarity checker to ignore docstrings, enabled
@@ -510,7 +513,7 @@ ChangeLog for PyLint
       well established as "self" for instance method (E0213)
 
     * W0224 has been reclassified into F0220 (failed to resolve interfaces
-      implemented by a class)   
+      implemented by a class)
 
     * a new typecheck checker, introducing the following checks:
 
@@ -519,13 +522,13 @@ ChangeLog for PyLint
           classes checker to this one
         - E1102, calling a non callable object
         - E1111 and W1111 when an assignment is done on a function call but the
-          inferred function returns None (implements #10431) 
+          inferred function returns None (implements #10431)
 
     * change in the base checker:
 
         - checks module level and instance attribute names (new const-rgx
           and attr-rgx configuration option) (implements #10209  and
-          #10440) 
+          #10440)
         - list comprehension and generator expression variables have their
           own regular expression  (the inlinevar-rgx option) (implements
           #9146)
@@ -534,7 +537,7 @@ ChangeLog for PyLint
         - W0103 and W0121 are now handled by the variables checker
           (W0103 is now W0603 and W0604 has been splitted into different messages)
         - W0131 and W0132 messages  have been reclassified to C0111 and
-          C0112 respectively 
+          C0112 respectively
         - new W0104 message on statement without effect
 
     * regexp support for dummy-variables (dummy-variables-rgx option
@@ -576,7 +579,7 @@ ChangeLog for PyLint
       positive
 
     * fixed E0214 ("metaclass method first argument should be mcs) false
-      positive with staticmethod used on a metaclass 
+      positive with staticmethod used on a metaclass
 
     * fixed packaging which was missing the test/regrtest_data directory
 
@@ -635,7 +638,7 @@ ChangeLog for PyLint
     * fix Windows .bat file,  patch contributed by Amaury Forgeot d'Arc
 
     * fix one more false positive for E0601 (access before definition)
-      with for loop such as "for i in range(10): print i" (test 
+      with for loop such as "for i in range(10): print i" (test
       func_noerror_defined_and_used_on_same_line)
 
     * fix false positive for E0201 (undefined member) when accessing to
@@ -657,7 +660,7 @@ ChangeLog for PyLint
       manually remove the old logilab/pylint directory.
 
     * introduce a new --additional-builtins option to handle user defined
-      builtins 
+      builtins
 
     * --reports option has now -r as short alias, and -i for --include-ids
 
@@ -689,7 +692,7 @@ ChangeLog for PyLint
       func_nameerror_on_string_substitution)
 
     * fix bug in the classes checker which was making pylint crash if
-      "object" is assigned in a class inheriting from it (test 
+      "object" is assigned in a class inheriting from it (test
       func_noerror_object_as_class_attribute)
 
     * fix problem with the similar checker when related options are
@@ -713,7 +716,7 @@ ChangeLog for PyLint
 
 2005-02-16  --  0.6.2
     * fix false positive on E0201 ("access to undefined member") with
-      metaclasses 
+      metaclasses
 
     * fix false positive on E0203 ("access to member before its
       definition") when attributes are defined in a parent class
@@ -752,12 +755,12 @@ ChangeLog for PyLint
 
     * fix problems with the format checker: don't chock on files
       containing multiple CR, avoid C0322, C0323, C0324 false positives
-      with triple quoted string with quote inside 
+      with triple quoted string with quote inside
 
     * correctly detect access to member defined latter in __init__ method
 
     * now depends on common 0.8.1 to fix problem with interface resolution
-      (close #8606)	
+      (close #8606)
 
     * new --list-msgs option describing available checkers and their
       messages

@@ -18,6 +18,7 @@
 """some functions that may be useful for various checkers
 """
 
+import re
 import string
 from logilab import astng
 from logilab.astng import scoped_nodes
@@ -46,8 +47,8 @@ def clobber_in_except(node):
             return (True, (name, 'builtins'))
         else:
             scope, stmts = node.lookup(name)
-            if (stmts and 
-                not isinstance(stmts[0].ass_type(), 
+            if (stmts and
+                not isinstance(stmts[0].ass_type(),
                                (astng.Assign, astng.AugAssign, astng.ExceptHandler))):
                 return (True, (name, 'outer scope (line %i)' % (stmts[0].lineno,)))
     return (False, None)
@@ -320,3 +321,10 @@ def parse_format_string(format_string):
                 num_args += 1
         i += 1
     return keys, num_args
+
+def is_attr_private(attrname):
+    """Check that attribute name is private (at least two leading underscores,
+    at most one trailing underscore)
+    """
+    regex = re.compile('^_{2,}.*[^_]+_?$')
+    return regex.match(attrname)
