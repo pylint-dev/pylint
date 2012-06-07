@@ -1,0 +1,3 @@
+W: 11:new_style: Redefining name 'new_style' from outer scope (line 5) in exception handler
+W: 11:new_style: Redefining name 'tuple' from builtins in exception handler
+
