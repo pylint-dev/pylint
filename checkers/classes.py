@@ -23,7 +23,7 @@ from logilab.astng import YES, Instance, are_exclusive, AssAttr
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, overrides_a_method,
-    check_messages, is_attr_private)
+    check_messages, is_attr_private, is_attr_protected, node_frame_class)
 
 def class_is_abstract(node):
     """return true if the given class node should be considered as an abstract
@@ -334,16 +334,9 @@ a class method.'}
         '''
         attrname = node.attrname
 
-        if attrname[0] == '_' and not attrname == '_' and not (
-                attrname.startswith('__') and attrname.endswith('__')):
+        if is_attr_protected(attrname):
 
-            klass = node.frame()
-
-            while klass is not None and not isinstance(klass, astng.Class):
-                if klass.parent is None:
-                    klass = None
-                else:
-                    klass = klass.parent.frame()
+            klass = node_frame_class(node)
 
             # XXX infer to be more safe and less dirty ??
             # in classes, check we are not getting a parent method

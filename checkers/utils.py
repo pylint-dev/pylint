@@ -322,6 +322,34 @@ def parse_format_string(format_string):
         i += 1
     return keys, num_args
 
+def is_attr_protected(attrname):
+    """return True if attribute name is protected (start with _ and some other
+    details), False otherwise.
+    """
+    return attrname[0] == '_' and not attrname == '_' and not (
+             attrname.startswith('__') and attrname.endswith('__'))
+
+def node_frame_class(node):
+    """return klass node for a method node (or a staticmethod or a
+    classmethod), return null otherwise
+    """
+    klass = node.frame()
+
+    while klass is not None and not isinstance(klass, astng.Class):
+        if klass.parent is None:
+            klass = None
+        else:
+            klass = klass.parent.frame()
+
+    return klass
+
+def is_super_call(expr):
+    """return True if expression node is a function call and if function name
+    is super. Check before that you're in a method.
+    """
+    return (isinstance(expr, astng.CallFunc) and
+        isinstance(expr.func, astng.Name) and
+        expr.func.name == 'super')
 def is_attr_private(attrname):
     """Check that attribute name is private (at least two leading underscores,
     at most one trailing underscore)
