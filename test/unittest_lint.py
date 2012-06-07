@@ -16,6 +16,7 @@ import sys
 import os
 import tempfile
 from shutil import rmtree
+from os import getcwd, chdir
 from os.path import join, basename, dirname, isdir, abspath
 from cStringIO import StringIO
 
@@ -305,6 +306,13 @@ class ConfigTC(TestCase):
 
     def test_pylintrc_parentdir(self):
         chroot = tempfile.mkdtemp()
+
+        # Get real path of tempfile, otherwise test fail on mac os x
+        cdir = getcwd()
+        chdir(chroot)
+        chroot = abspath('.')
+        chdir(cdir)
+
         try:
             create_files(['a/pylintrc', 'a/b/__init__.py', 'a/b/pylintrc',
                           'a/b/c/__init__.py', 'a/b/c/d/__init__.py'], chroot)
@@ -332,6 +340,13 @@ class ConfigTC(TestCase):
 
     def test_pylintrc_parentdir_no_package(self):
         chroot = tempfile.mkdtemp()
+
+        # Get real path of tempfile, otherwise test fail on mac os x
+        cdir = getcwd()
+        chdir(chroot)
+        chroot = abspath('.')
+        chdir(cdir)
+
         fake_home = tempfile.mkdtemp('fake-home')
         home = os.environ['HOME']
         os.environ['HOME'] = fake_home
