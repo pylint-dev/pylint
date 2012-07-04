@@ -24,7 +24,7 @@ from logilab.common.testlib import TestCase, unittest_main
 
 from pylint.checkers.format import *
 
-from utils import TestReporter
+from pylint.testutils import TestReporter
 
 REPORTER = TestReporter()
 

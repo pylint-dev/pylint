@@ -23,8 +23,7 @@ from os.path import abspath, dirname, join
 
 from logilab.common.testlib import TestCase, unittest_main
 
-from utils import TestReporter
-
+from pylint.testutils import TestReporter
 from pylint.lint import PyLinter
 from pylint import checkers
 

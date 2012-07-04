@@ -7,7 +7,7 @@ from cStringIO import StringIO
 from pylint.checkers import initialize, imports
 from pylint.lint import PyLinter
 
-from utils import TestReporter
+from pylint.testutils import TestReporter
 
 class DependenciesGraphTC(TestCase):
     """test the imports graph function"""
