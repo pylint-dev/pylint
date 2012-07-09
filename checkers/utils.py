@@ -33,7 +33,7 @@ def is_inside_except(node):
     current = node
     while current and not isinstance(current.parent, astng.ExceptHandler):
         current = current.parent
-    
+
     return current and current is current.parent.name
 
 
@@ -113,7 +113,7 @@ def is_empty(body):
     """return true if the given node does nothing but 'pass'"""
     return len(body) == 1 and isinstance(body[0], astng.Pass)
 
-builtins =  __builtins__.copy()
+builtins = builtins.__dict__.copy()
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
 
 def is_builtin(name): # was is_native_builtin
