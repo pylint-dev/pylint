@@ -356,10 +356,10 @@ This is used by the global evaluation report (RP0004).'}),
                     self.disable(msgid)
 
     def disable_reporters(self):
-       """disable all reporters"""
-       for reporters in self._reports.values():
-           for report_id, _title, _cb in reporters:
-               self.disable_report(report_id)
+        """disable all reporters"""
+        for reporters in self._reports.values():
+            for report_id, _title, _cb in reporters:
+                self.disable_report(report_id)
 
     def error_mode(self):
         """error mode: enable only errors; no reports, no persistent"""
