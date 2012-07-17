@@ -497,6 +497,9 @@ This is used by the global evaluation report (RP0004).'}),
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
             modname, filepath = descr['name'], descr['path']
+            if self.config.files_output:
+                reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
+                self.reporter.set_output(open(reportfile, 'w'))
             self.set_current_module(modname, filepath)
             # get the module representation
             astng = self.get_astng(filepath, modname)
@@ -504,9 +507,6 @@ This is used by the global evaluation report (RP0004).'}),
                 continue
             self.base_name = descr['basename']
             self.base_file = descr['basepath']
-            if self.config.files_output:
-                reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
-                self.reporter.set_output(open(reportfile, 'w'))
             self._ignore_file = False
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
