@@ -1,7 +1,7 @@
 ChangeLog for PyLint
 ====================
 
-	--
+2012-07-17  --  0.25.2
     * #93591: Correctly emit warnings about clobbered variable names when an
       except handler contains a tuple of names instead of a single name.
       (patch by tmarek@google.com)
@@ -29,6 +29,7 @@ ChangeLog for PyLint
       when using a regexp value set
 
     * fix potential crashes with utils.safe_infer raising InferenceError
+
 
 
 2011-12-08  --  0.25.1
@@ -59,7 +60,7 @@ ChangeLog for PyLint
     * #74747: crash occurs when lookup up a special attribute in class scope
       (patch by google)
 
-    * #76920: crash if on eg "pylint --rcfile"(patch by Torsten Marek)
+    * #76920: crash if on eg "pylint --rcfile" (patch by Torsten Marek)
 
     * #77237: warning for E0202 may be very misleading
 
