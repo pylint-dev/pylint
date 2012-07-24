@@ -706,11 +706,10 @@ def report_messages_by_module_stats(sect, stats, _):
 # utilities ###################################################################
 
 # this may help to import modules using gettext
+# XXX syt, actually needed since we don't import code?
 
-try:
-    __builtins__._ = str
-except AttributeError:
-    __builtins__['_'] = str
+from logilab.common.compat import builtins
+builtins._ = str
 
 
 class ArgumentPreprocessingError(Exception):
