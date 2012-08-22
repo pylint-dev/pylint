@@ -17,7 +17,7 @@
 Check source code is ascii only or has an encoding declaration (PEP 263)
 """
 
-import re, sys
+import re
 
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker

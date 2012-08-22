@@ -160,4 +160,4 @@ def package_load(linter, directory):
                     module.register(linter)
                     imported[basename] = 1
 
-__all__ = ('CheckerHandler', 'BaseChecker', 'initialize', 'package_load')
+__all__ = ('BaseChecker', 'initialize', 'package_load')
