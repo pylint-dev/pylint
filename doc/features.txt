@@ -221,7 +221,7 @@ Messages
   Used when there are some mixed tabs and spaces in a module.
 :W0331: *Use of the <> operator*
   Used when the deprecated "<>" operator is used instead of "!=".
-:W0332: *Use l as long integer identifier*
+:W0332: *Use of "l" as long integer identifier*
   Used when a lower case "l" is used to mark a long integer. You should use a
   upper case "L" since the letter "l" looks too much like the digit "1"
 :W0333: *Use of the `` operator*

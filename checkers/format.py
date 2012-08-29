@@ -1,5 +1,5 @@
 # Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -66,7 +66,7 @@ if sys.version_info < (3, 0):
     'W0331': ('Use of the <> operator',
               'Used when the deprecated "<>" operator is used instead \
               of "!=".'),
-    'W0332': ('Use l as long integer identifier',
+    'W0332': ('Use of "l" as long integer identifier',
               'Used when a lower case "l" is used to mark a long integer. You '
               'should use a upper case "L" since the letter "l" looks too much '
               'like the digit "1"'),

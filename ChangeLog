@@ -2,13 +2,17 @@ ChangeLog for PyLint
 ====================
 
 --
-    * #100707: check for boolop being used as exception class, introducing 
+    * #100707: check for boolop being used as exception class, introducing
       new W0711 message (patch by Tim Hatch)
+
+    * #100654: fix grammatical error for W0332 message (using 'l' as
+      long int identifier)
 
     * fix cross-interpreter issue (non compatible access to __builtins__)
 
     * stop including tests files in distribution, they causes crash when
       installed with python3 (#72022, #82417, #76910)
+
 
 2012-07-17  --  0.25.2
     * #93591: Correctly emit warnings about clobbered variable names when an
