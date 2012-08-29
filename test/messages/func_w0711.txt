@@ -1,0 +1,4 @@
+W:  8: Exception to catch is the result of a binary "or" operation
+W: 10: Exception to catch is the result of a binary "and" operation
+W: 12: Exception to catch is the result of a binary "or" operation
+W: 14: Exception to catch is the result of a binary "or" operation

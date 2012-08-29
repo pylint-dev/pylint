@@ -58,6 +58,10 @@ MSGS = {
     'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
               'Used when a custom exception class is raised but doesn\'t \
               inherit from the builtin "Exception" class.'),
+    'W0711': ('Exception to catch is the result of a binary "%s" operation',
+              'Used when the exception to catch is of the form \
+              "except A or B:".  If intending to catch multiple, \
+              rewrite as "except (A, B):"'),
     }
 
 
@@ -157,6 +161,9 @@ class ExceptionsChecker(BaseChecker):
                 elif index < (nb_handlers - 1):
                     msg = 'empty except clause should always appear last'
                     self.add_message('E0701', node=node, args=msg)
+
+            elif isinstance(handler.type, astng.BoolOp):
+                self.add_message('W0711', node=handler, args=handler.type.op)
             else:
                 try:
                     excs = list(unpack_infer(handler.type))
