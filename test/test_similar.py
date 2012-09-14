@@ -15,8 +15,12 @@ class SimilarTC(TestCase):
     def test_ignore_comments(self):
         sys.stdout = StringIO()
         try:
-            similar.run(['--ignore-comments', SIMILAR1, SIMILAR2])
+            similar.Run(['--ignore-comments', SIMILAR1, SIMILAR2])
+        except SystemExit, ex:
+            self.assertEqual(ex.code, 0)
             output = sys.stdout.getvalue()
+        else:
+            self.fail('not system exit')
         finally:
             sys.stdout = sys.__stdout__
         self.assertMultiLineEqual(output.strip(), ("""
@@ -37,8 +41,12 @@ TOTAL lines=38 duplicates=7 percent=18.42
     def test_dont_ignore_comments(self):
         sys.stdout = StringIO()
         try:
-            similar.run([SIMILAR1, SIMILAR2])
+            similar.Run([SIMILAR1, SIMILAR2])
+        except SystemExit, ex:
+            self.assertEqual(ex.code, 0)
             output = sys.stdout.getvalue()
+        else:
+            self.fail('not system exit')
         finally:
             sys.stdout = sys.__stdout__
         self.assertMultiLineEqual(output.strip(), """
@@ -48,24 +56,22 @@ TOTAL lines=38 duplicates=0 percent=0.00
     def test_help(self):
         sys.stdout = StringIO()
         try:
-            try:
-                similar.run(['--help'])
-            except SystemExit, ex:
-                self.assertEqual(ex.code, 0)
-            else:
-                self.fail()
+            similar.Run(['--help'])
+        except SystemExit, ex:
+            self.assertEqual(ex.code, 0)
+        else:
+            self.fail('not system exit')
         finally:
             sys.stdout = sys.__stdout__
 
     def test_no_args(self):
         sys.stdout = StringIO()
         try:
-            try:
-                similar.run([])
-            except SystemExit, ex:
-                self.assertEqual(ex.code, 1)
-            else:
-                self.fail()
+            similar.Run([])
+        except SystemExit, ex:
+            self.assertEqual(ex.code, 1)
+        else:
+            self.fail('not system exit')
         finally:
             sys.stdout = sys.__stdout__
 

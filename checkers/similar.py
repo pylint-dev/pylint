@@ -1,5 +1,5 @@
 # pylint: disable=W0622
-# Copyright (c) 2004-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2004-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -16,8 +16,6 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """a similarities / code duplication command line tool and pylint checker
 """
-from __future__ import generators
-
 import sys
 from itertools import izip
 
@@ -306,7 +304,7 @@ def usage(status=0):
 [-i|--ignore-comments] file1...'
     sys.exit(status)
 
-def run(argv=None):
+def Run(argv=None):
     """standalone command line access point"""
     if argv is None:
         argv = sys.argv[1:]
@@ -329,6 +327,7 @@ def run(argv=None):
     for filename in args:
         sim.append_stream(filename, open(filename))
     sim.run()
+    sys.exit(0)
 
 if __name__ == '__main__':
-    run()
+    Run()

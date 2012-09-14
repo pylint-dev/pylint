@@ -1,5 +1,19 @@
-#!/usr/bin/env python
 # -*- coding: utf-8; mode: python; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=python:et:sw=4:ts=4:sts=4
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Emacs and Flymake compatible Pylint.
 
 This script is for integration with emacs and is compatible with flymake mode.
@@ -91,9 +105,6 @@ def lint(filename):
     process.wait()
     return process.returncode
 
-def Run():
-    sys.exit(lint(sys.argv[1]))
-
 
 def py_run(command_options='', return_std=False, stdout=None, stderr=None,
            script='epylint'):
@@ -146,6 +157,9 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
         return (p.stdout, p.stderr)
 
 
+def Run():
+    sys.exit(lint(sys.argv[1]))
+
 if __name__ == '__main__':
-    lint(sys.argv[1])
+    Run()
 

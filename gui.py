@@ -1,3 +1,18 @@
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """Tkinker gui for pylint"""
 
 import os
@@ -444,9 +459,10 @@ def Run(args):
     """launch pylint gui from args"""
     if args:
         print 'USAGE: pylint-gui\n launch a simple pylint gui using Tk'
-        return
+        sys.exit(1)
     gui = LintGui()
     gui.mainloop()
+    sys.exit(0)
 
 if __name__ == '__main__':
     Run(sys.argv[1:])

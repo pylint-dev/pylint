@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=W0404,W0622,W0704,W0613
-# copyright 2003-2010 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
+# copyright 2003-2012 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
 # contact http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This file is part of pylint.
@@ -139,6 +139,7 @@ class MyInstallLib(install_lib.install_lib):
                 shutil.rmtree(dest, ignore_errors=True)
                 shutil.copytree(directory, dest)
 
+
 def install(**kwargs):
     """setup entry point"""
     if USE_SETUPTOOLS:
@@ -156,9 +157,17 @@ def install(**kwargs):
     else:
         kwargs['package_dir'] = {modname : '.'}
         packages = [modname] + get_packages(os.getcwd(), modname)
-    if USE_SETUPTOOLS and install_requires:
-        kwargs['install_requires'] = install_requires
-        kwargs['dependency_links'] = dependency_links
+    if USE_SETUPTOOLS:
+        if install_requires:
+            kwargs['install_requires'] = install_requires
+            kwargs['dependency_links'] = dependency_links
+        kwargs['entry_points'] = {'console_scripts': [
+                'pylint = pylint:run_pylint',
+                'pylint-gui = pylint:run_pylint_gui',
+                'epylint = pylint:run_epylint',
+                'pyreverse = pylint:run_pyreverse',
+                'symilar = pylint:run_symilar',
+                ]}
     kwargs['packages'] = packages
     return setup(name = distname,
                  version = version,

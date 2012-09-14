@@ -1,4 +1,4 @@
-# # Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
+# # Copyright (c) 2000-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -16,7 +16,7 @@
 """
   %prog [options] <packages>
 
-  create UML diagrams for classes and modules in <packages> 
+  create UML diagrams for classes and modules in <packages>
 """
 
 import sys, os
@@ -31,7 +31,7 @@ from pylint.pyreverse.utils import insert_default_options
 OPTIONS = (
 ("filter-mode",
     dict(short='f', default='PUB_ONLY', dest='mode', type='string',
-    action='store', metavar='<mode>', 
+    action='store', metavar='<mode>',
     help="""filter attributes and functions according to
     <mode>. Correct modes are :
                             'PUB_ONLY' filter all non public attributes
@@ -81,10 +81,10 @@ this disables -f values")),
                 help="create a *.<format> output file if format available.")),
 )
 # FIXME : quiet mode
-#( ('quiet', 
+#( ('quiet',
                 #dict(help='run quietly', action='store_true', short='q')), )
 
-class PyreverseCommand(ConfigurationMixIn):
+class Run(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
     options = OPTIONS
@@ -95,13 +95,13 @@ class PyreverseCommand(ConfigurationMixIn):
         self.manager = ASTNGManager()
         self.register_options_provider(self.manager)
         args = self.load_command_line_configuration()
-        self.run(args)
+        sys.exit(self.run(args))
 
     def run(self, args):
         """checking arguments and run project"""
         if not args:
             print self.help()
-            return
+            return 1
         # insert current working directory to the python path to recognize
         # dependencies to local modules even if cwd is not in the PYTHONPATH
         sys.path.insert(0, os.getcwd())
@@ -117,13 +117,8 @@ class PyreverseCommand(ConfigurationMixIn):
             writer.VCGWriter(self.config).write(diadefs)
         else:
             writer.DotWriter(self.config).write(diadefs)
+        return 0
 
-
-class Run:
-    """pyreverse main class"""
-    def __init__(self, args):
-        """run pyreverse"""
-        PyreverseCommand(args)
 
 if __name__ == '__main__':
     Run(sys.argv[1:])

@@ -17,6 +17,9 @@ ChangeLog for PyLint
     * #103656: fix W0231 false positive for missing call to object.__init__
       (patch by lothiraldan@gmail.com)
 
+    * #103949: create a console_scripts entry point to be used by
+      easy_install, buildout and pip
+
     * fix cross-interpreter issue (non compatible access to __builtins__)
 
     * stop including tests files in distribution, they causes crash when
