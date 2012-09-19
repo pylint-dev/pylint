@@ -1,3 +1,4 @@
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,12 +11,10 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-""" Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
+"""utilities for PyLint configuration :
 
-  utilities for PyLint configuration :
-   _ pylintrc
-   _ pylint.d (PYLINT_HOME)
+* pylintrc
+* pylint.d (PYLINTHOME)
 """
 
 import pickle
@@ -34,7 +33,7 @@ elif USER_HOME == '~':
     PYLINT_HOME = ".pylint.d"
 else:
     PYLINT_HOME = join(USER_HOME, '.pylint.d')
-        
+
 if not exists(PYLINT_HOME):
     try:
         os.mkdir(PYLINT_HOME)
@@ -47,14 +46,14 @@ def get_pdata_path(base_name, recurs):
     """
     base_name = base_name.replace(os.sep, '_')
     return join(PYLINT_HOME, "%s%s%s"%(base_name, recurs, '.stats'))
-    
+
 def load_results(base):
     """try to unpickle and return data from file if it exists and is not
     corrupted
-    
+
     return an empty dictionary if it doesn't exists
     """
-    data_file = get_pdata_path(base, 1)        
+    data_file = get_pdata_path(base, 1)
     try:
         return pickle.load(open(data_file))
     except:
@@ -106,14 +105,14 @@ def find_pylintrc():
 PYLINTRC = find_pylintrc()
 
 ENV_HELP = '''
-The following environment variables are used :                                 
-    * PYLINTHOME                                                               
-    path to the directory where data of persistent run will be stored. If not
-found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working
-directory).
-    * PYLINTRC                                                                 
-    path to the configuration file. If not found, it will use the first        
-existent file in ~/.pylintrc, /etc/pylintrc.
+The following environment variables are used:                                   
+    * PYLINTHOME                                                                
+    path to the directory where data of persistent run will be stored. If not 
+found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
+directory).                                                                     
+    * PYLINTRC                                                                  
+    path to the configuration file. If not found, it will use the first         
+existing file among (~/.pylintrc, /etc/pylintrc).
 ''' % globals()
 
 # evaluation messages #########################################################

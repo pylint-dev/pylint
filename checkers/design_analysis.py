@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -54,7 +54,7 @@ MSGS = {
     'R0904': ('Too many public methods (%s/%s)',
               'Used when class has too many public methods, try to reduce \
               this to get a more simple (and so easier to use) class.'),
-    
+
     'R0911': ('Too many return statements (%s/%s)',
               'Used when a function or method has too many return statement, \
               making it hard to follow.'),
@@ -68,7 +68,7 @@ MSGS = {
     'R0915': ('Too many statements (%s/%s)',
               'Used when a function or method has too many statements. You \
               should then split it in smaller functions / methods.'),
-    
+
     'R0921': ('Abstract class not referenced',
               'Used when an abstract class is not used as ancestor anywhere.'),
     'R0922': ('Abstract class is only referenced %s times',
@@ -80,11 +80,11 @@ MSGS = {
 
 
 class MisdesignChecker(BaseChecker):
-    """checks for sign of poor/misdesign:                                      
-    * number of methods, attributes, local variables...                        
-    * size, complexity of functions, methods                                   
+    """checks for sign of poor/misdesign:
+    * number of methods, attributes, local variables...
+    * size, complexity of functions, methods
     """
-    
+
     __implements__ = (IASTNGChecker,)
 
     # configuration section name
@@ -160,7 +160,7 @@ class MisdesignChecker(BaseChecker):
         self._abstracts = None
         self._ifaces = None
         self._stmts = 0
-        
+
     def open(self):
         """initialize visit variables"""
         self.stats = self.linter.add_stats()
@@ -182,7 +182,7 @@ class MisdesignChecker(BaseChecker):
         for iface in self._ifaces:
             if not iface in self._used_ifaces:
                 self.add_message('R0923', node=iface)
-                
+
     def visit_class(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
@@ -212,14 +212,14 @@ class MisdesignChecker(BaseChecker):
             for iface in node.interfaces():
                 self._used_ifaces[iface] = 1
         except InferenceError:
-            # XXX log ? 
+            # XXX log ?
             pass
         for parent in node.ancestors():
             try:
                 self._used_abstracts[parent] += 1
             except KeyError:
                 self._used_abstracts[parent] = 1
-            
+
     def leave_class(self, node):
         """check number of public methods"""
         nb_public_methods = 0
@@ -240,7 +240,7 @@ class MisdesignChecker(BaseChecker):
                              args=(nb_public_methods,
                                    self.config.min_public_methods))
 
-        
+
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -291,7 +291,7 @@ class MisdesignChecker(BaseChecker):
         if not self._returns:
             return # return outside function, reported by the base checker
         self._returns[-1] += 1
-        
+
     def visit_default(self, node):
         """default visit method -> increments the statements counter if
         necessary
@@ -306,12 +306,12 @@ class MisdesignChecker(BaseChecker):
             branchs += 1
         self._inc_branch(branchs)
         self._stmts += branchs
-        
+
     def visit_tryfinally(self, _):
         """increments the branchs counter"""
         self._inc_branch(2)
         self._stmts += 2
-        
+
     def visit_if(self, node):
         """increments the branchs counter"""
         branchs = 1
@@ -321,14 +321,14 @@ class MisdesignChecker(BaseChecker):
             branchs += 1
         self._inc_branch(branchs)
         self._stmts += branchs
-        
+
     def visit_while(self, node):
         """increments the branchs counter"""
         branchs = 1
         if node.orelse:
             branchs += 1
         self._inc_branch(branchs)
-        
+
     visit_for = visit_while
 
     def _inc_branch(self, branchsnum=1):

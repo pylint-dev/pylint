@@ -22,14 +22,14 @@ from pylint.pyreverse.utils import is_interface, FilterMixIn
 def set_counter(value):
     """Figure counter (re)set"""
     Figure._UID_COUNT = value
-    
+
 class Figure:
     """base class for counter handling"""
     _UID_COUNT = 0
     def __init__(self):
         Figure._UID_COUNT += 1
         self.fig_id = Figure._UID_COUNT
-        
+
 class Relationship(Figure):
     """a relation ship from an object in the diagram to another
     """
@@ -39,8 +39,8 @@ class Relationship(Figure):
         self.to_object = to_object
         self.type = relation_type
         self.name = name
-        
-    
+
+
 class DiagramEntity(Figure):
     """a diagram object, i.e. a label associated to an astng node
     """
@@ -62,7 +62,7 @@ class ClassDiagram(Figure, FilterMixIn):
         self._nodes = {}
         self.depends = []
 
-    def add_relationship(self, from_object, to_object, 
+    def add_relationship(self, from_object, to_object,
                          relation_type, name=None):
         """create a relation ship
         """
@@ -125,12 +125,12 @@ class ClassDiagram(Figure, FilterMixIn):
         """return true if the given node is included in the diagram
         """
         return node in self._nodes
-        
+
     def object_from_node(self, node):
         """return the diagram object mapped to node
         """
         return self._nodes[node]
-            
+
     def classes(self):
         """return all class nodes in the diagram"""
         return [o for o in self.objects if isinstance(o.node, astng.Class)]
@@ -142,7 +142,7 @@ class ClassDiagram(Figure, FilterMixIn):
             if klass.node.name == name:
                 return klass
         raise KeyError(name)
-    
+
     def extract_relationships(self):
         """extract relation ships between nodes in the diagram
         """
@@ -188,7 +188,7 @@ class PackageDiagram(ClassDiagram):
     """package diagram handling
     """
     TYPE = 'package'
-    
+
     def modules(self):
         """return all module nodes in the diagram"""
         return [o for o in self.objects if isinstance(o.node, astng.Module)]
@@ -216,7 +216,7 @@ class PackageDiagram(ClassDiagram):
             if mod_name == "%s.%s" % (package.rsplit('.', 1)[0], name):
                 return mod
         raise KeyError(name)
-        
+
     def add_from_depend(self, node, from_module):
         """add dependencies created by from-imports
         """
