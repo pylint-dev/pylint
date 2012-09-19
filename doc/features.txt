@@ -154,7 +154,7 @@ Messages
 
 Reports
 ~~~~~~~
-:R0801: Duplication
+:RP0801: Duplication
 
 
 string_format checker

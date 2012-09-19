@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -240,8 +240,7 @@ class PyLinterTC(TestCase):
         self.assertFalse(any(name in checker_names for name in should_not))
 
     def test_disable_similar(self):
-        # XXX we have to disable them both, that's no good
-        self.linter.set_option('reports', False)
+        self.linter.set_option('disable', 'RP0801')
         self.linter.set_option('disable', 'R0801')
         self.assertFalse('similarities' in [c.name for c in self.linter.prepare_checkers()])
 
