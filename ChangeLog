@@ -2,6 +2,9 @@ ChangeLog for PyLint
 ====================
 
 --
+    * #104571: check for anomalous backslash escape, introducing new
+      W1401 and W1402 messages (patch by Martin Pool)
+
     * #100707: check for boolop being used as exception class, introducing
       new W0711 message (patch by Tim Hatch)
 

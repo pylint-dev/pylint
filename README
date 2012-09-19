@@ -65,6 +65,7 @@ order doesn't matter...
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
   Maarten ter Huurne, Mirko Friedenhagen (among others):
   bug reports, feedback, feature requests...
+* Martin Pool (Google): warnings for anomalous backslashes
 * All the Logilab's team: daily use, bug reports, feature requests
 * Other people have contributed by their feedback, if I've forgotten
   you, send me a note !
