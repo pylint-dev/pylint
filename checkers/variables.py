@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2011 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -58,6 +58,8 @@ MSGS = {
               assignment.'),
     'E0602': ('Undefined variable %r',
               'Used when an undefined variable is accessed.'),
+    'E0603': ('Undefined variable name %r in __all__',
+              'Used when an undefined variable name is referenced in __all__.'),
     'E0611': ('No name %r in module %r',
               'Used when a name cannot be found in a module.'),
 
@@ -105,6 +107,7 @@ class VariablesChecker(BaseChecker):
     * undefined variables
     * redefinition of variable from builtins or from an outer scope
     * use of variable before assignment
+    * __all__ consistency
     """
 
     __implements__ = IASTNGChecker
@@ -152,6 +155,17 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         assert len(self._to_consume) == 1
         not_consumed = self._to_consume.pop()[0]
+        # attempt to check for __all__ if defined
+        if '__all__' in node.locals:
+            assigned = node.igetattr('__all__').next()
+            for elt in getattr(assigned, 'elts', ()):
+                elt_name = elt.value
+                # If elt is in not_consumed, remove it from not_consumed
+                if elt_name in not_consumed:
+                    del not_consumed[elt_name]
+                    continue
+                if elt_name not in node.locals:
+                    self.add_message('E0603', args=elt_name, node=elt)
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
@@ -375,7 +389,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_assname(self, node):
         if isinstance(node.ass_type(), astng.AugAssign):
             self.visit_name(node)
-          
+
     def visit_delname(self, node):
         self.visit_name(node)
 

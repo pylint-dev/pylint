@@ -5,11 +5,14 @@ ChangeLog for PyLint
     * #100707: check for boolop being used as exception class, introducing
       new W0711 message (patch by Tim Hatch)
 
+    * #4014: improve checking of metaclass methods first args, introducing
+      new C0204 message (patch by lothiraldan@gmail.com finalized by sthenault)
+
+    * #4685: check for consistency of a module's __all__ variable,
+      introducing new E0603 message
+
     * #100654: fix grammatical error for W0332 message (using 'l' as
       long int identifier)
-
-    * #4014: Improve checking of metaclass methods first args, introducing
-      new C0204 message (patch by lothiraldan@gmail.com finalized by sthenault)
 
     * fix cross-interpreter issue (non compatible access to __builtins__)
 
