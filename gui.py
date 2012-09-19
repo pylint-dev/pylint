@@ -36,6 +36,14 @@ COLORS = {'(I)':'lightblue',
           '(W)':'black', '(E)':'darkred',
           '(F)':'red'}
 
+
+def convert_to_string(msg):
+    """make a string representation of a message"""
+    if (msg[2] != ""):
+        return "(" + msg[0] + ") " + msg[1] + "." + msg[2] + " [" + msg[3] + "]: " + msg[4]
+    else:
+        return "(" + msg[0] + ") " + msg[1] + " [" + msg[3] + "]: " + msg[4]
+
 class BasicStream:
     '''
     used in gui reporter instead of writing to stdout, it is written to
@@ -64,18 +72,21 @@ class BasicStream:
 
         if text.startswith('\n'):
             self.contents.append('')
-            if self.currout: self.outdict[self.currout].append('')
+            if self.currout:
+                self.outdict[self.currout].append('')
         self.contents[-1] += text.strip('\n')
-        if self.currout: self.outdict[self.currout][-1] += text.strip('\n')
+        if self.currout:
+            self.outdict[self.currout][-1] += text.strip('\n')
         if text.endswith('\n') and text.strip():
             self.contents.append('')
-            if self.currout: self.outdict[self.currout].append('')
+            if self.currout:
+                self.outdict[self.currout].append('')
 
     def fix_contents(self):
         """finalize what the contents of the dict should look like before output"""
         for item in self.outdict:
             numEmpty = self.outdict[item].count('')
-            for i in range(numEmpty):
+            for i in xrange(numEmpty):
                 self.outdict[item].remove('')
             if self.outdict[item]:
                 self.outdict[item].pop(0)
@@ -308,7 +319,7 @@ class LintGui:
         self.lbMessages.delete(0, END)
         for msg in self.msgs:
             if (self.msg_type_dict.get(msg[0])()):
-                msg_str = self.convert_to_string(msg)
+                msg_str = convert_to_string(msg)
                 self.lbMessages.insert(END, msg_str)
                 fg_color = COLORS.get(msg_str[:3], 'black')
                 self.lbMessages.itemconfigure(END, fg=fg_color)
@@ -322,13 +333,6 @@ class LintGui:
                 self.results.insert(END, res)
         except:
             pass
-
-    def convert_to_string(self, msg):
-        """make a string representation of a message"""
-        if (msg[2] != ""):
-            return "(" + msg[0] + ") " + msg[1] + "." + msg[2] + " [" + msg[3] + "]: " + msg[4]
-        else:
-            return "(" + msg[0] + ") " + msg[1] + " [" + msg[3] + "]: " + msg[4]
 
     def process_incoming(self):
         """process the incoming messages from running pylint"""
@@ -344,7 +348,7 @@ class LintGui:
 
                 #displaying msg if message type is selected in check box
                 if (self.msg_type_dict.get(msg[0])()):
-                    msg_str = self.convert_to_string(msg)
+                    msg_str = convert_to_string(msg)
                     self.lbMessages.insert(END, msg_str)
                     fg_color = COLORS.get(msg_str[:3], 'black')
                     self.lbMessages.itemconfigure(END, fg=fg_color)
@@ -451,7 +455,7 @@ class LintGui:
 def lint_thread(module, reporter, gui):
     """thread for pylint"""
     gui.status.text = "processing module(s)"
-    lint_obj = pylint.lint.Run(args=[module], reporter=reporter, exit=False)
+    pylint.lint.Run(args=[module], reporter=reporter, exit=False)
     gui.msg_queue.put("DONE")
 
 

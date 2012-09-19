@@ -95,4 +95,4 @@ class IReporter(Interface):
         """
 
 
-__all__ = ('IRawChecker', 'IStatable', 'ILinter', 'IReporter')
+__all__ = ('IRawChecker', 'ILinter', 'IReporter')

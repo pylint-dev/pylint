@@ -110,7 +110,7 @@ class StringFormatChecker(BaseChecker):
             if isinstance(args, astng.Dict):
                 keys = set()
                 unknown_keys = False
-                for k, v in args.items:
+                for k, _ in args.items:
                     if isinstance(k, astng.Const):
                         key = k.value
                         if isinstance(key, basestring):

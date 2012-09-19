@@ -20,7 +20,6 @@ main pylint class
 
 import sys
 from warnings import warn
-from os import linesep
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 from logilab.common.modutils import modpath_from_file, get_module_files, \
@@ -176,14 +175,14 @@ class MessagesHandlerMixIn:
         # msgid is a category?
         catid = category_id(msgid)
         if catid is not None:
-            for msgid in self._msgs_by_category.get(catid):
-                self.disable(msgid, scope, line)
+            for _msgid in self._msgs_by_category.get(catid):
+                self.disable(_msgid, scope, line)
             return
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
             for checker in self._checkers[msgid.lower()]:
-                for msgid in checker.msgs:
-                    self.disable(msgid, scope, line)
+                for _msgid in checker.msgs:
+                    self.disable(_msgid, scope, line)
             return
         # msgid is report id?
         if msgid.lower().startswith('rp'):

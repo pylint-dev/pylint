@@ -421,7 +421,7 @@ class StringConstantChecker(BaseRawChecker):
                 start_row, start_col)
 
     def process_non_raw_string_token(self, prefix, string_body, start_row,
-        start_col):
+                                     start_col):
         """check for bad escapes in a non-raw string.
 
         prefix: lowercase string of eg 'ur' string prefix markers.

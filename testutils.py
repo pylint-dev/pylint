@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -15,22 +15,20 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """functional/non regression tests for pylint"""
 
-import unittest
 import sys
 import re
 
 from glob import glob
 from os import linesep
-from os.path import exists, abspath, dirname, join, basename, splitext
+from os.path import abspath, dirname, join, basename, splitext
 from cStringIO import StringIO
 
 from logilab.common import testlib
 
-from logilab.astng import MANAGER
+from pylint import checkers
 from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
-from pylint import checkers
 
 
 # Utils
@@ -78,9 +76,9 @@ def get_tests_info(input_dir, msg_dir, prefix, suffix):
         result.append((infile, outfile))
     return result
 
+
 class TestReporter(BaseReporter):
-    """ store plain text messages
-    """
+    """reporter storing plain text messages"""
 
     __implements____ = IReporter
 
@@ -104,7 +102,7 @@ class TestReporter(BaseReporter):
     def finalize(self):
         self.messages.sort()
         for msg in self.messages:
-            print >>self.out, msg
+            print >> self.out, msg
         result = self.out.getvalue()
         self.reset()
         return result
@@ -138,12 +136,13 @@ def exception_str(self, ex):
 # Test classes
 
 class LintTestUsingModule(testlib.TestCase):
+    INPUT_DIR = None
     DEFAULT_PACKAGE = 'input'
     package = DEFAULT_PACKAGE
     linter = linter
     module = None
     depends = None
-
+    output = None
     _TEST_TYPE = 'module'
 
     def shortDescription(self):

@@ -47,20 +47,20 @@ from logilab.common.__pkginfo__ import version as common_version
 from logilab.astng import MANAGER, nodes, ASTNGBuildingException
 from logilab.astng.__pkginfo__ import version as astng_version
 
-from pylint.utils import PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,\
-     ReportsHandlerMixIn, MSG_TYPES, expand_modules
+from pylint.utils import (PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,
+                          ReportsHandlerMixIn, MSG_TYPES, expand_modules)
 from pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
-from pylint.checkers import BaseRawChecker, EmptyReport, \
-     table_lines_from_stats
-from pylint.reporters.text import TextReporter, ParseableTextReporter, \
-     VSTextReporter, ColorizedTextReporter
+from pylint.checkers import (BaseRawChecker, EmptyReport,
+                             table_lines_from_stats)
+from pylint.reporters.text import (TextReporter, ParseableTextReporter,
+                                   VSTextReporter, ColorizedTextReporter)
 from pylint.reporters.html import HTMLReporter
 from pylint import config
 
 from pylint.__pkginfo__ import version
 
 
-OPTION_RGX = re.compile('\s*#*\s*pylint:(.*)')
+OPTION_RGX = re.compile(r'\s*#*\s*pylint:(.*)')
 REPORTER_OPT_MAP = {'text': TextReporter,
                     'parseable': ParseableTextReporter,
                     'msvs': VSTextReporter,

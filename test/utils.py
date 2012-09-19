@@ -1,15 +1,12 @@
 """some pylint test utilities
 """
 
-# # # # #  pyreverse unittest utilities  # # # # # #
-
-from logilab.common.testlib import TestCase
 import os
 import sys
 from os.path import join, dirname, abspath
 
+from logilab.common.testlib import TestCase
 from logilab.astng import MANAGER
-
 
 
 def _astng_wrapper(func, modname):

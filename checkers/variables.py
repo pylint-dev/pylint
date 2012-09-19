@@ -31,9 +31,9 @@ from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
 
 
 def in_for_else_branch(parent, stmt):
-  """Returns True if stmt in inside the else branch for a parent For stmt."""
-  return (isinstance(parent, astng.For) and
-          any(else_stmt.parent_of(stmt) for else_stmt in parent.orelse))
+    """Returns True if stmt in inside the else branch for a parent For stmt."""
+    return (isinstance(parent, astng.For) and
+            any(else_stmt.parent_of(stmt) for else_stmt in parent.orelse))
 
 def overridden_method(klass, name):
     """get overridden method if any"""

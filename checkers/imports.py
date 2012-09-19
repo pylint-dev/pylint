@@ -86,7 +86,7 @@ def repr_tree_defs(data, indent_str=None):
             lines.append('%s %s' % (mod, files))
             sub_indent_str = '  '
         else:
-            lines.append('%s\-%s %s' % (indent_str, mod, files))
+            lines.append(r'%s\-%s %s' % (indent_str, mod, files))
             if i == len(nodes)-1:
                 sub_indent_str = '%s  ' % indent_str
             else:

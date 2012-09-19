@@ -182,7 +182,7 @@ accessed. Python regular expressions are accepted.'}
                 continue
             except NotFoundError:
                 if isinstance(owner, astng.Function) and owner.decorators:
-                   continue
+                    continue
                 if isinstance(owner, Instance) and owner.has_dynamic_getattr():
                     continue
                 # explicit skipping of optparse'Values class
@@ -377,7 +377,7 @@ accessed. Python regular expressions are accepted.'}
         for [(name, defval), assigned] in parameters:
             if (defval is None) and not assigned:
                 if name is None:
-                    display = '<tuple>'
+                    display_name = '<tuple>'
                 else:
                     display_name = repr(name)
                 self.add_message('E1120', node=node, args=display_name)
