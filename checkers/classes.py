@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2011 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -65,16 +65,26 @@ MSGS = {
               'Used when a method has an attribute different the "self" as\
               first argument. This is considered as an error since this is\
               a so common convention that you shouldn\'t break it!'),
-    'C0202': ('Class method should have %s as first argument', # E0212
-              'Used when a class method has an attribute different than "cls"\
-              as first argument, to easily differentiate them from regular \
-              instance methods.'),
-    'C0203': ('Metaclass method should have "mcs" as first argument', # E0214
-              'Used when a metaclass method has an attribute different the \
-              "mcs" as first argument.'),
+    'C0202': ('Class method %s should have %s as first argument', # E0212
+              'Used when a class method has a first argument named differently '
+              'than the value specified in valid-classmethod-first-arg option '
+              '(default to "cls"), recommended to easily differentiate them '
+              'from regular instance methods.'),
+    'C0203': ('Metaclass method %s should have %s as first argument', # E0214
+              'Used when a metaclass method has a first agument named '
+              'differently than the value specified in valid-classmethod-first'
+              '-arg option (default to "cls"), recommended to easily '
+              'differentiate them from regular instance methods.'),
+    'C0204': ('Metaclass class method %s should have %s as first argument',
+              'Used when a metaclass class method has a first argument named '
+              'differently than the value specified in valid-metaclass-'
+              'classmethod-first-arg option (default to "mcs"), recommended to '
+              'easily differentiate them from regular instance methods.'),
 
     'W0211': ('Static method with %r as first argument',
-              'Used when a static method has "self" or "cls" as first argument.'
+              'Used when a static method has "self" or a value specified in '
+              'valid-classmethod-first-arg option or '
+              'valid-metaclass-classmethod-first-arg option as first argument.'
               ),
     'R0201': ('Method could be a function',
               'Used when a method doesn\'t use its bound instance, and so could\
@@ -164,6 +174,13 @@ instance attributes.'}
                  'metavar' : '<argument names>',
                  'help' : 'List of valid names for the first argument in \
 a class method.'}
+                ),
+               ('valid-metaclass-classmethod-first-arg',
+                {'default' : ('mcs',),
+                 'type' : 'csv',
+                 'metavar' : '<argument names>',
+                 'help' : 'List of valid names for the first argument in \
+a metaclass class method.'}
                 ),
 
                )
@@ -404,8 +421,10 @@ a class method.'}
         """check the name of first argument, expect:
 
         * 'self' for a regular method
-        * 'cls' for a class method
-        * 'mcs' for a metaclass
+        * 'cls' for a class method or a metaclass regular method (actually
+          valid-classmethod-first-arg value)
+        * 'mcs' for a metaclass class method (actually
+          valid-metaclass-classmethod-first-arg)
         * not one of the above for a static method
         """
         # don't care about functions with unknown argument (builtins)
@@ -416,31 +435,50 @@ a class method.'}
         first = self._first_attrs[-1]
         # static method
         if node.type == 'staticmethod':
-            if first_arg in ('self', 'cls', 'mcs'):
+            if (first_arg == 'self' or
+                first_arg in self.config.valid_classmethod_first_arg or
+                first_arg in self.config.valid_metaclass_classmethod_first_arg):
                 self.add_message('W0211', args=first, node=node)
+                return
             self._first_attrs[-1] = None
         # class / regular method with no args
         elif not node.args.args:
             self.add_message('E0211', node=node)
-        # metaclass method
+        # metaclass
         elif metaclass:
-            if first != 'mcs':
-                self.add_message('C0203', node=node)
-        # class method
-        elif node.type == 'classmethod':
-            if first not in self.config.valid_classmethod_first_arg:
-                if len(self.config.valid_classmethod_first_arg) == 1:
-                    valid = repr(self.config.valid_classmethod_first_arg[0])
-                else:
-                    valid = ', '.join(
-                      repr(v)
-                      for v in self.config.valid_classmethod_first_arg[:-1])
-                    valid = '%s or %r' % (
-                        valid, self.config.valid_classmethod_first_arg[-1])
-                self.add_message('C0202', args=valid, node=node)
-        # regular method without self as argument
-        elif first != 'self':
-            self.add_message('E0213', node=node)
+            # metaclass __new__ or classmethod
+            if node.type == 'classmethod':
+                self._check_first_arg_config(first,
+                    self.config.valid_metaclass_classmethod_first_arg, node,
+                    'C0204', node.name)
+            # metaclass regular method
+            else:
+                self._check_first_arg_config(first,
+                    self.config.valid_classmethod_first_arg, node, 'C0203',
+                    node.name)
+        # regular class
+        else:
+            # class method
+            if node.type == 'classmethod':
+                self._check_first_arg_config(first,
+                    self.config.valid_classmethod_first_arg, node, 'C0202',
+                    node.name)
+            # regular method without self as argument
+            elif first != 'self':
+                self.add_message('E0213', node=node)
+
+    def _check_first_arg_config(self, first, config, node, message,
+                                method_name):
+        if first not in config:
+            if len(config) == 1:
+                valid = repr(config[0])
+            else:
+                valid = ', '.join(
+                  repr(v)
+                  for v in config[:-1])
+                valid = '%s or %r' % (
+                    valid, config[-1])
+            self.add_message(message, args=(method_name, valid), node=node)
 
     def _check_bases_classes(self, node):
         """check that the given class node implements abstract methods from

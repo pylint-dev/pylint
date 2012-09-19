@@ -8,6 +8,9 @@ ChangeLog for PyLint
     * #100654: fix grammatical error for W0332 message (using 'l' as
       long int identifier)
 
+    * #4014: Improve checking of metaclass methods first args, introducing
+      new C0204 message (patch by lothiraldan@gmail.com finalized by sthenault)
+
     * fix cross-interpreter issue (non compatible access to __builtins__)
 
     * stop including tests files in distribution, they causes crash when

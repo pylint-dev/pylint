@@ -6,10 +6,10 @@ __revision__ = 'yo'
 
 class Meta(type):
     """the meta class"""
-    def __init__(mcs, name, bases, dictionary):
-        super(Meta, mcs).__init__(name, bases, dictionary)
-        print mcs, mcs._meta_args
-        delattr(mcs, '_meta_args')
+    def __init__(cls, name, bases, dictionary):
+        super(Meta, cls).__init__(name, bases, dictionary)
+        print cls, cls._meta_args
+        delattr(cls, '_meta_args')
 
 class Test(object):
     """metaclassed class"""

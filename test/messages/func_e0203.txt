@@ -1,1 +1,1 @@
-C: 12:Abcd.abcd: Class method should have 'cls' as first argument
+C: 12:Abcd.abcd: Class method abcd should have 'cls' as first argument
