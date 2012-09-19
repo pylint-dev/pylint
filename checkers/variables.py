@@ -136,14 +136,12 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         BaseChecker.__init__(self, linter)
         self._to_consume = None
         self._checking_mod_attr = None
-        self._vars = None
 
     def visit_module(self, node):
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
         self._to_consume = [(copy(node.locals), {}, 'module')]
-        self._vars = []
         for name, stmts in node.locals.iteritems():
             if is_builtin(name) and not is_inside_except(stmts[0]):
                 # do not print Redefining builtin for additional builtins
@@ -179,7 +177,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 else:
                     self.add_message('W0611', args=name, node=stmt)
         del self._to_consume
-        del self._vars
 
     def visit_class(self, node):
         """visit class: update consumption analysis variable
@@ -240,7 +237,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """visit function: update consumption analysis variable and check locals
         """
         self._to_consume.append((copy(node.locals), {}, 'function'))
-        self._vars.append({})
         if not set(('W0621', 'W0622')) & self.active_msgs:
             return
         globs = node.root().globals
@@ -257,7 +253,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def leave_function(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
-        self._vars.pop(0)
         if not set(('W0612', 'W0613')) & self.active_msgs:
             return
         # don't check arguments of function which are only raising an exception
