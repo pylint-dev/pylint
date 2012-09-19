@@ -575,8 +575,8 @@ a metaclass class method.'}
                         self.add_message('W0233', node=expr, args=klass.name)
             except astng.InferenceError:
                 continue
-        for klass in not_called_yet.keys():
-            if klass.name == 'object':
+        for klass, method in not_called_yet.iteritems():
+            if klass.name == 'object' or method.parent.name == 'object':
                 continue
             self.add_message('W0231', args=klass.name, node=node)
 
@@ -616,8 +616,7 @@ def _ancestors_to_call(klass_node, method='__init__'):
     to_call = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
-            base_node.local_attr(method)
-            to_call[base_node] = 1
+            to_call[base_node] = base_node.local_attr(method)[-1]
         except astng.NotFoundError:
             continue
     return to_call

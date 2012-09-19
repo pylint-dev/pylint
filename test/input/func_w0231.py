@@ -36,3 +36,13 @@ class NewStyleB(NewStyleA):
     """derived new style class"""
     def __init__(self):
         super(NewStyleB, self).__init__()
+
+
+class NoInit(object):
+    """No __init__ defined"""
+
+class Init(NoInit):
+    """Don't complain for not calling the super __init__"""
+
+    def __init__(self, arg):
+        self.arg = arg
