@@ -19,6 +19,7 @@ main pylint class
 """
 
 import sys
+from warnings import warn
 from os import linesep
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
@@ -93,7 +94,7 @@ def category_id(id):
 
 
 class Message:
-    def __init__(self, checker, msgid, msg, descr):
+    def __init__(self, checker, msgid, msg, descr, symbol):
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
         assert msgid[0] in MSG_TYPES, \
                'Bad message type %s in %r' % (msgid[0], msgid)
@@ -101,6 +102,7 @@ class Message:
         self.msg = msg
         self.descr = descr
         self.checker = checker
+        self.symbol = symbol
 
 class MessagesHandlerMixIn:
     """a mix-in class containing all the messages related methods for the main
@@ -110,6 +112,8 @@ class MessagesHandlerMixIn:
     def __init__(self):
         # dictionary of registered messages
         self._messages = {}
+        # dictionary from string symbolic id to Message object.
+        self._messages_by_symbol = {}
         self._msgs_state = {}
         self._module_msgs_state = {} # None
         self._msgs_by_category = {}
@@ -126,14 +130,27 @@ class MessagesHandlerMixIn:
         """
         msgs_dict = checker.msgs
         chkid = None
-        for msgid, (msg, msgdescr) in msgs_dict.iteritems():
+        for msgid, msg_tuple in msgs_dict.iteritems():
+            if len(msg_tuple) == 3:
+                (msg, msgsymbol, msgdescr) = msg_tuple
+                assert msgsymbol not in self._messages_by_symbol, \
+                    'Message symbol %r is already defined' % msgsymbol
+            else:
+                # messages should have a symbol, but for backward compatibility
+                # they may not.
+                (msg, msgdescr) = msg_tuple
+                warn("[pylint 0.26] description of message %s doesn't include "
+                     "a symbolic name" % msgid, DeprecationWarning)
+                msgsymbol = None
             # avoid duplicate / malformed ids
             assert msgid not in self._messages, \
                    'Message id %r is already defined' % msgid
             assert chkid is None or chkid == msgid[1:3], \
                    'Inconsistent checker part in message id %r' % msgid
             chkid = msgid[1:3]
-            self._messages[msgid] = Message(checker, msgid, msg, msgdescr)
+            msg = Message(checker, msgid, msg, msgdescr, msgsymbol)
+            self._messages[msgid] = msg
+            self._messages_by_symbol[msgsymbol] = msg
             self._msgs_by_category.setdefault(msgid[0], []).append(msgid)
 
     def get_message_help(self, msgid, checkerref=False):
@@ -144,10 +161,14 @@ class MessagesHandlerMixIn:
             desc += ' This message belongs to the %s checker.' % \
                    msg.checker.name
         title = msg.msg
+        if msg.symbol:
+            symbol_part = ' (%s)' % msg.symbol
+        else:
+            symbol_part = ''
         if title != '%s':
             title = title.splitlines()[0]
-            return ':%s: *%s*\n%s' % (msg.msgid, title, desc)
-        return ':%s:\n%s' % (msg.msgid, desc)
+            return ':%s%s: *%s*\n%s' % (msg.msgid, symbol_part, title, desc)
+        return ':%s%s:\n%s' % (msg.msgid, symbol_part, desc)
 
     def disable(self, msgid, scope='package', line=None):
         """don't output message of the given id"""
@@ -168,7 +189,7 @@ class MessagesHandlerMixIn:
         if msgid.lower().startswith('rp'):
             self.disable_report(msgid)
             return
-        # msgid is a msgid.
+        # msgid is a symbolic or numeric msgid.
         msg = self.check_message_id(msgid)
         if scope == 'module':
             assert line > 0
@@ -205,7 +226,7 @@ class MessagesHandlerMixIn:
         if msgid.lower().startswith('rp'):
             self.enable_report(msgid)
             return
-        # msgid is a msgid.
+        # msgid is a symbolic or numeric msgid.
         msg = self.check_message_id(msgid)
         if scope == 'module':
             assert line > 0
@@ -221,7 +242,14 @@ class MessagesHandlerMixIn:
             self.config.enable = [mid for mid, val in msgs.iteritems() if val]
 
     def check_message_id(self, msgid):
-        """raise UnknownMessage if the message id is not defined"""
+        """returns the Message object for this message.
+
+        msgid may be either a numeric or symbolic id.
+
+        Raises UnknownMessage if the message id is not defined.
+        """
+        if msgid in self._messages_by_symbol:
+            return self._messages_by_symbol[msgid]
         msgid = msgid.upper()
         try:
             return self._messages[msgid]
@@ -231,7 +259,11 @@ class MessagesHandlerMixIn:
     def is_message_enabled(self, msgid, line=None):
         """return true if the message associated to the given message id is
         enabled
+
+        msgid may be either a numeric or symbolic message id.
         """
+        if msgid in self._messages_by_symbol:
+            msgid = self._messages_by_symbol[msgid].msgid
         if line is None:
             return self._msgs_state.get(msgid, True)
         try:
@@ -525,4 +557,3 @@ class PyLintASTWalker(object):
             self.walk(child)
         for cb in self.leave_events.get(cid, ()):
             cb(astng)
-

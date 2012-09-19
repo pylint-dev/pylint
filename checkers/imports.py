@@ -128,24 +128,32 @@ def make_graph(filename, dep_info, sect, gtype):
 
 MSGS = {
     'F0401': ('Unable to import %s',
+              'import-error',
               'Used when pylint has been unable to import a module.'),
     'R0401': ('Cyclic import (%s)',
+              'cyclic-import',
               'Used when a cyclic import between two or more modules is \
               detected.'),
 
     'W0401': ('Wildcard import %s',
+              'wildcard-import',
               'Used when `from module import *` is detected.'),
     'W0402': ('Uses of a deprecated module %r',
+              'deprecated-module',
               'Used a module marked as deprecated is imported.'),
     'W0403': ('Relative import %r, should be %r',
+              'relative-import',
               'Used when an import relative to the package directory is \
               detected.'),
     'W0404': ('Reimport %r (imported line %s)',
+              'reimported',
               'Used when a module is reimported multiple times.'),
     'W0406': ('Module import itself',
+              'import-self',
               'Used when a module is importing itself.'),
 
     'W0410': ('__future__ import is not the first non docstring statement',
+              'misplaced-future',
               'Python 2.5 and greater require __future__ import to be the \
               first non docstring statement in the module.'),
     }

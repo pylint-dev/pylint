@@ -38,87 +38,108 @@ def class_is_abstract(node):
 
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
+              'method-check-failed',
               'Used when PyLint has been unable to check methods signature \
               compatibility for an unexpected reason. Please report this kind \
               if you don\'t make sense of it.'),
 
     'E0202': ('An attribute affected in %s line %s hide this method',
+              'method-hidden',
               'Used when a class defines a method which is hidden by an '
               'instance attribute from an ancestor class or set by some '
               'client code.'),
     'E0203': ('Access to member %r before its definition line %s',
+              'access-member-before-definition',
               'Used when an instance member is accessed before it\'s actually\
               assigned.'),
     'W0201': ('Attribute %r defined outside __init__',
+              'attribute-defined-outside-init',
               'Used when an instance attribute is defined outside the __init__\
               method.'),
 
     'W0212': ('Access to a protected member %s of a client class', # E0214
+              'protected-access',
               'Used when a protected member (i.e. class member with a name \
               beginning with an underscore) is access outside the class or a \
               descendant of the class where it\'s defined.'),
 
     'E0211': ('Method has no argument',
+              'no-method-argument',
               'Used when a method which should have the bound instance as \
               first argument has no argument defined.'),
     'E0213': ('Method should have "self" as first argument',
+              'no-self-argument',
               'Used when a method has an attribute different the "self" as\
               first argument. This is considered as an error since this is\
               a so common convention that you shouldn\'t break it!'),
     'C0202': ('Class method %s should have %s as first argument', # E0212
+              'bad-classmethod-argument',
               'Used when a class method has a first argument named differently '
               'than the value specified in valid-classmethod-first-arg option '
               '(default to "cls"), recommended to easily differentiate them '
               'from regular instance methods.'),
     'C0203': ('Metaclass method %s should have %s as first argument', # E0214
+              'bad-mcs-method-argument',
               'Used when a metaclass method has a first agument named '
               'differently than the value specified in valid-classmethod-first'
               '-arg option (default to "cls"), recommended to easily '
               'differentiate them from regular instance methods.'),
     'C0204': ('Metaclass class method %s should have %s as first argument',
+              'bad-mcs-classmethod-argument',
               'Used when a metaclass class method has a first argument named '
               'differently than the value specified in valid-metaclass-'
               'classmethod-first-arg option (default to "mcs"), recommended to '
               'easily differentiate them from regular instance methods.'),
 
     'W0211': ('Static method with %r as first argument',
+              'bad-staticmethod-argument',
               'Used when a static method has "self" or a value specified in '
               'valid-classmethod-first-arg option or '
               'valid-metaclass-classmethod-first-arg option as first argument.'
               ),
     'R0201': ('Method could be a function',
+              'no-self-use',
               'Used when a method doesn\'t use its bound instance, and so could\
               be written as a function.'
               ),
 
     'E0221': ('Interface resolved to %s is not a class',
+              'interface-is-not-class',
               'Used when a class claims to implement an interface which is not \
               a class.'),
     'E0222': ('Missing method %r from %s interface',
+              'missing-interface-method',
               'Used when a method declared in an interface is missing from a \
               class implementing this interface'),
     'W0221': ('Arguments number differs from %s method',
+              'arguments-differ',
               'Used when a method has a different number of arguments than in \
               the implemented interface or in an overridden method.'),
     'W0222': ('Signature differs from %s method',
+              'signature-differs',
               'Used when a method signature is different than in the \
               implemented interface or in an overridden method.'),
     'W0223': ('Method %r is abstract in class %r but is not overridden',
+              'abstract-method',
               'Used when an abstract method (i.e. raise NotImplementedError) is \
               not overridden in concrete class.'
               ),
     'F0220': ('failed to resolve interfaces implemented by %s (%s)', # W0224
+              'unresolved-interface',
               'Used when a PyLint as failed to find interfaces implemented by \
                a class'),
 
 
     'W0231': ('__init__ method from base class %r is not called',
+              'super-init-not-called',
               'Used when an ancestor class method has an __init__ method \
               which is not called by a derived class.'),
     'W0232': ('Class has no __init__ method',
+              'no-init',
               'Used when a class has no __init__ method, neither its parent \
               classes.'),
     'W0233': ('__init__ method from a non direct base class %r is called',
+              'non-parent-init-called',
               'Used when an __init__ method is called on a class which is not \
               in the direct ancestors for the analysed class.'),
 

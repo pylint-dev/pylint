@@ -43,38 +43,50 @@ def class_is_abstract(klass):
 
 MSGS = {
     'R0901': ('Too many ancestors (%s/%s)',
+              'too-many-ancestors',
               'Used when class has too many parent classes, try to reduce \
               this to get a more simple (and so easier to use) class.'),
     'R0902': ('Too many instance attributes (%s/%s)',
+              'too-many-instance-attributes',
               'Used when class has too many instance attributes, try to reduce \
               this to get a more simple (and so easier to use) class.'),
     'R0903': ('Too few public methods (%s/%s)',
+              'too-few-public-methods',
               'Used when class has too few public methods, so be sure it\'s \
               really worth it.'),
     'R0904': ('Too many public methods (%s/%s)',
+              'too-many-public-methods',
               'Used when class has too many public methods, try to reduce \
               this to get a more simple (and so easier to use) class.'),
 
     'R0911': ('Too many return statements (%s/%s)',
+              'too-many-return-statements',
               'Used when a function or method has too many return statement, \
               making it hard to follow.'),
     'R0912': ('Too many branches (%s/%s)',
+              'too-many-branches',
               'Used when a function or method has too many branches, \
               making it hard to follow.'),
     'R0913': ('Too many arguments (%s/%s)',
+              'too-many-arguments',
               'Used when a function or method takes too many arguments.'),
     'R0914': ('Too many local variables (%s/%s)',
+              'too-many-locals',
               'Used when a function or method has too many local variables.'),
     'R0915': ('Too many statements (%s/%s)',
+              'too-many-statements',
               'Used when a function or method has too many statements. You \
               should then split it in smaller functions / methods.'),
 
     'R0921': ('Abstract class not referenced',
+              'abstract-class-not-used',
               'Used when an abstract class is not used as ancestor anywhere.'),
     'R0922': ('Abstract class is only referenced %s times',
+              'abstract-class-little-used',
               'Used when an abstract class is used less than X times as \
               ancestor.'),
     'R0923': ('Interface not implemented',
+              'interface-not-implemented',
               'Used when an interface class is not implemented anywhere.'),
     }
 

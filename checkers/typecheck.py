@@ -28,33 +28,43 @@ from pylint.checkers.utils import safe_infer, is_super, check_messages
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
+              'no-member',
               'Used when a variable is accessed for an unexistent member.'),
     'E1102': ('%s is not callable',
+              'not-callable',
               'Used when an object being called has been inferred to a non \
               callable object'),
     'E1103': ('%s %r has no %r member (but some types could not be inferred)',
+              'maybe-no-member',
               'Used when a variable is accessed for an unexistent member, but \
               astng was not able to interpret all possible types of this \
               variable.'),
     'E1111': ('Assigning to function call which doesn\'t return',
+              'assignment-from-no-return',
               'Used when an assignment is done on a function call but the \
               inferred function doesn\'t return anything.'),
     'W1111': ('Assigning to function call which only returns None',
+              'assignment-from-none',
               'Used when an assignment is done on a function call but the \
               inferred function returns nothing but None.'),
 
     'E1120': ('No value passed for parameter %s in function call',
+              'no-value-for-parameter',
               'Used when a function call passes too few arguments.'),
     'E1121': ('Too many positional arguments for function call',
+              'too-many-function-args',
               'Used when a function call passes too many positional \
               arguments.'),
     'E1122': ('Duplicate keyword argument %r in function call',
+              'duplicate-keyword-arg',
               'Used when a function call passes the same keyword argument \
               multiple times.'),
     'E1123': ('Passing unexpected keyword argument %r in function call',
+              'unexpected-keyword-arg',
               'Used when a function call passes a keyword argument that \
               doesn\'t correspond to one of the function\'s parameter names.'),
     'E1124': ('Multiple values passed for parameter %r in function call',
+              'redundant-keyword-arg',
               'Used when a function call would result in assigning multiple \
               values to a function parameter, one value from a positional \
               argument and one from a keyword argument.'),

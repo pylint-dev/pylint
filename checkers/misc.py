@@ -25,6 +25,7 @@ from pylint.checkers import BaseChecker
 
 MSGS = {
     'W0511': ('%s',
+              'fixme',
               'Used when a warning note as FIXME or XXX is detected.'),
     }
 

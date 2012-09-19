@@ -20,7 +20,7 @@ class AAAA:
 ##     class BBBB:
 ##         # missing docstring
 ##         pass
-    
+
 ##     class CCCC:
 ##         """yeah !"""
 ##         def method1(self):
@@ -29,20 +29,23 @@ class AAAA:
 ##         def method2(self):
 ##             """ yeah !"""
 ##             pass
-    
+
     def method1(self):
         pass
-    
+
     def method2(self):
         """ yeah !"""
         pass
 
     def __init__(self):
         pass
-    
+
 class DDDD(AAAA):
     """yeah !"""
 
     def __init__(self):
         AAAA.__init__(self)
- 
+
+# pylint: disable=missing-docstring
+def function4():
+    pass

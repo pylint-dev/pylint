@@ -29,36 +29,45 @@ from pylint.interfaces import IASTNGChecker
 OVERGENERAL_EXCEPTIONS = ('Exception',)
 
 MSGS = {
-    'E0701': (
-    'Bad except clauses order (%s)',
-    'Used when except clauses are not in the correct order (from the \
-    more specific to the more generic). If you don\'t fix the order, \
-    some exceptions may not be catched by the most specific handler.'),
+    'E0701': ('Bad except clauses order (%s)',
+              'bad-except-order',
+              'Used when except clauses are not in the correct order (from the '
+              'more specific to the more generic). If you don\'t fix the order, '
+              'some exceptions may not be catched by the most specific handler.'),
     'E0702': ('Raising %s while only classes, instances or string are allowed',
+              'raising-bad-type',
               'Used when something which is neither a class, an instance or a \
               string is raised (i.e. a `TypeError` will be raised).'),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
+              'raising-non-exception',
               'Used when a new style class which doesn\'t inherit from \
                BaseException is raised.'),
     'E0711': ('NotImplemented raised - should raise NotImplementedError',
+              'notimplemented-raised',
               'Used when NotImplemented is raised instead of \
               NotImplementedError'),
     
     'W0701': ('Raising a string exception',
+              'raising-string',
               'Used when a string exception is raised.'),
     'W0702': ('No exception type(s) specified',
+              'bare-except',
               'Used when an except clause doesn\'t specify exceptions type to \
               catch.'),
     'W0703': ('Catching too general exception %s',
+              'broad-except',
               'Used when an except catches a too general exception, \
               possibly burying unrelated errors.'),
     'W0704': ('Except doesn\'t do anything',
+              'pointless-except',
               'Used when an except clause does nothing but "pass" and there is\
               no "else" clause.'),
     'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
+              'nonstandard-exception',
               'Used when a custom exception class is raised but doesn\'t \
               inherit from the builtin "Exception" class.'),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
+              'binary-op-exception',
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),

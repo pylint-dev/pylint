@@ -56,10 +56,7 @@ class TextReporter(BaseReporter):
                 self.writeln('************* %s' % module)
         if obj:
             obj = ':%s' % obj
-        if self.include_ids:
-            sigle = msg_id
-        else:
-            sigle = msg_id[0]
+        sigle = self.make_sigle(msg_id)
         self.writeln('%s:%3s,%s%s: %s' % (sigle, line, col_offset, obj, msg))
 
     def _display(self, layout):
@@ -88,10 +85,7 @@ class ParseableTextReporter(TextReporter):
         path, _, obj, line, _ = location
         if obj:
             obj = ', %s' % obj
-        if self.include_ids:
-            sigle = msg_id
-        else:
-            sigle = msg_id[0]
+        sigle = self.make_sigle(msg_id)
         if self._prefix:
             path = path.replace(self._prefix, '')
         self.writeln(self.line_format % locals())
@@ -145,10 +139,7 @@ class ColorizedTextReporter(TextReporter):
             self._modules[module] = 1
         if obj:
             obj = ':%s' % obj
-        if self.include_ids:
-            sigle = msg_id
-        else:
-            sigle = msg_id[0]
+        sigle = self.make_sigle(msg_id)
         color, style = self._get_decoration(sigle)
         msg = colorize_ansi(msg, color, style)
         sigle = colorize_ansi(sigle, color, style)

@@ -313,6 +313,8 @@ Other useful global options include:
 --html=y_or_n           Use HTML as output format instead of text.
 --list-msgs             Generate pylint's messages.
 --full-documentation    Generate pylint's full documentation, in reST format.
+--include_ids=y_or_n    Show numeric ids of messages (like 'C0301')
+--symbols=y_or_n        Show symbolic ids of messsages (like 'line-too-long')
 
 .. _features: features.html
 

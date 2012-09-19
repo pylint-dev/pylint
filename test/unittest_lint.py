@@ -177,6 +177,36 @@ class PyLinterTC(TestCase):
         self.assert_(linter.is_message_enabled('E1101', 75))
         self.assert_(linter.is_message_enabled('E1101', 77))
 
+    def test_enable_by_symbol(self):
+        """messages can be controlled by symbolic names.
+
+        The state is consistent across symbols and numbers.
+        """
+        linter = self.linter
+        linter.open()
+        linter.set_current_module('toto')
+        self.assertTrue(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('unreachable'))
+        self.assertTrue(linter.is_message_enabled('W0102'))
+        self.assertTrue(linter.is_message_enabled('dangerous-default-value'))
+        linter.disable('unreachable', scope='package')
+        linter.disable('dangerous-default-value', scope='module', line=1)
+        self.assertFalse(linter.is_message_enabled('W0101'))
+        self.assertFalse(linter.is_message_enabled('unreachable'))
+        self.assertFalse(linter.is_message_enabled('W0102', 1))
+        self.assertFalse(linter.is_message_enabled('dangerous-default-value', 1))
+        linter.set_current_module('tutu')
+        self.assertFalse(linter.is_message_enabled('W0101'))
+        self.assertFalse(linter.is_message_enabled('unreachable'))
+        self.assertTrue(linter.is_message_enabled('W0102'))
+        self.assertTrue(linter.is_message_enabled('dangerous-default-value'))
+        linter.enable('unreachable', scope='package')
+        linter.enable('dangerous-default-value', scope='module', line=1)
+        self.assertTrue(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('unreachable'))
+        self.assertTrue(linter.is_message_enabled('W0102', 1))
+        self.assertTrue(linter.is_message_enabled('dangerous-default-value', 1))
+
     def test_list_messages(self):
         sys.stdout = StringIO()
         try:

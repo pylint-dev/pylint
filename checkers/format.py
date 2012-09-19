@@ -37,28 +37,37 @@ from pylint.checkers.utils import check_messages
 
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
+              'line-too-long',
               'Used when a line is longer than a given number of characters.'),
     'C0302': ('Too many lines in module (%s)', # was W0302
+              'too-many-lines',
               'Used when a module has too much lines, reducing its readability.'
               ),
 
     'W0311': ('Bad indentation. Found %s %s, expected %s',
+              'bad-indentation',
               'Used when an unexpected number of indentation\'s tabulations or '
               'spaces has been found.'),
     'W0312': ('Found indentation with %ss instead of %ss',
+              'mixed-indentation',
               'Used when there are some mixed tabs and spaces in a module.'),
     'W0301': ('Unnecessary semicolon', # was W0106
+              'unnecessary-semicolon',
               'Used when a statement is ended by a semi-colon (";"), which \
               isn\'t necessary (that\'s python, not C ;).'),
     'C0321': ('More than one statement on a single line',
+              'multiple-statements',
               'Used when more than on statement are found on the same line.'),
     'C0322': ('Operator not preceded by a space\n%s',
+              'no-space-before-operator',
               'Used when one of the following operator (!= | <= | == | >= | < '
               '| > | = | \\+= | -= | \\*= | /= | %) is not preceded by a space.'),
     'C0323': ('Operator not followed by a space\n%s',
+              'no-space-after-operator',
               'Used when one of the following operator (!= | <= | == | >= | < '
               '| > | = | \\+= | -= | \\*= | /= | %) is not followed by a space.'),
     'C0324': ('Comma not followed by a space\n%s',
+              'no-space-after-comma',
               'Used when a comma (",") is not followed by a space.'),
     }
 
@@ -66,13 +75,16 @@ if sys.version_info < (3, 0):
 
     MSGS.update({
     'W0331': ('Use of the <> operator',
+              'old-ne-operator',
               'Used when the deprecated "<>" operator is used instead \
               of "!=".'),
     'W0332': ('Use of "l" as long integer identifier',
+              'lowercase-l-suffix',
               'Used when a lower case "l" is used to mark a long integer. You '
               'should use a upper case "L" since the letter "l" looks too much '
               'like the digit "1"'),
     'W0333': ('Use of the `` operator',
+              'backtick',
               'Used when the deprecated "``" (backtick) operator is used '
               'instead  of the str() function.'),
     })
@@ -365,10 +377,12 @@ class StringConstantChecker(BaseRawChecker):
     msgs = {
         'W1401': ('Anomalous backslash in string: \'%s\'. '
                   'String constant might be missing an r prefix.',
+                  'anomalous-backslash-in-string',
                   'Used when a backslash is in a literal string but not as an '
                   'escape.'),
         'W1402': ('Anomalous Unicode escape in byte string: \'%s\'. '
                   'String constant might be missing an r or u prefix.',
+                  'anomalous-unicode-escape-in-string',
                   'Used when an escape like \\u is encountered in a byte '
                   'string where it has no effect.'),
         }

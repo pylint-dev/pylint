@@ -243,6 +243,15 @@ It means that if you need to disable a lot of messages, you can use tricks like:
      E0202, # I have a good reason, trust me
      C0302  # that's it
 
+4.6 Do I have to remember all these numbers?
+--------------------------------------------
+
+No, starting from 0.25.3, you can use symbolic names for messages::
+
+    # pylint: disable=fixme, line-too-long
+
+You can show these symbols in the output with the `-sy` option.
+
 5. Classes and Inheritance
 ==========================
 

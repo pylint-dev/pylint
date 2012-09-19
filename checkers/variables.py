@@ -54,48 +54,64 @@ def overridden_method(klass, name):
 
 MSGS = {
     'E0601': ('Using variable %r before assignment',
+              'used-before-assignment',
               'Used when a local variable is accessed before it\'s \
               assignment.'),
     'E0602': ('Undefined variable %r',
+              'undefined-variable',
               'Used when an undefined variable is accessed.'),
     'E0603': ('Undefined variable name %r in __all__',
+              'undefined-all-variable',
               'Used when an undefined variable name is referenced in __all__.'),
     'E0611': ('No name %r in module %r',
+              'no-name-in-module',
               'Used when a name cannot be found in a module.'),
 
     'W0601': ('Global variable %r undefined at the module level',
+              'global-variable-undefined',
               'Used when a variable is defined through the "global" statement \
               but the variable is not defined in the module scope.'),
     'W0602': ('Using global for %r but no assignment is done',
+              'global-variable-not-assigned',
               'Used when a variable is defined through the "global" statement \
               but no assignment to this variable is done.'),
     'W0603': ('Using the global statement', # W0121
+              'global-statement',
               'Used when you use the "global" statement to update a global \
               variable. PyLint just try to discourage this \
               usage. That doesn\'t mean you can not use it !'),
     'W0604': ('Using the global statement at the module level', # W0103
+              'global-at-module-level',
               'Used when you use the "global" statement at the module level \
               since it has no effect'),
     'W0611': ('Unused import %s',
+              'unused-import',
               'Used when an imported module or variable is not used.'),
     'W0612': ('Unused variable %r',
+              'unused-variable',
               'Used when a variable is defined but not used.'),
     'W0613': ('Unused argument %r',
+              'unused-argument',
               'Used when a function or method argument is not used.'),
     'W0614': ('Unused import %s from wildcard import',
+              'unused-wildcard-import',
               'Used when an imported module or variable is not used from a \
               \'from X import *\' style import.'),
 
     'W0621': ('Redefining name %r from outer scope (line %s)',
+              'redefined-outer-name',
               'Used when a variable\'s name hide a name defined in the outer \
               scope.'),
     'W0622': ('Redefining built-in %r',
+              'redefined-builtin',
               'Used when a variable or function override a built-in.'),
     'W0623': ('Redefining name %r from %s in exception handler',
+              'redefine-in-handler',
               'Used when an exception handler assigns the exception \
                to an existing name'),
 
     'W0631': ('Using possibly undefined loop variable %r',
+              'undefined-loop-variable',
               'Used when an loop variable (i.e. defined by a for loop or \
               a list comprehension or a generator expression) is used outside \
               the loop.'),

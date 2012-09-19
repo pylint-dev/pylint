@@ -31,17 +31,37 @@ class EmptyReport(Exception):
     """raised when a report is empty and so should not be displayed"""
 
 class BaseReporter:
-    """base class for reporters"""
+    """base class for reporters
+
+    symbols: show short symbolic names for messages.
+    """
 
     extension = ''
 
     def __init__(self, output=None):
         self.linter = None
         self.include_ids = None
+        self.symbols = None
         self.section = 0
         self.out = None
         self.out_encoding = None
         self.set_output(output)
+
+    def make_sigle(self, msg_id):
+        """generate a short prefix for a message.
+
+        The sigle can include the id, the symbol, or both, or it can just be
+        the message class.
+        """
+        if self.include_ids:
+            sigle = msg_id
+        else:
+            sigle = msg_id[0]
+        if self.symbols:
+            symbol = self.linter.check_message_id(msg_id).symbol
+            if symbol:
+                sigle += '(%s)' % symbol
+        return sigle
 
     def set_output(self, output=None):
         """set output stream"""

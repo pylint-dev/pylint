@@ -84,47 +84,59 @@ def _get_python_path(filepath):
 
 MSGS = {
     'F0001': ('%s',
+              'fatal',
               'Used when an error occurred preventing the analysis of a \
               module (unable to find it for instance).'),
     'F0002': ('%s: %s',
+              'astng-error',
               'Used when an unexpected error occurred while building the ASTNG \
               representation. This is usually accompanied by a traceback. \
               Please report such errors !'),
     'F0003': ('ignored builtin module %s',
+              'ignored-builtin-module',
               'Used to indicate that the user asked to analyze a builtin module\
               which has been skipped.'),
     'F0004': ('unexpected inferred value %s',
+              'unexpected-inferred-value',
               'Used to indicate that some value of an unexpected type has been \
               inferred.'),
     'F0010': ('error while code parsing: %s',
+              'parse-error',
               'Used when an exception occured while building the ASTNG \
                representation which could be handled by astng.'),
 
-
     'I0001': ('Unable to run raw checkers on built-in module %s',
+              'raw-checker-failed',
               'Used to inform that a built-in module has not been checked \
               using the raw checkers.'),
 
     'I0010': ('Unable to consider inline option %r',
+              'bad-inline-option',
               'Used when an inline option is either badly formatted or can\'t \
               be used inside modules.'),
 
     'I0011': ('Locally disabling %s',
+              'locally-disabled',
               'Used when an inline option disables a message or a messages \
               category.'),
     'I0012': ('Locally enabling %s',
+              'locally-enabled',
               'Used when an inline option enables a message or a messages \
               category.'),
     'I0013': ('Ignoring entire file',
+              'file-ignored',
               'Used to inform that the file will not be checked'),
 
 
     'E0001': ('%s',
+              'syntax-error',
               'Used when a syntax error is raised for a module.'),
 
     'E0011': ('Unrecognized file option %r',
+              'unrecognized-inline-option',
               'Used when an unknown inline option is encountered.'),
     'E0012': ('Bad option value %r',
+              'bad-option-value',
               'Used when a bad value for an inline option is encountered.'),
     }
 
@@ -183,6 +195,12 @@ python modules names) to load, usually to register additional checkers.'}),
                   'short': 'i',
                   'group': 'Reports',
                   'help' : 'Include message\'s id in output'}),
+
+                ('symbols',
+                 {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
+                  'short': 's',
+                  'group': 'Reports',
+                  'help' : 'Include symbolic ids of messages in output'}),
 
                 ('files-output',
                  {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
@@ -483,6 +501,7 @@ This is used by the global evaluation report (RP0004).'}),
         name.
         """
         self.reporter.include_ids = self.config.include_ids
+        self.reporter.symbols = self.config.symbols
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
         walker = PyLintASTWalker(self)

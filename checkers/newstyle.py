@@ -24,13 +24,17 @@ from pylint.checkers.utils import check_messages
 
 MSGS = {
     'E1001': ('Use of __slots__ on an old style class',
+              'slots-on-old-class',
               'Used when an old style class uses the __slots__ attribute.'),
     'E1002': ('Use of super on an old style class',
+              'super-on-old-class',
               'Used when an old style class uses the super builtin.'),
     'E1003': ('Bad first argument %r given to super class',
+              'bad-super-call',
               'Used when another argument than the current class is given as \
               first argument of the super builtin.'),
     'W1001': ('Use of "property" on an old style class',
+              'property-on-old-class',
               'Used when PyLint detect the use of the builtin "property" \
               on an old style class while this is relying on new style \
               classes features'),
