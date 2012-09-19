@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -56,7 +56,7 @@ def filter_dependencies_info(dep_info, package_dir, mode='external'):
         assert mode == 'internal'
         filter_func = lambda x: is_standard_module(x, (package_dir,))
     result = {}
-    for importee, importers in dep_info.items():
+    for importee, importers in dep_info.iteritems():
         if filter_func(importee):
             result[importee] = importers
     return result
@@ -102,14 +102,14 @@ def dependencies_graph(filename, dep_info):
     done = {}
     printer = DotBackend(filename[:-4], rankdir = "LR")
     printer.emit('URL="." node[shape="box"]')
-    for modname, dependencies in dep_info.items():
+    for modname, dependencies in dep_info.iteritems():
         done[modname] = 1
         printer.emit_node(modname)
         for modname in dependencies:
             if modname not in done:
                 done[modname] = 1
                 printer.emit_node(modname)
-    for depmodname, dependencies in dep_info.items():
+    for depmodname, dependencies in dep_info.iteritems():
         for modname in dependencies:
             printer.emit_edge(modname, depmodname)
     printer.generate(filename)
@@ -329,7 +329,7 @@ given file (report RP0402 must not be disabled)'}
 
     def report_external_dependencies(self, sect, _, dummy):
         """return a verbatim layout for displaying dependencies"""
-        dep_info = make_tree_defs(self._external_dependencies_info().items())
+        dep_info = make_tree_defs(self._external_dependencies_info().iteritems())
         if not dep_info:
             raise EmptyReport()
         tree_str = repr_tree_defs(dep_info)

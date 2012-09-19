@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
 # Copyright (c) 2009-2010 Arista Networks, Inc.
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
@@ -650,7 +650,7 @@ class NameChecker(_BasicChecker):
     @check_messages('C0102', 'C0103')
     def visit_class(self, node):
         self._check_name('class', node.name, node)
-        for attr, anodes in node.instance_attrs.items():
+        for attr, anodes in node.instance_attrs.iteritems():
             self._check_name('attr', attr, anodes[0])
 
     @check_messages('C0102', 'C0103')

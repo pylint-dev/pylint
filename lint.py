@@ -357,7 +357,7 @@ This is used by the global evaluation report (RP0004).'}),
 
     def disable_reporters(self):
         """disable all reporters"""
-        for reporters in self._reports.values():
+        for reporters in self._reports.itervalues():
             for report_id, _title, _cb in reporters:
                 self.disable_report(report_id)
 
@@ -460,7 +460,7 @@ This is used by the global evaluation report (RP0004).'}),
 
     def get_checkers(self):
         """return all available checkers as a list"""
-        return [self] + [c for checkers in self._checkers.values()
+        return [self] + [c for checkers in self._checkers.itervalues()
                          for c in checkers if c is not self]
 
     def prepare_checkers(self):
@@ -543,7 +543,7 @@ This is used by the global evaluation report (RP0004).'}),
         self.current_file = filepath or modname
         self.stats['by_module'][modname] = {}
         self.stats['by_module'][modname]['statement'] = 0
-        for msg_cat in MSG_TYPES.values():
+        for msg_cat in MSG_TYPES.itervalues():
             self.stats['by_module'][modname][msg_cat] = 0
         # XXX hack, to be correct we need to keep module_msgs_state
         # for every analyzed module (the problem stands with localized
@@ -594,7 +594,7 @@ This is used by the global evaluation report (RP0004).'}),
         self.stats = { 'by_module' : {},
                        'by_msg' : {},
                        }
-        for msg_cat in MSG_TYPES.values():
+        for msg_cat in MSG_TYPES.itervalues():
             self.stats[msg_cat] = 0
 
     def close(self):
@@ -659,7 +659,7 @@ def report_messages_stats(sect, stats, _):
         # don't print this report when we didn't detected any errors
         raise EmptyReport()
     in_order = sorted([(value, msg_id)
-                       for msg_id, value in stats['by_msg'].items()
+                       for msg_id, value in stats['by_msg'].iteritems()
                        if not msg_id.startswith('I')])
     in_order.reverse()
     lines = ('message id', 'occurrences')
@@ -675,7 +675,7 @@ def report_messages_by_module_stats(sect, stats, _):
     by_mod = {}
     for m_type in ('fatal', 'error', 'warning', 'refactor', 'convention'):
         total = stats[m_type]
-        for module in stats['by_module'].keys():
+        for module in stats['by_module'].iterkeys():
             mod_total = stats['by_module'][module][m_type]
             if total == 0:
                 percent = 0
@@ -683,7 +683,7 @@ def report_messages_by_module_stats(sect, stats, _):
                 percent = float((mod_total)*100) / total
             by_mod.setdefault(module, {})[m_type] = percent
     sorted_result = []
-    for module, mod_info in by_mod.items():
+    for module, mod_info in by_mod.iteritems():
         sorted_result.append((mod_info['error'],
                               mod_info['warning'],
                               mod_info['refactor'],

@@ -144,7 +144,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         self._to_consume = [(copy(node.locals), {}, 'module')]
         self._vars = []
-        for name, stmts in node.locals.items():
+        for name, stmts in node.locals.iteritems():
             if is_builtin(name) and not is_inside_except(stmts[0]):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmts[0])
@@ -169,7 +169,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
-        for name, stmts in not_consumed.items():
+        for name, stmts in not_consumed.iteritems():
             stmt = stmts[0]
             if isinstance(stmt, astng.Import):
                 self.add_message('W0611', args=name, node=stmt)

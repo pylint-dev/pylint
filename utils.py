@@ -126,7 +126,7 @@ class MessagesHandlerMixIn:
         """
         msgs_dict = checker.msgs
         chkid = None
-        for msgid, (msg, msgdescr) in msgs_dict.items():
+        for msgid, (msg, msgdescr) in msgs_dict.iteritems():
             # avoid duplicate / malformed ids
             assert msgid not in self._messages, \
                    'Message id %r is already defined' % msgid
@@ -183,7 +183,7 @@ class MessagesHandlerMixIn:
             msgs = self._msgs_state
             msgs[msg.msgid] = False
             # sync configuration object
-            self.config.disable_msg = [mid for mid, val in msgs.items()
+            self.config.disable_msg = [mid for mid, val in msgs.iteritems()
                                        if not val]
 
     def enable(self, msgid, scope='package', line=None):
@@ -218,7 +218,7 @@ class MessagesHandlerMixIn:
             msgs = self._msgs_state
             msgs[msg.msgid] = True
             # sync configuration object
-            self.config.enable = [mid for mid, val in msgs.items() if val]
+            self.config.enable = [mid for mid, val in msgs.iteritems() if val]
 
     def check_message_id(self, msgid):
         """raise UnknownMessage if the message id is not defined"""
@@ -317,7 +317,7 @@ class MessagesHandlerMixIn:
                     by_checker[checker.name] = [list(checker.options_and_values()),
                                                 dict(checker.msgs),
                                                 list(checker.reports)]
-        for checker, (options, msgs, reports) in by_checker.items():
+        for checker, (options, msgs, reports) in by_checker.iteritems():
             prefix = ''
             title = '%s checker' % checker
             print title
@@ -333,7 +333,7 @@ class MessagesHandlerMixIn:
                 title = ('%smessages' % prefix).capitalize()
                 print title
                 print '~' * len(title)
-                for msgid in sort_msgs(msgs.keys()):
+                for msgid in sort_msgs(msgs.iterkeys()):
                     print self.get_message_help(msgid, False)
                 print
             if reports:
@@ -349,7 +349,7 @@ class MessagesHandlerMixIn:
         """output full messages list documentation in ReST format"""
         msgids = []
         for checker in self.get_checkers():
-            for msgid in checker.msgs.keys():
+            for msgid in checker.msgs.iterkeys():
                 msgids.append(msgid)
         msgids.sort()
         for msgid in msgids:
@@ -413,7 +413,7 @@ class ReportsHandlerMixIn:
         """add some stats entries to the statistic dictionary
         raise an AssertionError if there is a key conflict
         """
-        for key, value in kwargs.items():
+        for key, value in kwargs.iteritems():
             if key[-1] == '_':
                 key = key[:-1]
             assert key not in self.stats

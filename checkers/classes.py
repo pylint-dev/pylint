@@ -218,7 +218,7 @@ a metaclass class method.'}
         if 'W0201' not in self.active_msgs:
             return
         defining_methods = self.config.defining_attr_methods
-        for attr, nodes in cnode.instance_attrs.items():
+        for attr, nodes in cnode.instance_attrs.iteritems():
             nodes = [n for n in nodes if not
                     isinstance(n.statement(), (astng.Delete, astng.AugAssign))]
             if not nodes:
@@ -382,7 +382,7 @@ a metaclass class method.'}
     def _check_accessed_members(self, node, accessed):
         """check that accessed members are defined"""
         # XXX refactor, probably much simpler now that E0201 is in type checker
-        for attr, nodes in accessed.items():
+        for attr, nodes in accessed.iteritems():
             # deactivate "except doesn't do anything", that's expected
             # pylint: disable=W0704
             # is it a class attribute ?
