@@ -89,7 +89,7 @@ class PyLinterTC(TestCase):
 
     def test_message_help(self):
         msg = self.linter.get_message_help('F0001', checkerref=True)
-        expected = ':F0001:\n  Used when an error occurred preventing the analysis of a module (unable to\n  find it for instance). This message belongs to the master checker.'
+        expected = ':F0001 (fatal):\n  Used when an error occurred preventing the analysis of a module (unable to\n  find it for instance). This message belongs to the master checker.'
         self.assertMultiLineEqual(msg, expected)
         self.assertRaises(UnknownMessage, self.linter.get_message_help, 'YB12')
 
@@ -97,39 +97,39 @@ class PyLinterTC(TestCase):
         linter = self.linter
         linter.open()
         linter.set_current_module('toto')
-        self.assert_(linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('W0102'))
+        self.assertTrue(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('W0102'))
         linter.disable('W0101', scope='package')
         linter.disable('W0102', scope='module', line=1)
-        self.assert_(not linter.is_message_enabled('W0101'))
-        self.assert_(not linter.is_message_enabled('W0102', 1))
+        self.assertFalse(linter.is_message_enabled('W0101'))
+        self.assertFalse(linter.is_message_enabled('W0102', 1))
         linter.set_current_module('tutu')
-        self.assert_(not linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('W0102'))
+        self.assertFalse(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('W0102'))
         linter.enable('W0101', scope='package')
         linter.enable('W0102', scope='module', line=1)
-        self.assert_(linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('W0102', 1))
+        self.assertTrue(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('W0102', 1))
 
     def test_enable_message_category(self):
         linter = self.linter
         linter.open()
         linter.set_current_module('toto')
-        self.assert_(linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('C0121'))
+        self.assertTrue(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('C0121'))
         linter.disable('W', scope='package')
         linter.disable('C', scope='module', line=1)
-        self.assert_(not linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('C0121'))
-        self.assert_(not linter.is_message_enabled('C0121', line=1))
+        self.assertFalse(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('C0121'))
+        self.assertFalse(linter.is_message_enabled('C0121', line=1))
         linter.set_current_module('tutu')
-        self.assert_(not linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('C0121'))
+        self.assertFalse(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('C0121'))
         linter.enable('W', scope='package')
         linter.enable('C', scope='module', line=1)
-        self.assert_(linter.is_message_enabled('W0101'))
-        self.assert_(linter.is_message_enabled('C0121'))
-        self.assert_(linter.is_message_enabled('C0121', line=1))
+        self.assertTrue(linter.is_message_enabled('W0101'))
+        self.assertTrue(linter.is_message_enabled('C0121'))
+        self.assertTrue(linter.is_message_enabled('C0121', line=1))
 
     def test_enable_message_block(self):
         linter = self.linter
@@ -142,40 +142,40 @@ class PyLinterTC(TestCase):
         linter._module_msgs_state = {}
         linter.collect_block_lines(astng, orig_state)
         # global (module level)
-        self.assert_(linter.is_message_enabled('W0613'))
-        self.assert_(linter.is_message_enabled('E1101'))
+        self.assertTrue(linter.is_message_enabled('W0613'))
+        self.assertTrue(linter.is_message_enabled('E1101'))
         # meth1
-        self.assert_(linter.is_message_enabled('W0613', 13))
+        self.assertTrue(linter.is_message_enabled('W0613', 13))
         # meth2
-        self.assert_(not linter.is_message_enabled('W0613', 18))
+        self.assertFalse(linter.is_message_enabled('W0613', 18))
         # meth3
-        self.assert_(not linter.is_message_enabled('E1101', 24))
-        self.assert_(linter.is_message_enabled('E1101', 26))
+        self.assertFalse(linter.is_message_enabled('E1101', 24))
+        self.assertTrue(linter.is_message_enabled('E1101', 26))
         # meth4
-        self.assert_(not linter.is_message_enabled('E1101', 32))
-        self.assert_(linter.is_message_enabled('E1101', 36))
+        self.assertFalse(linter.is_message_enabled('E1101', 32))
+        self.assertTrue(linter.is_message_enabled('E1101', 36))
         # meth5
-        self.assert_(not linter.is_message_enabled('E1101', 42))
-        self.assert_(not linter.is_message_enabled('E1101', 43))
-        self.assert_(linter.is_message_enabled('E1101', 46))
-        self.assert_(not linter.is_message_enabled('E1101', 49))
-        self.assert_(not linter.is_message_enabled('E1101', 51))
+        self.assertFalse(linter.is_message_enabled('E1101', 42))
+        self.assertFalse(linter.is_message_enabled('E1101', 43))
+        self.assertTrue(linter.is_message_enabled('E1101', 46))
+        self.assertFalse(linter.is_message_enabled('E1101', 49))
+        self.assertFalse(linter.is_message_enabled('E1101', 51))
         # meth6
-        self.assert_(not linter.is_message_enabled('E1101', 57))
-        self.assert_(linter.is_message_enabled('E1101', 61))
-        self.assert_(not linter.is_message_enabled('E1101', 64))
-        self.assert_(not linter.is_message_enabled('E1101', 66))
+        self.assertFalse(linter.is_message_enabled('E1101', 57))
+        self.assertTrue(linter.is_message_enabled('E1101', 61))
+        self.assertFalse(linter.is_message_enabled('E1101', 64))
+        self.assertFalse(linter.is_message_enabled('E1101', 66))
 
-        self.assert_(linter.is_message_enabled('E0602', 57))
-        self.assert_(linter.is_message_enabled('E0602', 61))
-        self.assert_(not linter.is_message_enabled('E0602', 62))
-        self.assert_(linter.is_message_enabled('E0602', 64))
-        self.assert_(linter.is_message_enabled('E0602', 66))
+        self.assertTrue(linter.is_message_enabled('E0602', 57))
+        self.assertTrue(linter.is_message_enabled('E0602', 61))
+        self.assertFalse(linter.is_message_enabled('E0602', 62))
+        self.assertTrue(linter.is_message_enabled('E0602', 64))
+        self.assertTrue(linter.is_message_enabled('E0602', 66))
         # meth7
-        self.assert_(not linter.is_message_enabled('E1101', 70))
-        self.assert_(linter.is_message_enabled('E1101', 72))
-        self.assert_(linter.is_message_enabled('E1101', 75))
-        self.assert_(linter.is_message_enabled('E1101', 77))
+        self.assertFalse(linter.is_message_enabled('E1101', 70))
+        self.assertTrue(linter.is_message_enabled('E1101', 72))
+        self.assertTrue(linter.is_message_enabled('E1101', 75))
+        self.assertTrue(linter.is_message_enabled('E1101', 77))
 
     def test_enable_by_symbol(self):
         """messages can be controlled by symbolic names.
@@ -210,10 +210,12 @@ class PyLinterTC(TestCase):
     def test_list_messages(self):
         sys.stdout = StringIO()
         try:
-            # just invoke it, don't check the output
             self.linter.list_messages()
+            output = sys.stdout.getvalue()
         finally:
             sys.stdout = sys.__stdout__
+        # cursory examination of the output: we're mostly testing it completes
+        self.assertTrue(':C0112 (empty-docstring): *Empty docstring*' in output)
 
     def test_lint_ext_module_with_file_output(self):
         if sys.version_info < (3, 0):
@@ -224,8 +226,8 @@ class PyLinterTC(TestCase):
         pylint_strio = 'pylint_%s.txt' % strio
         try:
             self.linter.check(strio)
-            self.assert_(os.path.exists(pylint_strio))
-            self.assert_(os.path.exists('pylint_global.txt'))
+            self.assertTrue(os.path.exists(pylint_strio))
+            self.assertTrue(os.path.exists('pylint_global.txt'))
         finally:
             try:
                 os.remove(pylint_strio)
@@ -243,16 +245,22 @@ class PyLinterTC(TestCase):
     def test_set_option_1(self):
         linter = self.linter
         linter.set_option('disable', 'C0111,W0142')
-        self.assert_(not linter.is_message_enabled('C0111'))
-        self.assert_(not linter.is_message_enabled('W0142'))
-        self.assert_(linter.is_message_enabled('W0113'))
+        self.assertFalse(linter.is_message_enabled('C0111'))
+        self.assertFalse(linter.is_message_enabled('W0142'))
+        self.assertTrue(linter.is_message_enabled('W0113'))
+        self.assertFalse(linter.is_message_enabled('missing-docstring'))
+        self.assertFalse(linter.is_message_enabled('star-args'))
+        # no name for W0113
 
     def test_set_option_2(self):
         linter = self.linter
         linter.set_option('disable', ('C0111', 'W0142') )
-        self.assert_(not linter.is_message_enabled('C0111'))
-        self.assert_(not linter.is_message_enabled('W0142'))
-        self.assert_(linter.is_message_enabled('W0113'))
+        self.assertFalse(linter.is_message_enabled('C0111'))
+        self.assertFalse(linter.is_message_enabled('W0142'))
+        self.assertTrue(linter.is_message_enabled('W0113'))
+        self.assertFalse(linter.is_message_enabled('missing-docstring'))
+        self.assertFalse(linter.is_message_enabled('star-args'))
+        # no name for W0113
 
     def test_enable_checkers(self):
         self.linter.disable('design')
