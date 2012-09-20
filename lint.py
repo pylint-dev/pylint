@@ -38,8 +38,7 @@ from warnings import warn
 
 from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
 from logilab.common.optik_ext import check_csv
-from logilab.common.modutils import load_module_from_name
-from logilab.common.modutils import get_module_part
+from logilab.common.modutils import load_module_from_name, get_module_part
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip
 from logilab.common.ureports import Table, Text, Section
@@ -187,8 +186,10 @@ python modules names) to load, usually to register additional checkers.'}),
                  {'default': 'text', 'type': 'string', 'metavar' : '<format>',
                   'short': 'f',
                   'group': 'Reports',
-                  'help' : 'Set the output format. Available formats are text,\
-                 parseable, colorized, msvs (visual studio) and html'}),
+                  'help' : 'Set the output format. Available formats are text,'
+                  ' parseable, colorized, msvs (visual studio) and html. You '
+                  'can also give a reporter class, eg mypackage.mymodule.'
+                  'MyReporterClass.'}),
 
                 ('include-ids',
                  {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
