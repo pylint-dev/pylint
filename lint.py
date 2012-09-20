@@ -496,8 +496,9 @@ This is used by the global evaluation report (RP0004).'}),
         # get needed checkers
         neededcheckers = [self]
         for checker in self.get_checkers()[1:]:
+            # fatal errors should not trigger enable / disabling a checker
             messages = set(msg for msg in checker.msgs
-                           if self.is_message_enabled(msg))
+                           if msg[0] != 'F' and self.is_message_enabled(msg))
             if (messages or
                 any(self.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)

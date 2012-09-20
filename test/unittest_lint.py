@@ -298,17 +298,11 @@ class PyLinterTC(TestCase):
     def test_disable_alot(self):
         """check that we disabled a lot of checkers"""
         self.linter.set_option('reports', False)
-        # FIXME should it be necessary to explicitly desactivate failures ?
         self.linter.set_option('disable', 'R,C,W')
         checker_names = [c.name for c in self.linter.prepare_checkers()]
-        should_not = ('design', 'metrics', 'similarities')
-        rest = [name for name in checker_names if name in should_not]
-        self.assertListEqual(rest, [])
-        self.linter.set_option('disable', 'R,C,W,F')
-        checker_names = [c.name for c in self.linter.prepare_checkers()]
-        should_not +=  ('format', 'imports')
-        rest = [name for name in checker_names if name in should_not]
-        self.assertListEqual(rest, [])
+        for cname in  ('design', 'metrics', 'similarities',
+                       'imports'): # as a Fatal message that should be ignored
+            self.assertFalse(cname in checker_names, cname)
 
 
 class ConfigTC(TestCase):
