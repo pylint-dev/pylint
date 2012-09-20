@@ -39,6 +39,7 @@ from warnings import warn
 from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
 from logilab.common.optik_ext import check_csv
 from logilab.common.modutils import load_module_from_name
+from logilab.common.modutils import get_module_part
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip
 from logilab.common.ureports import Table, Text, Section
@@ -183,8 +184,7 @@ They should be base names, not paths.'}),
 python modules names) to load, usually to register additional checkers.'}),
 
                 ('output-format',
-                 {'default': 'text', 'type': 'choice', 'metavar' : '<format>',
-                  'choices': REPORTER_OPT_MAP.keys(),
+                 {'default': 'text', 'type': 'string', 'metavar' : '<format>',
                   'short': 'f',
                   'group': 'Reports',
                   'help' : 'Set the output format. Available formats are text,\
@@ -341,7 +341,14 @@ This is used by the global evaluation report (RP0004).'}),
                 else :
                     meth(value)
         elif optname == 'output-format':
-            self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
+            if value.lower() in REPORTER_OPT_MAP:
+                self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
+            else:
+                module = load_module_from_name(get_module_part(value))
+                class_name = value.split('.')[-1]
+                reporter_class = getattr(module, class_name)
+                self.set_reporter(reporter_class())
+
         try:
             BaseRawChecker.set_option(self, optname, value, action, optdict)
         except UnsupportedAction:

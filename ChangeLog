@@ -14,6 +14,8 @@ ChangeLog for PyLint
     * #4685: check for consistency of a module's __all__ variable,
       introducing new E0603 message
 
+    * #105337: allow custom reporter in output-format (patch by Kevin Jing Qiu)
+
     * #100654: fix grammatical error for W0332 message (using 'l' as
       long int identifier)
 
