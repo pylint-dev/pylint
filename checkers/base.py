@@ -582,7 +582,7 @@ class NameChecker(_BasicChecker):
               'blacklisted-name',
               'Used when the name is listed in the black list (unauthorized \
               names).'),
-    'C0103': ('Invalid name "%s" (should match %s)',
+    'C0103': ('Invalid name "%s" for type %s (should match %s)',
               'invalid-name',
               'Used when the name doesn\'t match the regular expression \
               associated to its type (constant, variable, class...).'),
@@ -716,7 +716,6 @@ class NameChecker(_BasicChecker):
             clobbering, _ = clobber_in_except(node)
             if clobbering:
                 return
-
         if name in self.config.good_names:
             return
         if name in self.config.bad_names:
@@ -725,7 +724,11 @@ class NameChecker(_BasicChecker):
             return
         regexp = getattr(self.config, node_type + '_rgx')
         if regexp.match(name) is None:
-            self.add_message('C0103', node=node, args=(name, regexp.pattern))
+            type_label = {'inlinedvar': 'inlined variable',
+                          'const': 'constant',
+                          'attr': 'attribute',
+                          }.get(node_type, node_type)
+            self.add_message('C0103', node=node, args=(name, type_label, regexp.pattern))
             self.stats['badname_' + node_type] += 1
 
 
