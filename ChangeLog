@@ -16,6 +16,9 @@ ChangeLog for PyLint
 
     * #105337: allow custom reporter in output-format (patch by Kevin Jing Qiu)
 
+    * #104420: check for protocol completness and avoid false R0903
+      (patch by Peter Hammond)
+
     * #100654: fix grammatical error for W0332 message (using 'l' as
       long int identifier)
 

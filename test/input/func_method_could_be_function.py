@@ -1,4 +1,4 @@
-# pylint: disable=R0903,R0922,W0232
+# pylint: disable=R0903,R0922,W0232,R0924
 """test detection of method which could be a function"""
 
 __revision__ = None
