@@ -1,19 +1,22 @@
-this file is used
-to check the similar 
-command line tool
+import one
+from two import two
+three
+four
+five
+six # comments optionally ignored
+seven
+eight
+nine
+''' ten
+eleven
+twelve '''
+thirteen
+fourteen
+fifteen
 
-see the similar2 file which is almost the
-same file as this one. 
-more than 4
-identical lines should
-be # ignore comments !
-detected
-
-
-héhéhéh
 
 
 
-
-
-Yo !
+sixteen
+seventeen
+eighteen

@@ -29,10 +29,11 @@ class Similar:
     """finds copy-pasted lines of code in a project"""
 
     def __init__(self, min_lines=4, ignore_comments=False,
-                 ignore_docstrings=False):
+                 ignore_docstrings=False, ignore_imports=False):
         self.min_lines = min_lines
         self.ignore_comments = ignore_comments
         self.ignore_docstrings = ignore_docstrings
+        self.ignore_imports = ignore_imports
         self.linesets = []
 
     def append_stream(self, streamid, stream):
@@ -41,7 +42,8 @@ class Similar:
         self.linesets.append(LineSet(streamid,
                                      stream.readlines(),
                                      self.ignore_comments,
-                                     self.ignore_docstrings))
+                                     self.ignore_docstrings,
+                                     self.ignore_imports))
 
     def run(self):
         """start looking for similarities and display results on stdout"""
@@ -123,7 +125,11 @@ class Similar:
                 for sim in self._find_common(lineset, lineset2):
                     yield sim
 
-def stripped_lines(lines, ignore_comments, ignore_docstrings):
+def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
+    """return lines with leading/trailing whitespace and any ignored code
+    features removed
+    """
+
     strippedlines = []
     docstring = None
     for line in lines:
@@ -137,6 +143,9 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings):
                 if line.endswith(docstring):
                     docstring = None
                 line = ''
+        if ignore_imports:
+            if line.startswith("import ") or line.startswith("from "):
+                line = ''
         if ignore_comments:
             # XXX should use regex in checkers/format to avoid cutting
             # at a "#" in a string
@@ -147,11 +156,12 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings):
 class LineSet:
     """Holds and indexes all the lines of a single source file"""
     def __init__(self, name, lines, ignore_comments=False,
-                 ignore_docstrings=False):
+                 ignore_docstrings=False, ignore_imports=False):
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(lines, ignore_comments,
-                                              ignore_docstrings)
+                                              ignore_docstrings,
+                                              ignore_imports)
         self._index = self._mk_index()
 
     def __str__(self):
@@ -236,6 +246,10 @@ class SimilarChecker(BaseChecker, Similar):
                 {'default' : True, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Ignore docstrings when computing similarities.'}
                 ),
+               ('ignore-imports',
+                {'default' : False, 'type' : 'yn', 'metavar' : '<y or n>',
+                 'help': 'Ignore imports when computing similarities.'}
+                ),
                )
     # reports
     reports = ( ('RP0801', 'Duplication', report_similarities), )
@@ -258,6 +272,8 @@ class SimilarChecker(BaseChecker, Similar):
             self.ignore_comments = self.config.ignore_comments
         elif optname == 'ignore-docstrings':
             self.ignore_docstrings = self.config.ignore_docstrings
+        elif optname == 'ignore-imports':
+            self.ignore_imports = self.config.ignore_imports
 
     def open(self):
         """init the checkers: reset linesets and statistics information"""
@@ -302,7 +318,7 @@ def usage(status=0):
     print "finds copy pasted blocks in a set of files"
     print
     print 'Usage: symilar [-d|--duplicates min_duplicated_lines] \
-[-i|--ignore-comments] file1...'
+[-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] file1...'
     sys.exit(status)
 
 def Run(argv=None):
@@ -311,9 +327,12 @@ def Run(argv=None):
         argv = sys.argv[1:]
     from getopt import getopt
     s_opts = 'hdi'
-    l_opts = ('help', 'duplicates=', 'ignore-comments')
+    l_opts = ('help', 'duplicates=', 'ignore-comments', 'ignore-imports',
+              'ignore-docstrings')
     min_lines = 4
     ignore_comments = False
+    ignore_docstrings = False
+    ignore_imports = False
     opts, args = getopt(argv, s_opts, l_opts)
     for opt, val in opts:
         if opt in ('-d', '--duplicates'):
@@ -322,9 +341,13 @@ def Run(argv=None):
             usage()
         elif opt in ('-i', '--ignore-comments'):
             ignore_comments = True
+        elif opt in ('--ignore-docstrings'):
+            ignore_docstrings = True
+        elif opt in ('--ignore-imports'):
+            ignore_imports = True
     if not args:
         usage(1)
-    sim = Similar(min_lines, ignore_comments)
+    sim = Similar(min_lines, ignore_comments, ignore_docstrings, ignore_imports)
     for filename in args:
         sim.append_stream(filename, open(filename))
     sim.run()

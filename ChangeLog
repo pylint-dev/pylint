@@ -2,6 +2,9 @@ ChangeLog for PyLint
 ====================
 
 --
+    * #106534: add --ignore-imports option to code similarity checking
+      and 'symilar' command line tool (patch by Ry4an Brase)
+
     * #104571: check for anomalous backslash escape, introducing new
       W1401 and W1402 messages (patch by Martin Pool)
 
