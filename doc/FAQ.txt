@@ -252,13 +252,27 @@ No, starting from 0.25.3, you can use symbolic names for messages::
 
 You can show these symbols in the output with the `-sy` option.
 
+4.7 How can I tell Pylint to never check a given module?
+--------------------------------------------------------
+
+With pylint < 0.25, add "#pylint: disable-all" at the beginning of the
+module. Pylint 0.26.1 and up have renamed that directive to
+"#pylint: skip-file" (but the first version will be kept for backward
+compatibility).
+
+In order to ease finding which modules are ignored a Information-level
+message I0013 is emited. With recent versions of Pylint, if you use
+the old syntax, an additional I0014 message is emited.
+
+
+
 5. Classes and Inheritance
 ==========================
 
 5.1 When is pylint considering a class as an interface?
 -------------------------------------------------------
 
-A class is considered as an interface if there is a class named "Interface" 
+A class is considered as an interface if there is a class named "Interface"
 somewhere in its inheritance tree.
 
 5.2 When is pylint considering that a class is implementing a given interface?

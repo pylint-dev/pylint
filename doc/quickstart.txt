@@ -163,9 +163,10 @@ First of all, we have two basic (but useful) options.
 Pylint is architectured around several checkers. By default all
 checkers are enabled. You can disable a specific checker or some of its
 messages or messages categories by specifying
-``--disable=<id>``. A more general disable can be enabled with
-or disable all checkers using
-``--enable=w<id>``. See the list of available features_ for a
+``--disable=<id>``. If you want to enable only some checkers or some
+message ids, first use ``--disable=all`` then 
+``--enable=<id>`` with <id> being a comma separated list of checker
+names and message identifiers. See the list of available features_ for a
 description of provided checkers with their functionalities.
 The ``--disable`` and ``--enable`` options can be used with comma separated lists
 mixing checkers, message ids and categories like ``-d C,W,E0611,design``

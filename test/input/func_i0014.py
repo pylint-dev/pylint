@@ -1,4 +1,4 @@
-# pylint: skip-file
+# pylint: disable-all
 """disable-all is usable as an inline option"""
 
 # no warning should be issued

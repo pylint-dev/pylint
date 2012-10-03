@@ -38,6 +38,9 @@ ChangeLog for PyLint
     * stop including tests files in distribution, they causes crash when
       installed with python3 (#72022, #82417, #76910)
 
+    * add support for --disable=all option (#105327)
+
+    * deprecate the 'disable-all' inline directive in favour of 'skip-file'
 
 2012-07-17  --  0.25.2
     * #93591: Correctly emit warnings about clobbered variable names when an

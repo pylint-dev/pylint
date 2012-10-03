@@ -172,6 +172,11 @@ class MessagesHandlerMixIn:
     def disable(self, msgid, scope='package', line=None):
         """don't output message of the given id"""
         assert scope in ('package', 'module')
+        # handle disable=all by disabling all categories
+        if msgid == 'all':
+            for msgid in MSG_TYPES:
+                self.disable(msgid, scope, line)
+            return
         # msgid is a category?
         catid = category_id(msgid)
         if catid is not None:

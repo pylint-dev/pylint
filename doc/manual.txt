@@ -286,6 +286,10 @@ description of provided checkers with their functionalities.
 The ``--disable`` and ``--enable`` options can be used with comma separated lists
 mixing checkers, message ids and categories like ``-d C,W,E0611,design``
 
+It is possible to disable all messages with ``--disable=all``. This is
+useful to enable only a few checkers or a few messages by first
+disabling everything, and then re-enabling only what you need. 
+
 Each checker has some specific options, which can take either a yes/no
 value, an integer, a python regular expression, or a comma separated
 list of values (which are generally used to override a regular
@@ -324,7 +328,7 @@ What pylint says is not to be taken as gospel. While getting as
 few false positives for errors as possible is a goal for us -- and
 python makes it hard enough, it is not the case for warnings.
 
-:Quoting Alexandre:
+:Quoting Alexandre Fayolle:
   My usage pattern for pylint is to generally run pylint -e quite often to
   get stupid errors flagged before launching an application (or before
   committing). I generally run pylint with all the bells and whistles

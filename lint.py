@@ -126,6 +126,11 @@ MSGS = {
     'I0013': ('Ignoring entire file',
               'file-ignored',
               'Used to inform that the file will not be checked'),
+    'I0014': ('Used deprecated directive "pylint:disable-all" or "pylint:disable=all"',
+              'deprecated-disable-all',
+              'You should preferably use "pylint:skip-file" as this directive '
+              'has a less confusing name. Do this only if you are sure that all '
+              'people running Pylint on your code have version >= 0.26'),
 
 
     'E0001': ('%s',
@@ -240,7 +245,8 @@ This is used by the global evaluation report (RP0004).'}),
                   'group': 'Messages control',
                   'help' : 'Enable the message, report, category or checker with the '
                   'given id(s). You can either give multiple identifier '
-                  'separated by comma (,) or put this option multiple time.'}),
+                  'separated by comma (,) or put this option multiple time. '
+                  'See also the "--disable" option for examples. '}),
 
                 ('disable',
                  {'type' : 'csv', 'metavar': '<msg ids>',
@@ -250,7 +256,14 @@ This is used by the global evaluation report (RP0004).'}),
                   'with the given id(s). You can either give multiple identifier'
                   ' separated by comma (,) or put this option multiple time '
                   '(only on the command line, not in the configuration file '
-                  'where it should appear only once).'}),
+                  'where it should appear only once).'
+                  'You can also use "--disable=all" to disable everything first '
+                  'and then reenable specific checks. For example, if you want '
+                  'to run only the similarities checker, you can use '
+                  '"--disable=all --enable=similarities". '
+                  'If you want to run only the classes checker, but have no '
+                  'Warning level messages displayed, use'
+                  '"--disable=all --enable=classes --disable=W"'}),
                )
 
     option_groups = (
@@ -410,7 +423,9 @@ This is used by the global evaluation report (RP0004).'}),
             match = OPTION_RGX.search(line)
             if match is None:
                 continue
-            if match.group(1).strip() == "disable-all":
+            if match.group(1).strip() == "disable-all" or match.group(1).strip() == 'skip-file':
+                if match.group(1).strip() == "disable-all":
+                    self.add_message('I0014', line=start[0])
                 self.add_message('I0013', line=start[0])
                 self._ignore_file = True
                 return
@@ -426,11 +441,16 @@ This is used by the global evaluation report (RP0004).'}),
                     meth = self._options_methods[opt]
                 except KeyError:
                     meth = self._bw_options_methods[opt]
-                    warn('%s is deprecated, replace it by %s (%s, line %s)' % (
+                    warn('%s is deprecated, replace it with %s (%s, line %s)' % (
                         opt, opt.split('-')[0], self.current_file, line),
                          DeprecationWarning)
                 for msgid in splitstrip(value):
                     try:
+                        if (opt, msgid) == ('disable', 'all'):
+                            self.add_message('I0014', line=start[0])
+                            self.add_message('I0013', line=start[0])
+                            self._ignore_file = True
+                            return
                         meth(msgid, 'module', start[0])
                     except UnknownMessage:
                         self.add_message('E0012', args=msgid, line=start[0])
