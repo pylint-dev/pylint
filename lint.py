@@ -860,32 +860,32 @@ are done by default'''}),
         linter.load_plugin_modules(self._plugins)
         # add some help section
         linter.add_help_section('Environment variables', config.ENV_HELP, level=1)
-        linter.add_help_section('Output', '''
-Using the default text output, the message format is :                          
-                                                                                
-        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                                
-                                                                                
-There are 5 kind of message types :                                             
-    * (C) convention, for programming standard violation                        
-    * (R) refactor, for bad code smell                                          
-    * (W) warning, for python specific problems                                 
-    * (E) error, for probable bugs in the code                                  
-    * (F) fatal, if an error occurred which prevented pylint from doing further
-processing.
-        ''', level=1)
-        linter.add_help_section('Output status code', '''
-Pylint should leave with following status code:                                 
-    * 0 if everything went fine                                                 
-    * 1 if a fatal message was issued                                           
-    * 2 if an error message was issued                                          
-    * 4 if a warning message was issued                                         
-    * 8 if a refactor message was issued                                        
-    * 16 if a convention message was issued                                     
-    * 32 on usage error                                                         
-                                                                                
-status 1 to 16 will be bit-ORed so you can know which different categories has
-been issued by analysing pylint output status code
-        ''', level=1)
+        linter.add_help_section('Output',
+'Using the default text output, the message format is :                          \n'
+'                                                                                \n'
+'        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                                \n'
+'                                                                                \n'
+'There are 5 kind of message types :                                             \n'
+'    * (C) convention, for programming standard violation                        \n'
+'    * (R) refactor, for bad code smell                                          \n'
+'    * (W) warning, for python specific problems                                 \n'
+'    * (E) error, for probable bugs in the code                                  \n'
+'    * (F) fatal, if an error occurred which prevented pylint from doing further\n'
+'processing.\n'
+        , level=1)
+        linter.add_help_section('Output status code',
+'Pylint should leave with following status code:                                 \n'
+'    * 0 if everything went fine                                                 \n'
+'    * 1 if a fatal message was issued                                           \n'
+'    * 2 if an error message was issued                                          \n'
+'    * 4 if a warning message was issued                                         \n'
+'    * 8 if a refactor message was issued                                        \n'
+'    * 16 if a convention message was issued                                     \n'
+'    * 32 on usage error                                                         \n'
+'                                                                                \n'
+'status 1 to 16 will be bit-ORed so you can know which different categories has\n'
+'been issued by analysing pylint output status code\n',
+        level=1)
         # read configuration
         linter.disable('W0704')
         linter.read_config_file()
