@@ -32,7 +32,6 @@ override_dh_install:
 	for executable in pylint pylint-gui symilar epylint pyreverse ; do \
 		new_exec="$$executable"3; \
 		sed 's,^#!.*python$$,&3,' < $(CURDIR)/debian/$(PACKAGE3)/usr/bin/$$executable > $(CURDIR)/debian/$(PACKAGE3)/usr/bin/$$new_exec || exit 1; \ \
-
 	done
 	# remove test directory
 	rm -rf debian/*/usr/lib/python*/*-packages/pylint/test
