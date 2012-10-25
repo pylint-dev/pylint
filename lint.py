@@ -16,7 +16,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """ %prog [options] module_or_package
 
-  Check that a module satisfy a coding standard (and more !).
+  Check that a module satisfies a coding standard (and more !).
 
     %prog --help
 
@@ -94,7 +94,7 @@ MSGS = {
               Please report such errors !'),
     'F0003': ('ignored builtin module %s',
               'ignored-builtin-module',
-              'Used to indicate that the user asked to analyze a builtin module\
+              'Used to indicate that the user asked to analyze a builtin module \
               which has been skipped.'),
     'F0004': ('unexpected inferred value %s',
               'unexpected-inferred-value',
@@ -247,8 +247,8 @@ This is used by the global evaluation report (RP0004).'}),
                   'short': 'd',
                   'group': 'Messages control',
                   'help' : 'Disable the message, report, category or checker '
-                  'with the given id(s). You can either give multiple identifier'
-                  ' separated by comma (,) or put this option multiple time '
+                  'with the given id(s). You can either give multiple identifiers'
+                  ' separated by comma (,) or put this option multiple times '
                   '(only on the command line, not in the configuration file '
                   'where it should appear only once).'}),
                )
