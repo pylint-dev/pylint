@@ -60,7 +60,7 @@ from pylint import config
 from pylint.__pkginfo__ import version
 
 
-OPTION_RGX = re.compile(r'\s*#*\s*pylint:(.*)')
+OPTION_RGX = re.compile(r'\s*#.*\bpylint:(.*)')
 REPORTER_OPT_MAP = {'text': TextReporter,
                     'parseable': ParseableTextReporter,
                     'msvs': VSTextReporter,
