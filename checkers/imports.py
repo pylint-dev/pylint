@@ -102,14 +102,14 @@ def dependencies_graph(filename, dep_info):
     done = {}
     printer = DotBackend(filename[:-4], rankdir = "LR")
     printer.emit('URL="." node[shape="box"]')
-    for modname, dependencies in dep_info.iteritems():
+    for modname, dependencies in sorted(dep_info.iteritems()):
         done[modname] = 1
         printer.emit_node(modname)
         for modname in dependencies:
             if modname not in done:
                 done[modname] = 1
                 printer.emit_node(modname)
-    for depmodname, dependencies in dep_info.iteritems():
+    for depmodname, dependencies in sorted(dep_info.iteritems()):
         for modname in dependencies:
             printer.emit_edge(modname, depmodname)
     printer.generate(filename)
