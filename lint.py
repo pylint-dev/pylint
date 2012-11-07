@@ -330,6 +330,17 @@ This is used by the global evaluation report (RP0004).'}),
         from pylint import checkers
         checkers.initialize(self)
 
+    def prepare_import_path(self, args):
+        """Prepare sys.path for running the linter checks."""
+        if len(args) == 1:
+            sys.path.insert(0, _get_python_path(args[0]))
+        else:
+            sys.path.insert(0, os.getcwd())
+
+    def cleanup_import_path(self):
+        """Revert any changes made to sys.path in prepare_import_path."""
+        sys.path.pop(0)
+
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
         and register them
@@ -965,10 +976,7 @@ are done by default'''}),
             sys.exit(32)
         # insert current working directory to the python path to have a correct
         # behaviour
-        if len(args) == 1:
-            sys.path.insert(0, _get_python_path(args[0]))
-        else:
-            sys.path.insert(0, os.getcwd())
+        linter.prepare_import_path(args)
         if self.linter.config.profile:
             print >> sys.stderr, '** profiled run'
             import cProfile, pstats
@@ -979,7 +987,7 @@ are done by default'''}),
             data.print_stats(30)
         else:
             linter.check(args)
-        sys.path.pop(0)
+        linter.cleanup_import_path()
         if exit:
             sys.exit(self.linter.msg_status)
 
