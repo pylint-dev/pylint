@@ -162,6 +162,9 @@ class LintGui:
         msg_frame.pack(side=TOP, fill=BOTH, expand=True)
         btn_frame.pack(side=TOP, fill=X)
 
+        # Binding F5 application-wide to run lint
+        self.root.bind('<F5>', self.run_lint)
+
         #Message ListBox
         rightscrollbar = Scrollbar(msg_frame)
         rightscrollbar.pack(side=RIGHT, fill=Y)
@@ -318,7 +321,12 @@ class LintGui:
         #clear the window
         self.lbMessages.delete(0, END)
         for msg in self.msgs:
-            if (self.msg_type_dict.get(msg[0])()):
+
+            # Obtaining message type (pylint's '--include-ids' appends the
+            # ID to this letter, so 1 character long is not guaranteed)
+            msg_type = msg[0][0]
+
+            if (self.msg_type_dict.get(msg_type)()):
                 msg_str = convert_to_string(msg)
                 self.lbMessages.insert(END, msg_str)
                 fg_color = COLORS.get(msg_str[:3], 'black')
@@ -346,8 +354,12 @@ class LintGui:
                 #adding message to list of msgs
                 self.msgs.append(msg)
 
+                # Obtaining message type (pylint's '--include-ids' appends the
+                # ID to this letter, so 1 character long is not guaranteed)
+                msg_type = msg[0][0]
+
                 #displaying msg if message type is selected in check box
-                if (self.msg_type_dict.get(msg[0])()):
+                if (self.msg_type_dict.get(msg_type)()):
                     msg_str = convert_to_string(msg)
                     self.lbMessages.insert(END, msg_str)
                     fg_color = COLORS.get(msg_str[:3], 'black')

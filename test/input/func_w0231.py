@@ -37,7 +37,6 @@ class NewStyleB(NewStyleA):
     def __init__(self):
         super(NewStyleB, self).__init__()
 
-
 class NoInit(object):
     """No __init__ defined"""
 
@@ -46,3 +45,16 @@ class Init(NoInit):
 
     def __init__(self, arg):
         self.arg = arg
+
+class NewStyleC(object):
+    """__init__ defined by assignemnt."""
+    def xx_init(self):
+        """Initializer."""
+        pass
+
+    __init__ = xx_init
+
+class AssignedInit(NewStyleC):
+    """No init called."""
+    def __init__(self):
+        self.arg = 0

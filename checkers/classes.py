@@ -637,8 +637,8 @@ def _ancestors_to_call(klass_node, method='__init__'):
     to_call = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
-            to_call[base_node] = base_node.local_attr(method)[-1]
-        except astng.NotFoundError:
+            to_call[base_node] = base_node.igetattr(method).next()
+        except astng.InferenceError:
             continue
     return to_call
 

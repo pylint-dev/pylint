@@ -4,7 +4,7 @@ Hi there!
 What is pylint ?
 ----------------
 
-Pylint is a python tool that checks if a module satisfy a coding
+Pylint is a python tool that checks if a module satisfies a coding
 standard. Pylint can be seen as another pychecker since nearly all
 tests you can do with pychecker can also be done with Pylint. But
 Pylint offers some more features, like checking line-code's length,
