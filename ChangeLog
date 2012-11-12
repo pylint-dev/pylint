@@ -5,6 +5,8 @@ ChangeLog for PyLint
     * #110838: fix pylint-gui crash when include-ids is activated (patch by
       Omega Weapon)
 
+    * #110839: bind <F5> to Run button in pylint-gui
+
 
 --
     * #106534: add --ignore-imports option to code similarity checking

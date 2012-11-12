@@ -162,6 +162,9 @@ class LintGui:
         msg_frame.pack(side=TOP, fill=BOTH, expand=True)
         btn_frame.pack(side=TOP, fill=X)
 
+        # Binding F5 application-wide to run lint
+        self.root.bind('<F5>', self.run_lint)
+
         #Message ListBox
         rightscrollbar = Scrollbar(msg_frame)
         rightscrollbar.pack(side=RIGHT, fill=Y)
