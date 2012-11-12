@@ -2,6 +2,11 @@ ChangeLog for PyLint
 ====================
 
 --
+    * #110838: fix pylint-gui crash when include-ids is activated (patch by
+      Omega Weapon)
+
+
+--
     * #106534: add --ignore-imports option to code similarity checking
       and 'symilar' command line tool (patch by Ry4an Brase)
 
