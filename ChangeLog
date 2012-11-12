@@ -2,13 +2,17 @@ ChangeLog for PyLint
 ====================
 
 --
+    * #110853: Fix a crash when an __init__ method in a base class has been
+      created by assignment rather than direct function definition. (patch by
+      Torsten Marek)
+
     * #110838: fix pylint-gui crash when include-ids is activated (patch by
       Omega Weapon)
 
     * #110839: bind <F5> to Run button in pylint-gui
 
 
---
+2012-10-05  --  0.26.0
     * #106534: add --ignore-imports option to code similarity checking
       and 'symilar' command line tool (patch by Ry4an Brase)
 
