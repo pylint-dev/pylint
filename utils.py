@@ -57,6 +57,8 @@ MSG_TYPES_STATUS = {
     }
 
 _MSG_ORDER = 'EWRCIF'
+MSG_STATE_SCOPE_CONFIG = 0
+MSG_STATE_SCOPE_MODULE = 1
 
 def sort_msgs(msgids):
     """sort message identifiers according to their category first"""
@@ -115,8 +117,10 @@ class MessagesHandlerMixIn:
         self._messages_by_symbol = {}
         self._msgs_state = {}
         self._module_msgs_state = {} # None
+        self._raw_module_msgs_state = {}
         self._msgs_by_category = {}
         self.msg_status = 0
+        self._ignored_msgs = {}
 
     def register_messages(self, checker):
         """register a dictionary of messages
@@ -260,6 +264,14 @@ class MessagesHandlerMixIn:
         except KeyError:
             raise UnknownMessage('No such message id %s' % msgid)
 
+    def get_message_state_scope(self, msgid, line=None):
+        """Returns the scope at which a message was enabled/disabled."""
+        try:
+            if line in self._module_msgs_state[msgid]:
+                return MSG_STATE_SCOPE_MODULE
+        except (KeyError, TypeError):
+            return MSG_STATE_SCOPE_CONFIG
+
     def is_message_enabled(self, msgid, line=None):
         """return true if the message associated to the given message id is
         enabled
@@ -274,6 +286,20 @@ class MessagesHandlerMixIn:
             return self._module_msgs_state[msgid][line]
         except (KeyError, TypeError):
             return self._msgs_state.get(msgid, True)
+
+    def handle_ignored_message(self, state_scope, msgid, line, node, args):
+        """Report an ignored message.
+
+        state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
+        depending on whether the message was disabled locally in the module,
+        or globally. The other arguments are the same as for add_message.
+        """
+        if state_scope == MSG_STATE_SCOPE_MODULE:
+            try:
+                orig_line = self._suppression_mapping[(msgid, line)]
+                self._ignored_msgs.setdefault((msgid, orig_line), set()).add(line)
+            except KeyError:
+                pass
 
     def add_message(self, msgid, line=None, node=None, args=None):
         """add the message corresponding to the given id.
@@ -291,6 +317,8 @@ class MessagesHandlerMixIn:
             col_offset = None
         # should this message be displayed
         if not self.is_message_enabled(msgid, line):
+            self.handle_ignored_message(
+                self.get_message_state_scope(msgid, line), msgid, line, node, args)
             return
         # update stats
         msg_cat = MSG_TYPES[msgid[0]]

@@ -101,6 +101,15 @@ class Foo(object):
         # error
         print self.blip
 
+    def meth10(self):
+        """Test double disable"""
+        # pylint: disable=E1101
+        # no error
+        print self.bla
+        # pylint: disable=E1101
+        print self.blu
+
+
 class ClassLevelMessage(object):
     """shouldn't display to much attributes/not enough methods messages
     """

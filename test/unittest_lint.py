@@ -26,7 +26,9 @@ from logilab.common.compat import reload
 from pylint import config
 from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
      ArgumentPreprocessingError
-from pylint.utils import sort_msgs, PyLintASTWalker
+from pylint.utils import sort_msgs, PyLintASTWalker, MSG_STATE_SCOPE_CONFIG, \
+     MSG_STATE_SCOPE_MODULE
+
 from pylint import checkers
 
 class SortMessagesTC(TestCase):
@@ -131,6 +133,21 @@ class PyLinterTC(TestCase):
         self.assertTrue(linter.is_message_enabled('C0121'))
         self.assertTrue(linter.is_message_enabled('C0121', line=1))
 
+    def test_message_state_scope(self):
+        linter = self.linter
+        linter.open()
+        linter.disable('C0121')
+        self.assertEqual(MSG_STATE_SCOPE_CONFIG,
+                         linter.get_message_state_scope('C0121'))
+        linter.disable('W0101', scope='module', line=3)
+        self.assertEqual(MSG_STATE_SCOPE_CONFIG,
+                         linter.get_message_state_scope('C0121'))
+        self.assertEqual(MSG_STATE_SCOPE_MODULE,
+                         linter.get_message_state_scope('W0101', 3))
+        linter.enable('W0102', scope='module', line=3)
+        self.assertEqual(MSG_STATE_SCOPE_MODULE,
+                         linter.get_message_state_scope('W0102', 3))
+
     def test_enable_message_block(self):
         linter = self.linter
         linter.open()
@@ -140,6 +157,7 @@ class PyLinterTC(TestCase):
         linter.process_module(astng)
         orig_state = linter._module_msgs_state.copy()
         linter._module_msgs_state = {}
+        linter._suppression_mapping = {}
         linter.collect_block_lines(astng, orig_state)
         # global (module level)
         self.assertTrue(linter.is_message_enabled('W0613'))
@@ -176,6 +194,17 @@ class PyLinterTC(TestCase):
         self.assertTrue(linter.is_message_enabled('E1101', 72))
         self.assertTrue(linter.is_message_enabled('E1101', 75))
         self.assertTrue(linter.is_message_enabled('E1101', 77))
+
+        self.assertEqual(17, linter._suppression_mapping['W0613', 18])
+        self.assertEqual(30, linter._suppression_mapping['E1101', 33])
+        self.assert_(('E1101', 46) not in linter._suppression_mapping)
+        self.assertEqual(1, linter._suppression_mapping['C0302', 18])
+        self.assertEqual(1, linter._suppression_mapping['C0302', 50])
+        # This is tricky. While the disable in line 106 is disabling
+        # both 108 and 110, this is usually not what the user wanted.
+        # Therefore, we report the closest previous disable comment.
+        self.assertEqual(106, linter._suppression_mapping['E1101', 108])
+        self.assertEqual(109, linter._suppression_mapping['E1101', 110])
 
     def test_enable_by_symbol(self):
         """messages can be controlled by symbolic names.

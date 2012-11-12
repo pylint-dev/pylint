@@ -131,6 +131,16 @@ MSGS = {
               'You should preferably use "pylint:skip-file" as this directive '
               'has a less confusing name. Do this only if you are sure that all '
               'people running Pylint on your code have version >= 0.26'),
+    'I0020': ('Suppressed %s (from line %d)',
+              'suppressed-message',
+              'A message was triggered on a line, but suppressed explicitly '
+              'by a disable= comment in the file. This message is not '
+              'generated for messages that are ignored due to configuration '
+              'settings.'),
+    'I0021': ('Useless suppression of %s',
+              'useless-suppression',
+              'Reported when a message is explicitly disabled for a line or '
+              'a block of code, but never triggered.'),
 
 
     'E0001': ('%s',
@@ -485,6 +495,7 @@ This is used by the global evaluation report (RP0004).'}),
             firstchildlineno = last
         for msgid, lines in msg_state.iteritems():
             for lineno, state in lines.items():
+                original_lineno = lineno
                 if first <= lineno <= last:
                     if lineno > firstchildlineno:
                         state = True
@@ -495,6 +506,9 @@ This is used by the global evaluation report (RP0004).'}),
                         if not line in self._module_msgs_state.get(msgid, ()):
                             if line in lines: # state change in the same block
                                 state = lines[line]
+                                original_lineno = line
+                            if not state:
+                                self._suppression_mapping[(msgid, line)] = original_lineno
                             try:
                                 self._module_msgs_state[msgid][line] = state
                             except KeyError:
@@ -599,6 +613,8 @@ This is used by the global evaluation report (RP0004).'}),
         if modname:
             self._module_msgs_state = {}
             self._module_msg_cats_state = {}
+            self._raw_module_msgs_state = {}
+            self._ignored_msgs = {}
 
     def get_astng(self, filepath, modname):
         """return a astng representation for a module"""
@@ -626,8 +642,11 @@ This is used by the global evaluation report (RP0004).'}),
             if self._ignore_file:
                 return False
             # walk ast to collect line numbers
+            for msg, lines in self._module_msgs_state.iteritems():
+                self._raw_module_msgs_state[msg] = lines.copy()
             orig_state = self._module_msgs_state.copy()
             self._module_msgs_state = {}
+            self._suppression_mapping = {}
             self.collect_block_lines(astng, orig_state)
             for checker in rawcheckers:
                 checker.process_module(astng)
@@ -650,6 +669,7 @@ This is used by the global evaluation report (RP0004).'}),
 
         if persistent run, pickle results for later comparison
         """
+        self._add_suppression_messages()
         if self.base_name is not None:
             # load previous results if any
             previous_stats = config.load_results(self.base_name)
@@ -669,6 +689,16 @@ This is used by the global evaluation report (RP0004).'}),
                 config.save_results(self.stats, self.base_name)
 
     # specific reports ########################################################
+
+    def _add_suppression_messages(self):
+        for warning, lines in self._raw_module_msgs_state.iteritems():
+            for line, enable in lines.iteritems():
+                if not enable and (warning, line) not in self._ignored_msgs:
+                    self.add_message('I0021', line, None, (warning,))
+
+        for (warning, from_), lines in self._ignored_msgs.iteritems():
+            for line in lines:
+                self.add_message('I0020', line, None, (warning, from_))
 
     def report_evaluation(self, sect, stats, previous_stats):
         """make the global evaluation report"""
@@ -908,6 +938,8 @@ are done by default'''}),
         level=1)
         # read configuration
         linter.disable('W0704')
+        linter.disable('I0020')
+        linter.disable('I0021')
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter.cfgfile_parser

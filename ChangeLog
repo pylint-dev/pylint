@@ -9,9 +9,11 @@ ChangeLog for PyLint
       'disable-all' inline directive in favour of 'skip-file' (patch by
       A.Fayolle)
 
+    * #110840: Add messages I0020 and I0021 for reporting of suppressed messages
+      and useless suppression pragmas. (patch by Torsten Marek)
 
-    * Changed the regular expression for inline options so that
-      it must be preceeded by a # (patch by Torsten Marek)
+    * Changed the regular expression for inline options so that it must be
+      preceeded by a # (patch by Torsten Marek)
 
 2012-10-05  --  0.26.0
     * #106534: add --ignore-imports option to code similarity checking
