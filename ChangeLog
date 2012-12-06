@@ -24,6 +24,9 @@ ChangeLog for PyLint
     * #112728: Add warning E0604 for non-string objects in __all__
       (patch by Torsten Marek)
 
+    * #113231: logging checker now looks at instances of Logger classes
+      in addition to the base logging module. (patch by Mike Bryant)
+
 --
     * #115580: fix erroneous W0212 (access to protected member) on super call
       (patch by Martin Pool)

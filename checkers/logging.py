@@ -80,8 +80,17 @@ class LoggingChecker(checkers.BaseChecker):
     def visit_callfunc(self, node):
         """Checks calls to (simple forms of) logging methods."""
         if (not isinstance(node.func, astng.Getattr)
-            or not isinstance(node.func.expr, astng.Name)
-            or node.func.expr.name != self._logging_name):
+            or not isinstance(node.func.expr, astng.Name)):
+            return
+        try:
+            logger_class = [inferred for inferred in node.func.expr.infer() if (
+                isinstance(inferred, astng.Instance)
+                and [ancestor for ancestor in inferred._proxied.ancestors() if (
+                    ancestor.name == 'Logger'
+                    and ancestor.parent.name == 'logging')])]
+        except astng.exceptions.InferenceError:
+            return
+        if (node.func.expr.name != self._logging_name and not logger_class):
             return
         self._check_convenience_methods(node)
         self._check_log_methods(node)
