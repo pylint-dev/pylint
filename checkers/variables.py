@@ -172,14 +172,22 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # attempt to check for __all__ if defined
         if '__all__' in node.locals:
             assigned = node.igetattr('__all__').next()
-            for elt in getattr(assigned, 'elts', ()):
-                elt_name = elt.value
-                # If elt is in not_consumed, remove it from not_consumed
-                if elt_name in not_consumed:
-                    del not_consumed[elt_name]
-                    continue
-                if elt_name not in node.locals:
-                    self.add_message('E0603', args=elt_name, node=elt)
+            if assigned is not astng.YES:
+                for elt in getattr(assigned, 'elts', ()):
+                    try:
+                        elt_name = elt.infer().next()
+                    except astng.InferenceError:
+                        continue
+
+                    if not isinstance(elt_name, astng.Const):
+                        continue
+                    elt_name = elt.value
+                    # If elt is in not_consumed, remove it from not_consumed
+                    if elt_name in not_consumed:
+                        del not_consumed[elt_name]
+                        continue
+                    if elt_name not in node.locals:
+                        self.add_message('E0603', args=elt_name, node=elt)
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
