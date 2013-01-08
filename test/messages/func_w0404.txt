@@ -1,1 +1,5 @@
-W:  7:reimport: Unused variable 'os'
+W:  8: Reimport 'ElementTree' (imported line 7)
+W: 11: Reimport 'multiprocessing.pool' (imported line 10)
+W: 13: Reimport 'sys' (imported line 5)
+W: 23:reimport: Redefining name 'sys' from outer scope (line 5)
+W: 23:reimport: Reimport 'sys' (imported line 5)

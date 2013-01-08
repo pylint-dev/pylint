@@ -22,15 +22,23 @@ ChangeLog for PyLint
       modifications into them. (patch by Torsten Marek)
 
 --
+    * #115580: fix erroneous W0212 (access to protected member) on super call
+      (patch by Martin Pool)
 
-    * #110853: Fix a crash when an __init__ method in a base class has been
-      created by assignment rather than direct function definition. (patch by
+    * #110853: fix a crash when an __init__ method in a base class has been
+      created by assignment rather than direct function definition (patch by
       Torsten Marek)
 
     * #110838: fix pylint-gui crash when include-ids is activated (patch by
       Omega Weapon)
 
     * #110839: bind <F5> to Run button in pylint-gui
+
+    * #112667: fix emission of reimport warnings for mixed imports and extend
+      the testcase (patch by Torsten Marek)
+
+    * #112698: fixed crashes related to non-inferable __all__ attributes and
+      invalid __all__ contents (patch by Torsten Marek)
 
 
 2012-10-05  --  0.26.0
