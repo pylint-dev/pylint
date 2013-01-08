@@ -386,10 +386,15 @@ a metaclass class method.'}
                 self.add_message('W0212', node=node, args=attrname)
                 return
 
+            # If the expression begins with a call to super, that's ok.
+            if isinstance(node.expr, astng.CallFunc) and \
+               isinstance(node.expr.func, astng.Name) and \
+               node.expr.func.name == 'super':
+                return
+
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
             if not (callee == klass.name or callee in klass.basenames):
-
                 self.add_message('W0212', node=node, args=attrname)
 
     def visit_name(self, node):

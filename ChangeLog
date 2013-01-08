@@ -2,7 +2,10 @@ ChangeLog for PyLint
 ====================
 
 --
-    * #110853: Fix a crash when an __init__ method in a base class has been
+    * #115580: fix erroneous W0212 (access to protected member) on super call
+      (patch by Martin Pool)
+
+    * #110853: fix a crash when an __init__ method in a base class has been
       created by assignment rather than direct function definition. (patch by
       Torsten Marek)
 
