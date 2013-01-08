@@ -29,19 +29,25 @@ from pylint.checkers import BaseChecker, EmptyReport
 def get_first_import(node, context, name, base, level):
     """return the node where [base.]<name> is imported or None if not found
     """
+    fullname = '%s.%s' % (base, name) if base else name
+
     first = None
     found = False
-    for first in context.values():
+    for first in context.body:
+        if first is node:
+            continue
+        if first.scope() is node.scope() and first.lineno > node.lineno:
+            continue
         if isinstance(first, astng.Import):
-            if name in [iname[0] for iname in first.names]:
+            if any(fullname == iname[0] for iname in first.names):
                 found = True
                 break
         elif isinstance(first, astng.From):
-            if base == first.modname and level == first.level and \
-                   name in [iname[0] for iname in first.names]:
+            if level == first.level and any(
+                fullname == '%s.%s' % (first.modname, iname[0]) for iname in first.names):
                 found = True
                 break
-    if found and first is not node and not are_exclusive(first, node):
+    if found and not are_exclusive(first, node):
         return first
 
 # utilities to represents import dependencies as tree and dot graph ###########
@@ -319,7 +325,7 @@ given file (report RP0402 must not be disabled)'}
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
                 self.add_message('W0402', node=node, args=mod_path)
 
-    def _check_reimport(self, node, name, basename=None, level=0):
+    def _check_reimport(self, node, name, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""
         if 'W0404' not in self.active_msgs:
             return
@@ -327,7 +333,7 @@ given file (report RP0402 must not be disabled)'}
         root = node.root()
         contexts = [(frame, level)]
         if root is not frame:
-            contexts.append((root, 0))
+            contexts.append((root, None))
         for context, level in contexts:
             first = get_first_import(node, context, name, basename, level)
             if first is not None:

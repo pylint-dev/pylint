@@ -14,6 +14,9 @@ ChangeLog for PyLint
 
     * #110839: bind <F5> to Run button in pylint-gui
 
+    * #112667: Fix emission of reimport warnings for mixed imports and extend 
+      the testcase. (patch by Torsten Marek)
+
 
 2012-10-05  --  0.26.0
     * #106534: add --ignore-imports option to code similarity checking
