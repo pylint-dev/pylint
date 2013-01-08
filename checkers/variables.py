@@ -63,6 +63,9 @@ MSGS = {
     'E0603': ('Undefined variable name %r in __all__',
               'undefined-all-variable',
               'Used when an undefined variable name is referenced in __all__.'),
+    'E0604': ('Invalid object %r in __all__, must contain only strings',
+              'invalid-all-object',
+              'Used when an invalid (non-string) object occurs in __all__.'),
     'E0611': ('No name %r in module %r',
               'no-name-in-module',
               'Used when a name cannot be found in a module.'),
@@ -179,7 +182,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     except astng.InferenceError:
                         continue
 
-                    if not isinstance(elt_name, astng.Const):
+                    if not isinstance(elt_name, astng.Const) or not isinstance(elt_name.value, basestring):
+                        self.add_message('E0604', args=elt.as_string(), node=elt)
                         continue
                     elt_name = elt.value
                     # If elt is in not_consumed, remove it from not_consumed
