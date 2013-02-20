@@ -1,4 +1,4 @@
-#pylint: disable=R0903,R0904
+#pylint: disable=R0903,R0904,R0924
 """#10026"""
 __revision__ = 1
 from gtk import VBox
