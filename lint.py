@@ -585,6 +585,7 @@ This is used by the global evaluation report (RP0004).'}),
             # if it's actually a c extension)
             self.current_file = astng.file
             self.check_astng_module(astng, walker, rawcheckers)
+            self._add_suppression_messages()
         # notify global end
         self.set_current_module('')
         self.stats['statement'] = walker.nbstatements
@@ -680,7 +681,6 @@ This is used by the global evaluation report (RP0004).'}),
 
         if persistent run, pickle results for later comparison
         """
-        self._add_suppression_messages()
         if self.base_name is not None:
             # load previous results if any
             previous_stats = config.load_results(self.base_name)
@@ -705,11 +705,13 @@ This is used by the global evaluation report (RP0004).'}),
         for warning, lines in self._raw_module_msgs_state.iteritems():
             for line, enable in lines.iteritems():
                 if not enable and (warning, line) not in self._ignored_msgs:
-                    self.add_message('I0021', line, None, (warning,))
+                    self.add_message('I0021', line, None,
+                                     (self.get_msg_display_string(warning),))
 
         for (warning, from_), lines in self._ignored_msgs.iteritems():
             for line in lines:
-                self.add_message('I0020', line, None, (warning, from_))
+                self.add_message('I0020', line, None,
+                                 (self.get_msg_display_string(warning), from_))
 
     def report_evaluation(self, sect, stats, previous_stats):
         """make the global evaluation report"""

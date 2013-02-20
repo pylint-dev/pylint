@@ -264,6 +264,17 @@ class MessagesHandlerMixIn:
         except KeyError:
             raise UnknownMessage('No such message id %s' % msgid)
 
+    def get_msg_display_string(self, msgid):
+        """Generates a user-consumable representation of a message.
+
+        Can be just the message ID or the ID and the symbol.
+        """
+        if self.config.symbols:
+            symbol = self.check_message_id(msg_id).symbol
+            if symbol:
+                msgid += '(%s)' % symbol
+        return msgid
+
     def get_message_state_scope(self, msgid, line=None):
         """Returns the scope at which a message was enabled/disabled."""
         try:
