@@ -41,7 +41,7 @@ class TextReporter(BaseReporter):
     __implements__ = IReporter
     extension = 'txt'
 
-    def __init__(self, output=sys.stdout):
+    def __init__(self, output=None):
         BaseReporter.__init__(self, output)
         self._modules = {}
 
@@ -73,7 +73,7 @@ class ParseableTextReporter(TextReporter):
     """
     line_format = '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
 
-    def __init__(self, output=sys.stdout, relative=True):
+    def __init__(self, output=None, relative=True):
         TextReporter.__init__(self, output)
         if relative:
             self._prefix = os.getcwd() + os.sep
@@ -108,7 +108,7 @@ class ColorizedTextReporter(TextReporter):
         'S' : ("yellow", "inverse"), # S stands for module Separator
     }
 
-    def __init__(self, output=sys.stdout, color_mapping = None):
+    def __init__(self, output=None, color_mapping=None):
         TextReporter.__init__(self, output)
         self.color_mapping = color_mapping or \
                              dict(ColorizedTextReporter.COLOR_MAPPING)
