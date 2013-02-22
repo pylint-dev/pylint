@@ -1,5 +1,5 @@
 # Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -17,6 +17,11 @@
 import sys, locale
 
 CMPS = ['=', '-', '+']
+
+# py3k has no more cmp builtin
+if sys.version_info >= (3, 0):
+    def cmp(a, b):
+        return (a > b) - (a < b)
 
 def diff_string(old, new):
     """given a old and new int value, return a string representing the
