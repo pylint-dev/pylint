@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -43,6 +43,7 @@ from os import listdir
 from os.path import dirname, join, isdir, splitext
 
 from logilab.astng.utils import ASTWalker
+from logilab.common.modutils import load_module_from_file
 from logilab.common.configuration import OptionsProviderMixIn
 
 from pylint.reporters import diff_string, EmptyReport
@@ -101,7 +102,6 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
         """return the base directory for the analysed package"""
         return dirname(self.linter.base_file)
 
-
     # dummy methods implementing the IChecker interface
 
     def open(self):
@@ -109,6 +109,7 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
 
     def close(self):
         """called after visiting project (i.e set of modules)"""
+
 
 class BaseRawChecker(BaseChecker):
     """base class for raw checkers"""
@@ -139,17 +140,15 @@ def package_load(linter, directory):
     """load all module and package in the given directory, looking for a
     'register' function in each one, used to register pylint checkers
     """
-    globs = globals()
     imported = {}
     for filename in listdir(directory):
         basename, extension = splitext(filename)
         if basename in imported or basename == '__pycache__':
             continue
         if extension in PY_EXTS and basename != '__init__' or (
-             not extension and basename != 'CVS' and
-             isdir(join(directory, basename))):
+             not extension and isdir(join(directory, basename))):
             try:
-                module = __import__(basename, globs, globs, None)
+                module = load_module_from_file(join(directory, filename))
             except ValueError:
                 # empty module name (usually emacs auto-save files)
                 continue
