@@ -65,7 +65,7 @@ def clobber_in_except(node):
             if (stmts and
                 not isinstance(stmts[0].ass_type(),
                                (astng.Assign, astng.AugAssign, astng.ExceptHandler))):
-                return (True, (name, 'outer scope (line %i)' % (stmts[0].lineno,)))
+                return (True, (name, 'outer scope (line %s)' % (stmts[0].lineno,)))
     return (False, None)
 
 
