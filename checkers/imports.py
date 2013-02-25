@@ -36,7 +36,7 @@ def get_first_import(node, context, name, base, level):
     for first in context.body:
         if first is node:
             continue
-        if first.scope() is node.scope() and first.lineno > node.lineno:
+        if first.scope() is node.scope() and first.fromlineno > node.fromlineno:
             continue
         if isinstance(first, astng.Import):
             if any(fullname == iname[0] for iname in first.names):

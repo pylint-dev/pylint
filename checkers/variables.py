@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -272,7 +272,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if is_inside_except(stmt):
                 continue
             if name in globs and not isinstance(stmt, astng.Global):
-                line = globs[name][0].lineno
+                line = globs[name][0].fromlineno
                 self.add_message('W0621', args=(name, line), node=stmt)
             elif is_builtin(name):
                 # do not print Redefining builtin for additional builtins
