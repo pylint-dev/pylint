@@ -391,7 +391,10 @@ class StringConstantChecker(BaseRawChecker):
 
     # Characters that have a special meaning after a backslash in either
     # Unicode or byte strings.
-    ESCAPE_CHARACTERS = 'abfnrtvox\n\r\t\\\'\"'
+    ESCAPE_CHARACTERS = 'abfnrtvx\n\r\t\\\'\"01234567'
+
+    # TODO(mbp): Octal characters are quite an edge case today; people may
+    # prefer a separate warning where they occur.  \0 should be allowed.
 
     # Characters that have a special meaning after a backslash but only in
     # Unicode strings.

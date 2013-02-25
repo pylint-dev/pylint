@@ -2,7 +2,11 @@ W:  7: Anomalous backslash in string: '\['. String constant might be missing an 
 W:  7: Anomalous backslash in string: '\]'. String constant might be missing an r prefix.
 W:  8: Anomalous backslash in string: '\/'. String constant might be missing an r prefix.
 W:  9: Anomalous backslash in string: '\`'. String constant might be missing an r prefix.
-W: 24: Anomalous backslash in string: '\P'. String constant might be missing an r prefix.
-W: 30: Anomalous Unicode escape in byte string: '\u'. String constant might be missing an r or u prefix.
-W: 31: Anomalous Unicode escape in byte string: '\U'. String constant might be missing an r or u prefix.
-W: 32: Anomalous Unicode escape in byte string: '\N'. String constant might be missing an r or u prefix.
+W: 15: Anomalous backslash in string: '\o'. String constant might be missing an r prefix.
+W: 15: Anomalous backslash in string: '\o'. String constant might be missing an r prefix.
+W: 17: Anomalous backslash in string: '\8'. String constant might be missing an r prefix.
+W: 17: Anomalous backslash in string: '\9'. String constant might be missing an r prefix.
+W: 27: Anomalous backslash in string: '\P'. String constant might be missing an r prefix.
+W: 33: Anomalous Unicode escape in byte string: '\u'. String constant might be missing an r or u prefix.
+W: 34: Anomalous Unicode escape in byte string: '\U'. String constant might be missing an r or u prefix.
+W: 35: Anomalous Unicode escape in byte string: '\N'. String constant might be missing an r or u prefix.

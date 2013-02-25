@@ -27,6 +27,9 @@ ChangeLog for PyLint
     * #113231: logging checker now looks at instances of Logger classes
       in addition to the base logging module. (patch by Mike Bryant)
 
+    * #111799: don't warn about octal escape sequence, warn about \o
+      which is not octal in Python (patch by Martin Pool)
+
 --
     * #115580: fix erroneous W0212 (access to protected member) on super call
       (patch by Martin Pool)
