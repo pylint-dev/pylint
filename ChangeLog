@@ -3,23 +3,14 @@ ChangeLog for PyLint
 
 --
 
-    * Changed the regular expression for inline options so that it must be
-      preceeded by a # (patch by Torsten Marek)
-
-    * Make dot output for import graph predictable and not depend
-      on ordering of strings in hashes. (patch by Torsten Marek)
-
-    * Add hooks for import path setup and move pylint's sys.path
-      modifications into them. (patch by Torsten Marek)
-
     * #20693: replace pylint.el by Ian Eure version (patch by J.Kotta)
 
     * #105327: add support for --disable=all option and deprecate the
       'disable-all' inline directive in favour of 'skip-file' (patch by
       A.Fayolle)
 
-    * #110840: add messages I0020 and I0021 for reporting of suppressed messages
-      and useless suppression pragmas. (patch by Torsten Marek)
+    * #110840: add messages I0020 and I0021 for reporting of suppressed
+      messages and useless suppression pragmas. (patch by Torsten Marek)
 
     * #112728: add warning E0604 for non-string objects in __all__
       (patch by Torsten Marek)
@@ -30,16 +21,10 @@ ChangeLog for PyLint
     * #113231: logging checker now looks at instances of Logger classes
       in addition to the base logging module. (patch by Mike Bryant)
 
-    * #111799: don't warn about octal escape sequence, warn about \o
+    * #111799: don't warn about octal escape sequence, but warn about \o
       which is not octal in Python (patch by Martin Pool)
 
---
-    * Python 3 related changes:
-
-      * #110213: fix import of checkers broken with python 3.3, causing
-        "No such message id W0704" breakage
-
-      * #120635: redefine cmp function used in pylint.reporters
+    * #110839: bind <F5> to Run button in pylint-gui
 
     * #115580: fix erroneous W0212 (access to protected member) on super call
       (patch by Martin Pool)
@@ -51,17 +36,32 @@ ChangeLog for PyLint
     * #110838: fix pylint-gui crash when include-ids is activated (patch by
       Omega Weapon)
 
-    * #110839: bind <F5> to Run button in pylint-gui
-
     * #112667: fix emission of reimport warnings for mixed imports and extend
       the testcase (patch by Torsten Marek)
 
-    * #112698: fixed crashes related to non-inferable __all__ attributes and
+    * #112698: fix crash related to non-inferable __all__ attributes and
       invalid __all__ contents (patch by Torsten Marek)
+
+    * Python 3 related fixes:
+
+      * #110213: fix import of checkers broken with python 3.3, causing
+        "No such message id W0704" breakage
+
+      * #120635: redefine cmp function used in pylint.reporters
 
     * Include full warning id for I0020 and I0021 and make sure to flush
       warnings after each module, not at the end of the pylint run.
       (patch by Torsten Marek)
+
+    * Changed the regular expression for inline options so that it must be
+      preceeded by a # (patch by Torsten Marek)
+
+    * Make dot output for import graph predictable and not depend
+      on ordering of strings in hashes. (patch by Torsten Marek)
+
+    * Add hooks for import path setup and move pylint's sys.path
+      modifications into them. (patch by Torsten Marek)
+
 
 2012-10-05  --  0.26.0
     * #106534: add --ignore-imports option to code similarity checking
