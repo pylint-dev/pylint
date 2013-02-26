@@ -23,7 +23,12 @@ from logilab.astng import are_exclusive
 from pylint.interfaces import IASTNGChecker
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker, EmptyReport
-from pylint.checkers.utils import check_messages, clobber_in_except, is_inside_except
+from pylint.checkers.utils import (
+    check_messages,
+    clobber_in_except,
+    is_inside_except,
+    safe_infer,
+    )
 
 
 import re
@@ -798,12 +803,42 @@ class PassChecker(_BasicChecker):
     msgs = {'W0107': ('Unnecessary pass statement',
                       'unnecessary-pass',
                       'Used when a "pass" statement that can be avoided is '
-                      'encountered.)'),
+                      'encountered.'),
             }
 
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
             self.add_message('W0107', node=node)
+
+
+class LambdaForComprehensionChecker(_BasicChecker):
+    """check for using a lambda where a comprehension would do.
+
+    See <http://www.artima.com/weblogs/viewpost.jsp?thread=98196>
+    where GvR says comprehensions would be clearer.
+    """
+
+    msgs = {'W0110': ('map/filter on lambda could be replaced by comprehension',
+                      'deprecated-lambda',
+                      'Used when a lambda is the first argument to "map" or '
+                      '"filter". It could be clearer as a list '
+                      'comprehension or generator expression.'),
+            }
+
+    @check_messages('W0110')
+    def visit_callfunc(self, node):
+        """visit a CallFunc node, check if map or filter are called with a
+        lambda
+        """
+        if not node.args:
+            return
+        if not isinstance(node.args[0], astng.Lambda):
+            return
+        infered = safe_infer(node.func)
+        if (infered
+            and infered.parent.name == '__builtin__'
+            and infered.name in ['map', 'filter']):
+            self.add_message('W0110', node=node)
 
 
 def register(linter):
@@ -813,3 +848,4 @@ def register(linter):
     linter.register_checker(NameChecker(linter))
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
+    linter.register_checker(LambdaForComprehensionChecker(linter))

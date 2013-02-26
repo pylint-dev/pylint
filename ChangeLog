@@ -24,6 +24,9 @@ ChangeLog for PyLint
     * #112728: add warning E0604 for non-string objects in __all__
       (patch by Torsten Marek)
 
+    * #120657: add warning W0110/deprecated-lambda when a map/filter
+      of a lambda could be a comprehension (patch by Martin Pool)
+
     * #113231: logging checker now looks at instances of Logger classes
       in addition to the base logging module. (patch by Mike Bryant)
 
