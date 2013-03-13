@@ -270,7 +270,7 @@ class MessagesHandlerMixIn:
         Can be just the message ID or the ID and the symbol.
         """
         if self.config.symbols:
-            symbol = self.check_message_id(msg_id).symbol
+            symbol = self.check_message_id(msgid).symbol
             if symbol:
                 msgid += '(%s)' % symbol
         return msgid

@@ -5,6 +5,8 @@ ChangeLog for PyLint
     * #124660: internal dependencies should not appear in external dependencies
       report
 
+    * #124662: fix name error causing crash when symbols are included in output
+      messages
 
 2013-02-26 -- 0.27.0
 
