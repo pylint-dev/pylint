@@ -85,9 +85,9 @@ class LoggingChecker(checkers.BaseChecker):
         try:
             logger_class = [inferred for inferred in node.func.expr.infer() if (
                 isinstance(inferred, astng.Instance)
-                and [ancestor for ancestor in inferred._proxied.ancestors() if (
-                    ancestor.name == 'Logger'
-                    and ancestor.parent.name == 'logging')])]
+                and any(ancestor for ancestor in inferred._proxied.ancestors() if (
+                            ancestor.name == 'Logger'
+                            and ancestor.parent.name == 'logging')))]
         except astng.exceptions.InferenceError:
             return
         if (node.func.expr.name != self._logging_name and not logger_class):
