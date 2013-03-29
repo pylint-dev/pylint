@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -92,10 +92,10 @@ class TestReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path """
-        fpath, module, object, line, _ = location
+        fpath, module, obj, line, _ = location
         self.message_ids[msg_id] = 1
         if object:
-            object = ':%s' % object
+            object = ':%s' % obj
         sigle = msg_id[0]
         self.messages.append('%s:%3s%s: %s' % (sigle, line, object, msg))
 
@@ -127,7 +127,7 @@ else:
     def ulines(string):
         return string
 
-INFO_TEST_RGX = re.compile('^func_i\d\d\d\d$')
+INFO_TEST_RGX = re.compile(r'^func_i\d\d\d\d$')
 
 def exception_str(self, ex):
     """function used to replace default __str__ method of exception instances"""

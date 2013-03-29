@@ -1,5 +1,4 @@
-# Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -133,6 +132,7 @@ class MessagesHandlerMixIn:
         self._msgs_by_category = {}
         self.msg_status = 0
         self._ignored_msgs = {}
+        self._suppression_mapping = {}
 
     def register_messages(self, checker):
         """register a dictionary of messages
@@ -156,7 +156,7 @@ class MessagesHandlerMixIn:
                 assert msgsymbol not in self._messages_by_symbol, \
                     'Message symbol %r is already defined' % msgsymbol
                 if len(msg_tuple) > 3 and 'scope' in msg_tuple[3]:
-                  scope = msg_tuple[3]['scope']
+                    scope = msg_tuple[3]['scope']
             else:
                 # messages should have a symbol, but for backward compatibility
                 # they may not.

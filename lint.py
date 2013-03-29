@@ -1,5 +1,4 @@
-# Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -630,7 +629,6 @@ This is used by the global evaluation report (RP0004).'}),
         # messages which are only detected in the .close step)
         if modname:
             self._module_msgs_state = {}
-            self._module_msg_cats_state = {}
             self._raw_module_msgs_state = {}
             self._ignored_msgs = {}
 
@@ -862,8 +860,8 @@ group are mutually exclusive.'),
                 'rcfile':       (self.cb_set_rcfile, True),
                 'load-plugins': (self.cb_add_plugins, True),
                 })
-        except ArgumentPreprocessingError, e:
-            print >> sys.stderr, 'Argument %s expects a value.' % (e.args[0],)
+        except ArgumentPreprocessingError, ex:
+            print >> sys.stderr, 'Argument %s expects a value.' % (ex.args[0],)
             sys.exit(32)
 
         self.linter = linter = self.LinterClass((
