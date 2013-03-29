@@ -48,7 +48,8 @@ from logilab.astng import MANAGER, nodes, ASTNGBuildingException
 from logilab.astng.__pkginfo__ import version as astng_version
 
 from pylint.utils import (PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,
-                          ReportsHandlerMixIn, MSG_TYPES, expand_modules)
+                          ReportsHandlerMixIn, MSG_TYPES, expand_modules,
+                          WarningScope)
 from pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
 from pylint.checkers import (BaseRawChecker, EmptyReport,
                              table_lines_from_stats)
@@ -508,11 +509,16 @@ This is used by the global evaluation report (RP0004).'}),
             for lineno, state in lines.items():
                 original_lineno = lineno
                 if first <= lineno <= last:
-                    if lineno > firstchildlineno:
-                        state = True
-                    # set state for all lines for this block
-                    first, last = node.block_range(lineno)
-                    for line in xrange(first, last+1):
+                    # Set state for all lines for this block, if the
+                    # warning is applied to nodes.
+                    if self._messages[msgid].scope == WarningScope.NODE:
+                        if lineno > firstchildlineno:
+                            state = True
+                        first_, last_ = node.block_range(lineno)
+                    else:
+                        first_ = lineno
+                        last_ = last
+                    for line in xrange(first_, last_+1):
                         # do not override existing entries
                         if not line in self._module_msgs_state.get(msgid, ()):
                             if line in lines: # state change in the same block

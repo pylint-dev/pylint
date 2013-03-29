@@ -14,6 +14,9 @@ ChangeLog for PyLint
     * #124662: fix name error causing crash when symbols are included in output
       messages
 
+    * #123285: apply pragmas for warnings attached to lines to
+      physical source code lines
+
     * Simplify checks for dangerous default values by unifying tests
       for all different mutable compound literals.
 

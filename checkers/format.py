@@ -32,6 +32,7 @@ from logilab.astng import nodes
 from pylint.interfaces import IRawChecker, IASTNGChecker
 from pylint.checkers import BaseRawChecker
 from pylint.checkers.utils import check_messages
+from pylint.utils import WarningScope
 
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
@@ -55,18 +56,22 @@ MSGS = {
               isn\'t necessary (that\'s python, not C ;).'),
     'C0321': ('More than one statement on a single line',
               'multiple-statements',
-              'Used when more than on statement are found on the same line.'),
+              'Used when more than on statement are found on the same line.',
+              {'scope': WarningScope.NODE}),
     'C0322': ('Operator not preceded by a space\n%s',
               'no-space-before-operator',
               'Used when one of the following operator (!= | <= | == | >= | < '
-              '| > | = | \\+= | -= | \\*= | /= | %) is not preceded by a space.'),
+              '| > | = | \\+= | -= | \\*= | /= | %) is not preceded by a space.',
+              {'scope': WarningScope.NODE}),
     'C0323': ('Operator not followed by a space\n%s',
               'no-space-after-operator',
               'Used when one of the following operator (!= | <= | == | >= | < '
-              '| > | = | \\+= | -= | \\*= | /= | %) is not followed by a space.'),
+              '| > | = | \\+= | -= | \\*= | /= | %) is not followed by a space.',
+              {'scope': WarningScope.NODE}),
     'C0324': ('Comma not followed by a space\n%s',
               'no-space-after-comma',
-              'Used when a comma (",") is not followed by a space.'),
+              'Used when a comma (",") is not followed by a space.',
+              {'scope': WarningScope.NODE}),
     }
 
 if sys.version_info < (3, 0):
@@ -84,7 +89,8 @@ if sys.version_info < (3, 0):
     'W0333': ('Use of the `` operator',
               'backtick',
               'Used when the deprecated "``" (backtick) operator is used '
-              'instead  of the str() function.'),
+              'instead  of the str() function.',
+              {'scope': WarningScope.NODE}),
     })
 
 # simple quoted string rgx

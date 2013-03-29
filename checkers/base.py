@@ -542,7 +542,7 @@ functions, methods
         """check the use of an assert statement on a tuple."""
         if node.fail is None and isinstance(node.test, astng.Tuple) and \
            len(node.test.elts) == 2:
-            self.add_message('W0199', line=node.fromlineno, node=node)
+            self.add_message('W0199', node=node)
 
     @check_messages('W0109')
     def visit_dict(self, node):
