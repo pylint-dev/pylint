@@ -1,6 +1,4 @@
-# Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
-# Copyright 2012 Google Inc.
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -128,7 +126,6 @@ BAD_CONSTRUCT_RGXS = (
      'C0324'),
     )
 
-_PY3K = sys.version_info >= (3, 0)
 
 def get_string_coords(line):
     """return a list of string positions (tuple (start, end)) in the line
@@ -371,106 +368,6 @@ class FormatChecker(BaseRawChecker):
                                    expected * unit_size))
 
 
-class StringConstantChecker(BaseRawChecker):
-    """Check string literals"""
-
-    msgs = {
-        'W1401': ('Anomalous backslash in string: \'%s\'. '
-                  'String constant might be missing an r prefix.',
-                  'anomalous-backslash-in-string',
-                  'Used when a backslash is in a literal string but not as an '
-                  'escape.'),
-        'W1402': ('Anomalous Unicode escape in byte string: \'%s\'. '
-                  'String constant might be missing an r or u prefix.',
-                  'anomalous-unicode-escape-in-string',
-                  'Used when an escape like \\u is encountered in a byte '
-                  'string where it has no effect.'),
-        }
-    name = 'string_constant'
-    __implements__ = (IRawChecker, IASTNGChecker)
-
-    # Characters that have a special meaning after a backslash in either
-    # Unicode or byte strings.
-    ESCAPE_CHARACTERS = 'abfnrtvx\n\r\t\\\'\"01234567'
-
-    # TODO(mbp): Octal characters are quite an edge case today; people may
-    # prefer a separate warning where they occur.  \0 should be allowed.
-
-    # Characters that have a special meaning after a backslash but only in
-    # Unicode strings.
-    UNICODE_ESCAPE_CHARACTERS = 'uUN'
-
-    def process_tokens(self, tokens):
-        for (tok_type, token, (start_row, start_col), _, _) in tokens:
-            if tok_type == tokenize.STRING:
-                # 'token' is the whole un-parsed token; we can look at the start
-                # of it to see whether it's a raw or unicode string etc.
-                self.process_string_token(token, start_row, start_col)
-
-    def process_string_token(self, token, start_row, start_col):
-        for i, c in enumerate(token):
-            if c in '\'\"':
-                quote_char = c
-                break
-        prefix = token[:i].lower()  #  markers like u, b, r.
-        after_prefix = token[i:]
-        if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
-            string_body = after_prefix[3:-3]
-        else:
-            string_body = after_prefix[1:-1]  # Chop off quotes
-        # No special checks on raw strings at the moment.
-        if 'r' not in prefix:
-            self.process_non_raw_string_token(prefix, string_body,
-                start_row, start_col)
-
-    def process_non_raw_string_token(self, prefix, string_body, start_row,
-                                     start_col):
-        """check for bad escapes in a non-raw string.
-
-        prefix: lowercase string of eg 'ur' string prefix markers.
-        string_body: the un-parsed body of the string, not including the quote
-        marks.
-        start_row: integer line number in the source.
-        start_col: integer column number in the source.
-        """
-        # Walk through the string; if we see a backslash then escape the next
-        # character, and skip over it.  If we see a non-escaped character,
-        # alert, and continue.
-        #
-        # Accept a backslash when it escapes a backslash, or a quote, or
-        # end-of-line, or one of the letters that introduce a special escape
-        # sequence <http://docs.python.org/reference/lexical_analysis.html>
-        #
-        # TODO(mbp): Maybe give a separate warning about the rarely-used
-        # \a \b \v \f?
-        #
-        # TODO(mbp): We could give the column of the problem character, but
-        # add_message doesn't seem to have a way to pass it through at present.
-        i = 0
-        while True:
-            i = string_body.find('\\', i)
-            if i == -1:
-                break
-            # There must be a next character; having a backslash at the end
-            # of the string would be a SyntaxError.
-            next_char = string_body[i+1]
-            match = string_body[i:i+2]
-            if next_char in self.UNICODE_ESCAPE_CHARACTERS:
-                if 'u' in prefix:
-                    pass
-                elif _PY3K and 'b' not in prefix:
-                    pass  # unicode by default
-                else:
-                    self.add_message('W1402', line=start_row, args=(match, ))
-            elif next_char not in self.ESCAPE_CHARACTERS:
-                self.add_message('W1401', line=start_row, args=(match, ))
-            # Whether it was a valid escape or not, backslash followed by
-            # another character can always be consumed whole: the second
-            # character can never be the start of a new backslash escape.
-            i += 2
-
-
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(FormatChecker(linter))
-    linter.register_checker(StringConstantChecker(linter))

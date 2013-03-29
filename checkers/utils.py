@@ -20,9 +20,11 @@
 
 import re
 import string
+
 from logilab import astng
 from logilab.astng import scoped_nodes
 from logilab.common.compat import builtins
+
 BUILTINS_NAME = builtins.__name__
 
 COMP_NODE_TYPES = astng.ListComp, astng.SetComp, astng.DictComp, astng.GenExpr
@@ -365,6 +367,7 @@ def is_super_call(expr):
     return (isinstance(expr, astng.CallFunc) and
         isinstance(expr.func, astng.Name) and
         expr.func.name == 'super')
+
 def is_attr_private(attrname):
     """Check that attribute name is private (at least two leading underscores,
     at most one trailing underscore)
