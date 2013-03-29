@@ -8,4 +8,4 @@ E: 24: Too many positional arguments for function call
 E: 31: No value passed for parameter 'first_argument' in function call
 E: 31: Passing unexpected keyword argument 'bob' in function call
 E: 32: Passing unexpected keyword argument 'coin' in function call
-E: 34: Multiple values passed for parameter 'one' in function call
+E: 34: Parameter 'one' passed as both positional and keyword argument

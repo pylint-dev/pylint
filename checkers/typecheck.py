@@ -63,7 +63,7 @@ MSGS = {
               'unexpected-keyword-arg',
               'Used when a function call passes a keyword argument that \
               doesn\'t correspond to one of the function\'s parameter names.'),
-    'E1124': ('Multiple values passed for parameter %r in function call',
+    'E1124': ('Parameter %r passed as both positional and keyword argument',
               'redundant-keyword-arg',
               'Used when a function call would result in assigning multiple \
               values to a function parameter, one value from a positional \

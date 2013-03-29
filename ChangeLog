@@ -17,6 +17,8 @@ ChangeLog for PyLint
     * Simplify checks for dangerous default values by unifying tests
       for all different mutable compound literals.
 
+    * Improve the description for E1124[redundant-keyword-arg]
+
 
 2013-02-26 -- 0.27.0
 
