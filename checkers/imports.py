@@ -52,21 +52,6 @@ def get_first_import(node, context, name, base, level):
 
 # utilities to represents import dependencies as tree and dot graph ###########
 
-def filter_dependencies_info(dep_info, package_dir, mode='external'):
-    """filter external or internal dependencies from dep_info (return a
-    new dictionary containing the filtered modules only)
-    """
-    if mode == 'external':
-        filter_func = lambda x: not is_standard_module(x, (package_dir,))
-    else:
-        assert mode == 'internal'
-        filter_func = lambda x: is_standard_module(x, (package_dir,))
-    result = {}
-    for importee, importers in dep_info.iteritems():
-        if filter_func(importee):
-            result[importee] = importers
-    return result
-
 def make_tree_defs(mod_files_list):
     """get a list of 2-uple (module, list_of_files_which_import_this_module),
     it will return a dictionary to represent this as a tree
@@ -313,7 +298,7 @@ given file (report RP0402 must not be disabled)'}
                 importedmodname, set())
             if not context_name in importedmodnames:
                 importedmodnames.add(context_name)
-            if is_standard_module( importedmodname, (self.package_dir(),) ):
+            if is_standard_module(importedmodname, (self.package_dir(),)):
                 # update import graph
                 mgraph = self.import_graph.setdefault(context_name, set())
                 if not importedmodname in mgraph:
@@ -373,8 +358,11 @@ given file (report RP0402 must not be disabled)'}
         cache them
         """
         if self.__ext_dep_info is None:
-            self.__ext_dep_info = filter_dependencies_info(
-                self.stats['dependencies'], self.package_dir(), 'external')
+            package = self.linter.base_name
+            self.__ext_dep_info = result = {}
+            for importee, importers in self.stats['dependencies'].iteritems():
+                if not importee.startswith(package):
+                    result[importee] = importers
         return self.__ext_dep_info
 
     def _internal_dependencies_info(self):
@@ -382,8 +370,11 @@ given file (report RP0402 must not be disabled)'}
         cache them
         """
         if self.__int_dep_info is None:
-            self.__int_dep_info = filter_dependencies_info(
-                self.stats['dependencies'], self.package_dir(), 'internal')
+            package = self.linter.base_name
+            self.__int_dep_info = result = {}
+            for importee, importers in self.stats['dependencies'].iteritems():
+                if importee.startswith(package):
+                    result[importee] = importers
         return self.__int_dep_info
 
 
