@@ -448,17 +448,14 @@ functions, methods
                 value = default.infer().next()
             except astng.InferenceError:
                 continue
-            if isinstance(value, (astng.Dict, astng.List)):
+            if (isinstance(value, astng.Instance) and
+                value.qname() in ('__builtin__.set', '__builtin__.dict', '__builtin__.list')):
                 if value is default:
                     msg = default.as_string()
+                elif type(value) is astng.Instance:
+                    msg = '%s (%s)' % (default.as_string(), value.qname())
                 else:
                     msg = '%s (%s)' % (default.as_string(), value.as_string())
-                self.add_message('W0102', node=node, args=(msg,))
-            if value.qname() == '__builtin__.set':
-                if isinstance(default, astng.CallFunc):
-                    msg = default.as_string()
-                else:
-                    msg = '%s (%s)' % (default.as_string(), value.qname())
                 self.add_message('W0102', node=node, args=(msg,))
 
     @check_messages('W0101', 'W0150')

@@ -11,6 +11,9 @@ ChangeLog for PyLint
     * #124662: fix name error causing crash when symbols are included in output
       messages
 
+    * Simplify checks for dangerous default values by unifying tests
+      for all different mutable compound literals.
+
 2013-02-26 -- 0.27.0
 
     * #20693: replace pylint.el by Ian Eure version (patch by J.Kotta)

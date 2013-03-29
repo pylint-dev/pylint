@@ -21,7 +21,7 @@ modname = distname = 'pylint'
 numversion = (0, 27, 0)
 version = '.'.join([str(num) for num in numversion])
 
-install_requires = ['logilab-common >= 0.53.0', 'logilab-astng >= 0.21.1']
+install_requires = ['logilab-common >= 0.53.0', 'logilab-astng >= 0.24.3']
 
 license = 'GPL'
 copyright = 'Logilab S.A.'

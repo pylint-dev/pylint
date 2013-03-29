@@ -1,4 +1,7 @@
 W:  7:function1: Dangerous default value [] as argument
 W: 11:function2: Dangerous default value HEHE ({}) as argument
-W: 19:function4: Dangerous default value set() as argument
+W: 19:function4: Dangerous default value set() (__builtin__.set) as argument
 W: 29:function6: Dangerous default value GLOBAL_SET (__builtin__.set) as argument
+W: 33:function7: Dangerous default value dict() (__builtin__.dict) as argument
+W: 37:function8: Dangerous default value {1} as argument
+W: 41:function9: Dangerous default value list() (__builtin__.list) as argument
