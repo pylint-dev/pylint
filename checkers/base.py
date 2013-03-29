@@ -211,7 +211,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @check_messages('E0105')
     def visit_yield(self, node):
-        if not isinstance(node.frame(), astng.Function):
+        if not isinstance(node.frame(), (astng.Function, astng.Lambda)):
             self.add_message('E0105', node=node)
 
     @check_messages('E0103')

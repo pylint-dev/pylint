@@ -27,3 +27,9 @@ class MyClass4:
 
     def __init__(self):
         yield None
+
+class MyClass5:
+    """dummy class"""
+
+    def __init__(self):
+        self.callable = lambda: (yield None)

@@ -17,6 +17,8 @@ ChangeLog for PyLint
     * #123285: apply pragmas for warnings attached to lines to
       physical source code lines
 
+    * #123259: do not emit E0105 for yield expressions inside lambdas
+
     * Simplify checks for dangerous default values by unifying tests
       for all different mutable compound literals.
 
