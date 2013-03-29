@@ -8,19 +8,22 @@ ChangeLog for PyLint
     * #123233: new E0108[duplicate-argument-name] message reporting duplicate
       argument names
 
+    * #81378: emit C0109[useless-else-on-loop] for loops without break and
+      return
+
     * #124660: internal dependencies should not appear in external dependencies
       report
 
     * #124662: fix name error causing crash when symbols are included in output
       messages
 
-    * #123285: apply pragmas for warnings attached to lines to
-      physical source code lines
+    * #123285: apply pragmas for warnings attached to lines to physical source
+      code lines
 
     * #123259: do not emit E0105 for yield expressions inside lambdas
 
-    * Simplify checks for dangerous default values by unifying tests
-      for all different mutable compound literals.
+    * Simplify checks for dangerous default values by unifying tests for all
+      different mutable compound literals.
 
     * Improve the description for E1124[redundant-keyword-arg]
 

@@ -66,6 +66,19 @@ def in_nested_list(nested_list, obj):
             return True
     return False
 
+def _loop_exits_early(loop):
+    """Returns true if a loop has a break or return statement in its body."""
+    loop_nodes = (astng.For, astng.While)
+    exit_stmts = (astng.Break, astng.Return)
+    # Loop over body explicitly to avoid matching break/return statements
+    # in orelse.
+    for child in loop.body:
+        if isinstance(child, loop_nodes):
+            continue
+        for _ in child.nodes_of_class(exit_stmts, skip_klass=loop_nodes):
+            return True
+
+
 def report_by_type_stats(sect, stats, old_stats):
     """make a report of
 
@@ -164,6 +177,11 @@ class BasicErrorChecker(_BasicChecker):
               'duplicate-argument-name',
               'Duplicate argument names in function definitions are syntax'
               ' errors.'),
+    'C0109': ('Else clause on loop without break or return statement',
+              'useless-else-on-loop',
+              'Loops should only have an else clause if they can exit early '
+              'with a break statement, otherwise the statements under else '
+              'should be on the same scope as the loop itself.'),
     }
 
     def __init__(self, linter):
@@ -222,6 +240,14 @@ class BasicErrorChecker(_BasicChecker):
     def visit_break(self, node):
         self._check_in_loop(node, 'break')
 
+    @check_messages('C0109')
+    def visit_for(self, node):
+        self._check_else_on_loop(node)
+
+    @check_messages('C0109')
+    def visit_while(self, node):
+        self._check_else_on_loop(node)
+
     @check_messages('E0107')
     def visit_unaryop(self, node):
         """check use of the non-existent ++ adn -- operator operator"""
@@ -229,6 +255,15 @@ class BasicErrorChecker(_BasicChecker):
             isinstance(node.operand, astng.UnaryOp) and
             (node.operand.op == node.op)):
             self.add_message('E0107', node=node, args=node.op*2)
+
+    def _check_else_on_loop(self, node):
+        """Check that any loop with an else clause has a break statement."""
+        if node.orelse and not _loop_exits_early(node):
+            self.add_message('C0109', node=node,
+                             # This is not optimal, but the line previous
+                             # to the first statement in the else clause
+                             # will usually be the one that contains the else:.
+                             line=node.orelse[0].lineno - 1)
 
     def _check_in_loop(self, node, node_name):
         """check that a node is inside a for or while loop"""
