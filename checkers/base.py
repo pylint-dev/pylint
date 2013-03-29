@@ -160,6 +160,10 @@ class BasicErrorChecker(_BasicChecker):
               'nonexistent-operator',
               "Used when you attempt to use the C-style pre-increment or"
               "pre-decrement operator -- and ++, which doesn't exist in Python."),
+    'E0108': ('Duplicate argument name %s in function definition',
+              'duplicate-argument-name',
+              'Duplicate argument names in function definitions are syntax'
+              ' errors.'),
     }
 
     def __init__(self, linter):
@@ -169,7 +173,7 @@ class BasicErrorChecker(_BasicChecker):
     def visit_class(self, node):
         self._check_redefinition('class', node)
 
-    @check_messages('E0100', 'E0101', 'E0102', 'E0106')
+    @check_messages('E0100', 'E0101', 'E0102', 'E0106', 'E0108')
     def visit_function(self, node):
         if not redefined_by_decorator(node):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
@@ -192,6 +196,13 @@ class BasicErrorChecker(_BasicChecker):
                        retnode.value.value is not None:
                     self.add_message('E0106', node=node,
                                      line=retnode.fromlineno)
+        args = set()
+        for name in node.argnames():
+            if name in args:
+                self.add_message('E0108', node=node, args=(name,))
+            else:
+                args.add(name)
+
 
     @check_messages('E0104')
     def visit_return(self, node):

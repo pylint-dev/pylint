@@ -5,6 +5,9 @@ ChangeLog for PyLint
     * #74013: new E1310[bad-str-strip-call] message warning when a call to a
       {l,r,}strip method contains duplicate characters (patch by Torsten Marek)
 
+    * #123233: new E0108[duplicate-argument-name] message reporting duplicate
+      argument names
+
     * #124660: internal dependencies should not appear in external dependencies
       report
 
@@ -13,6 +16,7 @@ ChangeLog for PyLint
 
     * Simplify checks for dangerous default values by unifying tests
       for all different mutable compound literals.
+
 
 2013-02-26 -- 0.27.0
 
