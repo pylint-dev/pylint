@@ -1,0 +1,3 @@
+E:  7: Suspicious argument in unicode.strip call
+E:  8: Suspicious argument in unicode.lstrip call
+E:  9: Suspicious argument in str.rstrip call

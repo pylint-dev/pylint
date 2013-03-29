@@ -1,5 +1,7 @@
 # Copyright (c) 2009-2010 Arista Networks, Inc. - James Lingard
-# Copyright (c) 2004-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2004-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright 2012 Google Inc.
+#
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +19,7 @@
 """
 
 from logilab import astng
+
 from pylint.interfaces import IASTNGChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
@@ -75,7 +78,7 @@ class StringFormatChecker(BaseChecker):
     """
 
     __implements__ = (IASTNGChecker,)
-    name = 'string_format'
+    name = 'string'
     msgs = MSGS
 
     def visit_binop(self, node):
@@ -158,6 +161,33 @@ class StringFormatChecker(BaseChecker):
                     self.add_message('E1306', node=node)
 
 
+class StringMethodsChecker(BaseChecker):
+    __implements__ = (IASTNGChecker,)
+    name = 'string'
+    msgs = {
+        'E1310': ("Suspicious argument in %s.%s call",
+                  "bad-str-strip-call",
+                  "The argument to a str.{l,r,}strip call contains a"
+                  " duplicate character, "),
+        }
+
+    def visit_callfunc(self, node):
+        func = utils.safe_infer(node.func)
+        if (isinstance(func, astng.BoundMethod)
+            and isinstance(func.bound, astng.Instance)
+            and func.bound.name in ('str', 'unicode', 'bytes')
+            and func.name in ('strip', 'lstrip', 'rstrip')
+            and node.args):
+            arg = utils.safe_infer(node.args[0])
+            if not isinstance(arg, astng.Const):
+                return
+            if len(arg.value) != len(set(arg.value)):
+                self.add_message('E1310', node=node,
+                                 args=(func.bound.name, func.name))
+
+
+
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(StringFormatChecker(linter))
+    linter.register_checker(StringMethodsChecker(linter))
