@@ -1,8 +1,10 @@
+.. -*- coding: utf-8 -*-
+
 ==================
 Pylint User Manual
 ==================
 
-:Author: Sylvain Thénault
+:Author: Sylvain ThÃ©nault
 :Author: Alexandre Fayolle
 :Organization: Logilab
 

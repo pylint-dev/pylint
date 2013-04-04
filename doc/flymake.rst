@@ -1,4 +1,10 @@
-To enable flymake for python, insert the following into your .emacs ::
+====================================
+ Using pylint thru flymake in Emacs
+====================================
+
+To enable flymake for python, insert the following into your .emacs:
+
+.. sourcecode:: common-lisp
 
     ;; Configure flymake for python
     (setq pylint "epylint")
@@ -19,7 +25,9 @@ To enable flymake for python, insert the following into your .emacs ::
 Above stuff is in pylint/elisp/pylint-flymake.el, which should be automatically
 installed on Debian systems, in which cases you don't have to put it in your .emacs file.
 
-Other things you may find useful to set ::
+Other things you may find useful to set:
+
+.. sourcecode:: common-lisp
 
     ;; Configure to wait a bit longer after edits before starting
     (setq-default flymake-no-changes-timeout '3)
@@ -32,6 +40,8 @@ Other things you may find useful to set ::
 Finally, by default flymake only displays the extra information about the error when you
 hover the mouse over the highlighted line. The following will use the minibuffer to display
 messages when you the cursor is on the line.
+
+.. sourcecode:: common-lisp
 
     ;; To avoid having to mouse hover for the error message, these functions make flymake error messages
     ;; appear in the minibuffer
@@ -50,6 +60,8 @@ messages when you the cursor is on the line.
 
 Alternative, if you only wish to pollute the minibuffer after an explicit flymake-goto-* then use
 the following instead of a post-command-hook
+
+.. sourcecode:: common-lisp
 
     (defadvice flymake-goto-next-error (after display-message activate compile)
       "Display the error in the mini-buffer rather than having to mouse over it"

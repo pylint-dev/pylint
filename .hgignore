@@ -5,3 +5,4 @@
 \.pyc$
 \.pyo$
 ^build$
+^doc/_build
