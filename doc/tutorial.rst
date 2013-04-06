@@ -351,7 +351,7 @@ Here is the updated code:
 
 And here is what happens when we run it with our --disable=W0402 option:
 
-.. sourcecode:: python
+.. sourcecode:: bash
 
   robertk01 Desktop$ pylint --reports=n --include-ids=y --disable=W0402 simplecaeser.py
   No config file found, using default configuration
@@ -396,10 +396,10 @@ example but go ahead and `read up`_ on them if you want.
  on the command line all the time.  That's what the rc file is for.  We can
  configure our Pylint to store our options for us so we don't have to declare
  them on the command line.  Using the rc file is a nice way of formalizing your
- rules and quickly sharing them with others. Invoking 'pylint
- --generate-rcfile' will create a sample rcfile with all the options set and
+ rules and quickly sharing them with others. Invoking ``pylint
+ --generate-rcfile`` will create a sample rcfile with all the options set and
  explained in comments.
 
-That's it for the basic intro.  More tutorials will follow.
+That's it for the basic intro. More tutorials will follow.
 
 .. _`read up`: http://docs.python.org/library/re.html

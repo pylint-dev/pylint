@@ -1,10 +1,8 @@
-.. class:: article
+.. -*- coding: utf-8 -*-
 
 ==========================
 Frequently Asked Questions
 ==========================
-
-.. contents::
 
 1. About Pylint
 ===============
@@ -30,18 +28,18 @@ Pylint doesn't?`_).
 1.3 Who wrote Pylint?
 ---------------------
 
-Pylint's main author and maintainer is Sylvain Thénault. Pylint's development
-is funded by Logilab_. For a full list of contributors, see the "Contributors"
-section of Pylint's README file.
+Pylint's main author and maintainer for the first ten years of its life has been
+Sylvain Thénault, while he worked at Logilab_ where the project was born. For a
+full list of contributors, see the "Contributors" section of Pylint's README
+file.
 
 .. _Logilab: http://www.logilab.fr/
 
 1.4 Who uses Pylint?
 --------------------
 
-In addition to many individuals, the following projects are known to use pylint
-to help develop better
-code:
+In addition to many individuals, the following projects are known to use Pylint
+to help develop write better code:
 
 * OSAF Chandler (http://www.osafoundation.org/)
 * Xen (http://www.xensource.com/)
@@ -198,7 +196,7 @@ or at the end of the desired line of code
 This is actually due to a bug in psyco, making the locals()
 function for objects inheriting from *psyobj* returning an empty
 dictionary. For the moment, the only way to fix this is to use the
-PYLINT_IMPORT environment variable to not use psyco during pylint
+PYLINT_IMPORT environment variable to not use psyco during Pylint
 checking. Sample code ::
 
 	import os
@@ -210,8 +208,8 @@ checking. Sample code ::
 		class psyobj:
 			pass
 
-NOTICE: this problem should not occur with pylint >= 0.5 since from
-this version pylint is not looking anymore for information in living
+NOTICE: this problem should not occur with Pylint >= 0.5 since from
+this version Pylint is not looking anymore for information in living
 objects (i.e. it no longer imports analysed modules)
 
 .. _psyco: http://psyco.sf.net
@@ -237,7 +235,7 @@ top of the file: ::
 4.5 What is the format of the configuration file?
 ---------------------------------------------------
 
-pylint uses ConfigParser from the standard library to parse the configuration file.
+Pylint uses ConfigParser from the standard library to parse the configuration file.
 It means that if you need to disable a lot of messages, you can use tricks like: ::
 
     disable= W0401, # because I do not want it
@@ -256,7 +254,7 @@ You can show these symbols in the output with the `-sy` option.
 4.7 How can I tell Pylint to never check a given module?
 --------------------------------------------------------
 
-With pylint < 0.25, add "#pylint: disable-all" at the beginning of the
+With Pylint < 0.25, add "#pylint: disable-all" at the beginning of the
 module. Pylint 0.26.1 and up have renamed that directive to
 "#pylint: skip-file" (but the first version will be kept for backward
 compatibility).
@@ -270,13 +268,13 @@ the old syntax, an additional I0014 message is emited.
 5. Classes and Inheritance
 ==========================
 
-5.1 When is pylint considering a class as an interface?
+5.1 When is Pylint considering a class as an interface?
 -------------------------------------------------------
 
 A class is considered as an interface if there is a class named "Interface"
 somewhere in its inheritance tree.
 
-5.2 When is pylint considering that a class is implementing a given interface?
+5.2 When is Pylint considering that a class is implementing a given interface?
 --------------------------------------------------------------------------------
 
 Pylint is using the Zope 2 interfaces conventions, and so is
@@ -284,7 +282,7 @@ considering that a class is implementing interfaces listed in its
 __implements__ attribute.
 
 
-5.3 When is pylint considering a class as an abstract class?
+5.3 When is Pylint considering a class as an abstract class?
 -------------------------------------------------------------
 
 A class is considered as an abstract class if at least one of its
@@ -309,7 +307,7 @@ lower bound on it. By default, the formula to calculate score is ::
 
     10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
 
-However, this option can be changed in the pylint rc file. If having negative
+However, this option can be changed in the Pylint rc file. If having negative
 values really bugs you, you can set the formula to be the minimum of 0 and the
 above expression.
 
@@ -317,9 +315,9 @@ above expression.
 6.2 Why does Pychecker catch problems with imports that Pylint doesn't?
 ------------------------------------------------------------------------
 
-pychecker and pylint use different approaches.  pychecker
+Pychecker and Pylint use different approaches.  pychecker
 imports the modules and rummages around in the result, hence it sees my
-mangled sys.path.  pylint doesn't import any of the candidate modules and
+mangled sys.path.  Pylint doesn't import any of the candidate modules and
 thus doesn't include any of import's side effects (good and bad).  It
 traverses an AST representation of the code.
 
@@ -350,7 +348,7 @@ generic forum-fr@logilab.org mailing list:
 * (un)subscribe: http://lists.logilab.org/mailman/listinfo/forum-fr
 * archives: http://lists.logilab.org/pipermail/forum-fr
 
-Notice though that this list has a very low traffic since most pylint related
+Notice though that this list has a very low traffic since most Pylint related
 discussions are done on the python-projects mailing list.
 
 .. _pychecker: http://pychecker.sf.net
