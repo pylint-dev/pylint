@@ -94,10 +94,10 @@ class TestReporter(BaseReporter):
         """manage message of different type and in the context of path """
         fpath, module, obj, line, _ = location
         self.message_ids[msg_id] = 1
-        if object:
-            object = ':%s' % obj
+        if obj:
+            obj = ':%s' % obj
         sigle = msg_id[0]
-        self.messages.append('%s:%3s%s: %s' % (sigle, line, object, msg))
+        self.messages.append('%s:%3s%s: %s' % (sigle, line, obj, msg))
 
     def finalize(self):
         self.messages.sort()
