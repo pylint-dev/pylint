@@ -22,6 +22,9 @@ ChangeLog for PyLint
 
     * #123259: do not emit E0105 for yield expressions inside lambdas
 
+    * #123892: don't crash when attempting to show source code line that can't
+      be encoded with the current locale settings
+
     * Simplify checks for dangerous default values by unifying tests for all
       different mutable compound literals.
 
