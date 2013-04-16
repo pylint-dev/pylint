@@ -551,8 +551,7 @@ adds additional information and methods on the tree nodes to ease
 navigation and code introspection.
 
 An AST checker is a visitor, and should implement
-visit_<lowered class name>
-leave_<lowered class name>
+`visit_<lowered class name>` and/or `leave_<lowered class name>`
 methods for the nodes it's interested in. To get description of the different
 classes used in an ast tree, look at the `compiler.ast documentation`.
 Checkers are ordered by priority. For each module, pylint's engine:
@@ -605,6 +604,7 @@ patch gets accepted.
       file in the appropriate input and messages folders.
     * In the test folder of pylint run ./fulltest.sh (python version), make sure
       all tests pass before submitting a patch
+
 * Create a diff file
     * To create a diff from the command line invoke (from a directory under
       version control) ::
