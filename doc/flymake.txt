@@ -17,7 +17,7 @@ To enable flymake for python, insert the following into your .emacs ::
     (add-hook 'python-mode-hook '(lambda () (flymake-mode)))
 
 Above stuff is in pylint/elisp/pylint-flymake.el, which should be automatically
-installed on debian systems, in which cases you don't have to put it in your .emacs file.
+installed on Debian systems, in which cases you don't have to put it in your .emacs file.
 
 Other things you may find useful to set ::
 

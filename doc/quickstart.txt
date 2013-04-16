@@ -96,7 +96,7 @@ format: ::
   MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE
 
 You can get another output format, useful since it's recognized by
-most editors or other development tools using the ``--parseable=y``
+most editors or other development tools using the ``--output-format=parseable``
 option.
 
 The message type can be:

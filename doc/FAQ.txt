@@ -124,7 +124,7 @@ python path.
 
 	- your cwd is "/whatever/directory"
 
-	- "directory" is a python package and "/whatever" is in the python	
+	- "directory" is a python package and "/whatever" is in the python
           path
 
 	- "directory" is a python package and your cwd is "/whatever" and so
@@ -233,7 +233,7 @@ module level by adding the corresponding option in a comment at the
 top of the file: ::
 
 	# pylint: disable=W0401, E0202
-	# pylint: enable-msg=C0302
+	# pylint: enable=C0302
 
 4.5 What is the format of the configuration file?
 ---------------------------------------------------

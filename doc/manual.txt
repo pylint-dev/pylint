@@ -71,7 +71,7 @@ Distributions
 '''''''''''''
 The source tarball is available at ftp://download.logilab.org/pub/pylint.
 
-You may apt-get a well-tested debian or ubuntu package by adding one of::
+You may apt-get a well-tested Debian or Ubuntu package by adding one of::
 
     deb http://download.logilab.org/production unstable/
     deb http://download.logilab.org/production sid/
@@ -79,7 +79,7 @@ You may apt-get a well-tested debian or ubuntu package by adding one of::
     deb http://download.logilab.org/production lenny/
 
 to your */etc/apt/sources.list* file. Pylint is also available in the
-standard Debian distribution (but add our public debian repository
+standard Debian distribution (but add our public Debian repository
 anyway if you want to get the latest releases and upgrades earlier)
 
 Pylint is also available in Gentoo, Fedora 4, Ubuntu, FreeBSD, Darwin
@@ -198,7 +198,7 @@ Pylint output
 -------------
 
 The default format for the output is raw text. But passing pylint the
-``--output-format=html`` or ``-h y`` or ``-o html`` option will produce an HTML document.
+``--output-format=html`` or ``-f html`` option will produce an HTML document.
 
 There are several sections in Pylint's output.
 
@@ -212,7 +212,7 @@ format: ::
   MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE
 
 You can get another output format, useful since it's recognized by
-most editors or other development tools using the ``--parseable=y``
+most editors or other development tools using the ``--output-format=parseable``
 option.
 
 The message type can be:
@@ -396,7 +396,7 @@ http://lists.logilab.org/mailman/listinfo/python-projects
 Archives are available at
 http://lists.logilab.org/pipermail/python-projects/
 
-If you prefer speaking french instead of english, you can use the
+If you prefer speaking French instead of English, you can use the
 generic forum-fr@logilab.org mailing list:
 
 * (un)subscribe: http://lists.logilab.org/mailman/listinfo/forum-fr
