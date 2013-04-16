@@ -1,5 +1,5 @@
 MKHTML=mkdoc
-MKHTML_OPT=--doctype article --param toc.section.depth=1 --target html --stylesheet standard 
+MKHTML_OPT=--param toc.section.depth=1 --target html --stylesheet standard 
 
 SRC=.
 
@@ -20,6 +20,8 @@ beginner_pylint_tutorial.html: ${SRC}/beginner_pylint_tutorial.txt
 
 features.html:
 	chmod u+w ${SRC}/features.txt
+	echo ".. class:: article" > ${SRC}/features.txt
+	echo "" >> ${SRC}/features.txt
 	echo "Pylint features" > ${SRC}/features.txt
 	echo "===============" >> ${SRC}/features.txt
 	echo "" >> ${SRC}/features.txt

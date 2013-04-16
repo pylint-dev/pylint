@@ -1,3 +1,5 @@
+.. class:: article
+
 ================================================================
 A Beginner's Guide to Code Standards in Python - Pylint Tutorial
 ================================================================

@@ -1,3 +1,5 @@
+.. class:: article
+
 ==========================
 Frequently Asked Questions
 ==========================
