@@ -22,7 +22,7 @@ standard, and tries to enforce a coding style.
 A major difference between Pylint and Pychecker_ is that Pylint checks for
 style issues, while Pychecker explicitly does not. There are a few other
 differences, such as the fact that Pylint does not import live modules while
-Pychecker does (see `6.2 Why does Pychecker catch problems with imports that 
+Pychecker does (see `6.2 Why does Pychecker catch problems with imports that
 Pylint doesn't?`_).
 
 1.3 Who wrote Pylint?
@@ -37,16 +37,16 @@ section of Pylint's README file.
 1.4 Who uses Pylint?
 --------------------
 
-In addition to many individuals, the following projects are known to use pylint 
+In addition to many individuals, the following projects are known to use pylint
 to help develop better
-code: 
+code:
 
 * OSAF Chandler (http://www.osafoundation.org/)
 * Xen (http://www.xensource.com/)
 * CPS (http://www.nuxeo.org)
 * ERP5 (http://www.erp5.org/)
 * pyxmpp (http://pyxmpp.jabberstudio.org/)
-* mercurial 
+* mercurial
 * eXe (http://exelearning.org/)
 * PrimaGIS (http://www.primagis.org)
 * python-cdd (http://projetos.ossystems.com.br/python-cdd/)
@@ -54,9 +54,9 @@ code:
 * ASE (http://dcwww.camp.dtu.dk/campos/ASE/intro.html)
 * RunJob (http://projects.fnal.gov/runjob/)
 * Slugathon (http://slugathon.python-hosting.com/)
-* Topographica (http://topographica.org/Home/index.html) (at least 
+* Topographica (http://topographica.org/Home/index.html) (at least
   they intend to do so)
-* http://browsershots.org 
+* http://browsershots.org
 
 
 2. Installation
@@ -65,13 +65,13 @@ code:
 2.1 How do I install Pylint?
 ----------------------------
 
-The easiest way to install Pylint, if you have the setuptools_ package, is to 
+The easiest way to install Pylint, if you have the setuptools_ package, is to
 invoke ::
 
     easy_install pylint
 
-Otherwise, you'll have to download the source for Pylint and its dependencies 
-from the Logilab site, or through Pylint's repository. See the user manual for 
+Otherwise, you'll have to download the source for Pylint and its dependencies
+from the Logilab site, or through Pylint's repository. See the user manual for
 detailed installation instructions.
 
 .. _setuptools: http://pypi.python.org/pypi/setuptools
@@ -79,8 +79,8 @@ detailed installation instructions.
 2.2 What kind of versioning system does Pylint use?
 ---------------------------------------------------
 
-Pylint uses the Mercurial_ distributed version control system. The URL of the 
-repository is:	http://www.logilab.org/hg/pylint. To get the latest version of 
+Pylint uses the Mercurial_ distributed version control system. The URL of the
+repository is:	https://bitbucket.org/logilab/pylint. To get the latest version of
 Pylint from the repository, simply invoke ::
 
     hg clone http://www.logilab.org/hg/pylint
@@ -104,7 +104,7 @@ packages. It should be compatible with any python version greater than
 3.1 Can I give pylint a file as an argument instead of a module?
 -----------------------------------------------------------------
 
-Pylint expects the name of a package or module as its argument. As a 
+Pylint expects the name of a package or module as its argument. As a
 convenience,
 you can give it a file name if it's possible to guess a module name from
 the file's path using the python path. Some examples :
@@ -125,13 +125,13 @@ python path.
 	- "directory" is a python package and "/whatever" is in the python	
           path
 
-	- "directory" is a python package and your cwd is "/whatever" and so 
+	- "directory" is a python package and your cwd is "/whatever" and so
           on...
 
 3.2 Where is the persistent data stored to compare between successive runs?
 ----------------------------------------------------------------------------
 
-Analysis data are stored as a pickle file in a directory which is 
+Analysis data are stored as a pickle file in a directory which is
 localized using the following rules:
 
 * value of the PYLINTHOME environment variable if set
@@ -155,7 +155,7 @@ For example::
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
 
-Yes! Pylint can be integrated with many popular editors and IDEs. The following 
+Yes! Pylint can be integrated with many popular editors and IDEs. The following
 include Pylint by default:
 
 * emacs (of course)
@@ -164,10 +164,10 @@ include Pylint by default:
   http://msdl.cs.mcgill.ca/MSDL/people/denis/meetings/pythonDev)
 
 To use pylint from within vim, see
-http://www.gonzo.kiev.ua/projects/pylint.vim 
+http://www.gonzo.kiev.ua/projects/pylint.vim
 
 To use pylint from within komodo_, see
-http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/ 
+http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/
 
 To use pylint from within gedit_, see
 http://live.gnome.org/Gedit/PylintPlugin
@@ -185,7 +185,7 @@ http://www.wingware.com/doc/edit/pylint
 
 4.1 Is it possible to locally disable a particular message?
 -----------------------------------------------------------
-  
+
 Yes, this feature has been added in pylint 0.11. This may be done by
 adding "#pylint: disable=W0123,E4567" at the desired block level
 or at the end of the desired line of code
@@ -303,13 +303,13 @@ a name which ends with "mixin" (whatever case).
 6.1 Pylint gave my code a negative rating out of ten. That can't be right!
 --------------------------------------------------------------------------
 
-Even though the final rating Pylint renders is nominally out of ten, there's no 
+Even though the final rating Pylint renders is nominally out of ten, there's no
 lower bound on it. By default, the formula to calculate score is ::
 
     10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
 
-However, this option can be changed in the pylint rc file. If having negative 
-values really bugs you, you can set the formula to be the minimum of 0 and the 
+However, this option can be changed in the pylint rc file. If having negative
+values really bugs you, you can set the formula to be the minimum of 0 and the
 above expression.
 
 
@@ -325,29 +325,22 @@ traverses an AST representation of the code.
 6.3 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------
 
-First, you might wish to check Pylint's ticketing system (the 'Tickets' tab at 
-http://www.logilab.org/project/pylint), to make sure it hasn't been reported 
-already. If it hasn't, please send a bug report to python-projects@logilab.org.
-
-Notice that if you don't find something you have expected in pylint's
-tracker page, it may be on the tracker page of one of its dependencies, namely
-astng and common:
-
-* http://www.logilab.org/project/name/logilab-astng
-* http://www.logilab.org/project/name/logilab-common
+First, you might wish to check Pylint's ticketing system (the 'Issues' tab at
+https://bitbucket.org/logilab/pylint), to make sure it hasn't been reported
+already. If it hasn't, please create a new issue there.
 
 6.4 I have a question about Pylint that isn't answered here.
 ------------------------------------------------------------
 
-The python-projects@logilab.org mailing list is a great place to discuss and 
-ask questions about Pylint. This is a 
+The python-projects@logilab.org mailing list is a great place to discuss and
+ask questions about Pylint. This is a
 moderated mailing list, so if you're not subscribed email you send will have to
 be validated first before actually being sent on the list.
 
 You can subscribe to this mailing list at
 http://lists.logilab.org/mailman/listinfo/python-projects
 
-Archives are available at 
+Archives are available at
 http://lists.logilab.org/pipermail/python-projects/
 
 If you prefer speaking french instead of english, you can use the
@@ -357,6 +350,6 @@ generic forum-fr@logilab.org mailing list:
 * archives: http://lists.logilab.org/pipermail/forum-fr
 
 Notice though that this list has a very low traffic since most pylint related
-discussions are done on the python-projects mailing list. 
+discussions are done on the python-projects mailing list.
 
 .. _pychecker: http://pychecker.sf.net

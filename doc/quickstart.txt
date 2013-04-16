@@ -51,11 +51,11 @@ your ``PYTHONPATH``, since it is a common error to analyze an
 installed version of a module instead of the development version.
 
 It is also possible to analyze python files, with a few
-restrictions. The thing to keep in mind is that Pylint will try to
+restrictions. The thing to keep in mind is that pylint will try to
 convert the file name to a module name, and only be able to process
 the file if it succeeds.  ::
 
-  pylint mymodule.py 
+  pylint mymodule.py
 
 should always works since the current working
 directory is automatically added on top  of the python path ::
@@ -87,7 +87,7 @@ There are several sections in Pylint's output.
 
 Source code analysis section
 ''''''''''''''''''''''''''''
-   
+
 For each python module,
 Pylint will first display a few '*' characters followed by the name
 of the module. Then, a number of messages with the following
@@ -111,7 +111,7 @@ Sometimes the line of code which caused the error is displayed with
 a caret pointing to the error. This may be generalized in future
 versions of Pylint.
 
-Example (extracted from a run of pylint on itself...): 
+Example (extracted from a run of pylint on itself...):
 
 ::
 
@@ -128,23 +128,23 @@ Example (extracted from a run of pylint on itself...):
 
 
 Reports section
-''''''''''''''' 
+'''''''''''''''
 
 Following the analysis message, Pylint will display a set of reports,
 each one focusing on a particular aspect of the project, such as number
 of messages by categories, modules dependencies...
 
 For instance, the metrics report displays summaries gathered from the
-current run. 
+current run.
 
   * the number of processed modules
   * for each module, the percentage of errors and warnings
   * the total number of errors and warnings
   * percentage of classes, functions and modules with docstrings, and
-    a comparison from the previous run 
+    a comparison from the previous run
   * percentage of classes, functions and modules with correct name
     (according to the coding standard), and a comparison from the
-    previous run 
+    previous run
   * a list of external dependencies found in the code, and where they appear
 
 Also, a global evaluation for the code is computed, and an
@@ -155,7 +155,7 @@ specified on the command line).
 Command line options
 --------------------
 
-First of all, we have two basic (but useful) options. 
+First of all, we have two basic (but useful) options.
 
 --version             show program's version number and exit
 -h, --help            show help about the command line options
@@ -164,7 +164,7 @@ Pylint is architectured around several checkers. By default all
 checkers are enabled. You can disable a specific checker or some of its
 messages or messages categories by specifying
 ``--disable=<id>``. If you want to enable only some checkers or some
-message ids, first use ``--disable=all`` then 
+message ids, first use ``--disable=all`` then
 ``--enable=<id>`` with <id> being a comma separated list of checker
 names and message identifiers. See the list of available features_ for a
 description of provided checkers with their functionalities.
