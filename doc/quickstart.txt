@@ -185,15 +185,16 @@ hand tune the configuration.
 
 Other useful global options include:
 
---zope                  Initialize Zope products before starting
---ignore=file           Add <file> (may be a directory) to the black
-                        list. It should be a base name, not a path. 
-                        You may set this option multiple times.
---statistics=y_or_n     Compute statistics on collected data.
---persistent=y_or_n     Pickle collected data for later comparisons.
---comment=y_or_n        Add a comment according to your evaluation note.
---parseable=y_or_n      Use a parseable output format.
---html=y_or_n           Use HTML as output format instead of text.
+--zope                   Initialize Zope products before starting
+--ignore=file            Add <file> (may be a directory) to the black
+                         list. It should be a base name, not a path.
+                         You may set this option multiple times.
+--statistics=y_or_n      Compute statistics on collected data.
+--persistent=y_or_n      Pickle collected data for later comparisons.
+--comment=y_or_n         Add a comment according to your evaluation note.
+--output-format=<format> Set the output format. Available formats are text,
+                         parseable, colorized, msvs (visual studio) and html.
+                         You can also give a reporter class, eg mypackage.mymodule.MyReporterClass.
 
 Bug reports
 -----------

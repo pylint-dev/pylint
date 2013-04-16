@@ -60,7 +60,7 @@ Installation
 
 Dependencies
 ''''''''''''
-Pylint requires the latest `logilab-astng`_ and `logilab-common`_
+Pylint requires the latest `astng`_ and `logilab-common`_
 packages. It should be compatible with any python version >= 2.5.
 
 .. _`logilab-astng`: http://www.logilab.org/project/name/astng
@@ -88,8 +88,10 @@ Pylint is also available in Gentoo, Fedora 4, Ubuntu, FreeBSD, Darwin
 
 Source distribution installation
 ''''''''''''''''''''''''''''''''
-From the source distribution, extract the tarball, go to the extracted
-directory and simply run ::
+
+Pylint should be easily installable using easyinstall or pip. Though you may
+still install it from the source distribution: extract the tarball, go to the
+extracted directory and simply run ::
 
     python setup.py install
 
@@ -306,19 +308,21 @@ hand tune the configuration.
 
 Other useful global options include:
 
---zope                  Initialize Zope products before starting
---ignore=file           Add <file> (may be a directory) to the black
+--zope                   Initialize Zope products before starting
+--ignore=file            Add <file> (may be a directory) to the black
                           list. It should be a base name, not a path.
                           You may set this option multiple times.
---statistics=y_or_n     Compute statistics on collected data.
---persistent=y_or_n     Pickle collected data for later comparisons.
---comment=y_or_n        Add a comment according to your evaluation note.
---parseable=y_or_n      Use a parseable output format.
---html=y_or_n           Use HTML as output format instead of text.
---list-msgs             Generate pylint's messages.
---full-documentation    Generate pylint's full documentation, in reST format.
---include_ids=y_or_n    Show numeric ids of messages (like 'C0301')
---symbols=y_or_n        Show symbolic ids of messsages (like 'line-too-long')
+--statistics=y_or_n      Compute statistics on collected data.
+--persistent=y_or_n      Pickle collected data for later comparisons.
+--comment=y_or_n         Add a comment according to your evaluation note.
+--output-format=format   Set the output format. Available formats are text,
+                          parseable, colorized, msvs (visual studio) and html.
+                          You can also give a reporter class, eg mypackage.mymodule.MyReporterClass.
+--list-msgs              Generate pylint's messages.
+--full-documentation     Generate pylint's full documentation, in reST format.
+--include_ids=y_or_n     Show numeric ids of messages (like 'C0301')
+--symbols=y_or_n         Show symbolic ids of messsages (like 'line-too-long')
+
 
 .. _features: features.html
 
@@ -546,15 +550,16 @@ First, there are two kinds of checkers :
 * ast checkers, which are working on an ast representation of the module
 
 The ast representation used is an extension of the one provided with the
-standard python distribution in the `compiler package`_. The extension
+standard python distribution in the `ast package`_. The extension
 adds additional information and methods on the tree nodes to ease
-navigation and code introspection.
+navigation and code introspection, as well as compatibility across various
+Python version.
 
 An AST checker is a visitor, and should implement
 `visit_<lowered class name>` and/or `leave_<lowered class name>`
 methods for the nodes it's interested in. To get description of the different
-classes used in an ast tree, look at the `compiler.ast documentation`.
-Checkers are ordered by priority. For each module, pylint's engine:
+classes used in an ast tree, look at the `ast package`_ documentation.
+Checkers are ordered by priority. For each module, Pylint's engine:
 
 1. give the module source file as a stream to raw checkers
 2. get an ast representation for the module
@@ -565,8 +570,7 @@ Notice that the source code is probably the best source of
 documentation, it should be clear and well documented. Don't hesitate to
 ask for any information on the python-projects mailing list.
 
-.. _`compiler package`: http://docs.python.org/library/compiler
-.. _`compiler.ast documentation`: http://docs.python.org/library/compiler#module-compiler.ast
+.. _`ast package`: http://docs.python.org/2/library/ast.html
 
 
 Contribute !

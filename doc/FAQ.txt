@@ -92,9 +92,8 @@ Pylint from the repository, simply invoke ::
 2.3 What are Pylint's dependencies?
 -----------------------------------
 
-Pylint requires the latest `logilab-astng`_ and `logilab-common`_
-packages. It should be compatible with any python version greater than
-2.2.0.
+Pylint requires the latest `astng`_ and `logilab-common`_ packages. It should be
+compatible with any python version greater than 2.5.0.
 
 .. _`logilab-astng`: http://www.logilab.org/project/logilab-astng
 .. _`logilab-common`: http://www.logilab.org/project/logilab-common
