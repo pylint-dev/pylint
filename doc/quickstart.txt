@@ -51,7 +51,7 @@ your ``PYTHONPATH``, since it is a common error to analyze an
 installed version of a module instead of the development version.
 
 It is also possible to analyze python files, with a few
-restrictions. The thing to keep in mind is that pylint will try to
+restrictions. The thing to keep in mind is that Pylint will try to
 convert the file name to a module name, and only be able to process
 the file if it succeeds.  ::
 
