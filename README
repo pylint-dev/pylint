@@ -1,16 +1,33 @@
 README for Pylint (http://www.pylint.org)
 =========================================
 
-Dependencies
-------------
-Pylint requires the logilab-astng (version >= 0.21.0), logilab-common
-(version >= 0.53).
+Pylint is a Python source code analyzer which looks for programming errors,
+helps enforcing a coding standard and sniffs for some code smells (as defined in
+Martin Fowler's Refactoring book).
 
-* http://www.logilab.org/projects/astng
-* http://www.logilab.org/projects/common
+Pylint has many rules enabled by default, way too much to silent them all on a
+minimally sized program. It's highly configurable and handle pragmas to control
+it from within your code. Additionally, it is possible to write plugins to add
+your own checks.
+
+It's a free software distributed under the GNU Public Licence.
+
+Development is hosted on bitbucket: https://bitbucket.org/logilab/pylint/ .
+
+You can use the python-projects@logilab.org mailing list to discuss about
+Pylint. Subscribe at http://lists.logilab.org/mailman/listinfo/python-projects
+or read the archives at http://lists.logilab.org/pipermail/python-projects/
+
 
 Install
 -------
+
+Pylint requires the astng (the later the better) and logilab-common (version >=
+0.53) packages.
+
+*  https://bitbucket.org/logilab/astng
+* http://www.logilab.org/projects/common
+
 From the source distribution, extract the tarball and run ::
 
     python setup.py install
@@ -21,10 +38,11 @@ rpm packages, use your usual tools according to your Linux distribution.
 More information about installation and available distribution format
 may be found in the user manual in the *doc* subdirectory.
 
+
 Documentation
 -------------
-Look in the doc/ subdirectory or at the project home page
-http://www.logilab.org/project/pylint
+
+Look in the doc/ subdirectory or at http://docs.pylint.org
 
 Pylint is shipped with following additional commands:
 
@@ -33,18 +51,6 @@ Pylint is shipped with following additional commands:
 * epylint: Emacs and Flymake compatible Pylint
 * pylint-gui: a graphical interface
 
-Comments, support, bug reports
-------------------------------
-
-Project page and tracker on :
-http://www.logilab.org/project/pylint
-
-Use the python-projects@logilab.org mailing list.
-You can subscribe to this mailing list at
-http://lists.logilab.org/mailman/listinfo/python-projects
-
-Archives are available at
-http://lists.logilab.org/pipermail/python-projects/
 
 Contributors
 ------------

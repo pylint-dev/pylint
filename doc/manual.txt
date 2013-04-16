@@ -63,7 +63,7 @@ Dependencies
 Pylint requires the latest `astng`_ and `logilab-common`_
 packages. It should be compatible with any python version >= 2.5.
 
-.. _`logilab-astng`: http://www.logilab.org/project/name/astng
+.. _`astng`: https://bitbucket.org/logilab/astng
 .. _`logilab-common`: http://www.logilab.org/project/name/common
 
 
@@ -373,17 +373,17 @@ the `tracker page`_. This mailing list is also a nice place to
 discuss Pylint issues, see below for more information about Pylint's related
 lists.
 
-You can check for already reported bugs, planned features on pylint's tracker
-web page: http://www.logilab.org/project/name/pylint
+You can check for already reported bugs, planned features on Pylint's tracker
+web page: https://bitbucket.org/logilab/pylint/issues
 
 Notice that if you don't find something you have expected in Pylint's
 tracker page, it may be on the tracker page of one of its dependencies, namely
 astng and common:
 
-* http://www.logilab.org/project/name/logilab-astng
+* https://bitbucket.org/logilab/astng/issues
 * http://www.logilab.org/project/name/logilab-common
 
-.. _`tracker page`: http://www.logilab.org/project/name/pylint
+.. _`tracker page`: https://bitbucket.org/logilab/pylint/issues
 
 Mailing lists
 -------------
@@ -582,16 +582,15 @@ some different usage patterns). See mercurial home page for installation on
 your computer and basic usage. Note that it's very easy to send us patches using
 `hg email` command ;).
 
-You can get the in-development pylint source code from our public mercurial_
-repository:
+You can get the in-development Pylint source code from its bitbucket repository:
 
-http://www.logilab.org/src/pylint
+https://bitbucket.org/logilab/pylint
 
 The same is true for Pylint dependencies (if you use Pylint code from the
 repository, you should usually use code from the repository as well for astng
 and common):
 
-http://www.logilab.org/src/logilab/astng
+https://bitbucket.org/logilab/astng
 http://www.logilab.org/src/logilab/common
 
 .. _mercurial: http://www.selenic.com/mercurial/
