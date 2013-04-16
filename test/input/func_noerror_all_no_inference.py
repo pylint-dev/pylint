@@ -1,4 +1,4 @@
-"""Test that non-inferable __all__ variables do not make PyLint crash.
+"""Test that non-inferable __all__ variables do not make Pylint crash.
 
 """
 #  pylint: disable=R0903,R0201,W0612

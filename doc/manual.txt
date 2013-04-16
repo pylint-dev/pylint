@@ -27,7 +27,7 @@ What is pylint?
 Pylint is a tool that checks for errors in python code, tries to enforce a
 coding standard and looks for smelling code. This is similar but nevertheless
 different from what pychecker_ provides, especially since pychecker explicitly
-does not bother with coding style. The default coding style used by pylint is
+does not bother with coding style. The default coding style used by Pylint is
 close to `PEP 008`_ (aka `Guido's style guide`_). For more information about
 code smells, refer to Martin Fowler's `refactoring book`_
 
@@ -35,7 +35,7 @@ One important thing to note is that Pylint isn't smarter than you are: it may
 warn you about things that you have conscientiously done. That's for example
 because it tries to detect things that may be dangerous in a context, but maybe
 not in others, or because it checks for some things that you don't care
-about. Generally, you shouldn't expect pylint to be totally quiet about your
+about. Generally, you shouldn't expect Pylint to be totally quiet about your
 code, so don't necessarily be alarmed if it gives you a hell lot of messages for
 your proudly(XXX) project ;)
 
@@ -95,7 +95,7 @@ directory and simply run ::
 
 You'll have to install dependencies in a similar way.
 
-Windows users may get valuable information about pylint installation on
+Windows users may get valuable information about Pylint installation on
 `this page`_.
 
 .. _`this page`: http://thinkhole.org/wp/2006/01/16/installing-pylint-on-windows/
@@ -104,7 +104,7 @@ Windows users may get valuable information about pylint installation on
 Note for Windows users
 ''''''''''''''''''''''
 
-On Windows, once you have installed pylint, the command line usage is ::
+On Windows, once you have installed Pylint, the command line usage is ::
 
   pylint.bat [options] module_or_package
 
@@ -125,7 +125,7 @@ To effect (2), simply append the appropriate directory name to the PATH=
 statement in autoexec.bat. Be sure to use the Windows directory
 separator of ';' between entries. Then, once you have rebooted (this is
 necessary so that the new path statement will take effect when
-autoexec.bat is run), you will be able to invoke PyLint with
+autoexec.bat is run), you will be able to invoke Pylint with
 pylint.bat on the command line.
 
 (3) is the best solution. Once done, you can call pylint at the command
@@ -155,7 +155,7 @@ your ``PYTHONPATH``, since it is a common error to analyze an
 installed version of a module instead of the development version.
 
 It is also possible to analyze python files, with a few
-restriction. The thing to keep in mind is that pylint will try to
+restriction. The thing to keep in mind is that Pylint will try to
 convert the file name to a module name, and only be able to process
 the file if it succeeds.  ::
 
@@ -171,13 +171,13 @@ file) or if "directory" is in the python path.
 
 For more details on this see the Frequently Asked Questions.
 
-You can also start a thin gui around pylint (require TkInter) by
+You can also start a thin gui around Pylint (require TkInter) by
 typing ::
 
   pylint-gui
 
 This should open a window where you can enter the name of the package
-or module to check, at pylint messages will be displayed in the user
+or module to check, at Pylint messages will be displayed in the user
 interface.
 
 It is also possible to call Pylint from an other Python program,
@@ -200,12 +200,12 @@ Pylint output
 The default format for the output is raw text. But passing pylint the
 ``--output-format=html`` or ``-h y`` or ``-o html`` option will produce an HTML document.
 
-There are several sections in pylint's output.
+There are several sections in Pylint's output.
 
 Source code analysis section
 ''''''''''''''''''''''''''''
 For each python module,
-pylint will first display a few '*' characters followed by the name
+Pylint will first display a few '*' characters followed by the name
 of the module. Then, a number of messages with the following
 format: ::
 
@@ -225,9 +225,9 @@ The message type can be:
 
 Sometimes the line of code which caused the error is displayed with
 a caret pointing to the error. This may be generalized in future
-versions of pylint.
+versions of Pylint.
 
-Example (extracted from a run of pylint on itself...):
+Example (extracted from a run of Pylint on itself...):
 
 ::
 
@@ -245,7 +245,7 @@ Example (extracted from a run of pylint on itself...):
 
 Reports section
 '''''''''''''''
-Following the analysis message, pylint will display a set of reports,
+Following the analysis message, Pylint will display a set of reports,
 each one focusing on a particular aspect of the project, such as number
 of messages by categories, modules dependencies...
 
@@ -322,14 +322,14 @@ Other useful global options include:
 
 .. _features: features.html
 
-Daily pylint usage
+Daily Pylint usage
 ------------------
-What pylint says is not to be taken as gospel. While getting as
+What Pylint says is not to be taken as gospel. While getting as
 few false positives for errors as possible is a goal for us -- and
 python makes it hard enough, it is not the case for warnings.
 
 :Quoting Alexandre Fayolle:
-  My usage pattern for pylint is to generally run pylint -e quite often to
+  My usage pattern for Pylint is to generally run `pylint -e` quite often to
   get stupid errors flagged before launching an application (or before
   committing). I generally run pylint with all the bells and whistles
   activated some time before a release, when I want to cleanup the code.
@@ -340,7 +340,7 @@ python makes it hard enough, it is not the case for warnings.
 
 :Quoting Marteen Ter Huurne:
   In our project we just accepted that we have to make some modifications in our
-  code to please PyLint:
+  code to please Pylint:
 
   - stick to more naming conventions (unused variables ending in underscores,
     mix-in class names ending in "Mixin")
@@ -348,13 +348,13 @@ python makes it hard enough, it is not the case for warnings.
     the superclass)
   - for messages which are useful in general, but not in a specific case: add "#
     pylint: disable=X0123" comments
-  - for PyLint bugs: add "#pylint: disable=X0123" comments
-  - for PyLint limitations: add "#pylint: disable=X0123" comments
+  - for Pylint bugs: add "#pylint: disable=X0123" comments
+  - for Pylint limitations: add "#pylint: disable=X0123" comments
     (for instance Twisted's modules create a lot of definitions dynamically so
-    PyLint does not know about them)
+    Pylint does not know about them)
 
-  The effort is worth it, since PyLint helps us a lot in keeping the code clean
-  and finding errors early. Although most errors found by PyLint would also be
+  The effort is worth it, since Pylint helps us a lot in keeping the code clean
+  and finding errors early. Although most errors found by Pylint would also be
   found by the regression tests, by fixing them before committing, we save time.
   And our regression tests do not cover all code either, just the most complex
   parts.
@@ -366,13 +366,13 @@ You think you have found a bug in Pylint? Well, this may be the case
 since Pylint is under development. Please take the time to send a bug
 report to python-projects@logilab.org if you've not found it already reported on
 the `tracker page`_. This mailing list is also a nice place to
-discuss Pylint issues, see below for more information about pylint's related
+discuss Pylint issues, see below for more information about Pylint's related
 lists.
 
 You can check for already reported bugs, planned features on pylint's tracker
 web page: http://www.logilab.org/project/name/pylint
 
-Notice that if you don't find something you have expected in pylint's
+Notice that if you don't find something you have expected in Pylint's
 tracker page, it may be on the tracker page of one of its dependencies, namely
 astng and common:
 
@@ -402,7 +402,7 @@ generic forum-fr@logilab.org mailing list:
 * (un)subscribe: http://lists.logilab.org/mailman/listinfo/forum-fr
 * archives: http://lists.logilab.org/pipermail/forum-fr
 
-Notice though that this list has a very low traffic since most pylint related
+Notice though that this list has a very low traffic since most Pylint related
 discussions are done on the python-projects mailing list.
 
 
@@ -584,7 +584,7 @@ repository:
 
 http://www.logilab.org/src/pylint
 
-The same is true for pylint dependencies (if you use pylint code from the
+The same is true for Pylint dependencies (if you use Pylint code from the
 repository, you should usually use code from the repository as well for astng
 and common):
 
@@ -595,7 +595,8 @@ http://www.logilab.org/src/logilab/common
 
 Contribution Instructions
 --------------------------
-Got a patch for pylint?  There a few steps you must take to make sure your
+
+Got a patch for Pylint?  There a few steps you must take to make sure your
 patch gets accepted.
 
 * Test your code
@@ -618,20 +619,20 @@ Other information
 IDE integration
 ---------------
 
-To use pylint with emacs, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8
+To use Pylint with emacs, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8
 
-To use pylint with vim, see
+To use Pylint with vim, see
 http://www.vim.org/scripts/script.php?script_id=891
 
-To use pylint with eclipse, see http://pydev.org
+To use Pylint with eclipse, see http://pydev.org
 
-To use pylint with komodo_, see
+To use Pylint with komodo_, see
 http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/
 
-To use pylint with gedit_, see
+To use Pylint with gedit_, see
 http://live.gnome.org/Gedit/PylintPlugin
 
-To use pylint with WingIDE_, see
+To use Pylint with WingIDE_, see
 http://www.wingware.com/doc/edit/pylint
 
 Pylint is integrated in Eric_ IDE, see the `Project > Check` menu.
@@ -651,7 +652,7 @@ Pylint is integrated in pyscripter_, see the `Tool -> Tools` menu.
 
 Some projects using Pylint
 --------------------------
-The following projects are known to use pylint to help develop better
+The following projects are known to use Pylint to help develop better
 code:
 
 * OSAF Chandler (http://www.osafoundation.org/)
@@ -671,7 +672,7 @@ code:
 * http://browsershots.org
 * many more...
 
-Also notice that the CheeseCake_ kwalitee reporting tool uses pylint to
+Also notice that the CheeseCake_ kwalitee reporting tool uses Pylint to
 analyze the source code.
 
 .. _CheeseCake: http://cheesecake.sourceforge.net/

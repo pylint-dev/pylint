@@ -11,18 +11,18 @@ Pylint Quickstart
 
 
 This document is meant to get you started with Pylint. It assumes that
-you have installed pylint following the instructions in the README
+you have installed Pylint following the instructions in the README
 document found in the source documentation.
 
 
-What is pylint?
+What is Pylint?
 ---------------
 
 Pylint is a tool that checks for errors in python code, tries to
 enforce a coding standard and looks for bad code smells. This is
 similar but nevertheless different from what pychecker_ provides,
 especially since pychecker explicitly does not bother with coding
-style. The default coding style used by pylint is close to 
+style. The default coding style used by Pylint is close to
 `Guido's style guide`_. For more information about code smells, refer
 to Martin Fowler's `refactoring book`_
 
@@ -51,7 +51,7 @@ your ``PYTHONPATH``, since it is a common error to analyze an
 installed version of a module instead of the development version.
 
 It is also possible to analyze python files, with a few
-restrictions. The thing to keep in mind is that pylint will try to 
+restrictions. The thing to keep in mind is that Pylint will try to
 convert the file name to a module name, and only be able to process
 the file if it succeeds.  ::
 
@@ -67,13 +67,13 @@ file) or if "directory" is in the python path.
 
 For more details on this see the FAQ_.
 
-You can also start a thin gui around pylint (require TkInter) by
+You can also start a thin gui around Pylint (require TkInter) by
 typing ::
 
   pylint-gui
 
 This should open a window where you can enter the name of the package
-or module to check, at pylint messages will be displayed in the user
+or module to check, at Pylint messages will be displayed in the user
 interface.
 
 
@@ -83,13 +83,13 @@ Pylint output
 The default format for the output is raw text. But passing pylint the
 ``--output-format=html`` or ``-f html`` option will produce an HTML document.
 
-There are several sections in pylint's output. 
+There are several sections in Pylint's output.
 
 Source code analysis section
 ''''''''''''''''''''''''''''
    
 For each python module,
-pylint will first display a few '*' characters followed by the name
+Pylint will first display a few '*' characters followed by the name
 of the module. Then, a number of messages with the following
 format: ::
 
@@ -109,7 +109,7 @@ The message type can be:
 
 Sometimes the line of code which caused the error is displayed with
 a caret pointing to the error. This may be generalized in future
-versions of pylint.
+versions of Pylint.
 
 Example (extracted from a run of pylint on itself...): 
 
@@ -130,7 +130,7 @@ Example (extracted from a run of pylint on itself...):
 Reports section
 ''''''''''''''' 
 
-Following the analysis message, pylint will display a set of reports,
+Following the analysis message, Pylint will display a set of reports,
 each one focusing on a particular aspect of the project, such as number
 of messages by categories, modules dependencies...
 
