@@ -15,7 +15,7 @@ XXX).  If you think it's lacking some important information, please talk about
 it on the python-projects mailing list (see the `Mailing lists`_ section for
 more information about the list).
 
-.. _Pylint: http://www.logilab.org/project/name/pylint
+.. _Pylint: http://www.pylint.org
 
 
 Introduction
@@ -69,7 +69,7 @@ packages. It should be compatible with any python version >= 2.5.
 
 Distributions
 '''''''''''''
-The source tarball is available at ftp://download.logilab.org/pub/pylint.
+The source tarball is available at http://download.logilab.org/pub/pylint.
 
 You may apt-get a well-tested Debian or Ubuntu package by adding one of::
 

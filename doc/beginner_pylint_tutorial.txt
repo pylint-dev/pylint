@@ -6,7 +6,7 @@ A Beginner's Guide to Code Standards in Python - Pylint Tutorial
 
 :Author: Robert Kirkpatrick
 
-For a detailed description of Pylint, see http://www.logilab.org/project/pylint.
+For a detailed description of Pylint, see http://www.pylint.org
 
 
 Intro
