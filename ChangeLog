@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * bitbucket #1: fix "dictionary changed size during iteration" crash
+
     * #74013: new E1310[bad-str-strip-call] message warning when a call to a
       {l,r,}strip method contains duplicate characters (patch by Torsten Marek)
 

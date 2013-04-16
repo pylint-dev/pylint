@@ -711,8 +711,8 @@ This is used by the global evaluation report (RP0004).'}),
                 if not enable and (warning, line) not in self._ignored_msgs:
                     self.add_message('I0021', line, None,
                                      (self.get_msg_display_string(warning),))
-
-        for (warning, from_), lines in self._ignored_msgs.iteritems():
+        # don't use iteritems here, _ignored_msgs may be modified by add_message
+        for (warning, from_), lines in self._ignored_msgs.items():
             for line in lines:
                 self.add_message('I0020', line, None,
                                  (self.get_msg_display_string(warning), from_))
