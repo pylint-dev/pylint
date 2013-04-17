@@ -13,15 +13,15 @@ First, there are two kinds of checkers :
 * ast checkers, which are working on an ast representation of the module
 
 The ast representation used is an extension of the one provided with the
-standard Python distribution in the `compiler package`_. The extension
+standard python distribution in the `ast package`_. The extension
 adds additional information and methods on the tree nodes to ease
-navigation and code introspection.
+navigation and code introspection, as well as compatibility across various
+Python version.
 
 An AST checker is a visitor, and should implement
-visit_<lowered class name>
-leave_<lowered class name>
+`visit_<lowered class name>` and/or `leave_<lowered class name>`
 methods for the nodes it's interested in. To get description of the different
-classes used in an ast tree, look at the `compiler.ast documentation`.
+classes used in an ast tree, look at the `ast package`_ documentation.
 Checkers are ordered by priority. For each module, Pylint's engine:
 
 1. give the module source file as a stream to raw checkers
@@ -33,5 +33,4 @@ Notice that the source code is probably the best source of
 documentation, it should be clear and well documented. Don't hesitate to
 ask for any information on the python-projects mailing list.
 
-.. _`compiler package`: http://docs.python.org/library/compiler
-.. _`compiler.ast documentation`: http://docs.python.org/library/compiler#module-compiler.ast
+.. _`ast package`: http://docs.python.org/2/library/ast.html

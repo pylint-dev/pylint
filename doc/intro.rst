@@ -48,7 +48,7 @@ shouldn't expect Pylint to be totally quiet about your code, so don't
 necessarily be alarmed if it gives you a hell lot of messages for your project!
 
 :Quoting Alexandre Fayolle:
-  My usage pattern for Pylint is to generally run ``pylint -e`` quite often to
+  My usage pattern for Pylint is to generally run ``pylint -E`` quite often to
   get stupid errors flagged before launching an application (or before
   committing). I generally run Pylint with all the bells and whistles
   activated some time before a release, when I want to cleanup the code.

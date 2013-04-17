@@ -292,7 +292,7 @@ Messages
   Used when a variable is defined through the "global" statement but no
   assignment to this variable is done.
 :W0603 (global-statement): *Using the global statement*
-  Used when you use the "global" statement to update a global variable. PyLint
+  Used when you use the "global" statement to update a global variable. Pylint
   just try to discourage this usage. That doesn't mean you can not use it !
 :W0604 (global-at-module-level): *Using the global statement at the module level*
   Used when you use the "global" statement at the module level since it has no
@@ -581,10 +581,10 @@ Messages
   to "mcs"), recommended to easily differentiate them from regular instance
   methods.
 :F0202 (method-check-failed): *Unable to check methods signature (%s / %s)*
-  Used when PyLint has been unable to check methods signature compatibility for
+  Used when Pylint has been unable to check methods signature compatibility for
   an unexpected reason. Please report this kind if you don't make sense of it.
 :F0220 (unresolved-interface): *failed to resolve interfaces implemented by %s (%s)*
-  Used when a PyLint as failed to find interfaces implemented by a class
+  Used when a Pylint as failed to find interfaces implemented by a class
 
 
 design checker
@@ -771,7 +771,7 @@ Messages
   Used when another argument than the current class is given as first argument
   of the super builtin.
 :W1001 (property-on-old-class): *Use of "property" on an old style class*
-  Used when PyLint detect the use of the builtin "property" on an old style
+  Used when Pylint detect the use of the builtin "property" on an old style
   class while this is relying on new style classes features
 
 
