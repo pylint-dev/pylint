@@ -34,7 +34,9 @@ This tutorial is all about approaching coding standards with little or no
 knowledge of in-depth programming or the code standards themselves.  It's the
 equivalent of skipping the manual and jumping right in.
 
-My command line prompt for these examples is: ::
+My command line prompt for these examples is:
+
+.. sourcecode:: bash
 
   robertk01 Desktop$
 
@@ -44,8 +46,9 @@ Getting Started
 ---------------
 
 Running Pylint with no arguments will invoke the help dialogue and give you a
-idea of the arguments available to you.  Do that now, i.e.:  ::
+idea of the arguments available to you.  Do that now, i.e.:
 
+.. sourcecode:: bash
 
   robertk01 Desktop$ pylint
   ...
@@ -95,7 +98,9 @@ Your First Pylint'ing
 We'll use a basic python script as fodder for our tutorial.  I borrowed
 extensively from the code here: http://www.daniweb.com/code/snippet748.html
 The starting code we will use is called simplecaeser.py and is here in its
-entirety: ::
+entirety:
+
+.. sourcecode:: python
 
    1  #!/usr/bin/env python
    2
@@ -126,7 +131,9 @@ entirety: ::
 
 Let's get started.
 
-If we run this: ::
+If we run this:
+
+.. sourcecode:: bash
 
   robertk01 Desktop$ pylint simplecaeser.py
   No config file found, using default configuration
@@ -254,7 +261,9 @@ if I'm a newbie.  So let's turn on a bit more info by using the option
  for example, "--reports=n" can be abbreviated to "-r n", and "--include-ids=y"
  can be abbreviated to "-i y". Pylint's man page lists all these shortcuts.
 
-Let's do it again! ::
+Let's do it again!
+
+.. sourcecode:: bash
 
   robertk01 Desktop$ pylint --reports=n --include-ids=y simplecaeser.py
   No config file found, using default configuration
@@ -271,7 +280,9 @@ Let's do it again! ::
 
 Oooh.  I like that better.  Now I know that I violated the convention number
 C0111 and now I can read up a bit more about that.  Let's go back to the
-command line and try this: ::
+command line and try this:
+
+.. sourcecode:: bash
 
   robertk01 Desktop$ pylint --help-msg=C0111
   No config file found, using default configuration
@@ -306,7 +317,9 @@ spaces around an operator such as "=" so I'll fix that too.  To sum up, I'll add
 a docstring to line 2, put spaces around the = sign on line 16 and use the
 "--disable=W0402" to ignore the deprecation warning.
 
-Here's the updated code: ::
+Here is the updated code:
+
+.. sourcecode:: python
 
    1  #!/usr/bin/env python
    2  """This script prompts a user to enter a message to encode or decode
@@ -336,7 +349,9 @@ Here's the updated code: ::
   26
   27  print encoded
 
-And here's what happens when we run it with our --disable=W0402 option: ::
+And here is what happens when we run it with our --disable=W0402 option:
+
+.. sourcecode:: python
 
   robertk01 Desktop$ pylint --reports=n --include-ids=y --disable=W0402 simplecaeser.py
   No config file found, using default configuration
@@ -366,7 +381,9 @@ of all lowercase.  The appropriate rule would be something like:
 regular expression (a-z versus A-Z).
 
 If we run that rule using a --const-rgx='[a-z\_][a-z0-9\_]{2,30}$' option, it
-will now be quite quiet: ::
+will now be quite quiet:
+
+.. sourcecode:: bash
 
   robertk01 Desktop$ pylint --reports=n --include-ids=y --disable=W0402 --const-rgx='[a-z_][a-z0-9_]{2,30}$'  simplecaeser.py
   No config file found, using default configuration
