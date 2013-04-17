@@ -1,7 +1,9 @@
-
 =================
  IDE integration
 =================
+
+Integrating Pylint in my editor/IDE
+===================================
 
 To use Pylint with emacs, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8
 
