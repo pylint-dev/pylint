@@ -32,9 +32,9 @@ Pylint is also available in Gentoo, Fedora 4, Ubuntu, FreeBSD, Darwin
 Source distribution installation
 ''''''''''''''''''''''''''''''''
 
-Pylint should be easily installable using easyinstall or pip. Though you may
-still install it from the source distribution: extract the tarball, go to the
-extracted directory and simply run ::
+Pylint should be easily installable using setuptools_'easy_install or
+pip. Though you may still install it from the source distribution: extract the
+tarball: go to the extracted directory and simply run ::
 
     python setup.py install
 
@@ -43,6 +43,7 @@ You'll have to install dependencies in a similar way.
 Windows users may get valuable information about Pylint installation on
 `this page`_.
 
+.. _setuptools: http://pypi.python.org/pypi/setuptools
 .. _`this page`: http://thinkhole.org/wp/2006/01/16/installing-pylint-on-windows/
 
 
