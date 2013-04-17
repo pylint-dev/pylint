@@ -27,6 +27,7 @@ Pylint is integrated in spyder_, see http://packages.python.org/spyder/pylint.ht
 
 Pylint is integrated in pyscripter_, see the `Tool -> Tools` menu.
 
+
 .. _Eric: http://eric-ide.python-projects.org/
 .. _pyscripter: http://code.google.com/p/pyscripter/
 .. _pydev: http://pydev.org
@@ -106,3 +107,11 @@ the following instead of a post-command-hook
     (defadvice flymake-goto-prev-error (after display-message activate compile)
       "Display the error in the mini-buffer rather than having to mouse over it"
       (show-fly-err-at-point))
+
+
+Setup the MS Visual Studio .NET 2003 editor to call Pylint
+==========================================================
+
+.. image:: _static/vs2003_config.jpeg
+
+The output of PyLint is then shown in the "Output" pane of the editor.
