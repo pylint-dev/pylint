@@ -1,4 +1,4 @@
-# pylint: disable=C0111,R0201
+# pylint: disable=C0111,R0201,C0121
 """
 FUNCTIONALITY
 """
