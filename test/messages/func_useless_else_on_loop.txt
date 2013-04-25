@@ -1,3 +1,5 @@
-C: 26: Else clause on loop without break or return statement
-C: 33: Else clause on loop without break or return statement
-C: 38: Else clause on loop without break or return statement
+W: 10:test_return_for: Else clause on loop without a break statement
+W: 17:test_return_while: Else clause on loop without a break statement
+W: 26: Else clause on loop without a break statement
+W: 33: Else clause on loop without a break statement
+W: 38: Else clause on loop without a break statement

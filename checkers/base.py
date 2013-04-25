@@ -67,16 +67,16 @@ def in_nested_list(nested_list, obj):
     return False
 
 def _loop_exits_early(loop):
-    """Returns true if a loop has a break or return statement in its body."""
+    """Returns true if a loop has a break statement in its body."""
     loop_nodes = (astng.For, astng.While)
-    exit_stmts = (astng.Break, astng.Return)
-    # Loop over body explicitly to avoid matching break/return statements
+    # Loop over body explicitly to avoid matching break statements
     # in orelse.
     for child in loop.body:
         if isinstance(child, loop_nodes):
             continue
-        for _ in child.nodes_of_class(exit_stmts, skip_klass=loop_nodes):
+        for _ in child.nodes_of_class(astng.Break, skip_klass=loop_nodes):
             return True
+    return False
 
 
 def report_by_type_stats(sect, stats, old_stats):
@@ -177,7 +177,7 @@ class BasicErrorChecker(_BasicChecker):
               'duplicate-argument-name',
               'Duplicate argument names in function definitions are syntax'
               ' errors.'),
-    'C0109': ('Else clause on loop without break or return statement',
+    'W0120': ('Else clause on loop without a break statement',
               'useless-else-on-loop',
               'Loops should only have an else clause if they can exit early '
               'with a break statement, otherwise the statements under else '
@@ -240,11 +240,11 @@ class BasicErrorChecker(_BasicChecker):
     def visit_break(self, node):
         self._check_in_loop(node, 'break')
 
-    @check_messages('C0109')
+    @check_messages('W0120')
     def visit_for(self, node):
         self._check_else_on_loop(node)
 
-    @check_messages('C0109')
+    @check_messages('W0120')
     def visit_while(self, node):
         self._check_else_on_loop(node)
 
@@ -259,7 +259,7 @@ class BasicErrorChecker(_BasicChecker):
     def _check_else_on_loop(self, node):
         """Check that any loop with an else clause has a break statement."""
         if node.orelse and not _loop_exits_early(node):
-            self.add_message('C0109', node=node,
+            self.add_message('W0120', node=node,
                              # This is not optimal, but the line previous
                              # to the first statement in the else clause
                              # will usually be the one that contains the else:.

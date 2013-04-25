@@ -10,7 +10,7 @@ ChangeLog for Pylint
     * #123233: new E0108[duplicate-argument-name] message reporting duplicate
       argument names
 
-    * #81378: emit C0109[useless-else-on-loop] for loops without break and
+    * #81378: emit W0120[useless-else-on-loop] for loops without break and
       return
 
     * #124660: internal dependencies should not appear in external dependencies
