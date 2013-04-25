@@ -1,7 +1,7 @@
 ChangeLog for Pylint
 ====================
 
---
+2013-04-25  --  0.28.0
     * bitbucket #1: fix "dictionary changed size during iteration" crash
 
     * #74013: new E1310[bad-str-strip-call] message warning when a call to a
@@ -10,8 +10,7 @@ ChangeLog for Pylint
     * #123233: new E0108[duplicate-argument-name] message reporting duplicate
       argument names
 
-    * #81378: emit W0120[useless-else-on-loop] for loops without break and
-      return
+    * #81378: emit W0120[useless-else-on-loop] for loops without break
 
     * #124660: internal dependencies should not appear in external dependencies
       report
@@ -33,8 +32,8 @@ ChangeLog for Pylint
     * Improve the description for E1124[redundant-keyword-arg]
 
 
-2013-02-26 -- 0.27.0
 
+2013-02-26  --  0.27.0
     * #20693: replace pylint.el by Ian Eure version (patch by J.Kotta)
 
     * #105327: add support for --disable=all option and deprecate the
@@ -76,10 +75,10 @@ ChangeLog for Pylint
 
     * Python 3 related fixes:
 
-      * #110213: fix import of checkers broken with python 3.3, causing
+    * #110213: fix import of checkers broken with python 3.3, causing
         "No such message id W0704" breakage
 
-      * #120635: redefine cmp function used in pylint.reporters
+    * #120635: redefine cmp function used in pylint.reporters
 
     * Include full warning id for I0020 and I0021 and make sure to flush
       warnings after each module, not at the end of the pylint run.
@@ -93,6 +92,7 @@ ChangeLog for Pylint
 
     * Add hooks for import path setup and move pylint's sys.path
       modifications into them. (patch by Torsten Marek)
+
 
 
 2012-10-05  --  0.26.0
@@ -132,6 +132,8 @@ ChangeLog for Pylint
     * stop including tests files in distribution, they causes crash when
       installed with python3 (#72022, #82417, #76910)
 
+
+
 2012-07-17  --  0.25.2
     * #93591: Correctly emit warnings about clobbered variable names when an
       except handler contains a tuple of names instead of a single name.
@@ -160,6 +162,7 @@ ChangeLog for Pylint
       when using a regexp value set
 
     * fix potential crashes with utils.safe_infer raising InferenceError
+
 
 
 2011-12-08  --  0.25.1
