@@ -34,10 +34,6 @@ def function7(value = dict()):
     """dict is mutable and dangerous."""
     print value
 
-def function8(value = {1}):
-    """set is mutable and dangerous."""
-    print value
-
-def function9(value = list()):
+def function8(value = list()):
     """list is mutable and dangerous."""
     print value
