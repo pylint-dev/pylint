@@ -86,6 +86,17 @@ class NonRegrTC(TestCase):
         got = linter.reporter.finalize().strip()
         self.assertEqual(got, '')
 
+    def test_gtk_enum_crash(self):
+        try:
+            import gtk
+        except ImportError:
+            self.skipTest('test skipped: gtk is not available')
+        except RuntimeError: # RuntimeError when missing display
+            self.skipTest('no display, can\'t run this test')
+        linter.check(join(REGR_DATA, 'pygtk_enum_crash.py'))
+        got = linter.reporter.finalize().strip()
+        self.assertEqual(got, '')
+
     def test_numarray_inference(self):
         try:
             from numarray import random_array
