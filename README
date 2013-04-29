@@ -1,23 +1,22 @@
-README for Pylint (http://www.pylint.org)
-=========================================
+README for Pylint - http://www.pylint.org/
+==========================================
 
 Pylint is a Python source code analyzer which looks for programming errors,
 helps enforcing a coding standard and sniffs for some code smells (as defined in
 Martin Fowler's Refactoring book).
 
-Pylint has many rules enabled by default, way too much to silent them all on a
+Pylint has many rules enabled by default, way too much to silence them all on a
 minimally sized program. It's highly configurable and handle pragmas to control
 it from within your code. Additionally, it is possible to write plugins to add
 your own checks.
 
 It's a free software distributed under the GNU Public Licence.
 
-Development is hosted on bitbucket: https://bitbucket.org/logilab/pylint/ .
+Development is hosted on bitbucket: https://bitbucket.org/logilab/pylint/
 
-You can use the python-projects@logilab.org mailing list to discuss about
-Pylint. Subscribe at http://lists.logilab.org/mailman/listinfo/python-projects
-or read the archives at http://lists.logilab.org/pipermail/python-projects/
-
+You can use the code-quality@python.org mailing list to discuss about
+Pylint. Subscribe at http://lists.python.org/mailman/listinfo/code-quality
+or read the archives at http://lists.python.org/pipermail/code-quality/
 
 Install
 -------
@@ -25,7 +24,7 @@ Install
 Pylint requires the astng (the later the better) and logilab-common (version >=
 0.53) packages.
 
-*  https://bitbucket.org/logilab/astng
+* https://bitbucket.org/logilab/astng
 * http://www.logilab.org/projects/common
 
 From the source distribution, extract the tarball and run ::
@@ -38,7 +37,6 @@ rpm packages, use your usual tools according to your Linux distribution.
 More information about installation and available distribution format
 may be found in the user manual in the *doc* subdirectory.
 
-
 Documentation
 -------------
 
@@ -50,7 +48,6 @@ Pylint is shipped with following additional commands:
 * symilar: an independent similarities checker
 * epylint: Emacs and Flymake compatible Pylint
 * pylint-gui: a graphical interface
-
 
 Contributors
 ------------

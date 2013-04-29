@@ -2,6 +2,9 @@
 Pylint User Manual
 ==================
 
+Pylint's home page is at http://www.pylint.org and its forge is at
+https://bitbucket.org/logilab/pylint
+
 .. toctree::
    :maxdepth: 2
 

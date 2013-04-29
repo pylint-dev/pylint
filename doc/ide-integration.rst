@@ -1,18 +1,16 @@
+
 =================
  IDE integration
 =================
 
-Integrating Pylint in my editor/IDE
-===================================
+To use Pylint with Emacs, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8
 
-To use Pylint with emacs, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8
-
-To use Pylint with vim, see
+To use Pylint with Vim, see
 http://www.vim.org/scripts/script.php?script_id=891
 
-To use Pylint with eclipse, see http://pydev.org
+To use Pylint with Eclipse, see http://pydev.org
 
-To use Pylint with komodo_, see
+To use Pylint with Komodo_, see
 http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/
 
 To use Pylint with gedit_, see
@@ -23,15 +21,14 @@ http://www.wingware.com/doc/edit/pylint
 
 Pylint is integrated in Eric_ IDE, see the `Project > Check` menu.
 
-Pylint is integrated in spyder_, see http://packages.python.org/spyder/pylint.html
+Pylint is integrated in Spyder_, see http://packages.python.org/spyder/pylint.html
 
 Pylint is integrated in pyscripter_, see the `Tool -> Tools` menu.
-
 
 .. _Eric: http://eric-ide.python-projects.org/
 .. _pyscripter: http://code.google.com/p/pyscripter/
 .. _pydev: http://pydev.org
-.. _komodo: http://www.activestate.com/Products/Komodo/
+.. _Komodo: http://www.activestate.com/Products/Komodo/
 .. _gedit: http://www.gnome.org/projects/gedit/
 .. _WingIDE: http://www.wingware.com/
 .. _spyder: http://code.google.com/p/spyderlib/
@@ -108,10 +105,9 @@ the following instead of a post-command-hook
       "Display the error in the mini-buffer rather than having to mouse over it"
       (show-fly-err-at-point))
 
-
 Setup the MS Visual Studio .NET 2003 editor to call Pylint
 ==========================================================
 
 .. image:: _static/vs2003_config.jpeg
 
-The output of PyLint is then shown in the "Output" pane of the editor.
+The output of Pylint is then shown in the "Output" pane of the editor.

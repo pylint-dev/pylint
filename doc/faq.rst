@@ -25,6 +25,8 @@ differences, such as the fact that Pylint does not import live modules while
 Pychecker does (see `6.2 Why does Pychecker catch problems with imports that
 Pylint doesn't?`_).
 
+.. _Pychecker: http://pychecker.sf.net
+
 1.3 Who wrote Pylint?
 ---------------------
 
@@ -35,19 +37,24 @@ file.
 
 .. _Logilab: http://www.logilab.fr/
 
+1.4 Who uses Pylint?
+--------------------
+
+Everybody knows someone who uses Pylint.
+
 2. Installation
 ===============
 
 2.1 How do I install Pylint?
 ----------------------------
 
-Everything should be explained on http://docs.pylint.org/installation.html
+Everything should be explained on http://docs.pylint.org/installation
 
 2.2 What kind of versioning system does Pylint use?
 ---------------------------------------------------
 
 Pylint uses the Mercurial_ distributed version control system. The URL of the
-repository is	https://bitbucket.org/logilab/pylint. To get the latest version of
+repository is: https://bitbucket.org/logilab/pylint. To get the latest version of
 Pylint from the repository, simply invoke ::
 
     hg clone https://bitbucket.org/logilab/pylint
@@ -67,8 +74,8 @@ compatible with any Python version greater than 2.5.0.
 3. Running Pylint
 =================
 
-3.1 Can I give pylint a file as argument instead of a module?
--------------------------------------------------------------
+3.1 Can I give pylint a file as an argument instead of a module?
+-----------------------------------------------------------------
 
 Pylint expects the name of a package or module as its argument. As a
 convenience,
@@ -121,8 +128,7 @@ For example::
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
 
-Much probably. Read http://docs.pylint.org/ide-integration.html
-
+Much probably. Read http://docs.pylint.org/ide-integration
 
 4. Message Control
 ==================
@@ -130,20 +136,19 @@ Much probably. Read http://docs.pylint.org/ide-integration.html
 4.1 Is it possible to locally disable a particular message?
 -----------------------------------------------------------
 
-Yes, this feature has been added in pylint 0.11. This may be done by
+Yes, this feature has been added in Pylint 0.11. This may be done by
 adding "#pylint: disable=W0123,E4567" at the desired block level
 or at the end of the desired line of code
 
-4.2 Is there a way to disable or to enable a message for a particular module only?
-----------------------------------------------------------------------------------
+4.2 Is there a way to disable a message for a particular module only?
+---------------------------------------------------------------------
 
-Yes, you can disable or enable (otherwise globally disabled) messages at the
+Yes, you can disable or enable (globally disabled) messages at the
 module level by adding the corresponding option in a comment at the
 top of the file: ::
 
 	# pylint: disable=W0401, E0202
 	# pylint: enable=C0302
-
 
 4.3 How can I tell Pylint to never check a given module?
 --------------------------------------------------------
@@ -166,8 +171,7 @@ No, starting from 0.25.3, you can use symbolic names for messages::
 
 You can show these symbols in the output with the `-sy` option.
 
-
-4.3 I have a callback function where I have no control over received arguments. How do I avoid getting unused argument warnings?
+4.5 I have a callback function where I have no control over received arguments. How do I avoid getting unused argument warnings?
 ----------------------------------------------------------------------------------------------------------------------------------
 
 Prefix (ui) the callback's name by `cb_`, as in cb_onclick(...). By
@@ -175,7 +179,7 @@ doing so arguments usage won't be checked. Another solution is to
 use one of the names defined in the "dummy-variables" configuration
 variable for unused argument ("_" and "dummy" by default).
 
-4.5 What is the format of the configuration file?
+4.6 What is the format of the configuration file?
 ---------------------------------------------------
 
 Pylint uses ConfigParser from the standard library to parse the configuration file.
@@ -185,8 +189,7 @@ It means that if you need to disable a lot of messages, you can use tricks like:
      E0202, # I have a good reason, trust me
      C0302  # that's it
 
-
-4.2 Why do I get a lot of spurious "unused variables messages" when using psyobj from psyco_?
+4.7 Why do I get a lot of spurious "unused variables messages" when using psyobj from psyco_?
 ----------------------------------------------------------------------------------------------
 
 This is actually due to a bug in psyco, making the locals()
@@ -209,8 +212,6 @@ this version Pylint is not looking anymore for information in living
 objects (i.e. it no longer imports analysed modules)
 
 .. _psyco: http://psyco.sf.net
-
-
 
 5. Classes and Inheritance
 ==========================
@@ -270,11 +271,10 @@ traverses an AST representation of the code.
 
 6.3 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------
-Read http://docs.pylint.org/contribute.html#bug-reports-feedback
+
+Read http://docs.pylint.org/contribute#bug-reports-feedback
 
 6.4 I have a question about Pylint that isn't answered here.
 ------------------------------------------------------------
 
-Read http://docs.pylint.org/contribute.html#mailing-lists
-
-.. _pychecker: http://pychecker.sf.net
+Read http://docs.pylint.org/contribute#mailing-lists

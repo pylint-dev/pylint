@@ -1,10 +1,12 @@
+
 Installation
 ------------
 
 Dependencies
 ''''''''''''
+
 Pylint requires the latest `astng`_ and `logilab-common`_
-packages. It should be compatible with any python version >= 2.5.
+packages. It should be compatible with any Python version >= 2.5.
 
 .. _`astng`: https://bitbucket.org/logilab/astng
 .. _`logilab-common`: http://www.logilab.org/project/logilab-common
@@ -12,9 +14,11 @@ packages. It should be compatible with any python version >= 2.5.
 
 Distributions
 '''''''''''''
+
 The source tarball is available at http://download.logilab.org/pub/pylint.
 
-You may apt-get a well-tested Debian or Ubuntu package by adding one of::
+You may apt-get a well-tested Debian or Ubuntu package by adding one of these
+lines::
 
     deb http://download.logilab.org/production unstable/
     deb http://download.logilab.org/production sid/
@@ -22,19 +26,24 @@ You may apt-get a well-tested Debian or Ubuntu package by adding one of::
     deb http://download.logilab.org/production lenny/
 
 to your */etc/apt/sources.list* file. Pylint is also available in the
-standard Debian distribution (but add our public Debian repository
+standard Debian distribution (but add our public debian repository
 anyway if you want to get the latest releases and upgrades earlier)
 
 Pylint is also available in Gentoo, Fedora 4, Ubuntu, FreeBSD, Darwin
 (and maybe others, if you know about more OSes, please drop us a note!).
 
+Python packages
+'''''''''''''''
+
+Pylint should be easily installable using setuptools and the Python Package
+Index. Try easy_install or pip, depending on your preference.
+
 
 Source distribution installation
 ''''''''''''''''''''''''''''''''
 
-Pylint should be easily installable using setuptools_'easy_install or
-pip. Though you may still install it from the source distribution: extract the
-tarball: go to the extracted directory and simply run ::
+From the source distribution, extract the tarball, go to the extracted
+directory and simply run ::
 
     python setup.py install
 
@@ -43,7 +52,6 @@ You'll have to install dependencies in a similar way.
 Windows users may get valuable information about Pylint installation on
 `this page`_.
 
-.. _setuptools: http://pypi.python.org/pypi/setuptools
 .. _`this page`: http://thinkhole.org/wp/2006/01/16/installing-pylint-on-windows/
 
 
@@ -74,7 +82,7 @@ necessary so that the new path statement will take effect when
 autoexec.bat is run), you will be able to invoke Pylint with
 pylint.bat on the command line.
 
-(3) is the best solution. Once done, you can call pylint at the command
+(3) is the best solution. Once done, you can call Pylint at the command
 line without the .bat, just as do non-Windows users by typing: ::
 
   pylint [options] module_or_package
