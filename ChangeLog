@@ -1,6 +1,9 @@
 ChangeLog for Pylint
 ====================
 
+--
+    * bitbucket #6: put back documentation in source distribution
+
 2013-04-25  --  0.28.0
     * bitbucket #1: fix "dictionary changed size during iteration" crash
 
