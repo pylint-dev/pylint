@@ -23,8 +23,8 @@ import tokenize
 
 from logilab import astng
 
-from pylint.interfaces import IRawChecker, IASTNGChecker
-from pylint.checkers import BaseChecker, BaseRawChecker
+from pylint.interfaces import ITokenChecker, IASTNGChecker
+from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
 
 _PY3K = sys.version_info >= (3, 0)
@@ -190,9 +190,9 @@ class StringMethodsChecker(BaseChecker):
                                  args=(func.bound.name, func.name))
 
 
-class StringConstantChecker(BaseRawChecker):
+class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
-    __implements__ = (IRawChecker, IASTNGChecker)
+    __implements__ = (ITokenChecker,)
     name = 'string_constant'
     msgs = {
         'W1401': ('Anomalous backslash in string: \'%s\'. '

@@ -39,6 +39,7 @@ messages nor reports. XXX not true, emit a 07 report !
 """
 
 import tokenize
+import warnings
 from os import listdir
 from os.path import dirname, join, isdir, splitext
 
@@ -121,12 +122,23 @@ class BaseRawChecker(BaseChecker):
 
         stream must implement the readline method
         """
+        warnings.warn("Modules that need access to the tokens should "
+                      "use the ITokenChecker interface.",
+                      DeprecationWarning)
         stream = node.file_stream
         stream.seek(0) # XXX may be removed with astng > 0.23
         self.process_tokens(tokenize.generate_tokens(stream.readline))
 
     def process_tokens(self, tokens):
         """should be overridden by subclasses"""
+        raise NotImplementedError()
+
+
+class BaseTokenChecker(BaseChecker):
+    """Base class for checkers that want to have access to the token stream."""
+    
+    def process_tokens(self, tokens):
+        """Should be overridden by subclasses."""
         raise NotImplementedError()
 
 

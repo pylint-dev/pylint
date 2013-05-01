@@ -29,8 +29,8 @@ if not hasattr(tokenize, 'NL'):
 from logilab.common.textutils import pretty_match
 from logilab.astng import nodes
 
-from pylint.interfaces import IRawChecker, IASTNGChecker
-from pylint.checkers import BaseRawChecker
+from pylint.interfaces import ITokenChecker, IASTNGChecker
+from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope
 
@@ -163,7 +163,7 @@ def check_line(line):
                     return msg_id, pretty_match(match, line.rstrip())
 
 
-class FormatChecker(BaseRawChecker):
+class FormatChecker(BaseTokenChecker):
     """checks for :
     * unauthorized constructions
     * strict indentation
@@ -171,7 +171,7 @@ class FormatChecker(BaseRawChecker):
     * use of <> instead of !=
     """
 
-    __implements__ = (IRawChecker, IASTNGChecker)
+    __implements__ = (ITokenChecker, IASTNGChecker)
 
     # configuration section name
     name = 'format'
@@ -192,21 +192,9 @@ class FormatChecker(BaseRawChecker):
 "    " (4 spaces) or "\\t" (1 tab).'}),
                )
     def __init__(self, linter=None):
-        BaseRawChecker.__init__(self, linter)
+        BaseTokenChecker.__init__(self, linter)
         self._lines = None
         self._visited_lines = None
-
-    def process_module(self, node):
-        """extracts encoding from the stream and decodes each line, so that
-        international text's length is properly calculated.
-        """
-        stream = node.file_stream
-        stream.seek(0) # XXX may be removed with astng > 0.23
-        readline = stream.readline
-        if sys.version_info < (3, 0):
-            if node.file_encoding is not None:
-                readline = lambda: stream.readline().decode(node.file_encoding, 'replace')
-        self.process_tokens(tokenize.generate_tokens(readline))
 
     def new_line(self, tok_type, line, line_num, junk):
         """a new line has been encountered, process it if necessary"""

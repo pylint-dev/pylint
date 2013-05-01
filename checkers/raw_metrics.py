@@ -24,8 +24,8 @@ import tokenize
 
 from logilab.common.ureports import Table
 
-from pylint.interfaces import IRawChecker
-from pylint.checkers import BaseRawChecker, EmptyReport
+from pylint.interfaces import ITokenChecker
+from pylint.checkers import BaseTokenChecker, EmptyReport
 from pylint.reporters import diff_string
 
 def report_raw_stats(sect, stats, old_stats):
@@ -50,7 +50,7 @@ def report_raw_stats(sect, stats, old_stats):
     sect.append(Table(children=lines, cols=5, rheaders=1))
 
 
-class RawMetricsChecker(BaseRawChecker):
+class RawMetricsChecker(BaseTokenChecker):
     """does not check anything but gives some raw metrics :                    
     * total number of lines                                                    
     * total number of code lines                                               
@@ -59,7 +59,7 @@ class RawMetricsChecker(BaseRawChecker):
     * total number of empty lines                                              
     """
 
-    __implements__ = (IRawChecker,)
+    __implements__ = (ITokenChecker,)
 
     # configuration section name
     name = 'metrics'
@@ -71,7 +71,7 @@ class RawMetricsChecker(BaseRawChecker):
     reports = ( ('RP0701', 'Raw metrics', report_raw_stats), )
 
     def __init__(self, linter):
-        BaseRawChecker.__init__(self, linter)
+        BaseTokenChecker.__init__(self, linter)
         self.stats = None
 
     def open(self):

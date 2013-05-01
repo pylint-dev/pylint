@@ -27,7 +27,7 @@ from pylint import config
 from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
      ArgumentPreprocessingError
 from pylint.utils import sort_msgs, PyLintASTWalker, MSG_STATE_SCOPE_CONFIG, \
-     MSG_STATE_SCOPE_MODULE
+     MSG_STATE_SCOPE_MODULE, tokenize_module
 
 from pylint import checkers
 
@@ -154,7 +154,7 @@ class PyLinterTC(TestCase):
         filepath = join(INPUTDIR, 'func_block_disable_msg.py')
         linter.set_current_module('func_block_disable_msg')
         astng = linter.get_astng(filepath, 'func_block_disable_msg')
-        linter.process_module(astng)
+        linter.process_tokens(tokenize_module(astng))
         orig_state = linter._module_msgs_state.copy()
         linter._module_msgs_state = {}
         linter._suppression_mapping = {}
