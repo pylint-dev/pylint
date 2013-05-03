@@ -51,11 +51,11 @@ class IRawChecker(IChecker):
 
 
 class ITokenChecker(IChecker):
-    """Interface for checkers that need access to the token stream."""
+    """Interface for checkers that need access to the token list."""
     def process_tokens(self, tokens):
         """Process a module.
         
-        tokens contains the token stream.
+        tokens is a list of all source code tokens in the file.
         """
 
 

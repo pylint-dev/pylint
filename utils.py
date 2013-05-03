@@ -159,7 +159,7 @@ class MessagesHandlerMixIn:
         chkid = None
 
         for msgid, msg_tuple in msgs_dict.iteritems():
-            if implements(checker, IRawChecker) or implements(checker, ITokenChecker):
+            if implements(checker, (IRawChecker, ITokenChecker)):
                 scope = WarningScope.LINE
             else:
                 scope = WarningScope.NODE

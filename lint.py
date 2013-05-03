@@ -565,10 +565,9 @@ This is used by the global evaluation report (RP0004).'}),
             files_or_modules = (files_or_modules,)
         walker = PyLintASTWalker(self)
         checkers = self.prepare_checkers()
-        token_checkers = [c for c in checkers if implements(c, ITokenChecker)
-                          and c is not self]
-        rawcheckers = [c for c in checkers if implements(c, IRawChecker)
-                       and c is not self]
+        tokencheckers = [c for c in checkers if implements(c, ITokenChecker)
+                         and c is not self]
+        rawcheckers = [c for c in checkers if implements(c, IRawChecker)]
         # notify global begin
         for checker in checkers:
             checker.open()
@@ -591,7 +590,7 @@ This is used by the global evaluation report (RP0004).'}),
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
             self.current_file = astng.file
-            self.check_astng_module(astng, walker, rawcheckers, token_checkers)
+            self.check_astng_module(astng, walker, rawcheckers, tokencheckers)
             self._add_suppression_messages()
         # notify global end
         self.set_current_module('')
@@ -647,7 +646,7 @@ This is used by the global evaluation report (RP0004).'}),
             traceback.print_exc()
             self.add_message('F0002', args=(ex.__class__, ex))
 
-    def check_astng_module(self, astng, walker, rawcheckers, token_checkers):
+    def check_astng_module(self, astng, walker, rawcheckers, tokencheckers):
         """check a module from its astng representation, real work"""
         # call raw checkers if possible
         tokens = tokenize_module(astng)
@@ -670,7 +669,7 @@ This is used by the global evaluation report (RP0004).'}),
             self.collect_block_lines(astng, orig_state)
             for checker in rawcheckers:
                 checker.process_module(astng)
-            for checker in token_checkers:
+            for checker in tokencheckers:
                 checker.process_tokens(tokens)
         # generate events to astng checkers
         walker.walk(astng)
