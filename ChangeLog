@@ -3,6 +3,7 @@ ChangeLog for Pylint
 
 --
     * bitbucket #6: put back documentation in source distribution
+    * fix spelling of max-branchs option, now max-branches
 
     * Added a new base class and interface for checkers that work on the
       tokens rather than the syntax, and only tokenize the input file

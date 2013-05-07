@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -166,7 +166,7 @@ class MisdesignChecker(BaseChecker):
                  'help': 'Maximum number of return / yield for function / '
                          'method body'}
                 ),
-               ('max-branchs',
+               ('max-branches',
                 {'default' : 12, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of branch for function / method body'}
                 ),
@@ -208,7 +208,7 @@ class MisdesignChecker(BaseChecker):
         BaseChecker.__init__(self, linter)
         self.stats = None
         self._returns = None
-        self._branchs = None
+        self._branches = None
         self._used_abstracts = None
         self._used_ifaces = None
         self._abstracts = None
@@ -219,7 +219,7 @@ class MisdesignChecker(BaseChecker):
         """initialize visit variables"""
         self.stats = self.linter.add_stats()
         self._returns = []
-        self._branchs = []
+        self._branches = []
         self._used_abstracts = {}
         self._used_ifaces = {}
         self._abstracts = []
@@ -311,7 +311,7 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch()
         # init branch and returns counters
         self._returns.append(0)
-        self._branchs.append(0)
+        self._branches.append(0)
         # check number of arguments
         args = node.args.args
         if args is not None:
@@ -340,10 +340,10 @@ class MisdesignChecker(BaseChecker):
         if returns > self.config.max_returns:
             self.add_message('R0911', node=node,
                              args=(returns, self.config.max_returns))
-        branchs = self._branchs.pop()
-        if branchs > self.config.max_branchs:
+        branches = self._branches.pop()
+        if branches > self.config.max_branches:
             self.add_message('R0912', node=node,
-                             args=(branchs, self.config.max_branchs))
+                             args=(branches, self.config.max_branches))
         # check number of statements
         if self._stmts > self.config.max_statements:
             self.add_message('R0915', node=node,
@@ -363,42 +363,42 @@ class MisdesignChecker(BaseChecker):
             self._stmts += 1
 
     def visit_tryexcept(self, node):
-        """increments the branchs counter"""
-        branchs = len(node.handlers)
+        """increments the branches counter"""
+        branches = len(node.handlers)
         if node.orelse:
-            branchs += 1
-        self._inc_branch(branchs)
-        self._stmts += branchs
+            branches += 1
+        self._inc_branch(branches)
+        self._stmts += branches
 
     def visit_tryfinally(self, _):
-        """increments the branchs counter"""
+        """increments the branches counter"""
         self._inc_branch(2)
         self._stmts += 2
 
     def visit_if(self, node):
-        """increments the branchs counter"""
-        branchs = 1
+        """increments the branches counter"""
+        branches = 1
         # don't double count If nodes coming from some 'elif'
         if node.orelse and (len(node.orelse)>1 or
                             not isinstance(node.orelse[0], If)):
-            branchs += 1
-        self._inc_branch(branchs)
-        self._stmts += branchs
+            branches += 1
+        self._inc_branch(branches)
+        self._stmts += branches
 
     def visit_while(self, node):
-        """increments the branchs counter"""
-        branchs = 1
+        """increments the branches counter"""
+        branches = 1
         if node.orelse:
-            branchs += 1
-        self._inc_branch(branchs)
+            branches += 1
+        self._inc_branch(branches)
 
     visit_for = visit_while
 
-    def _inc_branch(self, branchsnum=1):
-        """increments the branchs counter"""
-        branchs = self._branchs
-        for i in xrange(len(branchs)):
-            branchs[i] += branchsnum
+    def _inc_branch(self, branchesnum=1):
+        """increments the branches counter"""
+        branches = self._branches
+        for i in xrange(len(branches)):
+            branches[i] += branchesnum
 
     # FIXME: make a nice report...
 

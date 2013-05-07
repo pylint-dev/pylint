@@ -12,11 +12,11 @@ def function(matches):
         print match
 
 def visit_if(self, node):
-    """increments the branchs counter"""
-    branchs = 1
+    """increments the branches counter"""
+    branches = 1
     # don't double count If nodes coming from some 'elif'
     if node.orelse and len(node.orelse) > 1:
-        branchs += 1
-    self.inc_branch(branchs)
-    self.stmts += branchs
+        branches += 1
+    self.inc_branch(branches)
+    self.stmts += branches
 
