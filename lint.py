@@ -737,8 +737,9 @@ This is used by the global evaluation report (RP0004).'}),
         else:
             stats['global_note'] = note
             msg = 'Your code has been rated at %.2f/10' % note
-            if 'global_note' in previous_stats:
-                msg += ' (previous run: %.2f/10)' % previous_stats['global_note']
+            pnote = previous_stats.get('global_note')
+            if pnote is not None:
+                msg += ' (previous run: %.2f/10, %+.2f)' % (pnote, note - pnote)
             if self.config.comment:
                 msg = '%s\n%s' % (msg, config.get_note_message(note))
         sect.append(Text(msg))
