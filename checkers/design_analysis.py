@@ -13,12 +13,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""check for signs of poor design
-
-
- see http://intranet.logilab.fr/jpl/view?rql=Any%20X%20where%20X%20eid%201243
- FIXME: missing 13, 15, 16
-"""
+"""check for signs of poor design"""
 
 from logilab.astng import Function, If, InferenceError
 
