@@ -48,9 +48,9 @@ from logilab.astng.__pkginfo__ import version as astng_version
 
 from pylint.utils import (PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,
                           ReportsHandlerMixIn, MSG_TYPES, expand_modules,
-                          WarningScope)
-from pylint.interfaces import ILinter, IRawChecker, IASTNGChecker
-from pylint.checkers import (BaseRawChecker, EmptyReport,
+                          WarningScope, tokenize_module)
+from pylint.interfaces import ILinter, IRawChecker, ITokenChecker, IASTNGChecker
+from pylint.checkers import (BaseTokenChecker, EmptyReport,
                              table_lines_from_stats)
 from pylint.reporters.text import (TextReporter, ParseableTextReporter,
                                    VSTextReporter, ColorizedTextReporter)
@@ -157,7 +157,7 @@ MSGS = {
 
 
 class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
-               BaseRawChecker):
+               BaseTokenChecker):
     """lint Python modules using external checkers.
 
     This is the main checker controlling the other ones and the reports
@@ -171,7 +171,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     to ensure the latest code version is actually checked.
     """
 
-    __implements__ = (ILinter, IRawChecker)
+    __implements__ = (ILinter, ITokenChecker)
 
     name = 'master'
     priority = 0
@@ -310,7 +310,7 @@ This is used by the global evaluation report (RP0004).'}),
                                      config_file=pylintrc or config.PYLINTRC)
         MessagesHandlerMixIn.__init__(self)
         ReportsHandlerMixIn.__init__(self)
-        BaseRawChecker.__init__(self)
+        BaseTokenChecker.__init__(self)
         # provided reports
         self.reports = (('RP0001', 'Messages by category',
                          report_total_messages_stats),
@@ -385,7 +385,7 @@ This is used by the global evaluation report (RP0004).'}),
                 self.set_reporter(reporter_class())
 
         try:
-            BaseRawChecker.set_option(self, optname, value, action, optdict)
+            BaseTokenChecker.set_option(self, optname, value, action, optdict)
         except UnsupportedAction:
             print >> sys.stderr, 'option %s can\'t be read from config file' % \
                   optname
@@ -565,8 +565,9 @@ This is used by the global evaluation report (RP0004).'}),
             files_or_modules = (files_or_modules,)
         walker = PyLintASTWalker(self)
         checkers = self.prepare_checkers()
-        rawcheckers = [c for c in checkers if implements(c, IRawChecker)
-                       and c is not self]
+        tokencheckers = [c for c in checkers if implements(c, ITokenChecker)
+                         and c is not self]
+        rawcheckers = [c for c in checkers if implements(c, IRawChecker)]
         # notify global begin
         for checker in checkers:
             checker.open()
@@ -589,7 +590,7 @@ This is used by the global evaluation report (RP0004).'}),
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
             self.current_file = astng.file
-            self.check_astng_module(astng, walker, rawcheckers)
+            self.check_astng_module(astng, walker, rawcheckers, tokencheckers)
             self._add_suppression_messages()
         # notify global end
         self.set_current_module('')
@@ -645,16 +646,18 @@ This is used by the global evaluation report (RP0004).'}),
             traceback.print_exc()
             self.add_message('F0002', args=(ex.__class__, ex))
 
-    def check_astng_module(self, astng, walker, rawcheckers):
+    def check_astng_module(self, astng, walker, rawcheckers, tokencheckers):
         """check a module from its astng representation, real work"""
         # call raw checkers if possible
+        tokens = tokenize_module(astng)
+
         if not astng.pure_python:
             self.add_message('I0001', args=astng.name)
         else:
             #assert astng.file.endswith('.py')
-            # invoke IRawChecker interface on self to fetch module/block
+            # invoke ITokenChecker interface on self to fetch module/block
             # level options
-            self.process_module(astng)
+            self.process_tokens(tokens)
             if self._ignore_file:
                 return False
             # walk ast to collect line numbers
@@ -666,6 +669,8 @@ This is used by the global evaluation report (RP0004).'}),
             self.collect_block_lines(astng, orig_state)
             for checker in rawcheckers:
                 checker.process_module(astng)
+            for checker in tokencheckers:
+                checker.process_tokens(tokens)
         # generate events to astng checkers
         walker.walk(astng)
         return True

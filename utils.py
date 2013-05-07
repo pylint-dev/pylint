@@ -18,6 +18,7 @@ main pylint class
 """
 
 import sys
+import tokenize
 from warnings import warn
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
@@ -31,7 +32,7 @@ from logilab.common.ureports import Section
 from logilab.astng import nodes, Module
 
 from pylint.checkers import EmptyReport
-from pylint.interfaces import IRawChecker
+from pylint.interfaces import IRawChecker, ITokenChecker
 
 
 class UnknownMessage(Exception):
@@ -104,6 +105,17 @@ def category_id(id):
     return MSG_TYPES_LONG.get(id)
 
 
+def tokenize_module(module):
+    stream = module.file_stream
+    stream.seek(0)
+    if sys.version_info < (3, 0) and module.file_encoding is not None:
+        readline = lambda: stream.readline().decode(module.file_encoding, 
+                                                    'replace')
+    else:
+        readline = stream.readline
+    return list(tokenize.generate_tokens(readline))
+
+    
 class Message:
     def __init__(self, checker, msgid, msg, descr, symbol, scope):
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
@@ -147,7 +159,7 @@ class MessagesHandlerMixIn:
         chkid = None
 
         for msgid, msg_tuple in msgs_dict.iteritems():
-            if implements(checker, IRawChecker):
+            if implements(checker, (IRawChecker, ITokenChecker)):
                 scope = WarningScope.LINE
             else:
                 scope = WarningScope.NODE

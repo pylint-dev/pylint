@@ -50,6 +50,15 @@ class IRawChecker(IChecker):
         """
 
 
+class ITokenChecker(IChecker):
+    """Interface for checkers that need access to the token list."""
+    def process_tokens(self, tokens):
+        """Process a module.
+        
+        tokens is a list of all source code tokens in the file.
+        """
+
+
 class IASTNGChecker(IChecker):
     """ interface for checker which prefers receive events according to
     statement type
