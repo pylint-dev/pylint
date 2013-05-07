@@ -36,10 +36,10 @@ to the author, since others will benefit from the exchange, and you'll
 be more likely answered by someone subscribed to the list.
 
 You can subscribe to this mailing list at
-http://lists.python.org/mailman/listinfo/code-quality
+http://mail.python.org/mailman/listinfo/code-quality
 
 Archives are available at
-http://lists.python.org/pipermail/code-quality/
+http://mail.python.org/pipermail/code-quality/
 
 Archives before April 2013 are available at
 http://lists.logilab.org/pipermail/python-projects/
