@@ -44,7 +44,7 @@ def convert_to_string(msg):
     else:
         return "(" + msg[0] + ") " + msg[1] + " [" + msg[3] + "]: " + msg[4]
 
-class BasicStream:
+class BasicStream(object):
     '''
     used in gui reporter instead of writing to stdout, it is written to
     this stream and saved in contents
@@ -108,7 +108,7 @@ class BasicStream:
         self.nextTitle = None
 
 
-class LintGui:
+class LintGui(object):
     """Build and control a window to interact with pylint"""
 
     def __init__(self, root=None):

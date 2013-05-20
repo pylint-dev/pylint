@@ -116,7 +116,7 @@ def tokenize_module(module):
     return list(tokenize.generate_tokens(readline))
 
     
-class Message:
+class Message(object):
     def __init__(self, checker, msgid, msg, descr, symbol, scope):
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
         assert msgid[0] in MSG_TYPES, \
@@ -128,7 +128,7 @@ class Message:
         self.symbol = symbol
         self.scope = scope
 
-class MessagesHandlerMixIn:
+class MessagesHandlerMixIn(object):
     """a mix-in class containing all the messages related methods for the main
     lint class
     """

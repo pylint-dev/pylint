@@ -846,7 +846,7 @@ def preprocess_options(args, search_for):
         else:
             i += 1
 
-class Run:
+class Run(object):
     """helper class to use as main for pylint :
 
     run(*sys.argv[1:])
