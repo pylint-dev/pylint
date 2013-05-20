@@ -322,7 +322,7 @@ This is used by the global evaluation report (RP0004).'}),
                          self.report_evaluation),
                         )
         self.register_checker(self)
-        self._dynamic_plugins = []
+        self._dynamic_plugins = set()
         self.load_provider_defaults()
         self.set_reporter(reporter or TextReporter(sys.stdout))
 
@@ -348,7 +348,7 @@ This is used by the global evaluation report (RP0004).'}),
         for modname in modnames:
             if modname in self._dynamic_plugins:
                 continue
-            self._dynamic_plugins.append(modname)
+            self._dynamic_plugins.add(modname)
             module = load_module_from_name(modname)
             module.register(self)
 
