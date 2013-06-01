@@ -175,7 +175,7 @@ class LintGui(object):
                   yscrollcommand=rightscrollbar.set,
                   xscrollcommand=bottomscrollbar.set,
                   bg="white")
-        self.lbMessages.bind("<Double-Button-1>", self.show_message)
+        self.lbMessages.bind("<Double-Button-1>", self.show_sourcefile)
         self.lbMessages.pack(expand=True, fill=BOTH)
         rightscrollbar.config(command=self.lbMessages.yview)
         bottomscrollbar.config(command=self.lbMessages.xview)
@@ -472,7 +472,7 @@ class LintGui(object):
 
         self.root.configure(cursor='')
 
-    def show_message(self, event=None):
+    def show_sourcefile(self, event=None):
         selected = self.lbMessages.curselection()
         if not selected:
             return
