@@ -649,7 +649,11 @@ This is used by the global evaluation report (RP0004).'}),
     def check_astroid_module(self, astroid, walker, rawcheckers, tokencheckers):
         """check a module from its astroid representation, real work"""
         # call raw checkers if possible
-        tokens = tokenize_module(astroid)
+        try:
+            tokens = tokenize_module(astroid)
+        except tokenize.TokenError, ex:
+            self.add_message('E0001', line=ex.args[1][0], args=ex.args[0])
+            return
 
         if not astroid.pure_python:
             self.add_message('I0001', args=astroid.name)
