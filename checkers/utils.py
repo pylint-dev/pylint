@@ -144,11 +144,9 @@ def is_defined_before(var_node):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astroid.With):
-            if _node.vars is None:
-                # quickfix : case in which 'with' is used without 'as'
-                return False
-            if _node.vars.name == varname:
-                return True
+            if not _node.expr.parent_of(var_node):
+                if _node.vars and _node.vars.name == varname:
+                    return True
         elif isinstance(_node, (astroid.Lambda, astroid.Function)):
             if _node.args.is_argument(varname):
                 return True

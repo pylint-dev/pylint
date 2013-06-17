@@ -2,6 +2,7 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Do not flag names in nested with statements as undefined.
     * Added a new warning 'old-raise-syntax' for the deprecated syntax
       raise Exception, args
     * astng has been renamed astroid

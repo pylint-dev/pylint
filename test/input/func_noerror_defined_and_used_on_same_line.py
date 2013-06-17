@@ -29,3 +29,5 @@ FUNC3 = lambda (a, b) : a != b
 
 with open('f') as f: print(f.read())
 
+with open('f') as f, open(f.read()) as g:
+    print g.read()
