@@ -21,19 +21,19 @@
 import re
 import string
 
-from logilab import astng
-from logilab.astng import scoped_nodes
+import astroid
+from astroid import scoped_nodes
 from logilab.common.compat import builtins
 
 BUILTINS_NAME = builtins.__name__
 
-COMP_NODE_TYPES = astng.ListComp, astng.SetComp, astng.DictComp, astng.GenExpr
+COMP_NODE_TYPES = astroid.ListComp, astroid.SetComp, astroid.DictComp, astroid.GenExpr
 
 
 def is_inside_except(node):
     """Returns true if node is inside the name of an except handler."""
     current = node
-    while current and not isinstance(current.parent, astng.ExceptHandler):
+    while current and not isinstance(current.parent, astroid.ExceptHandler):
         current = current.parent
 
     return current and current is current.parent.name
@@ -41,7 +41,7 @@ def is_inside_except(node):
 
 def get_all_elements(node):
     """Recursively returns all atoms in nested lists and tuples."""
-    if isinstance(node, (astng.Tuple, astng.List)):
+    if isinstance(node, (astroid.Tuple, astroid.List)):
         for child in node.elts:
             for e in get_all_elements(child):
                 yield e
@@ -56,9 +56,9 @@ def clobber_in_except(node):
     Returns (True, args for W0623) if assignment clobbers an existing variable,
     (False, None) otherwise.
     """
-    if isinstance(node, astng.AssAttr):
+    if isinstance(node, astroid.AssAttr):
         return (True, (node.attrname, 'object %r' % (node.expr.name,)))
-    elif isinstance(node, astng.AssName):
+    elif isinstance(node, astroid.AssName):
         name = node.name
         if is_builtin(name):
             return (True, (name, 'builtins'))
@@ -66,7 +66,7 @@ def clobber_in_except(node):
             scope, stmts = node.lookup(name)
             if (stmts and
                 not isinstance(stmts[0].ass_type(),
-                               (astng.Assign, astng.AugAssign, astng.ExceptHandler))):
+                               (astroid.Assign, astroid.AugAssign, astroid.ExceptHandler))):
                 return (True, (name, 'outer scope (line %s)' % (stmts[0].fromlineno,)))
     return (False, None)
 
@@ -79,12 +79,12 @@ def safe_infer(node):
     try:
         inferit = node.infer()
         value = inferit.next()
-    except astng.InferenceError:
+    except astroid.InferenceError:
         return
     try:
         inferit.next()
         return # None if there is ambiguity on the inferred node
-    except astng.InferenceError:
+    except astroid.InferenceError:
         return # there is some kind of ambiguity
     except StopIteration:
         return value
@@ -100,20 +100,20 @@ def is_super(node):
 def is_error(node):
     """return true if the function does nothing but raising an exception"""
     for child_node in node.get_children():
-        if isinstance(child_node, astng.Raise):
+        if isinstance(child_node, astroid.Raise):
             return True
         return False
 
 def is_raising(body):
     """return true if the given statement node raise an exception"""
     for node in body:
-        if isinstance(node, astng.Raise):
+        if isinstance(node, astroid.Raise):
             return True
     return False
 
 def is_empty(body):
     """return true if the given node does nothing but 'pass'"""
-    return len(body) == 1 and isinstance(body[0], astng.Pass)
+    return len(body) == 1 and isinstance(body[0], astroid.Pass)
 
 builtins = builtins.__dict__.copy()
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
@@ -136,20 +136,20 @@ def is_defined_before(var_node):
     _node = var_node.parent
     while _node:
         if isinstance(_node, COMP_NODE_TYPES):
-            for ass_node in _node.nodes_of_class(astng.AssName):
+            for ass_node in _node.nodes_of_class(astroid.AssName):
                 if ass_node.name == varname:
                     return True
-        elif isinstance(_node, astng.For):
-            for ass_node in _node.target.nodes_of_class(astng.AssName):
+        elif isinstance(_node, astroid.For):
+            for ass_node in _node.target.nodes_of_class(astroid.AssName):
                 if ass_node.name == varname:
                     return True
-        elif isinstance(_node, astng.With):
+        elif isinstance(_node, astroid.With):
             if _node.vars is None:
                 # quickfix : case in which 'with' is used without 'as'
                 return False
             if _node.vars.name == varname:
                 return True
-        elif isinstance(_node, (astng.Lambda, astng.Function)):
+        elif isinstance(_node, (astroid.Lambda, astroid.Function)):
             if _node.args.is_argument(varname):
                 return True
             if getattr(_node, 'name', None) == varname:
@@ -161,10 +161,10 @@ def is_defined_before(var_node):
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
-        for ass_node in _node.nodes_of_class(astng.AssName):
+        for ass_node in _node.nodes_of_class(astroid.AssName):
             if ass_node.name == varname:
                 return True
-        for imp_node in _node.nodes_of_class( (astng.From, astng.Import)):
+        for imp_node in _node.nodes_of_class( (astroid.From, astroid.Import)):
             if varname in [name[1] or name[0] for name in imp_node.names]:
                 return True
         _node = _node.previous_sibling()
@@ -175,9 +175,9 @@ def is_func_default(node):
     value
     """
     parent = node.scope()
-    if isinstance(parent, astng.Function):
+    if isinstance(parent, astroid.Function):
         for default_node in parent.args.defaults:
-            for default_name_node in default_node.nodes_of_class(astng.Name):
+            for default_name_node in default_node.nodes_of_class(astroid.Name):
                 if default_name_node is node:
                     return True
     return False
@@ -186,10 +186,10 @@ def is_func_decorator(node):
     """return true if the name is used in function decorator"""
     parent = node.parent
     while parent is not None:
-        if isinstance(parent, astng.Decorators):
+        if isinstance(parent, astroid.Decorators):
             return True
         if (parent.is_statement or
-            isinstance(parent, astng.Lambda) or
+            isinstance(parent, astroid.Lambda) or
             isinstance(parent, (scoped_nodes.ComprehensionScope,
                                 scoped_nodes.ListComp))):
             break
@@ -197,7 +197,7 @@ def is_func_decorator(node):
     return False
 
 def is_ancestor_name(frame, node):
-    """return True if `frame` is a astng.Class node with `node` in the
+    """return True if `frame` is a astroid.Class node with `node` in the
     subtree of its bases attribute
     """
     try:
@@ -205,23 +205,23 @@ def is_ancestor_name(frame, node):
     except AttributeError:
         return False
     for base in bases:
-        if node in base.nodes_of_class(astng.Name):
+        if node in base.nodes_of_class(astroid.Name):
             return True
     return False
 
 def assign_parent(node):
     """return the higher parent which is not an AssName, Tuple or List node
     """
-    while node and isinstance(node, (astng.AssName,
-                                     astng.Tuple,
-                                     astng.List)):
+    while node and isinstance(node, (astroid.AssName,
+                                     astroid.Tuple,
+                                     astroid.List)):
         node = node.parent
     return node
 
 def overrides_an_abstract_method(class_node, name):
     """return True if pnode is a parent of node"""
     for ancestor in class_node.ancestors():
-        if name in ancestor and isinstance(ancestor[name], astng.Function) and \
+        if name in ancestor and isinstance(ancestor[name], astroid.Function) and \
                ancestor[name].is_abstract(pass_is_abstract=False):
             return True
     return False
@@ -229,7 +229,7 @@ def overrides_an_abstract_method(class_node, name):
 def overrides_a_method(class_node, name):
     """return True if <name> is a method overridden from an ancestor"""
     for ancestor in class_node.ancestors():
-        if name in ancestor and isinstance(ancestor[name], astng.Function):
+        if name in ancestor and isinstance(ancestor[name], astroid.Function):
             return True
     return False
 
@@ -352,7 +352,7 @@ def node_frame_class(node):
     """
     klass = node.frame()
 
-    while klass is not None and not isinstance(klass, astng.Class):
+    while klass is not None and not isinstance(klass, astroid.Class):
         if klass.parent is None:
             klass = None
         else:
@@ -364,8 +364,8 @@ def is_super_call(expr):
     """return True if expression node is a function call and if function name
     is super. Check before that you're in a method.
     """
-    return (isinstance(expr, astng.CallFunc) and
-        isinstance(expr.func, astng.Name) and
+    return (isinstance(expr, astroid.CallFunc) and
+        isinstance(expr.func, astroid.Name) and
         expr.func.name == 'super')
 
 def is_attr_private(attrname):

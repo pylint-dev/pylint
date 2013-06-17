@@ -43,13 +43,13 @@ from logilab.common.textutils import splitstrip
 from logilab.common.ureports import Table, Text, Section
 from logilab.common.__pkginfo__ import version as common_version
 
-from logilab.astng import MANAGER, nodes, ASTNGBuildingException
-from logilab.astng.__pkginfo__ import version as astng_version
+from astroid import MANAGER, nodes, AstroidBuildingException
+from astroid.__pkginfo__ import version as astroid_version
 
 from pylint.utils import (PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,
                           ReportsHandlerMixIn, MSG_TYPES, expand_modules,
                           WarningScope, tokenize_module)
-from pylint.interfaces import ILinter, IRawChecker, ITokenChecker, IASTNGChecker
+from pylint.interfaces import ILinter, IRawChecker, ITokenChecker, IAstroidChecker
 from pylint.checkers import (BaseTokenChecker, EmptyReport,
                              table_lines_from_stats)
 from pylint.reporters.text import (TextReporter, ParseableTextReporter,
@@ -88,8 +88,8 @@ MSGS = {
               'Used when an error occurred preventing the analysis of a \
               module (unable to find it for instance).'),
     'F0002': ('%s: %s',
-              'astng-error',
-              'Used when an unexpected error occurred while building the ASTNG \
+              'astroid-error',
+              'Used when an unexpected error occurred while building the Astroid \
               representation. This is usually accompanied by a traceback. \
               Please report such errors !'),
     'F0003': ('ignored builtin module %s',
@@ -102,8 +102,8 @@ MSGS = {
               inferred.'),
     'F0010': ('error while code parsing: %s',
               'parse-error',
-              'Used when an exception occured while building the ASTNG \
-               representation which could be handled by astng.'),
+              'Used when an exception occured while building the Astroid \
+               representation which could be handled by astroid.'),
 
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'raw-checker-failed',
@@ -161,13 +161,13 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     """lint Python modules using external checkers.
 
     This is the main checker controlling the other ones and the reports
-    generation. It is itself both a raw checker and an astng checker in order
+    generation. It is itself both a raw checker and an astroid checker in order
     to:
     * handle message activation / deactivation at the module level
     * handle some basic but necessary stats'data (number of classes, methods...)
 
     IDE plugins developpers: you may have to call
-    `logilab.astng.builder.MANAGER.astng_cache.clear()` accross run if you want
+    `astroid.builder.MANAGER.astroid_cache.clear()` accross run if you want
     to ensure the latest code version is actually checked.
     """
 
@@ -285,7 +285,7 @@ This is used by the global evaluation report (RP0004).'}),
                  pylintrc=None):
         # some stuff has to be done before ancestors initialization...
         #
-        # checkers / reporter / astng manager
+        # checkers / reporter / astroid manager
         self.reporter = None
         self._checkers = {}
         self._ignore_file = False
@@ -303,8 +303,8 @@ This is used by the global evaluation report (RP0004).'}),
             'disable': self.disable}
         self._bw_options_methods = {'disable-msg': self.disable,
                                     'enable-msg': self.enable}
-        full_version = '%%prog %s, \nastng %s, common %s\nPython %s' % (
-            version, astng_version, common_version, sys.version)
+        full_version = '%%prog %s, \nastroid %s, common %s\nPython %s' % (
+            version, astroid_version, common_version, sys.version)
         OptionsManagerMixIn.__init__(self, usage=__doc__,
                                      version=full_version,
                                      config_file=pylintrc or config.PYLINTRC)
@@ -395,7 +395,7 @@ This is used by the global evaluation report (RP0004).'}),
     def register_checker(self, checker):
         """register a new checker
 
-        checker is an object implementing IRawChecker or / and IASTNGChecker
+        checker is an object implementing IRawChecker or / and IAstroidChecker
         """
         assert checker.priority <= 0, 'checker priority can\'t be >= 0'
         self._checkers.setdefault(checker.name, []).append(checker)
@@ -571,7 +571,7 @@ This is used by the global evaluation report (RP0004).'}),
         # notify global begin
         for checker in checkers:
             checker.open()
-            if implements(checker, IASTNGChecker):
+            if implements(checker, IAstroidChecker):
                 walker.add_checker(checker)
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
@@ -581,16 +581,16 @@ This is used by the global evaluation report (RP0004).'}),
                 self.reporter.set_output(open(reportfile, 'w'))
             self.set_current_module(modname, filepath)
             # get the module representation
-            astng = self.get_astng(filepath, modname)
-            if astng is None:
+            astroid = self.get_astroid(filepath, modname)
+            if astroid is None:
                 continue
             self.base_name = descr['basename']
             self.base_file = descr['basepath']
             self._ignore_file = False
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
-            self.current_file = astng.file
-            self.check_astng_module(astng, walker, rawcheckers, tokencheckers)
+            self.current_file = astroid.file
+            self.check_astroid_module(astroid, walker, rawcheckers, tokencheckers)
             self._add_suppression_messages()
         # notify global end
         self.set_current_module('')
@@ -633,28 +633,28 @@ This is used by the global evaluation report (RP0004).'}),
             self._raw_module_msgs_state = {}
             self._ignored_msgs = {}
 
-    def get_astng(self, filepath, modname):
-        """return a astng representation for a module"""
+    def get_astroid(self, filepath, modname):
+        """return a astroid representation for a module"""
         try:
-            return MANAGER.astng_from_file(filepath, modname, source=True)
+            return MANAGER.astroid_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
             self.add_message('E0001', line=ex.lineno, args=ex.msg)
-        except ASTNGBuildingException, ex:
+        except AstroidBuildingException, ex:
             self.add_message('F0010', args=ex)
         except Exception, ex:
             import traceback
             traceback.print_exc()
             self.add_message('F0002', args=(ex.__class__, ex))
 
-    def check_astng_module(self, astng, walker, rawcheckers, tokencheckers):
-        """check a module from its astng representation, real work"""
+    def check_astroid_module(self, astroid, walker, rawcheckers, tokencheckers):
+        """check a module from its astroid representation, real work"""
         # call raw checkers if possible
-        tokens = tokenize_module(astng)
+        tokens = tokenize_module(astroid)
 
-        if not astng.pure_python:
-            self.add_message('I0001', args=astng.name)
+        if not astroid.pure_python:
+            self.add_message('I0001', args=astroid.name)
         else:
-            #assert astng.file.endswith('.py')
+            #assert astroid.file.endswith('.py')
             # invoke ITokenChecker interface on self to fetch module/block
             # level options
             self.process_tokens(tokens)
@@ -666,16 +666,16 @@ This is used by the global evaluation report (RP0004).'}),
             orig_state = self._module_msgs_state.copy()
             self._module_msgs_state = {}
             self._suppression_mapping = {}
-            self.collect_block_lines(astng, orig_state)
+            self.collect_block_lines(astroid, orig_state)
             for checker in rawcheckers:
-                checker.process_module(astng)
+                checker.process_module(astroid)
             for checker in tokencheckers:
                 checker.process_tokens(tokens)
-        # generate events to astng checkers
-        walker.walk(astng)
+        # generate events to astroid checkers
+        walker.walk(astroid)
         return True
 
-    # IASTNGChecker interface #################################################
+    # IAstroidChecker interface #################################################
 
     def open(self):
         """initialize counters"""

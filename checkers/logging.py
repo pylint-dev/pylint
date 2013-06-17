@@ -14,7 +14,7 @@
 """checker for use of Python logging
 """
 
-from logilab import astng
+import astroid
 from pylint import checkers
 from pylint import interfaces
 from pylint.checkers import utils
@@ -57,7 +57,7 @@ CHECKED_CONVENIENCE_FUNCTIONS = set([
 class LoggingChecker(checkers.BaseChecker):
     """Checks use of the logging module."""
 
-    __implements__ = interfaces.IASTNGChecker
+    __implements__ = interfaces.IAstroidChecker
     name = 'logging'
     msgs = MSGS
 
@@ -79,16 +79,16 @@ class LoggingChecker(checkers.BaseChecker):
 
     def visit_callfunc(self, node):
         """Checks calls to (simple forms of) logging methods."""
-        if (not isinstance(node.func, astng.Getattr)
-            or not isinstance(node.func.expr, astng.Name)):
+        if (not isinstance(node.func, astroid.Getattr)
+            or not isinstance(node.func.expr, astroid.Name)):
             return
         try:
             logger_class = [inferred for inferred in node.func.expr.infer() if (
-                isinstance(inferred, astng.Instance)
+                isinstance(inferred, astroid.Instance)
                 and any(ancestor for ancestor in inferred._proxied.ancestors() if (
                             ancestor.name == 'Logger'
                             and ancestor.parent.name == 'logging')))]
-        except astng.exceptions.InferenceError:
+        except astroid.exceptions.InferenceError:
             return
         if (node.func.expr.name != self._logging_name and not logger_class):
             return
@@ -103,9 +103,9 @@ class LoggingChecker(checkers.BaseChecker):
             # Either no args, star args, or double-star args. Beyond the
             # scope of this checker.
             return
-        if isinstance(node.args[0], astng.BinOp) and node.args[0].op == '%':
+        if isinstance(node.args[0], astroid.BinOp) and node.args[0].op == '%':
             self.add_message('W1201', node=node)
-        elif isinstance(node.args[0], astng.Const):
+        elif isinstance(node.args[0], astroid.Const):
             self._check_format_string(node, 0)
 
     def _check_log_methods(self, node):
@@ -116,9 +116,9 @@ class LoggingChecker(checkers.BaseChecker):
             # Either a malformed call, star args, or double-star args. Beyond
             # the scope of this checker.
             return
-        if isinstance(node.args[1], astng.BinOp) and node.args[1].op == '%':
+        if isinstance(node.args[1], astroid.BinOp) and node.args[1].op == '%':
             self.add_message('W1201', node=node)
-        elif isinstance(node.args[1], astng.Const):
+        elif isinstance(node.args[1], astroid.Const):
             self._check_format_string(node, 1)
 
     def _check_format_string(self, node, format_arg):
@@ -171,7 +171,7 @@ class LoggingChecker(checkers.BaseChecker):
         Returns:
           Number of AST nodes that aren't keywords.
         """
-        return sum(1 for arg in args if not isinstance(arg, astng.Keyword))
+        return sum(1 for arg in args if not isinstance(arg, astroid.Keyword))
 
 
 def register(linter):

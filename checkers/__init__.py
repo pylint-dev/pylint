@@ -43,7 +43,7 @@ import warnings
 from os import listdir
 from os.path import dirname, join, isdir, splitext
 
-from logilab.astng.utils import ASTWalker
+from astroid.utils import ASTWalker
 from logilab.common.modutils import load_module_from_file
 from logilab.common.configuration import OptionsProviderMixIn
 
@@ -126,7 +126,7 @@ class BaseRawChecker(BaseChecker):
                       "use the ITokenChecker interface.",
                       DeprecationWarning)
         stream = node.file_stream
-        stream.seek(0) # XXX may be removed with astng > 0.23
+        stream.seek(0) # XXX may be removed with astroid > 0.23
         self.process_tokens(tokenize.generate_tokens(stream.readline))
 
     def process_tokens(self, tokens):

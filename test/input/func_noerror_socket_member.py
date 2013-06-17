@@ -7,7 +7,7 @@ Version used:
 
     - Pylint 0.10.0
     - Logilab common 0.15.0
-    - Logilab astng 0.15.1
+    - Logilab astroid 0.15.1
 
 False E1101 positive, line 23:
 

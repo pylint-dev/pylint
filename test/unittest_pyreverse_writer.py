@@ -18,7 +18,7 @@ unittest for visitors.diadefs and extensions.diadefslib modules
 """
 
 from os.path import abspath, dirname, join
-from logilab.astng.inspector import Linker
+from astroid.inspector import Linker
 from logilab.common.testlib import TestCase, unittest_main
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler

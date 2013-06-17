@@ -16,9 +16,9 @@
 """check for new / old style related problems
 """
 
-from logilab import astng
+import astroid
 
-from pylint.interfaces import IASTNGChecker
+from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 
@@ -48,7 +48,7 @@ class NewStyleConflictChecker(BaseChecker):
     * "super" usage                                                            
     """
     
-    __implements__ = (IASTNGChecker,)
+    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = 'newstyle'
@@ -69,9 +69,9 @@ class NewStyleConflictChecker(BaseChecker):
     def visit_callfunc(self, node):
         """check property usage"""
         parent = node.parent.frame()
-        if (isinstance(parent, astng.Class) and
+        if (isinstance(parent, astroid.Class) and
             not parent.newstyle and
-            isinstance(node.func, astng.Name)):
+            isinstance(node.func, astroid.Name)):
             name = node.func.name
             if name == 'property':
                 self.add_message('W1001', node=node)
@@ -83,14 +83,14 @@ class NewStyleConflictChecker(BaseChecker):
         if not node.is_method():
             return
         klass = node.parent.frame()
-        for stmt in node.nodes_of_class(astng.CallFunc):
+        for stmt in node.nodes_of_class(astroid.CallFunc):
             expr = stmt.func
-            if not isinstance(expr, astng.Getattr):
+            if not isinstance(expr, astroid.Getattr):
                 continue
             call = expr.expr
             # skip the test if using super
-            if isinstance(call, astng.CallFunc) and \
-               isinstance(call.func, astng.Name) and \
+            if isinstance(call, astroid.CallFunc) and \
+               isinstance(call.func, astroid.Name) and \
                call.func.name == 'super':
                 if not klass.newstyle:
                     # super should not be used on an old style class
@@ -100,7 +100,7 @@ class NewStyleConflictChecker(BaseChecker):
                     try:
                         supcls = (call.args and call.args[0].infer().next()
                                   or None)
-                    except astng.InferenceError:
+                    except astroid.InferenceError:
                         continue
                     if klass is not supcls:
                         supcls = getattr(supcls, 'name', supcls)

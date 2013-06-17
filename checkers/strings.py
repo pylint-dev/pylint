@@ -21,9 +21,9 @@
 import sys
 import tokenize
 
-from logilab import astng
+import astroid
 
-from pylint.interfaces import ITokenChecker, IASTNGChecker
+from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
 
@@ -72,16 +72,16 @@ MSGS = {
               specifiers is given too many arguments"),
     }
 
-OTHER_NODES = (astng.Const, astng.List, astng.Backquote,
-               astng.Lambda, astng.Function,
-               astng.ListComp, astng.SetComp, astng.GenExpr)
+OTHER_NODES = (astroid.Const, astroid.List, astroid.Backquote,
+               astroid.Lambda, astroid.Function,
+               astroid.ListComp, astroid.SetComp, astroid.GenExpr)
 
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
     is valid and the arguments match the format string.
     """
 
-    __implements__ = (IASTNGChecker,)
+    __implements__ = (IAstroidChecker,)
     name = 'string'
     msgs = MSGS
 
@@ -91,7 +91,7 @@ class StringFormatChecker(BaseChecker):
         left = node.left
         args = node.right
 
-        if not (isinstance(left, astng.Const)
+        if not (isinstance(left, astroid.Const)
             and isinstance(left.value, basestring)):
             return
         format_string = left.value
@@ -114,11 +114,11 @@ class StringFormatChecker(BaseChecker):
             # Check that the RHS of the % operator is a mapping object
             # that contains precisely the set of keys required by the
             # format string.
-            if isinstance(args, astng.Dict):
+            if isinstance(args, astroid.Dict):
                 keys = set()
                 unknown_keys = False
                 for k, _ in args.items:
-                    if isinstance(k, astng.Const):
+                    if isinstance(k, astroid.Const):
                         key = k.value
                         if isinstance(key, basestring):
                             keys.add(key)
@@ -137,7 +137,7 @@ class StringFormatChecker(BaseChecker):
                 for key in keys:
                     if key not in required_keys:
                         self.add_message('W1301', node=node, args=key)
-            elif isinstance(args, OTHER_NODES + (astng.Tuple,)):
+            elif isinstance(args, OTHER_NODES + (astroid.Tuple,)):
                 type_name = type(args).__name__
                 self.add_message('E1303', node=node, args=type_name)
             # else:
@@ -149,9 +149,9 @@ class StringFormatChecker(BaseChecker):
             # Check that the number of arguments passed to the RHS of
             # the % operator matches the number required by the format
             # string.
-            if isinstance(args, astng.Tuple):
+            if isinstance(args, astroid.Tuple):
                 num_args = len(args.elts)
-            elif isinstance(args, OTHER_NODES + (astng.Dict, astng.DictComp)):
+            elif isinstance(args, OTHER_NODES + (astroid.Dict, astroid.DictComp)):
                 num_args = 1
             else:
                 # The RHS of the format specifier is a name or
@@ -166,7 +166,7 @@ class StringFormatChecker(BaseChecker):
 
 
 class StringMethodsChecker(BaseChecker):
-    __implements__ = (IASTNGChecker,)
+    __implements__ = (IAstroidChecker,)
     name = 'string'
     msgs = {
         'E1310': ("Suspicious argument in %s.%s call",
@@ -177,13 +177,13 @@ class StringMethodsChecker(BaseChecker):
 
     def visit_callfunc(self, node):
         func = utils.safe_infer(node.func)
-        if (isinstance(func, astng.BoundMethod)
-            and isinstance(func.bound, astng.Instance)
+        if (isinstance(func, astroid.BoundMethod)
+            and isinstance(func.bound, astroid.Instance)
             and func.bound.name in ('str', 'unicode', 'bytes')
             and func.name in ('strip', 'lstrip', 'rstrip')
             and node.args):
             arg = utils.safe_infer(node.args[0])
-            if not isinstance(arg, astng.Const):
+            if not isinstance(arg, astroid.Const):
                 return
             if len(arg.value) != len(set(arg.value)):
                 self.add_message('E1310', node=node,

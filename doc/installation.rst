@@ -5,10 +5,10 @@ Installation
 Dependencies
 ''''''''''''
 
-Pylint requires the latest `astng`_ and `logilab-common`_
+Pylint requires the latest `astroid`_ and `logilab-common`_
 packages. It should be compatible with any Python version >= 2.5.
 
-.. _`astng`: https://bitbucket.org/logilab/astng
+.. _`astroid`: https://bitbucket.org/logilab/astroid
 .. _`logilab-common`: http://www.logilab.org/project/logilab-common
 
 

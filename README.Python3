@@ -20,7 +20,7 @@ build step when invoked by the python3 interpreter::
 In order to run pylint locally, you have to install the dependencies::
 
   easy_install-3.2 logilab-common
-  easy_install-3.2 logilab-astng
+  easy_install-3.2 astroid
 
 
 Debian

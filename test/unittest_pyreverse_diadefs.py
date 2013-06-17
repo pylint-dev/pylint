@@ -20,25 +20,25 @@ unittest for the extensions.diadefslib modules
 import unittest
 import sys
 
-from logilab import astng
-from logilab.astng import MANAGER
-from logilab.astng.inspector import Linker
+import astroid
+from astroid import MANAGER
+from astroid.inspector import Linker
 
 from pylint.pyreverse.diadefslib import *
 
 from utils import Config
 
-def astng_wrapper(func, modname):
+def astroid_wrapper(func, modname):
     return func(modname)
 
-PROJECT = MANAGER.project_from_files(['data'], astng_wrapper)
+PROJECT = MANAGER.project_from_files(['data'], astroid_wrapper)
 
 CONFIG = Config()
 HANDLER = DiadefsHandler(CONFIG)
 
 def _process_classes(classes):
     """extract class names of a list"""
-    return sorted([(isinstance(c.node, astng.Class), c.title) for c in classes])
+    return sorted([(isinstance(c.node, astroid.Class), c.title) for c in classes])
 
 def _process_relations(relations):
     """extract relation indices from a relation list"""
@@ -95,7 +95,7 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         self.assertEqual(keys, ['package', 'class'])
         pd = dd[0]
         self.assertEqual(pd.title, 'packages No Name')
-        modules = sorted([(isinstance(m.node, astng.Module), m.title)
+        modules = sorted([(isinstance(m.node, astroid.Module), m.title)
                          for m in pd.objects])
         self.assertEqual(modules, [(True, 'data'),
                                    (True, 'data.clientmodule_test'),
@@ -125,7 +125,7 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         different classes possibly in different modules"""
         # XXX should be catching pyreverse environnement problem but doesn't
         # pyreverse doesn't extracts the relations but this test ok
-        project = MANAGER.project_from_files(['data'], astng_wrapper)
+        project = MANAGER.project_from_files(['data'], astroid_wrapper)
         handler = DiadefsHandler( Config() )
         diadefs = handler.get_diadefs(project, Linker(project, tag=True) )
         cd = diadefs[1]
@@ -133,7 +133,7 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         self.assertEqual(relations, self._should_rels)
 
     def test_known_values2(self):
-        project = MANAGER.project_from_files(['data.clientmodule_test'], astng_wrapper)
+        project = MANAGER.project_from_files(['data.clientmodule_test'], astroid_wrapper)
         dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
         self.assertEqual(len(dd), 1)
         keys = [d.TYPE for d in dd]

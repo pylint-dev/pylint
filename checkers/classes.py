@@ -17,10 +17,10 @@
 """
 from __future__ import generators
 
-from logilab import astng
-from logilab.astng import YES, Instance, are_exclusive, AssAttr
+import astroid
+from astroid import YES, Instance, are_exclusive, AssAttr
 
-from pylint.interfaces import IASTNGChecker
+from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, overrides_a_method,
     check_messages, is_attr_private, is_attr_protected, node_frame_class)
@@ -156,7 +156,7 @@ class ClassChecker(BaseChecker):
     * unreachable code
     """
 
-    __implements__ = (IASTNGChecker,)
+    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = 'classes'
@@ -222,7 +222,7 @@ a metaclass class method.'}
         if node.type == 'class':
             try:
                 node.local_attr('__init__')
-            except astng.NotFoundError:
+            except astroid.NotFoundError:
                 self.add_message('W0232', args=node, node=node)
 
     @check_messages('E0203', 'W0201')
@@ -241,7 +241,7 @@ a metaclass class method.'}
         defining_methods = self.config.defining_attr_methods
         for attr, nodes in cnode.instance_attrs.iteritems():
             nodes = [n for n in nodes if not
-                    isinstance(n.statement(), (astng.Delete, astng.AugAssign))]
+                    isinstance(n.statement(), (astroid.Delete, astroid.AugAssign))]
             if not nodes:
                 continue # error detected by typechecking
             attr_defined = False
@@ -264,7 +264,7 @@ a metaclass class method.'}
                     # check attribute is defined as a class attribute
                     try:
                         cnode.local_attr(attr)
-                    except astng.NotFoundError:
+                    except astroid.NotFoundError:
                         self.add_message('W0201', args=attr, node=node)
 
     def visit_function(self, node):
@@ -281,25 +281,25 @@ a metaclass class method.'}
             return
         # check signature if the method overloads inherited method
         for overridden in klass.local_attr_ancestors(node.name):
-            # get astng for the searched method
+            # get astroid for the searched method
             try:
                 meth_node = overridden[node.name]
             except KeyError:
                 # we have found the method but it's not in the local
                 # dictionary.
-                # This may happen with astng build from living objects
+                # This may happen with astroid build from living objects
                 continue
-            if not isinstance(meth_node, astng.Function):
+            if not isinstance(meth_node, astroid.Function):
                 continue
             self._check_signature(node, meth_node, 'overridden')
             break
         if node.decorators:
             for decorator in node.decorators.nodes:
-                if isinstance(decorator, astng.Getattr) and \
+                if isinstance(decorator, astroid.Getattr) and \
                         decorator.attrname in ('getter', 'setter', 'deleter'):
                     # attribute affectation will call this method, not hiding it
                     return
-                if isinstance(decorator, astng.Name) and decorator.name == 'property':
+                if isinstance(decorator, astroid.Name) and decorator.name == 'property':
                     # attribute affectation will either call a setter or raise
                     # an attribute error, anyway not hiding the function
                     return
@@ -308,7 +308,7 @@ a metaclass class method.'}
             overridden = klass.instance_attr(node.name)[0] # XXX
             args = (overridden.root().name, overridden.fromlineno)
             self.add_message('E0202', args=args, node=node)
-        except astng.NotFoundError:
+        except astroid.NotFoundError:
             pass
 
     def leave_function(self, node):
@@ -387,8 +387,8 @@ a metaclass class method.'}
                 return
 
             # If the expression begins with a call to super, that's ok.
-            if isinstance(node.expr, astng.CallFunc) and \
-               isinstance(node.expr.func, astng.Name) and \
+            if isinstance(node.expr, astroid.CallFunc) and \
+               isinstance(node.expr.func, astroid.Name) and \
                node.expr.func.name == 'super':
                 return
 
@@ -416,7 +416,7 @@ a metaclass class method.'}
                 node.local_attr(attr)
                 # yes, stop here
                 continue
-            except astng.NotFoundError:
+            except astroid.NotFoundError:
                 pass
             # is it an instance attribute of a parent class ?
             try:
@@ -428,7 +428,7 @@ a metaclass class method.'}
             # is it an instance attribute ?
             try:
                 defstmts = node.instance_attr(attr)
-            except astng.NotFoundError:
+            except astroid.NotFoundError:
                 pass
             else:
                 if len(defstmts) == 1:
@@ -530,7 +530,7 @@ a metaclass class method.'}
         e0221_hack = [False]
         def iface_handler(obj):
             """filter interface objects, it should be classes"""
-            if not isinstance(obj, astng.Class):
+            if not isinstance(obj, astroid.Class):
                 e0221_hack[0] = True
                 self.add_message('E0221', node=node,
                                  args=(obj.as_string(),))
@@ -545,10 +545,10 @@ a metaclass class method.'}
                         # don't check method beginning with an underscore,
                         # usually belonging to the interface implementation
                         continue
-                    # get class method astng
+                    # get class method astroid
                     try:
                         method = node_method(node, name)
-                    except astng.NotFoundError:
+                    except astroid.NotFoundError:
                         self.add_message('E0222', args=(name, iface.name),
                                          node=node)
                         continue
@@ -558,12 +558,12 @@ a metaclass class method.'}
                     # check signature
                     self._check_signature(method, imethod,
                                          '%s interface' % iface.name)
-        except astng.InferenceError:
+        except astroid.InferenceError:
             if e0221_hack[0]:
                 return
             implements = Instance(node).getattr('__implements__')[0]
             assignment = implements.parent
-            assert isinstance(assignment, astng.Assign)
+            assert isinstance(assignment, astroid.Assign)
             # assignment.expr can be a Name or a Tuple or whatever.
             # Use as_string() for the message
             # FIXME: in case of multiple interfaces, find which one could not
@@ -580,14 +580,14 @@ a metaclass class method.'}
         klass_node = node.parent.frame()
         to_call = _ancestors_to_call(klass_node)
         not_called_yet = dict(to_call)
-        for stmt in node.nodes_of_class(astng.CallFunc):
+        for stmt in node.nodes_of_class(astroid.CallFunc):
             expr = stmt.func
-            if not isinstance(expr, astng.Getattr) \
+            if not isinstance(expr, astroid.Getattr) \
                    or expr.attrname != '__init__':
                 continue
             # skip the test if using super
-            if isinstance(expr.expr, astng.CallFunc) and \
-               isinstance(expr.expr.func, astng.Name) and \
+            if isinstance(expr.expr, astroid.CallFunc) and \
+               isinstance(expr.expr.func, astroid.Name) and \
                expr.expr.func.name == 'super':
                 return
             try:
@@ -599,7 +599,7 @@ a metaclass class method.'}
                 except KeyError:
                     if klass not in to_call:
                         self.add_message('W0233', node=expr, args=klass.name)
-            except astng.InferenceError:
+            except astroid.InferenceError:
                 continue
         for klass, method in not_called_yet.iteritems():
             if klass.name == 'object' or method.parent.name == 'object':
@@ -611,8 +611,8 @@ a metaclass class method.'}
 
         class_type is in 'class', 'interface'
         """
-        if not (isinstance(method1, astng.Function)
-                and isinstance(refmethod, astng.Function)):
+        if not (isinstance(method1, astroid.Function)
+                and isinstance(refmethod, astroid.Function)):
             self.add_message('F0202', args=(method1, refmethod), node=method1)
             return
         # don't care about functions with unknown argument (builtins)
@@ -632,7 +632,7 @@ a metaclass class method.'}
         """Check that attribute lookup name use first attribute variable name
         (self for method, cls for classmethod and mcs for metaclass).
         """
-        return self._first_attrs and isinstance(node.expr, astng.Name) and \
+        return self._first_attrs and isinstance(node.expr, astroid.Name) and \
                    node.expr.name == self._first_attrs[-1]
 
 def _ancestors_to_call(klass_node, method='__init__'):
@@ -643,19 +643,19 @@ def _ancestors_to_call(klass_node, method='__init__'):
     for base_node in klass_node.ancestors(recurs=False):
         try:
             to_call[base_node] = base_node.igetattr(method).next()
-        except astng.InferenceError:
+        except astroid.InferenceError:
             continue
     return to_call
 
 
 def node_method(node, method_name):
-    """get astng for <method_name> on the given class node, ensuring it
+    """get astroid for <method_name> on the given class node, ensuring it
     is a Function node
     """
     for n in node.local_attr(method_name):
-        if isinstance(n, astng.Function):
+        if isinstance(n, astroid.Function):
             return n
-    raise astng.NotFoundError(method_name)
+    raise astroid.NotFoundError(method_name)
 
 def register(linter):
     """required method to auto register this checker """

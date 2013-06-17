@@ -1,5 +1,5 @@
 # pylint: disable=R0903
-"""use new astng context sensitive inference"""
+"""use new astroid context sensitive inference"""
 __revision__ = 1
 
 class Super(object):

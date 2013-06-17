@@ -18,8 +18,8 @@
 
 from logilab.common.compat import builtins
 BUILTINS_NAME = builtins.__name__
-from logilab import astng
-from logilab.astng.utils import LocalsVisitor
+import astroid
+from astroid.utils import LocalsVisitor
 
 from pylint.pyreverse.diagrams import PackageDiagram, ClassDiagram
 
@@ -100,9 +100,9 @@ class DiaDefGenerator:
         for ass_nodes in klass_node.instance_attrs_type.values() + \
                          klass_node.locals_type.values():
             for ass_node in ass_nodes:
-                if isinstance(ass_node, astng.Instance):
+                if isinstance(ass_node, astroid.Instance):
                     ass_node = ass_node._proxied
-                if not (isinstance(ass_node, astng.Class) 
+                if not (isinstance(ass_node, astroid.Class) 
                         and self.show_node(ass_node)):
                     continue
                 yield ass_node
@@ -132,7 +132,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         LocalsVisitor.__init__(self)
 
     def visit_project(self, node):
-        """visit an astng.Project node
+        """visit an astroid.Project node
 
         create a diagram definition for packages
         """
@@ -144,7 +144,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         self.classdiagram = ClassDiagram('classes %s' % node.name, mode)
 
     def leave_project(self, node):
-        """leave the astng.Project node
+        """leave the astroid.Project node
 
         return the generated diagram definition
         """
@@ -153,7 +153,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         return self.classdiagram,
 
     def visit_module(self, node):
-        """visit an astng.Module node
+        """visit an astroid.Module node
 
         add this class to the package diagram definition
         """
@@ -162,7 +162,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
             self.pkgdiagram.add_object(node.name, node)
 
     def visit_class(self, node):
-        """visit an astng.Class node
+        """visit an astroid.Class node
 
         add this class to the class diagram definition
         """
@@ -170,7 +170,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         self.extract_classes(node, anc_level, ass_level)
 
     def visit_from(self, node):
-        """visit astng.From  and catch modules for package diagram
+        """visit astroid.From  and catch modules for package diagram
         """
         if self.pkgdiagram:
             self.pkgdiagram.add_from_depend(node, node.modname)
@@ -215,8 +215,8 @@ class DiadefsHandler:
 
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data
-        :param linker: astng.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
-        :param project: astng.manager.Project        
+        :param linker: astroid.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
+        :param project: astroid.manager.Project        
         """
 
         #  read and interpret diagram definitions (Diadefs)

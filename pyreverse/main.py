@@ -21,8 +21,8 @@
 
 import sys, os
 from logilab.common.configuration import ConfigurationMixIn
-from logilab.astng.manager import ASTNGManager
-from logilab.astng.inspector import Linker
+from astroid.manager import AstroidManager
+from astroid.inspector import Linker
 
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse import writer
@@ -92,7 +92,7 @@ class Run(ConfigurationMixIn):
     def __init__(self, args):
         ConfigurationMixIn.__init__(self, usage=__doc__)
         insert_default_options()
-        self.manager = ASTNGManager()
+        self.manager = AstroidManager()
         self.register_options_provider(self.manager)
         args = self.load_command_line_configuration()
         sys.exit(self.run(args))

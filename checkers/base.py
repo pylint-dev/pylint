@@ -16,11 +16,11 @@
 """basic checker for Python code"""
 
 
-from logilab import astng
+import astroid
 from logilab.common.ureports import Table
-from logilab.astng import are_exclusive
+from astroid import are_exclusive
 
-from pylint.interfaces import IASTNGChecker
+from pylint.interfaces import IAstroidChecker
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker, EmptyReport
 from pylint.checkers.utils import (
@@ -48,8 +48,8 @@ def in_loop(node):
     """return True if the node is inside a kind of for loop"""
     parent = node.parent
     while parent is not None:
-        if isinstance(parent, (astng.For, astng.ListComp, astng.SetComp,
-                               astng.DictComp, astng.GenExpr)):
+        if isinstance(parent, (astroid.For, astroid.ListComp, astroid.SetComp,
+                               astroid.DictComp, astroid.GenExpr)):
             return True
         parent = parent.parent
     return False
@@ -68,13 +68,13 @@ def in_nested_list(nested_list, obj):
 
 def _loop_exits_early(loop):
     """Returns true if a loop has a break statement in its body."""
-    loop_nodes = (astng.For, astng.While)
+    loop_nodes = (astroid.For, astroid.While)
     # Loop over body explicitly to avoid matching break statements
     # in orelse.
     for child in loop.body:
         if isinstance(child, loop_nodes):
             continue
-        for _ in child.nodes_of_class(astng.Break, skip_klass=loop_nodes):
+        for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True
     return False
 
@@ -130,13 +130,13 @@ def redefined_by_decorator(node):
     """
     if node.decorators:
         for decorator in node.decorators.nodes:
-            if (isinstance(decorator, astng.Getattr) and
+            if (isinstance(decorator, astroid.Getattr) and
                 getattr(decorator.expr, 'name', None) == node.name):
                 return True
     return False
 
 class _BasicChecker(BaseChecker):
-    __implements__ = IASTNGChecker
+    __implements__ = IAstroidChecker
     name = 'basic'
 
 class BasicErrorChecker(_BasicChecker):
@@ -196,21 +196,21 @@ class BasicErrorChecker(_BasicChecker):
         if not redefined_by_decorator(node):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
         # checks for max returns, branch, return in __init__
-        returns = node.nodes_of_class(astng.Return,
-                                      skip_klass=(astng.Function, astng.Class))
+        returns = node.nodes_of_class(astroid.Return,
+                                      skip_klass=(astroid.Function, astroid.Class))
         if node.is_method() and node.name == '__init__':
             if node.is_generator():
                 self.add_message('E0100', node=node)
             else:
                 values = [r.value for r in returns]
                 if  [v for v in values if not (v is None or
-                    (isinstance(v, astng.Const) and v.value is None)
-                    or  (isinstance(v, astng.Name) and v.name == 'None'))]:
+                    (isinstance(v, astroid.Const) and v.value is None)
+                    or  (isinstance(v, astroid.Name) and v.name == 'None'))]:
                     self.add_message('E0101', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
             for retnode in returns:
-                if isinstance(retnode.value, astng.Const) and \
+                if isinstance(retnode.value, astroid.Const) and \
                        retnode.value.value is not None:
                     self.add_message('E0106', node=node,
                                      line=retnode.fromlineno)
@@ -224,12 +224,12 @@ class BasicErrorChecker(_BasicChecker):
 
     @check_messages('E0104')
     def visit_return(self, node):
-        if not isinstance(node.frame(), astng.Function):
+        if not isinstance(node.frame(), astroid.Function):
             self.add_message('E0104', node=node)
 
     @check_messages('E0105')
     def visit_yield(self, node):
-        if not isinstance(node.frame(), (astng.Function, astng.Lambda)):
+        if not isinstance(node.frame(), (astroid.Function, astroid.Lambda)):
             self.add_message('E0105', node=node)
 
     @check_messages('E0103')
@@ -252,7 +252,7 @@ class BasicErrorChecker(_BasicChecker):
     def visit_unaryop(self, node):
         """check use of the non-existent ++ adn -- operator operator"""
         if ((node.op in '+-') and
-            isinstance(node.operand, astng.UnaryOp) and
+            isinstance(node.operand, astroid.UnaryOp) and
             (node.operand.op == node.op)):
             self.add_message('E0107', node=node, args=node.op*2)
 
@@ -269,7 +269,7 @@ class BasicErrorChecker(_BasicChecker):
         """check that a node is inside a for or while loop"""
         _node = node.parent
         while _node:
-            if isinstance(_node, (astng.For, astng.While)):
+            if isinstance(_node, (astroid.For, astroid.While)):
                 break
             _node = _node.parent
         else:
@@ -296,7 +296,7 @@ functions, methods
     * uses of the global statement
     """
 
-    __implements__ = IASTNGChecker
+    __implements__ = IAstroidChecker
 
     name = 'basic'
     msgs = {
@@ -411,7 +411,7 @@ functions, methods
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
-        if isinstance(expr, astng.Const) and isinstance(expr.value,
+        if isinstance(expr, astroid.Const) and isinstance(expr.value,
                                                         basestring):
             # treat string statement in a separated message
             self.add_message('W0105', node=node)
@@ -422,11 +422,11 @@ functions, methods
         # * a yield (which are wrapped by a discard node in _ast XXX)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else W0104
-        if (isinstance(expr, (astng.Yield, astng.CallFunc)) or
-            (isinstance(node.parent, astng.TryExcept) and
+        if (isinstance(expr, (astroid.Yield, astroid.CallFunc)) or
+            (isinstance(node.parent, astroid.TryExcept) and
              node.parent.body == [node])):
             return
-        if any(expr.nodes_of_class(astng.CallFunc)):
+        if any(expr.nodes_of_class(astroid.CallFunc)):
             self.add_message('W0106', node=node, args=expr.as_string())
         else:
             self.add_message('W0104', node=node)
@@ -446,11 +446,11 @@ functions, methods
             # of the lambda.
             return
         call = node.body
-        if not isinstance(call, astng.CallFunc):
+        if not isinstance(call, astroid.CallFunc):
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-        # XXX are lambda still different with astng >= 0.18 ?
+        # XXX are lambda still different with astroid >= 0.18 ?
         # *args and **kwargs need to be treated specially, since they
         # are structured differently between the lambda and the function
         # call (in the lambda they appear in the args.args list and are
@@ -460,14 +460,14 @@ functions, methods
         ordinary_args = list(node.args.args)
         if node.args.kwarg:
             if (not call.kwargs
-                or not isinstance(call.kwargs, astng.Name)
+                or not isinstance(call.kwargs, astroid.Name)
                 or node.args.kwarg != call.kwargs.name):
                 return
         elif call.kwargs:
             return
         if node.args.vararg:
             if (not call.starargs
-                or not isinstance(call.starargs, astng.Name)
+                or not isinstance(call.starargs, astroid.Name)
                 or node.args.vararg != call.starargs.name):
                 return
         elif call.starargs:
@@ -477,7 +477,7 @@ functions, methods
         if len(ordinary_args) != len(call.args):
             return
         for i in xrange(len(ordinary_args)):
-            if not isinstance(call.args[i], astng.Name):
+            if not isinstance(call.args[i], astroid.Name):
                 return
             if node.args.args[i].name != call.args[i].name:
                 return
@@ -492,13 +492,13 @@ functions, methods
         for default in node.args.defaults:
             try:
                 value = default.infer().next()
-            except astng.InferenceError:
+            except astroid.InferenceError:
                 continue
-            if (isinstance(value, astng.Instance) and
+            if (isinstance(value, astroid.Instance) and
                 value.qname() in ('__builtin__.set', '__builtin__.dict', '__builtin__.list')):
                 if value is default:
                     msg = default.as_string()
-                elif type(value) is astng.Instance:
+                elif type(value) is astroid.Instance:
                     msg = '%s (%s)' % (default.as_string(), value.qname())
                 else:
                     msg = '%s (%s)' % (default.as_string(), value.as_string())
@@ -513,7 +513,7 @@ functions, methods
         """
         self._check_unreachable(node)
         # Is it inside final body of a try...finally bloc ?
-        self._check_not_in_finally(node, 'return', (astng.Function,))
+        self._check_not_in_finally(node, 'return', (astroid.Function,))
 
     @check_messages('W0101')
     def visit_continue(self, node):
@@ -532,7 +532,7 @@ functions, methods
         # 1 - Is it right sibling ?
         self._check_unreachable(node)
         # 2 - Is it inside final body of a try...finally bloc ?
-        self._check_not_in_finally(node, 'break', (astng.For, astng.While,))
+        self._check_not_in_finally(node, 'break', (astroid.For, astroid.While,))
 
     @check_messages('W0101')
     def visit_raise(self, node):
@@ -551,7 +551,7 @@ functions, methods
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
-        if isinstance(node.func, astng.Name):
+        if isinstance(node.func, astroid.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
@@ -561,7 +561,7 @@ functions, methods
                     self.add_message('W0141', node=node, args=name)
         if node.starargs or node.kwargs:
             scope = node.scope()
-            if isinstance(scope, astng.Function):
+            if isinstance(scope, astroid.Function):
                 toprocess = [(n, vn) for (n, vn) in ((node.starargs, scope.args.vararg),
                                                      (node.kwargs, scope.args.kwarg)) if n]
                 if toprocess:
@@ -575,7 +575,7 @@ functions, methods
     @check_messages('W0199')
     def visit_assert(self, node):
         """check the use of an assert statement on a tuple."""
-        if node.fail is None and isinstance(node.test, astng.Tuple) and \
+        if node.fail is None and isinstance(node.test, astroid.Tuple) and \
            len(node.test.elts) == 2:
             self.add_message('W0199', node=node)
 
@@ -584,7 +584,7 @@ functions, methods
         """check duplicate key in dictionary"""
         keys = set()
         for k, _ in node.items:
-            if isinstance(k, astng.Const):
+            if isinstance(k, astroid.Const):
                 key = k.value
                 if key in keys:
                     self.add_message('W0109', node=node, args=key)
@@ -738,14 +738,14 @@ class NameChecker(_BasicChecker):
         """check module level assigned names"""
         frame = node.frame()
         ass_type = node.ass_type()
-        if isinstance(ass_type, (astng.Comprehension, astng.Comprehension)):
+        if isinstance(ass_type, (astroid.Comprehension, astroid.Comprehension)):
             self._check_name('inlinevar', node.name, node)
-        elif isinstance(frame, astng.Module):
-            if isinstance(ass_type, astng.Assign) and not in_loop(ass_type):
+        elif isinstance(frame, astroid.Module):
+            if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
                 self._check_name('const', node.name, node)
-            elif isinstance(ass_type, astng.ExceptHandler):
+            elif isinstance(ass_type, astroid.ExceptHandler):
                 self._check_name('variable', node.name, node)
-        elif isinstance(frame, astng.Function):
+        elif isinstance(frame, astroid.Function):
             # global introduced variable aren't in the function locals
             if node.name in frame:
                 self._check_name('variable', node.name, node)
@@ -753,7 +753,7 @@ class NameChecker(_BasicChecker):
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
-            if isinstance(arg, astng.AssName):
+            if isinstance(arg, astroid.AssName):
                 self._check_name('argument', arg.name, node)
             else:
                 self._recursive_check_names(arg.elts, node)
@@ -817,12 +817,12 @@ class DocStringChecker(_BasicChecker):
     def visit_function(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = node.is_method() and 'method' or 'function'
-            if isinstance(node.parent.frame(), astng.Class):
+            if isinstance(node.parent.frame(), astroid.Class):
                 overridden = False
                 # check if node is from a method overridden by its ancestor
                 for ancestor in node.parent.frame().ancestors():
                     if node.name in ancestor and \
-                       isinstance(ancestor[node.name], astng.Function):
+                       isinstance(ancestor[node.name], astroid.Function):
                         overridden = True
                         break
                 if not overridden:
@@ -875,7 +875,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
         """
         if not node.args:
             return
-        if not isinstance(node.args[0], astng.Lambda):
+        if not isinstance(node.args[0], astroid.Lambda):
             return
         infered = safe_infer(node.func)
         if (infered

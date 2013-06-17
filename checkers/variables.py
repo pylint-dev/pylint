@@ -19,10 +19,10 @@
 import sys
 from copy import copy
 
-from logilab import astng
-from logilab.astng import are_exclusive, builtin_lookup, ASTNGBuildingException
+import astroid
+from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
 
-from pylint.interfaces import IASTNGChecker
+from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
      is_defined_before, is_error, is_func_default, is_func_decorator,
@@ -32,7 +32,7 @@ from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
 
 def in_for_else_branch(parent, stmt):
     """Returns True if stmt in inside the else branch for a parent For stmt."""
-    return (isinstance(parent, astng.For) and
+    return (isinstance(parent, astroid.For) and
             any(else_stmt.parent_of(stmt) for else_stmt in parent.orelse))
 
 def overridden_method(klass, name):
@@ -45,9 +45,9 @@ def overridden_method(klass, name):
         meth_node = parent[name]
     except KeyError:
         # We have found an ancestor defining <name> but it's not in the local
-        # dictionary. This may happen with astng built from living objects.
+        # dictionary. This may happen with astroid built from living objects.
         return None
-    if isinstance(meth_node, astng.Function):
+    if isinstance(meth_node, astroid.Function):
         return meth_node
     return None
 
@@ -129,7 +129,7 @@ class VariablesChecker(BaseChecker):
     * __all__ consistency
     """
 
-    __implements__ = IASTNGChecker
+    __implements__ = IAstroidChecker
 
     name = 'variables'
     msgs = MSGS
@@ -175,14 +175,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # attempt to check for __all__ if defined
         if '__all__' in node.locals:
             assigned = node.igetattr('__all__').next()
-            if assigned is not astng.YES:
+            if assigned is not astroid.YES:
                 for elt in getattr(assigned, 'elts', ()):
                     try:
                         elt_name = elt.infer().next()
-                    except astng.InferenceError:
+                    except astroid.InferenceError:
                         continue
 
-                    if not isinstance(elt_name, astng.Const) or not isinstance(elt_name.value, basestring):
+                    if not isinstance(elt_name, astroid.Const) or not isinstance(elt_name.value, basestring):
                         self.add_message('E0604', args=elt.as_string(), node=elt)
                         continue
                     elt_name = elt.value
@@ -197,9 +197,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
         for name, stmts in not_consumed.iteritems():
             stmt = stmts[0]
-            if isinstance(stmt, astng.Import):
+            if isinstance(stmt, astroid.Import):
                 self.add_message('W0611', args=name, node=stmt)
-            elif isinstance(stmt, astng.From) and stmt.modname != '__future__':
+            elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
                 if stmt.names[0][0] == '*':
                     self.add_message('W0614', args=name, node=stmt)
                 else:
@@ -271,7 +271,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         for name, stmt in node.items():
             if is_inside_except(stmt):
                 continue
-            if name in globs and not isinstance(stmt, astng.Global):
+            if name in globs and not isinstance(stmt, astroid.Global):
                 line = globs[name][0].fromlineno
                 self.add_message('W0621', args=(name, line), node=stmt)
             elif is_builtin(name):
@@ -301,7 +301,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # ignore names imported by the global statement
             # FIXME: should only ignore them if it's assigned latter
             stmt = stmts[0]
-            if isinstance(stmt, astng.Global):
+            if isinstance(stmt, astroid.Global):
                 continue
             # care about functions with unknown argument (builtins)
             if name in argnames:
@@ -328,7 +328,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_global(self, node):
         """check names imported exists in the global scope"""
         frame = node.frame()
-        if isinstance(frame, astng.Module):
+        if isinstance(frame, astroid.Module):
             self.add_message('W0604', node=node)
             return
         module = frame.root()
@@ -336,7 +336,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         for name in node.names:
             try:
                 assign_nodes = module.getattr(name)
-            except astng.NotFoundError:
+            except astroid.NotFoundError:
                 # unassigned global, skip
                 assign_nodes = []
             for anode in assign_nodes:
@@ -399,7 +399,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         astmts = _astmts
         if len(astmts) == 1:
             ass = astmts[0].ass_type()
-            if isinstance(ass, (astng.For, astng.Comprehension, astng.GenExpr)) \
+            if isinstance(ass, (astroid.For, astroid.Comprehension, astroid.GenExpr)) \
                    and not ass.statement() is node.statement():
                 self.add_message('W0631', args=name, node=node)
 
@@ -410,7 +410,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self.add_message('W0623', args=args, node=name)
 
     def visit_assname(self, node):
-        if isinstance(node.ass_type(), astng.AugAssign):
+        if isinstance(node.ass_type(), astroid.AugAssign):
             self.visit_name(node)
 
     def visit_delname(self, node):
@@ -422,7 +422,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         stmt = node.statement()
         if stmt.fromlineno is None:
-            # name node from a astng built from live code, skip
+            # name node from a astroid built from live code, skip
             assert not stmt.root().file.endswith('.py')
             return
         name = node.name
@@ -481,13 +481,13 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     and stmt.fromlineno <= defstmt.fromlineno
                     and not is_defined_before(node)
                     and not are_exclusive(stmt, defstmt, ('NameError', 'Exception', 'BaseException'))):
-                    if defstmt is stmt and isinstance(node, (astng.DelName,
-                                                             astng.AssName)):
+                    if defstmt is stmt and isinstance(node, (astroid.DelName,
+                                                             astroid.AssName)):
                         self.add_message('E0602', args=name, node=node)
                     elif self._to_consume[-1][-1] != 'lambda':
                         # E0601 may *not* occurs in lambda scope
                         self.add_message('E0601', args=name, node=node)
-            if not isinstance(node, astng.AssName): # Aug AssName
+            if not isinstance(node, astroid.AssName): # Aug AssName
                 del to_consume[name]
             else:
                 del consumed[name]
@@ -497,7 +497,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         else:
             # we have not found the name, if it isn't a builtin, that's an
             # undefined name !
-            if not (name in astng.Module.scope_attrs or is_builtin(name)
+            if not (name in astroid.Module.scope_attrs or is_builtin(name)
                     or name in self.config.additional_builtins):
                 self.add_message('E0602', args=name, node=node)
 
@@ -508,7 +508,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             parts = name.split('.')
             try:
                 module = node.infer_name_module(parts[0]).next()
-            except astng.ResolveError:
+            except astroid.ResolveError:
                 continue
             self._check_module_attrs(node, module, parts[1:])
 
@@ -519,7 +519,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         level = getattr(node, 'level', None)
         try:
             module = node.root().import_module(name_parts[0], level=level)
-        except ASTNGBuildingException:
+        except AstroidBuildingException:
             return
         except Exception, exc:
             print 'Unhandled exception in VariablesChecker:', exc
@@ -537,7 +537,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         given module
         if the latest access name corresponds to a module, return it
         """
-        assert isinstance(module, astng.Module), module
+        assert isinstance(module, astroid.Module), module
         while module_names:
             name = module_names.pop(0)
             if name == '__dict__':
@@ -545,12 +545,12 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 break
             try:
                 module = module.getattr(name)[0].infer().next()
-                if module is astng.YES:
+                if module is astroid.YES:
                     return None
-            except astng.NotFoundError:
+            except astroid.NotFoundError:
                 self.add_message('E0611', args=(name, module.name), node=node)
                 return None
-            except astng.InferenceError:
+            except astroid.InferenceError:
                 return None
         if module_names:
             # FIXME: other message if name is not the latest part of
@@ -559,7 +559,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             self.add_message('E0611', node=node,
                              args=('.'.join(module_names), modname))
             return None
-        if isinstance(module, astng.Module):
+        if isinstance(module, astroid.Module):
             return module
         return None
 

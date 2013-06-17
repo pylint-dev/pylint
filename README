@@ -21,10 +21,10 @@ or read the archives at http://lists.python.org/pipermail/code-quality/
 Install
 -------
 
-Pylint requires the astng (the later the better) and logilab-common (version >=
-0.53) packages.
+Pylint requires the astroid (the later the better; used to be called
+logilab-astng) and logilab-common (version >= 0.53) packages.
 
-* https://bitbucket.org/logilab/astng
+* https://bitbucket.org/logilab/astroid
 * http://www.logilab.org/projects/common
 
 From the source distribution, extract the tarball and run ::

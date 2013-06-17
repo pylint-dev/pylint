@@ -22,9 +22,9 @@ python code.
 
 Note that if you don't find something you have expected in Pylint's
 issue tracker, it may be because it is an issue with one of its dependencies, namely
-astng and common:
+astroid and logilab-common:
 
-* https://bitbucket.org/logilab/astng
+* https://bitbucket.org/logilab/astroid
 * http://www.logilab.org/project/logilab-common
 
 Mailing lists
@@ -52,7 +52,7 @@ Pylint is developped using the mercurial_ distributed version control system.
 You can clone Pylint and its dependencies from ::
 
   hg clone https://bitbucket.org/logilab/pylint
-  hg clone https://bitbucket.org/logilab/astng
+  hg clone https://bitbucket.org/logilab/astroid
   hg clone http://hg.logilab.org/logilab/common
 
 .. _mercurial: http://www.selenic.com/mercurial/

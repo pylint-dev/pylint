@@ -16,7 +16,7 @@
 """diagram objects
 """
 
-from logilab import astng
+import astroid
 from pylint.pyreverse.utils import is_interface, FilterMixIn
 
 def set_counter(value):
@@ -42,7 +42,7 @@ class Relationship(Figure):
 
 
 class DiagramEntity(Figure):
-    """a diagram object, i.e. a label associated to an astng node
+    """a diagram object, i.e. a label associated to an astroid node
     """
     def __init__(self, title='No name', node=None):
         Figure.__init__(self)
@@ -93,7 +93,7 @@ class ClassDiagram(Figure, FilterMixIn):
     def get_methods(self, node):
         """return visible methods"""
         return [m for m in node.values()
-                if isinstance(m, astng.Function) and self.show_attr(m.name)]
+                if isinstance(m, astroid.Function) and self.show_attr(m.name)]
 
     def add_object(self, title, node):
         """create a diagram object
@@ -107,9 +107,9 @@ class ClassDiagram(Figure, FilterMixIn):
         """return class names if needed in diagram"""
         names = []
         for ass_node in nodes:
-            if isinstance(ass_node, astng.Instance):
+            if isinstance(ass_node, astroid.Instance):
                 ass_node = ass_node._proxied
-            if isinstance(ass_node, astng.Class) \
+            if isinstance(ass_node, astroid.Class) \
                 and hasattr(ass_node, "name") and not self.has_node(ass_node):
                 if ass_node.name not in names:
                     ass_name = ass_node.name
@@ -133,7 +133,7 @@ class ClassDiagram(Figure, FilterMixIn):
 
     def classes(self):
         """return all class nodes in the diagram"""
-        return [o for o in self.objects if isinstance(o.node, astng.Class)]
+        return [o for o in self.objects if isinstance(o.node, astroid.Class)]
 
     def classe(self, name):
         """return a class by its name, raise KeyError if not found
@@ -173,9 +173,9 @@ class ClassDiagram(Figure, FilterMixIn):
             for name, values in node.instance_attrs_type.items() + \
                                 node.locals_type.items():
                 for value in values:
-                    if value is astng.YES:
+                    if value is astroid.YES:
                         continue
-                    if isinstance( value, astng.Instance):
+                    if isinstance( value, astroid.Instance):
                         value = value._proxied
                     try:
                         ass_obj = self.object_from_node(value)
@@ -191,7 +191,7 @@ class PackageDiagram(ClassDiagram):
 
     def modules(self):
         """return all module nodes in the diagram"""
-        return [o for o in self.objects if isinstance(o.node, astng.Module)]
+        return [o for o in self.objects if isinstance(o.node, astroid.Module)]
 
     def module(self, name):
         """return a module by its name, raise KeyError if not found

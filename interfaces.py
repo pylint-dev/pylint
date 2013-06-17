@@ -43,10 +43,10 @@ class IRawChecker(IChecker):
     """interface for checker which need to parse the raw file
     """
 
-    def process_module(self, astng):
+    def process_module(self, astroid):
         """ process a module
 
-        the module's content is accessible via astng.file_stream
+        the module's content is accessible via astroid.file_stream
         """
 
 
@@ -59,7 +59,7 @@ class ITokenChecker(IChecker):
         """
 
 
-class IASTNGChecker(IChecker):
+class IAstroidChecker(IChecker):
     """ interface for checker which prefers receive events according to
     statement type
     """
@@ -75,7 +75,7 @@ class ILinter(Interface):
     def register_checker(self, checker):
         """register a new checker class
 
-        checker is a class implementing IrawChecker or / and IASTNGChecker
+        checker is a class implementing IrawChecker or / and IAstroidChecker
         """
 
     def add_message(self, msg_id, line=None, node=None, args=None):
@@ -83,7 +83,7 @@ class ILinter(Interface):
 
         If provided, msg is expanded using args
 
-        astng checkers should provide the node argument,
+        astroid checkers should provide the node argument,
         raw checkers should provide the line argument.
         """
 

@@ -29,7 +29,7 @@ from logilab.common.textutils import normalize_text
 from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
 
-from logilab.astng import nodes, Module
+from astroid import nodes, Module
 
 from pylint.checkers import EmptyReport
 from pylint.interfaces import IRawChecker, ITokenChecker
@@ -348,7 +348,7 @@ class MessagesHandlerMixIn(object):
 
         If provided, msg is expanded using args
 
-        astng checkers should provide the node argument, raw checkers should
+        astroid checkers should provide the node argument, raw checkers should
         provide the line argument.
         """
         msg_info = self._messages[msgid]
@@ -627,18 +627,18 @@ class PyLintASTWalker(object):
                     visits.setdefault(cid, []).append(visit_default)
         # for now we have no "leave_default" method in Pylint
 
-    def walk(self, astng):
-        """call visit events of astng checkers for the given node, recurse on
+    def walk(self, astroid):
+        """call visit events of astroid checkers for the given node, recurse on
         its children, then leave events.
         """
-        cid = astng.__class__.__name__.lower()
-        if astng.is_statement:
+        cid = astroid.__class__.__name__.lower()
+        if astroid.is_statement:
             self.nbstatements += 1
         # generate events for this node on each checker
         for cb in self.visit_events.get(cid, ()):
-            cb(astng)
+            cb(astroid)
         # recurse on children
-        for child in astng.get_children():
+        for child in astroid.get_children():
             self.walk(child)
         for cb in self.leave_events.get(cid, ()):
-            cb(astng)
+            cb(astroid)

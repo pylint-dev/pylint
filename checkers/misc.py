@@ -56,7 +56,7 @@ separated by a comma.'
         notes
         """
         stream = node.file_stream
-        stream.seek(0) # XXX may be removed with astng > 0.23
+        stream.seek(0) # XXX may be removed with astroid > 0.23
         # warning notes in the code
         notes = []
         for note in self.config.notes:

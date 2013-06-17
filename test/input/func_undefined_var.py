@@ -15,7 +15,7 @@ def in_method(var):
     assert var
 
 DEFINED = {DEFINED:__revision__}
-DEFINED[__revision__] = OTHER = 'move this is astng test'
+DEFINED[__revision__] = OTHER = 'move this is astroid test'
 
 OTHER += '$'
 

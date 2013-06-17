@@ -1,6 +1,6 @@
 # pylint: disable=I0011,C0301,W0611
 """I found some of my scripts trigger off an AttributeError in pylint
-0.8.1 (with common 0.12.0 and astng 0.13.1).
+0.8.1 (with common 0.12.0 and astroid 0.13.1).
 
 Traceback (most recent call last):
   File "/usr/bin/pylint", line 4, in ?
@@ -10,18 +10,18 @@ Traceback (most recent call last):
   File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 412, in check
     self.check_file(filepath, modname, checkers)
   File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 426, in check_file
-    astng = self._check_file(filepath, modname, checkers)
+    astroid = self._check_file(filepath, modname, checkers)
   File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 450, in _check_file
-    self.check_astng_module(astng, checkers)
-  File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 494, in check_astng_module
-    self.astng_events(astng, [checker for checker in checkers
-  File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 511, in astng_events
-    self.astng_events(child, checkers, _reversed_checkers)
-  File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 511, in astng_events
-    self.astng_events(child, checkers, _reversed_checkers)
-  File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 508, in astng_events
-    checker.visit(astng)
-  File "/usr/lib/python2.4/site-packages/logilab/astng/utils.py", line 84, in visit
+    self.check_astroid_module(astroid, checkers)
+  File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 494, in check_astroid_module
+    self.astroid_events(astroid, [checker for checker in checkers
+  File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 511, in astroid_events
+    self.astroid_events(child, checkers, _reversed_checkers)
+  File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 511, in astroid_events
+    self.astroid_events(child, checkers, _reversed_checkers)
+  File "/usr/lib/python2.4/site-packages/pylint/lint.py", line 508, in astroid_events
+    checker.visit(astroid)
+  File "/usr/lib/python2.4/site-packages/logilab/astroid/utils.py", line 84, in visit
     method(node)
   File "/usr/lib/python2.4/site-packages/pylint/checkers/variables.py", line 295, in visit_import
     self._check_module_attrs(node, module, name_parts[1:])

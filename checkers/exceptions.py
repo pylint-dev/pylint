@@ -18,12 +18,12 @@ import sys
 
 from logilab.common.compat import builtins
 BUILTINS_NAME = builtins.__name__
-from logilab import astng
-from logilab.astng import YES, Instance, unpack_infer
+import astroid
+from astroid import YES, Instance, unpack_infer
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_empty, is_raising
-from pylint.interfaces import IASTNGChecker
+from pylint.interfaces import IAstroidChecker
 
 
 OVERGENERAL_EXCEPTIONS = ('Exception',)
@@ -85,7 +85,7 @@ class ExceptionsChecker(BaseChecker):
     * type of raise argument : string, Exceptions, other values
     """
     
-    __implements__ = IASTNGChecker
+    __implements__ = IAstroidChecker
 
     name = 'exceptions'
     msgs = MSGS
@@ -110,7 +110,7 @@ class ExceptionsChecker(BaseChecker):
         else:
             try:
                 value = unpack_infer(expr).next()
-            except astng.InferenceError:
+            except astroid.InferenceError:
                 return
             self._check_raise_value(node, value)
 
@@ -118,29 +118,29 @@ class ExceptionsChecker(BaseChecker):
         """check for bad values, string exception and class inheritance
         """
         value_found = True
-        if isinstance(expr, astng.Const):
+        if isinstance(expr, astroid.Const):
             value = expr.value
             if isinstance(value, str):
                 self.add_message('W0701', node=node)
             else:
                 self.add_message('E0702', node=node,
                                  args=value.__class__.__name__)
-        elif (isinstance(expr, astng.Name) and \
+        elif (isinstance(expr, astroid.Name) and \
                  expr.name in ('None', 'True', 'False')) or \
-                 isinstance(expr, (astng.List, astng.Dict, astng.Tuple, 
-                                   astng.Module, astng.Function)):
+                 isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple, 
+                                   astroid.Module, astroid.Function)):
             self.add_message('E0702', node=node, args=expr.name)
-        elif ( (isinstance(expr, astng.Name) and expr.name == 'NotImplemented')
-               or (isinstance(expr, astng.CallFunc) and
-                   isinstance(expr.func, astng.Name) and
+        elif ( (isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
+               or (isinstance(expr, astroid.CallFunc) and
+                   isinstance(expr.func, astroid.Name) and
                    expr.func.name == 'NotImplemented') ):
             self.add_message('E0711', node=node)
-        elif isinstance(expr, astng.BinOp) and expr.op == '%':
+        elif isinstance(expr, astroid.BinOp) and expr.op == '%':
             self.add_message('W0701', node=node)
-        elif isinstance(expr, (Instance, astng.Class)):
+        elif isinstance(expr, (Instance, astroid.Class)):
             if isinstance(expr, Instance):
                 expr = expr._proxied
-            if (isinstance(expr, astng.Class) and
+            if (isinstance(expr, astroid.Class) and
                     not inherit_from_std_ex(expr) and
                     expr.root().name != BUILTINS_NAME):
                 if expr.newstyle:
@@ -171,19 +171,19 @@ class ExceptionsChecker(BaseChecker):
                     msg = 'empty except clause should always appear last'
                     self.add_message('E0701', node=node, args=msg)
 
-            elif isinstance(handler.type, astng.BoolOp):
+            elif isinstance(handler.type, astroid.BoolOp):
                 self.add_message('W0711', node=handler, args=handler.type.op)
             else:
                 try:
                     excs = list(unpack_infer(handler.type))
-                except astng.InferenceError:
+                except astroid.InferenceError:
                     continue
                 for exc in excs:
                     # XXX skip other non class nodes 
-                    if exc is YES or not isinstance(exc, astng.Class):
+                    if exc is YES or not isinstance(exc, astroid.Class):
                         continue
                     exc_ancestors = [anc for anc in exc.ancestors()
-                                     if isinstance(anc, astng.Class)]
+                                     if isinstance(anc, astroid.Class)]
                     for previous_exc in exceptions_classes:
                         if previous_exc in exc_ancestors:
                             msg = '%s is an ancestor class of %s' % (

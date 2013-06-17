@@ -50,7 +50,7 @@ def insert_default_options():
 
 
 
-# astng utilities ###########################################################
+# astroid utilities ###########################################################
 
 SPECIAL = re.compile('^__[A-Za-z0-9]+[A-Za-z0-9_]*__$')
 PRIVATE = re.compile('^__[_A-Za-z0-9]*[A-Za-z0-9]+_?$')

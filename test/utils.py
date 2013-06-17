@@ -6,10 +6,10 @@ import sys
 from os.path import join, dirname, abspath
 
 from logilab.common.testlib import TestCase
-from logilab.astng import MANAGER
+from astroid import MANAGER
 
 
-def _astng_wrapper(func, modname):
+def _astroid_wrapper(func, modname):
     return func(modname)
 
 
@@ -22,12 +22,12 @@ def _sorted_file(path):
     return '\n'.join(lines)
 
 def get_project(module, name=None):
-    """return a astng project representation
+    """return a astroid project representation
     """
     manager = MANAGER
     # flush cache
     manager._modules_by_name = {}
-    return manager.project_from_files([module], _astng_wrapper,
+    return manager.project_from_files([module], _astroid_wrapper,
                                       project_name=name)
 
 DEFAULTS = {'all_ancestors': None, 'show_associated': None,

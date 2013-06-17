@@ -27,9 +27,9 @@ if not hasattr(tokenize, 'NL'):
     raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
 
 from logilab.common.textutils import pretty_match
-from logilab.astng import nodes
+from astroid import nodes
 
-from pylint.interfaces import ITokenChecker, IASTNGChecker
+from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope
@@ -171,7 +171,7 @@ class FormatChecker(BaseTokenChecker):
     * use of <> instead of !=
     """
 
-    __implements__ = (ITokenChecker, IASTNGChecker)
+    __implements__ = (ITokenChecker, IAstroidChecker)
 
     # configuration section name
     name = 'format'

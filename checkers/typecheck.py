@@ -13,16 +13,16 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""try to find more bugs in the code using astng inference capabilities
+"""try to find more bugs in the code using astroid inference capabilities
 """
 
 import re
 import shlex
 
-from logilab import astng
-from logilab.astng import InferenceError, NotFoundError, YES, Instance
+import astroid
+from astroid import InferenceError, NotFoundError, YES, Instance
 
-from pylint.interfaces import IASTNGChecker
+from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer, is_super, check_messages
 
@@ -37,7 +37,7 @@ MSGS = {
     'E1103': ('%s %r has no %r member (but some types could not be inferred)',
               'maybe-no-member',
               'Used when a variable is accessed for an unexistent member, but \
-              astng was not able to interpret all possible types of this \
+              astroid was not able to interpret all possible types of this \
               variable.'),
     'E1111': ('Assigning to function call which doesn\'t return',
               'assignment-from-no-return',
@@ -74,7 +74,7 @@ class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
 
-    __implements__ = (IASTNGChecker,)
+    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = 'typecheck'
@@ -120,7 +120,7 @@ accessed. Python regular expressions are accepted.'}
             self.generated_members.extend(('REQUEST', 'acl_users', 'aq_parent'))
 
     def visit_assattr(self, node):
-        if isinstance(node.ass_type(), astng.AugAssign):
+        if isinstance(node.ass_type(), astroid.AugAssign):
             self.visit_getattr(node)
 
     def visit_delattr(self, node):
@@ -162,7 +162,7 @@ accessed. Python regular expressions are accepted.'}
                 inference_failure = True
                 continue
             # skip None anyway
-            if isinstance(owner, astng.Const) and owner.value is None:
+            if isinstance(owner, astroid.Const) and owner.value is None:
                 continue
             # XXX "super" / metaclass call
             if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
@@ -174,14 +174,14 @@ accessed. Python regular expressions are accepted.'}
                 continue
             try:
                 if not [n for n in owner.getattr(node.attrname)
-                        if not isinstance(n.statement(), astng.AugAssign)]:
+                        if not isinstance(n.statement(), astroid.AugAssign)]:
                     missingattr.add((owner, name))
                     continue
             except AttributeError:
                 # XXX method / function
                 continue
             except NotFoundError:
-                if isinstance(owner, astng.Function) and owner.decorators:
+                if isinstance(owner, astroid.Function) and owner.decorators:
                     continue
                 if isinstance(owner, Instance) and owner.has_dynamic_getattr():
                     continue
@@ -217,23 +217,23 @@ accessed. Python regular expressions are accepted.'}
         """check that if assigning to a function call, the function is
         possibly returning something valuable
         """
-        if not isinstance(node.value, astng.CallFunc):
+        if not isinstance(node.value, astroid.CallFunc):
             return
         function_node = safe_infer(node.value.func)
         # skip class, generator and incomplete function definition
-        if not (isinstance(function_node, astng.Function) and
+        if not (isinstance(function_node, astroid.Function) and
                 function_node.root().fully_defined()):
             return
         if function_node.is_generator() \
                or function_node.is_abstract(pass_is_abstract=False):
             return
-        returns = list(function_node.nodes_of_class(astng.Return,
-                                                    skip_klass=astng.Function))
+        returns = list(function_node.nodes_of_class(astroid.Return,
+                                                    skip_klass=astroid.Function))
         if len(returns) == 0:
             self.add_message('E1111', node=node)
         else:
             for rnode in returns:
-                if not (isinstance(rnode.value, astng.Const)
+                if not (isinstance(rnode.value, astroid.Const)
                         and rnode.value.value is None):
                     break
             else:
@@ -250,7 +250,7 @@ accessed. Python regular expressions are accepted.'}
         keyword_args = set()
         num_positional_args = 0
         for arg in node.args:
-            if isinstance(arg, astng.Keyword):
+            if isinstance(arg, astroid.Keyword):
                 keyword = arg.arg
                 if keyword in keyword_args:
                     self.add_message('E1122', node=node, args=keyword)
@@ -265,18 +265,18 @@ accessed. Python regular expressions are accepted.'}
 
         # Note that BoundMethod is a subclass of UnboundMethod (huh?), so must
         # come first in this 'if..else'.
-        if isinstance(called, astng.BoundMethod):
+        if isinstance(called, astroid.BoundMethod):
             # Bound methods have an extra implicit 'self' argument.
             num_positional_args += 1
-        elif isinstance(called, astng.UnboundMethod):
+        elif isinstance(called, astroid.UnboundMethod):
             if called.decorators is not None:
                 for d in called.decorators.nodes:
-                    if isinstance(d, astng.Name) and (d.name == 'classmethod'):
+                    if isinstance(d, astroid.Name) and (d.name == 'classmethod'):
                         # Class methods have an extra implicit 'cls' argument.
                         num_positional_args += 1
                         break
-        elif (isinstance(called, astng.Function) or
-              isinstance(called, astng.Lambda)):
+        elif (isinstance(called, astroid.Function) or
+              isinstance(called, astroid.Lambda)):
             pass
         else:
             return
@@ -295,15 +295,15 @@ accessed. Python regular expressions are accepted.'}
         parameters = []
         parameter_name_to_index = {}
         for i, arg in enumerate(called.args.args):
-            if isinstance(arg, astng.Tuple):
+            if isinstance(arg, astroid.Tuple):
                 name = None
                 # Don't store any parameter names within the tuple, since those
                 # are not assignable from keyword arguments.
             else:
-                if isinstance(arg, astng.Keyword):
+                if isinstance(arg, astroid.Keyword):
                     name = arg.arg
                 else:
-                    assert isinstance(arg, astng.AssName)
+                    assert isinstance(arg, astroid.AssName)
                     # This occurs with:
                     #    def f( (a), (b) ): pass
                     name = arg.name

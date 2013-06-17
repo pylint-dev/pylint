@@ -15,9 +15,9 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """check for signs of poor design"""
 
-from logilab.astng import Function, If, InferenceError
+from astroid import Function, If, InferenceError
 
-from pylint.interfaces import IASTNGChecker
+from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 
 import re
@@ -134,7 +134,7 @@ class MisdesignChecker(BaseChecker):
     * size, complexity of functions, methods
     """
 
-    __implements__ = (IASTNGChecker,)
+    __implements__ = (IAstroidChecker,)
 
     # configuration section name
     name = 'design'
