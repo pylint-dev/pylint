@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Added a new warning 'old-raise-syntax' for the deprecated syntax
+      raise Exception, args
     * astng has been renamed astroid
     * bitbucket #6: put back documentation in source distribution
     * fix spelling of max-branchs option, now max-branches

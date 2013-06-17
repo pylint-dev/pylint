@@ -182,8 +182,12 @@ class BasicErrorChecker(_BasicChecker):
               'Loops should only have an else clause if they can exit early '
               'with a break statement, otherwise the statements under else '
               'should be on the same scope as the loop itself.'),
+    'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
+              'old-raise-syntax',
+              "Used when the alternate raise syntax 'raise foo, bar' is used "
+              "instead of 'raise foo(bar)'."),
     }
-
+    
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
 
@@ -534,12 +538,14 @@ functions, methods
         # 2 - Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'break', (astroid.For, astroid.While,))
 
-    @check_messages('W0101')
+    @check_messages('W0101', 'W0121')
     def visit_raise(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
+        if node.exc is not None and node.inst is not None and node.tback is None:
+            self.add_message('W0121', node=node)
 
     @check_messages('W0122')
     def visit_exec(self, node):
