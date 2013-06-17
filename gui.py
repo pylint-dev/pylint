@@ -39,10 +39,10 @@ COLORS = {'(I)':'lightblue',
 
 def convert_to_string(msg):
     """make a string representation of a message"""
-    if (msg[2] != ""):
-        return "(" + msg[0] + ") " + msg[1] + "." + msg[2] + " [" + msg[3] + "]: " + msg[4]
+    if (msg[4] != ""):
+        return "(" + msg[0] + ") " + msg[3] + "." + msg[4] + " [" + msg[5] + "]: " + msg[6]
     else:
-        return "(" + msg[0] + ") " + msg[1] + " [" + msg[3] + "]: " + msg[4]
+        return "(" + msg[0] + ") " + msg[3] + " [" + msg[5] + "]: " + msg[6]
 
 class BasicStream(object):
     '''
@@ -120,6 +120,7 @@ class LintGui(object):
         #message queue for output from reporter
         self.msg_queue = Queue.Queue()
         self.msgs = []
+        self.visible_msgs = []
         self.filenames = []
         self.rating = StringVar()
         self.tabs = {}
@@ -174,6 +175,7 @@ class LintGui(object):
                   yscrollcommand=rightscrollbar.set,
                   xscrollcommand=bottomscrollbar.set,
                   bg="white")
+        self.lbMessages.bind("<Double-Button-1>", self.show_sourcefile)
         self.lbMessages.pack(expand=True, fill=BOTH)
         rightscrollbar.config(command=self.lbMessages.yview)
         bottomscrollbar.config(command=self.lbMessages.xview)
@@ -284,14 +286,17 @@ class LintGui(object):
                              command=self.refresh_results_window)
         msg = Radiobutton(radio_frame, text="Messages", variable=self.box,
                             value="Messages", command=self.refresh_results_window)
+        sourceFile = Radiobutton(radio_frame, text="Source File", variable=self.box,
+                                   value="Source File", command=self.refresh_results_window)
         report.select()
         report.grid(column=0, row=0, sticky=W)
         rawMet.grid(column=1, row=0, sticky=W)
         dup.grid(column=2, row=0, sticky=W)
-        msg.grid(column=3, row=0, sticky=E)
+        msg.grid(column=3, row=0, sticky=W)
         stat.grid(column=0, row=1, sticky=W)
         msgCat.grid(column=1, row=1, sticky=W)
-        ext.grid(column=2, row=1, columnspan=2, sticky=W)
+        ext.grid(column=2, row=1, sticky=W)
+        sourceFile.grid(column=3, row=1, sticky=W)
 
         #dictionary for check boxes and associated error term
         self.msg_type_dict = {
@@ -320,6 +325,7 @@ class LintGui(object):
         """refresh the message window with current output"""
         #clear the window
         self.lbMessages.delete(0, END)
+        self.visible_msgs = []
         for msg in self.msgs:
 
             # Obtaining message type (pylint's '--include-ids' appends the
@@ -327,6 +333,7 @@ class LintGui(object):
             msg_type = msg[0][0]
 
             if (self.msg_type_dict.get(msg_type)()):
+                self.visible_msgs.append(msg)
                 msg_str = convert_to_string(msg)
                 self.lbMessages.insert(END, msg_str)
                 fg_color = COLORS.get(msg_str[:3], 'black')
@@ -360,6 +367,7 @@ class LintGui(object):
 
                 #displaying msg if message type is selected in check box
                 if (self.msg_type_dict.get(msg_type)()):
+                    self.visible_msgs.append(msg)
                     msg_str = convert_to_string(msg)
                     self.lbMessages.insert(END, msg_str)
                     fg_color = COLORS.get(msg_str[:3], 'black')
@@ -444,6 +452,7 @@ class LintGui(object):
 
         #cleaning up msgs and windows
         self.msgs = []
+        self.visible_msgs = []
         self.lbMessages.delete(0, END)
         self.tabs = {}
         self.results.delete(0, END)
@@ -462,6 +471,25 @@ class LintGui(object):
         self.set_history_window()
 
         self.root.configure(cursor='')
+
+    def show_sourcefile(self, event=None):
+        selected = self.lbMessages.curselection()
+        if not selected:
+            return
+
+        msg = self.visible_msgs[int(selected[0])]
+        filename = msg[2]
+        fileline = int(msg[5])
+
+        scroll = fileline - 3
+        if scroll < 0:
+            scroll = 0
+
+        self.tabs["Source File"] = open(filename, "r").readlines()
+        self.box.set("Source File")
+        self.refresh_results_window()
+        self.results.yview(scroll)
+        self.results.select_set(fileline - 1)
 
 
 def lint_thread(module, reporter, gui):

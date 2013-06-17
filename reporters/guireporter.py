@@ -21,9 +21,9 @@ class GUIReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        module, obj, line, col_offset = location[1:]
+        filename, module, obj, line, col_offset = location
         sigle = self.make_sigle(msg_id)
-        full_msg = [sigle, module, obj, str(line), msg]
+        full_msg = [sigle, msg_id, filename, module, obj, str(line), msg]
         self.msgs += [[sigle, module, obj, str(line)]]
         self.gui.msg_queue.put(full_msg)
 
