@@ -32,7 +32,7 @@ from astroid import nodes
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.utils import WarningScope
+from pylint.utils import WarningScope, OPTION_RGX
 
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
@@ -182,6 +182,11 @@ class FormatChecker(BaseTokenChecker):
     options = (('max-line-length',
                 {'default' : 80, 'type' : "int", 'metavar' : '<int>',
                  'help' : 'Maximum number of characters on a single line.'}),
+               ('ignore-long-lines',
+                {'type': 'regexp', 'metavar': '<regexp>',
+                 'default': r'^\s*(# )?<?https?://\S+>?$',
+                 'help': ('Regexp for a line that is allowed to be longer than '
+                          'the limit.')}),
                ('max-module-lines',
                 {'default' : 1000, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of lines in a module'}
@@ -326,8 +331,14 @@ class FormatChecker(BaseTokenChecker):
         """check lines have less than a maximum number of characters
         """
         max_chars = self.config.max_line_length
+        ignore_long_line = self.config.ignore_long_lines
+
         for line in lines.splitlines():
-            if len(line) > max_chars:
+            mobj = OPTION_RGX.search(line)
+            if mobj and mobj.group(1).split('=', 1)[0].strip() == 'disable':
+                line = line.split('#')[0].rstrip()
+
+            if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message('C0301', line=i, args=(len(line), max_chars))
             i += 1
 

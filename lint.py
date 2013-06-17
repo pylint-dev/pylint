@@ -31,7 +31,6 @@ from pylint.checkers import utils
 
 import sys
 import os
-import re
 import tokenize
 from warnings import warn
 
@@ -48,7 +47,7 @@ from astroid.__pkginfo__ import version as astroid_version
 
 from pylint.utils import (PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,
                           ReportsHandlerMixIn, MSG_TYPES, expand_modules,
-                          WarningScope, tokenize_module)
+                          WarningScope, tokenize_module, OPTION_RGX)
 from pylint.interfaces import ILinter, IRawChecker, ITokenChecker, IAstroidChecker
 from pylint.checkers import (BaseTokenChecker, EmptyReport,
                              table_lines_from_stats)
@@ -60,7 +59,6 @@ from pylint import config
 from pylint.__pkginfo__ import version
 
 
-OPTION_RGX = re.compile(r'\s*#.*\bpylint:(.*)')
 REPORTER_OPT_MAP = {'text': TextReporter,
                     'parseable': ParseableTextReporter,
                     'msvs': VSTextReporter,

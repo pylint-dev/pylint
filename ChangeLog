@@ -2,6 +2,11 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Make the line-too-long warning configurable by
+      adding a regex for lines for with the length limit should
+      not be enforced
+    * Do not warn about a long line if a pylint disable
+      option brings it above the length limit
     * Do not flag names in nested with statements as undefined.
     * Added a new warning 'old-raise-syntax' for the deprecated syntax
       raise Exception, args

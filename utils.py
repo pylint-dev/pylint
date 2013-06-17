@@ -17,6 +17,7 @@
 main pylint class
 """
 
+import re
 import sys
 import tokenize
 from warnings import warn
@@ -62,6 +63,7 @@ _MSG_ORDER = 'EWRCIF'
 MSG_STATE_SCOPE_CONFIG = 0
 MSG_STATE_SCOPE_MODULE = 1
 
+OPTION_RGX = re.compile(r'\s*#.*\bpylint:(.*)')
 
 # The line/node distinction does not apply to fatal errors and reports.
 _SCOPE_EXEMPT = 'FR'
