@@ -20,6 +20,7 @@
 import astroid
 from logilab.common.ureports import Table
 from astroid import are_exclusive
+import astroid.bases
 
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport
@@ -508,8 +509,9 @@ functions, methods
                 value = default.infer().next()
             except astroid.InferenceError:
                 continue
+            builtins = astroid.bases.BUILTINS
             if (isinstance(value, astroid.Instance) and
-                value.qname() in ('__builtin__.set', '__builtin__.dict', '__builtin__.list')):
+                value.qname() in ['.'.join([builtins, x]) for x in ('set', 'dict', 'list')]):
                 if value is default:
                     msg = default.as_string()
                 elif type(value) is astroid.Instance:
