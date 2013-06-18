@@ -80,7 +80,7 @@ class Similar:
                 print "==%s:%s" % (lineset.name, idx)
             # pylint: disable=W0631
             for line in lineset._real_lines[idx:idx+num]:
-                print "  ", line,
+                print "  ", line.rstrip()
             nb_lignes_dupliquees += num * (len(couples)-1)
         nb_total_lignes = sum([len(lineset) for lineset in self.linesets])
         print "TOTAL lines=%s duplicates=%s percent=%.2f" \
