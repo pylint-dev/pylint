@@ -40,10 +40,10 @@ class Sub(Base):
 
 class Super:
     """same as before without abstract"""
-    x = 1
+    attr = 1
     def method(self):
         """regular"""
-        print self.x
+        print self.attr
 
 class Sub1(Super):
     """override method with need for self"""

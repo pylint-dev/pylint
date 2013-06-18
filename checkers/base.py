@@ -39,6 +39,7 @@ MOD_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$')
 CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
 COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9_]*$')
 DEFAULT_NAME_RGX = re.compile('[a-z_][a-z0-9_]{2,30}$')
+CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
 # do not require a doc string on system methods
 NO_REQUIRED_DOC_RGX = re.compile('__.*__')
 
@@ -689,6 +690,12 @@ class NameChecker(_BasicChecker):
                  'help' : 'Regular expression which should only match correct '
                           'variable names'}
                 ),
+               ('class-attribute-rgx',
+                {'default' : CLASS_ATTRIBUTE_RGX,
+                 'type' :'regexp', 'metavar' : '<regexp>',
+                 'help' : 'Regular expression which should only match correct '
+                          'attribute names in class bodies'}
+                ),
                ('inlinevar-rgx',
                 {'default' : COMP_VAR_RGX,
                  'type' :'regexp', 'metavar' : '<regexp>',
@@ -718,7 +725,8 @@ class NameChecker(_BasicChecker):
                                            badname_const=0,
                                            badname_variable=0,
                                            badname_inlinevar=0,
-                                           badname_argument=0)
+                                           badname_argument=0,
+                                           badname_class_attribute=0)
 
     @check_messages('C0102', 'C0103')
     def visit_module(self, node):
@@ -744,7 +752,7 @@ class NameChecker(_BasicChecker):
         """check module level assigned names"""
         frame = node.frame()
         ass_type = node.ass_type()
-        if isinstance(ass_type, (astroid.Comprehension, astroid.Comprehension)):
+        if isinstance(ass_type, astroid.Comprehension):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astroid.Module):
             if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
@@ -755,6 +763,9 @@ class NameChecker(_BasicChecker):
             # global introduced variable aren't in the function locals
             if node.name in frame:
                 self._check_name('variable', node.name, node)
+        elif isinstance(frame, astroid.Class):
+            if not list(frame.local_attr_ancestors(node.name)):
+                self._check_name('class_attribute', node.name, node)
 
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
@@ -781,6 +792,7 @@ class NameChecker(_BasicChecker):
             type_label = {'inlinedvar': 'inlined variable',
                           'const': 'constant',
                           'attr': 'attribute',
+                          'class_attribute': 'class attribute'
                           }.get(node_type, node_type)
             self.add_message('C0103', node=node, args=(name, type_label, regexp.pattern))
             self.stats['badname_' + node_type] += 1

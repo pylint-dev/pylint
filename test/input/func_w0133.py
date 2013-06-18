@@ -30,11 +30,19 @@ def HOHOHOHO():
 
 class xyz:
     """yo"""
+
+    zz = 'Bad Class Attribute'
+
     def __init__(self):
         pass
 
     def Youplapoum(self):
         """bad method name"""
+
+
+class Derived(xyz):
+    """Derived class."""
+    zz = 'Not a bad class attribute'
 
 
 def no_nested_args(arg1, arg21, arg22):
