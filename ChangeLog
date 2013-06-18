@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Do not treat all variables starting with _ as dummy variables,
+      only _ itself.
     * Make the line-too-long warning configurable by
       adding a regex for lines for with the length limit should
       not be enforced

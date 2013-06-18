@@ -47,4 +47,6 @@ def ignored_arguments_function(arga, argu, argi,
     arg8 = arg7 * 8
     arg9 = arg8 * 9
     arg9 += arg0
+    if _args:
+        arg9 += sum(_args)
     return arg9
