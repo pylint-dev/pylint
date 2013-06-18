@@ -207,9 +207,12 @@ class BasicErrorChecker(_BasicChecker):
                 self.add_message('E0100', node=node)
             else:
                 values = [r.value for r in returns]
-                if  [v for v in values if not (v is None or
-                    (isinstance(v, astroid.Const) and v.value is None)
-                    or  (isinstance(v, astroid.Name) and v.name == 'None'))]:
+                # Are we returning anything but None from constructors
+                if  [v for v in values if 
+                     not (v is None or 
+                          (isinstance(v, astroid.Const) and v.value is None) or
+                          (isinstance(v, astriod.Name)  and v.name == 'None')
+                         ) ]:
                     self.add_message('E0101', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
@@ -218,7 +221,8 @@ class BasicErrorChecker(_BasicChecker):
                        retnode.value.value is not None:
                     self.add_message('E0106', node=node,
                                      line=retnode.fromlineno)
-        args = set()
+        # Check for duplicate names
+        args = set() 
         for name in node.argnames():
             if name in args:
                 self.add_message('E0108', node=node, args=(name,))
@@ -254,7 +258,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @check_messages('E0107')
     def visit_unaryop(self, node):
-        """check use of the non-existent ++ adn -- operator operator"""
+        """check use of the non-existent ++ and -- operator operator"""
         if ((node.op in '+-') and
             isinstance(node.operand, astroid.UnaryOp) and
             (node.operand.op == node.op)):
@@ -541,7 +545,7 @@ functions, methods
 
     @check_messages('W0101', 'W0121')
     def visit_raise(self, node):
-        """check is the node has a right sibling (if so, that's some unreachable
+        """check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
@@ -850,7 +854,7 @@ class DocStringChecker(_BasicChecker):
 
 
 class PassChecker(_BasicChecker):
-    """check is the pass statement is really necessary"""
+    """check if the pass statement is really necessary"""
     msgs = {'W0107': ('Unnecessary pass statement',
                       'unnecessary-pass',
                       'Used when a "pass" statement that can be avoided is '
