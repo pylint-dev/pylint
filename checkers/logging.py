@@ -18,7 +18,7 @@ import astroid
 from pylint import checkers
 from pylint import interfaces
 from pylint.checkers import utils
-
+from pylint.checkers.utils import check_messages
 
 MSGS = {
     'W1201': ('Specify string format arguments as logging function parameters',
@@ -77,6 +77,7 @@ class LoggingChecker(checkers.BaseChecker):
                 else:
                     self._logging_name = 'logging'
 
+    @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
         """Checks calls to (simple forms of) logging methods."""
         if (not isinstance(node.func, astroid.Getattr)

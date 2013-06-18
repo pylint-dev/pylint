@@ -212,7 +212,7 @@ accessed. Python regular expressions are accepted.'}
                                  args=(owner.display_type(), name,
                                        node.attrname))
 
-
+    @check_messages('E1111', 'W1111')
     def visit_assign(self, node):
         """check that if assigning to a function call, the function is
         possibly returning something valuable
@@ -239,6 +239,7 @@ accessed. Python regular expressions are accepted.'}
             else:
                 self.add_message('W1111', node=node)
 
+    @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
         """check that called functions/methods are inferred to callable objects,
         and that the arguments passed to the function match the parameters in

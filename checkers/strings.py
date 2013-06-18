@@ -26,6 +26,7 @@ import astroid
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
+from pylint.checkers.utils import check_messages
 
 _PY3K = sys.version_info >= (3, 0)
 
@@ -84,7 +85,8 @@ class StringFormatChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = 'string'
     msgs = MSGS
-
+    
+    @check_messages(*(MSGS.keys()))
     def visit_binop(self, node):
         if node.op != '%':
             return
@@ -175,6 +177,7 @@ class StringMethodsChecker(BaseChecker):
                   " duplicate character, "),
         }
 
+    @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
         func = utils.safe_infer(node.func)
         if (isinstance(func, astroid.BoundMethod)

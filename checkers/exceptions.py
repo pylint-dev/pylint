@@ -22,7 +22,7 @@ import astroid
 from astroid import YES, Instance, unpack_infer
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_empty, is_raising
+from pylint.checkers.utils import is_empty, is_raising, check_messages
 from pylint.interfaces import IAstroidChecker
 
 
@@ -99,6 +99,7 @@ class ExceptionsChecker(BaseChecker):
                 ),
                )
 
+    @check_messages('W0701', 'W0710', 'E0702', 'E0710', 'E0711')
     def visit_raise(self, node):
         """visit raise possibly inferring value"""
         # ignore empty raise
@@ -153,7 +154,7 @@ class ExceptionsChecker(BaseChecker):
             value_found = False
         return value_found
 
-
+    @check_messages('W0702', 'W0703', 'W0704', 'W0711', 'E0701')
     def visit_tryexcept(self, node):
         """check for empty except"""
         exceptions_classes = []

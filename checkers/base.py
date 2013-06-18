@@ -396,7 +396,7 @@ functions, methods
         self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0,
                                            method=0, class_=0)
-
+    @check_messages('C0121')
     def visit_module(self, node):
         """check module name, docstring and required arguments
         """
@@ -411,7 +411,7 @@ functions, methods
         """
         self.stats['class'] += 1
 
-    @check_messages('W0104', 'W0105')
+    @check_messages('W0104', 'W0105', 'W0106')
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
@@ -487,6 +487,7 @@ functions, methods
                 return
         self.add_message('W0108', line=node.fromlineno, node=node)
 
+    @check_messages('W0102')
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -812,14 +813,15 @@ class DocStringChecker(_BasicChecker):
                                            undocumented_function=0,
                                            undocumented_method=0,
                                            undocumented_class=0)
-
+    @check_messages('C0111', 'C0112')
     def visit_module(self, node):
         self._check_docstring('module', node)
 
+    @check_messages('C0111', 'C0112')
     def visit_class(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring('class', node)
-
+    @check_messages('C0111', 'C0112')
     def visit_function(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = node.is_method() and 'method' or 'function'
@@ -854,7 +856,7 @@ class PassChecker(_BasicChecker):
                       'Used when a "pass" statement that can be avoided is '
                       'encountered.'),
             }
-
+    @check_messages('W0107')
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
             self.add_message('W0107', node=node)
