@@ -36,9 +36,11 @@ MSG_DIR = join(dirname(abspath(__file__)), 'messages')
 
 # Classes
 
+quote = "'" if sys.version_info >= (3, 3) else ''
+
 class LintTestNonExistentModuleTC(LintTestUsingModule):
     module = 'nonexistent'
-    _get_expected = lambda self: 'F:  1: No module named nonexistent\n'
+    _get_expected = lambda self: 'F:  1: No module named %snonexistent%s\n' % (quote, quote)
     tags = testlib.Tags(('generated','pylint_input_%s' % module))
 
 class LintTestNonExistentFileTC(LintTestUsingFile):
@@ -125,6 +127,9 @@ MODULES_ONLY = False
 def suite():
     return testlib.TestSuite([unittest.makeSuite(test, suiteClass=testlib.TestSuite)
                               for test in gen_tests(FILTER_RGX)])
+
+del LintTestUsingModule
+del LintTestUsingFile
 
 if __name__=='__main__':
     if '-m' in sys.argv:
