@@ -13,4 +13,4 @@ try:
 except TypeError:
     pass
 else:
-    __revision__ = None 
+    __revision__ = None

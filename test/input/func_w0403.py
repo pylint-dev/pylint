@@ -5,7 +5,7 @@ __revision__ = 0
 
 
 if __revision__:
-    import Bastion 
+    import Bastion
     print Bastion
     # false positive (#10061)
     import stringfile

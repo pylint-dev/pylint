@@ -6,7 +6,7 @@ __revision__ = ''
 class BaseClass:
     """A simple base class
     """
-    
+
     def __init__(self):
         self.base_var = {}
 

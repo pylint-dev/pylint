@@ -10,4 +10,4 @@ def new_style():
         print errno, message
     except IOError as (new_style, tuple): # W0623 twice
         print new_style, tuple
-        
+

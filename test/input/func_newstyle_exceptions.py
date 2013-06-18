@@ -5,10 +5,10 @@ __revision__ = 1
 
 class OkException(Exception):
     """bien bien bien"""
-    
+
 class BofException:
     """mouais"""
-    
+
 class NewException(object):
     """non si py < 2.5 !"""
 

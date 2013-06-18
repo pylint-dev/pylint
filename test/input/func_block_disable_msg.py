@@ -4,14 +4,14 @@ __revision__ = None
 
 class Foo(object):
     """block-disable test"""
-    
+
     def __init__(self):
         pass
 
     def meth1(self, arg):
         """this issues a message"""
         print self
-    
+
     def meth2(self, arg):
         """and this one not"""
         # pylint: disable=W0613
@@ -23,14 +23,14 @@ class Foo(object):
         # no error
         print self.bla # pylint: disable=E1101
         # error
-        print self.blop 
+        print self.blop
 
     def meth4(self):
         """test re-enabling"""
         # pylint: disable=E1101
         # no error
         print self.bla
-        print self.blop 
+        print self.blop
         # pylint: enable=E1101
         # error
         print self.blip
@@ -84,7 +84,7 @@ class Foo(object):
         # pylint: disable=E1101
         # no error
         print self.bla
-        print self.blop 
+        print self.blop
 
     def meth9(self):
         """test re-enabling right after a block with whitespace"""
@@ -114,7 +114,7 @@ class ClassLevelMessage(object):
     """shouldn't display to much attributes/not enough methods messages
     """
     # pylint: disable=R0902,R0903
-    
+
     def __init__(self):
         self.attr1 = 1
         self.attr2 = 1

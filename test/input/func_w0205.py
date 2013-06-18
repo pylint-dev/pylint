@@ -5,7 +5,7 @@ __revision__ = 0
 class Abcd:
     '''dummy'''
     def __init__(self):
-        self.aarg = False 
+        self.aarg = False
     def abcd(self, aaa=1, bbbb=None):
         """hehehe"""
         print self, aaa, bbbb

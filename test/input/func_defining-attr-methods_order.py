@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 
 ''' Test that y is defined properly, z is not.
-    Default defining methods are __init__, 
+    Default defining methods are __init__,
     __new__, and setUp.
     Order of methods should not matter. '''
 

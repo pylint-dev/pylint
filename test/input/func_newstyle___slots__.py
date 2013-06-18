@@ -6,7 +6,7 @@ __revision__ = 1
 class OkOk(object):
     """correct usage"""
     __slots__ = ('a', 'b')
-    
+
 class HaNonNonNon:
     """bad usage"""
     __slots__ = ('a', 'b')

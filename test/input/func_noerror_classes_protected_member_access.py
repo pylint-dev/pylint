@@ -9,7 +9,7 @@ class A3123:
     def __init__(self):
         pass
 
-    
+
     def cmeth(cls, val):
         """set protected member"""
         cls._protected = +val
@@ -21,4 +21,4 @@ class A3123:
         A3123._protected += val
 
     smeth = staticmethod(smeth)
-    
+

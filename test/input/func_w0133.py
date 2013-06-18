@@ -28,7 +28,7 @@ def HOHOHOHO():
     HIHIHI = 1
     print HIHIHI
 
-class xyz: 
+class xyz:
     """yo"""
     def __init__(self):
         pass
@@ -45,7 +45,7 @@ def no_nested_args(arg1, arg21, arg22):
 GOOD_CONST_NAME = ''
 benpasceluila = 0
 
-class Correct: 
+class Correct:
     """yo"""
     def __init__(self):
         self.cava = 12

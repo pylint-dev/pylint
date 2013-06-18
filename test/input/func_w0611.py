@@ -16,7 +16,7 @@ class NonRegr:
     def dummy(self, truc):
         """yo"""
         return self, truc
-    
+
     def blop(self):
         """yo"""
         print self, 'blip'

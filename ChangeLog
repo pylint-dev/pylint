@@ -2,6 +2,10 @@ ChangeLog for Pylint
 ====================
 
 --
+    * New warning trailing-whitespace (C0303) that warns about
+      trailing whitespace.
+    * Trailing whitespace does not count towards the line length
+      limit anymore, since there is a dedicated warning for it.
     * Added a new warning unpacking-in-except (W0712) about unpacking
       exceptions in handlers, which is unsupported in Python 3.
     * Add a configuration option for missing-docstring to

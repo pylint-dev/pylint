@@ -5,11 +5,11 @@ class Aaaa:
     """yo"""
     def __init__(self):
         pass
-    
+
     def meth1(self):
         """hehehe"""
         raise NotImplementedError
-    
+
     def meth2(self):
         """hehehe"""
         return 'Yo', self

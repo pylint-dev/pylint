@@ -9,7 +9,7 @@ class IMachin(Interface):
     """docstring"""
     def truc(self):
         """docstring"""
-        
+
     def troc(self, argument):
         """docstring"""
 
@@ -23,11 +23,11 @@ class Correct1:
     def truc(self):
         """docstring"""
         pass
-    
+
     def troc(self, argument):
         """docstring"""
         pass
-    
+
 class Correct2:
     """docstring"""
     __implements__ = (IMachin,)
@@ -38,7 +38,7 @@ class Correct2:
     def truc(self):
         """docstring"""
         pass
-    
+
     def troc(self, argument):
         """docstring"""
         print argument
@@ -53,32 +53,32 @@ class MissingMethod:
     def troc(self, argument):
         """docstring"""
         print argument
-   
+
     def other(self):
         """docstring"""
-     
+
 class BadArgument:
     """docstring"""
     __implements__ = (IMachin,)
 
     def __init__(self):
         pass
- 
+
     def truc(self):
         """docstring"""
         pass
-    
+
     def troc(self):
         """docstring"""
         pass
-    
+
 class InterfaceCantBeFound:
     """docstring"""
     __implements__ = undefined
 
     def __init__(self):
         """only to make pylint happier"""
-    
+
     def please(self):
         """public method 1/2"""
 
@@ -91,7 +91,7 @@ class InterfaceCanNowBeFound:
 
     def __init__(self):
         """only to make pylint happier"""
-    
+
     def please(self):
         """public method 1/2"""
 

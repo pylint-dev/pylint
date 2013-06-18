@@ -13,8 +13,8 @@ import telnetlib
 class SeeTelnet(telnetlib.Telnet):
     """
     Extension of telnetlib.
-    """   
-   
+    """
+
     def __init__(self, host=None, port=0):
         """
         Constructor.
@@ -41,7 +41,7 @@ class SeeTelnet(telnetlib.Telnet):
 class Base(object):
     """bla bla"""
     dougloup_papa = None
-    
+
     def __init__(self):
         self._var = False
 
@@ -56,7 +56,7 @@ class Derived(Base):
         else:
             print "False"
         self._var = True
-        
+
         # E0203 - Access to member 'dougloup_papa' before its definition
         if self.dougloup_papa:
             print 'dougloup !'
@@ -65,13 +65,13 @@ class Derived(Base):
         if self.dougloup_moi:
             print 'dougloup !'
         self.dougloup_moi = True
-            
+
 
 class QoSALConnection(object):
     """blabla"""
-    
+
     _the_instance = None
-    
+
     def __new__(cls):
         if cls._the_instance is None:
             cls._the_instance = object.__new__(cls)

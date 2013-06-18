@@ -22,7 +22,7 @@ def func(yooo):
     ass.remove(yooo)
     import re
     re.compile('.*')
-    
+
 if 1:
     import sys
     print sys.modules

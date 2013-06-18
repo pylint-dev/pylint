@@ -19,8 +19,8 @@ class Aimpl:
     # the factory method because in that case the usage of polymorphism is not
     # detected
     # pylint: disable=R0201
-    def makex(self): 
-        return XAsub() 
+    def makex(self):
+        return XAsub()
 
 class Bimpl(Aimpl):
 

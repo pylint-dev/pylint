@@ -6,4 +6,4 @@ __revision__ = ''
 
 def function():
     '''XXX:bop'''
-    
+

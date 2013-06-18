@@ -1,4 +1,4 @@
-"""test misordered except 
+"""test misordered except
 """
 
 __revision__ = 1
@@ -36,7 +36,7 @@ try:
 except TypeError:
     __revision__ = None
 except:
-    __revision__ = None 
+    __revision__ = None
 
 try:
     __revision__ += 1

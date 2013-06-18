@@ -16,7 +16,7 @@ def tataa(kdict):
     """blank line unindented"""
     for key in ['1', '2', '3']:
         key = key.lower()
-    
+
         if kdict.has_key(key):
             del kdict[key]
 

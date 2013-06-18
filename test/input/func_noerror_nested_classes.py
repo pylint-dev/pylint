@@ -5,7 +5,7 @@ __revision__ = 1
 
 class Temelekefe:
     """gloubliboulga"""
-    
+
     def __init__(self):
         """nested class with function raise error"""
         class Toto:

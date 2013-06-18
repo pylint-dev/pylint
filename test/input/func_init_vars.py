@@ -5,7 +5,7 @@ __revision__ = ''
 
 
 class MyClass:
-    """Inherits from nothing 
+    """Inherits from nothing
     """
 
     def __init__(self):
@@ -25,7 +25,7 @@ class MySubClass(MyClass):
     """Inherits from MyClass
     """
     class_attr = 1
-    
+
     def __init__(self):
         MyClass.__init__(self)
         self.var2 = 2
@@ -39,7 +39,7 @@ class MySubClass(MyClass):
         self.var[1] = 'one'
         self.var2 += 1
         print self.class_attr
-        
+
 if __name__ == '__main__':
     OBJ = MyClass()
     OBJ.met()

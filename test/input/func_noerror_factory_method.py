@@ -6,12 +6,12 @@ class Super(object):
     """super class"""
     def __init__(self):
         self.bla = None
-        
+
     def instance(cls):
         """factory method"""
         return cls()
     instance = classmethod(instance)
-    
+
 class Sub(Super):
     """dub class"""
     def method(self):

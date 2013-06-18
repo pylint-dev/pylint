@@ -2,7 +2,6 @@
 """
 __revision__ = 0
 
-
 from input import w0401_cycle
 
 if __revision__:

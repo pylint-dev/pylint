@@ -15,14 +15,14 @@ class BBBB:
 
     def __init__(self):
         print 'init', self
-        
+
 class CCCC:
     """ancestor 3"""
 
 
 class ZZZZ(AAAA, BBBB, CCCC):
     """derived class"""
-    
+
     def __init__(self):
         AAAA.__init__(self)
 
@@ -31,7 +31,7 @@ class NewStyleA(object):
     def __init__(self):
         super(NewStyleA, self).__init__()
         print 'init', self
-        
+
 class NewStyleB(NewStyleA):
     """derived new style class"""
     def __init__(self):

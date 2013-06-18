@@ -4,7 +4,7 @@ __revision__ = None
 
 class MyString:
     """proxied string"""
-    
+
     def __init__(self, string):
         self.string = string
 

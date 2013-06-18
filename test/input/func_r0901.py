@@ -21,7 +21,7 @@ class Hhhh:
 
 class Iiii(Aaaa, Bbbb, Cccc, Dddd, Eeee, Ffff, Gggg, Hhhh):
     """yo"""
-    
+
 class Jjjj(Iiii):
     """yo"""
-    
+

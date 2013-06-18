@@ -49,7 +49,7 @@ boo = 2 # allclose(x,y) uses |x-y|<ATOL+RTOL*|y|
 def other(funky):
     """yo, test formatted result with indentation"""
     funky= funky+2
-    
+
 html = """<option value="=">ist genau gleich</option>
 yo+=4
 """

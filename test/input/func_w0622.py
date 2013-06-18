@@ -1,5 +1,5 @@
 # pylint: disable=C0103
-"""test built-in redefinition 
+"""test built-in redefinition
 """
 __revision__ = 0
 

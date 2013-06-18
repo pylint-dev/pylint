@@ -18,7 +18,7 @@ class Sub(Base):
     def inherited(self, aaa, aab, aac):
         "overridden method, though don't use every argument"
         return aaa
-    
+
     def newmethod(self, aax, aay):
         "another method, warning for aay desired"
         print self, aax
@@ -29,4 +29,4 @@ class Sub2(Base):
     def inherited(self, aaa, aab, aac):
         "overridden method, use every argument"
         return aaa + aab + aac
-            
+

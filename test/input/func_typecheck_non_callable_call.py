@@ -22,7 +22,7 @@ class MetaCorrect(object):
     """callable object"""
     def __call__(self):
         return self
-    
+
 INSTANCE = Correct()
 CALLABLE_INSTANCE = MetaCorrect()
 CORRECT = CALLABLE_INSTANCE()

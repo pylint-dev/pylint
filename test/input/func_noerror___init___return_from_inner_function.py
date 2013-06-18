@@ -10,4 +10,4 @@ class Aaa:
             """inner docstring"""
             return arg + 4
         self.func = inner_function
-        
+

@@ -6,7 +6,7 @@ __revision__ = 1
 
 class Example:
     """bla"""
-    
+
     def __init__(self):
         pass
 

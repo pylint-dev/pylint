@@ -5,7 +5,7 @@ class Aaaa:
     """yo"""
     def __init__(self):
         pass
-    
+
     def meth1(self):
         """hehehe"""
 

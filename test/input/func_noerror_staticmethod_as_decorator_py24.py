@@ -11,7 +11,7 @@ class StaticMethod1(object):
     @staticmethod
     def do_work():
         "Working..."
-        
+
     @staticmethod
     def do_work_with_arg(job):
         "Working on something"
@@ -26,7 +26,7 @@ class ClassMethod2(object):
     @classmethod
     def do_work(cls):
         "Working..."
-        
+
     @classmethod
     def do_work_with_arg(cls, job):
         "Working on something"

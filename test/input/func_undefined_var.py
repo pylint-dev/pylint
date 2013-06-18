@@ -28,7 +28,7 @@ def bad_default(var, default=unknown2):
     del vardel
 
 # Warning for Attribute access to undefinde attributes ?
-#class Attrs(object): 
+#class Attrs(object):
     #"""dummy class for wrong attribute access"""
 #AOU = Attrs()
 #AOU.number *= 1.3

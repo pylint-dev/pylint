@@ -4,7 +4,7 @@ __revision__ = None
 
 class Abcd:
     """dummy"""
-    
+
     def method1(self):
         """hehe"""
     method1 = staticmethod(method1)

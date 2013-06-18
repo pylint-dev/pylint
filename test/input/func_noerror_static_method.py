@@ -26,4 +26,4 @@ if __name__ == '__main__':
     MyClass.static_met("var1","var2")
     MyClass.class_met("var1")
 
-    
+

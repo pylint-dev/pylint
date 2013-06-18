@@ -45,11 +45,11 @@ A = generator()
 
 class Abstract(object):
     """bla bla"""
-    
+
     def abstract_method(self):
         """use to return something in concrete implementation"""
         raise NotImplementedError
-    
+
     def use_abstract(self):
         """should not issue E1111"""
         var = self.abstract_method()

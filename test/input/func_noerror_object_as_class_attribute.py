@@ -5,7 +5,7 @@
    * pylint will therefore check that baseclasses' init()
      are called
  - If this class defines an 'object' attribute, then pylint
-   will use this new definition when trying to retrieve 
+   will use this new definition when trying to retrieve
    object.__init__()
 """
 

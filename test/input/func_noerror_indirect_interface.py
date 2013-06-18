@@ -10,7 +10,7 @@ class ConcreteToto(AbstractToto):
     """abstract to implements an interface requiring machin to be defined"""
     def __init__(self):
         self.duh = 2
-    
+
     def machin(self):
         """for ifacd"""
         return self.helper()*2

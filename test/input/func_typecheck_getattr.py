@@ -14,11 +14,11 @@ class Provider:
     def hophop(self):
         """hop method"""
         print 'hop hop hop', self
-    
+
 
 class Client:
     """use provider class"""
-    
+
     def __init__(self):
         self._prov = Provider()
         self._prov_attr = Provider.cattr
@@ -28,7 +28,7 @@ class Client:
     def set_set_later(self, value):
         """set set_later attribute (introduce an inference ambiguity)"""
         self.set_later = value
-        
+
     def use_method(self):
         """use provider's method"""
         self._prov.hophop()
@@ -66,4 +66,4 @@ print property.__init__
 print Client().set_later.lower()
 
 # should detect mixing new style / old style classes
-Client.__bases__ += (object,) 
+Client.__bases__ += (object,)

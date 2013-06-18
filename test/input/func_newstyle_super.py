@@ -19,4 +19,4 @@ class NewAaaa(object):
 
     def __init__(self):
         super(object, self).__init__()
-        
+

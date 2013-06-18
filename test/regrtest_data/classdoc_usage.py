@@ -5,7 +5,7 @@ __revision__ = None
 class SomeClass:
     """cds"""
     doc = __doc__
-    
+
     def __init__(self):
         """only to make pylint happier"""
 
