@@ -28,7 +28,7 @@ from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
      ArgumentPreprocessingError
 from pylint.utils import sort_msgs, PyLintASTWalker, MSG_STATE_SCOPE_CONFIG, \
      MSG_STATE_SCOPE_MODULE, tokenize_module
-
+from pylint.testutils import TestReporter
 from pylint import checkers
 
 class SortMessagesTC(TestCase):
@@ -332,6 +332,16 @@ class PyLinterTC(TestCase):
         for cname in  ('design', 'metrics', 'similarities',
                        'imports'): # as a Fatal message that should be ignored
             self.assertFalse(cname in checker_names, cname)
+
+    def test_addmessage(self):
+        self.linter.set_reporter(TestReporter())
+        self.linter.open()
+        self.linter.set_current_module('0123')
+        self.linter.add_message('C0301', line=1, args=(1, 2))
+        self.linter.add_message('line-too-long', line=2, args=(3, 4))
+        self.assertEqual(
+            ['C:  1: Line too long (1/2)', 'C:  2: Line too long (3/4)'],
+            self.linter.reporter.messages)
 
 
 class ConfigTC(TestCase):

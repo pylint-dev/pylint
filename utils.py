@@ -345,15 +345,17 @@ class MessagesHandlerMixIn(object):
             except KeyError:
                 pass
 
-    def add_message(self, msgid, line=None, node=None, args=None):
-        """add the message corresponding to the given id.
+    def add_message(self, msg_descr, line=None, node=None, args=None):
+        """Adds a message given by ID or name.
 
-        If provided, msg is expanded using args
+        If provided, the message string is expanded using args
 
-        astroid checkers should provide the node argument, raw checkers should
-        provide the line argument.
+        AST checkers should must the node argument (but may optionally 
+        provide line if the line number is different), raw and token checkers
+        must provide the line argument.
         """
-        msg_info = self._messages[msgid]
+        msg_info = self.check_message_id(msg_descr)
+        msgid = msg_info.msgid
         # Fatal messages and reports are special, the node/scope distinction
         # does not apply to them.
         if msgid[0] not in _SCOPE_EXEMPT:
