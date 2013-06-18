@@ -5,7 +5,7 @@ __revision__ = 1
 
 def Run():
     """method without any good name"""
-    class B:
+    class B(object):
         """nested class should not be tested has a variable"""
         def __init__(self):
             pass
@@ -14,7 +14,7 @@ def Run():
 
 def run():
     """anothrer method without only good name"""
-    class Aaa:
+    class Aaa(object):
         """nested class should not be tested has a variable"""
         def __init__(self):
             pass
@@ -28,7 +28,7 @@ def HOHOHOHO():
     HIHIHI = 1
     print HIHIHI
 
-class xyz:
+class xyz(object):
     """yo"""
 
     zz = 'Bad Class Attribute'
@@ -53,7 +53,7 @@ def no_nested_args(arg1, arg21, arg22):
 GOOD_CONST_NAME = ''
 benpasceluila = 0
 
-class Correct:
+class Correct(object):
     """yo"""
     def __init__(self):
         self.cava = 12

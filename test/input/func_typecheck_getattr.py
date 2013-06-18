@@ -3,7 +3,7 @@
 
 __revision__ = None
 
-class Provider:
+class Provider(object):
     """provide some attributes and method"""
     cattr = 4
     def __init__(self):

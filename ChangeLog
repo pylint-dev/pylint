@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * New warning old-style-class (C1001) for classes that do not have any
+      base class.
     * Add new name type 'class_attribute' for attributes defined
       in class scope. By default, allow both const and variable names.
     * New warning trailing-whitespace (C0303) that warns about

@@ -3,7 +3,7 @@
 
 __revision__ = ''
 
-class MyClass:
+class MyClass(object):
     """ds"""
     var1 = []
     var2 = list(value*2 for value in var1)

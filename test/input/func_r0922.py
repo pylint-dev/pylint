@@ -1,7 +1,7 @@
 """test max methods"""
 __revision__ = None
 
-class Aaaa:
+class Aaaa(object):
     """yo"""
     def __init__(self):
         pass

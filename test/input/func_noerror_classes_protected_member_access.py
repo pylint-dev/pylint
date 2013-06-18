@@ -3,7 +3,7 @@
 """
 __revision__ = 1
 
-class A3123:
+class A3123(object):
     """oypuee"""
     _protected = 1
     def __init__(self):

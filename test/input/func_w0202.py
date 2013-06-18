@@ -2,7 +2,7 @@
 
 __revision__ = None
 
-class Abcd:
+class Abcd(object):
     """dummy"""
 
     def method1(self):

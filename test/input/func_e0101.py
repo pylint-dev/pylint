@@ -4,31 +4,31 @@
 
 __revision__ = 'yo'
 
-class MyClass:
+class MyClass(object):
     """dummy class"""
 
     def __init__(self):
         return 1
 
-class MyClass2:
+class MyClass2(object):
     """dummy class"""
 
     def __init__(self):
         return
 
-class MyClass3:
+class MyClass3(object):
     """dummy class"""
 
     def __init__(self):
         return None
 
-class MyClass4:
+class MyClass4(object):
     """dummy class"""
 
     def __init__(self):
         yield None
 
-class MyClass5:
+class MyClass5(object):
     """dummy class"""
 
     def __init__(self):

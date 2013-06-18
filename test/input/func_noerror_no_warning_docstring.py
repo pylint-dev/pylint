@@ -2,7 +2,7 @@
 
 __revision__ = 1
 
-class AAAA:
+class AAAA(object):
     ''' class AAAA '''
 
     def __init__(self):

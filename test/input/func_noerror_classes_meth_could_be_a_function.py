@@ -7,14 +7,14 @@ like factory method pattern
 """
 __revision__ = 1
 
-class XAsub:
+class XAsub(object):
     pass
 class XBsub(XAsub):
     pass
 class XCsub(XAsub):
     pass
 
-class Aimpl:
+class Aimpl(object):
     # disable "method could be a function" on classes which are not overriding
     # the factory method because in that case the usage of polymorphism is not
     # detected

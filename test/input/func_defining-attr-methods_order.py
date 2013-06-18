@@ -7,7 +7,7 @@
 
 __revision__ = ''
 
-class A:
+class A(object):
     ''' class A '''
 
     def __init__(self):

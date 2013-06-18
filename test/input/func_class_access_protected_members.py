@@ -3,7 +3,7 @@
 
 __revision__ = ''
 
-class MyClass:
+class MyClass(object):
     _cls_protected = 5
 
     def __init__(self, other):

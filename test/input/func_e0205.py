@@ -4,7 +4,7 @@
 
 __revision__ = ''
 
-class Abcd:
+class Abcd(object):
     """dummy"""
     def __init__(self):
         self.abcd = 1

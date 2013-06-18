@@ -2,7 +2,7 @@
 """docstring"""
 __revision__ = ''
 
-class AAAA:
+class AAAA(object):
     """docstring"""
     def __init__(self):
         pass
@@ -15,7 +15,7 @@ class AAAA:
     def method2(self):
         """docstring"""
 
-class AAAA:
+class AAAA(object):
     """docstring"""
     def __init__(self):
         pass

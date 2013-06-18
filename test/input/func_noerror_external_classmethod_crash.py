@@ -14,7 +14,7 @@ def fetch_config(mainattr=None):
     fetch_order = classmethod(fetch_order)
     return fetch_order
 
-class Aaa:
+class Aaa(object):
     """hop"""
     fetch_order = fetch_config('A')
 

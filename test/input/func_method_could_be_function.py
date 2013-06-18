@@ -18,7 +18,7 @@ class Toto(object):
         print 'hello'
 
 
-class Base:
+class Base(object):
     """an abstract class"""
 
     def __init__(self):
@@ -38,7 +38,7 @@ class Sub(Base):
         """
         return arg == 0
 
-class Super:
+class Super(object):
     """same as before without abstract"""
     attr = 1
     def method(self):

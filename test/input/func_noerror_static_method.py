@@ -3,7 +3,7 @@
 
 __revision__ = ''
 
-class MyClass:
+class MyClass(object):
     """doc
     """
     def __init__(self):

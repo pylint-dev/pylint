@@ -2,7 +2,7 @@
 """#3291"""
 __revision__ = 1
 
-class Myarray:
+class Myarray(object):
     def __init__(self, array):
         self.array = array
 

@@ -2,21 +2,21 @@
 """test max parents"""
 __revision__ = None
 
-class Aaaa:
+class Aaaa(object):
     """yo"""
-class Bbbb:
+class Bbbb(object):
     """yo"""
-class Cccc:
+class Cccc(object):
     """yo"""
-class Dddd:
+class Dddd(object):
     """yo"""
-class Eeee:
+class Eeee(object):
     """yo"""
-class Ffff:
+class Ffff(object):
     """yo"""
-class Gggg:
+class Gggg(object):
     """yo"""
-class Hhhh:
+class Hhhh(object):
     """yo"""
 
 class Iiii(Aaaa, Bbbb, Cccc, Dddd, Eeee, Ffff, Gggg, Hhhh):

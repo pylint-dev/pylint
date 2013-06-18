@@ -2,7 +2,7 @@
 
 __revision__ = None
 
-class SomeClass:
+class SomeClass(object):
     """cds"""
     doc = __doc__
 

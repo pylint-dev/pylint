@@ -4,7 +4,7 @@
 
 __revision__ = '$Id: func_w0223.py,v 1.2 2004-09-29 08:35:13 syt Exp $'
 
-class Abstract:
+class Abstract(object):
     """abstract class
     """
     def aaaa(self):

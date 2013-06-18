@@ -8,7 +8,7 @@ https://www.logilab.net/elo/ticket/5626 - name resolution bug inside classes
 
 __revision__ = 0
 
-class Test:
+class Test(object):
     """test class"""
     ident = lambda x: x
 

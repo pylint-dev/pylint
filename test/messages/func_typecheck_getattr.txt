@@ -1,3 +1,4 @@
+C: 19:Client: Old-style class defined.
 E: 25:Client.__init__: Class 'Provider' has no 'cattribute' member
 E: 35:Client.use_method: Instance of 'Provider' has no 'hophophop' member
 E: 40:Client.use_attr: Instance of 'Provider' has no 'attribute' member

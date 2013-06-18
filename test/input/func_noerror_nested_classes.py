@@ -3,12 +3,12 @@
 
 __revision__ = 1
 
-class Temelekefe:
+class Temelekefe(object):
     """gloubliboulga"""
 
     def __init__(self):
         """nested class with function raise error"""
-        class Toto:
+        class Toto(object):
             """toto nested class"""
             def __init__(self):
                 self.attr = 2

@@ -2,7 +2,7 @@
 
 __revision__ = None
 
-class MyString:
+class MyString(object):
     """proxied string"""
 
     def __init__(self, string):

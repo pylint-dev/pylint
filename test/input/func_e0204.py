@@ -4,7 +4,7 @@
 __revision__ = 0
 
 
-class Abcd:
+class Abcd(object):
     """dummy class"""
 
     def __init__(truc):

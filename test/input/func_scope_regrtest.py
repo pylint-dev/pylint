@@ -5,7 +5,7 @@ __revision__ = None
 
 class Well(object):
     """well"""
-    class Data:
+    class Data(object):
         """base hidden class"""
     class Sub(Data):
         """whaou, is Data found???"""

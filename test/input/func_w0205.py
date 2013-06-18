@@ -2,7 +2,7 @@
 
 __revision__ = 0
 
-class Abcd:
+class Abcd(object):
     '''dummy'''
     def __init__(self):
         self.aarg = False

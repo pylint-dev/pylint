@@ -2,7 +2,7 @@
 """docstring"""
 __revision__ = ''
 
-class Interface:
+class Interface(object):
     """base class for interfaces"""
 
 class IMachin(Interface):
@@ -13,7 +13,7 @@ class IMachin(Interface):
     def troc(self, argument):
         """docstring"""
 
-class Correct1:
+class Correct1(object):
     """docstring"""
     __implements__ = IMachin
 
@@ -28,7 +28,7 @@ class Correct1:
         """docstring"""
         pass
 
-class Correct2:
+class Correct2(object):
     """docstring"""
     __implements__ = (IMachin,)
 
@@ -43,7 +43,7 @@ class Correct2:
         """docstring"""
         print argument
 
-class MissingMethod:
+class MissingMethod(object):
     """docstring"""
     __implements__ = IMachin,
 
@@ -57,7 +57,7 @@ class MissingMethod:
     def other(self):
         """docstring"""
 
-class BadArgument:
+class BadArgument(object):
     """docstring"""
     __implements__ = (IMachin,)
 
@@ -72,7 +72,7 @@ class BadArgument:
         """docstring"""
         pass
 
-class InterfaceCantBeFound:
+class InterfaceCantBeFound(object):
     """docstring"""
     __implements__ = undefined
 
@@ -85,7 +85,7 @@ class InterfaceCantBeFound:
     def besilent(self):
         """public method 2/2"""
 
-class InterfaceCanNowBeFound:
+class InterfaceCanNowBeFound(object):
     """docstring"""
     __implements__ = BadArgument.__implements__ + Correct2.__implements__
 
@@ -99,7 +99,7 @@ class InterfaceCanNowBeFound:
         """public method 2/2"""
 
 
-class EmptyImplements:
+class EmptyImplements(object):
     """no pb"""
     __implements__ = ()
     def __init__(self):

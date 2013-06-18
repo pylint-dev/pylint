@@ -4,7 +4,7 @@ __revision__ = 1
 import os
 import sys
 
-class NonRegr:
+class NonRegr(object):
     """???"""
     def __init__(self):
         print 'initialized'

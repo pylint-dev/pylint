@@ -5,7 +5,7 @@
 __revision__ = 0
 
 
-class Obj:
+class Obj(object):
     # C0202, classmethod
     def __new__(something):
         pass

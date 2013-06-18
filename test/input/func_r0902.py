@@ -2,7 +2,7 @@
 """test max instance attributes"""
 __revision__ = None
 
-class Aaaa:
+class Aaaa(object):
     """yo"""
     def __init__(self):
         self.aaaa = 1

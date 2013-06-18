@@ -4,7 +4,7 @@
 __revision__ = ''
 
 
-class MyClass:
+class MyClass(object):
     """Inherits from nothing
     """
 

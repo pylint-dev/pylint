@@ -38,6 +38,10 @@ MSGS = {
               'Used when PyLint detect the use of the builtin "property" \
               on an old style class while this is relying on new style \
               classes features'),
+    'C1001': ('Old-style class defined.',
+              'old-style-class',
+              'Used when a class is defined that does not inherit from another'
+              'class and does not inherit explicitly from "object".')
     }
 
 
@@ -58,12 +62,17 @@ class NewStyleConflictChecker(BaseChecker):
     # configuration options
     options = ()
 
-    @check_messages('E1001')
+    @check_messages('E1001', 'C1001')
     def visit_class(self, node):
         """check __slots__ usage
         """        
         if '__slots__' in node and not node.newstyle:
             self.add_message('E1001', node=node)
+        # The node type could be class, exception, metaclass, or
+        # interface.  Presumably, the non-class-type nodes would always
+        # have an explicit base class anyway.
+        if not node.bases and node.type == 'class':
+            self.add_message('C1001', node=node)
 
     @check_messages('W1001')
     def visit_callfunc(self, node):

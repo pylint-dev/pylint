@@ -80,7 +80,7 @@ class QoSALConnection(object):
     def __init__(self):
         pass
 
-class DefinedOutsideInit:
+class DefinedOutsideInit(object):
     """use_attr is seen as the method defining attr because its in
     first position
     """

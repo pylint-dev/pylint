@@ -14,7 +14,7 @@ def function3(value):
     """docstring"""
     print value
 
-class AAAA:
+class AAAA(object):
     # missing docstring
 
 ##     class BBBB:

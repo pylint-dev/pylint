@@ -15,7 +15,7 @@ class IBbbb(Interface):
     def meth1(self):
         """hehehe"""
 
-class Concret:
+class Concret(object):
     """implements IBbbb"""
     __implements__ = IBbbb
 

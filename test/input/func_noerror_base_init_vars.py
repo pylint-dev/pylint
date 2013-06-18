@@ -3,7 +3,7 @@
 """
 __revision__ = ''
 
-class BaseClass:
+class BaseClass(object):
     """A simple base class
     """
 

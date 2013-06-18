@@ -1,7 +1,7 @@
 #pylint: disable=C0111
 __revision__ = None
 
-class ContextManager:
+class ContextManager(object):
     def __enter__(self):
         pass
     def __exit__(self, *args):
@@ -9,13 +9,13 @@ class ContextManager:
     def __init__(self):
         pass
 
-class BadContextManager:
+class BadContextManager(object):
     def __enter__(self):
         pass
     def __init__(self):
         pass
 
-class Container:
+class Container(object):
     def __init__(self):
         pass
     def __len__(self):
@@ -29,7 +29,7 @@ class Container:
     def __iter__(self):
         pass
 
-class BadContainer:
+class BadContainer(object):
     def __init__(self):
         pass
     def __len__(self):
@@ -39,7 +39,7 @@ class BadContainer:
     def __iter__(self):
         pass
 
-class Callable:
+class Callable(object):
     def __call__(self):
         pass
     def __init__(self):

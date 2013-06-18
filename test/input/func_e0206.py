@@ -3,14 +3,14 @@
 
 __revision__ = None
 
-class Abcd:
+class Abcd(object):
     """dummy"""
     __implements__ = __revision__
 
     def __init__(self):
         self.attr = None
 
-class Cdef:
+class Cdef(object):
     """dummy"""
     __implements__ = (__revision__, Abcd)
 

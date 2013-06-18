@@ -3,7 +3,7 @@
 
 __revision__ = '$I$'
 
-class Aaaa:
+class Aaaa(object):
     """class with attributes defined in wrong order"""
     def __init__(self):
         var1 = self._var2

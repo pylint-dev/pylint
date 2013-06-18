@@ -8,7 +8,7 @@ def function(arg=1):
     """ignore arg"""
 
 
-class AAAA:
+class AAAA(object):
     """dummy class"""
 
     def method(self, arg):
@@ -34,7 +34,7 @@ class AAAA:
         # pylint: disable = W0201
         rset.get_entity = inner
 
-class BBBB:
+class BBBB(object):
     """dummy class"""
 
     def __init__(self, arg):
