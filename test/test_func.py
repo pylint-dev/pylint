@@ -64,6 +64,8 @@ class TestTests(testlib.TestCase):
         todo.sort()
         if PY3K:
             rest = ['E1122', 'I0001',
+                    # no more map
+                    'W0110',
                     # deprecated exec statement removed from py3k :
                     'W0122',
                     # XXX : no use case for now :
