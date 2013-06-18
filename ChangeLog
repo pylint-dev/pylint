@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Added a new warning unpacking-in-except (W0712) about unpacking
+      exceptions in handlers, which is unsupported in Python 3.
     * Add a configuration option for missing-docstring to
       optionally exempt short functions/methods/classes from
       the check.

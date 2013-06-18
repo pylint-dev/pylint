@@ -22,7 +22,7 @@ import astroid
 from astroid import YES, Instance, unpack_infer
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_empty, is_raising
+from pylint.checkers.utils import is_empty, is_raising, check_messages
 from pylint.interfaces import IAstroidChecker
 
 
@@ -71,6 +71,11 @@ MSGS = {
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),
+    'W0712': ('Implicit unpacking of exceptions is not supported in Python 3',
+              'unpacking-in-except',
+              'Python3 will not allow implicit unpacking of exceptions in except '
+              'clauses. '
+              'See http://www.python.org/dev/peps/pep-3110/'),
     }
 
 
@@ -153,6 +158,12 @@ class ExceptionsChecker(BaseChecker):
             value_found = False
         return value_found
 
+
+    @check_messages('W0712')
+    def visit_excepthandler(self, node):
+        """Visit an except handler block and check for exception unpacking."""
+        if isinstance(node.name, (astroid.Tuple, astroid.List)):
+            self.add_message('W0712', node=node)
 
     def visit_tryexcept(self, node):
         """check for empty except"""
