@@ -788,12 +788,12 @@ class NameChecker(_BasicChecker):
 
 class DocStringChecker(_BasicChecker):
     msgs = {
-    'C0111': ('Missing docstring', # W0131
+    'C0111': ('Missing %s docstring', # W0131
               'missing-docstring',
               'Used when a module, function, class or method has no docstring.\
               Some special methods like __init__ doesn\'t necessary require a \
               docstring.'),
-    'C0112': ('Empty docstring', # W0132
+    'C0112': ('Empty %s docstring', # W0132
               'empty-docstring',
               'Used when a module, function, class or method has an empty \
               docstring (it would be too easy ;).'),
@@ -802,10 +802,17 @@ class DocStringChecker(_BasicChecker):
                 {'default' : NO_REQUIRED_DOC_RGX,
                  'type' : 'regexp', 'metavar' : '<regexp>',
                  'help' : 'Regular expression which should only match '
-                          'functions or classes name which do not require a '
-                          'docstring'}
+                          'function or class names that do not require a '
+                          'docstring.'}
+                ),
+               ('docstring-min-length',
+                {'default' : -1,
+                 'type' : 'int', 'metavar' : '<int>',
+                 'help': ('Minimum line length for functions/classes that'
+                          ' require docstrings, shorter ones are exempt.')}
                 ),
                )
+                 
 
     def open(self):
         self.stats = self.linter.add_stats(undocumented_module=0,
@@ -840,11 +847,19 @@ class DocStringChecker(_BasicChecker):
         """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
+            if node.body:
+                lines = node.body[-1].lineno - node.body[0].lineno + 1
+            else:
+                lines = 0
+            max_lines = self.config.docstring_min_length
+
+            if node_type != 'module' and max_lines > -1 and lines < max_lines:
+                return
             self.stats['undocumented_'+node_type] += 1
-            self.add_message('C0111', node=node)
+            self.add_message('C0111', node=node, args=(node_type,))
         elif not docstring.strip():
             self.stats['undocumented_'+node_type] += 1
-            self.add_message('C0112', node=node)
+            self.add_message('C0112', node=node, args=(node_type,))
 
 
 class PassChecker(_BasicChecker):

@@ -15,6 +15,8 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """functional/non regression tests for pylint"""
 
+import collections
+import contextlib
 import sys
 import re
 
@@ -110,8 +112,70 @@ class TestReporter(BaseReporter):
     def display_results(self, layout):
         """ignore layouts"""
 
-# Init
 
+class Message(collections.namedtuple('Message',
+                                     ['msg_id', 'line', 'node', 'args'])):
+    def __new__(cls, msg_id, line=None, node=None, args=None):
+        return tuple.__new__(cls, (msg_id, line, node, args))
+
+
+class UnittestLinter(object):
+    """A fake linter class to capture checker messages."""
+
+    def __init__(self):
+        self._messages = []
+        self.stats = {}
+
+    def release_messages(self):
+        try:
+            return self._messages
+        finally:
+            self._messages = []
+
+    def add_message(self, msg_id, line=None, node=None, args=None):
+        self._messages.append(Message(msg_id, line, node, args))
+        
+    def is_message_enabled(self, *unused_args):
+        return True
+
+    def add_stats(self, **kwargs):
+        for name, value in kwargs.iteritems():
+            self.stats[name] = value
+
+
+class CheckerTestCase(testlib.TestCase):
+    """A base testcase class for unittesting individual checker classes."""
+    CHECKER_CLASS = None
+    
+    def setUp(self):
+        self.linter = UnittestLinter()
+        self.checker = self.CHECKER_CLASS(self.linter)
+        self.checker.open()
+        self.checker.stats = self.linter.stats
+
+    @contextlib.contextmanager
+    def assertNoMessages(self):
+        """Assert that no messages are added by the given method."""
+        with self.assertAddsMessages():
+            yield
+    
+    @contextlib.contextmanager
+    def assertAddsMessages(self, *messages):
+        """Assert that exactly the given method adds the given messages.
+
+        The list of messages must exactly match *all* the messages added by the
+        method. Additionally, we check to see whether the args in each message can
+        actually be substituted into the message string.
+        """
+        yield
+        got = self.linter.release_messages()
+        msg = ('Expected messages did not match actual.\n'
+               'Expected:\n%s\nGot:\n%s' % ('\n'.join(repr(m) for m in messages),
+                                            '\n'.join(repr(m) for m in got)))
+        self.assertEqual(got, list(messages), msg)
+
+
+# Init
 test_reporter = TestReporter()
 linter = PyLinter()
 linter.set_reporter(test_reporter)

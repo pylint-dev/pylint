@@ -244,7 +244,7 @@ class PyLinterTC(TestCase):
         finally:
             sys.stdout = sys.__stdout__
         # cursory examination of the output: we're mostly testing it completes
-        self.assertTrue(':C0112 (empty-docstring): *Empty docstring*' in output)
+        self.assertTrue(':C0112 (empty-docstring): *Empty %s docstring*' in output)
 
     def test_lint_ext_module_with_file_output(self):
         if sys.version_info < (3, 0):

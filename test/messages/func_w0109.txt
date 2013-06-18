@@ -1,1 +1,1 @@
-C:  6:function: Empty docstring
+C:  6:function: Empty function docstring

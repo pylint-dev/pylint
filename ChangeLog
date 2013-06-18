@@ -2,6 +2,12 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add a configuration option for missing-docstring to
+      optionally exempt short functions/methods/classes from
+      the check.
+    * Add the type of the offending node to missing-docstring
+      and empty-docstring.
+    * New utility classes for per-checker unittests in testutils.py
     * Do not warn about redefinitions of variables that match the
       dummy regex.
     * Do not treat all variables starting with _ as dummy variables,
