@@ -1,0 +1,3 @@
+W: 15:some_function: Except doesn't do anything
+W: 15:some_function: Redefining name 'some_function' from outer scope (line 10) in exception handler
+W: 15:some_function: Unused variable 'some_function'
