@@ -273,7 +273,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             if name in globs and not isinstance(stmt, astroid.Global):
                 line = globs[name][0].fromlineno
-                self.add_message('W0621', args=(name, line), node=stmt)
+                dummy_rgx = self.config.dummy_variables_rgx
+                if not dummy_rgx.match(name):
+                    self.add_message('W0621', args=(name, line), node=stmt)
             elif is_builtin(name):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmt)

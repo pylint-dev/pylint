@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Do not warn about redefinitions of variables that match the
+      dummy regex.
     * Do not treat all variables starting with _ as dummy variables,
       only _ itself.
     * Make the line-too-long warning configurable by
