@@ -1,5 +1,5 @@
 C: 10:Run.B: Invalid class name "B"
-C: 14:Run: Invalid variable name "bBb" for type
+C: 14:Run: Invalid variable name "bBb"
 C: 28:HOHOHOHO: Invalid function name "HOHOHOHO"
 C: 30:HOHOHOHO: Invalid variable name "HIHIHI"
 C: 33:xyz: Invalid class name "xyz"
