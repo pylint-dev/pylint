@@ -208,9 +208,12 @@ class BasicErrorChecker(_BasicChecker):
                 self.add_message('E0100', node=node)
             else:
                 values = [r.value for r in returns]
-                if  [v for v in values if not (v is None or
-                    (isinstance(v, astroid.Const) and v.value is None)
-                    or  (isinstance(v, astroid.Name) and v.name == 'None'))]:
+                # Are we returning anything but None from constructors
+                if  [v for v in values if 
+                     not (v is None or 
+                          (isinstance(v, astroid.Const) and v.value is None) or
+                          (isinstance(v, astriod.Name)  and v.name == 'None')
+                         ) ]:
                     self.add_message('E0101', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
@@ -219,7 +222,8 @@ class BasicErrorChecker(_BasicChecker):
                        retnode.value.value is not None:
                     self.add_message('E0106', node=node,
                                      line=retnode.fromlineno)
-        args = set()
+        # Check for duplicate names
+        args = set() 
         for name in node.argnames():
             if name in args:
                 self.add_message('E0108', node=node, args=(name,))
@@ -255,7 +259,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @check_messages('E0107')
     def visit_unaryop(self, node):
-        """check use of the non-existent ++ adn -- operator operator"""
+        """check use of the non-existent ++ and -- operator operator"""
         if ((node.op in '+-') and
             isinstance(node.operand, astroid.UnaryOp) and
             (node.operand.op == node.op)):
@@ -397,7 +401,7 @@ functions, methods
         self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0,
                                            method=0, class_=0)
-
+    @check_messages('C0121')
     def visit_module(self, node):
         """check module name, docstring and required arguments
         """
@@ -412,7 +416,7 @@ functions, methods
         """
         self.stats['class'] += 1
 
-    @check_messages('W0104', 'W0105')
+    @check_messages('W0104', 'W0105', 'W0106')
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
@@ -488,6 +492,7 @@ functions, methods
                 return
         self.add_message('W0108', line=node.fromlineno, node=node)
 
+    @check_messages('W0102')
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -541,7 +546,7 @@ functions, methods
 
     @check_messages('W0101', 'W0121')
     def visit_raise(self, node):
-        """check is the node has a right sibling (if so, that's some unreachable
+        """check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
@@ -831,14 +836,15 @@ class DocStringChecker(_BasicChecker):
                                            undocumented_function=0,
                                            undocumented_method=0,
                                            undocumented_class=0)
-
+    @check_messages('C0111', 'C0112')
     def visit_module(self, node):
         self._check_docstring('module', node)
 
+    @check_messages('C0111', 'C0112')
     def visit_class(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring('class', node)
-
+    @check_messages('C0111', 'C0112')
     def visit_function(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = node.is_method() and 'method' or 'function'
@@ -875,13 +881,13 @@ class DocStringChecker(_BasicChecker):
 
 
 class PassChecker(_BasicChecker):
-    """check is the pass statement is really necessary"""
+    """check if the pass statement is really necessary"""
     msgs = {'W0107': ('Unnecessary pass statement',
                       'unnecessary-pass',
                       'Used when a "pass" statement that can be avoided is '
                       'encountered.'),
             }
-
+    @check_messages('W0107')
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
             self.add_message('W0107', node=node)

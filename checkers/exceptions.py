@@ -104,6 +104,7 @@ class ExceptionsChecker(BaseChecker):
                 ),
                )
 
+    @check_messages('W0701', 'W0710', 'E0702', 'E0710', 'E0711')
     def visit_raise(self, node):
         """visit raise possibly inferring value"""
         # ignore empty raise
@@ -164,7 +165,7 @@ class ExceptionsChecker(BaseChecker):
         """Visit an except handler block and check for exception unpacking."""
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message('W0712', node=node)
-
+    @check_messages('W0702', 'W0703', 'W0704', 'W0711', 'E0701')
     def visit_tryexcept(self, node):
         """check for empty except"""
         exceptions_classes = []

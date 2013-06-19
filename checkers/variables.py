@@ -166,7 +166,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmts[0])
 
-    @check_messages('W0611', 'W0614')
+    @check_messages('W0611', 'W0614', 'W0622', 'E0603', 'E0604')
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -261,6 +261,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # do not check for not used locals here
         self._to_consume.pop()
 
+
+    @check_messages('W0621', 'W0622')
     def visit_function(self, node):
         """visit function: update consumption analysis variable and check locals
         """
@@ -280,6 +282,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmt)
 
+    @check_messages('W0612', 'W0613')
     def leave_function(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
@@ -405,6 +408,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                    and not ass.statement() is node.statement():
                 self.add_message('W0631', args=name, node=node)
 
+    @check_messages('W0623')
     def visit_excepthandler(self, node):
         for name in get_all_elements(node.name):
             clobbering, args = clobber_in_except(name)
@@ -418,6 +422,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_delname(self, node):
         self.visit_name(node)
 
+    @check_messages(*(MSGS.keys()))
     def visit_name(self, node):
         """check that a name is defined if the current scope and doesn't
         redefine a built-in

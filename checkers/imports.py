@@ -24,6 +24,7 @@ from astroid import are_exclusive
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker, EmptyReport
+from pylint.checkers.utils import check_messages
 
 
 def get_first_import(node, context, name, base, level):
@@ -232,7 +233,9 @@ given file (report RP0402 must not be disabled)'}
             self._check_deprecated_module(node, name)
             self._check_reimport(node, name)
 
-
+    # TODO This appears to be the list of all messages of the checker...
+    # @check_messages('W0410', 'W0401', 'W0403', 'W0402', 'W0404', 'W0406', 'F0401')
+    @check_messages(*(MSGS.keys()))
     def visit_from(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
