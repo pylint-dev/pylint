@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * New warning bad-open-mode (W1501) for calls to open (or file) that
+      specify invalid open modes (Original implementation by Sasha Issayev).
     * New warning old-style-class (C1001) for classes that do not have any
       base class.
     * Add new name type 'class_attribute' for attributes defined

@@ -30,6 +30,9 @@ BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = astroid.ListComp, astroid.SetComp, astroid.DictComp, astroid.GenExpr
 
 
+class NoSuchArgumentError(Exception):
+    pass
+
 def is_inside_except(node):
     """Returns true if node is inside the name of an except handler."""
     current = node
@@ -376,3 +379,28 @@ def is_attr_private(attrname):
     """
     regex = re.compile('^_{2,}.*[^_]+_?$')
     return regex.match(attrname)
+
+def get_argument_from_call(callfunc_node, position=None, keyword=None):
+    """Returns the specified argument from a function call.
+
+    :param callfunc_node: Node representing a function call to check.
+    :param int position: position of the argument.
+    :param str keyword: the keyword of the argument.
+
+    :returns: The node representing the argument, None if the argument is not found.
+    :raises ValueError: if both position and keyword are None.
+    :raises NoSuchArgumentError: if no argument at the provided position or with
+    the provided keyword.
+    """
+    if not position and not keyword:
+        raise ValueError('Must specify at least one of: position or keyword.')
+    try:
+        if position and not isinstance(callfunc_node.args[position], astroid.Keyword):
+            return callfunc_node.args[position]
+    except IndexError as error:
+        raise NoSuchArgumentError(error)
+    if keyword:
+        for arg in callfunc_node.args:
+            if isinstance(arg, astroid.Keyword) and arg.arg == keyword:
+                return arg.value
+    raise NoSuchArgumentError
