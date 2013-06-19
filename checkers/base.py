@@ -212,7 +212,7 @@ class BasicErrorChecker(_BasicChecker):
                 if  [v for v in values if 
                      not (v is None or 
                           (isinstance(v, astroid.Const) and v.value is None) or
-                          (isinstance(v, astriod.Name)  and v.name == 'None')
+                          (isinstance(v, astroid.Name)  and v.name == 'None')
                          ) ]:
                     self.add_message('E0101', node=node)
         elif node.is_generator():
