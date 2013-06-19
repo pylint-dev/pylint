@@ -595,6 +595,15 @@ class PyLintASTWalker(object):
         self.leave_events = {}
         self.linter = linter
 
+    def _is_method_enabled(self, method):
+        if not hasattr(method, 'checks_msgs'):
+            return True
+
+        for msg_desc in method.checks_msgs:
+            if self.linter.is_message_enabled(msg_desc):
+                return True
+        return False
+
     def add_checker(self, checker):
         """walk to the checker's dir and collect visit and leave methods"""
         # XXX : should be possible to merge needed_checkers and add_checker
@@ -602,7 +611,6 @@ class PyLintASTWalker(object):
         lcids = set()
         visits = self.visit_events
         leaves = self.leave_events
-        msgs = self.linter._msgs_state
         for member in dir(checker):
             cid = member[6:]
             if cid == 'default':
@@ -610,11 +618,9 @@ class PyLintASTWalker(object):
             if member.startswith('visit_'):
                 v_meth = getattr(checker, member)
                 # don't use visit_methods with no activated message:
-                if hasattr(v_meth, 'checks_msgs'):
-                    if not any(msgs.get(m, True) for m in v_meth.checks_msgs):
-                        continue
-                visits.setdefault(cid, []).append(v_meth)
-                vcids.add(cid)
+                if self._is_method_enabled(v_meth):
+                    visits.setdefault(cid, []).append(v_meth)
+                    vcids.add(cid)
             elif member.startswith('leave_'):
                 l_meth = getattr(checker, member)
                 # don't use leave_methods with no activated message:
