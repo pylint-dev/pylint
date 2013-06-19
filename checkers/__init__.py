@@ -47,7 +47,7 @@ from astroid.utils import ASTWalker
 from logilab.common.modutils import load_module_from_file
 from logilab.common.configuration import OptionsProviderMixIn
 
-from pylint.reporters import diff_string, EmptyReport
+from pylint.reporters import diff_string
 
 def table_lines_from_stats(stats, old_stats, columns):
     """get values listed in <columns> from <stats> and <old_stats>,

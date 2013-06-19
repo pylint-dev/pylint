@@ -1,4 +1,3 @@
-# Copyright (c) 2003-2010 Sylvain Thenault (thenault@gmail.com).
 # Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -32,10 +31,7 @@ def diff_string(old, new):
     return diff_str
 
 
-class EmptyReport(Exception):
-    """raised when a report is empty and so should not be displayed"""
-
-class BaseReporter:
+class BaseReporter(object):
     """base class for reporters
 
     symbols: show short symbolic names for messages.

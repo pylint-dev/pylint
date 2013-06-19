@@ -45,11 +45,13 @@ from logilab.common.__pkginfo__ import version as common_version
 from astroid import MANAGER, nodes, AstroidBuildingException
 from astroid.__pkginfo__ import version as astroid_version
 
-from pylint.utils import (PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn,
-                          ReportsHandlerMixIn, MSG_TYPES, expand_modules,
-                          WarningScope, tokenize_module, OPTION_RGX)
+from pylint.utils import (
+    MSG_TYPES, OPTION_RGX,
+    PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn, ReportsHandlerMixIn,
+    EmptyReport, WarningScope,
+    expand_modules, tokenize_module)
 from pylint.interfaces import ILinter, IRawChecker, ITokenChecker, IAstroidChecker
-from pylint.checkers import (BaseTokenChecker, EmptyReport,
+from pylint.checkers import (BaseTokenChecker,
                              table_lines_from_stats)
 from pylint.reporters.text import (TextReporter, ParseableTextReporter,
                                    VSTextReporter, ColorizedTextReporter)

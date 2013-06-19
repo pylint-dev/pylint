@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -23,7 +23,8 @@ import astroid
 from astroid import are_exclusive
 
 from pylint.interfaces import IAstroidChecker
-from pylint.checkers import BaseChecker, EmptyReport
+from pylint.utils import EmptyReport
+from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 
 

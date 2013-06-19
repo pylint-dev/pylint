@@ -32,12 +32,14 @@ from logilab.common.ureports import Section
 
 from astroid import nodes, Module
 
-from pylint.checkers import EmptyReport
 from pylint.interfaces import IRawChecker, ITokenChecker
 
 
 class UnknownMessage(Exception):
     """raised when a unregistered message id is encountered"""
+
+class EmptyReport(Exception):
+    """raised when a report is empty and so should not be displayed"""
 
 
 MSG_TYPES = {

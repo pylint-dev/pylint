@@ -1,6 +1,7 @@
 # Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
-# Copyright (c) 2009-2010 Arista Networks, Inc.
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
+# Copyright (c) 2009-2010 Arista Networks, Inc.
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -21,8 +22,9 @@ from logilab.common.ureports import Table
 from astroid import are_exclusive
 
 from pylint.interfaces import IAstroidChecker
+from pylint.utils import EmptyReport
 from pylint.reporters import diff_string
-from pylint.checkers import BaseChecker, EmptyReport
+from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
     clobber_in_except,
