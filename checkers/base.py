@@ -26,6 +26,7 @@ from pylint.checkers import BaseChecker, EmptyReport
 from pylint.checkers.utils import (
     check_messages,
     clobber_in_except,
+    is_builtin_object,
     is_inside_except,
     safe_infer,
     )
@@ -917,8 +918,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
         if not isinstance(node.args[0], astroid.Lambda):
             return
         infered = safe_infer(node.func)
-        if (infered
-            and infered.parent.name == '__builtin__'
+        if (is_builtin_object(infered)
             and infered.name in ['map', 'filter']):
             self.add_message('W0110', node=node)
 
