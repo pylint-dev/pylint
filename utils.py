@@ -112,12 +112,13 @@ def category_id(id):
 def tokenize_module(module):
     stream = module.file_stream
     stream.seek(0)
-    if sys.version_info < (3, 0) and module.file_encoding is not None:
-        readline = lambda: stream.readline().decode(module.file_encoding, 
+    readline = stream.readline
+    if sys.version_info < (3, 0):
+        if module.file_encoding is not None:
+            readline = lambda: stream.readline().decode(module.file_encoding,
                                                     'replace')
-    else:
-        readline = stream.readline
-    return list(tokenize.generate_tokens(readline))
+        return list(tokenize.generate_tokens(readline))
+    return list(tokenize.tokenize(readline))
 
     
 class Message(object):

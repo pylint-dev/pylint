@@ -60,13 +60,13 @@ separated by a comma.'
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
-            unicode(line, file_encoding)
+            return unicode(line, file_encoding)
         except UnicodeDecodeError, e:
             self.add_message('W0512', line=lineno,
                              args=(file_encoding, e.args[2]))
 
     def process_module(self, module):
-        """inspect the source file to found encoding problem or fixmes like
+        """inspect the source file to find encoding problem or fixmes like
         notes
         """
         stream = module.file_stream
@@ -77,8 +77,9 @@ separated by a comma.'
         else:
             encoding = 'ascii'
         for lineno, line in enumerate(stream):
-            self._check_note(notes, lineno+1, line)
-            self._check_encoding(lineno+1, line, encoding)
+            line = self._check_encoding(lineno+1, line, encoding)
+            if line is not None:
+                self._check_note(notes, lineno+1, line)
 
 def register(linter):
     """required method to auto register this checker"""
