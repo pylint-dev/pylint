@@ -41,19 +41,6 @@ except ImportError:
 try:
     # python3
     from distutils.command.build_py import build_py_2to3 as build_py
-    def run(self):
-        self.updated_files = []
-        # Base class code
-        if self.py_modules:
-            self.build_modules()
-        if self.packages:
-            self.build_packages()
-            self.build_package_data()
-        # 2to3
-        self.run_2to3(self.updated_files)
-        # Remaining base class code
-        self.byte_compile(self.get_outputs(include_bytecode=0))
-    build_py.run = run
 except ImportError:
     # python2.x
     from distutils.command.build_py import build_py
@@ -114,7 +101,7 @@ except ImportError:
 '''
 
 class MyInstallLib(install_lib.install_lib):
-    """extend install_lib command to handle  package __init__.py and
+    """extend install_lib command to handle package __init__.py and
     include_dirs variable if necessary
     """
     def run(self):
@@ -136,8 +123,19 @@ class MyInstallLib(install_lib.install_lib):
                 base = modname
             for directory in include_dirs:
                 dest = join(self.install_dir, base, directory)
+                if sys.version_info >= (3, 0):
+                    exclude = set(('func_unknown_encoding.py',
+                                   'func_invalid_encoded_data.py'))
+                else:
+                    exclude = set()
                 shutil.rmtree(dest, ignore_errors=True)
-                shutil.copytree(directory, dest)
+                shutil.copytree(directory, dest, ignore=lambda dir, names: list(set(names) & exclude))
+
+                if sys.version_info >= (3, 0):
+                    # process manually python file in include_dirs (test data)
+                    from subprocess import call
+                    print('running 2to3 on', dest)
+                    call(['2to3', '-wn', dest])
 
 
 def install(**kwargs):
