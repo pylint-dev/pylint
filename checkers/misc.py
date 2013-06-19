@@ -30,7 +30,8 @@ MSGS = {
     'W0512': ('Cannot decode using encoding "%s", unexpected byte at position %d',
               'invalid-encoded-data',
               'Used when a source line cannot be decoded using the specified '
-              'source file encoding.'),
+              'source file encoding.',
+              {'maxversion': (3, 0)}),
     }
 
 
