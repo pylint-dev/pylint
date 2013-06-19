@@ -10,4 +10,7 @@ C: 62:Correct.__init__: Invalid attribute name "_Ca_va_Pas"
 C: 74: Invalid class name "BAD_NAME_FOR_CLASS"
 C: 75: Invalid class name "NEXT_BAD_NAME_FOR_CLASS"
 C: 81: Invalid class name "NOT_CORRECT"
+C: 87:test_globals: Invalid constant name "AlsoCorrect"
 W: 10:Run.B: Unused variable 'B'
+W: 86:test_globals: Using the global statement
+W: 87:test_globals: Using the global statement

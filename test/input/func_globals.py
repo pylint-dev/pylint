@@ -36,5 +36,5 @@ other()
 
 def define_constant():
     """ok but somevar is not defined at the module scope"""
-    global somevar
-    somevar = 2
+    global SOMEVAR
+    SOMEVAR = 2

@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Names in global statements are now checked against the regular
+      expression for constants.
     * For toplevel name assignment, the class name regex will be used if
       pylint can detect that value on the right-hand side is a class
       (like collections.namedtuple()).

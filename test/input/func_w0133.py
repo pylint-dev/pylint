@@ -79,3 +79,11 @@ ToplevelClass = class_builder()
 
 AlsoCorrect = Correct
 NOT_CORRECT = Correct
+
+
+def test_globals():
+    """Names in global statements are also checked."""
+    global NOT_CORRECT
+    global AlsoCorrect
+    NOT_CORRECT = 1
+    AlsoCorrect = 2

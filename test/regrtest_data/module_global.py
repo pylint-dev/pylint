@@ -3,5 +3,5 @@
 """
 __revision__ = 1
 
-global bar
-bar.foo
+global GLOBAL_VAR
+GLOBAL_VAR.foo

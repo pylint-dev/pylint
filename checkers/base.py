@@ -758,6 +758,11 @@ class NameChecker(_BasicChecker):
             self._recursive_check_names(args, node)
 
     @check_messages('blacklisted-name', 'invalid-name')
+    def visit_global(self, node):
+        for name in node.names:
+            self._check_name('const', name, node)
+
+    @check_messages('blacklisted-name', 'invalid-name')
     def visit_assname(self, node):
         """check module level assigned names"""
         frame = node.frame()
