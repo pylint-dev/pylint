@@ -43,11 +43,14 @@ class Similar:
             readlines = stream.readlines
         else:
             readlines = lambda: [line.decode(encoding) for line in stream]
-        self.linesets.append(LineSet(streamid,
-                                     readlines(),
-                                     self.ignore_comments,
-                                     self.ignore_docstrings,
-                                     self.ignore_imports))
+        try:
+            self.linesets.append(LineSet(streamid,
+                                         readlines(),
+                                         self.ignore_comments,
+                                         self.ignore_docstrings,
+                                         self.ignore_imports))
+        except UnicodeDecodeError:
+            pass
 
     def run(self):
         """start looking for similarities and display results on stdout"""
