@@ -163,7 +163,7 @@ class NonRegrTC(TestCase):
     def test_absolute_import(self):
         linter.check(join(REGR_DATA, 'absimp', 'string.py'))
         got = linter.reporter.finalize().strip()
-        self.assertEqual(got, "W:  6: Uses of a deprecated module 'string'")
+        self.assertEqual(got, "")
 
 if __name__ == '__main__':
     unittest_main()
