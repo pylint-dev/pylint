@@ -27,7 +27,6 @@ from logilab.common import testlib
 from pylint.testutils import (make_tests, LintTestUsingModule, LintTestUsingFile,
     cb_test_gen, linter, test_reporter)
 
-PY26 = sys.version_info >= (2, 6)
 PY3K = sys.version_info >= (3, 0)
 
 # Configure paths
@@ -63,21 +62,13 @@ class TestTests(testlib.TestCase):
                 continue
         todo.sort()
         if PY3K:
-            rest = ['E1122', 'I0001',
-                    # no more map
-                    'W0110',
-                    # deprecated raise syntax removed from py3k
-                    'W0121',
-                    # deprecated exec statement removed from py3k :
-                    'W0122',
+            rest = ['I0001',
                     # XXX : no use case for now :
                     'W0402', # deprecated module
                     'W0403', # implicit relative import
                     'W0410', # __future__ import not first statement
                     ]
             self.assertEqual(todo, rest)
-        elif PY26:
-            self.assertEqual(todo, ['E1122', 'I0001'])
         else:
             self.assertEqual(todo, ['I0001'])
 

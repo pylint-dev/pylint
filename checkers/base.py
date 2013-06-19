@@ -377,7 +377,8 @@ functions, methods
     'W0122': ('Use of the exec statement',
               'exec-statement',
               'Used when you use the "exec" statement, to discourage its \
-              usage. That doesn\'t mean you can not use it !'),
+              usage. That doesn\'t mean you can not use it !',
+              {'maxversion': (3, 0)}),
 
     'W0141': ('Used builtin function %r',
               'bad-builtin',
@@ -957,7 +958,8 @@ class LambdaForComprehensionChecker(_BasicChecker):
                       'deprecated-lambda',
                       'Used when a lambda is the first argument to "map" or '
                       '"filter". It could be clearer as a list '
-                      'comprehension or generator expression.'),
+                      'comprehension or generator expression.',
+                      {'maxversion': (3, 0)}),
             }
 
     @check_messages('deprecated-lambda')
