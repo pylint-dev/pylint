@@ -1,5 +1,5 @@
 # -*- coding: utf-8; mode: python; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=python:et:sw=4:ts=4:sts=4
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -76,7 +76,7 @@ def lint(filename):
     lintPath = os.path.join(os.path.dirname(__file__), 'lint.py')
     cmd = [sys.executable, lintPath, '-f', 'parseable', '-r', 'n',
            '--disable=C,R,I', childPath]
-    process = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=parentPath)
+    process = Popen(cmd, stdout=PIPE, cwd=parentPath)
 
     # The parseable line format is '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
     # NOTE: This would be cleaner if we added an Emacs reporter to pylint.reporters.text ..
