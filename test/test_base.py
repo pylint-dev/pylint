@@ -10,19 +10,19 @@ class DocstringTest(CheckerTestCase):
 
     def testMissingDocstringModule(self):
         module = test_utils.build_module("")
-        with self.assertAddsMessages(Message('C0111', node=module, args=('module',))):
+        with self.assertAddsMessages(Message('missing-docstring', node=module, args=('module',))):
             self.checker.visit_module(module)
 
     def testEmptyDocstringModule(self):
         module = test_utils.build_module("''''''")
-        with self.assertAddsMessages(Message('C0112', node=module, args=('module',))):
+        with self.assertAddsMessages(Message('empty-docstring', node=module, args=('module',))):
             self.checker.visit_module(module)
 
     def testEmptyDocstringFunction(self):
         func = test_utils.extract_node("""
         def func(tion):
            pass""")
-        with self.assertAddsMessages(Message('C0111', node=func, args=('function',))):
+        with self.assertAddsMessages(Message('missing-docstring', node=func, args=('function',))):
             self.checker.visit_function(func)
 
     def testShortFunctionNoDocstring(self):
@@ -45,7 +45,7 @@ class DocstringTest(CheckerTestCase):
         klass = test_utils.extract_node("""
         class Klass(object):
            pass""")
-        with self.assertAddsMessages(Message('C0111', node=klass, args=('class',))):
+        with self.assertAddsMessages(Message('missing-docstring', node=klass, args=('class',))):
             self.checker.visit_class(klass)
 
 

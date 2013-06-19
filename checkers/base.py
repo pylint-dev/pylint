@@ -191,11 +191,13 @@ class BasicErrorChecker(_BasicChecker):
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
 
-    @check_messages('E0102')
+    @check_messages('function-redefined')
     def visit_class(self, node):
         self._check_redefinition('class', node)
 
-    @check_messages('E0100', 'E0101', 'E0102', 'E0106', 'E0108')
+    @check_messages('init-is-generator', 'return-in-init', 
+                    'function-redefined', 'return-arg-in-generator', 
+                    'duplicate-argument-name')
     def visit_function(self, node):
         if not redefined_by_decorator(node):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
@@ -204,7 +206,7 @@ class BasicErrorChecker(_BasicChecker):
                                       skip_klass=(astroid.Function, astroid.Class))
         if node.is_method() and node.name == '__init__':
             if node.is_generator():
-                self.add_message('E0100', node=node)
+                self.add_message('init-is-generator', node=node)
             else:
                 values = [r.value for r in returns]
                 # Are we returning anything but None from constructors
@@ -213,61 +215,61 @@ class BasicErrorChecker(_BasicChecker):
                           (isinstance(v, astroid.Const) and v.value is None) or
                           (isinstance(v, astroid.Name)  and v.name == 'None')
                          ) ]:
-                    self.add_message('E0101', node=node)
+                    self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
             for retnode in returns:
                 if isinstance(retnode.value, astroid.Const) and \
                        retnode.value.value is not None:
-                    self.add_message('E0106', node=node,
+                    self.add_message('return-arg-in-generator', node=node,
                                      line=retnode.fromlineno)
         # Check for duplicate names
         args = set() 
         for name in node.argnames():
             if name in args:
-                self.add_message('E0108', node=node, args=(name,))
+                self.add_message('duplicate-argument-name', node=node, args=(name,))
             else:
                 args.add(name)
 
 
-    @check_messages('E0104')
+    @check_messages('return-outside-function')
     def visit_return(self, node):
         if not isinstance(node.frame(), astroid.Function):
-            self.add_message('E0104', node=node)
+            self.add_message('return-outside-function', node=node)
 
-    @check_messages('E0105')
+    @check_messages('yield-outside-function')
     def visit_yield(self, node):
         if not isinstance(node.frame(), (astroid.Function, astroid.Lambda)):
-            self.add_message('E0105', node=node)
+            self.add_message('yield-outside-function', node=node)
 
-    @check_messages('E0103')
+    @check_messages('not-in-loop')
     def visit_continue(self, node):
         self._check_in_loop(node, 'continue')
 
-    @check_messages('E0103')
+    @check_messages('not-in-loop')
     def visit_break(self, node):
         self._check_in_loop(node, 'break')
 
-    @check_messages('W0120')
+    @check_messages('useless-else-on-loop')
     def visit_for(self, node):
         self._check_else_on_loop(node)
 
-    @check_messages('W0120')
+    @check_messages('useless-else-on-loop')
     def visit_while(self, node):
         self._check_else_on_loop(node)
 
-    @check_messages('E0107')
+    @check_messages('nonexistent-operator')
     def visit_unaryop(self, node):
         """check use of the non-existent ++ and -- operator operator"""
         if ((node.op in '+-') and
             isinstance(node.operand, astroid.UnaryOp) and
             (node.operand.op == node.op)):
-            self.add_message('E0107', node=node, args=node.op*2)
+            self.add_message('nonexistent-operator', node=node, args=node.op*2)
 
     def _check_else_on_loop(self, node):
         """Check that any loop with an else clause has a break statement."""
         if node.orelse and not _loop_exits_early(node):
-            self.add_message('W0120', node=node,
+            self.add_message('useless-else-on-loop', node=node,
                              # This is not optimal, but the line previous
                              # to the first statement in the else clause
                              # will usually be the one that contains the else:.
@@ -281,13 +283,13 @@ class BasicErrorChecker(_BasicChecker):
                 break
             _node = _node.parent
         else:
-            self.add_message('E0103', node=node, args=node_name)
+            self.add_message('not-in-loop', node=node, args=node_name)
 
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
         defined_self = node.parent.frame()[node.name]
         if defined_self is not node and not are_exclusive(node, defined_self):
-            self.add_message('E0102', node=node,
+            self.add_message('function-redefined', node=node,
                              args=(redeftype, defined_self.fromlineno))
 
 
@@ -295,7 +297,6 @@ class BasicErrorChecker(_BasicChecker):
 class BasicChecker(_BasicChecker):
     """checks for :
     * doc strings
-    * modules / classes / functions / methods / arguments / variables name
     * number of arguments, local variables, branches, returns and statements in
 functions, methods
     * required module attributes
@@ -403,14 +404,14 @@ functions, methods
         self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0,
                                            method=0, class_=0)
-    @check_messages('C0121')
+    @check_messages('missing-module-attribute')
     def visit_module(self, node):
         """check module name, docstring and required arguments
         """
         self.stats['module'] += 1
         for attr in self.config.required_attributes:
             if attr not in node:
-                self.add_message('C0121', node=node, args=attr)
+                self.add_message('missing-module-attribute', node=node, args=attr)
 
     def visit_class(self, node):
         """check module name, docstring and redefinition
@@ -418,31 +419,32 @@ functions, methods
         """
         self.stats['class'] += 1
 
-    @check_messages('W0104', 'W0105', 'W0106')
+    @check_messages('pointless-statement', 'pointless-string-statement', 
+                    'expression-not-assigned')
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
         if isinstance(expr, astroid.Const) and isinstance(expr.value,
                                                         basestring):
             # treat string statement in a separated message
-            self.add_message('W0105', node=node)
+            self.add_message('pointless-string-statement', node=node)
             return
         # ignore if this is :
         # * a direct function call
         # * the unique child of a try/except body
         # * a yield (which are wrapped by a discard node in _ast XXX)
         # warn W0106 if we have any underlying function call (we can't predict
-        # side effects), else W0104
+        # side effects), else pointless-statement
         if (isinstance(expr, (astroid.Yield, astroid.CallFunc)) or
             (isinstance(node.parent, astroid.TryExcept) and
              node.parent.body == [node])):
             return
         if any(expr.nodes_of_class(astroid.CallFunc)):
-            self.add_message('W0106', node=node, args=expr.as_string())
+            self.add_message('expression-not-assigned', node=node, args=expr.as_string())
         else:
-            self.add_message('W0104', node=node)
+            self.add_message('pointless-statement', node=node)
 
-    @check_messages('W0108')
+    @check_messages('unnecessary-lambda')
     def visit_lambda(self, node):
         """check whether or not the lambda is suspicious
         """
@@ -492,9 +494,9 @@ functions, methods
                 return
             if node.args.args[i].name != call.args[i].name:
                 return
-        self.add_message('W0108', line=node.fromlineno, node=node)
+        self.add_message('unnecessary-lambda', line=node.fromlineno, node=node)
 
-    @check_messages('W0102')
+    @check_messages('dangerous-default-value')
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -514,9 +516,9 @@ functions, methods
                     msg = '%s (%s)' % (default.as_string(), value.qname())
                 else:
                     msg = '%s (%s)' % (default.as_string(), value.as_string())
-                self.add_message('W0102', node=node, args=(msg,))
+                self.add_message('dangerous-default-value', node=node, args=(msg,))
 
-    @check_messages('W0101', 'W0150')
+    @check_messages('unreachable', 'lost-exception')
     def visit_return(self, node):
         """1 - check is the node has a right sibling (if so, that's some
         unreachable code)
@@ -527,14 +529,14 @@ functions, methods
         # Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'return', (astroid.Function,))
 
-    @check_messages('W0101')
+    @check_messages('unreachable')
     def visit_continue(self, node):
         """check is the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
 
-    @check_messages('W0101', 'W0150')
+    @check_messages('unreachable', 'lost-exception')
     def visit_break(self, node):
         """1 - check is the node has a right sibling (if so, that's some
         unreachable code)
@@ -546,21 +548,21 @@ functions, methods
         # 2 - Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'break', (astroid.For, astroid.While,))
 
-    @check_messages('W0101', 'W0121')
+    @check_messages('unreachable', 'old-raise-syntax')
     def visit_raise(self, node):
         """check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
         if node.exc is not None and node.inst is not None and node.tback is None:
-            self.add_message('W0121', node=node)
+            self.add_message('old-raise-syntax', node=node)
 
-    @check_messages('W0122')
+    @check_messages('exec-statement')
     def visit_exec(self, node):
         """just print a warning on exec statements"""
-        self.add_message('W0122', node=node)
+        self.add_message('exec-statement', node=node)
 
-    @check_messages('W0141', 'W0142')
+    @check_messages('bad-builtin', 'star-args')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -572,7 +574,7 @@ functions, methods
             if not (name in node.frame() or
                     name in node.root()):
                 if name in self.config.bad_functions:
-                    self.add_message('W0141', node=node, args=name)
+                    self.add_message('bad-builtin', node=node, args=name)
         if node.starargs or node.kwargs:
             scope = node.scope()
             if isinstance(scope, astroid.Function):
@@ -583,17 +585,17 @@ functions, methods
                         if getattr(cfnode, 'name', None) == fargname:
                             toprocess.remove((cfnode, fargname))
                     if not toprocess:
-                        return # W0142 can be skipped
-            self.add_message('W0142', node=node.func)
+                        return # star-args can be skipped
+            self.add_message('star-args', node=node.func)
 
-    @check_messages('W0199')
+    @check_messages('assert-on-tuple')
     def visit_assert(self, node):
         """check the use of an assert statement on a tuple."""
         if node.fail is None and isinstance(node.test, astroid.Tuple) and \
            len(node.test.elts) == 2:
-            self.add_message('W0199', node=node)
+            self.add_message('assert-on-tuple', node=node)
 
-    @check_messages('W0109')
+    @check_messages('duplicate-key')
     def visit_dict(self, node):
         """check duplicate key in dictionary"""
         keys = set()
@@ -601,7 +603,7 @@ functions, methods
             if isinstance(k, astroid.Const):
                 key = k.value
                 if key in keys:
-                    self.add_message('W0109', node=node, args=key)
+                    self.add_message('duplicate-key', node=node, args=key)
                 keys.add(key)
 
     def visit_tryfinally(self, node):
@@ -616,7 +618,7 @@ functions, methods
         """check unreachable code"""
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
-            self.add_message('W0101', node=unreach_stmt)
+            self.add_message('unreachable', node=unreach_stmt)
 
     def _check_not_in_finally(self, node, node_name, breaker_classes=()):
         """check that a node is not inside a finally clause of a
@@ -631,11 +633,10 @@ functions, methods
         _node = node
         while _parent and not isinstance(_parent, breaker_classes):
             if hasattr(_parent, 'finalbody') and _node in _parent.finalbody:
-                self.add_message('W0150', node=node, args=node_name)
+                self.add_message('lost-exception', node=node, args=node_name)
                 return
             _node = _parent
             _parent = _node.parent
-
 
 
 class NameChecker(_BasicChecker):
@@ -648,8 +649,8 @@ class NameChecker(_BasicChecker):
               'invalid-name',
               'Used when the name doesn\'t match the regular expression \
               associated to its type (constant, variable, class...).'),
-
     }
+
     options = (('module-rgx',
                 {'default' : MOD_NAME_RGX,
                  'type' :'regexp', 'metavar' : '<regexp>',
@@ -735,17 +736,17 @@ class NameChecker(_BasicChecker):
                                            badname_argument=0,
                                            badname_class_attribute=0)
 
-    @check_messages('C0102', 'C0103')
+    @check_messages('blacklisted-name', 'invalid-name')
     def visit_module(self, node):
         self._check_name('module', node.name.split('.')[-1], node)
 
-    @check_messages('C0102', 'C0103')
+    @check_messages('blacklisted-name', 'invalid-name')
     def visit_class(self, node):
         self._check_name('class', node.name, node)
         for attr, anodes in node.instance_attrs.iteritems():
             self._check_name('attr', attr, anodes[0])
 
-    @check_messages('C0102', 'C0103')
+    @check_messages('blacklisted-name', 'invalid-name')
     def visit_function(self, node):
         self._check_name(node.is_method() and 'method' or 'function',
                          node.name, node)
@@ -754,7 +755,7 @@ class NameChecker(_BasicChecker):
         if args is not None:
             self._recursive_check_names(args, node)
 
-    @check_messages('C0102', 'C0103')
+    @check_messages('blacklisted-name', 'invalid-name')
     def visit_assname(self, node):
         """check module level assigned names"""
         frame = node.frame()
@@ -795,7 +796,7 @@ class NameChecker(_BasicChecker):
             return
         if name in self.config.bad_names:
             self.stats['badname_' + node_type] += 1
-            self.add_message('C0102', node=node, args=name)
+            self.add_message('blacklisted-name', node=node, args=name)
             return
         regexp = getattr(self.config, node_type + '_rgx')
         if regexp.match(name) is None:
@@ -804,7 +805,7 @@ class NameChecker(_BasicChecker):
                           'attr': 'attribute',
                           'class_attribute': 'class attribute'
                           }.get(node_type, node_type)
-            self.add_message('C0103', node=node, args=(type_label, name))
+            self.add_message('invalid-name', node=node, args=(type_label, name))
             self.stats['badname_' + node_type] += 1
 
 
@@ -841,15 +842,15 @@ class DocStringChecker(_BasicChecker):
                                            undocumented_function=0,
                                            undocumented_method=0,
                                            undocumented_class=0)
-    @check_messages('C0111', 'C0112')
+    @check_messages('missing-docstring', 'empty-docstring')
     def visit_module(self, node):
         self._check_docstring('module', node)
 
-    @check_messages('C0111', 'C0112')
+    @check_messages('missing-docstring', 'empty-docstring')
     def visit_class(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring('class', node)
-    @check_messages('C0111', 'C0112')
+    @check_messages('missing-docstring', 'empty-docstring')
     def visit_function(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = node.is_method() and 'method' or 'function'
@@ -879,10 +880,10 @@ class DocStringChecker(_BasicChecker):
             if node_type != 'module' and max_lines > -1 and lines < max_lines:
                 return
             self.stats['undocumented_'+node_type] += 1
-            self.add_message('C0111', node=node, args=(node_type,))
+            self.add_message('missing-docstring', node=node, args=(node_type,))
         elif not docstring.strip():
             self.stats['undocumented_'+node_type] += 1
-            self.add_message('C0112', node=node, args=(node_type,))
+            self.add_message('empty-docstring', node=node, args=(node_type,))
 
 
 class PassChecker(_BasicChecker):
@@ -892,10 +893,10 @@ class PassChecker(_BasicChecker):
                       'Used when a "pass" statement that can be avoided is '
                       'encountered.'),
             }
-    @check_messages('W0107')
+    @check_messages('unnecessary-pass')
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
-            self.add_message('W0107', node=node)
+            self.add_message('unnecessary-pass', node=node)
 
 
 class LambdaForComprehensionChecker(_BasicChecker):
@@ -912,7 +913,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
                       'comprehension or generator expression.'),
             }
 
-    @check_messages('W0110')
+    @check_messages('deprecated-lambda')
     def visit_callfunc(self, node):
         """visit a CallFunc node, check if map or filter are called with a
         lambda
@@ -924,7 +925,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
         infered = safe_infer(node.func)
         if (is_builtin_object(infered)
             and infered.name in ['map', 'filter']):
-            self.add_message('W0110', node=node)
+            self.add_message('deprecated-lambda', node=node)
 
 
 def register(linter):
