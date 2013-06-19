@@ -1,4 +1,4 @@
-C:  1: Missing docstring
+C:  1: Missing module docstring
 C:  1: Missing required attribute "__revision__"
 E:  1: No name 'syntax_error' in module 'input'
 W:  1: Unused import syntax_error
