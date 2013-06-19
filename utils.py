@@ -624,11 +624,9 @@ class PyLintASTWalker(object):
             elif member.startswith('leave_'):
                 l_meth = getattr(checker, member)
                 # don't use leave_methods with no activated message:
-                if hasattr(l_meth, 'checks_msgs'):
-                    if not any(msgs.get(m, True) for m in l_meth.checks_msgs):
-                        continue
-                leaves.setdefault(cid, []).append(l_meth)
-                lcids.add(cid)
+                if self._is_method_enabled(l_meth):
+                    leaves.setdefault(cid, []).append(l_meth)
+                    lcids.add(cid)
         visit_default = getattr(checker, 'visit_default', None)
         if visit_default:
             for cls in nodes.ALL_NODE_CLASSES:

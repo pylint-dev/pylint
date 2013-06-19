@@ -41,6 +41,10 @@ class PyLintASTWalkerTest(TestCase):
         def visit_assname(self, module):
             self.called.add('assname')
 
+        @check_messages('second-message')
+        def leave_assname(self, module):
+            raise NotImplementedError
+
     def testCheckMessages(self):
         linter = self.MockLinter({'first-message': True,
                                   'second-message': False,
