@@ -1,10 +1,10 @@
-C:  8:Run.B: Invalid name "B" for type class (should match [A-Z_][a-zA-Z0-9]+$)
-C: 12:Run: Invalid name "bBb" for type variable (should match [a-z_][a-z0-9_]{2,30}$)
-C: 26:HOHOHOHO: Invalid name "HOHOHOHO" for type function (should match [a-z_][a-z0-9_]{2,30}$)
-C: 28:HOHOHOHO: Invalid name "HIHIHI" for type variable (should match [a-z_][a-z0-9_]{2,30}$)
-C: 31:xyz: Invalid name "xyz" for type class (should match [A-Z_][a-zA-Z0-9]+$)
-C: 34:xyz: Invalid name "zz" for type class attribute (should match ([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$)
-C: 39:xyz.Youplapoum: Invalid name "Youplapoum" for type method (should match [a-z_][a-z0-9_]{2,30}$)
-C: 54: Invalid name "benpasceluila" for type constant (should match (([A-Z_][A-Z0-9_]*)|(__.*__))$)
-C: 60:Correct.__init__: Invalid name "_Ca_va_Pas" for type attribute (should match [a-z_][a-z0-9_]{2,30}$)
+C:  8:Run.B: Invalid class name "B"
+C: 12:Run: Invalid variable name "bBb"
+C: 26:HOHOHOHO: Invalid function name "HOHOHOHO"
+C: 28:HOHOHOHO: Invalid variable name "HIHIHI"
+C: 31:xyz: Invalid class name "xyz"
+C: 34:xyz: Invalid class attribute name "zz"
+C: 39:xyz.Youplapoum: Invalid method name "Youplapoum"
+C: 54: Invalid constant name "benpasceluila"
+C: 60:Correct.__init__: Invalid attribute name "_Ca_va_Pas"
 W:  8:Run.B: Unused variable 'B'

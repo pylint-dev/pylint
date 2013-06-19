@@ -43,6 +43,8 @@ ChangeLog for Pylint
       tokens rather than the syntax, and only tokenize the input file
       once.
 
+    * simplified invalid-name message
+
     * bitbucket #15: epylint shouldn't hang anymore when there is a large
       output on pylint'stderr
 

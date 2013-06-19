@@ -643,7 +643,7 @@ class NameChecker(_BasicChecker):
               'blacklisted-name',
               'Used when the name is listed in the black list (unauthorized \
               names).'),
-    'C0103': ('Invalid name "%s" for type %s (should match %s)',
+    'C0103': ('Invalid %s name "%s"',
               'invalid-name',
               'Used when the name doesn\'t match the regular expression \
               associated to its type (constant, variable, class...).'),
@@ -800,7 +800,7 @@ class NameChecker(_BasicChecker):
                           'attr': 'attribute',
                           'class_attribute': 'class attribute'
                           }.get(node_type, node_type)
-            self.add_message('C0103', node=node, args=(name, type_label, regexp.pattern))
+            self.add_message('C0103', node=node, args=(type_label, name))
             self.stats['badname_' + node_type] += 1
 
 

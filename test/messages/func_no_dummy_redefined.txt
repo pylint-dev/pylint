@@ -1,2 +1,2 @@
-C:  7: Invalid name "value" for type constant (should match (([A-Z_][A-Z0-9_]*)|(__.*__))$)
+C:  7: Invalid constant name "value"
 W: 12:clobbering: Redefining name 'value' from outer scope (line 7)
