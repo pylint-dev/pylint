@@ -66,6 +66,8 @@ class TestTests(testlib.TestCase):
             rest = ['E1122', 'I0001',
                     # no more map
                     'W0110',
+                    # deprecated raise syntax removed from py3k
+                    'W0121',
                     # deprecated exec statement removed from py3k :
                     'W0122',
                     # XXX : no use case for now :

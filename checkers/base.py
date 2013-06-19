@@ -16,7 +16,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """basic checker for Python code"""
 
-
+import sys
 import astroid
 from logilab.common.ureports import Table
 from astroid import are_exclusive
@@ -588,6 +588,8 @@ functions, methods
         code)
         """
         self._check_unreachable(node)
+        if sys.version_info >= (3, 0):
+            return
         if node.exc is not None and node.inst is not None and node.tback is None:
             self.add_message('old-raise-syntax', node=node)
 
