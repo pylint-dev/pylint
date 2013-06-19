@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * For toplevel name assignment, the class name regex will be used if
+      pylint can detect that value on the right-hand side is a class
+      (like collections.namedtuple()).
     * Added a new warning invalid-encoded-data (W0512) for files that
       contain data that cannot be decoded with the specified or
       default encoding.

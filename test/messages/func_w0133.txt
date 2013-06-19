@@ -1,10 +1,13 @@
-C:  8:Run.B: Invalid class name "B"
-C: 12:Run: Invalid variable name "bBb"
-C: 26:HOHOHOHO: Invalid function name "HOHOHOHO"
-C: 28:HOHOHOHO: Invalid variable name "HIHIHI"
-C: 31:xyz: Invalid class name "xyz"
-C: 34:xyz: Invalid class attribute name "zz"
-C: 39:xyz.Youplapoum: Invalid method name "Youplapoum"
-C: 54: Invalid constant name "benpasceluila"
-C: 60:Correct.__init__: Invalid attribute name "_Ca_va_Pas"
-W:  8:Run.B: Unused variable 'B'
+C: 10:Run.B: Invalid class name "B"
+C: 14:Run: Invalid variable name "bBb" for type
+C: 28:HOHOHOHO: Invalid function name "HOHOHOHO"
+C: 30:HOHOHOHO: Invalid variable name "HIHIHI"
+C: 33:xyz: Invalid class name "xyz"
+C: 36:xyz: Invalid class attribute name "zz"
+C: 41:xyz.Youplapoum: Invalid method name "Youplapoum"
+C: 56: Invalid constant name "benpasceluila"
+C: 62:Correct.__init__: Invalid attribute name "_Ca_va_Pas"
+C: 74: Invalid class name "BAD_NAME_FOR_CLASS"
+C: 75: Invalid class name "NEXT_BAD_NAME_FOR_CLASS"
+C: 81: Invalid class name "NOT_CORRECT"
+W: 10:Run.B: Unused variable 'B'

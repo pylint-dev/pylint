@@ -762,7 +762,10 @@ class NameChecker(_BasicChecker):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astroid.Module):
             if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
-                self._check_name('const', node.name, node)
+                if isinstance(safe_infer(ass_type.value), astroid.Class):
+                    self._check_name('class', node.name, node)
+                else:
+                    self._check_name('const', node.name, node)
             elif isinstance(ass_type, astroid.ExceptHandler):
                 self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.Function):
