@@ -27,12 +27,17 @@ MSGS = {
     'W0511': ('%s',
               'fixme',
               'Used when a warning note as FIXME or XXX is detected.'),
+    'W0512': ('Cannot decode using encoding "%s", unexcepted byte at position %d',
+              'invalid-encoded-data',
+              'Used when a source line cannot be decoded using the specified '
+              'source file encoding.'),
     }
+
 
 class EncodingChecker(BaseChecker):
     """checks for:
     * warning notes in the code like FIXME, XXX
-    * PEP 263: source code with non ascii character but no encoding declaration
+    * encoding issues.
     """
     __implements__ = IRawChecker
 
@@ -52,17 +57,28 @@ separated by a comma.'
         match = notes.search(line)
         if match:
             self.add_message('W0511', args=line[match.start():-1], line=lineno)
-        
-    def process_module(self, node):
+
+    def _check_encoding(self, lineno, line, file_encoding):
+        try:
+            unicode(line, file_encoding)
+        except UnicodeDecodeError, e:
+            self.add_message('W0512', line=lineno,
+                             args=(file_encoding, e.args[2]))
+
+    def process_module(self, module):
         """inspect the source file to found encoding problem or fixmes like
         notes
         """
-        stream = node.file_stream
+        stream = module.file_stream
         stream.seek(0) # XXX may be removed with astroid > 0.23
         notes = re.compile('|'.join(self.config.notes))
+        if module.file_encoding:
+            encoding = module.file_encoding
+        else:
+            encoding = 'ascii'
         for lineno, line in enumerate(stream):
             self._check_note(notes, lineno+1, line)
-
+            self._check_encoding(lineno+1, line, encoding)
 
 def register(linter):
     """required method to auto register this checker"""

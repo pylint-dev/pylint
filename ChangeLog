@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Added a new warning invalid-encoded-data (W0512) for files that
+      contain data that cannot be decoded with the specified or
+      default encoding.
     * New warning bad-open-mode (W1501) for calls to open (or file) that
       specify invalid open modes (Original implementation by Sasha Issayev).
     * New warning old-style-class (C1001) for classes that do not have any
