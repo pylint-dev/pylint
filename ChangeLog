@@ -43,6 +43,12 @@ ChangeLog for Pylint
       tokens rather than the syntax, and only tokenize the input file
       once.
 
+    * bitbucket #15: epylint shouldn't hang anymore when there is a large
+      output on pylint'stderr
+
+    * bitbucket #3: remove string module from the default list of deprecated
+      modules
+
 2013-04-25  --  0.28.0
     * bitbucket #1: fix "dictionary changed size during iteration" crash
 

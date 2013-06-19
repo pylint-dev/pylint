@@ -165,8 +165,7 @@ class ImportsChecker(BaseChecker):
     priority = -2
 
     options = (('deprecated-modules',
-                {'default' : ('regsub', 'string', 'TERMIOS',
-                              'Bastion', 'rexec'),
+                {'default' : ('regsub', 'TERMIOS', 'Bastion', 'rexec'),
                  'type' : 'csv',
                  'metavar' : '<modules>',
                  'help' : 'Deprecated modules which should not be used, \
