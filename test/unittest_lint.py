@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -42,12 +42,6 @@ class SortMessagesTC(TestCase):
                                          'I0001', 'I0201',
                                          'F0002', 'F0203',])
 
-try:
-    optimized = True
-    raise AssertionError
-except AssertionError:
-    optimized = False
-
 class GetNoteMessageTC(TestCase):
     def test(self):
         msg = None
@@ -55,8 +49,6 @@ class GetNoteMessageTC(TestCase):
             note_msg = config.get_note_message(note)
             self.assertNotEqual(msg, note_msg)
             msg = note_msg
-        if optimized:
-            self.assertRaises(AssertionError, config.get_note_message, 11)
 
 
 HERE = abspath(dirname(__file__))
