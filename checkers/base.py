@@ -186,10 +186,6 @@ class BasicErrorChecker(_BasicChecker):
               'Loops should only have an else clause if they can exit early '
               'with a break statement, otherwise the statements under else '
               'should be on the same scope as the loop itself.'),
-    'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
-              'old-raise-syntax',
-              "Used when the alternate raise syntax 'raise foo, bar' is used "
-              "instead of 'raise foo(bar)'."),
     }
     
     def __init__(self, linter):
@@ -371,11 +367,14 @@ functions, methods
               'A call of assert on a tuple will always evaluate to true if '
               'the tuple is not empty, and will always evaluate to false if '
               'it is.'),
+    'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
+              'old-raise-syntax',
+              "Used when the alternate raise syntax 'raise foo, bar' is used "
+              "instead of 'raise foo(bar)'."),
 
     'C0121': ('Missing required attribute "%s"', # W0103
               'missing-module-attribute',
               'Used when an attribute required for modules is missing.'),
-
     }
 
     options = (('required-attributes',
