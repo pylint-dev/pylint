@@ -35,8 +35,9 @@ TITLE_UNDERLINES = ['', '=', '-', '.']
 class TextReporter(BaseReporter):
     """reports messages and layouts in plain text
     """
-
+    
     __implements__ = IReporter
+    name = 'text'
     extension = 'txt'
 
     def __init__(self, output=None):
@@ -69,6 +70,8 @@ class ParseableTextReporter(TextReporter):
 
     <filename>:<linenum>:<msg>
     """
+    name = 'parseable'
+
     line_format = '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
 
     def __init__(self, output=None, relative=True):
@@ -92,9 +95,13 @@ class ParseableTextReporter(TextReporter):
 class VSTextReporter(ParseableTextReporter):
     """Visual studio text reporter"""
     line_format = '%(path)s(%(line)s): [%(sigle)s%(obj)s] %(msg)s'
+    
+    name = 'msvs'
 
 class ColorizedTextReporter(TextReporter):
     """Simple TextReporter that colorizes text output"""
+
+    name = 'colorized'
 
     COLOR_MAPPING = {
         "I" : ("green", None),
@@ -143,3 +150,11 @@ class ColorizedTextReporter(TextReporter):
         msg = colorize_ansi(msg, color, style)
         sigle = colorize_ansi(sigle, color, style)
         self.writeln('%s:%3s%s: %s' % (sigle, line, obj, msg))
+
+
+def register(linter):
+    """Register the reporter classes with the linter."""
+    linter.register_reporter(TextReporter)
+    linter.register_reporter(ParseableTextReporter)
+    linter.register_reporter(VSTextReporter)
+    linter.register_reporter(ColorizedTextReporter)

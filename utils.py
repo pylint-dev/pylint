@@ -21,11 +21,12 @@ import re
 import sys
 import tokenize
 from warnings import warn
+import os
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 from logilab.common.interface import implements
 from logilab.common.modutils import modpath_from_file, get_module_files, \
-                                    file_from_modpath
+                                    file_from_modpath, load_module_from_file
 from logilab.common.textutils import normalize_text
 from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
@@ -40,6 +41,7 @@ class UnknownMessage(Exception):
 
 class EmptyReport(Exception):
     """raised when a report is empty and so should not be displayed"""
+
 
 
 MSG_TYPES = {
@@ -653,3 +655,30 @@ class PyLintASTWalker(object):
             self.walk(child)
         for cb in self.leave_events.get(cid, ()):
             cb(astroid)
+
+
+PY_EXTS = ('.py', '.pyc', '.pyo', '.pyw', '.so', '.dll')
+
+def register_plugins(linter, directory):
+    """load all module and package in the given directory, looking for a
+    'register' function in each one, used to register pylint checkers
+    """
+    imported = {}
+    for filename in os.listdir(directory):
+        basename, extension = os.path.splitext(filename)
+        if basename in imported or basename == '__pycache__':
+            continue
+        if extension in PY_EXTS and basename != '__init__' or (
+             not extension and os.isdir(os.path.join(directory, basename))):
+            try:
+                module = load_module_from_file(os.path.join(directory, filename))
+            except ValueError:
+                # empty module name (usually emacs auto-save files)
+                continue
+            except ImportError, exc:
+                import sys
+                print >> sys.stderr, "Problem importing module %s: %s" % (filename, exc)
+            else:
+                if hasattr(module, 'register'):
+                    module.register(linter)
+                    imported[basename] = 1

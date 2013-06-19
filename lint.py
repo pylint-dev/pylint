@@ -52,20 +52,13 @@ from pylint.utils import (
     expand_modules, tokenize_module)
 from pylint.interfaces import ILinter, IRawChecker, ITokenChecker, IAstroidChecker
 from pylint.checkers import (BaseTokenChecker,
-                             table_lines_from_stats)
-from pylint.reporters.text import (TextReporter, ParseableTextReporter,
-                                   VSTextReporter, ColorizedTextReporter)
-from pylint.reporters.html import HTMLReporter
+                             table_lines_from_stats,
+                             initialize as checkers_initialize)
+from pylint.reporters import initialize as reporters_initialize
 from pylint import config
 
 from pylint.__pkginfo__ import version
 
-
-REPORTER_OPT_MAP = {'text': TextReporter,
-                    'parseable': ParseableTextReporter,
-                    'msvs': VSTextReporter,
-                    'colorized': ColorizedTextReporter,
-                    'html': HTMLReporter,}
 
 
 def _get_python_path(filepath):
@@ -281,12 +274,13 @@ This is used by the global evaluation report (RP0004).'}),
         ('Reports', 'Options related to output formating and reporting'),
         )
 
-    def __init__(self, options=(), reporter=None, option_groups=(),
-                 pylintrc=None):
+    def __init__(self, options=(), reporter=None, option_groups=(), pylintrc=None):
         # some stuff has to be done before ancestors initialization...
         #
         # checkers / reporter / astroid manager
         self.reporter = None
+        self._reporter_name = None
+        self._reporters = {}
         self._checkers = {}
         self._ignore_file = False
         # visit variables
@@ -324,11 +318,16 @@ This is used by the global evaluation report (RP0004).'}),
         self.register_checker(self)
         self._dynamic_plugins = set()
         self.load_provider_defaults()
-        self.set_reporter(reporter or TextReporter(sys.stdout))
+        if reporter:
+            self.set_reporter(reporter)
 
     def load_default_plugins(self):
-        from pylint import checkers
-        checkers.initialize(self)
+        checkers_initialize(self)
+        reporters_initialize(self)
+        # Make sure to load the default reporter, because
+        # the option has been set before the plugins had been loaded.
+        if not self.reporter:
+            self._load_reporter()
 
     def prepare_import_path(self, args):
         """Prepare sys.path for running the linter checks."""
@@ -351,6 +350,17 @@ This is used by the global evaluation report (RP0004).'}),
             self._dynamic_plugins.add(modname)
             module = load_module_from_name(modname)
             module.register(self)
+
+    def _load_reporter(self):
+        name = self._reporter_name.lower()
+        if name in self._reporters:
+            self.set_reporter(self._reporters[name]())
+        else:
+            qname = self._reporter_name
+            module = load_module_from_name(get_module_part(qname))
+            class_name = qname.split('.')[-1]
+            reporter_class = getattr(module, class_name)
+            self.set_reporter(reporter_class())
 
     def set_reporter(self, reporter):
         """set the reporter used to display messages and reports"""
@@ -376,19 +386,19 @@ This is used by the global evaluation report (RP0004).'}),
                 else :
                     meth(value)
         elif optname == 'output-format':
-            if value.lower() in REPORTER_OPT_MAP:
-                self.set_reporter(REPORTER_OPT_MAP[value.lower()]())
-            else:
-                module = load_module_from_name(get_module_part(value))
-                class_name = value.split('.')[-1]
-                reporter_class = getattr(module, class_name)
-                self.set_reporter(reporter_class())
-
+            self._reporter_name = value
+            # If the reporters are already available, load
+            # the reporter class.
+            if self._reporters:
+                self._load_reporter()
         try:
             BaseTokenChecker.set_option(self, optname, value, action, optdict)
         except UnsupportedAction:
             print >> sys.stderr, 'option %s can\'t be read from config file' % \
                   optname
+
+    def register_reporter(self, reporter_class):
+        self._reporters[reporter_class.name] = reporter_class
 
     # checkers manipulation methods ############################################
 
@@ -929,8 +939,7 @@ are done by default'''}),
               'default': False, 'hide': True,
               'help' : 'Profiled execution.'}),
 
-            ), option_groups=self.option_groups,
-               reporter=reporter, pylintrc=self._rcfile)
+            ), option_groups=self.option_groups, pylintrc=self._rcfile)
         # register standard checkers
         linter.load_default_plugins()
         # load command line plugins

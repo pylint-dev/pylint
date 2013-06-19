@@ -29,6 +29,7 @@ from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
 from pylint.utils import sort_msgs, PyLintASTWalker, MSG_STATE_SCOPE_CONFIG, \
      MSG_STATE_SCOPE_MODULE, tokenize_module
 from pylint.testutils import TestReporter
+from pylint.reporters import text
 from pylint import checkers
 
 class SortMessagesTC(TestCase):
@@ -80,6 +81,7 @@ class PyLinterTC(TestCase):
         self.linter.config.persistent = 0
         # register checkers
         checkers.initialize(self.linter)
+        self.linter.set_reporter(TestReporter())
 
     def test_message_help(self):
         msg = self.linter.get_message_help('F0001', checkerref=True)
@@ -239,6 +241,7 @@ class PyLinterTC(TestCase):
         self.assertTrue(':C0112 (empty-docstring): *Empty %s docstring*' in output)
 
     def test_lint_ext_module_with_file_output(self):
+        self.linter.set_reporter(text.TextReporter())
         if sys.version_info < (3, 0):
             strio = 'StringIO'
         else:
@@ -264,6 +267,7 @@ class PyLinterTC(TestCase):
         self.assertEqual(self.linter.report_is_enabled('RP0001'), True)
 
     def test_report_output_format_aliased(self):
+        text.register(self.linter)
         self.linter.set_option('output-format', 'text')
         self.assertEqual(self.linter.reporter.__class__.__name__, 'TextReporter')
 

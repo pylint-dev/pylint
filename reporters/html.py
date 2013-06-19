@@ -27,6 +27,7 @@ class HTMLReporter(BaseReporter):
     """report messages and layouts in HTML"""
 
     __implements__ = IReporter
+    name = 'html'
     extension = 'html'
 
     def __init__(self, output=sys.stdout):
@@ -64,3 +65,7 @@ class HTMLReporter(BaseReporter):
             self.msgs = []
         HTMLWriter().format(layout, self.out)
 
+
+def register(linter):
+    """Register the reporter classes with the linter."""
+    linter.register_reporter(HTMLReporter)

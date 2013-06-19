@@ -40,14 +40,13 @@ messages nor reports. XXX not true, emit a 07 report !
 
 import tokenize
 import warnings
-from os import listdir
-from os.path import dirname, join, isdir, splitext
+from os.path import dirname
 
 from astroid.utils import ASTWalker
-from logilab.common.modutils import load_module_from_file
 from logilab.common.configuration import OptionsProviderMixIn
 
 from pylint.reporters import diff_string
+from pylint.utils import register_plugins
 
 def table_lines_from_stats(stats, old_stats, columns):
     """get values listed in <columns> from <stats> and <old_stats>,
@@ -145,34 +144,8 @@ class BaseTokenChecker(BaseChecker):
         raise NotImplementedError()
 
 
-PY_EXTS = ('.py', '.pyc', '.pyo', '.pyw', '.so', '.dll')
-
 def initialize(linter):
     """initialize linter with checkers in this package """
-    package_load(linter, __path__[0])
+    register_plugins(linter, __path__[0])
 
-def package_load(linter, directory):
-    """load all module and package in the given directory, looking for a
-    'register' function in each one, used to register pylint checkers
-    """
-    imported = {}
-    for filename in listdir(directory):
-        basename, extension = splitext(filename)
-        if basename in imported or basename == '__pycache__':
-            continue
-        if extension in PY_EXTS and basename != '__init__' or (
-             not extension and isdir(join(directory, basename))):
-            try:
-                module = load_module_from_file(join(directory, filename))
-            except ValueError:
-                # empty module name (usually emacs auto-save files)
-                continue
-            except ImportError, exc:
-                import sys
-                print >> sys.stderr, "Problem importing module %s: %s" % (filename, exc)
-            else:
-                if hasattr(module, 'register'):
-                    module.register(linter)
-                    imported[basename] = 1
-
-__all__ = ('BaseChecker', 'initialize', 'package_load')
+__all__ = ('BaseChecker', 'initialize')
