@@ -47,11 +47,11 @@ def get_tests_info(input_dir, msg_dir, prefix, suffix):
 
     We use following conventions for input files and messages:
     for different inputs:
-        don't test for python  <   x.y    ->  input   =  <name>_pyxy.py
-        don't test for python  >=  x.y    ->  input   =  <name>_py_xy.py
+        test for python  >= x.y    ->  input   =  <name>_pyxy.py
+        test for python  <  x.y    ->  input   =  <name>_py_xy.py
     for one input and different messages:
-        message for python     <=  x.y    ->  message =  <name>_pyxy.txt
-        higher versions                   ->  message with highest num
+        message for python >=  x.y ->  message =  <name>_pyxy.txt
+        lower versions             ->  message with highest num
     """
     result = []
     for fname in glob(join(input_dir, prefix + '*' + suffix)):
