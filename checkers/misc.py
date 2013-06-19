@@ -48,29 +48,20 @@ separated by a comma.'
                  }),
                )
 
-    def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
-
+    def _check_note(self, notes, lineno, line):
+        match = notes.search(line)
+        if match:
+            self.add_message('W0511', args=line[match.start():-1], line=lineno)
+        
     def process_module(self, node):
         """inspect the source file to found encoding problem or fixmes like
         notes
         """
         stream = node.file_stream
         stream.seek(0) # XXX may be removed with astroid > 0.23
-        # warning notes in the code
-        notes = []
-        for note in self.config.notes:
-            notes.append(re.compile(note))
-        linenum = 1
-        for line in stream.readlines():
-            for note in notes:
-                match = note.search(line)
-                if match:
-                    self.add_message('W0511', args=line[match.start():-1],
-                                     line=linenum)
-                    break
-            linenum += 1
-
+        notes = re.compile('|'.join(self.config.notes))
+        for lineno, line in enumerate(stream):
+            self._check_note(notes, lineno+1, line)
 
 
 def register(linter):
