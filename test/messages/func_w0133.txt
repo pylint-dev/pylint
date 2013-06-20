@@ -7,10 +7,14 @@ C: 36:xyz: Invalid class attribute name "zz"
 C: 41:xyz.Youplapoum: Invalid method name "Youplapoum"
 C: 56: Invalid constant name "benpasceluila"
 C: 62:Correct.__init__: Invalid attribute name "_Ca_va_Pas"
-C: 74: Invalid class name "BAD_NAME_FOR_CLASS"
-C: 75: Invalid class name "NEXT_BAD_NAME_FOR_CLASS"
-C: 81: Invalid class name "NOT_CORRECT"
-C: 87:test_globals: Invalid constant name "AlsoCorrect"
+C: 64:Correct.BadMethodName: Invalid method name "BadMethodName"
+C: 77: Invalid class name "BAD_NAME_FOR_CLASS"
+C: 78: Invalid class name "NEXT_BAD_NAME_FOR_CLASS"
+C: 84: Invalid class name "NOT_CORRECT"
+C: 90:test_globals: Invalid constant name "AlsoCorrect"
+C:118:FooClass.PROPERTY_NAME: Invalid attribute name "PROPERTY_NAME"
+C:123:FooClass.ABSTRACT_PROPERTY_NAME: Invalid attribute name "ABSTRACT_PROPERTY_NAME"
+C:128:FooClass.PROPERTY_NAME_SETTER: Invalid attribute name "PROPERTY_NAME_SETTER"
 W: 10:Run.B: Unused variable 'B'
-W: 86:test_globals: Using the global statement
-W: 87:test_globals: Using the global statement
+W: 89:test_globals: Using the global statement
+W: 90:test_globals: Using the global statement

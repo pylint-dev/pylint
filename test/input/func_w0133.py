@@ -61,6 +61,9 @@ class Correct(object):
         self.cava = 12
         self._Ca_va_Pas = None
 
+    def BadMethodName(self):
+        """Ignored."""
+
 V = [WHAT_Ever_inListComp for WHAT_Ever_inListComp in GOOD_CONST_NAME]
 
 def class_builder():
@@ -90,12 +93,38 @@ def test_globals():
 
 
 class DerivedFromCorrect(Correct):
-    """A derived class with an invalid inherited member.
+    """A derived class with an invalid inherited members.
 
-    Derived attributes with invalid names do not trigger warnings.
+    Derived attributes and methods with invalid names do not trigger warnings.
     """
 
     def __init__(self):
         super(DerivedFromCorrect, self).__init__()
         self._Ca_va_Pas = None
 
+    def BadMethodName(self):
+        """Ignored."""
+
+import abc
+
+class FooClass(object):
+    """A test case for property names.
+
+    Since by default, the regex for attributes is the same as the one
+    for method names, we check the warning messages to contain the
+    string 'attribute'.
+    """
+    @property
+    def PROPERTY_NAME(self):
+        """Ignored."""
+        pass
+
+    @abc.abstractproperty
+    def ABSTRACT_PROPERTY_NAME(self):
+        """Ignored."""
+        pass
+
+    @PROPERTY_NAME.setter
+    def PROPERTY_NAME_SETTER(self):
+        """Ignored."""
+        pass

@@ -1,5 +1,7 @@
 """Unittest for the base checker."""
 
+import re
+
 from astroid import test_utils
 from pylint.checkers import base
 from pylint.testutils import CheckerTestCase, Message
@@ -51,6 +53,51 @@ class DocstringTest(CheckerTestCase):
 
 class NameCheckerTest(CheckerTestCase):
     CHECKER_CLASS = base.NameChecker
+    CONFIG = {
+        'bad_names': set(),
+        }
+
+    def testPropertyNames(self):
+        # If a method is annotated with @property, it's name should
+        # match the attr regex. Since by default the attribute regex is the same
+        # as the method regex, we override it here.
+        self.checker.config.attr_rgx = re.compile('[A-Z]+')
+        methods = test_utils.extract_node("""
+        import abc
+
+        class FooClass(object):
+          @property
+          def FOO(self): #@
+            pass
+
+          @property
+          def bar(self): #@
+            pass
+
+          @abc.abstractproperty
+          def BAZ(self): #@
+            pass
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(methods[0])
+            self.checker.visit_function(methods[2])
+        with self.assertAddsMessages(Message('invalid-name', node=methods[1], 
+                                             args=('attribute', 'bar'))):
+            self.checker.visit_function(methods[1])
+
+    def testPropertySetters(self):
+        self.checker.config.attr_rgx = re.compile('[A-Z]+')
+        method = test_utils.extract_node("""
+        class FooClass(object):
+          @property
+          def foo(self): pass
+
+          @foo.setter
+          def FOOSETTER(self): #@
+             pass
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(method)
 
     def testModuleLevelNames(self):
         assign = test_utils.extract_node("""

@@ -31,6 +31,7 @@ from pylint.checkers.utils import (
     clobber_in_except,
     is_builtin_object,
     is_inside_except,
+    overrides_a_method,
     safe_infer,
     )
 
@@ -82,6 +83,37 @@ def _loop_exits_early(loop):
         for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True
     return False
+
+
+
+def _determine_function_name_type(node):
+    """Determine the name type whose regex the a function's name should match.
+
+    :param node: A function node.
+    :returns: One of ('function', 'method', 'attr')
+    """
+    if not node.is_method():
+        return 'function'
+    if node.decorators:
+        decorators = node.decorators.nodes
+    else:
+        decorators = []
+    for decorator in decorators:
+        # If the function is a property (decorated with @property
+        # or @abc.abstractproperty), the name type is 'attr'.
+        if (isinstance(decorator, astroid.Name) or
+            (isinstance(decorator, astroid.Getattr) and
+             decorator.attrname == 'abstractproperty')):
+            infered = safe_infer(decorator)
+            if (infered and 
+                infered.qname() in ('__builtin__.property', 'abc.abstractproperty')):
+                return 'attr'
+        # If the function is decorated using the prop_method.{setter,getter}
+        # form, treat it like an attribute as well.
+        elif (isinstance(decorator, astroid.Getattr) and
+              decorator.attrname in ('setter', 'deleter')):
+            return 'attr'
+    return 'method'
 
 
 def report_by_type_stats(sect, stats, old_stats):
@@ -751,9 +783,13 @@ class NameChecker(_BasicChecker):
 
     @check_messages('blacklisted-name', 'invalid-name')
     def visit_function(self, node):
-        self._check_name(node.is_method() and 'method' or 'function',
+        # Do not emit any warnings if the method is just an implementation
+        # of a base class method.
+        if node.is_method() and overrides_a_method(node.parent.frame(), node.name):
+            return
+        self._check_name(_determine_function_name_type(node),
                          node.name, node)
-        # check arguments name
+        # Check argument names
         args = node.args.args
         if args is not None:
             self._recursive_check_names(args, node)

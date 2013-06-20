@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Methods that are decorated as properties are now treated as attributes
+      for the purposes of name checking.
     * Names of derived instance class member are not checked any more.
     * Names in global statements are now checked against the regular
       expression for constants.
