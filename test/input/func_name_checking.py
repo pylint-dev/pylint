@@ -1,4 +1,4 @@
-# pylint: disable=R0903,R0201
+# pylint: disable=R0903,R0201,R0921,W0603
 """Test for the invalid-name (C0103) warning."""
 
 __revision__ = 1
@@ -12,7 +12,7 @@ def Run():
         def __init__(self):
             pass
     bBb = 1
-    return A, bBb
+    return A, bBb, B
 
 def run():
     """anothrer method without only good name"""

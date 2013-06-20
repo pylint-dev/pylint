@@ -15,6 +15,3 @@ C: 90:test_globals: Invalid constant name "AlsoCorrect"
 C:118:FooClass.PROPERTY_NAME: Invalid attribute name "PROPERTY_NAME"
 C:123:FooClass.ABSTRACT_PROPERTY_NAME: Invalid attribute name "ABSTRACT_PROPERTY_NAME"
 C:128:FooClass.PROPERTY_NAME_SETTER: Invalid attribute name "PROPERTY_NAME_SETTER"
-W: 10:Run.B: Unused variable 'B'
-W: 89:test_globals: Using the global statement
-W: 90:test_globals: Using the global statement
