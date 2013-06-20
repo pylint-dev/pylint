@@ -87,3 +87,15 @@ def test_globals():
     global AlsoCorrect
     NOT_CORRECT = 1
     AlsoCorrect = 2
+
+
+class DerivedFromCorrect(Correct):
+    """A derived class with an invalid inherited member.
+
+    Derived attributes with invalid names do not trigger warnings.
+    """
+
+    def __init__(self):
+        super(DerivedFromCorrect, self).__init__()
+        self._Ca_va_Pas = None
+
