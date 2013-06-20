@@ -146,10 +146,13 @@ class UnittestLinter(object):
 class CheckerTestCase(testlib.TestCase):
     """A base testcase class for unittesting individual checker classes."""
     CHECKER_CLASS = None
-    
+    CONFIG = {}
+
     def setUp(self):
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter)
+        for key, value in self.CONFIG.iteritems():
+            setattr(self.checker.config, key, value)
         self.checker.open()
         self.checker.stats = self.linter.stats
 
