@@ -41,3 +41,4 @@ de2dd37ba146f7b37497c7d0794470040de6b66b pylint-debian-version-0.25.0-1
 b79adc16cd58a2ed526bec172f4f006e24c9afc5 pylint-debian-version-0.27.0-1
 36355f1fe1fda5cbb6f4684935426f7794927c22 pylint-version-0.28.0
 3a3b3ec9ab057172d979ac1584aa645aa6aa8e99 pylint-debian-version-0.28.0-1
+a31544127be96da39185ceeef380f3f3cd1c1816 before-astroid
