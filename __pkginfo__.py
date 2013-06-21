@@ -21,7 +21,7 @@ modname = distname = 'pylint'
 numversion = (0, 28, 0)
 version = '.'.join([str(num) for num in numversion])
 
-install_requires = ['logilab-common >= 0.53.0', 'logilab-astroid >= 0.24.3']
+install_requires = ['logilab-common >= 0.53.0', 'astroid >= 0.24.3']
 
 license = 'GPL'
 description = "python code static checker"

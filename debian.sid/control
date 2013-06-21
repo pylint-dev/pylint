@@ -12,7 +12,7 @@ Vcs-Browser: http://hg.logilab.org/pylint
 
 Package: pylint
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.53), python-logilab-astng (>= 0.21)
+Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.53), python-astroid
 Recommends: python-tk
 XB-Python-Version: ${python:Versions}
 Description: python code static checker and UML diagram generator
@@ -37,7 +37,7 @@ Description: python code static checker and UML diagram generator
 
 Package: pylint3
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-logilab-common (>= 0.53), python3-logilab-astng (>= 0.21)
+Depends: ${python3:Depends}, ${misc:Depends}, python3-logilab-common (>= 0.53), python3-astroid
 Recommends: python3-tk
 XB-Python-Version: ${python3:Versions}
 Description: python code static checker and UML diagram generator
