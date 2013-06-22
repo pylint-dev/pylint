@@ -46,6 +46,9 @@ MSGS = {
               'trailing-whitespace',
               'Used when there is whitespace between the end of a line and the '
               'newline.'),
+    'C0304': ('Final newline missing',
+              'missing-final-newline',
+              'Used when the last line in a file is missing a newline.'),
     'W0311': ('Bad indentation. Found %s %s, expected %s',
               'bad-indentation',
               'Used when an unexpected number of indentation\'s tabulations or '
@@ -337,15 +340,18 @@ class FormatChecker(BaseTokenChecker):
         ignore_long_line = self.config.ignore_long_lines
 
         for line in lines.splitlines(True):
-            stripped_line = line.rstrip()
-            if line != stripped_line + '\n':
-                self.add_message('C0303', line=i)
-            # Don't count excess whitespace in the line length.
-            line = stripped_line
+            if not line.endswith('\n'):
+                 self.add_message('C0304', line=i)
+            else:
+                stripped_line = line.rstrip()
+                if line != stripped_line + '\n':
+                    self.add_message('C0303', line=i)
+                # Don't count excess whitespace in the line length.
+                line = stripped_line
             mobj = OPTION_RGX.search(line)
             if mobj and mobj.group(1).split('=', 1)[0].strip() == 'disable':
                 line = line.split('#')[0].rstrip()
-
+                
             if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message('C0301', line=i, args=(len(line), max_chars))
             i += 1
