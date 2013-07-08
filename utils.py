@@ -665,20 +665,20 @@ def register_plugins(linter, directory):
     """
     imported = {}
     for filename in os.listdir(directory):
-        basename, extension = os.path.splitext(filename)
+        basename, extension = splitext(filename)
         if basename in imported or basename == '__pycache__':
             continue
         if extension in PY_EXTS and basename != '__init__' or (
-             not extension and os.isdir(os.path.join(directory, basename))):
+             not extension and isdir(join(directory, basename))):
             try:
-                module = load_module_from_file(os.path.join(directory, filename))
+                module = load_module_from_file(join(directory, filename))
             except ValueError:
                 # empty module name (usually emacs auto-save files)
                 continue
             except ImportError, exc:
-                import sys
                 print >> sys.stderr, "Problem importing module %s: %s" % (filename, exc)
             else:
                 if hasattr(module, 'register'):
                     module.register(linter)
                     imported[basename] = 1
+
