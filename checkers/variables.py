@@ -261,8 +261,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # do not check for not used locals here
         self._to_consume.pop()
 
-
-    @check_messages('W0621', 'W0622')
     def visit_function(self, node):
         """visit function: update consumption analysis variable and check locals
         """
@@ -282,7 +280,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmt)
 
-    @check_messages('W0612', 'W0613')
     def leave_function(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
