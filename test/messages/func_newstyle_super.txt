@@ -1,5 +1,5 @@
 C:  5:Aaaa: Old-style class defined.
 E:  7:Aaaa.hop: Use of super on an old style class
 E: 11:Aaaa.__init__: Use of super on an old style class
-E: 20:NewAaaa.__init__: Bad first argument 'object' given to super class
+E: 21:NewAaaa.__init__: Bad first argument 'object' given to super class
 

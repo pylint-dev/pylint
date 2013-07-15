@@ -15,6 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """check for new / old style related problems
 """
+import sys
 
 import astroid
 
@@ -106,6 +107,10 @@ class NewStyleConflictChecker(BaseChecker):
                     self.add_message('E1002', node=node)
                 else:
                     # super first arg should be the class
+                    if not call.args and sys.version_info[0] == 3:
+                        # unless Python 3
+                        continue
+
                     try:
                         supcls = (call.args and call.args[0].infer().next()
                                   or None)
@@ -113,7 +118,7 @@ class NewStyleConflictChecker(BaseChecker):
                         continue
                     if klass is not supcls:
                         supcls = getattr(supcls, 'name', supcls)
-                        self.add_message('E1003', node=node, args=supcls)
+                        self.add_message('E1003', node=call, args=(supcls, ))
 
 
 def register(linter):
