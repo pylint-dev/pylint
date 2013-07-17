@@ -29,8 +29,8 @@ _VALID_OPEN_MODE_REGEX = r'^(r?U|[rwa]\+?b?)$'
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
 else:
-    OPEN_MODULE = '__builtins__'
- 
+    OPEN_MODULE = '__builtin__'
+
 class OpenModeChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = 'open_mode'
@@ -41,7 +41,7 @@ class OpenModeChecker(BaseChecker):
                   'Python supports: r, w, a modes with b, +, and U options. '
                   'See http://docs.python.org/2/library/functions.html#open'),
         }
-    
+
     @utils.check_messages('W1501')
     def visit_callfunc(self, node):
         """Visit a CallFunc node."""
