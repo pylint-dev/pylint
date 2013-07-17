@@ -29,10 +29,9 @@ IGNORED_ARGUMENT_NAMES = re.compile('_.*')
 SPECIAL_METHODS = [('Context manager', set(('__enter__',
                                             '__exit__',))),
                    ('Container', set(('__len__',
-                                      '__getitem__',
-                                      '__setitem__',
-                                      '__delitem__',))),
-                   ('Callable', set(('__call__',))),
+                                      '__getitem__',))),
+                   ('Mutable container', set(('__setitem__',
+                                              '__delitem__',))),
                    ]
 
 class SpecialMethodChecker(object):
@@ -56,8 +55,8 @@ class SpecialMethodChecker(object):
         required_methods_found = methods_required & self.methods_found
         if required_methods_found == methods_required:
             return True
-        if required_methods_found != set():
-            required_methods_missing  = methods_required - self.methods_found
+        if required_methods_found:
+            required_methods_missing = methods_required - self.methods_found
             self.on_error((protocol,
                            ', '.join(sorted(required_methods_found)),
                            ', '.join(sorted(required_methods_missing))))

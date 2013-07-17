@@ -29,7 +29,7 @@ class Container(object):
     def __iter__(self):
         pass
 
-class BadContainer(object):
+class BadROContainer(object):
     def __init__(self):
         pass
     def __len__(self):
@@ -39,9 +39,17 @@ class BadContainer(object):
     def __iter__(self):
         pass
 
-class Callable(object):
-    def __call__(self):
-        pass
+
+class BadContainer(object):
     def __init__(self):
         pass
+    def __len__(self):
+        return 0
+    def __getitem__(self, key, value):
+        pass
+    def __setitem__(self, key, value):
+        pass
 
+class MyTuple(tuple):
+    def __getitem__(self, index):
+        return super(MyTuple, self).__getitem__(index)

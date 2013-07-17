@@ -1,5 +1,6 @@
 R: 12:BadContextManager: Badly implemented Context manager, implements __enter__ but not __exit__
 R: 12:BadContextManager: Too few public methods (0/2)
-R: 32:BadContainer: Badly implemented Container, implements __len__, __setitem__ but not __delitem__, __getitem__
-R: 32:BadContainer: Too few public methods (0/2)
-
+R: 32:BadROContainer: Badly implemented Container, implements __len__ but not __getitem__
+R: 32:BadROContainer: Badly implemented Mutable container, implements __setitem__ but not __delitem__
+R: 32:BadROContainer: Too few public methods (0/2)
+R: 43:BadContainer: Badly implemented Mutable container, implements __setitem__ but not __delitem__
