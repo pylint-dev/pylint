@@ -57,25 +57,34 @@ You can clone Pylint and its dependencies from ::
 
 .. _mercurial: http://www.selenic.com/mercurial/
 
-Got a change for Pylint?  There a few steps you must take to make sure your
-patch gets accepted.
+Got a change for Pylint?  Below are a few steps you should take to make sure
+your patch gets accepted.
 
 - Test your code
 
-    - Pylint keeps a set of unit tests in the /test directory. To get your
-      patch accepted you must write (or change) a test input file and message
-      file in the appropriate input and messages folders.
+    - Pylint keeps a set of unit tests in the /test directory. The
+      `test_func.py` module uses external files to have some kind of easy
+      functionnal testing. To get your patch accepted you must write (or change)
+      a test input file in the `test/input` directory and message file in the
+      `test/messages` directory. Then run `python test_func.py` to ensure that
+      your test is green.
 
-    - In the test folder of Pylint run ``./fulltest.sh <python versions>``, make sure
-      all tests pass before submitting a patch
+    - You should also run all the tests to ensure that your change isn't
+      breaking one.
 
-- Add an short entry to the ChangeLog describing the change
+- Add a short entry to the ChangeLog describing the change, except for internal
+  implementation only changes
 
 - Write a comprehensive commit message
 
-- Relate your change to an issue in the tracker
+- Relate your change to an issue in the tracker if such an issue exists (see
+  `this page`_ of Bitbucket documentation for more information on this)
 
-- Send a pull request from bitbucket
+- Send a pull request from Bitbucket (more on this here_)
+
+.. _`this page`: https://confluence.atlassian.com/display/BITBUCKET/Resolve+issues+automatically+when+users+push+code
+.. _here: https://confluence.atlassian.com/display/BITBUCKET/Work+with+pull+requests
+
 
 Unit test setup
 ---------------
@@ -106,3 +115,35 @@ without installing them.  You can run all the unit tests like so::
   done
 
 The -S flag keeps distutils from interfering with sys.path.  YMMV.
+
+
+Adding new functionnal tests
+----------------------------
+
+Pylint comes with an easy way to write functional tests for new checks:
+
+* put a Python file in the `test/input` directory, whose name starts with
+  `func_` and should also contains the symbolic name of the tested check
+
+* add the expected message file in the `test/messages` directory, using the
+  same name but a `.txt` extension instead of `.py`
+
+The message file should use the default text output format (without reports) and lines should be
+sorted. E.g on Unix system, you may generate it using::
+
+  pylint -rn input/func_mycheck.py | sort > pylint messages/func_mycheck.txt
+
+Also, here are a few naming convention which are used:
+
+* Python files starting with 'func_noerror_' don't have any message file
+  associated as they are expected to provide no output at all
+
+* You may provide different input files (and associated output) depending on the
+  Python interpreter version:
+
+  * tests whose name ends with `_py<xy>.py` are used for Python >= x.y
+  * tests whose name ends with `_py<_xy>.py` are used for Python < x.y
+
+* Similarly you may provide different message files for a single input, message
+  file whose name ends with '_py<xy>.txt' will be used for Python >= x.y, using
+  the nearest version possible
