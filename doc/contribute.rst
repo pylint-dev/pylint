@@ -76,3 +76,33 @@ patch gets accepted.
 - Relate your change to an issue in the tracker
 
 - Send a pull request from bitbucket
+
+Unit test setup
+---------------
+
+To run the pylint unit tests within your checkout (without having to install
+anything), you need to set PYTHONPATH so that pylint, astroid and the
+logilab-common are available.  Assume you have those packages in ~/src.  If
+you have a normal clone of logilab-common, it will not be properly
+structured to allow import of logilab.common.  To remedy this, create the
+necessary structure::
+
+  cd ~/src
+  mkdir logilab
+  mv logilab-common logilab/common
+  touch logilab/__init__.py
+
+Now, set PYTHONPATH to your src directory::
+
+  export PYTHONPATH=~/src
+
+You now have access to the astroid, logilab.common and pylint packages
+without installing them.  You can run all the unit tests like so::
+
+  cd ~/src/pylint/test
+  for f in *.py ; do
+    echo $f
+    python -S $f
+  done
+
+The -S flag keeps distutils from interfering with sys.path.  YMMV.
