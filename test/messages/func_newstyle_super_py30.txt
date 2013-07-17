@@ -2,6 +2,4 @@ C:  5:Aaaa: Old-style class defined.
 E:  7:Aaaa.hop: Use of super on an old style class
 E: 11:Aaaa.__init__: Use of super on an old style class
 E: 21:NewAaaa.__init__: Bad first argument 'object' given to super class
-E: 26:Py3kAaaa.__init__: Bad first argument None given to super class
 E: 31:Py3kWrongSuper.__init__: Bad first argument 'NewAaaa' given to super class
-

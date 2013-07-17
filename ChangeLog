@@ -2,6 +2,7 @@ ChangeLog for Pylint
 ====================
 
 --
+    * bitbucket #16: fix False positive E1003 on Python 3 for argument-less super()
     * Added a new warning missing-final-newline (C0304) for files missing
       the final newline.
     * Methods that are decorated as properties are now treated as attributes
