@@ -404,7 +404,8 @@ functions, methods
     'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
               'old-raise-syntax',
               "Used when the alternate raise syntax 'raise foo, bar' is used "
-              "instead of 'raise foo(bar)'."),
+              "instead of 'raise foo(bar)'.",
+              {'maxversion': (3, 0)}),
 
     'C0121': ('Missing required attribute "%s"', # W0103
               'missing-module-attribute',

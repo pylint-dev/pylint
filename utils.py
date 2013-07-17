@@ -174,8 +174,19 @@ class MessagesHandlerMixIn(object):
                 (msg, msgsymbol, msgdescr) = msg_tuple[:3]
                 assert msgsymbol not in self._messages_by_symbol, \
                     'Message symbol %r is already defined' % msgsymbol
-                if len(msg_tuple) > 3 and 'scope' in msg_tuple[3]:
-                    scope = msg_tuple[3]['scope']
+                if len(msg_tuple) > 3:
+                    if 'scope' in msg_tuple[3]:
+                        scope = msg_tuple[3]['scope']
+                    if 'minversion' in msg_tuple[3]:
+                        minversion = msg_tuple[3]['minversion']
+                        if minversion > sys.version_info:
+                            self._msgs_state[msgid] = False
+                            continue
+                    if 'maxversion' in msg_tuple[3]:
+                        maxversion = msg_tuple[3]['maxversion']
+                        if maxversion <= sys.version_info:
+                            self._msgs_state[msgid] = False
+                            continue
             else:
                 # messages should have a symbol, but for backward compatibility
                 # they may not.
@@ -229,7 +240,8 @@ class MessagesHandlerMixIn(object):
         if msgid.lower() in self._checkers:
             for checker in self._checkers[msgid.lower()]:
                 for _msgid in checker.msgs:
-                    self.disable(_msgid, scope, line)
+                    if _msgid in self._messages:
+                        self.disable(_msgid, scope, line)
             return
         # msgid is report id?
         if msgid.lower().startswith('rp'):
@@ -474,9 +486,8 @@ class MessagesHandlerMixIn(object):
     def list_messages(self):
         """output full messages list documentation in ReST format"""
         msgids = []
-        for checker in self.get_checkers():
-            for msgid in checker.msgs.iterkeys():
-                msgids.append(msgid)
+        for msgid in self._messages:
+            msgids.append(msgid)
         msgids.sort()
         for msgid in msgids:
             print self.get_message_help(msgid, False)
