@@ -310,10 +310,10 @@ class PyLinterTC(TestCase):
         linter = self.linter
         self.linter.error_mode()
         checkers = self.linter.prepare_checkers()
-        checker_names = tuple(c.name for c in checkers)
-        should_not = ('design', 'format', 'imports', 'metrics',
-                      'miscellaneous', 'similarities')
-        self.assertFalse(any(name in checker_names for name in should_not))
+        checker_names = set(c.name for c in checkers)
+        should_not = set(('design', 'format', 'imports', 'metrics',
+                      'miscellaneous', 'similarities'))
+        self.assertSetEqual(set(), should_not & checker_names)
 
     def test_disable_similar(self):
         self.linter.set_option('disable', 'RP0801')

@@ -16,6 +16,7 @@
 """Checkers for various standard library functions."""
 
 import re
+import sys
 
 import astroid
 
@@ -25,6 +26,10 @@ from pylint.checkers import utils
 
 _VALID_OPEN_MODE_REGEX = r'^(r?U|[rwa]\+?b?)$'
 
+if sys.version_info >= (3, 0):
+    OPEN_MODULE = '_io'
+else:
+    OPEN_MODULE = '__builtin__'
 
 class OpenModeChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
@@ -36,13 +41,15 @@ class OpenModeChecker(BaseChecker):
                   'Python supports: r, w, a modes with b, +, and U options. '
                   'See http://docs.python.org/2/library/functions.html#open'),
         }
-    
+
     @utils.check_messages('W1501')
     def visit_callfunc(self, node):
         """Visit a CallFunc node."""
-        if (hasattr(node, 'func') and utils.is_builtin_object(utils.safe_infer(node.func))):
-            if getattr(node.func, 'name', None) in ('open', 'file'):
-                self._check_open_mode(node)
+        if hasattr(node, 'func'):
+            infer = utils.safe_infer(node.func)
+            if infer and infer.root().name == OPEN_MODULE:
+                if getattr(node.func, 'name', None) in ('open', 'file'):
+                    self._check_open_mode(node)
 
     def _check_open_mode(self, node):
         """Check that the mode argument of an open or file call is valid."""

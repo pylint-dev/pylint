@@ -16,7 +16,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """basic checker for Python code"""
 
-
+import sys
 import astroid
 from logilab.common.ureports import Table
 from astroid import are_exclusive
@@ -377,7 +377,8 @@ functions, methods
     'W0122': ('Use of the exec statement',
               'exec-statement',
               'Used when you use the "exec" statement, to discourage its \
-              usage. That doesn\'t mean you can not use it !'),
+              usage. That doesn\'t mean you can not use it !',
+              {'maxversion': (3, 0)}),
 
     'W0141': ('Used builtin function %r',
               'bad-builtin',
@@ -404,7 +405,8 @@ functions, methods
     'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
               'old-raise-syntax',
               "Used when the alternate raise syntax 'raise foo, bar' is used "
-              "instead of 'raise foo(bar)'."),
+              "instead of 'raise foo(bar)'.",
+              {'maxversion': (3, 0)}),
 
     'C0121': ('Missing required attribute "%s"', # W0103
               'missing-module-attribute',
@@ -588,6 +590,8 @@ functions, methods
         code)
         """
         self._check_unreachable(node)
+        if sys.version_info >= (3, 0):
+            return
         if node.exc is not None and node.inst is not None and node.tback is None:
             self.add_message('old-raise-syntax', node=node)
 
@@ -954,7 +958,8 @@ class LambdaForComprehensionChecker(_BasicChecker):
                       'deprecated-lambda',
                       'Used when a lambda is the first argument to "map" or '
                       '"filter". It could be clearer as a list '
-                      'comprehension or generator expression.'),
+                      'comprehension or generator expression.',
+                      {'maxversion': (3, 0)}),
             }
 
     @check_messages('deprecated-lambda')

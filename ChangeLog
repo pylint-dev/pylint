@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Added a new warning missing-final-newline (C0304) for files missing
+      the final newline.
     * Methods that are decorated as properties are now treated as attributes
       for the purposes of name checking.
     * Names of derived instance class member are not checked any more.

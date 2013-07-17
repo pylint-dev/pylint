@@ -58,7 +58,8 @@ MSGS = {
     'E1122': ('Duplicate keyword argument %r in function call',
               'duplicate-keyword-arg',
               'Used when a function call passes the same keyword argument \
-              multiple times.'),
+              multiple times.',
+              {'maxversion': (2, 6)}),
     'E1123': ('Passing unexpected keyword argument %r in function call',
               'unexpected-keyword-arg',
               'Used when a function call passes a keyword argument that \
