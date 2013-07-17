@@ -351,7 +351,7 @@ class FormatChecker(BaseTokenChecker):
             mobj = OPTION_RGX.search(line)
             if mobj and mobj.group(1).split('=', 1)[0].strip() == 'disable':
                 line = line.split('#')[0].rstrip()
-                
+
             if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message('C0301', line=i, args=(len(line), max_chars))
             i += 1
