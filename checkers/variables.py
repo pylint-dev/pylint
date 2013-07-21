@@ -118,6 +118,12 @@ MSGS = {
               'Used when an loop variable (i.e. defined by a for loop or \
               a list comprehension or a generator expression) is used outside \
               the loop.'),
+
+    'W0632': ('Possible unbalanced tuple unpacking: '
+              'left side has %d label(s), right side has %d value(s)',
+              'unbalanced-tuple-unpacking',
+              'Used when there is an unbalanced tuple unpacking in assignment'),
+
     }
 
 class VariablesChecker(BaseChecker):
@@ -535,6 +541,26 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if name == '*':
                 continue
             self._check_module_attrs(node, module, name.split('.'))
+
+    @check_messages('W0632')
+    def visit_assign(self, node):
+         """ Check unbalanced tuple unpacking for assignments. """
+         if not isinstance(node.value, astroid.Tuple):
+             return
+         if not isinstance(node.targets[0], astroid.Tuple):
+             return
+
+         targets = node.targets[0].itered()
+         values = node.value.itered()
+
+         if any(not isinstance(target_node, astroid.AssName)
+                for target_node in targets):
+             return
+
+         if len(targets) != len(values):
+             self.add_message('W0632',
+                              node=node,
+                              args=(len(targets), len(values)))
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
