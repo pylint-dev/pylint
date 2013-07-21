@@ -542,7 +542,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             self._check_module_attrs(node, module, name.split('.'))
 
-    @check_messages('W0632')
+    @check_messages('unbalanced-tuple-unpacking')
     def visit_assign(self, node):
          """ Check unbalanced tuple unpacking for assignments. """
          if not isinstance(node.value, astroid.Tuple):
