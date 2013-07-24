@@ -120,15 +120,14 @@ class NewStyleConflictChecker(BaseChecker):
                                   or None)
                     except astroid.InferenceError:
                         continue
+
+                    if supcls is None and sys.version_info[0] == 2:
+                        self.add_message('missing-super-argument', node=call)
+                        continue
+
                     if klass is not supcls:
-                        if supcls is None and sys.version_info[0] == 2:
-                            self.add_message('missing-super-argument', 
-                                             node=call)
-                        else:
-                            supcls = getattr(supcls, 'name', supcls)
-                            self.add_message('E1003', 
-                                             node=call, 
-                                             args=(supcls, ))
+                        supcls = getattr(supcls, 'name', supcls)
+                        self.add_message('E1003', node=call, args=(supcls, ))
 
 
 def register(linter):
