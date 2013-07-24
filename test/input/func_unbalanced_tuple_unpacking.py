@@ -6,3 +6,20 @@ def do_stuff():
     """This is not right."""
     first, second = 1, 2, 3
     return first + second
+
+def do_stuff1():
+    """This is not right."""
+    first, second = [1, 2, 3]
+    return first + second
+
+def do_stuff2():
+    """This is not right."""
+    (first, second) = 1, 2, 3
+    return first + second
+
+def do_stuff3():
+    """This is not right."""
+    first, second = range(100)
+    return first + second
+
+
