@@ -563,7 +563,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
              return
 
          if len(targets) != len(values):
-             self.add_message('W0632',
+             self.add_message('unbalanced-tuple-unpacking',
                               node=node,
                               args=(len(targets), len(values)))
 
