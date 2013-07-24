@@ -2,7 +2,10 @@ ChangeLog for Pylint
 ====================
 
 --
-   * Do not double-check parameter names with the regex for parameters and
+    * Emit warnings about lines exceeding the column limit when
+      those lines are inside multiline docstrings.
+
+    * Do not double-check parameter names with the regex for parameters and
       inline variables.
 
     * Added a new warning missing-final-newline (C0304) for files missing

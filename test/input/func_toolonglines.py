@@ -17,3 +17,11 @@ var = 'This line has a disable pragma and whitespace trailing beyond 80 chars. '
 badname = 'This line is already longer than 80 characters even without the pragma.'  # pylint:disable=invalid-name
 
 # http://example.com/this/is/a/very/long/url?but=splitting&urls=is&a=pain&so=they&can=be&long
+
+
+def function():
+    """This is a docstring.
+
+    That contains a very, very long line that exceeds the 80 character limit by a good margin.
+    """
+    pass

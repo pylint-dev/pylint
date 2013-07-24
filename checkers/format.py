@@ -232,13 +232,24 @@ class FormatChecker(BaseTokenChecker):
         previous = None
         self._lines = {}
         self._visited_lines = {}
+        new_line_delay = False
         for (tok_type, token, start, _, line) in tokens:
+            if new_line_delay:
+                new_line_delay = False
+                self.new_line(tok_type, line, line_num, junk)
             if start[0] != line_num:
                 if previous is not None and previous[0] == tokenize.OP and previous[1] == ';':
                     self.add_message('W0301', line=previous[2])
                 previous = None
                 line_num = start[0]
-                self.new_line(tok_type, line, line_num, junk)
+                # A tokenizer oddity: if an indented line contains a multi-line
+                # docstring, the line member of the INDENT token does not contain
+                # the full line; therefore we delay checking the new line until
+                # the next token.
+                if tok_type == tokenize.INDENT:
+                    new_line_delay = True
+                else:
+                    self.new_line(tok_type, line, line_num, junk)
             if tok_type not in (indent, dedent, newline) + junk:
                 previous = tok_type, token, start[0]
 
