@@ -34,6 +34,10 @@ MSGS = {
               'bad-super-call',
               'Used when another argument than the current class is given as \
               first argument of the super builtin.'),
+    'E1004': ('Missing argument to super()',
+              'missing-super-argument',
+              'Used when the super builtin didn\'t receive an \
+               argument on Python 2'),
     'W1001': ('Use of "property" on an old style class',
               'property-on-old-class',
               'Used when PyLint detect the use of the builtin "property" \
@@ -86,7 +90,7 @@ class NewStyleConflictChecker(BaseChecker):
             if name == 'property':
                 self.add_message('W1001', node=node)
 
-    @check_messages('E1002', 'E1003')
+    @check_messages('E1002', 'E1003', 'E1004')
     def visit_function(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
@@ -117,8 +121,13 @@ class NewStyleConflictChecker(BaseChecker):
                     except astroid.InferenceError:
                         continue
                     if klass is not supcls:
-                        supcls = getattr(supcls, 'name', supcls)
-                        self.add_message('E1003', node=call, args=(supcls, ))
+                        if supcls is None and sys.version_info[0] == 2:
+                            self.add_message('E1004', node=call)
+                        else:
+                            supcls = getattr(supcls, 'name', supcls)
+                            self.add_message('E1003', 
+                                             node=call, 
+                                             args=(supcls, ))
 
 
 def register(linter):
