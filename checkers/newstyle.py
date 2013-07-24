@@ -122,7 +122,8 @@ class NewStyleConflictChecker(BaseChecker):
                         continue
                     if klass is not supcls:
                         if supcls is None and sys.version_info[0] == 2:
-                            self.add_message('E1004', node=call)
+                            self.add_message('missing-super-argument', 
+                                             node=call)
                         else:
                             supcls = getattr(supcls, 'name', supcls)
                             self.add_message('E1003', 
