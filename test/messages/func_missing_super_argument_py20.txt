@@ -1,0 +1,2 @@
+E:  8:MyClass.__init__: Missing argument to super()
+R:  5:MyClass: Too few public methods (0/2)
