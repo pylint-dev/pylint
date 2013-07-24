@@ -820,7 +820,7 @@ class NameChecker(_BasicChecker):
                 self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.Function):
             # global introduced variable aren't in the function locals
-            if node.name in frame:
+            if node.name in frame and node.name not in frame.argnames():
                 self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.Class):
             if not list(frame.local_attr_ancestors(node.name)):

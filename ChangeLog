@@ -2,8 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
-    * bitbucket #37: check for unbalanced unpacking in assignments
-    * bitbucket #16: fix False positive E1003 on Python 3 for argument-less super()
+   * Do not double-check parameter names with the regex for parameters and
+      inline variables.
+
     * Added a new warning missing-final-newline (C0304) for files missing
       the final newline.
 
@@ -75,9 +76,12 @@ ChangeLog for Pylint
       tokens rather than the syntax, and only tokenize the input file
       once.
 
+    * Follow astng renaming to astroid
 
-    * Follow astng renaming toastroid
+    * bitbucket #37: check for unbalanced unpacking in assignments
 
+    * bitbucket #16: fix False positive E1003 on Python 3 for argument-less super()
+ 
     * bitbucket #6: put back documentation in source distribution
 
     * bitbucket #15: epylint shouldn't hang anymore when there is a large
@@ -85,6 +89,7 @@ ChangeLog for Pylint
 
     * bitbucket #3: remove string module from the default list of deprecated
       modules
+
 
 2013-04-25  --  0.28.0
     * bitbucket #1: fix "dictionary changed size during iteration" crash

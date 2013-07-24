@@ -128,3 +128,8 @@ class FooClass(object):
     def PROPERTY_NAME_SETTER(self):
         """Ignored."""
         pass
+
+
+def func_bad_argname(NOT_GOOD):
+    """Function with a badly named argument."""
+    return NOT_GOOD
