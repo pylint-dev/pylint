@@ -646,7 +646,7 @@ This is used by the global evaluation report (RP0004).'}),
     def get_astroid(self, filepath, modname):
         """return a astroid representation for a module"""
         try:
-            return MANAGER.astroid_from_file(filepath, modname, source=True)
+            return MANAGER.ast_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
             self.add_message('E0001', line=ex.lineno, args=ex.msg)
         except AstroidBuildingException, ex:
