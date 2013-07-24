@@ -72,14 +72,17 @@ separated by a comma.'
         """
         stream = module.file_stream
         stream.seek(0) # XXX may be removed with astroid > 0.23
-        notes = re.compile('|'.join(self.config.notes))
+        if self.config.notes:
+            notes = re.compile('|'.join(self.config.notes))
+        else:
+            notes = None
         if module.file_encoding:
             encoding = module.file_encoding
         else:
             encoding = 'ascii'
         for lineno, line in enumerate(stream):
             line = self._check_encoding(lineno+1, line, encoding)
-            if line is not None:
+            if line is not None and notes:
                 self._check_note(notes, lineno+1, line)
 
 def register(linter):

@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Do not emit [fixme] for every line if the config value 'notes'
+      is empty, but [fixme] is enabled.
+
     * Emit warnings about lines exceeding the column limit when
       those lines are inside multiline docstrings.
 
