@@ -545,14 +545,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     @check_messages('unbalanced-tuple-unpacking')
     def visit_assign(self, node):
          """ Check unbalanced tuple unpacking for assignments. """
+         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
+             return
+
          try:
-             infered = next(node.value.infer())
+             infered = node.value.infer().next()
          except astroid.InferenceError:
              return
          
          if not isinstance(infered, (astroid.Tuple, astroid.List)):
-             return
-         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
              return
 
          targets = node.targets[0].itered()
