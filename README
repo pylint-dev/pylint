@@ -48,28 +48,3 @@ Pylint is shipped with following additional commands:
 * symilar: an independent similarities checker
 * epylint: Emacs and Flymake compatible Pylint
 * pylint-gui: a graphical interface
-
-Contributors
-------------
-
-order doesn't matter...
-
-* Sylvain Thenault: main author / maintainer
-* Alexandre Fayolle: TkInter gui, documentation, debian support
-* Emile Anclin: used to maintain, py3k support
-* Mads Kiilerich: various patches
-* Torsten Marek, various patches
-* Boris Feld, various patches
-* Brian van den Broek: windows installation documentation
-* Amaury Forgeot d'Arc: patch to check names imported from a module
-  exists in the module
-* Benjamin Niemann: patch to allow block level enabling/disabling of messages
-* Nathaniel Manista: suspicious lambda checking
-* Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
-  Maarten ter Huurne, Mirko Friedenhagen (among others):
-  bug reports, feedback, feature requests...
-* Martin Pool (Google): warnings for anomalous backslashes, symbolic names
-  for messages (like 'unused')
-* All the Logilab's team: daily use, bug reports, feature requests
-* Other people have contributed by their feedback, if I've forgotten
-  you, send me a note !

@@ -1,0 +1,33 @@
+Contributors
+------------
+
+Order doesn't matter (not that much, at least ;)
+
+* Sylvain Thenault (Logilab): main author / maintainer
+
+* Torsten Marek (Google): maintainer, main GPyLint developper and (GooglePylint)
+  upstream integrator
+
+* Martin Pool (Google): warnings for anomalous backslashes, symbolic names for
+  messages (like 'unused'), etc
+
+* Alexandre Fayolle (Logilab): TkInter gui, documentation, debian support
+
+* Julien Cristau, Emile Anclin (Logilab): python 3 support
+
+* Sandro Tosi: Debian packaging
+
+* Claudiu Popa, Mads Kiilerich, Boris Feld: various patches
+
+* Brian van den Broek: windows installation documentation
+
+* Amaury Forgeot d'Arc: check names imported from a module exists in the module
+
+* Benjamin Niemann: allow block level enabling/disabling of messages
+
+* Nathaniel Manista: suspicious lambda checking
+
+* Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
+  Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others):
+  bug reports, feedback, feature requests... Many other people have contributed
+  by their feedback or even patches, if I've forgotten you, send me a note !
