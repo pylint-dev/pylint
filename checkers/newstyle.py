@@ -30,7 +30,7 @@ MSGS = {
     'E1002': ('Use of super on an old style class',
               'super-on-old-class',
               'Used when an old style class uses the super builtin.'),
-    'E1003': ('Bad first argument %r given to super class',
+    'E1003': ('Bad first argument %r given to super()',
               'bad-super-call',
               'Used when another argument than the current class is given as \
               first argument of the super builtin.'),
