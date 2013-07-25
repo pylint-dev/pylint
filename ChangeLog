@@ -2,6 +2,7 @@ ChangeLog for Pylint
 ====================
 
 --
+    * bitbucket #37: check for unbalanced unpacking in assignments
     * bitbucket #16: fix False positive E1003 on Python 3 for argument-less super()
     * Added a new warning missing-final-newline (C0304) for files missing
       the final newline.
