@@ -69,6 +69,11 @@ MSGS = {
               'Used when a function call would result in assigning multiple \
               values to a function parameter, one value from a positional \
               argument and one from a keyword argument.'),
+    'E1125': ('Missing mandatory keyword argument %r',
+              'missing-kwoa',
+              'Used when a function call doesn\'t pass a mandatory \
+              keyword-only argument.',
+              {'minversion': (3, 0)}),
     }
 
 class TypeChecker(BaseChecker):
@@ -316,6 +321,15 @@ accessed. Python regular expressions are accepted.'}
                 defval = None
             parameters.append([(name, defval), False])
 
+        kwparams = {}
+        for i, arg in enumerate(called.args.kwonlyargs):
+            if isinstance(arg, astroid.Keyword):
+                name = arg.arg
+            else:
+                assert isinstance(arg, astroid.AssName)
+                name = arg.name
+            kwparams[name] = [called.args.kw_defaults[i], False]
+
         # Match the supplied arguments against the function parameters.
 
         # 1. Match the positional arguments.
@@ -340,6 +354,12 @@ accessed. Python regular expressions are accepted.'}
                     self.add_message('E1124', node=node, args=keyword)
                 else:
                     parameters[i][1] = True
+            elif keyword in kwparams:
+                if kwparams[keyword][1]:  # XXX is that even possible?
+                    # Duplicate definition of function parameter.
+                    self.add_message('E1124', node=node, args=keyword)
+                else:
+                    kwparams[keyword][1] = True
             elif called.args.kwarg is not None:
                 # The keyword argument gets assigned to the **kwargs parameter.
                 pass
@@ -383,6 +403,12 @@ accessed. Python regular expressions are accepted.'}
                 else:
                     display_name = repr(name)
                 self.add_message('E1120', node=node, args=display_name)
+
+        for name in kwparams:
+            defval, assigned = kwparams[name]
+            if defval is None and not assigned:
+                self.add_message('E1125', node=node, args=name)
+
 
 def register(linter):
     """required method to auto register this checker """

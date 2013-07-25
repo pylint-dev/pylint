@@ -20,3 +20,12 @@ class NewAaaa(object):
     def __init__(self):
         super(object, self).__init__()
 
+class Py3kAaaa(NewAaaa):
+    """new style"""
+    def __init__(self):
+        super().__init__()
+
+class Py3kWrongSuper(Py3kAaaa):
+    """new style"""
+    def __init__(self):
+        super(NewAaaa, self).__init__()

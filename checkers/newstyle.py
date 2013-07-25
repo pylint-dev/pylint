@@ -15,6 +15,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """check for new / old style related problems
 """
+import sys
 
 import astroid
 
@@ -33,6 +34,10 @@ MSGS = {
               'bad-super-call',
               'Used when another argument than the current class is given as \
               first argument of the super builtin.'),
+    'E1004': ('Missing argument to super()',
+              'missing-super-argument',
+              'Used when the super builtin didn\'t receive an \
+               argument on Python 2'),
     'W1001': ('Use of "property" on an old style class',
               'property-on-old-class',
               'Used when PyLint detect the use of the builtin "property" \
@@ -85,7 +90,7 @@ class NewStyleConflictChecker(BaseChecker):
             if name == 'property':
                 self.add_message('W1001', node=node)
 
-    @check_messages('E1002', 'E1003')
+    @check_messages('E1002', 'E1003', 'E1004')
     def visit_function(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
@@ -106,14 +111,23 @@ class NewStyleConflictChecker(BaseChecker):
                     self.add_message('E1002', node=node)
                 else:
                     # super first arg should be the class
+                    if not call.args and sys.version_info[0] == 3:
+                        # unless Python 3
+                        continue
+
                     try:
                         supcls = (call.args and call.args[0].infer().next()
                                   or None)
                     except astroid.InferenceError:
                         continue
+
+                    if supcls is None and sys.version_info[0] == 2:
+                        self.add_message('missing-super-argument', node=call)
+                        continue
+
                     if klass is not supcls:
                         supcls = getattr(supcls, 'name', supcls)
-                        self.add_message('E1003', node=node, args=supcls)
+                        self.add_message('E1003', node=call, args=(supcls, ))
 
 
 def register(linter):
