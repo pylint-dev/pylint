@@ -379,7 +379,11 @@ functions, methods
               'Used when you use the "exec" statement, to discourage its \
               usage. That doesn\'t mean you can not use it !',
               {'maxversion': (3, 0)}),
-
+    'W0123': ('Use of the exec function',
+              'exec-function',
+              'Used when you use the "exec" function, to discourage its \
+              usage. That doesn\'t mean you can not use it !',
+               {'minversion': (3, 0)}),
     'W0141': ('Used builtin function %r',
               'bad-builtin',
               'Used when a black listed builtin function is used (see the '
@@ -600,7 +604,7 @@ functions, methods
         """just print a warning on exec statements"""
         self.add_message('exec-statement', node=node)
 
-    @check_messages('bad-builtin', 'star-args')
+    @check_messages('bad-builtin', 'star-args', 'exec-function')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -611,6 +615,8 @@ functions, methods
             # locals nor globals scope)
             if not (name in node.frame() or
                     name in node.root()):
+                if name == 'exec':
+                    self.add_message('exec-function', node=node)
                 if name in self.config.bad_functions:
                     self.add_message('bad-builtin', node=node, args=name)
         if node.starargs or node.kwargs:
