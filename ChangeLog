@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add check for the use of 'exec' function
+
     * Do not emit [fixme] for every line if the config value 'notes'
       is empty, but [fixme] is enabled.
 
