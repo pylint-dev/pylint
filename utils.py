@@ -319,11 +319,7 @@ class MessagesHandlerMixIn(object):
 
         Can be just the message ID or the ID and the symbol.
         """
-        if self.config.symbols:
-            symbol = self.check_message_id(msgid).symbol
-            if symbol:
-                msgid += '(%s)' % symbol
-        return msgid
+        return repr(self.check_message_id(msgid).symbol)
 
     def get_message_state_scope(self, msgid, line=None):
         """Returns the scope at which a message was enabled/disabled."""

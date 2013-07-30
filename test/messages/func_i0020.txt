@@ -1,2 +1,2 @@
 I:  7: Locally disabling W0612
-I:  8: Suppressed W0612 (from line 7)
+I:  8: Suppressed 'unused-variable' (from line 7)
