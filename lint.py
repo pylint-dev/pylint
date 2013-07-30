@@ -199,18 +199,6 @@ python modules names) to load, usually to register additional checkers.'}),
                   'can also give a reporter class, eg mypackage.mymodule.'
                   'MyReporterClass.'}),
 
-                ('include-ids',
-                 {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
-                  'short': 'i',
-                  'group': 'Reports',
-                  'help' : 'Include message\'s id in output'}),
-
-                ('symbols',
-                 {'type' : 'yn', 'metavar' : '<y_or_n>', 'default' : 0,
-                  'short': 's',
-                  'group': 'Reports',
-                  'help' : 'Include symbolic ids of messages in output'}),
-
                 ('files-output',
                  {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'group': 'Reports', 'level': 1,
@@ -267,6 +255,16 @@ This is used by the global evaluation report (RP0004).'}),
                   'If you want to run only the classes checker, but have no '
                   'Warning level messages displayed, use'
                   '"--disable=all --enable=classes --disable=W"'}),
+
+                ('msg-template',
+                 {'type' : 'string', 'metavar': '<template>',
+                 #'short': 't',
+                  'group': 'Reports',
+                  'help' : ('Template used to display messages. '
+                            'This is a python new-style format string '
+                            'used to format the massage information. '
+                            'See doc for all details')
+                  }), # msg-template
                )
 
     option_groups = (
@@ -569,8 +567,6 @@ This is used by the global evaluation report (RP0004).'}),
         """main checking entry: check a list of files or modules from their
         name.
         """
-        self.reporter.include_ids = self.config.include_ids
-        self.reporter.symbols = self.config.symbols
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
         walker = PyLintASTWalker(self)
