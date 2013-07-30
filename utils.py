@@ -122,8 +122,8 @@ def tokenize_module(module):
         return list(tokenize.generate_tokens(readline))
     return list(tokenize.tokenize(readline))
 
-    
-class Message(object):
+
+class MessageDefinition(object):
     def __init__(self, checker, msgid, msg, descr, symbol, scope):
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
         assert msgid[0] in MSG_TYPES, \
@@ -200,7 +200,7 @@ class MessagesHandlerMixIn(object):
             assert chkid is None or chkid == msgid[1:3], \
                    'Inconsistent checker part in message id %r' % msgid
             chkid = msgid[1:3]
-            msg = Message(checker, msgid, msg, msgdescr, msgsymbol, scope)
+            msg = MessageDefinition(checker, msgid, msg, msgdescr, msgsymbol, scope)
             self._messages[msgid] = msg
             self._messages_by_symbol[msgsymbol] = msg
             self._msgs_by_category.setdefault(msgid[0], []).append(msgid)
@@ -367,7 +367,7 @@ class MessagesHandlerMixIn(object):
 
         If provided, the message string is expanded using args
 
-        AST checkers should must the node argument (but may optionally 
+        AST checkers should must the node argument (but may optionally
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
