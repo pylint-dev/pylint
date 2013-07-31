@@ -34,7 +34,7 @@ class TextReporter(BaseReporter):
     __implements__ = IReporter
     name = 'text'
     extension = 'txt'
-    line_format = '{msg_id}({symbol}):{line:3d},{column}: {obj}: {msg}'
+    line_format = '{C}:{line:3d},{column:2d}: {msg} ({symbol})'
 
     def __init__(self, output=None):
         BaseReporter.__init__(self, output)
