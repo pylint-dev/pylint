@@ -74,7 +74,7 @@ def lint(filename):
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
     lintPath = os.path.join(os.path.dirname(__file__), 'lint.py')
-    cmd = [sys.executable, lintPath, '-f', 'parseable', '-r', 'n',
+    cmd = [sys.executable, lintPath, '--msg-template', '{path}:{line}: [{symbol}, {obj}] {msg}', '-r', 'n',
            '--disable=C,R,I', childPath]
     process = Popen(cmd, stdout=PIPE, cwd=parentPath, universal_newlines=True)
 
