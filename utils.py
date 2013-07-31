@@ -277,8 +277,8 @@ class MessagesHandlerMixIn(object):
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
             for checker in self._checkers[msgid.lower()]:
-                for msgid in checker.msgs:
-                    self.enable(msgid, scope, line)
+                for msgid_ in checker.msgs:
+                    self.enable(msgid_, scope, line)
             return
         # msgid is report id?
         if msgid.lower().startswith('rp'):
@@ -490,7 +490,7 @@ class MessagesHandlerMixIn(object):
         print
 
 
-class ReportsHandlerMixIn:
+class ReportsHandlerMixIn(object):
     """a mix-in class containing all the reports and stats manipulation
     related methods for the main lint class
     """
@@ -672,11 +672,11 @@ def register_plugins(linter, directory):
     """
     imported = {}
     for filename in os.listdir(directory):
-        basename, extension = splitext(filename)
-        if basename in imported or basename == '__pycache__':
+        base, extension = splitext(filename)
+        if base in imported or base == '__pycache__':
             continue
-        if extension in PY_EXTS and basename != '__init__' or (
-             not extension and isdir(join(directory, basename))):
+        if extension in PY_EXTS and base != '__init__' or (
+             not extension and isdir(join(directory, base))):
             try:
                 module = load_module_from_file(join(directory, filename))
             except ValueError:
@@ -687,5 +687,5 @@ def register_plugins(linter, directory):
             else:
                 if hasattr(module, 'register'):
                     module.register(linter)
-                    imported[basename] = 1
+                    imported[base] = 1
 

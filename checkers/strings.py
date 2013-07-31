@@ -85,7 +85,7 @@ class StringFormatChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = 'string'
     msgs = MSGS
-    
+
     @check_messages(*(MSGS.keys()))
     def visit_binop(self, node):
         if node.op != '%':

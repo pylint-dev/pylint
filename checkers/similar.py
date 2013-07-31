@@ -1,5 +1,5 @@
 # pylint: disable=W0622
-# Copyright (c) 2004-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2004-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -25,7 +25,7 @@ from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
 
 
-class Similar:
+class Similar(object):
     """finds copy-pasted lines of code in a project"""
 
     def __init__(self, min_lines=4, ignore_comments=False,
@@ -160,7 +160,8 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
         strippedlines.append(line)
     return strippedlines
 
-class LineSet:
+
+class LineSet(object):
     """Holds and indexes all the lines of a single source file"""
     def __init__(self, name, lines, ignore_comments=False,
                  ignore_docstrings=False, ignore_imports=False):

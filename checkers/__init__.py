@@ -38,6 +38,7 @@ messages nor reports. XXX not true, emit a 07 report !
 
 """
 
+import sys
 import tokenize
 import warnings
 from os.path import dirname
@@ -138,7 +139,7 @@ class BaseRawChecker(BaseChecker):
 
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""
-    
+
     def process_tokens(self, tokens):
         """Should be overridden by subclasses."""
         raise NotImplementedError()

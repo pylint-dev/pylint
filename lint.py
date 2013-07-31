@@ -50,7 +50,7 @@ from pylint.utils import (
     PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn, ReportsHandlerMixIn,
     EmptyReport, WarningScope,
     expand_modules, tokenize_module)
-from pylint.interfaces import ILinter, IRawChecker, ITokenChecker, IAstroidChecker
+from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker
 from pylint.checkers import (BaseTokenChecker,
                              table_lines_from_stats,
                              initialize as checkers_initialize)
@@ -164,7 +164,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     to ensure the latest code version is actually checked.
     """
 
-    __implements__ = (ILinter, ITokenChecker)
+    __implements__ = (ITokenChecker,)
 
     name = 'master'
     priority = 0

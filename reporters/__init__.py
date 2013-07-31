@@ -73,6 +73,7 @@ class BaseReporter(object):
         self.section = 0
         self.out = None
         self.out_encoding = None
+        self.encode = None
         self.set_output(output)
         # Build the path prefix to strip to get relative paths
         self.path_strip_prefix = os.getcwd() + os.sep

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2008-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2008-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -14,16 +13,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-"""
-Utilities for creating VCG and Dot diagrams.
-"""
+"""Utilities for creating VCG and Dot diagrams"""
 
 from logilab.common.vcgutils import VCGPrinter
 from logilab.common.graph import DotBackend
 
 from pylint.pyreverse.utils import is_exception
 
-class DiagramWriter:
+class DiagramWriter(object):
     """base class for writing project diagrams
     """
     def __init__(self, config, styles):
@@ -93,8 +90,8 @@ class DotWriter(DiagramWriter):
     """
 
     def __init__(self, config):
-        styles = [dict(arrowtail='none', arrowhead="open"), 
-                  dict(arrowtail = "none", arrowhead='empty'), 
+        styles = [dict(arrowtail='none', arrowhead="open"),
+                  dict(arrowtail = "none", arrowhead='empty'),
                   dict(arrowtail="node", arrowhead='empty', style='dashed'),
                   dict(fontcolor='green', arrowtail='none',
                        arrowhead='diamond', style='solid') ]
@@ -113,14 +110,14 @@ class DotWriter(DiagramWriter):
 
     def get_values(self, obj):
         """get label and shape for classes.
-        
+
         The label contains all attributes and methods
         """
         label =  obj.title
         if obj.shape == 'interface':
             label = "«interface»\\n%s" % label
         if not self.config.only_classnames:
-            label = "%s|%s\l|" % (label,  r"\l".join(obj.attrs) )
+            label = r"%s|%s\l|" % (label,  r"\l".join(obj.attrs) )
             for func in obj.methods:
                 label = r'%s%s()\l' % (label, func.name)
             label = '{%s}' % label
@@ -139,7 +136,7 @@ class VCGWriter(DiagramWriter):
     def __init__(self, config):
         styles = [dict(arrowstyle='solid', backarrowstyle='none',
                        backarrowsize=0),
-                  dict(arrowstyle='solid', backarrowstyle='none', 
+                  dict(arrowstyle='solid', backarrowstyle='none',
                        backarrowsize=10),
                   dict(arrowstyle='solid', backarrowstyle='none',
                        linestyle='dotted', backarrowsize=10),
@@ -163,7 +160,7 @@ class VCGWriter(DiagramWriter):
 
     def get_values(self, obj):
         """get label and shape for classes.
-        
+
         The label contains all attributes and methods
         """
         if is_exception(obj.node):

@@ -352,7 +352,7 @@ class FormatChecker(BaseTokenChecker):
 
         for line in lines.splitlines(True):
             if not line.endswith('\n'):
-                 self.add_message('C0304', line=i)
+                self.add_message('C0304', line=i)
             else:
                 stripped_line = line.rstrip()
                 if line != stripped_line + '\n':

@@ -105,7 +105,7 @@ def _determine_function_name_type(node):
             (isinstance(decorator, astroid.Getattr) and
              decorator.attrname == 'abstractproperty')):
             infered = safe_infer(decorator)
-            if (infered and 
+            if (infered and
                 infered.qname() in ('__builtin__.property', 'abc.abstractproperty')):
                 return 'attr'
         # If the function is decorated using the prop_method.{setter,getter}
@@ -220,7 +220,7 @@ class BasicErrorChecker(_BasicChecker):
               'with a break statement, otherwise the statements under else '
               'should be on the same scope as the loop itself.'),
     }
-    
+
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
 
@@ -228,8 +228,8 @@ class BasicErrorChecker(_BasicChecker):
     def visit_class(self, node):
         self._check_redefinition('class', node)
 
-    @check_messages('init-is-generator', 'return-in-init', 
-                    'function-redefined', 'return-arg-in-generator', 
+    @check_messages('init-is-generator', 'return-in-init',
+                    'function-redefined', 'return-arg-in-generator',
                     'duplicate-argument-name')
     def visit_function(self, node):
         if not redefined_by_decorator(node):
@@ -243,8 +243,8 @@ class BasicErrorChecker(_BasicChecker):
             else:
                 values = [r.value for r in returns]
                 # Are we returning anything but None from constructors
-                if  [v for v in values if 
-                     not (v is None or 
+                if  [v for v in values if
+                     not (v is None or
                           (isinstance(v, astroid.Const) and v.value is None) or
                           (isinstance(v, astroid.Name)  and v.name == 'None')
                          ) ]:
@@ -257,7 +257,7 @@ class BasicErrorChecker(_BasicChecker):
                     self.add_message('return-arg-in-generator', node=node,
                                      line=retnode.fromlineno)
         # Check for duplicate names
-        args = set() 
+        args = set()
         for name in node.argnames():
             if name in args:
                 self.add_message('duplicate-argument-name', node=node, args=(name,))
@@ -454,7 +454,7 @@ functions, methods
         """
         self.stats['class'] += 1
 
-    @check_messages('pointless-statement', 'pointless-string-statement', 
+    @check_messages('pointless-statement', 'pointless-string-statement',
                     'expression-not-assigned')
     def visit_discard(self, node):
         """check for various kind of statements without effect"""
@@ -883,7 +883,7 @@ class DocStringChecker(_BasicChecker):
                           ' require docstrings, shorter ones are exempt.')}
                 ),
                )
-                 
+
 
     def open(self):
         self.stats = self.linter.add_stats(undocumented_module=0,

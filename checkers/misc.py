@@ -62,9 +62,9 @@ separated by a comma.'
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return unicode(line, file_encoding)
-        except UnicodeDecodeError, e:
+        except UnicodeDecodeError, ex:
             self.add_message('W0512', line=lineno,
-                             args=(file_encoding, e.args[2]))
+                             args=(file_encoding, ex.args[2]))
 
     def process_module(self, module):
         """inspect the source file to find encoding problem or fixmes like

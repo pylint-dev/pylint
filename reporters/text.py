@@ -17,7 +17,6 @@
 :colorized: an ANSI colorized text reporter
 """
 
-import os.path as osp
 import warnings
 
 from logilab.common.ureports import TextWriter
@@ -45,9 +44,9 @@ class TextReporter(BaseReporter):
     def on_set_current_module(self, module, filepath):
         self._template = unicode(self.linter.config.msg_template or self.line_format)
 
-    def write_message(self, m, template=None):
+    def write_message(self, msg):
         """Convenience method to write a formated message with class default template"""
-        self.writeln(m.format(self._template))
+        self.writeln(msg.format(self._template))
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
@@ -75,9 +74,9 @@ class ParseableTextReporter(TextReporter):
     name = 'parseable'
     line_format = '{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'
 
-    def __init__(self, output=None, relative=True):
+    def __init__(self, output=None):
         warnings.warn('%s output format is deprecated. This is equivalent to --msg-template=%s'
-                     % (self.name, self.line_format))
+                      % (self.name, self.line_format))
         TextReporter.__init__(self, output)
 
 
@@ -119,21 +118,21 @@ class ColorizedTextReporter(TextReporter):
         """manage message of different types, and colorize output
         using ansi escape codes
         """
-        m = Message(self, msg_id, location, msg)
-        if m.module not in self._modules:
+        msg = Message(self, msg_id, location, msg)
+        if msg.module not in self._modules:
             color, style = self._get_decoration('S')
-            if m.module:
-                modsep = colorize_ansi('************* Module %s' % m.module,
+            if msg.module:
+                modsep = colorize_ansi('************* Module %s' % msg.module,
                                        color, style)
             else:
-                modsep = colorize_ansi('************* %s' % m.module,
+                modsep = colorize_ansi('************* %s' % msg.module,
                                        color, style)
             self.writeln(modsep)
-            self._modules[m.module] = 1
-        color, style = self._get_decoration(m.C)
+            self._modules[msg.module] = 1
+        color, style = self._get_decoration(msg.C)
         for attr in ('msg', 'symbol', 'category', 'C'):
-            setattr(m, attr, colorize_ansi(getattr(m, attr), color, style))
-        self.write_message(m)
+            setattr(msg, attr, colorize_ansi(getattr(msg, attr), color, style))
+        self.write_message(msg)
 
 
 def register(linter):

@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -23,7 +23,7 @@ from threading import Thread
 from Tkinter import (Tk, Frame, Listbox, Entry, Label, Button, Scrollbar,
                      Checkbutton, Radiobutton, IntVar, StringVar)
 from Tkinter import (TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH, SUNKEN, W,
-                     HORIZONTAL, DISABLED, NORMAL, W, E)
+                     HORIZONTAL, DISABLED, NORMAL, W)
 from tkFileDialog import askopenfilename, askdirectory
 
 import pylint.lint
@@ -86,7 +86,7 @@ class BasicStream(object):
         """finalize what the contents of the dict should look like before output"""
         for item in self.outdict:
             numEmpty = self.outdict[item].count('')
-            for i in xrange(numEmpty):
+            for _ in xrange(numEmpty):
                 self.outdict[item].remove('')
             if self.outdict[item]:
                 self.outdict[item].pop(0)
