@@ -77,7 +77,7 @@ ChangeLog for Pylint
     * Added a new warning 'old-raise-syntax' for the deprecated syntax
       raise Exception, args
 
-    * Support for PEP 3102 and new missing-kwoa (E1125) message for missing 
+    * Support for PEP 3102 and new missing-kwoa (E1125) message for missing
       mandatory keyword argument (logilab.org's #107788)
 
     * Fix spelling of max-branchs option, now max-branches
@@ -94,11 +94,13 @@ ChangeLog for Pylint
       containers like tuple
 
     * bitbucket #16: fix False positive E1003 on Python 3 for argument-less super()
- 
+
     * bitbucket #6: put back documentation in source distribution
 
     * bitbucket #15: epylint shouldn't hang anymore when there is a large
       output on pylint'stderr
+
+    * bitbucket #7: fix epylint w/ python3
 
     * bitbucket #3: remove string module from the default list of deprecated
       modules
