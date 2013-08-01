@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Check for non-exception classes inside an except clause
+
     * New --msg-template option to control output, deprecating "msvc" and
       "parseable" output formats as well as killing `--include-ids` and `--symbols`
       options
