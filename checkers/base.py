@@ -374,16 +374,10 @@ functions, methods
               'duplicate-key',
               "Used when a dictionary expression binds the same key multiple \
               times."),
-    'W0122': ('Use of the exec statement',
-              'exec-statement',
+    'W0122': ('Use of exec',
+              'exec-used',
               'Used when you use the "exec" statement, to discourage its \
-              usage. That doesn\'t mean you can not use it !',
-              {'maxversion': (3, 0)}),
-    'W0123': ('Use of the exec function',
-              'exec-function',
-              'Used when you use the "exec" function, to discourage its \
-              usage. That doesn\'t mean you can not use it !',
-               {'minversion': (3, 0)}),
+              usage. That doesn\'t mean you can not use it !'),
     'W0141': ('Used builtin function %r',
               'bad-builtin',
               'Used when a black listed builtin function is used (see the '
@@ -599,12 +593,12 @@ functions, methods
         if node.exc is not None and node.inst is not None and node.tback is None:
             self.add_message('old-raise-syntax', node=node)
 
-    @check_messages('exec-statement')
+    @check_messages('exec-used')
     def visit_exec(self, node):
         """just print a warning on exec statements"""
-        self.add_message('exec-statement', node=node)
+        self.add_message('exec-used', node=node)
 
-    @check_messages('bad-builtin', 'star-args', 'exec-function')
+    @check_messages('bad-builtin', 'star-args', 'exec-used')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -616,7 +610,7 @@ functions, methods
             if not (name in node.frame() or
                     name in node.root()):
                 if name == 'exec':
-                    self.add_message('exec-function', node=node)
+                    self.add_message('exec-used', node=node)
                 if name in self.config.bad_functions:
                     self.add_message('bad-builtin', node=node, args=name)
         if node.starargs or node.kwargs:
