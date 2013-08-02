@@ -4,6 +4,10 @@ ChangeLog for Pylint
 --
     * Add check for the use of 'exec' function
 
+    * New --msg-template option to control output, deprecating "msvc" and
+      "parseable" output formats as well as killing `--include-ids` and `--symbols`
+      options
+
     * Do not emit [fixme] for every line if the config value 'notes'
       is empty, but [fixme] is enabled.
 
