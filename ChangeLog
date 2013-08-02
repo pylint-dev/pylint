@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add check for the use of 'exec' function
+
     * New --msg-template option to control output, deprecating "msvc" and
       "parseable" output formats as well as killing `--include-ids` and `--symbols`
       options
