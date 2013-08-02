@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -17,17 +17,19 @@
 """
 
 from logilab.common.compat import builtins
-BUILTINS_NAME = builtins.__name__
+
 import astroid
 from astroid.utils import LocalsVisitor
 
 from pylint.pyreverse.diagrams import PackageDiagram, ClassDiagram
 
+BUILTINS_NAME = builtins.__name__
+
 # diagram generators ##########################################################
 
-class DiaDefGenerator:
-    """handle diagram generation options
-    """
+class DiaDefGenerator(object):
+    """handle diagram generation options"""
+
     def __init__(self, linker, handler):
         """common Diagram Handler initialization"""
         self.config = handler.config
@@ -102,7 +104,7 @@ class DiaDefGenerator:
             for ass_node in ass_nodes:
                 if isinstance(ass_node, astroid.Instance):
                     ass_node = ass_node._proxied
-                if not (isinstance(ass_node, astroid.Class) 
+                if not (isinstance(ass_node, astroid.Class)
                         and self.show_node(ass_node)):
                     continue
                 yield ass_node
@@ -204,7 +206,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
 # diagram handler #############################################################
 
-class DiadefsHandler:
+class DiadefsHandler(object):
     """handle diagram definitions :
 
     get it from user (i.e. xml files) or generate them
@@ -216,7 +218,7 @@ class DiadefsHandler:
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data
         :param linker: astroid.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
-        :param project: astroid.manager.Project        
+        :param project: astroid.manager.Project
         """
 
         #  read and interpret diagram definitions (Diadefs)

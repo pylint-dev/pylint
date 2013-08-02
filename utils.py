@@ -122,8 +122,8 @@ def tokenize_module(module):
         return list(tokenize.generate_tokens(readline))
     return list(tokenize.tokenize(readline))
 
-    
-class Message(object):
+
+class MessageDefinition(object):
     def __init__(self, checker, msgid, msg, descr, symbol, scope):
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
         assert msgid[0] in MSG_TYPES, \
@@ -200,7 +200,7 @@ class MessagesHandlerMixIn(object):
             assert chkid is None or chkid == msgid[1:3], \
                    'Inconsistent checker part in message id %r' % msgid
             chkid = msgid[1:3]
-            msg = Message(checker, msgid, msg, msgdescr, msgsymbol, scope)
+            msg = MessageDefinition(checker, msgid, msg, msgdescr, msgsymbol, scope)
             self._messages[msgid] = msg
             self._messages_by_symbol[msgsymbol] = msg
             self._msgs_by_category.setdefault(msgid[0], []).append(msgid)
@@ -277,8 +277,8 @@ class MessagesHandlerMixIn(object):
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
             for checker in self._checkers[msgid.lower()]:
-                for msgid in checker.msgs:
-                    self.enable(msgid, scope, line)
+                for msgid_ in checker.msgs:
+                    self.enable(msgid_, scope, line)
             return
         # msgid is report id?
         if msgid.lower().startswith('rp'):
@@ -319,11 +319,7 @@ class MessagesHandlerMixIn(object):
 
         Can be just the message ID or the ID and the symbol.
         """
-        if self.config.symbols:
-            symbol = self.check_message_id(msgid).symbol
-            if symbol:
-                msgid += '(%s)' % symbol
-        return msgid
+        return repr(self.check_message_id(msgid).symbol)
 
     def get_message_state_scope(self, msgid, line=None):
         """Returns the scope at which a message was enabled/disabled."""
@@ -367,7 +363,7 @@ class MessagesHandlerMixIn(object):
 
         If provided, the message string is expanded using args
 
-        AST checkers should must the node argument (but may optionally 
+        AST checkers should must the node argument (but may optionally
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
@@ -494,7 +490,7 @@ class MessagesHandlerMixIn(object):
         print
 
 
-class ReportsHandlerMixIn:
+class ReportsHandlerMixIn(object):
     """a mix-in class containing all the reports and stats manipulation
     related methods for the main lint class
     """
@@ -676,11 +672,11 @@ def register_plugins(linter, directory):
     """
     imported = {}
     for filename in os.listdir(directory):
-        basename, extension = splitext(filename)
-        if basename in imported or basename == '__pycache__':
+        base, extension = splitext(filename)
+        if base in imported or base == '__pycache__':
             continue
-        if extension in PY_EXTS and basename != '__init__' or (
-             not extension and isdir(join(directory, basename))):
+        if extension in PY_EXTS and base != '__init__' or (
+             not extension and isdir(join(directory, base))):
             try:
                 module = load_module_from_file(join(directory, filename))
             except ValueError:
@@ -691,5 +687,5 @@ def register_plugins(linter, directory):
             else:
                 if hasattr(module, 'register'):
                     module.register(linter)
-                    imported[basename] = 1
+                    imported[base] = 1
 

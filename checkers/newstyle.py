@@ -52,11 +52,11 @@ MSGS = {
 
 class NewStyleConflictChecker(BaseChecker):
     """checks for usage of new style capabilities on old style classes and
-    other new/old styles conflicts problems                                    
-    * use of property, __slots__, super                                        
-    * "super" usage                                                            
+    other new/old styles conflicts problems
+    * use of property, __slots__, super
+    * "super" usage
     """
-    
+
     __implements__ = (IAstroidChecker,)
 
     # configuration section name
@@ -70,7 +70,7 @@ class NewStyleConflictChecker(BaseChecker):
     @check_messages('E1001', 'C1001')
     def visit_class(self, node):
         """check __slots__ usage
-        """        
+        """
         if '__slots__' in node and not node.newstyle:
             self.add_message('E1001', node=node)
         # The node type could be class, exception, metaclass, or

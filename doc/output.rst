@@ -6,7 +6,40 @@ The default format for the output is raw text. You can change this by passing
 pylint the ``--output-format=<value>`` option. Possible values are: parseable,
 colorized, msvs (visual studio) and html.
 
-There are several sections in pylint's output.
+Moreover you can customize the exact way information are displayed using the
+`--msg-template=<format string>` option. The `format string` uses the
+`Python new format syntax`_ and the following fields are available :
+
+path
+    relative path to the file
+abspath
+    absolute path to the file
+line
+    line number
+column
+    column number
+module
+    module name
+obj
+    object within the module (if any)
+msg
+    text of the message
+symbol
+    symbolic name of the message
+C
+    one letter indication of the message category
+category
+    fullname of the message category
+
+For exemple the default format can be obtained with::
+
+  pylint --msg-template='{sigle}:{line:3d},{column}: {obj}: {msg}'
+
+and a Visual Studio compatible format can be obtained with::
+
+  pylint --msg-template='{path}({line}): [{sigle}{obj}] {msg}'
+
+.. _Python new format syntax: http://docs.python.org/2/library/string.html#formatstrings
 
 Source code analysis section
 ''''''''''''''''''''''''''''

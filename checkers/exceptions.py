@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2007 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -46,7 +46,7 @@ MSGS = {
               'notimplemented-raised',
               'Used when NotImplemented is raised instead of \
               NotImplementedError'),
-    
+
     'W0701': ('Raising a string exception',
               'raising-string',
               'Used when a string exception is raised.'),
@@ -86,11 +86,11 @@ else:
     EXCEPTIONS_MODULE = "builtins"
 
 class ExceptionsChecker(BaseChecker):
-    """checks for                                                              
-    * excepts without exception filter                                         
+    """checks for
+    * excepts without exception filter
     * type of raise argument : string, Exceptions, other values
     """
-    
+
     __implements__ = IAstroidChecker
 
     name = 'exceptions'
@@ -134,7 +134,7 @@ class ExceptionsChecker(BaseChecker):
                                  args=value.__class__.__name__)
         elif (isinstance(expr, astroid.Name) and \
                  expr.name in ('None', 'True', 'False')) or \
-                 isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple, 
+                 isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
                                    astroid.Module, astroid.Function)):
             self.add_message('E0702', node=node, args=expr.name)
         elif ( (isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
@@ -192,7 +192,7 @@ class ExceptionsChecker(BaseChecker):
                 except astroid.InferenceError:
                     continue
                 for exc in excs:
-                    # XXX skip other non class nodes 
+                    # XXX skip other non class nodes
                     if exc is YES or not isinstance(exc, astroid.Class):
                         continue
                     exc_ancestors = [anc for anc in exc.ancestors()

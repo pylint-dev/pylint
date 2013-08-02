@@ -55,27 +55,17 @@ class RunTC(TestCase):
     @tag('smoke')
     def test1(self):
         """make pylint checking itself"""
-        self._runtest(['--include-ids=y', 'pylint.lint'], reporter=TextReporter(StringIO()))
+        self._runtest(['pylint.lint'], reporter=TextReporter(StringIO()))
 
     @tag('smoke')
     def test2(self):
         """make pylint checking itself"""
-        self._runtest(['pylint.lint'], reporter=ParseableTextReporter(StringIO()))
+        self._runtest(['pylint.lint'], reporter=HTMLReporter(StringIO()))
 
     @tag('smoke')
     def test3(self):
         """make pylint checking itself"""
-        self._runtest(['pylint.lint'], reporter=HTMLReporter(StringIO()))
-
-    @tag('smoke')
-    def test4(self):
-        """make pylint checking itself"""
         self._runtest(['pylint.lint'], reporter=ColorizedTextReporter(StringIO()))
-
-    @tag('smoke')
-    def test5(self):
-        """make pylint checking itself"""
-        self._runtest(['pylint.lint'], reporter=VSTextReporter(StringIO()))
 
     @tag('smoke')
     def test_no_ext_file(self):

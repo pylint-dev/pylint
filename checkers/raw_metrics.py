@@ -55,12 +55,12 @@ def report_raw_stats(sect, stats, old_stats):
 
 
 class RawMetricsChecker(BaseTokenChecker):
-    """does not check anything but gives some raw metrics :                    
-    * total number of lines                                                    
-    * total number of code lines                                               
-    * total number of docstring lines                                          
-    * total number of comments lines                                           
-    * total number of empty lines                                              
+    """does not check anything but gives some raw metrics :
+    * total number of lines
+    * total number of code lines
+    * total number of docstring lines
+    * total number of comments lines
+    * total number of empty lines
     """
 
     __implements__ = (ITokenChecker,)

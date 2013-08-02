@@ -544,29 +544,24 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
     @check_messages('unbalanced-tuple-unpacking')
     def visit_assign(self, node):
-         """ Check unbalanced tuple unpacking for assignments. """
-         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
-             return
-
-         try:
-             infered = node.value.infer().next()
-         except astroid.InferenceError:
-             return
-         
-         if not isinstance(infered, (astroid.Tuple, astroid.List)):
-             return
-
-         targets = node.targets[0].itered()
-         values = infered.itered()
-
-         if any(not isinstance(target_node, astroid.AssName)
-                for target_node in targets):
-             return
-
-         if len(targets) != len(values):
-             self.add_message('unbalanced-tuple-unpacking',
-                              node=node,
-                              args=(len(targets), len(values)))
+        """Check unbalanced tuple unpacking for assignments"""
+        if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
+            return
+        try:
+            infered = node.value.infer().next()
+        except astroid.InferenceError:
+            return
+        if not isinstance(infered, (astroid.Tuple, astroid.List)):
+            return
+        targets = node.targets[0].itered()
+        values = infered.itered()
+        if any(not isinstance(target_node, astroid.AssName)
+               for target_node in targets):
+            return
+        if len(targets) != len(values):
+            self.add_message('unbalanced-tuple-unpacking',
+                             node=node,
+                             args=(len(targets), len(values)))
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the

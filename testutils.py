@@ -134,7 +134,7 @@ class UnittestLinter(object):
 
     def add_message(self, msg_id, line=None, node=None, args=None):
         self._messages.append(Message(msg_id, line, node, args))
-        
+
     def is_message_enabled(self, *unused_args):
         return True
 
@@ -161,7 +161,7 @@ class CheckerTestCase(testlib.TestCase):
         """Assert that no messages are added by the given method."""
         with self.assertAddsMessages():
             yield
-    
+
     @contextlib.contextmanager
     def assertAddsMessages(self, *messages):
         """Assert that exactly the given method adds the given messages.
