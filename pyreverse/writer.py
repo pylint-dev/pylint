@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2008-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
@@ -115,7 +116,7 @@ class DotWriter(DiagramWriter):
         """
         label =  obj.title
         if obj.shape == 'interface':
-            label = "«interface»\\n%s" % label
+            label = u"«interface»\\n%s" % label
         if not self.config.only_classnames:
             label = r"%s|%s\l|" % (label,  r"\l".join(obj.attrs) )
             for func in obj.methods:
