@@ -124,6 +124,11 @@ MSGS = {
               'unbalanced-tuple-unpacking',
               'Used when there is an unbalanced tuple unpacking in assignment'),
 
+    'W0633': ('Attempting to unpack a non-sequence',
+              'unpacking-non-sequence',
+              'Used when something which is not '
+              'a sequence is used in an unpack assignment'),
+
     }
 
 class VariablesChecker(BaseChecker):
@@ -542,26 +547,40 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             self._check_module_attrs(node, module, name.split('.'))
 
-    @check_messages('unbalanced-tuple-unpacking')
+    @check_messages('unbalanced-tuple-unpacking', 'unpacking-non-sequence')
     def visit_assign(self, node):
-        """Check unbalanced tuple unpacking for assignments"""
+        """Check unbalanced tuple unpacking for assignments
+        and unpacking non-sequences.
+        """
         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
             return
+
         try:
             infered = node.value.infer().next()
         except astroid.InferenceError:
             return
-        if not isinstance(infered, (astroid.Tuple, astroid.List)):
-            return
-        targets = node.targets[0].itered()
-        values = infered.itered()
-        if any(not isinstance(target_node, astroid.AssName)
-               for target_node in targets):
-            return
-        if len(targets) != len(values):
-            self.add_message('unbalanced-tuple-unpacking',
-                             node=node,
-                             args=(len(targets), len(values)))
+        if isinstance(infered, (astroid.Tuple, astroid.List)):            
+            targets = node.targets[0].itered()
+            values = infered.itered()
+            if any(not isinstance(target_node, astroid.AssName)
+                   for target_node in targets):
+                return
+            if len(targets) != len(values):
+                self.add_message('unbalanced-tuple-unpacking',
+                                 node=node,
+                                 args=(len(targets), len(values)))
+        else:
+            # Iterator or a Sequence, according to collections.abc
+            for meth in ('__iter__', '__getitem__'):
+                try:
+                    infered.getattr(meth)
+                except astroid.NotFoundError:
+                    continue
+                else:
+                    break
+            else:
+                self.add_message('unpacking-non-sequence',
+                                 node=node)               
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
