@@ -23,6 +23,17 @@ class Iter(object):
         for number in range(2):
             yield number
 
+def good_unpacking():
+    """ returns should be unpackable """
+    if True:
+        return [1, 2]
+    else:
+        return (3, 4)
+
+def good_unpacking2():
+    """ returns should be unpackable """
+    return good_unpacking()
+
 a, b = [1, 2]
 a, b = (1, 2)
 a, b = set([1, 2])
@@ -31,13 +42,22 @@ a, b =  "xy"
 a, b = Seq()
 a, b = Iter()
 a, b = (number for number in range(2))
+a, b = good_unpacking()
+a, b = good_unpacking2()
 
 # Not working
 class NonSeq(object):
     """ does nothing """
+
+def bad_unpacking():
+    """ one return isn't unpackable """
+    if True:
+        return None
+    return [1, 2]
 
 a, b = NonSeq()
 a, b = ValueError
 a, b = None
 a, b = 1
 a, b = locals
+a, b = bad_unpacking()

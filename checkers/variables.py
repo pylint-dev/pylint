@@ -18,6 +18,7 @@
 
 import sys
 from copy import copy
+from itertools import chain
 
 import astroid
 from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
@@ -554,9 +555,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
             return
-
+        
         try:
-            infered = node.value.infer().next()
+            inference = node.value.infer()
+            infered = inference.next()
         except astroid.InferenceError:
             return
         if isinstance(infered, (astroid.Tuple, astroid.List)):            
@@ -570,17 +572,24 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                  node=node,
                                  args=(len(targets), len(values)))
         else:
-            # Iterator or a Sequence, according to collections.abc
-            for meth in ('__iter__', '__getitem__'):
-                try:
-                    infered.getattr(meth)
-                except astroid.NotFoundError:
+            # Search all the infered nodes for something which is unpackable
+            # This handles the case of multiple returns in a function
+            # where all returns should be unpackable 
+            for infered_node in chain([infered], inference):
+                if infered_node is astroid.YES:
                     continue
+
+                for meth in ('__iter__', '__getitem__'):
+                    try:
+                        infered_node.getattr(meth)
+                    except astroid.NotFoundError:
+                        continue
+                    else:
+                        break               
                 else:
-                    break
-            else:
-                self.add_message('unpacking-non-sequence',
-                                 node=node)               
+                    self.add_message('unpacking-non-sequence',
+                                     node=node)     
+                    break          
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
