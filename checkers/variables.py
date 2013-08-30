@@ -18,7 +18,6 @@
 
 import sys
 from copy import copy
-from itertools import chain
 
 import astroid
 from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
@@ -557,40 +556,37 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
         
         try:
-            inference = node.value.infer()
-            infered = inference.next()
+            infered_nodes = node.value.infered()
         except astroid.InferenceError:
             return
-        if isinstance(infered, (astroid.Tuple, astroid.List)):            
-            targets = node.targets[0].itered()
-            values = infered.itered()
-            if any(not isinstance(target_node, astroid.AssName)
-                   for target_node in targets):
-                return
-            if len(targets) != len(values):
-                self.add_message('unbalanced-tuple-unpacking',
-                                 node=node,
-                                 args=(len(targets), len(values)))
-        else:
-            # Search all the infered nodes for something which is unpackable
-            # This handles the case of multiple returns in a function
-            # where all returns should be unpackable 
-            for infered_node in chain([infered], inference):
-                if infered_node is astroid.YES:
+
+        targets = node.targets[0].itered()
+        if any(not isinstance(target_node, astroid.AssName)
+               for target_node in targets):
+            return
+
+        for infered in infered_nodes:
+            if isinstance(infered, (astroid.Tuple, astroid.List)):                            
+                values = infered.itered()
+                if len(targets) != len(values):
+                    self.add_message('unbalanced-tuple-unpacking',
+                                     node=node,
+                                     args=(len(targets), len(values)))
+            else:
+                if infered is astroid.YES:
                     continue
 
                 for meth in ('__iter__', '__getitem__'):
                     try:
-                        infered_node.getattr(meth)
+                        infered.getattr(meth)
                     except astroid.NotFoundError:
                         continue
                     else:
                         break               
-                else:
+                else:                
                     self.add_message('unpacking-non-sequence',
                                      node=node,
-                                     args=(infered_node.lineno or node.lineno))
-                    break          
+                                     args=(infered.lineno or node.lineno))  
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the

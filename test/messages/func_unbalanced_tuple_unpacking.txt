@@ -1,3 +1,4 @@
 W:  7:do_stuff: Possible unbalanced tuple unpacking: left side has 2 label(s), right side has 3 value(s)
 W: 12:do_stuff1: Possible unbalanced tuple unpacking: left side has 2 label(s), right side has 3 value(s)
 W: 17:do_stuff2: Possible unbalanced tuple unpacking: left side has 2 label(s), right side has 3 value(s)
+W: 48:do_stuff7: Possible unbalanced tuple unpacking: left side has 2 label(s), right side has 3 value(s)
