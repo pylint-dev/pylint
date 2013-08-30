@@ -119,7 +119,7 @@ MSGS = {
               a list comprehension or a generator expression) is used outside \
               the loop.'),
 
-    'W0632': ('Possible unbalanced tuple unpacking: '
+    'W0632': ('Possible unbalanced tuple unpacking with sequence at line %d: '
               'left side has %d label(s), right side has %d value(s)',
               'unbalanced-tuple-unpacking',
               'Used when there is an unbalanced tuple unpacking in assignment'),
@@ -571,7 +571,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if len(targets) != len(values):
                     self.add_message('unbalanced-tuple-unpacking',
                                      node=node,
-                                     args=(len(targets), len(values)))
+                                     args=(infered.lineno, 
+                                           len(targets), 
+                                           len(values)))
             else:
                 if infered is astroid.YES:
                     continue
