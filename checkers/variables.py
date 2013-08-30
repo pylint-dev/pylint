@@ -125,7 +125,7 @@ MSGS = {
               'unbalanced-tuple-unpacking',
               'Used when there is an unbalanced tuple unpacking in assignment'),
 
-    'W0633': ('Attempting to unpack a non-sequence',
+    'W0633': ('Attempting to unpack a non-sequence with sequence at line %d',
               'unpacking-non-sequence',
               'Used when something which is not '
               'a sequence is used in an unpack assignment'),
@@ -588,7 +588,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         break               
                 else:
                     self.add_message('unpacking-non-sequence',
-                                     node=node)     
+                                     node=node,
+                                     args=(infered_node.lineno or node.lineno))
                     break          
 
     def _check_module_attrs(self, node, module, module_names):
