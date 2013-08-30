@@ -338,13 +338,12 @@ a metaclass class method.'}
                 or isinstance(infered_node, Generator)):
                 continue
             if isinstance(infered_node, astroid.Instance):
-                for meth in ('__iter__', next):
-                    try:
-                        infered_node.local_attr(meth)
-                    except astroid.NotFoundError:
-                        self.add_message('non-iterator-returned',
-                                         node=node)
-                        break
+                try:
+                    infered_node.local_attr(next)
+                except astroid.NotFoundError:
+                    self.add_message('non-iterator-returned',
+                                     node=node)
+                    break
 
 
     def leave_function(self, node):
