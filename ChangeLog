@@ -1,9 +1,10 @@
 ChangeLog for Pylint
 ====================
 
-2013-08-06  --  1.0.0
-
+--
     * Check for non-exception classes inside an except clause
+
+2013-08-06  --  1.0.0
 
     * Add check for the use of 'exec' function
 
