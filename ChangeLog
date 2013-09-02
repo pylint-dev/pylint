@@ -2,8 +2,12 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Check for non-exception classes inside an except clause
+
     * Added a new warning, 'non-iterator-returned', for non-iterators 
       returned by '__iter__'
+
+2013-08-06  --  1.0.0
 
     * Add check for the use of 'exec' function
 
