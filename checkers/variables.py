@@ -124,7 +124,7 @@ MSGS = {
               'unbalanced-tuple-unpacking',
               'Used when there is an unbalanced tuple unpacking in assignment'),
 
-    'W0633': ('Attempting to unpack a non-sequence with sequence at line %d',
+    'W0633': ('Attempting to unpack a non-sequence with non-sequence at line %d',
               'unpacking-non-sequence',
               'Used when something which is not '
               'a sequence is used in an unpack assignment'),
