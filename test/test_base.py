@@ -42,7 +42,7 @@ class DocstringTest(CheckerTestCase):
            pass""")
         with self.assertNoMessages():
             self.checker.visit_function(func)
-        
+
     def testClassNoDocstring(self):
         klass = test_utils.extract_node("""
         class Klass(object):
@@ -81,7 +81,7 @@ class NameCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_function(methods[0])
             self.checker.visit_function(methods[2])
-        with self.assertAddsMessages(Message('invalid-name', node=methods[1], 
+        with self.assertAddsMessages(Message('invalid-name', node=methods[1],
                                              args=('attribute', 'bar'))):
             self.checker.visit_function(methods[1])
 
@@ -129,3 +129,7 @@ class NameCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_assname(assign.targets[0])
 
+
+if __name__ == '__main__':
+    from logilab.common.testlib import unittest_main
+    unittest_main()

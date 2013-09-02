@@ -355,7 +355,7 @@ class FormatChecker(BaseTokenChecker):
                 self.add_message('C0304', line=i)
             else:
                 stripped_line = line.rstrip()
-                if line != stripped_line + '\n':
+                if line[len(stripped_line):] not in ('\n', '\r\n'):
                     self.add_message('C0303', line=i)
                 # Don't count excess whitespace in the line length.
                 line = stripped_line

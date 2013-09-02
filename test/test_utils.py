@@ -29,6 +29,7 @@ class PyLintASTWalkerTest(TestCase):
     class Checker(object):
         def __init__(self):
             self.called = set()
+
         @check_messages('first-message')
         def visit_module(self, module):
             self.called.add('module')
@@ -54,4 +55,9 @@ class PyLintASTWalkerTest(TestCase):
         walker.add_checker(checker)
         walker.walk(test_utils.build_module("x = func()"))
         self.assertEqual(set(['module', 'assname']), checker.called)
-                    
+
+
+if __name__ == '__main__':
+    from logilab.common.testlib import unittest_main
+    unittest_main()
+
