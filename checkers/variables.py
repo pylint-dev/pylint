@@ -119,12 +119,14 @@ MSGS = {
               a list comprehension or a generator expression) is used outside \
               the loop.'),
 
-    'W0632': ('Possible unbalanced tuple unpacking with sequence at line %d: '
+    'W0632': ('Possible unbalanced tuple unpacking with '
+              'sequence at line %d (%s): '
               'left side has %d label(s), right side has %d value(s)',
               'unbalanced-tuple-unpacking',
               'Used when there is an unbalanced tuple unpacking in assignment'),
 
-    'W0633': ('Attempting to unpack a non-sequence with non-sequence at line %d',
+    'W0633': ('Attempting to unpack a non-sequence with '
+              'non-sequence at line %d (%s)',
               'unpacking-non-sequence',
               'Used when something which is not '
               'a sequence is used in an unpack assignment'),
@@ -571,7 +573,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if len(targets) != len(values):
                     self.add_message('unbalanced-tuple-unpacking',
                                      node=node,
-                                     args=(infered.lineno, 
+                                     args=(infered.lineno,
+                                           node.root().name, 
                                            len(targets), 
                                            len(values)))
             else:
@@ -588,7 +591,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 else:                
                     self.add_message('unpacking-non-sequence',
                                      node=node,
-                                     args=(infered.lineno or node.lineno))  
+                                     args=(infered.lineno or node.lineno, 
+                                           node.root().name))  
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
