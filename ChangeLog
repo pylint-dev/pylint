@@ -1,7 +1,11 @@
 ChangeLog for Pylint
 ====================
 
+--
+    * Check for non-exception classes inside an except clause
+
 2013-08-06  --  1.0.0
+
     * Add check for the use of 'exec' function
 
     * New --msg-template option to control output, deprecating "msvc" and
@@ -106,7 +110,6 @@ ChangeLog for Pylint
 
     * bitbucket #3: remove string module from the default list of deprecated
       modules
-
 
 
 2013-04-25  --  0.28.0
