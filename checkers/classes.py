@@ -26,7 +26,10 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, overrides_a_method,
     check_messages, is_attr_private, is_attr_protected, node_frame_class)
 
-_PY3K = sys.version_info >= (3, 0)
+if sys.version_info >= (3, 0):
+    NEXT_METHOD = '__next__'
+else:
+    NEXT_METHOD = 'next'
 
 def class_is_abstract(node):
     """return true if the given class node should be considered as an abstract
@@ -329,17 +332,13 @@ a metaclass class method.'}
         except astroid.InferenceError:
             return
 
-        if _PY3K:
-            next = '__next__'
-        else:
-            next = 'next'
         for infered_node in infered:
             if (infered_node is YES
                 or isinstance(infered_node, Generator)):
                 continue
             if isinstance(infered_node, astroid.Instance):
                 try:
-                    infered_node.local_attr(next)
+                    infered_node.local_attr(NEXT_METHOD)
                 except astroid.NotFoundError:
                     self.add_message('non-iterator-returned',
                                      node=node)
