@@ -151,7 +151,7 @@ MSGS = {
     'W0234': ('__iter__ returns non-iterator',
               'non-iterator-returned',
               'Used when an __iter__ method returns something which is not an \
-               iterator.'),
+               iterable (i.e. has no `%s` method)' % NEXT_METHOD),
 
 
     }
