@@ -2,6 +2,8 @@
 
 # pylint: disable=too-few-public-methods, invalid-name
 
+from input.unpacking import nonseq
+
 __revision__ = 0
 
 # Working
@@ -59,5 +61,6 @@ a, b = NonSeq()
 a, b = ValueError
 a, b = None
 a, b = 1
-a, b = locals
+a, b = nonseq
+a, b = nonseq()
 a, b = bad_unpacking()

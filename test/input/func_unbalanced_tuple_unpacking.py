@@ -1,5 +1,7 @@
 """Check possible unbalanced tuple unpacking """
 
+from input.unpacking import unpack
+
 __revision__ = 0
 
 def do_stuff():
@@ -60,4 +62,9 @@ def temp2():
 def do_stuff8():
     """ This is correct """
     first, second = temp2()
+    return first + second
+
+def do_stuff9():
+    """ This is not correct """
+    first, second = unpack()
     return first + second
