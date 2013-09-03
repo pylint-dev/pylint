@@ -29,7 +29,8 @@ For example:
         a/b/x.py
         a/c/y.py
 
-   - Then if y.py imports x as "from a.b import x" the following produces pylint errors
+   - Then if y.py imports x as "from a.b import x" the following produces pylint
+     errors
 
        cd a/c; pylint y.py
 
@@ -41,14 +42,15 @@ For example:
      we are checking we need to go out of it to avoid these false positives.
 
 
-You may also use py_run to run pylint with desired options and get back (or not) its output.
+You may also use py_run to run pylint with desired options and get back (or not)
+its output.
 """
 
 import sys, os, re
 from subprocess import Popen, PIPE
 
 
-def lint(filename):
+def lint(filename, options=None):
     """Pylint the given file.
 
     When run from emacs we will be in the directory of a file, and passed its filename.
@@ -74,8 +76,9 @@ def lint(filename):
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
     lintPath = os.path.join(os.path.dirname(__file__), 'lint.py')
-    cmd = [sys.executable, lintPath, '--msg-template', '{path}:{line}: [{symbol}, {obj}] {msg}', '-r', 'n',
-           '--disable=C,R,I', childPath]
+    options = options or ['--disable=C,R,I']
+    cmd = [sys.executable, lintPath] + options + ['--msg-template',
+            '{path}:{line}: [{symbol}, {obj}] {msg}', '-r', 'n', childPath]
     process = Popen(cmd, stdout=PIPE, cwd=parentPath, universal_newlines=True)
 
     # The parseable line format is '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
@@ -108,7 +111,7 @@ def lint(filename):
 
 def py_run(command_options='', return_std=False, stdout=None, stderr=None,
            script='epylint'):
-    """Run pylint from python (needs Python >= 2.4).
+    """Run pylint from python
 
     ``command_options`` is a string containing ``pylint`` command line options;
     ``return_std`` (boolean) indicates return of created standart output
@@ -158,7 +161,15 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
 
 
 def Run():
-    sys.exit(lint(sys.argv[1]))
+    if len(sys.argv) == 1:
+        print "Usage: %s <filename> [options]" % sys.argv[0]
+        sys.exit(1)
+    elif not os.path.exists(sys.argv[1]):
+        print "%s does not exist" % sys.argv[1] 
+        sys.exit(1)
+    else:
+        sys.exit(lint(sys.argv[1]))
+
 
 if __name__ == '__main__':
     Run()

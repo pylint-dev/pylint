@@ -4,6 +4,11 @@ ChangeLog for Pylint
 --
     * Check for non-exception classes inside an except clause
 
+    * epylint support options to give to pylint after the file to analyze and
+      have basic input validation (bitbucket #53 and #54), patches provided by
+      felipeochoa and Brian Lane
+
+
 2013-08-06  --  1.0.0
 
     * Add check for the use of 'exec' function
