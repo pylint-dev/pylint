@@ -572,9 +572,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 values = infered.itered()
                 if len(targets) != len(values):
                     if node.root().name == infered.root().name:
-                         location = infered.lineno or node.lineno
+                         location = infered.lineno or 'unknown'
                     else:
-                         location = '%s (%s)' % (infered.lineno or node.lineno,
+                         location = '%s (%s)' % (infered.lineno or 'unknown',
                                                  infered.root().name)
 
                     self.add_message('unbalanced-tuple-unpacking',
@@ -595,9 +595,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         break               
                 else:                
                     if node.root().name == infered.root().name:
-                         location = infered.lineno or node.lineno
+                         location = infered.lineno or 'unknown'
                     else:
-                         location = '%s (%s)' % (infered.lineno or node.lineno,
+                         location = '%s (%s)' % (infered.lineno or 'unknown',
                                                  infered.root().name)
                         
                     self.add_message('unpacking-non-sequence',
