@@ -1,6 +1,6 @@
 """Check non-iterators returned by __iter__ """
 
-# pylint: disable-msg=too-few-public-methods
+# pylint: disable=too-few-public-methods
 
 __revision__ = 0
 
@@ -17,7 +17,7 @@ class SecondGoodIterator(object):
     def __iter__(self):
         return self
 
-    def next(self): # pylint: disable-msg=no-self-use
+    def next(self): # pylint: disable=no-self-use
         """ Infinite iterator, but still an iterator """
         return 1
 
