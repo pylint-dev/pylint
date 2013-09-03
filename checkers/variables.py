@@ -120,13 +120,13 @@ MSGS = {
               the loop.'),
 
     'W0632': ('Possible unbalanced tuple unpacking with '
-              'sequence at line %d (%s): '
+              'sequence at line %s: '
               'left side has %d label(s), right side has %d value(s)',
               'unbalanced-tuple-unpacking',
               'Used when there is an unbalanced tuple unpacking in assignment'),
 
     'W0633': ('Attempting to unpack a non-sequence with '
-              'non-sequence at line %d (%s)',
+              'non-sequence at line %s',
               'unpacking-non-sequence',
               'Used when something which is not '
               'a sequence is used in an unpack assignment'),
@@ -571,10 +571,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if isinstance(infered, (astroid.Tuple, astroid.List)):                            
                 values = infered.itered()
                 if len(targets) != len(values):
+                    if node.root().name == infered.root().name:
+                         location = infered.lineno or node.lineno
+                    else:
+                         location = '%s (%s)' % (infered.lineno or node.lineno,
+                                                 infered.root().name)
+
                     self.add_message('unbalanced-tuple-unpacking',
                                      node=node,
-                                     args=(infered.lineno,
-                                           node.root().name, 
+                                     args=(location,
                                            len(targets), 
                                            len(values)))
             else:
@@ -589,10 +594,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     else:
                         break               
                 else:                
+                    if node.root().name == infered.root().name:
+                         location = infered.lineno or node.lineno
+                    else:
+                         location = '%s (%s)' % (infered.lineno or node.lineno,
+                                                 infered.root().name)
+                        
                     self.add_message('unpacking-non-sequence',
                                      node=node,
-                                     args=(infered.lineno or node.lineno, 
-                                           node.root().name))  
+                                     args=(location, ))
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the

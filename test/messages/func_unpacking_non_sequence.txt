@@ -1,5 +1,5 @@
-W: 58: Attempting to unpack a non-sequence with non-sequence at line 49 (input.func_unpacking_non_sequence)
-W: 60: Attempting to unpack a non-sequence with non-sequence at line 60 (input.func_unpacking_non_sequence)
-W: 61: Attempting to unpack a non-sequence with non-sequence at line 61 (input.func_unpacking_non_sequence)
-W: 62: Attempting to unpack a non-sequence with non-sequence at line 62 (input.func_unpacking_non_sequence)
-W: 63: Attempting to unpack a non-sequence with non-sequence at line 55 (input.func_unpacking_non_sequence)
+W: 58: Attempting to unpack a non-sequence with non-sequence at line 49
+W: 60: Attempting to unpack a non-sequence with non-sequence at line 60
+W: 61: Attempting to unpack a non-sequence with non-sequence at line 61
+W: 62: Attempting to unpack a non-sequence with non-sequence at line 62 (__builtin__)
+W: 63: Attempting to unpack a non-sequence with non-sequence at line 55
