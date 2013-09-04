@@ -8,6 +8,9 @@ ChangeLog for Pylint
       have basic input validation (bitbucket #53 and #54), patches provided by
       felipeochoa and Brian Lane
 
+    * Added a new warning, 'non-iterator-returned', for non-iterators 
+      returned by '__iter__'
+
 
 2013-08-06  --  1.0.0
 
