@@ -28,15 +28,14 @@ from pylint.testutils import CheckerTestCase, Message
 @contextlib.contextmanager
 def create_file_backed_module(code):
     fd, tmp = tempfile.mkstemp()
-    os.close(fd)
-    with open(tmp, 'w') as stream:
-        stream.write(code)
+    os.write(fd, code)
 
     try:
         module = test_utils.build_module(code)
         module.file = tmp
         yield module
     finally:
+        os.close(fd)
         os.remove(tmp)
 
 
