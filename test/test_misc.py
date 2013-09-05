@@ -17,44 +17,48 @@ Tests for the misc checker.
 """
 
 import tempfile
+import os
+import contextlib
 
 from logilab.common.testlib import unittest_main
 from astroid import test_utils
 from pylint.checkers import misc
 from pylint.testutils import CheckerTestCase, Message
 
+@contextlib.contextmanager
+def create_file_backed_module(code):
+    fd, tmp = tempfile.mkstemp()
+    os.close(fd)
+    with open(tmp, 'w') as stream:
+        stream.write(code)
+
+    try:
+        module = test_utils.build_module(code)
+        module.file = tmp
+        yield module
+    finally:
+        os.remove(tmp)
+
 
 class FixmeTest(CheckerTestCase):
     CHECKER_CLASS = misc.EncodingChecker
 
-    def create_file_backed_module(self, code):
-        tmp = tempfile.NamedTemporaryFile()
-        tmp.write(code)
-        tmp.flush()
-        module = test_utils.build_module(code)
-        module.file = tmp.name
-        # Just make sure to keep a reference to the file
-        # so it isn't deleted.
-        module._tmpfile = tmp
-        return module
-
     def test_fixme(self):
-        module = self.create_file_backed_module(
+        with create_file_backed_module(
             """a = 1
-            # FIXME
-            """)
-        with self.assertAddsMessages(
-            Message(msg_id='W0511', line=2, args=u'FIXME')):
-            self.checker.process_module(module)
+            # FIXME """) as module:
+            with self.assertAddsMessages(
+                Message(msg_id='W0511', line=2, args=u'FIXME')):
+                self.checker.process_module(module)
 
     def test_emtpy_fixme_regex(self):
         self.checker.config.notes = []
-        module = self.create_file_backed_module(
+        with create_file_backed_module(
             """a = 1
             # fixme
-            """)
-        with self.assertNoMessages():
-            self.checker.process_module(module)
+            """) as module:
+            with self.assertNoMessages():
+                self.checker.process_module(module)
 
 
 if __name__ == '__main__':
