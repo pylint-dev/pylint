@@ -27,6 +27,9 @@ from pylint.testutils import CheckerTestCase, Message
 
 @contextlib.contextmanager
 def create_file_backed_module(code):
+    # Can't use tempfile.NamedTemporaryFile here
+    # because on Windows the file must be closed before writing to it,
+    # see http://bugs.python.org/issue14243
     fd, tmp = tempfile.mkstemp()
     os.write(fd, code)
 
