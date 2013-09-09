@@ -39,10 +39,10 @@ COLORS = {'(I)':'lightblue',
 
 def convert_to_string(msg):
     """make a string representation of a message"""
-    if (msg[4] != ""):
-        return "(" + msg[0] + ") " + msg[3] + "." + msg[4] + " [" + msg[5] + "]: " + msg[6]
-    else:
-        return "(" + msg[0] + ") " + msg[3] + " [" + msg[5] + "]: " + msg[6]
+    module_object = msg.module
+    if msg.obj:
+        module_object += ".%s" % msg.obj
+    return "(%s) %s [%d]: %s" % (msg.C, module_object, msg.line, msg.msg)
 
 class BasicStream(object):
     '''
@@ -327,12 +327,7 @@ class LintGui(object):
         self.lbMessages.delete(0, END)
         self.visible_msgs = []
         for msg in self.msgs:
-
-            # Obtaining message type (pylint's '--include-ids' appends the
-            # ID to this letter, so 1 character long is not guaranteed)
-            msg_type = msg[0][0]
-
-            if (self.msg_type_dict.get(msg_type)()):
+            if (self.msg_type_dict.get(msg.C)()):
                 self.visible_msgs.append(msg)
                 msg_str = convert_to_string(msg)
                 self.lbMessages.insert(END, msg_str)
@@ -361,12 +356,8 @@ class LintGui(object):
                 #adding message to list of msgs
                 self.msgs.append(msg)
 
-                # Obtaining message type (pylint's '--include-ids' appends the
-                # ID to this letter, so 1 character long is not guaranteed)
-                msg_type = msg[0][0]
-
                 #displaying msg if message type is selected in check box
-                if (self.msg_type_dict.get(msg_type)()):
+                if (self.msg_type_dict.get(msg.C)()):
                     self.visible_msgs.append(msg)
                     msg_str = convert_to_string(msg)
                     self.lbMessages.insert(END, msg_str)
@@ -478,18 +469,15 @@ class LintGui(object):
             return
 
         msg = self.visible_msgs[int(selected[0])]
-        filename = msg[2]
-        fileline = int(msg[5])
-
-        scroll = fileline - 3
+        scroll = msg.line - 3
         if scroll < 0:
             scroll = 0
 
-        self.tabs["Source File"] = open(filename, "r").readlines()
+        self.tabs["Source File"] = open(msg.path, "r").readlines()
         self.box.set("Source File")
         self.refresh_results_window()
         self.results.yview(scroll)
-        self.results.select_set(fileline - 1)
+        self.results.select_set(msg.line - 1)
 
 
 def lint_thread(module, reporter, gui):
