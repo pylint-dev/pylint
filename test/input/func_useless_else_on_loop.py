@@ -3,7 +3,7 @@
 __revision__ = 0
 
 def test_return_for():
-    """else + return is accetable."""
+    """else + return is not accetable."""
     for i in range(10):
         if i % 2:
             return i
@@ -11,7 +11,7 @@ def test_return_for():
         print 'math is broken'
 
 def test_return_while():
-    """else + return is accetable."""
+    """else + return is not accetable."""
     while True:
         return 1
     else:
