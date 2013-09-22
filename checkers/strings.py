@@ -41,8 +41,10 @@ MSGS = {
               conversion specifier."),
     'E1302': ("Mixing named and unnamed conversion specifiers in format string",
               "mixed-format-string",
-              "Used when a format string contains both named (e.g. '%(foo)d') \
-              and unnamed (e.g. '%d') conversion specifiers.  This is also \
+              "Used when a format string contains both named (e.g. '%(foo)d'
+              or '{foo}' for Python 3 format string) \
+              and unnamed (e.g. '%d' or '{}' for Python 3 format string) \
+              conversion specifiers.  This is also \
               used when a named conversion specifier contains * for the \
               minimum field width and/or precision."),
     'E1303': ("Expected mapping for format string, not %s",
@@ -71,11 +73,41 @@ MSGS = {
               "too-few-format-args",
               "Used when a format string that uses unnamed conversion \
               specifiers is given too many arguments"),
+
+    'E1307': ("Invalid Python 3 format string",
+              "bad-format-string",
+              "Used when a Python 3 format string is invalid"),
+    'E1308': ("Missing keyword argument %r for format string",
+              "missing-format-argument-key",
+              "Used when a Python 3 format string that uses named specifiers \
+               doesn't receive one or more required keywords."),
+    'W1302': ("Unused format argument %r",
+              "unused-format-string-argument",
+              "Used when a Python 3 format string that uses named \
+               conversion specifiers is used with an argument that \
+               is not required by the format string."),
+
     }
 
 OTHER_NODES = (astroid.Const, astroid.List, astroid.Backquote,
                astroid.Lambda, astroid.Function,
                astroid.ListComp, astroid.SetComp, astroid.GenExpr)
+
+def get_args(callfunc):
+    """ Get the arguments from the given `CallFunc` node.
+    Return a tuple, where the first element is the
+    number of positional arguments and the second element
+    is the keyword arguments in a dict
+    """
+    positional = 0
+    named = {}
+ 
+    for arg in callfunc.args:
+        if isinstance(arg, astroid.Keyword):
+            named[arg.arg] = utils.safe_infer(arg.value)
+        else:
+            positional += 1
+    return positional, named
 
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
@@ -182,16 +214,57 @@ class StringMethodsChecker(BaseChecker):
         func = utils.safe_infer(node.func)
         if (isinstance(func, astroid.BoundMethod)
             and isinstance(func.bound, astroid.Instance)
-            and func.bound.name in ('str', 'unicode', 'bytes')
-            and func.name in ('strip', 'lstrip', 'rstrip')
-            and node.args):
-            arg = utils.safe_infer(node.args[0])
-            if not isinstance(arg, astroid.Const):
-                return
-            if len(arg.value) != len(set(arg.value)):
-                self.add_message('E1310', node=node,
-                                 args=(func.bound.name, func.name))
+            and func.bound.name in ('str', 'unicode', 'bytes')):
 
+             if func.name in ('strip', 'lstrip', 'rstrip') and node.args:
+                 arg = utils.safe_infer(node.args[0])
+                 if not isinstance(arg, astroid.Const):
+                     return
+                 if len(arg.value) != len(set(arg.value)):
+                     self.add_message('E1310', node=node,
+                                      args=(func.bound.name, func.name))
+             elif func.name == 'format':
+                 self._parse_format(node, func)
+
+    def _parse_format(self, node, func):
+        try:
+            strnode = func.bound.infer().next()
+        except astroid.InferenceError:
+            return
+
+        try:
+            positional, named = get_args(node)
+        except astroid.InferenceError:
+            return
+
+        try:
+            required_keys, required_num_args = \
+                utils.parse_format_method_string(strnode.value)
+        except utils.IncompleteFormatString:
+            self.add_message('bad-format-string', node=node)
+            return
+
+        if required_keys and required_num_args:
+            # The format string uses both named and unnamed format
+            # specifiers.
+            self.add_message('mixed-format-string', node=node)
+        elif required_keys:
+            for key in required_keys:
+                if key not in named:
+                    self.add_message('missing-format-argument-key', 
+                                     node=node,
+                                     args=(key, ))
+            for key in named:
+                if key not in required_keys:
+                    self.add_message('unused-format-string-argument',
+                                     node=node,
+                                     args=(key, ))                 
+        else:
+            if positional > required_num_args:
+                self.add_message('too-many-format-args', node=node)
+            elif positional < required_num_args:
+                self.add_message('too-few-format-args', node=node)
+            
 
 class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
