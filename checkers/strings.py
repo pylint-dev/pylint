@@ -41,7 +41,7 @@ MSGS = {
               conversion specifier."),
     'E1302': ("Mixing named and unnamed conversion specifiers in format string",
               "mixed-format-string",
-              "Used when a format string contains both named (e.g. '%(foo)d'
+              "Used when a format string contains both named (e.g. '%(foo)d' \
               or '{foo}' for Python 3 format string) \
               and unnamed (e.g. '%d' or '{}' for Python 3 format string) \
               conversion specifiers.  This is also \
