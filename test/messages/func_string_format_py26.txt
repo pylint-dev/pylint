@@ -1,0 +1,13 @@
+E:  8:pprint: Invalid Python 3 format string
+E:  9:pprint: Invalid Python 3 format string
+E: 10:pprint: Mixing named and unnamed conversion specifiers in format string
+E: 11:pprint: Not enough arguments for format string
+E: 12:pprint: Too many arguments for format string
+E: 13:pprint: Missing keyword argument 'b' for format string
+E: 14:pprint: Missing keyword argument 'a' for format string
+E: 14:pprint: Missing keyword argument 'b' for format string
+E: 14:pprint: Missing keyword argument 'c' for format string
+E: 15:pprint: Not enough arguments for format string
+E: 16:pprint: Missing keyword argument 'a' for format string
+E: 16:pprint: Missing keyword argument 'b' for format string
+W: 13:pprint: Unused format argument 'c'
