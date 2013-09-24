@@ -24,8 +24,10 @@ obj
     object within the module (if any)
 msg
     text of the message
+msg_id
+    the message code (eg. I0011)
 symbol
-    symbolic name of the message
+    symbolic name of the message (eg. locally-disabled)
 C
     one letter indication of the message category
 category
@@ -33,11 +35,11 @@ category
 
 For exemple the default format can be obtained with::
 
-  pylint --msg-template='{sigle}:{line:3d},{column}: {obj}: {msg}'
+  pylint --msg-template='{msg_id}:{line:3d},{column}: {obj}: {msg}'
 
 and a Visual Studio compatible format can be obtained with::
 
-  pylint --msg-template='{path}({line}): [{sigle}{obj}] {msg}'
+  pylint --msg-template='{path}({line}): [{msg_id}{obj}] {msg}'
 
 .. _Python new format syntax: http://docs.python.org/2/library/string.html#formatstrings
 
