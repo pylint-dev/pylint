@@ -76,17 +76,6 @@ class WarningScope(object):
     NODE = 'node-based-msg'
 
 
-def sort_msgs(msgids):
-    """sort message identifiers according to their category first"""
-    msgs = {}
-    for msg in msgids:
-        msgs.setdefault(msg[0], []).append(msg)
-    result = []
-    for m_id in _MSG_ORDER:
-        if m_id in msgs:
-            result.extend( sorted(msgs[m_id]) )
-    return result
-
 def get_module_and_frameid(node):
     """return the module name and the frame id in the module"""
     frame = node.frame()
@@ -472,7 +461,8 @@ class MessagesHandlerMixIn(object):
                 title = ('%smessages' % prefix).capitalize()
                 print title
                 print '~' * len(title)
-                for msgid in sort_msgs(msgs.iterkeys()):
+                for msgid in sorted(msgs.itervalues(),
+                                    key=lambda k: (_MSG_ORDER.index(k[0]), k)):
                     print self.get_message_help(msgid, False)
                 print
             if reports:

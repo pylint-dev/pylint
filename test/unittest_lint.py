@@ -32,16 +32,6 @@ from pylint.testutils import TestReporter
 from pylint.reporters import text
 from pylint import checkers
 
-class SortMessagesTC(TestCase):
-
-    def test(self):
-        l = ['E0501', 'E0503', 'F0002', 'I0201', 'W0540',
-             'R0202', 'F0203', 'R0220', 'W0321', 'I0001']
-        self.assertEqual(sort_msgs(l), ['E0501', 'E0503',
-                                         'W0321', 'W0540',
-                                         'R0202', 'R0220',
-                                         'I0001', 'I0201',
-                                         'F0002', 'F0203',])
 
 class GetNoteMessageTC(TestCase):
     def test(self):
