@@ -29,6 +29,7 @@ from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
 _PY3K = sys.version_info >= (3, 0)
+_PY26 = sys.version_info < (2, 7)
 
 MSGS = {
     'E1300': ("Unsupported format character %r (%#02x) at index %d",
@@ -87,6 +88,20 @@ MSGS = {
                conversion specifiers is used with an argument that \
                is not required by the format string."),
 
+    'W1303': ("Format string contains both automatic field numbering "
+              "and manual field specifiers",
+              "format-combined-specifiers",
+              "Usen when a format string contains both automatic \
+               field numbering (e.g. '{}') and manual field \
+               specification (e.g. '{0}')"),
+    'W1304': ("Can't use automatic field numbering for this version",
+              "no-automatic-field-numbering",
+              "Usen for Python versions lower than 2.7 when a "
+              "format string is used with automatic field numbering " 
+              "(e.g. '{}'). Only manual field numbering (e.g. '{0}') "
+              "or named fields (e.g. '{a}') can work.",
+              {'maxversion': (2, 6)}),
+                            
     }
 
 OTHER_NODES = (astroid.Const, astroid.List, astroid.Backquote,
@@ -243,6 +258,17 @@ class StringMethodsChecker(BaseChecker):
         except utils.IncompleteFormatString:
             self.add_message('bad-format-string', node=node)
             return
+
+        manual_keys = set([key for key in required_keys
+                           if key.isdigit()])
+        if required_keys - manual_keys:
+            self.add_message('format-combined-specifiers',
+                             node=node)
+            return
+
+        if _PY26 and required_num_args:
+            self.add_message('no-automatic-field-numbering',
+                             node=node)
 
         if required_keys and required_num_args:
             # The format string uses both named and unnamed format
