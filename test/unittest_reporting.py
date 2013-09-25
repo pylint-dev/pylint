@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -12,23 +12,13 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-import sys
 import os
-import tempfile
-from shutil import rmtree
-from os import getcwd, chdir
-from os.path import join, basename, dirname, isdir, abspath
+from os.path import join, dirname, abspath
 from cStringIO import StringIO
 
-from logilab.common.testlib import TestCase, unittest_main, create_files
-from logilab.common.compat import reload
+from logilab.common.testlib import TestCase, unittest_main
 
-from pylint import config
-from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
-     ArgumentPreprocessingError
-from pylint.utils import sort_msgs, PyLintASTWalker, MSG_STATE_SCOPE_CONFIG, \
-     MSG_STATE_SCOPE_MODULE, tokenize_module
-from pylint.testutils import TestReporter
+from pylint.lint import PyLinter
 from pylint import checkers
 from pylint.reporters.text import TextReporter
 
@@ -46,12 +36,6 @@ class PyLinterTC(TestCase):
         os.environ.pop('PYLINTRC', None)
 
     def test_template_option(self):
-        # self.linter.set_reporter(TextReporter())
-        expected = ( '************* Module 0123\n'
-                     'C0301:001\n'
-                     'C0301:002\n'
-                     )
-
         output = StringIO()
         self.linter.reporter.set_output(output)
         self.linter.set_option('msg-template', '{msg_id}:{line:03d}')
@@ -59,7 +43,10 @@ class PyLinterTC(TestCase):
         self.linter.set_current_module('0123')
         self.linter.add_message('C0301', line=1, args=(1, 2))
         self.linter.add_message('line-too-long', line=2, args=(3, 4))
-        self.assertMultiLineEqual(output.getvalue(), expected)
+        self.assertMultiLineEqual(output.getvalue(),
+                                  '************* Module 0123\n'
+                                  'C0301:001\n'
+                                  'C0301:002\n')
 
 
 if __name__ == '__main__':
