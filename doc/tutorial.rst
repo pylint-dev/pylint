@@ -69,7 +69,6 @@ A couple of the options that we'll focus on here are: ::
   Reports:
     --files-output=<y_or_n>
     --reports=<y_or_n>
-    --include-ids=<y_or_n>
     --output-format=<format>
 
 Also pay attention to the last bit of help output.  This gives you a hint of what
@@ -138,16 +137,16 @@ If we run this:
   robertk01 Desktop$ pylint simplecaeser.py
   No config file found, using default configuration
   ************* Module simplecaeser
-  C:  1: Missing docstring
-  W:  3: Uses of a deprecated module 'string'
-  C:  5: Invalid name "shift" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C:  6: Invalid name "choice" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C:  7: Invalid name "word" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C:  8: Invalid name "letters" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C:  9: Invalid name "encoded" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C: 16: Operator not preceded by a space
-              encoded=encoded + letters[x]
-                   ^
+  C:  1, 0: Missing module docstring (missing-docstring)
+  W:  3, 0: Uses of a deprecated module 'string' (deprecated-module)
+  C:  5, 0: Invalid constant name "shift" (invalid-name)
+  C:  6, 0: Invalid constant name "choice" (invalid-name)
+  C:  7, 0: Invalid constant name "word" (invalid-name)
+  C:  8, 0: Invalid constant name "letters" (invalid-name)
+  C:  9, 0: Invalid constant name "encoded" (invalid-name)
+  C: 16,12: Operator not preceded by a space
+	      encoded=encoded + letters[x]
+		     ^ (no-space-before-operator)
 
 
   Report
@@ -221,17 +220,17 @@ If we run this:
   Messages
   --------
 
-  +-----------+-----------+
-  |message id |occurrences |
-  +===========+===========+
-  |C0103      |5          |
-  +-----------+-----------+
-  |W0402      |1          |
-  +-----------+-----------+
-  |C0322      |1          |
-  +-----------+-----------+
-  |C0111      |1          |
-  +-----------+-----------+
+  +-------------------------+------------+
+  |message id               |occurrences |
+  +=========================+============+
+  |invalid-name             |5           |
+  +-------------------------+------------+
+  |no-space-before-operator |1           |
+  +-------------------------+------------+
+  |missing-docstring        |1           |
+  +-------------------------+------------+
+  |deprecated-module        |1           |
+  +-------------------------+------------+
 
 
 
@@ -244,59 +243,42 @@ Wow.  That's a lot of stuff.  The first part is the 'messages' section while the
 second part is the 'report' section.  There are two points I want to tackle here.
 
 First point is that all the tables of statistics (i.e. the report) are a bit
-overwhelming so I want to silence them.  To do that, I will use the "--reports=n" option.
+overwhelming so I want to silence them.  To do that, I will use the
+"--reports=n" option.
+
+.. tip:: Many of Pylint's commonly used command line options have shortcuts.
+ for example, "--reports=n" can be abbreviated to "-rn". Pylint's man page lists
+ all these shortcuts.
 
 Second, previous experience taught me that the default output for the messages
 needed a bit more info.  We can see the first line is: ::
 
-  "C:  1: Missing docstring"
+  "C:  1: Missing docstring (missing-docstring)"
 
 This basically means that line 1 violates a convention 'C'.  It's telling me I
 really should have a docstring.  I agree, but what if I didn't fully understand
 what rule I violated.  Knowing only that I violated a convention isn't much help
-if I'm a newbie.  So let's turn on a bit more info by using the option
-"--include-ids=y".
+if I'm a newbie. Another information there is the message symbol between parens,
+`missing-docstring` here.
 
-.. tip:: Many of Pylint's commonly used command line options have shortcuts.
- for example, "--reports=n" can be abbreviated to "-r n", and "--include-ids=y"
- can be abbreviated to "-i y". Pylint's man page lists all these shortcuts.
-
-Let's do it again!
-
-.. sourcecode:: bash
-
-  robertk01 Desktop$ pylint --reports=n --include-ids=y simplecaeser.py
-  No config file found, using default configuration
-  ************* Module simplecaeser
-  C0111:  1: Missing docstring
-  W0402:  3: Uses of a deprecated module 'string'
-  C0103:  5: Invalid name "shift" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0103:  6: Invalid name "choice" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0103:  7: Invalid name "word" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0103:  8: Invalid name "letters" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0103:  9: Invalid name "encoded" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0322: 16: Operator not preceded by a space
-              encoded=encoded + letters[x]
-
-Oooh.  I like that better.  Now I know that I violated the convention number
-C0111 and now I can read up a bit more about that.  Let's go back to the
+If I want to read up a bit more about that, I can go back to the
 command line and try this:
 
 .. sourcecode:: bash
 
-  robertk01 Desktop$ pylint --help-msg=C0111
+  robertk01 Desktop$ pylint --help-msg=missing-docstring
   No config file found, using default configuration
-  :C0111: *Missing docstring*
+  :missing-docstring (C0111): *Missing docstring*
     Used when a module, function, class or method has no docstring. Some special
     methods like __init__ doesn't necessary require a docstring. This message
     belongs to the basic checker.
 
-Yeah, ok.  That one was a bit of a no-brainer but I have run into error messages
+Yeah, ok. That one was a bit of a no-brainer but I have run into error messages
 that left me with no clue about what went wrong, simply because I was unfamiliar
 with the underlying mechanism of code theory.  One error that puzzled my newbie
 mind was: ::
 
-  :R0902: *Too many instance attributes (%s/%s)*
+  :too-many-instance-attributes (R0902): *Too many instance attributes (%s/%s)*
 
 I get it now thanks to Pylint pointing it out to me.  If you don't get that one,
 pour a fresh cup of coffee and look into it - let your programmer mind grow!
@@ -309,13 +291,13 @@ Now that we got some configuration stuff out of the way, let's see what we can
 do with the remaining warnings.
 
 If we add a docstring to describe what the code is meant to do that will help.
-I'm also going to be a bit cowboy and ignore the W0402 message because I like to
-take risks in life.  A deprecation warning means that future versions of Python
-may not support that code so my code may break in the future.  There are 5 C0103
-messages that we will get to later.  Lastly, I violated the convention of using
-spaces around an operator such as "=" so I'll fix that too.  To sum up, I'll add
-a docstring to line 2, put spaces around the = sign on line 16 and use the
-"--disable=W0402" to ignore the deprecation warning.
+I'm also going to be a bit cowboy and ignore the `deprecated-module` message
+because I like to take risks in life.  A deprecation warning means that future
+versions of Python may not support that code so my code may break in the future.
+There are 5 `invalid-name` messages that we will get to later.  Lastly, I violated the
+convention of using spaces around an operator such as "=" so I'll fix that too.
+To sum up, I'll add a docstring to line 2, put spaces around the = sign on line
+16 and use the `--disable=deprecated-module` to ignore the deprecation warning.
 
 Here is the updated code:
 
@@ -349,20 +331,21 @@ Here is the updated code:
   26
   27  print encoded
 
-And here is what happens when we run it with our --disable=W0402 option:
+And here is what happens when we run it with our `--disable=deprecated-module`
+option:
 
 .. sourcecode:: bash
 
-  robertk01 Desktop$ pylint --reports=n --include-ids=y --disable=W0402 simplecaeser.py
+  robertk01 Desktop$ pylint --reports=n --disable=deprecated-module simplecaeser.py
   No config file found, using default configuration
   ************* Module simplecaeser
-  C0103:  7: Invalid name "shift" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0103:  8: Invalid name "choice" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0103:  9: Invalid name "word" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0103: 10: Invalid name "letters" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
-  C0103: 11: Invalid name "encoded" (should match (([A-Z_][A-Z1-9_]*)|(__.*__))$)
+  C:  7, 0: Invalid constant name "shift" (invalid-name)
+  C:  8, 0: Invalid constant name "choice" (invalid-name)
+  C:  9, 0: Invalid constant name "word" (invalid-name)
+  C: 10, 0: Invalid constant name "letters" (invalid-name)
+  C: 11, 0: Invalid constant name "encoded" (invalid-name)
 
-Nice!  We're down to just the C0103 messages.
+Nice!  We're down to just the `invalid-name` messages.
 
 There are fairly well defined conventions around naming things like instance
 variables, functions, classes, etc.  The conventions focus on the use of
@@ -380,12 +363,12 @@ of all lowercase.  The appropriate rule would be something like:
 "should match [a-z\_][a-z0-9\_]{2,30}$".  Notice the lowercase letters in the
 regular expression (a-z versus A-Z).
 
-If we run that rule using a --const-rgx='[a-z\_][a-z0-9\_]{2,30}$' option, it
+If we run that rule using a `--const-rgx='[a-z\_][a-z0-9\_]{2,30}$'` option, it
 will now be quite quiet:
 
 .. sourcecode:: bash
 
-  robertk01 Desktop$ pylint --reports=n --include-ids=y --disable=W0402 --const-rgx='[a-z_][a-z0-9_]{2,30}$'  simplecaeser.py
+  robertk01 Desktop$ pylint --reports=n --disable=deprecated-module --const-rgx='[a-z_][a-z0-9_]{2,30}$'  simplecaeser.py
   No config file found, using default configuration
 
 Regular expressions can be quite a beast so take my word on this particular

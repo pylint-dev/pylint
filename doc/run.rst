@@ -97,18 +97,13 @@ hand tune the configuration.
 
 Other useful global options include:
 
---zope                  Initialize Zope products before starting
---ignore=file           Add <file> (may be a directory) to the black
-                          list. It should be a base name, not a path.
-                          You may set this option multiple times.
---statistics=y_or_n     Compute statistics on collected data.
---persistent=y_or_n     Pickle collected data for later comparisons.
---comment=y_or_n        Add a comment according to your evaluation note.
---parseable=y_or_n      Use a parseable output format.
---html=y_or_n           Use HTML as output format instead of text.
+--ignore=file             Add <file> (may be a directory) to the black
+                            list. It should be a base name, not a path.
+                            You may set this option multiple times.
+--persistent=y_or_n       Pickle collected data for later comparisons.
+--output-format=<format>  Select output format (text, html, custom).
+--msg-template=<template> Modifiy text output message template.
 --list-msgs             Generate pylint's messages.
 --full-documentation    Generate pylint's full documentation, in reST format.
---include_ids=y_or_n    Show numeric ids of messages (like 'C0301')
---symbols=y_or_n        Show symbolic ids of messsages (like 'line-too-long')
 
 
