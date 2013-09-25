@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Run pylint as a python module 'python -m pylint' (anatoly techtonik)
+
     * Check for non-exception classes inside an except clause
 
     * epylint support options to give to pylint after the file to analyze and
