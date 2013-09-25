@@ -33,13 +33,25 @@ C
 category
     fullname of the message category
 
-For exemple the default format can be obtained with::
+For exemple the former (pre 1.0) default format can be obtained with::
 
   pylint --msg-template='{msg_id}:{line:3d},{column}: {obj}: {msg}'
 
-and a Visual Studio compatible format can be obtained with::
+A few other examples:
 
-  pylint --msg-template='{path}({line}): [{msg_id}{obj}] {msg}'
+* the new default format::
+
+    {C}:{line:3d},{column:2d}: {msg} ({symbol})
+
+* Visual Studio compatible format (former 'msvs' output format)::
+
+    {path}({line}): [{msg_id}{obj}] {msg}
+
+* Parseable (Emacs and all, former 'parseable' output format) format::
+
+    {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+
+
 
 .. _Python new format syntax: http://docs.python.org/2/library/string.html#formatstrings
 
