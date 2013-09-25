@@ -32,6 +32,10 @@ from pylint.testutils import TestReporter
 from pylint.reporters import text
 from pylint import checkers
 
+if sys.platform == 'win32':
+     HOME = 'USERPROFILE'
+else:
+     HOME = 'HOME'
 
 class GetNoteMessageTC(TestCase):
     def test(self):
@@ -388,9 +392,9 @@ class ConfigTC(TestCase):
 
     def test_pylintrc(self):
         fake_home = tempfile.mkdtemp('fake-home')
-        home = os.environ['HOME']
+        home = os.environ[HOME]
         try:
-            os.environ['HOME'] = fake_home
+            os.environ[HOME] = fake_home
             self.assertEqual(config.find_pylintrc(), None)
             os.environ['PYLINTRC'] = join(tempfile.gettempdir(), '.pylintrc')
             self.assertEqual(config.find_pylintrc(), None)
@@ -398,7 +402,7 @@ class ConfigTC(TestCase):
             self.assertEqual(config.find_pylintrc(), None)
         finally:
             os.environ.pop('PYLINTRC', '')
-            os.environ['HOME'] = home
+            os.environ[HOME] = home
             rmtree(fake_home, ignore_errors=True)
             reload(config)
 
@@ -416,12 +420,12 @@ class ConfigTC(TestCase):
                           'a/b/c/__init__.py', 'a/b/c/d/__init__.py'], chroot)
             os.chdir(chroot)
             fake_home = tempfile.mkdtemp('fake-home')
-            home = os.environ['HOME']
+            home = os.environ[HOME]
             try:
-                os.environ['HOME'] = fake_home
+                os.environ[HOME] = fake_home
                 self.assertEqual(config.find_pylintrc(), None)
             finally:
-                os.environ['HOME'] = home
+                os.environ[HOME] = home
                 os.rmdir(fake_home)
             results = {'a'       : join(chroot, 'a', 'pylintrc'),
                        'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
@@ -446,8 +450,8 @@ class ConfigTC(TestCase):
         chdir(cdir)
 
         fake_home = tempfile.mkdtemp('fake-home')
-        home = os.environ['HOME']
-        os.environ['HOME'] = fake_home
+        home = os.environ[HOME]
+        os.environ[HOME] = fake_home
         try:
             create_files(['a/pylintrc', 'a/b/pylintrc', 'a/b/c/d/__init__.py'], chroot)
             os.chdir(chroot)
@@ -461,7 +465,7 @@ class ConfigTC(TestCase):
                 os.chdir(join(chroot, basedir))
                 self.assertEqual(config.find_pylintrc(), expected)
         finally:
-            os.environ['HOME'] = home
+            os.environ[HOME] = home
             rmtree(fake_home, ignore_errors=True)
             os.chdir(HERE)
             rmtree(chroot)
