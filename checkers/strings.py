@@ -261,7 +261,7 @@ class StringMethodsChecker(BaseChecker):
 
         manual_keys = set([key for key in required_keys
                            if key.isdigit()])
-        if required_keys - manual_keys:
+        if manual_keys and required_keys - manual_keys:
             self.add_message('format-combined-specifiers',
                              node=node)
             return
@@ -276,7 +276,7 @@ class StringMethodsChecker(BaseChecker):
             self.add_message('mixed-format-string', node=node)
         elif required_keys:
             for key in required_keys:
-                if key not in named:
+                if key not in named and not key.isdigit():
                     self.add_message('missing-format-argument-key', 
                                      node=node,
                                      args=(key, ))
@@ -289,8 +289,10 @@ class StringMethodsChecker(BaseChecker):
             if positional > required_num_args:
                 self.add_message('too-many-format-args', node=node)
             elif positional < required_num_args:
-                self.add_message('too-few-format-args', node=node)
-            
+                self.add_message('too-few-format-args', node=node)  
+   
+        if manual_keys and positional < len(manual_keys):
+            self.add_message('too-few-format-args', node=node)       
 
 class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
