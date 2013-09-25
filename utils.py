@@ -154,6 +154,35 @@ class MessageDefinition(object):
             return False
         return True
 
+    def format_help(self, checkerref=False):
+        """return the help string for the given message id"""
+        desc = self.descr
+        if checkerref:
+            desc += ' This message belongs to the %s checker.' % \
+                   self.checker.name
+        title = self.msg
+        if self.symbol:
+            symbol_part = ' (%s)' % self.symbol
+        else:
+            symbol_part = ''
+        if self.minversion or self.maxversion:
+            restr = []
+            if self.minversion:
+                restr.append('< %s' % '.'.join([str(n) for n in self.minversion]))
+            if self.maxversion:
+                restr.append('>= %s' % '.'.join([str(n) for n in self.maxversion]))
+            restr = ' or '.join(restr)
+            if checkerref:
+                desc += " It can't be emitted when using Python %s." % restr
+            else:
+                desc += " This message can't be emitted when using Python %s." % restr
+        desc = normalize_text(' '.join(desc.split()), indent='  ')
+        if title != '%s':
+            title = title.splitlines()[0]
+            return ':%s%s: *%s*\n%s' % (self.msgid, symbol_part, title, desc)
+        return ':%s%s:\n%s' % (self.msgid, symbol_part, desc)
+
+
 class MessagesHandlerMixIn(object):
     """a mix-in class containing all the messages related methods for the main
     lint class
@@ -198,23 +227,6 @@ class MessagesHandlerMixIn(object):
             self._messages[msg.msgid] = msg
             self._messages_by_symbol[msg.symbol] = msg
             self._msgs_by_category.setdefault(msg.msgid[0], []).append(msg.msgid)
-
-    def get_message_help(self, msgid, checkerref=False):
-        """return the help string for the given message id"""
-        msg = self.check_message_id(msgid)
-        desc = normalize_text(' '.join(msg.descr.split()), indent='  ')
-        if checkerref:
-            desc += ' This message belongs to the %s checker.' % \
-                   msg.checker.name
-        title = msg.msg
-        if msg.symbol:
-            symbol_part = ' (%s)' % msg.symbol
-        else:
-            symbol_part = ''
-        if title != '%s':
-            title = title.splitlines()[0]
-            return ':%s%s: *%s*\n%s' % (msg.msgid, symbol_part, title, desc)
-        return ':%s%s:\n%s' % (msg.msgid, symbol_part, desc)
 
     def disable(self, msgid, scope='package', line=None):
         """don't output message of the given id"""
@@ -411,7 +423,7 @@ class MessagesHandlerMixIn(object):
         """display help messages for the given message identifiers"""
         for msgid in msgids:
             try:
-                print self.get_message_help(msgid, True)
+                print self.check_message_id(msgid).format_help(checkerref=True)
                 print
             except UnknownMessage, ex:
                 print ex
@@ -461,9 +473,10 @@ class MessagesHandlerMixIn(object):
                 title = ('%smessages' % prefix).capitalize()
                 print title
                 print '~' * len(title)
-                for msgid in sorted(msgs.itervalues(),
-                                    key=lambda k: (_MSG_ORDER.index(k[0]), k)):
-                    print self.get_message_help(msgid, False)
+                for msgid, msg in sorted(msgs.iteritems(),
+                                         key=lambda (k,v): (_MSG_ORDER.index(k[0]), k)):
+                    msg = build_message_def(checker, msgid, msg)
+                    print msg.format_help(checkerref=False)
                 print
             if reports:
                 title = ('%sreports' % prefix).capitalize()
@@ -481,7 +494,7 @@ class MessagesHandlerMixIn(object):
             msgids.append(msgid)
         msgids.sort()
         for msgid in msgids:
-            print self.get_message_help(msgid, False)
+            print self.check_message_id(msgid).format_help(checkerref=False)
         print
 
 

@@ -26,8 +26,8 @@ from logilab.common.compat import reload
 from pylint import config
 from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
      ArgumentPreprocessingError
-from pylint.utils import sort_msgs, PyLintASTWalker, MSG_STATE_SCOPE_CONFIG, \
-     MSG_STATE_SCOPE_MODULE, tokenize_module
+from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, \
+    PyLintASTWalker, MessageDefinition, build_message_def, tokenize_module
 from pylint.testutils import TestReporter
 from pylint.reporters import text
 from pylint import checkers
@@ -73,11 +73,40 @@ class PyLinterTC(TestCase):
         checkers.initialize(self.linter)
         self.linter.set_reporter(TestReporter())
 
+    def test_check_message_id(self):
+        self.assertIsInstance(self.linter.check_message_id('F0001'),
+                              MessageDefinition)
+        self.assertRaises(UnknownMessage,
+                          self.linter.check_message_id, 'YB12')
+
     def test_message_help(self):
-        msg = self.linter.get_message_help('F0001', checkerref=True)
-        expected = ':F0001 (fatal):\n  Used when an error occurred preventing the analysis of a module (unable to\n  find it for instance). This message belongs to the master checker.'
-        self.assertMultiLineEqual(msg, expected)
-        self.assertRaises(UnknownMessage, self.linter.get_message_help, 'YB12')
+        msg = self.linter.check_message_id('F0001')
+        self.assertMultiLineEqual(
+            ''':F0001 (fatal):
+  Used when an error occurred preventing the analysis of a module (unable to
+  find it for instance). This message belongs to the master checker.''',
+            msg.format_help(checkerref=True))
+        self.assertMultiLineEqual(
+            ''':F0001 (fatal):
+  Used when an error occurred preventing the analysis of a module (unable to
+  find it for instance).''',
+            msg.format_help(checkerref=False))
+
+    def test_message_help_minmax(self):
+        # build the message manually to be python version independant
+        msg = build_message_def(self.linter._checkers['typecheck'][0],
+                                'E1122', checkers.typecheck.MSGS['E1122'])
+        self.assertMultiLineEqual(
+            ''':E1122 (duplicate-keyword-arg): *Duplicate keyword argument %r in function call*
+  Used when a function call passes the same keyword argument multiple times.
+  This message belongs to the typecheck checker. It can't be emitted when using
+  Python >= 2.6.''',
+            msg.format_help(checkerref=True))
+        self.assertMultiLineEqual(
+            ''':E1122 (duplicate-keyword-arg): *Duplicate keyword argument %r in function call*
+  Used when a function call passes the same keyword argument multiple times.
+  This message can't be emitted when using Python >= 2.6.''',
+            msg.format_help(checkerref=False))
 
     def test_enable_message(self):
         linter = self.linter
