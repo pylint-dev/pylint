@@ -162,9 +162,9 @@ class MessageDefinition(object):
                    self.checker.name
         title = self.msg
         if self.symbol:
-            symbol_part = ' (%s)' % self.symbol
+            msgid = '%s (%s)' % (self.symbol, self.msgid)
         else:
-            symbol_part = ''
+            msgid = self.msgid
         if self.minversion or self.maxversion:
             restr = []
             if self.minversion:
@@ -179,8 +179,8 @@ class MessageDefinition(object):
         desc = normalize_text(' '.join(desc.split()), indent='  ')
         if title != '%s':
             title = title.splitlines()[0]
-            return ':%s%s: *%s*\n%s' % (self.msgid, symbol_part, title, desc)
-        return ':%s%s:\n%s' % (self.msgid, symbol_part, desc)
+            return ':%s: *%s*\n%s' % (msgid, title, desc)
+        return ':%s:\n%s' % (msgid, desc)
 
 
 class MessagesHandlerMixIn(object):
@@ -402,9 +402,9 @@ class MessagesHandlerMixIn(object):
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:
-            self.stats['by_msg'][msgid] += 1
+            self.stats['by_msg'][msg_info.symbol] += 1
         except KeyError:
-            self.stats['by_msg'][msgid] = 1
+            self.stats['by_msg'][msg_info.symbol] = 1
         # expand message ?
         msg = msg_info.msg
         if args:
