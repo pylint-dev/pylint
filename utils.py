@@ -20,8 +20,8 @@ main pylint class
 import re
 import sys
 import tokenize
-from warnings import warn
 import os
+from warnings import warn
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 from logilab.common.interface import implements
@@ -41,7 +41,6 @@ class UnknownMessage(Exception):
 
 class EmptyReport(Exception):
     """raised when a report is empty and so should not be displayed"""
-
 
 
 MSG_TYPES = {
@@ -122,18 +121,49 @@ def tokenize_module(module):
         return list(tokenize.generate_tokens(readline))
     return list(tokenize.tokenize(readline))
 
+def build_message_def(checker, msgid, msg_tuple):
+    if implements(checker, (IRawChecker, ITokenChecker)):
+        default_scope = WarningScope.LINE
+    else:
+        default_scope = WarningScope.NODE
+    options = {}
+    if len(msg_tuple) > 3:
+        (msg, symbol, descr, options) = msg_tuple
+    elif len(msg_tuple) > 2:
+        (msg, symbol, descr) = msg_tuple[:3]
+    else:
+        # messages should have a symbol, but for backward compatibility
+        # they may not.
+        (msg, descr) = msg_tuple
+        warn("[pylint 0.26] description of message %s doesn't include "
+             "a symbolic name" % msgid, DeprecationWarning)
+        symbol = None
+    options.setdefault('scope', default_scope)
+    return MessageDefinition(checker, msgid, msg, descr, symbol, **options)
+
 
 class MessageDefinition(object):
-    def __init__(self, checker, msgid, msg, descr, symbol, scope):
+    def __init__(self, checker, msgid, msg, descr, symbol, scope,
+                 minversion=None, maxversion=None):
+        self.checker = checker
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
         assert msgid[0] in MSG_TYPES, \
                'Bad message type %s in %r' % (msgid[0], msgid)
         self.msgid = msgid
         self.msg = msg
         self.descr = descr
-        self.checker = checker
         self.symbol = symbol
         self.scope = scope
+        self.minversion = minversion
+        self.maxversion = maxversion
+
+    def may_be_emitted(self):
+        """return True if message may be emitted using the current interpreter"""
+        if self.minversion is not None and self.minversion > sys.version_info:
+            return False
+        if self.maxversion is not None and self.maxversion <= sys.version_info:
+            return False
+        return True
 
 class MessagesHandlerMixIn(object):
     """a mix-in class containing all the messages related methods for the main
@@ -162,48 +192,23 @@ class MessagesHandlerMixIn(object):
         message ids should be a string of len 4, where the two first characters
         are the checker id and the two last the message id in this checker
         """
-        msgs_dict = checker.msgs
         chkid = None
-
-        for msgid, msg_tuple in msgs_dict.iteritems():
-            if implements(checker, (IRawChecker, ITokenChecker)):
-                scope = WarningScope.LINE
-            else:
-                scope = WarningScope.NODE
-            if len(msg_tuple) > 2:
-                (msg, msgsymbol, msgdescr) = msg_tuple[:3]
-                assert msgsymbol not in self._messages_by_symbol, \
-                    'Message symbol %r is already defined' % msgsymbol
-                if len(msg_tuple) > 3:
-                    if 'scope' in msg_tuple[3]:
-                        scope = msg_tuple[3]['scope']
-                    if 'minversion' in msg_tuple[3]:
-                        minversion = msg_tuple[3]['minversion']
-                        if minversion > sys.version_info:
-                            self._msgs_state[msgid] = False
-                            continue
-                    if 'maxversion' in msg_tuple[3]:
-                        maxversion = msg_tuple[3]['maxversion']
-                        if maxversion <= sys.version_info:
-                            self._msgs_state[msgid] = False
-                            continue
-            else:
-                # messages should have a symbol, but for backward compatibility
-                # they may not.
-                (msg, msgdescr) = msg_tuple
-                warn("[pylint 0.26] description of message %s doesn't include "
-                     "a symbolic name" % msgid, DeprecationWarning)
-                msgsymbol = None
+        for msgid, msg_tuple in checker.msgs.iteritems():
+            msg = build_message_def(checker, msgid, msg_tuple)
+            assert msg.symbol not in self._messages_by_symbol, \
+                    'Message symbol %r is already defined' % msg.symbol
             # avoid duplicate / malformed ids
-            assert msgid not in self._messages, \
+            assert msg.msgid not in self._messages, \
                    'Message id %r is already defined' % msgid
-            assert chkid is None or chkid == msgid[1:3], \
+            assert chkid is None or chkid == msg.msgid[1:3], \
                    'Inconsistent checker part in message id %r' % msgid
-            chkid = msgid[1:3]
-            msg = MessageDefinition(checker, msgid, msg, msgdescr, msgsymbol, scope)
-            self._messages[msgid] = msg
-            self._messages_by_symbol[msgsymbol] = msg
-            self._msgs_by_category.setdefault(msgid[0], []).append(msgid)
+            chkid = msg.msgid[1:3]
+            if not msg.may_be_emitted():
+                self._msgs_state[msg.msgid] = False
+                continue
+            self._messages[msg.msgid] = msg
+            self._messages_by_symbol[msg.symbol] = msg
+            self._msgs_by_category.setdefault(msg.msgid[0], []).append(msg.msgid)
 
     def get_message_help(self, msgid, checkerref=False):
         """return the help string for the given message id"""
