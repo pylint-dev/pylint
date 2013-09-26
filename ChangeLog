@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add 'bad-context-manager' error, checking that '__exit__'
+      special method accepts the right number of arguments.
+ 
     * Run pylint as a python module 'python -m pylint' (anatoly techtonik)
 
     * Check for non-exception classes inside an except clause

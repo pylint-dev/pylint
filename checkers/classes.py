@@ -152,6 +152,11 @@ MSGS = {
               'non-iterator-returned',
               'Used when an __iter__ method returns something which is not an \
                iterable (i.e. has no `%s` method)' % NEXT_METHOD),
+    'E0235': ('__exit__ must accept 3 arguments: type, value, traceback',
+              'bad-context-manager',
+              'Used when the __exit__ special method, belonging to a \
+               context manager, does not accept 3 arguments \
+               (type, value, traceback).')
 
 
     }
@@ -325,6 +330,8 @@ a metaclass class method.'}
         # check non-iterators in __iter__
         if node.name == '__iter__':
             self._check_iter(node)
+        elif node.name == '__exit__':
+            self._check_exit(node)
 
     def _check_iter(self, node):
         try:
@@ -344,6 +351,11 @@ a metaclass class method.'}
                                      node=node)
                     break
 
+    def _check_exit(self, node):
+        positional = sum(1 for arg in node.args.args if arg.name != 'self')
+        if positional != 3 and not node.args.vararg:
+            self.add_message('bad-context-manager',
+                             node=node)    
 
     def leave_function(self, node):
         """on method node, check if this method couldn't be a function
