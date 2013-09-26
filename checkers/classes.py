@@ -16,14 +16,20 @@
 """classes checker for Python code
 """
 from __future__ import generators
-
+import sys
 import astroid
 from astroid import YES, Instance, are_exclusive, AssAttr
+from astroid.bases import Generator
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, overrides_a_method,
     check_messages, is_attr_private, is_attr_protected, node_frame_class)
+
+if sys.version_info >= (3, 0):
+    NEXT_METHOD = '__next__'
+else:
+    NEXT_METHOD = 'next'
 
 def class_is_abstract(node):
     """return true if the given class node should be considered as an abstract
@@ -142,6 +148,11 @@ MSGS = {
               'non-parent-init-called',
               'Used when an __init__ method is called on a class which is not \
               in the direct ancestors for the analysed class.'),
+    'W0234': ('__iter__ returns non-iterator',
+              'non-iterator-returned',
+              'Used when an __iter__ method returns something which is not an \
+               iterable (i.e. has no `%s` method)' % NEXT_METHOD),
+
 
     }
 
@@ -310,6 +321,29 @@ a metaclass class method.'}
             self.add_message('E0202', args=args, node=node)
         except astroid.NotFoundError:
             pass
+
+        # check non-iterators in __iter__
+        if node.name == '__iter__':
+            self._check_iter(node)
+
+    def _check_iter(self, node):
+        try:
+            infered = node.infer_call_result(node)
+        except astroid.InferenceError:
+            return
+
+        for infered_node in infered:
+            if (infered_node is YES
+                or isinstance(infered_node, Generator)):
+                continue
+            if isinstance(infered_node, astroid.Instance):
+                try:
+                    infered_node.local_attr(NEXT_METHOD)
+                except astroid.NotFoundError:
+                    self.add_message('non-iterator-returned',
+                                     node=node)
+                    break
+
 
     def leave_function(self, node):
         """on method node, check if this method couldn't be a function

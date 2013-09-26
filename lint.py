@@ -262,7 +262,7 @@ This is used by the global evaluation report (RP0004).'}),
                   'group': 'Reports',
                   'help' : ('Template used to display messages. '
                             'This is a python new-style format string '
-                            'used to format the massage information. '
+                            'used to format the message information. '
                             'See doc for all details')
                   }), # msg-template
                )

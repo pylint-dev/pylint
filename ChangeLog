@@ -2,9 +2,19 @@ ChangeLog for Pylint
 ====================
 
 --
-    * Add new warning for unpacking non-sequences in assignments
+    * Run pylint as a python module 'python -m pylint' (anatoly techtonik)
 
     * Check for non-exception classes inside an except clause
+
+    * epylint support options to give to pylint after the file to analyze and
+      have basic input validation (bitbucket #53 and #54), patches provided by
+      felipeochoa and Brian Lane
+
+    * Added a new warning, 'non-iterator-returned', for non-iterators 
+      returned by '__iter__'
+
+    * Add new warning for unpacking non-sequences in assignments
+
 
 2013-08-06  --  1.0.0
 
