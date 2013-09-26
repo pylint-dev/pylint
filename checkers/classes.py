@@ -353,7 +353,10 @@ a metaclass class method.'}
 
     def _check_exit(self, node):
         positional = sum(1 for arg in node.args.args if arg.name != 'self')
-        if positional != 3 and not node.args.vararg:
+        if positional < 3 and not node.args.vararg:
+            self.add_message('bad-context-manager',
+                             node=node)  
+        elif positional > 3:
             self.add_message('bad-context-manager',
                              node=node)    
 

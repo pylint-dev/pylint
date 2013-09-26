@@ -49,5 +49,14 @@ class SecondBadContextManager(object):
     def __exit__(self, exc_type, value, tb, stack):
         pass
 
+class ThirdBadContextManager(object):
+    """ Too many arguments and variable arguments """
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, value, tb, stack, *args):
+        pass
+
 
 
