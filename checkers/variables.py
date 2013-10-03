@@ -557,52 +557,57 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
             return
         
-        try:
-            infered_nodes = node.value.infered()
-        except astroid.InferenceError:
-            return
-
         targets = node.targets[0].itered()
         if any(not isinstance(target_node, astroid.AssName)
                for target_node in targets):
             return
 
-        for infered in infered_nodes:
-            if isinstance(infered, (astroid.Tuple, astroid.List)):                            
-                values = infered.itered()
-                if len(targets) != len(values):
-                    if node.root().name == infered.root().name:
-                         location = infered.lineno or 'unknown'
-                    else:
-                         location = '%s (%s)' % (infered.lineno or 'unknown',
-                                                 infered.root().name)
+        try:
+            for infered in node.value.infer():
+                self._check_unpacking(infered, node, targets)
+        except astroid.InferenceError:
+            return
 
-                    self.add_message('unbalanced-tuple-unpacking',
-                                     node=node,
-                                     args=(location,
-                                           len(targets), 
-                                           len(values)))
-            else:
-                if infered is astroid.YES:
+    def _check_unpacking(self, infered, node, targets):
+        """ Check for unbalanced tuple unpacking
+        and unpacking non sequences.
+        """
+        if isinstance(infered, (astroid.Tuple, astroid.List)):                            
+            values = infered.itered()
+            if len(targets) != len(values):
+                if node.root().name == infered.root().name:
+                     location = infered.lineno or 'unknown'
+                else:
+                     location = '%s (%s)' % (infered.lineno or 'unknown',
+                                             infered.root().name)
+
+                self.add_message('unbalanced-tuple-unpacking',
+                                 node=node,
+                                 args=(location,
+                                       len(targets), 
+                                       len(values)))
+        else:
+            if infered is astroid.YES:
+                return
+
+            for meth in ('__iter__', '__getitem__'):
+                try:
+                    infered.getattr(meth)
+                except astroid.NotFoundError:
                     continue
+                else:
+                    break               
+            else:                
+                if node.root().name == infered.root().name:
+                     location = infered.lineno or 'unknown'
+                else:
+                     location = '%s (%s)' % (infered.lineno or 'unknown',
+                                             infered.root().name)
+                    
+                self.add_message('unpacking-non-sequence',
+                                 node=node,
+                                 args=(location, ))
 
-                for meth in ('__iter__', '__getitem__'):
-                    try:
-                        infered.getattr(meth)
-                    except astroid.NotFoundError:
-                        continue
-                    else:
-                        break               
-                else:                
-                    if node.root().name == infered.root().name:
-                         location = infered.lineno or 'unknown'
-                    else:
-                         location = '%s (%s)' % (infered.lineno or 'unknown',
-                                                 infered.root().name)
-                        
-                    self.add_message('unpacking-non-sequence',
-                                     node=node,
-                                     args=(location, ))
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
