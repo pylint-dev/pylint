@@ -119,10 +119,17 @@ MSGS = {
               a list comprehension or a generator expression) is used outside \
               the loop.'),
 
-    'W0632': ('Possible unbalanced tuple unpacking: '
+    'W0632': ('Possible unbalanced tuple unpacking with '
+              'sequence at line %s: '
               'left side has %d label(s), right side has %d value(s)',
               'unbalanced-tuple-unpacking',
               'Used when there is an unbalanced tuple unpacking in assignment'),
+
+    'W0633': ('Attempting to unpack a non-sequence with '
+              'non-sequence at line %s',
+              'unpacking-non-sequence',
+              'Used when something which is not '
+              'a sequence is used in an unpack assignment'),
 
     }
 
@@ -542,26 +549,65 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             self._check_module_attrs(node, module, name.split('.'))
 
-    @check_messages('unbalanced-tuple-unpacking')
+    @check_messages('unbalanced-tuple-unpacking', 'unpacking-non-sequence')
     def visit_assign(self, node):
-        """Check unbalanced tuple unpacking for assignments"""
+        """Check unbalanced tuple unpacking for assignments
+        and unpacking non-sequences.
+        """
         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
             return
-        try:
-            infered = node.value.infer().next()
-        except astroid.InferenceError:
-            return
-        if not isinstance(infered, (astroid.Tuple, astroid.List)):
-            return
+        
         targets = node.targets[0].itered()
-        values = infered.itered()
         if any(not isinstance(target_node, astroid.AssName)
                for target_node in targets):
             return
-        if len(targets) != len(values):
-            self.add_message('unbalanced-tuple-unpacking',
-                             node=node,
-                             args=(len(targets), len(values)))
+
+        try:
+            for infered in node.value.infer():
+                self._check_unpacking(infered, node, targets)
+        except astroid.InferenceError:
+            return
+
+    def _check_unpacking(self, infered, node, targets):
+        """ Check for unbalanced tuple unpacking
+        and unpacking non sequences.
+        """
+        if isinstance(infered, (astroid.Tuple, astroid.List)):                            
+            values = infered.itered()
+            if len(targets) != len(values):
+                if node.root().name == infered.root().name:
+                     location = infered.lineno or 'unknown'
+                else:
+                     location = '%s (%s)' % (infered.lineno or 'unknown',
+                                             infered.root().name)
+
+                self.add_message('unbalanced-tuple-unpacking',
+                                 node=node,
+                                 args=(location,
+                                       len(targets), 
+                                       len(values)))
+        else:
+            if infered is astroid.YES:
+                return
+
+            for meth in ('__iter__', '__getitem__'):
+                try:
+                    infered.getattr(meth)
+                except astroid.NotFoundError:
+                    continue
+                else:
+                    break               
+            else:                
+                if node.root().name == infered.root().name:
+                     location = infered.lineno or 'unknown'
+                else:
+                     location = '%s (%s)' % (infered.lineno or 'unknown',
+                                             infered.root().name)
+                    
+                self.add_message('unpacking-non-sequence',
+                                 node=node,
+                                 args=(location, ))
+
 
     def _check_module_attrs(self, node, module, module_names):
         """check that module_names (list of string) are accessible through the
