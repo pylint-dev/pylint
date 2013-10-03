@@ -121,6 +121,12 @@ class MyInstallLib(install_lib.install_lib):
                 base = join(subpackage_of, modname)
             else:
                 base = modname
+            if sys.platform == 'win32':
+                two_to_three = [sys.executable]
+                exe_path = os.path.dirname(sys.executable)
+                two_to_three.append(os.path.join(exe_path, 'Tools\\Scripts\\2to3.py'))
+            else:
+                two_to_three = ['2to3']
             for directory in include_dirs:
                 dest = join(self.install_dir, base, directory)
                 if sys.version_info >= (3, 0):
@@ -135,7 +141,7 @@ class MyInstallLib(install_lib.install_lib):
                     # process manually python file in include_dirs (test data)
                     from subprocess import call
                     print('running 2to3 on', dest)
-                    call(['2to3', '-wn', dest])
+                    call(two_to_three + ['-wn', dest])
 
 
 def install(**kwargs):
