@@ -28,11 +28,6 @@ from logilab.common.compat import builtins
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = astroid.ListComp, astroid.SetComp, astroid.DictComp, astroid.GenExpr
 
-if hasattr(string, 'Formatter'):
-    STRING_FORMATTER = string.Formatter()
-else:
-    STRING_FORMATTER = None
-
 
 class NoSuchArgumentError(Exception):
     pass
@@ -350,34 +345,6 @@ def parse_format_string(format_string):
         i += 1
     return keys, num_args
 
-def parse_format_method_string(format_string):
-    """Parses a Python 3 format string, returning a tuple of (keys, num_args), 
-    where keys is the set of mapping keys in the format string, and num_args 
-    is the number of arguments required by the format string.  
-    """
-    keys = set()
-    num_args = 0
-
-    # TODO: should raise a custom exception?   
-    if not STRING_FORMATTER:
-        return keys, num_args
-
-    parseiterator = STRING_FORMATTER.parse(format_string)    
-    try:
-        for result in parseiterator:
-            if all(item is None for item in result[1:]):
-                # not a replacement format
-                continue
-            name = result[1]
-            if name:
-                keys.add(name)
-            else:
-                num_args += 1
-    except ValueError:
-        # probably the format string is invalid
-        # should we check the argument of the ValueError?
-        raise IncompleteFormatString(format_string)
-    return keys, num_args
 
 def is_attr_protected(attrname):
     """return True if attribute name is protected (start with _ and some other

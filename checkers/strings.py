@@ -20,6 +20,7 @@
 
 import sys
 import tokenize
+import string
 
 import astroid
 
@@ -29,7 +30,8 @@ from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
 _PY3K = sys.version_info >= (3, 0)
-_PY26 = sys.version_info < (2, 7)
+_PY26 = sys.version_info == (2, 7)
+_GT_PY25 = sys.version_info > (2, 5)
 
 MSGS = {
     'E1300': ("Unsupported format character %r (%#02x) at index %d",
@@ -107,6 +109,45 @@ MSGS = {
 OTHER_NODES = (astroid.Const, astroid.List, astroid.Backquote,
                astroid.Lambda, astroid.Function,
                astroid.ListComp, astroid.SetComp, astroid.GenExpr)
+
+if _PY3K:
+    import _string
+
+    def split_format_field_names(format_string):
+        return _string.formatter_field_name_split(format_string)
+else:
+    def split_format_field_names(format_string):
+        return format_string._formatter_field_name_split()
+
+def parse_format_method_string(format_string):
+    """
+    Parses a Python 3 format string, returning a tuple of 
+    (keys, num_args), 
+    where keys is the set of mapping keys in the format string, num_args 
+    is the number of arguments required by the format string and accessors
+    is a dictionary of attribute accessors like '{a.field}' or element 
+    accessor, like '{0[2]}'. 
+    """
+    keys = []
+    num_args = 0
+    formatter = string.Formatter()
+    parseiterator = formatter.parse(format_string)    
+    try:
+        for result in parseiterator:
+            if all(item is None for item in result[1:]):
+                # not a replacement format
+                continue
+            name = result[1]
+            if name:
+                keyname, fielditerator = split_format_field_names(name)
+                keys.append((keyname, list(fielditerator)))
+            else:
+                num_args += 1
+    except ValueError:
+        # probably the format string is invalid
+        # should we check the argument of the ValueError?
+        raise utils.IncompleteFormatString(format_string)
+    return keys, num_args
 
 def get_args(callfunc):
     """ Get the arguments from the given `CallFunc` node.
@@ -239,7 +280,8 @@ class StringMethodsChecker(BaseChecker):
                      self.add_message('E1310', node=node,
                                       args=(func.bound.name, func.name))
              elif func.name == 'format':
-                 self._parse_format(node, func)
+                 if _GT_PY25: 
+                     self._parse_format(node, func)
 
     def _parse_format(self, node, func):
         try:
@@ -254,14 +296,14 @@ class StringMethodsChecker(BaseChecker):
 
         try:
             required_keys, required_num_args = \
-                utils.parse_format_method_string(strnode.value)
+                     parse_format_method_string(strnode.value)
         except utils.IncompleteFormatString:
             self.add_message('bad-format-string', node=node)
             return
 
         manual_keys = set([key for key in required_keys
                            if key.isdigit()])
-        if manual_keys and required_keys - manual_keys:
+        if manual_keys and required_num_args:
             self.add_message('format-combined-specifiers',
                              node=node)
             return
@@ -270,11 +312,7 @@ class StringMethodsChecker(BaseChecker):
             self.add_message('no-automatic-field-numbering',
                              node=node)
 
-        if required_keys and required_num_args:
-            # The format string uses both named and unnamed format
-            # specifiers.
-            self.add_message('mixed-format-string', node=node)
-        elif required_keys:
+        if required_keys:
             for key in required_keys:
                 if key not in named and not key.isdigit():
                     self.add_message('missing-format-argument-key', 
