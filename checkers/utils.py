@@ -394,10 +394,10 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     :raises NoSuchArgumentError: if no argument at the provided position or with
     the provided keyword.
     """
-    if not position and not keyword:
+    if position is None and keyword is None:
         raise ValueError('Must specify at least one of: position or keyword.')
     try:
-        if position and not isinstance(callfunc_node.args[position], astroid.Keyword):
+        if position is not None and not isinstance(callfunc_node.args[position], astroid.Keyword):
             return callfunc_node.args[position]
     except IndexError as error:
         raise NoSuchArgumentError(error)
