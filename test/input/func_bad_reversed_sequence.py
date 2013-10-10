@@ -48,4 +48,5 @@ def test():
     seq = reversed(ThirdBadReversed())
     seq = reversed(lambda: None)
     seq = reversed(deque([]))
+    seq = reversed("123")
     return seq
