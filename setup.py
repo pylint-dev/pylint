@@ -133,9 +133,9 @@ class MyInstallLib(install_lib.install_lib):
 
                 if sys.version_info >= (3, 0):
                     # process manually python file in include_dirs (test data)
-                    from subprocess import call
+                    from distutils.util import run_2to3
                     print('running 2to3 on', dest)
-                    call(['2to3', '-wn', dest])
+                    run_2to3([dest])
 
 
 def install(**kwargs):
