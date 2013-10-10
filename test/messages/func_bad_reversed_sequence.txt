@@ -1,8 +1,8 @@
-E: 34:test: Missing argument to reversed()
-E: 35:test: The first reversed() argument is not a sequence
-E: 38:test: The first reversed() argument is not a sequence
-E: 39:test: The first reversed() argument is not a sequence
-E: 43:test: The first reversed() argument is not a sequence
-E: 44:test: The first reversed() argument is not a sequence
+E: 36:test: Missing argument to reversed()
+E: 37:test: The first reversed() argument is not a sequence
+E: 40:test: The first reversed() argument is not a sequence
+E: 41:test: The first reversed() argument is not a sequence
+E: 45:test: The first reversed() argument is not a sequence
 E: 46:test: The first reversed() argument is not a sequence
-E: 47:test: The first reversed() argument is not a sequence
+E: 48:test: The first reversed() argument is not a sequence
+E: 49:test: The first reversed() argument is not a sequence

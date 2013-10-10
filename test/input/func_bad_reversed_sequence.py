@@ -1,6 +1,8 @@
 """ Checks that reversed() receive proper argument """
 
 # pylint: disable-msg=too-few-public-methods,no-self-use,incomplete-protocol
+from collections import deque
+
 __revision__ = 0
 
 class GoodReversed(object):
@@ -45,4 +47,5 @@ def test():
     seq = reversed(range(100))
     seq = reversed(ThirdBadReversed())
     seq = reversed(lambda: None)
+    seq = reversed(deque([]))
     return seq
