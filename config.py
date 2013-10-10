@@ -107,12 +107,12 @@ PYLINTRC = find_pylintrc()
 ENV_HELP = '''
 The following environment variables are used:                                   
     * PYLINTHOME                                                                
-    path to the directory where data of persistent run will be stored. If not 
-found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
+    Path to the directory where the persistent for the run will be stored. If 
+not found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
 directory).                                                                     
     * PYLINTRC                                                                  
-    path to the configuration file. If not found, it will use the first         
-existing file among (~/.pylintrc, /etc/pylintrc).
+    Path to the configuration file. See the documentation for the method used
+to search for configuration file.
 ''' % globals()
 
 # evaluation messages #########################################################

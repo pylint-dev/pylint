@@ -87,13 +87,32 @@ list of values (which are generally used to override a regular
 expression in special cases). For a full list of options, use ``--help``
 
 Specifying all the options suitable for your setup and coding
-standards can be tedious, so it is possible to use a rc file to
-specify the default values. Pylint looks for ``/etc/pylintrc`` and
-``~/.pylintrc``. The ``--generate-rcfile`` option will generate a
-commented configuration file according to the current configuration on
-standard output and exit. You can put other options before this one to
-use them in the configuration, or start with the default values and
-hand tune the configuration.
+standards can be tedious, so it is possible to use a configuration file to
+specify the default values.  You can specify a configuration file on the 
+command line using the ``--rcfile`` option.  Otherwise, Pylint searches for a
+configuration file in the following order and uses the first one it finds:
+
+#. ``pylintrc`` in the current working directory
+#. If the current working directory is in a Python module, Pylint searches \
+   up the hierarchy of Python modules until it finds a ``pylintrc`` file. \
+   This allows you to specify coding standards on a module-by-module \
+   basis.  Of course, a directory is judged to be a Python module if it \
+   contains an ``__init__.py`` file.
+#. The file named by environment variable ``PYLINTRC``
+#. ``.pylintrc`` in your home directory, unless you have no home directory or \
+   your home directory is ``/root``
+#. ``.pylintrc`` in the current working directory
+#. ``/etc/pylintrc``
+
+The ``--generate-rcfile`` option will generate a commented configuration file
+on standard output according to the current configuration and exit. This
+includes:
+
+* Any configuration file found as explained above
+* Options appearing before ``--generate-rcfile`` on the Pylint command line
+
+Of course you can also start with the default values and hand tune the
+configuration. 
 
 Other useful global options include:
 
