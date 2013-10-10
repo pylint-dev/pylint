@@ -613,7 +613,8 @@ functions, methods
         self.add_message('exec-used', node=node)
 
     @check_messages('bad-builtin', 'star-args', 
-                    'exec-used', 'missing-reversed-argument')
+                    'exec-used', 'missing-reversed-argument', 
+                    'bad-reversed-sequence')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
