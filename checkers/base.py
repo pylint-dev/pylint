@@ -700,18 +700,33 @@ functions, methods
         except NoSuchArgumentError:
             self.add_message('missing-reversed-argument', node=node)
         else:
-            if not argument:
-                return
+            if argument is None:
+                # nothing was infered
+                return 
 
-            for methods in REVERSED_METHODS:
-                for meth in methods:
-                    try:
-                        argument.getattr(meth)
-                    except astroid.NotFoundError:
+            if isinstance(argument, astroid.Instance):
+                if (argument._proxied.name == 'dict' and 
+                    is_builtin_object(argument._proxied)):
+                     self.add_message('bad-reversed-sequence', node=node)
+                     return
+                elif any(ancestor.name == 'dict' and is_builtin_object(ancestor)
+                       for ancestor in argument._proxied.ancestors()):
+                    # mappings aren't accepted by reversed()
+                    self.add_message('bad-reversed-sequence', node=node)
+                    return
+
+                for methods in REVERSED_METHODS:
+                    for meth in methods:
+                        try:
+                            argument.getattr(meth)
+                        except astroid.NotFoundError:
+                            break
+                    else:
                         break
-                else:
-                    break
-            else:                 
+                else:                 
+                    self.add_message('bad-reversed-sequence', node=node)
+            elif not isinstance(argument, (astroid.List, astroid.Tuple)):
+                # everything else is not a proper sequence for reversed()
                 self.add_message('bad-reversed-sequence', node=node)
 
 class NameChecker(_BasicChecker):
