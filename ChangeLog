@@ -18,6 +18,11 @@ ChangeLog for Pylint
 
     * Add new warning for unpacking non-sequences in assignments
 
+    * Add new warning, 'bad-reversed-sequence', for checking that the
+      reversed() builtin receive a sequence (implements __getitem__ and __len__,
+      without being a dict or a dict subclass) or an instance which implements
+      __reversed__.
+
 
 2013-08-06  --  1.0.0
 
