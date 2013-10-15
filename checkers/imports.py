@@ -16,7 +16,7 @@
 """imports checkers for Python code"""
 
 from logilab.common.graph import get_cycles, DotBackend
-from logilab.common.modutils import is_standard_module
+from logilab.common.modutils import get_module_part, is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
 
 import astroid
@@ -291,6 +291,7 @@ given file (report RP0402 must not be disabled)'}
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
+        importedmodname = get_module_part(importedmodname)
         context_name = node.root().name
         if context_name == importedmodname:
             # module importing itself !
@@ -301,11 +302,10 @@ given file (report RP0402 must not be disabled)'}
                 importedmodname, set())
             if not context_name in importedmodnames:
                 importedmodnames.add(context_name)
-            if is_standard_module(importedmodname, (self.package_dir(),)):
-                # update import graph
-                mgraph = self.import_graph.setdefault(context_name, set())
-                if not importedmodname in mgraph:
-                    mgraph.add(importedmodname)
+            # update import graph
+            mgraph = self.import_graph.setdefault(context_name, set())
+            if not importedmodname in mgraph:
+                mgraph.add(importedmodname)
 
     def _check_deprecated_module(self, node, mod_path):
         """check if the module is deprecated"""

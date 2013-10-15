@@ -41,7 +41,6 @@ messages nor reports. XXX not true, emit a 07 report !
 import sys
 import tokenize
 import warnings
-from os.path import dirname
 
 from astroid.utils import ASTWalker
 from logilab.common.configuration import OptionsProviderMixIn
@@ -98,10 +97,6 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
     def add_message(self, msg_id, line=None, node=None, args=None):
         """add a message of a given type"""
         self.linter.add_message(msg_id, line, node, args)
-
-    def package_dir(self):
-        """return the base directory for the analysed package"""
-        return dirname(self.linter.base_file)
 
     # dummy methods implementing the IChecker interface
 
