@@ -86,12 +86,12 @@ class PyLinterTC(TestCase):
     def test_message_help(self):
         msg = self.linter.check_message_id('F0001')
         self.assertMultiLineEqual(
-            ''':F0001 (fatal):
+            ''':fatal (F0001):
   Used when an error occurred preventing the analysis of a module (unable to
   find it for instance). This message belongs to the master checker.''',
             msg.format_help(checkerref=True))
         self.assertMultiLineEqual(
-            ''':F0001 (fatal):
+            ''':fatal (F0001):
   Used when an error occurred preventing the analysis of a module (unable to
   find it for instance).''',
             msg.format_help(checkerref=False))
@@ -101,13 +101,13 @@ class PyLinterTC(TestCase):
         msg = build_message_def(self.linter._checkers['typecheck'][0],
                                 'E1122', checkers.typecheck.MSGS['E1122'])
         self.assertMultiLineEqual(
-            ''':E1122 (duplicate-keyword-arg): *Duplicate keyword argument %r in function call*
+            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in function call*
   Used when a function call passes the same keyword argument multiple times.
   This message belongs to the typecheck checker. It can't be emitted when using
   Python >= 2.6.''',
             msg.format_help(checkerref=True))
         self.assertMultiLineEqual(
-            ''':E1122 (duplicate-keyword-arg): *Duplicate keyword argument %r in function call*
+            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in function call*
   Used when a function call passes the same keyword argument multiple times.
   This message can't be emitted when using Python >= 2.6.''',
             msg.format_help(checkerref=False))
@@ -261,7 +261,7 @@ class PyLinterTC(TestCase):
         finally:
             sys.stdout = sys.__stdout__
         # cursory examination of the output: we're mostly testing it completes
-        self.assertTrue(':C0112 (empty-docstring): *Empty %s docstring*' in output)
+        self.assertIn(':empty-docstring (C0112): *Empty %s docstring*', output)
 
     def test_lint_ext_module_with_file_output(self):
         self.linter.set_reporter(text.TextReporter())
