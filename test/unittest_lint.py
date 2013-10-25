@@ -170,7 +170,7 @@ class PyLinterTC(TestCase):
         linter.open()
         filepath = join(INPUTDIR, 'func_block_disable_msg.py')
         linter.set_current_module('func_block_disable_msg')
-        astroid = linter.get_astroid(filepath, 'func_block_disable_msg')
+        astroid = linter.get_ast(filepath, 'func_block_disable_msg')
         linter.process_tokens(tokenize_module(astroid))
         orig_state = linter._module_msgs_state.copy()
         linter._module_msgs_state = {}

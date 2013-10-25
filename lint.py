@@ -587,7 +587,7 @@ This is used by the global evaluation report (RP0004).'}),
                 self.reporter.set_output(open(reportfile, 'w'))
             self.set_current_module(modname, filepath)
             # get the module representation
-            astroid = self.get_astroid(filepath, modname)
+            astroid = self.get_ast(filepath, modname)
             if astroid is None:
                 continue
             self.base_name = descr['basename']
@@ -639,8 +639,8 @@ This is used by the global evaluation report (RP0004).'}),
             self._raw_module_msgs_state = {}
             self._ignored_msgs = {}
 
-    def get_astroid(self, filepath, modname):
-        """return a astroid representation for a module"""
+    def get_ast(self, filepath, modname):
+        """return a ast(roid) representation for a module"""
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
