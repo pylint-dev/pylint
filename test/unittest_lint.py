@@ -282,6 +282,13 @@ class PyLinterTC(TestCase):
             except:
                 pass
 
+    def test_lint_should_analyze_file(self):
+        self.linter.set_reporter(text.TextReporter())
+        self.linter.config.files_output = True
+        self.linter.should_analyze_file = lambda *args: False
+        self.linter.check('os')
+        self.assertFalse(os.path.exists('pylint_os.txt'))
+
     def test_enable_report(self):
         self.assertEqual(self.linter.report_is_enabled('RP0001'), True)
         self.linter.disable('RP0001')
