@@ -518,7 +518,7 @@ This is used by the global evaluation report (RP0004).'}),
                 if first <= lineno <= last:
                     # Set state for all lines for this block, if the
                     # warning is applied to nodes.
-                    if self._messages[msgid].scope == WarningScope.NODE:
+                    if self.check_message_id(msgid).scope == WarningScope.NODE:
                         if lineno > firstchildlineno:
                             state = True
                         first_, last_ = node.block_range(lineno)
