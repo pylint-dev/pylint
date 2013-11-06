@@ -19,6 +19,8 @@ Check format checker helper functions
 import sys
 import re
 from os import linesep
+import tokenize
+import StringIO
 
 from logilab.common.testlib import TestCase, unittest_main
 from astroid import test_utils
@@ -28,6 +30,10 @@ from pylint.checkers.format import *
 from pylint.testutils import TestReporter, CheckerTestCase, Message
 
 REPORTER = TestReporter()
+
+def tokenize_str(code):
+    return list(tokenize.generate_tokens(StringIO.StringIO(code).readline))
+
 
 class StringRgxTest(TestCase):
     """test the STRING_RGX regular expression"""
@@ -200,6 +206,64 @@ class MultiStatementLineTest(CheckerTestCase):
       with self.assertNoMessages():
           self.checker.process_tokens([])
           self.checker.visit_default(tree.body[0])
+
+
+
+class SuperfluousParenthesesTest(CheckerTestCase):
+    CHECKER_CLASS = FormatChecker
+
+    def testCheckKeywordParensHandlesValidCases(self):
+        self.checker._keywords_with_parens = set()
+        cases = [
+            'if foo:',
+            'if foo():',
+            'if (x and y) or z:',
+            'assert foo()',
+            'assert ()',
+            'if (1, 2) in (3, 4):',
+            'if (a or b) in c:',
+            'return (x for x in x)',
+            'if (x for x in x):',
+            'for x in (x for x in x):',
+            'not (foo or bar)',
+            'not (foo or bar) and baz',
+            ]
+        with self.assertNoMessages():
+            for code in cases:
+                self.checker._check_keyword_parentheses(tokenize_str(code), 0)
+
+    def testCheckKeywordParensHandlesUnnecessaryParens(self):
+        self.checker._keywords_with_parens = set()
+        cases = [
+            (Message('C0325', line=1, args='if'),
+             'if (foo):', 0),
+            (Message('C0325', line=1, args='if'),
+             'if ((foo, bar)):', 0),
+            (Message('C0325', line=1, args='if'),
+             'if (foo(bar)):', 0),
+            (Message('C0325', line=1, args='return'),
+             'return ((x for x in x))', 0),
+            (Message('C0325', line=1, args='not'),
+             'not (foo)', 0),
+            (Message('C0325', line=1, args='not'),
+             'if not (foo):', 1),
+            (Message('C0325', line=1, args='if'),
+             'if (not (foo)):', 0),
+            (Message('C0325', line=1, args='not'),
+             'if (not (foo)):', 2),
+            ]
+        for msg, code, offset in cases:
+            with self.assertAddsMessages(msg):
+                self.checker._check_keyword_parentheses(tokenize_str(code), offset)
+
+    def testFuturePrintStatementWithoutParensWarning(self):
+        code = """from __future__ import print_function
+print('Hello world!')
+"""
+        tree = test_utils.build_module(code)
+        with self.assertNoMessages():
+            self.checker.process_module(tree)
+            self.checker.process_tokens(tokenize_str(code))
 
 
 if __name__ == '__main__':

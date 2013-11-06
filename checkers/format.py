@@ -29,10 +29,13 @@ if not hasattr(tokenize, 'NL'):
 from logilab.common.textutils import pretty_match
 from astroid import nodes
 
-from pylint.interfaces import ITokenChecker, IAstroidChecker
+from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope, OPTION_RGX
+
+_KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
+                   'print', 'raise', 'return', 'while', 'yield']
 
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
@@ -78,6 +81,10 @@ MSGS = {
               'no-space-after-comma',
               'Used when a comma (",") is not followed by a space.',
               {'scope': WarningScope.NODE}),
+    'C0325' : ('Unnecessary parens after %r keyword',
+               'superfluous-parens',
+               'Used when a single item in parentheses follows an if, for, or '
+               'other keyword.'),
     }
 
 if sys.version_info < (3, 0):
@@ -177,7 +184,7 @@ class FormatChecker(BaseTokenChecker):
     * use of <> instead of !=
     """
 
-    __implements__ = (ITokenChecker, IAstroidChecker)
+    __implements__ = (ITokenChecker, IAstroidChecker, IRawChecker)
 
     # configuration section name
     name = 'format'
@@ -217,6 +224,96 @@ class FormatChecker(BaseTokenChecker):
             self._lines[line_num] = line.split('\n')[0]
         self.check_lines(line, line_num)
 
+    def process_module(self, module):
+        self._keywords_with_parens = set()
+        for node in module.body:
+            if (isinstance(node, nodes.From) and node.modname == '__future__'
+                and any(name == 'print_function' for name, _ in node.names)):
+                self._keywords_with_parens.add('print')
+
+    def _check_keyword_parentheses(self, tokens, start):
+      """Check that there are not unnecessary parens after a keyword.
+
+      Parens are unnecessary if there is exactly one balanced outer pair on a
+      line, and it is followed by a colon, and contains no commas (i.e. is not a
+      tuple).
+
+      Args:
+      tokens: list of Tokens; the entire list of Tokens.
+      start: int; the position of the keyword in the token list.
+      """
+      # If the next token is not a paren, we're fine.
+      if tokens[start+1][1] != '(':
+          return
+
+      found_comma = False
+      found_and_or = False
+      depth = 0
+      keyword_token = tokens[start][1]
+      line_num = tokens[start][2][0]
+
+      for i in xrange(start, len(tokens) - 1):
+          token = tokens[i]
+
+          # If we hit a newline, then assume any parens were for continuation.
+          if token[0] == tokenize.NL:
+              return
+
+          if token[1] == '(':
+              depth += 1
+          elif token[1] == ')':
+              depth -= 1
+              if not depth:
+                  # ')' can't happen after if (foo), since it would be a syntax error.
+                  if (tokens[i+1][1] in (':', ')', ']', '}', 'in') or
+                      tokens[i+1][0] in (tokenize.NEWLINE, tokenize.ENDMARKER,
+                                           tokenize.COMMENT)):
+                      # The empty tuple () is always accepted.
+                      if i == start + 2:
+                          return
+                      if keyword_token == 'not':
+                          if not found_and_or:
+                              self.add_message('C0325', line=line_num,
+                                               args=keyword_token)
+                      elif keyword_token in ('return', 'yield'):
+                          self.add_message('C0325', line=line_num,
+                                           args=keyword_token)
+                      elif keyword_token not in self._keywords_with_parens:
+                          if not (tokens[i+1][1] == 'in' and found_and_or):
+                              self.add_message('C0325', line=line_num,
+                                               args=keyword_token)
+                  return
+          elif depth == 1:
+              # This is a tuple, which is always acceptable.
+              if token[1] == ',':
+                  return
+              # 'and' and 'or' are the only boolean operators with lower precedence
+              # than 'not', so parens are only required when they are found.
+              elif token[1] in ('and', 'or'):
+                  found_and_or = True
+              # A yield inside an expression must always be in parentheses,
+              # quit early without error.
+              elif token[1] == 'yield':
+                  return
+              # A generator expression always has a 'for' token in it, and
+              # the 'for' token is only legal inside parens when it is in a
+              # generator expression.  The parens are necessary here, so bail
+              # without an error.
+              elif token[1] == 'for':
+                  return
+
+    def _prepare_token_dispatcher(self):
+      raw = [
+          (_KEYWORD_TOKENS,
+           self._check_keyword_parentheses),
+          ]
+
+      dispatch = {}
+      for tokens, handler in raw:
+        for token in tokens:
+          dispatch[token] = handler
+      return dispatch
+
     def process_tokens(self, tokens):
         """process tokens and search for :
 
@@ -237,7 +334,8 @@ class FormatChecker(BaseTokenChecker):
         self._lines = {}
         self._visited_lines = {}
         new_line_delay = False
-        for (tok_type, token, start, _, line) in tokens:
+        token_handlers = self._prepare_token_dispatcher()
+        for idx, (tok_type, token, start, _, line) in enumerate(tokens):
             if new_line_delay:
                 new_line_delay = False
                 self.new_line(tok_type, line, line_num, junk)
@@ -295,6 +393,13 @@ class FormatChecker(BaseTokenChecker):
                 # "indents" stack was seeded
                 check_equal = 0
                 self.check_indent_level(line, indents[-1], line_num)
+
+            try:
+                handler = token_handlers[token]
+            except KeyError:
+                pass
+            else:
+                handler(tokens, idx)
 
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
