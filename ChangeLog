@@ -5,6 +5,9 @@ ChangeLog for Pylint
     * Avoid false used-before-assignment for except handler defined
      identifier used on the same line (#111)
 
+    * Combine 'no-space-after-operator', 'no-space-after-comma' and
+      'no-space-before-operator' into a new warning 'bad-whitespace'
+
     * Add a new warning 'superfluous-parens' for unnecessary
       parentheses after certain keywords.
 
