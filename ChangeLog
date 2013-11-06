@@ -5,6 +5,9 @@ ChangeLog for Pylint
     * Avoid false used-before-assignment for except handler defined
      identifier used on the same line (#111)
 
+    * Fix a potential crash in the redefine-in-handler warning
+      if the redefined name is a nested getattr node.
+
     * Add a new option for the multi-statement warning to
       allow single-line if statements.
 
