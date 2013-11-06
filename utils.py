@@ -133,7 +133,7 @@ def build_message_def(checker, msgid, msg_tuple):
 
 class MessageDefinition(object):
     def __init__(self, checker, msgid, msg, descr, symbol, scope,
-                 minversion=None, maxversion=None):
+                 minversion=None, maxversion=None, old_names=None):
         self.checker = checker
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
         assert msgid[0] in MSG_TYPES, \
@@ -145,6 +145,7 @@ class MessageDefinition(object):
         self.scope = scope
         self.minversion = minversion
         self.maxversion = maxversion
+        self.old_names = old_names or []
 
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""
@@ -206,6 +207,16 @@ class MessagesHandlerMixIn(object):
         self._ignored_msgs = {}
         self._suppression_mapping = {}
 
+    def add_renamed_message(self, old_id, old_symbol, new_symbol):
+      """Register the old ID and symbol for a warning that was renamed.
+
+      This allows users to keep using the old ID/symbol in suppressions.
+      """
+      msg = self.check_message_id(new_symbol)
+      msg.old_names.append((old_id, old_symbol))
+      self._alternative_names[old_id] = msg
+      self._alternative_names[old_symbol] = msg
+
     def register_messages(self, checker):
         """register a dictionary of messages
 
@@ -231,6 +242,9 @@ class MessagesHandlerMixIn(object):
                 continue
             self._messages[msg.symbol] = msg
             self._alternative_names[msg.msgid] = msg
+            for old_id, old_symbol in msg.old_names:
+                self._alternative_names[old_id] = msg
+                self._alternative_names[old_symbol] = msg
             self._msgs_by_category.setdefault(msg.msgid[0], []).append(msg.msgid)
 
     def disable(self, msgid, scope='package', line=None):
