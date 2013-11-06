@@ -193,6 +193,10 @@ class FormatChecker(BaseTokenChecker):
                  'default': r'^\s*(# )?<?https?://\S+>?$',
                  'help': ('Regexp for a line that is allowed to be longer than '
                           'the limit.')}),
+               ('single-line-if-stmt',
+                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                  'help' : ('Allow the body of an if to be on the same '
+                            'line as the test if there is no else.')}),
                ('max-module-lines',
                 {'default' : 1000, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of lines in a module'}
@@ -307,16 +311,19 @@ class FormatChecker(BaseTokenChecker):
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
         else:
-            prev_line = node.parent.statement().fromlineno
+            # The line on which a finally: occurs in a try/finally
+            # is not directly represented in the AST. We infer it
+            # by taking the last line of the body and adding 1, which
+            # should be the line of finally:
+            if (isinstance(node.parent, nodes.TryFinally)
+                and node in node.parent.finalbody):
+                prev_line = node.parent.body[0].tolineno + 1
+            else:
+                prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
-            # py2.5 try: except: finally:
-            if not (isinstance(node, nodes.TryExcept)
-                    and isinstance(node.parent, nodes.TryFinally)
-                    and node.fromlineno == node.parent.fromlineno):
-                self.add_message('C0321', node=node)
-                self._visited_lines[line] = 2
+            self._check_multi_statement_line(node, line)
             return
         if line in self._visited_lines:
             return
@@ -339,6 +346,23 @@ class FormatChecker(BaseTokenChecker):
         except KeyError:
             # FIXME: internal error !
             pass
+
+    def _check_multi_statement_line(self, node, line):
+        """Check for lines containing multiple statements."""
+        # Do not warn about multiple nested context managers
+        # in with statements.
+        if isinstance(node, nodes.With):
+            return
+        # For try... except... finally..., the two nodes
+        # appear to be on the same line due to how the AST is built.
+        if (isinstance(node, nodes.TryExcept) and
+            isinstance(node.parent, nodes.TryFinally)):
+            return
+        if (isinstance(node.parent, nodes.If) and not node.parent.orelse
+            and self.config.single_line_if_stmt):
+            return
+        self.add_message('C0321', node=node)
+        self._visited_lines[line] = 2
 
     @check_messages('W0333')
     def visit_backquote(self, node):

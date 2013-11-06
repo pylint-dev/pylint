@@ -21,10 +21,11 @@ import re
 from os import linesep
 
 from logilab.common.testlib import TestCase, unittest_main
+from astroid import test_utils
 
 from pylint.checkers.format import *
 
-from pylint.testutils import TestReporter
+from pylint.testutils import TestReporter, CheckerTestCase, Message
 
 REPORTER = TestReporter()
 
@@ -163,6 +164,43 @@ class ChecklineFunctionTest(TestCase):
 
     def test_known_values_tastring(self):
         self.assertEqual(check_line("print '''<a='=')\n'''"), None)
+
+
+class MultiStatementLineTest(CheckerTestCase):
+  CHECKER_CLASS = FormatChecker
+
+  def testSingleLineIfStmts(self):
+      stmt = test_utils.extract_node("""
+      if True: pass  #@
+      """)
+      with self.assertAddsMessages(Message('C0321', node=stmt.body[0])):
+          self.checker.process_tokens([])
+          self.checker.visit_default(stmt.body[0])
+      self.checker.config.single_line_if_stmt = True
+      with self.assertNoMessages():
+          self.checker.process_tokens([])
+          self.checker.visit_default(stmt.body[0])
+      stmt = test_utils.extract_node("""
+      if True: pass  #@
+      else:
+        pass
+      """)
+      with self.assertAddsMessages(Message('C0321', node=stmt.body[0])):
+          self.checker.process_tokens([])
+          self.checker.visit_default(stmt.body[0])
+
+  def testTryExceptFinallyNoMultipleStatement(self):
+      tree = test_utils.extract_node("""
+      try:  #@
+        pass
+      except:
+        pass
+      finally:
+        pass""")
+      with self.assertNoMessages():
+          self.checker.process_tokens([])
+          self.checker.visit_default(tree.body[0])
+
 
 if __name__ == '__main__':
     unittest_main()
