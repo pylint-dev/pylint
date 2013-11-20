@@ -34,12 +34,6 @@ elif USER_HOME == '~':
 else:
     PYLINT_HOME = join(USER_HOME, '.pylint.d')
 
-if not exists(PYLINT_HOME):
-    try:
-        os.mkdir(PYLINT_HOME)
-    except OSError:
-        print >> sys.stderr, 'Unable to create directory %s' % PYLINT_HOME
-
 def get_pdata_path(base_name, recurs):
     """return the path of the file which should contain old search data for the
     given base_name with the given options values
@@ -66,6 +60,11 @@ else:
 
 def save_results(results, base):
     """pickle results"""
+    if not exists(PYLINT_HOME):
+        try:
+            os.mkdir(PYLINT_HOME)
+        except OSError:
+            print >> sys.stderr, 'Unable to create directory %s' % PYLINT_HOME
     data_file = get_pdata_path(base, 1)
     try:
         pickle.dump(results, open(data_file, _PICK_MOD))
