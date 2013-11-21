@@ -162,6 +162,11 @@ def is_defined_before(var_node):
             if getattr(_node, 'name', None) == varname:
                 return True
             break
+        elif isinstance(_node, astroid.ExceptHandler):
+            if isinstance(_node.name, astroid.AssName):
+                ass_node=_node.name
+                if ass_node.name == varname:
+                    return True
         _node = _node.parent
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()
