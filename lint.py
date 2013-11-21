@@ -717,6 +717,8 @@ This is used by the global evaluation report (RP0004).'}),
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.base_name)
+        else:
+            self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
 
