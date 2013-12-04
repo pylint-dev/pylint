@@ -208,14 +208,14 @@ class MessagesHandlerMixIn(object):
         self._suppression_mapping = {}
 
     def add_renamed_message(self, old_id, old_symbol, new_symbol):
-      """Register the old ID and symbol for a warning that was renamed.
+        """Register the old ID and symbol for a warning that was renamed.
 
-      This allows users to keep using the old ID/symbol in suppressions.
-      """
-      msg = self.check_message_id(new_symbol)
-      msg.old_names.append((old_id, old_symbol))
-      self._alternative_names[old_id] = msg
-      self._alternative_names[old_symbol] = msg
+        This allows users to keep using the old ID/symbol in suppressions.
+        """
+        msg = self.check_message_id(new_symbol)
+        msg.old_names.append((old_id, old_symbol))
+        self._alternative_names[old_id] = msg
+        self._alternative_names[old_symbol] = msg
 
     def register_messages(self, checker):
         """register a dictionary of messages

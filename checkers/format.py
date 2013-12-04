@@ -198,75 +198,75 @@ class FormatChecker(BaseTokenChecker):
                 self._keywords_with_parens.add('print')
 
     def _check_keyword_parentheses(self, tokens, start):
-      """Check that there are not unnecessary parens after a keyword.
+        """Check that there are not unnecessary parens after a keyword.
 
-      Parens are unnecessary if there is exactly one balanced outer pair on a
-      line, and it is followed by a colon, and contains no commas (i.e. is not a
-      tuple).
+        Parens are unnecessary if there is exactly one balanced outer pair on a
+        line, and it is followed by a colon, and contains no commas (i.e. is not a
+        tuple).
 
-      Args:
-      tokens: list of Tokens; the entire list of Tokens.
-      start: int; the position of the keyword in the token list.
-      """
-      # If the next token is not a paren, we're fine.
-      if tokens[start+1][1] != '(':
-          return
+        Args:
+        tokens: list of Tokens; the entire list of Tokens.
+        start: int; the position of the keyword in the token list.
+        """
+        # If the next token is not a paren, we're fine.
+        if tokens[start+1][1] != '(':
+            return
 
-      found_comma = False
-      found_and_or = False
-      depth = 0
-      keyword_token = tokens[start][1]
-      line_num = tokens[start][2][0]
+        found_comma = False
+        found_and_or = False
+        depth = 0
+        keyword_token = tokens[start][1]
+        line_num = tokens[start][2][0]
 
-      for i in xrange(start, len(tokens) - 1):
-          token = tokens[i]
+        for i in xrange(start, len(tokens) - 1):
+            token = tokens[i]
 
-          # If we hit a newline, then assume any parens were for continuation.
-          if token[0] == tokenize.NL:
-              return
+            # If we hit a newline, then assume any parens were for continuation.
+            if token[0] == tokenize.NL:
+                return
 
-          if token[1] == '(':
-              depth += 1
-          elif token[1] == ')':
-              depth -= 1
-              if not depth:
-                  # ')' can't happen after if (foo), since it would be a syntax error.
-                  if (tokens[i+1][1] in (':', ')', ']', '}', 'in') or
-                      tokens[i+1][0] in (tokenize.NEWLINE, tokenize.ENDMARKER,
-                                           tokenize.COMMENT)):
-                      # The empty tuple () is always accepted.
-                      if i == start + 2:
-                          return
-                      if keyword_token == 'not':
-                          if not found_and_or:
-                              self.add_message('C0325', line=line_num,
-                                               args=keyword_token)
-                      elif keyword_token in ('return', 'yield'):
-                          self.add_message('C0325', line=line_num,
-                                           args=keyword_token)
-                      elif keyword_token not in self._keywords_with_parens:
-                          if not (tokens[i+1][1] == 'in' and found_and_or):
-                              self.add_message('C0325', line=line_num,
-                                               args=keyword_token)
-                  return
-          elif depth == 1:
-              # This is a tuple, which is always acceptable.
-              if token[1] == ',':
-                  return
-              # 'and' and 'or' are the only boolean operators with lower precedence
-              # than 'not', so parens are only required when they are found.
-              elif token[1] in ('and', 'or'):
-                  found_and_or = True
-              # A yield inside an expression must always be in parentheses,
-              # quit early without error.
-              elif token[1] == 'yield':
-                  return
-              # A generator expression always has a 'for' token in it, and
-              # the 'for' token is only legal inside parens when it is in a
-              # generator expression.  The parens are necessary here, so bail
-              # without an error.
-              elif token[1] == 'for':
-                  return
+            if token[1] == '(':
+                depth += 1
+            elif token[1] == ')':
+                depth -= 1
+                if not depth:
+                    # ')' can't happen after if (foo), since it would be a syntax error.
+                    if (tokens[i+1][1] in (':', ')', ']', '}', 'in') or
+                        tokens[i+1][0] in (tokenize.NEWLINE, tokenize.ENDMARKER,
+                                             tokenize.COMMENT)):
+                        # The empty tuple () is always accepted.
+                        if i == start + 2:
+                            return
+                        if keyword_token == 'not':
+                            if not found_and_or:
+                                self.add_message('C0325', line=line_num,
+                                                 args=keyword_token)
+                        elif keyword_token in ('return', 'yield'):
+                            self.add_message('C0325', line=line_num,
+                                             args=keyword_token)
+                        elif keyword_token not in self._keywords_with_parens:
+                            if not (tokens[i+1][1] == 'in' and found_and_or):
+                                self.add_message('C0325', line=line_num,
+                                                 args=keyword_token)
+                    return
+            elif depth == 1:
+                # This is a tuple, which is always acceptable.
+                if token[1] == ',':
+                    return
+                # 'and' and 'or' are the only boolean operators with lower precedence
+                # than 'not', so parens are only required when they are found.
+                elif token[1] in ('and', 'or'):
+                    found_and_or = True
+                # A yield inside an expression must always be in parentheses,
+                # quit early without error.
+                elif token[1] == 'yield':
+                    return
+                # A generator expression always has a 'for' token in it, and
+                # the 'for' token is only legal inside parens when it is in a
+                # generator expression.  The parens are necessary here, so bail
+                # without an error.
+                elif token[1] == 'for':
+                    return
 
     def _opening_bracket(self, tokens, i):
         self._bracket_stack.append(tokens[i][1])
@@ -384,30 +384,30 @@ class FormatChecker(BaseTokenChecker):
         return self._bracket_stack[-1] == left
 
     def _prepare_token_dispatcher(self):
-      raw = [
-          (_KEYWORD_TOKENS,
-           self._check_keyword_parentheses),
+        raw = [
+            (_KEYWORD_TOKENS,
+             self._check_keyword_parentheses),
 
-          (_OPENING_BRACKETS, self._opening_bracket),
+            (_OPENING_BRACKETS, self._opening_bracket),
 
-          (_CLOSING_BRACKETS, self._closing_bracket),
+            (_CLOSING_BRACKETS, self._closing_bracket),
 
-          (['='], self._check_equals_spacing),
+            (['='], self._check_equals_spacing),
 
-          (_SPACED_OPERATORS, self._check_surrounded_by_space),
+            (_SPACED_OPERATORS, self._check_surrounded_by_space),
 
-          ([','], self._handle_comma),
+            ([','], self._handle_comma),
 
-          ([':'], self._handle_colon),
+            ([':'], self._handle_colon),
 
-          (['lambda'], self._open_lambda),
-          ]
+            (['lambda'], self._open_lambda),
+            ]
 
-      dispatch = {}
-      for tokens, handler in raw:
-        for token in tokens:
-          dispatch[token] = handler
-      return dispatch
+        dispatch = {}
+        for tokens, handler in raw:
+            for token in tokens:
+                dispatch[token] = handler
+        return dispatch
 
     def process_tokens(self, tokens):
         """process tokens and search for :
