@@ -521,7 +521,7 @@ This is used by the global evaluation report (RP0004).'}),
                 if first <= lineno <= last:
                     # Set state for all lines for this block, if the
                     # warning is applied to nodes.
-                    if self._messages[msgid].scope == WarningScope.NODE:
+                    if self.check_message_id(msgid).scope == WarningScope.NODE:
                         if lineno > firstchildlineno:
                             state = True
                         first_, last_ = node.block_range(lineno)
@@ -566,6 +566,22 @@ This is used by the global evaluation report (RP0004).'}),
                 checker.active_msgs = messages
         return neededcheckers
 
+    def should_analyze_file(self, modname, path):
+        """Returns whether or not a module should be checked.
+
+        This implementation returns True for all inputs, indicating that all
+        files should be linted.
+
+        Subclasses may override this method to indicate that modules satisfying
+        certain conditions should not be linted.
+
+        :param str modname: The name of the module to be checked.
+        :param str path: The full path to the source code of the module.
+        :returns: True if the module should be checked.
+        :rtype: bool
+        """
+        return True
+
     def check(self, files_or_modules):
         """main checking entry: check a list of files or modules from their
         name.
@@ -585,6 +601,8 @@ This is used by the global evaluation report (RP0004).'}),
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
             modname, filepath = descr['name'], descr['path']
+            if not self.should_analyze_file(modname, filepath):
+                continue
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
                 self.reporter.set_output(open(reportfile, 'w'))

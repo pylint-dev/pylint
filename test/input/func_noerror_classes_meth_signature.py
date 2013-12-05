@@ -34,5 +34,5 @@ class Sub(Super):
     def ___private3(self, arg):
         pass
 
-    def method(self, param = 'abc'):
+    def method(self, param='abc'):
         pass

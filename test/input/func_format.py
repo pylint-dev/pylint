@@ -85,3 +85,24 @@ titreprojet = '<tr><td colspan="10">\
 <img src="images/drapeau_vert.png" alt="Drapeau vert" />\
 <strong>%s</strong></td></tr>' % aaaa
 
+with open('a') as a, open('b') as b:
+    pass
+
+with open('a') as a, open('b') as b: pass  # multiple-statements
+
+# Well-formatted try-except-finally block.
+try:
+    pass
+except IOError, e:
+    print e
+finally:
+    pass
+
+try:
+    pass
+except IOError, e:
+    print e
+finally: pass  # multiple-statements
+
+# This is not allowed by the default configuration.
+if True: print False

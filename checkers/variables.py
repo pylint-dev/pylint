@@ -556,7 +556,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
             return
-        
+
         targets = node.targets[0].itered()
         if any(not isinstance(target_node, astroid.AssName)
                for target_node in targets):
@@ -572,19 +572,19 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """ Check for unbalanced tuple unpacking
         and unpacking non sequences.
         """
-        if isinstance(infered, (astroid.Tuple, astroid.List)):                            
+        if isinstance(infered, (astroid.Tuple, astroid.List)):
             values = infered.itered()
             if len(targets) != len(values):
                 if node.root().name == infered.root().name:
-                     location = infered.lineno or 'unknown'
+                    location = infered.lineno or 'unknown'
                 else:
-                     location = '%s (%s)' % (infered.lineno or 'unknown',
-                                             infered.root().name)
+                    location = '%s (%s)' % (infered.lineno or 'unknown',
+                                            infered.root().name)
 
                 self.add_message('unbalanced-tuple-unpacking',
                                  node=node,
                                  args=(location,
-                                       len(targets), 
+                                       len(targets),
                                        len(values)))
         else:
             if infered is astroid.YES:
@@ -596,14 +596,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 except astroid.NotFoundError:
                     continue
                 else:
-                    break               
-            else:                
+                    break
+            else:
                 if node.root().name == infered.root().name:
-                     location = infered.lineno or 'unknown'
+                    location = infered.lineno or 'unknown'
                 else:
-                     location = '%s (%s)' % (infered.lineno or 'unknown',
-                                             infered.root().name)
-                    
+                    location = '%s (%s)' % (infered.lineno or 'unknown',
+                                            infered.root().name)
+
                 self.add_message('unpacking-non-sequence',
                                  node=node,
                                  args=(location, ))

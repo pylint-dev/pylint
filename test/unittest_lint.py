@@ -282,6 +282,13 @@ class PyLinterTC(TestCase):
             except:
                 pass
 
+    def test_lint_should_analyze_file(self):
+        self.linter.set_reporter(text.TextReporter())
+        self.linter.config.files_output = True
+        self.linter.should_analyze_file = lambda *args: False
+        self.linter.check('os')
+        self.assertFalse(os.path.exists('pylint_os.txt'))
+
     def test_enable_report(self):
         self.assertEqual(self.linter.report_is_enabled('RP0001'), True)
         self.linter.disable('RP0001')
@@ -362,6 +369,23 @@ class PyLinterTC(TestCase):
             ['C:  1: Line too long (1/2)', 'C:  2: Line too long (3/4)'],
             self.linter.reporter.messages)
 
+    def test_add_renamed_message(self):
+        self.linter.add_renamed_message('C9999', 'old-bad-name', 'invalid-name')
+        self.assertEqual('invalid-name', 
+                         self.linter.check_message_id('C9999').symbol)
+        self.assertEqual('invalid-name', 
+                         self.linter.check_message_id('old-bad-name').symbol)
+
+    def test_renamed_message_register(self):
+         class Checker(object):
+              msgs = {'W1234': ('message', 'msg-symbol', 'msg-description',
+                                {'old_names': [('W0001', 'old-symbol')]})}
+         self.linter.register_messages(Checker())
+         self.assertEqual('msg-symbol', 
+                          self.linter.check_message_id('W0001').symbol)
+         self.assertEqual('msg-symbol', 
+                          self.linter.check_message_id('old-symbol').symbol)
+         
 
 class ConfigTC(TestCase):
 
