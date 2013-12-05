@@ -2,8 +2,13 @@ ChangeLog for Pylint
 ====================
 
 --
+
+    * Add new check for use of deprecated pragma directives "pylint:disable-msg"
+      or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
+      emmited as a regular warn()
+
     * Avoid false used-before-assignment for except handler defined
-     identifier used on the same line (#111)
+      identifier used on the same line (#111)
 
     * Add 'bad-context-manager' error, checking that '__exit__'
       special method accepts the right number of arguments.
@@ -16,7 +21,7 @@ ChangeLog for Pylint
       have basic input validation (bitbucket #53 and #54), patches provided by
       felipeochoa and Brian Lane
 
-    * Added a new warning, 'non-iterator-returned', for non-iterators 
+    * Added a new warning, 'non-iterator-returned', for non-iterators
       returned by '__iter__'
 
     * Add new warning for unpacking non-sequences in assignments

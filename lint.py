@@ -134,7 +134,11 @@ MSGS = {
               'useless-suppression',
               'Reported when a message is explicitly disabled for a line or '
               'a block of code, but never triggered.'),
-
+    'I0022': ('Deprecated pragma "pylint:disable-msg" or "pylint:enable-msg"',
+              'deprecated-pragma',
+              'You should preferably use "pylint:disable" or "pylint:enable" '
+              'instead of the deprecated suppression pragma style '
+              '"pylint:disable-msg" or "pylint:enable-msg"'),
 
     'E0001': ('%s',
               'syntax-error',
@@ -470,9 +474,8 @@ This is used by the global evaluation report (RP0004).'}),
                     meth = self._options_methods[opt]
                 except KeyError:
                     meth = self._bw_options_methods[opt]
-                    warn('%s is deprecated, replace it with %s (%s, line %s)' % (
-                        opt, opt.split('-')[0], self.current_file, line),
-                         DeprecationWarning)
+                    # found a "(dis|en)able-msg" pragma deprecated suppresssion
+                    self.add_message('deprecated-pragma', line=start[0])
                 for msgid in splitstrip(value):
                     try:
                         if (opt, msgid) == ('disable', 'all'):
