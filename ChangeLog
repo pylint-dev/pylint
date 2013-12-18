@@ -11,6 +11,8 @@ ChangeLog for Pylint
     * Added a new warning, 'non-iterator-returned', for non-iterators 
       returned by '__iter__'
 
+    * Add new warning for unpacking non-sequences in assignments
+
     * Add new checks for Python 3 format strings
     
 
