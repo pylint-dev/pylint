@@ -12,8 +12,6 @@ ChangeLog for Pylint
       returned by '__iter__'
 
     * Add new warning for unpacking non-sequences in assignments
-
-    * Add new checks for Python 3 format strings
     
 
 2013-08-06  --  1.0.0
