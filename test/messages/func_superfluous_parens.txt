@@ -1,0 +1,5 @@
+C:  5: Unnecessary parens after 'if' keyword
+C:  7: Unnecessary parens after 'not' keyword
+C: 11: Unnecessary parens after 'for' keyword
+C: 13: Unnecessary parens after 'if' keyword
+C: 18: Unnecessary parens after 'del' keyword

@@ -65,7 +65,9 @@ class UtilsTC(unittest.TestCase):
             utils.get_argument_from_call(node, position=1)
         with self.assertRaises(ValueError):
             utils.get_argument_from_call(node, None, None)
-
+                
+        name = utils.get_argument_from_call(node, position=0)
+        self.assertEqual(name.name, 'a')
 
 if __name__ == '__main__':
     unittest.main()

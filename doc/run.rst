@@ -87,28 +87,41 @@ list of values (which are generally used to override a regular
 expression in special cases). For a full list of options, use ``--help``
 
 Specifying all the options suitable for your setup and coding
-standards can be tedious, so it is possible to use a rc file to
-specify the default values. Pylint looks for ``/etc/pylintrc`` and
-``~/.pylintrc``. The ``--generate-rcfile`` option will generate a
-commented configuration file according to the current configuration on
-standard output and exit. You can put other options before this one to
-use them in the configuration, or start with the default values and
-hand tune the configuration.
+standards can be tedious, so it is possible to use a configuration file to
+specify the default values.  You can specify a configuration file on the 
+command line using the ``--rcfile`` option.  Otherwise, Pylint searches for a
+configuration file in the following order and uses the first one it finds:
+
+#. ``pylintrc`` in the current working directory
+#. If the current working directory is in a Python module, Pylint searches \
+   up the hierarchy of Python modules until it finds a ``pylintrc`` file. \
+   This allows you to specify coding standards on a module-by-module \
+   basis.  Of course, a directory is judged to be a Python module if it \
+   contains an ``__init__.py`` file.
+#. The file named by environment variable ``PYLINTRC``
+#. ``.pylintrc`` in your home directory, unless you have no home directory or \
+   your home directory is ``/root``
+#. ``.pylintrc`` in the current working directory
+#. ``/etc/pylintrc``
+
+The ``--generate-rcfile`` option will generate a commented configuration file
+on standard output according to the current configuration and exit. This
+includes:
+
+* Any configuration file found as explained above
+* Options appearing before ``--generate-rcfile`` on the Pylint command line
+
+Of course you can also start with the default values and hand tune the
+configuration. 
 
 Other useful global options include:
 
---zope                  Initialize Zope products before starting
---ignore=file           Add <file> (may be a directory) to the black
-                          list. It should be a base name, not a path.
-                          You may set this option multiple times.
---statistics=y_or_n     Compute statistics on collected data.
---persistent=y_or_n     Pickle collected data for later comparisons.
---comment=y_or_n        Add a comment according to your evaluation note.
---parseable=y_or_n      Use a parseable output format.
---html=y_or_n           Use HTML as output format instead of text.
---list-msgs             Generate pylint's messages.
---full-documentation    Generate pylint's full documentation, in reST format.
---include_ids=y_or_n    Show numeric ids of messages (like 'C0301')
---symbols=y_or_n        Show symbolic ids of messsages (like 'line-too-long')
-
-
+--ignore=file              Add <file> (may be a directory) to the black
+                             list. It should be a base name, not a path.
+                             You may set this option multiple times.
+--persistent=y_or_n        Pickle collected data for later comparisons.
+--output-format=<format>   Select output format (text, html, custom).
+--msg-template=<template>  Modifiy text output message template.
+--list-msgs                Generate pylint's messages.
+--full-documentation       Generate pylint's full documentation, in reST 
+                             format.

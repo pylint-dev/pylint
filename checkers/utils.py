@@ -59,7 +59,7 @@ def clobber_in_except(node):
     (False, None) otherwise.
     """
     if isinstance(node, astroid.AssAttr):
-        return (True, (node.attrname, 'object %r' % (node.expr.name,)))
+        return (True, (node.attrname, 'object %r' % (node.expr.as_string(),)))
     elif isinstance(node, astroid.AssName):
         name = node.name
         if is_builtin(name):
@@ -161,6 +161,11 @@ def is_defined_before(var_node):
             if getattr(_node, 'name', None) == varname:
                 return True
             break
+        elif isinstance(_node, astroid.ExceptHandler):
+            if isinstance(_node.name, astroid.AssName):
+                ass_node=_node.name
+                if ass_node.name == varname:
+                    return True
         _node = _node.parent
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()
@@ -394,10 +399,10 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     :raises NoSuchArgumentError: if no argument at the provided position or with
     the provided keyword.
     """
-    if not position and not keyword:
+    if position is None and keyword is None:
         raise ValueError('Must specify at least one of: position or keyword.')
     try:
-        if position and not isinstance(callfunc_node.args[position], astroid.Keyword):
+        if position is not None and not isinstance(callfunc_node.args[position], astroid.Keyword):
             return callfunc_node.args[position]
     except IndexError as error:
         raise NoSuchArgumentError(error)

@@ -70,14 +70,14 @@ class BasicStream(object):
         if text.strip():
             self.nextTitle = text.strip()
 
-        if text.startswith('\n'):
+        if text.startswith(os.linesep):
             self.contents.append('')
             if self.currout:
                 self.outdict[self.currout].append('')
-        self.contents[-1] += text.strip('\n')
+        self.contents[-1] += text.strip(os.linesep)
         if self.currout:
-            self.outdict[self.currout][-1] += text.strip('\n')
-        if text.endswith('\n') and text.strip():
+            self.outdict[self.currout][-1] += text.strip(os.linesep)
+        if text.endswith(os.linesep) and text.strip():
             self.contents.append('')
             if self.currout:
                 self.outdict[self.currout].append('')
@@ -227,7 +227,7 @@ class LintGui(object):
 
         #buttons
         Button(top_frame, text='Open', command=self.file_open).pack(side=LEFT)
-        Button(top_frame, text='Open Package', 
+        Button(top_frame, text='Open Package',
                command=(lambda : self.file_open(package=True))).pack(side=LEFT)
 
         self.btnRun = Button(top_frame, text='Run', command=self.run_lint)

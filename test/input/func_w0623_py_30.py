@@ -44,6 +44,8 @@ try:
     pass
 except KeyError, exceptions.RuntimeError: # W0623
     pass
+except KeyError, exceptions.RuntimeError.args: # W0623
+    pass
 except KeyError, OSError: # W0623
     pass
 except KeyError, MyOtherError: # W0623
@@ -63,4 +65,3 @@ except IOError, exc5: # this is fine
     print exc5
 except MyOtherError, exc5: # this is fine
     print exc5
-

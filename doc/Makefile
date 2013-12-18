@@ -37,7 +37,7 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -f features.rst
 
-html: features.rst
+html: features
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -131,7 +131,7 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 
-features.rst:
+features:
 	rm -f features.rst
 	echo "Pylint features" > features.rst
 	echo "===============" >> features.rst

@@ -134,7 +134,11 @@ MSGS = {
               'useless-suppression',
               'Reported when a message is explicitly disabled for a line or '
               'a block of code, but never triggered.'),
-
+    'I0022': ('Deprecated pragma "pylint:disable-msg" or "pylint:enable-msg"',
+              'deprecated-pragma',
+              'You should preferably use "pylint:disable" or "pylint:enable" '
+              'instead of the deprecated suppression pragma style '
+              '"pylint:disable-msg" or "pylint:enable-msg"'),
 
     'E0001': ('%s',
               'syntax-error',
@@ -470,9 +474,8 @@ This is used by the global evaluation report (RP0004).'}),
                     meth = self._options_methods[opt]
                 except KeyError:
                     meth = self._bw_options_methods[opt]
-                    warn('%s is deprecated, replace it with %s (%s, line %s)' % (
-                        opt, opt.split('-')[0], self.current_file, line),
-                         DeprecationWarning)
+                    # found a "(dis|en)able-msg" pragma deprecated suppresssion
+                    self.add_message('deprecated-pragma', line=start[0])
                 for msgid in splitstrip(value):
                     try:
                         if (opt, msgid) == ('disable', 'all'):
@@ -518,7 +521,7 @@ This is used by the global evaluation report (RP0004).'}),
                 if first <= lineno <= last:
                     # Set state for all lines for this block, if the
                     # warning is applied to nodes.
-                    if self._messages[msgid].scope == WarningScope.NODE:
+                    if self.check_message_id(msgid).scope == WarningScope.NODE:
                         if lineno > firstchildlineno:
                             state = True
                         first_, last_ = node.block_range(lineno)
@@ -563,6 +566,22 @@ This is used by the global evaluation report (RP0004).'}),
                 checker.active_msgs = messages
         return neededcheckers
 
+    def should_analyze_file(self, modname, path):
+        """Returns whether or not a module should be checked.
+
+        This implementation returns True for all inputs, indicating that all
+        files should be linted.
+
+        Subclasses may override this method to indicate that modules satisfying
+        certain conditions should not be linted.
+
+        :param str modname: The name of the module to be checked.
+        :param str path: The full path to the source code of the module.
+        :returns: True if the module should be checked.
+        :rtype: bool
+        """
+        return True
+
     def check(self, files_or_modules):
         """main checking entry: check a list of files or modules from their
         name.
@@ -582,12 +601,14 @@ This is used by the global evaluation report (RP0004).'}),
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
             modname, filepath = descr['name'], descr['path']
+            if not self.should_analyze_file(modname, filepath):
+                continue
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
                 self.reporter.set_output(open(reportfile, 'w'))
             self.set_current_module(modname, filepath)
             # get the module representation
-            astroid = self.get_astroid(filepath, modname)
+            astroid = self.get_ast(filepath, modname)
             if astroid is None:
                 continue
             self.base_name = descr['basename']
@@ -639,8 +660,8 @@ This is used by the global evaluation report (RP0004).'}),
             self._raw_module_msgs_state = {}
             self._ignored_msgs = {}
 
-    def get_astroid(self, filepath, modname):
-        """return a astroid representation for a module"""
+    def get_ast(self, filepath, modname):
+        """return a ast(roid) representation for a module"""
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
@@ -717,6 +738,8 @@ This is used by the global evaluation report (RP0004).'}),
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.base_name)
+        else:
+            self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
 

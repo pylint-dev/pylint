@@ -54,7 +54,7 @@ class TestTests(testlib.TestCase):
     @testlib.tag('coverage')
     def test_exhaustivity(self):
         # skip fatal messages
-        todo = [msgid for msgid in linter._messages if msgid[0] != 'F']
+        todo = [msg.msgid for msg in linter.messages if msg.msgid[0] != 'F']
         for msgid in test_reporter.message_ids:
             try:
                 todo.remove(msgid)

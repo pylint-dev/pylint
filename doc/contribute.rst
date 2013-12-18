@@ -135,7 +135,7 @@ sorted. E.g on Unix system, you may generate it using::
 
 Also, here are a few naming convention which are used:
 
-* Python files starting with 'func_noerror_' don't have any message file
+* Python files starting with 'func_noerror' don't have any message file
   associated as they are expected to provide no output at all
 
 * You may provide different input files (and associated output) depending on the
