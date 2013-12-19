@@ -175,7 +175,7 @@ class CheckerTestCase(testlib.TestCase):
         msg = ('Expected messages did not match actual.\n'
                'Expected:\n%s\nGot:\n%s' % ('\n'.join(repr(m) for m in messages),
                                             '\n'.join(repr(m) for m in got)))
-        self.assertEqual(got, list(messages), msg)
+        self.assertEqual(list(messages), got, msg)
 
 
 # Init
@@ -246,7 +246,7 @@ class LintTestUsingModule(testlib.TestCase):
             ex.__str__ = exception_str
             raise
         got = self.linter.reporter.finalize()
-        self.assertMultiLineEqual(got, self._get_expected())
+        self.assertMultiLineEqual(self._get_expected(), got)
 
 
     def _get_expected(self):
