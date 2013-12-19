@@ -42,13 +42,6 @@ class LintTestNonExistentModuleTC(LintTestUsingModule):
     _get_expected = lambda self: 'F:  1: No module named %snonexistent%s\n' % (quote, quote)
     tags = testlib.Tags(('generated','pylint_input_%s' % module))
 
-class LintTestNonExistentFileTC(LintTestUsingFile):
-    module = join(INPUT_DIR, 'nonexistent.py')
-    _get_expected = lambda self: 'F:  1: No module named %s\n' % self.module[len(getcwd())+1 :]
-    tags = testlib.Tags(('generated', 'pylint_input_%s' % module))
-    def test_functionality(self):
-        self._test([self.module])
-
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
     @testlib.tag('coverage')
@@ -89,7 +82,7 @@ def cb_file(*args):
         return base_cb_file(*args)
 
 callbacks = [cb_test_gen(LintTestUsingModule),
-    cb_file]
+             cb_file]
 
 # Gen tests
 
