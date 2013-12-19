@@ -253,7 +253,7 @@ class LintTestUsingModule(testlib.TestCase):
         if self.module.startswith('func_noerror_'):
             expected = ''
         else:
-            output = open(self.output)
+            output = open(self.output, 'U')
             expected = output.read().strip() + '\n'
             output.close()
         return expected
