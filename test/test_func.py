@@ -96,8 +96,6 @@ def gen_tests(filter_rgx):
 
     if is_to_run('nonexistent'):
         tests.append(LintTestNonExistentModuleTC)
-        if not MODULES_ONLY:
-            tests.append(LintTestNonExistentFileTC)
 
     tests.append(LintBuiltinModuleTest)
 
