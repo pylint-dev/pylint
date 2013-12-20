@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2006 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2005-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -37,7 +37,8 @@ MSGS = {
     'E1004': ('Missing argument to super()',
               'missing-super-argument',
               'Used when the super builtin didn\'t receive an \
-               argument on Python 2'),
+               argument on Python 2',
+              {'maxversion': (2, 7)}),
     'W1001': ('Use of "property" on an old style class',
               'property-on-old-class',
               'Used when PyLint detect the use of the builtin "property" \
