@@ -46,7 +46,7 @@ class DotWriterTC(FileTC):
         FileTC.setUp(self)
         writer = DotWriter(config)
         writer.write(dd)
-        
+
 build_file_case(DotWriterTC)
 
 

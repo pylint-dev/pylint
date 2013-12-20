@@ -51,9 +51,9 @@ class ImportCheckerTC(TestCase):
         l.global_set_option('ignore', ('func_unknown_encoding.py',))
         try:
             l.check('input')
-            self.assert_(exists('import.dot'))
-            self.assert_(exists('ext_import.dot'))
-            self.assert_(exists('int_import.dot'))
+            self.assertTrue(exists('import.dot'))
+            self.assertTrue(exists('ext_import.dot'))
+            self.assertTrue(exists('int_import.dot'))
         finally:
             for fname in ('import.dot', 'ext_import.dot', 'int_import.dot'):
                 try:

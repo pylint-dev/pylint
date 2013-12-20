@@ -214,7 +214,7 @@ class PyLinterTC(TestCase):
 
         self.assertEqual(17, linter._suppression_mapping['W0613', 18])
         self.assertEqual(30, linter._suppression_mapping['E1101', 33])
-        self.assert_(('E1101', 46) not in linter._suppression_mapping)
+        self.assertTrue(('E1101', 46) not in linter._suppression_mapping)
         self.assertEqual(1, linter._suppression_mapping['C0302', 18])
         self.assertEqual(1, linter._suppression_mapping['C0302', 50])
         # This is tricky. While the disable in line 106 is disabling
