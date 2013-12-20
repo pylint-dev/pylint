@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2004 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -26,15 +26,10 @@ from astroid.inspector import Linker
 
 from pylint.pyreverse.diadefslib import *
 
-from utils import Config
+from unittest_pyreverse_writer import Config, get_project
 
-def astroid_wrapper(func, modname):
-    return func(modname)
-
-PROJECT = MANAGER.project_from_files(['data'], astroid_wrapper)
-
-CONFIG = Config()
-HANDLER = DiadefsHandler(CONFIG)
+PROJECT = get_project('data')
+HANDLER = DiadefsHandler(Config())
 
 def _process_classes(classes):
     """extract class names of a list"""
@@ -43,7 +38,7 @@ def _process_classes(classes):
 def _process_relations(relations):
     """extract relation indices from a relation list"""
     result = []
-    for rel_type, rels  in relations.iteritems():
+    for rel_type, rels in relations.iteritems():
         for rel in rels:
             result.append( (rel_type, rel.from_object.title,
                             rel.to_object.title) )
@@ -54,7 +49,7 @@ def _process_relations(relations):
 class DiaDefGeneratorTC(unittest.TestCase):
     def test_option_values(self):
         """test for ancestor, associated and module options"""
-        handler = DiadefsHandler( Config())
+        handler = DiadefsHandler(Config())
         df_h = DiaDefGenerator(Linker(PROJECT), handler)
         cl_config = Config()
         cl_config.classes = ['Specialization']
@@ -125,15 +120,15 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         different classes possibly in different modules"""
         # XXX should be catching pyreverse environnement problem but doesn't
         # pyreverse doesn't extracts the relations but this test ok
-        project = MANAGER.project_from_files(['data'], astroid_wrapper)
-        handler = DiadefsHandler( Config() )
+        project = get_project('data')
+        handler = DiadefsHandler(Config())
         diadefs = handler.get_diadefs(project, Linker(project, tag=True) )
         cd = diadefs[1]
         relations = _process_relations(cd.relationships)
         self.assertEqual(relations, self._should_rels)
 
     def test_known_values2(self):
-        project = MANAGER.project_from_files(['data.clientmodule_test'], astroid_wrapper)
+        project = get_project('data.clientmodule_test')
         dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
         self.assertEqual(len(dd), 1)
         keys = [d.TYPE for d in dd]
@@ -158,7 +153,7 @@ class ClassDiadefGeneratorTC(unittest.TestCase):
                                    (True, special),
                                    (True, 'data.suppliermodule_test.DoNothing'),
                                   ])
-        
+
     def test_known_values2(self):
         HANDLER.config.module_names = False
         cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(PROJECT, 'data.clientmodule_test.Specialization')
