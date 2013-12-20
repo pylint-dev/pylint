@@ -5,13 +5,13 @@ ChangeLog for Pylint
 
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
-      emmited as a regular warn()
+      emmited as a regular warn().
 
     * Avoid false used-before-assignment for except handler defined
-      identifier used on the same line (#111)
+      identifier used on the same line (#111).
 
     * Combine 'no-space-after-operator', 'no-space-after-comma' and
-      'no-space-before-operator' into a new warning 'bad-whitespace'
+      'no-space-before-operator' into a new warning 'bad-whitespace'.
 
     * Add a new warning 'superfluous-parens' for unnecessary
       parentheses after certain keywords.
@@ -25,18 +25,21 @@ ChangeLog for Pylint
     * Add 'bad-context-manager' error, checking that '__exit__'
       special method accepts the right number of arguments.
 
-    * Run pylint as a python module 'python -m pylint' (anatoly techtonik)
+    * Run pylint as a python module 'python -m pylint' (anatoly techtonik).
 
-    * Check for non-exception classes inside an except clause
+    * Check for non-exception classes inside an except clause.
 
     * epylint support options to give to pylint after the file to analyze and
       have basic input validation (bitbucket #53 and #54), patches provided by
-      felipeochoa and Brian Lane
+      felipeochoa and Brian Lane.
 
     * Added a new warning, 'non-iterator-returned', for non-iterators
-      returned by '__iter__'
+      returned by '__iter__'.
 
-    * Add new warning for unpacking non-sequences in assignments
+    * Add new warning for unpacking non-sequences in assignments.
+
+    * useless-else-on-loop not emited if there is a break in the
+      else clause of inner loop (#117).
 
 
 2013-08-06  --  1.0.0

@@ -79,6 +79,10 @@ def _loop_exits_early(loop):
     # in orelse.
     for child in loop.body:
         if isinstance(child, loop_nodes):
+            # break statement may be in orelse of child loop.
+            for orelse in (child.orelse or ()):
+                for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
+                    return True
             continue
         for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True

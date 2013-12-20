@@ -39,3 +39,17 @@ else:
     print 'fat chance'
     for j in range(10):
         break
+
+def test_return_for2():
+    """no false positive for break in else
+
+    https://bitbucket.org/logilab/pylint/issue/117/useless-else-on-loop-false-positives
+    """
+    for i in range(10):
+        for i in range(i):
+            if i % 2:
+                break
+        else:
+            break
+    else:
+        print 'great math'
