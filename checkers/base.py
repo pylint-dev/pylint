@@ -48,6 +48,10 @@ CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
 # do not require a doc string on system methods
 NO_REQUIRED_DOC_RGX = re.compile('__.*__')
 
+BAD_FUNCTIONS = ['map', 'filter', 'apply']
+if sys.version_info < (3, 0):
+    BAD_FUNCTIONS.append('input')
+
 del re
 
 def in_loop(node):
@@ -424,7 +428,7 @@ functions, methods
                           'comma'}
                 ),
                ('bad-functions',
-                {'default' : ('map', 'filter', 'apply', 'input'),
+                {'default' : BAD_FUNCTIONS,
                  'type' :'csv', 'metavar' : '<builtin function names>',
                  'help' : 'List of builtins function names that should not be '
                           'used, separated by a comma'}

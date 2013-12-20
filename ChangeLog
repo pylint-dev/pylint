@@ -41,6 +41,8 @@ ChangeLog for Pylint
     * useless-else-on-loop not emited if there is a break in the
       else clause of inner loop (#117).
 
+    * don't mark `input` as a bad function when using python3 (#110).
+
 
 2013-08-06  --  1.0.0
 
