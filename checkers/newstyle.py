@@ -38,7 +38,7 @@ MSGS = {
               'missing-super-argument',
               'Used when the super builtin didn\'t receive an \
                argument on Python 2',
-              {'maxversion': (2, 7)}),
+              {'maxversion': (3, 0)}),
     'W1001': ('Use of "property" on an old style class',
               'property-on-old-class',
               'Used when PyLint detect the use of the builtin "property" \
