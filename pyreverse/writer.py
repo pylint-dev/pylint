@@ -44,28 +44,30 @@ class DiagramWriter(object):
 
     def write_packages(self, diagram):
         """write a package diagram"""
-        for obj in diagram.modules():
-            label = self.get_title(obj)
+        # sorted to get predictable (hence testable) results
+        for label, obj in sorted( (self.get_title(obj), obj)
+                                 for obj in diagram.modules() ):
             self.printer.emit_node(obj.fig_id, label=label, shape='box')
         # package dependencies
-        for rel in diagram.relationships.get('depends', ()):
+        for rel in diagram.get_relationships('depends'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
                               **self.pkg_edges)
 
     def write_classes(self, diagram):
         """write a class diagram"""
-        for obj in diagram.objects:
+        # sorted to get predictable (hence testable) results
+        for obj in sorted(diagram.objects, key=lambda x: x.fig_id):
             self.printer.emit_node(obj.fig_id, **self.get_values(obj) )
         # inheritance links
-        for rel in diagram.relationships.get('specialization', ()):
+        for rel in diagram.get_relationships('specialization'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
                               **self.inh_edges)
         # implementation links
-        for rel in diagram.relationships.get('implements', ()):
+        for rel in diagram.get_relationships('implements'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
                               **self.imp_edges)
         # generate associations
-        for rel in diagram.relationships.get('association', ()):
+        for rel in diagram.get_relationships('association'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
                               label=rel.name, **self.ass_edges)
 

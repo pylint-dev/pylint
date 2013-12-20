@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2000-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -42,6 +42,8 @@ for diagram in dd:
 class DotWriterTC(FileTC):
 
     generated_files = ('packages_No_Name.dot', 'classes_No_Name.dot',)
+    sort = False
+
     def setUp(self):
         FileTC.setUp(self)
         writer = DotWriter(config)

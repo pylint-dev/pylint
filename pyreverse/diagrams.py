@@ -62,6 +62,11 @@ class ClassDiagram(Figure, FilterMixIn):
         self._nodes = {}
         self.depends = []
 
+    def get_relationships(self, role):
+        # sorted to get predictable (hence testable) results
+        return sorted(self.relationships.get(role, ()),
+                      key=lambda x: (x.from_object.fig_id, x.to_object.fig_id))
+
     def add_relationship(self, from_object, to_object,
                          relation_type, name=None):
         """create a relation ship
