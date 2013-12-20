@@ -84,7 +84,10 @@ def _loop_exits_early(loop):
             return True
     return False
 
-
+if sys.version_info < (3, 0):
+    PROPERTY_CLASSES = set(('__builtin__.property', 'abc.abstractproperty'))
+else:
+    PROPERTY_CLASSES = set(('builtins.property', 'abc.abstractproperty'))
 
 def _determine_function_name_type(node):
     """Determine the name type whose regex the a function's name should match.
@@ -105,8 +108,7 @@ def _determine_function_name_type(node):
             (isinstance(decorator, astroid.Getattr) and
              decorator.attrname == 'abstractproperty')):
             infered = safe_infer(decorator)
-            if (infered and
-                infered.qname() in ('__builtin__.property', 'abc.abstractproperty')):
+            if infered and infered.qname() in PROPERTY_CLASSES:
                 return 'attr'
         # If the function is decorated using the prop_method.{setter,getter}
         # form, treat it like an attribute as well.

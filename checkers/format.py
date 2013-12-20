@@ -36,7 +36,9 @@ from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope, OPTION_RGX
 
 _KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
-                   'print', 'raise', 'return', 'while', 'yield']
+                   'raise', 'return', 'while', 'yield']
+if sys.version_info < (3, 0):
+    _KEYWORD_TOKENS.append('print')
 
 _SPACED_OPERATORS = ['==', '<', '>', '!=', '<>', '<=', '>=',
                      '+=', '-=', '*=', '**=', '/=', '//=', '&=', '|=', '^=',

@@ -15,7 +15,7 @@
 """
 Tests for the misc checker.
 """
-
+import sys
 import tempfile
 import os
 import contextlib
@@ -31,7 +31,11 @@ def create_file_backed_module(code):
     # because on Windows the file must be closed before writing to it,
     # see http://bugs.python.org/issue14243
     fd, tmp = tempfile.mkstemp()
-    os.write(fd, code)
+    if sys.version_info >= (3, 0):
+        # erff
+        os.write(fd, bytes(code, 'ascii'))
+    else:
+        os.write(fd, code)
 
     try:
         module = test_utils.build_module(code)
@@ -53,7 +57,7 @@ class FixmeTest(CheckerTestCase):
                 Message(msg_id='W0511', line=2, args=u'FIXME')):
                 self.checker.process_module(module)
 
-    def test_emtpy_fixme_regex(self):
+    def test_empty_fixme_regex(self):
         self.checker.config.notes = []
         with create_file_backed_module(
             """a = 1
