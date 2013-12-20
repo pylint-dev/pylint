@@ -43,6 +43,10 @@ ChangeLog for Pylint
 
     * don't mark `input` as a bad function when using python3 (#110).
 
+    * badly-implemented-container caused several problems in its
+      current implementation. Deactivate it until we have something
+      better. See #112 for instance.
+
 
 2013-08-06  --  1.0.0
 
