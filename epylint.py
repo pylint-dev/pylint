@@ -76,7 +76,8 @@ def lint(filename, options=None):
 
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
-    lintPath = os.path.join(os.path.dirname(__file__), 'lint.py')
+    from pylint import lint
+    lintPath = lint.__file__
     options = options or ['--disable=C,R,I']
     cmd = [sys.executable, lintPath] + options + ['--msg-template',
             '{path}:{line}: [{symbol}, {obj}] {msg}', '-r', 'n', childPath]
