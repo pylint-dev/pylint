@@ -1,7 +1,8 @@
-W: 61: Attempting to unpack a non-sequence with non-sequence at line 52
-W: 63: Attempting to unpack a non-sequence with non-sequence at line 63
-W: 64: Attempting to unpack a non-sequence with non-sequence at line 64
-W: 65: Attempting to unpack a non-sequence with non-sequence at line 9 (input.unpacking)
-W: 66: Attempting to unpack a non-sequence with non-sequence at line 11 (input.unpacking)
-W: 67: Attempting to unpack a non-sequence with non-sequence at line 58
-W: 68: Attempting to unpack a non-sequence with non-sequence at line unknown (sys)
+W: 61: Attempting to unpack a non-sequence defined at line 52
+W: 62: Attempting to unpack a non-sequence
+W: 63: Attempting to unpack a non-sequence None
+W: 64: Attempting to unpack a non-sequence 1
+W: 65: Attempting to unpack a non-sequence defined at line 9 of input.unpacking
+W: 66: Attempting to unpack a non-sequence defined at line 11 of input.unpacking
+W: 67: Attempting to unpack a non-sequence defined at line 58
+W: 68: Attempting to unpack a non-sequence
