@@ -8,3 +8,4 @@
 ^doc/_build
 ^dist/
 ^pylint.egg-info/
+.tox
