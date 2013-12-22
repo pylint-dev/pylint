@@ -172,7 +172,7 @@ class ClassDiagram(Figure, FilterMixIn):
                 for value in values:
                     if value is astroid.YES:
                         continue
-                    if isinstance( value, astroid.Instance):
+                    if isinstance(value, astroid.Instance):
                         value = value._proxied
                     try:
                         ass_obj = self.object_from_node(value)
@@ -218,7 +218,7 @@ class PackageDiagram(ClassDiagram):
         """add dependencies created by from-imports
         """
         mod_name = node.root().name
-        obj = self.module( mod_name )
+        obj = self.module(mod_name)
         if from_module not in obj.node.depends:
             obj.node.depends.append(from_module)
 

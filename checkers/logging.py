@@ -91,7 +91,7 @@ class LoggingChecker(checkers.BaseChecker):
                             and ancestor.parent.name == 'logging')))]
         except astroid.exceptions.InferenceError:
             return
-        if (node.func.expr.name != self._logging_name and not logger_class):
+        if node.func.expr.name != self._logging_name and not logger_class:
             return
         self._check_convenience_methods(node)
         self._check_log_methods(node)
@@ -129,7 +129,7 @@ class LoggingChecker(checkers.BaseChecker):
           node: AST node to be checked.
           format_arg: Index of the format string in the node arguments.
         """
-        num_args = self._count_supplied_tokens(node.args[format_arg + 1:])
+        num_args = _count_supplied_tokens(node.args[format_arg + 1:])
         if not num_args:
             # If no args were supplied, then all format strings are valid -
             # don't check any further.
@@ -147,9 +147,10 @@ class LoggingChecker(checkers.BaseChecker):
                     # Keyword checking on logging strings is complicated by
                     # special keywords - out of scope.
                     return
-            except utils.UnsupportedFormatCharacter, e:
-                c = format_string[e.index]
-                self.add_message('E1200', node=node, args=(c, ord(c), e.index))
+            except utils.UnsupportedFormatCharacter, ex:
+                char = format_string[ex.index]
+                self.add_message('E1200', node=node,
+                                 args=(char, ord(char), ex.index))
                 return
             except utils.IncompleteFormatString:
                 self.add_message('E1201', node=node)
@@ -159,20 +160,21 @@ class LoggingChecker(checkers.BaseChecker):
         elif num_args < required_num_args:
             self.add_message('E1206', node=node)
 
-    def _count_supplied_tokens(self, args):
-        """Counts the number of tokens in an args list.
 
-        The Python log functions allow for special keyword arguments: func,
-        exc_info and extra. To handle these cases correctly, we only count
-        arguments that aren't keywords.
+def _count_supplied_tokens(args):
+    """Counts the number of tokens in an args list.
 
-        Args:
-          args: List of AST nodes that are arguments for a log format string.
+    The Python log functions allow for special keyword arguments: func,
+    exc_info and extra. To handle these cases correctly, we only count
+    arguments that aren't keywords.
 
-        Returns:
-          Number of AST nodes that aren't keywords.
-        """
-        return sum(1 for arg in args if not isinstance(arg, astroid.Keyword))
+    Args:
+      args: List of AST nodes that are arguments for a log format string.
+
+    Returns:
+      Number of AST nodes that aren't keywords.
+    """
+    return sum(1 for arg in args if not isinstance(arg, astroid.Keyword))
 
 
 def register(linter):

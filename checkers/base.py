@@ -257,7 +257,7 @@ class BasicErrorChecker(_BasicChecker):
                      not (v is None or
                           (isinstance(v, astroid.Const) and v.value is None) or
                           (isinstance(v, astroid.Name)  and v.name == 'None')
-                         ) ]:
+                          )]:
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
@@ -434,7 +434,7 @@ functions, methods
                           'used, separated by a comma'}
                 ),
                )
-    reports = ( ('RP0101', 'Statistics by type', report_by_type_stats), )
+    reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)

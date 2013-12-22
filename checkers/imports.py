@@ -93,7 +93,7 @@ def dependencies_graph(filename, dep_info):
     """write dependencies as a dot (graphviz) file
     """
     done = {}
-    printer = DotBackend(filename[:-4], rankdir = "LR")
+    printer = DotBackend(filename[:-4], rankdir='LR')
     printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(dep_info.iteritems()):
         done[modname] = 1

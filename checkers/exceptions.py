@@ -50,7 +50,7 @@ MSGS = {
               'catching-non-exception',
               'Used when a class which doesn\'t inherit from \
                BaseException is used as an exception in an except clause.'),
-    
+
     'W0701': ('Raising a string exception',
               'raising-string',
               'Used when a string exception is raised.'),
@@ -141,10 +141,10 @@ class ExceptionsChecker(BaseChecker):
                  isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
                                    astroid.Module, astroid.Function)):
             self.add_message('E0702', node=node, args=expr.name)
-        elif ( (isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
-               or (isinstance(expr, astroid.CallFunc) and
-                   isinstance(expr.func, astroid.Name) and
-                   expr.func.name == 'NotImplemented') ):
+        elif ((isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
+              or (isinstance(expr, astroid.CallFunc) and
+                  isinstance(expr.func, astroid.Name) and
+                  expr.func.name == 'NotImplemented')):
             self.add_message('E0711', node=node)
         elif isinstance(expr, astroid.BinOp) and expr.op == '%':
             self.add_message('W0701', node=node)
@@ -211,10 +211,10 @@ class ExceptionsChecker(BaseChecker):
                         and exc.root().name == EXCEPTIONS_MODULE
                         and nb_handlers == 1 and not is_raising(handler.body)):
                         self.add_message('W0703', args=exc.name, node=handler.type)
-        
+
                     if (not inherit_from_std_ex(exc) and
                         exc.root().name != BUILTINS_NAME):
-                        self.add_message('catching-non-exception', 
+                        self.add_message('catching-non-exception',
                                          node=handler.type,
                                          args=(exc.name, ))
 

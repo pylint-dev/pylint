@@ -195,7 +195,7 @@ class MessagesHandlerMixIn(object):
         # version). It contains the 1:1 mapping from symbolic names
         # to message definition objects.
         self._messages = {}
-        # Maps alternative names (numeric IDs, deprecated names) to 
+        # Maps alternative names (numeric IDs, deprecated names) to
         # message definitions. May contain several names for each definition
         # object.
         self._alternative_names = {}
@@ -499,7 +499,7 @@ class MessagesHandlerMixIn(object):
                 print title
                 print '~' * len(title)
                 for msgid, msg in sorted(msgs.iteritems(),
-                                         key=lambda (k,v): (_MSG_ORDER.index(k[0]), k)):
+                                         key=lambda (k, v): (_MSG_ORDER.index(k[0]), k)):
                     msg = build_message_def(checker, msgid, msg)
                     print msg.format_help(checkerref=False)
                 print
@@ -542,7 +542,7 @@ class ReportsHandlerMixIn(object):
         checker is the checker defining the report
         """
         reportid = reportid.upper()
-        self._reports.setdefault(checker, []).append( (reportid, r_title, r_cb) )
+        self._reports.setdefault(checker, []).append((reportid, r_title, r_cb))
 
     def enable_report(self, reportid):
         """disable the report of the given id"""
@@ -612,24 +612,24 @@ def expand_modules(files_or_modules, black_list):
             try:
                 filepath = file_from_modpath(modname.split('.'))
                 if filepath is None:
-                    errors.append( {'key' : 'F0003', 'mod': modname} )
+                    errors.append({'key' : 'F0003', 'mod': modname})
                     continue
             except (ImportError, SyntaxError), ex:
                 # FIXME p3k : the SyntaxError is a Python bug and should be
                 # removed as soon as possible http://bugs.python.org/issue10588
-                errors.append( {'key': 'F0001', 'mod': modname, 'ex': ex} )
+                errors.append({'key': 'F0001', 'mod': modname, 'ex': ex})
                 continue
         filepath = normpath(filepath)
-        result.append( {'path': filepath, 'name': modname,
-                        'basepath': filepath, 'basename': modname} )
+        result.append({'path': filepath, 'name': modname,
+                       'basepath': filepath, 'basename': modname})
         if not (modname.endswith('.__init__') or modname == '__init__') \
                 and '__init__.py' in filepath:
             for subfilepath in get_module_files(dirname(filepath), black_list):
                 if filepath == subfilepath:
                     continue
                 submodname = '.'.join(modpath_from_file(subfilepath))
-                result.append( {'path': subfilepath, 'name': submodname,
-                                'basepath': filepath, 'basename': modname} )
+                result.append({'path': subfilepath, 'name': submodname,
+                               'basepath': filepath, 'basename': modname})
     return result, errors
 
 

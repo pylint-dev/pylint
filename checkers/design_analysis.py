@@ -332,7 +332,7 @@ class MisdesignChecker(BaseChecker):
         """increments the branches counter"""
         branches = 1
         # don't double count If nodes coming from some 'elif'
-        if node.orelse and (len(node.orelse)>1 or
+        if node.orelse and (len(node.orelse) > 1 or
                             not isinstance(node.orelse[0], If)):
             branches += 1
         self._inc_branch(branches)

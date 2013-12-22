@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=W0404,W0622,W0704,W0613
-# copyright 2003-2012 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
+# copyright 2003-2013 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
 # contact http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This file is part of pylint.
@@ -39,9 +39,11 @@ except ImportError:
     USE_SETUPTOOLS = 0
 
 try:
+    # pylint: disable=no-name-in-module
     # python3
     from distutils.command.build_py import build_py_2to3 as build_py
 except ImportError:
+    # pylint: disable=no-name-in-module
     # python2.x
     from distutils.command.build_py import build_py
 
@@ -133,6 +135,7 @@ class MyInstallLib(install_lib.install_lib):
 
                 if sys.version_info >= (3, 0):
                     # process manually python file in include_dirs (test data)
+                    # pylint: disable=no-name-in-module
                     from distutils.util import run_2to3
                     print('running 2to3 on', dest)
                     run_2to3([dest])
@@ -167,21 +170,20 @@ def install(**kwargs):
                 'symilar = pylint:run_symilar',
                 ]}
     kwargs['packages'] = packages
-    return setup(name = distname,
-                 version = version,
-                 license = license,
-                 description = description,
-                 long_description = long_description,
-                 author = author,
-                 author_email = author_email,
-                 url = web,
-                 scripts = ensure_scripts(scripts),
-                 data_files = data_files,
-                 ext_modules = ext_modules,
-                 cmdclass = {'install_lib': MyInstallLib,
-                             'build_py':    build_py},
-                 **kwargs
-                 )
+    return setup(name=distname,
+                 version=version,
+                 license=license,
+                 description=description,
+                 long_description=long_description,
+                 author=author,
+                 author_email=author_email,
+                 url=web,
+                 scripts=ensure_scripts(scripts),
+                 data_files=data_files,
+                 ext_modules=ext_modules,
+                 cmdclass={'install_lib': MyInstallLib,
+                             'build_py': build_py},
+                 **kwargs)
 
 if __name__ == '__main__' :
     install()

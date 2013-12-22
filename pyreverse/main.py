@@ -1,4 +1,4 @@
-# # Copyright (c) 2000-2012 LOGILAB S.A. (Paris, FRANCE).
+# # Copyright (c) 2000-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -48,11 +48,11 @@ dict(short='c', action="append", metavar="<class>", dest="classes", default=[],
  this uses by default the options -ASmy")),
 
 ("show-ancestors",
-dict(short="a",  action="store", metavar='<ancestor>', type='int',
+dict(short="a", action="store", metavar='<ancestor>', type='int',
     help='show <ancestor> generations of ancestor classes not in <projects>')),
 ("all-ancestors",
 dict(short="A", default=None,
-    help="show all ancestors off all classes in <projects>") ),
+    help="show all ancestors off all classes in <projects>")),
 ("show-associated",
 dict(short='s', action="store", metavar='<ass_level>', type='int',
     help='show <ass_level> levels of associated classes not in <projects>')),

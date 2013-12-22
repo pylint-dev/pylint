@@ -36,7 +36,9 @@ ChangeLog for Pylint
     * Added a new warning, 'non-iterator-returned', for non-iterators
       returned by '__iter__'.
 
-    * Add new warning for unpacking non-sequences in assignments.
+    * Add new checks for unpacking non-sequences in assignments
+      (unpacking-non-sequence) as well as unbalanced tuple unpacking
+      (unbalanced-tuple-unpacking).
 
     * useless-else-on-loop not emited if there is a break in the
       else clause of inner loop (#117).
@@ -47,7 +49,19 @@ ChangeLog for Pylint
       current implementation. Deactivate it until we have something
       better. See #112 for instance.
 
+    * Use attribute regexp for properties in python3, as in python2
 
+    * Create the PYLINTHOME directory when needed, it might fail and lead to
+      spurious warnings on import of pylint.config.
+
+    * Fix setup.py so that pylint properly install on Windows when using python3
+
+    * Various documentation fixes and enhancements
+
+    * Added a __main__.py file so you can run "python -m pylint"
+
+    * Fix issue #55 (false-positive trailing-whitespace on Windows)
+	
 2013-08-06  --  1.0.0
 
     * Add check for the use of 'exec' function

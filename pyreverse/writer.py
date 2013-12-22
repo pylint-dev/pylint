@@ -57,20 +57,20 @@ class DiagramWriter(object):
         """write a class diagram"""
         # sorted to get predictable (hence testable) results
         for i, obj in enumerate(sorted(diagram.objects, key=lambda x: x.title)):
-            self.printer.emit_node(i, **self.get_values(obj) )
+            self.printer.emit_node(i, **self.get_values(obj))
             obj.fig_id = i
         # inheritance links
         for rel in diagram.get_relationships('specialization'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                              **self.inh_edges)
+                                   **self.inh_edges)
         # implementation links
         for rel in diagram.get_relationships('implements'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                              **self.imp_edges)
+                                   **self.imp_edges)
         # generate associations
         for rel in diagram.get_relationships('association'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                              label=rel.name, **self.ass_edges)
+                                   label=rel.name, **self.ass_edges)
 
     def set_printer(self, file_name, basename):
         """set printer"""
@@ -95,10 +95,11 @@ class DotWriter(DiagramWriter):
 
     def __init__(self, config):
         styles = [dict(arrowtail='none', arrowhead="open"),
-                  dict(arrowtail = "none", arrowhead='empty'),
-                  dict(arrowtail="node", arrowhead='empty', style='dashed'),
+                  dict(arrowtail='none', arrowhead='empty'),
+                  dict(arrowtail='node', arrowhead='empty', style='dashed'),
                   dict(fontcolor='green', arrowtail='none',
-                       arrowhead='diamond', style='solid') ]
+                       arrowhead='diamond', style='solid'),
+                  ]
         DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
@@ -119,15 +120,15 @@ class DotWriter(DiagramWriter):
         """
         label = obj.title
         if obj.shape == 'interface':
-            label = u"«interface»\\n%s" % label
+            label = u'«interface»\\n%s' % label
         if not self.config.only_classnames:
-            label = r"%s|%s\l|" % (label,  r"\l".join(obj.attrs) )
+            label = r'%s|%s\l|' % (label, r'\l'.join(obj.attrs))
             for func in obj.methods:
                 label = r'%s%s()\l' % (label, func.name)
             label = '{%s}' % label
         if is_exception(obj.node):
-            return dict(fontcolor="red", label=label, shape="record")
-        return dict(label=label, shape="record")
+            return dict(fontcolor='red', label=label, shape='record')
+        return dict(label=label, shape='record')
 
     def close_graph(self):
         """print the dot graph into <file_name>"""
@@ -145,7 +146,8 @@ class VCGWriter(DiagramWriter):
                   dict(arrowstyle='solid', backarrowstyle='none',
                        linestyle='dotted', backarrowsize=10),
                   dict(arrowstyle='solid', backarrowstyle='none',
-                       textcolor='green') ]
+                       textcolor='green'),
+                  ]
         DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
@@ -180,7 +182,7 @@ class VCGWriter(DiagramWriter):
             methods = [func.name for func in obj.methods]
             # box width for UML like diagram
             maxlen = max(len(name) for name in [obj.title] + methods + attrs)
-            line =  "_" * (maxlen + 2)
+            line = '_' * (maxlen + 2)
             label = r'%s\n\f%s' % (label, line)
             for attr in attrs:
                 label = r'%s\n\f08%s' % (label, attr)

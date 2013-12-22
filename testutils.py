@@ -150,7 +150,7 @@ class CheckerTestCase(testlib.TestCase):
 
     def setUp(self):
         self.linter = UnittestLinter()
-        self.checker = self.CHECKER_CLASS(self.linter)
+        self.checker = self.CHECKER_CLASS(self.linter) # pylint: disable=not-callable
         for key, value in self.CONFIG.iteritems():
             setattr(self.checker.config, key, value)
         self.checker.open()
@@ -213,10 +213,10 @@ class LintTestUsingModule(testlib.TestCase):
     _TEST_TYPE = 'module'
 
     def shortDescription(self):
-        values = { 'mode' : self._TEST_TYPE,
-                   'input': self.module,
-                   'pkg':   self.package,
-                   'cls':   self.__class__.__name__}
+        values = {'mode' : self._TEST_TYPE,
+                  'input': self.module,
+                  'pkg':   self.package,
+                  'cls':   self.__class__.__name__}
 
         if self.package == self.DEFAULT_PACKAGE:
             msg = '%(mode)s test of input file "%(input)s" (%(cls)s)'

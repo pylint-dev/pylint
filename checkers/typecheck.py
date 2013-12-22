@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2006-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -292,7 +292,7 @@ accessed. Python regular expressions are accepted.'}
             # Built-in functions have no argument information.
             return
 
-        if len( called.argnames() ) != len( set( called.argnames() ) ):
+        if len(called.argnames()) != len(set(called.argnames())):
             # Duplicate parameter name (see E9801).  We can't really make sense
             # of the function call in this case, so just return.
             return

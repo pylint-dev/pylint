@@ -233,7 +233,7 @@ class StringConstantChecker(BaseTokenChecker):
             if c in '\'\"':
                 quote_char = c
                 break
-        prefix = token[:i].lower()  #  markers like u, b, r.
+        prefix = token[:i].lower() #  markers like u, b, r.
         after_prefix = token[i:]
         if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
             string_body = after_prefix[3:-3]
