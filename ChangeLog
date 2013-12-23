@@ -1,8 +1,7 @@
 ChangeLog for Pylint
 ====================
 
---
-
+2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
       emmited as a regular warn().
@@ -61,9 +60,10 @@ ChangeLog for Pylint
     * Added a __main__.py file so you can run "python -m pylint"
 
     * Fix issue #55 (false-positive trailing-whitespace on Windows)
-	
-2013-08-06  --  1.0.0
 
+
+
+2013-08-06  --  1.0.0
     * Add check for the use of 'exec' function
 
     * New --msg-template option to control output, deprecating "msvc" and
@@ -168,6 +168,7 @@ ChangeLog for Pylint
 
     * bitbucket #3: remove string module from the default list of deprecated
       modules
+
 
 
 2013-04-25  --  0.28.0
