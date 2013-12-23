@@ -38,6 +38,7 @@ from pylint.lint import PyLinter
 SYS_VERS_STR = '%d%d' % sys.version_info[:2]
 TITLE_UNDERLINES = ['', '=', '-', '.']
 PREFIX = abspath(dirname(__file__))
+PY3K = sys.version_info[0] == 3
 
 def fix_path():
     sys.path.insert(0, PREFIX)
@@ -99,6 +100,10 @@ class TestReporter(BaseReporter):
         if obj:
             obj = ':%s' % obj
         sigle = msg_id[0]
+        if PY3K and linesep != '\n':
+            # 2to3 writes os.linesep instead of using
+            # the previosly used line separators
+            msg = msg.replace('\r\n', '\n')
         self.messages.append('%s:%3s%s: %s' % (sigle, line, obj, msg))
 
     def finalize(self):

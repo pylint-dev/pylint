@@ -77,6 +77,16 @@ class PyLinterTC(TestCase):
         checkers.initialize(self.linter)
         self.linter.set_reporter(TestReporter())
 
+    def _compare_messages(self, desc, msg, checkerref=False):
+        # replace \r\n with \n, because
+        # logilab.common.textutils.normalize_text
+        # uses os.linesep, which will
+        # not properly compare with triple
+        # quoted multilines used in these tests 
+        self.assertMultiLineEqual(desc,
+             msg.format_help(checkerref=checkerref)
+                .replace('\r\n', '\n'))
+
     def test_check_message_id(self):
         self.assertIsInstance(self.linter.check_message_id('F0001'),
                               MessageDefinition)
@@ -85,32 +95,32 @@ class PyLinterTC(TestCase):
 
     def test_message_help(self):
         msg = self.linter.check_message_id('F0001')
-        self.assertMultiLineEqual(
+        self._compare_messages(
             ''':fatal (F0001):
   Used when an error occurred preventing the analysis of a module (unable to
   find it for instance). This message belongs to the master checker.''',
-            msg.format_help(checkerref=True))
-        self.assertMultiLineEqual(
+            msg, checkerref=True)
+        self._compare_messages(
             ''':fatal (F0001):
   Used when an error occurred preventing the analysis of a module (unable to
   find it for instance).''',
-            msg.format_help(checkerref=False))
+            msg, checkerref=False)
 
     def test_message_help_minmax(self):
         # build the message manually to be python version independant
         msg = build_message_def(self.linter._checkers['typecheck'][0],
                                 'E1122', checkers.typecheck.MSGS['E1122'])
-        self.assertMultiLineEqual(
+        self._compare_messages(
             ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in function call*
   Used when a function call passes the same keyword argument multiple times.
   This message belongs to the typecheck checker. It can't be emitted when using
   Python >= 2.6.''',
-            msg.format_help(checkerref=True))
-        self.assertMultiLineEqual(
+            msg, checkerref=True)
+        self._compare_messages(
             ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in function call*
   Used when a function call passes the same keyword argument multiple times.
   This message can't be emitted when using Python >= 2.6.''',
-            msg.format_help(checkerref=False))
+            msg, checkerref=False)
 
     def test_enable_message(self):
         linter = self.linter
