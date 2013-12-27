@@ -1,6 +1,10 @@
 ChangeLog for Pylint
 ====================
 
+--
+    * Enhance the check for 'used-before-assignment' to look
+      for 'nonlocal' uses.
+
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously

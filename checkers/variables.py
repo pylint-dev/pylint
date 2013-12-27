@@ -507,6 +507,31 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     # defined in global or builtin scope
                     if defframe.root().lookup(name)[1]:
                         maybee0601 = False
+                    else:
+                         # check if we have a nonlocal
+                         frame = node.frame()
+                         frame_parent = frame.parent
+                         if (isinstance(frame, astroid.Function) and
+                             isinstance(frame_parent, astroid.Function)):
+                             # detect that the name exists
+                             # in the upper level
+                             defined_higher = False
+                             for assign in frame_parent.get_children():
+                                 if not isinstance(assign, astroid.Assign):
+                                     continue
+                                 for target in assign.targets:
+                                     if (isinstance(target, astroid.AssName) and
+                                         target.name == name):
+                                         defined_higher = True
+                                         break
+                                 if defined_higher:
+                                     break                                     
+                             for child in frame.get_children():
+                                 if not isinstance(child, astroid.Nonlocal):
+                                     continue
+                                 if name in child.names and defined_higher:
+                                     maybee0601 = False
+                                     break
                 if (maybee0601
                     and stmt.fromlineno <= defstmt.fromlineno
                     and not is_defined_before(node)
