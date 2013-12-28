@@ -1,0 +1,2 @@
+E: 12:test: Exception context set to something which is not an exception, nor None
+E: 15:test: Exception context set to something which is not an exception, nor None
