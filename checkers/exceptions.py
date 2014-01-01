@@ -235,8 +235,8 @@ class ExceptionsChecker(BaseChecker):
                         # exception, by infering all the base classes and
                         # looking for inference errors
                         bases = infer_bases(exc)
-                        fully_infered = not any(inferit is YES
-                                                for inferit in bases)
+                        fully_infered = all(inferit is not YES
+                                            for inferit in bases)
                         if fully_infered:
                             self.add_message('catching-non-exception',
                                              node=handler.type,
