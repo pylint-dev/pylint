@@ -2,6 +2,8 @@
 
 # pylint: disable=unreachable
 
+import socket
+
 __revision__ = 0
 
 class ExceptionSubclass(Exception):
@@ -14,4 +16,4 @@ def test():
     raise IndexError from ZeroDivisionError
     raise IndexError from object()
     raise IndexError from ExceptionSubclass
-
+    raise IndexError from socket.error
