@@ -154,8 +154,10 @@ def is_defined_before(var_node):
         elif isinstance(_node, astroid.With):
             for expr, vars in _node.items:
                 if expr.parent_of(var_node):
-                    break
-                if vars and vars.name == varname:
+                    break                
+                if (vars and
+                    not isinstance(vars, astroid.AssAttr) and
+                    vars.name == varname):
                     return True
         elif isinstance(_node, (astroid.Lambda, astroid.Function)):
             if _node.args.is_argument(varname):

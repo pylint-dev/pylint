@@ -1,6 +1,11 @@
 ChangeLog for Pylint
 ====================
 
+--
+    * bitbucket #128: pylint doesn't crash when looking
+      for used-before-assignment in context manager
+      assignments.
+
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously

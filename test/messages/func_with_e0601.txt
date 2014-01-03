@@ -1,0 +1,2 @@
+E: 10:do_nothing: Undefined variable 'ctx'
+E: 11:do_nothing: Using variable 'context' before assignment
