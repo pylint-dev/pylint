@@ -58,12 +58,13 @@ class TestTests(testlib.TestCase):
             rest = ['I0001',
                     # XXX : no use case for now :
                     'W0402', # deprecated module
-                    'W0403', # implicit relative import
+                    'W0403', # implicit relative import,
+                    'W0407', # tested in test_misc.py
                     'W0410', # __future__ import not first statement
                     ]
             self.assertEqual(todo, rest)
         else:
-            self.assertEqual(todo, ['I0001'])
+            self.assertEqual(todo, ['I0001', 'W0407'])
 
 class LintBuiltinModuleTest(LintTestUsingModule):
     output = join(MSG_DIR, 'builtin_module.txt')

@@ -149,6 +149,10 @@ MSGS = {
               'misplaced-future',
               'Python 2.5 and greater require __future__ import to be the \
               first non docstring statement in the module.'),
+    'W0407': ('Missing submodule: %s',
+              'missing-submodule',
+              'Used when trying to import a submodule from a package '
+              'and the submodule is missing.'),
     }
 
 class ImportsChecker(BaseChecker):
