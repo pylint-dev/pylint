@@ -50,6 +50,18 @@ import sys, os, re
 import os.path as osp
 from subprocess import Popen, PIPE
 
+def _get_env():
+    '''Extracts the environment PYTHONPATH and appends the current sys.path to
+    those.'''
+    env = dict(os.environ)
+    pythonpath = env.get('PYTHONPATH', '')
+    currentpaths = os.pathsep.join(sys.path)
+    if pythonpath:
+        pythonpath += os.pathsep + currentpaths
+    else:
+        pythonpath = currentpaths
+    env['PYTHONPATH'] = pythonpath
+    return env
 
 def lint(filename, options=None):
     """Pylint the given file.
@@ -83,17 +95,7 @@ def lint(filename, options=None):
     options = options or ['--disable=C,R,I']
     cmd = [sys.executable, lint_path] + options + ['--msg-template',
             '{path}:{line}: [{symbol}, {obj}] {msg}', '-r', 'n', child_path]
-    # Extracts the environment PYTHONPATH and appends the current sys.path to
-    # those.
-    env = dict(os.environ)
-    pythonpath = env.get('PYTHONPATH', '')
-    currentpaths = os.pathsep.join(sys.path)
-    if pythonpath:
-        pythonpath += os.pathsep + currentpaths
-    else:
-        pythonpath = currentpaths
-    env['PYTHONPATH'] = pythonpath
-    process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=env,
+    process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=_get_env(),
                     universal_newlines=True)
 
     # The parseable line format is '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
@@ -168,20 +170,9 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
             stderr = PIPE
         else:
             stderr = sys.stderr
-    # Extracts the environment PYTHONPATH and appends the current sys.path to
-    # those.
-    env = dict(os.environ)
-    pythonpath = env.get('PYTHONPATH', '')
-    currentpaths = os.pathsep.join(sys.path)
-    if pythonpath:
-        pythonpath += os.pathsep + currentpaths
-    else:
-        pythonpath = currentpaths
-    env['PYTHONPATH'] = pythonpath
-
     # Call pylint in a subprocess
     p = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
-              env=env, universal_newlines=True)
+              env=_get_env(), universal_newlines=True)
     p.wait()
     # Return standart output and error
     if return_std:
