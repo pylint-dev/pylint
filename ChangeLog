@@ -6,6 +6,12 @@ ChangeLog for Pylint
       for used-before-assignment in context manager
       assignments.
 
+    * Add new warning, 'bad-reversed-sequence', for checking that the
+      reversed() builtin receive a sequence (implements __getitem__ and __len__,
+      without being a dict or a dict subclass) or an instance which implements
+      __reversed__.
+
+
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
@@ -63,12 +69,6 @@ ChangeLog for Pylint
     * Various documentation fixes and enhancements
 
     * Fix issue #55 (false-positive trailing-whitespace on Windows)
-
-
-    * Add new warning, 'bad-reversed-sequence', for checking that the
-      reversed() builtin receive a sequence (implements __getitem__ and __len__,
-      without being a dict or a dict subclass) or an instance which implements
-      __reversed__.
 
 
 2013-08-06  --  1.0.0
