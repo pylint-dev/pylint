@@ -124,7 +124,7 @@ SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
 
 def is_builtin_object(node):
     """Returns True if the given node is an object from the __builtin__ module."""
-    return node and node.root().name == '__builtin__'
+    return node and node.root().name == BUILTINS_NAME
 
 def is_builtin(name): # was is_native_builtin
     """return true if <name> could be considered as a builtin defined by python
