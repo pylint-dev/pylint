@@ -156,7 +156,7 @@ def is_defined_before(var_node):
                 if expr.parent_of(var_node):
                     break                
                 if (vars and
-                    not isinstance(vars, astroid.AssAttr) and
+                    isinstance(vars, astroid.AssName) and
                     vars.name == varname):
                     return True
         elif isinstance(_node, (astroid.Lambda, astroid.Function)):
