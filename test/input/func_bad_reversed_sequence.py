@@ -31,6 +31,12 @@ class SecondBadReversed(object):
 class ThirdBadReversed(dict):
     """ dict subclass """
 
+def uninferable(seq):
+    """ This can't be infered at this moment,
+    make sure we don't have a false positive.
+    """
+    return reversed(seq)
+
 def test():
     """ test function """
     seq = reversed()
@@ -49,4 +55,5 @@ def test():
     seq = reversed(lambda: None)
     seq = reversed(deque([]))
     seq = reversed("123")
+    seq = uninferable([1, 2, 3])
     return seq

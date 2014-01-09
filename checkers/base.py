@@ -711,6 +711,8 @@ functions, methods
         except NoSuchArgumentError:
             self.add_message('missing-reversed-argument', node=node)
         else:
+            if argument is astroid.YES:
+                return
             if argument is None:
                 # nothing was infered
                 # try to see if we have iter()
