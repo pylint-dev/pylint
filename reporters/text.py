@@ -75,8 +75,8 @@ class ParseableTextReporter(TextReporter):
     line_format = '{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'
 
     def __init__(self, output=None):
-        warnings.warn('%s output format is deprecated. This is equivalent to --msg-template=%s'
-                      % (self.name, self.line_format))
+        warnings.warn('%s output format is deprecated. This is equivalent '
+                      'to --msg-template=%s' % (self.name, self.line_format))
         TextReporter.__init__(self, output)
 
 

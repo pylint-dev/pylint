@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -16,6 +16,7 @@
 * pylintrc
 * pylint.d (PYLINTHOME)
 """
+from __future__ import with_statement
 
 import pickle
 import os
@@ -34,12 +35,6 @@ elif USER_HOME == '~':
 else:
     PYLINT_HOME = join(USER_HOME, '.pylint.d')
 
-if not exists(PYLINT_HOME):
-    try:
-        os.mkdir(PYLINT_HOME)
-    except OSError:
-        print >> sys.stderr, 'Unable to create directory %s' % PYLINT_HOME
-
 def get_pdata_path(base_name, recurs):
     """return the path of the file which should contain old search data for the
     given base_name with the given options values
@@ -55,7 +50,8 @@ def load_results(base):
     """
     data_file = get_pdata_path(base, 1)
     try:
-        return pickle.load(open(data_file))
+        with open(data_file) as stream:
+            return pickle.load(stream)
     except:
         return {}
 
@@ -66,9 +62,15 @@ else:
 
 def save_results(results, base):
     """pickle results"""
+    if not exists(PYLINT_HOME):
+        try:
+            os.mkdir(PYLINT_HOME)
+        except OSError:
+            print >> sys.stderr, 'Unable to create directory %s' % PYLINT_HOME
     data_file = get_pdata_path(base, 1)
     try:
-        pickle.dump(results, open(data_file, _PICK_MOD))
+        with open(data_file, _PICK_MOD) as stream:
+            pickle.dump(results, stream)
     except (IOError, OSError), ex:
         print >> sys.stderr, 'Unable to create file %s: %s' % (data_file, ex)
 
@@ -107,12 +109,12 @@ PYLINTRC = find_pylintrc()
 ENV_HELP = '''
 The following environment variables are used:                                   
     * PYLINTHOME                                                                
-    path to the directory where data of persistent run will be stored. If not 
-found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
+    Path to the directory where the persistent for the run will be stored. If 
+not found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
 directory).                                                                     
     * PYLINTRC                                                                  
-    path to the configuration file. If not found, it will use the first         
-existing file among (~/.pylintrc, /etc/pylintrc).
+    Path to the configuration file. See the documentation for the method used
+to search for configuration file.
 ''' % globals()
 
 # evaluation messages #########################################################

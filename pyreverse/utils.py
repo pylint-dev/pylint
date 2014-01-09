@@ -106,8 +106,8 @@ MODES = {
     'SPECIAL'   : _SPECIAL,
     'OTHER'     : _PROTECTED + _PRIVATE,
 }
-VIS_MOD = {'special': _SPECIAL, 'protected': _PROTECTED, \
-            'private': _PRIVATE, 'public': 0 }
+VIS_MOD = {'special': _SPECIAL, 'protected': _PROTECTED,
+           'private': _PRIVATE, 'public': 0}
 
 class FilterMixIn(object):
     """filter nodes according to a mode and nodes' visibility
@@ -127,5 +127,5 @@ class FilterMixIn(object):
         """return true if the node should be treated
         """
         visibility = get_visibility(getattr(node, 'name', node))
-        return not (self.__mode & VIS_MOD[visibility] )
+        return not (self.__mode & VIS_MOD[visibility])
 

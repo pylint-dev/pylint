@@ -99,10 +99,6 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
         """add a message of a given type"""
         self.linter.add_message(msg_id, line, node, args)
 
-    def package_dir(self):
-        """return the base directory for the analysed package"""
-        return dirname(self.linter.base_file)
-
     # dummy methods implementing the IChecker interface
 
     def open(self):

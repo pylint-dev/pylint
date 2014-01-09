@@ -52,6 +52,10 @@ NO_REQUIRED_DOC_RGX = re.compile('__.*__')
 REVERSED_METHODS = (('__getitem__', '__len__'),
                     ('__reversed__', ))
 
+BAD_FUNCTIONS = ['map', 'filter', 'apply']
+if sys.version_info < (3, 0):
+    BAD_FUNCTIONS.append('input')
+
 del re
 
 def in_loop(node):
@@ -83,12 +87,19 @@ def _loop_exits_early(loop):
     # in orelse.
     for child in loop.body:
         if isinstance(child, loop_nodes):
+            # break statement may be in orelse of child loop.
+            for orelse in (child.orelse or ()):
+                for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
+                    return True
             continue
         for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True
     return False
 
-
+if sys.version_info < (3, 0):
+    PROPERTY_CLASSES = set(('__builtin__.property', 'abc.abstractproperty'))
+else:
+    PROPERTY_CLASSES = set(('builtins.property', 'abc.abstractproperty'))
 
 def _determine_function_name_type(node):
     """Determine the name type whose regex the a function's name should match.
@@ -109,8 +120,7 @@ def _determine_function_name_type(node):
             (isinstance(decorator, astroid.Getattr) and
              decorator.attrname == 'abstractproperty')):
             infered = safe_infer(decorator)
-            if (infered and
-                infered.qname() in ('__builtin__.property', 'abc.abstractproperty')):
+            if infered and infered.qname() in PROPERTY_CLASSES:
                 return 'attr'
         # If the function is decorated using the prop_method.{setter,getter}
         # form, treat it like an attribute as well.
@@ -251,7 +261,7 @@ class BasicErrorChecker(_BasicChecker):
                      not (v is None or
                           (isinstance(v, astroid.Const) and v.value is None) or
                           (isinstance(v, astroid.Name)  and v.name == 'None')
-                         ) ]:
+                          )]:
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
@@ -432,13 +442,13 @@ functions, methods
                           'comma'}
                 ),
                ('bad-functions',
-                {'default' : ('map', 'filter', 'apply', 'input'),
+                {'default' : BAD_FUNCTIONS,
                  'type' :'csv', 'metavar' : '<builtin function names>',
                  'help' : 'List of builtins function names that should not be '
                           'used, separated by a comma'}
                 ),
                )
-    reports = ( ('RP0101', 'Statistics by type', report_by_type_stats), )
+    reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)

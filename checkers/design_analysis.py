@@ -26,42 +26,6 @@ import re
 # regexp for ignored argument name
 IGNORED_ARGUMENT_NAMES = re.compile('_.*')
 
-SPECIAL_METHODS = [('Context manager', set(('__enter__',
-                                            '__exit__',))),
-                   ('Container', set(('__len__',
-                                      '__getitem__',))),
-                   ('Mutable container', set(('__setitem__',
-                                              '__delitem__',))),
-                   ]
-
-class SpecialMethodChecker(object):
-    """A functor that checks for consistency of a set of special methods"""
-    def __init__(self, methods_found, on_error):
-        """Stores the set of __x__ method names that were found in the
-        class and a callable that will be called with args to R0024 if
-        the check fails
-        """
-        self.methods_found = methods_found
-        self.on_error = on_error
-
-    def __call__(self, methods_required, protocol):
-        """Checks the set of method names given to __init__ against the set
-        required.
-
-        If they are all present, returns true.
-        If they are all absent, returns false.
-        If some are present, reports the error and returns false.
-        """
-        required_methods_found = methods_required & self.methods_found
-        if required_methods_found == methods_required:
-            return True
-        if required_methods_found:
-            required_methods_missing = methods_required - self.methods_found
-            self.on_error((protocol,
-                           ', '.join(sorted(required_methods_found)),
-                           ', '.join(sorted(required_methods_missing))))
-        return False
-
 
 def class_is_abstract(klass):
     """return true if the given class node should be considered as an abstract
@@ -121,10 +85,6 @@ MSGS = {
     'R0923': ('Interface not implemented',
               'interface-not-implemented',
               'Used when an interface class is not implemented anywhere.'),
-    'R0924': ('Badly implemented %s, implements %s but not %s',
-              'incomplete-protocol',
-              'A class implements some of the special methods for a particular \
-               protocol, but not all of them')
     }
 
 
@@ -289,13 +249,6 @@ class MisdesignChecker(BaseChecker):
         # stop here for exception, metaclass and interface classes
         if node.type != 'class':
             return
-        # Does the class implement special methods consitently?
-        # If so, don't enforce minimum public methods.
-        check_special = SpecialMethodChecker(
-            special_methods, lambda args: self.add_message('R0924', node=node, args=args))
-        protocols = [check_special(pmethods, pname) for pname, pmethods in SPECIAL_METHODS]
-        if True in protocols:
-            return
         # Does the class contain more than 5 public methods ?
         if nb_public_methods < self.config.min_public_methods:
             self.add_message('R0903', node=node,
@@ -379,7 +332,7 @@ class MisdesignChecker(BaseChecker):
         """increments the branches counter"""
         branches = 1
         # don't double count If nodes coming from some 'elif'
-        if node.orelse and (len(node.orelse)>1 or
+        if node.orelse and (len(node.orelse) > 1 or
                             not isinstance(node.orelse[0], If)):
             branches += 1
         self._inc_branch(branches)

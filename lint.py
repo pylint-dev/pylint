@@ -82,48 +82,49 @@ MSGS = {
               module (unable to find it for instance).'),
     'F0002': ('%s: %s',
               'astroid-error',
-              'Used when an unexpected error occurred while building the Astroid \
-              representation. This is usually accompanied by a traceback. \
-              Please report such errors !'),
+              'Used when an unexpected error occurred while building the '
+              'Astroid  representation. This is usually accompanied by a '
+              'traceback. Please report such errors !'),
     'F0003': ('ignored builtin module %s',
               'ignored-builtin-module',
-              'Used to indicate that the user asked to analyze a builtin module \
-              which has been skipped.'),
+              'Used to indicate that the user asked to analyze a builtin '
+              'module which has been skipped.'),
     'F0004': ('unexpected inferred value %s',
               'unexpected-inferred-value',
-              'Used to indicate that some value of an unexpected type has been \
-              inferred.'),
+              'Used to indicate that some value of an unexpected type has been '
+              'inferred.'),
     'F0010': ('error while code parsing: %s',
               'parse-error',
-              'Used when an exception occured while building the Astroid \
-               representation which could be handled by astroid.'),
+              'Used when an exception occured while building the Astroid '
+               'representation which could be handled by astroid.'),
 
     'I0001': ('Unable to run raw checkers on built-in module %s',
               'raw-checker-failed',
-              'Used to inform that a built-in module has not been checked \
-              using the raw checkers.'),
+              'Used to inform that a built-in module has not been checked '
+              'using the raw checkers.'),
 
     'I0010': ('Unable to consider inline option %r',
               'bad-inline-option',
-              'Used when an inline option is either badly formatted or can\'t \
-              be used inside modules.'),
+              'Used when an inline option is either badly formatted or can\'t '
+              'be used inside modules.'),
 
     'I0011': ('Locally disabling %s',
               'locally-disabled',
-              'Used when an inline option disables a message or a messages \
-              category.'),
+              'Used when an inline option disables a message or a messages '
+              'category.'),
     'I0012': ('Locally enabling %s',
               'locally-enabled',
-              'Used when an inline option enables a message or a messages \
-              category.'),
+              'Used when an inline option enables a message or a messages '
+              'category.'),
     'I0013': ('Ignoring entire file',
               'file-ignored',
               'Used to inform that the file will not be checked'),
-    'I0014': ('Used deprecated directive "pylint:disable-all" or "pylint:disable=all"',
+    'I0014': ('Used deprecated directive "pylint:disable-all" or '
+              '"pylint:disable=all"',
               'deprecated-disable-all',
               'You should preferably use "pylint:skip-file" as this directive '
-              'has a less confusing name. Do this only if you are sure that all '
-              'people running Pylint on your code have version >= 0.26'),
+              'has a less confusing name. Do this only if you are sure that '
+              'all people running Pylint on your code have version >= 0.26'),
     'I0020': ('Suppressed %s (from line %d)',
               'suppressed-message',
               'A message was triggered on a line, but suppressed explicitly '
@@ -134,7 +135,11 @@ MSGS = {
               'useless-suppression',
               'Reported when a message is explicitly disabled for a line or '
               'a block of code, but never triggered.'),
-
+    'I0022': ('Deprecated pragma "pylint:disable-msg" or "pylint:enable-msg"',
+              'deprecated-pragma',
+              'You should preferably use "pylint:disable" or "pylint:enable" '
+              'instead of the deprecated suppression pragma style '
+              '"pylint:disable-msg" or "pylint:enable-msg"'),
 
     'E0001': ('%s',
               'syntax-error',
@@ -177,8 +182,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         return (('ignore',
                  {'type' : 'csv', 'metavar' : '<file>[,<file>...]',
                   'dest' : 'black_list', 'default' : ('CVS',),
-                  'help' : 'Add files or directories to the blacklist. \
-They should be base names, not paths.'}),
+                  'help' : 'Add files or directories to the blacklist. '
+                  'They should be base names, not paths.'}),
                 ('persistent',
                  {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'level': 1,
@@ -187,8 +192,9 @@ They should be base names, not paths.'}),
                 ('load-plugins',
                  {'type' : 'csv', 'metavar' : '<modules>', 'default' : (),
                   'level': 1,
-                  'help' : 'List of plugins (as comma separated values of \
-python modules names) to load, usually to register additional checkers.'}),
+                  'help' : 'List of plugins (as comma separated values of '
+                  'python modules names) to load, usually to register '
+                  'additional checkers.'}),
 
                 ('output-format',
                  {'default': 'text', 'type': 'string', 'metavar' : '<format>',
@@ -202,22 +208,23 @@ python modules names) to load, usually to register additional checkers.'}),
                 ('files-output',
                  {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'group': 'Reports', 'level': 1,
-                  'help' : 'Put messages in a separate file for each module / \
-package specified on the command line instead of printing them on stdout. \
-Reports (if any) will be written in a file name "pylint_global.[txt|html]".'}),
+                  'help' : 'Put messages in a separate file for each module / '
+                  'package specified on the command line instead of printing '
+                  'them on stdout. Reports (if any) will be written in a file '
+                  'name "pylint_global.[txt|html]".'}),
 
                 ('reports',
                  {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'short': 'r',
                   'group': 'Reports',
-                  'help' : 'Tells whether to display a full report or only the\
- messages'}),
+                  'help' : 'Tells whether to display a full report or only the '
+                  'messages'}),
 
                 ('evaluation',
                  {'type' : 'string', 'metavar' : '<python_expression>',
                   'group': 'Reports', 'level': 1,
-                  'default': '10.0 - ((float(5 * error + warning + refactor + \
-convention) / statement) * 10)',
+                  'default': '10.0 - ((float(5 * error + warning + refactor + '
+                  'convention) / statement) * 10)',
                   'help' : 'Python expression which should return a note less \
 than 10 (10 is the highest note). You have access to the variables errors \
 warning, statement which respectively contain the number of errors / warnings\
@@ -227,8 +234,8 @@ warning, statement which respectively contain the number of errors / warnings\
                 ('comment',
                  {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'group': 'Reports', 'level': 1,
-                  'help' : 'Add a comment according to your evaluation note. \
-This is used by the global evaluation report (RP0004).'}),
+                  'help' : 'Add a comment according to your evaluation note. '
+                  'This is used by the global evaluation report (RP0004).'}),
 
                 ('enable',
                  {'type' : 'csv', 'metavar': '<msg ids>',
@@ -272,7 +279,8 @@ This is used by the global evaluation report (RP0004).'}),
         ('Reports', 'Options related to output formating and reporting'),
         )
 
-    def __init__(self, options=(), reporter=None, option_groups=(), pylintrc=None):
+    def __init__(self, options=(), reporter=None, option_groups=(),
+                 pylintrc=None):
         # some stuff has to be done before ancestors initialization...
         #
         # checkers / reporter / astroid manager
@@ -369,7 +377,8 @@ This is used by the global evaluation report (RP0004).'}),
         """overridden from configuration.OptionsProviderMixin to handle some
         special options
         """
-        if optname in self._options_methods or optname in self._bw_options_methods:
+        if optname in self._options_methods or \
+                optname in self._bw_options_methods:
             if value:
                 try:
                     meth = self._options_methods[optname]
@@ -379,9 +388,9 @@ This is used by the global evaluation report (RP0004).'}),
                         optname, optname.split('-')[0]), DeprecationWarning)
                 value = check_csv(None, optname, value)
                 if isinstance(value, (list, tuple)):
-                    for _id in value :
+                    for _id in value:
                         meth(_id)
-                else :
+                else:
                     meth(value)
         elif optname == 'output-format':
             self._reporter_name = value
@@ -452,7 +461,8 @@ This is used by the global evaluation report (RP0004).'}),
             match = OPTION_RGX.search(line)
             if match is None:
                 continue
-            if match.group(1).strip() == "disable-all" or match.group(1).strip() == 'skip-file':
+            if match.group(1).strip() == "disable-all" or \
+                    match.group(1).strip() == 'skip-file':
                 if match.group(1).strip() == "disable-all":
                     self.add_message('I0014', line=start[0])
                 self.add_message('I0013', line=start[0])
@@ -470,9 +480,8 @@ This is used by the global evaluation report (RP0004).'}),
                     meth = self._options_methods[opt]
                 except KeyError:
                     meth = self._bw_options_methods[opt]
-                    warn('%s is deprecated, replace it with %s (%s, line %s)' % (
-                        opt, opt.split('-')[0], self.current_file, line),
-                         DeprecationWarning)
+                    # found a "(dis|en)able-msg" pragma deprecated suppresssion
+                    self.add_message('deprecated-pragma', line=start[0])
                 for msgid in splitstrip(value):
                     try:
                         if (opt, msgid) == ('disable', 'all'):
@@ -518,7 +527,7 @@ This is used by the global evaluation report (RP0004).'}),
                 if first <= lineno <= last:
                     # Set state for all lines for this block, if the
                     # warning is applied to nodes.
-                    if self._messages[msgid].scope == WarningScope.NODE:
+                    if self.check_message_id(msgid).scope == WarningScope.NODE:
                         if lineno > firstchildlineno:
                             state = True
                         first_, last_ = node.block_range(lineno)
@@ -563,6 +572,22 @@ This is used by the global evaluation report (RP0004).'}),
                 checker.active_msgs = messages
         return neededcheckers
 
+    def should_analyze_file(self, modname, path): # pylint: disable=unused-argument
+        """Returns whether or not a module should be checked.
+
+        This implementation returns True for all inputs, indicating that all
+        files should be linted.
+
+        Subclasses may override this method to indicate that modules satisfying
+        certain conditions should not be linted.
+
+        :param str modname: The name of the module to be checked.
+        :param str path: The full path to the source code of the module.
+        :returns: True if the module should be checked.
+        :rtype: bool
+        """
+        return True
+
     def check(self, files_or_modules):
         """main checking entry: check a list of files or modules from their
         name.
@@ -582,12 +607,14 @@ This is used by the global evaluation report (RP0004).'}),
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
             modname, filepath = descr['name'], descr['path']
+            if not self.should_analyze_file(modname, filepath):
+                continue
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
                 self.reporter.set_output(open(reportfile, 'w'))
             self.set_current_module(modname, filepath)
             # get the module representation
-            astroid = self.get_astroid(filepath, modname)
+            astroid = self.get_ast(filepath, modname)
             if astroid is None:
                 continue
             self.base_name = descr['basename']
@@ -639,8 +666,8 @@ This is used by the global evaluation report (RP0004).'}),
             self._raw_module_msgs_state = {}
             self._ignored_msgs = {}
 
-    def get_astroid(self, filepath, modname):
-        """return a astroid representation for a module"""
+    def get_ast(self, filepath, modname):
+        """return a ast(roid) representation for a module"""
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
@@ -689,8 +716,8 @@ This is used by the global evaluation report (RP0004).'}),
 
     def open(self):
         """initialize counters"""
-        self.stats = { 'by_module' : {},
-                       'by_msg' : {},
+        self.stats = {'by_module' : {},
+                      'by_msg' : {},
                        }
         for msg_cat in MSG_TYPES.itervalues():
             self.stats[msg_cat] = 0
@@ -717,6 +744,8 @@ This is used by the global evaluation report (RP0004).'}),
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.base_name)
+        else:
+            self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
 
@@ -921,7 +950,7 @@ them in the generated configuration.'''}),
             ('generate-man',
              {'action' : 'callback', 'callback' : self.cb_generate_manpage,
               'group': 'Commands',
-              'help' : "Generate pylint's man page.",'hide': True}),
+              'help' : "Generate pylint's man page.", 'hide': True}),
 
             ('errors-only',
              {'action' : 'callback', 'callback' : self.cb_error_mode,
@@ -1001,7 +1030,8 @@ are done by default'''}),
         if self.linter.config.profile:
             print >> sys.stderr, '** profiled run'
             import cProfile, pstats
-            cProfile.runctx('linter.check(%r)' % args, globals(), locals(), 'stones.prof' )
+            cProfile.runctx('linter.check(%r)' % args, globals(), locals(),
+                            'stones.prof')
             data = pstats.Stats('stones.prof')
             data.strip_dirs()
             data.sort_stats('time', 'calls')

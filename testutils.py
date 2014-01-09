@@ -38,6 +38,7 @@ from pylint.lint import PyLinter
 SYS_VERS_STR = '%d%d' % sys.version_info[:2]
 TITLE_UNDERLINES = ['', '=', '-', '.']
 PREFIX = abspath(dirname(__file__))
+PY3K = sys.version_info[0] == 3
 
 def fix_path():
     sys.path.insert(0, PREFIX)
@@ -99,6 +100,10 @@ class TestReporter(BaseReporter):
         if obj:
             obj = ':%s' % obj
         sigle = msg_id[0]
+        if PY3K and linesep != '\n':
+            # 2to3 writes os.linesep instead of using
+            # the previosly used line separators
+            msg = msg.replace('\r\n', '\n')
         self.messages.append('%s:%3s%s: %s' % (sigle, line, obj, msg))
 
     def finalize(self):
@@ -150,7 +155,7 @@ class CheckerTestCase(testlib.TestCase):
 
     def setUp(self):
         self.linter = UnittestLinter()
-        self.checker = self.CHECKER_CLASS(self.linter)
+        self.checker = self.CHECKER_CLASS(self.linter) # pylint: disable=not-callable
         for key, value in self.CONFIG.iteritems():
             setattr(self.checker.config, key, value)
         self.checker.open()
@@ -175,7 +180,7 @@ class CheckerTestCase(testlib.TestCase):
         msg = ('Expected messages did not match actual.\n'
                'Expected:\n%s\nGot:\n%s' % ('\n'.join(repr(m) for m in messages),
                                             '\n'.join(repr(m) for m in got)))
-        self.assertEqual(got, list(messages), msg)
+        self.assertEqual(list(messages), got, msg)
 
 
 # Init
@@ -213,10 +218,10 @@ class LintTestUsingModule(testlib.TestCase):
     _TEST_TYPE = 'module'
 
     def shortDescription(self):
-        values = { 'mode' : self._TEST_TYPE,
-                   'input': self.module,
-                   'pkg':   self.package,
-                   'cls':   self.__class__.__name__}
+        values = {'mode' : self._TEST_TYPE,
+                  'input': self.module,
+                  'pkg':   self.package,
+                  'cls':   self.__class__.__name__}
 
         if self.package == self.DEFAULT_PACKAGE:
             msg = '%(mode)s test of input file "%(input)s" (%(cls)s)'
@@ -246,14 +251,14 @@ class LintTestUsingModule(testlib.TestCase):
             ex.__str__ = exception_str
             raise
         got = self.linter.reporter.finalize()
-        self.assertMultiLineEqual(got, self._get_expected())
+        self.assertMultiLineEqual(self._get_expected(), got)
 
 
     def _get_expected(self):
         if self.module.startswith('func_noerror_'):
             expected = ''
         else:
-            output = open(self.output)
+            output = open(self.output, 'U')
             expected = output.read().strip() + '\n'
             output.close()
         return expected

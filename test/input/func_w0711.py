@@ -9,7 +9,7 @@ except Exception or StandardError:
     print "caught1"
 except Exception and StandardError:
     print "caught2"
-except (Exception or StandardError):
+except Exception or StandardError:
     print "caught3"
 except (Exception or StandardError), exc:
     print "caught4"

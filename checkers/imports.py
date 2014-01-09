@@ -93,7 +93,7 @@ def dependencies_graph(filename, dep_info):
     """write dependencies as a dot (graphviz) file
     """
     done = {}
-    printer = DotBackend(filename[:-4], rankdir = "LR")
+    printer = DotBackend(filename[:-4], rankdir='LR')
     printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(dep_info.iteritems()):
         done[modname] = 1
@@ -301,11 +301,10 @@ given file (report RP0402 must not be disabled)'}
                 importedmodname, set())
             if not context_name in importedmodnames:
                 importedmodnames.add(context_name)
-            if is_standard_module(importedmodname, (self.package_dir(),)):
-                # update import graph
-                mgraph = self.import_graph.setdefault(context_name, set())
-                if not importedmodname in mgraph:
-                    mgraph.add(importedmodname)
+            # update import graph
+            mgraph = self.import_graph.setdefault(context_name, set())
+            if not importedmodname in mgraph:
+                mgraph.add(importedmodname)
 
     def _check_deprecated_module(self, node, mod_path):
         """check if the module is deprecated"""

@@ -21,7 +21,7 @@ _ = lambda x, y, z, *args, **kwargs: _ANYARGS(x, y, z, *args, **kwargs)
 # Lambdas that are *not* unnecessary and should *not* trigger warnings.
 _ = lambda x: x
 _ = lambda x: x()
-_ = lambda x = 4: hash(x)
+_ = lambda x=4: hash(x)
 _ = lambda x, y: range(y, x)
 _ = lambda x: range(5, x)
 _ = lambda x, y: range(x, 5)

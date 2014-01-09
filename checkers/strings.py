@@ -66,11 +66,11 @@ MSGS = {
     'E1305': ("Too many arguments for format string",
               "too-many-format-args",
               "Used when a format string that uses unnamed conversion \
-              specifiers is given too few arguments."),
+              specifiers is given too many arguments."),
     'E1306': ("Not enough arguments for format string",
               "too-few-format-args",
               "Used when a format string that uses unnamed conversion \
-              specifiers is given too many arguments"),
+              specifiers is given too few arguments"),
     }
 
 OTHER_NODES = (astroid.Const, astroid.List, astroid.Backquote,
@@ -233,7 +233,7 @@ class StringConstantChecker(BaseTokenChecker):
             if c in '\'\"':
                 quote_char = c
                 break
-        prefix = token[:i].lower()  #  markers like u, b, r.
+        prefix = token[:i].lower() #  markers like u, b, r.
         after_prefix = token[i:]
         if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
             string_body = after_prefix[3:-3]

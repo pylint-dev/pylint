@@ -51,6 +51,20 @@ def overridden_method(klass, name):
         return meth_node
     return None
 
+def _get_unpacking_extra_info(node, infered):
+    """return extra information to add to the message for unpacking-non-sequence
+    and unbalanced-tuple-unpacking errors
+    """
+    more = ''
+    infered_module = infered.root().name
+    if node.root().name == infered_module:
+        if node.lineno == infered.lineno:
+            more = ' %s' % infered.as_string()
+        elif infered.lineno:
+            more = ' defined at line %s' % infered.lineno
+    elif infered.lineno:
+        more = ' defined at line %s of %s' % (infered.lineno, infered_module)
+    return more
 
 MSGS = {
     'E0601': ('Using variable %r before assignment',
@@ -120,13 +134,12 @@ MSGS = {
               the loop.'),
 
     'W0632': ('Possible unbalanced tuple unpacking with '
-              'sequence at line %s: '
+              'sequence%s: '
               'left side has %d label(s), right side has %d value(s)',
               'unbalanced-tuple-unpacking',
               'Used when there is an unbalanced tuple unpacking in assignment'),
 
-    'W0633': ('Attempting to unpack a non-sequence with '
-              'non-sequence at line %s',
+    'W0633': ('Attempting to unpack a non-sequence%s',
               'unpacking-non-sequence',
               'Used when something which is not '
               'a sequence is used in an unpack assignment'),
@@ -556,7 +569,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         if not isinstance(node.targets[0], (astroid.Tuple, astroid.List)):
             return
-        
+
         targets = node.targets[0].itered()
         if any(not isinstance(target_node, astroid.AssName)
                for target_node in targets):
@@ -572,41 +585,30 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """ Check for unbalanced tuple unpacking
         and unpacking non sequences.
         """
-        if isinstance(infered, (astroid.Tuple, astroid.List)):                            
+        if infered is astroid.YES:
+            return
+        if isinstance(infered, (astroid.Tuple, astroid.List)):
+            # attempt to check unpacking is properly balanced
             values = infered.itered()
             if len(targets) != len(values):
-                if node.root().name == infered.root().name:
-                     location = infered.lineno or 'unknown'
-                else:
-                     location = '%s (%s)' % (infered.lineno or 'unknown',
-                                             infered.root().name)
-
-                self.add_message('unbalanced-tuple-unpacking',
-                                 node=node,
-                                 args=(location,
-                                       len(targets), 
+                self.add_message('unbalanced-tuple-unpacking', node=node,
+                                 args=(_get_unpacking_extra_info(node, infered),
+                                       len(targets),
                                        len(values)))
-        else:
-            if infered is astroid.YES:
-                return
-
+        # attempt to check unpacking may be possible (ie RHS is iterable)
+        elif isinstance(infered, astroid.Instance):
             for meth in ('__iter__', '__getitem__'):
                 try:
                     infered.getattr(meth)
+                    break
                 except astroid.NotFoundError:
                     continue
-                else:
-                    break               
-            else:                
-                if node.root().name == infered.root().name:
-                     location = infered.lineno or 'unknown'
-                else:
-                     location = '%s (%s)' % (infered.lineno or 'unknown',
-                                             infered.root().name)
-                    
-                self.add_message('unpacking-non-sequence',
-                                 node=node,
-                                 args=(location, ))
+            else:
+                self.add_message('unpacking-non-sequence', node=node,
+                                 args=(_get_unpacking_extra_info(node, infered),))
+        else:
+            self.add_message('unpacking-non-sequence', node=node,
+                             args=(_get_unpacking_extra_info(node, infered),))
 
 
     def _check_module_attrs(self, node, module, module_names):

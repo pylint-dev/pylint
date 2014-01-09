@@ -68,11 +68,11 @@ class RawMetricsChecker(BaseTokenChecker):
     # configuration section name
     name = 'metrics'
     # configuration options
-    options = ( )
+    options = ()
     # messages
     msgs = {}
     # reports
-    reports = ( ('RP0701', 'Raw metrics', report_raw_stats), )
+    reports = (('RP0701', 'Raw metrics', report_raw_stats),)
 
     def __init__(self, linter):
         BaseTokenChecker.__init__(self, linter)

@@ -15,8 +15,8 @@ It's a free software distributed under the GNU Public Licence.
 Development is hosted on bitbucket: https://bitbucket.org/logilab/pylint/
 
 You can use the code-quality@python.org mailing list to discuss about
-Pylint. Subscribe at http://lists.python.org/mailman/listinfo/code-quality
-or read the archives at http://lists.python.org/pipermail/code-quality/
+Pylint. Subscribe at https://mail.python.org/mailman/listinfo/code-quality/
+or read the archives at https://mail.python.org/pipermail/code-quality/
 
 Install
 -------
