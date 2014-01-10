@@ -2,9 +2,19 @@ ChangeLog for Pylint
 ====================
 
 --
+    * bitbucket #128: pylint doesn't crash when looking
+      for used-before-assignment in context manager
+      assignments.
+
+    * Add new warning, 'bad-reversed-sequence', for checking that the
+      reversed() builtin receive a sequence (implements __getitem__ and __len__,
+      without being a dict or a dict subclass) or an instance which implements
+      __reversed__.
+
     * Add new warning 'bad-exception-context', checking
       that `raise ... from ...` uses a proper exception context
       (None or an exception).
+
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
