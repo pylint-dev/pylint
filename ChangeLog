@@ -72,8 +72,6 @@ ChangeLog for Pylint
 
     * Various documentation fixes and enhancements
 
-    * Added a __main__.py file so you can run "python -m pylint"
-
     * Fix issue #55 (false-positive trailing-whitespace on Windows)
 
 
