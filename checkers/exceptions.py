@@ -142,20 +142,19 @@ class ExceptionsChecker(BaseChecker):
         if node.exc is None:
             return
         if PY3K and node.cause:
-            if isinstance(node.cause, astroid.Const):
-                if node.cause.value is not None:
-                    self.add_message('bad-exception-context',
-                                     node=node)
+            try:
+                cause = node.cause.infer().next()
+            except astroid.InferenceError:
+                pass
             else:
-                try:
-                    cause = node.cause.infer().next()
-                except astroid.InferenceError:
-                    pass
-                else:
-                    if (not isinstance(cause, astroid.Class) and
-                        not inherit_from_std_ex(cause)):
+                if isinstance(cause, astroid.Const):
+                    if cause.value is not None:
                         self.add_message('bad-exception-context',
                                          node=node)
+                elif (not isinstance(cause, astroid.Class) and
+                      not inherit_from_std_ex(cause)):
+                    self.add_message('bad-exception-context',
+                                      node=node)
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
