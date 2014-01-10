@@ -75,7 +75,6 @@ ChangeLog for Pylint
     * Fix issue #55 (false-positive trailing-whitespace on Windows)
 
 
-
 2013-08-06  --  1.0.0
     * Add check for the use of 'exec' function
 
