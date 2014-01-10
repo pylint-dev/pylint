@@ -17,3 +17,7 @@ def test():
     raise IndexError from object()
     raise IndexError from ExceptionSubclass
     raise IndexError from socket.error
+    raise IndexError() from None
+    raise IndexError() from ZeroDivisionError
+    raise IndexError() from ZeroDivisionError()
+    raise IndexError() from object()
