@@ -33,6 +33,8 @@ from pylint.checkers.utils import (
     is_inside_except,
     overrides_a_method,
     safe_infer,
+    get_argument_from_call,
+    NoSuchArgumentError,
     )
 
 
@@ -47,6 +49,8 @@ DEFAULT_NAME_RGX = re.compile('[a-z_][a-z0-9_]{2,30}$')
 CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
 # do not require a doc string on system methods
 NO_REQUIRED_DOC_RGX = re.compile('__.*__')
+REVERSED_METHODS = (('__getitem__', '__len__'),
+                    ('__reversed__', ))
 
 BAD_FUNCTIONS = ['map', 'filter', 'apply']
 if sys.version_info < (3, 0):
@@ -419,6 +423,16 @@ functions, methods
     'C0121': ('Missing required attribute "%s"', # W0103
               'missing-module-attribute',
               'Used when an attribute required for modules is missing.'),
+
+    'E0109': ('Missing argument to reversed()',
+              'missing-reversed-argument',
+              'Used when reversed() builtin didn\'t receive an argument.'),
+    'E0111': ('The first reversed() argument is not a sequence',
+              'bad-reversed-sequence',
+              'Used when the first argument to reversed() builtin '
+              'isn\'t a sequence (does not implement __reversed__, '
+              'nor __getitem__ and __len__'),
+
     }
 
     options = (('required-attributes',
@@ -608,7 +622,9 @@ functions, methods
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @check_messages('bad-builtin', 'star-args', 'exec-used')
+    @check_messages('bad-builtin', 'star-args', 
+                    'exec-used', 'missing-reversed-argument', 
+                    'bad-reversed-sequence')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -621,6 +637,8 @@ functions, methods
                     name in node.root()):
                 if name == 'exec':
                     self.add_message('exec-used', node=node)
+                elif name == 'reversed':
+                    self._check_reversed(node)
                 if name in self.config.bad_functions:
                     self.add_message('bad-builtin', node=node, args=name)
         if node.starargs or node.kwargs:
@@ -685,7 +703,55 @@ functions, methods
                 return
             _node = _parent
             _parent = _node.parent
+    
+    def _check_reversed(self, node):
+        """ check that the argument to `reversed` is a sequence """
+        try:
+            argument = safe_infer(get_argument_from_call(node, position=0))
+        except NoSuchArgumentError:
+            self.add_message('missing-reversed-argument', node=node)
+        else:
+            if argument is astroid.YES:
+                return
+            if argument is None:
+                # nothing was infered
+                # try to see if we have iter()
+                if (isinstance(node.args[0], astroid.CallFunc) and
+                    node.args[0].func.name == 'iter'):
+                     func = node.args[0].func.infer().next()
+                     if is_builtin_object(func):
+                         self.add_message('bad-reversed-sequence', node=node)
+                return
 
+            if isinstance(argument, astroid.Instance):
+                if (argument._proxied.name == 'dict' and 
+                    is_builtin_object(argument._proxied)):
+                     self.add_message('bad-reversed-sequence', node=node)
+                     return
+                elif any(ancestor.name == 'dict' and is_builtin_object(ancestor)
+                       for ancestor in argument._proxied.ancestors()):
+                    # mappings aren't accepted by reversed()
+                    self.add_message('bad-reversed-sequence', node=node)
+                    return
+
+                for methods in REVERSED_METHODS:
+                    for meth in methods:
+                        try:
+                            argument.getattr(meth)
+                        except astroid.NotFoundError:
+                            break
+                    else:
+                        break
+                else:             
+                    # check if it is a .deque. It doesn't seem that
+                    # we can retrieve special methods 
+                    # from C implemented constructs    
+                    if argument._proxied.qname().endswith(".deque"):
+                        return
+                    self.add_message('bad-reversed-sequence', node=node)
+            elif not isinstance(argument, (astroid.List, astroid.Tuple)):
+                # everything else is not a proper sequence for reversed()
+                self.add_message('bad-reversed-sequence', node=node)
 
 class NameChecker(_BasicChecker):
     msgs = {
