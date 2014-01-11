@@ -25,6 +25,23 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_empty, is_raising, check_messages
 from pylint.interfaces import IAstroidChecker
 
+def infer_bases(klass):
+    """ Fully infer the bases of the klass node.
+
+    This doesn't use .ancestors(), because we need
+    the non-inferable nodes (YES nodes),
+    which can't be retrieved from .ancestors()
+    """
+    for base in klass.bases:
+        try:
+            inferit = base.infer().next()
+        except astroid.InferenceError:
+            continue
+        if inferit is YES:
+            yield inferit
+        else:
+            for base in infer_bases(inferit):
+                yield base
 
 OVERGENERAL_EXCEPTIONS = ('Exception',)
 
@@ -214,9 +231,16 @@ class ExceptionsChecker(BaseChecker):
 
                     if (not inherit_from_std_ex(exc) and
                         exc.root().name != BUILTINS_NAME):
-                        self.add_message('catching-non-exception',
-                                         node=handler.type,
-                                         args=(exc.name, ))
+                        # try to see if the exception is based on a C based
+                        # exception, by infering all the base classes and
+                        # looking for inference errors
+                        bases = infer_bases(exc)
+                        fully_infered = all(inferit is not YES
+                                            for inferit in bases)
+                        if fully_infered:
+                            self.add_message('catching-non-exception',
+                                             node=handler.type,
+                                             args=(exc.name, ))
 
                 exceptions_classes += excs
 
