@@ -11,6 +11,8 @@ ChangeLog for Pylint
       without being a dict or a dict subclass) or an instance which implements
       __reversed__.
 
+    * Mark `file` as a bad function when using python2 (closes #8).
+
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
