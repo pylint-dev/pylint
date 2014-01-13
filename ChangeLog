@@ -13,6 +13,10 @@ ChangeLog for Pylint
 
     * Mark `file` as a bad function when using python2 (closes #8).
 
+    * Add new warning 'bad-exception-context', checking
+      that `raise ... from ...` uses a proper exception context
+      (None or an exception).
+
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"

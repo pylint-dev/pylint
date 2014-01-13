@@ -43,6 +43,7 @@ def infer_bases(klass):
             for base in infer_bases(inferit):
                 yield base
 
+PY3K = sys.version_info >= (3, 0)
 OVERGENERAL_EXCEPTIONS = ('Exception',)
 
 MSGS = {
@@ -55,6 +56,13 @@ MSGS = {
               'raising-bad-type',
               'Used when something which is neither a class, an instance or a \
               string is raised (i.e. a `TypeError` will be raised).'),
+    'E0703': ('Exception context set to something which is not an '
+              'exception, nor None',
+              'bad-exception-context',
+              'Used when using the syntax "raise ... from ...", '
+              'where the exception context is not an exception, '
+              'nor None.',
+              {'minversion': (3, 0)}),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
               'Used when a new style class which doesn\'t inherit from \
@@ -126,12 +134,27 @@ class ExceptionsChecker(BaseChecker):
                 ),
                )
 
-    @check_messages('W0701', 'W0710', 'E0702', 'E0710', 'E0711')
+    @check_messages('W0701', 'W0710', 'E0702', 'E0710', 'E0711',
+                    'bad-exception-context')
     def visit_raise(self, node):
         """visit raise possibly inferring value"""
         # ignore empty raise
         if node.exc is None:
             return
+        if PY3K and node.cause:
+            try:
+                cause = node.cause.infer().next()
+            except astroid.InferenceError:
+                pass
+            else:
+                if isinstance(cause, astroid.Const):
+                    if cause.value is not None:
+                        self.add_message('bad-exception-context',
+                                         node=node)
+                elif (not isinstance(cause, astroid.Class) and
+                      not inherit_from_std_ex(cause)):
+                    self.add_message('bad-exception-context',
+                                      node=node)
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
