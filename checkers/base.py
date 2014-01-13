@@ -55,6 +55,7 @@ REVERSED_METHODS = (('__getitem__', '__len__'),
 BAD_FUNCTIONS = ['map', 'filter', 'apply']
 if sys.version_info < (3, 0):
     BAD_FUNCTIONS.append('input')
+    BAD_FUNCTIONS.append('file')
 
 del re
 
