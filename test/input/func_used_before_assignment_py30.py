@@ -17,11 +17,3 @@ def test_fail():
     def wrap():
         cnt = cnt + 1
     wrap()
-
-def test2_fail():
-    """ uses nonlocal, but without an
-    outer label defined. """
-    def wrap():
-        nonlocal cnt
-        cnt = cnt + 1
-    wrap()
