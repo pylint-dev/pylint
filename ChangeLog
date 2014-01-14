@@ -11,6 +11,12 @@ ChangeLog for Pylint
       without being a dict or a dict subclass) or an instance which implements
       __reversed__.
 
+    * Mark `file` as a bad function when using python2 (closes #8).
+
+    * Add new warning 'bad-exception-context', checking
+      that `raise ... from ...` uses a proper exception context
+      (None or an exception).
+
     * Enhance the check for 'used-before-assignment' to look
       for 'nonlocal' uses.
 
