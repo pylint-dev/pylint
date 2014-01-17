@@ -220,7 +220,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         continue
                     if elt_name not in node.locals:
                         if not node.package:
-                            self.add_message('E0603', args=elt_name, node=elt)
+                            self.add_message('undefined-all-variable',
+                                             args=elt_name,
+                                             node=elt)
                         else:
                             basename = os.path.splitext(node.file)[0]
                             if os.path.basename(basename) == '__init__':
@@ -228,7 +230,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                 try:
                                     load_module_from_name(name)
                                 except ImportError:
-                                    self.add_message('E0603', 
+                                    self.add_message('undefined-all-variable', 
                                                      args=elt_name, 
                                                      node=elt)
                                 except SyntaxError as exc:

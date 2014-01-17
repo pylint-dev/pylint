@@ -58,7 +58,7 @@ class TestTests(testlib.TestCase):
             rest = ['I0001',
                     # XXX : no use case for now :
                     'W0402', # deprecated module
-                    'W0403', # implicit relative import,
+                    'W0403', # implicit relative import
                     'W0410', # __future__ import not first statement
                     ]
             self.assertEqual(todo, rest)
