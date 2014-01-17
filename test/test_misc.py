@@ -25,9 +25,6 @@ from astroid import test_utils
 from pylint.checkers import misc, variables
 from pylint.testutils import CheckerTestCase, Message, linter
 
-REGR_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                         'regrtest_data')
-sys.path.insert(1, REGR_DATA)
 
 @contextlib.contextmanager
 def create_file_backed_module(code):
@@ -74,9 +71,16 @@ class MissingSubmoduleTest(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
     def test_package_all(self):
-        linter.check(os.path.join(REGR_DATA, 'package_all'))
-        got = linter.reporter.finalize().strip()
-        self.assertEqual(got, 'W:  3: Missing submodule: missing')
+        regr_data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 'regrtest_data')
+        sys.path.insert(0, regr_data)
+        try:
+            linter.check(os.path.join(regr_data, 'package_all'))
+            got = linter.reporter.finalize().strip()
+            self.assertEqual(got, "E:  3: Undefined variable name "
+                                  "'missing' in __all__")
+        finally:
+            sys.path.pop(0)
 
 if __name__ == '__main__':
     unittest_main()

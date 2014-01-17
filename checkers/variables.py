@@ -194,8 +194,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # do not print Redefining builtin for additional builtins
                 self.add_message('W0622', args=name, node=stmts[0])
 
-    @check_messages('W0611', 'W0614', 'W0622', 'E0603', 'E0604',
-                    'missing-submodule')
+    @check_messages('W0611', 'W0614', 'W0622', 'E0603', 'E0604')
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -229,7 +228,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                 try:
                                     load_module_from_name(name)
                                 except ImportError:
-                                    self.add_message('missing-submodule', 
+                                    self.add_message('E0603', 
                                                      args=elt_name, 
                                                      node=elt)
                                 except SyntaxError as exc:
