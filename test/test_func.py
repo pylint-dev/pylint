@@ -55,12 +55,16 @@ class TestTests(testlib.TestCase):
                 continue
         todo.sort()
         if PY3K:
-            rest = ['I0001',
+            rest = ['E1001', # slots-on-old-class
+                    'E1002', # super-on-old-class
                     # XXX : no use case for now :
+                    'I0001',
                     'W0402', # deprecated module
                     'W0403', # implicit relative import
                     'W0410', # __future__ import not first statement
-                    ]
+                    'W0710', # nonstandard-exception
+                    'W1001' # property-on-old-class
+                   ]
             self.assertEqual(todo, rest)
         else:
             self.assertEqual(todo, ['I0001'])
