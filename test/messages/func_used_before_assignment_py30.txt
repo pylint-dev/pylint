@@ -1,0 +1,2 @@
+E: 18:test_fail.wrap: Using variable 'cnt' before assignment
+E: 27:test_fail2.wrap: Using variable 'cnt' before assignment
