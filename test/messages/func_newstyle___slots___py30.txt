@@ -1,0 +1,1 @@
+C: 10:HaNonNonNon: Old-style class defined.

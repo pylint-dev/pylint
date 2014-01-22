@@ -17,6 +17,9 @@ ChangeLog for Pylint
       that `raise ... from ...` uses a proper exception context
       (None or an exception).
 
+    * Enhance the check for 'used-before-assignment' to look
+      for 'nonlocal' uses.
+
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
