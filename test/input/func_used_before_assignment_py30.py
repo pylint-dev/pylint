@@ -17,3 +17,12 @@ def test_fail():
     def wrap():
         cnt = cnt + 1
     wrap()
+
+def test_fail2():
+    """ use nonlocal, but for other variable """
+    cnt = 1
+    count = 1
+    def wrap():
+        nonlocal count
+        cnt = cnt + 1
+    wrap()

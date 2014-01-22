@@ -510,12 +510,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     else:
                         # check if we have a nonlocal
                         if name in defframe.locals:
-                            for child in defframe.get_children():
-                                if not isinstance(child, astroid.Nonlocal):
-                                    continue
-                                if name in child.names:
-                                    maybee0601 = False
-                                    break
+                            maybee0601 = not any(isinstance(child, astroid.Nonlocal)
+                                                 and name in child.names
+                                                 for child in defframe.get_children())
                 if (maybee0601
                     and stmt.fromlineno <= defstmt.fromlineno
                     and not is_defined_before(node)
