@@ -204,7 +204,6 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                   ' parseable, colorized, msvs (visual studio) and html. You '
                   'can also give a reporter class, eg mypackage.mymodule.'
                   'MyReporterClass.'}),
-
                 ('files-output',
                  {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'group': 'Reports', 'level': 1,
@@ -272,6 +271,12 @@ warning, statement which respectively contain the number of errors / warnings\
                             'used to format the message information. '
                             'See doc for all details')
                   }), # msg-template
+
+                ('html-ids',
+                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                  #'short': 'r',
+                  'group': 'Reports',
+                  'help' : 'Show message IDs in HTML output'}),
                )
 
     option_groups = (
@@ -890,6 +895,7 @@ class Run(object):
 
     run(*sys.argv[1:])
     """
+
     LinterClass = PyLinter
     option_groups = (
         ('Commands', 'Options which are actually commands. Options in this \

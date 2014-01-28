@@ -36,8 +36,14 @@ class HTMLReporter(BaseReporter):
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
         msg = Message(self, msg_id, location, msg)
-        self.msgs += (msg.category, msg.module, msg.obj,
-                      str(msg.line), str(msg.column), escape(msg.msg))
+        #self.msgs += (msg.category, msg.module, msg.obj,
+        #              str(msg.line), str(msg.column), escape(msg.msg))
+        if self.linter.config.html_ids:
+            self.msgs += (msg.category, msg.msg_id, msg.module, msg.obj,
+                          str(msg.line), str(msg.column), escape(msg.msg))
+        else:
+            self.msgs += (msg.category, msg.module, msg.obj,
+                          str(msg.line), str(msg.column), escape(msg.msg))
 
     def set_output(self, output=None):
         """set output stream
@@ -56,11 +62,16 @@ class HTMLReporter(BaseReporter):
         """
         if self.msgs:
             # add stored messages to the layout
-            msgs = ['type', 'module', 'object', 'line', 'col_offset', 'message']
+            if self.linter.config.html_ids:
+                msgs = ['type', 'id', 'module', 'object', 'line', 'col_offset', 'message']
+                cols = 7
+            else:
+                msgs = ['type', 'module', 'object', 'line', 'col_offset', 'message']
+                cols = 6
             msgs += self.msgs
             sect = Section('Messages')
             layout.append(sect)
-            sect.append(Table(cols=6, children=msgs, rheaders=1))
+            sect.append(Table(cols=cols, children=msgs, rheaders=1))
             self.msgs = []
         HTMLWriter().format(layout, self.out)
 
