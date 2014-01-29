@@ -75,7 +75,17 @@ class HTMLReporter(BaseReporter):
             self._parse_template()
 
         #We want to add the lines given by the template
-        thismsg = [str(msg.__dict__.get(x, "None")) for x in self.msgargs]
+        thismsg = [str(msg.__dict__.get(x, None)) for x in self.msgargs]
+
+        #We could escape the msg column however it doesnt seem
+        #to make a difference
+        # thismsg = []
+        # for item in self.msgargs:
+        #     if item == "msg":
+        #         thismsg.append(str(msg.__dict__.get(item, None)))
+        #     else:
+        #         thismsg.append(str(msg.__dict__.get(item, None)))
+
         self.msgs += thismsg
 
     def set_output(self, output=None):
