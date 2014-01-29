@@ -51,6 +51,9 @@ A few other examples:
 
     {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
+* HTML output (Default for the html output format) format::
+
+    '{category}{module}{obj}{line}{column}{msg}'
 
 
 .. _Python new format syntax: http://docs.python.org/2/library/string.html#formatstrings
