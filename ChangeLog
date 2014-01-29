@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add ablity to accept --msg-template strings when using HTML output
+      addresses issue #135.
+
     * bitbucket #128: pylint doesn't crash when looking
       for used-before-assignment in context manager
       assignments.
