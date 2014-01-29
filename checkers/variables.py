@@ -22,7 +22,7 @@ from copy import copy
 import astroid
 from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
 
-from logilab.common.modutils import load_module_from_name
+from logilab.common.modutils import file_from_modpath
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -228,7 +228,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             if os.path.basename(basename) == '__init__':
                                 name = node.name + "." + elt_name
                                 try:
-                                    load_module_from_name(name)
+                                    file_from_modpath(name.split("."))
                                 except ImportError:
                                     self.add_message('undefined-all-variable', 
                                                      args=elt_name, 
