@@ -20,6 +20,8 @@ ChangeLog for Pylint
     * Enhance the check for 'used-before-assignment' to look
       for 'nonlocal' uses.
 
+    * Emit 'undefined-all-variable' if a package's __all__
+      variable contains a missing submodule (closes #126).
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
