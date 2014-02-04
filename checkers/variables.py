@@ -15,12 +15,14 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """variables checkers for Python code
 """
-
+import os
 import sys
 from copy import copy
 
 import astroid
 from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
+
+from logilab.common.modutils import file_from_modpath
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -217,7 +219,25 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         del not_consumed[elt_name]
                         continue
                     if elt_name not in node.locals:
-                        self.add_message('E0603', args=elt_name, node=elt)
+                        if not node.package:
+                            self.add_message('undefined-all-variable',
+                                             args=elt_name,
+                                             node=elt)
+                        else:
+                            basename = os.path.splitext(node.file)[0]
+                            if os.path.basename(basename) == '__init__':
+                                name = node.name + "." + elt_name
+                                try:
+                                    file_from_modpath(name.split("."))
+                                except ImportError:
+                                    self.add_message('undefined-all-variable', 
+                                                     args=elt_name, 
+                                                     node=elt)
+                                except SyntaxError as exc:
+                                    # don't yield an syntax-error warning,
+                                    # because it will be later yielded
+                                    # when the file will be checked
+                                    pass
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
