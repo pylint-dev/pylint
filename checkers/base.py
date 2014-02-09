@@ -19,7 +19,7 @@
 import sys
 import astroid
 from logilab.common.ureports import Table
-from astroid import are_exclusive
+from astroid import are_exclusive, InferenceError
 import astroid.bases
 
 from pylint.interfaces import IAstroidChecker
@@ -101,6 +101,8 @@ if sys.version_info < (3, 0):
     PROPERTY_CLASSES = set(('__builtin__.property', 'abc.abstractproperty'))
 else:
     PROPERTY_CLASSES = set(('builtins.property', 'abc.abstractproperty'))
+ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
+                   'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
 
 def _determine_function_name_type(node):
     """Determine the name type whose regex the a function's name should match.
@@ -130,6 +132,18 @@ def _determine_function_name_type(node):
             return 'attr'
     return 'method'
 
+def decorated_with_abc(func):
+    """ Determine if the `func` node is decorated
+    with `abc` decorators (abstractmethod et co.)
+    """
+    if func.decorators:
+        for node in func.decorators.nodes:
+            try:
+                infered = next(node.infer())
+            except InferenceError:
+                continue
+            if infered and infered.qname() in ABC_METHODS:
+                return True
 
 def report_by_type_stats(sect, stats, old_stats):
     """make a report of
@@ -229,6 +243,11 @@ class BasicErrorChecker(_BasicChecker):
               'duplicate-argument-name',
               'Duplicate argument names in function definitions are syntax'
               ' errors.'),
+    'E0110': ('Abstract class with abstract methods instantiated',
+              'abstract-class-instantiated',
+              'Used when an abstract class with `abc.ABCMeta` as metaclass '
+              'has abstract methods and is instantiated.',
+              {'minversion': (3, 0)}),
     'W0120': ('Else clause on loop without a break statement',
               'useless-else-on-loop',
               'Loops should only have an else clause if they can exit early '
@@ -314,6 +333,30 @@ class BasicErrorChecker(_BasicChecker):
             (node.operand.op == node.op)):
             self.add_message('nonexistent-operator', node=node, args=node.op*2)
 
+    @check_messages('abstract-class-instantiated')
+    def visit_callfunc(self, node):
+        """ Check instantiating abstract class with
+        abc.ABCMeta as metaclass. 
+        """
+        if not isinstance(node.func, astroid.Name):
+            return
+        try:
+            infered = node.func.infer().next()
+        except astroid.InferenceError:
+            return
+        if not isinstance(infered, astroid.Class):
+            return
+        # __init__ was called
+        metaclass = infered.metaclass()
+        if metaclass is None:
+            return
+        if (metaclass.name == 'ABCMeta' and
+            metaclass.parent and
+            metaclass.parent.name == 'abc' and
+            any(decorated_with_abc(meth)
+                for meth in infered.mymethods())):
+            self.add_message('abstract-class-instantiated', node=node)
+   
     def _check_else_on_loop(self, node):
         """Check that any loop with an else clause has a break statement."""
         if node.orelse and not _loop_exits_early(node):
