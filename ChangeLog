@@ -23,6 +23,10 @@ ChangeLog for Pylint
     * Emit 'undefined-all-variable' if a package's __all__
       variable contains a missing submodule (closes #126).
 
+    * Add a new warning 'abstract-class-instantiated' for checking
+      that abstract classes created with `abc` module and
+      with abstract methods are instantied.     
+
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
