@@ -139,7 +139,7 @@ def decorated_with_abc(func):
     if func.decorators:
         for node in func.decorators.nodes:
             try:
-                infered = next(node.infer())
+                infered = node.infer().next()
             except InferenceError:
                 continue
             if infered and infered.qname() in ABC_METHODS:
