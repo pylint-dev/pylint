@@ -345,8 +345,6 @@ class BasicErrorChecker(_BasicChecker):
         """ Check instantiating abstract class with
         abc.ABCMeta as metaclass. 
         """
-        if not isinstance(node.func, astroid.Name):
-            return
         try:
             infered = node.func.infer().next()
         except astroid.InferenceError:
@@ -359,17 +357,13 @@ class BasicErrorChecker(_BasicChecker):
             # Python 3.4 has `abc.ABC`, which won't be detected
             # by ClassNode.metaclass()
             for ancestor in infered.ancestors():
-                if (ancestor.name == 'ABC' and
-                    ancestor.parent and
-                    ancestor.parent.name == 'abc' and
+                if (ancestor.qname() == 'abc.ABC' and
                     has_abstract_methods(infered)):
 
                     self.add_message('abstract-class-instantiated', node=node)
                     break
             return
-        if (metaclass.name == 'ABCMeta' and
-            metaclass.parent and
-            metaclass.parent.name == 'abc' and
+        if (metaclass.qname() == 'abc.ABCMeta' and
             has_abstract_methods(infered)):
 
             self.add_message('abstract-class-instantiated', node=node)
