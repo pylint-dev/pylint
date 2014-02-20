@@ -11,6 +11,21 @@ ChangeLog for Pylint
       without being a dict or a dict subclass) or an instance which implements
       __reversed__.
 
+    * Mark `file` as a bad function when using python2 (closes #8).
+
+    * Add new warning 'bad-exception-context', checking
+      that `raise ... from ...` uses a proper exception context
+      (None or an exception).
+
+    * Enhance the check for 'used-before-assignment' to look
+      for 'nonlocal' uses.
+
+    * Emit 'undefined-all-variable' if a package's __all__
+      variable contains a missing submodule (closes #126).
+
+    * Add a new warning 'abstract-class-instantiated' for checking
+      that abstract classes created with `abc` module and
+      with abstract methods are instantied.     
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
