@@ -243,7 +243,7 @@ class BasicErrorChecker(_BasicChecker):
               'Used when a "return" statement with an argument is found '
               'outside in a generator function or method (e.g. with some '
               '"yield" statements).',
-              {'maxversion': (3, 2)}),
+              {'maxversion': (3, 3)}),
     'E0107': ("Use of the non-existent %s operator",
               'nonexistent-operator',
               "Used when you attempt to use the C-style pre-increment or"
