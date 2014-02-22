@@ -25,7 +25,9 @@ ChangeLog for Pylint
 
     * Add a new warning 'abstract-class-instantiated' for checking
       that abstract classes created with `abc` module and
-      with abstract methods are instantied.     
+      with abstract methods are instantied.
+
+    * Do not warn about 'return-arg-in-generator' in Python 3.     
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
