@@ -52,6 +52,7 @@ NO_REQUIRED_DOC_RGX = re.compile('__.*__')
 REVERSED_METHODS = (('__getitem__', '__len__'),
                     ('__reversed__', ))
 
+PY33 = sys.version_info >= (3, 3)
 BAD_FUNCTIONS = ['map', 'filter', 'apply']
 if sys.version_info < (3, 0):
     BAD_FUNCTIONS.append('input')
@@ -241,7 +242,8 @@ class BasicErrorChecker(_BasicChecker):
               'return-arg-in-generator',
               'Used when a "return" statement with an argument is found '
               'outside in a generator function or method (e.g. with some '
-              '"yield" statements).'),
+              '"yield" statements).',
+              {'maxversion': (3, 3)}),
     'E0107': ("Use of the non-existent %s operator",
               'nonexistent-operator',
               "Used when you attempt to use the C-style pre-increment or"
@@ -292,11 +294,12 @@ class BasicErrorChecker(_BasicChecker):
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
-            for retnode in returns:
-                if isinstance(retnode.value, astroid.Const) and \
-                       retnode.value.value is not None:
-                    self.add_message('return-arg-in-generator', node=node,
-                                     line=retnode.fromlineno)
+            if not PY33:
+                for retnode in returns:
+                    if isinstance(retnode.value, astroid.Const) and \
+                           retnode.value.value is not None:
+                        self.add_message('return-arg-in-generator', node=node,
+                                         line=retnode.fromlineno)
         # Check for duplicate names
         args = set()
         for name in node.argnames():
