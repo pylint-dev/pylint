@@ -52,7 +52,7 @@ sys.modules.pop('__pkginfo__', None)
 __pkginfo__ = __import__("__pkginfo__")
 # import required features
 from __pkginfo__ import modname, version, license, description, \
-     web, author, author_email
+     web, author, author_email, classifiers
 
 distname = getattr(__pkginfo__, 'distname', modname)
 scripts = getattr(__pkginfo__, 'scripts', [])
@@ -179,6 +179,7 @@ def install(**kwargs):
                  author_email=author_email,
                  url=web,
                  scripts=ensure_scripts(scripts),
+                 classifiers=classifiers,
                  data_files=data_files,
                  ext_modules=ext_modules,
                  cmdclass={'install_lib': MyInstallLib,
