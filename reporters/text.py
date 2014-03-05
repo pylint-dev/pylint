@@ -10,7 +10,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Plain text reporters:
 
 :text: the default one grouping messages by module
@@ -75,8 +75,8 @@ class ParseableTextReporter(TextReporter):
     line_format = '{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'
 
     def __init__(self, output=None):
-        warnings.warn('%s output format is deprecated. This is equivalent to --msg-template=%s'
-                      % (self.name, self.line_format))
+        warnings.warn('%s output format is deprecated. This is equivalent '
+                      'to --msg-template=%s' % (self.name, self.line_format))
         TextReporter.__init__(self, output)
 
 

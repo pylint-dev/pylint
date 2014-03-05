@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """classes checker for Python code
 """
 from __future__ import generators
@@ -183,7 +183,7 @@ class ClassChecker(BaseChecker):
     options = (('ignore-iface-methods',
                 {'default' : (#zope interface
         'isImplementedBy', 'deferred', 'extends', 'names',
-        'namesAndDescriptions', 'queryDescriptionFor',  'getBases',
+        'namesAndDescriptions', 'queryDescriptionFor', 'getBases',
         'getDescriptionFor', 'getDoc', 'getName', 'getTaggedValue',
         'getTaggedValueTags', 'isEqualOrExtendedBy', 'setTaggedValue',
         'isImplementedByInstancesOf',
@@ -355,10 +355,10 @@ a metaclass class method.'}
         positional = sum(1 for arg in node.args.args if arg.name != 'self')
         if positional < 3 and not node.args.vararg:
             self.add_message('bad-context-manager',
-                             node=node)  
+                             node=node)
         elif positional > 3:
             self.add_message('bad-context-manager',
-                             node=node)    
+                             node=node)
 
     def leave_function(self, node):
         """on method node, check if this method couldn't be a function

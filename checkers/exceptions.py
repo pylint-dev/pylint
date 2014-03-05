@@ -11,7 +11,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """exceptions handling (raising, catching, exceptions classes) checker
 """
 import sys
@@ -25,7 +25,25 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_empty, is_raising, check_messages
 from pylint.interfaces import IAstroidChecker
 
+def infer_bases(klass):
+    """ Fully infer the bases of the klass node.
 
+    This doesn't use .ancestors(), because we need
+    the non-inferable nodes (YES nodes),
+    which can't be retrieved from .ancestors()
+    """
+    for base in klass.bases:
+        try:
+            inferit = base.infer().next()
+        except astroid.InferenceError:
+            continue
+        if inferit is YES:
+            yield inferit
+        else:
+            for base in infer_bases(inferit):
+                yield base
+
+PY3K = sys.version_info >= (3, 0)
 OVERGENERAL_EXCEPTIONS = ('Exception',)
 
 MSGS = {
@@ -38,6 +56,13 @@ MSGS = {
               'raising-bad-type',
               'Used when something which is neither a class, an instance or a \
               string is raised (i.e. a `TypeError` will be raised).'),
+    'E0703': ('Exception context set to something which is not an '
+              'exception, nor None',
+              'bad-exception-context',
+              'Used when using the syntax "raise ... from ...", '
+              'where the exception context is not an exception, '
+              'nor None.',
+              {'minversion': (3, 0)}),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
               'Used when a new style class which doesn\'t inherit from \
@@ -50,7 +75,7 @@ MSGS = {
               'catching-non-exception',
               'Used when a class which doesn\'t inherit from \
                BaseException is used as an exception in an except clause.'),
-    
+
     'W0701': ('Raising a string exception',
               'raising-string',
               'Used when a string exception is raised.'),
@@ -109,12 +134,27 @@ class ExceptionsChecker(BaseChecker):
                 ),
                )
 
-    @check_messages('W0701', 'W0710', 'E0702', 'E0710', 'E0711')
+    @check_messages('W0701', 'W0710', 'E0702', 'E0710', 'E0711',
+                    'bad-exception-context')
     def visit_raise(self, node):
         """visit raise possibly inferring value"""
         # ignore empty raise
         if node.exc is None:
             return
+        if PY3K and node.cause:
+            try:
+                cause = node.cause.infer().next()
+            except astroid.InferenceError:
+                pass
+            else:
+                if isinstance(cause, astroid.Const):
+                    if cause.value is not None:
+                        self.add_message('bad-exception-context',
+                                         node=node)
+                elif (not isinstance(cause, astroid.Class) and
+                      not inherit_from_std_ex(cause)):
+                    self.add_message('bad-exception-context',
+                                      node=node)
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
@@ -141,10 +181,10 @@ class ExceptionsChecker(BaseChecker):
                  isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
                                    astroid.Module, astroid.Function)):
             self.add_message('E0702', node=node, args=expr.name)
-        elif ( (isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
-               or (isinstance(expr, astroid.CallFunc) and
-                   isinstance(expr.func, astroid.Name) and
-                   expr.func.name == 'NotImplemented') ):
+        elif ((isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
+              or (isinstance(expr, astroid.CallFunc) and
+                  isinstance(expr.func, astroid.Name) and
+                  expr.func.name == 'NotImplemented')):
             self.add_message('E0711', node=node)
         elif isinstance(expr, astroid.BinOp) and expr.op == '%':
             self.add_message('W0701', node=node)
@@ -211,12 +251,19 @@ class ExceptionsChecker(BaseChecker):
                         and exc.root().name == EXCEPTIONS_MODULE
                         and nb_handlers == 1 and not is_raising(handler.body)):
                         self.add_message('W0703', args=exc.name, node=handler.type)
-        
+
                     if (not inherit_from_std_ex(exc) and
                         exc.root().name != BUILTINS_NAME):
-                        self.add_message('catching-non-exception', 
-                                         node=handler.type,
-                                         args=(exc.name, ))
+                        # try to see if the exception is based on a C based
+                        # exception, by infering all the base classes and
+                        # looking for inference errors
+                        bases = infer_bases(exc)
+                        fully_infered = all(inferit is not YES
+                                            for inferit in bases)
+                        if fully_infered:
+                            self.add_message('catching-non-exception',
+                                             node=handler.type,
+                                             args=(exc.name, ))
 
                 exceptions_classes += excs
 

@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """functional/non regression tests for pylint"""
 
 import unittest
@@ -42,19 +42,12 @@ class LintTestNonExistentModuleTC(LintTestUsingModule):
     _get_expected = lambda self: 'F:  1: No module named %snonexistent%s\n' % (quote, quote)
     tags = testlib.Tags(('generated','pylint_input_%s' % module))
 
-class LintTestNonExistentFileTC(LintTestUsingFile):
-    module = join(INPUT_DIR, 'nonexistent.py')
-    _get_expected = lambda self: 'F:  1: No module named %s\n' % self.module[len(getcwd())+1 :]
-    tags = testlib.Tags(('generated', 'pylint_input_%s' % module))
-    def test_functionality(self):
-        self._test([self.module])
-
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
     @testlib.tag('coverage')
     def test_exhaustivity(self):
         # skip fatal messages
-        todo = [msgid for msgid in linter._messages if msgid[0] != 'F']
+        todo = [msg.msgid for msg in linter.messages if msg.msgid[0] != 'F']
         for msgid in test_reporter.message_ids:
             try:
                 todo.remove(msgid)
@@ -62,12 +55,16 @@ class TestTests(testlib.TestCase):
                 continue
         todo.sort()
         if PY3K:
-            rest = ['I0001',
+            rest = ['E1001', # slots-on-old-class
+                    'E1002', # super-on-old-class
                     # XXX : no use case for now :
+                    'I0001',
                     'W0402', # deprecated module
                     'W0403', # implicit relative import
                     'W0410', # __future__ import not first statement
-                    ]
+                    'W0710', # nonstandard-exception
+                    'W1001' # property-on-old-class
+                   ]
             self.assertEqual(todo, rest)
         else:
             self.assertEqual(todo, ['I0001'])
@@ -89,7 +86,7 @@ def cb_file(*args):
         return base_cb_file(*args)
 
 callbacks = [cb_test_gen(LintTestUsingModule),
-    cb_file]
+             cb_file]
 
 # Gen tests
 
@@ -103,8 +100,6 @@ def gen_tests(filter_rgx):
 
     if is_to_run('nonexistent'):
         tests.append(LintTestNonExistentModuleTC)
-        if not MODULES_ONLY:
-            tests.append(LintTestNonExistentFileTC)
 
     tests.append(LintBuiltinModuleTest)
 

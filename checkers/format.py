@@ -11,7 +11,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Python code format's checker.
 
 By default try to follow Guido's style guide :
@@ -21,18 +21,42 @@ http://www.python.org/doc/essays/styleguide.html
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
-import re, sys
+import keyword
+import sys
 import tokenize
+
 if not hasattr(tokenize, 'NL'):
     raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
 
-from logilab.common.textutils import pretty_match
 from astroid import nodes
 
-from pylint.interfaces import ITokenChecker, IAstroidChecker
+from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope, OPTION_RGX
+
+_KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
+                   'raise', 'return', 'while', 'yield']
+if sys.version_info < (3, 0):
+    _KEYWORD_TOKENS.append('print')
+
+_SPACED_OPERATORS = ['==', '<', '>', '!=', '<>', '<=', '>=',
+                     '+=', '-=', '*=', '**=', '/=', '//=', '&=', '|=', '^=',
+                     '%=', '>>=', '<<=']
+_OPENING_BRACKETS = ['(', '[', '{']
+_CLOSING_BRACKETS = [')', ']', '}']
+
+_EOL = frozenset([tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT])
+
+# Whitespace checking policy constants
+_MUST = 0
+_MUST_NOT = 1
+_IGNORE = 2
+
+# Whitespace checking config constants
+_DICT_SEPARATOR = 'dict-separator'
+_TRAILING_COMMA = 'trailing-comma'
+_NO_SPACE_CHECK_CHOICES = [_TRAILING_COMMA, _DICT_SEPARATOR]
 
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
@@ -64,21 +88,19 @@ MSGS = {
               'multiple-statements',
               'Used when more than on statement are found on the same line.',
               {'scope': WarningScope.NODE}),
-    'C0322': ('Operator not preceded by a space\n%s',
-              'no-space-before-operator',
-              'Used when one of the following operator (!= | <= | == | >= | < '
-              '| > | = | \\+= | -= | \\*= | /= | %) is not preceded by a space.',
-              {'scope': WarningScope.NODE}),
-    'C0323': ('Operator not followed by a space\n%s',
-              'no-space-after-operator',
-              'Used when one of the following operator (!= | <= | == | >= | < '
-              '| > | = | \\+= | -= | \\*= | /= | %) is not followed by a space.',
-              {'scope': WarningScope.NODE}),
-    'C0324': ('Comma not followed by a space\n%s',
-              'no-space-after-comma',
-              'Used when a comma (",") is not followed by a space.',
-              {'scope': WarningScope.NODE}),
+    'C0325' : ('Unnecessary parens after %r keyword',
+               'superfluous-parens',
+               'Used when a single item in parentheses follows an if, for, or '
+               'other keyword.'),
+    'C0326': ('%s space %s %s %s\n%s',
+              'bad-whitespace',
+              ('Used when a wrong number of spaces is used around an operator, '
+               'bracket or block opener.'),
+              {'old_names': [('C0323', 'no-space-after-operator'),
+                             ('C0324', 'no-space-after-comma'),
+                             ('C0322', 'no-space-before-operator')]})
     }
+
 
 if sys.version_info < (3, 0):
 
@@ -99,74 +121,21 @@ if sys.version_info < (3, 0):
               {'scope': WarningScope.NODE}),
     })
 
-# simple quoted string rgx
-SQSTRING_RGX = r'"([^"\\]|\\.)*?"'
-# simple apostrophed rgx
-SASTRING_RGX = r"'([^'\\]|\\.)*?'"
-# triple quoted string rgx
-TQSTRING_RGX = r'"""([^"]|("(?!"")))*?(""")'
-# triple apostrophe'd string rgx
-TASTRING_RGX = r"'''([^']|('(?!'')))*?(''')"
 
-# finally, the string regular expression
-STRING_RGX = re.compile('(%s)|(%s)|(%s)|(%s)' % (TQSTRING_RGX, TASTRING_RGX,
-                                                 SQSTRING_RGX, SASTRING_RGX),
-                        re.MULTILINE|re.DOTALL)
-
-COMMENT_RGX = re.compile("#.*$", re.M)
-
-OPERATORS = r'!=|<=|==|>=|<|>|=|\+=|-=|\*=|/=|%'
-
-OP_RGX_MATCH_1 = r'[^(]*(?<!\s|\^|<|>|=|\+|-|\*|/|!|%%|&|\|)(%s).*' % OPERATORS
-OP_RGX_SEARCH_1 = r'(?<!\s|\^|<|>|=|\+|-|\*|/|!|%%|&|\|)(%s)' % OPERATORS
-
-OP_RGX_MATCH_2 = r'[^(]*(%s)(?!\s|=|>|<).*' % OPERATORS
-OP_RGX_SEARCH_2 = r'(%s)(?!\s|=|>)' % OPERATORS
-
-BAD_CONSTRUCT_RGXS = (
-
-    (re.compile(OP_RGX_MATCH_1, re.M),
-     re.compile(OP_RGX_SEARCH_1, re.M),
-     'C0322'),
-
-    (re.compile(OP_RGX_MATCH_2, re.M),
-     re.compile(OP_RGX_SEARCH_2, re.M),
-     'C0323'),
-
-    (re.compile(r'.*,[^(\s|\]|}|\))].*', re.M),
-     re.compile(r',[^\s)]', re.M),
-     'C0324'),
-    )
+def _underline_token(token):
+    length = token[3][1] - token[2][1]
+    offset = token[2][1]
+    return token[4] + (' ' * offset) + ('^' * length)
 
 
-def get_string_coords(line):
-    """return a list of string positions (tuple (start, end)) in the line
-    """
-    result = []
-    for match in re.finditer(STRING_RGX, line):
-        result.append( (match.start(), match.end()) )
-    return result
-
-def in_coords(match, string_coords):
-    """return true if the match is in the string coord"""
-    mstart = match.start()
-    for start, end in string_coords:
-        if mstart >= start and mstart < end:
-            return True
-    return False
-
-def check_line(line):
-    """check a line for a bad construction
-    if it founds one, return a message describing the problem
-    else return None
-    """
-    cleanstr = COMMENT_RGX.sub('', STRING_RGX.sub('', line))
-    for rgx_match, rgx_search, msg_id in BAD_CONSTRUCT_RGXS:
-        if rgx_match.match(cleanstr):
-            string_positions = get_string_coords(line)
-            for match in re.finditer(rgx_search, line):
-                if not in_coords(match, string_positions):
-                    return msg_id, pretty_match(match, line.rstrip())
+def _column_distance(token1, token2):
+    if token1 == token2:
+        return 0
+    if token2[3] < token1[3]:
+        token1, token2 = token2, token1
+    if token1[3][0] != token2[2][0]:
+        return None
+    return token2[2][1] - token1[3][1]
 
 
 class FormatChecker(BaseTokenChecker):
@@ -177,7 +146,7 @@ class FormatChecker(BaseTokenChecker):
     * use of <> instead of !=
     """
 
-    __implements__ = (ITokenChecker, IAstroidChecker)
+    __implements__ = (ITokenChecker, IAstroidChecker, IRawChecker)
 
     # configuration section name
     name = 'format'
@@ -193,6 +162,16 @@ class FormatChecker(BaseTokenChecker):
                  'default': r'^\s*(# )?<?https?://\S+>?$',
                  'help': ('Regexp for a line that is allowed to be longer than '
                           'the limit.')}),
+               ('single-line-if-stmt',
+                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                  'help' : ('Allow the body of an if to be on the same '
+                            'line as the test if there is no else.')}),
+               ('no-space-check',
+                {'default': ','.join(_NO_SPACE_CHECK_CHOICES),
+                 'type': 'multiple_choice',
+                 'choices': _NO_SPACE_CHECK_CHOICES,
+                 'help': ('List of optional constructs for which whitespace '
+                          'checking is disabled')}),
                ('max-module-lines',
                 {'default' : 1000, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of lines in a module'}
@@ -213,6 +192,223 @@ class FormatChecker(BaseTokenChecker):
             self._lines[line_num] = line.split('\n')[0]
         self.check_lines(line, line_num)
 
+    def process_module(self, module):
+        self._keywords_with_parens = set()
+        for node in module.body:
+            if (isinstance(node, nodes.From) and node.modname == '__future__'
+                and any(name == 'print_function' for name, _ in node.names)):
+                self._keywords_with_parens.add('print')
+
+    def _check_keyword_parentheses(self, tokens, start):
+        """Check that there are not unnecessary parens after a keyword.
+
+        Parens are unnecessary if there is exactly one balanced outer pair on a
+        line, and it is followed by a colon, and contains no commas (i.e. is not a
+        tuple).
+
+        Args:
+        tokens: list of Tokens; the entire list of Tokens.
+        start: int; the position of the keyword in the token list.
+        """
+        # If the next token is not a paren, we're fine.
+        if tokens[start+1][1] != '(':
+            return
+
+        found_and_or = False
+        depth = 0
+        keyword_token = tokens[start][1]
+        line_num = tokens[start][2][0]
+
+        for i in xrange(start, len(tokens) - 1):
+            token = tokens[i]
+
+            # If we hit a newline, then assume any parens were for continuation.
+            if token[0] == tokenize.NL:
+                return
+
+            if token[1] == '(':
+                depth += 1
+            elif token[1] == ')':
+                depth -= 1
+                if not depth:
+                    # ')' can't happen after if (foo), since it would be a syntax error.
+                    if (tokens[i+1][1] in (':', ')', ']', '}', 'in') or
+                        tokens[i+1][0] in (tokenize.NEWLINE, tokenize.ENDMARKER,
+                                             tokenize.COMMENT)):
+                        # The empty tuple () is always accepted.
+                        if i == start + 2:
+                            return
+                        if keyword_token == 'not':
+                            if not found_and_or:
+                                self.add_message('C0325', line=line_num,
+                                                 args=keyword_token)
+                        elif keyword_token in ('return', 'yield'):
+                            self.add_message('C0325', line=line_num,
+                                             args=keyword_token)
+                        elif keyword_token not in self._keywords_with_parens:
+                            if not (tokens[i+1][1] == 'in' and found_and_or):
+                                self.add_message('C0325', line=line_num,
+                                                 args=keyword_token)
+                    return
+            elif depth == 1:
+                # This is a tuple, which is always acceptable.
+                if token[1] == ',':
+                    return
+                # 'and' and 'or' are the only boolean operators with lower precedence
+                # than 'not', so parens are only required when they are found.
+                elif token[1] in ('and', 'or'):
+                    found_and_or = True
+                # A yield inside an expression must always be in parentheses,
+                # quit early without error.
+                elif token[1] == 'yield':
+                    return
+                # A generator expression always has a 'for' token in it, and
+                # the 'for' token is only legal inside parens when it is in a
+                # generator expression.  The parens are necessary here, so bail
+                # without an error.
+                elif token[1] == 'for':
+                    return
+
+    def _opening_bracket(self, tokens, i):
+        self._bracket_stack.append(tokens[i][1])
+        # Special case: ignore slices
+        if tokens[i][1] == '[' and tokens[i+1][1] == ':':
+            return
+
+        if (i > 0 and (tokens[i-1][0] == tokenize.NAME and
+                       not (keyword.iskeyword(tokens[i-1][1]))
+                       or tokens[i-1][1] in _CLOSING_BRACKETS)):
+            self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
+        else:
+            self._check_space(tokens, i, (_IGNORE, _MUST_NOT))
+
+    def _closing_bracket(self, tokens, i):
+        self._bracket_stack.pop()
+        # Special case: ignore slices
+        if tokens[i-1][1] == ':' and tokens[i][1] == ']':
+            return
+        policy_before = _MUST_NOT
+        if tokens[i][1] in _CLOSING_BRACKETS and tokens[i-1][1] == ',':
+            if _TRAILING_COMMA in self.config.no_space_check:
+                policy_before = _IGNORE
+
+        self._check_space(tokens, i, (policy_before, _IGNORE))
+
+    def _check_equals_spacing(self, tokens, i):
+        """Check the spacing of a single equals sign."""
+        if self._inside_brackets('(') or self._inside_brackets('lambda'):
+            self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
+        else:
+            self._check_space(tokens, i, (_MUST, _MUST))
+
+    def _open_lambda(self, tokens, i): # pylint:disable=unused-argument
+        self._bracket_stack.append('lambda')
+
+    def _handle_colon(self, tokens, i):
+        # Special case: ignore slices
+        if self._inside_brackets('['):
+            return
+        if (self._inside_brackets('{') and
+            _DICT_SEPARATOR in self.config.no_space_check):
+            policy = (_IGNORE, _IGNORE)
+        else:
+            policy = (_MUST_NOT, _MUST)
+        self._check_space(tokens, i, policy)
+
+        if self._inside_brackets('lambda'):
+            self._bracket_stack.pop()
+
+    def _handle_comma(self, tokens, i):
+        # Only require a following whitespace if this is
+        # not a hanging comma before a closing bracket.
+        if tokens[i+1][1] in _CLOSING_BRACKETS:
+            self._check_space(tokens, i, (_MUST_NOT, _IGNORE))
+        else:
+            self._check_space(tokens, i, (_MUST_NOT, _MUST))
+
+    def _check_surrounded_by_space(self, tokens, i):
+        """Check that a binary operator is surrounded by exactly one space."""
+        self._check_space(tokens, i, (_MUST, _MUST))
+
+    def _check_space(self, tokens, i, policies):
+        def _policy_string(policy):
+            if policy == _MUST:
+                return 'Exactly one', 'required'
+            else:
+                return 'No', 'allowed'
+
+        def _name_construct(token):
+            if tokens[i][1] == ',':
+                return 'comma'
+            elif tokens[i][1] == ':':
+                return ':'
+            elif tokens[i][1] in '()[]{}':
+                return 'bracket'
+            elif tokens[i][1] in ('<', '>', '<=', '>=', '!='):
+                return 'comparison'
+            else:
+                if self._inside_brackets('('):
+                    return 'keyword argument assignment'
+                else:
+                    return 'assignment'
+
+        good_space = [True, True]
+        pairs = [(tokens[i-1], tokens[i]), (tokens[i], tokens[i+1])]
+
+        for other_idx, (policy, token_pair) in enumerate(zip(policies, pairs)):
+            if token_pair[other_idx][0] in _EOL or policy == _IGNORE:
+                continue
+
+            distance = _column_distance(*token_pair)
+            if distance is None:
+                continue
+            good_space[other_idx] = (
+                (policy == _MUST and distance == 1) or
+                (policy == _MUST_NOT and distance == 0))
+
+        warnings = []
+        if not any(good_space) and policies[0] == policies[1]:
+            warnings.append((policies[0], 'around'))
+        else:
+            for ok, policy, position in zip(good_space, policies, ('before', 'after')):
+                if not ok:
+                    warnings.append((policy, position))
+        for policy, position in warnings:
+            construct = _name_construct(tokens[i])
+            count, state = _policy_string(policy)
+            self.add_message('C0326', line=tokens[i][2][0],
+                             args=(count, state, position, construct,
+                                   _underline_token(tokens[i])))
+
+    def _inside_brackets(self, left):
+        return self._bracket_stack[-1] == left
+
+    def _prepare_token_dispatcher(self):
+        raw = [
+            (_KEYWORD_TOKENS,
+             self._check_keyword_parentheses),
+
+            (_OPENING_BRACKETS, self._opening_bracket),
+
+            (_CLOSING_BRACKETS, self._closing_bracket),
+
+            (['='], self._check_equals_spacing),
+
+            (_SPACED_OPERATORS, self._check_surrounded_by_space),
+
+            ([','], self._handle_comma),
+
+            ([':'], self._handle_colon),
+
+            (['lambda'], self._open_lambda),
+            ]
+
+        dispatch = {}
+        for tokens, handler in raw:
+            for token in tokens:
+                dispatch[token] = handler
+        return dispatch
+
     def process_tokens(self, tokens):
         """process tokens and search for :
 
@@ -222,6 +418,7 @@ class FormatChecker(BaseTokenChecker):
          _ optionally bad construct (if given, bad_construct must be a compiled
            regular expression).
         """
+        self._bracket_stack = [None]
         indent = tokenize.INDENT
         dedent = tokenize.DEDENT
         newline = tokenize.NEWLINE
@@ -233,7 +430,8 @@ class FormatChecker(BaseTokenChecker):
         self._lines = {}
         self._visited_lines = {}
         new_line_delay = False
-        for (tok_type, token, start, _, line) in tokens:
+        token_handlers = self._prepare_token_dispatcher()
+        for idx, (tok_type, token, start, _, line) in enumerate(tokens):
             if new_line_delay:
                 new_line_delay = False
                 self.new_line(tok_type, line, line_num, junk)
@@ -292,11 +490,18 @@ class FormatChecker(BaseTokenChecker):
                 check_equal = 0
                 self.check_indent_level(line, indents[-1], line_num)
 
+            try:
+                handler = token_handlers[token]
+            except KeyError:
+                pass
+            else:
+                handler(tokens, idx)
+
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
             self.add_message('C0302', args=line_num, line=1)
 
-    @check_messages('C0321' ,'C03232', 'C0323', 'C0324')
+    @check_messages('C0321', 'C03232', 'C0323', 'C0324')
     def visit_default(self, node):
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
@@ -307,16 +512,19 @@ class FormatChecker(BaseTokenChecker):
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
         else:
-            prev_line = node.parent.statement().fromlineno
+            # The line on which a finally: occurs in a try/finally
+            # is not directly represented in the AST. We infer it
+            # by taking the last line of the body and adding 1, which
+            # should be the line of finally:
+            if (isinstance(node.parent, nodes.TryFinally)
+                and node in node.parent.finalbody):
+                prev_line = node.parent.body[0].tolineno + 1
+            else:
+                prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
-            # py2.5 try: except: finally:
-            if not (isinstance(node, nodes.TryExcept)
-                    and isinstance(node.parent, nodes.TryFinally)
-                    and node.fromlineno == node.parent.fromlineno):
-                self.add_message('C0321', node=node)
-                self._visited_lines[line] = 2
+            self._check_multi_statement_line(node, line)
             return
         if line in self._visited_lines:
             return
@@ -332,13 +540,23 @@ class FormatChecker(BaseTokenChecker):
                 lines.append(self._lines[line].rstrip())
             except KeyError:
                 lines.append('')
-        try:
-            msg_def = check_line('\n'.join(lines))
-            if msg_def:
-                self.add_message(msg_def[0], node=node, args=msg_def[1])
-        except KeyError:
-            # FIXME: internal error !
-            pass
+
+    def _check_multi_statement_line(self, node, line):
+        """Check for lines containing multiple statements."""
+        # Do not warn about multiple nested context managers
+        # in with statements.
+        if isinstance(node, nodes.With):
+            return
+        # For try... except... finally..., the two nodes
+        # appear to be on the same line due to how the AST is built.
+        if (isinstance(node, nodes.TryExcept) and
+            isinstance(node.parent, nodes.TryFinally)):
+            return
+        if (isinstance(node.parent, nodes.If) and not node.parent.orelse
+            and self.config.single_line_if_stmt):
+            return
+        self.add_message('C0321', node=node)
+        self._visited_lines[line] = 2
 
     @check_messages('W0333')
     def visit_backquote(self, node):
@@ -388,7 +606,7 @@ class FormatChecker(BaseTokenChecker):
                 self.add_message('W0312', args=args, line=line_num)
                 return level
             suppl += string[0]
-            string = string [1:]
+            string = string[1:]
         if level != expected or suppl:
             i_type = 'spaces'
             if indent[0] == '\t':

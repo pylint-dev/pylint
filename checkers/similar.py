@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """a similarities / code duplication command line tool and pylint checker
 """
 import sys
@@ -63,15 +63,15 @@ class Similar(object):
             duplicate = no_duplicates.setdefault(num, [])
             for couples in duplicate:
                 if (lineset1, idx1) in couples or (lineset2, idx2) in couples:
-                    couples.add( (lineset1, idx1) )
-                    couples.add( (lineset2, idx2) )
+                    couples.add((lineset1, idx1))
+                    couples.add((lineset2, idx2))
                     break
             else:
-                duplicate.append( set([(lineset1, idx1), (lineset2, idx2)]) )
+                duplicate.append(set([(lineset1, idx1), (lineset2, idx2)]))
         sims = []
         for num, ensembles in no_duplicates.iteritems():
             for couples in ensembles:
-                sims.append( (num, couples) )
+                sims.append((num, couples))
         sims.sort()
         sims.reverse()
         return sims
@@ -104,7 +104,7 @@ class Similar(object):
         while index1 < len(lineset1):
             skip = 1
             num = 0
-            for index2 in find( lineset1[index1] ):
+            for index2 in find(lineset1[index1]):
                 non_blank = 0
                 for num, ((_, line1), (_, line2)) in enumerate(
                     izip(lines1(index1), lines2(index2))):
@@ -210,7 +210,7 @@ class LineSet(object):
         index = {}
         for line_no, line in enumerate(self._stripped_lines):
             if line:
-                index.setdefault(line, []).append( line_no )
+                index.setdefault(line, []).append(line_no)
         return index
 
 
@@ -260,7 +260,7 @@ class SimilarChecker(BaseChecker, Similar):
                 ),
                )
     # reports
-    reports = ( ('RP0801', 'Duplication', report_similarities), )
+    reports = (('RP0801', 'Duplication', report_similarities),)
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -349,9 +349,9 @@ def Run(argv=None):
             usage()
         elif opt in ('-i', '--ignore-comments'):
             ignore_comments = True
-        elif opt in ('--ignore-docstrings'):
+        elif opt in ('--ignore-docstrings',):
             ignore_docstrings = True
-        elif opt in ('--ignore-imports'):
+        elif opt in ('--ignore-imports',):
             ignore_imports = True
     if not args:
         usage(1)

@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """some functions that may be useful for various checkers
 """
 
@@ -60,7 +60,7 @@ def clobber_in_except(node):
     (False, None) otherwise.
     """
     if isinstance(node, astroid.AssAttr):
-        return (True, (node.attrname, 'object %r' % (node.expr.name,)))
+        return (True, (node.attrname, 'object %r' % (node.expr.as_string(),)))
     elif isinstance(node, astroid.AssName):
         name = node.name
         if is_builtin(name):
@@ -69,8 +69,9 @@ def clobber_in_except(node):
             scope, stmts = node.lookup(name)
             if (stmts and
                 not isinstance(stmts[0].ass_type(),
-                               (astroid.Assign, astroid.AugAssign, astroid.ExceptHandler))):
-                return (True, (name, 'outer scope (line %s)' % (stmts[0].fromlineno,)))
+                               (astroid.Assign, astroid.AugAssign,
+                                astroid.ExceptHandler))):
+                return (True, (name, 'outer scope (line %s)' % stmts[0].fromlineno))
     return (False, None)
 
 
@@ -123,7 +124,7 @@ SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
 
 def is_builtin_object(node):
     """Returns True if the given node is an object from the __builtin__ module."""
-    return node and node.root().name == '__builtin__'
+    return node and node.root().name == BUILTINS_NAME
 
 def is_builtin(name): # was is_native_builtin
     """return true if <name> could be considered as a builtin defined by python
@@ -153,8 +154,10 @@ def is_defined_before(var_node):
         elif isinstance(_node, astroid.With):
             for expr, vars in _node.items:
                 if expr.parent_of(var_node):
-                    break
-                if vars and vars.name == varname:
+                    break                
+                if (vars and
+                    isinstance(vars, astroid.AssName) and
+                    vars.name == varname):
                     return True
         elif isinstance(_node, (astroid.Lambda, astroid.Function)):
             if _node.args.is_argument(varname):
@@ -162,6 +165,11 @@ def is_defined_before(var_node):
             if getattr(_node, 'name', None) == varname:
                 return True
             break
+        elif isinstance(_node, astroid.ExceptHandler):
+            if isinstance(_node.name, astroid.AssName):
+                ass_node = _node.name
+                if ass_node.name == varname:
+                    return True
         _node = _node.parent
     # possibly multiple statements on the same line using semi colon separator
     stmt = var_node.statement()
@@ -171,7 +179,7 @@ def is_defined_before(var_node):
         for ass_node in _node.nodes_of_class(astroid.AssName):
             if ass_node.name == varname:
                 return True
-        for imp_node in _node.nodes_of_class( (astroid.From, astroid.Import)):
+        for imp_node in _node.nodes_of_class((astroid.From, astroid.Import)):
             if varname in [name[1] or name[0] for name in imp_node.names]:
                 return True
         _node = _node.previous_sibling()
@@ -296,52 +304,52 @@ def parse_format_string(format_string):
         return (i, format_string[i])
     i = 0
     while i < len(format_string):
-        c = format_string[i]
-        if c == '%':
-            i, c = next_char(i)
+        char = format_string[i]
+        if char == '%':
+            i, char = next_char(i)
             # Parse the mapping key (optional).
             key = None
-            if c == '(':
+            if char == '(':
                 depth = 1
-                i, c = next_char(i)
+                i, char = next_char(i)
                 key_start = i
                 while depth != 0:
-                    if c == '(':
+                    if char == '(':
                         depth += 1
-                    elif c == ')':
+                    elif char == ')':
                         depth -= 1
-                    i, c = next_char(i)
+                    i, char = next_char(i)
                 key_end = i - 1
                 key = format_string[key_start:key_end]
 
             # Parse the conversion flags (optional).
-            while c in '#0- +':
-                i, c = next_char(i)
+            while char in '#0- +':
+                i, char = next_char(i)
             # Parse the minimum field width (optional).
-            if c == '*':
+            if char == '*':
                 num_args += 1
-                i, c = next_char(i)
+                i, char = next_char(i)
             else:
-                while c in string.digits:
-                    i, c = next_char(i)
+                while char in string.digits:
+                    i, char = next_char(i)
             # Parse the precision (optional).
-            if c == '.':
-                i, c = next_char(i)
-                if c == '*':
+            if char == '.':
+                i, char = next_char(i)
+                if char == '*':
                     num_args += 1
-                    i, c = next_char(i)
+                    i, char = next_char(i)
                 else:
-                    while c in string.digits:
-                        i, c = next_char(i)
+                    while char in string.digits:
+                        i, char = next_char(i)
             # Parse the length modifier (optional).
-            if c in 'hlL':
-                i, c = next_char(i)
+            if char in 'hlL':
+                i, char = next_char(i)
             # Parse the conversion type (mandatory).
-            if c not in 'diouxXeEfFgGcrs%':
+            if char not in 'diouxXeEfFgGcrs%':
                 raise UnsupportedFormatCharacter(i)
             if key:
                 keys.add(key)
-            elif c != '%':
+            elif char != '%':
                 num_args += 1
         i += 1
     return keys, num_args

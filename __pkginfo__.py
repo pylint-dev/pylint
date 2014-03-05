@@ -13,15 +13,15 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """pylint packaging information"""
 
 modname = distname = 'pylint'
 
-numversion = (1, 0, 0)
+numversion = (1, 1, 0)
 version = '.'.join([str(num) for num in numversion])
 
-install_requires = ['logilab-common >= 0.53.0', 'astroid >= 0.24.3']
+install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.0.1']
 
 license = 'GPL'
 description = "python code static checker"
@@ -30,18 +30,18 @@ mailinglist = "mailto://python-projects@lists.logilab.org"
 author = 'Logilab'
 author_email = 'python-projects@lists.logilab.org'
 
-classifiers =  ['Development Status :: 4 - Beta',
-                'Environment :: Console',
-                'Intended Audience :: Developers',
-                'License :: OSI Approved :: GNU General Public License (GPL)',
-                'Operating System :: OS Independent',
-                'Programming Language :: Python',
-                'Programming Language :: Python :: 2',
-                'Programming Language :: Python :: 3',
-                'Topic :: Software Development :: Debuggers',
-                'Topic :: Software Development :: Quality Assurance',
-                'Topic :: Software Development :: Testing',
-                ]
+classifiers = ['Development Status :: 4 - Beta',
+               'Environment :: Console',
+               'Intended Audience :: Developers',
+               'License :: OSI Approved :: GNU General Public License (GPL)',
+               'Operating System :: OS Independent',
+               'Programming Language :: Python',
+               'Programming Language :: Python :: 2',
+               'Programming Language :: Python :: 3',
+               'Topic :: Software Development :: Debuggers',
+               'Topic :: Software Development :: Quality Assurance',
+               'Topic :: Software Development :: Testing',
+               ]
 
 
 long_desc = """\

@@ -1,2 +1,2 @@
 if False:
-print 'hop'
+print('hop')

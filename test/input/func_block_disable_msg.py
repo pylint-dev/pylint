@@ -91,7 +91,7 @@ class Foo(object):
         eris = 5
 
         if eris:
-            print ("In block")
+            print "In block"
 
         # pylint: disable=E1101
         # no error

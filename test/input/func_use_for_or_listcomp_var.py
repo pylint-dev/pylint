@@ -24,4 +24,4 @@ for line in __revision__:
 for x in []:
     pass
 for x in range(3):
-    print (lambda : x)() # OK
+    print (lambda: x)() # OK

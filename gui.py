@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Tkinker gui for pylint"""
 
 import os
@@ -56,28 +56,28 @@ class BasicStream(object):
         self.contents = []
         self.outdict = {}
         self.currout = None
-        self.nextTitle = None
+        self.next_title = None
 
     def write(self, text):
         """write text to the stream"""
         if re.match('^--+$', text.strip()) or re.match('^==+$', text.strip()):
             if self.currout:
-                self.outdict[self.currout].remove(self.nextTitle)
+                self.outdict[self.currout].remove(self.next_title)
                 self.outdict[self.currout].pop()
-            self.currout = self.nextTitle
+            self.currout = self.next_title
             self.outdict[self.currout] = ['']
 
         if text.strip():
-            self.nextTitle = text.strip()
+            self.next_title = text.strip()
 
-        if text.startswith('\n'):
+        if text.startswith(os.linesep):
             self.contents.append('')
             if self.currout:
                 self.outdict[self.currout].append('')
-        self.contents[-1] += text.strip('\n')
+        self.contents[-1] += text.strip(os.linesep)
         if self.currout:
-            self.outdict[self.currout][-1] += text.strip('\n')
-        if text.endswith('\n') and text.strip():
+            self.outdict[self.currout][-1] += text.strip(os.linesep)
+        if text.endswith(os.linesep) and text.strip():
             self.contents.append('')
             if self.currout:
                 self.outdict[self.currout].append('')
@@ -85,8 +85,8 @@ class BasicStream(object):
     def fix_contents(self):
         """finalize what the contents of the dict should look like before output"""
         for item in self.outdict:
-            numEmpty = self.outdict[item].count('')
-            for _ in xrange(numEmpty):
+            num_empty = self.outdict[item].count('')
+            for _ in xrange(num_empty):
                 self.outdict[item].remove('')
             if self.outdict[item]:
                 self.outdict[item].pop(0)
@@ -105,7 +105,7 @@ class BasicStream(object):
         self.contents = []
         self.outdict = {}
         self.currout = None
-        self.nextTitle = None
+        self.next_title = None
 
 
 class LintGui(object):
@@ -126,7 +126,7 @@ class LintGui(object):
         self.tabs = {}
         self.report_stream = BasicStream(self)
         #gui objects
-        self.lbMessages = None
+        self.lb_messages = None
         self.showhistory = None
         self.results = None
         self.btnRun = None
@@ -171,14 +171,14 @@ class LintGui(object):
         rightscrollbar.pack(side=RIGHT, fill=Y)
         bottomscrollbar = Scrollbar(msg_frame, orient=HORIZONTAL)
         bottomscrollbar.pack(side=BOTTOM, fill=X)
-        self.lbMessages = Listbox(msg_frame,
+        self.lb_messages = Listbox(msg_frame,
                   yscrollcommand=rightscrollbar.set,
                   xscrollcommand=bottomscrollbar.set,
                   bg="white")
-        self.lbMessages.bind("<Double-Button-1>", self.show_sourcefile)
-        self.lbMessages.pack(expand=True, fill=BOTH)
-        rightscrollbar.config(command=self.lbMessages.yview)
-        bottomscrollbar.config(command=self.lbMessages.xview)
+        self.lb_messages.bind("<Double-Button-1>", self.show_sourcefile)
+        self.lb_messages.pack(expand=True, fill=BOTH)
+        rightscrollbar.config(command=self.lb_messages.yview)
+        bottomscrollbar.config(command=self.lb_messages.xview)
 
         #History ListBoxes
         rightscrollbar2 = Scrollbar(history_frame)
@@ -199,18 +199,18 @@ class LintGui(object):
         self.status = Label(self.root, text="", bd=1, relief=SUNKEN, anchor=W)
         self.status.pack(side=BOTTOM, fill=X)
 
-        #labels
-        self.lblRatingLabel = Label(rating_frame, text='Rating:')
-        self.lblRatingLabel.pack(side=LEFT)
-        self.lblRating = Label(rating_frame, textvariable=self.rating)
-        self.lblRating.pack(side=LEFT)
+        #labelbl_ratingls
+        lbl_rating_label = Label(rating_frame, text='Rating:')
+        lbl_rating_label.pack(side=LEFT)
+        lbl_rating = Label(rating_frame, textvariable=self.rating)
+        lbl_rating.pack(side=LEFT)
         Label(mid_frame, text='Recently Used:').pack(side=LEFT)
         Label(top_frame, text='Module or package').pack(side=LEFT)
 
         #file textbox
-        self.txtModule = Entry(top_frame, background='white')
-        self.txtModule.bind('<Return>', self.run_lint)
-        self.txtModule.pack(side=LEFT, expand=True, fill=X)
+        self.txt_module = Entry(top_frame, background='white')
+        self.txt_module.bind('<Return>', self.run_lint)
+        self.txt_module.pack(side=LEFT, expand=True, fill=X)
 
         #results box
         rightscrollbar = Scrollbar(res_frame)
@@ -227,8 +227,8 @@ class LintGui(object):
 
         #buttons
         Button(top_frame, text='Open', command=self.file_open).pack(side=LEFT)
-        Button(top_frame, text='Open Package', 
-               command=(lambda : self.file_open(package=True))).pack(side=LEFT)
+        Button(top_frame, text='Open Package',
+               command=(lambda: self.file_open(package=True))).pack(side=LEFT)
 
         self.btnRun = Button(top_frame, text='Run', command=self.run_lint)
         self.btnRun.pack(side=LEFT)
@@ -269,45 +269,53 @@ class LintGui(object):
         #check boxes
         self.box = StringVar()
         # XXX should be generated
-        report = Radiobutton(radio_frame, text="Report", variable=self.box,
-                             value="Report", command=self.refresh_results_window)
-        rawMet = Radiobutton(radio_frame, text="Raw metrics", variable=self.box,
-                             value="Raw metrics", command=self.refresh_results_window)
-        dup = Radiobutton(radio_frame, text="Duplication", variable=self.box,
-                          value="Duplication", command=self.refresh_results_window)
-        ext = Radiobutton(radio_frame, text="External dependencies",
-                          variable=self.box, value="External dependencies",
-                          command=self.refresh_results_window)
-        stat = Radiobutton(radio_frame, text="Statistics by type",
-                           variable=self.box, value="Statistics by type",
-                           command=self.refresh_results_window)
-        msgCat = Radiobutton(radio_frame, text="Messages by category",
-                             variable=self.box, value="Messages by category",
-                             command=self.refresh_results_window)
-        msg = Radiobutton(radio_frame, text="Messages", variable=self.box,
-                            value="Messages", command=self.refresh_results_window)
-        sourceFile = Radiobutton(radio_frame, text="Source File", variable=self.box,
-                                   value="Source File", command=self.refresh_results_window)
+        report = Radiobutton(
+            radio_frame, text="Report", variable=self.box,
+            value="Report", command=self.refresh_results_window)
+        raw_met = Radiobutton(
+            radio_frame, text="Raw metrics", variable=self.box,
+            value="Raw metrics", command=self.refresh_results_window)
+        dup = Radiobutton(
+            radio_frame, text="Duplication", variable=self.box,
+            value="Duplication", command=self.refresh_results_window)
+        ext = Radiobutton(
+            radio_frame, text="External dependencies",
+            variable=self.box, value="External dependencies",
+            command=self.refresh_results_window)
+        stat = Radiobutton(
+            radio_frame, text="Statistics by type",
+            variable=self.box, value="Statistics by type",
+            command=self.refresh_results_window)
+        msg_cat = Radiobutton(
+            radio_frame, text="Messages by category",
+            variable=self.box, value="Messages by category",
+            command=self.refresh_results_window)
+        msg = Radiobutton(
+            radio_frame, text="Messages", variable=self.box,
+            value="Messages", command=self.refresh_results_window)
+        source_file = Radiobutton(
+            radio_frame, text="Source File", variable=self.box,
+            value="Source File", command=self.refresh_results_window)
         report.select()
         report.grid(column=0, row=0, sticky=W)
-        rawMet.grid(column=1, row=0, sticky=W)
+        raw_met.grid(column=1, row=0, sticky=W)
         dup.grid(column=2, row=0, sticky=W)
         msg.grid(column=3, row=0, sticky=W)
         stat.grid(column=0, row=1, sticky=W)
-        msgCat.grid(column=1, row=1, sticky=W)
+        msg_cat.grid(column=1, row=1, sticky=W)
         ext.grid(column=2, row=1, sticky=W)
-        sourceFile.grid(column=3, row=1, sticky=W)
+        source_file.grid(column=3, row=1, sticky=W)
 
         #dictionary for check boxes and associated error term
         self.msg_type_dict = {
-            'I' : lambda : self.information_box.get() == 1,
-            'C' : lambda : self.convention_box.get() == 1,
-            'R' : lambda : self.refactor_box.get() == 1,
-            'E' : lambda : self.error_box.get() == 1,
-            'W' : lambda : self.warning_box.get() == 1,
-            'F' : lambda : self.fatal_box.get() == 1
+            'I': lambda: self.information_box.get() == 1,
+            'C': lambda: self.convention_box.get() == 1,
+            'R': lambda: self.refactor_box.get() == 1,
+            'E': lambda: self.error_box.get() == 1,
+            'W': lambda: self.warning_box.get() == 1,
+            'F': lambda: self.fatal_box.get() == 1
         }
-        self.txtModule.focus_set()
+        self.txt_module.focus_set()
 
 
     def select_recent_file(self, event):
@@ -318,21 +326,21 @@ class LintGui(object):
         selected = self.showhistory.curselection()
         item = self.showhistory.get(selected)
         #update module
-        self.txtModule.delete(0, END)
-        self.txtModule.insert(0, item)
+        self.txt_module.delete(0, END)
+        self.txt_module.insert(0, item)
 
     def refresh_msg_window(self):
         """refresh the message window with current output"""
         #clear the window
-        self.lbMessages.delete(0, END)
+        self.lb_messages.delete(0, END)
         self.visible_msgs = []
         for msg in self.msgs:
-            if (self.msg_type_dict.get(msg.C)()):
+            if self.msg_type_dict.get(msg.C)():
                 self.visible_msgs.append(msg)
                 msg_str = convert_to_string(msg)
-                self.lbMessages.insert(END, msg_str)
+                self.lb_messages.insert(END, msg_str)
                 fg_color = COLORS.get(msg_str[:3], 'black')
-                self.lbMessages.itemconfigure(END, fg=fg_color)
+                self.lb_messages.itemconfigure(END, fg=fg_color)
 
     def refresh_results_window(self):
         """refresh the results window with current output"""
@@ -357,12 +365,12 @@ class LintGui(object):
                 self.msgs.append(msg)
 
                 #displaying msg if message type is selected in check box
-                if (self.msg_type_dict.get(msg.C)()):
+                if self.msg_type_dict.get(msg.C)():
                     self.visible_msgs.append(msg)
                     msg_str = convert_to_string(msg)
-                    self.lbMessages.insert(END, msg_str)
+                    self.lb_messages.insert(END, msg_str)
                     fg_color = COLORS.get(msg_str[:3], 'black')
-                    self.lbMessages.itemconfigure(END, fg=fg_color)
+                    self.lb_messages.itemconfigure(END, fg=fg_color)
 
             except Queue.Empty:
                 pass
@@ -399,12 +407,12 @@ class LintGui(object):
         if filename == ():
             return
 
-        self.txtModule.delete(0, END)
-        self.txtModule.insert(0, filename)
+        self.txt_module.delete(0, END)
+        self.txt_module.insert(0, filename)
 
     def update_filenames(self):
         """update the list of recent filenames"""
-        filename = self.txtModule.get()
+        filename = self.txt_module.get()
         if not filename:
             filename = os.getcwd()
         if filename+'\n' in self.filenames:
@@ -437,14 +445,14 @@ class LintGui(object):
         self.update_filenames()
         self.root.configure(cursor='watch')
         self.reporter = GUIReporter(self, output=self.report_stream)
-        module = self.txtModule.get()
+        module = self.txt_module.get()
         if not module:
             module = os.getcwd()
 
         #cleaning up msgs and windows
         self.msgs = []
         self.visible_msgs = []
-        self.lbMessages.delete(0, END)
+        self.lb_messages.delete(0, END)
         self.tabs = {}
         self.results.delete(0, END)
         self.btnRun.config(state=DISABLED)
@@ -464,7 +472,7 @@ class LintGui(object):
         self.root.configure(cursor='')
 
     def show_sourcefile(self, event=None):
-        selected = self.lbMessages.curselection()
+        selected = self.lb_messages.curselection()
         if not selected:
             return
 

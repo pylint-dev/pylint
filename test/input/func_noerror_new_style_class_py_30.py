@@ -35,7 +35,7 @@ self.mode)
         self.was_modified = True
 
     #
-    def close(self) :
+    def close(self):
         """Close the file."""
 
         if self.verbose:

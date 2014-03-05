@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """handle diagram generation options for class diagram or default diagrams
 """
 
@@ -41,7 +41,7 @@ class DiaDefGenerator(object):
         """get title for objects"""
         title = node.name
         if self.module_names:
-            title =  '%s.%s' % (node.root().name, title)
+            title = '%s.%s' % (node.root().name, title)
         return title
 
     def _set_option(self, option):

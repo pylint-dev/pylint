@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """imports checkers for Python code"""
 
 from logilab.common.graph import get_cycles, DotBackend
@@ -93,7 +93,7 @@ def dependencies_graph(filename, dep_info):
     """write dependencies as a dot (graphviz) file
     """
     done = {}
-    printer = DotBackend(filename[:-4], rankdir = "LR")
+    printer = DotBackend(filename[:-4], rankdir='LR')
     printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(dep_info.iteritems()):
         done[modname] = 1

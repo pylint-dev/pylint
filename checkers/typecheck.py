@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2010 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2006-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """try to find more bugs in the code using astroid inference capabilities
 """
 
@@ -292,7 +292,7 @@ accessed. Python regular expressions are accepted.'}
             # Built-in functions have no argument information.
             return
 
-        if len( called.argnames() ) != len( set( called.argnames() ) ):
+        if len(called.argnames()) != len(set(called.argnames())):
             # Duplicate parameter name (see E9801).  We can't really make sense
             # of the function call in this case, so just return.
             return
