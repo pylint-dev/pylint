@@ -28,8 +28,8 @@ if sys.version_info >= (3, 0):
     def cmp(a, b):
         return (a > b) - (a < b)
 
-import stringformat
 if sys.version_info < (2, 6):
+    import stringformat
     stringformat.init(True)
 
 def diff_string(old, new):
