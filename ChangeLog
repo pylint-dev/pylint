@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Python 2.5 support restored: fixed small issues preventing pylint to run
+      on python 2.5. Bitbucket issues #50 and #62.
+
     * bitbucket #128: pylint doesn't crash when looking
       for used-before-assignment in context manager
       assignments.

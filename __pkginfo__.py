@@ -15,13 +15,17 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """pylint packaging information"""
+import sys
 
 modname = distname = 'pylint'
 
 numversion = (1, 1, 0)
 version = '.'.join([str(num) for num in numversion])
 
-install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.0.1']
+if sys.version_info < (2, 6):
+    install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.0.1', 'StringFormat']
+else:
+    install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.0.1']
 
 license = 'GPL'
 description = "python code static checker"

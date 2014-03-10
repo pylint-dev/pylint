@@ -233,7 +233,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                     self.add_message('undefined-all-variable', 
                                                      args=elt_name, 
                                                      node=elt)
-                                except SyntaxError as exc:
+                                except SyntaxError, exc:
                                     # don't yield an syntax-error warning,
                                     # because it will be later yielded
                                     # when the file will be checked

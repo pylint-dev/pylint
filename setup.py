@@ -131,7 +131,15 @@ class MyInstallLib(install_lib.install_lib):
                 else:
                     exclude = set()
                 shutil.rmtree(dest, ignore_errors=True)
-                shutil.copytree(directory, dest, ignore=lambda dir, names: list(set(names) & exclude))
+                shutil.copytree(directory, dest)
+                # since python2.5's copytree doesn't support the ignore 
+                # parameter, the following loop to remove the exclude set
+                # was added
+                for (dirpath, dirnames, filenames) in os.walk(dest):
+                    for n in filenames:
+                        if n in exclude:
+                            os.remove(os.path.join(dirpath, n))
+
 
                 if sys.version_info >= (3, 0):
                     # process manually python file in include_dirs (test data)
