@@ -41,7 +41,6 @@ messages nor reports. XXX not true, emit a 07 report !
 import sys
 import tokenize
 import warnings
-from os.path import dirname
 
 from astroid.utils import ASTWalker
 from logilab.common.configuration import OptionsProviderMixIn
