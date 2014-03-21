@@ -491,7 +491,7 @@ class PreprocessOptionsTC(TestCase):
     def _callback(self, name, value):
         self.args.append((name, value))
 
-    def test_preprocess(self):
+    def test_value_equal(self):
         self.args = []
         preprocess_options(['--foo', '--bar=baz', '--qu=ux'],
                            {'foo' : (self._callback, False),
@@ -499,7 +499,14 @@ class PreprocessOptionsTC(TestCase):
         self.assertEqual(
             [('foo', None), ('qu', 'ux')], self.args)
 
-    def test_preprocessing_error(self):
+    def test_value_space(self):
+        self.args = []
+        preprocess_options(['--qu', 'ux'],
+                           {'qu' : (self._callback, True)})
+        self.assertEqual(
+            [('qu', 'ux')], self.args)
+
+    def test_error_missing_expected_value(self):
         self.assertRaises(
             ArgumentPreprocessingError,
             preprocess_options,
@@ -510,6 +517,13 @@ class PreprocessOptionsTC(TestCase):
             preprocess_options,
             ['--foo', '--bar'],
             {'bar' : (None, True)})
+
+    def test_error_unexpected_value(self):
+        self.assertRaises(
+            ArgumentPreprocessingError,
+            preprocess_options,
+            ['--foo', '--bar=spam', '--qu=ux'],
+            {'bar' : (None, False)})
 
 
 if __name__ == '__main__':

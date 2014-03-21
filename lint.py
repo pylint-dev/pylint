@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -873,15 +873,20 @@ def preprocess_options(args, search_for):
                 option, val = arg[2:], None
             try:
                 cb, takearg = search_for[option]
+            except KeyError:
+                i += 1
+            else:
                 del args[i]
                 if takearg and val is None:
                     if i >= len(args) or args[i].startswith('-'):
-                        raise ArgumentPreprocessingError(arg)
+                        msg = 'Option %s expects a value' % option
+                        raise ArgumentPreprocessingError(msg)
                     val = args[i]
                     del args[i]
+                elif not takearg and val is not None:
+                    msg = "Option %s doesn't expects a value" % option
+                    raise ArgumentPreprocessingError(msg)
                 cb(option, val)
-            except KeyError:
-                i += 1
         else:
             i += 1
 
@@ -906,7 +911,7 @@ group are mutually exclusive.'),
                 'load-plugins': (self.cb_add_plugins, True),
                 })
         except ArgumentPreprocessingError, ex:
-            print >> sys.stderr, 'Argument %s expects a value.' % (ex.args[0],)
+            print >> sys.stderr, ex
             sys.exit(32)
 
         self.linter = linter = self.LinterClass((
@@ -1043,11 +1048,11 @@ are done by default'''}),
             sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):
-        """callback for option preprocessing (i.e. before optik parsing)"""
+        """callback for option preprocessing (i.e. before option parsing)"""
         self._rcfile = value
 
     def cb_add_plugins(self, name, value):
-        """callback for option preprocessing (i.e. before optik parsing)"""
+        """callback for option preprocessing (i.e. before option parsing)"""
         self._plugins.extend(splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):
