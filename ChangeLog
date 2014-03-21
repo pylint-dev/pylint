@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * ensure init-hooks is evaluated before other options, notably load-plugins
+      (#166)
+
     * Python 2.5 support restored: fixed small issues preventing pylint to run
       on python 2.5. Bitbucket issues #50 and #62.
 

@@ -378,7 +378,12 @@ class PyLinterTC(TestCase):
                           self.linter.check_message_id('W0001').symbol)
          self.assertEqual('msg-symbol',
                           self.linter.check_message_id('old-symbol').symbol)
-         
+
+    def test_init_hooks_called_before_load_plugins(self):
+         self.assertRaises(RuntimeError,
+                           Run, ['--load-plugins', 'unexistant', '--init-hooks', 'raise RuntimeError'])
+         self.assertRaises(RuntimeError,
+                           Run, ['--init-hooks', 'raise RuntimeError', '--load-plugins', 'unexistant'])
 
 class ConfigTC(TestCase):
 

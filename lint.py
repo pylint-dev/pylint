@@ -906,10 +906,11 @@ group are mutually exclusive.'),
         self._plugins = []
         try:
             preprocess_options(args, {
-                # option: (callback, takearg)
-                'rcfile':       (self.cb_set_rcfile, True),
-                'load-plugins': (self.cb_add_plugins, True),
-                })
+                    # option: (callback, takearg)
+                    'init-hooks':   (cb_init_hook, True),
+                    'rcfile':       (self.cb_set_rcfile, True),
+                    'load-plugins': (self.cb_add_plugins, True),
+                    })
         except ArgumentPreprocessingError, ex:
             print >> sys.stderr, ex
             sys.exit(32)
@@ -921,8 +922,9 @@ group are mutually exclusive.'),
               'help' : 'Specify a configuration file.'}),
 
             ('init-hook',
-             {'action' : 'callback', 'type' : 'string', 'metavar': '<code>',
-              'callback' : cb_init_hook, 'level': 1,
+             {'action' : 'callback', 'callback' : lambda *args: 1,
+              'type' : 'string', 'metavar': '<code>',
+              'level': 1,
               'help' : 'Python code to execute, usually for sys.path \
 manipulation such as pygtk.require().'}),
 
@@ -1091,7 +1093,7 @@ are done by default'''}),
         self.linter.list_messages()
         sys.exit(0)
 
-def cb_init_hook(option, optname, value, parser):
+def cb_init_hook(optname, value):
     """exec arbitrary code to set sys.path for instance"""
     exec value
 
