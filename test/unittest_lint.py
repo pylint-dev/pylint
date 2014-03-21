@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -49,23 +49,6 @@ class GetNoteMessageTC(TestCase):
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')
 
-class RunTC(TestCase):
-
-    def _test_run(self, args, exit_code=1, no_exit_fail=True):
-        sys.stdout = sys.sterr = StringIO()
-        try:
-            try:
-                Run(args)
-            except SystemExit, ex:
-                print sys.stdout.getvalue()
-                self.assertEqual(ex.code, exit_code)
-            else:
-                if no_exit_fail:
-                    self.fail()
-        finally:
-            sys.stdout = sys.__stdout__
-            sys.stderr = sys.__stderr__
-
 
 class PyLinterTC(TestCase):
 
@@ -82,7 +65,7 @@ class PyLinterTC(TestCase):
         # logilab.common.textutils.normalize_text
         # uses os.linesep, which will
         # not properly compare with triple
-        # quoted multilines used in these tests 
+        # quoted multilines used in these tests
         self.assertMultiLineEqual(desc,
              msg.format_help(checkerref=checkerref)
                 .replace('\r\n', '\n'))
@@ -381,9 +364,9 @@ class PyLinterTC(TestCase):
 
     def test_add_renamed_message(self):
         self.linter.add_renamed_message('C9999', 'old-bad-name', 'invalid-name')
-        self.assertEqual('invalid-name', 
+        self.assertEqual('invalid-name',
                          self.linter.check_message_id('C9999').symbol)
-        self.assertEqual('invalid-name', 
+        self.assertEqual('invalid-name',
                          self.linter.check_message_id('old-bad-name').symbol)
 
     def test_renamed_message_register(self):
@@ -391,9 +374,9 @@ class PyLinterTC(TestCase):
               msgs = {'W1234': ('message', 'msg-symbol', 'msg-description',
                                 {'old_names': [('W0001', 'old-symbol')]})}
          self.linter.register_messages(Checker())
-         self.assertEqual('msg-symbol', 
+         self.assertEqual('msg-symbol',
                           self.linter.check_message_id('W0001').symbol)
-         self.assertEqual('msg-symbol', 
+         self.assertEqual('msg-symbol',
                           self.linter.check_message_id('old-symbol').symbol)
          
 
@@ -472,7 +455,6 @@ class ConfigTC(TestCase):
         finally:
             os.chdir(HERE)
             rmtree(chroot)
-
 
     def test_pylintrc_parentdir_no_package(self):
         chroot = tempfile.mkdtemp()
