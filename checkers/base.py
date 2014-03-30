@@ -1052,15 +1052,17 @@ class DocStringChecker(_BasicChecker):
                        isinstance(ancestor[node.name], astroid.Function):
                         overridden = True
                         break
-                if not overridden:
-                    self._check_docstring(ftype, node)
+                self._check_docstring(ftype, node,
+                                      report_missing=not overridden)
             else:
                 self._check_docstring(ftype, node)
 
-    def _check_docstring(self, node_type, node):
+    def _check_docstring(self, node_type, node, report_missing=True):
         """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
+            if not report_missing:
+                return
             if node.body:
                 lines = node.body[-1].lineno - node.body[0].lineno + 1
             else:

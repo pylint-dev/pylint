@@ -5,6 +5,9 @@ ChangeLog for Pylint
     * Add new warning 'eval-used', checking that the builtin function `eval`
       was used.
 
+    * Also warn about empty docstrings on overridden methods; contributed
+      by sebastianu@google.com.
+      
     * Also inspect arguments to constructor calls, and emit relevant 
       warnings; contributed by sebastianu@google.com.
       
