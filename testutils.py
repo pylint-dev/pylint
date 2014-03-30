@@ -237,6 +237,9 @@ class LintTestUsingModule(testlib.TestCase):
                         for name, file in self.depends]
         self._test(tocheck)
 
+    def _check_result(self, got):
+        self.assertMultiLineEqual(self._get_expected(), got)
+
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
             self.linter.enable('I')
@@ -251,18 +254,17 @@ class LintTestUsingModule(testlib.TestCase):
             print ex
             ex.__str__ = exception_str
             raise
-        got = self.linter.reporter.finalize()
-        self.assertMultiLineEqual(self._get_expected(), got)
+        self._check_result(self.linter.reporter.finalize())        
 
+    def _has_output(self):
+        return not self.module.startswith('func_noerror_')
 
     def _get_expected(self):
-        if self.module.startswith('func_noerror_'):
-            expected = ''
+        if self._has_output() and self.output:
+            with open(self.output, 'U') as fobj:
+                return fobj.read().strip() + '\n'
         else:
-            output = open(self.output, 'U')
-            expected = output.read().strip() + '\n'
-            output.close()
-        return expected
+            return ''
 
 class LintTestUsingFile(LintTestUsingModule):
 
@@ -273,6 +275,18 @@ class LintTestUsingFile(LintTestUsingModule):
         if self.depends:
             tocheck += [join(self.INPUT_DIR, name) for name, _file in self.depends]
         self._test(tocheck)
+
+class LintTestUpdate(LintTestUsingModule):
+
+    _TEST_TYPE = 'update'
+
+    def _check_result(self, got):
+        if self._has_output():
+            if got != self._get_expected():
+                if not self.output:
+                    self.output = join(self.MSG_DIR, '%s.txt' % (self.module,))
+                with open(self.output, 'w') as fobj:
+                    fobj.write(got)
 
 # Callback
 
