@@ -10,10 +10,14 @@ ChangeLog for Pylint
     * Add new warning 'eval-used', checking that the builtin function `eval`
       was used.
 
+    * Make it possible to show a naming hint for invalid name by setting
+      include-naming-hint. Also make the naming hints configurable. Fixes
+      BitBucket issue #138.
+      
     * Added support for enforcing multiple, but consistent name styles for 
       different name types inside a single module; based on a patch written
       by morbo@google.com.
-      
+
     * Also warn about empty docstrings on overridden methods; contributed
       by sebastianu@google.com.
       

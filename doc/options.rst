@@ -126,3 +126,14 @@ prevent built-in or interface-dictated names to trigger certain naming styles.
    Format: comma-separated groups of colon-separated names.
 
    This option can be used to combine name styles. For example, ``function:method`` enforces that functions and methods use the same style, and a style triggered by either name type carries over to the other. This requires that the regular expression for the combined name types use the same group names.
+
+Name Hints
+^^^^^^^^^^
+
+.. option:: --include-naming-hint=y|n
+
+   Default: off
+
+   Include a hint for the correct name format with every ``invalid-name`` warning.
+
+   Name hints default to the regular expression, but can be separately configured with the ``--<name-type>-hint`` options.

@@ -57,6 +57,27 @@ class NameCheckerTest(CheckerTestCase):
         'bad_names': set(),
         }
 
+    @set_config(include_naming_hint=True)
+    def test_naming_hint(self):
+        const = test_utils.extract_node("""
+        const = "CONSTANT" #@
+        """)
+        with self.assertAddsMessages(
+            Message('invalid-name', node=const.targets[0],
+                    args=('constant', 'const', ' (hint: (([A-Z_][A-Z0-9_]*)|(__.*__))$)'))):
+            self.checker.visit_assname(const.targets[0])
+
+    @set_config(include_naming_hint=True,
+            const_name_hint='CONSTANT')
+    def test_naming_hint_configured_hint(self):
+        const = test_utils.extract_node("""
+        const = "CONSTANT" #@
+        """)
+        with self.assertAddsMessages(
+            Message('invalid-name', node=const.targets[0],
+                    args=('constant', 'const', ' (hint: CONSTANT)'))):
+            self.checker.visit_assname(const.targets[0])
+
     @set_config(attr_rgx=re.compile('[A-Z]+'))
     def test_property_names(self):
         # If a method is annotated with @property, it's name should
@@ -82,7 +103,7 @@ class NameCheckerTest(CheckerTestCase):
             self.checker.visit_function(methods[0])
             self.checker.visit_function(methods[2])
         with self.assertAddsMessages(Message('invalid-name', node=methods[1],
-                                             args=('attribute', 'bar'))):
+                                             args=('attribute', 'bar', ''))):
             self.checker.visit_function(methods[1])
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
@@ -145,7 +166,7 @@ class MultiNamingStyleTest(CheckerTestCase):
         class CLASSC(object): #@
             pass
         """)
-        with self.assertAddsMessages(Message('invalid-name', node=classes[1], args=('class', 'classb'))):
+        with self.assertAddsMessages(Message('invalid-name', node=classes[1], args=('class', 'classb', ''))):
             for cls in classes:
                 self.checker.visit_class(cls)
 
@@ -159,8 +180,8 @@ class MultiNamingStyleTest(CheckerTestCase):
         class CLASSC(object): #@
             pass
         """)
-        with self.assertAddsMessages(Message('invalid-name', node=classes[0], args=('class', 'class_a')),
-                                     Message('invalid-name', node=classes[2], args=('class', 'CLASSC'))):
+        with self.assertAddsMessages(Message('invalid-name', node=classes[0], args=('class', 'class_a', '')),
+                                     Message('invalid-name', node=classes[2], args=('class', 'CLASSC', ''))):
             for cls in classes:
                 self.checker.visit_class(cls)
 
@@ -176,7 +197,7 @@ class MultiNamingStyleTest(CheckerTestCase):
         def FUNC(): #@
             pass
         """, module_name='test')
-        with self.assertAddsMessages(Message('invalid-name', node=function_defs[1], args=('function', 'FUNC'))):
+        with self.assertAddsMessages(Message('invalid-name', node=function_defs[1], args=('function', 'FUNC', ''))):
             for func in function_defs:
                 self.checker.visit_function(func)
 
@@ -192,7 +213,7 @@ class MultiNamingStyleTest(CheckerTestCase):
         def UPPER(): #@
             pass
         """)
-        with self.assertAddsMessages(Message('invalid-name', node=function_defs[3], args=('function', 'UPPER'))):
+        with self.assertAddsMessages(Message('invalid-name', node=function_defs[3], args=('function', 'UPPER', ''))):
             for func in function_defs:
                 self.checker.visit_function(func)
 
