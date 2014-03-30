@@ -132,7 +132,7 @@ accessed. Python regular expressions are accepted.'}
     def visit_delattr(self, node):
         self.visit_getattr(node)
 
-    @check_messages('E1101', 'E1103')
+    @check_messages('no-member', 'maybe-no-member')
     def visit_getattr(self, node):
         """check that the accessed attribute exists
 
@@ -211,14 +211,14 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
                 if inference_failure:
-                    msgid = 'E1103'
+                    msgid = 'maybe-no-member'
                 else:
-                    msgid = 'E1101'
+                    msgid = 'no-member'
                 self.add_message(msgid, node=node,
                                  args=(owner.display_type(), name,
                                        node.attrname))
 
-    @check_messages('E1111', 'W1111')
+    @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):
         """check that if assigning to a function call, the function is
         possibly returning something valuable
@@ -236,14 +236,14 @@ accessed. Python regular expressions are accepted.'}
         returns = list(function_node.nodes_of_class(astroid.Return,
                                                     skip_klass=astroid.Function))
         if len(returns) == 0:
-            self.add_message('E1111', node=node)
+            self.add_message('assignment-from-no-return', node=node)
         else:
             for rnode in returns:
                 if not (isinstance(rnode.value, astroid.Const)
                         and rnode.value.value is None):
                     break
             else:
-                self.add_message('W1111', node=node)
+                self.add_message('assignment-from-none', node=node)
 
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
@@ -260,7 +260,7 @@ accessed. Python regular expressions are accepted.'}
             if isinstance(arg, astroid.Keyword):
                 keyword = arg.arg
                 if keyword in keyword_args:
-                    self.add_message('E1122', node=node, args=keyword)
+                    self.add_message('duplicate-keyword-arg', node=node, args=keyword)
                 keyword_args.add(keyword)
             else:
                 num_positional_args += 1
@@ -268,7 +268,7 @@ accessed. Python regular expressions are accepted.'}
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
-            self.add_message('E1102', node=node, args=node.func.as_string())
+            self.add_message('not-callable', node=node, args=node.func.as_string())
 
         # Note that BoundMethod is a subclass of UnboundMethod (huh?), so must
         # come first in this 'if..else'.
@@ -342,7 +342,7 @@ accessed. Python regular expressions are accepted.'}
                 break
             else:
                 # Too many positional arguments.
-                self.add_message('E1121', node=node)
+                self.add_message('too-many-function-args', node=node)
                 break
 
         # 2. Match the keyword arguments.
@@ -351,13 +351,13 @@ accessed. Python regular expressions are accepted.'}
                 i = parameter_name_to_index[keyword]
                 if parameters[i][1]:
                     # Duplicate definition of function parameter.
-                    self.add_message('E1124', node=node, args=keyword)
+                    self.add_message('redundant-keyword-arg', node=node, args=keyword)
                 else:
                     parameters[i][1] = True
             elif keyword in kwparams:
                 if kwparams[keyword][1]:  # XXX is that even possible?
                     # Duplicate definition of function parameter.
-                    self.add_message('E1124', node=node, args=keyword)
+                    self.add_message('redundant-keyword-arg', node=node, args=keyword)
                 else:
                     kwparams[keyword][1] = True
             elif called.args.kwarg is not None:
@@ -365,7 +365,7 @@ accessed. Python regular expressions are accepted.'}
                 pass
             else:
                 # Unexpected keyword argument.
-                self.add_message('E1123', node=node, args=keyword)
+                self.add_message('unexpected-keyword-arg', node=node, args=keyword)
 
         # 3. Match the *args, if any.  Note that Python actually processes
         #    *args _before_ any keyword arguments, but we wait until after
@@ -402,12 +402,12 @@ accessed. Python regular expressions are accepted.'}
                     display_name = '<tuple>'
                 else:
                     display_name = repr(name)
-                self.add_message('E1120', node=node, args=display_name)
+                self.add_message('no-value-for-parameter', node=node, args=display_name)
 
         for name in kwparams:
             defval, assigned = kwparams[name]
             if defval is None and not assigned:
-                self.add_message('E1125', node=node, args=name)
+                self.add_message('missing-kwoa', node=node, args=name)
 
 
 def register(linter):
