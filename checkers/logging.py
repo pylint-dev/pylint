@@ -61,21 +61,45 @@ class LoggingChecker(checkers.BaseChecker):
     name = 'logging'
     msgs = MSGS
 
+    options = (('logging-modules',
+                {'default' : ('logging',),
+                 'type' : 'csv',
+                 'metavar' : '<comma separated list>',
+                 'help' : ('Logging modules to check that the string format '
+                           'arguments are in logging function parameter format')}
+                ),
+               )
+
     def visit_module(self, unused_node):
         """Clears any state left in this checker from last module checked."""
         # The code being checked can just as easily "import logging as foo",
         # so it is necessary to process the imports and store in this field
         # what name the logging module is actually given.
-        self._logging_name = None
+        self._logging_names = set()
+        logging_mods = self.config.logging_modules
+
+        self._logging_modules = set(logging_mods)
+        self._from_imports = {}
+        for logging_mod in logging_mods:
+            parts = logging_mod.rsplit('.', 1)
+            if len(parts) > 1:
+                self._from_imports[parts[0]] = parts[1]
+
+    def visit_from(self, node):
+        """Checks to see if a module uses a non-Python logging module."""
+        try:
+            logging_name = self._from_imports[node.modname]
+            for module, as_name in node.names:
+                if module == logging_name:
+                    self._logging_names.add(as_name or module)
+        except KeyError:
+            pass
 
     def visit_import(self, node):
         """Checks to see if this module uses Python's built-in logging."""
         for module, as_name in node.names:
-            if module == 'logging':
-                if as_name:
-                    self._logging_name = as_name
-                else:
-                    self._logging_name = 'logging'
+            if module in self._logging_modules:
+                self._logging_names.add(as_name or module)
 
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
@@ -91,7 +115,7 @@ class LoggingChecker(checkers.BaseChecker):
                             and ancestor.parent.name == 'logging')))]
         except astroid.exceptions.InferenceError:
             return
-        if node.func.expr.name != self._logging_name and not logger_class:
+        if node.func.expr.name not in self._logging_names and not logger_class:
             return
         self._check_convenience_methods(node)
         self._check_log_methods(node)
