@@ -18,6 +18,7 @@ from __future__ import with_statement
 
 import collections
 import contextlib
+import functools
 import sys
 import re
 
@@ -147,6 +148,19 @@ class UnittestLinter(object):
     def add_stats(self, **kwargs):
         for name, value in kwargs.iteritems():
             self.stats[name] = value
+
+
+def set_config(**kwargs):
+    """Decorator for setting config values on a checker."""
+    def _Wrapper(fun):
+        functools.wraps(fun)
+        def _Forward(self):
+            for key, value in kwargs.iteritems():
+                setattr(self.checker.config, key, value)
+            fun(self)
+
+        return _Forward
+    return _Wrapper
 
 
 class CheckerTestCase(testlib.TestCase):

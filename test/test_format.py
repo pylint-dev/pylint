@@ -27,7 +27,7 @@ from astroid import test_utils
 
 from pylint.checkers.format import *
 
-from pylint.testutils import CheckerTestCase, Message
+from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 def tokenize_str(code):
@@ -171,8 +171,8 @@ class CheckSpaceTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.process_tokens(tokenize_str('(a,)\n'))
 
+    @set_config(no_space_check=[])
     def testTrailingCommaBad(self):
-        self.checker.config.no_space_check = []
         with self.assertAddsMessages(
             Message('C0326', line=1,
                     args=('No', 'allowed', 'before', 'bracket', '(a, )\n    ^'))):

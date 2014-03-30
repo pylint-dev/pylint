@@ -23,7 +23,7 @@ import contextlib
 from logilab.common.testlib import unittest_main
 from astroid import test_utils
 from pylint.checkers import misc, variables
-from pylint.testutils import CheckerTestCase, Message, linter
+from pylint.testutils import CheckerTestCase, Message, linter, set_config
 
 
 @contextlib.contextmanager
@@ -58,8 +58,8 @@ class FixmeTest(CheckerTestCase):
                 Message(msg_id='W0511', line=2, args=u'FIXME')):
                 self.checker.process_module(module)
 
+    @set_config(notes=[])
     def test_empty_fixme_regex(self):
-        self.checker.config.notes = []
         with create_file_backed_module(
             """a = 1
             # fixme

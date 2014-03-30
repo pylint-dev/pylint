@@ -7,7 +7,7 @@ from astroid import test_utils
 
 from pylint.checkers import logging
 
-from pylint.testutils import CheckerTestCase, Message
+from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 class LoggingModuleDetectionTest(CheckerTestCase):
@@ -33,9 +33,8 @@ class LoggingModuleDetectionTest(CheckerTestCase):
         with self.assertAddsMessages(Message('W1201', node=stmts[1])):
             self.checker.visit_callfunc(stmts[1])
 
+    @set_config(logging_modules=['logging', 'my.logging'])
     def test_nonstandard_logging_module(self):
-        self.checker.config.logging_modules = (
-            'logging', 'my.logging')
         stmts = test_utils.extract_node("""
         from my import logging as blogging #@
         blogging.warn('%s' % '%s')  #@

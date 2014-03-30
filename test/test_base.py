@@ -4,7 +4,7 @@ import re
 
 from astroid import test_utils
 from pylint.checkers import base
-from pylint.testutils import CheckerTestCase, Message
+from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 class DocstringTest(CheckerTestCase):
@@ -27,16 +27,16 @@ class DocstringTest(CheckerTestCase):
         with self.assertAddsMessages(Message('missing-docstring', node=func, args=('function',))):
             self.checker.visit_function(func)
 
+    @set_config(docstring_min_length=2)
     def testShortFunctionNoDocstring(self):
-        self.checker.config.docstring_min_length = 2
         func = test_utils.extract_node("""
         def func(tion):
            pass""")
         with self.assertNoMessages():
             self.checker.visit_function(func)
 
+    @set_config(docstring_min_length=2)
     def testFunctionNoDocstringByName(self):
-        self.checker.config.docstring_min_length = 2
         func = test_utils.extract_node("""
         def __fun__(tion):
            pass""")
@@ -57,11 +57,11 @@ class NameCheckerTest(CheckerTestCase):
         'bad_names': set(),
         }
 
+    @set_config(attr_rgx=re.compile('[A-Z]+'))
     def testPropertyNames(self):
         # If a method is annotated with @property, it's name should
         # match the attr regex. Since by default the attribute regex is the same
         # as the method regex, we override it here.
-        self.checker.config.attr_rgx = re.compile('[A-Z]+')
         methods = test_utils.extract_node("""
         import abc
 
@@ -85,8 +85,8 @@ class NameCheckerTest(CheckerTestCase):
                                              args=('attribute', 'bar'))):
             self.checker.visit_function(methods[1])
 
+    @set_config(attr_rgx=re.compile('[A-Z]+'))
     def testPropertySetters(self):
-        self.checker.config.attr_rgx = re.compile('[A-Z]+')
         method = test_utils.extract_node("""
         class FooClass(object):
           @property
