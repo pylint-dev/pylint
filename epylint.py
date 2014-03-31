@@ -81,29 +81,16 @@ def lint(filename, options=None):
     from pylint import lint as lint_mod
     lint_path = lint_mod.__file__
     options = options or ['--disable=C,R,I']
-    cmd = [sys.executable, lint_path] + options + ['--msg-template',
-            '{path}:{line}: [{msg_id}, {symbol}, {obj}] {msg}', '-r', 'n', child_path]
+    cmd = [sys.executable, lint_path] + options + [
+        '--msg-template', '{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}',
+        '-r', 'n', child_path]
     process = Popen(cmd, stdout=PIPE, cwd=parent_path, universal_newlines=True)
-
-    # The parseable line format is '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
-    # NOTE: This would be cleaner if we added an Emacs reporter to pylint.reporters.text ..
-    regex = re.compile(r"\[(?P<type>[WE])(?P<remainder>.*?)\]")
-
-    def _replacement(match_object):
-        "Alter to include 'Error' or 'Warning'"
-        if match_object.group("type") == "W":
-            replacement = "Warning"
-        else:
-            replacement = "Error"
-        # replace as "Warning (W0511, funcName): Warning Text"
-        return "%s (%s%s):" % (replacement, match_object.group("type"),
-                               match_object.group("remainder"))
 
     for line in process.stdout:
         # remove pylintrc warning
         if line.startswith("No config file found"):
             continue
-        line = regex.sub(_replacement, line, 1)
+
         # modify the file name thats output to reverse the path traversal we made
         parts = line.split(":")
         if parts and parts[0] == child_path:
