@@ -35,6 +35,9 @@ ChangeLog for Pylint
 
     * Do not warn about 'return-arg-in-generator' in Python 3.3+.
 
+    * Do not warn about 'abstract-method' when the abstract method
+      is implemented through assignment (#155).     
+
     * Add new warnings for checking proper class __slots__:
      'invalid-slots-object', 'empty-slots-object', 'invalid-slots'.
 

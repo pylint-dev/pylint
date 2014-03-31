@@ -617,6 +617,9 @@ a metaclass class method.'}
                 continue
             # owner is not this class, it must be a parent class
             # check that the ancestor's method is not abstract
+            if method.name in node.locals:
+                # it is redefined as an attribute or with a descriptor
+                continue
             if method.is_abstract(pass_is_abstract=False):
                 self.add_message('W0223', node=node,
                                  args=(method.name, owner.name))
