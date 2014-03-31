@@ -82,7 +82,7 @@ def lint(filename, options=None):
     lint_path = lint_mod.__file__
     options = options or ['--disable=C,R,I']
     cmd = [sys.executable, lint_path] + options + ['--msg-template',
-            '{path}:{line}: [{symbol}, {obj}] {msg}', '-r', 'n', child_path]
+            '{path}:{line}: [{msg_id}, {symbol}, {obj}] {msg}', '-r', 'n', child_path]
     process = Popen(cmd, stdout=PIPE, cwd=parent_path, universal_newlines=True)
 
     # The parseable line format is '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
@@ -174,7 +174,7 @@ def Run():
         print "%s does not exist" % sys.argv[1]
         sys.exit(1)
     else:
-        sys.exit(lint(sys.argv[1], sys.argv[1:]))
+        sys.exit(lint(sys.argv[1], sys.argv[2:]))
 
 
 if __name__ == '__main__':
