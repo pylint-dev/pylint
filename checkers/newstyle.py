@@ -127,8 +127,8 @@ class NewStyleConflictChecker(BaseChecker):
                         continue
 
                     if klass is not supcls:
-                        supcls = getattr(supcls, 'name', supcls)
-                        self.add_message('E1003', node=call, args=(supcls, ))
+                        self.add_message('E1003', node=call,
+                                         args=(call.args[0].name, ))
 
 
 def register(linter):
