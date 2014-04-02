@@ -285,6 +285,30 @@ accessed. Python regular expressions are accepted.'}
         elif (isinstance(called, astroid.Function) or
               isinstance(called, astroid.Lambda)):
             pass
+        elif isinstance(called, astroid.Class):
+            # Class instantiation, lookup __new__ instead.
+            # If we only find object.__new__, we can safely check __init__
+            # instead.
+            try:
+                # Use the last definition of __new__.
+                new = called.local_attr('__new__')[-1]
+            except astroid.NotFoundError:
+                new = None
+
+            if not new or new.parent.name == 'object':
+                try:
+                    # Use the last definition of __init__.
+                    called = called.local_attr('__init__')[-1]
+                except astroid.NotFoundError:
+                    # do nothing, covered by no-init.
+                    return
+            else:
+                called = new
+
+            if not isinstance(called, astroid.Function):
+                return
+            # both have an extra implicit 'cls'/'self' argument.
+            num_positional_args += 1
         else:
             return
 

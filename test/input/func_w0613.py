@@ -14,7 +14,7 @@ class AAAA(object):
     def method(self, arg):
         """dummy method"""
         print self
-    def __init__(self):
+    def __init__(self, *unused_args, **unused_kwargs):
         pass
 
     @classmethod

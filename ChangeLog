@@ -5,6 +5,9 @@ ChangeLog for Pylint
     * Add new warning 'eval-used', checking that the builtin function `eval`
       was used.
 
+    * Also inspect arguments to constructor calls, and emit relevant 
+      warnings; contributed by sebastianu@google.com.
+      
     * Added a new configuration option logging-modules to make the list
       of module names that can be checked for 'logging-not-lazy' et. al.
       configurable; contributed by morbo@google.com.
