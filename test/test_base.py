@@ -10,17 +10,17 @@ from pylint.testutils import CheckerTestCase, Message, set_config
 class DocstringTest(CheckerTestCase):
     CHECKER_CLASS = base.DocStringChecker
 
-    def testMissingDocstringModule(self):
+    def test_missing_docstring_module(self):
         module = test_utils.build_module("")
         with self.assertAddsMessages(Message('missing-docstring', node=module, args=('module',))):
             self.checker.visit_module(module)
 
-    def testEmptyDocstringModule(self):
+    def test_empty_docstring_module(self):
         module = test_utils.build_module("''''''")
         with self.assertAddsMessages(Message('empty-docstring', node=module, args=('module',))):
             self.checker.visit_module(module)
 
-    def testEmptyDocstringFunction(self):
+    def test_empty_docstring_function(self):
         func = test_utils.extract_node("""
         def func(tion):
            pass""")
@@ -28,7 +28,7 @@ class DocstringTest(CheckerTestCase):
             self.checker.visit_function(func)
 
     @set_config(docstring_min_length=2)
-    def testShortFunctionNoDocstring(self):
+    def test_short_function_no_docstring(self):
         func = test_utils.extract_node("""
         def func(tion):
            pass""")
@@ -36,14 +36,14 @@ class DocstringTest(CheckerTestCase):
             self.checker.visit_function(func)
 
     @set_config(docstring_min_length=2)
-    def testFunctionNoDocstringByName(self):
+    def test_function_no_docstring_by_name(self):
         func = test_utils.extract_node("""
         def __fun__(tion):
            pass""")
         with self.assertNoMessages():
             self.checker.visit_function(func)
 
-    def testClassNoDocstring(self):
+    def test_class_no_docstring(self):
         klass = test_utils.extract_node("""
         class Klass(object):
            pass""")
@@ -58,7 +58,7 @@ class NameCheckerTest(CheckerTestCase):
         }
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
-    def testPropertyNames(self):
+    def test_property_names(self):
         # If a method is annotated with @property, it's name should
         # match the attr regex. Since by default the attribute regex is the same
         # as the method regex, we override it here.
@@ -86,7 +86,7 @@ class NameCheckerTest(CheckerTestCase):
             self.checker.visit_function(methods[1])
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
-    def testPropertySetters(self):
+    def test_property_setters(self):
         method = test_utils.extract_node("""
         class FooClass(object):
           @property
@@ -99,7 +99,7 @@ class NameCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_function(method)
 
-    def testModuleLevelNames(self):
+    def test_module_level_names(self):
         assign = test_utils.extract_node("""
         import collections
         Class = collections.namedtuple("a", ("b", "c")) #@
