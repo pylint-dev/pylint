@@ -450,12 +450,12 @@ functions, methods
               'exec-used',
               'Used when you use the "exec" statement (function for Python 3), to discourage its \
               usage. That doesn\'t mean you can not use it !'),
-    'W0123': ('Use of eval. Consider using ast.literal_eval',
+    'W0123': ('Use of eval',
               'eval-used',
               'Used when you use the "eval" function, to discourage its '
               'usage. Consider using `ast.literal_eval` for safely evaluating '
               'strings containing Python expressions '
-               'from untrusted sources. '),
+              'from untrusted sources. '),
     'W0141': ('Used builtin function %r',
               'bad-builtin',
               'Used when a black listed builtin function is used (see the '
