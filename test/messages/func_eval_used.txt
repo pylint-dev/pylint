@@ -1,4 +1,4 @@
-W:  5: Use of eval. Consider using ast.literal_eval
-W:  6: Use of eval. Consider using ast.literal_eval
-W:  8: Use of eval. Consider using ast.literal_eval
-W: 12:func: Use of eval. Consider using ast.literal_eval
+W:  5: Use of eval
+W:  6: Use of eval
+W:  8: Use of eval
+W: 12:func: Use of eval
