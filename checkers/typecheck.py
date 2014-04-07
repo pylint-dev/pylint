@@ -94,7 +94,14 @@ class TypeChecker(BaseChecker):
 class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
                 ),
-
+                ('ignored-modules',
+                 {'default': ('numpy',),
+                  'type': 'csv',
+                  'metavar': '<module names>',
+                  'help': 'List of module names for which member attributes \
+should not be checked (useful for modules/projects where namespaces are \
+manipulated during runtime'},
+                 ),
                ('ignored-classes',
                 {'default' : ('SQLObject',),
                  'type' : 'csv',
@@ -192,7 +199,8 @@ accessed. Python regular expressions are accepted.'}
                 if isinstance(owner, Instance) and owner.has_dynamic_getattr():
                     continue
                 # explicit skipping of optparse'Values class
-                if owner.name == 'Values' and owner.root().name == 'optparse':
+                if (owner.name == 'Values' and owner.root().name == 'optparse'
+                        or owner.name in self.config.ignored_modules):
                     continue
                 missingattr.add((owner, name))
                 continue
