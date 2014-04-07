@@ -450,6 +450,12 @@ functions, methods
               'exec-used',
               'Used when you use the "exec" statement (function for Python 3), to discourage its \
               usage. That doesn\'t mean you can not use it !'),
+    'W0123': ('Use of eval',
+              'eval-used',
+              'Used when you use the "eval" function, to discourage its '
+              'usage. Consider using `ast.literal_eval` for safely evaluating '
+              'strings containing Python expressions '
+              'from untrusted sources. '),
     'W0141': ('Used builtin function %r',
               'bad-builtin',
               'Used when a black listed builtin function is used (see the '
@@ -680,7 +686,7 @@ functions, methods
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @check_messages('bad-builtin', 'star-args', 
+    @check_messages('bad-builtin', 'star-args', 'eval-used', 
                     'exec-used', 'missing-reversed-argument', 
                     'bad-reversed-sequence')
     def visit_callfunc(self, node):
@@ -697,6 +703,8 @@ functions, methods
                     self.add_message('exec-used', node=node)
                 elif name == 'reversed':
                     self._check_reversed(node)
+                elif name == 'eval':
+                    self.add_message('eval-used', node=node)
                 if name in self.config.bad_functions:
                     self.add_message('bad-builtin', node=node, args=name)
         if node.starargs or node.kwargs:

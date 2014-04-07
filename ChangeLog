@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add new warning 'eval-used', checking that the builtin function `eval`
+      was used.
+
     * ensure init-hooks is evaluated before other options, notably load-plugins
       (#166)
 
