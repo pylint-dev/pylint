@@ -2,6 +2,11 @@ ChangeLog for Pylint
 ====================
 
 --
+
+    * Do not crash with UnknownMessage if an unknown message ID/name appears
+      in disable or enable in the configuration. Patch by Cole Robinson.
+      Fixes bitbucket issue #170.
+	
     * Add new warning 'eval-used', checking that the builtin function `eval`
       was used.
 

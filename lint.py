@@ -29,6 +29,7 @@
 # import this first to avoid builtin namespace pollution
 from pylint.checkers import utils
 
+import functools
 import sys
 import os
 import tokenize
@@ -389,7 +390,7 @@ warning, statement which respectively contain the number of errors / warnings\
                 value = check_csv(None, optname, value)
                 if isinstance(value, (list, tuple)):
                     for _id in value:
-                        meth(_id)
+                        meth(_id, ignore_unknown=True)
                 else:
                     meth(value)
         elif optname == 'output-format':
