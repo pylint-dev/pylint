@@ -10,6 +10,10 @@ ChangeLog for Pylint
     * Add new warning 'eval-used', checking that the builtin function `eval`
       was used.
 
+    * Added support for enforcing multiple, but consistent name styles for 
+      different name types inside a single module; based on a patch written
+      by morbo@google.com.
+      
     * Also warn about empty docstrings on overridden methods; contributed
       by sebastianu@google.com.
       

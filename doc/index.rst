@@ -13,6 +13,7 @@ https://bitbucket.org/logilab/pylint
    output
    message-control
    features
+   options
    extend
    ide-integration
    plugins

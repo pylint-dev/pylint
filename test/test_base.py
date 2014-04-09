@@ -130,6 +130,73 @@ class NameCheckerTest(CheckerTestCase):
             self.checker.visit_assname(assign.targets[0])
 
 
+class MultiNamingStyleTest(CheckerTestCase):
+    CHECKER_CLASS = base.NameChecker
+
+    MULTI_STYLE_RE = re.compile('(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$')
+
+    @set_config(class_rgx=MULTI_STYLE_RE)
+    def test_multi_name_detection_first(self):
+        classes = test_utils.extract_node("""
+        class CLASSA(object): #@
+            pass
+        class classb(object): #@
+            pass
+        class CLASSC(object): #@
+            pass
+        """)
+        with self.assertAddsMessages(Message('invalid-name', node=classes[1], args=('class', 'classb'))):
+            for cls in classes:
+                self.checker.visit_class(cls)
+
+    @set_config(class_rgx=MULTI_STYLE_RE)
+    def test_multi_name_detection_first_invalid(self):
+        classes = test_utils.extract_node("""
+        class class_a(object): #@
+            pass
+        class classb(object): #@
+            pass
+        class CLASSC(object): #@
+            pass
+        """)
+        with self.assertAddsMessages(Message('invalid-name', node=classes[0], args=('class', 'class_a')),
+                                     Message('invalid-name', node=classes[2], args=('class', 'CLASSC'))):
+            for cls in classes:
+                self.checker.visit_class(cls)
+
+    @set_config(method_rgx=MULTI_STYLE_RE,
+                function_rgx=MULTI_STYLE_RE,
+                name_group=('function:method',))
+    def test_multi_name_detection_group(self):
+        function_defs = test_utils.extract_node("""
+        class First(object):
+            def func(self): #@
+                pass
+
+        def FUNC(): #@
+            pass
+        """, module_name='test')
+        with self.assertAddsMessages(Message('invalid-name', node=function_defs[1], args=('function', 'FUNC'))):
+            for func in function_defs:
+                self.checker.visit_function(func)
+
+    @set_config(function_rgx=re.compile('(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$'))
+    def test_multi_name_detection_exempt(self):
+        function_defs = test_utils.extract_node("""
+        def FOO(): #@
+            pass
+        def lower(): #@
+            pass
+        def FOO(): #@
+            pass
+        def UPPER(): #@
+            pass
+        """)
+        with self.assertAddsMessages(Message('invalid-name', node=function_defs[3], args=('function', 'UPPER'))):
+            for func in function_defs:
+                self.checker.visit_function(func)
+
+
 if __name__ == '__main__':
     from logilab.common.testlib import unittest_main
     unittest_main()

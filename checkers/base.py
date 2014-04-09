@@ -58,6 +58,9 @@ if sys.version_info < (3, 0):
     BAD_FUNCTIONS.append('input')
     BAD_FUNCTIONS.append('file')
 
+# Name categories that are always consistent with all naming conventions.
+EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
+
 del re
 
 def in_loop(node):
@@ -904,7 +907,19 @@ class NameChecker(_BasicChecker):
                  'help' : 'Bad variable names which should always be refused, '
                           'separated by a comma'}
                 ),
+               ('name-group',
+                {'default' : (),
+                 'type' :'csv', 'metavar' : '<name1:name2>',
+                 'help' : ('Colon-delimited sets of names that determine each'
+                           ' other\'s naming style when the name regexes'
+                           ' allow several styles.')}
+                ),
                )
+
+    def __init__(self, linter):
+        _BasicChecker.__init__(self, linter)
+        self._name_category = {}
+        self._name_group = {}
 
     def open(self):
         self.stats = self.linter.add_stats(badname_module=0,
@@ -915,6 +930,9 @@ class NameChecker(_BasicChecker):
                                            badname_inlinevar=0,
                                            badname_argument=0,
                                            badname_class_attribute=0)
+        for group in self.config.name_group:
+            for name_type in group.split(':'):
+                self._name_group[name_type] = 'group_%s' % (group,)
 
     @check_messages('blacklisted-name', 'invalid-name')
     def visit_module(self, node):
@@ -976,6 +994,14 @@ class NameChecker(_BasicChecker):
             else:
                 self._recursive_check_names(arg.elts, node)
 
+    def _find_name_group(self, node_type):
+        return self._name_group.get(node_type, node_type)
+
+    def _is_multi_naming_match(self, match):
+        return (match is not None and
+                match.lastgroup is not None and
+                match.lastgroup not in EXEMPT_NAME_CATEGORIES)
+
     def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""
         if is_inside_except(node):
@@ -989,7 +1015,16 @@ class NameChecker(_BasicChecker):
             self.add_message('blacklisted-name', node=node, args=name)
             return
         regexp = getattr(self.config, node_type + '_rgx')
-        if regexp.match(name) is None:
+        match = regexp.match(name)
+
+        if self._is_multi_naming_match(match):
+            name_group = self._find_name_group(node_type)
+            if name_group not in self._name_category:
+                self._name_category[name_group] = match.lastgroup
+            elif self._name_category[name_group] != match.lastgroup:
+                match = None
+
+        if match is None:
             type_label = {'inlinedvar': 'inlined variable',
                           'const': 'constant',
                           'attr': 'attribute',
