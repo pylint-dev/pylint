@@ -102,15 +102,15 @@ class StringFormatChecker(BaseChecker):
                 utils.parse_format_string(format_string)
         except utils.UnsupportedFormatCharacter, e:
             c = format_string[e.index]
-            self.add_message('E1300', node=node, args=(c, ord(c), e.index))
+            self.add_message('bad-format-character', node=node, args=(c, ord(c), e.index))
             return
         except utils.IncompleteFormatString:
-            self.add_message('E1301', node=node)
+            self.add_message('truncated-format-string', node=node)
             return
         if required_keys and required_num_args:
             # The format string uses both named and unnamed format
             # specifiers.
-            self.add_message('E1302', node=node)
+            self.add_message('mixed-format-string', node=node)
         elif required_keys:
             # The format string uses only named format specifiers.
             # Check that the RHS of the % operator is a mapping object
@@ -125,7 +125,7 @@ class StringFormatChecker(BaseChecker):
                         if isinstance(key, basestring):
                             keys.add(key)
                         else:
-                            self.add_message('W1300', node=node, args=key)
+                            self.add_message('bad-format-string-key', node=node, args=key)
                     else:
                         # One of the keys was something other than a
                         # constant.  Since we can't tell what it is,
@@ -135,13 +135,13 @@ class StringFormatChecker(BaseChecker):
                 if not unknown_keys:
                     for key in required_keys:
                         if key not in keys:
-                            self.add_message('E1304', node=node, args=key)
+                            self.add_message('missing-format-string-key', node=node, args=key)
                 for key in keys:
                     if key not in required_keys:
-                        self.add_message('W1301', node=node, args=key)
+                        self.add_message('unused-format-string-key', node=node, args=key)
             elif isinstance(args, OTHER_NODES + (astroid.Tuple,)):
                 type_name = type(args).__name__
-                self.add_message('E1303', node=node, args=type_name)
+                self.add_message('format-needs-mapping', node=node, args=type_name)
             # else:
                 # The RHS of the format specifier is a name or
                 # expression.  It may be a mapping object, so
@@ -162,9 +162,9 @@ class StringFormatChecker(BaseChecker):
                 num_args = None
             if num_args is not None:
                 if num_args > required_num_args:
-                    self.add_message('E1305', node=node)
+                    self.add_message('too-many-format-args', node=node)
                 elif num_args < required_num_args:
-                    self.add_message('E1306', node=node)
+                    self.add_message('too-few-format-args', node=node)
 
 
 class StringMethodsChecker(BaseChecker):
@@ -189,7 +189,7 @@ class StringMethodsChecker(BaseChecker):
             if not isinstance(arg, astroid.Const):
                 return
             if len(arg.value) != len(set(arg.value)):
-                self.add_message('E1310', node=node,
+                self.add_message('bad-str-strip-call', node=node,
                                  args=(func.bound.name, func.name))
 
 
@@ -282,9 +282,11 @@ class StringConstantChecker(BaseTokenChecker):
                 elif _PY3K and 'b' not in prefix:
                     pass  # unicode by default
                 else:
-                    self.add_message('W1402', line=start_row, args=(match, ))
+                    self.add_message('anomalous-unicode-escape-in-string', 
+                                     line=start_row, args=(match, ))
             elif next_char not in self.ESCAPE_CHARACTERS:
-                self.add_message('W1401', line=start_row, args=(match, ))
+                self.add_message('anomalous-backslash-in-string', 
+                                 line=start_row, args=(match, ))
             # Whether it was a valid escape or not, backslash followed by
             # another character can always be consumed whole: the second
             # character can never be the start of a new backslash escape.

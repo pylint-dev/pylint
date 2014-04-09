@@ -39,7 +39,16 @@ class RunTC(TestCase):
             try:
                 Run(args, reporter=reporter)
             except SystemExit, ex:
-                self.assertEqual(ex.code, code)
+                if reporter:
+                    output = reporter.out.getvalue()
+                elif hasattr(out, 'getvalue'):
+                    output = out.getvalue()
+                else:
+                    output = None
+                msg = 'expected output status %s, got %s' % (code, ex.code)
+                if output is not None:
+                    msg = '%s. Below pylint output: \n%s' % (msg, output)
+                self.assertEqual(ex.code, code, msg)
             else:
                 self.fail('expected system exit')
         finally:

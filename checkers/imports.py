@@ -248,6 +248,9 @@ given file (report RP0402 must not be disabled)'}
                        and prev.modname == '__future__'):
                     self.add_message('W0410', node=node)
             return
+        for name, _ in node.names:
+            if name == '*':
+                self.add_message('W0401', args=basename, node=node)
         modnode = node.root()
         importedmodnode = self.get_imported_module(modnode, node, basename)
         if importedmodnode is None:
@@ -255,11 +258,9 @@ given file (report RP0402 must not be disabled)'}
         self._check_relative_import(modnode, node, importedmodnode, basename)
         self._check_deprecated_module(node, basename)
         for name, _ in node.names:
-            if name == '*':
-                self.add_message('W0401', args=basename, node=node)
-                continue
-            self._add_imported_module(node, '%s.%s' % (importedmodnode.name, name))
-            self._check_reimport(node, name, basename, node.level)
+            if name != '*':
+                self._add_imported_module(node, '%s.%s' % (importedmodnode.name, name))
+                self._check_reimport(node, name, basename, node.level)
 
     def get_imported_module(self, modnode, importnode, modname):
         try:

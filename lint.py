@@ -29,6 +29,7 @@
 # import this first to avoid builtin namespace pollution
 from pylint.checkers import utils
 
+import functools
 import sys
 import os
 import tokenize
@@ -389,7 +390,7 @@ warning, statement which respectively contain the number of errors / warnings\
                 value = check_csv(None, optname, value)
                 if isinstance(value, (list, tuple)):
                     for _id in value:
-                        meth(_id)
+                        meth(_id, ignore_unknown=True)
                 else:
                     meth(value)
         elif optname == 'output-format':
@@ -622,7 +623,7 @@ warning, statement which respectively contain the number of errors / warnings\
             self._ignore_file = False
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
-            self.current_file = astroid.file
+            self.current_file = astroid.file # pylint: disable=maybe-no-member
             self.check_astroid_module(astroid, walker, rawcheckers, tokencheckers)
             self._add_suppression_messages()
         # notify global end

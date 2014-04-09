@@ -344,7 +344,7 @@ class FormatChecker(BaseTokenChecker):
                 return ':'
             elif tokens[i][1] in '()[]{}':
                 return 'bracket'
-            elif tokens[i][1] in ('<', '>', '<=', '>=', '!='):
+            elif tokens[i][1] in ('<', '>', '<=', '>=', '!=', '=='):
                 return 'comparison'
             else:
                 if self._inside_brackets('('):

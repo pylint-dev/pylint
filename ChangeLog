@@ -2,6 +2,32 @@ ChangeLog for Pylint
 ====================
 
 --
+
+    * Do not crash with UnknownMessage if an unknown message ID/name appears
+      in disable or enable in the configuration. Patch by Cole Robinson.
+      Fixes bitbucket issue #170.
+	
+    * Add new warning 'eval-used', checking that the builtin function `eval`
+      was used.
+
+    * Make it possible to show a naming hint for invalid name by setting
+      include-naming-hint. Also make the naming hints configurable. Fixes
+      BitBucket issue #138.
+      
+    * Added support for enforcing multiple, but consistent name styles for 
+      different name types inside a single module; based on a patch written
+      by morbo@google.com.
+
+    * Also warn about empty docstrings on overridden methods; contributed
+      by sebastianu@google.com.
+      
+    * Also inspect arguments to constructor calls, and emit relevant 
+      warnings; contributed by sebastianu@google.com.
+      
+    * Added a new configuration option logging-modules to make the list
+      of module names that can be checked for 'logging-not-lazy' et. al.
+      configurable; contributed by morbo@google.com.
+
     * ensure init-hooks is evaluated before other options, notably load-plugins
       (#166)
 

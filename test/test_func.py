@@ -25,7 +25,7 @@ from os.path import abspath, dirname, join
 from logilab.common import testlib
 
 from pylint.testutils import (make_tests, LintTestUsingModule, LintTestUsingFile,
-    cb_test_gen, linter, test_reporter)
+    LintTestUpdate, cb_test_gen, linter, test_reporter)
 
 PY3K = sys.version_info >= (3, 0)
 
@@ -75,23 +75,18 @@ class LintBuiltinModuleTest(LintTestUsingModule):
     def test_functionality(self):
         self._test(['sys'])
 
-# Callbacks
-
-base_cb_file = cb_test_gen(LintTestUsingFile)
-
-def cb_file(*args):
-    if MODULES_ONLY:
-        return None
-    else:
-        return base_cb_file(*args)
-
-callbacks = [cb_test_gen(LintTestUsingModule),
-             cb_file]
-
-# Gen tests
 
 def gen_tests(filter_rgx):
+    if UPDATE:
+        callbacks = [cb_test_gen(LintTestUpdate)]    
+    else:
+        callbacks = [cb_test_gen(LintTestUsingModule)]
+        if not MODULES_ONLY:
+            callbacks.append(cb_test_gen(LintTestUsingFile))
     tests = make_tests(INPUT_DIR, MSG_DIR, filter_rgx, callbacks)
+
+    if UPDATE:
+        return tests
 
     if filter_rgx:
         is_to_run = re.compile(filter_rgx).search
@@ -113,18 +108,21 @@ def gen_tests(filter_rgx):
 
 FILTER_RGX = None
 MODULES_ONLY = False
+UPDATE = False
 
 def suite():
     return testlib.TestSuite([unittest.makeSuite(test, suiteClass=testlib.TestSuite)
                               for test in gen_tests(FILTER_RGX)])
 
-del LintTestUsingModule
-del LintTestUsingFile
 
 if __name__=='__main__':
     if '-m' in sys.argv:
         MODULES_ONLY = True
         sys.argv.remove('-m')
+
+    if '-u' in sys.argv:
+        UPDATE = True
+        sys.argv.remove('-u')
 
     if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]
