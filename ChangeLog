@@ -6,6 +6,9 @@ ChangeLog for Pylint
     * Add -i / --include-ids and -s / --symbols back as completely ignored
       options. Fixes BitBucket issue #180.
 
+    * Extend the number of cases in which logging calls are detected. Fixes
+      bitbucket issue #182.
+
     * Do not crash with UnknownMessage if an unknown message ID/name appears
       in disable or enable in the configuration. Patch by Cole Robinson.
       Fixes bitbucket issue #170.
