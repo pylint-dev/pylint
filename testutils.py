@@ -158,6 +158,9 @@ def set_config(**kwargs):
         def _Forward(self):
             for key, value in kwargs.iteritems():
                 setattr(self.checker.config, key, value)
+            if isinstance(self, CheckerTestCase):
+                # reopen checker in case, it may be interested in configuration change
+                self.checker.open()
             fun(self)
 
         return _Forward
