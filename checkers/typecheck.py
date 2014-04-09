@@ -84,7 +84,7 @@ def _determine_callable(callable_obj):
         return callable_obj, 1, 'method'
     elif isinstance(callable_obj, astroid.UnboundMethod):
         if callable_obj.decorators is not None:
-            for d in called.decorators.nodes:
+            for d in callable_obj.decorators.nodes:
                 if isinstance(d, astroid.Name) and d.name == 'classmethod':
                     # Class methods have an extra implicit 'cls' argument.
                     return called, 1, 'class method'
