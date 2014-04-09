@@ -148,6 +148,7 @@ class UnittestLinter(object):
     def add_stats(self, **kwargs):
         for name, value in kwargs.iteritems():
             self.stats[name] = value
+        return self.stats
 
 
 def set_config(**kwargs):
@@ -174,7 +175,6 @@ class CheckerTestCase(testlib.TestCase):
         for key, value in self.CONFIG.iteritems():
             setattr(self.checker.config, key, value)
         self.checker.open()
-        self.checker.stats = self.linter.stats
 
     @contextlib.contextmanager
     def assertNoMessages(self):
