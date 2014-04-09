@@ -157,12 +157,10 @@ MSGS = {
               'Used when the __exit__ special method, belonging to a \
                context manager, does not accept 3 arguments \
                (type, value, traceback).'),
-    'E0236': ('Invalid object %r in __slots__, must contain only strings',
+    'E0236': ('Invalid object %r in __slots__, must contain '
+              'only non empty strings',
               'invalid-slots-object',
               'Used when an invalid (non-string) object occurs in __slots__.'),
-    'E0237': ('Empty object %r in __slots__',
-              'empty-slots-object',
-              'Used when an empty string occurs in __slots__.'),
     'E0238': ('Invalid __slots__ object',
               'invalid-slots',
               'Used when an invalid __slots__ is found in class. '
@@ -347,40 +345,45 @@ a metaclass class method.'}
     def _check_slots(self, node):
         if '__slots__' not in node.locals:
             return
-        slots = node.igetattr('__slots__').next()
-        # check if __slots__ is a valid type
-        for meth in ('__iter__', '__getitem__'):
-            try:
-                slots.getattr(meth)
-                break
-            except astroid.NotFoundError:
+        for slots in node.igetattr('__slots__'):
+            # check if __slots__ is a valid type
+            for meth in ('__iter__', '__getitem__'):
+                try:
+                    slots.getattr(meth)
+                    break
+                except astroid.NotFoundError:
+                    continue
+            else:
+                self.add_message('invalid-slots', node=node)
                 continue
-        else:
-            self.add_message('invalid-slots', node=node)
-            return
-        if isinstance(slots, astroid.Const):
-            # a string, ignore the following checks
-            return
-        if not hasattr(slots, 'itered'):
-            # we can't obtain the values, maybe a .deque?
-            return
-        if isinstance(slots, astroid.Dict):            
-            values = [item[0] for item in slots.items]
-        else:
-            values = slots.itered()
-        if values is YES:
-            return
-        for elt in values:
-            if (not isinstance(elt, astroid.Const) or
-                not isinstance(elt.value, str)):
-                self.add_message('invalid-slots-object',
-                                 args=elt.as_string(),
-                                 node=elt)
+
+            if isinstance(slots, astroid.Const):
+                # a string, ignore the following checks
                 continue
-            if not elt.value:
-                self.add_message('empty-slots-object',
-                                 args=elt.as_string(),
-                                 node=elt)
+            if not hasattr(slots, 'itered'):
+                # we can't obtain the values, maybe a .deque?
+                continue
+
+            if isinstance(slots, astroid.Dict):
+                values = [item[0] for item in slots.items]
+            else:
+                values = slots.itered()
+            if values is YES:
+                return
+
+            for elt in values:
+                if elt is YES:
+                    continue
+                if (not isinstance(elt, astroid.Const) or
+                    not isinstance(elt.value, str)):
+                    self.add_message('invalid-slots-object',
+                                     args=elt.as_string(),
+                                     node=elt)
+                    continue
+                if not elt.value:
+                    self.add_message('invalid-slots-object',
+                                     args=elt.as_string(),
+                                     node=elt)
 
     def _check_iter(self, node):
         try:

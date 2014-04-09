@@ -4,6 +4,12 @@
 
 from collections import deque
 
+def func():
+    if True:
+        return ("a", "b", "c")
+    else:
+        return [str(var) for var in range(3)]
+
 __revision__ = 0
 
 class NotIterable(object):
@@ -45,3 +51,7 @@ class FourthBad(object):
 
 class FifthBad(object):
     __slots__ = ("a", "b", "")
+
+class PotentiallyGood(object):
+    __slots__ = func()
+   
