@@ -154,7 +154,7 @@ class UnittestLinter(object):
 def set_config(**kwargs):
     """Decorator for setting config values on a checker."""
     def _Wrapper(fun):
-        functools.wraps(fun)
+        @functools.wraps(fun)
         def _Forward(self):
             for key, value in kwargs.iteritems():
                 setattr(self.checker.config, key, value)
