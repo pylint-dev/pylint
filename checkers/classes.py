@@ -49,7 +49,7 @@ MSGS = {
               compatibility for an unexpected reason. Please report this kind \
               if you don\'t make sense of it.'),
 
-    'E0202': ('An attribute affected in %s line %s hide this method',
+    'E0202': ('An attribute defined in %s line %s hides this method',
               'method-hidden',
               'Used when a class defines a method which is hidden by an '
               'instance attribute from an ancestor class or set by some '
