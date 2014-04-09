@@ -30,6 +30,7 @@ if sys.version_info >= (3, 0):
     NEXT_METHOD = '__next__'
 else:
     NEXT_METHOD = 'next'
+ITER_METHODS = ('__iter__', '__getitem__')
 
 def class_is_abstract(node):
     """return true if the given class node should be considered as an abstract
@@ -347,7 +348,7 @@ a metaclass class method.'}
             return
         for slots in node.igetattr('__slots__'):
             # check if __slots__ is a valid type
-            for meth in ('__iter__', '__getitem__'):
+            for meth in ITER_METHODS:
                 try:
                     slots.getattr(meth)
                     break
