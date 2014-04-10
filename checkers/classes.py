@@ -248,10 +248,10 @@ a metaclass class method.'}
             try:
                 node.local_attr('__init__')
             except astroid.NotFoundError:
-                self.add_message('W0232', args=node, node=node)
+                self.add_message('no-init', args=node, node=node)
         self._check_slots(node)
 
-    @check_messages('E0203', 'W0201')
+    @check_messages('access-member-before-definition', 'attribute-defined-outside-init')
     def leave_class(self, cnode):
         """close a class node:
         check that instance attributes are defined in __init__ and check
@@ -262,7 +262,7 @@ a metaclass class method.'}
         if cnode.type != 'metaclass':
             self._check_accessed_members(cnode, accessed)
         # checks attributes are defined in an allowed method such as __init__
-        if 'W0201' not in self.active_msgs:
+        if not self.linter.is_message_enabled('attribute-defined-outside-init'):
             return
         defining_methods = self.config.defining_attr_methods
         for attr, nodes in cnode.instance_attrs.iteritems():
@@ -291,7 +291,7 @@ a metaclass class method.'}
                     try:
                         cnode.local_attr(attr)
                     except astroid.NotFoundError:
-                        self.add_message('W0201', args=attr, node=node)
+                        self.add_message('attribute-defined-outside-init', args=attr, node=node)
 
     def visit_function(self, node):
         """check method arguments, overriding"""
@@ -333,7 +333,7 @@ a metaclass class method.'}
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
             args = (overridden.root().name, overridden.fromlineno)
-            self.add_message('E0202', args=args, node=node)
+            self.add_message('method-hidden', args=args, node=node)
         except astroid.NotFoundError:
             pass
 
@@ -430,7 +430,7 @@ a metaclass class method.'}
         if node.is_method():
             if node.args.args is not None:
                 self._first_attrs.pop()
-            if 'R0201' not in self.active_msgs:
+            if not self.linter.is_message_enabled('no-self-use'):
                 return
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
@@ -438,7 +438,7 @@ a metaclass class method.'}
                 and not (node.is_abstract() or
                          overrides_a_method(class_node, node.name))
                 and class_node.type != 'interface'):
-                self.add_message('R0201', node=node)
+                self.add_message('no-self-use', node=node)
 
     def visit_getattr(self, node):
         """check if the getattr is an access to a class member
@@ -451,15 +451,13 @@ a metaclass class method.'}
         if self.is_first_attr(node):
             self._accessed[-1].setdefault(attrname, []).append(node)
             return
-        if 'W0212' not in self.active_msgs:
+        if not self.linter.is_message_enabled('protected-access'):
             return
 
         self._check_protected_attribute_access(node)
 
+    @check_messages('protected-access')
     def visit_assign(self, assign_node):
-        if 'W0212' not in self.active_msgs:
-            return
-
         node = assign_node.targets[0]
         if not isinstance(node, AssAttr):
             return
@@ -492,7 +490,7 @@ a metaclass class method.'}
 
             # We are not in a class, no remaining valid case
             if klass is None:
-                self.add_message('W0212', node=node, args=attrname)
+                self.add_message('protected-access', node=node, args=attrname)
                 return
 
             # If the expression begins with a call to super, that's ok.
@@ -504,7 +502,7 @@ a metaclass class method.'}
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
             if not (callee == klass.name or callee in klass.basenames):
-                self.add_message('W0212', node=node, args=attrname)
+                self.add_message('protected-access', node=node, args=attrname)
 
     def visit_name(self, node):
         """check if the name handle an access to a class member
@@ -549,7 +547,7 @@ a metaclass class method.'}
                     for _node in nodes:
                         if _node.frame() is frame and _node.fromlineno < lno \
                            and not are_exclusive(_node.statement(), defstmt, ('AttributeError', 'Exception', 'BaseException')):
-                            self.add_message('E0203', node=_node,
+                            self.add_message('access-member-before-definition', node=_node,
                                              args=(attr, lno))
 
     def _check_first_arg_for_type(self, node, metaclass=0):
@@ -573,34 +571,34 @@ a metaclass class method.'}
             if (first_arg == 'self' or
                 first_arg in self.config.valid_classmethod_first_arg or
                 first_arg in self.config.valid_metaclass_classmethod_first_arg):
-                self.add_message('W0211', args=first, node=node)
+                self.add_message('bad-staticmethod-argument', args=first, node=node)
                 return
             self._first_attrs[-1] = None
         # class / regular method with no args
         elif not node.args.args:
-            self.add_message('E0211', node=node)
+            self.add_message('no-method-argument', node=node)
         # metaclass
         elif metaclass:
             # metaclass __new__ or classmethod
             if node.type == 'classmethod':
                 self._check_first_arg_config(first,
                     self.config.valid_metaclass_classmethod_first_arg, node,
-                    'C0204', node.name)
+                    'bad-mcs-classmethod-argument', node.name)
             # metaclass regular method
             else:
                 self._check_first_arg_config(first,
-                    self.config.valid_classmethod_first_arg, node, 'C0203',
+                    self.config.valid_classmethod_first_arg, node, 'bad-mcs-method-argument',
                     node.name)
         # regular class
         else:
             # class method
             if node.type == 'classmethod':
                 self._check_first_arg_config(first,
-                    self.config.valid_classmethod_first_arg, node, 'C0202',
+                    self.config.valid_classmethod_first_arg, node, 'bad-classmethod-argument',
                     node.name)
             # regular method without self as argument
             elif first != 'self':
-                self.add_message('E0213', node=node)
+                self.add_message('no-self-argument', node=node)
 
     def _check_first_arg_config(self, first, config, node, message,
                                 method_name):
@@ -632,7 +630,7 @@ a metaclass class method.'}
                 # it is redefined as an attribute or with a descriptor
                 continue
             if method.is_abstract(pass_is_abstract=False):
-                self.add_message('W0223', node=node,
+                self.add_message('abstract-method', node=node,
                                  args=(method.name, owner.name))
 
     def _check_interfaces(self, node):
@@ -644,7 +642,7 @@ a metaclass class method.'}
             """filter interface objects, it should be classes"""
             if not isinstance(obj, astroid.Class):
                 e0221_hack[0] = True
-                self.add_message('E0221', node=node,
+                self.add_message('interface-is-not-class', node=node,
                                  args=(obj.as_string(),))
                 return False
             return True
@@ -661,7 +659,7 @@ a metaclass class method.'}
                     try:
                         method = node_method(node, name)
                     except astroid.NotFoundError:
-                        self.add_message('E0222', args=(name, iface.name),
+                        self.add_message('missing-interface-method', args=(name, iface.name),
                                          node=node)
                         continue
                     # ignore inherited methods
@@ -680,14 +678,15 @@ a metaclass class method.'}
             # Use as_string() for the message
             # FIXME: in case of multiple interfaces, find which one could not
             #        be resolved
-            self.add_message('F0220', node=implements,
+            self.add_message('unresolved-interface', node=implements,
                              args=(node.name, assignment.value.as_string()))
 
     def _check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
         method
         """
-        if not set(('W0231', 'W0233')) & self.active_msgs:
+        if (not self.linter.is_message_enabled('super-init-not-called') and 
+            not self.linter.is_message_enabled('non-parent-init-called')):
             return
         klass_node = node.parent.frame()
         to_call = _ancestors_to_call(klass_node)
@@ -710,13 +709,13 @@ a metaclass class method.'}
                     del not_called_yet[klass]
                 except KeyError:
                     if klass not in to_call:
-                        self.add_message('W0233', node=expr, args=klass.name)
+                        self.add_message('non-parent-init-called', node=expr, args=klass.name)
             except astroid.InferenceError:
                 continue
         for klass, method in not_called_yet.iteritems():
             if klass.name == 'object' or method.parent.name == 'object':
                 continue
-            self.add_message('W0231', args=klass.name, node=node)
+            self.add_message('super-init-not-called', args=klass.name, node=node)
 
     def _check_signature(self, method1, refmethod, class_type):
         """check that the signature of the two given methods match
@@ -725,7 +724,7 @@ a metaclass class method.'}
         """
         if not (isinstance(method1, astroid.Function)
                 and isinstance(refmethod, astroid.Function)):
-            self.add_message('F0202', args=(method1, refmethod), node=method1)
+            self.add_message('method-check-failed', args=(method1, refmethod), node=method1)
             return
         # don't care about functions with unknown argument (builtins)
         if method1.args.args is None or refmethod.args.args is None:
@@ -736,9 +735,9 @@ a metaclass class method.'}
         if is_attr_private(method1.name):
             return
         if len(method1.args.args) != len(refmethod.args.args):
-            self.add_message('W0221', args=class_type, node=method1)
+            self.add_message('arguments-differ', args=class_type, node=method1)
         elif len(method1.args.defaults) < len(refmethod.args.defaults):
-            self.add_message('W0222', args=class_type, node=method1)
+            self.add_message('signature-differs', args=class_type, node=method1)
 
     def is_first_attr(self, node):
         """Check that attribute lookup name use first attribute variable name
