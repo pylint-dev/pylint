@@ -155,6 +155,13 @@ MSGS = {
     }
 
 
+def _deprecated_option(shortname, opt_type):
+    def _warn_deprecated(option, optname, *args):
+        sys.stderr.write('Warning: option %s is deprecated and ignored.\n' % (optname,))
+    return {'short': shortname, 'help': 'DEPRECATED', 'hide': True,
+            'type': opt_type, 'action': 'callback', 'callback': _warn_deprecated}
+
+
 class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                BaseTokenChecker):
     """lint Python modules using external checkers.
@@ -272,7 +279,10 @@ warning, statement which respectively contain the number of errors / warnings\
                             'This is a python new-style format string '
                             'used to format the message information. '
                             'See doc for all details')
-                  }), # msg-template
+                  }),
+
+                ('include-ids', _deprecated_option('i', 'yn')),
+                ('symbols', _deprecated_option('s', 'yn')),
                )
 
     option_groups = (
