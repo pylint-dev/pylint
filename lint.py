@@ -464,12 +464,10 @@ warning, statement which respectively contain the number of errors / warnings\
         """process tokens from the current module to search for module/block
         level options
         """
-        comment = tokenize.COMMENT
-        newline = tokenize.NEWLINE
-        for (tok_type, _, start, _, line) in tokens:
-            if tok_type not in (comment, newline):
+        for (tok_type, content, start, _, _) in tokens:
+            if tok_type != tokenize.COMMENT:
                 continue
-            match = OPTION_RGX.search(line)
+            match = OPTION_RGX.search(content)
             if match is None:
                 continue
             if match.group(1).strip() == "disable-all" or \

@@ -9,6 +9,9 @@ ChangeLog for Pylint
     * Extend the number of cases in which logging calls are detected. Fixes
       bitbucket issue #182.
 
+    * Improve pragma handling to not detect pylint:* strings in non-comments.
+      Fixes BitBucket issue #79.
+
     * Do not crash with UnknownMessage if an unknown message ID/name appears
       in disable or enable in the configuration. Patch by Cole Robinson.
       Fixes bitbucket issue #170.
