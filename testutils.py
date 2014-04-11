@@ -24,7 +24,7 @@ import re
 
 from glob import glob
 from os import linesep
-from os.path import abspath, dirname, join, basename, splitext
+from os.path import abspath, basename, dirname, isdir, join, splitext
 from cStringIO import StringIO
 
 from logilab.common import testlib
@@ -77,7 +77,8 @@ def get_tests_info(input_dir, msg_dir, prefix, suffix):
                 if py_rest.isdigit() and SYS_VERS_STR >= py_rest:
                     break
         else:
-            outfile = None
+            # This will provide an error message indicating the missing filename.
+            outfile = join(msg_dir, fbase + '.txt')
         result.append((infile, outfile))
     return result
 
@@ -288,7 +289,11 @@ class LintTestUsingFile(LintTestUsingModule):
     _TEST_TYPE = 'file'
 
     def test_functionality(self):
-        tocheck = [join(self.INPUT_DIR, self.module + '.py')]
+        importable = join(self.INPUT_DIR, self.module)
+        # python also prefers packages over simple modules.
+        if not isdir(importable):
+            importable += '.py'
+        tocheck = [importable]
         if self.depends:
             tocheck += [join(self.INPUT_DIR, name) for name, _file in self.depends]
         self._test(tocheck)
@@ -331,8 +336,9 @@ def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
     else:
         is_to_run = lambda x: 1
     tests = []
-    for module_file, messages_file in get_tests_info(input_dir, msg_dir,
-            'func_', '.py'):
+    for module_file, messages_file in (
+            get_tests_info(input_dir, msg_dir, 'func_', '')
+    ):
         if not is_to_run(module_file):
             continue
         base = module_file.replace('func_', '').replace('.py', '')

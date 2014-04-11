@@ -16,7 +16,7 @@
 """imports checkers for Python code"""
 
 from logilab.common.graph import get_cycles, DotBackend
-from logilab.common.modutils import is_standard_module
+from logilab.common.modutils import get_module_part, is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
 
 import astroid
@@ -292,6 +292,7 @@ given file (report RP0402 must not be disabled)'}
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
+        importedmodname = get_module_part(importedmodname)
         context_name = node.root().name
         if context_name == importedmodname:
             # module importing itself !
