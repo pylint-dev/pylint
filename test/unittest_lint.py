@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,7 +10,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import sys
 import os
@@ -49,23 +49,6 @@ class GetNoteMessageTC(TestCase):
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')
 
-class RunTC(TestCase):
-
-    def _test_run(self, args, exit_code=1, no_exit_fail=True):
-        sys.stdout = sys.sterr = StringIO()
-        try:
-            try:
-                Run(args)
-            except SystemExit, ex:
-                print sys.stdout.getvalue()
-                self.assertEqual(ex.code, exit_code)
-            else:
-                if no_exit_fail:
-                    self.fail()
-        finally:
-            sys.stdout = sys.__stdout__
-            sys.stderr = sys.__stderr__
-
 
 class PyLinterTC(TestCase):
 
@@ -82,7 +65,7 @@ class PyLinterTC(TestCase):
         # logilab.common.textutils.normalize_text
         # uses os.linesep, which will
         # not properly compare with triple
-        # quoted multilines used in these tests 
+        # quoted multilines used in these tests
         self.assertMultiLineEqual(desc,
              msg.format_help(checkerref=checkerref)
                 .replace('\r\n', '\n'))
@@ -111,13 +94,13 @@ class PyLinterTC(TestCase):
         msg = build_message_def(self.linter._checkers['typecheck'][0],
                                 'E1122', checkers.typecheck.MSGS['E1122'])
         self._compare_messages(
-            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in function call*
+            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in %s call*
   Used when a function call passes the same keyword argument multiple times.
   This message belongs to the typecheck checker. It can't be emitted when using
   Python >= 2.6.''',
             msg, checkerref=True)
         self._compare_messages(
-            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in function call*
+            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in %s call*
   Used when a function call passes the same keyword argument multiple times.
   This message can't be emitted when using Python >= 2.6.''',
             msg, checkerref=False)
@@ -381,9 +364,9 @@ class PyLinterTC(TestCase):
 
     def test_add_renamed_message(self):
         self.linter.add_renamed_message('C9999', 'old-bad-name', 'invalid-name')
-        self.assertEqual('invalid-name', 
+        self.assertEqual('invalid-name',
                          self.linter.check_message_id('C9999').symbol)
-        self.assertEqual('invalid-name', 
+        self.assertEqual('invalid-name',
                          self.linter.check_message_id('old-bad-name').symbol)
 
     def test_renamed_message_register(self):
@@ -391,11 +374,16 @@ class PyLinterTC(TestCase):
               msgs = {'W1234': ('message', 'msg-symbol', 'msg-description',
                                 {'old_names': [('W0001', 'old-symbol')]})}
          self.linter.register_messages(Checker())
-         self.assertEqual('msg-symbol', 
+         self.assertEqual('msg-symbol',
                           self.linter.check_message_id('W0001').symbol)
-         self.assertEqual('msg-symbol', 
+         self.assertEqual('msg-symbol',
                           self.linter.check_message_id('old-symbol').symbol)
-         
+
+    def test_init_hooks_called_before_load_plugins(self):
+         self.assertRaises(RuntimeError,
+                           Run, ['--load-plugins', 'unexistant', '--init-hooks', 'raise RuntimeError'])
+         self.assertRaises(RuntimeError,
+                           Run, ['--init-hooks', 'raise RuntimeError', '--load-plugins', 'unexistant'])
 
 class ConfigTC(TestCase):
 
@@ -473,7 +461,6 @@ class ConfigTC(TestCase):
             os.chdir(HERE)
             rmtree(chroot)
 
-
     def test_pylintrc_parentdir_no_package(self):
         chroot = tempfile.mkdtemp()
 
@@ -509,7 +496,7 @@ class PreprocessOptionsTC(TestCase):
     def _callback(self, name, value):
         self.args.append((name, value))
 
-    def test_preprocess(self):
+    def test_value_equal(self):
         self.args = []
         preprocess_options(['--foo', '--bar=baz', '--qu=ux'],
                            {'foo' : (self._callback, False),
@@ -517,7 +504,14 @@ class PreprocessOptionsTC(TestCase):
         self.assertEqual(
             [('foo', None), ('qu', 'ux')], self.args)
 
-    def test_preprocessing_error(self):
+    def test_value_space(self):
+        self.args = []
+        preprocess_options(['--qu', 'ux'],
+                           {'qu' : (self._callback, True)})
+        self.assertEqual(
+            [('qu', 'ux')], self.args)
+
+    def test_error_missing_expected_value(self):
         self.assertRaises(
             ArgumentPreprocessingError,
             preprocess_options,
@@ -528,6 +522,13 @@ class PreprocessOptionsTC(TestCase):
             preprocess_options,
             ['--foo', '--bar'],
             {'bar' : (None, True)})
+
+    def test_error_unexpected_value(self):
+        self.assertRaises(
+            ArgumentPreprocessingError,
+            preprocess_options,
+            ['--foo', '--bar=spam', '--qu=ux'],
+            {'bar' : (None, False)})
 
 
 if __name__ == '__main__':

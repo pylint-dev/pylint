@@ -5,8 +5,12 @@ Order doesn't matter (not that much, at least ;)
 
 * Sylvain Thenault (Logilab): main author / maintainer
 
-* Torsten Marek (Google): maintainer, main GPyLint developper and (GooglePylint)
-  upstream integrator
+* Torsten Marek (Google): maintainer, contributor
+
+* Claudiu Popa: maintainer, contributor
+
+* Daniel Balparda (Google): GPyLint maintainer (Google's pylint variant),
+  various patches
 
 * Martin Pool (Google): warnings for anomalous backslashes, symbolic names for
   messages (like 'unused'), etc
@@ -17,7 +21,8 @@ Order doesn't matter (not that much, at least ;)
 
 * Sandro Tosi: Debian packaging
 
-* Claudiu Popa, Mads Kiilerich, Boris Feld: various patches
+* Mads Kiilerich, Boris Feld, Bill Wendling, Sebastian Ulrich:
+  various patches
 
 * Brian van den Broek: windows installation documentation
 

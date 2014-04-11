@@ -12,11 +12,11 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """imports checkers for Python code"""
 
 from logilab.common.graph import get_cycles, DotBackend
-from logilab.common.modutils import is_standard_module
+from logilab.common.modutils import get_module_part, is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
 
 import astroid
@@ -248,6 +248,9 @@ given file (report RP0402 must not be disabled)'}
                        and prev.modname == '__future__'):
                     self.add_message('W0410', node=node)
             return
+        for name, _ in node.names:
+            if name == '*':
+                self.add_message('W0401', args=basename, node=node)
         modnode = node.root()
         importedmodnode = self.get_imported_module(modnode, node, basename)
         if importedmodnode is None:
@@ -255,11 +258,9 @@ given file (report RP0402 must not be disabled)'}
         self._check_relative_import(modnode, node, importedmodnode, basename)
         self._check_deprecated_module(node, basename)
         for name, _ in node.names:
-            if name == '*':
-                self.add_message('W0401', args=basename, node=node)
-                continue
-            self._add_imported_module(node, '%s.%s' % (importedmodnode.name, name))
-            self._check_reimport(node, name, basename, node.level)
+            if name != '*':
+                self._add_imported_module(node, '%s.%s' % (importedmodnode.name, name))
+                self._check_reimport(node, name, basename, node.level)
 
     def get_imported_module(self, modnode, importnode, modname):
         try:
@@ -291,6 +292,7 @@ given file (report RP0402 must not be disabled)'}
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
+        importedmodname = get_module_part(importedmodname)
         context_name = node.root().name
         if context_name == importedmodname:
             # module importing itself !

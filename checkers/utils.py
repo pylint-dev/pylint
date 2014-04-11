@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """some functions that may be useful for various checkers
 """
 
@@ -407,7 +407,7 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     try:
         if position is not None and not isinstance(callfunc_node.args[position], astroid.Keyword):
             return callfunc_node.args[position]
-    except IndexError as error:
+    except IndexError, error:
         raise NoSuchArgumentError(error)
     if keyword:
         for arg in callfunc_node.args:

@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """variables checkers for Python code
 """
 import os
@@ -233,7 +233,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                     self.add_message('undefined-all-variable', 
                                                      args=elt_name, 
                                                      node=elt)
-                                except SyntaxError as exc:
+                                except SyntaxError, exc:
                                     # don't yield an syntax-error warning,
                                     # because it will be later yielded
                                     # when the file will be checked

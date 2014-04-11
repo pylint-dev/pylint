@@ -9,7 +9,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """ Copyright (c) 2000-2011 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
@@ -27,7 +27,7 @@ from astroid import test_utils
 
 from pylint.checkers.format import *
 
-from pylint.testutils import CheckerTestCase, Message
+from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 def tokenize_str(code):
@@ -171,8 +171,8 @@ class CheckSpaceTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.process_tokens(tokenize_str('(a,)\n'))
 
+    @set_config(no_space_check=[])
     def testTrailingCommaBad(self):
-        self.checker.config.no_space_check = []
         with self.assertAddsMessages(
             Message('C0326', line=1,
                     args=('No', 'allowed', 'before', 'bracket', '(a, )\n    ^'))):
