@@ -185,9 +185,10 @@ variable for unused argument ("_" and "dummy" by default).
 Pylint uses ConfigParser from the standard library to parse the configuration file.
 It means that if you need to disable a lot of messages, you can use tricks like: ::
 
-    disable= W0401, # because I do not want it
-     E0202, # I have a good reason, trust me
-     C0302  # that's it
+    # disable W0401, E0202 and C0302 because I do not want it
+    disable= W0401,
+     E0202,
+     C0302
 
 4.7 Why do I get a lot of spurious "unused variables messages" when using psyobj from psyco_?
 ----------------------------------------------------------------------------------------------
