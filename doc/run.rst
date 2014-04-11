@@ -99,9 +99,12 @@ configuration file in the following order and uses the first one it finds:
    basis.  Of course, a directory is judged to be a Python module if it \
    contains an ``__init__.py`` file.
 #. The file named by environment variable ``PYLINTRC``
-#. ``.pylintrc`` in your home directory, unless you have no home directory or \
-   your home directory is ``/root``
-#. ``.pylintrc`` in the current working directory
+#. if you have a home directory which isn't ``/root``:
+
+   #. ``.pylintrc`` in your home directory
+   #. ``.config/pylintrc`` in your home directory
+
+   else, ``.pylintrc`` in the current working directory
 #. ``/etc/pylintrc``
 
 The ``--generate-rcfile`` option will generate a commented configuration file
