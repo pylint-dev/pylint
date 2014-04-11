@@ -142,12 +142,13 @@ class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
                 ),
                 ('ignored-modules',
-                 {'default': ('numpy',),
+                 {'default': ('optparse', 'numpy',),
                   'type': 'csv',
                   'metavar': '<module names>',
                   'help': 'List of module names for which member attributes \
 should not be checked (useful for modules/projects where namespaces are \
-manipulated during runtime'},
+manipulated during runtime and thus extisting member attributes cannot be \
+deduced by static analysis'},
                  ),
                ('ignored-classes',
                 {'default' : ('SQLObject',),
@@ -245,9 +246,8 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 if isinstance(owner, Instance) and owner.has_dynamic_getattr():
                     continue
-                # explicit skipping of optparse'Values class
-                if (owner.name == 'Values' and owner.root().name == 'optparse'
-                        or owner.name in self.config.ignored_modules):
+                # explicit skipping of module member access
+                if owner.root().name in self.config.ignored_modules:
                     continue
                 missingattr.add((owner, name))
                 continue
