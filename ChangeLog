@@ -64,6 +64,9 @@ ChangeLog for Pylint
     * Do not warn about 'abstract-method' when the abstract method
       is implemented through assignment (#155).     
 
+    * Improve cyclic import detection in the case of packages, patch by Buck
+      Golemon
+
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
