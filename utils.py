@@ -414,6 +414,8 @@ class MessagesHandlerMixIn(object):
         """
         msg_info = self.check_message_id(msg_descr)
         msgid = msg_info.msgid
+        # backward compatibility, message may not have a symbol
+        symbol = msg_info.symbol or msgid
         # Fatal messages and reports are special, the node/scope distinction
         # does not apply to them.
         if msgid[0] not in _SCOPE_EXEMPT:
@@ -441,9 +443,9 @@ class MessagesHandlerMixIn(object):
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:
-            self.stats['by_msg'][msg_info.symbol] += 1
+            self.stats['by_msg'][symbol] += 1
         except KeyError:
-            self.stats['by_msg'][msg_info.symbol] = 1
+            self.stats['by_msg'][symbol] = 1
         # expand message ?
         msg = msg_info.msg
         if args:
