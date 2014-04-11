@@ -64,8 +64,12 @@ ChangeLog for Pylint
     * Do not warn about 'abstract-method' when the abstract method
       is implemented through assignment (#155).     
 
+    * Improve cyclic import detection in the case of packages, patch by Buck
+      Golemon
+
     * Add new warnings for checking proper class __slots__:
      'invalid-slots-object' and 'invalid-slots'.
+
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
