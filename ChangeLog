@@ -73,6 +73,8 @@ ChangeLog for Pylint
     * Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
       doesn't exists (#121)
 
+    * Don't register the newstyle checker w/ python >= 3
+
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
