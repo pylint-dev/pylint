@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -242,6 +242,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if not self.config.init_import and node.package:
             return
         for name, stmts in not_consumed.iteritems():
+            if any(isinstance(stmt, astroid.AssName)
+                   and isinstance(stmt.ass_type(), astroid.AugAssign)
+                   for stmt in stmts):
+                continue
             stmt = stmts[0]
             if isinstance(stmt, astroid.Import):
                 self.add_message('W0611', args=name, node=stmt)
