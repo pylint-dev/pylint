@@ -58,6 +58,9 @@ if sys.version_info < (3, 0):
     BAD_FUNCTIONS.append('input')
     BAD_FUNCTIONS.append('file')
 
+# Name categories that are always consistent with all naming conventions.
+EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
+
 del re
 
 def in_loop(node):
@@ -819,79 +822,47 @@ functions, methods
                 # everything else is not a proper sequence for reversed()
                 self.add_message('bad-reversed-sequence', node=node)
 
+_NAME_TYPES = {
+    'module': (MOD_NAME_RGX, 'module'),
+    'const': (CONST_NAME_RGX, 'constant'),
+    'class': (CLASS_NAME_RGX, 'class'),
+    'function': (DEFAULT_NAME_RGX, 'function'),
+    'method': (DEFAULT_NAME_RGX, 'method'),
+    'attr': (DEFAULT_NAME_RGX, 'attribute'),
+    'argument': (DEFAULT_NAME_RGX, 'argument'),
+    'variable': (DEFAULT_NAME_RGX, 'variable'),
+    'class_attribute': (CLASS_ATTRIBUTE_RGX, 'class attribute'),
+    'inlinevar': (COMP_VAR_RGX, 'inline iteration'),
+}
+
+def _create_naming_options():
+    name_options = []
+    for name_type, (rgx, human_readable_name) in _NAME_TYPES.iteritems():
+        name_type = name_type.replace('_', '-')
+        name_options.append((
+            '%s-rgx' % (name_type,), 
+            {'default': rgx, 'type': 'regexp', 'metavar': '<regexp>',
+             'help': 'Regular expression matching correct %s names' % (human_readable_name,)}))
+        name_options.append((
+            '%s-name-hint' % (name_type,), 
+            {'default': rgx.pattern, 'type': 'string', 'metavar': '<string>',
+             'help': 'Naming hint for %s names' % (human_readable_name,)}))
+
+    return tuple(name_options) 
+
 class NameChecker(_BasicChecker):
     msgs = {
     'C0102': ('Black listed name "%s"',
               'blacklisted-name',
               'Used when the name is listed in the black list (unauthorized \
               names).'),
-    'C0103': ('Invalid %s name "%s"',
+    'C0103': ('Invalid %s name "%s"%s',
               'invalid-name',
               'Used when the name doesn\'t match the regular expression \
               associated to its type (constant, variable, class...).'),
     }
 
-    options = (('module-rgx',
-                {'default' : MOD_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'module names'}
-                ),
-               ('const-rgx',
-                {'default' : CONST_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'module level names'}
-                ),
-               ('class-rgx',
-                {'default' : CLASS_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'class names'}
-                ),
-               ('function-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'function names'}
-                ),
-               ('method-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'method names'}
-                ),
-               ('attr-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'instance attribute names'}
-                ),
-               ('argument-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'argument names'}),
-               ('variable-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'variable names'}
-                ),
-               ('class-attribute-rgx',
-                {'default' : CLASS_ATTRIBUTE_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'attribute names in class bodies'}
-                ),
-               ('inlinevar-rgx',
-                {'default' : COMP_VAR_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'list comprehension / generator expression variable \
-                          names'}
-                ),
-               # XXX use set
+    options = (# XXX use set
                ('good-names',
                 {'default' : ('i', 'j', 'k', 'ex', 'Run', '_'),
                  'type' :'csv', 'metavar' : '<names>',
@@ -904,7 +875,24 @@ class NameChecker(_BasicChecker):
                  'help' : 'Bad variable names which should always be refused, '
                           'separated by a comma'}
                 ),
-               )
+               ('name-group',
+                {'default' : (),
+                 'type' :'csv', 'metavar' : '<name1:name2>',
+                 'help' : ('Colon-delimited sets of names that determine each'
+                           ' other\'s naming style when the name regexes'
+                           ' allow several styles.')}
+                ),
+               ('include-naming-hint',
+                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'help': 'Include a hint for the correct naming format with invalid-name'}
+                ),
+               ) + _create_naming_options()
+
+
+    def __init__(self, linter):
+        _BasicChecker.__init__(self, linter)
+        self._name_category = {}
+        self._name_group = {}
 
     def open(self):
         self.stats = self.linter.add_stats(badname_module=0,
@@ -915,6 +903,9 @@ class NameChecker(_BasicChecker):
                                            badname_inlinevar=0,
                                            badname_argument=0,
                                            badname_class_attribute=0)
+        for group in self.config.name_group:
+            for name_type in group.split(':'):
+                self._name_group[name_type] = 'group_%s' % (group,)
 
     @check_messages('blacklisted-name', 'invalid-name')
     def visit_module(self, node):
@@ -976,6 +967,14 @@ class NameChecker(_BasicChecker):
             else:
                 self._recursive_check_names(arg.elts, node)
 
+    def _find_name_group(self, node_type):
+        return self._name_group.get(node_type, node_type)
+
+    def _is_multi_naming_match(self, match):
+        return (match is not None and
+                match.lastgroup is not None and
+                match.lastgroup not in EXEMPT_NAME_CATEGORIES)
+
     def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""
         if is_inside_except(node):
@@ -989,13 +988,21 @@ class NameChecker(_BasicChecker):
             self.add_message('blacklisted-name', node=node, args=name)
             return
         regexp = getattr(self.config, node_type + '_rgx')
-        if regexp.match(name) is None:
-            type_label = {'inlinedvar': 'inlined variable',
-                          'const': 'constant',
-                          'attr': 'attribute',
-                          'class_attribute': 'class attribute'
-                          }.get(node_type, node_type)
-            self.add_message('invalid-name', node=node, args=(type_label, name))
+        match = regexp.match(name)
+
+        if self._is_multi_naming_match(match):
+            name_group = self._find_name_group(node_type)
+            if name_group not in self._name_category:
+                self._name_category[name_group] = match.lastgroup
+            elif self._name_category[name_group] != match.lastgroup:
+                match = None
+
+        if match is None:
+            type_label = _NAME_TYPES[node_type][1]
+            hint = ''
+            if self.config.include_naming_hint:
+                hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
+            self.add_message('invalid-name', node=node, args=(type_label, name, hint))
             self.stats['badname_' + node_type] += 1
 
 
@@ -1052,15 +1059,17 @@ class DocStringChecker(_BasicChecker):
                        isinstance(ancestor[node.name], astroid.Function):
                         overridden = True
                         break
-                if not overridden:
-                    self._check_docstring(ftype, node)
+                self._check_docstring(ftype, node,
+                                      report_missing=not overridden)
             else:
                 self._check_docstring(ftype, node)
 
-    def _check_docstring(self, node_type, node):
+    def _check_docstring(self, node_type, node, report_missing=True):
         """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
+            if not report_missing:
+                return
             if node.body:
                 lines = node.body[-1].lineno - node.body[0].lineno + 1
             else:

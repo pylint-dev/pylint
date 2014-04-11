@@ -18,12 +18,13 @@ from __future__ import with_statement
 
 import collections
 import contextlib
+import functools
 import sys
 import re
 
 from glob import glob
 from os import linesep
-from os.path import abspath, dirname, join, basename, splitext
+from os.path import abspath, basename, dirname, isdir, join, splitext
 from cStringIO import StringIO
 
 from logilab.common import testlib
@@ -76,7 +77,8 @@ def get_tests_info(input_dir, msg_dir, prefix, suffix):
                 if py_rest.isdigit() and SYS_VERS_STR >= py_rest:
                     break
         else:
-            outfile = None
+            # This will provide an error message indicating the missing filename.
+            outfile = join(msg_dir, fbase + '.txt')
         result.append((infile, outfile))
     return result
 
@@ -147,6 +149,23 @@ class UnittestLinter(object):
     def add_stats(self, **kwargs):
         for name, value in kwargs.iteritems():
             self.stats[name] = value
+        return self.stats
+
+
+def set_config(**kwargs):
+    """Decorator for setting config values on a checker."""
+    def _Wrapper(fun):
+        @functools.wraps(fun)
+        def _Forward(self):
+            for key, value in kwargs.iteritems():
+                setattr(self.checker.config, key, value)
+            if isinstance(self, CheckerTestCase):
+                # reopen checker in case, it may be interested in configuration change
+                self.checker.open()
+            fun(self)
+
+        return _Forward
+    return _Wrapper
 
 
 class CheckerTestCase(testlib.TestCase):
@@ -160,7 +179,6 @@ class CheckerTestCase(testlib.TestCase):
         for key, value in self.CONFIG.iteritems():
             setattr(self.checker.config, key, value)
         self.checker.open()
-        self.checker.stats = self.linter.stats
 
     @contextlib.contextmanager
     def assertNoMessages(self):
@@ -271,7 +289,11 @@ class LintTestUsingFile(LintTestUsingModule):
     _TEST_TYPE = 'file'
 
     def test_functionality(self):
-        tocheck = [join(self.INPUT_DIR, self.module + '.py')]
+        importable = join(self.INPUT_DIR, self.module)
+        # python also prefers packages over simple modules.
+        if not isdir(importable):
+            importable += '.py'
+        tocheck = [importable]
         if self.depends:
             tocheck += [join(self.INPUT_DIR, name) for name, _file in self.depends]
         self._test(tocheck)
@@ -314,8 +336,9 @@ def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
     else:
         is_to_run = lambda x: 1
     tests = []
-    for module_file, messages_file in get_tests_info(input_dir, msg_dir,
-            'func_', '.py'):
+    for module_file, messages_file in (
+            get_tests_info(input_dir, msg_dir, 'func_', '')
+    ):
         if not is_to_run(module_file):
             continue
         base = module_file.replace('func_', '').replace('.py', '')

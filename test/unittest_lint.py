@@ -94,13 +94,13 @@ class PyLinterTC(TestCase):
         msg = build_message_def(self.linter._checkers['typecheck'][0],
                                 'E1122', checkers.typecheck.MSGS['E1122'])
         self._compare_messages(
-            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in function call*
+            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in %s call*
   Used when a function call passes the same keyword argument multiple times.
   This message belongs to the typecheck checker. It can't be emitted when using
   Python >= 2.6.''',
             msg, checkerref=True)
         self._compare_messages(
-            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in function call*
+            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in %s call*
   Used when a function call passes the same keyword argument multiple times.
   This message can't be emitted when using Python >= 2.6.''',
             msg, checkerref=False)

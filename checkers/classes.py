@@ -30,6 +30,7 @@ if sys.version_info >= (3, 0):
     NEXT_METHOD = '__next__'
 else:
     NEXT_METHOD = 'next'
+ITER_METHODS = ('__iter__', '__getitem__')
 
 def class_is_abstract(node):
     """return true if the given class node should be considered as an abstract
@@ -49,7 +50,7 @@ MSGS = {
               compatibility for an unexpected reason. Please report this kind \
               if you don\'t make sense of it.'),
 
-    'E0202': ('An attribute affected in %s line %s hide this method',
+    'E0202': ('An attribute defined in %s line %s hides this method',
               'method-hidden',
               'Used when a class defines a method which is hidden by an '
               'instance attribute from an ancestor class or set by some '
@@ -156,7 +157,15 @@ MSGS = {
               'bad-context-manager',
               'Used when the __exit__ special method, belonging to a \
                context manager, does not accept 3 arguments \
-               (type, value, traceback).')
+               (type, value, traceback).'),
+    'E0236': ('Invalid object %r in __slots__, must contain '
+              'only non empty strings',
+              'invalid-slots-object',
+              'Used when an invalid (non-string) object occurs in __slots__.'),
+    'E0238': ('Invalid __slots__ object',
+              'invalid-slots',
+              'Used when an invalid __slots__ is found in class. '
+              'Only a string, an iterable or a sequence is permitted.')
 
 
     }
@@ -240,6 +249,7 @@ a metaclass class method.'}
                 node.local_attr('__init__')
             except astroid.NotFoundError:
                 self.add_message('W0232', args=node, node=node)
+        self._check_slots(node)
 
     @check_messages('E0203', 'W0201')
     def leave_class(self, cnode):
@@ -332,6 +342,49 @@ a metaclass class method.'}
             self._check_iter(node)
         elif node.name == '__exit__':
             self._check_exit(node)
+
+    def _check_slots(self, node):
+        if '__slots__' not in node.locals:
+            return
+        for slots in node.igetattr('__slots__'):
+            # check if __slots__ is a valid type
+            for meth in ITER_METHODS:
+                try:
+                    slots.getattr(meth)
+                    break
+                except astroid.NotFoundError:
+                    continue
+            else:
+                self.add_message('invalid-slots', node=node)
+                continue
+
+            if isinstance(slots, astroid.Const):
+                # a string, ignore the following checks
+                continue
+            if not hasattr(slots, 'itered'):
+                # we can't obtain the values, maybe a .deque?
+                continue
+
+            if isinstance(slots, astroid.Dict):
+                values = [item[0] for item in slots.items]
+            else:
+                values = slots.itered()
+            if values is YES:
+                return
+
+            for elt in values:
+                if elt is YES:
+                    continue
+                if (not isinstance(elt, astroid.Const) or
+                    not isinstance(elt.value, str)):
+                    self.add_message('invalid-slots-object',
+                                     args=elt.as_string(),
+                                     node=elt)
+                    continue
+                if not elt.value:
+                    self.add_message('invalid-slots-object',
+                                     args=elt.as_string(),
+                                     node=elt)
 
     def _check_iter(self, node):
         try:
