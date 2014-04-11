@@ -23,14 +23,6 @@ from logilab.common.ureports import HTMLWriter, Section, Table
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter, Message
 
-#self.linter.config.msg_template or self.line_format
-#line_format = '{C}:{line:3d},{column:2d}: {msg} ({symbol})'
-#Default
-#     self.msgs += (msg.category, msg.module, msg.obj,
-#                   str(msg.line), str(msg.column), escape(msg.msg))
-#Header
-#     msgs = ['type', 'module', 'object', 'line', 'col_offset', 'message']
-
 class HTMLReporter(BaseReporter):
     """report messages and layouts in HTML"""
 
@@ -65,8 +57,6 @@ class HTMLReporter(BaseReporter):
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
         msg = Message(self, msg_id, location, msg)
-        #self.msgs += (msg.category, msg.module, msg.obj,
-        #              str(msg.line), str(msg.column), escape(msg.msg))
 
         #It would be better to do this in init, but currently we do not
         #have access to the linter (as it is setup in lint.set_reporter()
@@ -76,15 +66,6 @@ class HTMLReporter(BaseReporter):
 
         #We want to add the lines given by the template
         thismsg = [str(msg.__dict__.get(x, None)) for x in self.msgargs]
-
-        #We could escape the msg column however it doesnt seem
-        #to make a difference
-        # thismsg = []
-        # for item in self.msgargs:
-        #     if item == "msg":
-        #         thismsg.append(str(msg.__dict__.get(item, None)))
-        #     else:
-        #         thismsg.append(str(msg.__dict__.get(item, None)))
 
         self.msgs += thismsg
 
