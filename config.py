@@ -97,6 +97,8 @@ def find_pylintrc():
             pylintrc = ".pylintrc"
         else:
             pylintrc = join(user_home, '.pylintrc')
+            if not isfile(pylintrc):
+                pylintrc = join(user_home, '.config', 'pylintrc')
     if not isfile(pylintrc):
         if isfile('/etc/pylintrc'):
             pylintrc = '/etc/pylintrc'
