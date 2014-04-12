@@ -373,18 +373,25 @@ a metaclass class method.'}
                 return
 
             for elt in values:
-                if elt is YES:
+                try:
+                    self._check_slots_elt(elt)
+                except astroid.InferenceError:
                     continue
-                if (not isinstance(elt, astroid.Const) or
-                    not isinstance(elt.value, str)):
-                    self.add_message('invalid-slots-object',
-                                     args=elt.as_string(),
-                                     node=elt)
-                    continue
-                if not elt.value:
-                    self.add_message('invalid-slots-object',
-                                     args=elt.as_string(),
-                                     node=elt)
+
+    def _check_slots_elt(self, elt):
+        for infered in elt.infer():
+            if infered is YES:
+                continue
+            if (not isinstance(infered, astroid.Const) or
+                not isinstance(infered.value, str)):
+                self.add_message('invalid-slots-object',
+                                 args=infered.as_string(),
+                                 node=elt)
+                continue
+            if not infered.value:
+                self.add_message('invalid-slots-object',
+                                 args=infered.as_string(),
+                                 node=elt)
 
     def _check_iter(self, node):
         try:
