@@ -78,7 +78,7 @@ class LintBuiltinModuleTest(LintTestUsingModule):
 
 def gen_tests(filter_rgx):
     if UPDATE:
-        callbacks = [cb_test_gen(LintTestUpdate)]    
+        callbacks = [cb_test_gen(LintTestUpdate)]
     else:
         callbacks = [cb_test_gen(LintTestUsingModule)]
         if not MODULES_ONLY:
