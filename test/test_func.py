@@ -47,27 +47,18 @@ class TestTests(testlib.TestCase):
     @testlib.tag('coverage')
     def test_exhaustivity(self):
         # skip fatal messages
-        todo = [msg.msgid for msg in linter.messages if msg.msgid[0] != 'F']
+        not_tested = set(msg.msgid for msg in linter.messages
+                         if msg.msgid[0] != 'F' and msg.may_be_emitted())
         for msgid in test_reporter.message_ids:
             try:
-                todo.remove(msgid)
-            except ValueError:
+                not_tested.remove(msgid)
+            except KeyError:
                 continue
-        todo.sort()
+        not_tested -= set(('I0001',))
         if PY3K:
-            rest = ['E1001', # slots-on-old-class
-                    'E1002', # super-on-old-class
-                    # XXX : no use case for now :
-                    'I0001',
-                    'W0402', # deprecated module
-                    'W0403', # implicit relative import
-                    'W0410', # __future__ import not first statement
-                    'W0710', # nonstandard-exception
-                    'W1001' # property-on-old-class
-                   ]
-            self.assertEqual(todo, rest)
-        else:
-            self.assertEqual(todo, ['I0001'])
+            not_tested.remove('W0403') # relative-import
+        self.assertFalse(not_tested)
+
 
 class LintBuiltinModuleTest(LintTestUsingModule):
     output = join(MSG_DIR, 'builtin_module.txt')

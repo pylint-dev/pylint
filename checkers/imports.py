@@ -150,7 +150,8 @@ MSGS = {
     'W0410': ('__future__ import is not the first non docstring statement',
               'misplaced-future',
               'Python 2.5 and greater require __future__ import to be the \
-              first non docstring statement in the module.'),
+              first non docstring statement in the module.',
+              {'maxversion': (3, 0)}),
     }
 
 class ImportsChecker(BaseChecker):
