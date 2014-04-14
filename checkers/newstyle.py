@@ -1,4 +1,4 @@
-# Copyright (c) 2005-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2005-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """check for new / old style related problems
 """
 import sys
@@ -26,10 +26,12 @@ from pylint.checkers.utils import check_messages
 MSGS = {
     'E1001': ('Use of __slots__ on an old style class',
               'slots-on-old-class',
-              'Used when an old style class uses the __slots__ attribute.'),
+              'Used when an old style class uses the __slots__ attribute.',
+              {'maxversion': (3, 0)}),
     'E1002': ('Use of super on an old style class',
               'super-on-old-class',
-              'Used when an old style class uses the super builtin.'),
+              'Used when an old style class uses the super builtin.',
+              {'maxversion': (3, 0)}),
     'E1003': ('Bad first argument %r given to super()',
               'bad-super-call',
               'Used when another argument than the current class is given as \
@@ -37,17 +39,19 @@ MSGS = {
     'E1004': ('Missing argument to super()',
               'missing-super-argument',
               'Used when the super builtin didn\'t receive an \
-               argument on Python 2',
+               argument.',
               {'maxversion': (3, 0)}),
     'W1001': ('Use of "property" on an old style class',
               'property-on-old-class',
               'Used when PyLint detect the use of the builtin "property" \
               on an old style class while this is relying on new style \
-              classes features'),
+              classes features.',
+              {'maxversion': (3, 0)}),
     'C1001': ('Old-style class defined.',
               'old-style-class',
               'Used when a class is defined that does not inherit from another'
-              'class and does not inherit explicitly from "object".')
+              'class and does not inherit explicitly from "object".',
+              {'maxversion': (3, 0)})
     }
 
 
@@ -68,19 +72,19 @@ class NewStyleConflictChecker(BaseChecker):
     # configuration options
     options = ()
 
-    @check_messages('E1001', 'C1001')
+    @check_messages('slots-on-old-class', 'old-style-class')
     def visit_class(self, node):
         """check __slots__ usage
         """
         if '__slots__' in node and not node.newstyle:
-            self.add_message('E1001', node=node)
+            self.add_message('slots-on-old-class', node=node)
         # The node type could be class, exception, metaclass, or
         # interface.  Presumably, the non-class-type nodes would always
         # have an explicit base class anyway.
         if not node.bases and node.type == 'class':
-            self.add_message('C1001', node=node)
+            self.add_message('old-style-class', node=node)
 
-    @check_messages('W1001')
+    @check_messages('property-on-old-class')
     def visit_callfunc(self, node):
         """check property usage"""
         parent = node.parent.frame()
@@ -89,9 +93,9 @@ class NewStyleConflictChecker(BaseChecker):
             isinstance(node.func, astroid.Name)):
             name = node.func.name
             if name == 'property':
-                self.add_message('W1001', node=node)
+                self.add_message('property-on-old-class', node=node)
 
-    @check_messages('E1002', 'E1003', 'E1004')
+    @check_messages('super-on-old-class', 'bad-super-call', 'missing-super-argument')
     def visit_function(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
@@ -109,7 +113,7 @@ class NewStyleConflictChecker(BaseChecker):
                call.func.name == 'super':
                 if not klass.newstyle:
                     # super should not be used on an old style class
-                    self.add_message('E1002', node=node)
+                    self.add_message('super-on-old-class', node=node)
                 else:
                     # super first arg should be the class
                     if not call.args and sys.version_info[0] == 3:
@@ -122,13 +126,13 @@ class NewStyleConflictChecker(BaseChecker):
                     except astroid.InferenceError:
                         continue
 
-                    if supcls is None and sys.version_info[0] == 2:
+                    if supcls is None:
                         self.add_message('missing-super-argument', node=call)
                         continue
 
                     if klass is not supcls:
-                        supcls = getattr(supcls, 'name', supcls)
-                        self.add_message('E1003', node=call, args=(supcls, ))
+                        self.add_message('bad-super-call', node=call,
+                                         args=(call.args[0].name, ))
 
 
 def register(linter):

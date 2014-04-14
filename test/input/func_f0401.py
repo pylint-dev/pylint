@@ -1,4 +1,4 @@
-"""tset failed import
+"""test failed import
 """
 
 __revision__ = 0

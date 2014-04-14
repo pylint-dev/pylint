@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """some functions that may be useful for various checkers
 """
 
@@ -124,7 +124,7 @@ SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
 
 def is_builtin_object(node):
     """Returns True if the given node is an object from the __builtin__ module."""
-    return node and node.root().name == '__builtin__'
+    return node and node.root().name == BUILTINS_NAME
 
 def is_builtin(name): # was is_native_builtin
     """return true if <name> could be considered as a builtin defined by python
@@ -154,8 +154,10 @@ def is_defined_before(var_node):
         elif isinstance(_node, astroid.With):
             for expr, vars in _node.items:
                 if expr.parent_of(var_node):
-                    break
-                if vars and vars.name == varname:
+                    break                
+                if (vars and
+                    isinstance(vars, astroid.AssName) and
+                    vars.name == varname):
                     return True
         elif isinstance(_node, (astroid.Lambda, astroid.Function)):
             if _node.args.is_argument(varname):
@@ -405,7 +407,7 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     try:
         if position is not None and not isinstance(callfunc_node.args[position], astroid.Keyword):
             return callfunc_node.args[position]
-    except IndexError as error:
+    except IndexError, error:
         raise NoSuchArgumentError(error)
     if keyword:
         for arg in callfunc_node.args:

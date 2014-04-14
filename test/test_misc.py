@@ -11,7 +11,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
 Tests for the misc checker.
 """
@@ -22,8 +22,9 @@ import contextlib
 
 from logilab.common.testlib import unittest_main
 from astroid import test_utils
-from pylint.checkers import misc
-from pylint.testutils import CheckerTestCase, Message
+from pylint.checkers import misc, variables
+from pylint.testutils import CheckerTestCase, Message, linter, set_config
+
 
 @contextlib.contextmanager
 def create_file_backed_module(code):
@@ -57,8 +58,8 @@ class FixmeTest(CheckerTestCase):
                 Message(msg_id='W0511', line=2, args=u'FIXME')):
                 self.checker.process_module(module)
 
+    @set_config(notes=[])
     def test_empty_fixme_regex(self):
-        self.checker.config.notes = []
         with create_file_backed_module(
             """a = 1
             # fixme
@@ -66,6 +67,20 @@ class FixmeTest(CheckerTestCase):
             with self.assertNoMessages():
                 self.checker.process_module(module)
 
+class MissingSubmoduleTest(CheckerTestCase):
+    CHECKER_CLASS = variables.VariablesChecker
+
+    def test_package_all(self):
+        regr_data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 'regrtest_data')
+        sys.path.insert(0, regr_data)
+        try:
+            linter.check(os.path.join(regr_data, 'package_all'))
+            got = linter.reporter.finalize().strip()
+            self.assertEqual(got, "E:  3: Undefined variable name "
+                                  "'missing' in __all__")
+        finally:
+            sys.path.pop(0)
 
 if __name__ == '__main__':
     unittest_main()

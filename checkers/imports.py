@@ -12,11 +12,13 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """imports checkers for Python code"""
 
+import sys
+
 from logilab.common.graph import get_cycles, DotBackend
-from logilab.common.modutils import is_standard_module
+from logilab.common.modutils import get_module_part, is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
 
 import astroid
@@ -148,7 +150,8 @@ MSGS = {
     'W0410': ('__future__ import is not the first non docstring statement',
               'misplaced-future',
               'Python 2.5 and greater require __future__ import to be the \
-              first non docstring statement in the module.'),
+              first non docstring statement in the module.',
+              {'maxversion': (3, 0)}),
     }
 
 class ImportsChecker(BaseChecker):
@@ -165,8 +168,12 @@ class ImportsChecker(BaseChecker):
     msgs = MSGS
     priority = -2
 
+    if sys.version_info < (3,):
+        deprecated_modules = ('regsub', 'TERMIOS', 'Bastion', 'rexec')
+    else:
+        deprecated_modules = ('stringprep', 'optparse')
     options = (('deprecated-modules',
-                {'default' : ('regsub', 'TERMIOS', 'Bastion', 'rexec'),
+                {'default' : deprecated_modules,
                  'type' : 'csv',
                  'metavar' : '<modules>',
                  'help' : 'Deprecated modules which should not be used, \
@@ -217,9 +224,9 @@ given file (report RP0402 must not be disabled)'}
     def close(self):
         """called before visiting project (i.e set of modules)"""
         # don't try to compute cycles if the associated message is disabled
-        if self.linter.is_message_enabled('R0401'):
+        if self.linter.is_message_enabled('cyclic-import'):
             for cycle in get_cycles(self.import_graph):
-                self.add_message('R0401', args=' -> '.join(cycle))
+                self.add_message('cyclic-import', args=' -> '.join(cycle))
 
     def visit_import(self, node):
         """triggered when an import statement is seen"""
@@ -246,8 +253,11 @@ given file (report RP0402 must not be disabled)'}
                 # consecutive future statements are possible
                 if not (isinstance(prev, astroid.From)
                        and prev.modname == '__future__'):
-                    self.add_message('W0410', node=node)
+                    self.add_message('misplaced-future', node=node)
             return
+        for name, _ in node.names:
+            if name == '*':
+                self.add_message('wildcard-import', args=basename, node=node)
         modnode = node.root()
         importedmodnode = self.get_imported_module(modnode, node, basename)
         if importedmodnode is None:
@@ -255,11 +265,9 @@ given file (report RP0402 must not be disabled)'}
         self._check_relative_import(modnode, node, importedmodnode, basename)
         self._check_deprecated_module(node, basename)
         for name, _ in node.names:
-            if name == '*':
-                self.add_message('W0401', args=basename, node=node)
-                continue
-            self._add_imported_module(node, '%s.%s' % (importedmodnode.name, name))
-            self._check_reimport(node, name, basename, node.level)
+            if name != '*':
+                self._add_imported_module(node, '%s.%s' % (importedmodnode.name, name))
+                self._check_reimport(node, name, basename, node.level)
 
     def get_imported_module(self, modnode, importnode, modname):
         try:
@@ -269,14 +277,14 @@ given file (report RP0402 must not be disabled)'}
                 args = '%r (%s)' % (modname, ex)
             else:
                 args = repr(modname)
-            self.add_message("F0401", args=args, node=importnode)
+            self.add_message("import-error", args=args, node=importnode)
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,
                                importedasname):
         """check relative import. node is either an Import or From node, modname
         the imported module name.
         """
-        if 'W0403' not in self.active_msgs:
+        if not self.linter.is_message_enabled('relative-import'):
             return
         if importedmodnode.file is None:
             return False # built-in module
@@ -286,15 +294,16 @@ given file (report RP0402 must not be disabled)'}
             return False
         if importedmodnode.name != importedasname:
             # this must be a relative import...
-            self.add_message('W0403', args=(importedasname, importedmodnode.name),
+            self.add_message('relative-import', args=(importedasname, importedmodnode.name),
                              node=importnode)
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
+        importedmodname = get_module_part(importedmodname)
         context_name = node.root().name
         if context_name == importedmodname:
             # module importing itself !
-            self.add_message('W0406', node=node)
+            self.add_message('import-self', node=node)
         elif not is_standard_module(importedmodname):
             # handle dependencies
             importedmodnames = self.stats['dependencies'].setdefault(
@@ -310,11 +319,11 @@ given file (report RP0402 must not be disabled)'}
         """check if the module is deprecated"""
         for mod_name in self.config.deprecated_modules:
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
-                self.add_message('W0402', node=node, args=mod_path)
+                self.add_message('deprecated-module', node=node, args=mod_path)
 
     def _check_reimport(self, node, name, basename=None, level=None):
         """check if the import is necessary (i.e. not already done)"""
-        if 'W0404' not in self.active_msgs:
+        if not self.linter.is_message_enabled('reimported'):
             return
         frame = node.frame()
         root = node.root()
@@ -324,7 +333,7 @@ given file (report RP0402 must not be disabled)'}
         for context, level in contexts:
             first = get_first_import(node, context, name, basename, level)
             if first is not None:
-                self.add_message('W0404', node=node,
+                self.add_message('reimported', node=node,
                                  args=(name, first.fromlineno))
 
 

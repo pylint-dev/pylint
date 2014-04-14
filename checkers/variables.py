@@ -12,15 +12,17 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """variables checkers for Python code
 """
-
+import os
 import sys
 from copy import copy
 
 import astroid
 from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
+
+from logilab.common.modutils import file_from_modpath
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -211,13 +213,31 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     if not isinstance(elt_name, astroid.Const) or not isinstance(elt_name.value, basestring):
                         self.add_message('E0604', args=elt.as_string(), node=elt)
                         continue
-                    elt_name = elt.value
+                    elt_name = elt_name.value
                     # If elt is in not_consumed, remove it from not_consumed
                     if elt_name in not_consumed:
                         del not_consumed[elt_name]
                         continue
                     if elt_name not in node.locals:
-                        self.add_message('E0603', args=elt_name, node=elt)
+                        if not node.package:
+                            self.add_message('undefined-all-variable',
+                                             args=elt_name,
+                                             node=elt)
+                        else:
+                            basename = os.path.splitext(node.file)[0]
+                            if os.path.basename(basename) == '__init__':
+                                name = node.name + "." + elt_name
+                                try:
+                                    file_from_modpath(name.split("."))
+                                except ImportError:
+                                    self.add_message('undefined-all-variable', 
+                                                     args=elt_name, 
+                                                     node=elt)
+                                except SyntaxError, exc:
+                                    # don't yield an syntax-error warning,
+                                    # because it will be later yielded
+                                    # when the file will be checked
+                                    pass
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
@@ -507,6 +527,12 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     # defined in global or builtin scope
                     if defframe.root().lookup(name)[1]:
                         maybee0601 = False
+                    else:
+                        # check if we have a nonlocal
+                        if name in defframe.locals:
+                            maybee0601 = not any(isinstance(child, astroid.Nonlocal)
+                                                 and name in child.names
+                                                 for child in defframe.get_children())
                 if (maybee0601
                     and stmt.fromlineno <= defstmt.fromlineno
                     and not is_defined_before(node)

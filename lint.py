@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """ %prog [options] module_or_package
 
   Check that a module satisfies a coding standard (and more !).
@@ -29,6 +29,7 @@
 # import this first to avoid builtin namespace pollution
 from pylint.checkers import utils
 
+import functools
 import sys
 import os
 import tokenize
@@ -154,6 +155,13 @@ MSGS = {
     }
 
 
+def _deprecated_option(shortname, opt_type):
+    def _warn_deprecated(option, optname, *args):
+        sys.stderr.write('Warning: option %s is deprecated and ignored.\n' % (optname,))
+    return {'short': shortname, 'help': 'DEPRECATED', 'hide': True,
+            'type': opt_type, 'action': 'callback', 'callback': _warn_deprecated}
+
+
 class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                BaseTokenChecker):
     """lint Python modules using external checkers.
@@ -271,7 +279,10 @@ warning, statement which respectively contain the number of errors / warnings\
                             'This is a python new-style format string '
                             'used to format the message information. '
                             'See doc for all details')
-                  }), # msg-template
+                  }),
+
+                ('include-ids', _deprecated_option('i', 'yn')),
+                ('symbols', _deprecated_option('s', 'yn')),
                )
 
     option_groups = (
@@ -389,7 +400,7 @@ warning, statement which respectively contain the number of errors / warnings\
                 value = check_csv(None, optname, value)
                 if isinstance(value, (list, tuple)):
                     for _id in value:
-                        meth(_id)
+                        meth(_id, ignore_unknown=True)
                 else:
                     meth(value)
         elif optname == 'output-format':
@@ -453,12 +464,10 @@ warning, statement which respectively contain the number of errors / warnings\
         """process tokens from the current module to search for module/block
         level options
         """
-        comment = tokenize.COMMENT
-        newline = tokenize.NEWLINE
-        for (tok_type, _, start, _, line) in tokens:
-            if tok_type not in (comment, newline):
+        for (tok_type, content, start, _, _) in tokens:
+            if tok_type != tokenize.COMMENT:
                 continue
-            match = OPTION_RGX.search(line)
+            match = OPTION_RGX.search(content)
             if match is None:
                 continue
             if match.group(1).strip() == "disable-all" or \
@@ -622,7 +631,7 @@ warning, statement which respectively contain the number of errors / warnings\
             self._ignore_file = False
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
-            self.current_file = astroid.file
+            self.current_file = astroid.file # pylint: disable=maybe-no-member
             self.check_astroid_module(astroid, walker, rawcheckers, tokencheckers)
             self._add_suppression_messages()
         # notify global end
@@ -873,15 +882,20 @@ def preprocess_options(args, search_for):
                 option, val = arg[2:], None
             try:
                 cb, takearg = search_for[option]
+            except KeyError:
+                i += 1
+            else:
                 del args[i]
                 if takearg and val is None:
                     if i >= len(args) or args[i].startswith('-'):
-                        raise ArgumentPreprocessingError(arg)
+                        msg = 'Option %s expects a value' % option
+                        raise ArgumentPreprocessingError(msg)
                     val = args[i]
                     del args[i]
+                elif not takearg and val is not None:
+                    msg = "Option %s doesn't expects a value" % option
+                    raise ArgumentPreprocessingError(msg)
                 cb(option, val)
-            except KeyError:
-                i += 1
         else:
             i += 1
 
@@ -901,12 +915,13 @@ group are mutually exclusive.'),
         self._plugins = []
         try:
             preprocess_options(args, {
-                # option: (callback, takearg)
-                'rcfile':       (self.cb_set_rcfile, True),
-                'load-plugins': (self.cb_add_plugins, True),
-                })
+                    # option: (callback, takearg)
+                    'init-hooks':   (cb_init_hook, True),
+                    'rcfile':       (self.cb_set_rcfile, True),
+                    'load-plugins': (self.cb_add_plugins, True),
+                    })
         except ArgumentPreprocessingError, ex:
-            print >> sys.stderr, 'Argument %s expects a value.' % (ex.args[0],)
+            print >> sys.stderr, ex
             sys.exit(32)
 
         self.linter = linter = self.LinterClass((
@@ -916,8 +931,9 @@ group are mutually exclusive.'),
               'help' : 'Specify a configuration file.'}),
 
             ('init-hook',
-             {'action' : 'callback', 'type' : 'string', 'metavar': '<code>',
-              'callback' : cb_init_hook, 'level': 1,
+             {'action' : 'callback', 'callback' : lambda *args: 1,
+              'type' : 'string', 'metavar': '<code>',
+              'level': 1,
               'help' : 'Python code to execute, usually for sys.path \
 manipulation such as pygtk.require().'}),
 
@@ -1043,11 +1059,11 @@ are done by default'''}),
             sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):
-        """callback for option preprocessing (i.e. before optik parsing)"""
+        """callback for option preprocessing (i.e. before option parsing)"""
         self._rcfile = value
 
     def cb_add_plugins(self, name, value):
-        """callback for option preprocessing (i.e. before optik parsing)"""
+        """callback for option preprocessing (i.e. before option parsing)"""
         self._plugins.extend(splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):
@@ -1086,7 +1102,7 @@ are done by default'''}),
         self.linter.list_messages()
         sys.exit(0)
 
-def cb_init_hook(option, optname, value, parser):
+def cb_init_hook(optname, value):
     """exec arbitrary code to set sys.path for instance"""
     exec value
 

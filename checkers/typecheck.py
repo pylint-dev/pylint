@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """try to find more bugs in the code using astroid inference capabilities
 """
 
@@ -48,33 +48,72 @@ MSGS = {
               'Used when an assignment is done on a function call but the \
               inferred function returns nothing but None.'),
 
-    'E1120': ('No value passed for parameter %s in function call',
+    'E1120': ('No value for argument %s in %s call',
               'no-value-for-parameter',
               'Used when a function call passes too few arguments.'),
-    'E1121': ('Too many positional arguments for function call',
+    'E1121': ('Too many positional arguments for %s call',
               'too-many-function-args',
               'Used when a function call passes too many positional \
               arguments.'),
-    'E1122': ('Duplicate keyword argument %r in function call',
+    'E1122': ('Duplicate keyword argument %r in %s call',
               'duplicate-keyword-arg',
               'Used when a function call passes the same keyword argument \
               multiple times.',
               {'maxversion': (2, 6)}),
-    'E1123': ('Passing unexpected keyword argument %r in function call',
+    'E1123': ('Unexpected keyword argument %r in %s call',
               'unexpected-keyword-arg',
               'Used when a function call passes a keyword argument that \
               doesn\'t correspond to one of the function\'s parameter names.'),
-    'E1124': ('Parameter %r passed as both positional and keyword argument',
+    'E1124': ('Argument %r passed by position and keyword in %s call',
               'redundant-keyword-arg',
               'Used when a function call would result in assigning multiple \
               values to a function parameter, one value from a positional \
               argument and one from a keyword argument.'),
-    'E1125': ('Missing mandatory keyword argument %r',
+    'E1125': ('Missing mandatory keyword argument %r in %s call',
               'missing-kwoa',
-              'Used when a function call doesn\'t pass a mandatory \
-              keyword-only argument.',
+              ('Used when a function call does not pass a mandatory'
+              ' keyword-only argument.'),
               {'minversion': (3, 0)}),
     }
+
+def _determine_callable(callable_obj):
+    # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
+    # and Function inherits Lambda.
+    if isinstance(callable_obj, astroid.BoundMethod):
+        # Bound methods have an extra implicit 'self' argument.
+        return callable_obj, 1, callable_obj.type
+    elif isinstance(callable_obj, astroid.UnboundMethod):
+        return callable_obj, 0, 'unbound method'
+    elif isinstance(callable_obj, astroid.Function):
+        return callable_obj, 0, callable_obj.type
+    elif isinstance(callable_obj, astroid.Lambda):
+        return callable_obj, 0, 'lambda'
+    elif isinstance(callable_obj, astroid.Class):
+        # Class instantiation, lookup __new__ instead.
+        # If we only find object.__new__, we can safely check __init__
+        # instead.
+        try:
+            # Use the last definition of __new__.
+            new = callable_obj.local_attr('__new__')[-1]
+        except astroid.NotFoundError:
+            new = None
+
+        if not new or new.parent.name == 'object':
+            try:
+                # Use the last definition of __init__.
+                callable_obj = callable_obj.local_attr('__init__')[-1]
+            except astroid.NotFoundError:
+                # do nothing, covered by no-init.
+                raise ValueError
+        else:
+            callable_obj = new
+
+        if not isinstance(callable_obj, astroid.Function):
+            raise ValueError
+        # both have an extra implicit 'cls'/'self' argument.
+        return callable_obj, 1, 'constructor'
+    else:
+        raise ValueError
 
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
@@ -132,7 +171,7 @@ accessed. Python regular expressions are accepted.'}
     def visit_delattr(self, node):
         self.visit_getattr(node)
 
-    @check_messages('E1101', 'E1103')
+    @check_messages('no-member', 'maybe-no-member')
     def visit_getattr(self, node):
         """check that the accessed attribute exists
 
@@ -211,14 +250,14 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
                 if inference_failure:
-                    msgid = 'E1103'
+                    msgid = 'maybe-no-member'
                 else:
-                    msgid = 'E1101'
+                    msgid = 'no-member'
                 self.add_message(msgid, node=node,
                                  args=(owner.display_type(), name,
                                        node.attrname))
 
-    @check_messages('E1111', 'W1111')
+    @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):
         """check that if assigning to a function call, the function is
         possibly returning something valuable
@@ -236,14 +275,14 @@ accessed. Python regular expressions are accepted.'}
         returns = list(function_node.nodes_of_class(astroid.Return,
                                                     skip_klass=astroid.Function))
         if len(returns) == 0:
-            self.add_message('E1111', node=node)
+            self.add_message('assignment-from-no-return', node=node)
         else:
             for rnode in returns:
                 if not (isinstance(rnode.value, astroid.Const)
                         and rnode.value.value is None):
                     break
             else:
-                self.add_message('W1111', node=node)
+                self.add_message('assignment-from-none', node=node)
 
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
@@ -251,7 +290,6 @@ accessed. Python regular expressions are accepted.'}
         and that the arguments passed to the function match the parameters in
         the inferred function's definition
         """
-
         # Build the set of keyword arguments, checking for duplicate keywords,
         # and count the positional arguments.
         keyword_args = set()
@@ -260,7 +298,7 @@ accessed. Python regular expressions are accepted.'}
             if isinstance(arg, astroid.Keyword):
                 keyword = arg.arg
                 if keyword in keyword_args:
-                    self.add_message('E1122', node=node, args=keyword)
+                    self.add_message('duplicate-keyword-arg', node=node, args=keyword)
                 keyword_args.add(keyword)
             else:
                 num_positional_args += 1
@@ -268,26 +306,15 @@ accessed. Python regular expressions are accepted.'}
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
-            self.add_message('E1102', node=node, args=node.func.as_string())
+            self.add_message('not-callable', node=node, args=node.func.as_string())
 
-        # Note that BoundMethod is a subclass of UnboundMethod (huh?), so must
-        # come first in this 'if..else'.
-        if isinstance(called, astroid.BoundMethod):
-            # Bound methods have an extra implicit 'self' argument.
-            num_positional_args += 1
-        elif isinstance(called, astroid.UnboundMethod):
-            if called.decorators is not None:
-                for d in called.decorators.nodes:
-                    if isinstance(d, astroid.Name) and (d.name == 'classmethod'):
-                        # Class methods have an extra implicit 'cls' argument.
-                        num_positional_args += 1
-                        break
-        elif (isinstance(called, astroid.Function) or
-              isinstance(called, astroid.Lambda)):
-            pass
-        else:
+        try:
+            called, implicit_args, callable_name = _determine_callable(called)
+        except ValueError:
+            # Any error occurred during determining the function type, most of 
+            # those errors are handled by different warnings.
             return
-
+        num_positional_args += implicit_args
         if called.args.args is None:
             # Built-in functions have no argument information.
             return
@@ -342,7 +369,7 @@ accessed. Python regular expressions are accepted.'}
                 break
             else:
                 # Too many positional arguments.
-                self.add_message('E1121', node=node)
+                self.add_message('too-many-function-args', node=node, args=(callable_name,))
                 break
 
         # 2. Match the keyword arguments.
@@ -351,13 +378,13 @@ accessed. Python regular expressions are accepted.'}
                 i = parameter_name_to_index[keyword]
                 if parameters[i][1]:
                     # Duplicate definition of function parameter.
-                    self.add_message('E1124', node=node, args=keyword)
+                    self.add_message('redundant-keyword-arg', node=node, args=(keyword, callable_name))
                 else:
                     parameters[i][1] = True
             elif keyword in kwparams:
                 if kwparams[keyword][1]:  # XXX is that even possible?
                     # Duplicate definition of function parameter.
-                    self.add_message('E1124', node=node, args=keyword)
+                    self.add_message('redundant-keyword-arg', node=node, args=(keyword, callable_name))
                 else:
                     kwparams[keyword][1] = True
             elif called.args.kwarg is not None:
@@ -365,7 +392,7 @@ accessed. Python regular expressions are accepted.'}
                 pass
             else:
                 # Unexpected keyword argument.
-                self.add_message('E1123', node=node, args=keyword)
+                self.add_message('unexpected-keyword-arg', node=node, args=(keyword, callable_name))
 
         # 3. Match the *args, if any.  Note that Python actually processes
         #    *args _before_ any keyword arguments, but we wait until after
@@ -402,12 +429,12 @@ accessed. Python regular expressions are accepted.'}
                     display_name = '<tuple>'
                 else:
                     display_name = repr(name)
-                self.add_message('E1120', node=node, args=display_name)
+                self.add_message('no-value-for-parameter', node=node, args=(display_name, callable_name))
 
         for name in kwparams:
             defval, assigned = kwparams[name]
             if defval is None and not assigned:
-                self.add_message('E1125', node=node, args=name)
+                self.add_message('missing-kwoa', node=node, args=(name, callable_name))
 
 
 def register(linter):

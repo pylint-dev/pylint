@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """functional/non regression tests for pylint"""
 
 import unittest
@@ -25,7 +25,7 @@ from os.path import abspath, dirname, join
 from logilab.common import testlib
 
 from pylint.testutils import (make_tests, LintTestUsingModule, LintTestUsingFile,
-    cb_test_gen, linter, test_reporter)
+    LintTestUpdate, cb_test_gen, linter, test_reporter)
 
 PY3K = sys.version_info >= (3, 0)
 
@@ -47,23 +47,18 @@ class TestTests(testlib.TestCase):
     @testlib.tag('coverage')
     def test_exhaustivity(self):
         # skip fatal messages
-        todo = [msg.msgid for msg in linter.messages if msg.msgid[0] != 'F']
+        not_tested = set(msg.msgid for msg in linter.messages
+                         if msg.msgid[0] != 'F' and msg.may_be_emitted())
         for msgid in test_reporter.message_ids:
             try:
-                todo.remove(msgid)
-            except ValueError:
+                not_tested.remove(msgid)
+            except KeyError:
                 continue
-        todo.sort()
+        not_tested -= set(('I0001',))
         if PY3K:
-            rest = ['I0001',
-                    # XXX : no use case for now :
-                    'W0402', # deprecated module
-                    'W0403', # implicit relative import
-                    'W0410', # __future__ import not first statement
-                    ]
-            self.assertEqual(todo, rest)
-        else:
-            self.assertEqual(todo, ['I0001'])
+            not_tested.remove('W0403') # relative-import
+        self.assertFalse(not_tested)
+
 
 class LintBuiltinModuleTest(LintTestUsingModule):
     output = join(MSG_DIR, 'builtin_module.txt')
@@ -71,23 +66,18 @@ class LintBuiltinModuleTest(LintTestUsingModule):
     def test_functionality(self):
         self._test(['sys'])
 
-# Callbacks
-
-base_cb_file = cb_test_gen(LintTestUsingFile)
-
-def cb_file(*args):
-    if MODULES_ONLY:
-        return None
-    else:
-        return base_cb_file(*args)
-
-callbacks = [cb_test_gen(LintTestUsingModule),
-             cb_file]
-
-# Gen tests
 
 def gen_tests(filter_rgx):
+    if UPDATE:
+        callbacks = [cb_test_gen(LintTestUpdate)]
+    else:
+        callbacks = [cb_test_gen(LintTestUsingModule)]
+        if not MODULES_ONLY:
+            callbacks.append(cb_test_gen(LintTestUsingFile))
     tests = make_tests(INPUT_DIR, MSG_DIR, filter_rgx, callbacks)
+
+    if UPDATE:
+        return tests
 
     if filter_rgx:
         is_to_run = re.compile(filter_rgx).search
@@ -109,18 +99,21 @@ def gen_tests(filter_rgx):
 
 FILTER_RGX = None
 MODULES_ONLY = False
+UPDATE = False
 
 def suite():
     return testlib.TestSuite([unittest.makeSuite(test, suiteClass=testlib.TestSuite)
                               for test in gen_tests(FILTER_RGX)])
 
-del LintTestUsingModule
-del LintTestUsingFile
 
 if __name__=='__main__':
     if '-m' in sys.argv:
         MODULES_ONLY = True
         sys.argv.remove('-m')
+
+    if '-u' in sys.argv:
+        UPDATE = True
+        sys.argv.remove('-u')
 
     if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]

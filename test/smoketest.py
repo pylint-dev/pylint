@@ -9,7 +9,7 @@
 
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import sys
 from os.path import join, dirname, abspath
@@ -39,7 +39,16 @@ class RunTC(TestCase):
             try:
                 Run(args, reporter=reporter)
             except SystemExit, ex:
-                self.assertEqual(ex.code, code)
+                if reporter:
+                    output = reporter.out.getvalue()
+                elif hasattr(out, 'getvalue'):
+                    output = out.getvalue()
+                else:
+                    output = None
+                msg = 'expected output status %s, got %s' % (code, ex.code)
+                if output is not None:
+                    msg = '%s. Below pylint output: \n%s' % (msg, output)
+                self.assertEqual(ex.code, code, msg)
             else:
                 self.fail('expected system exit')
         finally:
