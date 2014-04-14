@@ -18,10 +18,10 @@
 
 __revision__ = '$Id: unittest_checkers_utils.py,v 1.6 2005-11-02 09:22:07 syt Exp $'
 
-import unittest
 import sys
 
 from astroid import test_utils
+from logilab.common.testlib import TestCase, unittest_main
 
 from pylint.checkers import utils
 try:
@@ -29,7 +29,7 @@ try:
 except AttributeError:
     __builtins__['mybuiltin'] = 2
 
-class UtilsTC(unittest.TestCase):
+class UtilsTC(TestCase):
     
 ##     def test_is_native_builtin(self):
 ##         self.assertEqual(utils.is_native_builtin('min'), True)
@@ -70,5 +70,5 @@ class UtilsTC(unittest.TestCase):
         self.assertEqual(name.name, 'a')
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
         
