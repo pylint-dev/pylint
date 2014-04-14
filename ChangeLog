@@ -3,6 +3,9 @@ ChangeLog for Pylint
 
 --
 
+    * Pass the current python paths to pylint process when invoked via
+      epylint.  Fixes BitBucket issue #133.
+
     * Add -i / --include-ids and -s / --symbols back as completely ignored
       options. Fixes BitBucket issue #180.
 
@@ -1390,6 +1393,3 @@ ChangeLog for Pylint
 
 2003-05-19  --  0.1
     * initial release
-
-
-

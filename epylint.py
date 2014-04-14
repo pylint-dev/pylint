@@ -87,8 +87,9 @@ def lint(filename, options=None):
     from pylint import lint as lint_mod
     lint_path = lint_mod.__file__
     options = options or ['--disable=C,R,I']
-    cmd = [sys.executable, lint_path] + options + ['--msg-template',
-            '{path}:{line}: [{symbol}, {obj}] {msg}', '-r', 'n', child_path]
+    cmd = [sys.executable, lint_path] + options + [
+        '--msg-template', '{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}',
+        '-r', 'n', child_path]
     process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=_get_env(),
                     universal_newlines=True)
 
