@@ -54,13 +54,7 @@ def _get_env():
     '''Extracts the environment PYTHONPATH and appends the current sys.path to
     those.'''
     env = dict(os.environ)
-    pythonpath = env.get('PYTHONPATH', '')
-    currentpaths = os.pathsep.join(sys.path)
-    if pythonpath:
-        pythonpath += os.pathsep + currentpaths
-    else:
-        pythonpath = currentpaths
-    env['PYTHONPATH'] = pythonpath
+    env['PYTHONPATH'] = os.pathsep.join(sys.path)
     return env
 
 def lint(filename, options=None):
