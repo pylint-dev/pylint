@@ -26,10 +26,12 @@ from pylint.checkers.utils import check_messages
 MSGS = {
     'E1001': ('Use of __slots__ on an old style class',
               'slots-on-old-class',
-              'Used when an old style class uses the __slots__ attribute.'),
+              'Used when an old style class uses the __slots__ attribute.',
+              {'maxversion': (3, 0)}),
     'E1002': ('Use of super on an old style class',
               'super-on-old-class',
-              'Used when an old style class uses the super builtin.'),
+              'Used when an old style class uses the super builtin.',
+              {'maxversion': (3, 0)}),
     'E1003': ('Bad first argument %r given to super()',
               'bad-super-call',
               'Used when another argument than the current class is given as \
@@ -37,16 +39,19 @@ MSGS = {
     'E1004': ('Missing argument to super()',
               'missing-super-argument',
               'Used when the super builtin didn\'t receive an \
-               argument on Python 2'),
+               argument.',
+              {'maxversion': (3, 0)}),
     'W1001': ('Use of "property" on an old style class',
               'property-on-old-class',
               'Used when PyLint detect the use of the builtin "property" \
               on an old style class while this is relying on new style \
-              classes features'),
+              classes features.',
+              {'maxversion': (3, 0)}),
     'C1001': ('Old-style class defined.',
               'old-style-class',
               'Used when a class is defined that does not inherit from another'
-              'class and does not inherit explicitly from "object".')
+              'class and does not inherit explicitly from "object".',
+              {'maxversion': (3, 0)})
     }
 
 
@@ -132,6 +137,4 @@ class NewStyleConflictChecker(BaseChecker):
 
 def register(linter):
     """required method to auto register this checker """
-    import sys
-    if sys.version_info < (3, 0):
-        linter.register_checker(NewStyleConflictChecker(linter))
+    linter.register_checker(NewStyleConflictChecker(linter))
