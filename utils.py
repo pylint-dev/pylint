@@ -239,7 +239,6 @@ class MessagesHandlerMixIn(object):
             chkid = msg.msgid[1:3]
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
-                continue
             self._messages[msg.symbol] = msg
             self._alternative_names[msg.msgid] = msg
             for old_id, old_symbol in msg.old_names:
@@ -537,6 +536,8 @@ class MessagesHandlerMixIn(object):
         """output full messages list documentation in ReST format"""
         msgs = sorted(self._messages.itervalues(), key=lambda msg: msg.msgid)
         for msg in msgs:
+            if not msg.may_be_emitted():
+                continue
             print msg.format_help(checkerref=False)
         print
 
@@ -661,7 +662,6 @@ class PyLintASTWalker(object):
     def _is_method_enabled(self, method):
         if not hasattr(method, 'checks_msgs'):
             return True
-
         for msg_desc in method.checks_msgs:
             if self.linter.is_message_enabled(msg_desc):
                 return True
