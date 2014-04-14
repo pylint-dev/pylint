@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """imports checkers for Python code"""
 
+import sys
+
 from logilab.common.graph import get_cycles, DotBackend
 from logilab.common.modutils import get_module_part, is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
@@ -165,8 +167,12 @@ class ImportsChecker(BaseChecker):
     msgs = MSGS
     priority = -2
 
+    if sys.version_info < (3,):
+        deprecated_modules = ('regsub', 'TERMIOS', 'Bastion', 'rexec')
+    else:
+        deprecated_modules = ('stringprep', 'optparse')
     options = (('deprecated-modules',
-                {'default' : ('regsub', 'TERMIOS', 'Bastion', 'rexec'),
+                {'default' : deprecated_modules,
                  'type' : 'csv',
                  'metavar' : '<modules>',
                  'help' : 'Deprecated modules which should not be used, \
