@@ -67,19 +67,19 @@ class NewStyleConflictChecker(BaseChecker):
     # configuration options
     options = ()
 
-    @check_messages('E1001', 'C1001')
+    @check_messages('slots-on-old-class', 'old-style-class')
     def visit_class(self, node):
         """check __slots__ usage
         """
         if '__slots__' in node and not node.newstyle:
-            self.add_message('E1001', node=node)
+            self.add_message('slots-on-old-class', node=node)
         # The node type could be class, exception, metaclass, or
         # interface.  Presumably, the non-class-type nodes would always
         # have an explicit base class anyway.
         if not node.bases and node.type == 'class':
-            self.add_message('C1001', node=node)
+            self.add_message('old-style-class', node=node)
 
-    @check_messages('W1001')
+    @check_messages('property-on-old-class')
     def visit_callfunc(self, node):
         """check property usage"""
         parent = node.parent.frame()
@@ -88,9 +88,9 @@ class NewStyleConflictChecker(BaseChecker):
             isinstance(node.func, astroid.Name)):
             name = node.func.name
             if name == 'property':
-                self.add_message('W1001', node=node)
+                self.add_message('property-on-old-class', node=node)
 
-    @check_messages('E1002', 'E1003', 'E1004')
+    @check_messages('super-on-old-class', 'bad-super-call', 'missing-super-argument')
     def visit_function(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
@@ -108,7 +108,7 @@ class NewStyleConflictChecker(BaseChecker):
                call.func.name == 'super':
                 if not klass.newstyle:
                     # super should not be used on an old style class
-                    self.add_message('E1002', node=node)
+                    self.add_message('super-on-old-class', node=node)
                 else:
                     # super first arg should be the class
                     if not call.args and sys.version_info[0] == 3:
@@ -126,7 +126,7 @@ class NewStyleConflictChecker(BaseChecker):
                         continue
 
                     if klass is not supcls:
-                        self.add_message('E1003', node=call,
+                        self.add_message('bad-super-call', node=call,
                                          args=(call.args[0].name, ))
 
 
