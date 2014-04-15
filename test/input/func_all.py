@@ -11,6 +11,7 @@
 __revision__ = 0
 
 from os import path
+from collections import deque
 
 __all__ = [
     'Dummy',
@@ -18,7 +19,7 @@ __all__ = [
     'path',
     'func',
     'inner',
-    'InnerKlass']
+    'InnerKlass', deque.__name__]
 
 
 class Dummy(object):

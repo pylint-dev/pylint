@@ -3,6 +3,18 @@ ChangeLog for Pylint
 
 --
 
+    * Pass the current python paths to pylint process when invoked via
+      epylint.  Fixes BitBucket issue #133.
+
+    * Add -i / --include-ids and -s / --symbols back as completely ignored
+      options. Fixes BitBucket issue #180.
+
+    * Extend the number of cases in which logging calls are detected. Fixes
+      bitbucket issue #182.
+
+    * Improve pragma handling to not detect pylint:* strings in non-comments.
+      Fixes BitBucket issue #79.
+
     * Do not crash with UnknownMessage if an unknown message ID/name appears
       in disable or enable in the configuration. Patch by Cole Robinson.
       Fixes bitbucket issue #170.
@@ -72,6 +84,8 @@ ChangeLog for Pylint
 
     * Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
       doesn't exists (#121)
+
+    * Don't register the newstyle checker w/ python >= 3
 
 
 2013-12-22  --  1.1.0
@@ -1379,6 +1393,3 @@ ChangeLog for Pylint
 
 2003-05-19  --  0.1
     * initial release
-
-
-

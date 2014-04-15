@@ -94,7 +94,8 @@ MSGS = {
     'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
               'nonstandard-exception',
               'Used when a custom exception class is raised but doesn\'t \
-              inherit from the builtin "Exception" class.'),
+              inherit from the builtin "Exception" class.',
+              {'maxversion': (3, 0)}),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
               'binary-op-exception',
               'Used when the exception to catch is of the form \
@@ -134,7 +135,7 @@ class ExceptionsChecker(BaseChecker):
                 ),
                )
 
-    @check_messages('raising-string', 'nonstandard-exception', 'raising-bad-type', 
+    @check_messages('raising-string', 'nonstandard-exception', 'raising-bad-type',
                     'raising-non-exception', 'notimplemented-raised', 'bad-exception-context')
     def visit_raise(self, node):
         """visit raise possibly inferring value"""
@@ -211,7 +212,8 @@ class ExceptionsChecker(BaseChecker):
             self.add_message('unpacking-in-except', node=node)
 
 
-    @check_messages('bare-except', 'broad-except', 'pointless-except', 'binary-op-exception', 'bad-except-order', 
+    @check_messages('bare-except', 'broad-except', 'pointless-except',
+                    'binary-op-exception', 'bad-except-order',
                     'catching-non-exception')
     def visit_tryexcept(self, node):
         """check for empty except"""

@@ -77,23 +77,15 @@ MSGS = {
     }
 
 def _determine_callable(callable_obj):
-    # Note that BoundMethod is a subclass of UnboundMethod (huh?), so must
-    # come first in this 'if..else'.
+    # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
+    # and Function inherits Lambda.
     if isinstance(callable_obj, astroid.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
-        return callable_obj, 1, 'method'
+        return callable_obj, 1, callable_obj.type
     elif isinstance(callable_obj, astroid.UnboundMethod):
-        if callable_obj.decorators is not None:
-            for d in callable_obj.decorators.nodes:
-                if isinstance(d, astroid.Name) and d.name == 'classmethod':
-                    # Class methods have an extra implicit 'cls' argument.
-                    return called, 1, 'class method'
-                elif isinstance(d, astroid.Name) and d.name == 'staticmethod':
-                    return called, 0, 'static method'
-        else:
-            return callable_obj, 0, 'unbound method'
+        return callable_obj, 0, 'unbound method'
     elif isinstance(callable_obj, astroid.Function):
-        return callable_obj, 0, 'function'
+        return callable_obj, 0, callable_obj.type
     elif isinstance(callable_obj, astroid.Lambda):
         return callable_obj, 0, 'lambda'
     elif isinstance(callable_obj, astroid.Class):

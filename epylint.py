@@ -50,6 +50,12 @@ import sys, os, re
 import os.path as osp
 from subprocess import Popen, PIPE
 
+def _get_env():
+    '''Extracts the environment PYTHONPATH and appends the current sys.path to
+    those.'''
+    env = dict(os.environ)
+    env['PYTHONPATH'] = os.pathsep.join(sys.path)
+    return env
 
 def lint(filename, options=None):
     """Pylint the given file.
@@ -84,7 +90,8 @@ def lint(filename, options=None):
     cmd = [sys.executable, lint_path] + options + [
         '--msg-template', '{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}',
         '-r', 'n', child_path]
-    process = Popen(cmd, stdout=PIPE, cwd=parent_path, universal_newlines=True)
+    process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=_get_env(),
+                    universal_newlines=True)
 
     for line in process.stdout:
         # remove pylintrc warning
@@ -146,7 +153,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
             stderr = sys.stderr
     # Call pylint in a subprocess
     p = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
-              universal_newlines=True)
+              env=_get_env(), universal_newlines=True)
     p.wait()
     # Return standart output and error
     if return_std:
@@ -166,4 +173,3 @@ def Run():
 
 if __name__ == '__main__':
     Run()
-

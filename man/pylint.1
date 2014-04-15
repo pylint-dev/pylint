@@ -1,4 +1,4 @@
-.TH pylint 1 "2013-4-16" pylint
+.TH pylint 1 "2014-4-11" pylint
 .SH NAME
 .B pylint
 \- python code static checker
@@ -45,7 +45,7 @@ Python code to execute, usually for sys.path manipulation such as pygtk.require(
 .IP "--errors-only, -E"
 In error mode, checkers without error messages are disabled and for others, only the ERROR messages are displayed, and no reports are done by default
 .IP "--ignore=<file>[,<file>...]"
-Add files or directories to the blacklist. They should be base names, not paths. [current: CVS]
+Add files or directories to the blacklist. They should be base names, not paths. [current: .hg,test]
 .IP "--persistent=<y_or_n>"
 Pickle collected data for later comparisons. [current: yes]
 .IP "--load-plugins=<modules>"
@@ -70,10 +70,6 @@ Disable the message, report, category or checker with the given id(s). You can e
 .SH REPORTS
 .IP "--output-format=<format>, -f <format>"
 Set the output format. Available formats are text, parseable, colorized, msvs (visual studio) and html. You can also give a reporter class, eg mypackage.mymodule.MyReporterClass. [current: text]
-.IP "--include-ids=<y_or_n>, -i <y_or_n>"
-Include message's id in output [current: no]
-.IP "--symbols=<y_or_n>, -s <y_or_n>"
-Include symbolic ids of messages in output [current: no]
 .IP "--files-output=<y_or_n>"
 Put messages in a separate file for each module / package specified on the command line instead of printing them on stdout. Reports (if any) will be written in a file name "pylint_global.[txt|html]". [current: no]
 .IP "--reports=<y_or_n>, -r <y_or_n>"
@@ -82,6 +78,8 @@ Tells whether to display a full report or only the messages [current: yes]
 Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectively contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (RP0004). [current: 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)]
 .IP "--comment=<y_or_n>"
 Add a comment according to your evaluation note. This is used by the global evaluation report (RP0004). [current: no]
+.IP "--msg-template=<template>"
+Template used to display messages. This is a python new-style format string used to format the message information. See doc for all details
 
 .SH IMPORTS
 .IP "--deprecated-modules=<modules>"
@@ -93,6 +91,10 @@ Create a graph of external dependencies in the given file (report RP0402 must no
 .IP "--int-import-graph=<file.dot>"
 Create a graph of internal dependencies in the given file (report RP0402 must not be disabled) [current: none]
 
+.SH LOGGING
+.IP "--logging-modules=<comma separated list>"
+Logging modules to check that the string format arguments are in logging function parameter format [current: logging]
+
 .SH DESIGN
 .IP "--max-args=<int>"
 Maximum number of arguments for function / method [current: 5]
@@ -102,7 +104,7 @@ Argument names that match this expression will be ignored. Default to name with 
 Maximum number of locals for function / method body [current: 15]
 .IP "--max-returns=<int>"
 Maximum number of return / yield for function / method body [current: 6]
-.IP "--max-branchs=<int>"
+.IP "--max-branches=<int>"
 Maximum number of branch for function / method body [current: 12]
 .IP "--max-statements=<int>"
 Maximum number of statements in function / method body [current: 50]
@@ -118,6 +120,12 @@ Maximum number of public methods for a class (see R0904). [current: 20]
 .SH FORMAT
 .IP "--max-line-length=<int>"
 Maximum number of characters on a single line. [current: 80]
+.IP "--ignore-long-lines=<regexp>"
+Regexp for a line that is allowed to be longer than the limit. [current: ^\s*(# )?<?https?://\S+>?$]
+.IP "--single-line-if-stmt=<y_or_n>"
+Allow the body of an if to be on the same line as the test if there is no else. [current: no]
+.IP "--no-space-check=NO_SPACE_CHECK"
+List of optional constructs for which whitespace checking is disabled [current: trailing-comma,dict-separator]
 .IP "--max-module-lines=<int>"
 Maximum number of lines in a module [current: 1000]
 .IP "--indent-string=<string>"
@@ -128,30 +136,62 @@ String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 ta
 Required attributes for module, separated by a comma [current: none]
 .IP "--bad-functions=<builtin function names>"
 List of builtins function names that should not be used, separated by a comma [current: map,filter,apply,input]
-.IP "--module-rgx=<regexp>"
-Regular expression which should only match correct module names [current: (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$]
-.IP "--const-rgx=<regexp>"
-Regular expression which should only match correct module level names [current: (([A-Z_][A-Z0-9_]*)|(__.*__))$]
-.IP "--class-rgx=<regexp>"
-Regular expression which should only match correct class names [current: [A-Z_][a-zA-Z0-9]+$]
-.IP "--function-rgx=<regexp>"
-Regular expression which should only match correct function names [current: [a-z_][a-z0-9_]{2,30}$]
-.IP "--method-rgx=<regexp>"
-Regular expression which should only match correct method names [current: [a-z_][a-z0-9_]{2,30}$]
-.IP "--attr-rgx=<regexp>"
-Regular expression which should only match correct instance attribute names [current: [a-z_][a-z0-9_]{2,30}$]
-.IP "--argument-rgx=<regexp>"
-Regular expression which should only match correct argument names [current: [a-z_][a-z0-9_]{2,30}$]
-.IP "--variable-rgx=<regexp>"
-Regular expression which should only match correct variable names [current: [a-z_][a-z0-9_]{2,30}$]
-.IP "--inlinevar-rgx=<regexp>"
-Regular expression which should only match correct list comprehension / generator expression variable                           names [current: [A-Za-z_][A-Za-z0-9_]*$]
 .IP "--good-names=<names>"
 Good variable names which should always be accepted, separated by a comma [current: i,j,k,ex,Run,_]
 .IP "--bad-names=<names>"
 Bad variable names which should always be refused, separated by a comma [current: foo,bar,baz,toto,tutu,tata]
+.IP "--name-group=<name1:name2>"
+Colon-delimited sets of names that determine each other's naming style when the name regexes allow several styles. [current: none]
+.IP "--include-naming-hint=<y_or_n>"
+Include a hint for the correct naming format with invalid-name [current: no]
+.IP "--function-rgx=<regexp>"
+Regular expression matching correct function names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--function-name-hint=<string>"
+Naming hint for function names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--variable-rgx=<regexp>"
+Regular expression matching correct variable names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--variable-name-hint=<string>"
+Naming hint for variable names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--const-rgx=<regexp>"
+Regular expression matching correct constant names [current: (([A-Z_][A-Z0-9_]*)|(__.*__))$]
+.IP "--const-name-hint=<string>"
+Naming hint for constant names [current: (([A-Z_][A-Z0-9_]*)|(__.*__))$]
+.IP "--attr-rgx=<regexp>"
+Regular expression matching correct attribute names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--attr-name-hint=<string>"
+Naming hint for attribute names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--argument-rgx=<regexp>"
+Regular expression matching correct argument names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--argument-name-hint=<string>"
+Naming hint for argument names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--class-attribute-rgx=<regexp>"
+Regular expression matching correct class attribute names [current: ([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$]
+.IP "--class-attribute-name-hint=<string>"
+Naming hint for class attribute names [current: ([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$]
+.IP "--inlinevar-rgx=<regexp>"
+Regular expression matching correct inline iteration names [current: [A-Za-z_][A-Za-z0-9_]*$]
+.IP "--inlinevar-name-hint=<string>"
+Naming hint for inline iteration names [current: [A-Za-z_][A-Za-z0-9_]*$]
+.IP "--class-rgx=<regexp>"
+Regular expression matching correct class names [current: [A-Z_][a-zA-Z0-9]+$]
+.IP "--class-name-hint=<string>"
+Naming hint for class names [current: [A-Z_][a-zA-Z0-9]+$]
+.IP "--module-rgx=<regexp>"
+Regular expression matching correct module names [current: (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$]
+.IP "--module-name-hint=<string>"
+Naming hint for module names [current: (([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$]
+.IP "--method-rgx=<regexp>"
+Regular expression matching correct method names [current: [a-z_][a-z0-9_]{2,30}$]
+.IP "--method-name-hint=<string>"
+Naming hint for method names [current: [a-z_][a-z0-9_]{2,30}$]
 .IP "--no-docstring-rgx=<regexp>"
-Regular expression which should only match functions or classes name which do not require a docstring [current: __.*__]
+Regular expression which should only match function or class names that do not require a docstring. [current: __.*__]
+.IP "--docstring-min-length=<int>"
+Minimum line length for functions/classes that require docstrings, shorter ones are exempt. [current: -1]
+
+.SH EXCEPTIONS
+.IP "--overgeneral-exceptions=<comma-separated class names>"
+Exceptions that will emit a warning when being caught. Defaults to "Exception" [current: Exception]
 
 .SH SIMILARITIES
 .IP "--min-similarity-lines=<int>"
@@ -195,20 +235,16 @@ List of valid names for the first argument in a class method. [current: cls]
 .IP "--valid-metaclass-classmethod-first-arg=<argument names>"
 List of valid names for the first argument in a metaclass class method. [current: mcs]
 
-.SH EXCEPTIONS
-.IP "--overgeneral-exceptions=<comma-separated class names>"
-Exceptions that will emit a warning when being caught. Defaults to "Exception" [current: Exception]
-
 .SH ENVIRONMENT VARIABLES
 
 The following environment variables are used:                                   
     * PYLINTHOME                                                                
-    path to the directory where data of persistent run will be stored. If not 
-found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
+    Path to the directory where the persistent for the run will be stored. If 
+not found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
 directory).                                                                     
     * PYLINTRC                                                                  
-    path to the configuration file. If not found, it will use the first         
-existing file among (~/.pylintrc, /etc/pylintrc).
+    Path to the configuration file. See the documentation for the method used
+to search for configuration file.
 
 .SH OUTPUT
 Using the default text output, the message format is :                          
@@ -241,11 +277,8 @@ been issued by analysing pylint output status code
 
 .SH BUGS
 Please report bugs on the project's mailing list:
-mailto://python-projects@lists.logilab.org
+mailto://code-quality@python.org
 
 .SH AUTHOR
 Logilab <python-projects@lists.logilab.org>
-
-.SH COPYRIGHT
-Logilab S.A.
 

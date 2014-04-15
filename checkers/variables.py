@@ -213,7 +213,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     if not isinstance(elt_name, astroid.Const) or not isinstance(elt_name.value, basestring):
                         self.add_message('E0604', args=elt.as_string(), node=elt)
                         continue
-                    elt_name = elt.value
+                    elt_name = elt_name.value
                     # If elt is in not_consumed, remove it from not_consumed
                     if elt_name in not_consumed:
                         del not_consumed[elt_name]

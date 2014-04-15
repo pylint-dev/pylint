@@ -103,48 +103,55 @@ class LoggingChecker(checkers.BaseChecker):
 
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
-        """Checks calls to (simple forms of) logging methods."""
-        if (not isinstance(node.func, astroid.Getattr)
-            or not isinstance(node.func.expr, astroid.Name)):
-            return
-        try:
-            logger_class = [inferred for inferred in node.func.expr.infer() if (
-                isinstance(inferred, astroid.Instance)
-                and any(ancestor for ancestor in inferred._proxied.ancestors() if (
-                            ancestor.name == 'Logger'
-                            and ancestor.parent.name == 'logging')))]
-        except astroid.exceptions.InferenceError:
-            return
-        if node.func.expr.name not in self._logging_names and not logger_class:
-            return
-        self._check_convenience_methods(node)
-        self._check_log_methods(node)
+        """Checks calls to logging methods."""
+        def is_logging_name():
+           return (isinstance(node.func, astroid.Getattr) and
+                   isinstance(node.func.expr, astroid.Name) and 
+                   node.func.expr.name in self._logging_names)
 
-    def _check_convenience_methods(self, node):
-        """Checks calls to logging convenience methods (like logging.warn)."""
-        if node.func.attrname not in CHECKED_CONVENIENCE_FUNCTIONS:
-            return
-        if node.starargs or node.kwargs or not node.args:
-            # Either no args, star args, or double-star args. Beyond the
-            # scope of this checker.
-            return
-        if isinstance(node.args[0], astroid.BinOp) and node.args[0].op == '%':
-            self.add_message('W1201', node=node)
-        elif isinstance(node.args[0], astroid.Const):
-            self._check_format_string(node, 0)
+        def is_logger_class():
+            try:
+                for inferred in node.func.infer():
+                    if isinstance(inferred, astroid.BoundMethod):
+                        parent = inferred._proxied.parent
+                        if (isinstance(parent, astroid.Class) and 
+                            (parent.qname() == 'logging.Logger' or 
+                             any(ancestor.qname() == 'logging.Logger' 
+                                 for ancestor in parent.ancestors()))):
+                            return True, inferred._proxied.name
+            except astroid.exceptions.InferenceError:
+                pass
+            return False, None
 
-    def _check_log_methods(self, node):
+        if is_logging_name():
+            name = node.func.attrname
+        else:
+            result, name = is_logger_class()
+            if not result:
+                return
+        self._check_log_method(node, name)
+
+    def _check_log_method(self, node, name):
         """Checks calls to logging.log(level, format, *format_args)."""
-        if node.func.attrname != 'log':
+        if name == 'log':
+            if node.starargs or node.kwargs or len(node.args) < 2:
+                # Either a malformed call, star args, or double-star args. Beyond
+                # the scope of this checker.
+                return
+            format_pos = 1
+        elif name in CHECKED_CONVENIENCE_FUNCTIONS:
+            if node.starargs or node.kwargs or not node.args:
+                # Either no args, star args, or double-star args. Beyond the
+                # scope of this checker.
+                return
+            format_pos = 0
+        else:
             return
-        if node.starargs or node.kwargs or len(node.args) < 2:
-            # Either a malformed call, star args, or double-star args. Beyond
-            # the scope of this checker.
-            return
-        if isinstance(node.args[1], astroid.BinOp) and node.args[1].op == '%':
+
+        if isinstance(node.args[format_pos], astroid.BinOp) and node.args[format_pos].op == '%':
             self.add_message('W1201', node=node)
-        elif isinstance(node.args[1], astroid.Const):
-            self._check_format_string(node, 1)
+        elif isinstance(node.args[format_pos], astroid.Const):
+            self._check_format_string(node, format_pos)
 
     def _check_format_string(self, node, format_arg):
         """Checks that format string tokens match the supplied arguments.

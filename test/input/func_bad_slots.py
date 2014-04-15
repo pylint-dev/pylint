@@ -54,4 +54,9 @@ class FifthBad(object):
 
 class PotentiallyGood(object):
     __slots__ = func()
-   
+
+class PotentiallySecondGood(object):
+    __slots__ = ('a', deque.__name__)
+
+class PotentiallyThirdGood(object):
+    __slots__ = deque.__name__
