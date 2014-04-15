@@ -30,6 +30,7 @@ from cStringIO import StringIO
 from logilab.common import testlib
 
 from pylint import checkers
+from pylint.utils import PyLintASTWalker
 from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
@@ -200,6 +201,12 @@ class CheckerTestCase(testlib.TestCase):
                'Expected:\n%s\nGot:\n%s' % ('\n'.join(repr(m) for m in messages),
                                             '\n'.join(repr(m) for m in got)))
         self.assertEqual(list(messages), got, msg)
+
+    def walk(self, node):
+        """recursive walk on the given node"""
+        walker = PyLintASTWalker(linter)
+        walker.add_checker(self.checker)
+        walker.walk(node)
 
 
 # Init
