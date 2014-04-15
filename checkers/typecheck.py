@@ -142,7 +142,7 @@ class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
                 ),
                 ('ignored-modules',
-                 {'default': ('optparse', 'numpy',),
+                 {'default': ('optparse',),
                   'type': 'csv',
                   'metavar': '<module names>',
                   'help': 'List of module names for which member attributes \
