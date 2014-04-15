@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -16,7 +16,9 @@
 """classes checker for Python code
 """
 from __future__ import generators
+
 import sys
+
 import astroid
 from astroid import YES, Instance, are_exclusive, AssAttr
 from astroid.bases import Generator
@@ -518,8 +520,8 @@ a metaclass class method.'}
         for attr, nodes in accessed.iteritems():
             # deactivate "except doesn't do anything", that's expected
             # pylint: disable=W0704
-            # is it a class attribute ?
             try:
+                # is it a class attribute ?
                 node.local_attr(attr)
                 # yes, stop here
                 continue
@@ -547,8 +549,8 @@ a metaclass class method.'}
                     for _node in nodes:
                         if _node.frame() is frame and _node.fromlineno < lno \
                            and not are_exclusive(_node.statement(), defstmt, ('AttributeError', 'Exception', 'BaseException')):
-                            self.add_message('access-member-before-definition', node=_node,
-                                             args=(attr, lno))
+                            self.add_message('access-member-before-definition',
+                                             node=_node, args=(attr, lno))
 
     def _check_first_arg_for_type(self, node, metaclass=0):
         """check the name of first argument, expect:
@@ -685,7 +687,7 @@ a metaclass class method.'}
         """check that the __init__ method call super or ancestors'__init__
         method
         """
-        if (not self.linter.is_message_enabled('super-init-not-called') and 
+        if (not self.linter.is_message_enabled('super-init-not-called') and
             not self.linter.is_message_enabled('non-parent-init-called')):
             return
         klass_node = node.parent.frame()

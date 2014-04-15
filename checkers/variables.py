@@ -210,7 +210,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     except astroid.InferenceError:
                         continue
 
-                    if not isinstance(elt_name, astroid.Const) or not isinstance(elt_name.value, basestring):
+                    if not isinstance(elt_name, astroid.Const) \
+                             or not isinstance(elt_name.value, basestring):
                         self.add_message('E0604', args=elt.as_string(), node=elt)
                         continue
                     elt_name = elt_name.value
@@ -230,8 +231,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                 try:
                                     file_from_modpath(name.split("."))
                                 except ImportError:
-                                    self.add_message('undefined-all-variable', 
-                                                     args=elt_name, 
+                                    self.add_message('undefined-all-variable',
+                                                     args=elt_name,
                                                      node=elt)
                                 except SyntaxError, exc:
                                     # don't yield an syntax-error warning,
@@ -547,10 +548,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     elif self._to_consume[-1][-1] != 'lambda':
                         # E0601 may *not* occurs in lambda scope
                         self.add_message('E0601', args=name, node=node)
-            if not isinstance(node, astroid.AssName): # Aug AssName
-                del to_consume[name]
-            else:
+            if isinstance(node, astroid.AssName): # Aug AssName
                 del consumed[name]
+            else:
+                del to_consume[name]
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
             break
