@@ -31,7 +31,7 @@ else:
 license = 'GPL'
 description = "python code static checker"
 web = 'http://www.pylint.org'
-mailinglist = "mailto://python-projects@lists.logilab.org"
+mailinglist = "mailto://code-quality@python.org"
 author = 'Logilab'
 author_email = 'python-projects@lists.logilab.org'
 

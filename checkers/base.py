@@ -59,7 +59,7 @@ if sys.version_info < (3, 0):
     BAD_FUNCTIONS.append('file')
 
 # Name categories that are always consistent with all naming conventions.
-EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
+EXEMPT_NAME_CATEGORIES = set(('exempt', 'ignore'))
 
 del re
 

@@ -2,7 +2,7 @@
 
 # pylint: disable=too-few-public-methods, invalid-name
 
-from sys import exit as nonseq_func
+from os import rename as nonseq_func
 from input.unpacking import nonseq
 
 __revision__ = 0

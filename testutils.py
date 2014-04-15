@@ -256,7 +256,7 @@ class LintTestUsingModule(testlib.TestCase):
         self._test(tocheck)
 
     def _check_result(self, got):
-        self.assertMultiLineEqual(self._get_expected(), got)
+        self.assertMultiLineEqual(self._get_expected().strip(), got.strip())
 
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
@@ -272,7 +272,7 @@ class LintTestUsingModule(testlib.TestCase):
             print ex
             ex.__str__ = exception_str
             raise
-        self._check_result(self.linter.reporter.finalize())        
+        self._check_result(self.linter.reporter.finalize())
 
     def _has_output(self):
         return not self.module.startswith('func_noerror_')
