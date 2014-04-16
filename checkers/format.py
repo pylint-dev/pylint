@@ -240,14 +240,14 @@ class FormatChecker(BaseTokenChecker):
                             return
                         if keyword_token == 'not':
                             if not found_and_or:
-                                self.add_message('C0325', line=line_num,
+                                self.add_message('superfluous-parens', line=line_num,
                                                  args=keyword_token)
                         elif keyword_token in ('return', 'yield'):
-                            self.add_message('C0325', line=line_num,
+                            self.add_message('superfluous-parens', line=line_num,
                                              args=keyword_token)
                         elif keyword_token not in self._keywords_with_parens:
                             if not (tokens[i+1][1] == 'in' and found_and_or):
-                                self.add_message('C0325', line=line_num,
+                                self.add_message('superfluous-parens', line=line_num,
                                                  args=keyword_token)
                     return
             elif depth == 1:
@@ -376,7 +376,7 @@ class FormatChecker(BaseTokenChecker):
         for policy, position in warnings:
             construct = _name_construct(tokens[i])
             count, state = _policy_string(policy)
-            self.add_message('C0326', line=tokens[i][2][0],
+            self.add_message('bad-whitespace', line=tokens[i][2][0],
                              args=(count, state, position, construct,
                                    _underline_token(tokens[i])))
 
@@ -437,7 +437,7 @@ class FormatChecker(BaseTokenChecker):
                 self.new_line(tok_type, line, line_num, junk)
             if start[0] != line_num:
                 if previous is not None and previous[0] == tokenize.OP and previous[1] == ';':
-                    self.add_message('W0301', line=previous[2])
+                    self.add_message('unnecessary-semicolon', line=previous[2])
                 previous = None
                 line_num = start[0]
                 # A tokenizer oddity: if an indented line contains a multi-line
@@ -453,10 +453,10 @@ class FormatChecker(BaseTokenChecker):
 
             if tok_type == tokenize.OP:
                 if token == '<>':
-                    self.add_message('W0331', line=line_num)
+                    self.add_message('old-ne-operator', line=line_num)
             elif tok_type == tokenize.NUMBER:
                 if token.endswith('l'):
-                    self.add_message('W0332', line=line_num)
+                    self.add_message('lowercase-l-suffix', line=line_num)
 
             elif tok_type == newline:
                 # a program statement, or ENDMARKER, will eventually follow,
@@ -499,9 +499,9 @@ class FormatChecker(BaseTokenChecker):
 
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
-            self.add_message('C0302', args=line_num, line=1)
+            self.add_message('too-many-lines', args=line_num, line=1)
 
-    @check_messages('C0321', 'C03232', 'C0323', 'C0324')
+    @check_messages('multiple-statements')
     def visit_default(self, node):
         """check the node line number and check it if not yet done"""
         if not node.is_statement:
@@ -555,12 +555,12 @@ class FormatChecker(BaseTokenChecker):
         if (isinstance(node.parent, nodes.If) and not node.parent.orelse
             and self.config.single_line_if_stmt):
             return
-        self.add_message('C0321', node=node)
+        self.add_message('multiple-statements', node=node)
         self._visited_lines[line] = 2
 
-    @check_messages('W0333')
+    @check_messages('backtick')
     def visit_backquote(self, node):
-        self.add_message('W0333', node=node)
+        self.add_message('backtick', node=node)
 
     def check_lines(self, lines, i):
         """check lines have less than a maximum number of characters
@@ -570,11 +570,11 @@ class FormatChecker(BaseTokenChecker):
 
         for line in lines.splitlines(True):
             if not line.endswith('\n'):
-                self.add_message('C0304', line=i)
+                self.add_message('missing-final-newline', line=i)
             else:
                 stripped_line = line.rstrip()
                 if line[len(stripped_line):] not in ('\n', '\r\n'):
-                    self.add_message('C0303', line=i)
+                    self.add_message('trailing-whitespace', line=i)
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
@@ -582,7 +582,7 @@ class FormatChecker(BaseTokenChecker):
                 line = line.split('#')[0].rstrip()
 
             if len(line) > max_chars and not ignore_long_line.search(line):
-                self.add_message('C0301', line=i, args=(len(line), max_chars))
+                self.add_message('line-too-long', line=i, args=(len(line), max_chars))
             i += 1
 
     def check_indent_level(self, string, expected, line_num):
@@ -603,7 +603,7 @@ class FormatChecker(BaseTokenChecker):
                     args = ('tab', 'space')
                 else:
                     args = ('space', 'tab')
-                self.add_message('W0312', args=args, line=line_num)
+                self.add_message('mixed-indentation', args=args, line=line_num)
                 return level
             suppl += string[0]
             string = string[1:]
@@ -611,7 +611,7 @@ class FormatChecker(BaseTokenChecker):
             i_type = 'spaces'
             if indent[0] == '\t':
                 i_type = 'tabs'
-            self.add_message('W0311', line=line_num,
+            self.add_message('bad-indentation', line=line_num,
                              args=(level * unit_size + len(suppl), i_type,
                                    expected * unit_size))
 
