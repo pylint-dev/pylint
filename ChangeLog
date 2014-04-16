@@ -87,6 +87,10 @@ ChangeLog for Pylint
 
     * Don't register the newstyle checker w/ python >= 3
 
+    * Fix unused-import false positive w/ augment assignment (#78)
+
+    * Fix access-member-before-definition false negative wrt aug assign (#164)
+
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"

@@ -30,6 +30,7 @@ from cStringIO import StringIO
 from logilab.common import testlib
 
 from pylint import checkers
+from pylint.utils import PyLintASTWalker
 from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
@@ -201,6 +202,12 @@ class CheckerTestCase(testlib.TestCase):
                                             '\n'.join(repr(m) for m in got)))
         self.assertEqual(list(messages), got, msg)
 
+    def walk(self, node):
+        """recursive walk on the given node"""
+        walker = PyLintASTWalker(linter)
+        walker.add_checker(self.checker)
+        walker.walk(node)
+
 
 # Init
 test_reporter = TestReporter()
@@ -256,7 +263,8 @@ class LintTestUsingModule(testlib.TestCase):
         self._test(tocheck)
 
     def _check_result(self, got):
-        self.assertMultiLineEqual(self._get_expected().strip(), got.strip())
+        self.assertMultiLineEqual(self._get_expected().strip()+'\n',
+                                  got.strip()+'\n')
 
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
