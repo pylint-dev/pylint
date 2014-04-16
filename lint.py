@@ -578,7 +578,6 @@ warning, statement which respectively contain the number of errors / warnings\
             if (messages or
                 any(self.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)
-                checker.active_msgs = messages
         return neededcheckers
 
     def should_analyze_file(self, modname, path): # pylint: disable=unused-argument
