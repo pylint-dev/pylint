@@ -185,15 +185,18 @@ class MisdesignChecker(BaseChecker):
         """check that abstract/interface classes are used"""
         for abstract in self._abstracts:
             if not abstract in self._used_abstracts:
-                self.add_message('R0921', node=abstract)
+                self.add_message('abstract-class-not-used', node=abstract)
             elif self._used_abstracts[abstract] < 2:
-                self.add_message('R0922', node=abstract,
+                self.add_message('abstract-class-little-used', node=abstract,
                                  args=self._used_abstracts[abstract])
         for iface in self._ifaces:
             if not iface in self._used_ifaces:
-                self.add_message('R0923', node=iface)
+                self.add_message('interface-not-implemented', node=iface)
 
-    @check_messages('R0901', 'R0902', 'R0903', 'R0904', 'R0921', 'R0922', 'R0923')
+    @check_messages('too-many-ancestors', 'too-many-instance-attributes',
+                    'too-few-public-methods', 'too-many-public-methods',
+                    'abstract-class-not-used', 'abstract-class-little-used',
+                    'interface-not-implemented')
     def visit_class(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
@@ -201,13 +204,13 @@ class MisdesignChecker(BaseChecker):
         # Is the total inheritance hierarchy is 7 or less?
         nb_parents = len(list(node.ancestors()))
         if nb_parents > self.config.max_parents:
-            self.add_message('R0901', node=node,
+            self.add_message('too-many-ancestors', node=node,
                              args=(nb_parents, self.config.max_parents))
         # Does the class contain less than 20 attributes for
         # non-GUI classes (40 for GUI)?
         # FIXME detect gui classes
         if len(node.instance_attrs) > self.config.max_attributes:
-            self.add_message('R0902', node=node,
+            self.add_message('too-many-instance-attributes', node=node,
                              args=(len(node.instance_attrs),
                                    self.config.max_attributes))
         # update abstract / interface classes structures
@@ -231,7 +234,10 @@ class MisdesignChecker(BaseChecker):
             except KeyError:
                 self._used_abstracts[parent] = 1
 
-    @check_messages('R0901', 'R0902', 'R0903', 'R0904', 'R0921', 'R0922', 'R0923')
+    @check_messages('too-many-ancestors', 'too-many-instance-attributes',
+                    'too-few-public-methods', 'too-many-public-methods',
+                    'abstract-class-not-used', 'abstract-class-little-used',
+                    'interface-not-implemented')
     def leave_class(self, node):
         """check number of public methods"""
         nb_public_methods = 0
@@ -243,7 +249,7 @@ class MisdesignChecker(BaseChecker):
                 special_methods.add(method.name)
         # Does the class contain less than 20 public methods ?
         if nb_public_methods > self.config.max_public_methods:
-            self.add_message('R0904', node=node,
+            self.add_message('too-many-public-methods', node=node,
                              args=(nb_public_methods,
                                    self.config.max_public_methods))
         # stop here for exception, metaclass and interface classes
@@ -255,7 +261,8 @@ class MisdesignChecker(BaseChecker):
                              args=(nb_public_methods,
                                    self.config.min_public_methods))
 
-    @check_messages('R0911', 'R0912', 'R0913', 'R0914', 'R0915')
+    @check_messages('too-many-return-statements', 'too-many-branches',
+                    'too-many-arguments', 'too-many-locals', 'too-many-statements')
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -272,34 +279,34 @@ class MisdesignChecker(BaseChecker):
                  if self.config.ignored_argument_names.match(arg.name)])
             argnum = len(args) - ignored_args_num
             if  argnum > self.config.max_args:
-                self.add_message('R0913', node=node,
+                self.add_message('too-many-arguments', node=node,
                                  args=(len(args), self.config.max_args))
         else:
             ignored_args_num = 0
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
         if locnum > self.config.max_locals:
-            self.add_message('R0914', node=node,
+            self.add_message('too-many-locals', node=node,
                              args=(locnum, self.config.max_locals))
         # init statements counter
         self._stmts = 1
 
-    @check_messages('R0911', 'R0912', 'R0913', 'R0914', 'R0915')
+    @check_messages('too-many-return-statements', 'too-many-branches', 'too-many-arguments', 'too-many-locals', 'too-many-statements')
     def leave_function(self, node):
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
         returns = self._returns.pop()
         if returns > self.config.max_returns:
-            self.add_message('R0911', node=node,
+            self.add_message('too-many-return-statements', node=node,
                              args=(returns, self.config.max_returns))
         branches = self._branches.pop()
         if branches > self.config.max_branches:
-            self.add_message('R0912', node=node,
+            self.add_message('too-many-branches', node=node,
                              args=(branches, self.config.max_branches))
         # check number of statements
         if self._stmts > self.config.max_statements:
-            self.add_message('R0915', node=node,
+            self.add_message('too-many-statements', node=node,
                              args=(self._stmts, self.config.max_statements))
 
     def visit_return(self, _):
