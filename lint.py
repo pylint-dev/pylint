@@ -116,12 +116,6 @@ MSGS = {
     'I0013': ('Ignoring entire file',
               'file-ignored',
               'Used to inform that the file will not be checked'),
-    'I0014': ('Used deprecated directive "pylint:disable-all" or '
-              '"pylint:disable=all"',
-              'deprecated-disable-all',
-              'You should preferably use "pylint:skip-file" as this directive '
-              'has a less confusing name. Do this only if you are sure that '
-              'all people running Pylint on your code have version >= 0.26'),
     'I0020': ('Suppressed %s (from line %d)',
               'suppressed-message',
               'A message was triggered on a line, but suppressed explicitly '
@@ -132,11 +126,12 @@ MSGS = {
               'useless-suppression',
               'Reported when a message is explicitly disabled for a line or '
               'a block of code, but never triggered.'),
-    'I0022': ('Deprecated pragma "pylint:disable-msg" or "pylint:enable-msg"',
+    'I0022': ('Pragma "%s" is deprecated, use "%s" instead',
               'deprecated-pragma',
-              'You should preferably use "pylint:disable" or "pylint:enable" '
-              'instead of the deprecated suppression pragma style '
-              '"pylint:disable-msg" or "pylint:enable-msg"'),
+              'Some inline pylint options have been renamed or reworked, '
+              'only the most recent form should be used. '
+              'NOTE:skip-all is only available with pylint >= 0.26', 
+              {'old_names': [('I0014', 'deprecated-disable-all')]}),
 
     'E0001': ('%s',
               'syntax-error',
@@ -469,7 +464,8 @@ warning, statement which respectively contain the number of errors / warnings\
             if match.group(1).strip() == "disable-all" or \
                     match.group(1).strip() == 'skip-file':
                 if match.group(1).strip() == "disable-all":
-                    self.add_message('deprecated-disable-all', line=start[0])
+                    self.add_message('deprecated-pragma', line=start[0],
+                                     args=('disable-all', 'skip-file'))
                 self.add_message('file-ignored', line=start[0])
                 self._ignore_file = True
                 return
@@ -486,11 +482,11 @@ warning, statement which respectively contain the number of errors / warnings\
                 except KeyError:
                     meth = self._bw_options_methods[opt]
                     # found a "(dis|en)able-msg" pragma deprecated suppresssion
-                    self.add_message('deprecated-pragma', line=start[0])
+                    self.add_message('deprecated-pragma', line=start[0], args=(opt, opt.replace('-msg', '')))
                 for msgid in splitstrip(value):
                     try:
                         if (opt, msgid) == ('disable', 'all'):
-                            self.add_message('deprecated-disable-all', line=start[0])
+                            self.add_message('deprecated-pragma', line=start[0], args=('disable=all', 'skip-file'))
                             self.add_message('file-ignored', line=start[0])
                             self._ignore_file = True
                             return
