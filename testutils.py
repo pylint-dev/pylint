@@ -312,9 +312,11 @@ class LintTestUpdate(LintTestUsingModule):
 
     def _check_result(self, got):
         if self._has_output():
-            if got != self._get_expected():
-                if not self.output:
-                    self.output = join(self.MSG_DIR, '%s.txt' % (self.module,))
+            try:
+                expected = self._get_expected()
+            except IOError:
+                expected = ''
+            if got != expected:
                 with open(self.output, 'w') as fobj:
                     fobj.write(got)
 
