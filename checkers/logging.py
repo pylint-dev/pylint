@@ -149,7 +149,7 @@ class LoggingChecker(checkers.BaseChecker):
             return
 
         if isinstance(node.args[format_pos], astroid.BinOp) and node.args[format_pos].op == '%':
-            self.add_message('W1201', node=node)
+            self.add_message('logging-not-lazy', node=node)
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
 
@@ -180,16 +180,16 @@ class LoggingChecker(checkers.BaseChecker):
                     return
             except utils.UnsupportedFormatCharacter, ex:
                 char = format_string[ex.index]
-                self.add_message('E1200', node=node,
+                self.add_message('logging-unsupported-format', node=node,
                                  args=(char, ord(char), ex.index))
                 return
             except utils.IncompleteFormatString:
-                self.add_message('E1201', node=node)
+                self.add_message('logging-format-truncated', node=node)
                 return
         if num_args > required_num_args:
-            self.add_message('E1205', node=node)
+            self.add_message('logging-too-many-args', node=node)
         elif num_args < required_num_args:
-            self.add_message('E1206', node=node)
+            self.add_message('logging-too-few-args', node=node)
 
 
 def _count_supplied_tokens(args):

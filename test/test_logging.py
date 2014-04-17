@@ -20,7 +20,7 @@ class LoggingModuleDetectionTest(CheckerTestCase):
         """)
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message('W1201', node=stmts[1])):
+        with self.assertAddsMessages(Message('logging-not-lazy', node=stmts[1])):
             self.checker.visit_callfunc(stmts[1])
 
     def test_detects_renamed_standard_logging_module(self):
@@ -30,7 +30,7 @@ class LoggingModuleDetectionTest(CheckerTestCase):
         """)
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message('W1201', node=stmts[1])):
+        with self.assertAddsMessages(Message('logging-not-lazy', node=stmts[1])):
             self.checker.visit_callfunc(stmts[1])
 
     @set_config(logging_modules=['logging', 'my.logging'])
@@ -41,7 +41,7 @@ class LoggingModuleDetectionTest(CheckerTestCase):
         """)
         self.checker.visit_module(None)
         self.checker.visit_import(stmts[0])
-        with self.assertAddsMessages(Message('W1201', node=stmts[1])):
+        with self.assertAddsMessages(Message('logging-not-lazy', node=stmts[1])):
             self.checker.visit_callfunc(stmts[1])
 
 
