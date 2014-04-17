@@ -90,10 +90,6 @@ MSGS = {
               'ignored-builtin-module',
               'Used to indicate that the user asked to analyze a builtin '
               'module which has been skipped.'),
-    'F0004': ('unexpected inferred value %s',
-              'unexpected-inferred-value',
-              'Used to indicate that some value of an unexpected type has been '
-              'inferred.'),
     'F0010': ('error while code parsing: %s',
               'parse-error',
               'Used when an exception occured while building the Astroid '
