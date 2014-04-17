@@ -57,13 +57,13 @@ separated by a comma.'
     def _check_note(self, notes, lineno, line):
         match = notes.search(line)
         if match:
-            self.add_message('W0511', args=line[match.start():-1], line=lineno)
+            self.add_message('fixme', args=line[match.start():-1], line=lineno)
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return unicode(line, file_encoding)
         except UnicodeDecodeError, ex:
-            self.add_message('W0512', line=lineno,
+            self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))
 
     def process_module(self, module):

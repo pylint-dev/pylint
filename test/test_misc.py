@@ -55,7 +55,7 @@ class FixmeTest(CheckerTestCase):
             """a = 1
             # FIXME """) as module:
             with self.assertAddsMessages(
-                Message(msg_id='W0511', line=2, args=u'FIXME')):
+                Message(msg_id='fixme', line=2, args=u'FIXME')):
                 self.checker.process_module(module)
 
     @set_config(notes=[])
