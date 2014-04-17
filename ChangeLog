@@ -91,6 +91,8 @@ ChangeLog for Pylint
 
     * Fix access-member-before-definition false negative wrt aug assign (#164)
 
+    * Do not attempt to analyze non python file, eg .so file (#122)
+
 
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"

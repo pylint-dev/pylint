@@ -584,8 +584,8 @@ warning, statement which respectively contain the number of errors / warnings\
     def should_analyze_file(self, modname, path): # pylint: disable=unused-argument
         """Returns whether or not a module should be checked.
 
-        This implementation returns True for all inputs, indicating that all
-        files should be linted.
+        This implementation returns True for all python source file, indicating
+        that all files should be linted.
 
         Subclasses may override this method to indicate that modules satisfying
         certain conditions should not be linted.
@@ -595,7 +595,7 @@ warning, statement which respectively contain the number of errors / warnings\
         :returns: True if the module should be checked.
         :rtype: bool
         """
-        return True
+        return path.endswith('.py')
 
     def check(self, files_or_modules):
         """main checking entry: check a list of files or modules from their
