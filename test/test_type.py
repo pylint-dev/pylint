@@ -23,28 +23,15 @@ class TypeCheckerTest(CheckerTestCase):
                     args=('Module', 'argparse', 'THIS_does_not_EXIST'))):
             self.checker.visit_getattr(node)
 
+    @set_config(ignored_modules=('argparse',))
     def test_no_member_in_getattr_ignored(self):
         """Make sure that a module attribute access check is omitted with a
         module that is configured to be ignored.
         """
 
         node = test_utils.extract_node("""
-        import optparse
-        optparse.THIS_does_not_EXIST 
-        """)
-        with self.assertNoMessages():
-            self.checker.visit_getattr(node)
-
-
-    @set_config(ignored_modules=('argparse',))
-    def test_no_member_in_getattr_ignored_cust_config(self):
-        """Make sure that a module can be added to the ignored_modules list and
-        a no-member message will not be raised upon attribute access.
-        """
-
-        node = test_utils.extract_node("""
         import argparse
-        argparse.THIS_does_not_EXIST 
+        argparse.THIS_does_not_EXIST
         """)
         with self.assertNoMessages():
             self.checker.visit_getattr(node)
