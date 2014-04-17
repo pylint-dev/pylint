@@ -109,11 +109,11 @@ MSGS = {
               'Used when an inline option is either badly formatted or can\'t '
               'be used inside modules.'),
 
-    'I0011': ('Locally disabling %s',
+    'I0011': ('Locally disabling %s (%s)',
               'locally-disabled',
               'Used when an inline option disables a message or a messages '
               'category.'),
-    'I0012': ('Locally enabling %s',
+    'I0012': ('Locally enabling %s (%s)',
               'locally-enabled',
               'Used when an inline option enables a message or a messages '
               'category.'),
@@ -473,14 +473,14 @@ warning, statement which respectively contain the number of errors / warnings\
             if match.group(1).strip() == "disable-all" or \
                     match.group(1).strip() == 'skip-file':
                 if match.group(1).strip() == "disable-all":
-                    self.add_message('I0014', line=start[0])
-                self.add_message('I0013', line=start[0])
+                    self.add_message('deprecated-disable-all', line=start[0])
+                self.add_message('file-ignored', line=start[0])
                 self._ignore_file = True
                 return
             try:
                 opt, value = match.group(1).split('=', 1)
             except ValueError:
-                self.add_message('I0010', args=match.group(1).strip(),
+                self.add_message('bad-inline-option', args=match.group(1).strip(),
                                  line=start[0])
                 continue
             opt = opt.strip()
@@ -494,15 +494,15 @@ warning, statement which respectively contain the number of errors / warnings\
                 for msgid in splitstrip(value):
                     try:
                         if (opt, msgid) == ('disable', 'all'):
-                            self.add_message('I0014', line=start[0])
-                            self.add_message('I0013', line=start[0])
+                            self.add_message('deprecated-disable-all', line=start[0])
+                            self.add_message('file-ignored', line=start[0])
                             self._ignore_file = True
                             return
                         meth(msgid, 'module', start[0])
                     except UnknownMessage:
-                        self.add_message('E0012', args=msgid, line=start[0])
+                        self.add_message('bad-option-value', args=msgid, line=start[0])
             else:
-                self.add_message('E0011', args=opt, line=start[0])
+                self.add_message('unrecognized-inline-option', args=opt, line=start[0])
 
     def collect_block_lines(self, node, msg_state):
         """walk ast to collect block level options line numbers"""
@@ -648,7 +648,7 @@ warning, statement which respectively contain the number of errors / warnings\
             message = modname = error["mod"]
             key = error["key"]
             self.set_current_module(modname)
-            if key == "F0001":
+            if key == "fatal":
                 message = str(error["ex"]).replace(os.getcwd() + os.sep, '')
             self.add_message(key, args=message)
         return result
@@ -679,13 +679,13 @@ warning, statement which respectively contain the number of errors / warnings\
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except SyntaxError, ex:
-            self.add_message('E0001', line=ex.lineno, args=ex.msg)
+            self.add_message('syntax-error', line=ex.lineno, args=ex.msg)
         except AstroidBuildingException, ex:
-            self.add_message('F0010', args=ex)
+            self.add_message('parse-error', args=ex)
         except Exception, ex:
             import traceback
             traceback.print_exc()
-            self.add_message('F0002', args=(ex.__class__, ex))
+            self.add_message('astroid-error', args=(ex.__class__, ex))
 
     def check_astroid_module(self, astroid, walker, rawcheckers, tokencheckers):
         """check a module from its astroid representation, real work"""
@@ -693,11 +693,11 @@ warning, statement which respectively contain the number of errors / warnings\
         try:
             tokens = tokenize_module(astroid)
         except tokenize.TokenError, ex:
-            self.add_message('E0001', line=ex.args[1][0], args=ex.args[0])
+            self.add_message('syntax-error', line=ex.args[1][0], args=ex.args[0])
             return
 
         if not astroid.pure_python:
-            self.add_message('I0001', args=astroid.name)
+            self.add_message('raw-checker-failed', args=astroid.name)
         else:
             #assert astroid.file.endswith('.py')
             # invoke ITokenChecker interface on self to fetch module/block
@@ -761,12 +761,12 @@ warning, statement which respectively contain the number of errors / warnings\
         for warning, lines in self._raw_module_msgs_state.iteritems():
             for line, enable in lines.iteritems():
                 if not enable and (warning, line) not in self._ignored_msgs:
-                    self.add_message('I0021', line, None,
+                    self.add_message('useless-suppression', line, None,
                                      (self.get_msg_display_string(warning),))
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), lines in self._ignored_msgs.items():
             for line in lines:
-                self.add_message('I0020', line, None,
+                self.add_message('suppressed-message', line, None,
                                  (self.get_msg_display_string(warning), from_))
 
     def report_evaluation(self, sect, stats, previous_stats):
@@ -1013,9 +1013,9 @@ are done by default'''}),
 'been issued by analysing pylint output status code\n',
         level=1)
         # read configuration
-        linter.disable('W0704')
-        linter.disable('I0020')
-        linter.disable('I0021')
+        linter.disable('pointless-except')
+        linter.disable('suppressed-message')
+        linter.disable('useless-suppression')
         linter.read_config_file()
         # is there some additional plugins in the file configuration, in
         config_parser = linter.cfgfile_parser

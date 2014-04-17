@@ -286,8 +286,9 @@ class MessagesHandlerMixIn(object):
                 self._module_msgs_state[msg.msgid][line] = False
             except KeyError:
                 self._module_msgs_state[msg.msgid] = {line: False}
-                if msgid != 'I0011':
-                    self.add_message('I0011', line=line, args=msg.msgid)
+                if msg.symbol != 'locally-disabled':
+                    self.add_message('locally-disabled', line=line, 
+                                     args=(msg.symbol, msg.msgid))
 
         else:
             msgs = self._msgs_state
@@ -330,7 +331,7 @@ class MessagesHandlerMixIn(object):
                 self._module_msgs_state[msg.msgid][line] = True
             except KeyError:
                 self._module_msgs_state[msg.msgid] = {line: True}
-                self.add_message('I0012', line=line, args=msg.msgid)
+                self.add_message('locally-enabled', line=line, args=(msg.symbol, msg.msgid))
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = True
@@ -629,12 +630,12 @@ def expand_modules(files_or_modules, black_list):
             try:
                 filepath = file_from_modpath(modname.split('.'))
                 if filepath is None:
-                    errors.append({'key' : 'F0003', 'mod': modname})
+                    errors.append({'key' : 'ignored-builtin-module', 'mod': modname})
                     continue
             except (ImportError, SyntaxError), ex:
                 # FIXME p3k : the SyntaxError is a Python bug and should be
                 # removed as soon as possible http://bugs.python.org/issue10588
-                errors.append({'key': 'F0001', 'mod': modname, 'ex': ex})
+                errors.append({'key': 'fatal', 'mod': modname, 'ex': ex})
                 continue
         filepath = normpath(filepath)
         result.append({'path': filepath, 'name': modname,

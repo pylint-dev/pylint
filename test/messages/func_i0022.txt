@@ -1,4 +1,4 @@
-I:  5: Locally disabling C0103
+I:  5: Locally disabling invalid-name (C0103)
 I:  5: Suppressed 'invalid-name' (from line 5)
 I:  6: Deprecated pragma "pylint:disable-msg" or "pylint:enable-msg"
 I:  6: Suppressed 'invalid-name' (from line 6)
