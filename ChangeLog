@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add a new warning [bad-continuation] for badly indentend continued
+      lines.
 
     * Extend the checking for unbalanced-tuple-unpacking and
       unpacking-non-sequence to instance attribute unpacking as well.

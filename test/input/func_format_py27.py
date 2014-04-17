@@ -79,8 +79,7 @@ def hop(context):
     return ['''<a id="sendbutton" href="javascript: $('%(domid)s').submit()">
 <img src="%(sendimgpath)s" alt="%(send)s"/>%(send)s</a>''' % context,
             '''<a id="cancelbutton" href="javascript: history.back()">
-<img src="%(cancelimgpath)s" alt="%(cancel)s"/>%(cancel)s</a>''' % context,
-            ]
+<img src="%(cancelimgpath)s" alt="%(cancel)s"/>%(cancel)s</a>''' % context]
 titreprojet = '<tr><td colspan="10">\
 <img src="images/drapeau_vert.png" alt="Drapeau vert" />\
 <strong>%s</strong></td></tr>' % aaaa

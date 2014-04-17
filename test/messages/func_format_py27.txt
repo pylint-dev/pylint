@@ -41,6 +41,6 @@ C: 71: Exactly one space required before assignment
 C: 73: Exactly one space required around assignment
             ocount[obj.__class__]=1
                                  ^
-C: 91: More than one statement on a single line
-C:105: More than one statement on a single line
-C:108: More than one statement on a single line
+C: 90: More than one statement on a single line
+C:104: More than one statement on a single line
+C:107: More than one statement on a single line
