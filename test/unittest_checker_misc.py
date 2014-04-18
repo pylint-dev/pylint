@@ -20,10 +20,9 @@ import tempfile
 import os
 import contextlib
 
-from logilab.common.testlib import unittest_main
 from astroid import test_utils
-from pylint.checkers import misc, variables
-from pylint.testutils import CheckerTestCase, Message, linter, set_config
+from pylint.checkers import misc
+from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 @contextlib.contextmanager
@@ -67,20 +66,6 @@ class FixmeTest(CheckerTestCase):
             with self.assertNoMessages():
                 self.checker.process_module(module)
 
-class MissingSubmoduleTest(CheckerTestCase):
-    CHECKER_CLASS = variables.VariablesChecker
-
-    def test_package_all(self):
-        regr_data = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                 'regrtest_data')
-        sys.path.insert(0, regr_data)
-        try:
-            linter.check(os.path.join(regr_data, 'package_all'))
-            got = linter.reporter.finalize().strip()
-            self.assertEqual(got, "E:  3: Undefined variable name "
-                                  "'missing' in __all__")
-        finally:
-            sys.path.pop(0)
-
 if __name__ == '__main__':
+    from logilab.common.testlib import unittest_main
     unittest_main()
