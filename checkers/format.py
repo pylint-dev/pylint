@@ -49,6 +49,7 @@ _CLOSING_BRACKETS = [')', ']', '}']
 _TAB_LENGTH = 8
 
 _EOL = frozenset([tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT])
+_JUNK_TOKENS = (tokenize.COMMENT, tokenize.NL)
 
 # Whitespace checking policy constants
 _MUST = 0
@@ -141,6 +142,13 @@ def _column_distance(token1, token2):
     if token1[3][0] != token2[2][0]:
         return None
     return token2[2][1] - token1[3][1]
+
+
+def _last_token_on_line_is(tokens, line_end, token):
+    return (
+        line_end > 0 and tokens.token(line_end-1) == token or
+        line_end > 1 and tokens.token(line_end-2) == token 
+        and tokens.type(line_end-1) == tokenize.COMMENT)
 
 
 def _token_followed_by_eol(tokens, position):
@@ -453,9 +461,14 @@ class FormatChecker(BaseTokenChecker):
         self._bracket_stack.append(token)
         self._current_line.push_token(token, idx)
 
-    def new_line(self, tok_type, line, line_num, junk):
+    def new_line(self, tokens, line_end, line_start):
         """a new line has been encountered, process it if necessary"""
-        if not tok_type in junk:
+        if _last_token_on_line_is(tokens, line_end, ';'):
+            self.add_message('unnecessary-semicolon', line=tokens.start_line(line_end))
+
+        line_num = tokens.start_line(line_start)
+        line = tokens.line(line_start)
+        if tokens.type(line_start) not in _JUNK_TOKENS:
             self._lines[line_num] = line.split('\n')[0]
         self.check_lines(line, line_num)
 
@@ -700,45 +713,26 @@ class FormatChecker(BaseTokenChecker):
            regular expression).
         """
         self._bracket_stack = [None]
-        # TODO(tmarek): extra to toplevel
-        junk = (tokenize.COMMENT, tokenize.NL)
-        indent_junk = set(junk) | set([tokenize.NEWLINE, tokenize.INDENT, tokenize.DEDENT])
-
         indents = [0]
-        check_equal = 0
+        check_equal = False
         line_num = 0
-        previous = None
         self._lines = {}
         self._visited_lines = {}
-        new_line_delay = False
         token_handlers = self._prepare_token_dispatcher()
 
         self._current_line = ContinuedLineState(tokens, self.config)
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
-            if new_line_delay:
-                new_line_delay = False
-                self.new_line(tok_type, line, line_num, junk)
             if start[0] != line_num:
-                if previous is not None and previous[0] == tokenize.OP and previous[1] == ';':
-                    self.add_message('unnecessary-semicolon', line=previous[2])
-                previous = None
                 line_num = start[0]
                 # A tokenizer oddity: if an indented line contains a multi-line
                 # docstring, the line member of the INDENT token does not contain
-                # the full line; therefore we delay checking the new line until
-                # the next token.
+                # the full line; therefore we check the next token on the line.
                 if tok_type == tokenize.INDENT:
-                    new_line_delay = True
+                    self.new_line(TokenWrapper(tokens), idx-1, idx+1)
                 else:
-                    self.new_line(tok_type, line, line_num, junk)
-            if tok_type not in indent_junk:
-                previous = tok_type, token, start[0]
-                self._current_line.handle_line_start(idx)
+                    self.new_line(TokenWrapper(tokens), idx-1, idx)
             
-            if tok_type == tokenize.NUMBER:
-                if token.endswith('l'):
-                    self.add_message('lowercase-l-suffix', line=line_num)
-            elif tok_type == tokenize.NEWLINE:
+            if tok_type == tokenize.NEWLINE:
                 # a program statement, or ENDMARKER, will eventually follow,
                 # after some (possibly empty) run of tokens of the form
                 #     (NL | COMMENT)* (INDENT | DEDENT+)?
@@ -762,15 +756,20 @@ class FormatChecker(BaseTokenChecker):
             elif tok_type == tokenize.NL:
                 self._check_continued_indentation(TokenWrapper(tokens), idx+1)
                 self._current_line.next_physical_line()
-            elif check_equal and tok_type not in junk:
-                # this is the first "real token" following a NEWLINE, so it
+            elif tok_type != tokenize.COMMENT:
+                self._current_line.handle_line_start(idx)
+                # This is the first concrete token following a NEWLINE, so it
                 # must be the first token of the next program statement, or an
                 # ENDMARKER; the "line" argument exposes the leading whitespace
                 # for this statement; in the case of ENDMARKER, line is an empty
                 # string, so will properly match the empty string with which the
                 # "indents" stack was seeded
-                check_equal = False
-                self.check_indent_level(line, indents[-1], line_num)
+                if check_equal:
+                    check_equal = False
+                    self.check_indent_level(line, indents[-1], line_num)
+
+            if tok_type == tokenize.NUMBER and token.endswith('l'):
+                self.add_message('lowercase-l-suffix', line=line_num)
 
             try:
                 handler = token_handlers[token]
@@ -784,10 +783,7 @@ class FormatChecker(BaseTokenChecker):
             self.add_message('too-many-lines', args=line_num, line=1)
 
     def _process_retained_warnings(self, tokens, current_pos):
-        single_line_block_stmt = not (
-            tokens.token(current_pos-1) == ':' or
-            current_pos > 1 and tokens.token(current_pos-2) == ':'
-            and tokens.type(current_pos-1) == tokenize.COMMENT)
+        single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ':')
 
         for indent_pos, state, offsets in self._current_line.retained_warnings:
             block_type = offsets[tokens.start_col(indent_pos)]
