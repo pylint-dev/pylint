@@ -132,15 +132,13 @@ class MyInstallLib(install_lib.install_lib):
                     exclude = set()
                 shutil.rmtree(dest, ignore_errors=True)
                 shutil.copytree(directory, dest)
-                # since python2.5's copytree doesn't support the ignore 
+                # since python2.5's copytree doesn't support the ignore
                 # parameter, the following loop to remove the exclude set
                 # was added
                 for (dirpath, dirnames, filenames) in os.walk(dest):
                     for n in filenames:
                         if n in exclude:
                             os.remove(os.path.join(dirpath, n))
-
-
                 if sys.version_info >= (3, 0):
                     # process manually python file in include_dirs (test data)
                     # pylint: disable=no-name-in-module
@@ -148,6 +146,14 @@ class MyInstallLib(install_lib.install_lib):
                     print('running 2to3 on', dest)
                     run_2to3([dest])
 
+    # override this since pip/easy_install attempt to byte compile test data
+    # files, some of them being syntactically wrong by design, and this scares
+    # the end-user
+    def byte_compile(self, files):
+        print 'files', files
+        testdir = join('pylint', 'test')
+        files = [f for f in files if testdir not in f]
+        install_lib.install_lib.byte_compile(self, files)
 
 def install(**kwargs):
     """setup entry point"""
