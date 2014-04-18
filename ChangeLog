@@ -1,8 +1,7 @@
 ChangeLog for Pylint
 ====================
 
---
-
+2014-04-18  --  1.2.0
     * Pass the current python paths to pylint process when invoked via
       epylint.  Fixes BitBucket issue #133.
 
@@ -94,6 +93,7 @@ ChangeLog for Pylint
     * Do not attempt to analyze non python file, eg .so file (#122)
 
 
+
 2013-12-22  --  1.1.0
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
@@ -151,6 +151,7 @@ ChangeLog for Pylint
     * Various documentation fixes and enhancements
 
     * Fix issue #55 (false-positive trailing-whitespace on Windows)
+
 
 
 2013-08-06  --  1.0.0
@@ -1399,3 +1400,6 @@ ChangeLog for Pylint
 
 2003-05-19  --  0.1
     * initial release
+
+
+
