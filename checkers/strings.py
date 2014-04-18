@@ -23,7 +23,7 @@ import tokenize
 
 import astroid
 
-from pylint.interfaces import ITokenChecker, IAstroidChecker
+from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
@@ -195,7 +195,7 @@ class StringMethodsChecker(BaseChecker):
 
 class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
-    __implements__ = (ITokenChecker,)
+    __implements__ = (ITokenChecker, IRawChecker)
     name = 'string_constant'
     msgs = {
         'W1401': ('Anomalous backslash in string: \'%s\'. '
@@ -220,6 +220,9 @@ class StringConstantChecker(BaseTokenChecker):
     # Characters that have a special meaning after a backslash but only in
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = 'uUN'
+
+    def process_module(self, module):
+        self._unicode_literals = 'unicode_literals' in module.future_imports
 
     def process_tokens(self, tokens):
         for (tok_type, token, (start_row, start_col), _, _) in tokens:
@@ -279,7 +282,7 @@ class StringConstantChecker(BaseTokenChecker):
             if next_char in self.UNICODE_ESCAPE_CHARACTERS:
                 if 'u' in prefix:
                     pass
-                elif _PY3K and 'b' not in prefix:
+                elif (_PY3K or self._unicode_literals) and 'b' not in prefix:
                     pass  # unicode by default
                 else:
                     self.add_message('anomalous-unicode-escape-in-string', 

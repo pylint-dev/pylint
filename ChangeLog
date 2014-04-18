@@ -11,6 +11,9 @@ ChangeLog for Pylint
     * Added a new warning for closing over variables that are
       defined in loops. Fixes Bitbucket issue #176.
 
+    * Do not warn about \u escapes in string literals when Unicode literals
+      are used for Python 2.*. Fixes BitBucket issue #151.
+
     * Extend the checking for unbalanced-tuple-unpacking and
       unpacking-non-sequence to instance attribute unpacking as well.
 
