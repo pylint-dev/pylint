@@ -658,6 +658,10 @@ class FormatChecker(BaseTokenChecker):
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left
 
+    def _handle_old_ne_operator(self, tokens, i):
+        if tokens[i][1] == '<>':
+            self.add_message('old-ne-operator', line=tokens[i][2][0])
+
     def _prepare_token_dispatcher(self):
         raw = [
             (_KEYWORD_TOKENS,
@@ -676,6 +680,8 @@ class FormatChecker(BaseTokenChecker):
             ([':'], self._handle_colon),
 
             (['lambda'], self._open_lambda),
+
+            (['<>'], self._handle_old_ne_operator),
             ]
 
         dispatch = {}
@@ -728,13 +734,10 @@ class FormatChecker(BaseTokenChecker):
             if tok_type not in indent_junk:
                 previous = tok_type, token, start[0]
                 self._current_line.handle_line_start(idx)
-            if tok_type == tokenize.OP:
-                if token == '<>':
-                    self.add_message('old-ne-operator', line=line_num)
-            elif tok_type == tokenize.NUMBER:
+            
+            if tok_type == tokenize.NUMBER:
                 if token.endswith('l'):
                     self.add_message('lowercase-l-suffix', line=line_num)
-
             elif tok_type == tokenize.NEWLINE:
                 # a program statement, or ENDMARKER, will eventually follow,
                 # after some (possibly empty) run of tokens of the form
@@ -742,7 +745,6 @@ class FormatChecker(BaseTokenChecker):
                 # If an INDENT appears, setting check_equal is wrong, and will
                 # be undone when we see the INDENT.
                 check_equal = True
-
                 self._process_retained_warnings(TokenWrapper(tokens), idx)
                 self._current_line.next_logical_line()
             elif tok_type == tokenize.INDENT:
