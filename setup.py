@@ -150,7 +150,6 @@ class MyInstallLib(install_lib.install_lib):
     # files, some of them being syntactically wrong by design, and this scares
     # the end-user
     def byte_compile(self, files):
-        print 'files', files
         testdir = join('pylint', 'test')
         files = [f for f in files if testdir not in f]
         install_lib.install_lib.byte_compile(self, files)
