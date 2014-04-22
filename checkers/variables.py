@@ -605,10 +605,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
 
         targets = node.targets[0].itered()
-        if any(not isinstance(target_node, astroid.AssName)
-               for target_node in targets):
-            return
-
         try:
             for infered in node.value.infer():
                 self._check_unpacking(infered, node, targets)

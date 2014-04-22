@@ -1,6 +1,11 @@
 ChangeLog for Pylint
 ====================
 
+--
+
+    * Extend the checking for unbalanced-tuple-unpacking and
+      unpacking-non-sequence to instance attribute unpacking as well.
+
 2014-04-18  --  1.2.0
     * Pass the current python paths to pylint process when invoked via
       epylint.  Fixes BitBucket issue #133.
