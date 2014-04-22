@@ -6,6 +6,9 @@ ChangeLog for Pylint
     * Extend the checking for unbalanced-tuple-unpacking and
       unpacking-non-sequence to instance attribute unpacking as well.
 
+    * Add 'indexing-exception' warning, which detects that indexing
+      an exception occurs in Python 2 (behaviour removed in Python 3).
+
 2014-04-18  --  1.2.0
     * Pass the current python paths to pylint process when invoked via
       epylint.  Fixes BitBucket issue #133.

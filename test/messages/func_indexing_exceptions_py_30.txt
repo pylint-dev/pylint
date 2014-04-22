@@ -1,0 +1,4 @@
+W: 13: Indexing exceptions will not work on Python 3
+W: 14: Indexing exceptions will not work on Python 3
+W: 16: Indexing exceptions will not work on Python 3
+W: 17: Indexing exceptions will not work on Python 3
