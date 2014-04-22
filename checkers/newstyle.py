@@ -131,8 +131,19 @@ class NewStyleConflictChecker(BaseChecker):
                         continue
 
                     if klass is not supcls:
-                        self.add_message('bad-super-call', node=call,
-                                         args=(call.args[0].name, ))
+                        name = None
+                        # if supcls is not YES, then supcls was infered
+                        # and use its name. Otherwise, try to look
+                        # for call.args[0].name
+                        if supcls is not astroid.YES:
+                            name = supcls.name
+                        else:
+                            if hasattr(call.args[0], 'name'):
+                                name = call.args[0].name
+                        if name is not None:
+                            self.add_message('bad-super-call',
+                                             node=call,
+                                             args=(name, ))
 
 
 def register(linter):

@@ -36,3 +36,12 @@ class WrongNameRegression(Py3kAaaa):
     """ test a regression with the message """
     def __init__(self):
         super(Missing, self).__init__()
+
+class Getattr(object):
+    """ crash """
+    name = NewAaaa
+
+class CrashSuper(object):
+    """ test a crash with this checker """
+    def __init__(self):
+        super(Getattr.name, self).__init__()
