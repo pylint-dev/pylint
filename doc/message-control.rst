@@ -22,34 +22,34 @@ An example available from the examples directory:
 
         def meth2(self, arg):
             """and this one not"""
-            # pylint: disable=W0613
+            # pylint: disable=unused-argument
             print self\
                   + "foo"
 
         def meth3(self):
             """test one line disabling"""
             # no error
-            print self.bla # pylint: disable=E1101
+            print self.bla # pylint: disable=no-member
             # error
             print self.blop
 
         def meth4(self):
             """test re-enabling"""
-            # pylint: disable=E1101
+            # pylint: disable=no-member
             # no error
             print self.bla
             print self.blop
-            # pylint: enable=E1101
+            # pylint: enable=no-member
             # error
             print self.blip
 
         def meth5(self):
             """test IF sub-block re-enabling"""
-            # pylint: disable=E1101
+            # pylint: disable=no-member
             # no error
             print self.bla
             if self.blop:
-                # pylint: enable=E1101
+                # pylint: enable=no-member
                 # error
                 print self.blip
             else:
@@ -60,14 +60,14 @@ An example available from the examples directory:
 
         def meth6(self):
             """test TRY/EXCEPT sub-block re-enabling"""
-            # pylint: disable=E1101
+            # pylint: disable=no-member
             # no error
             print self.bla
             try:
-                 pylint: enable=E1101
+                 pylint: enable=no-member
                 # error
                 print self.blip
-            except UndefinedName: # pylint: disable=E0602
+            except UndefinedName: # pylint: disable=undefined-variable
                 # no error
                 print self.blip
             # no error
@@ -75,7 +75,7 @@ An example available from the examples directory:
 
         def meth7(self):
             """test one line block opening disabling"""
-            if self.blop: # pylint: disable=E1101
+            if self.blop: # pylint: disable=no-member
                 # error
                 print self.blip
             else:
@@ -89,7 +89,7 @@ An example available from the examples directory:
             """test late disabling"""
             # error
             print self.blip
-            # pylint: disable=E1101
+            # pylint: disable=no-member
             # no error
             print self.bla
             print self.blop
