@@ -146,6 +146,12 @@ MSGS = {
               'Used when something which is not '
               'a sequence is used in an unpack assignment'),
 
+    'W0640': ('Cell variable %s defined in loop',
+              'cell-var-from-loop', 
+              'A variable used in a closure is defined in a loop. '
+              'This will result in all closures using the same value for '
+              'the closed-over variable.'),
+
     }
 
 class VariablesChecker(BaseChecker):
@@ -423,6 +429,25 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if default_message:
             self.add_message('global-statement', node=node)
 
+    def _check_late_binding_closure(self, node, assignment_node, scope_type):
+        node_scope = node.scope()
+        if not isinstance(node_scope, (astroid.Lambda, astroid.Function)):
+            return
+
+        if isinstance(assignment_node, astroid.Comprehension):
+            if assignment_node.parent.parent_of(node.scope()):
+                self.add_message('cell-var-from-loop', node=node, args=node.name)
+        else:
+            assign_scope = assignment_node.scope()
+            maybe_for = assignment_node
+            while not isinstance(maybe_for, astroid.For):
+                if maybe_for is assign_scope:
+                    break
+                maybe_for = maybe_for.parent
+            else:
+                if maybe_for.parent_of(node_scope) and not isinstance(node_scope.statement(), astroid.Return):
+                    self.add_message('cell-var-from-loop', node=node, args=node.name)
+        
     def _loopvar_name(self, node, name):
         # filter variables according to node's scope
         # XXX used to filter parents but don't remember why, and removing this
@@ -509,6 +534,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
             if name in consumed:
+                defnode = assign_parent(consumed[name][0])
+                self._check_late_binding_closure(node, defnode, scope_type)
                 self._loopvar_name(node, name)
                 break
             # mark the name as consumed if it's defined in this scope
@@ -520,6 +547,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # checks for use before assignment
             defnode = assign_parent(to_consume[name][0])
             if defnode is not None:
+                self._check_late_binding_closure(node, defnode, scope_type)
                 defstmt = defnode.statement()
                 defframe = defstmt.frame()
                 maybee0601 = True
