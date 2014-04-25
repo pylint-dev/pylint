@@ -89,41 +89,6 @@ W9 = {'key1':
     'value1',  # [bad-continuation]
      }
 
-# Dictionary comprehensions should not require extra indentation when breaking
-# before the 'for', which is not part of the value
-C1 = {'key{}'.format(x): 'value{}'.format(x)
-      for x in range(3)}
-
-C2 = {'key{}'.format(x): 'value{}'.format(x) for x in
-      range(3)}
-
-# Dictionary comprehensions with multiple loops broken in different places
-C3 = {x*y: (x, y) for x in range(3) for y in range(3)}
-
-C4 = {x*y: (x, y)
-      for x in range(3) for y in range(3)}
-
-C5 = {x*y: (x, y) for x
-      in range(3) for y in range(3)}
-
-C6 = {x*y: (x, y) for x in range(3)
-      for y in range(3)}
-
-C7 = {key:
-          key ** 2
-      for key in range(10)}
-
-C8 = {
-    key: key ** 2
-    for key in range(10)}
-
-# Misaligned cases for dict comprehensions
-C9 = {'key{}'.format(x): 'value{}'.format(x)
-    for x in range(3)}  # [bad-continuation]
-
-C9 = {'key{}'.format(x): 'value{}'.format(x)
-          for x in range(3)}  # [bad-continuation]
-
 # Alignment of arguments in function definitions
 def continue1(some_arg,
               some_other_arg):

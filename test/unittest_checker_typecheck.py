@@ -13,14 +13,14 @@ class TypeCheckerTest(CheckerTestCase):
         """
 
         node = test_utils.extract_node("""
-        import argparse
-        argparse.THIS_does_not_EXIST 
+        import optparse
+        optparse.THIS_does_not_EXIST 
         """)
         with self.assertAddsMessages(
                 Message(
                     'no-member',
                     node=node,
-                    args=('Module', 'argparse', 'THIS_does_not_EXIST'))):
+                    args=('Module', 'optparse', 'THIS_does_not_EXIST'))):
             self.checker.visit_getattr(node)
 
     @set_config(ignored_modules=('argparse',))

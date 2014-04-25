@@ -28,43 +28,37 @@ C: 85: Wrong hanging indentation in dict value.
 C: 89: Wrong hanging indentation in dict value.
     'value1',  # [bad-continuation]
     ^ |   |
-C:122: Wrong continued indentation.
-    for x in range(3)}  # [bad-continuation]
-    ^ |
-C:125: Wrong continued indentation.
-          for x in range(3)}  # [bad-continuation]
-      |   ^
-C:141: Wrong hanging indentation before block.
+C:106: Wrong hanging indentation before block.
     some_arg,         # [bad-continuation]
     ^   |
-C:142: Wrong hanging indentation before block.
+C:107: Wrong hanging indentation before block.
     some_other_arg):  # [bad-continuation]
     ^   |
-C:146:continue4: Missing function docstring
-C:162: Wrong continued indentation.
+C:111:continue4: Missing function docstring
+C:127: Wrong continued indentation.
     "b")  # [bad-continuation]
     ^  |
-C:176: Wrong hanging indentation before block.
+C:141: Wrong hanging indentation before block.
    ): pass  # [bad-continuation]
 |  ^|
-C:179: Wrong continued indentation before block.
+C:144: Wrong continued indentation before block.
     2):  # [bad-continuation]
     ^   |
-C:187: Wrong continued indentation.
+C:152: Wrong continued indentation.
          2 and  # [bad-continuation]
        | ^
-C:192: Wrong hanging indentation before block.
+C:157: Wrong hanging indentation before block.
   2): pass  # [bad-continuation]
   ^ |   |
-C:199: Wrong continued indentation before block.
+C:164: Wrong continued indentation before block.
      2 or  # [bad-continuation]
     |^  |
-C:203: Wrong continued indentation before block.
+C:168: Wrong continued indentation before block.
   2): pass  # [bad-continuation]
   ^ |   |
-C:209: Wrong hanging indentation before block.
+C:174: Wrong hanging indentation before block.
   2):  # [bad-continuation]
   ^ |   |
-C:220: Wrong continued indentation.
+C:185: Wrong continued indentation.
     2):  # [bad-continuation]
     ^   |

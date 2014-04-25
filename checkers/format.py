@@ -229,7 +229,7 @@ _CONTINUATION_MSG_PARTS = {
 
 def _Offsets(*args):
     """Valid indentation offsets for a continued line."""
-    return {a: None for a in args}
+    return dict((a, None) for a in args)
 
 
 def _BeforeBlockOffsets(single, with_body):
