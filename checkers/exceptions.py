@@ -107,6 +107,11 @@ MSGS = {
               'clauses. '
               'See http://www.python.org/dev/peps/pep-3110/',
               {'maxversion': (3, 0)}),
+    'W0713': ('Indexing exceptions will not work on Python 3',
+              'indexing-exception',
+              'Indexing exceptions will not work on Python 3. Use '
+              '`exception.args[index]` instead.',
+              {'maxversion': (3, 0)}),
     }
 
 
@@ -211,6 +216,17 @@ class ExceptionsChecker(BaseChecker):
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message('unpacking-in-except', node=node)
 
+    @check_messages('indexing-exception')
+    def visit_subscript(self, node):
+        """ Look for indexing exceptions. """
+        try:
+            for infered in node.value.infer():
+                if not isinstance(infered, astroid.Instance):
+                    continue
+                if inherit_from_std_ex(infered):
+                    self.add_message('indexing-exception', node=node)
+        except astroid.InferenceError:
+            return
 
     @check_messages('bare-except', 'broad-except', 'pointless-except',
                     'binary-op-exception', 'bad-except-order',
