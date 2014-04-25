@@ -474,10 +474,8 @@ class FormatChecker(BaseTokenChecker):
 
     def process_module(self, module):
         self._keywords_with_parens = set()
-        for node in module.body:
-            if (isinstance(node, nodes.From) and node.modname == '__future__'
-                and any(name == 'print_function' for name, _ in node.names)):
-                self._keywords_with_parens.add('print')
+        if 'print_function' in module.future_imports:
+            self._keywords_with_parens.add('print')
 
     def _check_keyword_parentheses(self, tokens, start):
         """Check that there are not unnecessary parens after a keyword.
