@@ -45,8 +45,8 @@ classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python :: 3',
                'Topic :: Software Development :: Debuggers',
                'Topic :: Software Development :: Quality Assurance',
-               'Topic :: Software Development :: Testing',
-               ]
+               'Topic :: Software Development :: Testing'
+              ]
 
 
 long_desc = """\

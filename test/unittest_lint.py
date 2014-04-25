@@ -381,9 +381,9 @@ class PyLinterTC(TestCase):
 
     def test_init_hooks_called_before_load_plugins(self):
          self.assertRaises(RuntimeError,
-                           Run, ['--load-plugins', 'unexistant', '--init-hooks', 'raise RuntimeError'])
+                           Run, ['--load-plugins', 'unexistant', '--init-hook', 'raise RuntimeError'])
          self.assertRaises(RuntimeError,
-                           Run, ['--init-hooks', 'raise RuntimeError', '--load-plugins', 'unexistant'])
+                           Run, ['--init-hook', 'raise RuntimeError', '--load-plugins', 'unexistant'])
 
 class ConfigTC(TestCase):
 

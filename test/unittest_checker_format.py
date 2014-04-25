@@ -135,7 +135,7 @@ class CheckSpaceTest(CheckerTestCase):
         good_cases = [
             '(a)\n',
             '(a * (b + c))\n',
-            '( #\na)\n',
+            '(#\n    a)\n',
             ]
         with self.assertNoMessages():
             for code in good_cases:

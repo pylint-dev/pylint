@@ -287,7 +287,8 @@ accessed. Python regular expressions are accepted.'}
         else:
             for rnode in returns:
                 if not (isinstance(rnode.value, astroid.Const)
-                        and rnode.value.value is None):
+                        and rnode.value.value is None
+                        or rnode.value is None):
                     break
             else:
                 self.add_message('assignment-from-none', node=node)

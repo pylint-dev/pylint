@@ -2,9 +2,20 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add a new warning [bad-continuation] for badly indentend continued
+      lines.
+
+    * Emit [assignment-from-none] when the function contains bare returns.
+      Fixes BitBucket issue #191.
+
+    * Added a new warning for closing over variables that are
+      defined in loops. Fixes Bitbucket issue #176.
 
     * Extend the checking for unbalanced-tuple-unpacking and
       unpacking-non-sequence to instance attribute unpacking as well.
+
+    * Restore --init-hook, renamed accidentally into --init-hooks in 1.2.0
+      (#211)
 
     * Add 'indexing-exception' warning, which detects that indexing
       an exception occurs in Python 2 (behaviour removed in Python 3).
