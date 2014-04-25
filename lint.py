@@ -907,7 +907,7 @@ group are mutually exclusive.'),
         try:
             preprocess_options(args, {
                     # option: (callback, takearg)
-                    'init-hooks':   (cb_init_hook, True),
+                    'init-hook':   (cb_init_hook, True),
                     'rcfile':       (self.cb_set_rcfile, True),
                     'load-plugins': (self.cb_add_plugins, True),
                     })
