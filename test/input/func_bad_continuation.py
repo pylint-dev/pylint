@@ -3,13 +3,13 @@
 __revision__ = 1
 
 # Various alignment for brackets
-print [
+LIST0 = [
     1, 2, 3
 ]
-print [
+LIST1 = [
     1, 2, 3
     ]
-print [
+LIST2 = [
     1, 2, 3
    ]  # [bad-continuation]
 
