@@ -785,11 +785,14 @@ functions, methods
             if argument is None:
                 # nothing was infered
                 # try to see if we have iter()
-                if (isinstance(node.args[0], astroid.CallFunc) and
-                    node.args[0].func.name == 'iter'):
-                     func = node.args[0].func.infer().next()
-                     if is_builtin_object(func):
-                         self.add_message('bad-reversed-sequence', node=node)
+                if isinstance(node.args[0], astroid.CallFunc):
+                    try:
+                        func = node.args[0].func.infer().next()
+                    except InferenceError:
+                        return
+                    if (getattr(func, 'name', None) == 'iter' and
+                        is_builtin_object(func)):
+                        self.add_message('bad-reversed-sequence', node=node)
                 return
 
             if isinstance(argument, astroid.Instance):
