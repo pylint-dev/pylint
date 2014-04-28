@@ -38,7 +38,7 @@ from pylint.lint import PyLinter
 
 # Utils
 
-SYS_VERS_STR = '%d%d' % sys.version_info[:2]
+SYS_VERS_STR = '%d%d%d' % sys.version_info[:3]
 TITLE_UNDERLINES = ['', '=', '-', '.']
 PREFIX = abspath(dirname(__file__))
 PY3K = sys.version_info[0] == 3
