@@ -39,7 +39,7 @@ from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
 from logilab.common.optik_ext import check_csv
 from logilab.common.modutils import load_module_from_name, get_module_part
 from logilab.common.interface import implements
-from logilab.common.textutils import splitstrip
+from logilab.common.textutils import splitstrip, unquote
 from logilab.common.ureports import Table, Text, Section
 from logilab.common.__pkginfo__ import version as common_version
 
@@ -1009,8 +1009,12 @@ are done by default'''}),
         linter.disable('suppressed-message')
         linter.disable('useless-suppression')
         linter.read_config_file()
-        # is there some additional plugins in the file configuration, in
         config_parser = linter.cfgfile_parser
+        # run init hook, if present, before loading plugins
+        if config_parser.has_option('MASTER', 'init-hook'):
+            cb_init_hook('init-hook',
+                         unquote(config_parser.get('MASTER', 'init-hook')))
+        # is there some additional plugins in the file configuration, in
         if config_parser.has_option('MASTER', 'load-plugins'):
             plugins = splitstrip(config_parser.get('MASTER', 'load-plugins'))
             linter.load_plugin_modules(plugins)
