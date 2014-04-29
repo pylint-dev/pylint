@@ -279,8 +279,9 @@ class PyLinterTC(TestCase):
         self.linter.set_reporter(text.TextReporter())
         self.linter.config.files_output = True
         self.linter.should_analyze_file = lambda *args: False
-        self.linter.check('os')
-        self.assertFalse(os.path.exists('pylint_os.txt'))
+        self.linter.check('logilab')
+        self.assertTrue(os.path.exists('pylint_logilab.txt'))
+        self.assertFalse(os.path.exists('pylint_logilab_common.txt'))
 
     def test_enable_report(self):
         self.assertEqual(self.linter.report_is_enabled('RP0001'), True)
@@ -384,6 +385,14 @@ class PyLinterTC(TestCase):
                            Run, ['--load-plugins', 'unexistant', '--init-hook', 'raise RuntimeError'])
          self.assertRaises(RuntimeError,
                            Run, ['--init-hook', 'raise RuntimeError', '--load-plugins', 'unexistant'])
+
+
+    def test_analyze_explicit_script(self):
+        self.linter.set_reporter(TestReporter())
+        self.linter.check(self.datapath('ascript'))
+        self.assertEqual(
+            ['C:  2: Line too long (175/80)'],
+            self.linter.reporter.messages)
 
 class ConfigTC(TestCase):
 

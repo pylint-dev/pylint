@@ -607,7 +607,7 @@ warning, statement which respectively contain the number of errors / warnings\
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
             modname, filepath = descr['name'], descr['path']
-            if not self.should_analyze_file(modname, filepath):
+            if not descr['isarg'] and not self.should_analyze_file(modname, filepath):
                 continue
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)

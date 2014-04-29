@@ -638,7 +638,7 @@ def expand_modules(files_or_modules, black_list):
                 errors.append({'key': 'fatal', 'mod': modname, 'ex': ex})
                 continue
         filepath = normpath(filepath)
-        result.append({'path': filepath, 'name': modname,
+        result.append({'path': filepath, 'name': modname, 'isarg': True,
                        'basepath': filepath, 'basename': modname})
         if not (modname.endswith('.__init__') or modname == '__init__') \
                 and '__init__.py' in filepath:
@@ -647,6 +647,7 @@ def expand_modules(files_or_modules, black_list):
                     continue
                 submodname = '.'.join(modpath_from_file(subfilepath))
                 result.append({'path': subfilepath, 'name': submodname,
+                               'isarg': False,
                                'basepath': filepath, 'basename': modname})
     return result, errors
 
