@@ -19,7 +19,7 @@ import sys
 
 modname = distname = 'pylint'
 
-numversion = (1, 2, 0)
+numversion = (1, 2, 1)
 version = '.'.join([str(num) for num in numversion])
 
 if sys.version_info < (2, 6):
