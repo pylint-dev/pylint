@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Restore the ability to specify the init-hook option via the
+      configuration file, which was accidentally broken in 1.2.0.
+
     * Add a new warning [bad-continuation] for badly indentend continued
       lines.
 
