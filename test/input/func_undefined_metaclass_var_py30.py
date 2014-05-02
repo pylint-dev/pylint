@@ -20,5 +20,8 @@ class SecondGood(metaclass=Good):
 class ThirdGood(metaclass=ABCMeta):
     """ empty """
 
+class FourthGood(ThirdGood):
+    """ This should not trigger anything. """
+
 data = abc
 testdata = ABCMeta

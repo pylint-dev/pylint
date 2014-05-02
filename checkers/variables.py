@@ -727,6 +727,11 @@ class VariablesChecker3k(VariablesChecker):
 
         for klass in node.nodes_of_class(astroid.Class):
             found = metaclass = name = None
+            if not klass._metaclass:
+                # Skip if this class doesn't use
+                # explictly a metaclass, but inherits it from ancestors
+                continue
+
             metaclass = klass.metaclass()
 
             # Look the name in the already found locals.
