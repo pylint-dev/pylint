@@ -716,6 +716,22 @@ class VariablesChecker3k(VariablesChecker):
         # do not check for not used locals here
         self._to_consume.pop()
 
+    def leave_module(self, node):
+        """ Update consumption analysis variable
+        for metaclasses.
+        """
+        for klass in node.nodes_of_class(astroid.Class):
+            if klass._metaclass:
+                metaclass = klass.metaclass()
+                module_locals = self._to_consume[0][0]
+
+                if isinstance(klass._metaclass, astroid.Name):
+                    module_locals.pop(klass._metaclass.name, None)
+                if metaclass:                
+                    # if it uses a `metaclass=module.Class`                            
+                    module_locals.pop(metaclass.root().name, None)
+        super(VariablesChecker3k, self).leave_module(node)
+
 if sys.version_info >= (3, 0):
     VariablesChecker = VariablesChecker3k
 

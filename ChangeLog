@@ -1,6 +1,9 @@
 ChangeLog for Pylint
 ====================
 
+--
+    * Fix unused-import false positive with Python 3 metaclasses (#143).
+
 2014-04-30  --  1.2.1
     * Restore the ability to specify the init-hook option via the
       configuration file, which was accidentally broken in 1.2.0.
