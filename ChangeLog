@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Emit 'undefined-variable' for undefined names when using the
+      Python 3 `metaclass=` argument.
+
     * Fix unused-import false positive with Python 3 metaclasses (#143).
 
 2014-04-30  --  1.2.1

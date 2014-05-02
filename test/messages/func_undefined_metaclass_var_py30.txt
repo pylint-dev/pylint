@@ -1,0 +1,2 @@
+E:  8:Bad: Undefined variable 'ABCMet'
+E: 11:SecondBad: Undefined variable 'ab.ABCMeta'
