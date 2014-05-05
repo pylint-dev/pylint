@@ -748,11 +748,9 @@ class VariablesChecker3k(VariablesChecker):
                     module_locals.get(name, module_imports.get(name))
                 )
 
-            if found is None:
+            if found is None and not metaclass:
                 name = None
-                if metaclass:
-                    name = metaclass.name
-                elif isinstance(klass._metaclass, astroid.Name):
+                if isinstance(klass._metaclass, astroid.Name):
                     name = klass._metaclass.name
                 elif isinstance(klass._metaclass, astroid.Getattr):
                     name = klass._metaclass.as_string()
