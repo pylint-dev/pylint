@@ -81,3 +81,20 @@ def method_tests():
     demo.decorated_method()
     DemoClass.decorated_method(demo)
 
+# Test a regression (issue #234)
+import sys
+
+# pylint: disable=too-few-public-methods
+class Text(object):
+    """ Regression """
+
+    if sys.version_info > (3,):
+        def __new__(cls):
+            """ empty """
+            return object.__new__(cls)
+    else:
+        def __new__(cls):
+            """ empty """
+            return object.__new__(cls)
+
+Text()

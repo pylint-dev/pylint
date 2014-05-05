@@ -98,7 +98,7 @@ def _determine_callable(callable_obj):
         except astroid.NotFoundError:
             new = None
 
-        if not new or new.parent.name == 'object':
+        if not new or new.parent.scope().name == 'object':
             try:
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr('__init__')[-1]
