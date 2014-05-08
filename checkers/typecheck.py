@@ -139,7 +139,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                   'metavar': '<module names>',
                   'help': 'List of module names for which member attributes \
 should not be checked (useful for modules/projects where namespaces are \
-manipulated during runtime and thus extisting member attributes cannot be \
+manipulated during runtime and thus existing member attributes cannot be \
 deduced by static analysis'},
                  ),
                ('ignored-classes',
