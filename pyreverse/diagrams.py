@@ -89,8 +89,11 @@ class ClassDiagram(Figure, FilterMixIn):
 
     def get_methods(self, node):
         """return visible methods"""
-        return [m for m in sorted(node.values(), key=lambda n: n.name)
-                if isinstance(m, astroid.Function) and self.show_attr(m.name)]
+        methods = [
+            m for m in node.values()
+            if isinstance(m, astroid.Function) and self.show_attr(m.name)
+        ]
+        return sorted(methods, key=lambda n: n.name)
 
     def add_object(self, title, node):
         """create a diagram object
