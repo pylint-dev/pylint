@@ -68,3 +68,12 @@ def do_stuff9():
     """ This is not correct """
     first, second = unpack()
     return first + second
+
+class UnbalancedUnpacking(object):
+    """ Test unbalanced tuple unpacking in instance attributes. """
+    # pylint: disable=attribute-defined-outside-init, invalid-name, too-few-public-methods
+    def test(self):
+        """ unpacking in instance attributes """
+        self.a, self.b = temp()
+        self.a, self.b = temp2()
+        self.a, self.b = unpack()

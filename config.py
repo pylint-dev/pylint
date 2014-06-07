@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -10,12 +10,13 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """utilities for Pylint configuration :
 
 * pylintrc
 * pylint.d (PYLINTHOME)
 """
+from __future__ import with_statement
 
 import pickle
 import os
@@ -49,7 +50,8 @@ def load_results(base):
     """
     data_file = get_pdata_path(base, 1)
     try:
-        return pickle.load(open(data_file))
+        with open(data_file) as stream:
+            return pickle.load(stream)
     except:
         return {}
 
@@ -67,7 +69,8 @@ def save_results(results, base):
             print >> sys.stderr, 'Unable to create directory %s' % PYLINT_HOME
     data_file = get_pdata_path(base, 1)
     try:
-        pickle.dump(results, open(data_file, _PICK_MOD))
+        with open(data_file, _PICK_MOD) as stream:
+            pickle.dump(results, stream)
     except (IOError, OSError), ex:
         print >> sys.stderr, 'Unable to create file %s: %s' % (data_file, ex)
 
@@ -94,6 +97,8 @@ def find_pylintrc():
             pylintrc = ".pylintrc"
         else:
             pylintrc = join(user_home, '.pylintrc')
+            if not isfile(pylintrc):
+                pylintrc = join(user_home, '.config', 'pylintrc')
     if not isfile(pylintrc):
         if isfile('/etc/pylintrc'):
             pylintrc = '/etc/pylintrc'
@@ -106,12 +111,12 @@ PYLINTRC = find_pylintrc()
 ENV_HELP = '''
 The following environment variables are used:                                   
     * PYLINTHOME                                                                
-    path to the directory where data of persistent run will be stored. If not 
-found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
+    Path to the directory where the persistent for the run will be stored. If 
+not found, it defaults to ~/.pylint.d/ or .pylint.d (in the current working 
 directory).                                                                     
     * PYLINTRC                                                                  
-    path to the configuration file. If not found, it will use the first         
-existing file among (~/.pylintrc, /etc/pylintrc).
+    Path to the configuration file. See the documentation for the method used
+to search for configuration file.
 ''' % globals()
 
 # evaluation messages #########################################################

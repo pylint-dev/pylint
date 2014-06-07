@@ -123,7 +123,7 @@ the rc file
 
 For example::
 
-	pylint --disable=W0702,C0103 --class-rgx='[A-Z][a-z]+' --generate-rcfile
+	pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile
 
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ Much probably. Read http://docs.pylint.org/ide-integration
 -----------------------------------------------------------
 
 Yes, this feature has been added in Pylint 0.11. This may be done by
-adding "#pylint: disable=W0123,E4567" at the desired block level
+adding "#pylint: disable=some-message,another-one" at the desired block level
 or at the end of the desired line of code
 
 4.2 Is there a way to disable a message for a particular module only?
@@ -147,8 +147,8 @@ Yes, you can disable or enable (globally disabled) messages at the
 module level by adding the corresponding option in a comment at the
 top of the file: ::
 
-	# pylint: disable=W0401, E0202
-	# pylint: enable=C0302
+	# pylint: disable=wildcard-import, method-hidden
+	# pylint: enable=too-many-lines
 
 4.3 How can I tell Pylint to never check a given module?
 --------------------------------------------------------
@@ -158,9 +158,9 @@ module. Pylint 0.26.1 and up have renamed that directive to
 "#pylint: skip-file" (but the first version will be kept for backward
 compatibility).
 
-In order to ease finding which modules are ignored a Information-level
-message I0013 is emited. With recent versions of Pylint, if you use
-the old syntax, an additional I0014 message is emited.
+In order to ease finding which modules are ignored a Information-level message
+`file-ignored` is emited. With recent versions of Pylint, if you use the old
+syntax, an additional `deprecated-disable-all` message is emited.
 
 4.4 Do I have to remember all these numbers?
 --------------------------------------------
@@ -182,12 +182,15 @@ variable for unused argument ("_" and "dummy" by default).
 4.6 What is the format of the configuration file?
 ---------------------------------------------------
 
-Pylint uses ConfigParser from the standard library to parse the configuration file.
-It means that if you need to disable a lot of messages, you can use tricks like: ::
+Pylint uses ConfigParser from the standard library to parse the configuration
+file.  It means that if you need to disable a lot of messages, you can use
+tricks like: ::
 
-    disable= W0401, # because I do not want it
-     E0202, # I have a good reason, trust me
-     C0302  # that's it
+    # disable wildcard-import, method-hidden and too-many-lines because I do
+    # not want it
+    disable= wildcard-import,
+     method-hidden,
+     too-many-lines
 
 4.7 Why do I get a lot of spurious "unused variables messages" when using psyobj from psyco_?
 ----------------------------------------------------------------------------------------------

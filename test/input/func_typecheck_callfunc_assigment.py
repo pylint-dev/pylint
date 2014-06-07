@@ -28,6 +28,13 @@ def func_return_none():
 A = func_return_none()
 
 
+def func_implicit_return_none():
+    """Function returning None from bare return statement."""
+    return
+
+A = func_implicit_return_none()
+
+
 def func_return_none_and_smth():
     """function returning none and something else"""
     print 'dougloup'

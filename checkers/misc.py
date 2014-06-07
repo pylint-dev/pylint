@@ -10,7 +10,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """ Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
@@ -57,13 +57,13 @@ separated by a comma.'
     def _check_note(self, notes, lineno, line):
         match = notes.search(line)
         if match:
-            self.add_message('W0511', args=line[match.start():-1], line=lineno)
+            self.add_message('fixme', args=line[match.start():-1], line=lineno)
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return unicode(line, file_encoding)
         except UnicodeDecodeError, ex:
-            self.add_message('W0512', line=lineno,
+            self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))
 
     def process_module(self, module):

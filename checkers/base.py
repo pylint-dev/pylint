@@ -13,13 +13,13 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """basic checker for Python code"""
 
 import sys
 import astroid
 from logilab.common.ureports import Table
-from astroid import are_exclusive
+from astroid import are_exclusive, InferenceError
 import astroid.bases
 
 from pylint.interfaces import IAstroidChecker
@@ -33,6 +33,8 @@ from pylint.checkers.utils import (
     is_inside_except,
     overrides_a_method,
     safe_infer,
+    get_argument_from_call,
+    NoSuchArgumentError,
     )
 
 
@@ -47,6 +49,17 @@ DEFAULT_NAME_RGX = re.compile('[a-z_][a-z0-9_]{2,30}$')
 CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
 # do not require a doc string on system methods
 NO_REQUIRED_DOC_RGX = re.compile('__.*__')
+REVERSED_METHODS = (('__getitem__', '__len__'),
+                    ('__reversed__', ))
+
+PY33 = sys.version_info >= (3, 3)
+BAD_FUNCTIONS = ['map', 'filter', 'apply']
+if sys.version_info < (3, 0):
+    BAD_FUNCTIONS.append('input')
+    BAD_FUNCTIONS.append('file')
+
+# Name categories that are always consistent with all naming conventions.
+EXEMPT_NAME_CATEGORIES = set(('exempt', 'ignore'))
 
 del re
 
@@ -79,12 +92,21 @@ def _loop_exits_early(loop):
     # in orelse.
     for child in loop.body:
         if isinstance(child, loop_nodes):
+            # break statement may be in orelse of child loop.
+            for orelse in (child.orelse or ()):
+                for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
+                    return True
             continue
         for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True
     return False
 
-
+if sys.version_info < (3, 0):
+    PROPERTY_CLASSES = set(('__builtin__.property', 'abc.abstractproperty'))
+else:
+    PROPERTY_CLASSES = set(('builtins.property', 'abc.abstractproperty'))
+ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
+                   'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
 
 def _determine_function_name_type(node):
     """Determine the name type whose regex the a function's name should match.
@@ -105,8 +127,7 @@ def _determine_function_name_type(node):
             (isinstance(decorator, astroid.Getattr) and
              decorator.attrname == 'abstractproperty')):
             infered = safe_infer(decorator)
-            if (infered and
-                infered.qname() in ('__builtin__.property', 'abc.abstractproperty')):
+            if infered and infered.qname() in PROPERTY_CLASSES:
                 return 'attr'
         # If the function is decorated using the prop_method.{setter,getter}
         # form, treat it like an attribute as well.
@@ -115,6 +136,25 @@ def _determine_function_name_type(node):
             return 'attr'
     return 'method'
 
+def decorated_with_abc(func):
+    """ Determine if the `func` node is decorated
+    with `abc` decorators (abstractmethod et co.)
+    """
+    if func.decorators:
+        for node in func.decorators.nodes:
+            try:
+                infered = node.infer().next()
+            except InferenceError:
+                continue
+            if infered and infered.qname() in ABC_METHODS:
+                return True
+
+def has_abstract_methods(node):
+    """ Determine if the given `node` has
+    abstract methods, defined with `abc` module.
+    """
+    return any(decorated_with_abc(meth)
+               for meth in node.mymethods())
 
 def report_by_type_stats(sect, stats, old_stats):
     """make a report of
@@ -205,7 +245,8 @@ class BasicErrorChecker(_BasicChecker):
               'return-arg-in-generator',
               'Used when a "return" statement with an argument is found '
               'outside in a generator function or method (e.g. with some '
-              '"yield" statements).'),
+              '"yield" statements).',
+              {'maxversion': (3, 3)}),
     'E0107': ("Use of the non-existent %s operator",
               'nonexistent-operator',
               "Used when you attempt to use the C-style pre-increment or"
@@ -214,6 +255,11 @@ class BasicErrorChecker(_BasicChecker):
               'duplicate-argument-name',
               'Duplicate argument names in function definitions are syntax'
               ' errors.'),
+    'E0110': ('Abstract class with abstract methods instantiated',
+              'abstract-class-instantiated',
+              'Used when an abstract class with `abc.ABCMeta` as metaclass '
+              'has abstract methods and is instantiated.',
+              {'minversion': (3, 0)}),
     'W0120': ('Else clause on loop without a break statement',
               'useless-else-on-loop',
               'Loops should only have an else clause if they can exit early '
@@ -247,15 +293,16 @@ class BasicErrorChecker(_BasicChecker):
                      not (v is None or
                           (isinstance(v, astroid.Const) and v.value is None) or
                           (isinstance(v, astroid.Name)  and v.name == 'None')
-                         ) ]:
+                          )]:
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
-            for retnode in returns:
-                if isinstance(retnode.value, astroid.Const) and \
-                       retnode.value.value is not None:
-                    self.add_message('return-arg-in-generator', node=node,
-                                     line=retnode.fromlineno)
+            if not PY33:
+                for retnode in returns:
+                    if isinstance(retnode.value, astroid.Const) and \
+                           retnode.value.value is not None:
+                        self.add_message('return-arg-in-generator', node=node,
+                                         line=retnode.fromlineno)
         # Check for duplicate names
         args = set()
         for name in node.argnames():
@@ -299,6 +346,34 @@ class BasicErrorChecker(_BasicChecker):
             (node.operand.op == node.op)):
             self.add_message('nonexistent-operator', node=node, args=node.op*2)
 
+    @check_messages('abstract-class-instantiated')
+    def visit_callfunc(self, node):
+        """ Check instantiating abstract class with
+        abc.ABCMeta as metaclass. 
+        """
+        try:
+            infered = node.func.infer().next()
+        except astroid.InferenceError:
+            return
+        if not isinstance(infered, astroid.Class):
+            return
+        # __init__ was called
+        metaclass = infered.metaclass()
+        if metaclass is None:
+            # Python 3.4 has `abc.ABC`, which won't be detected
+            # by ClassNode.metaclass()
+            for ancestor in infered.ancestors():
+                if (ancestor.qname() == 'abc.ABC' and
+                    has_abstract_methods(infered)):
+
+                    self.add_message('abstract-class-instantiated', node=node)
+                    break
+            return
+        if (metaclass.qname() == 'abc.ABCMeta' and
+            has_abstract_methods(infered)):
+
+            self.add_message('abstract-class-instantiated', node=node)
+   
     def _check_else_on_loop(self, node):
         """Check that any loop with an else clause has a break statement."""
         if node.orelse and not _loop_exits_early(node):
@@ -378,6 +453,12 @@ functions, methods
               'exec-used',
               'Used when you use the "exec" statement (function for Python 3), to discourage its \
               usage. That doesn\'t mean you can not use it !'),
+    'W0123': ('Use of eval',
+              'eval-used',
+              'Used when you use the "eval" function, to discourage its '
+              'usage. Consider using `ast.literal_eval` for safely evaluating '
+              'strings containing Python expressions '
+              'from untrusted sources. '),
     'W0141': ('Used builtin function %r',
               'bad-builtin',
               'Used when a black listed builtin function is used (see the '
@@ -409,6 +490,16 @@ functions, methods
     'C0121': ('Missing required attribute "%s"', # W0103
               'missing-module-attribute',
               'Used when an attribute required for modules is missing.'),
+
+    'E0109': ('Missing argument to reversed()',
+              'missing-reversed-argument',
+              'Used when reversed() builtin didn\'t receive an argument.'),
+    'E0111': ('The first reversed() argument is not a sequence',
+              'bad-reversed-sequence',
+              'Used when the first argument to reversed() builtin '
+              'isn\'t a sequence (does not implement __reversed__, '
+              'nor __getitem__ and __len__'),
+
     }
 
     options = (('required-attributes',
@@ -418,13 +509,13 @@ functions, methods
                           'comma'}
                 ),
                ('bad-functions',
-                {'default' : ('map', 'filter', 'apply', 'input'),
+                {'default' : BAD_FUNCTIONS,
                  'type' :'csv', 'metavar' : '<builtin function names>',
                  'help' : 'List of builtins function names that should not be '
                           'used, separated by a comma'}
                 ),
                )
-    reports = ( ('RP0101', 'Statistics by type', report_by_type_stats), )
+    reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
@@ -598,7 +689,9 @@ functions, methods
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @check_messages('bad-builtin', 'star-args', 'exec-used')
+    @check_messages('bad-builtin', 'star-args', 'eval-used', 
+                    'exec-used', 'missing-reversed-argument', 
+                    'bad-reversed-sequence')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -611,6 +704,10 @@ functions, methods
                     name in node.root()):
                 if name == 'exec':
                     self.add_message('exec-used', node=node)
+                elif name == 'reversed':
+                    self._check_reversed(node)
+                elif name == 'eval':
+                    self.add_message('eval-used', node=node)
                 if name in self.config.bad_functions:
                     self.add_message('bad-builtin', node=node, args=name)
         if node.starargs or node.kwargs:
@@ -675,7 +772,86 @@ functions, methods
                 return
             _node = _parent
             _parent = _node.parent
+    
+    def _check_reversed(self, node):
+        """ check that the argument to `reversed` is a sequence """
+        try:
+            argument = safe_infer(get_argument_from_call(node, position=0))
+        except NoSuchArgumentError:
+            self.add_message('missing-reversed-argument', node=node)
+        else:
+            if argument is astroid.YES:
+                return
+            if argument is None:
+                # nothing was infered
+                # try to see if we have iter()
+                if isinstance(node.args[0], astroid.CallFunc):
+                    try:
+                        func = node.args[0].func.infer().next()
+                    except InferenceError:
+                        return
+                    if (getattr(func, 'name', None) == 'iter' and
+                        is_builtin_object(func)):
+                        self.add_message('bad-reversed-sequence', node=node)
+                return
 
+            if isinstance(argument, astroid.Instance):
+                if (argument._proxied.name == 'dict' and 
+                    is_builtin_object(argument._proxied)):
+                     self.add_message('bad-reversed-sequence', node=node)
+                     return
+                elif any(ancestor.name == 'dict' and is_builtin_object(ancestor)
+                       for ancestor in argument._proxied.ancestors()):
+                    # mappings aren't accepted by reversed()
+                    self.add_message('bad-reversed-sequence', node=node)
+                    return
+
+                for methods in REVERSED_METHODS:
+                    for meth in methods:
+                        try:
+                            argument.getattr(meth)
+                        except astroid.NotFoundError:
+                            break
+                    else:
+                        break
+                else:             
+                    # check if it is a .deque. It doesn't seem that
+                    # we can retrieve special methods 
+                    # from C implemented constructs    
+                    if argument._proxied.qname().endswith(".deque"):
+                        return
+                    self.add_message('bad-reversed-sequence', node=node)
+            elif not isinstance(argument, (astroid.List, astroid.Tuple)):
+                # everything else is not a proper sequence for reversed()
+                self.add_message('bad-reversed-sequence', node=node)
+
+_NAME_TYPES = {
+    'module': (MOD_NAME_RGX, 'module'),
+    'const': (CONST_NAME_RGX, 'constant'),
+    'class': (CLASS_NAME_RGX, 'class'),
+    'function': (DEFAULT_NAME_RGX, 'function'),
+    'method': (DEFAULT_NAME_RGX, 'method'),
+    'attr': (DEFAULT_NAME_RGX, 'attribute'),
+    'argument': (DEFAULT_NAME_RGX, 'argument'),
+    'variable': (DEFAULT_NAME_RGX, 'variable'),
+    'class_attribute': (CLASS_ATTRIBUTE_RGX, 'class attribute'),
+    'inlinevar': (COMP_VAR_RGX, 'inline iteration'),
+}
+
+def _create_naming_options():
+    name_options = []
+    for name_type, (rgx, human_readable_name) in _NAME_TYPES.iteritems():
+        name_type = name_type.replace('_', '-')
+        name_options.append((
+            '%s-rgx' % (name_type,), 
+            {'default': rgx, 'type': 'regexp', 'metavar': '<regexp>',
+             'help': 'Regular expression matching correct %s names' % (human_readable_name,)}))
+        name_options.append((
+            '%s-name-hint' % (name_type,), 
+            {'default': rgx.pattern, 'type': 'string', 'metavar': '<string>',
+             'help': 'Naming hint for %s names' % (human_readable_name,)}))
+
+    return tuple(name_options) 
 
 class NameChecker(_BasicChecker):
     msgs = {
@@ -683,73 +859,13 @@ class NameChecker(_BasicChecker):
               'blacklisted-name',
               'Used when the name is listed in the black list (unauthorized \
               names).'),
-    'C0103': ('Invalid %s name "%s"',
+    'C0103': ('Invalid %s name "%s"%s',
               'invalid-name',
               'Used when the name doesn\'t match the regular expression \
               associated to its type (constant, variable, class...).'),
     }
 
-    options = (('module-rgx',
-                {'default' : MOD_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'module names'}
-                ),
-               ('const-rgx',
-                {'default' : CONST_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'module level names'}
-                ),
-               ('class-rgx',
-                {'default' : CLASS_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'class names'}
-                ),
-               ('function-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'function names'}
-                ),
-               ('method-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'method names'}
-                ),
-               ('attr-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'instance attribute names'}
-                ),
-               ('argument-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'argument names'}),
-               ('variable-rgx',
-                {'default' : DEFAULT_NAME_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'variable names'}
-                ),
-               ('class-attribute-rgx',
-                {'default' : CLASS_ATTRIBUTE_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'attribute names in class bodies'}
-                ),
-               ('inlinevar-rgx',
-                {'default' : COMP_VAR_RGX,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Regular expression which should only match correct '
-                          'list comprehension / generator expression variable \
-                          names'}
-                ),
-               # XXX use set
+    options = (# XXX use set
                ('good-names',
                 {'default' : ('i', 'j', 'k', 'ex', 'Run', '_'),
                  'type' :'csv', 'metavar' : '<names>',
@@ -762,7 +878,24 @@ class NameChecker(_BasicChecker):
                  'help' : 'Bad variable names which should always be refused, '
                           'separated by a comma'}
                 ),
-               )
+               ('name-group',
+                {'default' : (),
+                 'type' :'csv', 'metavar' : '<name1:name2>',
+                 'help' : ('Colon-delimited sets of names that determine each'
+                           ' other\'s naming style when the name regexes'
+                           ' allow several styles.')}
+                ),
+               ('include-naming-hint',
+                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'help': 'Include a hint for the correct naming format with invalid-name'}
+                ),
+               ) + _create_naming_options()
+
+
+    def __init__(self, linter):
+        _BasicChecker.__init__(self, linter)
+        self._name_category = {}
+        self._name_group = {}
 
     def open(self):
         self.stats = self.linter.add_stats(badname_module=0,
@@ -773,6 +906,9 @@ class NameChecker(_BasicChecker):
                                            badname_inlinevar=0,
                                            badname_argument=0,
                                            badname_class_attribute=0)
+        for group in self.config.name_group:
+            for name_type in group.split(':'):
+                self._name_group[name_type] = 'group_%s' % (group,)
 
     @check_messages('blacklisted-name', 'invalid-name')
     def visit_module(self, node):
@@ -834,6 +970,14 @@ class NameChecker(_BasicChecker):
             else:
                 self._recursive_check_names(arg.elts, node)
 
+    def _find_name_group(self, node_type):
+        return self._name_group.get(node_type, node_type)
+
+    def _is_multi_naming_match(self, match):
+        return (match is not None and
+                match.lastgroup is not None and
+                match.lastgroup not in EXEMPT_NAME_CATEGORIES)
+
     def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""
         if is_inside_except(node):
@@ -847,13 +991,21 @@ class NameChecker(_BasicChecker):
             self.add_message('blacklisted-name', node=node, args=name)
             return
         regexp = getattr(self.config, node_type + '_rgx')
-        if regexp.match(name) is None:
-            type_label = {'inlinedvar': 'inlined variable',
-                          'const': 'constant',
-                          'attr': 'attribute',
-                          'class_attribute': 'class attribute'
-                          }.get(node_type, node_type)
-            self.add_message('invalid-name', node=node, args=(type_label, name))
+        match = regexp.match(name)
+
+        if self._is_multi_naming_match(match):
+            name_group = self._find_name_group(node_type)
+            if name_group not in self._name_category:
+                self._name_category[name_group] = match.lastgroup
+            elif self._name_category[name_group] != match.lastgroup:
+                match = None
+
+        if match is None:
+            type_label = _NAME_TYPES[node_type][1]
+            hint = ''
+            if self.config.include_naming_hint:
+                hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
+            self.add_message('invalid-name', node=node, args=(type_label, name, hint))
             self.stats['badname_' + node_type] += 1
 
 
@@ -910,15 +1062,17 @@ class DocStringChecker(_BasicChecker):
                        isinstance(ancestor[node.name], astroid.Function):
                         overridden = True
                         break
-                if not overridden:
-                    self._check_docstring(ftype, node)
+                self._check_docstring(ftype, node,
+                                      report_missing=not overridden)
             else:
                 self._check_docstring(ftype, node)
 
-    def _check_docstring(self, node_type, node):
+    def _check_docstring(self, node_type, node, report_missing=True):
         """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
+            if not report_missing:
+                return
             if node.body:
                 lines = node.body[-1].lineno - node.body[0].lineno + 1
             else:

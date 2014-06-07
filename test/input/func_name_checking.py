@@ -21,7 +21,7 @@ def run():
         def __init__(self):
             pass
     bbb = 1
-    return Aaa(bbb)
+    return bbb, Aaa
 
 A = None
 

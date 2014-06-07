@@ -1,8 +1,8 @@
 """Check unpacking non-sequences in assignments. """
 
-# pylint: disable=too-few-public-methods, invalid-name
+# pylint: disable=too-few-public-methods, invalid-name, attribute-defined-outside-init, unused-variable
 
-from sys import exit as nonseq_func
+from os import rename as nonseq_func
 from input.unpacking import nonseq
 
 __revision__ = 0
@@ -66,3 +66,21 @@ a, b = nonseq
 a, b = nonseq()
 a, b = bad_unpacking()
 a, b = nonseq_func
+
+class ClassUnpacking(object):
+    """ Check unpacking as instance attributes. """
+
+    def test(self):
+        """ test unpacking in instance attributes. """
+
+        self.a, self.b = 1, 2
+        self.a, self.b = {1: 2, 2: 3}
+        self.a, self.b = "xy"
+        self.a, c = "xy"
+        c, self.a = good_unpacking()
+        self.a, self.b = Iter()
+
+        self.a, self.b = NonSeq()
+        self.a, self.b = ValueError
+        self.a, self.b = bad_unpacking()
+        self.a, c = nonseq_func

@@ -1,0 +1,17 @@
+E: 35: No value for argument 'first_argument' in constructor call
+E: 36: Too many positional arguments for constructor call
+E: 38: No value for argument 'third_argument' in constructor call
+E: 39: No value for argument 'first_argument' in constructor call
+E: 39: No value for argument 'second_argument' in constructor call
+E: 39: No value for argument 'third_argument' in constructor call
+E: 41: Too many positional arguments for constructor call
+E: 46: No value for argument 'first_argument' in constructor call
+E: 46: Unexpected keyword argument 'bob' in constructor call
+E: 47: Unexpected keyword argument 'coin' in constructor call
+E: 49: Argument 'one' passed by position and keyword in constructor call
+E: 52: No value for argument 'first_argument' in constructor call
+E: 53: Too many positional arguments for constructor call
+E: 59: Too many positional arguments for constructor call
+E: 62: Too many positional arguments for constructor call
+E: 63: No value for argument 'first_argument' in constructor call
+E: 63: Unexpected keyword argument 'one' in constructor call

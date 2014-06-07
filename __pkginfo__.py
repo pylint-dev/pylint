@@ -1,5 +1,5 @@
 # pylint: disable=W0622,C0103
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -13,20 +13,25 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """pylint packaging information"""
+import sys
 
 modname = distname = 'pylint'
 
-numversion = (1, 0, 0)
+numversion = (1, 2, 1)
 version = '.'.join([str(num) for num in numversion])
 
-install_requires = ['logilab-common >= 0.53.0', 'astroid >= 0.24.3']
+if sys.version_info < (2, 6):
+    install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.1',
+                        'StringFormat']
+else:
+    install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.1']
 
 license = 'GPL'
 description = "python code static checker"
 web = 'http://www.pylint.org'
-mailinglist = "mailto://python-projects@lists.logilab.org"
+mailinglist = "mailto://code-quality@python.org"
 author = 'Logilab'
 author_email = 'python-projects@lists.logilab.org'
 
@@ -40,8 +45,8 @@ classifiers = ['Development Status :: 4 - Beta',
                'Programming Language :: Python :: 3',
                'Topic :: Software Development :: Debuggers',
                'Topic :: Software Development :: Quality Assurance',
-               'Topic :: Software Development :: Testing',
-               ]
+               'Topic :: Software Development :: Testing'
+              ]
 
 
 long_desc = """\

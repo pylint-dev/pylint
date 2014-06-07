@@ -2,6 +2,9 @@
 
 __revision__ = ''
 
+def function0():
+    """"""
+
 def function1(value):
     # missing docstring
     print value
@@ -37,6 +40,10 @@ class AAAA(object):
         """ yeah !"""
         pass
 
+    def method3(self):
+        """"""
+        pass
+
     def __init__(self):
         pass
 
@@ -46,6 +53,21 @@ class DDDD(AAAA):
     def __init__(self):
         AAAA.__init__(self)
 
+    def method2(self):
+        """"""
+        pass
+
+    def method3(self):
+        pass
+
+    def method4(self):
+        pass
+
 # pylint: disable=missing-docstring
 def function4():
+    pass
+
+# pylint: disable=empty-docstring
+def function5():
+    """"""
     pass

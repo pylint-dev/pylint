@@ -8,3 +8,5 @@
 ^doc/_build
 ^dist/
 ^pylint.egg-info/
+.tox
+(^|/)\..*\.sw[a-z]$

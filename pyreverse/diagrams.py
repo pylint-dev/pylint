@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2012 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2004-2013 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -12,23 +12,15 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """diagram objects
 """
 
 import astroid
 from pylint.pyreverse.utils import is_interface, FilterMixIn
 
-def set_counter(value):
-    """Figure counter (re)set"""
-    Figure._UID_COUNT = value
-
-class Figure:
+class Figure(object):
     """base class for counter handling"""
-    _UID_COUNT = 0
-    def __init__(self):
-        Figure._UID_COUNT += 1
-        self.fig_id = Figure._UID_COUNT
 
 class Relationship(Figure):
     """a relation ship from an object in the diagram to another
@@ -62,6 +54,11 @@ class ClassDiagram(Figure, FilterMixIn):
         self._nodes = {}
         self.depends = []
 
+    def get_relationships(self, role):
+        # sorted to get predictable (hence testable) results
+        return sorted(self.relationships.get(role, ()),
+                      key=lambda x: (x.from_object.fig_id, x.to_object.fig_id))
+
     def add_relationship(self, from_object, to_object,
                          relation_type, name=None):
         """create a relation ship
@@ -88,12 +85,15 @@ class ClassDiagram(Figure, FilterMixIn):
             if names:
                 node_name = "%s : %s" % (node_name, ", ".join(names))
             attrs.append(node_name)
-        return attrs
+        return sorted(attrs)
 
     def get_methods(self, node):
         """return visible methods"""
-        return [m for m in node.values()
-                if isinstance(m, astroid.Function) and self.show_attr(m.name)]
+        methods = [
+            m for m in node.values()
+            if isinstance(m, astroid.Function) and self.show_attr(m.name)
+        ]
+        return sorted(methods, key=lambda n: n.name)
 
     def add_object(self, title, node):
         """create a diagram object
@@ -175,7 +175,7 @@ class ClassDiagram(Figure, FilterMixIn):
                 for value in values:
                     if value is astroid.YES:
                         continue
-                    if isinstance( value, astroid.Instance):
+                    if isinstance(value, astroid.Instance):
                         value = value._proxied
                     try:
                         ass_obj = self.object_from_node(value)
@@ -221,7 +221,7 @@ class PackageDiagram(ClassDiagram):
         """add dependencies created by from-imports
         """
         mod_name = node.root().name
-        obj = self.module( mod_name )
+        obj = self.module(mod_name)
         if from_module not in obj.node.depends:
             obj.node.depends.append(from_module)
 

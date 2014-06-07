@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """ Copyright (c) 2003-2010 LOGILAB S.A. (Paris, FRANCE).
  http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
@@ -68,11 +68,11 @@ class RawMetricsChecker(BaseTokenChecker):
     # configuration section name
     name = 'metrics'
     # configuration options
-    options = ( )
+    options = ()
     # messages
     msgs = {}
     # reports
-    reports = ( ('RP0701', 'Raw metrics', report_raw_stats), )
+    reports = (('RP0701', 'Raw metrics', report_raw_stats),)
 
     def __init__(self, linter):
         BaseTokenChecker.__init__(self, linter)

@@ -10,9 +10,11 @@ Pylint is meant to be called from the command line. The usage is ::
    pylint [options] module_or_package
 
 You should give Pylint the name of a python package or module. Pylint
-will ``import`` this package or module, so you should pay attention to
-your ``PYTHONPATH``, since it is a common error to analyze an
-installed version of a module instead of the development version.
+``will not import`` this package or module, though uses Python internals
+to locate them and as such is subject to the same rules and configuration.
+You should pay attention to your ``PYTHONPATH``, since it is a common error
+to analyze an installed version of a module instead of the
+development version.
 
 It is also possible to analyze python files, with a few
 restrictions. The thing to keep in mind is that Pylint will try to
@@ -99,9 +101,12 @@ configuration file in the following order and uses the first one it finds:
    basis.  Of course, a directory is judged to be a Python module if it \
    contains an ``__init__.py`` file.
 #. The file named by environment variable ``PYLINTRC``
-#. ``.pylintrc`` in your home directory, unless you have no home directory or \
-   your home directory is ``/root``
-#. ``.pylintrc`` in the current working directory
+#. if you have a home directory which isn't ``/root``:
+
+   #. ``.pylintrc`` in your home directory
+   #. ``.config/pylintrc`` in your home directory
+
+   else, ``.pylintrc`` in the current working directory
 #. ``/etc/pylintrc``
 
 The ``--generate-rcfile`` option will generate a commented configuration file

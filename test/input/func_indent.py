@@ -11,6 +11,7 @@ def tutuu():
 
 def titii():
      """also malindented"""
+     1  # and this.
 
 def tataa(kdict):
     """blank line unindented"""

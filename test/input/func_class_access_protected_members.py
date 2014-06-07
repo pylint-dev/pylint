@@ -26,7 +26,7 @@ class Subclass(MyClass):
     def __init__(self):
         MyClass._protected = 5
 
-INST = MyClass()
+INST = Subclass()
 INST.attr = 1
 print INST.attr
 INST._protected = 2

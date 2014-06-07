@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Emacs and Flymake compatible Pylint.
 
 This script is for integration with emacs and is compatible with flymake mode.
@@ -47,8 +47,15 @@ its output.
 """
 
 import sys, os, re
+import os.path as osp
 from subprocess import Popen, PIPE
 
+def _get_env():
+    '''Extracts the environment PYTHONPATH and appends the current sys.path to
+    those.'''
+    env = dict(os.environ)
+    env['PYTHONPATH'] = os.pathsep.join(sys.path)
+    return env
 
 def lint(filename, options=None):
     """Pylint the given file.
@@ -67,42 +74,33 @@ def lint(filename, options=None):
     the tree)
     """
     # traverse downwards until we are out of a python package
-    fullPath = os.path.abspath(filename)
-    parentPath, childPath = os.path.dirname(fullPath), os.path.basename(fullPath)
+    full_path = osp.abspath(filename)
+    parent_path = osp.dirname(full_path)
+    child_path = osp.basename(full_path)
 
-    while parentPath != "/" and os.path.exists(os.path.join(parentPath, '__init__.py')):
-        childPath = os.path.join(os.path.basename(parentPath), childPath)
-        parentPath = os.path.dirname(parentPath)
+    while parent_path != "/" and osp.exists(osp.join(parent_path, '__init__.py')):
+        child_path = osp.join(osp.basename(parent_path), child_path)
+        parent_path = osp.dirname(parent_path)
 
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
-    lintPath = os.path.join(os.path.dirname(__file__), 'lint.py')
+    from pylint import lint as lint_mod
+    lint_path = lint_mod.__file__
     options = options or ['--disable=C,R,I']
-    cmd = [sys.executable, lintPath] + options + ['--msg-template',
-            '{path}:{line}: [{symbol}, {obj}] {msg}', '-r', 'n', childPath]
-    process = Popen(cmd, stdout=PIPE, cwd=parentPath, universal_newlines=True)
-
-    # The parseable line format is '%(path)s:%(line)s: [%(sigle)s%(obj)s] %(msg)s'
-    # NOTE: This would be cleaner if we added an Emacs reporter to pylint.reporters.text ..
-    regex = re.compile(r"\[(?P<type>[WE])(?P<remainder>.*?)\]")
-
-    def _replacement(mObj):
-        "Alter to include 'Error' or 'Warning'"
-        if mObj.group("type") == "W":
-            replacement = "Warning"
-        else:
-            replacement = "Error"
-        # replace as "Warning (W0511, funcName): Warning Text"
-        return "%s (%s%s):" % (replacement, mObj.group("type"), mObj.group("remainder"))
+    cmd = [sys.executable, lint_path] + options + [
+        '--msg-template', '{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}',
+        '-r', 'n', child_path]
+    process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=_get_env(),
+                    universal_newlines=True)
 
     for line in process.stdout:
         # remove pylintrc warning
         if line.startswith("No config file found"):
             continue
-        line = regex.sub(_replacement, line, 1)
+
         # modify the file name thats output to reverse the path traversal we made
         parts = line.split(":")
-        if parts and parts[0] == childPath:
+        if parts and parts[0] == child_path:
             line = ":".join([filename] + parts[1:])
         print line,
 
@@ -155,7 +153,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
             stderr = sys.stderr
     # Call pylint in a subprocess
     p = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
-              universal_newlines=True)
+              env=_get_env(), universal_newlines=True)
     p.wait()
     # Return standart output and error
     if return_std:
@@ -166,13 +164,12 @@ def Run():
     if len(sys.argv) == 1:
         print "Usage: %s <filename> [options]" % sys.argv[0]
         sys.exit(1)
-    elif not os.path.exists(sys.argv[1]):
+    elif not osp.exists(sys.argv[1]):
         print "%s does not exist" % sys.argv[1]
         sys.exit(1)
     else:
-        sys.exit(lint(sys.argv[1], sys.argv[1:]))
+        sys.exit(lint(sys.argv[1], sys.argv[2:]))
 
 
 if __name__ == '__main__':
     Run()
-

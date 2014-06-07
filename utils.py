@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """some various utilities and helper classes, most of them used in the
 main pylint class
 """
@@ -195,7 +195,7 @@ class MessagesHandlerMixIn(object):
         # version). It contains the 1:1 mapping from symbolic names
         # to message definition objects.
         self._messages = {}
-        # Maps alternative names (numeric IDs, deprecated names) to 
+        # Maps alternative names (numeric IDs, deprecated names) to
         # message definitions. May contain several names for each definition
         # object.
         self._alternative_names = {}
@@ -239,7 +239,6 @@ class MessagesHandlerMixIn(object):
             chkid = msg.msgid[1:3]
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
-                continue
             self._messages[msg.symbol] = msg
             self._alternative_names[msg.msgid] = msg
             for old_id, old_symbol in msg.old_names:
@@ -247,7 +246,7 @@ class MessagesHandlerMixIn(object):
                 self._alternative_names[old_symbol] = msg
             self._msgs_by_category.setdefault(msg.msgid[0], []).append(msg.msgid)
 
-    def disable(self, msgid, scope='package', line=None):
+    def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """don't output message of the given id"""
         assert scope in ('package', 'module')
         # handle disable=all by disabling all categories
@@ -272,16 +271,24 @@ class MessagesHandlerMixIn(object):
         if msgid.lower().startswith('rp'):
             self.disable_report(msgid)
             return
-        # msgid is a symbolic or numeric msgid.
-        msg = self.check_message_id(msgid)
+
+        try:
+            # msgid is a symbolic or numeric msgid.
+            msg = self.check_message_id(msgid)
+        except UnknownMessage:
+            if ignore_unknown:
+                return
+            raise
+
         if scope == 'module':
             assert line > 0
             try:
                 self._module_msgs_state[msg.msgid][line] = False
             except KeyError:
                 self._module_msgs_state[msg.msgid] = {line: False}
-                if msgid != 'I0011':
-                    self.add_message('I0011', line=line, args=msg.msgid)
+                if msg.symbol != 'locally-disabled':
+                    self.add_message('locally-disabled', line=line, 
+                                     args=(msg.symbol, msg.msgid))
 
         else:
             msgs = self._msgs_state
@@ -290,7 +297,7 @@ class MessagesHandlerMixIn(object):
             self.config.disable_msg = [mid for mid, val in msgs.iteritems()
                                        if not val]
 
-    def enable(self, msgid, scope='package', line=None):
+    def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """reenable message of the given id"""
         assert scope in ('package', 'module')
         catid = category_id(msgid)
@@ -309,15 +316,22 @@ class MessagesHandlerMixIn(object):
         if msgid.lower().startswith('rp'):
             self.enable_report(msgid)
             return
-        # msgid is a symbolic or numeric msgid.
-        msg = self.check_message_id(msgid)
+
+        try:
+            # msgid is a symbolic or numeric msgid.
+            msg = self.check_message_id(msgid)
+        except UnknownMessage:
+            if ignore_unknown:
+                return
+            raise
+
         if scope == 'module':
             assert line > 0
             try:
                 self._module_msgs_state[msg.msgid][line] = True
             except KeyError:
                 self._module_msgs_state[msg.msgid] = {line: True}
-                self.add_message('I0012', line=line, args=msg.msgid)
+                self.add_message('locally-enabled', line=line, args=(msg.symbol, msg.msgid))
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = True
@@ -400,6 +414,8 @@ class MessagesHandlerMixIn(object):
         """
         msg_info = self.check_message_id(msg_descr)
         msgid = msg_info.msgid
+        # backward compatibility, message may not have a symbol
+        symbol = msg_info.symbol or msgid
         # Fatal messages and reports are special, the node/scope distinction
         # does not apply to them.
         if msgid[0] not in _SCOPE_EXEMPT:
@@ -427,9 +443,9 @@ class MessagesHandlerMixIn(object):
         self.stats[msg_cat] += 1
         self.stats['by_module'][self.current_name][msg_cat] += 1
         try:
-            self.stats['by_msg'][msg_info.symbol] += 1
+            self.stats['by_msg'][symbol] += 1
         except KeyError:
-            self.stats['by_msg'][msg_info.symbol] = 1
+            self.stats['by_msg'][symbol] = 1
         # expand message ?
         msg = msg_info.msg
         if args:
@@ -499,7 +515,7 @@ class MessagesHandlerMixIn(object):
                 print title
                 print '~' * len(title)
                 for msgid, msg in sorted(msgs.iteritems(),
-                                         key=lambda (k,v): (_MSG_ORDER.index(k[0]), k)):
+                                         key=lambda (k, v): (_MSG_ORDER.index(k[0]), k)):
                     msg = build_message_def(checker, msgid, msg)
                     print msg.format_help(checkerref=False)
                 print
@@ -521,6 +537,8 @@ class MessagesHandlerMixIn(object):
         """output full messages list documentation in ReST format"""
         msgs = sorted(self._messages.itervalues(), key=lambda msg: msg.msgid)
         for msg in msgs:
+            if not msg.may_be_emitted():
+                continue
             print msg.format_help(checkerref=False)
         print
 
@@ -542,7 +560,7 @@ class ReportsHandlerMixIn(object):
         checker is the checker defining the report
         """
         reportid = reportid.upper()
-        self._reports.setdefault(checker, []).append( (reportid, r_title, r_cb) )
+        self._reports.setdefault(checker, []).append((reportid, r_title, r_cb))
 
     def enable_report(self, reportid):
         """disable the report of the given id"""
@@ -612,24 +630,25 @@ def expand_modules(files_or_modules, black_list):
             try:
                 filepath = file_from_modpath(modname.split('.'))
                 if filepath is None:
-                    errors.append( {'key' : 'F0003', 'mod': modname} )
+                    errors.append({'key' : 'ignored-builtin-module', 'mod': modname})
                     continue
             except (ImportError, SyntaxError), ex:
                 # FIXME p3k : the SyntaxError is a Python bug and should be
                 # removed as soon as possible http://bugs.python.org/issue10588
-                errors.append( {'key': 'F0001', 'mod': modname, 'ex': ex} )
+                errors.append({'key': 'fatal', 'mod': modname, 'ex': ex})
                 continue
         filepath = normpath(filepath)
-        result.append( {'path': filepath, 'name': modname,
-                        'basepath': filepath, 'basename': modname} )
+        result.append({'path': filepath, 'name': modname, 'isarg': True,
+                       'basepath': filepath, 'basename': modname})
         if not (modname.endswith('.__init__') or modname == '__init__') \
                 and '__init__.py' in filepath:
             for subfilepath in get_module_files(dirname(filepath), black_list):
                 if filepath == subfilepath:
                     continue
                 submodname = '.'.join(modpath_from_file(subfilepath))
-                result.append( {'path': subfilepath, 'name': submodname,
-                                'basepath': filepath, 'basename': modname} )
+                result.append({'path': subfilepath, 'name': submodname,
+                               'isarg': False,
+                               'basepath': filepath, 'basename': modname})
     return result, errors
 
 
@@ -645,7 +664,6 @@ class PyLintASTWalker(object):
     def _is_method_enabled(self, method):
         if not hasattr(method, 'checks_msgs'):
             return True
-
         for msg_desc in method.checks_msgs:
             if self.linter.is_message_enabled(msg_desc):
                 return True
