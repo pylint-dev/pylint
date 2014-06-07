@@ -29,9 +29,8 @@ from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
-_PY3K = sys.version_info >= (3, 0)
-_PY26 = sys.version_info == (2, 7)
-_GT_PY25 = sys.version_info > (2, 5)
+_PY3K = sys.version_info[:2] >= (3, 0)
+_PY27 = sys.version_info[:2] == (2, 7)
 
 MSGS = {
     'E1300': ("Unsupported format character %r (%#02x) at index %d",
@@ -280,57 +279,57 @@ class StringMethodsChecker(BaseChecker):
                      self.add_message('bad-str-strip-call', node=node,
                                       args=(func.bound.name, func.name))
              elif func.name == 'format':
-                 if _GT_PY25: 
-                     self._parse_format(node, func)
+                 if _PY27 or _PY3K:
+                     self._check_new_format(node, func)
 
-    def _parse_format(self, node, func):
+    def _check_new_format(self, node, func):
+        """ Check the new string formatting. """
         try:
             strnode = func.bound.infer().next()
         except astroid.InferenceError:
             return
-
         try:
             positional, named = get_args(node)
         except astroid.InferenceError:
             return
-
         try:
-            required_keys, required_num_args = \
-                     parse_format_method_string(strnode.value)
+            specifiers, num_args = parse_format_method_string(strnode.value)
         except utils.IncompleteFormatString:
             self.add_message('bad-format-string', node=node)
             return
 
-        manual_keys = set([key for key in required_keys
-                           if key.isdigit()])
-        if manual_keys and required_num_args:
+        manual_keys = {key[0] for key in specifiers
+                       if isinstance(key[0], int)}
+        named_keys = {key[0] for key in specifiers
+                      if isinstance(key[0], str)}
+        if manual_keys and num_args:
             self.add_message('format-combined-specifiers',
                              node=node)
             return
 
-        if _PY26 and required_num_args:
-            self.add_message('no-automatic-field-numbering',
-                             node=node)
-
-        if required_keys:
-            for key in required_keys:
-                if key not in named and not key.isdigit():
-                    self.add_message('missing-format-argument-key', 
+        if named_keys:
+            for key in named_keys:
+                if key not in named:
+                    self.add_message('missing-format-argument-key',
                                      node=node,
                                      args=(key, ))
             for key in named:
-                if key not in required_keys:
+                if key not in named_keys:
                     self.add_message('unused-format-string-argument',
                                      node=node,
-                                     args=(key, ))                 
+                                     args=(key, ))
         else:
-            if positional > required_num_args:
-                self.add_message('too-many-format-args', node=node)
-            elif positional < required_num_args:
-                self.add_message('too-few-format-args', node=node)  
-   
+            if positional > num_args:
+                # We can have two possibilities:
+                # * "{0} {1}".format(a, b)
+                # * "{} {} {}".format(a, b, c, d)
+                # We can check the manual keys for the first one.
+                if len(manual_keys) != positional:
+                    self.add_message('too-many-format-args', node=node)
+            elif positional < num_args:
+                self.add_message('too-few-format-args', node=node)
         if manual_keys and positional < len(manual_keys):
-            self.add_message('too-few-format-args', node=node)       
+            self.add_message('too-few-format-args', node=node)
 
 class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
@@ -424,10 +423,10 @@ class StringConstantChecker(BaseTokenChecker):
                 elif (_PY3K or self._unicode_literals) and 'b' not in prefix:
                     pass  # unicode by default
                 else:
-                    self.add_message('anomalous-unicode-escape-in-string', 
+                    self.add_message('anomalous-unicode-escape-in-string',
                                      line=start_row, args=(match, ))
             elif next_char not in self.ESCAPE_CHARACTERS:
-                self.add_message('anomalous-backslash-in-string', 
+                self.add_message('anomalous-backslash-in-string',
                                  line=start_row, args=(match, ))
             # Whether it was a valid escape or not, backslash followed by
             # another character can always be consumed whole: the second
