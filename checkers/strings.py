@@ -117,8 +117,18 @@ if _PY3K:
     def split_format_field_names(format_string):
         return _string.formatter_field_name_split(format_string)
 else:
+    def _field_iterator_convertor(iterator):
+        for is_attr, key in iterator:
+            if not isinstance(key, str):
+                yield is_attr, int(key)
+            else:
+                yield is_attr, key
+ 
     def split_format_field_names(format_string):
-        return format_string._formatter_field_name_split()
+        keyname, fielditerator = format_string._formatter_field_name_split()
+        # it will return longs, instead of ints, which will complicate
+        # the output
+        return keyname, _field_iterator_convertor(fielditerator)        
 
 def parse_format_method_string(format_string):
     """
