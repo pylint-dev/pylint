@@ -75,30 +75,30 @@ MSGS = {
               "Used when a format string that uses unnamed conversion \
               specifiers is given too few arguments"),
 
-    'E1307': ("Invalid Python 3 format string",
+    'W1302': ("Invalid Python 3 format string",
               "bad-format-string",
               "Used when a Python 3 format string is invalid"),
-    'E1308': ("Missing keyword argument %r for format string",
+    'W1303': ("Missing keyword argument %r for format string",
               "missing-format-argument-key",
               "Used when a Python 3 format string that uses named fields \
                doesn't receive one or more required keywords."),
-    'W1302': ("Unused format argument %r",
+    'W1304': ("Unused format argument %r",
               "unused-format-string-argument",
               "Used when a Python 3 format string that uses named \
                fields is used with an argument that \
                is not required by the format string."),
-    'W1303': ("Format string contains both automatic field numbering "
+    'W1305': ("Format string contains both automatic field numbering "
               "and manual field specification",
               "format-combined-specification",
               "Usen when a format string contains both automatic \
                field numbering (e.g. '{}') and manual field \
                specification (e.g. '{0}')"),
-    'W1304': ("Missing format attribute %r in format specifier %r",
+    'W1306': ("Missing format attribute %r in format specifier %r",
               "missing-format-attribute",
               "Used when a format string uses an attribute specifier "
               "({0.length}), but the argument passed for formatting "
               "doesn't have that attribute."),
-    'W1305': ("Using invalid lookup key %r in format specifier %r",
+    'W1307': ("Using invalid lookup key %r in format specifier %r",
               "invalid-format-index",
               "Used when a format string uses a lookup specifier "
               "({a[1]}), but the argument passed for formatting "
