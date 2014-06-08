@@ -21,6 +21,7 @@
 import sys
 import tokenize
 import string
+from collections import deque
 
 import astroid
 
@@ -81,28 +82,29 @@ MSGS = {
               "Used when a Python 3 format string is invalid"),
     'E1308': ("Missing keyword argument %r for format string",
               "missing-format-argument-key",
-              "Used when a Python 3 format string that uses named specifiers \
+              "Used when a Python 3 format string that uses named fields \
                doesn't receive one or more required keywords."),
     'W1302': ("Unused format argument %r",
               "unused-format-string-argument",
               "Used when a Python 3 format string that uses named \
-               conversion specifiers is used with an argument that \
+               fields is used with an argument that \
                is not required by the format string."),
-
     'W1303': ("Format string contains both automatic field numbering "
-              "and manual field specifiers",
-              "format-combined-specifiers",
+              "and manual field specification",
+              "format-combined-specification",
               "Usen when a format string contains both automatic \
                field numbering (e.g. '{}') and manual field \
                specification (e.g. '{0}')"),
-    'W1304': ("Can't use automatic field numbering for this version",
-              "no-automatic-field-numbering",
-              "Usen for Python versions lower than 2.7 when a "
-              "format string is used with automatic field numbering " 
-              "(e.g. '{}'). Only manual field numbering (e.g. '{0}') "
-              "or named fields (e.g. '{a}') can work.",
-              {'maxversion': (2, 6)}),
-                            
+    'W1304': ("Missing format attribute %r in format specifier %r",
+              "missing-format-attribute",
+              "Used when a format string uses an attribute specifier "
+              "({0.length}), but the argument passed for formatting "
+              "doesn't have that attribute."),
+    'W1305': ("Using invalid lookup key %r in format specifier %r",
+              "invalid-format-index",
+              "Used when a format string uses a lookup specifier "
+              "({a[1]}), but the argument passed for formatting "
+              "doesn't contain that key.")
     }
 
 OTHER_NODES = (astroid.Const, astroid.List, astroid.Backquote,
@@ -139,6 +141,10 @@ def parse_format_method_string(format_string):
             name = result[1]
             if name:
                 keyname, fielditerator = split_format_field_names(name)
+                if not isinstance(keyname, str):
+                    # In Python 2 it will return long which will lead
+                    # to different output between 2 and 3
+                    keyname = int(keyname)
                 keys.append((keyname, list(fielditerator)))
             else:
                 num_args += 1
@@ -163,6 +169,22 @@ def get_args(callfunc):
         else:
             positional += 1
     return positional, named
+
+def get_access_path(key, parts):
+    """ Given a list of format specifiers, returns
+    the final access path (e.g. a.b.c[0][1])
+    """
+    parts = parts[:]
+    parts.reverse()
+    path = []
+    while parts:
+        is_attribute, specifier = parts.pop()
+        if is_attribute:
+           path.append(".{}".format(specifier))
+        else:
+           path.append("[{!r}]".format(specifier))
+    return key + "".join(path)    
+    
 
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
@@ -293,44 +315,124 @@ class StringMethodsChecker(BaseChecker):
         except astroid.InferenceError:
             return
         try:
-            specifiers, num_args = parse_format_method_string(strnode.value)
+            fields, num_args = parse_format_method_string(strnode.value)
         except utils.IncompleteFormatString:
             self.add_message('bad-format-string', node=node)
             return
 
-        manual_keys = {key[0] for key in specifiers
-                       if isinstance(key[0], int)}
-        named_keys = {key[0] for key in specifiers
-                      if isinstance(key[0], str)}
-        if manual_keys and num_args:
-            self.add_message('format-combined-specifiers',
+        manual_fields = {field[0] for field in fields
+                         if isinstance(field[0], int)}
+        named_fields = {field[0] for field in fields
+                        if isinstance(field[0], str)}
+        if manual_fields and num_args:
+            self.add_message('format-combined-specification',
                              node=node)
             return
 
-        if named_keys:
-            for key in named_keys:
-                if key not in named:
-                    self.add_message('missing-format-argument-key',
+        if named_fields:
+            for field in named_fields:
+                if field not in named and field:
+                    self.add_message('missing-format-argument-key', 
                                      node=node,
-                                     args=(key, ))
-            for key in named:
-                if key not in named_keys:
+                                     args=(field, ))
+            for field in named:
+                if field not in named_fields:
                     self.add_message('unused-format-string-argument',
                                      node=node,
-                                     args=(key, ))
+                                     args=(field, ))                 
         else:
             if positional > num_args:
                 # We can have two possibilities:
                 # * "{0} {1}".format(a, b)
                 # * "{} {} {}".format(a, b, c, d)
                 # We can check the manual keys for the first one.
-                if len(manual_keys) != positional:
+                if len(manual_fields) != positional:
                     self.add_message('too-many-format-args', node=node)
             elif positional < num_args:
-                self.add_message('too-few-format-args', node=node)
-        if manual_keys and positional < len(manual_keys):
-            self.add_message('too-few-format-args', node=node)
+                self.add_message('too-few-format-args', node=node)  
+   
+        if manual_fields and positional < len(manual_fields):
+            self.add_message('too-few-format-args', node=node)       
 
+        self._check_new_format_specifiers(node, fields, named)
+
+    def _check_new_format_specifiers(self, node, fields, named):    
+        """
+        Check attribute and index access in the format
+        string ("{0.a}" and "{0[a]}").
+        """
+        for key, specifiers in fields:
+            # Obtain the argument. If it can't be obtained
+            # or infered, skip this check.
+            if isinstance(key, int):
+                try:
+                    argument = utils.get_argument_from_call(node, key)
+                except utils.NoSuchArgumentError:
+                    break
+            else:
+                if key not in named:
+                    break
+                argument = named[key]
+            try:
+                argument = next(argument.infer())
+            except astroid.InferenceError:
+                break
+            if not specifiers:
+                # No need to check this key if it doesn't
+                # use attribute / item access
+                continue
+            previous = argument
+            specifiers = deque(specifiers[:])
+            parsed = []
+            
+            while specifiers:
+                is_attribute, specifier = specifiers.popleft()
+                parsed.append((is_attribute, specifier))
+                if is_attribute:
+                    try:
+                        previous = previous.getattr(specifier)[0]
+                    except astroid.NotFoundError:
+                        if (hasattr(previous, 'has_dynamic_getattr') and
+                            previous.has_dynamic_getattr()):
+                            # Can't process further
+                            break
+                        path = get_access_path(key, parsed)
+                        self.add_message('missing-format-attribute',
+                                         args=(specifier, path),
+                                         node=node)
+                        break
+                else:
+                    warn_error = False
+                    if hasattr(previous, 'getitem'):
+                        try:
+                            previous = previous.getitem(specifier)
+                        except (IndexError, TypeError):
+                            warn_error = True
+                    else:
+                        try:
+                            # Lookup __getitem__ in the current node,
+                            # but skip further checks, because we can't
+                            # retrieve the looked object 
+                            previous.getattr('__getitem__')
+                            break
+                        except NotFoundError:
+                            warn_error = True
+                    if warn_error:
+                        path = get_access_path(key, parsed)
+                        self.add_message('invalid-format-index',
+                                         args=(specifier, path),
+                                         node=node)
+                        break
+
+                try:
+                    previous = next(previous.infer())
+                except astroid.InferenceError:
+                    # can't check further if we can't infer it
+                    break
+                if previous is astroid.YES:
+                    break
+            
+        
 class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
     __implements__ = (ITokenChecker, IRawChecker)
