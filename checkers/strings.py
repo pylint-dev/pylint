@@ -44,10 +44,8 @@ MSGS = {
               conversion specifier."),
     'E1302': ("Mixing named and unnamed conversion specifiers in format string",
               "mixed-format-string",
-              "Used when a format string contains both named (e.g. '%(foo)d' \
-              or '{foo}' for Python 3 format string) \
-              and unnamed (e.g. '%d' or '{}' for Python 3 format string) \
-              conversion specifiers.  This is also \
+              "Used when a format string contains both named (e.g. '%(foo)d') \
+              and unnamed (e.g. '%d') conversion specifiers.  This is also \
               used when a named conversion specifier contains * for the \
               minimum field width and/or precision."),
     'E1303': ("Expected mapping for format string, not %s",
@@ -123,26 +121,24 @@ else:
                 yield is_attr, int(key)
             else:
                 yield is_attr, key
- 
+
     def split_format_field_names(format_string):
         keyname, fielditerator = format_string._formatter_field_name_split()
         # it will return longs, instead of ints, which will complicate
         # the output
-        return keyname, _field_iterator_convertor(fielditerator)        
+        return keyname, _field_iterator_convertor(fielditerator)
 
 def parse_format_method_string(format_string):
     """
-    Parses a Python 3 format string, returning a tuple of 
-    (keys, num_args), 
-    where keys is the set of mapping keys in the format string, num_args 
-    is the number of arguments required by the format string and accessors
-    is a dictionary of attribute accessors like '{a.field}' or element 
-    accessor, like '{0[2]}'. 
+    Parses a Python 3 format string, returning a tuple of
+    (keys, num_args),
+    where keys is the set of mapping keys in the format string and num_args
+    is the number of arguments required by the format string.
     """
     keys = []
     num_args = 0
     formatter = string.Formatter()
-    parseiterator = formatter.parse(format_string)    
+    parseiterator = formatter.parse(format_string)
     try:
         for result in parseiterator:
             if all(item is None for item in result[1:]):
@@ -172,7 +168,7 @@ def get_args(callfunc):
     """
     positional = 0
     named = {}
- 
+
     for arg in callfunc.args:
         if isinstance(arg, astroid.Keyword):
             named[arg.arg] = utils.safe_infer(arg.value)
@@ -184,17 +180,16 @@ def get_access_path(key, parts):
     """ Given a list of format specifiers, returns
     the final access path (e.g. a.b.c[0][1])
     """
-    parts = parts[:]
-    parts.reverse()
+    parts = deque(parts[:])
     path = []
     while parts:
-        is_attribute, specifier = parts.pop()
+        is_attribute, specifier = parts.popleft()
         if is_attribute:
-           path.append(".{}".format(specifier))
+            path.append(".{}".format(specifier))
         else:
-           path.append("[{!r}]".format(specifier))
-    return key + "".join(path)    
-    
+            path.append("[{!r}]".format(specifier))
+    return key + "".join(path)
+
 
 class StringFormatChecker(BaseChecker):
     """Checks string formatting operations to ensure that the format string
@@ -303,16 +298,16 @@ class StringMethodsChecker(BaseChecker):
             and isinstance(func.bound, astroid.Instance)
             and func.bound.name in ('str', 'unicode', 'bytes')):
 
-             if func.name in ('strip', 'lstrip', 'rstrip') and node.args:
-                 arg = utils.safe_infer(node.args[0])
-                 if not isinstance(arg, astroid.Const):
-                     return
-                 if len(arg.value) != len(set(arg.value)):
-                     self.add_message('bad-str-strip-call', node=node,
-                                      args=(func.bound.name, func.name))
-             elif func.name == 'format':
-                 if _PY27 or _PY3K:
-                     self._check_new_format(node, func)
+            if func.name in ('strip', 'lstrip', 'rstrip') and node.args:
+                arg = utils.safe_infer(node.args[0])
+                if not isinstance(arg, astroid.Const):
+                    return
+                if len(arg.value) != len(set(arg.value)):
+                    self.add_message('bad-str-strip-call', node=node,
+                                     args=(func.bound.name, func.name))
+            elif func.name == 'format':
+                if _PY27 or _PY3K:
+                    self._check_new_format(node, func)
 
     def _check_new_format(self, node, func):
         """ Check the new string formatting. """
@@ -342,14 +337,14 @@ class StringMethodsChecker(BaseChecker):
         if named_fields:
             for field in named_fields:
                 if field not in named and field:
-                    self.add_message('missing-format-argument-key', 
+                    self.add_message('missing-format-argument-key',
                                      node=node,
                                      args=(field, ))
             for field in named:
                 if field not in named_fields:
                     self.add_message('unused-format-string-argument',
                                      node=node,
-                                     args=(field, ))                 
+                                     args=(field, ))
         else:
             if positional > num_args:
                 # We can have two possibilities:
@@ -359,14 +354,14 @@ class StringMethodsChecker(BaseChecker):
                 if len(manual_fields) != positional:
                     self.add_message('too-many-format-args', node=node)
             elif positional < num_args:
-                self.add_message('too-few-format-args', node=node)  
-   
+                self.add_message('too-few-format-args', node=node)
+
         if manual_fields and positional < len(manual_fields):
-            self.add_message('too-few-format-args', node=node)       
+            self.add_message('too-few-format-args', node=node)
 
         self._check_new_format_specifiers(node, fields, named)
 
-    def _check_new_format_specifiers(self, node, fields, named):    
+    def _check_new_format_specifiers(self, node, fields, named):
         """
         Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
@@ -378,15 +373,15 @@ class StringMethodsChecker(BaseChecker):
                 try:
                     argument = utils.get_argument_from_call(node, key)
                 except utils.NoSuchArgumentError:
-                    break
+                    continue
             else:
                 if key not in named:
-                    break
+                    continue
                 argument = named[key]
             try:
                 argument = next(argument.infer())
             except astroid.InferenceError:
-                break
+                continue
             if not specifiers:
                 # No need to check this key if it doesn't
                 # use attribute / item access
@@ -394,7 +389,7 @@ class StringMethodsChecker(BaseChecker):
             previous = argument
             specifiers = deque(specifiers[:])
             parsed = []
-            
+
             while specifiers:
                 is_attribute, specifier = specifiers.popleft()
                 parsed.append((is_attribute, specifier))
@@ -404,7 +399,7 @@ class StringMethodsChecker(BaseChecker):
                     except astroid.NotFoundError:
                         if (hasattr(previous, 'has_dynamic_getattr') and
                             previous.has_dynamic_getattr()):
-                            # Can't process further
+                            # Don't warn if the object has a custom __getattr__
                             break
                         path = get_access_path(key, parsed)
                         self.add_message('missing-format-attribute',
@@ -422,10 +417,10 @@ class StringMethodsChecker(BaseChecker):
                         try:
                             # Lookup __getitem__ in the current node,
                             # but skip further checks, because we can't
-                            # retrieve the looked object 
+                            # retrieve the looked object
                             previous.getattr('__getitem__')
                             break
-                        except NotFoundError:
+                        except astroid.NotFoundError:
                             warn_error = True
                     if warn_error:
                         path = get_access_path(key, parsed)
@@ -441,8 +436,8 @@ class StringMethodsChecker(BaseChecker):
                     break
                 if previous is astroid.YES:
                     break
-            
-        
+
+
 class StringConstantChecker(BaseTokenChecker):
     """Check string literals"""
     __implements__ = (ITokenChecker, IRawChecker)
