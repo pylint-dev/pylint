@@ -59,3 +59,4 @@ def pprint():
     print "{0.missing.length}".format(ReturnYes())
     print "{1.missing.length}".format(ReturnYes())
     print "{b[0]}".format(a=23)
+    print "{a[0]}".format(a=object)
