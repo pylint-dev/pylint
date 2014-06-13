@@ -378,6 +378,8 @@ class StringMethodsChecker(BaseChecker):
                 if key not in named:
                     continue
                 argument = named[key]
+            if argument is astroid.YES:
+                continue
             try:
                 argument = next(argument.infer())
             except astroid.InferenceError:

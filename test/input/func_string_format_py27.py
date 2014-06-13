@@ -1,6 +1,6 @@
 """test for Python 3 string formatting error
 """
-# pylint: disable=too-few-public-methods, import-error
+# pylint: disable=too-few-public-methods, import-error, unused-argument
 from missing import Missing
 
 __revision__ = 1
@@ -23,6 +23,10 @@ class Getitem(object):
 class ReturnYes(object):
     """ can't be properly infered """
     missing = Missing()
+
+def log(message, message_type="error"):
+    """ Test """
+    return message
 
 def pprint():
     """Test string format """
@@ -60,3 +64,5 @@ def pprint():
     print "{1.missing.length}".format(ReturnYes())
     print "{b[0]}".format(a=23)
     print "{a[0]}".format(a=object)
+    print "{a}".format(a=Missing())
+    print log("{}".format(2, "info"))

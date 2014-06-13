@@ -1,22 +1,23 @@
-E: 29:pprint: Too many arguments for format string
-E: 37:pprint: Not enough arguments for format string
-E: 38:pprint: Too many arguments for format string
-E: 40:pprint: Not enough arguments for format string
-W: 30:pprint: Invalid Python 3 format string
-W: 31:pprint: Invalid Python 3 format string
-W: 32:pprint: Format string contains both automatic field numbering and manual field specification
-W: 34:pprint: Missing keyword argument 'a' for format string
-W: 35:pprint: Missing keyword argument 'b' for format string
-W: 35:pprint: Unused format argument 'c'
-W: 36:pprint: Missing keyword argument 'a' for format string
-W: 39:pprint: Missing keyword argument 'a' for format string
+E: 33:pprint: Too many arguments for format string
+E: 41:pprint: Not enough arguments for format string
+E: 42:pprint: Too many arguments for format string
+E: 44:pprint: Not enough arguments for format string
+E: 68:pprint: Too many arguments for format string
+W: 34:pprint: Invalid Python 3 format string
+W: 35:pprint: Invalid Python 3 format string
+W: 36:pprint: Format string contains both automatic field numbering and manual field specification
+W: 38:pprint: Missing keyword argument 'a' for format string
 W: 39:pprint: Missing keyword argument 'b' for format string
-W: 39:pprint: Missing keyword argument 'c' for format string
-W: 41:pprint: Missing keyword argument 'a' for format string
-W: 41:pprint: Missing keyword argument 'b' for format string
-W: 48:pprint: Missing format attribute 'length' in format specifier 'a.ids.__len__.length'
-W: 56:pprint: Using invalid lookup key 400 in format specifier 'a.ids[3][400]'
-W: 57:pprint: Using invalid lookup key "'string'" in format specifier 'a.ids[3]["\'string\'"]'
-W: 61:pprint: Missing keyword argument 'b' for format string
-W: 61:pprint: Unused format argument 'a'
-W: 62:pprint: Using invalid lookup key 0 in format specifier 'a[0]'
+W: 39:pprint: Unused format argument 'c'
+W: 40:pprint: Missing keyword argument 'a' for format string
+W: 43:pprint: Missing keyword argument 'a' for format string
+W: 43:pprint: Missing keyword argument 'b' for format string
+W: 43:pprint: Missing keyword argument 'c' for format string
+W: 45:pprint: Missing keyword argument 'a' for format string
+W: 45:pprint: Missing keyword argument 'b' for format string
+W: 52:pprint: Missing format attribute 'length' in format specifier 'a.ids.__len__.length'
+W: 60:pprint: Using invalid lookup key 400 in format specifier 'a.ids[3][400]'
+W: 61:pprint: Using invalid lookup key "'string'" in format specifier 'a.ids[3]["\'string\'"]'
+W: 65:pprint: Missing keyword argument 'b' for format string
+W: 65:pprint: Unused format argument 'a'
+W: 66:pprint: Using invalid lookup key 0 in format specifier 'a[0]'
