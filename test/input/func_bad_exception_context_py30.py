@@ -1,8 +1,8 @@
 """Check that raise ... from .. uses a proper exception context """
 
-# pylint: disable=unreachable
+# pylint: disable=unreachable, import-error
 
-import socket
+import socket, unknown
 
 __revision__ = 0
 
@@ -21,3 +21,4 @@ def test():
     raise IndexError() from ZeroDivisionError
     raise IndexError() from ZeroDivisionError()
     raise IndexError() from object()
+    raise IndexError() from unknown
