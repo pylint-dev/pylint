@@ -393,6 +393,8 @@ class StringMethodsChecker(BaseChecker):
             parsed = []
 
             while specifiers:
+                if previous is astroid.YES:
+                    break
                 is_attribute, specifier = specifiers.popleft()
                 parsed.append((is_attribute, specifier))
                 if is_attribute:
@@ -436,8 +438,7 @@ class StringMethodsChecker(BaseChecker):
                 except astroid.InferenceError:
                     # can't check further if we can't infer it
                     break
-                if previous is astroid.YES:
-                    break
+
 
 
 class StringConstantChecker(BaseTokenChecker):
