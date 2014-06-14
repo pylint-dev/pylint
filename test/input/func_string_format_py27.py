@@ -1,6 +1,7 @@
 """test for Python 3 string formatting error
 """
 # pylint: disable=too-few-public-methods, import-error, unused-argument
+import os
 from missing import Missing
 
 __revision__ = 1
@@ -66,3 +67,4 @@ def pprint():
     print "{a[0]}".format(a=object)
     print "{a}".format(a=Missing())
     print log("{}".format(2, "info"))
+    print "{pid}".format(pid=os.getpid())
