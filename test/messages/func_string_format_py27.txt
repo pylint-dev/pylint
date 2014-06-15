@@ -21,3 +21,4 @@ W: 62:pprint: Using invalid lookup key "'string'" in format specifier 'a.ids[3][
 W: 66:pprint: Missing keyword argument 'b' for format string
 W: 66:pprint: Unused format argument 'a'
 W: 67:pprint: Using invalid lookup key 0 in format specifier 'a[0]'
+W: 71:pprint: Missing format attribute 'missing' in format specifier '0.missing'

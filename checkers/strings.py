@@ -188,7 +188,7 @@ def get_access_path(key, parts):
             path.append(".{}".format(specifier))
         else:
             path.append("[{!r}]".format(specifier))
-    return key + "".join(path)
+    return str(key) + "".join(path)
 
 
 class StringFormatChecker(BaseChecker):
