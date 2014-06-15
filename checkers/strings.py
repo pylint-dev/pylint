@@ -319,6 +319,8 @@ class StringMethodsChecker(BaseChecker):
             positional, named = get_args(node)
         except astroid.InferenceError:
             return
+        if not isinstance(strnode, astroid.Const):
+            return
         try:
             fields, num_args = parse_format_method_string(strnode.value)
         except utils.IncompleteFormatString:

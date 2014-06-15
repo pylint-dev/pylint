@@ -69,3 +69,4 @@ def pprint():
     print log("{}".format(2, "info"))
     print "{pid}".format(pid=os.getpid())
     print "{0.missing}".format(2)
+    print str("{}").format(2)
