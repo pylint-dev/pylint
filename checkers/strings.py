@@ -315,6 +315,10 @@ class StringMethodsChecker(BaseChecker):
             strnode = func.bound.infer().next()
         except astroid.InferenceError:
             return
+        if node.starargs or node.kwargs:
+            # Don't complicate the logic, skip
+            # these for now.
+            return
         try:
             positional, named = get_args(node)
         except astroid.InferenceError:

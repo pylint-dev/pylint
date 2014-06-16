@@ -1,6 +1,6 @@
 """test for Python 3 string formatting error
 """
-# pylint: disable=too-few-public-methods, import-error, unused-argument
+# pylint: disable=too-few-public-methods, import-error, unused-argument, star-args
 import os
 from missing import Missing
 
@@ -70,3 +70,6 @@ def pprint():
     print "{pid}".format(pid=os.getpid())
     print "{0.missing}".format(2)
     print str("{}").format(2)
+    # these are skipped
+    print "{0} {1}".format(*[1, 2])
+    print "{a} {b}".format(**{'a': 1, 'b': 2})
