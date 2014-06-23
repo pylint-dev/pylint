@@ -153,6 +153,8 @@ class ExceptionsChecker(BaseChecker):
             except astroid.InferenceError:
                 pass
             else:
+                if cause is YES:
+                    return
                 if isinstance(cause, astroid.Const):
                     if cause.value is not None:
                         self.add_message('bad-exception-context',

@@ -4,6 +4,9 @@ ChangeLog for Pylint
 --
     * Fix unused-import false positive with Python 3 metaclasses (#143).
 
+    * Don't warn with 'bad-format-character' when encountering
+      the 'a' format on Python 3.
+
     * Add multiple checks for PEP 3101 advanced string formatting:
      'bad-format-string', 'missing-format-argument-key',
      'unused-format-string-argument', 'format-combined-specification',

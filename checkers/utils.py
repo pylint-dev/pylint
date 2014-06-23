@@ -19,6 +19,7 @@
 """
 
 import re
+import sys
 import string
 
 import astroid
@@ -27,6 +28,7 @@ from logilab.common.compat import builtins
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = astroid.ListComp, astroid.SetComp, astroid.DictComp, astroid.GenExpr
+PY3K = sys.version_info[0] == 3
 
 
 class NoSuchArgumentError(Exception):
@@ -344,7 +346,11 @@ def parse_format_string(format_string):
             if char in 'hlL':
                 i, char = next_char(i)
             # Parse the conversion type (mandatory).
-            if char not in 'diouxXeEfFgGcrs%':
+            if PY3K:
+                flags = 'diouxXeEfFgGcrs%a'
+            else:
+                flags = 'diouxXeEfFgGcrs%'
+            if char not in flags:
                 raise UnsupportedFormatCharacter(i)
             if key:
                 keys.add(key)
