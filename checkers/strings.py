@@ -21,7 +21,6 @@
 import sys
 import tokenize
 import string
-from collections import deque
 
 import astroid
 
@@ -180,10 +179,8 @@ def get_access_path(key, parts):
     """ Given a list of format specifiers, returns
     the final access path (e.g. a.b.c[0][1])
     """
-    parts = deque(parts[:])
     path = []
-    while parts:
-        is_attribute, specifier = parts.popleft()
+    for is_attribute, specifier in parts:
         if is_attribute:
             path.append(".{}".format(specifier))
         else:
@@ -394,14 +391,12 @@ class StringMethodsChecker(BaseChecker):
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
-            previous = argument
-            specifiers = deque(specifiers[:])
-            parsed = []
 
-            while specifiers:
+            previous = argument
+            parsed = []
+            for is_attribute, specifier in specifiers:
                 if previous is astroid.YES:
                     break
-                is_attribute, specifier = specifiers.popleft()
                 parsed.append((is_attribute, specifier))
                 if is_attribute:
                     try:
