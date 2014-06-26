@@ -76,7 +76,7 @@ MSGS = {
 
     'W1302': ("Invalid format string",
               "bad-format-string",
-              "Used when a PEP 3101 format string is invalid"),
+              "Used when a PEP 3101 format string is invalid."),
     'W1303': ("Missing keyword argument %r for format string",
               "missing-format-argument-key",
               "Used when a PEP 3101 format string that uses named fields "
@@ -91,7 +91,7 @@ MSGS = {
               "format-combined-specification",
               "Usen when a PEP 3101 format string contains both automatic "
               "field numbering (e.g. '{}') and manual field "
-              "specification (e.g. '{0}')"),
+              "specification (e.g. '{0}')."),
     'W1306': ("Missing format attribute %r in format specifier %r",
               "missing-format-attribute",
               "Used when a PEP 3101 format string uses an "
@@ -129,7 +129,7 @@ else:
 
 def parse_format_method_string(format_string):
     """
-    Parses a Python 3 format string, returning a tuple of
+    Parses a PEP 3101 format string, returning a tuple of
     (keys, num_args),
     where keys is the set of mapping keys in the format string and num_args
     is the number of arguments required by the format string.
@@ -163,7 +163,7 @@ def get_args(callfunc):
     """ Get the arguments from the given `CallFunc` node.
     Return a tuple, where the first element is the
     number of positional arguments and the second element
-    is the keyword arguments in a dict
+    is the keyword arguments in a dict.
     """
     positional = 0
     named = {}
@@ -177,7 +177,7 @@ def get_args(callfunc):
 
 def get_access_path(key, parts):
     """ Given a list of format specifiers, returns
-    the final access path (e.g. a.b.c[0][1])
+    the final access path (e.g. a.b.c[0][1]).
     """
     path = []
     for is_attribute, specifier in parts:
@@ -312,15 +312,14 @@ class StringMethodsChecker(BaseChecker):
             strnode = func.bound.infer().next()
         except astroid.InferenceError:
             return
+        if not isinstance(strnode, astroid.Const):
+            return
         if node.starargs or node.kwargs:
-            # Don't complicate the logic, skip
-            # these for now.
+            # TODO: Don't complicate the logic, skip these for now.
             return
         try:
             positional, named = get_args(node)
         except astroid.InferenceError:
-            return
-        if not isinstance(strnode, astroid.Const):
             return
         try:
             fields, num_args = parse_format_method_string(strnode.value)
