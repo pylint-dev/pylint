@@ -74,34 +74,34 @@ MSGS = {
               "Used when a format string that uses unnamed conversion \
               specifiers is given too few arguments"),
 
-    'W1302': ("Invalid Python 3 format string",
+    'W1302': ("Invalid format string",
               "bad-format-string",
-              "Used when a Python 3 format string is invalid"),
+              "Used when a PEP 3101 format string is invalid"),
     'W1303': ("Missing keyword argument %r for format string",
               "missing-format-argument-key",
-              "Used when a Python 3 format string that uses named fields \
-               doesn't receive one or more required keywords."),
+              "Used when a PEP 3101 format string that uses named fields "
+              "doesn't receive one or more required keywords."),
     'W1304': ("Unused format argument %r",
               "unused-format-string-argument",
-              "Used when a Python 3 format string that uses named \
-               fields is used with an argument that \
-               is not required by the format string."),
+              "Used when a PEP 3101 format string that uses named "
+              "fields is used with an argument that "
+              "is not required by the format string."),
     'W1305': ("Format string contains both automatic field numbering "
               "and manual field specification",
               "format-combined-specification",
-              "Usen when a format string contains both automatic \
-               field numbering (e.g. '{}') and manual field \
-               specification (e.g. '{0}')"),
+              "Usen when a PEP 3101 format string contains both automatic "
+              "field numbering (e.g. '{}') and manual field "
+              "specification (e.g. '{0}')"),
     'W1306': ("Missing format attribute %r in format specifier %r",
               "missing-format-attribute",
-              "Used when a format string uses an attribute specifier "
-              "({0.length}), but the argument passed for formatting "
-              "doesn't have that attribute."),
+              "Used when a PEP 3101 format string uses an "
+              "attribute specifier ({0.length}), but the argument "
+              "passed for formatting doesn't have that attribute."),
     'W1307': ("Using invalid lookup key %r in format specifier %r",
               "invalid-format-index",
-              "Used when a format string uses a lookup specifier "
+              "Used when a PEP 3101 format string uses a lookup specifier "
               "({a[1]}), but the argument passed for formatting "
-              "doesn't contain that key.")
+              "doesn't contain or doesn't have that key as an attribute.")
     }
 
 OTHER_NODES = (astroid.Const, astroid.List, astroid.Backquote,
@@ -372,6 +372,11 @@ class StringMethodsChecker(BaseChecker):
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
             # or infered, skip this check.
+            if key == '':
+                # {[0]} will have an unnamed argument, defaulting
+                # to 0. It will not be present in `named`, so use the value
+                # 0 for it.
+                key = 0
             if isinstance(key, int):
                 try:
                     argument = utils.get_argument_from_call(node, key)
@@ -384,7 +389,7 @@ class StringMethodsChecker(BaseChecker):
             if argument in (astroid.YES, None):
                 continue
             try:
-                argument = next(argument.infer())
+                argument = argument.infer().next()
             except astroid.InferenceError:
                 continue
             if not specifiers or argument is astroid.YES:
@@ -435,7 +440,7 @@ class StringMethodsChecker(BaseChecker):
                         break
 
                 try:
-                    previous = next(previous.infer())
+                    previous = previous.infer().next()
                 except astroid.InferenceError:
                     # can't check further if we can't infer it
                     break
