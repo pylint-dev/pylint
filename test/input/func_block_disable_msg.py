@@ -1,4 +1,4 @@
-# pylint: disable=C0302
+# pylint: disable=C0302,bare-except
 """pylint option block-disable"""
 __revision__ = None
 
