@@ -1,4 +1,4 @@
-# pylint:disable=C0103,W0104,W0105
+# pylint:disable=C0103,W0104,W0105,pointless-except
 """Check format
 """
 __revision__ = ''

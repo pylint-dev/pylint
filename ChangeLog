@@ -12,6 +12,9 @@ ChangeLog for Pylint
      'unused-format-string-argument', 'format-combined-specification',
      'missing-format-attribute' and 'invalid-format-index'.
 
+    * Issue broad-except and bare-except even if the number
+      of except handlers is different than 1. Fixes issue #113.
+
 2014-04-30  --  1.2.1
     * Restore the ability to specify the init-hook option via the
       configuration file, which was accidentally broken in 1.2.0.
