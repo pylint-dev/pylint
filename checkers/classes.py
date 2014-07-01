@@ -276,7 +276,7 @@ a metaclass class method.'}
             if any(node.frame().name in defining_methods
                    for node in nodes):
                 continue
-                                        
+
             # check attribute is defined in a parent's __init__
             for parent in cnode.instance_attr_ancestors(attr):
                 attr_defined = False
