@@ -74,6 +74,9 @@ MSGS = {
               ('Used when a function call does not pass a mandatory'
               ' keyword-only argument.'),
               {'minversion': (3, 0)}),
+    'E1126': ('List index is non-integer type %s',
+              'non-integer-list-index',
+              'Used when a list is indexed with a non-integer type'),
     }
 
 def _determine_callable(callable_obj):
@@ -445,6 +448,26 @@ accessed. Python regular expressions are accepted.'}
             if defval is None and not assigned:
                 self.add_message('missing-kwoa', node=node, args=(name, callable_name))
 
+    @check_messages('non-integer-list-index')
+    def visit_index(self, node):
+        if not node.parent or not node.parent.value:
+            return
+
+        # Look for index operations where the parent is a list.
+        # If the types can be determined, only allow indices to be ints or
+        # int constants.
+
+        index_type = safe_infer(node)
+        parent_type = safe_infer(node.parent.value)
+
+        if type(parent_type) == astroid.List and \
+                not(index_type == astroid.YES or \
+                    (type(index_type) == astroid.Const and \
+                     type(index_type.value) == int) or \
+                    (type(index_type) == astroid.Instance and \
+                     index_type._proxied.name == 'int')):
+            self.add_message('non-integer-list-index', node=node,
+                    args=(index_type,))
 
 def register(linter):
     """required method to auto register this checker """
