@@ -272,28 +272,30 @@ a metaclass class method.'}
                     isinstance(n.statement(), (astroid.Delete, astroid.AugAssign))]
             if not nodes:
                 continue # error detected by typechecking
-            attr_defined = False
             # check if any method attr is defined in is a defining method
-            for node in nodes:
-                if node.frame().name in defining_methods:
-                    attr_defined = True
-            if not attr_defined:
-                # check attribute is defined in a parent's __init__
-                for parent in cnode.instance_attr_ancestors(attr):
-                    attr_defined = False
-                    # check if any parent method attr is defined in is a defining method
-                    for node in parent.instance_attrs[attr]:
-                        if node.frame().name in defining_methods:
-                            attr_defined = True
-                    if attr_defined:
-                        # we're done :)
-                        break
-                else:
-                    # check attribute is defined as a class attribute
-                    try:
-                        cnode.local_attr(attr)
-                    except astroid.NotFoundError:
-                        self.add_message('attribute-defined-outside-init', args=attr, node=node)
+            if any(node.frame().name in defining_methods
+                   for node in nodes):
+                continue
+                                        
+            # check attribute is defined in a parent's __init__
+            for parent in cnode.instance_attr_ancestors(attr):
+                attr_defined = False
+                # check if any parent method attr is defined in is a defining method
+                for node in parent.instance_attrs[attr]:
+                    if node.frame().name in defining_methods:
+                        attr_defined = True
+                if attr_defined:
+                    # we're done :)
+                    break
+            else:
+                # check attribute is defined as a class attribute
+                try:
+                    cnode.local_attr(attr)
+                except astroid.NotFoundError:
+                    for node in nodes:
+                        if node.frame().name not in defining_methods:
+                            self.add_message('attribute-defined-outside-init',
+                                             args=attr, node=node)
 
     def visit_function(self, node):
         """check method arguments, overriding"""
