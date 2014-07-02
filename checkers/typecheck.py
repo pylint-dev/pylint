@@ -21,6 +21,7 @@ import shlex
 
 import astroid
 from astroid import InferenceError, NotFoundError, YES, Instance
+from astroid.bases import BUILTINS
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -293,7 +294,72 @@ accessed. Python regular expressions are accepted.'}
             else:
                 self.add_message('assignment-from-none', node=node)
 
-    @check_messages(*(MSGS.keys()))
+    def _check_uninferable_callfunc(self, node):
+        """
+        Check that the given uninferable CallFunc node does not
+        call an actual function.
+        """
+        if not isinstance(node.func, astroid.Getattr):
+            return
+
+        # Look for properties. First, obtain
+        # the lhs of the Getattr node and search the attribute
+        # there. If that attribute is a property or a subclass of properties,
+        # then most likely it's not callable.
+
+        # TODO: since astroid doesn't understand descriptors very well
+        # we will not handle them here, right now.
+
+        expr = node.func.expr
+        klass = safe_infer(expr)
+        if (klass is None or klass is astroid.YES or
+            not isinstance(klass, astroid.Instance)):
+            return
+
+        try:
+            attrs = klass._proxied.getattr(node.func.attrname)
+        except astroid.NotFoundError:
+            return
+
+        stop_checking = False
+        for attr in attrs:
+            if attr is astroid.YES:
+                continue
+            if stop_checking:
+                break
+            if not isinstance(attr, astroid.Function):
+                continue
+
+            # Decorated, see if it is decorated with a property
+            if not attr.decorators:
+                continue
+            for decorator in attr.decorators.nodes:
+                if not isinstance(decorator, astroid.Name):
+                    continue
+                try:
+                    for infered in decorator.infer():
+                        property_like = False
+                        if isinstance(infered, astroid.Class):
+                            if (infered.root().name == BUILTINS and
+                                infered.name == 'property'):
+                                property_like = True
+                            else:
+                                for ancestor in infered.ancestors():
+                                    if (ancestor.name == 'property' and
+                                        ancestor.root().name == BUILTINS):
+                                        property_like = True
+                                        break
+                            if property_like:
+                                self.add_message('not-callable', node=node,
+                                                 args=node.func.as_string())
+                                stop_checking = True
+                                break
+                except InferenceError:
+                    pass
+                if stop_checking:
+                    break
+
+    @check_messages(*(list(MSGS.keys())))
     def visit_callfunc(self, node):
         """check that called functions/methods are inferred to callable objects,
         and that the arguments passed to the function match the parameters in
@@ -315,12 +381,15 @@ accessed. Python regular expressions are accepted.'}
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
-            self.add_message('not-callable', node=node, args=node.func.as_string())
+            self.add_message('not-callable', node=node,
+                             args=node.func.as_string())
+
+        self._check_uninferable_callfunc(node)
 
         try:
             called, implicit_args, callable_name = _determine_callable(called)
         except ValueError:
-            # Any error occurred during determining the function type, most of 
+            # Any error occurred during determining the function type, most of
             # those errors are handled by different warnings.
             return
         num_positional_args += implicit_args
