@@ -40,33 +40,33 @@ INCORRECT = INT()
 # getter, but it doesn't infer properly when having a getter
 # and a setter.
 class MyProperty(property):
-   """ test subclasses """
+    """ test subclasses """
 
-class PropertyTest:
-   """ class """
- 
-   def __init__(self):
-       self.attr = 4
+class PropertyTest(object):
+    """ class """
 
-   @property
-   def test(self):
-       """ Get the attribute """
-       return self.attr
+    def __init__(self):
+        self.attr = 4
 
-   @test.setter
-   def test(self, value):
-       """ Set the attribute """
-       self.attr = value
+    @property
+    def test(self):
+        """ Get the attribute """
+        return self.attr
 
-   @MyProperty
-   def custom(self):
-       """ Get the attribute """
-       return self.attr
+    @test.setter
+    def test(self, value):
+        """ Set the attribute """
+        self.attr = value
 
-   @custom.setter
-   def custom(self, value):
-       """ Set the attribute """
-       self.attr = value
+    @MyProperty
+    def custom(self):
+        """ Get the attribute """
+        return self.attr
+
+    @custom.setter
+    def custom(self, value):
+        """ Set the attribute """
+        self.attr = value
 
 PROP = PropertyTest()
 PROP.test(40)
