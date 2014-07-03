@@ -18,6 +18,7 @@
 
 import re
 import shlex
+import types
 
 import astroid
 from astroid import InferenceError, NotFoundError, YES, Instance
@@ -77,6 +78,10 @@ MSGS = {
     'E1126': ('List index is non-integer type %s',
               'non-integer-list-index',
               'Used when a list is indexed with a non-integer type'),
+    'E1127': ('Slice index is invalid type %s',
+              'invalid-slice-index',
+              'Used when a slice index is not an integer, None, or an object \
+               with an __index__ method.'),
     }
 
 def _determine_callable(callable_obj):
@@ -479,6 +484,40 @@ accessed. Python regular expressions are accepted.'}
         # Anything else is an error
         self.add_message('non-integer-list-index', node=node,
                 args=(index_type,))
+
+    @check_messages('invalid-slice-index')
+    def visit_slice(self, node):
+        if not isinstance(node, astroid.Slice):
+            return
+
+        # Check the type of each part of the slice
+        for index in (node.lower, node.upper, node.step):
+            if index is None:
+                continue
+
+            index_type = safe_infer(index)
+
+            if index_type is astroid.YES:
+                continue
+
+            # Constants must of type int or None
+            if isinstance(index_type, astroid.Const):
+                if isinstance(index_type.value, (int, types.NoneType)):
+                    continue
+            # Instance values must be of type int, None or an object
+            # with __index__
+            elif isinstance(index_type, astroid.Instance):
+                if index_type.name in ('int', 'None'):
+                    continue
+                
+                if any(method for method in index_type.body \
+                        if isinstance(method, astroid.Function) and \
+                        method.name == '__index__'):
+                    continue
+
+            # Anything else is an error
+            self.add_message('invalid-slice-index', node=node,
+                    args=(index_type,))
 
 def register(linter):
     """required method to auto register this checker """

@@ -1,0 +1,5 @@
+E:  9:function1: Slice index is invalid type Function(id)
+E:  9:function1: Slice index is invalid type Function(id)
+E: 13:function2: Slice index is invalid type Const(str)
+E: 13:function2: Slice index is invalid type Const(str)
+E: 22:function3: Slice index is invalid type Instance of input.func_invalid_slice_index.NoIndexTest
