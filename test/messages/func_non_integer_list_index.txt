@@ -1,0 +1,4 @@
+E:  9:function1: List index is non-integer type Function(id)
+E: 13:function2: List index is non-integer type Const(str)
+E: 17:function3: List index is non-integer type Const(NoneType)
+E: 21:function4: List index is non-integer type Instance of __builtin__.float

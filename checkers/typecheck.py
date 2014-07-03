@@ -450,24 +450,35 @@ accessed. Python regular expressions are accepted.'}
 
     @check_messages('non-integer-list-index')
     def visit_index(self, node):
-        if not node.parent or not node.parent.value:
+        if not node.value or not node.parent or not node.parent.value:
             return
 
         # Look for index operations where the parent is a list.
         # If the types can be determined, only allow indices to be ints or
         # int constants.
 
-        index_type = safe_infer(node)
         parent_type = safe_infer(node.parent.value)
+        
+        if not isinstance(parent_type, astroid.List):
+            return
 
-        if type(parent_type) == astroid.List and \
-                not(index_type == astroid.YES or \
-                    (type(index_type) == astroid.Const and \
-                     type(index_type.value) == int) or \
-                    (type(index_type) == astroid.Instance and \
-                     index_type._proxied.name == 'int')):
-            self.add_message('non-integer-list-index', node=node,
-                    args=(index_type,))
+        index_type = safe_infer(node)
+
+        if index_type is astroid.YES:
+            return
+
+        # Constants must be of type int
+        if isinstance(index_type, astroid.Const):
+            if isinstance(index_type.value, int):
+                return
+        # Instance values must be of type int
+        elif isinstance(index_type, astroid.Instance):
+            if index_type.name == 'int':
+                return
+
+        # Anything else is an error
+        self.add_message('non-integer-list-index', node=node,
+                args=(index_type,))
 
 def register(linter):
     """required method to auto register this checker """
