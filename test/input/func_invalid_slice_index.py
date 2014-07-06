@@ -26,7 +26,7 @@ def function4():
     return TESTLIST[0:0:0] # no error
 
 def function5():
-    """None used as indicies"""
+    """None used as indices"""
     return TESTLIST[None:None:None]
 
 def function6():
