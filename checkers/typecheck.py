@@ -468,13 +468,34 @@ accessed. Python regular expressions are accepted.'}
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
 
-        sequence_types = set('%s.%s' % (BUILTINS, s) for s in
-                ('str', 'unicode', 'list', 'tuple', 'bytearray',
-                 'xrange', 'range', 'bytes', 'memoryview'))
+        sequence_types = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
+                              'xrange', 'range', 'bytes', 'memoryview'])
 
         parent_type = safe_infer(node.parent.value)
         
-        if not parent_type or parent_type.pytype() not in sequence_types:
+        if not parent_type:
+            return
+
+        # Check if this instance has a __getitem__ method implemented
+        # in a bulitin sequence type. This way we catch subclasses of
+        # sequence types but skip classes that override __getitem__ and
+        # which may allow non-integer indices.
+        try:
+            getitem = parent_type.getattr('__getitem__')[0]
+        except (astroid.NotFoundError, IndexError, TypeError):
+            return
+
+        if not isinstance(getitem, astroid.Function):
+            return
+
+        if not getitem.parent:
+            return
+
+        if not isinstance(getitem.parent.parent, astroid.Module) or \
+                getitem.parent.parent.name != BUILTINS:
+            return
+
+        if not getitem.parent.name in sequence_types:
             return
 
         index_type = safe_infer(node)

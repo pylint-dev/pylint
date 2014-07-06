@@ -5,3 +5,4 @@ E: 23:function4: Sequence index is not an int, slice, or instance with __index__
 E: 67:function10: Sequence index is not an int, slice, or instance with __index__
 E: 72:function11: Sequence index is not an int, slice, or instance with __index__
 E: 80:function13: Sequence index is not an int, slice, or instance with __index__
+E: 91:function15: Sequence index is not an int, slice, or instance with __index__
