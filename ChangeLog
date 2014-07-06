@@ -18,6 +18,8 @@ ChangeLog for Pylint
     * Issue attribute-defined-outside-init for all cases, not just
       for the last assignment. Closes issue #262.
 
+    * Emit 'not-callable' when calling properties. Closes issue #268.
+
     * Add checks for invalid sequence and slice indices
 
 2014-04-30  --  1.2.1
