@@ -38,3 +38,21 @@ def function6():
             return 0
 
     return TESTLIST[IndexTest():None:None] # no error
+
+def function7():
+    """class with __index__ in superclass used as index"""
+    class IndexType(object): # pylint: disable=too-few-public-methods
+        """Class with __index__ method"""
+        def __index__(self): # pylint: disable=no-self-use
+            """Allow objects of this class to be used as slice indices"""
+            return 0
+
+    class IndexSubType(IndexType): # pylint: disable=too-few-public-methods
+        """Class with __index__ in parent"""
+        pass
+
+    return TESTLIST[IndexSubType():None:None] # no error
+
+def function8():
+    """slice object used as index"""
+    return TESTLIST[slice(1, 2, 3)]
