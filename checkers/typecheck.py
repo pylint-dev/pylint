@@ -18,7 +18,6 @@
 
 import re
 import shlex
-import types
 import sys
 
 import astroid
