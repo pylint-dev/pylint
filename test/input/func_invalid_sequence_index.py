@@ -185,3 +185,15 @@ def function24():
     test[0] = 0 # no error
     del test[None]
     del test[0] # no error
+
+def function25():
+    """Extended slice used with a list"""
+    return TESTLIST[..., 0]
+
+def function26():
+    """Extended slice used with an object that implements __getitem__"""
+    class ExtSliceTest(object):
+        """Permit extslice syntax by implementing __getitem__"""
+        def __getitem__(self, index):
+            return 0
+    return ExtSliceTest[..., 0] # no error

@@ -524,8 +524,14 @@ accessed. Python regular expressions are accepted.'}
                 self.add_message('missing-kwoa', node=node, args=(name, callable_name))
 
     @check_messages('invalid-sequence-index')
+    def visit_extslice(self, node):
+        # Check extended slice objects as if they were used as a sequence
+        # index to check if the object being sliced can support them
+        return self.visit_index(node)
+
+    @check_messages('invalid-sequence-index')
     def visit_index(self, node):
-        if not node.value or not node.parent or not node.parent.value:
+        if not node.parent or not hasattr(node.parent, "value"):
             return
 
         # Look for index operations where the parent is a sequence type.
@@ -575,7 +581,13 @@ accessed. Python regular expressions are accepted.'}
         if itemmethod.parent.name not in sequence_types:
             return
 
-        index_type = safe_infer(node)
+        # For ExtSlice objects coming from visit_extslice, no further
+        # inference is necessary, since if we got this far the ExtSlice
+        # is an error.
+        if isinstance(node, astroid.ExtSlice):
+            index_type = node
+        else:
+            index_type = safe_infer(node)
 
         if index_type is None or index_type is astroid.YES:
             return
