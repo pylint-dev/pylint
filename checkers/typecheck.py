@@ -540,28 +540,39 @@ accessed. Python regular expressions are accepted.'}
         if not parent_type:
             return
 
-        # Check if this instance has a __getitem__ method implemented
-        # in a bulitin sequence type. This way we catch subclasses of
-        # sequence types but skip classes that override __getitem__ and
-        # which may allow non-integer indices.
+        # Determine what method on the parent this index will use
+        # The parent of this node will be a Subscript, and the parent of that
+        # node determines if the Subscript is a get, set, or delete operation.
+        operation = node.parent.parent
+        if isinstance(operation, astroid.Assign):
+            methodname = '__setitem__'
+        elif isinstance(operation, astroid.Delete):
+            methodname = '__delitem__'
+        else:
+            methodname = '__getitem__'
+
+        # Check if this instance's __getitem__, __setitem__, or __delitem__, as
+        # appropriate to the statement, is implemented in a bulitin sequence
+        # type. This way we catch subclasses of sequence types but skip classes
+        # that override __getitem__ and which may allow non-integer indices.
         try:
-            getitems = parent_type.getattr('__getitem__')
-            if getitems is astroid.YES:
+            methods = parent_type.getattr(methodname)
+            if methods is astroid.YES:
                 return
-            getitem = getitems[0]
+            itemmethod = methods[0]
         except (astroid.NotFoundError, IndexError):
             return
 
-        if not isinstance(getitem, astroid.Function):
+        if not isinstance(itemmethod, astroid.Function):
             return
 
-        if not getitem.parent:
+        if itemmethod.root().name != BUILTINS:
             return
 
-        if getitem.root().name != BUILTINS:
+        if not itemmethod.parent:
             return
 
-        if getitem.parent.name not in sequence_types:
+        if itemmethod.parent.name not in sequence_types:
             return
 
         index_type = safe_infer(node)

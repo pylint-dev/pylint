@@ -120,3 +120,68 @@ def function18():
         pass
 
     return SubTupleTest()[None] # no error
+
+# Test with set and delete statements
+
+def function19():
+    """Set with None and integer indices"""
+    TESTLIST[None] = 0
+    TESTLIST[0] = 0 # no error
+
+def function20():
+    """Delete with None and integer indicies"""
+    del TESTLIST[None]
+    del TESTLIST[0] # no error
+
+def function21():
+    """Set and delete on a subclass of list"""
+    class ListTest(list):
+        """Inherit all list get/set/del handlers"""
+        pass
+    test = ListTest()
+    test[None] = 0
+    test[0] = 0 # no error
+    del test[None]
+    del test[0] # no error
+
+def function22():
+    """Get, set, and delete on a subclass of list that overrides __setitem__"""
+    class ListTest(list):
+        """Override setitem but not get or del"""
+        def __setitem__(self, key, value):
+            pass
+    test = ListTest()
+    test[None][0] = 0
+    test[0][0] = 0 # no error
+    test[None] = 0 # no error
+    test[0] = 0 # no error
+    del test[None]
+    del test[0] # no error
+
+def function23():
+    """Get, set, and delete on a subclass of list that overrides __delitem__"""
+    class ListTest(list):
+        """Override delitem but not get or set"""
+        def __delitem__(self, key):
+            pass
+    test = ListTest()
+    test[None][0] = 0
+    test[0][0] = 0 # no error
+    test[None] = 0
+    test[0] = 0 # no error
+    del test[None] # no error
+    del test[0] # no error
+
+def function24():
+    """Get, set, and delete on a subclass of list that overrides __getitem__"""
+    class ListTest(list):
+        """Override gelitem but not del or set"""
+        def __getitem__(self, key):
+            pass
+    test = ListTest()
+    test[None][0] = 0 # no error
+    test[0][0] = 0 # no error
+    test[None] = 0
+    test[0] = 0 # no error
+    del test[None]
+    del test[0] # no error
