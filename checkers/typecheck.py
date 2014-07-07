@@ -558,7 +558,7 @@ accessed. Python regular expressions are accepted.'}
         if not getitem.parent:
             return
 
-        if getitem.root() != BUILTINS:
+        if getitem.root().name != BUILTINS:
             return
 
         if getitem.parent.name not in sequence_types:
