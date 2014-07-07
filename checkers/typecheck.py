@@ -78,7 +78,8 @@ MSGS = {
               {'minversion': (3, 0)}),
     'E1126': ('Sequence index is not an int, slice, or instance with __index__',
               'invalid-sequence-index',
-              'Used when a list is indexed with a non-integer type'),
+              'Used when a sequence type is indexed with an invalid type. Valid \
+               types are ints, slices, and objects with an __index__ method.'),
     'E1127': ('Slice index is not an int, None, or instance with __index__',
               'invalid-slice-index',
               'Used when a slice index is not an integer, None, or an object \
