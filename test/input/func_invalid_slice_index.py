@@ -1,4 +1,5 @@
 """Errors for invalid slice indices"""
+# pylint: disable=too-few-public-methods, no-self-use
 
 __revision__ = 0
 
@@ -15,7 +16,7 @@ def function2():
 def function3():
     """class without __index__ used as index"""
 
-    class NoIndexTest(object): # pylint: disable=too-few-public-methods
+    class NoIndexTest(object):
         """Class with no __index__ method"""
         pass
 
@@ -31,9 +32,9 @@ def function5():
 
 def function6():
     """class with __index__ used as index"""
-    class IndexTest(object): # pylint: disable=too-few-public-methods
+    class IndexTest(object):
         """Class with __index__ method"""
-        def __index__(self): # pylint: disable=no-self-use
+        def __index__(self):
             """Allow objects of this class to be used as slice indices"""
             return 0
 
@@ -41,13 +42,13 @@ def function6():
 
 def function7():
     """class with __index__ in superclass used as index"""
-    class IndexType(object): # pylint: disable=too-few-public-methods
+    class IndexType(object):
         """Class with __index__ method"""
-        def __index__(self): # pylint: disable=no-self-use
+        def __index__(self):
             """Allow objects of this class to be used as slice indices"""
             return 0
 
-    class IndexSubType(IndexType): # pylint: disable=too-few-public-methods
+    class IndexSubType(IndexType):
         """Class with __index__ in parent"""
         pass
 

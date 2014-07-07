@@ -1,4 +1,5 @@
 """Errors for invalid sequence indices"""
+# pylint: disable=too-few-public-methods, no-self-use
 
 __revision__ = 0
 
@@ -36,9 +37,9 @@ def function7():
 
 def function8():
     """list index implements __index__"""
-    class IndexType(object): # pylint: disable=too-few-public-methods
+    class IndexType(object):
         """Class with __index__ method"""
-        def __index__(self): # pylint: disable=no-self-use
+        def __index__(self):
             """Allow objects of this class to be used as slice indices"""
             return 0
 
@@ -46,13 +47,13 @@ def function8():
 
 def function9():
     """list index implements __index__ in a superclass"""
-    class IndexType(object): # pylint: disable=too-few-public-methods
+    class IndexType(object):
         """Class with __index__ method"""
-        def __index__(self): # pylint: disable=no-self-use
+        def __index__(self):
             """Allow objects of this class to be used as slice indices"""
             return 0
 
-    class IndexSubType(IndexType): # pylint: disable=too-few-public-methods
+    class IndexSubType(IndexType):
         """Class with __index__ in parent"""
         pass
 
@@ -60,7 +61,7 @@ def function9():
 
 def function10():
     """list index does not implement __index__"""
-    class NonIndexType(object): # pylint: disable=too-few-public-methods
+    class NonIndexType(object):
         """Class without __index__ method"""
         pass
 
@@ -85,36 +86,36 @@ def function14():
 
 def function15():
     """Index of subclass of tuple is None"""
-    class TupleTest(tuple): # pylint: disable=too-few-public-methods
+    class TupleTest(tuple):
         """Subclass of tuple"""
         pass
     return TupleTest()[None]
 
 def function16():
     """Index of subclass of tuple is an int constant"""
-    class TupleTest(tuple): # pylint: disable=too-few-public-methods
+    class TupleTest(tuple):
         """Subclass of tuple"""
         pass
     return TupleTest()[0] # no error
 
 def function17():
     """Index of subclass of tuple with custom __getitem__ is None"""
-    class TupleTest(tuple): # pylint: disable=too-few-public-methods
+    class TupleTest(tuple):
         """Subclass of tuple with custom __getitem__"""
-        def __getitem__(self, index): # pylint: disable=no-self-use
+        def __getitem__(self, index):
             """Allow non-integer indices"""
             return 0
     return TupleTest()[None] # no error
 
 def function18():
     """Index of subclass of tuple with __getitem__ in superclass is None"""
-    class TupleTest(tuple): # pylint: disable=too-few-public-methods
+    class TupleTest(tuple):
         """Subclass of tuple with custom __getitem__"""
-        def __getitem__(self, index): # pylint: disable=no-self-use
+        def __getitem__(self, index):
             """Allow non-integer indices"""
             return 0
 
-    class SubTupleTest(TupleTest): # pylint: disable=too-few-public-methods
+    class SubTupleTest(TupleTest):
         """Subclass of a subclass of tuple"""
         pass
 

@@ -86,11 +86,6 @@ MSGS = {
                with an __index__ method.'),
     }
 
-if sys.version_info >= (3,0):
-    BUILTINS = 'builtins'
-else:
-    BUILTINS = '__builtin__'
-
 def _determine_callable(callable_obj):
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
     # and Function inherits Lambda.
@@ -550,8 +545,11 @@ accessed. Python regular expressions are accepted.'}
         # sequence types but skip classes that override __getitem__ and
         # which may allow non-integer indices.
         try:
-            getitem = parent_type.getattr('__getitem__')[0]
-        except (astroid.NotFoundError, IndexError, TypeError):
+            getitems = parent_type.getattr('__getitem__')
+            if getitems is astroid.YES:
+                return
+            getitem = getitems[0]
+        except (astroid.NotFoundError, IndexError):
             return
 
         if not isinstance(getitem, astroid.Function):
@@ -560,11 +558,10 @@ accessed. Python regular expressions are accepted.'}
         if not getitem.parent:
             return
 
-        if not isinstance(getitem.parent.parent, astroid.Module) or \
-                getitem.parent.parent.name != BUILTINS:
+        if getitem.root() != BUILTINS:
             return
 
-        if not getitem.parent.name in sequence_types:
+        if getitem.parent.name not in sequence_types:
             return
 
         index_type = safe_infer(node)
@@ -583,10 +580,9 @@ accessed. Python regular expressions are accepted.'}
 
             try:
                 index_type.getattr('__index__')
+                return
             except astroid.NotFoundError:
                 pass
-            else:
-                return
 
         # Anything else is an error
         self.add_message('invalid-sequence-index', node=node)
@@ -619,10 +615,9 @@ accessed. Python regular expressions are accepted.'}
                 
                 try:
                     index_type.getattr('__index__')
+                    return
                 except astroid.NotFoundError:
                     pass
-                else:
-                    return
 
             # Anything else is an error
             self.add_message('invalid-slice-index', node=node)
