@@ -18,6 +18,7 @@
 
 import re
 import shlex
+import sys
 
 import astroid
 from astroid import InferenceError, NotFoundError, YES, Instance
@@ -75,7 +76,19 @@ MSGS = {
               ('Used when a function call does not pass a mandatory'
               ' keyword-only argument.'),
               {'minversion': (3, 0)}),
+    'E1126': ('Sequence index is not an int, slice, or instance with __index__',
+              'invalid-sequence-index',
+              'Used when a sequence type is indexed with an invalid type. Valid \
+               types are ints, slices, and objects with an __index__ method.'),
+    'E1127': ('Slice index is not an int, None, or instance with __index__',
+              'invalid-slice-index',
+              'Used when a slice index is not an integer, None, or an object \
+               with an __index__ method.'),
     }
+
+# builtin sequence types in Python 2 and 3.
+sequence_types = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
+                      'xrange', 'range', 'bytes', 'memoryview'])
 
 def _determine_callable(callable_obj):
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
@@ -514,6 +527,121 @@ accessed. Python regular expressions are accepted.'}
             if defval is None and not assigned:
                 self.add_message('missing-kwoa', node=node, args=(name, callable_name))
 
+    @check_messages('invalid-sequence-index')
+    def visit_extslice(self, node):
+        # Check extended slice objects as if they were used as a sequence
+        # index to check if the object being sliced can support them
+        return self.visit_index(node)
+
+    @check_messages('invalid-sequence-index')
+    def visit_index(self, node):
+        if not node.parent or not hasattr(node.parent, "value"):
+            return
+
+        # Look for index operations where the parent is a sequence type.
+        # If the types can be determined, only allow indices to be int,
+        # slice or instances with __index__.
+
+        parent_type = safe_infer(node.parent.value)
+        
+        if not isinstance(parent_type, (astroid.Class, astroid.Instance)):
+            return
+
+        # Determine what method on the parent this index will use
+        # The parent of this node will be a Subscript, and the parent of that
+        # node determines if the Subscript is a get, set, or delete operation.
+        operation = node.parent.parent
+        if isinstance(operation, astroid.Assign):
+            methodname = '__setitem__'
+        elif isinstance(operation, astroid.Delete):
+            methodname = '__delitem__'
+        else:
+            methodname = '__getitem__'
+
+        # Check if this instance's __getitem__, __setitem__, or __delitem__, as
+        # appropriate to the statement, is implemented in a builtin sequence
+        # type. This way we catch subclasses of sequence types but skip classes
+        # that override __getitem__ and which may allow non-integer indices.
+        try:
+            methods = parent_type.getattr(methodname)
+            if methods is astroid.YES:
+                return
+            itemmethod = methods[0]
+        except (astroid.NotFoundError, IndexError):
+            return
+
+        if not isinstance(itemmethod, astroid.Function):
+            return
+
+        if itemmethod.root().name != BUILTINS:
+            return
+
+        if not itemmethod.parent:
+            return
+
+        if itemmethod.parent.name not in sequence_types:
+            return
+
+        # For ExtSlice objects coming from visit_extslice, no further
+        # inference is necessary, since if we got this far the ExtSlice
+        # is an error.
+        if isinstance(node, astroid.ExtSlice):
+            index_type = node
+        else:
+            index_type = safe_infer(node)
+
+        if index_type is None or index_type is astroid.YES:
+            return
+
+        # Constants must be of type int
+        if isinstance(index_type, astroid.Const):
+            if isinstance(index_type.value, int):
+                return
+        # Instance values must be int, slice, or have an __index__ method
+        elif isinstance(index_type, astroid.Instance):
+            if index_type.pytype() in (BUILTINS + '.int', BUILTINS + '.slice'):
+                return
+
+            try:
+                index_type.getattr('__index__')
+                return
+            except astroid.NotFoundError:
+                pass
+
+        # Anything else is an error
+        self.add_message('invalid-sequence-index', node=node)
+
+    @check_messages('invalid-slice-index')
+    def visit_slice(self, node):
+        # Check the type of each part of the slice
+        for index in (node.lower, node.upper, node.step):
+            if index is None:
+                continue
+
+            index_type = safe_infer(index)
+
+            if index_type is None or index_type is astroid.YES:
+                continue
+
+            # Constants must of type int or None
+            if isinstance(index_type, astroid.Const):
+                if isinstance(index_type.value, (int, type(None))):
+                    continue
+            # Instance values must be of type int, None or an object
+            # with __index__
+            elif isinstance(index_type, astroid.Instance):
+                if index_type.pytype() in (BUILTINS + '.int',
+                                           BUILTINS + '.NoneType'):
+                    continue
+                
+                try:
+                    index_type.getattr('__index__')
+                    return
+                except astroid.NotFoundError:
+                    pass
+
+            # Anything else is an error
+            self.add_message('invalid-slice-index', node=node)
 
 def register(linter):
     """required method to auto register this checker """
