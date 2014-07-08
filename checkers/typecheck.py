@@ -86,6 +86,10 @@ MSGS = {
                with an __index__ method.'),
     }
 
+# builtin sequence types in Python 2 and 3.
+sequence_types = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
+                      'xrange', 'range', 'bytes', 'memoryview'])
+
 def _determine_callable(callable_obj):
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
     # and Function inherits Lambda.
@@ -537,9 +541,6 @@ accessed. Python regular expressions are accepted.'}
         # Look for index operations where the parent is a sequence type.
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
-
-        sequence_types = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
-                              'xrange', 'range', 'bytes', 'memoryview'])
 
         parent_type = safe_infer(node.parent.value)
         
