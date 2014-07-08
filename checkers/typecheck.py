@@ -612,9 +612,6 @@ accessed. Python regular expressions are accepted.'}
 
     @check_messages('invalid-slice-index')
     def visit_slice(self, node):
-        if not isinstance(node, astroid.Slice):
-            return
-
         # Check the type of each part of the slice
         for index in (node.lower, node.upper, node.step):
             if index is None:
