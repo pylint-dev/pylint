@@ -147,7 +147,7 @@ MSGS = {
               'a sequence is used in an unpack assignment'),
 
     'W0640': ('Cell variable %s defined in loop',
-              'cell-var-from-loop', 
+              'cell-var-from-loop',
               'A variable used in a closure is defined in a loop. '
               'This will result in all closures using the same value for '
               'the closed-over variable.'),
@@ -447,7 +447,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             else:
                 if maybe_for.parent_of(node_scope) and not isinstance(node_scope.statement(), astroid.Return):
                     self.add_message('cell-var-from-loop', node=node, args=node.name)
-        
+
     def _loopvar_name(self, node, name):
         # filter variables according to node's scope
         # XXX used to filter parents but don't remember why, and removing this
@@ -649,6 +649,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # attempt to check unpacking is properly balanced
             values = infered.itered()
             if len(targets) != len(values):
+                # Check if we have starred nodes.
+                if any(isinstance(target, astroid.Starred)
+                       for target in targets):
+                    return
                 self.add_message('unbalanced-tuple-unpacking', node=node,
                                  args=(_get_unpacking_extra_info(node, infered),
                                        len(targets),
@@ -727,8 +731,8 @@ class VariablesChecker3k(VariablesChecker):
 
                 if isinstance(klass._metaclass, astroid.Name):
                     module_locals.pop(klass._metaclass.name, None)
-                if metaclass:                
-                    # if it uses a `metaclass=module.Class`                            
+                if metaclass:
+                    # if it uses a `metaclass=module.Class`
                     module_locals.pop(metaclass.root().name, None)
         super(VariablesChecker3k, self).leave_module(node)
 
