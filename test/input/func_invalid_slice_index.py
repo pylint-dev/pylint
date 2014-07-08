@@ -5,6 +5,7 @@ __revision__ = 0
 
 TESTLIST = [1, 2, 3]
 
+# Invalid indices
 def function1():
     """functions used as indices"""
     return TESTLIST[id:id:]
@@ -22,13 +23,14 @@ def function3():
 
     return TESTLIST[NoIndexTest()::]
 
+# Valid indices
 def function4():
     """integers used as indices"""
     return TESTLIST[0:0:0] # no error
 
 def function5():
     """None used as indices"""
-    return TESTLIST[None:None:None]
+    return TESTLIST[None:None:None] # no error
 
 def function6():
     """class with __index__ used as index"""
@@ -56,4 +58,4 @@ def function7():
 
 def function8():
     """slice object used as index"""
-    return TESTLIST[slice(1, 2, 3)]
+    return TESTLIST[slice(1, 2, 3)] # no error
