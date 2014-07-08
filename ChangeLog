@@ -23,7 +23,8 @@ ChangeLog for Pylint
     * Fix a false positive with unbalanced iterable unpacking,
       when encountering starred nodes. Closes issue #273.
 
-    * Add checks for invalid sequence and slice indices
+    * Add new checks, 'invalid-slice-index' and 'invalid-sequence-index'
+      for invalid sequence and slice indices.
 
 2014-04-30  --  1.2.1
     * Restore the ability to specify the init-hook option via the
