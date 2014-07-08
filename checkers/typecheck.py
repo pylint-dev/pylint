@@ -558,7 +558,7 @@ accessed. Python regular expressions are accepted.'}
             methodname = '__getitem__'
 
         # Check if this instance's __getitem__, __setitem__, or __delitem__, as
-        # appropriate to the statement, is implemented in a bulitin sequence
+        # appropriate to the statement, is implemented in a builtin sequence
         # type. This way we catch subclasses of sequence types but skip classes
         # that override __getitem__ and which may allow non-integer indices.
         try:
