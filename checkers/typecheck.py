@@ -543,7 +543,7 @@ accessed. Python regular expressions are accepted.'}
 
         parent_type = safe_infer(node.parent.value)
         
-        if not parent_type:
+        if not isinstance(parent_type, (astroid.Class, astroid.Instance)):
             return
 
         # Determine what method on the parent this index will use
