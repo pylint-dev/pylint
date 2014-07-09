@@ -54,11 +54,10 @@ class EncodingChecker(BaseChecker):
                           'separated by a comma.')}),)
 
     def _check_note(self, notes, lineno, line):
-        for note in notes:
-            match = note.search(line)
-            if not match:
-                continue
-            self.add_message('fixme', args=match.group(1).strip(), line=lineno)
+        match = notes.search(line)
+        if not match:
+            return
+        self.add_message('fixme', args=line[match.start(1):-1], line=lineno)
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
@@ -74,8 +73,8 @@ class EncodingChecker(BaseChecker):
         stream = module.file_stream
         stream.seek(0)  # XXX may be removed with astroid > 0.23
         if self.config.notes:
-            notes = [re.compile(r'.*?#\s+({}:*\s*.+)'.format(note))
-                     for note in self.config.notes]
+            notes = re.compile(r'.*?#\s+({})(:*\s*.+)'.format(
+                               "|".join(self.config.notes)))
         else:
             notes = None
         if module.file_encoding:
