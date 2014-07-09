@@ -2,6 +2,7 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Fix a false positive regarding W0511. Closes issue #149.
     * Fix unused-import false positive with Python 3 metaclasses (#143).
 
     * Don't warn with 'bad-format-character' when encountering

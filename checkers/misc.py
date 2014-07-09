@@ -73,8 +73,8 @@ class EncodingChecker(BaseChecker):
         stream = module.file_stream
         stream.seek(0)  # XXX may be removed with astroid > 0.23
         if self.config.notes:
-            notes = re.compile(r'.*?#\s+({})(:*\s*.+)'.format(
-                               "|".join(self.config.notes)))
+            notes = re.compile(
+                r'.*?#\s+(%s)(:*\s*.+)' % "|".join(self.config.notes))
         else:
             notes = None
         if module.file_encoding:
