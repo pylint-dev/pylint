@@ -3,6 +3,7 @@ ChangeLog for Pylint
 
 --
     * Fix a false positive regarding W0511. Closes issue #149.
+
     * Fix unused-import false positive with Python 3 metaclasses (#143).
 
     * Don't warn with 'bad-format-character' when encountering
@@ -26,6 +27,9 @@ ChangeLog for Pylint
 
     * Add new checks, 'invalid-slice-index' and 'invalid-sequence-index'
       for invalid sequence and slice indices.
+
+    * Add 'assigning-non-slot' warning, which detects assignments to
+      attributes not defined in slots.
 
 2014-04-30  --  1.2.1
     * Restore the ability to specify the init-hook option via the

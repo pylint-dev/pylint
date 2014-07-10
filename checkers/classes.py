@@ -26,7 +26,8 @@ from astroid.bases import Generator
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, overrides_a_method,
-    check_messages, is_attr_private, is_attr_protected, node_frame_class)
+    check_messages, is_attr_private, is_attr_protected, node_frame_class,
+    safe_infer)
 
 if sys.version_info >= (3, 0):
     NEXT_METHOD = '__next__'
@@ -164,6 +165,10 @@ MSGS = {
               'only non empty strings',
               'invalid-slots-object',
               'Used when an invalid (non-string) object occurs in __slots__.'),
+    'E0237': ('Assigning to attribute %r not defined in class slots',
+              'assigning-non-slot',
+              'Used when assigning to an attribute not defined '
+              'in the class slots.'),
     'E0238': ('Invalid __slots__ object',
               'invalid-slots',
               'Used when an invalid __slots__ is found in class. '
@@ -463,6 +468,32 @@ a metaclass class method.'}
     def visit_assattr(self, node):
         if isinstance(node.ass_type(), astroid.AugAssign) and self.is_first_attr(node):
             self._accessed[-1].setdefault(node.attrname, []).append(node)
+        self._check_in_slots(node)
+
+    def _check_in_slots(self, node):
+        """ Check that the given assattr node
+        is defined in the class slots.
+        """
+        infered = safe_infer(node.expr)
+        if infered and isinstance(infered, Instance):
+            klass = infered._proxied
+            if '__slots__' not in klass.locals or not klass.newstyle:
+                return
+
+            slots = klass.slots()
+            # If any ancestor doesn't use slots, the slots
+            # defined for this class are superfluous.
+            if any('__slots__' not in ancestor.locals and
+                   ancestor.name != 'object'
+                   for ancestor in klass.ancestors()):
+                return
+
+            if not any(slot.value == node.attrname for slot in slots):
+                # If we have a '__dict__' in slots, then
+                # assigning any name is valid.
+                if not any(slot.value == '__dict__' for slot in slots):
+                    self.add_message('assigning-non-slot',
+                                     args=(node.attrname, ), node=node)
 
     @check_messages('protected-access')
     def visit_assign(self, assign_node):
