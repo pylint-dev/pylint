@@ -6,7 +6,7 @@ from collections import deque
 
 __revision__ = 0
 
-class Empty:
+class Empty(object):
     """ empty """
 
 class Bad(object):
