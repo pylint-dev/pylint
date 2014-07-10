@@ -576,7 +576,6 @@ warning, statement which respectively contain the number of errors / warnings\
                                 reverse=True)
         return neededcheckers
 
-
     def should_analyze_file(self, modname, path): # pylint: disable=unused-argument
         """Returns whether or not a module should be checked.
 
