@@ -33,6 +33,7 @@ import functools
 import sys
 import os
 import tokenize
+from operator import attrgetter
 from warnings import warn
 
 from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
@@ -569,8 +570,12 @@ warning, statement which respectively contain the number of errors / warnings\
                            if msg[0] != 'F' and self.is_message_enabled(msg))
             if (messages or
                 any(self.report_is_enabled(r[0]) for r in checker.reports)):
-                neededcheckers.append(checker)
+                neededcheckers.append(checker)  
+        # Sort checkers by priority
+        neededcheckers = sorted(neededcheckers, key=attrgetter('priority'),
+                                reverse=True)
         return neededcheckers
+
 
     def should_analyze_file(self, modname, path): # pylint: disable=unused-argument
         """Returns whether or not a module should be checked.
