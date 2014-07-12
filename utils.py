@@ -742,3 +742,23 @@ def register_plugins(linter, directory):
                     module.register(linter)
                     imported[base] = 1
 
+def get_global_option(checker, option, default=None):
+    """ Retrieve an option defined by the given *checker* or
+    by all known option providers.
+
+    It will look in the list of all options providers
+    until the given *option* will be found.
+    If the option wasn't found, the *default* value will be returned.
+    """
+    # First, try in the given checker's config.
+    # After that, look in the options providers.
+
+    try:
+        return getattr(checker.config, option.replace("-", "_"))
+    except AttributeError:
+        pass
+    for provider in checker.linter.options_providers:
+        for options in provider.options:
+            if options[0] == option:
+                return getattr(provider.config, option.replace("-", "_"))
+    return default

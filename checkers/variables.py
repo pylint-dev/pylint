@@ -25,6 +25,7 @@ from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
 from logilab.common.modutils import file_from_modpath
 
 from pylint.interfaces import IAstroidChecker
+from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
      is_defined_before, is_error, is_func_default, is_func_decorator,
@@ -679,6 +680,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if the latest access name corresponds to a module, return it
         """
         assert isinstance(module, astroid.Module), module
+        ignored_modules = get_global_option(self, 'ignored-modules',
+                                            default=[])
         while module_names:
             name = module_names.pop(0)
             if name == '__dict__':
@@ -689,7 +692,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if module is astroid.YES:
                     return None
             except astroid.NotFoundError:
-                self.add_message('no-name-in-module', args=(name, module.name), node=node)
+                if module.name in ignored_modules:
+                    return None
+                self.add_message('no-name-in-module',
+                                 args=(name, module.name), node=node)
                 return None
             except astroid.InferenceError:
                 return None

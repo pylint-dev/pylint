@@ -4,7 +4,7 @@ import os
 
 from astroid import test_utils
 from pylint.checkers import variables
-from pylint.testutils import CheckerTestCase, linter
+from pylint.testutils import CheckerTestCase, linter, set_config
 
 class VariablesCheckerTC(CheckerTestCase):
 
@@ -21,6 +21,19 @@ class VariablesCheckerTC(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.walk(module)
+
+    @set_config(ignored_modules=('argparse',))
+    def test_no_name_in_module_skipped(self):
+        """Make sure that 'from ... import ...' does not emit a
+        'no-name-in-module' with a module that is configured
+        to be ignored.
+        """
+
+        node = test_utils.extract_node("""
+        from argparse import THIS_does_not_EXIST
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_from(node)
 
 
 class MissingSubmoduleTest(CheckerTestCase):
