@@ -36,6 +36,9 @@ ChangeLog for Pylint
     * Don't emit 'no-name-in-module' for ignored modules.
       Closes issue #223.
 
+    * Fix an 'unused-variable' false positive, where the variable is
+      assigned through an import. Closes issue #196.
+
 2014-04-30  --  1.2.1
     * Restore the ability to specify the init-hook option via the
       configuration file, which was accidentally broken in 1.2.0.

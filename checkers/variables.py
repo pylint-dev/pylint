@@ -356,6 +356,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         authorized_rgx = self.config.dummy_variables_rgx
         called_overridden = False
         argnames = node.argnames()
+        global_names = set()
+        for global_stmt in node.nodes_of_class(astroid.Global):
+            global_names.update(set(global_stmt.names))
+
         for name, stmts in not_consumed.iteritems():
             # ignore some special names specified by user configuration
             if authorized_rgx.match(name):
@@ -365,6 +369,23 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             stmt = stmts[0]
             if isinstance(stmt, astroid.Global):
                 continue
+            if isinstance(stmt, (astroid.Import, astroid.From)):
+                # Detect imports, assigned to global statements.
+                if global_names:
+                    skip = False
+                    for import_name, import_alias in stmt.names:
+                        # If the import uses an alias, check only that.
+                        # Otherwise, check only the import name.
+                        if import_alias:
+                            if import_alias in global_names:
+                                skip = True
+                                break
+                        elif import_name in global_names:
+                            skip = True
+                            break
+                    if skip:
+                        continue
+
             # care about functions with unknown argument (builtins)
             if name in argnames:
                 if is_method:
@@ -412,7 +433,26 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     break
             else:
                 # global but no assignment
-                self.add_message('global-variable-not-assigned', args=name, node=node)
+                # Detect imports in the current frame, with the required
+                # name. Such imports can be considered assignments.
+                imports = frame.nodes_of_class((astroid.Import, astroid.From))
+                for import_node in imports:
+                    found = False
+                    for import_name, import_alias in import_node.names:
+                        # If the import uses an alias, check only that.
+                        # Otherwise, check only the import name.
+                        if import_alias:
+                            if import_alias == name:
+                                found = True
+                                break
+                        elif import_name and import_name == name:
+                            found = True
+                            break
+                    if found:
+                        break
+                else:
+                    self.add_message('global-variable-not-assigned',
+                                     args=name, node=node)
                 default_message = False
             if not assign_nodes:
                 continue
