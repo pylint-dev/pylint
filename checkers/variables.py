@@ -69,6 +69,71 @@ def _get_unpacking_extra_info(node, infered):
         more = ' defined at line %s of %s' % (infered.lineno, infered_module)
     return more
 
+def _detect_global_scope(node, frame, defframe):
+    """ Detect that the given frames shares a global
+    scope.
+
+    Two frames shares a global scope when neither
+    of them are hidden under a function scope, as well
+    as any of parent scope of them, until the root scope.
+    In this case, depending from something defined later on
+    will not work, because it is still undefined.
+
+    Example:
+        class A:
+            # B has the same global scope as `C`, leading to a NameError.
+            class B(C): ...
+        class C: ...
+
+    """
+    def_scope = scope = None
+    if frame and frame.parent:
+        scope = frame.parent.scope()
+    if defframe and defframe.parent:
+        def_scope = defframe.parent.scope()
+    if isinstance(frame, astroid.Function):
+        # If the parent of the current node is a
+        # function, then it can be under its scope
+        # (defined in, which doesn't concern us) or
+        # the `->` part of annotations. The same goes
+        # for annotations of function arguments, they'll have
+        # their parent the Arguments node.
+        if not isinstance(node.parent,
+                          (astroid.Function, astroid.Arguments)):
+            return False
+    elif any(not isinstance(f, (astroid.Class, astroid.Module))
+            for f in (frame, defframe)):
+        # Not interested in other frames, since they are already
+        # not in a global scope.
+        return False
+
+    break_scopes = []
+    for s in (scope, def_scope):
+        # Look for parent scopes. If there is anything different
+        # than a module or a class scope, then they frames don't
+        # share a global scope.
+        parent_scope = s
+        while parent_scope:
+            if not isinstance(parent_scope, (astroid.Class, astroid.Module)):
+                break_scopes.append(parent_scope)
+                break
+            if parent_scope.parent:
+                parent_scope = parent_scope.parent.scope()
+            else:
+                break
+    if break_scopes and len(set(break_scopes)) != 1:
+        # Store different scopes than expected.
+        # If the stored scopes are, in fact, the very same, then it means
+        # that the two frames (frame and defframe) shares the same scope,
+        # and we could apply our lineno analysis over them.
+        # For instance, this works when they are inside a function, the node
+        # that uses a definition and the definition itself.
+        return False
+    # At this point, we are certain that frame and defframe shares a scope
+    # and the definition of the first depends on the second.
+    return frame.lineno < defframe.lineno
+
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
@@ -593,7 +658,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 defframe = defstmt.frame()
                 maybee0601 = True
                 if not frame is defframe:
-                    maybee0601 = False
+                    maybee0601 = _detect_global_scope(node, frame, defframe)
                 elif defframe.parent is None:
                     # we are at the module level, check the name is not
                     # defined in builtins
