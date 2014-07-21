@@ -52,7 +52,7 @@ sys.modules.pop('__pkginfo__', None)
 __pkginfo__ = __import__("__pkginfo__")
 # import required features
 from __pkginfo__ import modname, version, license, description, \
-     web, author, author_email
+     web, author, author_email, classifiers
 
 distname = getattr(__pkginfo__, 'distname', modname)
 scripts = getattr(__pkginfo__, 'scripts', [])
@@ -131,8 +131,14 @@ class MyInstallLib(install_lib.install_lib):
                 else:
                     exclude = set()
                 shutil.rmtree(dest, ignore_errors=True)
-                shutil.copytree(directory, dest, ignore=lambda dir, names: list(set(names) & exclude))
-
+                shutil.copytree(directory, dest)
+                # since python2.5's copytree doesn't support the ignore
+                # parameter, the following loop to remove the exclude set
+                # was added
+                for (dirpath, dirnames, filenames) in os.walk(dest):
+                    for n in filenames:
+                        if n in exclude:
+                            os.remove(os.path.join(dirpath, n))
                 if sys.version_info >= (3, 0):
                     # process manually python file in include_dirs (test data)
                     # pylint: disable=no-name-in-module
@@ -140,6 +146,13 @@ class MyInstallLib(install_lib.install_lib):
                     print('running 2to3 on', dest)
                     run_2to3([dest])
 
+    # override this since pip/easy_install attempt to byte compile test data
+    # files, some of them being syntactically wrong by design, and this scares
+    # the end-user
+    def byte_compile(self, files):
+        testdir = join('pylint', 'test')
+        files = [f for f in files if testdir not in f]
+        install_lib.install_lib.byte_compile(self, files)
 
 def install(**kwargs):
     """setup entry point"""
@@ -179,6 +192,7 @@ def install(**kwargs):
                  author_email=author_email,
                  url=web,
                  scripts=ensure_scripts(scripts),
+                 classifiers=classifiers,
                  data_files=data_files,
                  ext_modules=ext_modules,
                  cmdclass={'install_lib': MyInstallLib,

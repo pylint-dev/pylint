@@ -1,0 +1,4 @@
+E: 43:SecondBad: Invalid __slots__ object
+E: 47:ThirdBad: Invalid object '2' in __slots__, must contain only non empty strings
+E: 49:FourthBad: Invalid __slots__ object
+E: 53:FifthBad: Invalid object "''" in __slots__, must contain only non empty strings

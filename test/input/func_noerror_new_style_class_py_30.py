@@ -18,7 +18,7 @@ class File(file):
         super(File, self).__init__(name, mode, buffering)
         if self.verbose:
             print "File %s is opened.  The mode is: %s" % (self.name,
-self.mode)
+                                                           self.mode)
 
     #
     def write(self, a_string):

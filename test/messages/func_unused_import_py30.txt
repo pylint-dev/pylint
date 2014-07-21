@@ -1,0 +1,6 @@
+R:  9:Meta: Too few public methods (0/2)
+R: 15:Meta2: Too few public methods (0/2)
+R: 18:Meta3: Too few public methods (0/2)
+W:  7: Reimport 'ABCMeta' (imported line 6)
+W: 15:Meta2: Class has no __init__ method
+W: 18:Meta3: Class has no __init__ method

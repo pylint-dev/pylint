@@ -12,16 +12,16 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """test the pylint.checkers.utils module
 """
 
 __revision__ = '$Id: unittest_checkers_utils.py,v 1.6 2005-11-02 09:22:07 syt Exp $'
 
-import unittest
 import sys
 
 from astroid import test_utils
+from logilab.common.testlib import TestCase, unittest_main
 
 from pylint.checkers import utils
 try:
@@ -29,7 +29,7 @@ try:
 except AttributeError:
     __builtins__['mybuiltin'] = 2
 
-class UtilsTC(unittest.TestCase):
+class UtilsTC(TestCase):
     
 ##     def test_is_native_builtin(self):
 ##         self.assertEqual(utils.is_native_builtin('min'), True)
@@ -70,5 +70,5 @@ class UtilsTC(unittest.TestCase):
         self.assertEqual(name.name, 'a')
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest_main()
         

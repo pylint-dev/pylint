@@ -14,7 +14,7 @@ def pprint():
     logging.info('', '') # 1205
     logging.info('%s%', '') # 1201
     logging.info('%s%s', '') # 1206
-    logging.info('%s%a', '', '') # 1200
+    logging.info('%s%y', '', '') # 1200
     logging.info('%s%s', '', '', '') # 1205
 
     # These should be okay:

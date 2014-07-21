@@ -37,7 +37,7 @@ def uninferable(seq):
     """
     return reversed(seq)
 
-def test():
+def test(path):
     """ test function """
     seq = reversed()
     seq = reversed(None)
@@ -56,4 +56,5 @@ def test():
     seq = reversed(deque([]))
     seq = reversed("123")
     seq = uninferable([1, 2, 3])
+    seq = reversed(path.split("/"))
     return seq

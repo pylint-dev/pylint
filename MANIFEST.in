@@ -10,3 +10,5 @@ recursive-include doc *.rst *.jpeg Makefile *.html *.py
 recursive-include test *.py *.txt *.dot *.sh
 include test/input/similar* 
 include test/input/noext
+include test/data/ascript
+

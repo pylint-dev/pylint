@@ -26,8 +26,16 @@ class A(object):
     def set_z(self, z):
         ''' set_z docstring filler '''
         self.z = z
+        self.z = z
 
     def setUp(self):
         ''' setUp docstring filler '''
         self.x = 0
         self.y = 0
+
+class B(A):
+    ''' class B '''
+
+    def test(self):
+        """ test """
+        self.z = 44

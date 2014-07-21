@@ -14,11 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """some functions that may be useful for various checkers
 """
 
 import re
+import sys
 import string
 
 import astroid
@@ -26,8 +27,8 @@ from astroid import scoped_nodes
 from logilab.common.compat import builtins
 
 BUILTINS_NAME = builtins.__name__
-
 COMP_NODE_TYPES = astroid.ListComp, astroid.SetComp, astroid.DictComp, astroid.GenExpr
+PY3K = sys.version_info[0] == 3
 
 
 class NoSuchArgumentError(Exception):
@@ -345,7 +346,11 @@ def parse_format_string(format_string):
             if char in 'hlL':
                 i, char = next_char(i)
             # Parse the conversion type (mandatory).
-            if char not in 'diouxXeEfFgGcrs%':
+            if PY3K:
+                flags = 'diouxXeEfFgGcrs%a'
+            else:
+                flags = 'diouxXeEfFgGcrs%'
+            if char not in flags:
                 raise UnsupportedFormatCharacter(i)
             if key:
                 keys.add(key)
@@ -353,6 +358,7 @@ def parse_format_string(format_string):
                 num_args += 1
         i += 1
     return keys, num_args
+
 
 def is_attr_protected(attrname):
     """return True if attribute name is protected (start with _ and some other
@@ -407,7 +413,7 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     try:
         if position is not None and not isinstance(callfunc_node.args[position], astroid.Keyword):
             return callfunc_node.args[position]
-    except IndexError as error:
+    except IndexError, error:
         raise NoSuchArgumentError(error)
     if keyword:
         for arg in callfunc_node.args:

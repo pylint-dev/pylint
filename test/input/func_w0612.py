@@ -1,7 +1,8 @@
 """test unused variable
 """
-
+# pylint: disable=invalid-name, redefined-outer-name
 __revision__ = 0
+PATH = OS = collections = deque = None
 
 def function(matches):
     """"yo"""
@@ -19,4 +20,19 @@ def visit_if(self, node):
         branches += 1
     self.inc_branch(branches)
     self.stmts += branches
+
+def test_global():
+    """ Test various assignments of global
+    variables through imports.
+    """
+    global PATH, OS, collections, deque
+    from os import path as PATH
+    import os as OS
+    import collections
+    from collections import deque
+    # make sure that these triggers unused-variable
+    from sys import platform
+    from sys import version as VERSION
+    import this
+    import re as RE
 

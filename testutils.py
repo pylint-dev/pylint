@@ -12,22 +12,25 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """functional/non regression tests for pylint"""
+from __future__ import with_statement
 
 import collections
 import contextlib
+import functools
 import sys
 import re
 
 from glob import glob
 from os import linesep
-from os.path import abspath, dirname, join, basename, splitext
+from os.path import abspath, basename, dirname, isdir, join, splitext
 from cStringIO import StringIO
 
 from logilab.common import testlib
 
 from pylint import checkers
+from pylint.utils import PyLintASTWalker
 from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
@@ -35,7 +38,7 @@ from pylint.lint import PyLinter
 
 # Utils
 
-SYS_VERS_STR = '%d%d' % sys.version_info[:2]
+SYS_VERS_STR = '%d%d%d' % sys.version_info[:3]
 TITLE_UNDERLINES = ['', '=', '-', '.']
 PREFIX = abspath(dirname(__file__))
 PY3K = sys.version_info[0] == 3
@@ -75,7 +78,8 @@ def get_tests_info(input_dir, msg_dir, prefix, suffix):
                 if py_rest.isdigit() and SYS_VERS_STR >= py_rest:
                     break
         else:
-            outfile = None
+            # This will provide an error message indicating the missing filename.
+            outfile = join(msg_dir, fbase + '.txt')
         result.append((infile, outfile))
     return result
 
@@ -146,6 +150,26 @@ class UnittestLinter(object):
     def add_stats(self, **kwargs):
         for name, value in kwargs.iteritems():
             self.stats[name] = value
+        return self.stats
+
+    @property
+    def options_providers(self):
+        return linter.options_providers
+
+def set_config(**kwargs):
+    """Decorator for setting config values on a checker."""
+    def _Wrapper(fun):
+        @functools.wraps(fun)
+        def _Forward(self):
+            for key, value in kwargs.iteritems():
+                setattr(self.checker.config, key, value)
+            if isinstance(self, CheckerTestCase):
+                # reopen checker in case, it may be interested in configuration change
+                self.checker.open()
+            fun(self)
+
+        return _Forward
+    return _Wrapper
 
 
 class CheckerTestCase(testlib.TestCase):
@@ -159,7 +183,6 @@ class CheckerTestCase(testlib.TestCase):
         for key, value in self.CONFIG.iteritems():
             setattr(self.checker.config, key, value)
         self.checker.open()
-        self.checker.stats = self.linter.stats
 
     @contextlib.contextmanager
     def assertNoMessages(self):
@@ -181,6 +204,12 @@ class CheckerTestCase(testlib.TestCase):
                'Expected:\n%s\nGot:\n%s' % ('\n'.join(repr(m) for m in messages),
                                             '\n'.join(repr(m) for m in got)))
         self.assertEqual(list(messages), got, msg)
+
+    def walk(self, node):
+        """recursive walk on the given node"""
+        walker = PyLintASTWalker(linter)
+        walker.add_checker(self.checker)
+        walker.walk(node)
 
 
 # Init
@@ -236,6 +265,10 @@ class LintTestUsingModule(testlib.TestCase):
                         for name, file in self.depends]
         self._test(tocheck)
 
+    def _check_result(self, got):
+        self.assertMultiLineEqual(self._get_expected().strip()+'\n',
+                                  got.strip()+'\n')
+
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
             self.linter.enable('I')
@@ -250,28 +283,45 @@ class LintTestUsingModule(testlib.TestCase):
             print ex
             ex.__str__ = exception_str
             raise
-        got = self.linter.reporter.finalize()
-        self.assertMultiLineEqual(self._get_expected(), got)
+        self._check_result(self.linter.reporter.finalize())
 
+    def _has_output(self):
+        return not self.module.startswith('func_noerror_')
 
     def _get_expected(self):
-        if self.module.startswith('func_noerror_'):
-            expected = ''
+        if self._has_output() and self.output:
+            with open(self.output, 'U') as fobj:
+                return fobj.read().strip() + '\n'
         else:
-            output = open(self.output, 'U')
-            expected = output.read().strip() + '\n'
-            output.close()
-        return expected
+            return ''
 
 class LintTestUsingFile(LintTestUsingModule):
 
     _TEST_TYPE = 'file'
 
     def test_functionality(self):
-        tocheck = [join(self.INPUT_DIR, self.module + '.py')]
+        importable = join(self.INPUT_DIR, self.module)
+        # python also prefers packages over simple modules.
+        if not isdir(importable):
+            importable += '.py'
+        tocheck = [importable]
         if self.depends:
             tocheck += [join(self.INPUT_DIR, name) for name, _file in self.depends]
         self._test(tocheck)
+
+class LintTestUpdate(LintTestUsingModule):
+
+    _TEST_TYPE = 'update'
+
+    def _check_result(self, got):
+        if self._has_output():
+            try:
+                expected = self._get_expected()
+            except IOError:
+                expected = ''
+            if got != expected:
+                with open(self.output, 'w') as fobj:
+                    fobj.write(got)
 
 # Callback
 
@@ -299,8 +349,9 @@ def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
     else:
         is_to_run = lambda x: 1
     tests = []
-    for module_file, messages_file in get_tests_info(input_dir, msg_dir,
-            'func_', '.py'):
+    for module_file, messages_file in (
+            get_tests_info(input_dir, msg_dir, 'func_', '')
+    ):
         if not is_to_run(module_file):
             continue
         base = module_file.replace('func_', '').replace('.py', '')

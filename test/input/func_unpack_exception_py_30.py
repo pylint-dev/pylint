@@ -6,8 +6,8 @@ def new_style():
     """Some exceptions can be unpacked."""
     try:
         pass
-    except IOError as (errno, message): # this is fine
+    except IOError, (errno, message): # this is fine
         print errno, message
-    except IOError as (new_style, tuple): # W0623 twice
+    except IOError, (new_style, tuple): # W0623 twice
         print new_style, tuple
 

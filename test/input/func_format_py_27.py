@@ -1,4 +1,4 @@
-# pylint:disable=C0103,W0104,W0105
+# pylint:disable=C0103,W0104,W0105,pointless-except
 """Check format
 """
 __revision__ = ''
@@ -79,16 +79,10 @@ def hop(context):
     return ['''<a id="sendbutton" href="javascript: $('%(domid)s').submit()">
 <img src="%(sendimgpath)s" alt="%(send)s"/>%(send)s</a>''' % context,
             '''<a id="cancelbutton" href="javascript: history.back()">
-<img src="%(cancelimgpath)s" alt="%(cancel)s"/>%(cancel)s</a>''' % context,
-            ]
+<img src="%(cancelimgpath)s" alt="%(cancel)s"/>%(cancel)s</a>''' % context]
 titreprojet = '<tr><td colspan="10">\
 <img src="images/drapeau_vert.png" alt="Drapeau vert" />\
 <strong>%s</strong></td></tr>' % aaaa
-
-with open('a') as a, open('b') as b:
-    pass
-
-with open('a') as a, open('b') as b: pass  # multiple-statements
 
 # Well-formatted try-except-finally block.
 try:

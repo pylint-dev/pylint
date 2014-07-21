@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Checkers for various standard library functions."""
 
 import re
@@ -42,7 +42,7 @@ class OpenModeChecker(BaseChecker):
                   'See http://docs.python.org/2/library/functions.html#open'),
         }
 
-    @utils.check_messages('W1501')
+    @utils.check_messages('bad-open-mode')
     def visit_callfunc(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
@@ -59,7 +59,7 @@ class OpenModeChecker(BaseChecker):
                 mode_arg = utils.safe_infer(mode_arg)
                 if (isinstance(mode_arg, astroid.Const)
                     and not re.match(_VALID_OPEN_MODE_REGEX, mode_arg.value)):
-                    self.add_message('W1501', node=node, args=(mode_arg.value))
+                    self.add_message('bad-open-mode', node=node, args=(mode_arg.value))
         except (utils.NoSuchArgumentError, TypeError):
             pass
 

@@ -11,7 +11,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """exceptions handling (raising, catching, exceptions classes) checker
 """
 import sys
@@ -94,7 +94,8 @@ MSGS = {
     'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
               'nonstandard-exception',
               'Used when a custom exception class is raised but doesn\'t \
-              inherit from the builtin "Exception" class.'),
+              inherit from the builtin "Exception" class.',
+              {'maxversion': (3, 0)}),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
               'binary-op-exception',
               'Used when the exception to catch is of the form \
@@ -105,6 +106,11 @@ MSGS = {
               'Python3 will not allow implicit unpacking of exceptions in except '
               'clauses. '
               'See http://www.python.org/dev/peps/pep-3110/',
+              {'maxversion': (3, 0)}),
+    'W0713': ('Indexing exceptions will not work on Python 3',
+              'indexing-exception',
+              'Indexing exceptions will not work on Python 3. Use '
+              '`exception.args[index]` instead.',
               {'maxversion': (3, 0)}),
     }
 
@@ -134,8 +140,8 @@ class ExceptionsChecker(BaseChecker):
                 ),
                )
 
-    @check_messages('W0701', 'W0710', 'E0702', 'E0710', 'E0711',
-                    'bad-exception-context')
+    @check_messages('raising-string', 'nonstandard-exception', 'raising-bad-type',
+                    'raising-non-exception', 'notimplemented-raised', 'bad-exception-context')
     def visit_raise(self, node):
         """visit raise possibly inferring value"""
         # ignore empty raise
@@ -147,6 +153,8 @@ class ExceptionsChecker(BaseChecker):
             except astroid.InferenceError:
                 pass
             else:
+                if cause is YES:
+                    return
                 if isinstance(cause, astroid.Const):
                     if cause.value is not None:
                         self.add_message('bad-exception-context',
@@ -172,22 +180,22 @@ class ExceptionsChecker(BaseChecker):
         if isinstance(expr, astroid.Const):
             value = expr.value
             if isinstance(value, str):
-                self.add_message('W0701', node=node)
+                self.add_message('raising-string', node=node)
             else:
-                self.add_message('E0702', node=node,
+                self.add_message('raising-bad-type', node=node,
                                  args=value.__class__.__name__)
         elif (isinstance(expr, astroid.Name) and \
                  expr.name in ('None', 'True', 'False')) or \
                  isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
                                    astroid.Module, astroid.Function)):
-            self.add_message('E0702', node=node, args=expr.name)
+            self.add_message('raising-bad-type', node=node, args=expr.name)
         elif ((isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
               or (isinstance(expr, astroid.CallFunc) and
                   isinstance(expr.func, astroid.Name) and
                   expr.func.name == 'NotImplemented')):
-            self.add_message('E0711', node=node)
+            self.add_message('notimplemented-raised', node=node)
         elif isinstance(expr, astroid.BinOp) and expr.op == '%':
-            self.add_message('W0701', node=node)
+            self.add_message('raising-string', node=node)
         elif isinstance(expr, (Instance, astroid.Class)):
             if isinstance(expr, Instance):
                 expr = expr._proxied
@@ -195,42 +203,55 @@ class ExceptionsChecker(BaseChecker):
                     not inherit_from_std_ex(expr) and
                     expr.root().name != BUILTINS_NAME):
                 if expr.newstyle:
-                    self.add_message('E0710', node=node)
+                    self.add_message('raising-non-exception', node=node)
                 else:
-                    self.add_message('W0710', node=node)
+                    self.add_message('nonstandard-exception', node=node)
             else:
                 value_found = False
         else:
             value_found = False
         return value_found
 
-    @check_messages('W0712')
+    @check_messages('unpacking-in-except')
     def visit_excepthandler(self, node):
         """Visit an except handler block and check for exception unpacking."""
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
-            self.add_message('W0712', node=node)
+            self.add_message('unpacking-in-except', node=node)
 
+    @check_messages('indexing-exception')
+    def visit_subscript(self, node):
+        """ Look for indexing exceptions. """
+        try:
+            for infered in node.value.infer():
+                if not isinstance(infered, astroid.Instance):
+                    continue
+                if inherit_from_std_ex(infered):
+                    self.add_message('indexing-exception', node=node)
+        except astroid.InferenceError:
+            return
 
-    @check_messages('W0702', 'W0703', 'W0704', 'W0711', 'E0701', 'catching-non-exception')
+    @check_messages('bare-except', 'broad-except', 'pointless-except',
+                    'binary-op-exception', 'bad-except-order',
+                    'catching-non-exception')
     def visit_tryexcept(self, node):
         """check for empty except"""
         exceptions_classes = []
         nb_handlers = len(node.handlers)
         for index, handler  in enumerate(node.handlers):
             # single except doing nothing but "pass" without else clause
-            if nb_handlers == 1 and is_empty(handler.body) and not node.orelse:
-                self.add_message('W0704', node=handler.type or handler.body[0])
+            if is_empty(handler.body) and not node.orelse:
+                self.add_message('pointless-except', node=handler.type or handler.body[0])
             if handler.type is None:
-                if nb_handlers == 1 and not is_raising(handler.body):
-                    self.add_message('W0702', node=handler)
+                if not is_raising(handler.body):
+                    self.add_message('bare-except', node=handler)
                 # check if a "except:" is followed by some other
                 # except
-                elif index < (nb_handlers - 1):
+                if index < (nb_handlers - 1):
                     msg = 'empty except clause should always appear last'
-                    self.add_message('E0701', node=node, args=msg)
+                    self.add_message('bad-except-order', node=node, args=msg)
 
             elif isinstance(handler.type, astroid.BoolOp):
-                self.add_message('W0711', node=handler, args=handler.type.op)
+                self.add_message('binary-op-exception', node=handler, args=handler.type.op)
             else:
                 try:
                     excs = list(unpack_infer(handler.type))
@@ -246,11 +267,11 @@ class ExceptionsChecker(BaseChecker):
                         if previous_exc in exc_ancestors:
                             msg = '%s is an ancestor class of %s' % (
                                 previous_exc.name, exc.name)
-                            self.add_message('E0701', node=handler.type, args=msg)
+                            self.add_message('bad-except-order', node=handler.type, args=msg)
                     if (exc.name in self.config.overgeneral_exceptions
                         and exc.root().name == EXCEPTIONS_MODULE
-                        and nb_handlers == 1 and not is_raising(handler.body)):
-                        self.add_message('W0703', args=exc.name, node=handler.type)
+                        and not is_raising(handler.body)):
+                        self.add_message('broad-except', args=exc.name, node=handler.type)
 
                     if (not inherit_from_std_ex(exc) and
                         exc.root().name != BUILTINS_NAME):

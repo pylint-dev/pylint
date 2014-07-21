@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """diagram objects
 """
 
@@ -85,12 +85,15 @@ class ClassDiagram(Figure, FilterMixIn):
             if names:
                 node_name = "%s : %s" % (node_name, ", ".join(names))
             attrs.append(node_name)
-        return attrs
+        return sorted(attrs)
 
     def get_methods(self, node):
         """return visible methods"""
-        return [m for m in node.values()
-                if isinstance(m, astroid.Function) and self.show_attr(m.name)]
+        methods = [
+            m for m in node.values()
+            if isinstance(m, astroid.Function) and self.show_attr(m.name)
+        ]
+        return sorted(methods, key=lambda n: n.name)
 
     def add_object(self, title, node):
         """create a diagram object
