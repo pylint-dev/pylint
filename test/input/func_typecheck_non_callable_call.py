@@ -35,3 +35,39 @@ TUPLE = ()
 INCORRECT = TUPLE()
 INT = 1
 INCORRECT = INT()
+
+# Test calling properties. Pylint can detect when using only the
+# getter, but it doesn't infer properly when having a getter
+# and a setter.
+class MyProperty(property):
+    """ test subclasses """
+
+class PropertyTest(object):
+    """ class """
+
+    def __init__(self):
+        self.attr = 4
+
+    @property
+    def test(self):
+        """ Get the attribute """
+        return self.attr
+
+    @test.setter
+    def test(self, value):
+        """ Set the attribute """
+        self.attr = value
+
+    @MyProperty
+    def custom(self):
+        """ Get the attribute """
+        return self.attr
+
+    @custom.setter
+    def custom(self, value):
+        """ Set the attribute """
+        self.attr = value
+
+PROP = PropertyTest()
+PROP.test(40)
+PROP.custom()

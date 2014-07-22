@@ -18,4 +18,5 @@ def pprint():
     print "%(PARG_1)d %(PARG_2)d" % [2, 3] # 1303
     print "%2z" % PARG_1
     print "strange format %2" % PARG_2
+    print "works in 3 %a" % 1
 

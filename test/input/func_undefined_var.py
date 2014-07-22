@@ -1,5 +1,5 @@
 """test access to undefined variables"""
-
+# pylint: disable=too-few-public-methods, no-init, no-self-use
 __revision__ = '$Id:'
 
 DEFINED = 1
@@ -83,3 +83,37 @@ def func1():
 def func2():
     """A function with a decorator that contains a genexpr."""
     pass
+
+# Test shared scope.
+
+def test_arguments(arg=TestClass):
+    """ TestClass isn't defined yet. """
+    return arg
+
+class TestClass(Ancestor):
+    """ contains another class, which uses an undefined ancestor. """
+
+    class MissingAncestor(Ancestor1):
+        """ no op """
+
+    def test1(self):
+        """ It should trigger here, because the two classes
+        have the same scope.
+        """
+        class UsingBeforeDefinition(Empty):
+            """ uses Empty before definition """
+        class Empty(object):
+            """ no op """
+        return UsingBeforeDefinition
+
+    def test(self):
+        """ Ancestor isn't defined yet, but we don't care. """
+        class MissingAncestor1(Ancestor):
+            """ no op """
+        return MissingAncestor1
+
+class Ancestor(object):
+    """ No op """
+
+class Ancestor1(object):
+    """ No op """

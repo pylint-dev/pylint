@@ -152,6 +152,9 @@ class UnittestLinter(object):
             self.stats[name] = value
         return self.stats
 
+    @property
+    def options_providers(self):
+        return linter.options_providers
 
 def set_config(**kwargs):
     """Decorator for setting config values on a checker."""

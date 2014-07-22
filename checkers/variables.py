@@ -25,6 +25,7 @@ from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
 from logilab.common.modutils import file_from_modpath
 
 from pylint.interfaces import IAstroidChecker
+from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
      is_defined_before, is_error, is_func_default, is_func_decorator,
@@ -67,6 +68,71 @@ def _get_unpacking_extra_info(node, infered):
     elif infered.lineno:
         more = ' defined at line %s of %s' % (infered.lineno, infered_module)
     return more
+
+def _detect_global_scope(node, frame, defframe):
+    """ Detect that the given frames shares a global
+    scope.
+
+    Two frames shares a global scope when neither
+    of them are hidden under a function scope, as well
+    as any of parent scope of them, until the root scope.
+    In this case, depending from something defined later on
+    will not work, because it is still undefined.
+
+    Example:
+        class A:
+            # B has the same global scope as `C`, leading to a NameError.
+            class B(C): ...
+        class C: ...
+
+    """
+    def_scope = scope = None
+    if frame and frame.parent:
+        scope = frame.parent.scope()
+    if defframe and defframe.parent:
+        def_scope = defframe.parent.scope()
+    if isinstance(frame, astroid.Function):
+        # If the parent of the current node is a
+        # function, then it can be under its scope
+        # (defined in, which doesn't concern us) or
+        # the `->` part of annotations. The same goes
+        # for annotations of function arguments, they'll have
+        # their parent the Arguments node.
+        if not isinstance(node.parent,
+                          (astroid.Function, astroid.Arguments)):
+            return False
+    elif any(not isinstance(f, (astroid.Class, astroid.Module))
+            for f in (frame, defframe)):
+        # Not interested in other frames, since they are already
+        # not in a global scope.
+        return False
+
+    break_scopes = []
+    for s in (scope, def_scope):
+        # Look for parent scopes. If there is anything different
+        # than a module or a class scope, then they frames don't
+        # share a global scope.
+        parent_scope = s
+        while parent_scope:
+            if not isinstance(parent_scope, (astroid.Class, astroid.Module)):
+                break_scopes.append(parent_scope)
+                break
+            if parent_scope.parent:
+                parent_scope = parent_scope.parent.scope()
+            else:
+                break
+    if break_scopes and len(set(break_scopes)) != 1:
+        # Store different scopes than expected.
+        # If the stored scopes are, in fact, the very same, then it means
+        # that the two frames (frame and defframe) shares the same scope,
+        # and we could apply our lineno analysis over them.
+        # For instance, this works when they are inside a function, the node
+        # that uses a definition and the definition itself.
+        return False
+    # At this point, we are certain that frame and defframe shares a scope
+    # and the definition of the first depends on the second.
+    return frame.lineno < defframe.lineno
+
 
 MSGS = {
     'E0601': ('Using variable %r before assignment',
@@ -147,7 +213,7 @@ MSGS = {
               'a sequence is used in an unpack assignment'),
 
     'W0640': ('Cell variable %s defined in loop',
-              'cell-var-from-loop', 
+              'cell-var-from-loop',
               'A variable used in a closure is defined in a loop. '
               'This will result in all closures using the same value for '
               'the closed-over variable.'),
@@ -355,6 +421,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         authorized_rgx = self.config.dummy_variables_rgx
         called_overridden = False
         argnames = node.argnames()
+        global_names = set()
+        for global_stmt in node.nodes_of_class(astroid.Global):
+            global_names.update(set(global_stmt.names))
+
         for name, stmts in not_consumed.iteritems():
             # ignore some special names specified by user configuration
             if authorized_rgx.match(name):
@@ -364,6 +434,23 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             stmt = stmts[0]
             if isinstance(stmt, astroid.Global):
                 continue
+            if isinstance(stmt, (astroid.Import, astroid.From)):
+                # Detect imports, assigned to global statements.
+                if global_names:
+                    skip = False
+                    for import_name, import_alias in stmt.names:
+                        # If the import uses an alias, check only that.
+                        # Otherwise, check only the import name.
+                        if import_alias:
+                            if import_alias in global_names:
+                                skip = True
+                                break
+                        elif import_name in global_names:
+                            skip = True
+                            break
+                    if skip:
+                        continue
+
             # care about functions with unknown argument (builtins)
             if name in argnames:
                 if is_method:
@@ -411,7 +498,26 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     break
             else:
                 # global but no assignment
-                self.add_message('global-variable-not-assigned', args=name, node=node)
+                # Detect imports in the current frame, with the required
+                # name. Such imports can be considered assignments.
+                imports = frame.nodes_of_class((astroid.Import, astroid.From))
+                for import_node in imports:
+                    found = False
+                    for import_name, import_alias in import_node.names:
+                        # If the import uses an alias, check only that.
+                        # Otherwise, check only the import name.
+                        if import_alias:
+                            if import_alias == name:
+                                found = True
+                                break
+                        elif import_name and import_name == name:
+                            found = True
+                            break
+                    if found:
+                        break
+                else:
+                    self.add_message('global-variable-not-assigned',
+                                     args=name, node=node)
                 default_message = False
             if not assign_nodes:
                 continue
@@ -447,7 +553,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             else:
                 if maybe_for.parent_of(node_scope) and not isinstance(node_scope.statement(), astroid.Return):
                     self.add_message('cell-var-from-loop', node=node, args=node.name)
-        
+
     def _loopvar_name(self, node, name):
         # filter variables according to node's scope
         # XXX used to filter parents but don't remember why, and removing this
@@ -552,7 +658,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 defframe = defstmt.frame()
                 maybee0601 = True
                 if not frame is defframe:
-                    maybee0601 = False
+                    maybee0601 = _detect_global_scope(node, frame, defframe)
                 elif defframe.parent is None:
                     # we are at the module level, check the name is not
                     # defined in builtins
@@ -649,6 +755,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # attempt to check unpacking is properly balanced
             values = infered.itered()
             if len(targets) != len(values):
+                # Check if we have starred nodes.
+                if any(isinstance(target, astroid.Starred)
+                       for target in targets):
+                    return
                 self.add_message('unbalanced-tuple-unpacking', node=node,
                                  args=(_get_unpacking_extra_info(node, infered),
                                        len(targets),
@@ -675,6 +785,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if the latest access name corresponds to a module, return it
         """
         assert isinstance(module, astroid.Module), module
+        ignored_modules = get_global_option(self, 'ignored-modules',
+                                            default=[])
         while module_names:
             name = module_names.pop(0)
             if name == '__dict__':
@@ -685,7 +797,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if module is astroid.YES:
                     return None
             except astroid.NotFoundError:
-                self.add_message('no-name-in-module', args=(name, module.name), node=node)
+                if module.name in ignored_modules:
+                    return None
+                self.add_message('no-name-in-module',
+                                 args=(name, module.name), node=node)
                 return None
             except astroid.InferenceError:
                 return None

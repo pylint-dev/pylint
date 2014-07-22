@@ -1,2 +1,4 @@
 W:  5: FIXME: beep
-W:  8: XXX:bop'''
+W: 11: FIXME: Valid test
+W: 13: TODO: Do something with the variables
+W: 14: XXX: Fix this later
