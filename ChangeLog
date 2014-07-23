@@ -48,6 +48,10 @@ ChangeLog for Pylint
 
     * Don't emit 'unused-variable' when assigning to a nonlocal.
       Closes issue #275.
+   
+    * Do not let ImportError propagate from the import checker, leading to crash
+      in some namespace package related cases. Closes issue #203.
+
 
 2014-04-30  --  1.2.1
     * Restore the ability to specify the init-hook option via the
