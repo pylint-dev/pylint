@@ -2,6 +2,10 @@ ChangeLog for Pylint
 ====================
 
 --
+
+    * Emit 'undefined-variable' for undefined names when using the
+      Python 3 `metaclass=` argument.
+
     * Checkers respect priority now. Close issue #229.
     
     * Fix a false positive regarding W0511. Closes issue #149.
