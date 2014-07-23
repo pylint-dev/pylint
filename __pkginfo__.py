@@ -23,10 +23,10 @@ numversion = (1, 2, 1)
 version = '.'.join([str(num) for num in numversion])
 
 if sys.version_info < (2, 6):
-    install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.1',
+    install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.2',
                         'StringFormat']
 else:
-    install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.1']
+    install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.2']
 
 license = 'GPL'
 description = "python code static checker"

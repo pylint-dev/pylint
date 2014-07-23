@@ -18,11 +18,11 @@
 import sys
 
 from logilab.common.graph import get_cycles, DotBackend
-from logilab.common.modutils import get_module_part, is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
 
 import astroid
 from astroid import are_exclusive
+from astroid.modutils import get_module_part, is_standard_module
 
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport
