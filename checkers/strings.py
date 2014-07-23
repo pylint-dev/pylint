@@ -327,10 +327,10 @@ class StringMethodsChecker(BaseChecker):
             self.add_message('bad-format-string', node=node)
             return
 
-        manual_fields = {field[0] for field in fields
-                         if isinstance(field[0], int)}
-        named_fields = {field[0] for field in fields
-                        if isinstance(field[0], str)}
+        manual_fields = set(field[0] for field in fields
+                            if isinstance(field[0], int))
+        named_fields = set(field[0] for field in fields
+                           if isinstance(field[0], str))
         if manual_fields and num_args:
             self.add_message('format-combined-specification',
                              node=node)
