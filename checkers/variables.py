@@ -422,8 +422,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         called_overridden = False
         argnames = node.argnames()
         global_names = set()
+        nonlocal_names = set()
         for global_stmt in node.nodes_of_class(astroid.Global):
             global_names.update(set(global_stmt.names))
+        for nonlocal_stmt in node.nodes_of_class(astroid.Nonlocal):
+            nonlocal_names.update(set(nonlocal_stmt.names))
 
         for name, stmts in not_consumed.iteritems():
             # ignore some special names specified by user configuration
@@ -470,6 +473,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     continue
                 self.add_message('unused-argument', args=name, node=stmt)
             else:
+                if stmt.parent and isinstance(stmt.parent, astroid.Assign):
+                    if name in nonlocal_names:
+                        continue
                 self.add_message('unused-variable', args=name, node=stmt)
 
     @check_messages('global-variable-undefined', 'global-variable-not-assigned', 'global-statement',
