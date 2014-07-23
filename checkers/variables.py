@@ -831,7 +831,6 @@ class VariablesChecker3k(VariablesChecker):
         # do not check for not used locals here
         self._to_consume.pop()
 
-    @check_messages('undefined-variable')
     def leave_module(self, node):
         """ Update consumption analysis variable
         for metaclasses.
