@@ -42,7 +42,6 @@ import sys
 import tokenize
 import warnings
 
-from astroid.utils import ASTWalker
 from logilab.common.configuration import OptionsProviderMixIn
 
 from pylint.reporters import diff_string
@@ -69,7 +68,7 @@ def table_lines_from_stats(stats, old_stats, columns):
     return lines
 
 
-class BaseChecker(OptionsProviderMixIn, ASTWalker):
+class BaseChecker(OptionsProviderMixIn):
     """base class for checkers"""
     # checker name (you may reuse an existing one)
     name = None
@@ -87,7 +86,6 @@ class BaseChecker(OptionsProviderMixIn, ASTWalker):
 
         linter is an object implementing ILinter
         """
-        ASTWalker.__init__(self, self)
         self.name = self.name.lower()
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
