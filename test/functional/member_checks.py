@@ -1,7 +1,6 @@
 # pylint: disable=
 """check getattr if inference succeed"""
 
-__revision__ = None
 
 class Provider(object):
     """provide some attributes and method"""
@@ -16,13 +15,13 @@ class Provider(object):
         print 'hop hop hop', self
 
 
-class Client:
+class Client(object):
     """use provider class"""
 
     def __init__(self):
         self._prov = Provider()
         self._prov_attr = Provider.cattr
-        self._prov_attr2 = Provider.cattribute
+        self._prov_attr2 = Provider.cattribute  # [no-member]
         self.set_later = 0
 
     def set_set_later(self, value):
@@ -32,12 +31,12 @@ class Client:
     def use_method(self):
         """use provider's method"""
         self._prov.hophop()
-        self._prov.hophophop()
+        self._prov.hophophop()  # [no-member]
 
     def use_attr(self):
         """use provider's attr"""
         print self._prov.attr
-        print self._prov.attribute
+        print self._prov.attribute  # [no-member]
 
     def debug(self):
         """print debug information"""
@@ -49,21 +48,16 @@ class Client:
     def test_bt_types(self):
         """test access to unexistant member of builtin types"""
         lis = []
-        lis.apppend(self)
+        lis.apppend(self)  # [no-member]
         dic = {}
-        dic.set(self)
+        dic.set(self)  # [no-member]
         tup = ()
-        tup.append(self)
+        tup.append(self)  # [no-member]
         string = 'toto'
-        print string.loower()
-        # unicode : moved to func_3k_removed_stuff_py_30.py
-        #
+        print string.loower()  # [no-member]
         integer = 1
-        print integer.whatever
+        print integer.whatever  # [no-member]
 
 print object.__init__
 print property.__init__
-print Client().set_later.lower()
-
-# should detect mixing new style / old style classes
-Client.__bases__ += (object,)
+print Client().set_later.lower()  # [no-member]

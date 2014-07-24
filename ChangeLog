@@ -2,6 +2,11 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Each message now comes with a confidence level attached, and
+      can be filtered base on this level. This allows to filter out
+      all messages that were emitted even though an inference failure
+      happened during checking.
+
     * Improved presenting unused-import message. Closes issue #293.
 
     * Add new checker for finding spelling errors. New messages:

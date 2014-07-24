@@ -11,8 +11,20 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Interfaces for PyLint objects"""
+from collections import namedtuple
 
 from logilab.common.interface import Interface
+
+Confidence = namedtuple('Confidence', ['name', 'description'])
+# Warning Certainties
+HIGH = Confidence('HIGH', 'No false positive possible.')
+INFERENCE = Confidence('INFERENCE', 'Warning based on inference result.')
+INFERENCE_FAILURE = Confidence('INFERENCE_FAILURE',
+                               'Warning based on inference with failures.')
+UNDEFINED = Confidence('UNDEFINED',
+                       'Warning without any associated confidence level.')
+
+CONFIDENCE_LEVELS = [HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 
 
 class IChecker(Interface):

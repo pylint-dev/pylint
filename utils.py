@@ -35,7 +35,7 @@ from astroid import nodes, Module
 from astroid.modutils import modpath_from_file, get_module_files, \
     file_from_modpath, load_module_from_file
 
-from pylint.interfaces import IRawChecker, ITokenChecker
+from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED
 
 
 class UnknownMessage(Exception):
@@ -67,6 +67,7 @@ MSG_TYPES_STATUS = {
 _MSG_ORDER = 'EWRCIF'
 MSG_STATE_SCOPE_CONFIG = 0
 MSG_STATE_SCOPE_MODULE = 1
+MSG_STATE_CONFIDENCE = 2
 
 OPTION_RGX = re.compile(r'\s*#.*\bpylint:(.*)')
 
@@ -79,15 +80,16 @@ class WarningScope(object):
 
 _MsgBase = collections.namedtuple(
     '_MsgBase', 
-    ['msg_id', 'symbol', 'msg', 'C', 'category', 'abspath', 'module', 'obj',
-     'line', 'column'])
+    ['msg_id', 'symbol', 'msg', 'C', 'category', 'confidence', 
+     'abspath', 'module', 'obj', 'line', 'column'])
 
 
 class Message(_MsgBase):
     """This class represent a message to be issued by the reporters"""
-    def __new__(cls, msg_id, symbol, location, msg):
+    def __new__(cls, msg_id, symbol, location, msg, confidence):
         return _MsgBase.__new__(
-            cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]], *location)
+            cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]], 
+            confidence, *location)
 
     def format(self, template):
         """Format the message according to the given template.
@@ -302,12 +304,25 @@ class MessagesHandlerMixIn(object):
             # sync configuration object
             self.config.enable = [mid for mid, val in msgs.iteritems() if val]
 
-    def is_message_enabled(self, msg_descr, line=None):
+    def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
+        """Returns the scope at which a message was enabled/disabled."""
+        if self.config.confidence and confidence.name not in self.config.confidence:
+            return MSG_STATE_CONFIDENCE
+        try:
+            if line in self.file_state._module_msgs_state[msgid]:
+                return MSG_STATE_SCOPE_MODULE
+        except (KeyError, TypeError):
+            return MSG_STATE_SCOPE_CONFIG
+
+    def is_message_enabled(self, msg_descr, line=None, confidence=None):
         """return true if the message associated to the given message id is
         enabled
 
         msgid may be either a numeric or symbolic message id.
         """
+        if self.config.confidence and confidence:
+            if confidence.name not in self.config.confidence:
+                return False
         try:
             msgid = self.msgs_store.check_message_id(msg_descr).msgid
         except UnknownMessage:
@@ -322,7 +337,7 @@ class MessagesHandlerMixIn(object):
         except KeyError:
             return self._msgs_state.get(msgid, True)
 
-    def add_message(self, msg_descr, line=None, node=None, args=None):
+    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED):
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args
@@ -352,8 +367,10 @@ class MessagesHandlerMixIn(object):
         else:
             col_offset = None
         # should this message be displayed
-        if not self.is_message_enabled(msgid, line):
-            self.file_state.handle_ignored_message(msgid, line, node, args)
+        if not self.is_message_enabled(msgid, line, confidence):
+            self.file_state.handle_ignored_message(
+                self.get_message_state_scope(msgid, line, confidence),
+                msgid, line, node, args, confidence)
             return
         # update stats
         msg_cat = MSG_TYPES[msgid[0]]
@@ -377,8 +394,8 @@ class MessagesHandlerMixIn(object):
             path = node.root().file
         # add the message
         self.reporter.handle_message(
-            Message(msgid, symbol, 
-                    (path, module, obj, line or 1, col_offset or 0), msg))
+            Message(msgid, symbol,
+                    (path, module, obj, line or 1, col_offset or 0), msg, confidence))
 
     def print_full_documentation(self):
         """output a full documentation in ReST format"""
@@ -519,28 +536,19 @@ class FileState(object):
         except KeyError:
             self._module_msgs_state[msg.msgid] = {line: status}
 
-    def handle_ignored_message(self, msgid, line, node, args):
+    def handle_ignored_message(self, state_scope, msgid, line, node, args, confidence):
         """Report an ignored message.
 
         state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
         depending on whether the message was disabled locally in the module,
         or globally. The other arguments are the same as for add_message.
         """
-        state_scope = self._message_state_scope(msgid, line)
         if state_scope == MSG_STATE_SCOPE_MODULE:
             try:
                 orig_line = self._suppression_mapping[(msgid, line)]
                 self._ignored_msgs.setdefault((msgid, orig_line), set()).add(line)
             except KeyError:
                 pass
-
-    def _message_state_scope(self, msgid, line=None):
-        """Returns the scope at which a message was enabled/disabled."""
-        try:
-            if line in self._module_msgs_state[msgid]:
-                return MSG_STATE_SCOPE_MODULE
-        except KeyError:
-            return MSG_STATE_SCOPE_CONFIG
 
     def iter_spurious_suppression_messages(self, msgs_store):
         for warning, lines in self._raw_module_msgs_state.iteritems():

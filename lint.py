@@ -51,7 +51,7 @@ from pylint.utils import (
     PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn, ReportsHandlerMixIn,
     MessagesStore, FileState, EmptyReport,
     expand_modules, tokenize_module)
-from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker
+from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker, CONFIDENCE_LEVELS
 from pylint.checkers import (BaseTokenChecker,
                              table_lines_from_stats,
                              initialize as checkers_initialize)
@@ -237,6 +237,15 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                   'group': 'Reports', 'level': 1,
                   'help' : 'Add a comment according to your evaluation note. '
                            'This is used by the global evaluation report (RP0004).'}),
+
+                ('confidence',
+                 {'type' : 'multiple_choice', 'metavar': '<levels>',
+                  'default': '',
+                  'choices': [c.name for c in CONFIDENCE_LEVELS],
+                  'group': 'Messages control',
+                  'help' : 'Only show warnings with the listed confidence levels.'
+                           ' Leave empty to show all. Valid levels: %s' % (
+                            ', '.join(c.name for c in CONFIDENCE_LEVELS),)}),
 
                 ('enable',
                  {'type' : 'csv', 'metavar': '<msg ids>',
@@ -879,6 +888,12 @@ group are mutually exclusive.'),
               'group': 'Commands', 'level': 1,
               'help' : "Generate pylint's messages."}),
 
+            ('list-conf-levels',
+             {'action' : 'callback',
+              'callback' : self.cb_list_confidence_levels,
+              'group': 'Commands', 'level': 1,
+              'help' : "Generate pylint's messages."}),
+
             ('full-documentation',
              {'action' : 'callback', 'metavar': '<msg-id>',
               'callback' : self.cb_full_documentation,
@@ -1035,6 +1050,11 @@ group are mutually exclusive.'),
     def cb_list_messages(self, option, optname, value, parser): # FIXME
         """optik callback for printing available messages"""
         self.linter.msgs_store.list_messages()
+        sys.exit(0)
+
+    def cb_list_confidence_levels(self, option, optname, value, parser):
+        for level in CONFIDENCE_LEVELS:
+            print '%-18s: %s' % level
         sys.exit(0)
 
 def cb_init_hook(optname, value):

@@ -11,6 +11,7 @@ import sys
 import unittest
 
 from pylint import checkers
+from pylint import interfaces
 from pylint import lint
 from pylint import reporters
 from pylint import utils
@@ -30,6 +31,10 @@ csv.register_dialect('test', test_dialect)
 class NoFileError(Exception):
     pass
 
+# Notes:
+# - for the purpose of this test, the confidence levels HIGH and UNDEFINED
+#   are treated as the same.
+
 # TODOs
 #  - implement exhaustivity tests
 
@@ -37,14 +42,24 @@ class NoFileError(Exception):
 UPDATE = False
 
 class OutputLine(collections.namedtuple('OutputLine', 
-                ['symbol', 'lineno', 'object', 'msg'])):
+                ['symbol', 'lineno', 'object', 'msg', 'confidence'])):
     @classmethod
     def from_msg(cls, msg):
-        return cls(msg.symbol, msg.line, msg.obj or '', msg.msg)
+        return cls(
+            msg.symbol, msg.line, msg.obj or '', msg.msg, 
+            msg.confidence.name
+            if msg.confidence != interfaces.UNDEFINED else interfaces.HIGH.name)
 
     @classmethod
     def from_csv(cls, row):
-        return cls(row[0], int(row[1]), row[2], row[3])
+        confidence = row[4] if len(row) == 5 else interfaces.HIGH.name
+        return cls(row[0], int(row[1]), row[2], row[3], confidence)
+
+    def to_csv(self):
+        if self.confidence == interfaces.HIGH.name:
+            return self[:-1]
+        else:
+            return self
 
 
 # Common sub-expressions.
@@ -292,7 +307,7 @@ class LintModuleOutputUpdate(LintModuleTest):
         try:
             return super(LintModuleOutputUpdate, self)._open_expected_file()
         except IOError:
-            return contextlib.closing(cStringIO.StringIO())
+            return io.StringIO()
 
     def _check_output_text(self, expected_messages, expected_lines,
                            received_lines):
@@ -305,8 +320,7 @@ class LintModuleOutputUpdate(LintModuleTest):
             with open(self._test_file.expected_output, 'w') as fobj:
                 writer = csv.writer(fobj, dialect='test')
                 for line in remaining:
-                    #fobj.write('{0}:{1}:{2}:{3}'.format(*line))
-                    writer.writerow(line)
+                    writer.writerow(line.to_csv())
 
 def suite():
     input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),

@@ -23,23 +23,19 @@ import astroid
 from astroid import InferenceError, NotFoundError, YES, Instance
 from astroid.bases import BUILTINS
 
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer, is_super, check_messages
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
               'no-member',
-              'Used when a variable is accessed for an unexistent member.'),
+              'Used when a variable is accessed for an unexistent member.',
+              {'old_names': [('E1103', 'maybe-no-member')]}),
     'E1102': ('%s is not callable',
               'not-callable',
               'Used when an object being called has been inferred to a non \
               callable object'),
-    'E1103': ('%s %r has no %r member (but some types could not be inferred)',
-              'maybe-no-member',
-              'Used when a variable is accessed for an unexistent member, but \
-              astroid was not able to interpret all possible types of this \
-              variable.'),
     'E1111': ('Assigning to function call which doesn\'t return',
               'assignment-from-no-return',
               'Used when an assignment is done on a function call but the \
@@ -187,7 +183,7 @@ accessed. Python regular expressions are accepted.'}
     def visit_delattr(self, node):
         self.visit_getattr(node)
 
-    @check_messages('no-member', 'maybe-no-member')
+    @check_messages('no-member')
     def visit_getattr(self, node):
         """check that the accessed attribute exists
 
@@ -279,13 +275,11 @@ accessed. Python regular expressions are accepted.'}
                 if actual in done:
                     continue
                 done.add(actual)
-                if inference_failure:
-                    msgid = 'maybe-no-member'
-                else:
-                    msgid = 'no-member'
-                self.add_message(msgid, node=node,
+                confidence = INFERENCE if not inference_failure else INFERENCE_FAILURE
+                self.add_message('no-member', node=node,
                                  args=(owner.display_type(), name,
-                                       node.attrname))
+                                       node.attrname),
+                                 confidence=confidence)
 
     @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):

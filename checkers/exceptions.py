@@ -25,8 +25,8 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_empty, is_raising,
     check_messages, inherit_from_std_ex,
-    EXCEPTIONS_MODULE)
-from pylint.interfaces import IAstroidChecker
+    EXCEPTIONS_MODULE, has_known_bases)
+from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 
 def _annotated_unpack_infer(stmt, context=None):
     """
@@ -234,7 +234,9 @@ class ExceptionsChecker(BaseChecker):
                 if expr.newstyle:
                     self.add_message('raising-non-exception', node=node)
                 else:
-                    self.add_message('nonstandard-exception', node=node)
+                    self.add_message(
+                        'nonstandard-exception', node=node,
+                         confidence=INFERENCE if has_known_bases(expr) else INFERENCE_FAILURE)
             else:
                 value_found = False
         else:

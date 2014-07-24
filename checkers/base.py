@@ -24,7 +24,7 @@ from logilab.common.ureports import Table
 from astroid import are_exclusive, InferenceError
 import astroid.bases
 
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import EmptyReport
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker
@@ -36,6 +36,7 @@ from pylint.checkers.utils import (
     overrides_a_method,
     safe_infer,
     get_argument_from_call,
+    has_known_bases,
     NoSuchArgumentError,
     is_import_error,
     )
@@ -995,10 +996,15 @@ class NameChecker(_BasicChecker):
     def visit_function(self, node):
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
-        if node.is_method() and overrides_a_method(node.parent.frame(), node.name):
-            return
+        confidence = HIGH
+        if node.is_method():
+            if overrides_a_method(node.parent.frame(), node.name):
+                return
+            confidence = (INFERENCE if has_known_bases(node.parent.frame())
+                          else INFERENCE_FAILURE)
+
         self._check_name(_determine_function_name_type(node),
-                         node.name, node)
+                         node.name, node, confidence)
         # Check argument names
         args = node.args.args
         if args is not None:
@@ -1047,20 +1053,22 @@ class NameChecker(_BasicChecker):
     def _find_name_group(self, node_type):
         return self._name_group.get(node_type, node_type)
 
-    def _is_multi_naming_match(self, match):
+    def _is_multi_naming_match(self, match, node_type, confidence):
         return (match is not None and
                 match.lastgroup is not None and
-                match.lastgroup not in EXEMPT_NAME_CATEGORIES)
+                match.lastgroup not in EXEMPT_NAME_CATEGORIES
+                and (node_type != 'method' or confidence != INFERENCE_FAILURE))
 
-    def _raise_name_warning(self, node, node_type, name):
+    def _raise_name_warning(self, node, node_type, name, confidence):
         type_label = _NAME_TYPES[node_type][1]
         hint = ''
         if self.config.include_naming_hint:
             hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
-        self.add_message('invalid-name', node=node, args=(type_label, name, hint))
+        self.add_message('invalid-name', node=node, args=(type_label, name, hint),
+                         confidence=confidence)
         self.stats['badname_' + node_type] += 1
 
-    def _check_name(self, node_type, name, node):
+    def _check_name(self, node_type, name, node, confidence=HIGH):
         """check for a name using the type's regexp"""
         if is_inside_except(node):
             clobbering, _ = clobber_in_except(node)
@@ -1075,14 +1083,14 @@ class NameChecker(_BasicChecker):
         regexp = getattr(self.config, node_type + '_rgx')
         match = regexp.match(name)
 
-        if self._is_multi_naming_match(match):
+        if self._is_multi_naming_match(match, node_type, confidence):
             name_group = self._find_name_group(node_type)
             bad_name_group = self._bad_names.setdefault(name_group, {})
             warnings = bad_name_group.setdefault(match.lastgroup, [])
-            warnings.append((node, node_type, name))
+            warnings.append((node, node_type, name, confidence))
 
         if match is None:
-            self._raise_name_warning(node, node_type, name)
+            self._raise_name_warning(node, node_type, name, confidence)
 
 
 class DocStringChecker(_BasicChecker):
@@ -1133,6 +1141,8 @@ class DocStringChecker(_BasicChecker):
             ftype = node.is_method() and 'method' or 'function'
             if isinstance(node.parent.frame(), astroid.Class):
                 overridden = False
+                confidence = (INFERENCE if has_known_bases(node.parent.frame())
+                              else INFERENCE_FAILURE)
                 # check if node is from a method overridden by its ancestor
                 for ancestor in node.parent.frame().ancestors():
                     if node.name in ancestor and \
@@ -1140,11 +1150,13 @@ class DocStringChecker(_BasicChecker):
                         overridden = True
                         break
                 self._check_docstring(ftype, node,
-                                      report_missing=not overridden)
+                                      report_missing=not overridden,
+                                      confidence=confidence)
             else:
                 self._check_docstring(ftype, node)
 
-    def _check_docstring(self, node_type, node, report_missing=True):
+    def _check_docstring(self, node_type, node, report_missing=True,
+                         confidence=HIGH):
         """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
@@ -1170,10 +1182,12 @@ class DocStringChecker(_BasicChecker):
                         return
                     elif func.bound.name in ('str', 'unicode', 'bytes'):
                         return
-            self.add_message('missing-docstring', node=node, args=(node_type,))
+            self.add_message('missing-docstring', node=node, args=(node_type,),
+                             confidence=confidence)
         elif not docstring.strip():
             self.stats['undocumented_'+node_type] += 1
-            self.add_message('empty-docstring', node=node, args=(node_type,))
+            self.add_message('empty-docstring', node=node, args=(node_type,),
+                             confidence=confidence)
 
 
 class PassChecker(_BasicChecker):
