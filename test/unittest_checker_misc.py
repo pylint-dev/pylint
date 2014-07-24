@@ -15,6 +15,8 @@
 """
 Tests for the misc checker.
 """
+from __future__ import with_statement
+
 import sys
 import tempfile
 import os

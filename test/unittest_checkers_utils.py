@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """test the pylint.checkers.utils module
 """
+from __future__ import with_statement
 
 __revision__ = '$Id: unittest_checkers_utils.py,v 1.6 2005-11-02 09:22:07 syt Exp $'
 

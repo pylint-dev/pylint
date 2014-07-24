@@ -1,4 +1,5 @@
 """Functional full-module tests for PyLint."""
+from __future__ import with_statement
 import ConfigParser
 import cStringIO
 import operator
@@ -88,15 +89,15 @@ class TestFile(object):
 
     @property
     def expected_output(self):
-        return self._file_type('.txt')
+        return self._file_type('.txt', check_exists=False)
 
     @property
     def source(self):
         return self._file_type('.py')
 
-    def _file_type(self, ext):
+    def _file_type(self, ext, check_exists=True):
         name = os.path.join(self._directory, self.base + ext)
-        if os.path.exists(name):
+        if not check_exists or os.path.exists(name):
             return name
         else:
             raise NoFileError
@@ -171,12 +172,12 @@ class LintModuleTest(testlib.TestCase):
         self._linter = lint.PyLinter()
         self._linter.set_reporter(test_reporter)
         self._linter.config.persistent = 0
+        checkers.initialize(self._linter)
         self._linter.disable('I')
         try:
             self._linter.load_file_configuration(test_file.option_file)
         except NoFileError:
             pass
-        checkers.initialize(self._linter)
         self._test_file = test_file
 
     def shortDescription(self):

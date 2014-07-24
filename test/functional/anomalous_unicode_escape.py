@@ -2,8 +2,9 @@
 """Test for backslash escapes in byte vs unicode strings"""
 
 # Would be valid in Unicode, but probably not what you want otherwise
-BAD_UNICODE = b'\u0042'
-BAD_LONG_UNICODE = b'\U00000042'
+BAD_UNICODE = b'\u0042'  # [anomalous-unicode-escape-in-string]
+BAD_LONG_UNICODE = b'\U00000042'  # [anomalous-unicode-escape-in-string]
+# +1:[anomalous-unicode-escape-in-string]
 BAD_NAMED_UNICODE = b'\N{GREEK SMALL LETTER ALPHA}'
 
 GOOD_UNICODE = u'\u0042'

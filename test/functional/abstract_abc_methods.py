@@ -1,13 +1,10 @@
 """ This should not warn about `prop` being abstract in Child """
-
 # pylint: disable=too-few-public-methods,abstract-class-little-used
-
-__revision__ = None
 
 import abc
 
 class Parent(object):
-    """ Class """
+    """Abstract Base Class """
     __metaclass__ = abc.ABCMeta
 
     @property

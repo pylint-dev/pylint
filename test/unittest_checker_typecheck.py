@@ -1,4 +1,5 @@
 """Unittest for the type checker."""
+from __future__ import with_statement
 
 from astroid import test_utils
 from pylint.checkers import typecheck

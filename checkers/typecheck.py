@@ -386,7 +386,8 @@ accessed. Python regular expressions are accepted.'}
             if isinstance(arg, astroid.Keyword):
                 keyword = arg.arg
                 if keyword in keyword_args:
-                    self.add_message('duplicate-keyword-arg', node=node, args=keyword)
+                    self.add_message('duplicate-keyword-arg', node=node, 
+                                     args=(keyword, 'function'))
                 keyword_args.add(keyword)
             else:
                 num_positional_args += 1

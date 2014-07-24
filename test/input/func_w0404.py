@@ -7,8 +7,8 @@ import sys
 import xml.etree.ElementTree
 from xml.etree import ElementTree
 
-from multiprocessing import pool
-import multiprocessing.pool
+from email import encoders
+import email.encoders
 
 import sys
 
@@ -24,4 +24,4 @@ def reimport():
     del sys
 
 
-del sys, ElementTree, xml.etree.ElementTree, pool, multiprocessing.pool
+del sys, ElementTree, xml.etree.ElementTree, encoders, email.encoders

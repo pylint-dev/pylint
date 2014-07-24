@@ -122,10 +122,30 @@ class TestReporter(BaseReporter):
         """ignore layouts"""
 
 
-class Message(collections.namedtuple('Message',
-                                     ['msg_id', 'line', 'node', 'args'])):
-    def __new__(cls, msg_id, line=None, node=None, args=None):
-        return tuple.__new__(cls, (msg_id, line, node, args))
+if sys.version_info < (2, 6):
+    class Message(tuple):
+        def __new__(cls, msg_id, line=None, node=None, args=None):
+            return tuple.__new__(cls, (msg_id, line, node, args))
+
+        @property
+        def msg_id(self):
+            return self[0]
+        @property
+        def line(self):
+            return self[1]
+        @property
+        def node(self):
+            return self[2]
+        @property
+        def args(self):
+            return self[3]
+
+
+else:
+    class Message(collections.namedtuple('Message',
+                                         ['msg_id', 'line', 'node', 'args'])):
+        def __new__(cls, msg_id, line=None, node=None, args=None):
+            return tuple.__new__(cls, (msg_id, line, node, args))
 
 
 class UnittestLinter(object):
