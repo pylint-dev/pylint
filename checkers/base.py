@@ -349,7 +349,7 @@ class BasicErrorChecker(_BasicChecker):
     @check_messages('abstract-class-instantiated')
     def visit_callfunc(self, node):
         """ Check instantiating abstract class with
-        abc.ABCMeta as metaclass. 
+        abc.ABCMeta as metaclass.
         """
         try:
             infered = node.func.infer().next()
@@ -373,7 +373,7 @@ class BasicErrorChecker(_BasicChecker):
             has_abstract_methods(infered)):
 
             self.add_message('abstract-class-instantiated', node=node)
-   
+
     def _check_else_on_loop(self, node):
         """Check that any loop with an else clause has a break statement."""
         if node.orelse and not _loop_exits_early(node):
@@ -551,6 +551,18 @@ functions, methods
         if isinstance(expr, astroid.Const) and isinstance(expr.value,
                                                         basestring):
             # treat string statement in a separated message
+            # Handle PEP-257 attribute docstrings.
+            # An attribute docstring is defined as being a string right after
+            # an assignment at the module level, class level or __init__ level.
+            scope = expr.scope()
+            if isinstance(scope, (astroid.Class, astroid.Module, astroid.Function)):
+                if isinstance(scope, astroid.Function) and scope.name != '__init__':
+                    pass
+                else:
+                    sibling = expr.previous_sibling()
+                    if (sibling.scope() is scope and
+                        isinstance(sibling, astroid.Assign)):
+                        return
             self.add_message('pointless-string-statement', node=node)
             return
         # ignore if this is :
@@ -689,7 +701,7 @@ functions, methods
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @check_messages('bad-builtin', 'star-args', 'eval-used', 
+    @check_messages('bad-builtin', 'star-args', 'eval-used',
                     'exec-used', 'missing-reversed-argument', 
                     'bad-reversed-sequence')
     def visit_callfunc(self, node):
