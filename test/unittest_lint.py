@@ -33,9 +33,9 @@ from pylint.reporters import text
 from pylint import checkers
 
 if sys.platform == 'win32':
-     HOME = 'USERPROFILE'
+    HOME = 'USERPROFILE'
 else:
-     HOME = 'HOME'
+    HOME = 'HOME'
 
 class GetNoteMessageTC(TestCase):
     def test(self):
@@ -381,10 +381,10 @@ class PyLinterTC(TestCase):
                           self.linter.check_message_id('old-symbol').symbol)
 
     def test_init_hooks_called_before_load_plugins(self):
-         self.assertRaises(RuntimeError,
-                           Run, ['--load-plugins', 'unexistant', '--init-hook', 'raise RuntimeError'])
-         self.assertRaises(RuntimeError,
-                           Run, ['--init-hook', 'raise RuntimeError', '--load-plugins', 'unexistant'])
+        self.assertRaises(RuntimeError,
+                          Run, ['--load-plugins', 'unexistant', '--init-hook', 'raise RuntimeError'])
+        self.assertRaises(RuntimeError,
+                          Run, ['--init-hook', 'raise RuntimeError', '--load-plugins', 'unexistant'])
 
 
     def test_analyze_explicit_script(self):
@@ -393,6 +393,7 @@ class PyLinterTC(TestCase):
         self.assertEqual(
             ['C:  2: Line too long (175/80)'],
             self.linter.reporter.messages)
+
 
 class ConfigTC(TestCase):
 
