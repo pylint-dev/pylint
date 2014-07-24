@@ -44,6 +44,8 @@ class LintTestNonExistentModuleTC(LintTestUsingModule):
 
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
+    PORTED = set(['I0001', 'I0010', 'W0712', 'E1001'])
+    
     @testlib.tag('coverage')
     def test_exhaustivity(self):
         # skip fatal messages
@@ -54,7 +56,7 @@ class TestTests(testlib.TestCase):
                 not_tested.remove(msgid)
             except KeyError:
                 continue
-        not_tested -= set(('I0001',))
+        not_tested -= self.PORTED
         if PY3K:
             not_tested.remove('W0403') # relative-import
         self.assertFalse(not_tested)

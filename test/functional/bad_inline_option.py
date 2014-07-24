@@ -1,5 +1,5 @@
-# pylint: errors-only
 """errors-only is not usable as an inline option"""
-__revision__ = None
+# +1: [bad-inline-option]
+# pylint: errors-only
 
 CONST = "This is not a pylint: inline option."

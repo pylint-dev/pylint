@@ -1,2 +1,0 @@
-C: 10:HaNonNonNon: Old-style class defined.
-E: 10:HaNonNonNon: Use of __slots__ on an old style class
