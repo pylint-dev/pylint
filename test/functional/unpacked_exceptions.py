@@ -1,0 +1,11 @@
+"""Test for redefine-in-handler, overwriting names in exception handlers."""
+
+def new_style():
+    """Some exceptions can be unpacked."""
+    try:
+        pass
+    except IOError, (errno, message):  # [unpacking-in-except]
+        print errno, message
+    # +1: [redefine-in-handler,redefine-in-handler,unpacking-in-except]
+    except IOError, (new_style, tuple):
+        print new_style, tuple

@@ -50,15 +50,15 @@ def load_results(base):
     """
     data_file = get_pdata_path(base, 1)
     try:
-        with open(data_file) as stream:
+        with open(data_file, _PICK_LOAD) as stream:
             return pickle.load(stream)
     except:
         return {}
 
 if sys.version_info < (3, 0):
-    _PICK_MOD = 'w'
+    _PICK_DUMP, _PICK_LOAD = 'w', 'r'
 else:
-    _PICK_MOD = 'wb'
+    _PICK_DUMP, _PICK_LOAD = 'wb', 'rb'
 
 def save_results(results, base):
     """pickle results"""
@@ -69,7 +69,7 @@ def save_results(results, base):
             print >> sys.stderr, 'Unable to create directory %s' % PYLINT_HOME
     data_file = get_pdata_path(base, 1)
     try:
-        with open(data_file, _PICK_MOD) as stream:
+        with open(data_file, _PICK_DUMP) as stream:
             pickle.dump(results, stream)
     except (IOError, OSError), ex:
         print >> sys.stderr, 'Unable to create file %s: %s' % (data_file, ex)

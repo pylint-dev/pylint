@@ -52,6 +52,12 @@ ChangeLog for Pylint
     * Do not let ImportError propagate from the import checker, leading to crash
       in some namespace package related cases. Closes issue #203.
 
+    * Don't emit 'pointless-string-statement' for attribute docstrings.
+      Closes issue #193.
+
+    * Use the proper mode for pickle when opening and writing the stats file.
+      Closes issue #148.
+
 
 2014-04-30  --  1.2.1
     * Restore the ability to specify the init-hook option via the
