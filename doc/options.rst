@@ -91,8 +91,8 @@ However, intra-module consistency should still be required, to make changes
 inside a single file easier. For this case, PyLint supports regular expression
 with several named capturing group. 
 
-The capturing group of the first valid match taints the module and enforces the
-same group to be triggered on every subsequent occurrence of this name.
+Rather than emitting name warnings immediately, PyLint will determine the
+prevalent naming style inside each module and enforce it on all names.
 
 Consider the following (simplified) example::
 
@@ -101,16 +101,17 @@ Consider the following (simplified) example::
 The regular expression defines two naming styles, ``snake`` for snake-case
 names, and ``camel`` for camel-case names.
 
-In ``sample.py``, the function name on line 1 will taint the module and enforce
-the match of named group ``snake`` for the remainder of the module::
+In ``sample.py``, the function name on line 1 and 7 will mark the module
+and enforce the match of named group ``snake`` for the remaining names in
+the module::
 
-   def trigger_snake_case(arg):
+   def valid_snake_case(arg):
       ...
 
    def InvalidCamelCase(arg):
       ...
 
-   def valid_snake_case(arg):
+   def more_valid_snake_case(arg):
     ...
 
 Because of this, the name on line 4 will trigger an ``invalid-name`` warning,

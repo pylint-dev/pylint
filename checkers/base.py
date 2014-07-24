@@ -16,6 +16,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """basic checker for Python code"""
 
+import collections
+import itertools
 import sys
 import astroid
 from logilab.common.ureports import Table
@@ -944,6 +946,7 @@ class NameChecker(_BasicChecker):
         _BasicChecker.__init__(self, linter)
         self._name_category = {}
         self._name_group = {}
+        self._bad_names = {}
 
     def open(self):
         self.stats = self.linter.add_stats(badname_module=0,
@@ -961,6 +964,25 @@ class NameChecker(_BasicChecker):
     @check_messages('blacklisted-name', 'invalid-name')
     def visit_module(self, node):
         self._check_name('module', node.name.split('.')[-1], node)
+        self._bad_names = {}
+
+    def leave_module(self, node):
+        for category, all_groups in self._bad_names.iteritems():
+            if len(all_groups) < 2:
+                continue
+            groups = collections.defaultdict(list)
+            min_warnings = sys.maxint
+            for group in all_groups.itervalues():
+                groups[len(group)].append(group)
+                min_warnings = min(len(group), min_warnings)
+            if len(groups[min_warnings]) > 1:
+                by_line = sorted(groups[min_warnings],
+                                 key=lambda group: min(warning[0].lineno for warning in group))
+                warnings = itertools.chain(*by_line[1:])
+            else:
+                warnings = groups[min_warnings][0]
+            for args in warnings:
+                self._raise_name_warning(*args)
 
     @check_messages('blacklisted-name', 'invalid-name')
     def visit_class(self, node):
@@ -1030,6 +1052,14 @@ class NameChecker(_BasicChecker):
                 match.lastgroup is not None and
                 match.lastgroup not in EXEMPT_NAME_CATEGORIES)
 
+    def _raise_name_warning(self, node, node_type, name):
+        type_label = _NAME_TYPES[node_type][1]
+        hint = ''
+        if self.config.include_naming_hint:
+            hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
+        self.add_message('invalid-name', node=node, args=(type_label, name, hint))
+        self.stats['badname_' + node_type] += 1
+
     def _check_name(self, node_type, name, node):
         """check for a name using the type's regexp"""
         if is_inside_except(node):
@@ -1047,18 +1077,12 @@ class NameChecker(_BasicChecker):
 
         if self._is_multi_naming_match(match):
             name_group = self._find_name_group(node_type)
-            if name_group not in self._name_category:
-                self._name_category[name_group] = match.lastgroup
-            elif self._name_category[name_group] != match.lastgroup:
-                match = None
+            bad_name_group = self._bad_names.setdefault(name_group, {})
+            warnings = bad_name_group.setdefault(match.lastgroup, [])
+            warnings.append((node, node_type, name))
 
         if match is None:
-            type_label = _NAME_TYPES[node_type][1]
-            hint = ''
-            if self.config.include_naming_hint:
-                hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
-            self.add_message('invalid-name', node=node, args=(type_label, name, hint))
-            self.stats['badname_' + node_type] += 1
+            self._raise_name_warning(node, node_type, name)
 
 
 class DocStringChecker(_BasicChecker):
