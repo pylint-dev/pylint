@@ -27,7 +27,8 @@ from pylint import config
 from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
      ArgumentPreprocessingError
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, \
-    PyLintASTWalker, MessageDefinition, build_message_def, tokenize_module
+    MessagesStore, PyLintASTWalker, MessageDefinition, build_message_def, \
+    tokenize_module
 from pylint.testutils import TestReporter
 from pylint.reporters import text
 from pylint import checkers
@@ -59,51 +60,6 @@ class PyLinterTC(TestCase):
         # register checkers
         checkers.initialize(self.linter)
         self.linter.set_reporter(TestReporter())
-
-    def _compare_messages(self, desc, msg, checkerref=False):
-        # replace \r\n with \n, because
-        # logilab.common.textutils.normalize_text
-        # uses os.linesep, which will
-        # not properly compare with triple
-        # quoted multilines used in these tests
-        self.assertMultiLineEqual(desc,
-             msg.format_help(checkerref=checkerref)
-                .replace('\r\n', '\n'))
-
-    def test_check_message_id(self):
-        self.assertIsInstance(self.linter.check_message_id('F0001'),
-                              MessageDefinition)
-        self.assertRaises(UnknownMessage,
-                          self.linter.check_message_id, 'YB12')
-
-    def test_message_help(self):
-        msg = self.linter.check_message_id('F0001')
-        self._compare_messages(
-            ''':fatal (F0001):
-  Used when an error occurred preventing the analysis of a module (unable to
-  find it for instance). This message belongs to the master checker.''',
-            msg, checkerref=True)
-        self._compare_messages(
-            ''':fatal (F0001):
-  Used when an error occurred preventing the analysis of a module (unable to
-  find it for instance).''',
-            msg, checkerref=False)
-
-    def test_message_help_minmax(self):
-        # build the message manually to be python version independant
-        msg = build_message_def(self.linter._checkers['typecheck'][0],
-                                'E1122', checkers.typecheck.MSGS['E1122'])
-        self._compare_messages(
-            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in %s call*
-  Used when a function call passes the same keyword argument multiple times.
-  This message belongs to the typecheck checker. It can't be emitted when using
-  Python >= 2.6.''',
-            msg, checkerref=True)
-        self._compare_messages(
-            ''':duplicate-keyword-arg (E1122): *Duplicate keyword argument %r in %s call*
-  Used when a function call passes the same keyword argument multiple times.
-  This message can't be emitted when using Python >= 2.6.''',
-            msg, checkerref=False)
 
     def test_enable_message(self):
         linter = self.linter
@@ -246,16 +202,6 @@ class PyLinterTC(TestCase):
         self.assertTrue(linter.is_message_enabled('W0102', 1))
         self.assertTrue(linter.is_message_enabled('dangerous-default-value', 1))
 
-    def test_list_messages(self):
-        sys.stdout = StringIO()
-        try:
-            self.linter.list_messages()
-            output = sys.stdout.getvalue()
-        finally:
-            sys.stdout = sys.__stdout__
-        # cursory examination of the output: we're mostly testing it completes
-        self.assertIn(':empty-docstring (C0112): *Empty %s docstring*', output)
-
     def test_lint_ext_module_with_file_output(self):
         self.linter.set_reporter(text.TextReporter())
         if sys.version_info < (3, 0):
@@ -362,23 +308,6 @@ class PyLinterTC(TestCase):
         self.assertEqual(
             ['C:  1: Line too long (1/2)', 'C:  2: Line too long (3/4)'],
             self.linter.reporter.messages)
-
-    def test_add_renamed_message(self):
-        self.linter.add_renamed_message('C9999', 'old-bad-name', 'invalid-name')
-        self.assertEqual('invalid-name',
-                         self.linter.check_message_id('C9999').symbol)
-        self.assertEqual('invalid-name',
-                         self.linter.check_message_id('old-bad-name').symbol)
-
-    def test_renamed_message_register(self):
-         class Checker(object):
-              msgs = {'W1234': ('message', 'msg-symbol', 'msg-description',
-                                {'old_names': [('W0001', 'old-symbol')]})}
-         self.linter.register_messages(Checker())
-         self.assertEqual('msg-symbol',
-                          self.linter.check_message_id('W0001').symbol)
-         self.assertEqual('msg-symbol',
-                          self.linter.check_message_id('old-symbol').symbol)
 
     def test_init_hooks_called_before_load_plugins(self):
         self.assertRaises(RuntimeError,
@@ -539,6 +468,87 @@ class PreprocessOptionsTC(TestCase):
             preprocess_options,
             ['--foo', '--bar=spam', '--qu=ux'],
             {'bar' : (None, False)})
+
+
+class MessagesStoreTC(TestCase):
+    def setUp(self):
+        self.store = MessagesStore()
+        class Checker(object):
+            name = 'achecker'
+            msgs = {
+                'W1234': ('message', 'msg-symbol', 'msg description.',
+                          {'old_names': [('W0001', 'old-symbol')]}),
+                'E1234': ('Duplicate keyword argument %r in %s call',
+                          'duplicate-keyword-arg',
+                          'Used when a function call passes the same keyword argument multiple times.',
+                          {'maxversion': (2, 6)}),
+                }
+        self.store.register_messages(Checker())
+
+    def _compare_messages(self, desc, msg, checkerref=False):
+        # replace \r\n with \n, because
+        # logilab.common.textutils.normalize_text
+        # uses os.linesep, which will
+        # not properly compare with triple
+        # quoted multilines used in these tests
+        self.assertMultiLineEqual(
+            desc,
+            msg.format_help(checkerref=checkerref).replace('\r\n', '\n'))
+
+    def test_check_message_id(self):
+        self.assertIsInstance(self.store.check_message_id('W1234'),
+                              MessageDefinition)
+        self.assertRaises(UnknownMessage,
+                          self.store.check_message_id, 'YB12')
+
+    def test_message_help(self):
+        msg = self.store.check_message_id('W1234')
+        self._compare_messages(
+            ''':msg-symbol (W1234): *message*
+  msg description. This message belongs to the achecker checker.''',
+            msg, checkerref=True)
+        self._compare_messages(
+            ''':msg-symbol (W1234): *message*
+  msg description.''',
+            msg, checkerref=False)
+
+    def test_message_help_minmax(self):
+        # build the message manually to be python version independant
+        msg = self.store.check_message_id('E1234')
+        self._compare_messages(
+            ''':duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*
+  Used when a function call passes the same keyword argument multiple times.
+  This message belongs to the achecker checker. It can't be emitted when using
+  Python >= 2.6.''',
+            msg, checkerref=True)
+        self._compare_messages(
+            ''':duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*
+  Used when a function call passes the same keyword argument multiple times.
+  This message can't be emitted when using Python >= 2.6.''',
+            msg, checkerref=False)
+
+    def test_list_messages(self):
+        sys.stdout = StringIO()
+        try:
+            self.store.list_messages()
+            output = sys.stdout.getvalue()
+        finally:
+            sys.stdout = sys.__stdout__
+        # cursory examination of the output: we're mostly testing it completes
+        self.assertIn(':msg-symbol (W1234): *message*', output)
+
+    def test_add_renamed_message(self):
+        self.store.add_renamed_message('W1234', 'old-bad-name', 'msg-symbol')
+        self.assertEqual('msg-symbol',
+                         self.store.check_message_id('W1234').symbol)
+        self.assertEqual('msg-symbol',
+                         self.store.check_message_id('old-bad-name').symbol)
+
+    def test_renamed_message_register(self):
+        self.assertEqual('msg-symbol',
+                         self.store.check_message_id('W0001').symbol)
+        self.assertEqual('msg-symbol',
+                         self.store.check_message_id('old-symbol').symbol)
 
 
 if __name__ == '__main__':

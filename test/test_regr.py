@@ -1,4 +1,4 @@
-# Copyright (c) 2005 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2005-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -60,7 +60,7 @@ class NonRegrTC(TestCase):
             got = linter.reporter.finalize().strip()
             checked = linter.stats['by_module'].keys()
             self.assertEqual(checked, ['package.__init__'],
-                                 '%s: %s' % (variation, checked))
+                             '%s: %s' % (variation, checked))
         cwd = os.getcwd()
         os.chdir(join(REGR_DATA, 'package'))
         sys.path.insert(0, '')

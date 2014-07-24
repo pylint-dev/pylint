@@ -50,7 +50,7 @@ from astroid.modutils import load_module_from_name, get_module_part
 from pylint.utils import (
     MSG_TYPES, OPTION_RGX,
     PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn, ReportsHandlerMixIn,
-    EmptyReport, WarningScope,
+    MessagesStore, EmptyReport, WarningScope,
     expand_modules, tokenize_module)
 from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker
 from pylint.checkers import (BaseTokenChecker,
@@ -286,7 +286,8 @@ warning, statement which respectively contain the number of errors / warnings\
                  pylintrc=None):
         # some stuff has to be done before ancestors initialization...
         #
-        # checkers / reporter / astroid manager
+        # messages store / checkers / reporter / astroid manager
+        self.msgs_store = MessagesStore()
         self.reporter = None
         self._reporter_name = None
         self._reporters = {}
@@ -423,11 +424,11 @@ warning, statement which respectively contain the number of errors / warnings\
             self.register_report(r_id, r_title, r_cb, checker)
         self.register_options_provider(checker)
         if hasattr(checker, 'msgs'):
-            self.register_messages(checker)
+            self.msgs_store.register_messages(checker)
         checker.load_defaults()
 
     def disable_noerror_messages(self):
-        for msgcat, msgids in self._msgs_by_category.iteritems():
+        for msgcat, msgids in self.msgs_store._msgs_by_category.iteritems():
             if msgcat == 'E':
                 for msgid in msgids:
                     self.enable(msgid)
@@ -529,7 +530,7 @@ warning, statement which respectively contain the number of errors / warnings\
                 if first <= lineno <= last:
                     # Set state for all lines for this block, if the
                     # warning is applied to nodes.
-                    if self.check_message_id(msgid).scope == WarningScope.NODE:
+                    if  self.msgs_store.check_message_id(msgid).scope == WarningScope.NODE:
                         if lineno > firstchildlineno:
                             state = True
                         first_, last_ = node.block_range(lineno)
@@ -596,6 +597,12 @@ warning, statement which respectively contain the number of errors / warnings\
         """main checking entry: check a list of files or modules from their
         name.
         """
+        # initialize msgs_state now that all messages have been registered into
+        # the store
+        for msg in self.msgs_store.messages:
+            if not msg.may_be_emitted():
+                self._msgs_state[msg.msgid] = False
+
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
         walker = PyLintASTWalker(self)
@@ -758,12 +765,12 @@ warning, statement which respectively contain the number of errors / warnings\
             for line, enable in lines.iteritems():
                 if not enable and (warning, line) not in self._ignored_msgs:
                     self.add_message('useless-suppression', line, None,
-                                     (self.get_msg_display_string(warning),))
+                                     (self.msgs_store.get_msg_display_string(warning),))
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), lines in self._ignored_msgs.items():
             for line in lines:
                 self.add_message('suppressed-message', line, None,
-                                 (self.get_msg_display_string(warning), from_))
+                                 (self.msgs_store.get_msg_display_string(warning), from_))
 
     def report_evaluation(self, sect, stats, previous_stats):
         """make the global evaluation report"""
@@ -1088,7 +1095,7 @@ are done by default'''}),
 
     def cb_help_message(self, option, optname, value, parser):
         """optik callback for printing some help about a particular message"""
-        self.linter.help_message(splitstrip(value))
+        self.linter.msgs_store.help_message(splitstrip(value))
         sys.exit(0)
 
     def cb_full_documentation(self, option, optname, value, parser):
@@ -1098,7 +1105,7 @@ are done by default'''}),
 
     def cb_list_messages(self, option, optname, value, parser): # FIXME
         """optik callback for printing available messages"""
-        self.linter.list_messages()
+        self.linter.msgs_store.list_messages()
         sys.exit(0)
 
 def cb_init_hook(optname, value):
