@@ -18,11 +18,11 @@
 import sys
 
 from logilab.common.graph import get_cycles, DotBackend
-from logilab.common.modutils import get_module_part, is_standard_module
 from logilab.common.ureports import VerbatimText, Paragraph
 
 import astroid
 from astroid import are_exclusive
+from astroid.modutils import get_module_part, is_standard_module
 
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport
@@ -299,7 +299,10 @@ given file (report RP0402 must not be disabled)'}
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
-        importedmodname = get_module_part(importedmodname)
+        try:
+            importedmodname = get_module_part(importedmodname)
+        except ImportError:
+            pass
         context_name = node.root().name
         if context_name == importedmodname:
             # module importing itself !

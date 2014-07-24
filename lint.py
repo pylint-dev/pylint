@@ -38,7 +38,6 @@ from warnings import warn
 
 from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
 from logilab.common.optik_ext import check_csv
-from logilab.common.modutils import load_module_from_name, get_module_part
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip, unquote
 from logilab.common.ureports import Table, Text, Section
@@ -46,6 +45,7 @@ from logilab.common.__pkginfo__ import version as common_version
 
 from astroid import MANAGER, nodes, AstroidBuildingException
 from astroid.__pkginfo__ import version as astroid_version
+from astroid.modutils import load_module_from_name, get_module_part
 
 from pylint.utils import (
     MSG_TYPES, OPTION_RGX,

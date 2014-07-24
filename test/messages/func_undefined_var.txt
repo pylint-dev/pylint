@@ -7,4 +7,8 @@ E: 27:bad_default: Undefined variable 'augvar'
 E: 28:bad_default: Undefined variable 'vardel'
 E: 56: Using variable 'PLOUF' before assignment
 E: 65:if_branch_test: Using variable 'xxx' before assignment
+E: 89:test_arguments: Using variable 'TestClass' before assignment
+E: 93:TestClass: Using variable 'Ancestor' before assignment
+E: 96:TestClass.MissingAncestor: Using variable 'Ancestor1' before assignment
+E:103:TestClass.test1.UsingBeforeDefinition: Using variable 'Empty' before assignment
 W: 27:bad_default: Unused variable 'augvar'
