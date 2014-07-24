@@ -61,3 +61,14 @@ ClassMultiInheritance(1, 2, 3)
 ClassNew(1, kwarg=1)
 ClassNew(1, 2, 3)
 ClassNew(one=2)
+
+import abc
+
+def with_metaclass(meta, base=object):
+    """Create a new type that can be used as a metaclass."""
+    return meta("NewBase", (base, ), {})
+
+class ClassWithMeta(with_metaclass(abc.ABCMeta)):
+    pass
+
+ClassWithMeta()
