@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -191,11 +191,7 @@ class MessagesHandlerMixIn(object):
 
     def __init__(self):
         self._msgs_state = {}
-        self._module_msgs_state = {} # None
-        self._raw_module_msgs_state = {}
         self.msg_status = 0
-        self._ignored_msgs = {}
-        self._suppression_mapping = {}
 
     def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """don't output message of the given id"""
@@ -233,14 +229,10 @@ class MessagesHandlerMixIn(object):
             raise
 
         if scope == 'module':
-            assert line > 0
-            try:
-                self._module_msgs_state[msg.msgid][line] = False
-            except KeyError:
-                self._module_msgs_state[msg.msgid] = {line: False}
-                if msg.symbol != 'locally-disabled':
-                    self.add_message('locally-disabled', line=line, 
-                                     args=(msg.symbol, msg.msgid))
+            self.file_state.set_msg_status(msg, line, False)
+            if msg.symbol != 'locally-disabled':
+                self.add_message('locally-disabled', line=line,
+                                 args=(msg.symbol, msg.msgid))
 
         else:
             msgs = self._msgs_state
@@ -278,24 +270,13 @@ class MessagesHandlerMixIn(object):
             raise
 
         if scope == 'module':
-            assert line > 0
-            try:
-                self._module_msgs_state[msg.msgid][line] = True
-            except KeyError:
-                self._module_msgs_state[msg.msgid] = {line: True}
-                self.add_message('locally-enabled', line=line, args=(msg.symbol, msg.msgid))
+            self.file_state.set_msg_status(msg, line, True)
+            self.add_message('locally-enabled', line=line, args=(msg.symbol, msg.msgid))
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = True
             # sync configuration object
             self.config.enable = [mid for mid, val in msgs.iteritems() if val]
-    def get_message_state_scope(self, msgid, line=None):
-        """Returns the scope at which a message was enabled/disabled."""
-        try:
-            if line in self._module_msgs_state[msgid]:
-                return MSG_STATE_SCOPE_MODULE
-        except (KeyError, TypeError):
-            return MSG_STATE_SCOPE_CONFIG
 
     def is_message_enabled(self, msg_descr, line=None):
         """return true if the message associated to the given message id is
@@ -313,23 +294,9 @@ class MessagesHandlerMixIn(object):
         if line is None:
             return self._msgs_state.get(msgid, True)
         try:
-            return self._module_msgs_state[msgid][line]
-        except (KeyError, TypeError):
+            return self.file_state._module_msgs_state[msgid][line]
+        except KeyError:
             return self._msgs_state.get(msgid, True)
-
-    def handle_ignored_message(self, state_scope, msgid, line, node, args):
-        """Report an ignored message.
-
-        state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
-        depending on whether the message was disabled locally in the module,
-        or globally. The other arguments are the same as for add_message.
-        """
-        if state_scope == MSG_STATE_SCOPE_MODULE:
-            try:
-                orig_line = self._suppression_mapping[(msgid, line)]
-                self._ignored_msgs.setdefault((msgid, orig_line), set()).add(line)
-            except KeyError:
-                pass
 
     def add_message(self, msg_descr, line=None, node=None, args=None):
         """Adds a message given by ID or name.
@@ -362,8 +329,7 @@ class MessagesHandlerMixIn(object):
             col_offset = None
         # should this message be displayed
         if not self.is_message_enabled(msgid, line):
-            self.handle_ignored_message(
-                self.get_message_state_scope(msgid, line), msgid, line, node, args)
+            self.file_state.handle_ignored_message(msgid, line, node, args)
             return
         # update stats
         msg_cat = MSG_TYPES[msgid[0]]
@@ -444,6 +410,123 @@ class MessagesHandlerMixIn(object):
                     print ':%s: %s' % report[:2]
                 print
             print
+
+
+class FileState(object):
+    """Hold internal state specific to the currently analyzed file"""
+
+    def __init__(self, modname=None):
+        self.base_name = modname
+        self._module_msgs_state = {}
+        self._raw_module_msgs_state = {}
+        self._ignored_msgs = {}
+        self._suppression_mapping = {}
+
+    def collect_block_lines(self, msgs_store, module_node):
+        """Walk the AST to collect block level options line numbers."""
+        for msg, lines in self._module_msgs_state.iteritems():
+            self._raw_module_msgs_state[msg] = lines.copy()
+        orig_state = self._module_msgs_state.copy()
+        self._module_msgs_state = {}
+        self._suppression_mapping = {}
+        self._collect_block_lines(msgs_store, module_node, orig_state)
+
+    def _collect_block_lines(self, msgs_store, node, msg_state):
+        """Recursivly walk (depth first) AST to collect block level options line
+        numbers.
+        """
+        for child in node.get_children():
+            self._collect_block_lines(msgs_store, child, msg_state)
+        first = node.fromlineno
+        last = node.tolineno
+        # first child line number used to distinguish between disable
+        # which are the first child of scoped node with those defined later.
+        # For instance in the code below:
+        #
+        # 1.   def meth8(self):
+        # 2.        """test late disabling"""
+        # 3.        # pylint: disable=E1102
+        # 4.        print self.blip
+        # 5.        # pylint: disable=E1101
+        # 6.        print self.bla
+        #
+        # E1102 should be disabled from line 1 to 6 while E1101 from line 5 to 6
+        #
+        # this is necessary to disable locally messages applying to class /
+        # function using their fromlineno
+        if isinstance(node, (nodes.Module, nodes.Class, nodes.Function)) and node.body:
+            firstchildlineno = node.body[0].fromlineno
+        else:
+            firstchildlineno = last
+        for msgid, lines in msg_state.iteritems():
+            for lineno, state in lines.items():
+                original_lineno = lineno
+                if first <= lineno <= last:
+                    # Set state for all lines for this block, if the
+                    # warning is applied to nodes.
+                    if  msgs_store.check_message_id(msgid).scope == WarningScope.NODE:
+                        if lineno > firstchildlineno:
+                            state = True
+                        first_, last_ = node.block_range(lineno)
+                    else:
+                        first_ = lineno
+                        last_ = last
+                    for line in xrange(first_, last_+1):
+                        # do not override existing entries
+                        if not line in self._module_msgs_state.get(msgid, ()):
+                            if line in lines: # state change in the same block
+                                state = lines[line]
+                                original_lineno = line
+                            if not state:
+                                self._suppression_mapping[(msgid, line)] = original_lineno
+                            try:
+                                self._module_msgs_state[msgid][line] = state
+                            except KeyError:
+                                self._module_msgs_state[msgid] = {line: state}
+                    del lines[lineno]
+
+    def set_msg_status(self, msg, line, status):
+        """Set status (enabled/disable) for a given message at a given line"""
+        assert line > 0
+        try:
+            self._module_msgs_state[msg.msgid][line] = status
+        except KeyError:
+            self._module_msgs_state[msg.msgid] = {line: status}
+
+    def handle_ignored_message(self, msgid, line, node, args):
+        """Report an ignored message.
+
+        state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
+        depending on whether the message was disabled locally in the module,
+        or globally. The other arguments are the same as for add_message.
+        """
+        state_scope = self._message_state_scope(msgid, line)
+        if state_scope == MSG_STATE_SCOPE_MODULE:
+            try:
+                orig_line = self._suppression_mapping[(msgid, line)]
+                self._ignored_msgs.setdefault((msgid, orig_line), set()).add(line)
+            except KeyError:
+                pass
+
+    def _message_state_scope(self, msgid, line=None):
+        """Returns the scope at which a message was enabled/disabled."""
+        try:
+            if line in self._module_msgs_state[msgid]:
+                return MSG_STATE_SCOPE_MODULE
+        except KeyError:
+            return MSG_STATE_SCOPE_CONFIG
+
+    def iter_spurious_suppression_messages(self, msgs_store):
+        for warning, lines in self._raw_module_msgs_state.iteritems():
+            for line, enable in lines.iteritems():
+                if not enable and (warning, line) not in self._ignored_msgs:
+                    yield 'useless-suppression', line, \
+                        (msgs_store.get_msg_display_string(warning),)
+        # don't use iteritems here, _ignored_msgs may be modified by add_message
+        for (warning, from_), lines in self._ignored_msgs.items():
+            for line in lines:
+                yield 'suppressed-message', line, \
+                    (msgs_store.get_msg_display_string(warning), from_)
 
 
 class MessagesStore(object):

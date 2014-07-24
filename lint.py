@@ -50,7 +50,7 @@ from astroid.modutils import load_module_from_name, get_module_part
 from pylint.utils import (
     MSG_TYPES, OPTION_RGX,
     PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn, ReportsHandlerMixIn,
-    MessagesStore, EmptyReport, WarningScope,
+    MessagesStore, FileState, EmptyReport, WarningScope,
     expand_modules, tokenize_module)
 from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker
 from pylint.checkers import (BaseTokenChecker,
@@ -131,7 +131,7 @@ MSGS = {
               'deprecated-pragma',
               'Some inline pylint options have been renamed or reworked, '
               'only the most recent form should be used. '
-              'NOTE:skip-all is only available with pylint >= 0.26', 
+              'NOTE:skip-all is only available with pylint >= 0.26',
               {'old_names': [('I0014', 'deprecated-disable-all')]}),
 
     'E0001': ('%s',
@@ -294,8 +294,7 @@ warning, statement which respectively contain the number of errors / warnings\
         self._checkers = {}
         self._ignore_file = False
         # visit variables
-        self.base_name = None
-        self.base_file = None
+        self.file_state = FileState()
         self.current_name = None
         self.current_file = None
         self.stats = None
@@ -498,59 +497,6 @@ warning, statement which respectively contain the number of errors / warnings\
             else:
                 self.add_message('unrecognized-inline-option', args=opt, line=start[0])
 
-    def collect_block_lines(self, node, msg_state):
-        """walk ast to collect block level options line numbers"""
-        # recurse on children (depth first)
-        for child in node.get_children():
-            self.collect_block_lines(child, msg_state)
-        first = node.fromlineno
-        last = node.tolineno
-        # first child line number used to distinguish between disable
-        # which are the first child of scoped node with those defined later.
-        # For instance in the code below:
-        #
-        # 1.   def meth8(self):
-        # 2.        """test late disabling"""
-        # 3.        # pylint: disable=E1102
-        # 4.        print self.blip
-        # 5.        # pylint: disable=E1101
-        # 6.        print self.bla
-        #
-        # E1102 should be disabled from line 1 to 6 while E1101 from line 5 to 6
-        #
-        # this is necessary to disable locally messages applying to class /
-        # function using their fromlineno
-        if isinstance(node, (nodes.Module, nodes.Class, nodes.Function)) and node.body:
-            firstchildlineno = node.body[0].fromlineno
-        else:
-            firstchildlineno = last
-        for msgid, lines in msg_state.iteritems():
-            for lineno, state in lines.items():
-                original_lineno = lineno
-                if first <= lineno <= last:
-                    # Set state for all lines for this block, if the
-                    # warning is applied to nodes.
-                    if  self.msgs_store.check_message_id(msgid).scope == WarningScope.NODE:
-                        if lineno > firstchildlineno:
-                            state = True
-                        first_, last_ = node.block_range(lineno)
-                    else:
-                        first_ = lineno
-                        last_ = last
-                    for line in xrange(first_, last_+1):
-                        # do not override existing entries
-                        if not line in self._module_msgs_state.get(msgid, ()):
-                            if line in lines: # state change in the same block
-                                state = lines[line]
-                                original_lineno = line
-                            if not state:
-                                self._suppression_mapping[(msgid, line)] = original_lineno
-                            try:
-                                self._module_msgs_state[msgid][line] = state
-                            except KeyError:
-                                self._module_msgs_state[msgid] = {line: state}
-                    del lines[lineno]
-
 
     # code checking methods ###################################################
 
@@ -571,7 +517,7 @@ warning, statement which respectively contain the number of errors / warnings\
                            if msg[0] != 'F' and self.is_message_enabled(msg))
             if (messages or
                 any(self.report_is_enabled(r[0]) for r in checker.reports)):
-                neededcheckers.append(checker)  
+                neededcheckers.append(checker)
         # Sort checkers by priority
         neededcheckers = sorted(neededcheckers, key=attrgetter('priority'),
                                 reverse=True)
@@ -628,14 +574,18 @@ warning, statement which respectively contain the number of errors / warnings\
             astroid = self.get_ast(filepath, modname)
             if astroid is None:
                 continue
-            self.base_name = descr['basename']
-            self.base_file = descr['basepath']
+            # XXX to be correct we need to keep module_msgs_state for every
+            # analyzed module (the problem stands with localized messages which
+            # are only detected in the .close step)
+            self.file_state = FileState(descr['basename'])
             self._ignore_file = False
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
             self.current_file = astroid.file # pylint: disable=maybe-no-member
             self.check_astroid_module(astroid, walker, rawcheckers, tokencheckers)
-            self._add_suppression_messages()
+            # warn about spurious inline messages handling
+            for msgid, line, args in self.file_state.iter_spurious_suppression_messages(self.msgs_store):
+                self.add_message(msgid, line, None, args)
         # notify global end
         self.set_current_module('')
         self.stats['statement'] = walker.nbstatements
@@ -669,13 +619,6 @@ warning, statement which respectively contain the number of errors / warnings\
         self.stats['by_module'][modname]['statement'] = 0
         for msg_cat in MSG_TYPES.itervalues():
             self.stats['by_module'][modname][msg_cat] = 0
-        # XXX hack, to be correct we need to keep module_msgs_state
-        # for every analyzed module (the problem stands with localized
-        # messages which are only detected in the .close step)
-        if modname:
-            self._module_msgs_state = {}
-            self._raw_module_msgs_state = {}
-            self._ignored_msgs = {}
 
     def get_ast(self, filepath, modname):
         """return a ast(roid) representation for a module"""
@@ -709,12 +652,8 @@ warning, statement which respectively contain the number of errors / warnings\
             if self._ignore_file:
                 return False
             # walk ast to collect line numbers
-            for msg, lines in self._module_msgs_state.iteritems():
-                self._raw_module_msgs_state[msg] = lines.copy()
-            orig_state = self._module_msgs_state.copy()
-            self._module_msgs_state = {}
-            self._suppression_mapping = {}
-            self.collect_block_lines(astroid, orig_state)
+            self.file_state.collect_block_lines(self.msgs_store, astroid)
+            # run raw and tokens checkers
             for checker in rawcheckers:
                 checker.process_module(astroid)
             for checker in tokencheckers:
@@ -738,9 +677,9 @@ warning, statement which respectively contain the number of errors / warnings\
 
         if persistent run, pickle results for later comparison
         """
-        if self.base_name is not None:
+        if self.file_state.base_name is not None:
             # load previous results if any
-            previous_stats = config.load_results(self.base_name)
+            previous_stats = config.load_results(self.file_state.base_name)
             # XXX code below needs refactoring to be more reporter agnostic
             self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
@@ -754,23 +693,11 @@ warning, statement which respectively contain the number of errors / warnings\
                 self.reporter.display_results(sect)
             # save results if persistent run
             if self.config.persistent:
-                config.save_results(self.stats, self.base_name)
+                config.save_results(self.stats, self.file_state.base_name)
         else:
             self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
-
-    def _add_suppression_messages(self):
-        for warning, lines in self._raw_module_msgs_state.iteritems():
-            for line, enable in lines.iteritems():
-                if not enable and (warning, line) not in self._ignored_msgs:
-                    self.add_message('useless-suppression', line, None,
-                                     (self.msgs_store.get_msg_display_string(warning),))
-        # don't use iteritems here, _ignored_msgs may be modified by add_message
-        for (warning, from_), lines in self._ignored_msgs.items():
-            for line in lines:
-                self.add_message('suppressed-message', line, None,
-                                 (self.msgs_store.get_msg_display_string(warning), from_))
 
     def report_evaluation(self, sect, stats, previous_stats):
         """make the global evaluation report"""

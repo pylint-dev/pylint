@@ -27,8 +27,8 @@ from pylint import config
 from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
      ArgumentPreprocessingError
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, \
-    MessagesStore, PyLintASTWalker, MessageDefinition, build_message_def, \
-    tokenize_module
+    MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
+    build_message_def, tokenize_module
 from pylint.testutils import TestReporter
 from pylint.reporters import text
 from pylint import checkers
@@ -61,10 +61,15 @@ class PyLinterTC(TestCase):
         checkers.initialize(self.linter)
         self.linter.set_reporter(TestReporter())
 
-    def test_enable_message(self):
+    def init_linter(self):
         linter = self.linter
         linter.open()
         linter.set_current_module('toto')
+        linter.file_state = FileState('toto')
+        return linter
+
+    def test_enable_message(self):
+        linter = self.init_linter()
         self.assertTrue(linter.is_message_enabled('W0101'))
         self.assertTrue(linter.is_message_enabled('W0102'))
         linter.disable('W0101', scope='package')
@@ -80,9 +85,7 @@ class PyLinterTC(TestCase):
         self.assertTrue(linter.is_message_enabled('W0102', 1))
 
     def test_enable_message_category(self):
-        linter = self.linter
-        linter.open()
-        linter.set_current_module('toto')
+        linter = self.init_linter()
         self.assertTrue(linter.is_message_enabled('W0101'))
         self.assertTrue(linter.is_message_enabled('C0121'))
         linter.disable('W', scope='package')
@@ -100,31 +103,29 @@ class PyLinterTC(TestCase):
         self.assertTrue(linter.is_message_enabled('C0121', line=1))
 
     def test_message_state_scope(self):
-        linter = self.linter
-        linter.open()
+        linter = self.init_linter()
+        fs = linter.file_state
         linter.disable('C0121')
         self.assertEqual(MSG_STATE_SCOPE_CONFIG,
-                         linter.get_message_state_scope('C0121'))
+                         fs._message_state_scope('C0121'))
         linter.disable('W0101', scope='module', line=3)
         self.assertEqual(MSG_STATE_SCOPE_CONFIG,
-                         linter.get_message_state_scope('C0121'))
+                         fs._message_state_scope('C0121'))
         self.assertEqual(MSG_STATE_SCOPE_MODULE,
-                         linter.get_message_state_scope('W0101', 3))
+                         fs._message_state_scope('W0101', 3))
         linter.enable('W0102', scope='module', line=3)
         self.assertEqual(MSG_STATE_SCOPE_MODULE,
-                         linter.get_message_state_scope('W0102', 3))
+                         fs._message_state_scope('W0102', 3))
 
     def test_enable_message_block(self):
-        linter = self.linter
+        linter = self.init_linter()
         linter.open()
         filepath = join(INPUTDIR, 'func_block_disable_msg.py')
         linter.set_current_module('func_block_disable_msg')
         astroid = linter.get_ast(filepath, 'func_block_disable_msg')
         linter.process_tokens(tokenize_module(astroid))
-        orig_state = linter._module_msgs_state.copy()
-        linter._module_msgs_state = {}
-        linter._suppression_mapping = {}
-        linter.collect_block_lines(astroid, orig_state)
+        fs = linter.file_state
+        fs.collect_block_lines(linter.msgs_store, astroid)
         # global (module level)
         self.assertTrue(linter.is_message_enabled('W0613'))
         self.assertTrue(linter.is_message_enabled('E1101'))
@@ -161,25 +162,24 @@ class PyLinterTC(TestCase):
         self.assertTrue(linter.is_message_enabled('E1101', 75))
         self.assertTrue(linter.is_message_enabled('E1101', 77))
 
-        self.assertEqual(17, linter._suppression_mapping['W0613', 18])
-        self.assertEqual(30, linter._suppression_mapping['E1101', 33])
-        self.assertTrue(('E1101', 46) not in linter._suppression_mapping)
-        self.assertEqual(1, linter._suppression_mapping['C0302', 18])
-        self.assertEqual(1, linter._suppression_mapping['C0302', 50])
+        fs = linter.file_state
+        self.assertEqual(17, fs._suppression_mapping['W0613', 18])
+        self.assertEqual(30, fs._suppression_mapping['E1101', 33])
+        self.assertTrue(('E1101', 46) not in fs._suppression_mapping)
+        self.assertEqual(1, fs._suppression_mapping['C0302', 18])
+        self.assertEqual(1, fs._suppression_mapping['C0302', 50])
         # This is tricky. While the disable in line 106 is disabling
         # both 108 and 110, this is usually not what the user wanted.
         # Therefore, we report the closest previous disable comment.
-        self.assertEqual(106, linter._suppression_mapping['E1101', 108])
-        self.assertEqual(109, linter._suppression_mapping['E1101', 110])
+        self.assertEqual(106, fs._suppression_mapping['E1101', 108])
+        self.assertEqual(109, fs._suppression_mapping['E1101', 110])
 
     def test_enable_by_symbol(self):
         """messages can be controlled by symbolic names.
 
         The state is consistent across symbols and numbers.
         """
-        linter = self.linter
-        linter.open()
-        linter.set_current_module('toto')
+        linter = self.init_linter()
         self.assertTrue(linter.is_message_enabled('W0101'))
         self.assertTrue(linter.is_message_enabled('unreachable'))
         self.assertTrue(linter.is_message_enabled('W0102'))

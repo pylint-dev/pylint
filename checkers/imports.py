@@ -372,7 +372,7 @@ given file (report RP0402 must not be disabled)'}
         cache them
         """
         if self.__ext_dep_info is None:
-            package = self.linter.base_name
+            package = self.linter.current_name
             self.__ext_dep_info = result = {}
             for importee, importers in self.stats['dependencies'].iteritems():
                 if not importee.startswith(package):
@@ -384,7 +384,7 @@ given file (report RP0402 must not be disabled)'}
         cache them
         """
         if self.__int_dep_info is None:
-            package = self.linter.base_name
+            package = self.linter.current_name
             self.__int_dep_info = result = {}
             for importee, importers in self.stats['dependencies'].iteritems():
                 if importee.startswith(package):
