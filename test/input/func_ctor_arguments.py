@@ -64,8 +64,8 @@ ClassNew(one=2)
 
 
 class Metaclass(type):
-    pass
-
+    def __new__(mcs, name, bases, namespace):
+        return type.__new__(mcs, name, bases, namespace)
 
 def with_metaclass(meta, base=object):
     """Create a new type that can be used as a metaclass."""
