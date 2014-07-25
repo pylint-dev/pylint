@@ -272,9 +272,13 @@ a metaclass class method.'}
         if not self.linter.is_message_enabled('attribute-defined-outside-init'):
             return
         defining_methods = self.config.defining_attr_methods
+        current_module = cnode.root()
         for attr, nodes in cnode.instance_attrs.iteritems():
+            # skip nodes which are not in the current module and it may screw up
+            # the output, while it's not worth it
             nodes = [n for n in nodes if not
-                    isinstance(n.statement(), (astroid.Delete, astroid.AugAssign))]
+                     isinstance(n.statement(), (astroid.Delete, astroid.AugAssign))
+                     and n.root() is current_module]
             if not nodes:
                 continue # error detected by typechecking
             # check if any method attr is defined in is a defining method
