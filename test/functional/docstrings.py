@@ -9,15 +9,15 @@ def function0():
 # +1: [missing-docstring]
 def function1(value):
     # missing docstring
-    print(value)
+    print value
 
 def function2(value):
     """docstring"""
-    print(value)
+    print value
 
 def function3(value):
     """docstring"""
-    print(value)
+    print value
 
 # +1: [missing-docstring]
 class AAAA(object):
