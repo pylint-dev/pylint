@@ -1,7 +1,5 @@
 """Regression test case for bad-continuation."""
 
-__revision__ = 1
-
 # Various alignment for brackets
 LIST0 = [
     1, 2, 3
@@ -39,7 +37,7 @@ W2 = ['some', 'contents'  # with a continued comment that may be aligned
       'and',
       'more',             # but this
                              # [bad-continuation] is not accepted
-                          'contents', # nor this. [bad-continuation]
+                          'contents', # [bad-continuation] nor this.
      ]
 
 # Values in dictionaries should be indented 4 spaces further if they are on a
@@ -108,7 +106,7 @@ def continue3(
     """A function with misaligned arguments"""
     print some_arg, some_other_arg
 
-def continue4(
+def continue4(  # pylint:disable=missing-docstring
     arg1,
     arg2): print arg1, arg2
 

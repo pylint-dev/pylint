@@ -38,7 +38,7 @@ class TextReporter(BaseReporter):
 
     def __init__(self, output=None):
         BaseReporter.__init__(self, output)
-        self._modules = {}
+        self._modules = set()
         self._template = None
 
     def on_set_current_module(self, module, filepath):
@@ -54,7 +54,7 @@ class TextReporter(BaseReporter):
         if m.module not in self._modules:
             if m.module:
                 self.writeln('************* Module %s' % m.module)
-                self._modules[m.module] = 1
+                self._modules.add(m.module)
             else:
                 self.writeln('************* ')
         self.write_message(m)
@@ -128,7 +128,7 @@ class ColorizedTextReporter(TextReporter):
                 modsep = colorize_ansi('************* %s' % msg.module,
                                        color, style)
             self.writeln(modsep)
-            self._modules[msg.module] = 1
+            self._modules.add(msg.module)
         color, style = self._get_decoration(msg.C)
         for attr in ('msg', 'symbol', 'category', 'C'):
             setattr(msg, attr, colorize_ansi(getattr(msg, attr), color, style))

@@ -20,7 +20,7 @@ from __future__ import generators
 import sys
 
 import astroid
-from astroid import YES, Instance, are_exclusive, AssAttr
+from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator
 
 from pylint.interfaces import IAstroidChecker
@@ -272,9 +272,13 @@ a metaclass class method.'}
         if not self.linter.is_message_enabled('attribute-defined-outside-init'):
             return
         defining_methods = self.config.defining_attr_methods
+        current_module = cnode.root()
         for attr, nodes in cnode.instance_attrs.iteritems():
+            # skip nodes which are not in the current module and it may screw up
+            # the output, while it's not worth it
             nodes = [n for n in nodes if not
-                    isinstance(n.statement(), (astroid.Delete, astroid.AugAssign))]
+                     isinstance(n.statement(), (astroid.Delete, astroid.AugAssign))
+                     and n.root() is current_module]
             if not nodes:
                 continue # error detected by typechecking
             # check if any method attr is defined in is a defining method
@@ -341,8 +345,12 @@ a metaclass class method.'}
         # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
-            args = (overridden.root().name, overridden.fromlineno)
-            self.add_message('method-hidden', args=args, node=node)
+            overridden_frame = overridden.frame()
+            if overridden_frame.type == 'method':
+                overridden_frame = overridden_frame.parent.frame()
+            if isinstance(overridden_frame, Class) and klass._is_subtype_of(overridden_frame.qname()):
+                args = (overridden.root().name, overridden.fromlineno)
+                self.add_message('method-hidden', args=args, node=node)
         except astroid.NotFoundError:
             pass
 
