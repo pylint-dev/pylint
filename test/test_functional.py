@@ -22,7 +22,7 @@ UPDATE = False
 
 # Common sub-expressions.
 _MESSAGE = {'msg': r'[a-z][a-z\-]+'}
-# Matches a #, 
+# Matches a #,
 #  - followed by a comparison operator and a Python version (optional),
 #  - followed by an line number with a +/- (optional),
 #  - followed by a list of bracketed message symbols.
@@ -40,7 +40,7 @@ def parse_python_version(str):
 class TestReporter(reporters.BaseReporter):
     def add_message(self, msg_id, location, msg):
         self.messages.append(reporters.Message(self, msg_id, location, msg))
-    
+
     def on_set_current_module(self, module, filepath):
         self.messages = []
 
@@ -189,7 +189,7 @@ class LintModuleTest(testlib.TestCase):
     def _get_expected(self):
         with open(self._test_file.source) as fobj:
             expected = get_expected_messages(fobj)
-        
+
         lines = []
         if self._produces_output() and expected:
             with open(self._test_file.expected_output, 'U') as fobj:
@@ -201,7 +201,7 @@ class LintModuleTest(testlib.TestCase):
         return expected, ''.join(lines)
 
     def _get_received(self):
-        messages = self._linter.reporter.messages       
+        messages = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.C, m.msg))
         text_result = cStringIO.StringIO()
         received = {}
@@ -220,7 +220,7 @@ class LintModuleTest(testlib.TestCase):
 
         if expected_messages != received_messages:
             msg = ['Wrong results for file "%s":' % (self._test_file.base)]
-            missing, unexpected = multiset_difference(expected_messages, 
+            missing, unexpected = multiset_difference(expected_messages,
                                                       received_messages)
             if missing:
                 msg.append('\nExpected in testdata:')
@@ -250,7 +250,7 @@ def active_in_running_python_version(options):
 
 
 def suite():
-    input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+    input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              'functional')
     suite = testlib.TestSuite()
     for fname in os.listdir(input_dir):
