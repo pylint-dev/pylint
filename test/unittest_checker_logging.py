@@ -2,6 +2,7 @@
 """
 Unittest for the logging checker.
 """
+from __future__ import with_statement
 from logilab.common.testlib import unittest_main
 from astroid import test_utils
 

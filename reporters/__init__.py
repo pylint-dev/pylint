@@ -51,7 +51,7 @@ class Message(object):
         self.msg = msg
         self.C = msg_id[0]
         self.category = MSG_TYPES[msg_id[0]]
-        self.symbol = reporter.linter.check_message_id(msg_id).symbol
+        self.symbol = reporter.linter.msgs_store.check_message_id(msg_id).symbol
 
     def format(self, template):
         """Format the message according to the given template.

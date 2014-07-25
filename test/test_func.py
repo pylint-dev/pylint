@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2008 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -44,12 +44,12 @@ class LintTestNonExistentModuleTC(LintTestUsingModule):
 
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
-    PORTED = set(['I0001', 'I0010', 'W0712', 'E1001'])
-    
+    PORTED = set(['I0001', 'I0010', 'W0712', 'E1001', 'W1402', 'E1310'])
+
     @testlib.tag('coverage')
     def test_exhaustivity(self):
         # skip fatal messages
-        not_tested = set(msg.msgid for msg in linter.messages
+        not_tested = set(msg.msgid for msg in linter.msgs_store.messages
                          if msg.msgid[0] != 'F' and msg.may_be_emitted())
         for msgid in test_reporter.message_ids:
             try:

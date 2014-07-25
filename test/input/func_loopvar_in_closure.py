@@ -53,6 +53,23 @@ def good_case7():
     return lambda: -1
 
 
+def good_case8():
+    """Lambda defined and called in loop."""
+    for i in range(10):
+        print (lambda x: i + x)(1)
+
+
+def good_case9():
+    """Another eager binding of the cell variable."""
+    funs = []
+    for i in range(10):
+        def func(bound_i=i):
+            """Ignore."""
+            return bound_i
+        funs.append(func)
+    return funs
+
+
 def bad_case():
     """Closing over a loop variable."""
     lst = []
@@ -112,3 +129,4 @@ def bad_case6():
         print j
         lst.append(lambda: i)
     return lst
+

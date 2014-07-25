@@ -542,8 +542,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             self.add_message('global-statement', node=node)
 
     def _check_late_binding_closure(self, node, assignment_node, scope_type):
+        def _is_direct_lambda_call():
+            return (isinstance(node_scope.parent, astroid.CallFunc)
+                    and node_scope.parent.func is node_scope)
+        
         node_scope = node.scope()
         if not isinstance(node_scope, (astroid.Lambda, astroid.Function)):
+            return
+        if isinstance(node.parent, astroid.Arguments):
             return
 
         if isinstance(assignment_node, astroid.Comprehension):
@@ -557,7 +563,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     break
                 maybe_for = maybe_for.parent
             else:
-                if maybe_for.parent_of(node_scope) and not isinstance(node_scope.statement(), astroid.Return):
+                if (maybe_for.parent_of(node_scope)
+                        and not _is_direct_lambda_call()
+                        and not isinstance(node_scope.statement(), astroid.Return)):
                     self.add_message('cell-var-from-loop', node=node, args=node.name)
 
     def _loopvar_name(self, node, name):

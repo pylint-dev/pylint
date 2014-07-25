@@ -185,3 +185,7 @@ if not (1 and
     2):  # [bad-continuation]
     print 3
 
+continue2("foo",
+          some_other_arg="this "
+                         "is "
+                         "fine")

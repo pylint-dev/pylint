@@ -1,0 +1,3 @@
+no-member:15:test:Class 'Thing' has no 'x' member
+protected-access:19:test:Access to a protected member _replace of a client class
+no-member:21:test:Instance of 'Fantastic' has no 'foo' member

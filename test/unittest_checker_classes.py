@@ -1,4 +1,5 @@
 """Unit tests for the variables checker."""
+from __future__ import with_statement
 
 from astroid import test_utils
 from pylint.checkers import classes
