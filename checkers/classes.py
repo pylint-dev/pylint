@@ -20,7 +20,7 @@ from __future__ import generators
 import sys
 
 import astroid
-from astroid import YES, Instance, are_exclusive, AssAttr
+from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator
 
 from pylint.interfaces import IAstroidChecker
@@ -341,8 +341,12 @@ a metaclass class method.'}
         # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
-            args = (overridden.root().name, overridden.fromlineno)
-            self.add_message('method-hidden', args=args, node=node)
+            overridden_frame = overridden.frame()
+            if overridden_frame.type == 'method':
+                overridden_frame = overridden_frame.parent.frame()
+            if isinstance(overridden_frame, Class) and klass._is_subtype_of(overridden_frame.qname()):
+                args = (overridden.root().name, overridden.fromlineno)
+                self.add_message('method-hidden', args=args, node=node)
         except astroid.NotFoundError:
             pass
 
