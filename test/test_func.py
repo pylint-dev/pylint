@@ -58,8 +58,6 @@ class TestTests(testlib.TestCase):
             except KeyError:
                 continue
         not_tested -= self.PORTED
-        if PY3K:
-            not_tested.remove('W0403') # relative-import
         self.assertFalse(not_tested)
 
 
