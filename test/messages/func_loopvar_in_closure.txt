@@ -1,8 +1,0 @@
-W: 21:good_case3: Unused variable 'i'
-W: 45:good_case6.<lambda>: Using possibly undefined loop variable 'i'
-W: 78:bad_case.<lambda>: Cell variable i defined in loop
-W: 83:bad_case2.<lambda>: Cell variable i defined in loop
-W: 91:bad_case3.<lambda>: Cell variable j defined in loop
-W:101:bad_case4.nested: Cell variable i defined in loop
-W:122:bad_case5.<lambda>: Cell variable i defined in loop
-W:130:bad_case6.<lambda>: Cell variable i defined in loop
