@@ -1,0 +1,17 @@
+no-value-for-parameter:35::No value for argument 'first_argument' in constructor call
+too-many-function-args:36::Too many positional arguments for constructor call
+no-value-for-parameter:38::No value for argument 'third_argument' in constructor call
+no-value-for-parameter:40::No value for argument 'first_argument' in constructor call
+no-value-for-parameter:40::No value for argument 'second_argument' in constructor call
+no-value-for-parameter:40::No value for argument 'third_argument' in constructor call
+too-many-function-args:42::Too many positional arguments for constructor call
+no-value-for-parameter:47::No value for argument 'first_argument' in constructor call
+unexpected-keyword-arg:47::Unexpected keyword argument 'bob' in constructor call
+unexpected-keyword-arg:48::Unexpected keyword argument 'coin' in constructor call
+redundant-keyword-arg:50::Argument 'one' passed by position and keyword in constructor call
+no-value-for-parameter:53::No value for argument 'first_argument' in constructor call
+too-many-function-args:54::Too many positional arguments for constructor call
+too-many-function-args:60::Too many positional arguments for constructor call
+too-many-function-args:63::Too many positional arguments for constructor call
+no-value-for-parameter:64::No value for argument 'first_argument' in constructor call
+unexpected-keyword-arg:64::Unexpected keyword argument 'one' in constructor call
