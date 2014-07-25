@@ -59,6 +59,8 @@ class TestTests(testlib.TestCase):
         not_tested -= self.PORTED
         if PY3K:
             not_tested.remove('W0403') # relative-import
+        not_tested.remove("C0401")  # requires optional lib python-enchant for spell checking
+        not_tested.remove("C0402")  # requires optional lib python-enchant for spell checking
         self.assertFalse(not_tested)
 
 

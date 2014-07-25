@@ -51,10 +51,10 @@ class SpellingInCommentsChecker(BaseTokenChecker):
     __implements__ = (ITokenChecker, IAstroidChecker)
     name = 'spelling'
     msgs = {
-        'C8402': ('Wrong spelling of a word \'%s\' in a comment:\n%s\n%s\nDid you mean: \'%s\'?',
+        'C0401': ('Wrong spelling of a word \'%s\' in a comment:\n%s\n%s\nDid you mean: \'%s\'?',
                   'wrong-spelling-in-comment',
                   'Used when a word in comment is not spelled correctly.'),
-        'C8403': ('Wrong spelling of a word \'%s\' in a docstring:\n%s\n%s\nDid you mean: \'%s\'?',
+        'C0402': ('Wrong spelling of a word \'%s\' in a docstring:\n%s\n%s\nDid you mean: \'%s\'?',
                   'wrong-spelling-in-docstring',
                   'Used when a word in docstring is not spelled correctly.'),
         }
