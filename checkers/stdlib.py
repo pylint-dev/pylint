@@ -24,7 +24,7 @@ from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
-_VALID_OPEN_MODE_REGEX = r'^(r?U|[rwa]\+?b?)$'
+_VALID_OPEN_MODE_REGEX = re.compile(r'^(r?U|[rwa]\+?b?)$')
 
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
@@ -58,8 +58,9 @@ class OpenModeChecker(BaseChecker):
             if mode_arg:
                 mode_arg = utils.safe_infer(mode_arg)
                 if (isinstance(mode_arg, astroid.Const)
-                    and not re.match(_VALID_OPEN_MODE_REGEX, mode_arg.value)):
-                    self.add_message('bad-open-mode', node=node, args=(mode_arg.value))
+                        and not _VALID_OPEN_MODE_REGEX.match(mode_arg.value)):
+                    self.add_message('bad-open-mode', node=node,
+                                     args=(mode_arg.value))
         except (utils.NoSuchArgumentError, TypeError):
             pass
 

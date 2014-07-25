@@ -7,6 +7,18 @@ ChangeLog for Pylint
       or if they are not as expected. New messages: mixed-line-endings,
       unexpected-line-ending-format. New option: expected-line-ending-format.
 
+    * Allow hanging continued indentation for implicitly concatenated
+      strings. Closes issue #232.
+
+    * PyLint works under Python 2.5 again, and its test suite passes.
+
+    * Fix some false positives for the cellvar-from-loop warnings.
+      Closes issue #233.
+
+    * Return new astroid class nodes when the inferencer can detect that
+      that result of a function invocation on a type (like `type` or 
+      `abc.ABCMeta`) is requested. Closes #205.
+
     * Emit 'undefined-variable' for undefined names when using the
       Python 3 `metaclass=` argument.
 
@@ -52,7 +64,7 @@ ChangeLog for Pylint
 
     * Don't emit 'unused-variable' when assigning to a nonlocal.
       Closes issue #275.
-
+   
     * Do not let ImportError propagate from the import checker, leading to crash
       in some namespace package related cases. Closes issue #203.
 
@@ -1491,3 +1503,6 @@ ChangeLog for Pylint
 
 2003-05-19  --  0.1
     * initial release
+
+
+

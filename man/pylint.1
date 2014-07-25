@@ -1,4 +1,4 @@
-.TH pylint 1 "2014-4-18" pylint
+.TH pylint 1 "2014-7-25" pylint
 .SH NAME
 .B pylint
 \- python code static checker
@@ -75,7 +75,7 @@ Put messages in a separate file for each module / package specified on the comma
 .IP "--reports=<y_or_n>, -r <y_or_n>"
 Tells whether to display a full report or only the messages [current: yes]
 .IP "--evaluation=<python_expression>"
-Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectively contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the  global evaluation report (RP0004). [current: 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)]
+Python expression which should return a note less than 10 (10 is the highest note). You have access to the variables errors warning, statement which respectively contain the number of errors / warnings messages and the total number of statements analyzed. This is used by the global evaluation report (RP0004). [current: 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)]
 .IP "--comment=<y_or_n>"
 Add a comment according to your evaluation note. This is used by the global evaluation report (RP0004). [current: no]
 .IP "--msg-template=<template>"
@@ -130,6 +130,8 @@ List of optional constructs for which whitespace checking is disabled [current: 
 Maximum number of lines in a module [current: 1000]
 .IP "--indent-string=<string>"
 String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab). [current: '    ']
+.IP "--indent-after-paren=<int>"
+Number of spaces of indent required inside a hanging  or continued line. [current: 4]
 
 .SH BASIC
 .IP "--required-attributes=<attributes>"
@@ -211,7 +213,7 @@ List of note tags to take in consideration, separated by a comma. [current: FIXM
 .IP "--ignore-mixin-members=<y_or_n>"
 Tells whether missing members accessed in mixin class should be ignored. A mixin class is detected if its name ends with "mixin" (case insensitive). [current: yes]
 .IP "--ignored-modules=<module names>"
-List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus extisting member attributes cannot be deduced by static analysis [current: none]
+List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis [current: none]
 .IP "--ignored-classes=<members names>"
 List of classes names for which member attributes should not be checked (useful for classes with attributes dynamically set). [current: SQLObject]
 .IP "--zope=<y_or_n>"

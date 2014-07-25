@@ -1,8 +1,6 @@
-# pylint: disable=R0903
+# pylint: disable=too-few-public-methods
 """check method hidding ancestor attribute
 """
-
-__revision__ = ''
 
 class Abcd(object):
     """dummy"""
@@ -11,7 +9,7 @@ class Abcd(object):
 
 class Cdef(Abcd):
     """dummy"""
-    def abcd(self):
+    def abcd(self): # [method-hidden]
         """test
         """
         print self

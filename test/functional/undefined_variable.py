@@ -1,38 +1,33 @@
-"""test access to undefined variables"""
+"""Test warnings about access to undefined variables."""
 # pylint: disable=too-few-public-methods, no-init, no-self-use
-__revision__ = '$Id:'
 
 DEFINED = 1
 
 if DEFINED != 1:
-    if DEFINED in (unknown, DEFINED):
+    if DEFINED in (unknown, DEFINED):  # [undefined-variable]
         DEFINED += 1
 
 
 def in_method(var):
     """method doc"""
-    var = nomoreknown
+    var = nomoreknown  # [undefined-variable]
     assert var
 
-DEFINED = {DEFINED:__revision__}
+DEFINED = {DEFINED:__revision__}  # [undefined-variable]
+# +1:[undefined-variable]
 DEFINED[__revision__] = OTHER = 'move this is astroid test'
 
 OTHER += '$'
 
-def bad_default(var, default=unknown2):
+def bad_default(var, default=unknown2):  # [undefined-variable]
     """function with defaut arg's value set to an unexistant name"""
     print var, default
-    print xxxx
-    print xxxx #see story #1000
-    augvar += 1
-    del vardel
+    print xxxx  # [undefined-variable]
+    augvar += 1  # [undefined-variable,unused-variable]
+    del vardel  # [undefined-variable]
 
-# Warning for Attribute access to undefinde attributes ?
-#class Attrs(object):
-    #"""dummy class for wrong attribute access"""
-#AOU = Attrs()
-#AOU.number *= 1.3
-#del AOU.badattr
+LMBD = lambda x, y=doesnotexist: x+y  # [undefined-variable]
+LMBD2 = lambda x, y: x+z  # [undefined-variable]
 
 try:
     POUET # don't catch me
@@ -41,19 +36,19 @@ except NameError:
 
 try:
     POUETT # don't catch me
-except Exception: # pylint:disable = W0703
+except Exception: # pylint:disable = broad-except
     POUETT = 'something'
 
 try:
     POUETTT # don't catch me
-except: # pylint:disable = W0702
+except: # pylint:disable = bare-except
     POUETTT = 'something'
 
 print POUET, POUETT, POUETTT
 
 
 try:
-    PLOUF # catch me
+    PLOUF  # [used-before-assignment]
 except ValueError:
     PLOUF = 'something'
 
@@ -62,7 +57,7 @@ print PLOUF
 def if_branch_test(something):
     """hop"""
     if something == 0:
-        if xxx == 1:
+        if xxx == 1:  # [used-before-assignment]
             pass
     else:
         print xxx
@@ -77,30 +72,32 @@ def decorator(arg):
 @decorator(arg=[i * 2 for i in range(15)])
 def func1():
     """A function with a decorator that contains a listcomp."""
-    pass
 
 @decorator(arg=(i * 2 for i in range(15)))
 def func2():
     """A function with a decorator that contains a genexpr."""
-    pass
+
+@decorator(lambda x: x > 0)
+def main():
+    """A function with a decorator that contains a lambda."""
 
 # Test shared scope.
 
-def test_arguments(arg=TestClass):
+def test_arguments(arg=TestClass):  # [used-before-assignment]
     """ TestClass isn't defined yet. """
     return arg
 
-class TestClass(Ancestor):
+class TestClass(Ancestor):  # [used-before-assignment]
     """ contains another class, which uses an undefined ancestor. """
 
-    class MissingAncestor(Ancestor1):
+    class MissingAncestor(Ancestor1):  # [used-before-assignment]
         """ no op """
 
     def test1(self):
         """ It should trigger here, because the two classes
         have the same scope.
         """
-        class UsingBeforeDefinition(Empty):
+        class UsingBeforeDefinition(Empty):  # [used-before-assignment]
             """ uses Empty before definition """
         class Empty(object):
             """ no op """

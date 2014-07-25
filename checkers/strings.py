@@ -211,7 +211,7 @@ class StringFormatChecker(BaseChecker):
         args = node.right
 
         if not (isinstance(left, astroid.Const)
-            and isinstance(left.value, basestring)):
+                and isinstance(left.value, basestring)):
             return
         format_string = left.value
         try:
@@ -298,9 +298,8 @@ class StringMethodsChecker(BaseChecker):
     def visit_callfunc(self, node):
         func = utils.safe_infer(node.func)
         if (isinstance(func, astroid.BoundMethod)
-            and isinstance(func.bound, astroid.Instance)
-            and func.bound.name in ('str', 'unicode', 'bytes')):
-
+                and isinstance(func.bound, astroid.Instance)
+                and func.bound.name in ('str', 'unicode', 'bytes')):
             if func.name in ('strip', 'lstrip', 'rstrip') and node.args:
                 arg = utils.safe_infer(node.args[0])
                 if not isinstance(arg, astroid.Const):
@@ -413,7 +412,7 @@ class StringMethodsChecker(BaseChecker):
                         previous = previous.getattr(specifier)[0]
                     except astroid.NotFoundError:
                         if (hasattr(previous, 'has_dynamic_getattr') and
-                            previous.has_dynamic_getattr()):
+                                previous.has_dynamic_getattr()):
                             # Don't warn if the object has a custom __getattr__
                             break
                         path = get_access_path(key, parsed)
@@ -504,7 +503,7 @@ class StringConstantChecker(BaseTokenChecker):
         # No special checks on raw strings at the moment.
         if 'r' not in prefix:
             self.process_non_raw_string_token(prefix, string_body,
-                start_row, start_col)
+                                              start_row, start_col)
 
     def process_non_raw_string_token(self, prefix, string_body, start_row,
                                      start_col):

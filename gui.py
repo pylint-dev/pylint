@@ -171,10 +171,11 @@ class LintGui(object):
         rightscrollbar.pack(side=RIGHT, fill=Y)
         bottomscrollbar = Scrollbar(msg_frame, orient=HORIZONTAL)
         bottomscrollbar.pack(side=BOTTOM, fill=X)
-        self.lb_messages = Listbox(msg_frame,
-                  yscrollcommand=rightscrollbar.set,
-                  xscrollcommand=bottomscrollbar.set,
-                  bg="white")
+        self.lb_messages = Listbox(
+            msg_frame,
+            yscrollcommand=rightscrollbar.set,
+            xscrollcommand=bottomscrollbar.set,
+            bg="white")
         self.lb_messages.bind("<Double-Button-1>", self.show_sourcefile)
         self.lb_messages.pack(expand=True, fill=BOTH)
         rightscrollbar.config(command=self.lb_messages.yview)
@@ -185,10 +186,11 @@ class LintGui(object):
         rightscrollbar2.pack(side=RIGHT, fill=Y)
         bottomscrollbar2 = Scrollbar(history_frame, orient=HORIZONTAL)
         bottomscrollbar2.pack(side=BOTTOM, fill=X)
-        self.showhistory = Listbox(history_frame,
-                    yscrollcommand=rightscrollbar2.set,
-                    xscrollcommand=bottomscrollbar2.set,
-                    bg="white")
+        self.showhistory = Listbox(
+            history_frame,
+            yscrollcommand=rightscrollbar2.set,
+            xscrollcommand=bottomscrollbar2.set,
+            bg="white")
         self.showhistory.pack(expand=True, fill=BOTH)
         rightscrollbar2.config(command=self.showhistory.yview)
         bottomscrollbar2.config(command=self.showhistory.xview)
@@ -217,10 +219,11 @@ class LintGui(object):
         rightscrollbar.pack(side=RIGHT, fill=Y)
         bottomscrollbar = Scrollbar(res_frame, orient=HORIZONTAL)
         bottomscrollbar.pack(side=BOTTOM, fill=X)
-        self.results = Listbox(res_frame,
-                  yscrollcommand=rightscrollbar.set,
-                  xscrollcommand=bottomscrollbar.set,
-                  bg="white", font="Courier")
+        self.results = Listbox(
+            res_frame,
+            yscrollcommand=rightscrollbar.set,
+            xscrollcommand=bottomscrollbar.set,
+            bg="white", font="Courier")
         self.results.pack(expand=True, fill=BOTH, side=BOTTOM)
         rightscrollbar.config(command=self.results.yview)
         bottomscrollbar.config(command=self.results.xview)
@@ -399,8 +402,10 @@ class LintGui(object):
     def file_open(self, package=False, _=None):
         """launch a file browser"""
         if not package:
-            filename = askopenfilename(parent=self.root, filetypes=[('pythonfiles', '*.py'),
-                                                    ('allfiles', '*')], title='Select Module')
+            filename = askopenfilename(parent=self.root,
+                                       filetypes=[('pythonfiles', '*.py'),
+                                                  ('allfiles', '*')],
+                                       title='Select Module')
         else:
             filename = askdirectory(title="Select A Folder", mustexist=1)
 

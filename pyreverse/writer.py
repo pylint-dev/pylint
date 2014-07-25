@@ -51,7 +51,7 @@ class DiagramWriter(object):
         # package dependencies
         for rel in diagram.get_relationships('depends'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                              **self.pkg_edges)
+                                   **self.pkg_edges)
 
     def write_classes(self, diagram):
         """write a class diagram"""
@@ -99,7 +99,7 @@ class DotWriter(DiagramWriter):
                   dict(arrowtail='node', arrowhead='empty', style='dashed'),
                   dict(fontcolor='green', arrowtail='none',
                        arrowhead='diamond', style='solid'),
-                  ]
+                 ]
         DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
@@ -147,7 +147,7 @@ class VCGWriter(DiagramWriter):
                        linestyle='dotted', backarrowsize=10),
                   dict(arrowstyle='solid', backarrowstyle='none',
                        textcolor='green'),
-                  ]
+                 ]
         DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):

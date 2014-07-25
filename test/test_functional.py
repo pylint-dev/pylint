@@ -193,11 +193,18 @@ class LintModuleTest(testlib.TestCase):
         lines = []
         if self._produces_output() and expected:
             with open(self._test_file.expected_output, 'U') as fobj:
+                used = True
                 for line in fobj:
-                    parts = line.split(':')
-                    linenum = int(parts[1])
-                    if (linenum, parts[0]) in expected:
+                    parts = line.split(':', 2)
+                    if len(parts) != 3 and used:
                         lines.append(line)
+                    else:
+                        linenum = int(parts[1])
+                        if (linenum, parts[0]) in expected:
+                            used = True
+                            lines.append(line)
+                        else:
+                            used = False
         return expected, ''.join(lines)
 
     def _get_received(self):

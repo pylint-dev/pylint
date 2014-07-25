@@ -20,14 +20,14 @@ from __future__ import generators
 import sys
 
 import astroid
-from astroid import YES, Instance, are_exclusive, AssAttr
+from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import (PYMETHODS, overrides_a_method,
-    check_messages, is_attr_private, is_attr_protected, node_frame_class,
-    safe_infer)
+from pylint.checkers.utils import (
+    PYMETHODS, overrides_a_method, check_messages, is_attr_private,
+    is_attr_protected, node_frame_class, safe_infer)
 
 if sys.version_info >= (3, 0):
     NEXT_METHOD = '__next__'
@@ -106,12 +106,12 @@ MSGS = {
               'Used when a static method has "self" or a value specified in '
               'valid-classmethod-first-arg option or '
               'valid-metaclass-classmethod-first-arg option as first argument.'
-              ),
+             ),
     'R0201': ('Method could be a function',
               'no-self-use',
               'Used when a method doesn\'t use its bound instance, and so could\
               be written as a function.'
-              ),
+             ),
 
     'E0221': ('Interface resolved to %s is not a class',
               'interface-is-not-class',
@@ -133,7 +133,7 @@ MSGS = {
               'abstract-method',
               'Used when an abstract method (i.e. raise NotImplementedError) is \
               not overridden in concrete class.'
-              ),
+             ),
     'F0220': ('failed to resolve interfaces implemented by %s (%s)', # W0224
               'unresolved-interface',
               'Used when a PyLint as failed to find interfaces implemented by \
@@ -198,45 +198,43 @@ class ClassChecker(BaseChecker):
     # configuration options
     options = (('ignore-iface-methods',
                 {'default' : (#zope interface
-        'isImplementedBy', 'deferred', 'extends', 'names',
-        'namesAndDescriptions', 'queryDescriptionFor', 'getBases',
-        'getDescriptionFor', 'getDoc', 'getName', 'getTaggedValue',
-        'getTaggedValueTags', 'isEqualOrExtendedBy', 'setTaggedValue',
-        'isImplementedByInstancesOf',
-        # twisted
-        'adaptWith',
-        # logilab.common interface
-        'is_implemented_by'),
+                    'isImplementedBy', 'deferred', 'extends', 'names',
+                    'namesAndDescriptions', 'queryDescriptionFor', 'getBases',
+                    'getDescriptionFor', 'getDoc', 'getName', 'getTaggedValue',
+                    'getTaggedValueTags', 'isEqualOrExtendedBy', 'setTaggedValue',
+                    'isImplementedByInstancesOf',
+                    # twisted
+                    'adaptWith',
+                    # logilab.common interface
+                    'is_implemented_by'),
                  'type' : 'csv',
                  'metavar' : '<method names>',
                  'help' : 'List of interface methods to ignore, \
 separated by a comma. This is used for instance to not check methods defines \
 in Zope\'s Interface base class.'}
-                ),
-
+               ),
                ('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
                  'type' : 'csv',
                  'metavar' : '<method names>',
                  'help' : 'List of method names used to declare (i.e. assign) \
 instance attributes.'}
-                ),
+               ),
                ('valid-classmethod-first-arg',
                 {'default' : ('cls',),
                  'type' : 'csv',
                  'metavar' : '<argument names>',
                  'help' : 'List of valid names for the first argument in \
 a class method.'}
-                ),
+               ),
                ('valid-metaclass-classmethod-first-arg',
                 {'default' : ('mcs',),
                  'type' : 'csv',
                  'metavar' : '<argument names>',
                  'help' : 'List of valid names for the first argument in \
 a metaclass class method.'}
-                ),
-
-               )
+               ),
+              )
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -272,9 +270,13 @@ a metaclass class method.'}
         if not self.linter.is_message_enabled('attribute-defined-outside-init'):
             return
         defining_methods = self.config.defining_attr_methods
+        current_module = cnode.root()
         for attr, nodes in cnode.instance_attrs.iteritems():
+            # skip nodes which are not in the current module and it may screw up
+            # the output, while it's not worth it
             nodes = [n for n in nodes if not
-                    isinstance(n.statement(), (astroid.Delete, astroid.AugAssign))]
+                     isinstance(n.statement(), (astroid.Delete, astroid.AugAssign))
+                     and n.root() is current_module]
             if not nodes:
                 continue # error detected by typechecking
             # check if any method attr is defined in is a defining method
@@ -341,8 +343,12 @@ a metaclass class method.'}
         # check if the method is hidden by an attribute
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
-            args = (overridden.root().name, overridden.fromlineno)
-            self.add_message('method-hidden', args=args, node=node)
+            overridden_frame = overridden.frame()
+            if overridden_frame.type == 'method':
+                overridden_frame = overridden_frame.parent.frame()
+            if isinstance(overridden_frame, Class) and klass._is_subtype_of(overridden_frame.qname()):
+                args = (overridden.root().name, overridden.fromlineno)
+                self.add_message('method-hidden', args=args, node=node)
         except astroid.NotFoundError:
             pass
 
@@ -392,7 +398,7 @@ a metaclass class method.'}
             if infered is YES:
                 continue
             if (not isinstance(infered, astroid.Const) or
-                not isinstance(infered.value, str)):
+                    not isinstance(infered.value, str)):
                 self.add_message('invalid-slots-object',
                                  args=infered.as_string(),
                                  node=elt)
@@ -410,7 +416,7 @@ a metaclass class method.'}
 
         for infered_node in infered:
             if (infered_node is YES
-                or isinstance(infered_node, Generator)):
+                    or isinstance(infered_node, Generator)):
                 continue
             if isinstance(infered_node, astroid.Instance):
                 try:
@@ -443,10 +449,10 @@ a metaclass class method.'}
                 return
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
-                and not node.name in PYMETHODS
-                and not (node.is_abstract() or
-                         overrides_a_method(class_node, node.name))
-                and class_node.type != 'interface'):
+                    and not node.name in PYMETHODS
+                    and not (node.is_abstract() or
+                             overrides_a_method(class_node, node.name))
+                    and class_node.type != 'interface'):
                 self.add_message('no-self-use', node=node)
 
     def visit_getattr(self, node):
@@ -621,8 +627,8 @@ a metaclass class method.'}
         # static method
         if node.type == 'staticmethod':
             if (first_arg == 'self' or
-                first_arg in self.config.valid_classmethod_first_arg or
-                first_arg in self.config.valid_metaclass_classmethod_first_arg):
+                    first_arg in self.config.valid_classmethod_first_arg or
+                    first_arg in self.config.valid_metaclass_classmethod_first_arg):
                 self.add_message('bad-staticmethod-argument', args=first, node=node)
                 return
             self._first_attrs[-1] = None
@@ -633,19 +639,22 @@ a metaclass class method.'}
         elif metaclass:
             # metaclass __new__ or classmethod
             if node.type == 'classmethod':
-                self._check_first_arg_config(first,
+                self._check_first_arg_config(
+                    first,
                     self.config.valid_metaclass_classmethod_first_arg, node,
                     'bad-mcs-classmethod-argument', node.name)
             # metaclass regular method
             else:
-                self._check_first_arg_config(first,
+                self._check_first_arg_config(
+                    first,
                     self.config.valid_classmethod_first_arg, node, 'bad-mcs-method-argument',
                     node.name)
         # regular class
         else:
             # class method
             if node.type == 'classmethod':
-                self._check_first_arg_config(first,
+                self._check_first_arg_config(
+                    first,
                     self.config.valid_classmethod_first_arg, node, 'bad-classmethod-argument',
                     node.name)
             # regular method without self as argument
@@ -658,11 +667,8 @@ a metaclass class method.'}
             if len(config) == 1:
                 valid = repr(config[0])
             else:
-                valid = ', '.join(
-                  repr(v)
-                  for v in config[:-1])
-                valid = '%s or %r' % (
-                    valid, config[-1])
+                valid = ', '.join(repr(v) for v in config[:-1])
+                valid = '%s or %r' % (valid, config[-1])
             self.add_message(message, args=(method_name, valid), node=node)
 
     def _check_bases_classes(self, node):
@@ -719,7 +725,7 @@ a metaclass class method.'}
                         continue
                     # check signature
                     self._check_signature(method, imethod,
-                                         '%s interface' % iface.name)
+                                          '%s interface' % iface.name)
         except astroid.InferenceError:
             if e0221_hack[0]:
                 return
@@ -738,7 +744,7 @@ a metaclass class method.'}
         method
         """
         if (not self.linter.is_message_enabled('super-init-not-called') and
-            not self.linter.is_message_enabled('non-parent-init-called')):
+                not self.linter.is_message_enabled('non-parent-init-called')):
             return
         klass_node = node.parent.frame()
         to_call = _ancestors_to_call(klass_node)
@@ -750,7 +756,7 @@ a metaclass class method.'}
                 continue
             # skip the test if using super
             if isinstance(expr.expr, astroid.CallFunc) and \
-               isinstance(expr.expr.func, astroid.Name) and \
+                   isinstance(expr.expr.func, astroid.Name) and \
                expr.expr.func.name == 'super':
                 return
             try:

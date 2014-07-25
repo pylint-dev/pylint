@@ -1,0 +1,17 @@
+undefined-variable:7::Undefined variable 'unknown'
+undefined-variable:13:in_method:Undefined variable 'nomoreknown'
+undefined-variable:16::Undefined variable '__revision__'
+undefined-variable:18::Undefined variable '__revision__'
+undefined-variable:22:bad_default:Undefined variable 'unknown2'
+undefined-variable:25:bad_default:Undefined variable 'xxxx'
+undefined-variable:26:bad_default:Undefined variable 'augvar'
+unused-variable:26:bad_default:Unused variable 'augvar'
+undefined-variable:27:bad_default:Undefined variable 'vardel'
+undefined-variable:29:<lambda>:Undefined variable 'doesnotexist'
+undefined-variable:30:<lambda>:Undefined variable 'z'
+used-before-assignment:51::Using variable 'PLOUF' before assignment
+used-before-assignment:60:if_branch_test:Using variable 'xxx' before assignment
+used-before-assignment:86:test_arguments:Using variable 'TestClass' before assignment
+used-before-assignment:90:TestClass:Using variable 'Ancestor' before assignment
+used-before-assignment:93:TestClass.MissingAncestor:Using variable 'Ancestor1' before assignment
+used-before-assignment:100:TestClass.test1.UsingBeforeDefinition:Using variable 'Empty' before assignment
