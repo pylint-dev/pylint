@@ -3,11 +3,15 @@ ChangeLog for Pylint
 
 --
 
+    * Added new checks for line endings if they are mixed (LF vs CRLF)
+      or if they are not as expected. New messages: mixed-line-endings,
+      unexpected-line-ending-format. New option: expected-line-ending-format.
+
     * Emit 'undefined-variable' for undefined names when using the
       Python 3 `metaclass=` argument.
 
     * Checkers respect priority now. Close issue #229.
-    
+
     * Fix a false positive regarding W0511. Closes issue #149.
 
     * Fix unused-import false positive with Python 3 metaclasses (#143).
@@ -48,7 +52,7 @@ ChangeLog for Pylint
 
     * Don't emit 'unused-variable' when assigning to a nonlocal.
       Closes issue #275.
-   
+
     * Do not let ImportError propagate from the import checker, leading to crash
       in some namespace package related cases. Closes issue #203.
 
@@ -1487,6 +1491,3 @@ ChangeLog for Pylint
 
 2003-05-19  --  0.1
     * initial release
-
-
-
