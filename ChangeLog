@@ -3,6 +3,18 @@ ChangeLog for Pylint
 
 --
 
+    * Allow hanging continued indentation for implicitly concatenated
+      strings. Closes issue #232.
+
+    * PyLint works under Python 2.5 again, and its test suite passes.
+
+    * Fix some false positives for the cellvar-from-loop warnings.
+      Closes issue #233.
+
+    * Return new astroid class nodes when the inferencer can detect that
+      that result of a function invocation on a type (like `type` or 
+      `abc.ABCMeta`) is requested. Closes #205.
+
     * Emit 'undefined-variable' for undefined names when using the
       Python 3 `metaclass=` argument.
 
@@ -58,11 +70,14 @@ ChangeLog for Pylint
     * Use the proper mode for pickle when opening and writing the stats file.
       Closes issue #148.
 
-   * Don't emit hidden-method message when the attribute has been
-     monkey-patched, you're on your own when you do that
+    * Don't emit hidden-method message when the attribute has been
+      monkey-patched, you're on your own when you do that.
 
-   * Only emit attribute-defined-outside-init for definition within the same
-     module as the offended class, avoiding to mangle the output in some cases
+    * Only emit attribute-defined-outside-init for definition within the same
+      module as the offended class, avoiding to mangle the output in some cases.
+
+    * Don't emit 'unnecessary-lambda' if the body of the lambda call contains
+      call chaining. Closes issue #243.
 
 
 2014-04-30  --  1.2.1

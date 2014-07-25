@@ -1,0 +1,8 @@
+unused-variable:18:good_case3:Unused variable 'i'
+undefined-loop-variable:42:good_case6.<lambda>:Using possibly undefined loop variable 'i'
+cell-var-from-loop:75:bad_case.<lambda>:Cell variable i defined in loop
+cell-var-from-loop:80:bad_case2.<lambda>:Cell variable i defined in loop
+cell-var-from-loop:88:bad_case3.<lambda>:Cell variable j defined in loop
+cell-var-from-loop:98:bad_case4.nested:Cell variable i defined in loop
+cell-var-from-loop:119:bad_case5.<lambda>:Cell variable i defined in loop
+cell-var-from-loop:127:bad_case6.<lambda>:Cell variable i defined in loop

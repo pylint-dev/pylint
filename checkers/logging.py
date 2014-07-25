@@ -22,16 +22,16 @@ from pylint.checkers.utils import check_messages
 
 MSGS = {
     'W1201': ('Specify string format arguments as logging function parameters',
-             'logging-not-lazy',
-             'Used when a logging statement has a call form of '
-             '"logging.<logging method>(format_string % (format_args...))". '
-             'Such calls should leave string interpolation to the logging '
-             'method itself and be written '
-             '"logging.<logging method>(format_string, format_args...)" '
-             'so that the program may avoid incurring the cost of the '
-             'interpolation in those cases in which no message will be '
-             'logged. For more, see '
-             'http://www.python.org/dev/peps/pep-0282/.'),
+              'logging-not-lazy',
+              'Used when a logging statement has a call form of '
+              '"logging.<logging method>(format_string % (format_args...))". '
+              'Such calls should leave string interpolation to the logging '
+              'method itself and be written '
+              '"logging.<logging method>(format_string, format_args...)" '
+              'so that the program may avoid incurring the cost of the '
+              'interpolation in those cases in which no message will be '
+              'logged. For more, see '
+              'http://www.python.org/dev/peps/pep-0282/.'),
     'E1200': ('Unsupported logging format character %r (%#02x) at index %d',
               'logging-unsupported-format',
               'Used when an unsupported format character is used in a logging\
@@ -65,10 +65,10 @@ class LoggingChecker(checkers.BaseChecker):
                 {'default' : ('logging',),
                  'type' : 'csv',
                  'metavar' : '<comma separated list>',
-                 'help' : ('Logging modules to check that the string format '
-                           'arguments are in logging function parameter format')}
-                ),
-               )
+                 'help' : 'Logging modules to check that the string format '
+                          'arguments are in logging function parameter format'}
+               ),
+              )
 
     def visit_module(self, unused_node):
         """Clears any state left in this checker from last module checked."""
@@ -105,19 +105,19 @@ class LoggingChecker(checkers.BaseChecker):
     def visit_callfunc(self, node):
         """Checks calls to logging methods."""
         def is_logging_name():
-           return (isinstance(node.func, astroid.Getattr) and
-                   isinstance(node.func.expr, astroid.Name) and 
-                   node.func.expr.name in self._logging_names)
+            return (isinstance(node.func, astroid.Getattr) and
+                    isinstance(node.func.expr, astroid.Name) and
+                    node.func.expr.name in self._logging_names)
 
         def is_logger_class():
             try:
                 for inferred in node.func.infer():
                     if isinstance(inferred, astroid.BoundMethod):
                         parent = inferred._proxied.parent
-                        if (isinstance(parent, astroid.Class) and 
-                            (parent.qname() == 'logging.Logger' or 
-                             any(ancestor.qname() == 'logging.Logger' 
-                                 for ancestor in parent.ancestors()))):
+                        if (isinstance(parent, astroid.Class) and
+                                (parent.qname() == 'logging.Logger' or
+                                 any(ancestor.qname() == 'logging.Logger'
+                                     for ancestor in parent.ancestors()))):
                             return True, inferred._proxied.name
             except astroid.exceptions.InferenceError:
                 pass

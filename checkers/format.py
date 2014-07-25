@@ -68,7 +68,7 @@ MSGS = {
     'C0302': ('Too many lines in module (%s)', # was W0302
               'too-many-lines',
               'Used when a module has too much lines, reducing its readability.'
-              ),
+             ),
     'C0303': ('Trailing whitespace',
               'trailing-whitespace',
               'Used when there is whitespace between the end of a line and the '
@@ -111,20 +111,20 @@ MSGS = {
 if sys.version_info < (3, 0):
 
     MSGS.update({
-    'W0331': ('Use of the <> operator',
-              'old-ne-operator',
-              'Used when the deprecated "<>" operator is used instead \
-              of "!=".'),
-    'W0332': ('Use of "l" as long integer identifier',
-              'lowercase-l-suffix',
-              'Used when a lower case "l" is used to mark a long integer. You '
-              'should use a upper case "L" since the letter "l" looks too much '
-              'like the digit "1"'),
-    'W0333': ('Use of the `` operator',
-              'backtick',
-              'Used when the deprecated "``" (backtick) operator is used '
-              'instead  of the str() function.',
-              {'scope': WarningScope.NODE}),
+        'W0331': ('Use of the <> operator',
+                  'old-ne-operator',
+                  'Used when the deprecated "<>" operator is used instead '
+                  'of "!=".'),
+        'W0332': ('Use of "l" as long integer identifier',
+                  'lowercase-l-suffix',
+                  'Used when a lower case "l" is used to mark a long integer. You '
+                  'should use a upper case "L" since the letter "l" looks too much '
+                  'like the digit "1"'),
+        'W0333': ('Use of the `` operator',
+                  'backtick',
+                  'Used when the deprecated "``" (backtick) operator is used '
+                  'instead  of the str() function.',
+                  {'scope': WarningScope.NODE}),
     })
 
 
@@ -145,29 +145,28 @@ def _column_distance(token1, token2):
 
 
 def _last_token_on_line_is(tokens, line_end, token):
-    return (
-        line_end > 0 and tokens.token(line_end-1) == token or
-        line_end > 1 and tokens.token(line_end-2) == token 
-        and tokens.type(line_end-1) == tokenize.COMMENT)
+    return (line_end > 0 and tokens.token(line_end-1) == token or
+            line_end > 1 and tokens.token(line_end-2) == token
+            and tokens.type(line_end-1) == tokenize.COMMENT)
 
 
 def _token_followed_by_eol(tokens, position):
-  return (tokens.type(position+1) == tokenize.NL or
-          tokens.type(position+1) == tokenize.COMMENT and
-          tokens.type(position+2) == tokenize.NL)
+    return (tokens.type(position+1) == tokenize.NL or
+            tokens.type(position+1) == tokenize.COMMENT and
+            tokens.type(position+2) == tokenize.NL)
 
 
 def _get_indent_length(line):
-  """Return the length of the indentation on the given token's line."""
-  result = 0
-  for char in line:
-    if char == ' ':
-      result += 1
-    elif char == '\t':
-      result += _TAB_LENGTH
-    else:
-      break
-  return result
+    """Return the length of the indentation on the given token's line."""
+    result = 0
+    for char in line:
+        if char == ' ':
+            result += 1
+        elif char == '\t':
+            result += _TAB_LENGTH
+        else:
+            break
+    return result
 
 
 def _get_indent_hint_line(bar_positions, bad_position):
@@ -426,9 +425,9 @@ class FormatChecker(BaseTokenChecker):
                  'help': ('Regexp for a line that is allowed to be longer than '
                           'the limit.')}),
                ('single-line-if-stmt',
-                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                  'help' : ('Allow the body of an if to be on the same '
-                            'line as the test if there is no else.')}),
+                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'help' : ('Allow the body of an if to be on the same '
+                           'line as the test if there is no else.')}),
                ('no-space-check',
                 {'default': ','.join(_NO_SPACE_CHECK_CHOICES),
                  'type': 'multiple_choice',
@@ -438,16 +437,16 @@ class FormatChecker(BaseTokenChecker):
                ('max-module-lines',
                 {'default' : 1000, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of lines in a module'}
-                ),
+               ),
                ('indent-string',
                 {'default' : '    ', 'type' : "string", 'metavar' : '<string>',
-                 'help' : 'String used as indentation unit. This is usually \
-"    " (4 spaces) or "\\t" (1 tab).'}),
+                 'help' : 'String used as indentation unit. This is usually '
+                          '"    " (4 spaces) or "\\t" (1 tab).'}),
                ('indent-after-paren',
                 {'type': 'int', 'metavar': '<int>', 'default': 4,
                  'help': 'Number of spaces of indent required inside a hanging '
                          ' or continued line.'}),
-               )
+              )
 
     def __init__(self, linter=None):
         BaseTokenChecker.__init__(self, linter)
@@ -515,8 +514,9 @@ class FormatChecker(BaseTokenChecker):
                 if not depth:
                     # ')' can't happen after if (foo), since it would be a syntax error.
                     if (tokens[i+1][1] in (':', ')', ']', '}', 'in') or
-                        tokens[i+1][0] in (tokenize.NEWLINE, tokenize.ENDMARKER,
-                                             tokenize.COMMENT)):
+                            tokens[i+1][0] in (tokenize.NEWLINE,
+                                               tokenize.ENDMARKER,
+                                               tokenize.COMMENT)):
                         # The empty tuple () is always accepted.
                         if i == start + 2:
                             return
@@ -593,7 +593,7 @@ class FormatChecker(BaseTokenChecker):
         if self._inside_brackets('['):
             return
         if (self._inside_brackets('{') and
-            _DICT_SEPARATOR in self.config.no_space_check):
+                _DICT_SEPARATOR in self.config.no_space_check):
             policy = (_IGNORE, _IGNORE)
         else:
             policy = (_MUST_NOT, _MUST)
@@ -731,7 +731,7 @@ class FormatChecker(BaseTokenChecker):
                     self.new_line(TokenWrapper(tokens), idx-1, idx+1)
                 else:
                     self.new_line(TokenWrapper(tokens), idx-1, idx)
-            
+
             if tok_type == tokenize.NEWLINE:
                 # a program statement, or ENDMARKER, will eventually follow,
                 # after some (possibly empty) run of tokens of the form
@@ -804,7 +804,7 @@ class FormatChecker(BaseTokenChecker):
             return
 
         state, valid_offsets = self._current_line.get_valid_offsets(next_idx)
-        # Special handling for hanging comments and strings. If the last line ended 
+        # Special handling for hanging comments and strings. If the last line ended
         # with a comment (string) and the new line contains only a comment, the line
         # may also be indented to the start of the previous token.
         if same_token_around_nl(tokenize.COMMENT) or same_token_around_nl(tokenize.STRING):
@@ -844,7 +844,7 @@ class FormatChecker(BaseTokenChecker):
             # by taking the last line of the body and adding 1, which
             # should be the line of finally:
             if (isinstance(node.parent, nodes.TryFinally)
-                and node in node.parent.finalbody):
+                    and node in node.parent.finalbody):
                 prev_line = node.parent.body[0].tolineno + 1
             else:
                 prev_line = node.parent.statement().fromlineno
@@ -877,10 +877,10 @@ class FormatChecker(BaseTokenChecker):
         # For try... except... finally..., the two nodes
         # appear to be on the same line due to how the AST is built.
         if (isinstance(node, nodes.TryExcept) and
-            isinstance(node.parent, nodes.TryFinally)):
+                isinstance(node.parent, nodes.TryFinally)):
             return
         if (isinstance(node.parent, nodes.If) and not node.parent.orelse
-            and self.config.single_line_if_stmt):
+                and self.config.single_line_if_stmt):
             return
         self.add_message('multiple-statements', node=node)
         self._visited_lines[line] = 2
