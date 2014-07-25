@@ -89,8 +89,8 @@ class NewStyleConflictChecker(BaseChecker):
         """check property usage"""
         parent = node.parent.frame()
         if (isinstance(parent, astroid.Class) and
-            not parent.newstyle and
-            isinstance(node.func, astroid.Name)):
+                not parent.newstyle and
+                isinstance(node.func, astroid.Name)):
             name = node.func.name
             if name == 'property':
                 self.add_message('property-on-old-class', node=node)

@@ -135,7 +135,7 @@ class MyInstallLib(install_lib.install_lib):
                 # since python2.5's copytree doesn't support the ignore
                 # parameter, the following loop to remove the exclude set
                 # was added
-                for (dirpath, dirnames, filenames) in os.walk(dest):
+                for (dirpath, _, filenames) in os.walk(dest):
                     for n in filenames:
                         if n in exclude:
                             os.remove(os.path.join(dirpath, n))
@@ -176,12 +176,12 @@ def install(**kwargs):
             kwargs['install_requires'] = install_requires
             kwargs['dependency_links'] = dependency_links
         kwargs['entry_points'] = {'console_scripts': [
-                'pylint = pylint:run_pylint',
-                'pylint-gui = pylint:run_pylint_gui',
-                'epylint = pylint:run_epylint',
-                'pyreverse = pylint:run_pyreverse',
-                'symilar = pylint:run_symilar',
-                ]}
+            'pylint = pylint:run_pylint',
+            'pylint-gui = pylint:run_pylint_gui',
+            'epylint = pylint:run_epylint',
+            'pyreverse = pylint:run_pyreverse',
+            'symilar = pylint:run_symilar',
+        ]}
     kwargs['packages'] = packages
     return setup(name=distname,
                  version=version,
@@ -196,8 +196,8 @@ def install(**kwargs):
                  data_files=data_files,
                  ext_modules=ext_modules,
                  cmdclass={'install_lib': MyInstallLib,
-                             'build_py': build_py},
+                           'build_py': build_py},
                  **kwargs)
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     install()

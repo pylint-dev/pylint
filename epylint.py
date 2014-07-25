@@ -46,7 +46,7 @@ You may also use py_run to run pylint with desired options and get back (or not)
 its output.
 """
 
-import sys, os, re
+import sys, os
 import os.path as osp
 from subprocess import Popen, PIPE
 

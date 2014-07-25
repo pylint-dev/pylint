@@ -124,8 +124,8 @@ def _determine_function_name_type(node):
         # If the function is a property (decorated with @property
         # or @abc.abstractproperty), the name type is 'attr'.
         if (isinstance(decorator, astroid.Name) or
-            (isinstance(decorator, astroid.Getattr) and
-             decorator.attrname == 'abstractproperty')):
+                (isinstance(decorator, astroid.Getattr) and
+                 decorator.attrname == 'abstractproperty')):
             infered = safe_infer(decorator)
             if infered and infered.qname() in PROPERTY_CLASSES:
                 return 'attr'
@@ -208,7 +208,7 @@ def redefined_by_decorator(node):
     if node.decorators:
         for decorator in node.decorators.nodes:
             if (isinstance(decorator, astroid.Getattr) and
-                getattr(decorator.expr, 'name', None) == node.name):
+                    getattr(decorator.expr, 'name', None) == node.name):
                 return True
     return False
 
@@ -218,57 +218,53 @@ class _BasicChecker(BaseChecker):
 
 class BasicErrorChecker(_BasicChecker):
     msgs = {
-    'E0100': ('__init__ method is a generator',
-              'init-is-generator',
-              'Used when the special class method __init__ is turned into a '
-              'generator by a yield in its body.'),
-    'E0101': ('Explicit return in __init__',
-              'return-in-init',
-              'Used when the special class method __init__ has an explicit \
-              return value.'),
-    'E0102': ('%s already defined line %s',
-              'function-redefined',
-              'Used when a function / class / method is redefined.'),
-    'E0103': ('%r not properly in loop',
-              'not-in-loop',
-              'Used when break or continue keywords are used outside a loop.'),
-
-    'E0104': ('Return outside function',
-              'return-outside-function',
-              'Used when a "return" statement is found outside a function or '
-              'method.'),
-    'E0105': ('Yield outside function',
-              'yield-outside-function',
-              'Used when a "yield" statement is found outside a function or '
-              'method.'),
-    'E0106': ('Return with argument inside generator',
-              'return-arg-in-generator',
-              'Used when a "return" statement with an argument is found '
-              'outside in a generator function or method (e.g. with some '
-              '"yield" statements).',
-              {'maxversion': (3, 3)}),
-    'E0107': ("Use of the non-existent %s operator",
-              'nonexistent-operator',
-              "Used when you attempt to use the C-style pre-increment or"
-              "pre-decrement operator -- and ++, which doesn't exist in Python."),
-    'E0108': ('Duplicate argument name %s in function definition',
-              'duplicate-argument-name',
-              'Duplicate argument names in function definitions are syntax'
-              ' errors.'),
-    'E0110': ('Abstract class with abstract methods instantiated',
-              'abstract-class-instantiated',
-              'Used when an abstract class with `abc.ABCMeta` as metaclass '
-              'has abstract methods and is instantiated.',
-              {'minversion': (3, 0)}),
-    'W0120': ('Else clause on loop without a break statement',
-              'useless-else-on-loop',
-              'Loops should only have an else clause if they can exit early '
-              'with a break statement, otherwise the statements under else '
-              'should be on the same scope as the loop itself.'),
-    }
-
-    def __init__(self, linter):
-        _BasicChecker.__init__(self, linter)
+        'E0100': ('__init__ method is a generator',
+                  'init-is-generator',
+                  'Used when the special class method __init__ is turned into a '
+                  'generator by a yield in its body.'),
+        'E0101': ('Explicit return in __init__',
+                  'return-in-init',
+                  'Used when the special class method __init__ has an explicit '
+                  'return value.'),
+        'E0102': ('%s already defined line %s',
+                  'function-redefined',
+                  'Used when a function / class / method is redefined.'),
+        'E0103': ('%r not properly in loop',
+                  'not-in-loop',
+                  'Used when break or continue keywords are used outside a loop.'),
+        'E0104': ('Return outside function',
+                  'return-outside-function',
+                  'Used when a "return" statement is found outside a function or '
+                  'method.'),
+        'E0105': ('Yield outside function',
+                  'yield-outside-function',
+                  'Used when a "yield" statement is found outside a function or '
+                  'method.'),
+        'E0106': ('Return with argument inside generator',
+                  'return-arg-in-generator',
+                  'Used when a "return" statement with an argument is found '
+                  'outside in a generator function or method (e.g. with some '
+                  '"yield" statements).',
+                  {'maxversion': (3, 3)}),
+        'E0107': ("Use of the non-existent %s operator",
+                  'nonexistent-operator',
+                  "Used when you attempt to use the C-style pre-increment or"
+                  "pre-decrement operator -- and ++, which doesn't exist in Python."),
+        'E0108': ('Duplicate argument name %s in function definition',
+                  'duplicate-argument-name',
+                  'Duplicate argument names in function definitions are syntax'
+                  ' errors.'),
+        'E0110': ('Abstract class with abstract methods instantiated',
+                  'abstract-class-instantiated',
+                  'Used when an abstract class with `abc.ABCMeta` as metaclass '
+                  'has abstract methods and is instantiated.',
+                  {'minversion': (3, 0)}),
+        'W0120': ('Else clause on loop without a break statement',
+                  'useless-else-on-loop',
+                  'Loops should only have an else clause if they can exit early '
+                  'with a break statement, otherwise the statements under else '
+                  'should be on the same scope as the loop itself.'),
+        }
 
     @check_messages('function-redefined')
     def visit_class(self, node):
@@ -289,11 +285,11 @@ class BasicErrorChecker(_BasicChecker):
             else:
                 values = [r.value for r in returns]
                 # Are we returning anything but None from constructors
-                if  [v for v in values if
-                     not (v is None or
-                          (isinstance(v, astroid.Const) and v.value is None) or
-                          (isinstance(v, astroid.Name)  and v.name == 'None')
-                          )]:
+                if [v for v in values
+                        if not (v is None or
+                                (isinstance(v, astroid.Const) and v.value is None) or
+                                (isinstance(v, astroid.Name)  and v.name == 'None')
+                               )]:
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
@@ -342,8 +338,8 @@ class BasicErrorChecker(_BasicChecker):
     def visit_unaryop(self, node):
         """check use of the non-existent ++ and -- operator operator"""
         if ((node.op in '+-') and
-            isinstance(node.operand, astroid.UnaryOp) and
-            (node.operand.op == node.op)):
+                isinstance(node.operand, astroid.UnaryOp) and
+                (node.operand.op == node.op)):
             self.add_message('nonexistent-operator', node=node, args=node.op*2)
 
     @check_messages('abstract-class-instantiated')
@@ -364,14 +360,12 @@ class BasicErrorChecker(_BasicChecker):
             # by ClassNode.metaclass()
             for ancestor in infered.ancestors():
                 if (ancestor.qname() == 'abc.ABC' and
-                    has_abstract_methods(infered)):
-
+                        has_abstract_methods(infered)):
                     self.add_message('abstract-class-instantiated', node=node)
                     break
             return
         if (metaclass.qname() == 'abc.ABCMeta' and
-            has_abstract_methods(infered)):
-
+                has_abstract_methods(infered)):
             self.add_message('abstract-class-instantiated', node=node)
 
     def _check_else_on_loop(self, node):
@@ -417,88 +411,88 @@ functions, methods
 
     name = 'basic'
     msgs = {
-    'W0101': ('Unreachable code',
-              'unreachable',
-              'Used when there is some code behind a "return" or "raise" \
-              statement, which will never be accessed.'),
-    'W0102': ('Dangerous default value %s as argument',
-              'dangerous-default-value',
-              'Used when a mutable value as list or dictionary is detected in \
-              a default value for an argument.'),
-    'W0104': ('Statement seems to have no effect',
-              'pointless-statement',
-              'Used when a statement doesn\'t have (or at least seems to) \
-              any effect.'),
-    'W0105': ('String statement has no effect',
-              'pointless-string-statement',
-              'Used when a string is used as a statement (which of course \
-              has no effect). This is a particular case of W0104 with its \
-              own message so you can easily disable it if you\'re using \
-              those strings as documentation, instead of comments.'),
-    'W0106': ('Expression "%s" is assigned to nothing',
-              'expression-not-assigned',
-              'Used when an expression that is not a function call is assigned\
-              to nothing. Probably something else was intended.'),
-    'W0108': ('Lambda may not be necessary',
-              'unnecessary-lambda',
-              'Used when the body of a lambda expression is a function call \
-              on the same argument list as the lambda itself; such lambda \
-              expressions are in all but a few cases replaceable with the \
-              function being called in the body of the lambda.'),
-    'W0109': ("Duplicate key %r in dictionary",
-              'duplicate-key',
-              "Used when a dictionary expression binds the same key multiple \
-              times."),
-    'W0122': ('Use of exec',
-              'exec-used',
-              'Used when you use the "exec" statement (function for Python 3), to discourage its \
-              usage. That doesn\'t mean you can not use it !'),
-    'W0123': ('Use of eval',
-              'eval-used',
-              'Used when you use the "eval" function, to discourage its '
-              'usage. Consider using `ast.literal_eval` for safely evaluating '
-              'strings containing Python expressions '
-              'from untrusted sources. '),
-    'W0141': ('Used builtin function %r',
-              'bad-builtin',
-              'Used when a black listed builtin function is used (see the '
-              'bad-function option). Usual black listed functions are the ones '
-              'like map, or filter , where Python offers now some cleaner '
-              'alternative like list comprehension.'),
-    'W0142': ('Used * or ** magic',
-              'star-args',
-              'Used when a function or method is called using `*args` or '
-              '`**kwargs` to dispatch arguments. This doesn\'t improve '
-              'readability and should be used with care.'),
-    'W0150': ("%s statement in finally block may swallow exception",
-              'lost-exception',
-              "Used when a break or a return statement is found inside the \
-              finally clause of a try...finally block: the exceptions raised \
-              in the try clause will be silently swallowed instead of being \
-              re-raised."),
-    'W0199': ('Assert called on a 2-uple. Did you mean \'assert x,y\'?',
-              'assert-on-tuple',
-              'A call of assert on a tuple will always evaluate to true if '
-              'the tuple is not empty, and will always evaluate to false if '
-              'it is.'),
-    'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
-              'old-raise-syntax',
-              "Used when the alternate raise syntax 'raise foo, bar' is used "
-              "instead of 'raise foo(bar)'.",
-              {'maxversion': (3, 0)}),
+        'W0101': ('Unreachable code',
+                  'unreachable',
+                  'Used when there is some code behind a "return" or "raise" '
+                  'statement, which will never be accessed.'),
+        'W0102': ('Dangerous default value %s as argument',
+                  'dangerous-default-value',
+                  'Used when a mutable value as list or dictionary is detected in '
+                  'a default value for an argument.'),
+        'W0104': ('Statement seems to have no effect',
+                  'pointless-statement',
+                  'Used when a statement doesn\'t have (or at least seems to) '
+                  'any effect.'),
+        'W0105': ('String statement has no effect',
+                  'pointless-string-statement',
+                  'Used when a string is used as a statement (which of course '
+                  'has no effect). This is a particular case of W0104 with its '
+                  'own message so you can easily disable it if you\'re using '
+                  'those strings as documentation, instead of comments.'),
+        'W0106': ('Expression "%s" is assigned to nothing',
+                  'expression-not-assigned',
+                  'Used when an expression that is not a function call is assigned '
+                  'to nothing. Probably something else was intended.'),
+        'W0108': ('Lambda may not be necessary',
+                  'unnecessary-lambda',
+                  'Used when the body of a lambda expression is a function call '
+                  'on the same argument list as the lambda itself; such lambda '
+                  'expressions are in all but a few cases replaceable with the '
+                  'function being called in the body of the lambda.'),
+        'W0109': ("Duplicate key %r in dictionary",
+                  'duplicate-key',
+                  'Used when a dictionary expression binds the same key multiple '
+                  'times.'),
+        'W0122': ('Use of exec',
+                  'exec-used',
+                  'Used when you use the "exec" statement (function for Python 3), to discourage its '
+                  'usage. That doesn\'t mean you can not use it !'),
+        'W0123': ('Use of eval',
+                  'eval-used',
+                  'Used when you use the "eval" function, to discourage its '
+                  'usage. Consider using `ast.literal_eval` for safely evaluating '
+                  'strings containing Python expressions '
+                  'from untrusted sources. '),
+        'W0141': ('Used builtin function %r',
+                  'bad-builtin',
+                  'Used when a black listed builtin function is used (see the '
+                  'bad-function option). Usual black listed functions are the ones '
+                  'like map, or filter , where Python offers now some cleaner '
+                  'alternative like list comprehension.'),
+        'W0142': ('Used * or ** magic',
+                  'star-args',
+                  'Used when a function or method is called using `*args` or '
+                  '`**kwargs` to dispatch arguments. This doesn\'t improve '
+                  'readability and should be used with care.'),
+        'W0150': ("%s statement in finally block may swallow exception",
+                  'lost-exception',
+                  'Used when a break or a return statement is found inside the '
+                  'finally clause of a try...finally block: the exceptions raised '
+                  'in the try clause will be silently swallowed instead of being '
+                  're-raised.'),
+        'W0199': ('Assert called on a 2-uple. Did you mean \'assert x,y\'?',
+                  'assert-on-tuple',
+                  'A call of assert on a tuple will always evaluate to true if '
+                  'the tuple is not empty, and will always evaluate to false if '
+                  'it is.'),
+        'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
+                  'old-raise-syntax',
+                  "Used when the alternate raise syntax 'raise foo, bar' is used "
+                  "instead of 'raise foo(bar)'.",
+                  {'maxversion': (3, 0)}),
 
-    'C0121': ('Missing required attribute "%s"', # W0103
-              'missing-module-attribute',
-              'Used when an attribute required for modules is missing.'),
+        'C0121': ('Missing required attribute "%s"', # W0103
+                  'missing-module-attribute',
+                  'Used when an attribute required for modules is missing.'),
 
-    'E0109': ('Missing argument to reversed()',
-              'missing-reversed-argument',
-              'Used when reversed() builtin didn\'t receive an argument.'),
-    'E0111': ('The first reversed() argument is not a sequence',
-              'bad-reversed-sequence',
-              'Used when the first argument to reversed() builtin '
-              'isn\'t a sequence (does not implement __reversed__, '
-              'nor __getitem__ and __len__'),
+        'E0109': ('Missing argument to reversed()',
+                  'missing-reversed-argument',
+                  'Used when reversed() builtin didn\'t receive an argument.'),
+        'E0111': ('The first reversed() argument is not a sequence',
+                  'bad-reversed-sequence',
+                  'Used when the first argument to reversed() builtin '
+                  'isn\'t a sequence (does not implement __reversed__, '
+                  'nor __getitem__ and __len__'),
 
     }
 
@@ -507,14 +501,14 @@ functions, methods
                  'metavar' : '<attributes>',
                  'help' : 'Required attributes for module, separated by a '
                           'comma'}
-                ),
+               ),
                ('bad-functions',
                 {'default' : BAD_FUNCTIONS,
                  'type' :'csv', 'metavar' : '<builtin function names>',
                  'help' : 'List of builtins function names that should not be '
                           'used, separated by a comma'}
-                ),
-               )
+               ),
+              )
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 
     def __init__(self, linter):
@@ -549,7 +543,7 @@ functions, methods
         """check for various kind of statements without effect"""
         expr = node.value
         if isinstance(expr, astroid.Const) and isinstance(expr.value,
-                                                        basestring):
+                                                          basestring):
             # treat string statement in a separated message
             # Handle PEP-257 attribute docstrings.
             # An attribute docstring is defined as being a string right after
@@ -561,7 +555,7 @@ functions, methods
                 else:
                     sibling = expr.previous_sibling()
                     if (sibling.scope() is scope and
-                        isinstance(sibling, astroid.Assign)):
+                            isinstance(sibling, astroid.Assign)):
                         return
             self.add_message('pointless-string-statement', node=node)
             return
@@ -572,11 +566,12 @@ functions, methods
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (isinstance(expr, (astroid.Yield, astroid.CallFunc)) or
-            (isinstance(node.parent, astroid.TryExcept) and
-             node.parent.body == [node])):
+                (isinstance(node.parent, astroid.TryExcept) and
+                 node.parent.body == [node])):
             return
         if any(expr.nodes_of_class(astroid.CallFunc)):
-            self.add_message('expression-not-assigned', node=node, args=expr.as_string())
+            self.add_message('expression-not-assigned', node=node,
+                             args=expr.as_string())
         else:
             self.add_message('pointless-statement', node=node)
 
@@ -609,15 +604,15 @@ functions, methods
         ordinary_args = list(node.args.args)
         if node.args.kwarg:
             if (not call.kwargs
-                or not isinstance(call.kwargs, astroid.Name)
-                or node.args.kwarg != call.kwargs.name):
+                    or not isinstance(call.kwargs, astroid.Name)
+                    or node.args.kwarg != call.kwargs.name):
                 return
         elif call.kwargs:
             return
         if node.args.vararg:
             if (not call.starargs
-                or not isinstance(call.starargs, astroid.Name)
-                or node.args.vararg != call.starargs.name):
+                    or not isinstance(call.starargs, astroid.Name)
+                    or node.args.vararg != call.starargs.name):
                 return
         elif call.starargs:
             return
@@ -651,7 +646,7 @@ functions, methods
                 continue
             builtins = astroid.bases.BUILTINS
             if (isinstance(value, astroid.Instance) and
-                value.qname() in ['.'.join([builtins, x]) for x in ('set', 'dict', 'list')]):
+                    value.qname() in ['.'.join([builtins, x]) for x in ('set', 'dict', 'list')]):
                 if value is default:
                     msg = default.as_string()
                 elif type(value) is astroid.Instance:
@@ -707,7 +702,7 @@ functions, methods
         self.add_message('exec-used', node=node)
 
     @check_messages('bad-builtin', 'star-args', 'eval-used',
-                    'exec-used', 'missing-reversed-argument', 
+                    'exec-used', 'missing-reversed-argument',
                     'bad-reversed-sequence')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
@@ -744,7 +739,7 @@ functions, methods
     def visit_assert(self, node):
         """check the use of an assert statement on a tuple."""
         if node.fail is None and isinstance(node.test, astroid.Tuple) and \
-           len(node.test.elts) == 2:
+                len(node.test.elts) == 2:
             self.add_message('assert-on-tuple', node=node)
 
     @check_messages('duplicate-key')
@@ -789,7 +784,7 @@ functions, methods
                 return
             _node = _parent
             _parent = _node.parent
-    
+
     def _check_reversed(self, node):
         """ check that the argument to `reversed` is a sequence """
         try:
@@ -808,17 +803,17 @@ functions, methods
                     except InferenceError:
                         return
                     if (getattr(func, 'name', None) == 'iter' and
-                        is_builtin_object(func)):
+                            is_builtin_object(func)):
                         self.add_message('bad-reversed-sequence', node=node)
                 return
 
             if isinstance(argument, astroid.Instance):
-                if (argument._proxied.name == 'dict' and 
-                    is_builtin_object(argument._proxied)):
-                     self.add_message('bad-reversed-sequence', node=node)
-                     return
+                if (argument._proxied.name == 'dict' and
+                        is_builtin_object(argument._proxied)):
+                    self.add_message('bad-reversed-sequence', node=node)
+                    return
                 elif any(ancestor.name == 'dict' and is_builtin_object(ancestor)
-                       for ancestor in argument._proxied.ancestors()):
+                         for ancestor in argument._proxied.ancestors()):
                     # mappings aren't accepted by reversed()
                     self.add_message('bad-reversed-sequence', node=node)
                     return
@@ -831,10 +826,10 @@ functions, methods
                             break
                     else:
                         break
-                else:             
+                else:
                     # check if it is a .deque. It doesn't seem that
-                    # we can retrieve special methods 
-                    # from C implemented constructs    
+                    # we can retrieve special methods
+                    # from C implemented constructs
                     if argument._proxied.qname().endswith(".deque"):
                         return
                     self.add_message('bad-reversed-sequence', node=node)
@@ -860,53 +855,51 @@ def _create_naming_options():
     for name_type, (rgx, human_readable_name) in _NAME_TYPES.iteritems():
         name_type = name_type.replace('_', '-')
         name_options.append((
-            '%s-rgx' % (name_type,), 
+            '%s-rgx' % (name_type,),
             {'default': rgx, 'type': 'regexp', 'metavar': '<regexp>',
              'help': 'Regular expression matching correct %s names' % (human_readable_name,)}))
         name_options.append((
-            '%s-name-hint' % (name_type,), 
+            '%s-name-hint' % (name_type,),
             {'default': rgx.pattern, 'type': 'string', 'metavar': '<string>',
              'help': 'Naming hint for %s names' % (human_readable_name,)}))
-
-    return tuple(name_options) 
+    return tuple(name_options)
 
 class NameChecker(_BasicChecker):
     msgs = {
-    'C0102': ('Black listed name "%s"',
-              'blacklisted-name',
-              'Used when the name is listed in the black list (unauthorized \
-              names).'),
-    'C0103': ('Invalid %s name "%s"%s',
-              'invalid-name',
-              'Used when the name doesn\'t match the regular expression \
-              associated to its type (constant, variable, class...).'),
+        'C0102': ('Black listed name "%s"',
+                  'blacklisted-name',
+                  'Used when the name is listed in the black list (unauthorized '
+                  'names).'),
+        'C0103': ('Invalid %s name "%s"%s',
+                  'invalid-name',
+                  'Used when the name doesn\'t match the regular expression '
+                  'associated to its type (constant, variable, class...).'),
     }
 
-    options = (# XXX use set
-               ('good-names',
+    options = (('good-names',
                 {'default' : ('i', 'j', 'k', 'ex', 'Run', '_'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Good variable names which should always be accepted,'
                           ' separated by a comma'}
-                ),
+               ),
                ('bad-names',
                 {'default' : ('foo', 'bar', 'baz', 'toto', 'tutu', 'tata'),
                  'type' :'csv', 'metavar' : '<names>',
                  'help' : 'Bad variable names which should always be refused, '
                           'separated by a comma'}
-                ),
+               ),
                ('name-group',
                 {'default' : (),
                  'type' :'csv', 'metavar' : '<name1:name2>',
                  'help' : ('Colon-delimited sets of names that determine each'
                            ' other\'s naming style when the name regexes'
                            ' allow several styles.')}
-                ),
+               ),
                ('include-naming-hint',
                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help': 'Include a hint for the correct naming format with invalid-name'}
-                ),
-               ) + _create_naming_options()
+               ),
+              ) + _create_naming_options()
 
 
     def __init__(self, linter):
@@ -1028,30 +1021,30 @@ class NameChecker(_BasicChecker):
 
 class DocStringChecker(_BasicChecker):
     msgs = {
-    'C0111': ('Missing %s docstring', # W0131
-              'missing-docstring',
-              'Used when a module, function, class or method has no docstring.\
-              Some special methods like __init__ doesn\'t necessary require a \
-              docstring.'),
-    'C0112': ('Empty %s docstring', # W0132
-              'empty-docstring',
-              'Used when a module, function, class or method has an empty \
-              docstring (it would be too easy ;).'),
-    }
+        'C0111': ('Missing %s docstring', # W0131
+                  'missing-docstring',
+                  'Used when a module, function, class or method has no docstring.'
+                  'Some special methods like __init__ doesn\'t necessary require a '
+                  'docstring.'),
+        'C0112': ('Empty %s docstring', # W0132
+                  'empty-docstring',
+                  'Used when a module, function, class or method has an empty '
+                  'docstring (it would be too easy ;).'),
+        }
     options = (('no-docstring-rgx',
                 {'default' : NO_REQUIRED_DOC_RGX,
                  'type' : 'regexp', 'metavar' : '<regexp>',
                  'help' : 'Regular expression which should only match '
                           'function or class names that do not require a '
                           'docstring.'}
-                ),
+               ),
                ('docstring-min-length',
                 {'default' : -1,
                  'type' : 'int', 'metavar' : '<int>',
                  'help': ('Minimum line length for functions/classes that'
                           ' require docstrings, shorter ones are exempt.')}
-                ),
-               )
+               ),
+              )
 
 
     def open(self):
@@ -1111,7 +1104,7 @@ class PassChecker(_BasicChecker):
                       'unnecessary-pass',
                       'Used when a "pass" statement that can be avoided is '
                       'encountered.'),
-            }
+           }
     @check_messages('unnecessary-pass')
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
@@ -1131,7 +1124,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
                       '"filter". It could be clearer as a list '
                       'comprehension or generator expression.',
                       {'maxversion': (3, 0)}),
-            }
+           }
 
     @check_messages('deprecated-lambda')
     def visit_callfunc(self, node):
@@ -1144,7 +1137,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
             return
         infered = safe_infer(node.func)
         if (is_builtin_object(infered)
-            and infered.name in ['map', 'filter']):
+                and infered.name in ['map', 'filter']):
             self.add_message('deprecated-lambda', node=node)
 
 

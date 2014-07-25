@@ -107,7 +107,7 @@ class Similar(object):
             for index2 in find(lineset1[index1]):
                 non_blank = 0
                 for num, ((_, line1), (_, line2)) in enumerate(
-                    izip(lines1(index1), lines2(index2))):
+                        izip(lines1(index1), lines2(index2))):
                     if line1 != line2:
                         if non_blank > min_lines:
                             yield num, lineset1, index1, lineset2, index2
@@ -249,16 +249,16 @@ class SimilarChecker(BaseChecker, Similar):
                ('ignore-comments',
                 {'default' : True, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Ignore comments when computing similarities.'}
-                ),
+               ),
                ('ignore-docstrings',
                 {'default' : True, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Ignore docstrings when computing similarities.'}
-                ),
+               ),
                ('ignore-imports',
                 {'default' : False, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Ignore imports when computing similarities.'}
-                ),
-               )
+               ),
+              )
     # reports
     reports = (('RP0801', 'Duplication', report_similarities),)
 

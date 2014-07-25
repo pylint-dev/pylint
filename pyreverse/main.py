@@ -29,10 +29,10 @@ from pylint.pyreverse import writer
 from pylint.pyreverse.utils import insert_default_options
 
 OPTIONS = (
-("filter-mode",
-    dict(short='f', default='PUB_ONLY', dest='mode', type='string',
-    action='store', metavar='<mode>',
-    help="""filter attributes and functions according to
+    ("filter-mode",
+     dict(short='f', default='PUB_ONLY', dest='mode', type='string',
+          action='store', metavar='<mode>',
+          help="""filter attributes and functions according to
     <mode>. Correct modes are :
                             'PUB_ONLY' filter all non public attributes
                                 [DEFAULT], equivalent to PRIVATE+SPECIAL_A
@@ -42,43 +42,42 @@ OPTIONS = (
                             'OTHER' filter protected and private
                                 attributes""")),
 
-("class",
-dict(short='c', action="append", metavar="<class>", dest="classes", default=[],
-    help="create a class diagram with all classes related to <class>;\
+    ("class",
+     dict(short='c', action="append", metavar="<class>", dest="classes", default=[],
+          help="create a class diagram with all classes related to <class>;\
  this uses by default the options -ASmy")),
 
-("show-ancestors",
-dict(short="a", action="store", metavar='<ancestor>', type='int',
-    help='show <ancestor> generations of ancestor classes not in <projects>')),
-("all-ancestors",
-dict(short="A", default=None,
-    help="show all ancestors off all classes in <projects>")),
-("show-associated",
-dict(short='s', action="store", metavar='<ass_level>', type='int',
-    help='show <ass_level> levels of associated classes not in <projects>')),
-("all-associated",
-dict(short='S', default=None,
-    help='show recursively all associated off all associated classes')),
+    ("show-ancestors",
+     dict(short="a", action="store", metavar='<ancestor>', type='int',
+          help='show <ancestor> generations of ancestor classes not in <projects>')),
+    ("all-ancestors",
+     dict(short="A", default=None,
+          help="show all ancestors off all classes in <projects>")),
+    ("show-associated",
+     dict(short='s', action="store", metavar='<ass_level>', type='int',
+          help='show <ass_level> levels of associated classes not in <projects>')),
+    ("all-associated",
+     dict(short='S', default=None,
+          help='show recursively all associated off all associated classes')),
+    ("show-builtin",
+     dict(short="b", action="store_true", default=False,
+          help='include builtin objects in representation of classes')),
 
-("show-builtin",
-dict(short="b", action="store_true", default=False,
-    help='include builtin objects in representation of classes')),
-
-("module-names",
-dict(short="m", default=None, type='yn', metavar='[yn]',
-    help='include module name in representation of classes')),
-# TODO : generate dependencies like in pylint
-#("package-dependencies",
-#dict(short="M", action="store", metavar='<package_depth>', type='int',
-    #help='show <package_depth> module dependencies beyond modules in \
-#<projects> (for the package diagram)')),
-("only-classnames",
-dict(short='k', action="store_true", default=False,
-    help="don't show attributes and methods in the class boxes; \
+    ("module-names",
+     dict(short="m", default=None, type='yn', metavar='[yn]',
+          help='include module name in representation of classes')),
+    # TODO : generate dependencies like in pylint
+    # ("package-dependencies",
+    # dict(short="M", action="store", metavar='<package_depth>', type='int',
+    #     help='show <package_depth> module dependencies beyond modules in \
+    # <projects> (for the package diagram)')),
+    ("only-classnames",
+     dict(short='k', action="store_true", default=False,
+          help="don't show attributes and methods in the class boxes; \
 this disables -f values")),
-("output", dict(short="o", dest="output_format", action="store",
-                 default="dot", metavar="<format>",
-                help="create a *.<format> output file if format available.")),
+    ("output", dict(short="o", dest="output_format", action="store",
+                    default="dot", metavar="<format>",
+                    help="create a *.<format> output file if format available.")),
 )
 # FIXME : quiet mode
 #( ('quiet',

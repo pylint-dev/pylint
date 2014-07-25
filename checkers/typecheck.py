@@ -146,39 +146,38 @@ class TypeChecker(BaseChecker):
                  'help' : 'Tells whether missing members accessed in mixin \
 class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
-                ),
-                ('ignored-modules',
-                 {'default': (),
-                  'type': 'csv',
-                  'metavar': '<module names>',
-                  'help': 'List of module names for which member attributes \
+               ),
+               ('ignored-modules',
+                {'default': (),
+                 'type': 'csv',
+                 'metavar': '<module names>',
+                 'help': 'List of module names for which member attributes \
 should not be checked (useful for modules/projects where namespaces are \
 manipulated during runtime and thus existing member attributes cannot be \
 deduced by static analysis'},
-                 ),
+               ),
                ('ignored-classes',
                 {'default' : ('SQLObject',),
                  'type' : 'csv',
                  'metavar' : '<members names>',
                  'help' : 'List of classes names for which member attributes \
 should not be checked (useful for classes with attributes dynamically set).'}
-                 ),
+               ),
 
                ('zope',
                 {'default' : False, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'When zope mode is activated, add a predefined set \
 of Zope acquired attributes to generated-members.'}
-                ),
+               ),
                ('generated-members',
-                {'default' : (
-        'REQUEST', 'acl_users', 'aq_parent'),
+                {'default' : ('REQUEST', 'acl_users', 'aq_parent'),
                  'type' : 'string',
                  'metavar' : '<members names>',
                  'help' : 'List of members which are set dynamically and \
 missed by pylint inference system, and so shouldn\'t trigger E0201 when \
 accessed. Python regular expressions are accepted.'}
-                ),
-        )
+               ),
+              )
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -326,7 +325,7 @@ accessed. Python regular expressions are accepted.'}
         expr = node.func.expr
         klass = safe_infer(expr)
         if (klass is None or klass is astroid.YES or
-            not isinstance(klass, astroid.Instance)):
+                not isinstance(klass, astroid.Instance)):
             return
 
         try:
@@ -354,12 +353,12 @@ accessed. Python regular expressions are accepted.'}
                         property_like = False
                         if isinstance(infered, astroid.Class):
                             if (infered.root().name == BUILTINS and
-                                infered.name == 'property'):
+                                    infered.name == 'property'):
                                 property_like = True
                             else:
                                 for ancestor in infered.ancestors():
                                     if (ancestor.name == 'property' and
-                                        ancestor.root().name == BUILTINS):
+                                            ancestor.root().name == BUILTINS):
                                         property_like = True
                                         break
                             if property_like:

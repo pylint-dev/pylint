@@ -99,7 +99,7 @@ class TestReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path """
-        fpath, module, obj, line, _ = location
+        _, _, obj, line, _ = location
         self.message_ids[msg_id] = 1
         if obj:
             obj = ':%s' % obj
@@ -282,7 +282,7 @@ class LintTestUsingModule(testlib.TestCase):
         tocheck = [self.package+'.'+self.module]
         if self.depends:
             tocheck += [self.package+'.%s' % name.replace('.py', '')
-                        for name, file in self.depends]
+                        for name, _ in self.depends]
         self._test(tocheck)
 
     def _check_result(self, got):
@@ -380,9 +380,7 @@ def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
 
         for callback in callbacks:
             test = callback(input_dir, msg_dir, module_file, messages_file,
-                dependencies)
+                            dependencies)
             if test:
                 tests.append(test)
-
-
     return tests
