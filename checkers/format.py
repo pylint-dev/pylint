@@ -336,16 +336,18 @@ class ContinuedLineState(object):
                 _BeforeBlockOffsets(indentation + self._continuation_size,
                                     indentation + self._continuation_size * 2))
         elif bracket == ':':
-            if self._cont_stack[-1].context_type == CONTINUED:
-                # If the dict key was on the same line as the open brace, the new
-                # correct indent should be relative to the key instead of the
-                # current indent level
-                paren_align = self._cont_stack[-1].valid_outdent_offsets
-                next_align = self._cont_stack[-1].valid_continuation_offsets.copy()
-                next_align[next_align.keys()[0] + self._continuation_size] = True
-            else:
-                next_align = _Offsets(indentation + self._continuation_size, indentation)
-                paren_align = _Offsets(indentation + self._continuation_size, indentation)
+            # If the dict key was on the same line as the open brace, the new
+            # correct indent should be relative to the key instead of the
+            # current indent level
+            paren_align = self._cont_stack[-1].valid_outdent_offsets
+            next_align = self._cont_stack[-1].valid_continuation_offsets.copy()
+            next_align[next_align.keys()[0] + self._continuation_size] = True
+            # Note that the continuation of
+            # d = {
+            #       'a': 'b'
+            #            'c'
+            # }
+            # is handled by the special-casing for hanging continued string indents.
             return _ContinuedIndent(HANGING_DICT_VALUE, bracket, position, paren_align, next_align)
         else:
             return _ContinuedIndent(
@@ -793,16 +795,19 @@ class FormatChecker(BaseTokenChecker):
                 self._add_continuation_message(state, hints, tokens, indent_pos)
 
     def _check_continued_indentation(self, tokens, next_idx):
+        def same_token_around_nl(token_type):
+            return (tokens.type(next_idx) == token_type and
+                    tokens.type(next_idx-2) == token_type)
+
         # Do not issue any warnings if the next line is empty.
         if not self._current_line.has_content or tokens.type(next_idx) == tokenize.NL:
             return
 
         state, valid_offsets = self._current_line.get_valid_offsets(next_idx)
-        # Special handling for hanging comments. If the last line ended with a
-        # comment and the new line contains only a comment, the line may also be
-        # indented to the start of the previous comment.
-        if (tokens.type(next_idx) == tokenize.COMMENT and
-                tokens.type(next_idx-2) == tokenize.COMMENT):
+        # Special handling for hanging comments and strings. If the last line ended 
+        # with a comment (string) and the new line contains only a comment, the line
+        # may also be indented to the start of the previous token.
+        if same_token_around_nl(tokenize.COMMENT) or same_token_around_nl(tokenize.STRING):
             valid_offsets[tokens.start_col(next_idx-2)] = True
 
         # We can only decide if the indentation of a continued line before opening
