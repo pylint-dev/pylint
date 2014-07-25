@@ -1,0 +1,63 @@
+bad-continuation:12::Wrong hanging indentation.
+   ]  # [bad-continuation]
+|  ^|
+bad-continuation:17::Wrong continued indentation.
+         7,  # [bad-continuation]
+      |  ^
+bad-continuation:25::Wrong hanging indentation.
+   'b': 2,  # [bad-continuation]
+   ^|
+bad-continuation:31::Wrong hanging indentation.
+   'b': 2,  # [bad-continuation]
+   ^|
+bad-continuation:39::Wrong continued indentation.
+                             # [bad-continuation] is not accepted
+      |                   |  ^
+bad-continuation:40::Wrong continued indentation.
+                          'contents', # [bad-continuation] nor this.
+      |                   ^
+bad-continuation:49::Wrong hanging indentation in dict value.
+      'value2',  # [bad-continuation]
+    | ^ |
+bad-continuation:59::Wrong continued indentation.
+        'wrong',  # [bad-continuation]
+        ^   |
+bad-continuation:83::Wrong hanging indentation in dict value.
+'value1',  # [bad-continuation]
+^     |   |
+bad-continuation:87::Wrong hanging indentation in dict value.
+    'value1',  # [bad-continuation]
+    ^ |   |
+bad-continuation:104::Wrong hanging indentation before block.
+    some_arg,         # [bad-continuation]
+    ^   |
+bad-continuation:105::Wrong hanging indentation before block.
+    some_other_arg):  # [bad-continuation]
+    ^   |
+bad-continuation:125::Wrong continued indentation.
+    "b")  # [bad-continuation]
+    ^  |
+bad-continuation:139::Wrong hanging indentation before block.
+   ): pass  # [bad-continuation]
+|  ^|
+bad-continuation:142::Wrong continued indentation before block.
+    2):  # [bad-continuation]
+    ^   |
+bad-continuation:150::Wrong continued indentation.
+         2 and  # [bad-continuation]
+       | ^
+bad-continuation:155::Wrong hanging indentation before block.
+  2): pass  # [bad-continuation]
+  ^ |   |
+bad-continuation:162::Wrong continued indentation before block.
+     2 or  # [bad-continuation]
+    |^  |
+bad-continuation:166::Wrong continued indentation before block.
+  2): pass  # [bad-continuation]
+  ^ |   |
+bad-continuation:172::Wrong hanging indentation before block.
+  2):  # [bad-continuation]
+  ^ |   |
+bad-continuation:183::Wrong continued indentation.
+    2):  # [bad-continuation]
+    ^   |
