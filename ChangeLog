@@ -3,6 +3,18 @@ ChangeLog for Pylint
 
 --
 
+    * Allow hanging continued indentation for implicitly concatenated
+      strings. Closes issue #232.
+
+    * PyLint works under Python 2.5 again, and its test suite passes.
+
+    * Fix some false positives for the cellvar-from-loop warnings.
+      Closes issue #233.
+
+    * Return new astroid class nodes when the inferencer can detect that
+      that result of a function invocation on a type (like `type` or 
+      `abc.ABCMeta`) is requested. Closes #205.
+
     * Emit 'undefined-variable' for undefined names when using the
       Python 3 `metaclass=` argument.
 
