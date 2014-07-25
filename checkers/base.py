@@ -630,6 +630,11 @@ functions, methods
                 return
             if node.args.args[i].name != call.args[i].name:
                 return
+        if (isinstance(node.body.func, astroid.Getattr) and
+            isinstance(node.body.func.expr, astroid.CallFunc)):
+            # Chained call, the intermediate call might
+            # return something else (but we don't check that, yet).
+            return
         self.add_message('unnecessary-lambda', line=node.fromlineno, node=node)
 
     @check_messages('dangerous-default-value')

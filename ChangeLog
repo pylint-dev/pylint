@@ -58,11 +58,14 @@ ChangeLog for Pylint
     * Use the proper mode for pickle when opening and writing the stats file.
       Closes issue #148.
 
-   * Don't emit hidden-method message when the attribute has been
-     monkey-patched, you're on your own when you do that
+    * Don't emit hidden-method message when the attribute has been
+      monkey-patched, you're on your own when you do that.
 
-   * Only emit attribute-defined-outside-init for definition within the same
-     module as the offended class, avoiding to mangle the output in some cases
+    * Only emit attribute-defined-outside-init for definition within the same
+      module as the offended class, avoiding to mangle the output in some cases.
+
+    * Don't emit 'unnecessary-lambda' if the body of the lambda call contains
+      call chaining. Closes issue #243.
 
 
 2014-04-30  --  1.2.1
