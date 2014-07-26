@@ -61,7 +61,7 @@ clean: /usr/bin/debuild /usr/bin/dh_pysupport
 /usr/bin/debuild:
 	sudo apt-get -y --force-yes install devscripts
 
-/usr/bin/dh_pysupport
+/usr/bin/dh_pysupport:
 	sudo apt-get -y --force-yes install python-support
 
 all: clean lint tests docs sdist deb
