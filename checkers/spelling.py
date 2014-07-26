@@ -85,6 +85,22 @@ class SpellingInCommentsChecker(BaseTokenChecker):
 
         self.initialized = True
 
+    def _check_spelling(self, line, line_num):
+        # replace punctuation signs with space: e.g. and/or -> and or
+        line2 = self.regex.sub(' ', line.strip().replace("' ", " ").replace(" '", " "))
+        words = line2.split()
+
+        # go through words and check them
+        for word in words:
+            if not word in self.ignore_list and not self.spelling_dict.check(word):
+                suggestions = self.spelling_dict.suggest(word)[:4]
+
+                col = line.index(word)
+                indicator = (" " * col) + ("^" * len(word))
+
+                self.add_message('wrong-spelling-in-comment', line=line_num,
+                                 args=(word, line, indicator, "' or '".join(suggestions)))
+
     def process_tokens(self, tokens):
         if not self.initialized:
             return
@@ -92,17 +108,7 @@ class SpellingInCommentsChecker(BaseTokenChecker):
         # process tokens and look for comments
         for (tok_type, token, (start_row, start_col), _, _) in tokens:
             if tok_type == tokenize.COMMENT:
-                # replace punctuation signs with space: e.g. and/or -> and or
-                comment = self.regex.sub(' ', token)
-
-                # go through words and check them
-                for w in comment.split():
-                    if not w in self.ignore_list and not self.spelling_dict.check(w):
-                        suggestions = self.spelling_dict.suggest(w)[:4]
-                        col = token.index(w)
-                        indicator = (" " * col) + ("^" * len(w))
-                        self.add_message('wrong-spelling-in-comment', line=start_row,
-                                         args=(w, token, indicator, "' or '".join(suggestions)))
+                self._check_spelling(token, start_row)
 
     @check_messages('wrong-spelling-in-docstring')
     def visit_module(self, node):
@@ -132,17 +138,7 @@ class SpellingInCommentsChecker(BaseTokenChecker):
 
         # go through lines of docstring
         for idx, line in enumerate(docstring.splitlines()):
-            # replace punctuation signs with space: e.g. and/or -> and or
-            line2 = self.regex.sub(' ', line.strip())
-
-            # go through words in a line and check them
-            for w in line2.split():
-                if not w in self.ignore_list and not self.spelling_dict.check(w):
-                    suggestions = self.spelling_dict.suggest(w)[:4]
-                    col = line.index(w)
-                    indicator = (" " * col) + ("^" * len(w))
-                    self.add_message('wrong-spelling-in-docstring', line=start_line + idx,
-                                     args=(w, line, indicator, "' or '".join(suggestions)))
+            self._check_spelling(line, start_line + idx)
 
 
 def register(linter):
