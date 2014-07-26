@@ -13,7 +13,8 @@ help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  tests       to run whole test suit of PyLint"
 	@echo "  docs        to generate all docs including man pages and exemplary pylintrc"
-	@echo "  deb         to build debian package"
+	@echo "  deb         to build debian .deb package"
+	@echo "  sdist       to build source .tar.gz package"
 	@echo "  lint        to check Pylint sources with itself"
 	@echo "  all         to run all targets"
 
@@ -59,6 +60,10 @@ clean: /usr/bin/debuild /usr/bin/dh_pysupport
 	debuild clean
 	rm -rf $(PKG_DEB) ../pylint_*.changes ../pylint_*.build
 
+clobber:
+	hg purge -p
+	hg purge -a
+
 /usr/bin/debuild:
 	sudo apt-get -y --force-yes install devscripts
 
@@ -67,4 +72,4 @@ clean: /usr/bin/debuild /usr/bin/dh_pysupport
 
 all: clean lint tests docs sdist deb
 
-.PHONY: help tests docs deb sdist lint clean all
+.PHONY: help tests docs deb sdist lint clean clobber all
