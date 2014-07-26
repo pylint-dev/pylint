@@ -10,3 +10,4 @@
 ^pylint.egg-info/
 .tox
 (^|/)\..*\.sw[a-z]$
+pyve
