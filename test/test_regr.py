@@ -75,28 +75,6 @@ class NonRegrTC(TestCase):
             sys.path.pop(0)
             os.chdir(cwd)
 
-    def test_gtk_import(self):
-        try:
-            import gtk
-        except ImportError:
-            self.skipTest('test skipped: gtk is not available')
-        except RuntimeError: # RuntimeError when missing display
-            self.skipTest('no display, can\'t run this test')
-        linter.check(join(REGR_DATA, 'pygtk_import.py'))
-        got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
-
-    def test_gtk_enum_crash(self):
-        try:
-            import gtk
-        except ImportError:
-            self.skipTest('test skipped: gtk is not available')
-        except RuntimeError: # RuntimeError when missing display
-            self.skipTest('no display, can\'t run this test')
-        linter.check(join(REGR_DATA, 'pygtk_enum_crash.py'))
-        got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
-
     def test_numarray_inference(self):
         try:
             from numarray import random_array
@@ -112,11 +90,6 @@ class NonRegrTC(TestCase):
         except ImportError:
             self.skipTest('test skipped: numarray is not available')
         linter.check(join(REGR_DATA, 'numarray_import.py'))
-        got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
-
-    def test_socketerror_import(self):
-        linter.check(join(REGR_DATA, 'socketerror_import.py'))
         got = linter.reporter.finalize().strip()
         self.assertEqual(got, '')
 

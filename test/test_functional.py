@@ -54,6 +54,7 @@ class TestFile(object):
     _CONVERTERS = {
         'min_pyver': parse_python_version,
         'max_pyver': parse_python_version,
+        'requires': lambda s: s.split(',')
     }
 
 
@@ -63,6 +64,7 @@ class TestFile(object):
         self.options = {
             'min_pyver': (2, 5),
             'max_pyver': (4, 0),
+            'requires': []
             }
         self._parse_options()
 
@@ -180,6 +182,21 @@ class LintModuleTest(testlib.TestCase):
             pass
         self._test_file = test_file
 
+    def check_test(self):
+        # change to setUp when not using logilab.testlib any more.
+        if (sys.version_info < self._test_file.options['min_pyver']
+                or sys.version_info >= self._test_file.options['max_pyver']):
+            self.skipTest(
+                'Test cannot run with Python %s.' % (sys.version.split(' ')[0],))
+        missing = []
+        for req in self._test_file.options['requires']:
+            try:
+                __import__(req)
+            except ImportError:
+                missing.append(req)
+        if missing:
+            self.skipTest('Requires %s to be present.' % (','.join(missing),))
+
     def shortDescription(self):
         return self._test_file.base
 
@@ -196,8 +213,9 @@ class LintModuleTest(testlib.TestCase):
                 used = True
                 for line in fobj:
                     parts = line.split(':', 2)
-                    if len(parts) != 3 and used:
-                        lines.append(line)
+                    if len(parts) != 3:
+                        if used:
+                            lines.append(line)
                     else:
                         linenum = int(parts[1])
                         if (linenum, parts[0]) in expected:
@@ -220,6 +238,7 @@ class LintModuleTest(testlib.TestCase):
         return received, text_result.getvalue()
 
     def runTest(self):
+        self.check_test()
         self._linter.check([self._test_file.module])
 
         expected_messages, expected_text = self._get_expected()
@@ -252,10 +271,6 @@ class LintModuleOutputUpdate(LintModuleTest):
                 fobj.write(received_text)
 
 
-def active_in_running_python_version(options):
-    return options['min_pyver'] < sys.version_info <= options['max_pyver']
-
-
 def suite():
     input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              'functional')
@@ -263,11 +278,10 @@ def suite():
     for fname in os.listdir(input_dir):
         if fname != '__init__.py' and fname.endswith('.py'):
             test_file = TestFile(input_dir, fname)
-            if active_in_running_python_version(test_file.options):
-                if UPDATE:
-                    suite.addTest(LintModuleOutputUpdate(test_file))
-                else:
-                    suite.addTest(LintModuleTest(test_file))
+            if UPDATE:
+                suite.addTest(LintModuleOutputUpdate(test_file))
+            else:
+                suite.addTest(LintModuleTest(test_file))
     return suite
 
 
