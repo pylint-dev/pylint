@@ -27,10 +27,11 @@ endif
 tests: $(TOX)
 	$(TOX) $(toxparams)
 
-docs:
+docs: $(PIP)
 	rm -f /tmp/pylint
 	ln -s -f $(CURDIR) /tmp/pylint
-	PYTHONPATH=/tmp make all -C doc
+	$(PIP) install .
+	PYTHONPATH=/tmp PATH=$(CURDIR)/pyve/bin:$(PATH) make all -C doc
 
 deb:
 	debuild -b -us -uc
@@ -42,6 +43,7 @@ lint: $(PIP)
 clean:
 	rm -rf $(PYVE)
 	rm -rf .tox
+	rm -rf /tmp/pylint1 /tmp/pylint2
 	make clean -C doc
 	debuild clean
 
