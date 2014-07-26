@@ -1,7 +1,7 @@
 ChangeLog for Pylint
 ====================
 
---
+2014-07-26  --  1.3.0
 
     * Added new checks for line endings if they are mixed (LF vs CRLF)
       or if they are not as expected. New messages: mixed-line-endings,
