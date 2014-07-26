@@ -10,4 +10,5 @@
 ^pylint.egg-info/
 .tox
 (^|/)\..*\.sw[a-z]$
+doc/features.rst
 pyve

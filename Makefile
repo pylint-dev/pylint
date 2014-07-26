@@ -28,7 +28,9 @@ tests: $(TOX)
 	$(TOX) $(toxparams)
 
 docs:
-	PATH=$(PATH):$(CURDIR) PYTHONPATH=$(CURDIR)/.. make all -C doc
+	rm -f /tmp/pylint
+	ln -s -f $(CURDIR) /tmp/pylint
+	PYTHONPATH=/tmp make all -C doc
 
 deb:
 	debuild -b -us -uc
