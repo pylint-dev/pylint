@@ -30,7 +30,7 @@ tests: $(TOX)
 docs: $(PIP)
 	$(PIP) install .
 	$(PIP) install Sphinx
-	. pyve/bin/activate; make all -C doc
+	. $(PYVE)/bin/activate; make all -C doc
 
 deb:
 	debuild -b -us -uc
@@ -43,7 +43,7 @@ clean:
 	rm -rf $(PYVE)
 	rm -rf .tox
 	make clean -C doc
-	debuild clean
+	#debuild clean
 
 all: clean lint tests docs deb
 
