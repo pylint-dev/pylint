@@ -39,6 +39,7 @@ docs: $(PIP)
 
 deb: $(PKG_DEB)
 $(PKG_DEB): /usr/bin/debuild /usr/bin/dh_pysupport
+	if [ -n "$$SUBVERSION" ]; then sed -i -e "0,/pylint (\(.*\))/s//pylint (\1.$${SUBVERSION})/" debian/changelog; fi
 	debuild -b -us -uc
 
 sdist: $(PKG_SDIST)
