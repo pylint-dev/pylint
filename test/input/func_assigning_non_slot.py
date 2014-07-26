@@ -53,4 +53,3 @@ class Good2(object):
     def __init__(self):
         self.comp = 4
         self.missing = 5
-    

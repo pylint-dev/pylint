@@ -459,7 +459,6 @@ class FormatChecker(BaseTokenChecker):
         self._lines = None
         self._visited_lines = None
         self._bracket_stack = [None]
-        self._last_line_ending = None
 
     def _pop_token(self):
         self._bracket_stack.pop()
@@ -726,6 +725,7 @@ class FormatChecker(BaseTokenChecker):
         self._lines = {}
         self._visited_lines = {}
         token_handlers = self._prepare_token_dispatcher()
+        self._last_line_ending = None
 
         self._current_line = ContinuedLineState(tokens, self.config)
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
@@ -801,6 +801,7 @@ class FormatChecker(BaseTokenChecker):
         # check if line ending is as expected
         expected = self.config.expected_line_ending_format
         if expected:
+            line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")  # reduce multiple \n\n\n\n to one \n
             line_ending = 'LF' if line_ending == '\n' else 'CRLF'
             if line_ending != expected:
                 self.add_message('unexpected-line-ending-format', args=(line_ending, expected), line=line_num)
