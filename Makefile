@@ -38,7 +38,7 @@ docs: $(PIP)
 	. $(PYVE)/bin/activate; make all -C doc
 
 deb: $(PKG_DEB)
-$(PKG_DEB): /usr/bin/debuild
+$(PKG_DEB): /usr/bin/debuild /usr/bin/dh_pysupport
 	debuild -b -us -uc
 
 sdist: $(PKG_SDIST)
@@ -49,17 +49,20 @@ lint: $(PIP)
 	$(PIP) install .
 	$(PYVE)/bin/pylint lint.py || true  # for now ignore errors
 
-clean: /usr/bin/debuild
+clean: /usr/bin/debuild /usr/bin/dh_pysupport
 	rm -rf $(PYVE)
 	rm -rf .tox
 	rm -rf dist
 	rm -rf build
 	make clean -C doc
 	debuild clean
-	rm -rf $(PKG_DEB)
+	rm -rf $(PKG_DEB) ../pylint_*.changes ../pylint_*.build
 
 /usr/bin/debuild:
 	sudo apt-get -y --force-yes install devscripts
+
+/usr/bin/dh_pysupport
+	sudo apt-get -y --force-yes install python-support
 
 all: clean lint tests docs sdist deb
 
