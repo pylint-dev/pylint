@@ -106,7 +106,7 @@ def tokenize_module(module):
     if sys.version_info < (3, 0):
         if module.file_encoding is not None:
             readline = lambda: stream.readline().decode(module.file_encoding,
-                                                    'replace')
+                                                        'replace')
         return list(tokenize.generate_tokens(readline))
     return list(tokenize.tokenize(readline))
 
@@ -285,7 +285,7 @@ class MessagesHandlerMixIn(object):
         msgid may be either a numeric or symbolic message id.
         """
         try:
-            msgid =  self.msgs_store.check_message_id(msg_descr).msgid
+            msgid = self.msgs_store.check_message_id(msg_descr).msgid
         except UnknownMessage:
             # The linter checks for messages that are not registered
             # due to version mismatch, just treat them as message IDs
@@ -818,7 +818,7 @@ def register_plugins(linter, directory):
         if base in imported or base == '__pycache__':
             continue
         if extension in PY_EXTS and base != '__init__' or (
-             not extension and isdir(join(directory, base))):
+                not extension and isdir(join(directory, base))):
             try:
                 module = load_module_from_file(join(directory, filename))
             except ValueError:

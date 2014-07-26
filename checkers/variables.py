@@ -27,10 +27,11 @@ from logilab.common.modutils import file_from_modpath
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import (PYMETHODS, is_ancestor_name, is_builtin,
-     is_defined_before, is_error, is_func_default, is_func_decorator,
-     assign_parent, check_messages, is_inside_except, clobber_in_except,
-     get_all_elements)
+from pylint.checkers.utils import (
+    PYMETHODS, is_ancestor_name, is_builtin,
+    is_defined_before, is_error, is_func_default, is_func_decorator,
+    assign_parent, check_messages, is_inside_except, clobber_in_except,
+    get_all_elements)
 
 
 def in_for_else_branch(parent, stmt):
@@ -102,7 +103,7 @@ def _detect_global_scope(node, frame, defframe):
                           (astroid.Function, astroid.Arguments)):
             return False
     elif any(not isinstance(f, (astroid.Class, astroid.Module))
-            for f in (frame, defframe)):
+             for f in (frame, defframe)):
         # Not interested in other frames, since they are already
         # not in a global scope.
         return False
@@ -234,8 +235,7 @@ class VariablesChecker(BaseChecker):
     name = 'variables'
     msgs = MSGS
     priority = -1
-    options = (
-               ("init-import",
+    options = (("init-import",
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : 'Tells whether we should check for unused import in \
 __init__ files.'}),
@@ -249,8 +249,8 @@ variables (i.e. expectedly not used).'}),
                  'metavar' : '<comma separated list>',
                  'help' : 'List of additional names supposed to be defined in \
 builtins. Remember that you should avoid to define new builtins when possible.'
-                 }),
-               )
+                }),
+              )
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self._to_consume = None
@@ -306,7 +306,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                     self.add_message('undefined-all-variable',
                                                      args=elt_name,
                                                      node=elt)
-                                except SyntaxError, exc:
+                                except SyntaxError:
                                     # don't yield an syntax-error warning,
                                     # because it will be later yielded
                                     # when the file will be checked
@@ -545,7 +545,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         def _is_direct_lambda_call():
             return (isinstance(node_scope.parent, astroid.CallFunc)
                     and node_scope.parent.func is node_scope)
-        
+
         node_scope = node.scope()
         if not isinstance(node_scope, (astroid.Lambda, astroid.Function)):
             return
@@ -594,7 +594,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
             if (astmts[i].statement().parent_of(stmt)
-                and not in_for_else_branch(astmts[i].statement(), stmt)):
+                    and not in_for_else_branch(astmts[i].statement(), stmt)):
                 continue
             _astmts.append(stmt)
         astmts = _astmts
@@ -634,7 +634,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # a decorator, then start from the parent frame of the function instead
         # of the function frame - and thus open an inner class scope
         if (is_func_default(node) or is_func_decorator(node)
-            or is_ancestor_name(frame, node)):
+                or is_ancestor_name(frame, node)):
             start_index = len(self._to_consume) - 2
         else:
             start_index = len(self._to_consume) - 1
@@ -648,7 +648,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # names. The only exception is when the starting scope is a
             # comprehension and its direct outer scope is a class
             if scope_type == 'class' and i != start_index and not (
-                base_scope_type == 'comprehension' and i == start_index-1):
+                    base_scope_type == 'comprehension' and i == start_index-1):
                 # XXX find a way to handle class scope in a smoother way
                 continue
             # the name has already been consumed, only check it's not a loop
@@ -690,9 +690,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                                  and name in child.names
                                                  for child in defframe.get_children())
                 if (maybee0601
-                    and stmt.fromlineno <= defstmt.fromlineno
-                    and not is_defined_before(node)
-                    and not are_exclusive(stmt, defstmt, ('NameError', 'Exception', 'BaseException'))):
+                        and stmt.fromlineno <= defstmt.fromlineno
+                        and not is_defined_before(node)
+                        and not are_exclusive(stmt, defstmt, ('NameError',
+                                                              'Exception',
+                                                              'BaseException'))):
                     if defstmt is stmt and isinstance(node, (astroid.DelName,
                                                              astroid.AssName)):
                         self.add_message('undefined-variable', args=name, node=node)
@@ -872,9 +874,8 @@ class VariablesChecker3k(VariablesChecker):
                 name = metaclass.root().name
 
             if name:
-                found = consumed.setdefault(name,
-                    module_locals.get(name, module_imports.get(name))
-                )
+                found = consumed.setdefault(
+                    name, module_locals.get(name, module_imports.get(name)))
 
             if found is None and not metaclass:
                 name = None

@@ -48,7 +48,8 @@ def get_first_import(node, context, name, base, level):
                 break
         elif isinstance(first, astroid.From):
             if level == first.level and any(
-                fullname == '%s.%s' % (first.modname, iname[0]) for iname in first.names):
+                    fullname == '%s.%s' % (first.modname, iname[0])
+                    for iname in first.names):
                 found = True
                 break
     if found and not are_exclusive(first, node):
@@ -138,8 +139,9 @@ MSGS = {
               'Used a module marked as deprecated is imported.'),
     'W0403': ('Relative import %r, should be %r',
               'relative-import',
-              'Used when an import relative to the package directory is \
-              detected.'),
+              'Used when an import relative to the package directory is '
+              'detected.',
+              {'maxversion': (3, 0)}),
     'W0404': ('Reimport %r (imported line %s)',
               'reimported',
               'Used when a module is reimported multiple times.'),
@@ -178,30 +180,29 @@ class ImportsChecker(BaseChecker):
                  'metavar' : '<modules>',
                  'help' : 'Deprecated modules which should not be used, \
 separated by a comma'}
-                ),
+               ),
                ('import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of every (i.e. internal and \
 external) dependencies in the given file (report RP0402 must not be disabled)'}
-                ),
+               ),
                ('ext-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of external dependencies in the \
 given file (report RP0402 must not be disabled)'}
-                ),
+               ),
                ('int-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
                  'help' : 'Create a graph of internal dependencies in the \
 given file (report RP0402 must not be disabled)'}
-                ),
-
-               )
+               ),
+              )
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -212,7 +213,7 @@ given file (report RP0402 must not be disabled)'}
                          self.report_external_dependencies),
                         ('RP0402', 'Modules dependencies graph',
                          self.report_dependencies_graph),
-                        )
+                       )
 
     def open(self):
         """called before visiting project (i.e set of modules)"""
@@ -252,7 +253,7 @@ given file (report RP0402 must not be disabled)'}
             if prev:
                 # consecutive future statements are possible
                 if not (isinstance(prev, astroid.From)
-                       and prev.modname == '__future__'):
+                        and prev.modname == '__future__'):
                     self.add_message('misplaced-future', node=node)
             return
         for name, _ in node.names:

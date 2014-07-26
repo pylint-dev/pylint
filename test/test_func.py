@@ -44,7 +44,8 @@ class LintTestNonExistentModuleTC(LintTestUsingModule):
 
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
-    PORTED = set(['I0001', 'I0010', 'W0712', 'E1001', 'W1402', 'E1310'])
+    PORTED = set(['I0001', 'I0010', 'W0712', 'E1001', 'W1402', 'E1310', 'E0202',
+                  'W0711', 'W0108', 'C0112'])
 
     @testlib.tag('coverage')
     def test_exhaustivity(self):
@@ -57,8 +58,6 @@ class TestTests(testlib.TestCase):
             except KeyError:
                 continue
         not_tested -= self.PORTED
-        if PY3K:
-            not_tested.remove('W0403') # relative-import
         not_tested.remove("C0401")  # requires optional lib python-enchant for spell checking
         not_tested.remove("C0402")  # requires optional lib python-enchant for spell checking
         self.assertFalse(not_tested)

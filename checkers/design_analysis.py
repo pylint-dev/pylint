@@ -105,59 +105,59 @@ class MisdesignChecker(BaseChecker):
     options = (('max-args',
                 {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of arguments for function / method'}
-                ),
+               ),
                ('ignored-argument-names',
                 {'default' : IGNORED_ARGUMENT_NAMES,
                  'type' :'regexp', 'metavar' : '<regexp>',
                  'help' : 'Argument names that match this expression will be '
                           'ignored. Default to name with leading underscore'}
-                ),
+               ),
                ('max-locals',
                 {'default' : 15, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of locals for function / method body'}
-                ),
+               ),
                ('max-returns',
                 {'default' : 6, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of return / yield for function / '
                          'method body'}
-                ),
+               ),
                ('max-branches',
                 {'default' : 12, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of branch for function / method body'}
-                ),
+               ),
                ('max-statements',
                 {'default' : 50, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of statements in function / method '
                          'body'}
-                ),
+               ),
                ('max-parents',
                 {'default' : 7,
                  'type' : 'int',
                  'metavar' : '<num>',
                  'help' : 'Maximum number of parents for a class (see R0901).'}
-                ),
+               ),
                ('max-attributes',
                 {'default' : 7,
                  'type' : 'int',
                  'metavar' : '<num>',
                  'help' : 'Maximum number of attributes for a class \
 (see R0902).'}
-                ),
+               ),
                ('min-public-methods',
                 {'default' : 2,
                  'type' : 'int',
                  'metavar' : '<num>',
                  'help' : 'Minimum number of public methods for a class \
 (see R0903).'}
-                ),
+               ),
                ('max-public-methods',
                 {'default' : 20,
                  'type' : 'int',
                  'metavar' : '<num>',
                  'help' : 'Maximum number of public methods for a class \
 (see R0904).'}
-                ),
-               )
+               ),
+              )
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)

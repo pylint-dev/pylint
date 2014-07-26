@@ -1,8 +1,5 @@
 """Tests for loopvar-in-closure."""
 
-__revision__ = 0
-
-
 def good_case():
     """No problems here."""
     lst = []
@@ -18,7 +15,7 @@ def good_case2():
 def good_case3():
     """No problems here."""
     lst = []
-    for i in range(10):
+    for i in range(10):  # [unused-variable]
         lst.append(lambda i=i: i)
 
 
@@ -42,7 +39,7 @@ def good_case6():
     the value will not change any more."""
     for i in range(10):
         print i
-    return lambda: i
+    return lambda: i  # [undefined-loop-variable]
 
 
 def good_case7():
@@ -75,12 +72,12 @@ def bad_case():
     lst = []
     for i in range(10):
         print i
-        lst.append(lambda: i)
+        lst.append(lambda: i)  # [cell-var-from-loop]
 
 
 def bad_case2():
     """Closing over a loop variable."""
-    return [lambda: i for i in range(10)]
+    return [lambda: i for i in range(10)]  # [cell-var-from-loop]
 
 
 def bad_case3():
@@ -88,7 +85,7 @@ def bad_case3():
     lst = []
     for i in range(10):
         j = i * i
-        lst.append(lambda: j)
+        lst.append(lambda: j)  # [cell-var-from-loop]
     return lst
 
 
@@ -98,7 +95,7 @@ def bad_case4():
     for i in range(10):
         def nested():
             """Nested function."""
-            return i**2
+            return i**2  # [cell-var-from-loop]
         lst.append(nested)
     return lst
 
@@ -119,7 +116,7 @@ def bad_case5():
 
     the result is [9] * 10 again.
     """
-    return (lambda: i for i in range(10))
+    return (lambda: i for i in range(10))  # [cell-var-from-loop]
 
 
 def bad_case6():
@@ -127,6 +124,5 @@ def bad_case6():
     lst = []
     for i, j in zip(range(10), range(10, 20)):
         print j
-        lst.append(lambda: i)
+        lst.append(lambda: i)  # [cell-var-from-loop]
     return lst
-

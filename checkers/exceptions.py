@@ -137,8 +137,8 @@ class ExceptionsChecker(BaseChecker):
                  'help' : 'Exceptions that will emit a warning '
                           'when being caught. Defaults to "%s"' % (
                               ', '.join(OVERGENERAL_EXCEPTIONS),)}
-                ),
-               )
+               ),
+              )
 
     @check_messages('raising-string', 'nonstandard-exception', 'raising-bad-type',
                     'raising-non-exception', 'notimplemented-raised', 'bad-exception-context')
@@ -162,7 +162,7 @@ class ExceptionsChecker(BaseChecker):
                 elif (not isinstance(cause, astroid.Class) and
                       not inherit_from_std_ex(cause)):
                     self.add_message('bad-exception-context',
-                                      node=node)
+                                     node=node)
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
@@ -269,12 +269,12 @@ class ExceptionsChecker(BaseChecker):
                                 previous_exc.name, exc.name)
                             self.add_message('bad-except-order', node=handler.type, args=msg)
                     if (exc.name in self.config.overgeneral_exceptions
-                        and exc.root().name == EXCEPTIONS_MODULE
-                        and not is_raising(handler.body)):
+                            and exc.root().name == EXCEPTIONS_MODULE
+                            and not is_raising(handler.body)):
                         self.add_message('broad-except', args=exc.name, node=handler.type)
 
                     if (not inherit_from_std_ex(exc) and
-                        exc.root().name != BUILTINS_NAME):
+                            exc.root().name != BUILTINS_NAME):
                         # try to see if the exception is based on a C based
                         # exception, by infering all the base classes and
                         # looking for inference errors

@@ -7,14 +7,14 @@ def test_return_for():
     for i in range(10):
         if i % 2:
             return i
-    else:
+    else:  # [useless-else-on-loop]
         print 'math is broken'
 
 def test_return_while():
     """else + return is not accetable."""
     while True:
         return 1
-    else:
+    else:  # [useless-else-on-loop]
         print 'math is broken'
 
 
@@ -23,19 +23,19 @@ while True:
         """A function with a loop."""
         for _ in range(10):
             break
-else:
+else:  # [useless-else-on-loop]
     print 'or else!'
 
 
 while True:
     while False:
         break
-else:
+else:  # [useless-else-on-loop]
     print 'or else!'
 
 for j in range(10):
     pass
-else:
+else:  # [useless-else-on-loop]
     print 'fat chance'
     for j in range(10):
         break

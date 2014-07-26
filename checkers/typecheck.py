@@ -18,7 +18,6 @@
 
 import re
 import shlex
-import sys
 
 import astroid
 from astroid import InferenceError, NotFoundError, YES, Instance
@@ -74,12 +73,13 @@ MSGS = {
     'E1125': ('Missing mandatory keyword argument %r in %s call',
               'missing-kwoa',
               ('Used when a function call does not pass a mandatory'
-              ' keyword-only argument.'),
+               ' keyword-only argument.'),
               {'minversion': (3, 0)}),
     'E1126': ('Sequence index is not an int, slice, or instance with __index__',
               'invalid-sequence-index',
-              'Used when a sequence type is indexed with an invalid type. Valid \
-               types are ints, slices, and objects with an __index__ method.'),
+              'Used when a sequence type is indexed with an invalid type. '
+              'Valid types are ints, slices, and objects with an __index__ '
+              'method.'),
     'E1127': ('Slice index is not an int, None, or instance with __index__',
               'invalid-slice-index',
               'Used when a slice index is not an integer, None, or an object \
@@ -87,7 +87,7 @@ MSGS = {
     }
 
 # builtin sequence types in Python 2 and 3.
-sequence_types = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
+SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
                       'xrange', 'range', 'bytes', 'memoryview'])
 
 def _determine_callable(callable_obj):
@@ -146,39 +146,38 @@ class TypeChecker(BaseChecker):
                  'help' : 'Tells whether missing members accessed in mixin \
 class should be ignored. A mixin class is detected if its name ends with \
 "mixin" (case insensitive).'}
-                ),
-                ('ignored-modules',
-                 {'default': (),
-                  'type': 'csv',
-                  'metavar': '<module names>',
-                  'help': 'List of module names for which member attributes \
+               ),
+               ('ignored-modules',
+                {'default': (),
+                 'type': 'csv',
+                 'metavar': '<module names>',
+                 'help': 'List of module names for which member attributes \
 should not be checked (useful for modules/projects where namespaces are \
 manipulated during runtime and thus existing member attributes cannot be \
 deduced by static analysis'},
-                 ),
+               ),
                ('ignored-classes',
                 {'default' : ('SQLObject',),
                  'type' : 'csv',
                  'metavar' : '<members names>',
                  'help' : 'List of classes names for which member attributes \
 should not be checked (useful for classes with attributes dynamically set).'}
-                 ),
+               ),
 
                ('zope',
                 {'default' : False, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'When zope mode is activated, add a predefined set \
 of Zope acquired attributes to generated-members.'}
-                ),
+               ),
                ('generated-members',
-                {'default' : (
-        'REQUEST', 'acl_users', 'aq_parent'),
+                {'default' : ('REQUEST', 'acl_users', 'aq_parent'),
                  'type' : 'string',
                  'metavar' : '<members names>',
                  'help' : 'List of members which are set dynamically and \
 missed by pylint inference system, and so shouldn\'t trigger E0201 when \
 accessed. Python regular expressions are accepted.'}
-                ),
-        )
+               ),
+              )
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -326,7 +325,7 @@ accessed. Python regular expressions are accepted.'}
         expr = node.func.expr
         klass = safe_infer(expr)
         if (klass is None or klass is astroid.YES or
-            not isinstance(klass, astroid.Instance)):
+                not isinstance(klass, astroid.Instance)):
             return
 
         try:
@@ -354,12 +353,12 @@ accessed. Python regular expressions are accepted.'}
                         property_like = False
                         if isinstance(infered, astroid.Class):
                             if (infered.root().name == BUILTINS and
-                                infered.name == 'property'):
+                                    infered.name == 'property'):
                                 property_like = True
                             else:
                                 for ancestor in infered.ancestors():
                                     if (ancestor.name == 'property' and
-                                        ancestor.root().name == BUILTINS):
+                                            ancestor.root().name == BUILTINS):
                                         property_like = True
                                         break
                             if property_like:
@@ -386,7 +385,7 @@ accessed. Python regular expressions are accepted.'}
             if isinstance(arg, astroid.Keyword):
                 keyword = arg.arg
                 if keyword in keyword_args:
-                    self.add_message('duplicate-keyword-arg', node=node, 
+                    self.add_message('duplicate-keyword-arg', node=node,
                                      args=(keyword, 'function'))
                 keyword_args.add(keyword)
             else:
@@ -461,7 +460,8 @@ accessed. Python regular expressions are accepted.'}
                 break
             else:
                 # Too many positional arguments.
-                self.add_message('too-many-function-args', node=node, args=(callable_name,))
+                self.add_message('too-many-function-args',
+                                 node=node, args=(callable_name,))
                 break
 
         # 2. Match the keyword arguments.
@@ -470,13 +470,15 @@ accessed. Python regular expressions are accepted.'}
                 i = parameter_name_to_index[keyword]
                 if parameters[i][1]:
                     # Duplicate definition of function parameter.
-                    self.add_message('redundant-keyword-arg', node=node, args=(keyword, callable_name))
+                    self.add_message('redundant-keyword-arg',
+                                     node=node, args=(keyword, callable_name))
                 else:
                     parameters[i][1] = True
             elif keyword in kwparams:
                 if kwparams[keyword][1]:  # XXX is that even possible?
                     # Duplicate definition of function parameter.
-                    self.add_message('redundant-keyword-arg', node=node, args=(keyword, callable_name))
+                    self.add_message('redundant-keyword-arg', node=node,
+                                     args=(keyword, callable_name))
                 else:
                     kwparams[keyword][1] = True
             elif called.args.kwarg is not None:
@@ -484,7 +486,8 @@ accessed. Python regular expressions are accepted.'}
                 pass
             else:
                 # Unexpected keyword argument.
-                self.add_message('unexpected-keyword-arg', node=node, args=(keyword, callable_name))
+                self.add_message('unexpected-keyword-arg', node=node,
+                                 args=(keyword, callable_name))
 
         # 3. Match the *args, if any.  Note that Python actually processes
         #    *args _before_ any keyword arguments, but we wait until after
@@ -521,12 +524,14 @@ accessed. Python regular expressions are accepted.'}
                     display_name = '<tuple>'
                 else:
                     display_name = repr(name)
-                self.add_message('no-value-for-parameter', node=node, args=(display_name, callable_name))
+                self.add_message('no-value-for-parameter', node=node,
+                                 args=(display_name, callable_name))
 
         for name in kwparams:
             defval, assigned = kwparams[name]
             if defval is None and not assigned:
-                self.add_message('missing-kwoa', node=node, args=(name, callable_name))
+                self.add_message('missing-kwoa', node=node,
+                                 args=(name, callable_name))
 
     @check_messages('invalid-sequence-index')
     def visit_extslice(self, node):
@@ -544,7 +549,7 @@ accessed. Python regular expressions are accepted.'}
         # slice or instances with __index__.
 
         parent_type = safe_infer(node.parent.value)
-        
+
         if not isinstance(parent_type, (astroid.Class, astroid.Instance)):
             return
 
@@ -580,7 +585,7 @@ accessed. Python regular expressions are accepted.'}
         if not itemmethod.parent:
             return
 
-        if itemmethod.parent.name not in sequence_types:
+        if itemmethod.parent.name not in SEQUENCE_TYPES:
             return
 
         # For ExtSlice objects coming from visit_extslice, no further
@@ -634,7 +639,7 @@ accessed. Python regular expressions are accepted.'}
                 if index_type.pytype() in (BUILTINS + '.int',
                                            BUILTINS + '.NoneType'):
                     continue
-                
+
                 try:
                     index_type.getattr('__index__')
                     return
