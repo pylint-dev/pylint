@@ -82,7 +82,7 @@ class TestFile(object):
 
     @property
     def option_file(self):
-        return self._file_type('.args')
+        return self._file_type('.rc')
 
     @property
     def module(self):
