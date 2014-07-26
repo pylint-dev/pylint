@@ -3,6 +3,11 @@ PYVE=pyve
 PIP=$(PYVE)/bin/pip
 TOX=$(PYVE)/bin/tox
 
+VERSION=$(shell PYTHONPATH=. python -c "from __pkginfo__ import version; print version")
+
+PKG_SDIST=dist/pylint-$(VERSION).tar.gz
+PKG_DEB=../pylint_$(VERSION)-1_all.deb
+
 # this is default target, it should always be first in this Makefile
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -32,19 +37,30 @@ docs: $(PIP)
 	$(PIP) install Sphinx
 	. $(PYVE)/bin/activate; make all -C doc
 
-deb:
+deb: $(PKG_DEB)
+$(PKG_DEB): /usr/bin/debuild
 	debuild -b -us -uc
+
+sdist: $(PKG_SDIST)
+$(PKG_SDIST):
+	python setup.py sdist
 
 lint: $(PIP)
 	$(PIP) install .
-	$(PYVE)/bin/pylint lint.py
+	$(PYVE)/bin/pylint lint.py || true  # for now ignore errors
 
-clean:
+clean: /usr/bin/debuild
 	rm -rf $(PYVE)
 	rm -rf .tox
+	rm -rf dist
+	rm -rf build
 	make clean -C doc
-	#debuild clean
+	debuild clean
+	rm -rf $(PKG_DEB)
 
-all: clean lint tests docs deb
+/usr/bin/debuild:
+	sudo apt-get -y --force-yes install devscripts
 
-.PHONY: help tests docs deb lint clean all
+all: clean lint tests docs sdist deb
+
+.PHONY: help tests docs deb sdist lint clean all
