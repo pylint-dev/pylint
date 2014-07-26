@@ -110,7 +110,7 @@ MSGS = {
               'Used when there are mixed (LF and CRLF) newline signs in a file.'),
     'C0328': ('Unexpected line ending format. There is \'%s\' while it should be \'%s\'.',
               'unexpected-line-ending-format',
-              'Used when there is different newline sign than expected.'),
+              'Used when there is different newline than expected.'),
     }
 
 
