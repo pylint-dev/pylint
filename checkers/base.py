@@ -53,6 +53,7 @@ REVERSED_METHODS = (('__getitem__', '__len__'),
                     ('__reversed__', ))
 
 PY33 = sys.version_info >= (3, 3)
+PY3K = sys.version_info >= (3, 0)
 BAD_FUNCTIONS = ['map', 'filter', 'apply']
 if sys.version_info < (3, 0):
     BAD_FUNCTIONS.append('input')
@@ -1092,6 +1093,17 @@ class DocStringChecker(_BasicChecker):
             if node_type != 'module' and max_lines > -1 and lines < max_lines:
                 return
             self.stats['undocumented_'+node_type] += 1
+            if (node.body and isinstance(node.body[0], astroid.Discard) and
+                isinstance(node.body[0].value, astroid.CallFunc)):
+                # Most likely a string with a format call. Let's see.
+                func = safe_infer(node.body[0].value.func)
+                if (isinstance(func, astroid.BoundMethod)
+                    and isinstance(func.bound, astroid.Instance)):
+                    # Strings in Python 3, others in Python 2.
+                    if PY3K and func.bound.name == 'str':
+                        return
+                    elif func.bound.name in ('str', 'unicode', 'bytes'):
+                        return
             self.add_message('missing-docstring', node=node, args=(node_type,))
         elif not docstring.strip():
             self.stats['undocumented_'+node_type] += 1
