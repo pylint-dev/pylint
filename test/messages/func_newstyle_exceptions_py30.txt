@@ -1,5 +1,0 @@
-E: 21:fonctionBof: Raising a new style class which doesn't inherit from BaseException
-E: 25:fonctionNew: Raising a new style class which doesn't inherit from BaseException
-E: 29:fonctionBof2: Raising a new style class which doesn't inherit from BaseException
-E: 33:fonctionNew2: Raising a new style class which doesn't inherit from BaseException
-E: 37:fonctionNotImplemented: NotImplemented raised - should raise NotImplementedError

@@ -45,7 +45,9 @@ class LintTestNonExistentModuleTC(LintTestUsingModule):
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
     PORTED = set(['I0001', 'I0010', 'W0712', 'E1001', 'W1402', 'E1310', 'E0202',
-                  'W0711', 'W0108', 'C0112'])
+                  'W0711', 'W0108', 'E0603', 'W0710', 'E0710', 'E0711', 'W1001', 
+                  'E1124', 'E1120', 'E1121', 'E1123', 'E1003', 'E1002', 'W0212',
+                  'W0109', 'E1004', 'W0604', 'W0601', 'W0602', 'C0112', 'C0330'])
 
     @testlib.tag('coverage')
     def test_exhaustivity(self):

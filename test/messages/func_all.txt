@@ -1,4 +1,0 @@
-E: 18: Undefined variable name 'NonExistant' in __all__
-E: 20: Undefined variable name 'func' in __all__
-E: 21: Undefined variable name 'inner' in __all__
-E: 22: Undefined variable name 'InnerKlass' in __all__
