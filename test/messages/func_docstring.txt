@@ -1,8 +1,0 @@
-C:  1: Missing module docstring
-C:  5:function0: Empty function docstring
-C:  8:function1: Missing function docstring
-C: 20:AAAA: Missing class docstring
-C: 36:AAAA.method1: Missing method docstring
-C: 43:AAAA.method3: Empty method docstring
-C: 56:DDDD.method2: Empty method docstring
-C: 63:DDDD.method4: Missing method docstring

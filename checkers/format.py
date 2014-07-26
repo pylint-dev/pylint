@@ -105,6 +105,22 @@ MSGS = {
               {'old_names': [('C0323', 'no-space-after-operator'),
                              ('C0324', 'no-space-after-comma'),
                              ('C0322', 'no-space-before-operator')]}),
+    'W0331': ('Use of the <> operator',
+              'old-ne-operator',
+              'Used when the deprecated "<>" operator is used instead '
+              'of "!=".',
+              {'maxversion': (3, 0)}),
+    'W0332': ('Use of "l" as long integer identifier',
+              'lowercase-l-suffix',
+              'Used when a lower case "l" is used to mark a long integer. You '
+              'should use a upper case "L" since the letter "l" looks too much '
+              'like the digit "1"',
+              {'maxversion': (3, 0)}),
+    'W0333': ('Use of the `` operator',
+              'backtick',
+              'Used when the deprecated "``" (backtick) operator is used '
+              'instead  of the str() function.',
+              {'scope': WarningScope.NODE, 'maxversion': (3, 0)}),
     'C0327': ('Mixed line endings LF and CRLF',
               'mixed-line-endings',
               'Used when there are mixed (LF and CRLF) newline signs in a file.'),
@@ -112,26 +128,6 @@ MSGS = {
               'unexpected-line-ending-format',
               'Used when there is different newline than expected.'),
     }
-
-
-if sys.version_info < (3, 0):
-
-    MSGS.update({
-        'W0331': ('Use of the <> operator',
-                  'old-ne-operator',
-                  'Used when the deprecated "<>" operator is used instead '
-                  'of "!=".'),
-        'W0332': ('Use of "l" as long integer identifier',
-                  'lowercase-l-suffix',
-                  'Used when a lower case "l" is used to mark a long integer. You '
-                  'should use a upper case "L" since the letter "l" looks too much '
-                  'like the digit "1"'),
-        'W0333': ('Use of the `` operator',
-                  'backtick',
-                  'Used when the deprecated "``" (backtick) operator is used '
-                  'instead  of the str() function.',
-                  {'scope': WarningScope.NODE}),
-    })
 
 
 def _underline_token(token):

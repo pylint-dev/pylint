@@ -139,8 +139,9 @@ MSGS = {
               'Used a module marked as deprecated is imported.'),
     'W0403': ('Relative import %r, should be %r',
               'relative-import',
-              'Used when an import relative to the package directory is \
-              detected.'),
+              'Used when an import relative to the package directory is '
+              'detected.',
+              {'maxversion': (3, 0)}),
     'W0404': ('Reimport %r (imported line %s)',
               'reimported',
               'Used when a module is reimported multiple times.'),
