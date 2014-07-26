@@ -15,8 +15,7 @@ import sys
 from os.path import join, dirname, abspath
 from cStringIO import StringIO
 import tempfile
-
-from logilab.common.testlib import TestCase, unittest_main, tag
+import unittest
 
 from pylint.lint import Run
 from pylint.reporters.text import *
@@ -24,7 +23,7 @@ from pylint.reporters.html import HTMLReporter
 
 HERE = abspath(dirname(__file__))
 
-class RunTC(TestCase):
+class RunTC(unittest.TestCase):
 
     def _runtest(self, args, reporter=None, out=None, code=28):
         if out is None:
@@ -55,63 +54,51 @@ class RunTC(TestCase):
             sys.stderr = sys.__stderr__
             sys.stdout = sys.__stdout__
 
-    @tag('smoke')
     def test0(self):
         """make pylint checking itself"""
         self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(StringIO()),
                       code=0)
 
-    @tag('smoke')
     def test1(self):
         """make pylint checking itself"""
         self._runtest(['pylint.lint'], reporter=TextReporter(StringIO()))
 
-    @tag('smoke')
     def test2(self):
         """make pylint checking itself"""
         self._runtest(['pylint.lint'], reporter=HTMLReporter(StringIO()))
 
-    @tag('smoke')
     def test3(self):
         """make pylint checking itself"""
         self._runtest(['pylint.lint'], reporter=ColorizedTextReporter(StringIO()))
 
-    @tag('smoke')
     def test_no_ext_file(self):
         self._runtest([join(HERE, 'input', 'noext')], code=0)
 
-    @tag('smoke')
     def test_generated_members(self):
         # XXX dual end quotation since optparse buggily remove one...
         self._runtest(['--generated-members=objects,DoesNotExist,delay,retry,"[a-zA-Z]+_set{1,2}""', 'pylint.lint'])
 
-    @tag('smoke')
     def test_w0704_ignored(self):
         self._runtest([join(HERE, 'input', 'ignore_except_pass_by_default.py')], code=0)
 
-    @tag('smoke', 'help', 'config')
     def test_generate_config_option(self):
         """make pylint checking itself"""
         self._runtest(['--generate-rcfile'], reporter=HTMLReporter(StringIO()),
                       code=0)
 
-    @tag('smoke', 'help')
     def test_help_message_option(self):
         """make pylint checking itself"""
         self._runtest(['--help-msg', 'W0101'], reporter=HTMLReporter(StringIO()),
                       code=0)
 
-    @tag('smoke', 'help')
     def test_error_help_message_option(self):
         self._runtest(['--help-msg', 'WX101'], reporter=HTMLReporter(StringIO()),
                       code=0)
 
-    @tag('smoke', 'usage')
     def test_error_missing_arguments(self):
         self._runtest([], reporter=HTMLReporter(StringIO()),
                       code=32)
 
-    @tag('smoke', 'encoding')
     def test_no_out_encoding(self):
         """test redirection of stdout with non ascii caracters
         """
@@ -128,4 +115,4 @@ class RunTC(TestCase):
 
 
 if __name__ == '__main__':
-    unittest_main()
+    unittest.main()

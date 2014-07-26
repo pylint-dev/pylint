@@ -11,12 +11,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-
+import cStringIO
 import os
 from os.path import join, dirname, abspath
-from cStringIO import StringIO
+import unittest
 
-from logilab.common.testlib import TestCase, unittest_main
 
 from pylint.lint import PyLinter
 from pylint import checkers
@@ -25,7 +24,7 @@ from pylint.reporters.text import TextReporter
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')
 
-class PyLinterTC(TestCase):
+class PyLinterTC(unittest.TestCase):
 
     def setUp(self):
         self.linter = PyLinter(reporter=TextReporter())
@@ -36,7 +35,7 @@ class PyLinterTC(TestCase):
         os.environ.pop('PYLINTRC', None)
 
     def test_template_option(self):
-        output = StringIO()
+        output = cStringIO.StringIO()
         self.linter.reporter.set_output(output)
         self.linter.set_option('msg-template', '{msg_id}:{line:03d}')
         self.linter.open()
@@ -50,4 +49,4 @@ class PyLinterTC(TestCase):
 
 
 if __name__ == '__main__':
-    unittest_main()
+    unittest.main()

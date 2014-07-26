@@ -14,20 +14,20 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """functional/non regression tests for pylint"""
-from __future__ import with_statement
 
 import collections
 import contextlib
 import functools
+import cStringIO
 import sys
 import re
+import unittest
 
 from glob import glob
 from os import linesep
 from os.path import abspath, basename, dirname, isdir, join, splitext
-from cStringIO import StringIO
 
-from logilab.common import testlib
+
 
 from pylint import checkers
 from pylint.utils import PyLintASTWalker
@@ -94,7 +94,7 @@ class TestReporter(BaseReporter):
         self.reset()
 
     def reset(self):
-        self.out = StringIO()
+        self.out = cStringIO.StringIO()
         self.messages = []
 
     def add_message(self, msg_id, location, msg):
@@ -122,30 +122,10 @@ class TestReporter(BaseReporter):
         """ignore layouts"""
 
 
-if sys.version_info < (2, 6):
-    class Message(tuple):
-        def __new__(cls, msg_id, line=None, node=None, args=None):
-            return tuple.__new__(cls, (msg_id, line, node, args))
-
-        @property
-        def msg_id(self):
-            return self[0]
-        @property
-        def line(self):
-            return self[1]
-        @property
-        def node(self):
-            return self[2]
-        @property
-        def args(self):
-            return self[3]
-
-
-else:
-    class Message(collections.namedtuple('Message',
-                                         ['msg_id', 'line', 'node', 'args'])):
-        def __new__(cls, msg_id, line=None, node=None, args=None):
-            return tuple.__new__(cls, (msg_id, line, node, args))
+class Message(collections.namedtuple('Message',
+                                     ['msg_id', 'line', 'node', 'args'])):
+    def __new__(cls, msg_id, line=None, node=None, args=None):
+        return tuple.__new__(cls, (msg_id, line, node, args))
 
 
 class UnittestLinter(object):
@@ -192,7 +172,7 @@ def set_config(**kwargs):
     return _Wrapper
 
 
-class CheckerTestCase(testlib.TestCase):
+class CheckerTestCase(unittest.TestCase):
     """A base testcase class for unittesting individual checker classes."""
     CHECKER_CLASS = None
     CONFIG = {}
@@ -256,7 +236,7 @@ def exception_str(self, ex):
 
 # Test classes
 
-class LintTestUsingModule(testlib.TestCase):
+class LintTestUsingModule(unittest.TestCase):
     INPUT_DIR = None
     DEFAULT_PACKAGE = 'input'
     package = DEFAULT_PACKAGE
@@ -351,7 +331,6 @@ def cb_test_gen(base_class):
             module = module_file.replace('.py', '')
             output = messages_file
             depends = dependencies or None
-            tags = testlib.Tags(('generated', 'pylint_input_%s' % module))
             INPUT_DIR = input_dir
             MSG_DIR = msg_dir
         return LintTC
