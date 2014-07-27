@@ -646,14 +646,26 @@ functions, methods
             except astroid.InferenceError:
                 continue
             builtins = astroid.bases.BUILTINS
+            builtin_symbols = dict(
+                zip(['.'.join([builtins, x]) for x in ('set', 'dict', 'list')],
+                    ['set()', '{}', '[]'])
+            )
+
             if (isinstance(value, astroid.Instance) and
-                    value.qname() in ['.'.join([builtins, x]) for x in ('set', 'dict', 'list')]):
+                    value.qname() in builtin_symbols.keys()):
                 if value is default:
-                    msg = default.as_string()
+                    msg = builtin_symbols[value.qname()]
                 elif type(value) is astroid.Instance:
-                    msg = '%s (%s)' % (default.as_string(), value.qname())
+                    if isinstance(default, astroid.CallFunc):
+                        # this argument is direct call to list() or dict() etc
+                        msg = '%s() (%s)' % (value.name, value.qname())
+                    else:
+                        # this argument is a variable from somewhere else which turns
+                        # out to be a list or dict
+                        msg = '%s (%s)' % (default.name, value.qname())
                 else:
-                    msg = '%s (%s)' % (default.as_string(), value.as_string())
+                    # this argument is a name
+                    msg = '%s (%s)' % (default.name, builtin_symbols[value.qname()])
                 self.add_message('dangerous-default-value', node=node, args=(msg,))
 
     @check_messages('unreachable', 'lost-exception')
