@@ -75,10 +75,7 @@ def gen_tests(filter_rgx):
         callbacks = [cb_test_gen(LintTestUpdate)]
     else:
         callbacks = [cb_test_gen(LintTestUsingModule)]
-        if not MODULES_ONLY:
-            callbacks.append(cb_test_gen(LintTestUsingFile))
     tests = make_tests(INPUT_DIR, MSG_DIR, filter_rgx, callbacks)
-
     if UPDATE:
         return tests
 
@@ -96,12 +93,12 @@ def gen_tests(filter_rgx):
         # test all features are tested :)
         tests.append(TestTests)
 
+    assert len(tests) < 196, "Please do not add new test cases here."
     return tests
 
 # Create suite
 
 FILTER_RGX = None
-MODULES_ONLY = False
 UPDATE = False
 
 def suite():
@@ -110,10 +107,6 @@ def suite():
 
 
 if __name__=='__main__':
-    if '-m' in sys.argv:
-        MODULES_ONLY = True
-        sys.argv.remove('-m')
-
     if '-u' in sys.argv:
         UPDATE = True
         sys.argv.remove('-u')
