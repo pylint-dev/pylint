@@ -17,6 +17,10 @@ from pylint import checkers
 class NoFileError(Exception):
     pass
 
+# TODOs
+#  - use a namedtuple for expected lines
+#  - implement exhaustivity tests
+#  - call skipTests in setUp when not using logilab.testlib any more.
 
 # If message files should be updated instead of checked.
 UPDATE = False
@@ -197,7 +201,6 @@ class LintModuleTest(testlib.TestCase):
         self._test_file = test_file
 
     def check_test(self):
-        # change to setUp when not using logilab.testlib any more.
         if (sys.version_info < self._test_file.options['min_pyver']
                 or sys.version_info >= self._test_file.options['max_pyver']):
             self.skipTest(
@@ -211,8 +214,9 @@ class LintModuleTest(testlib.TestCase):
         if missing:
             self.skipTest('Requires %s to be present.' % (','.join(missing),))
 
-    def shortDescription(self):
-        return self._test_file.base
+    def __str__(self):
+        return "%s (%s.%s)" % (self._test_file.base, self.__class__.__module__, 
+                               self.__class__.__name__)
 
     def _open_expected_file(self):
         return open(self._test_file.expected_output, 'U')
@@ -221,7 +225,6 @@ class LintModuleTest(testlib.TestCase):
         with open(self._test_file.source) as fobj:
             expected_msgs = get_expected_messages(fobj)
 
-        
         if expected_msgs:
             with self._open_expected_file() as fobj:
                 expected_output_lines = parse_expected_output(fobj)
@@ -309,9 +312,6 @@ def suite():
             else:
                 suite.addTest(LintModuleTest(test_file))
     return suite
-
-
-# TODO(tmarek): Port exhaustivity test from test_func once all tests have been added.
 
 
 if __name__=='__main__':
