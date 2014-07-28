@@ -1,6 +1,6 @@
-#pylint: disable=R0903,R0904
-"""#10026"""
-__revision__ = 1
+"""Import PyGTK."""
+#pylint: disable=too-few-public-methods,too-many-public-methods
+
 from gtk import VBox
 import gtk
 

@@ -1,0 +1,11 @@
+raising-non-exception:23:bad_case0:Raising a new style class which doesn't inherit from BaseException
+nonstandard-exception:23:bad_case0:Exception doesn't inherit from standard "Exception" class
+raising-non-exception:27:bad_case1:Raising a new style class which doesn't inherit from BaseException
+raising-non-exception:33:bad_case2:Raising a new style class which doesn't inherit from BaseException
+nonstandard-exception:33:bad_case2:Exception doesn't inherit from standard "Exception" class
+old-raise-syntax:33:bad_case2:Use raise ErrorClass(args) instead of raise ErrorClass, args.
+raising-non-exception:37:bad_case3:Raising a new style class which doesn't inherit from BaseException
+notimplemented-raised:42:bad_case4:NotImplemented raised - should raise NotImplementedError
+old-raise-syntax:42:bad_case4:Use raise ErrorClass(args) instead of raise ErrorClass, args.
+raising-bad-type:46:bad_case5:Raising int while only classes, instances or string are allowed
+raising-bad-type:50:base_case6:Raising NoneType while only classes, instances or string are allowed

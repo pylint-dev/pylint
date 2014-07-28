@@ -1,6 +1,7 @@
 """Functional full-module tests for PyLint."""
 from __future__ import with_statement
 import ConfigParser
+import contextlib
 import cStringIO
 import operator
 import os
@@ -16,6 +17,10 @@ from pylint import checkers
 class NoFileError(Exception):
     pass
 
+# TODOs
+#  - use a namedtuple for expected lines
+#  - implement exhaustivity tests
+#  - call skipTests in setUp when not using logilab.testlib any more.
 
 # If message files should be updated instead of checked.
 UPDATE = False
@@ -54,6 +59,7 @@ class TestFile(object):
     _CONVERTERS = {
         'min_pyver': parse_python_version,
         'max_pyver': parse_python_version,
+        'requires': lambda s: s.split(',')
     }
 
 
@@ -63,6 +69,7 @@ class TestFile(object):
         self.options = {
             'min_pyver': (2, 5),
             'max_pyver': (4, 0),
+            'requires': []
             }
         self._parse_options()
 
@@ -80,7 +87,7 @@ class TestFile(object):
 
     @property
     def option_file(self):
-        return self._file_type('.args')
+        return self._file_type('.rc')
 
     @property
     def module(self):
@@ -109,6 +116,19 @@ _OPERATORS = {
     '>=': operator.ge,
     '<=': operator.le,
 }
+
+def parse_expected_output(stream):
+    lines = []
+    for line in stream:
+        parts = line.split(':', 3)
+        if len(parts) != 4:
+            symbol, lineno, obj, msg = lines.pop()
+            lines.append((symbol, lineno, obj, msg + line))
+        else:
+            linenum = int(parts[1])
+            lines.append((parts[0], linenum, parts[2], parts[3]))
+    return lines
+
 
 def get_expected_messages(stream):
     """Parses a file and get expected messages.
@@ -180,46 +200,52 @@ class LintModuleTest(testlib.TestCase):
             pass
         self._test_file = test_file
 
-    def shortDescription(self):
-        return self._test_file.base
+    def check_test(self):
+        if (sys.version_info < self._test_file.options['min_pyver']
+                or sys.version_info >= self._test_file.options['max_pyver']):
+            self.skipTest(
+                'Test cannot run with Python %s.' % (sys.version.split(' ')[0],))
+        missing = []
+        for req in self._test_file.options['requires']:
+            try:
+                __import__(req)
+            except ImportError:
+                missing.append(req)
+        if missing:
+            self.skipTest('Requires %s to be present.' % (','.join(missing),))
 
-    def _produces_output(self):
-        return True
+    def __str__(self):
+        return "%s (%s.%s)" % (self._test_file.base, self.__class__.__module__, 
+                               self.__class__.__name__)
+
+    def _open_expected_file(self):
+        return open(self._test_file.expected_output, 'U')
 
     def _get_expected(self):
         with open(self._test_file.source) as fobj:
-            expected = get_expected_messages(fobj)
+            expected_msgs = get_expected_messages(fobj)
 
-        lines = []
-        if self._produces_output() and expected:
-            with open(self._test_file.expected_output, 'U') as fobj:
-                used = True
-                for line in fobj:
-                    parts = line.split(':', 2)
-                    if len(parts) != 3 and used:
-                        lines.append(line)
-                    else:
-                        linenum = int(parts[1])
-                        if (linenum, parts[0]) in expected:
-                            used = True
-                            lines.append(line)
-                        else:
-                            used = False
-        return expected, ''.join(lines)
+        if expected_msgs:
+            with self._open_expected_file() as fobj:
+                expected_output_lines = parse_expected_output(fobj)
+        else:
+            expected_output_lines = []
+        return expected_msgs, expected_output_lines
 
     def _get_received(self):
         messages = self._linter.reporter.messages
-        messages.sort(key=lambda m: (m.line, m.C, m.msg))
-        text_result = cStringIO.StringIO()
-        received = {}
+        messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
+        received_msgs = {}
+        received_output_lines = []
         for msg in messages:
-            received.setdefault((msg.line, msg.symbol), 0)
-            received[msg.line, msg.symbol] += 1
-            text_result.write(msg.format('{symbol}:{line}:{obj}:{msg}'))
-            text_result.write('\n')
-        return received, text_result.getvalue()
+            received_msgs.setdefault((msg.line, msg.symbol), 0)
+            received_msgs[msg.line, msg.symbol] += 1
+            received_output_lines.append(
+                (msg.symbol, msg.line, msg.obj or '', msg.msg + '\n'))
+        return received_msgs, received_output_lines
 
     def runTest(self):
+        self.check_test()
         self._linter.check([self._test_file.module])
 
         expected_messages, expected_text = self._get_expected()
@@ -238,22 +264,40 @@ class LintModuleTest(testlib.TestCase):
             self.fail('\n'.join(msg))
         self._check_output_text(expected_messages, expected_text, received_text)
 
-    def _check_output_text(self, expected_messages, expected_text, received_text):
-        self.assertMultiLineEqual(expected_text, received_text)
+    def _split_lines(self, expected_messages, lines):
+        emitted, omitted = [], []
+        for msg in lines:
+            if (msg[1], msg[0]) in expected_messages:
+                emitted.append(msg)
+            else:
+                omitted.append(msg)
+        return emitted, omitted
+
+    def _check_output_text(self, expected_messages, expected_lines, 
+                           received_lines):
+        self.assertSequenceEqual(
+            self._split_lines(expected_messages, expected_lines)[0],
+            received_lines)
 
 
 class LintModuleOutputUpdate(LintModuleTest):
-    def _produces_output(self):
-        return False
+    def _open_expected_file(self):
+        try:
+            return super(LintModuleOutputUpdate, self)._open_expected_file()
+        except IOError:
+            return contextlib.closing(cStringIO.StringIO())
 
-    def _check_output_text(self, expected_messages, expected_text, received_text):
-        if expected_messages:
+    def _check_output_text(self, expected_messages, expected_lines,
+                           received_lines):
+        if not expected_messages:
+            return
+        emitted, remaining = self._split_lines(expected_messages, expected_lines)
+        if emitted != received_lines:
+            remaining.extend(received_lines)
+            remaining.sort(key=lambda m: (m[1], m[0], m[3]))
             with open(self._test_file.expected_output, 'w') as fobj:
-                fobj.write(received_text)
-
-
-def active_in_running_python_version(options):
-    return options['min_pyver'] < sys.version_info <= options['max_pyver']
+                for line in remaining:
+                    fobj.write('{0}:{1}:{2}:{3}'.format(*line))
 
 
 def suite():
@@ -263,15 +307,11 @@ def suite():
     for fname in os.listdir(input_dir):
         if fname != '__init__.py' and fname.endswith('.py'):
             test_file = TestFile(input_dir, fname)
-            if active_in_running_python_version(test_file.options):
-                if UPDATE:
-                    suite.addTest(LintModuleOutputUpdate(test_file))
-                else:
-                    suite.addTest(LintModuleTest(test_file))
+            if UPDATE:
+                suite.addTest(LintModuleOutputUpdate(test_file))
+            else:
+                suite.addTest(LintModuleTest(test_file))
     return suite
-
-
-# TODO(tmarek): Port exhaustivity test from test_func once all tests have been added.
 
 
 if __name__=='__main__':

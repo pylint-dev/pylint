@@ -1,4 +1,0 @@
-E: 23:NewAaaa.__init__: Bad first argument 'object' given to super()
-E: 33:Py3kWrongSuper.__init__: Bad first argument 'NewAaaa' given to super()
-E: 38:WrongNameRegression.__init__: Bad first argument 'Missing' given to super()
-E: 47:CrashSuper.__init__: Bad first argument 'NewAaaa' given to super()
