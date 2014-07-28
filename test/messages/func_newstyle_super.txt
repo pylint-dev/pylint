@@ -1,8 +1,0 @@
-C:  7:Aaaa: Old-style class defined.
-E:  9:Aaaa.hop: Use of super on an old style class
-E: 13:Aaaa.__init__: Use of super on an old style class
-E: 23:NewAaaa.__init__: Bad first argument 'object' given to super()
-E: 28:Py3kAaaa.__init__: Missing argument to super()
-E: 33:Py3kWrongSuper.__init__: Bad first argument 'NewAaaa' given to super()
-E: 38:WrongNameRegression.__init__: Bad first argument 'Missing' given to super()
-E: 47:CrashSuper.__init__: Bad first argument 'NewAaaa' given to super()
