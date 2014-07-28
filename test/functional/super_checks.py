@@ -1,16 +1,15 @@
-# pylint: disable=R0903,import-error
+# pylint: disable=too-few-public-methods,import-error
 """check use of super"""
 
 from unknown import Missing
-__revision__ = None
 
-class Aaaa:
+class Aaaa:  # <3.0:[old-style-class]
     """old style"""
-    def hop(self):
+    def hop(self):  # <3.0:[super-on-old-class]
         """hop"""
         super(Aaaa, self).hop()
 
-    def __init__(self):
+    def __init__(self):  # <3.0:[super-on-old-class]
         super(Aaaa, self).__init__()
 
 class NewAaaa(object):
@@ -20,22 +19,22 @@ class NewAaaa(object):
         super(NewAaaa, self).hop()
 
     def __init__(self):
-        super(object, self).__init__()
+        super(object, self).__init__()  # [bad-super-call]
 
 class Py3kAaaa(NewAaaa):
     """new style"""
     def __init__(self):
-        super().__init__()
+        super().__init__()  # <3.0:[missing-super-argument]
 
 class Py3kWrongSuper(Py3kAaaa):
     """new style"""
     def __init__(self):
-        super(NewAaaa, self).__init__()
+        super(NewAaaa, self).__init__()  # [bad-super-call]
 
 class WrongNameRegression(Py3kAaaa):
     """ test a regression with the message """
     def __init__(self):
-        super(Missing, self).__init__()
+        super(Missing, self).__init__()  # [bad-super-call]
 
 class Getattr(object):
     """ crash """
@@ -44,4 +43,4 @@ class Getattr(object):
 class CrashSuper(object):
     """ test a crash with this checker """
     def __init__(self):
-        super(Getattr.name, self).__init__()
+        super(Getattr.name, self).__init__()  # [bad-super-call]

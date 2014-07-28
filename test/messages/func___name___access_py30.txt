@@ -1,3 +1,0 @@
-E: 11:Aaaa.__init__: Instance of 'Aaaa' has no '__name__' member
-E: 21:NewClass.__init__: Instance of 'NewClass' has no '__name__' member
-

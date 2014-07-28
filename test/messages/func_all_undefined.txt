@@ -1,1 +1,0 @@
-E:  8: Undefined variable 'SomeUndefinedName'
