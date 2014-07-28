@@ -1,2 +1,0 @@
-E: 11: Raising int while only classes, instances or string are allowed
-E: 14: Raising NoneType while only classes, instances or string are allowed

@@ -1,24 +1,30 @@
-# pylint: disable=R0903
-"""test property on old style class and property.setter/deleter usage"""
+# pylint: disable=too-few-public-methods
+"""Test properties on old style classes and property.setter/deleter usage"""
 
-__revision__ = 1
 
 def getter(self):
     """interesting"""
     return self
 
-class OkOk(object):
+class CorrectClass(object):
     """correct usage"""
     method = property(getter, doc='hop')
 
-class HaNonNonNon:
+class OldStyleClass:  # <3.0:[old-style-class]
     """bad usage"""
-    method = property(getter, doc='hop')
+    method = property(getter, doc='hop')  # <3.0:[property-on-old-class]
 
     def __init__(self):
         pass
 
-import logilab.common.decorators
+
+def decorator(func):
+    """Redefining decorator."""
+    def wrapped(self):
+        """Wrapper function."""
+        return func(self)
+    return wrapped
+
 
 class SomeClass(object):
     """another docstring"""
@@ -41,8 +47,7 @@ class SomeClass(object):
         """I'm the 'prop' property."""
         del self._prop
 
-    # test regression
-    @logilab.common.decorators.cached
+    @decorator
     def noregr(self):
-        """used to crash in redefined_by_decorator"""
+        """Just a normal method with a decorator."""
         return self.prop

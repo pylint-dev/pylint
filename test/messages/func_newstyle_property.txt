@@ -1,2 +1,0 @@
-C: 14:HaNonNonNon: Old-style class defined.
-W: 16:HaNonNonNon: Use of "property" on an old style class

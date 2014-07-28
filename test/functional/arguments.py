@@ -1,5 +1,5 @@
+# pylint: disable=too-few-public-methods
 """Test function argument checker"""
-__revision__ = ''
 
 def decorator(fun):
     """Decorator"""
@@ -43,48 +43,46 @@ def function_default_arg(one=1, two=2):
 
 
 function_1_arg(420)
-function_1_arg()
-function_1_arg(1337, 347)
+function_1_arg()  # [no-value-for-parameter]
+function_1_arg(1337, 347)  # [too-many-function-args]
 
-function_3_args(420, 789)
+function_3_args(420, 789)  # [no-value-for-parameter]
+# +1:[no-value-for-parameter,no-value-for-parameter,no-value-for-parameter]
 function_3_args()
 function_3_args(1337, 347, 456)
-function_3_args('bab', 'bebe', None, 5.6)
+function_3_args('bab', 'bebe', None, 5.6)  # [too-many-function-args]
 
 function_default_arg(1, two=5)
 function_default_arg(two=5)
-# repeated keyword is syntax error in python >= 2.6:
-# tests are moved to func_keyword_repeat_py25- / func_keyword_repeat_py26
 
-function_1_arg(bob=4)
-function_default_arg(1, 4, coin="hello")
+function_1_arg(bob=4)  # [unexpected-keyword-arg,no-value-for-parameter]
+function_default_arg(1, 4, coin="hello")  # [unexpected-keyword-arg]
 
-function_default_arg(1, one=5)
+function_default_arg(1, one=5)  # [redundant-keyword-arg]
 
 # Remaining tests are for coverage of correct names in messages.
 LAMBDA = lambda arg: 1
 
-LAMBDA()
+LAMBDA()  # [no-value-for-parameter]
 
 def method_tests():
     """"Method invocations."""
     demo = DemoClass()
-    demo.static_method()
-    DemoClass.static_method()
+    demo.static_method()  # [no-value-for-parameter]
+    DemoClass.static_method()  # [no-value-for-parameter]
 
-    demo.class_method()
-    DemoClass.class_method()
+    demo.class_method()  # [no-value-for-parameter]
+    DemoClass.class_method()  # [no-value-for-parameter]
 
-    demo.method()
-    DemoClass.method(demo)
+    demo.method()  # [no-value-for-parameter]
+    DemoClass.method(demo)  # [no-value-for-parameter]
 
-    demo.decorated_method()
-    DemoClass.decorated_method(demo)
+    demo.decorated_method()  # [no-value-for-parameter]
+    DemoClass.decorated_method(demo)  # [no-value-for-parameter]
 
 # Test a regression (issue #234)
 import sys
 
-# pylint: disable=too-few-public-methods
 class Text(object):
     """ Regression """
 
