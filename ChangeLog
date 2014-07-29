@@ -6,18 +6,275 @@ ChangeLog for Pylint
       which could result in long error messages or sensitive data being leaked.
       Closes issue #282
 
-    * Check for non-exception classes inside an except clause
+    * Fix a false positive with string formatting checker, when
+      encountering a string which uses only position-based arguments.
+      Closes issue #285.
+
+2014-07-26  --  1.3.0
+
+    * Allow hanging continued indentation for implicitly concatenated
+      strings. Closes issue #232.
+
+    * PyLint works under Python 2.5 again, and its test suite passes.
+
+    * Fix some false positives for the cellvar-from-loop warnings.
+      Closes issue #233.
+
+    * Return new astroid class nodes when the inferencer can detect that
+      that result of a function invocation on a type (like `type` or 
+      `abc.ABCMeta`) is requested. Closes #205.
+
+    * Emit 'undefined-variable' for undefined names when using the
+      Python 3 `metaclass=` argument.
+
+    * Checkers respect priority now. Close issue #229.
+    
+    * Fix a false positive regarding W0511. Closes issue #149.
+
+    * Fix unused-import false positive with Python 3 metaclasses (#143).
+
+    * Don't warn with 'bad-format-character' when encountering
+      the 'a' format on Python 3.
+
+    * Add multiple checks for PEP 3101 advanced string formatting:
+     'bad-format-string', 'missing-format-argument-key',
+     'unused-format-string-argument', 'format-combined-specification',
+     'missing-format-attribute' and 'invalid-format-index'.
+
+    * Issue broad-except and bare-except even if the number
+      of except handlers is different than 1. Fixes issue #113.
+
+    * Issue attribute-defined-outside-init for all cases, not just
+      for the last assignment. Closes issue #262.
+
+    * Emit 'not-callable' when calling properties. Closes issue #268.
+
+    * Fix a false positive with unbalanced iterable unpacking,
+      when encountering starred nodes. Closes issue #273.
+
+    * Add new checks, 'invalid-slice-index' and 'invalid-sequence-index'
+      for invalid sequence and slice indices.
+
+    * Add 'assigning-non-slot' warning, which detects assignments to
+      attributes not defined in slots.
+
+    * Don't emit 'no-name-in-module' for ignored modules.
+      Closes issue #223.
+
+    * Fix an 'unused-variable' false positive, where the variable is
+      assigned through an import. Closes issue #196.
+
+    * Definition order is considered for classes, function arguments
+      and annotations. Closes issue #257.
+
+    * Don't emit 'unused-variable' when assigning to a nonlocal.
+      Closes issue #275.
+   
+    * Do not let ImportError propagate from the import checker, leading to crash
+      in some namespace package related cases. Closes issue #203.
+
+    * Don't emit 'pointless-string-statement' for attribute docstrings.
+      Closes issue #193.
+
+    * Use the proper mode for pickle when opening and writing the stats file.
+      Closes issue #148.
+
+    * Don't emit hidden-method message when the attribute has been
+      monkey-patched, you're on your own when you do that.
+
+    * Only emit attribute-defined-outside-init for definition within the same
+      module as the offended class, avoiding to mangle the output in some cases.
+
+    * Don't emit 'unnecessary-lambda' if the body of the lambda call contains
+      call chaining. Closes issue #243.
+
+    * Don't emit 'missing-docstring' when the actual docstring uses `.format`.
+      Closes issue #281.
+
+
+2014-04-30  --  1.2.1
+    * Restore the ability to specify the init-hook option via the
+      configuration file, which was accidentally broken in 1.2.0.
+
+    * Add a new warning [bad-continuation] for badly indentend continued
+      lines.
+
+    * Emit [assignment-from-none] when the function contains bare returns.
+      Fixes BitBucket issue #191.
+
+    * Added a new warning for closing over variables that are
+      defined in loops. Fixes Bitbucket issue #176.
+
+    * Do not warn about \u escapes in string literals when Unicode literals
+      are used for Python 2.*. Fixes BitBucket issue #151.
+
+    * Extend the checking for unbalanced-tuple-unpacking and
+      unpacking-non-sequence to instance attribute unpacking as well.
+
+    * Fix explicit checking of python script (1.2 regression, #219)
+
+    * Restore --init-hook, renamed accidentally into --init-hooks in 1.2.0
+      (#211)
+
+    * Add 'indexing-exception' warning, which detects that indexing
+      an exception occurs in Python 2 (behaviour removed in Python 3).
+
+
+
+2014-04-18  --  1.2.0
+    * Pass the current python paths to pylint process when invoked via
+      epylint.  Fixes BitBucket issue #133.
+
+    * Add -i / --include-ids and -s / --symbols back as completely ignored
+      options. Fixes BitBucket issue #180.
+
+    * Extend the number of cases in which logging calls are detected. Fixes
+      bitbucket issue #182.
+
+    * Improve pragma handling to not detect pylint:* strings in non-comments.
+      Fixes BitBucket issue #79.
+
+    * Do not crash with UnknownMessage if an unknown message ID/name appears
+      in disable or enable in the configuration. Patch by Cole Robinson.
+      Fixes bitbucket issue #170.
+
+    * Add new warning 'eval-used', checking that the builtin function `eval`
+      was used.
+
+    * Make it possible to show a naming hint for invalid name by setting
+      include-naming-hint. Also make the naming hints configurable. Fixes
+      BitBucket issue #138.
+
+    * Added support for enforcing multiple, but consistent name styles for
+      different name types inside a single module; based on a patch written
+      by morbo@google.com.
+
+    * Also warn about empty docstrings on overridden methods; contributed
+      by sebastianu@google.com.
+
+    * Also inspect arguments to constructor calls, and emit relevant
+      warnings; contributed by sebastianu@google.com.
+
+    * Added a new configuration option logging-modules to make the list
+      of module names that can be checked for 'logging-not-lazy' et. al.
+      configurable; contributed by morbo@google.com.
+
+    * ensure init-hooks is evaluated before other options, notably load-plugins
+      (#166)
+
+    * Python 2.5 support restored: fixed small issues preventing pylint to run
+      on python 2.5. Bitbucket issues #50 and #62.
+
+    * bitbucket #128: pylint doesn't crash when looking
+      for used-before-assignment in context manager
+      assignments.
+
+    * Add new warning, 'bad-reversed-sequence', for checking that the
+      reversed() builtin receive a sequence (implements __getitem__ and __len__,
+      without being a dict or a dict subclass) or an instance which implements
+      __reversed__.
+
+    * Mark `file` as a bad function when using python2 (closes #8).
+
+    * Add new warning 'bad-exception-context', checking
+      that `raise ... from ...` uses a proper exception context
+      (None or an exception).
+
+    * Enhance the check for 'used-before-assignment' to look
+      for 'nonlocal' uses.
+
+    * Emit 'undefined-all-variable' if a package's __all__
+      variable contains a missing submodule (closes #126).
+
+    * Add a new warning 'abstract-class-instantiated' for checking
+      that abstract classes created with `abc` module and
+      with abstract methods are instantied.
+
+    * Do not warn about 'return-arg-in-generator' in Python 3.3+.
+
+    * Do not warn about 'abstract-method' when the abstract method
+      is implemented through assignment (#155).
+
+    * Improve cyclic import detection in the case of packages, patch by Buck
+      Golemon
+
+    * Add new warnings for checking proper class __slots__:
+     'invalid-slots-object' and 'invalid-slots'.
+
+    * Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
+      doesn't exists (#121)
+
+    * Don't register the newstyle checker w/ python >= 3
+
+    * Fix unused-import false positive w/ augment assignment (#78)
+
+    * Fix access-member-before-definition false negative wrt aug assign (#164)
+
+    * Do not attempt to analyze non python file, eg .so file (#122)
+
+
+
+2013-12-22  --  1.1.0
+    * Add new check for use of deprecated pragma directives "pylint:disable-msg"
+      or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
+      emmited as a regular warn().
+
+    * Avoid false used-before-assignment for except handler defined
+      identifier used on the same line (#111).
+
+    * Combine 'no-space-after-operator', 'no-space-after-comma' and
+      'no-space-before-operator' into a new warning 'bad-whitespace'.
+
+    * Add a new warning 'superfluous-parens' for unnecessary
+      parentheses after certain keywords.
+
+    * Fix a potential crash in the redefine-in-handler warning
+      if the redefined name is a nested getattr node.
+
+    * Add a new option for the multi-statement warning to
+      allow single-line if statements.
+
+    * Add 'bad-context-manager' error, checking that '__exit__'
+      special method accepts the right number of arguments.
+
+    * Run pylint as a python module 'python -m pylint' (anatoly techtonik).
+
+    * Check for non-exception classes inside an except clause.
 
     * epylint support options to give to pylint after the file to analyze and
       have basic input validation (bitbucket #53 and #54), patches provided by
-      felipeochoa and Brian Lane
+      felipeochoa and Brian Lane.
 
-    * Added a new warning, 'non-iterator-returned', for non-iterators 
-      returned by '__iter__'
+    * Added a new warning, 'non-iterator-returned', for non-iterators
+      returned by '__iter__'.
+
+    * Add new checks for unpacking non-sequences in assignments
+      (unpacking-non-sequence) as well as unbalanced tuple unpacking
+      (unbalanced-tuple-unpacking).
+
+    * useless-else-on-loop not emited if there is a break in the
+      else clause of inner loop (#117).
+
+    * don't mark `input` as a bad function when using python3 (#110).
+
+    * badly-implemented-container caused several problems in its
+      current implementation. Deactivate it until we have something
+      better. See #112 for instance.
+
+    * Use attribute regexp for properties in python3, as in python2
+
+    * Create the PYLINTHOME directory when needed, it might fail and lead to
+      spurious warnings on import of pylint.config.
+
+    * Fix setup.py so that pylint properly install on Windows when using python3
+
+    * Various documentation fixes and enhancements
+
+    * Fix issue #55 (false-positive trailing-whitespace on Windows)
+
 
 
 2013-08-06  --  1.0.0
-
     * Add check for the use of 'exec' function
 
     * New --msg-template option to control output, deprecating "msvc" and
@@ -122,6 +379,7 @@ ChangeLog for Pylint
 
     * bitbucket #3: remove string module from the default list of deprecated
       modules
+
 
 
 2013-04-25  --  0.28.0
