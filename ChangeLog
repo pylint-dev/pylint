@@ -9,6 +9,8 @@ ChangeLog for Pylint
     * Fix a false positive with string formatting checker, when using
       keyword argument packing. Closes issue #288.
 
+    * Proper handle class level scope for lambdas.
+
 2014-07-26  --  1.3.0
 
     * Allow hanging continued indentation for implicitly concatenated
