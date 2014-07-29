@@ -76,3 +76,5 @@ def pprint_bad():
     print "{a[0]}".format(a=object)
     print log("{}".format(2, "info"))
     print "{0.missing}".format(2)
+    print "{0} {1} {2}".format(1, 2)
+    print "{0} {1}".format(1, 2, 3)

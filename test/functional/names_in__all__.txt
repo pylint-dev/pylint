@@ -1,0 +1,4 @@
+undefined-all-variable:17::Undefined variable name 'NonExistant' in __all__
+undefined-all-variable:19::Undefined variable name 'func' in __all__
+undefined-all-variable:20::Undefined variable name 'inner' in __all__
+undefined-all-variable:21::Undefined variable name 'InnerKlass' in __all__

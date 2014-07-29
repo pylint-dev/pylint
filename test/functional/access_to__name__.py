@@ -1,15 +1,15 @@
-# pylint: disable=R0903,W0142
+# pylint: disable=too-few-public-methods,star-args
 """test access to __name__ gives undefined member on new/old class instances
 but not on new/old class object
 """
 
-__revision__ = 1
 
-class Aaaa:
+class Aaaa:  # <3.0:[old-style-class]
     """old class"""
     def __init__(self):
-        print self.__name__
+        print self.__name__  # [no-member]
         print self.__class__.__name__
+
 class NewClass(object):
     """new class"""
 
@@ -18,4 +18,4 @@ class NewClass(object):
         return object.__new__(cls, *args, **kwargs)
 
     def __init__(self):
-        print 'init', self.__name__
+        print 'init', self.__name__  # [no-member]
