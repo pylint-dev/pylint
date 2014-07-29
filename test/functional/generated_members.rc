@@ -1,0 +1,5 @@
+[Messages Control]
+disable=too-few-public-methods
+
+[typecheck]
+generated-members=DoesNotExist,"[a-zA-Z]+_set{1,2}""

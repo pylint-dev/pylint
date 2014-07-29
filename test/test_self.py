@@ -18,26 +18,53 @@ import tempfile
 import unittest
 
 from pylint.lint import Run
+from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.html import HTMLReporter
 
 HERE = abspath(dirname(__file__))
+
+
+class MultiReporter(BaseReporter):
+    def __init__(self, reporters):
+        self._reporters = reporters
+
+    def on_set_current_module(self, *args, **kwargs):
+        for rep in self._reporters:
+            rep.on_set_current_module(*args, **kwargs)
+
+    def add_message(self, *args, **kwargs):
+        for rep in self._reporters:
+            rep.add_message(*args, **kwargs)
+
+    def display_results(self, layout):
+        pass
+
+    @property
+    def out(self):
+        return self._reporters[0].out
+
+    @property
+    def linter(self):
+        return self._linter
+
+    @linter.setter
+    def linter(self, value):
+        self._linter = value
+        for rep in self._reporters:
+            rep.linter = value
+
 
 class RunTC(unittest.TestCase):
 
     def _runtest(self, args, reporter=None, out=None, code=28):
         if out is None:
             out = StringIO()
-        if args and args[-1].startswith('pylint.lint'):
-            try:
-                import cProfile, pstats
-            except ImportError:
-                code += 1
         try:
             sys.stderr = sys.stdout = out
             try:
                 Run(args, reporter=reporter)
-            except SystemExit, ex:
+            except SystemExit as ex:
                 if reporter:
                     output = reporter.out.getvalue()
                 elif hasattr(out, 'getvalue'):
@@ -54,50 +81,37 @@ class RunTC(unittest.TestCase):
             sys.stderr = sys.__stderr__
             sys.stdout = sys.__stdout__
 
-    def test0(self):
-        """make pylint checking itself"""
+    def test_pkginfo(self):
+        """Make pylint check itself."""
         self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(StringIO()),
                       code=0)
 
-    def test1(self):
-        """make pylint checking itself"""
-        self._runtest(['pylint.lint'], reporter=TextReporter(StringIO()))
-
-    def test2(self):
-        """make pylint checking itself"""
-        self._runtest(['pylint.lint'], reporter=HTMLReporter(StringIO()))
-
-    def test3(self):
-        """make pylint checking itself"""
-        self._runtest(['pylint.lint'], reporter=ColorizedTextReporter(StringIO()))
+    def test_all(self):
+        """Make pylint check itself."""
+        reporters = [
+            TextReporter(StringIO()),
+            HTMLReporter(StringIO()),
+            ColorizedTextReporter(StringIO())
+        ]
+        self._runtest(['pylint.lint'], reporter=MultiReporter(reporters))
 
     def test_no_ext_file(self):
         self._runtest([join(HERE, 'input', 'noext')], code=0)
-
-    def test_generated_members(self):
-        # XXX dual end quotation since optparse buggily remove one...
-        self._runtest(['--generated-members=objects,DoesNotExist,delay,retry,"[a-zA-Z]+_set{1,2}""', 'pylint.lint'])
 
     def test_w0704_ignored(self):
         self._runtest([join(HERE, 'input', 'ignore_except_pass_by_default.py')], code=0)
 
     def test_generate_config_option(self):
-        """make pylint checking itself"""
-        self._runtest(['--generate-rcfile'], reporter=HTMLReporter(StringIO()),
-                      code=0)
+        self._runtest(['--generate-rcfile'], code=0)
 
     def test_help_message_option(self):
-        """make pylint checking itself"""
-        self._runtest(['--help-msg', 'W0101'], reporter=HTMLReporter(StringIO()),
-                      code=0)
+        self._runtest(['--help-msg', 'W0101'], code=0)
 
     def test_error_help_message_option(self):
-        self._runtest(['--help-msg', 'WX101'], reporter=HTMLReporter(StringIO()),
-                      code=0)
+        self._runtest(['--help-msg', 'WX101'], code=0)
 
     def test_error_missing_arguments(self):
-        self._runtest([], reporter=HTMLReporter(StringIO()),
-                      code=32)
+        self._runtest([], code=32)
 
     def test_no_out_encoding(self):
         """test redirection of stdout with non ascii caracters
