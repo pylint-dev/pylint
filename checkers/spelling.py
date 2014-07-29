@@ -92,8 +92,8 @@ class SpellingInCommentsChecker(BaseTokenChecker):
 
         # go through words and check them
         for word in words:
-            if not word in self.ignore_list and not self.spelling_dict.check(word):
-                suggestions = self.spelling_dict.suggest(word)[:4]
+            if word not in self.ignore_list and not self.spelling_dict.check(word):
+                suggestions = self.spelling_dict.suggest(word)[:4]  # return not more than 4 suggestions
 
                 col = line.index(word)
                 indicator = (" " * col) + ("^" * len(word))
