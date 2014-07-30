@@ -649,8 +649,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # comprehension and its direct outer scope is a class
             if scope_type == 'class' and i != start_index and not (
                     base_scope_type == 'comprehension' and i == start_index-1):
-                # XXX find a way to handle class scope in a smoother way
-                continue
+                # Detect if we are in a local class scope, as an assignment.
+                # For example, the following is fair game.
+                # class A:
+                #    b = 1
+                #    c = lambda b=b: b * b
+                class_assignment = (isinstance(frame, astroid.Class) and
+                                    name in frame.locals)
+                if not class_assignment:
+                    continue
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
             if name in consumed:
@@ -689,8 +696,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             maybee0601 = not any(isinstance(child, astroid.Nonlocal)
                                                  and name in child.names
                                                  for child in defframe.get_children())
+                if (self._to_consume[-1][-1] == 'lambda' and
+                        isinstance(frame, astroid.Class)
+                        and name in frame.locals):
+                    maybee0601 = True
+                else:
+                    maybee0601 = maybee0601 and stmt.fromlineno <= defstmt.fromlineno
+
                 if (maybee0601
-                        and stmt.fromlineno <= defstmt.fromlineno
                         and not is_defined_before(node)
                         and not are_exclusive(stmt, defstmt, ('NameError',
                                                               'Exception',
@@ -699,8 +712,27 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                                              astroid.AssName)):
                         self.add_message('undefined-variable', args=name, node=node)
                     elif self._to_consume[-1][-1] != 'lambda':
-                        # E0601 may *not* occurs in lambda scope
+                        # E0601 may *not* occurs in lambda scope.
                         self.add_message('used-before-assignment', args=name, node=node)
+                    elif self._to_consume[-1][-1] == 'lambda':
+                        # E0601 can occur in class-level scope in lambdas, as in
+                        # the following example:
+                        #   class A:
+                        #      x = lambda attr: f + attr
+                        #      f = 42
+                        if isinstance(frame, astroid.Class) and name in frame.locals:
+                            if isinstance(node.parent, astroid.Arguments):
+                                # Doing the following is fine:
+                                #   class A:
+                                #      x = 42
+                                #      y = lambda attr=x: attr
+                                if stmt.fromlineno <= defstmt.fromlineno:
+                                    self.add_message('used-before-assignment',
+                                                     args=name, node=node)
+                            else:
+                                self.add_message('undefined-variable',
+                                                 args=name, node=node)
+
             if isinstance(node, astroid.AssName): # Aug AssName
                 del consumed[name]
             else:

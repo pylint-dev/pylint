@@ -1,2 +1,0 @@
-E: 13:Example.setup: Method has no argument
-E: 15:Example.setup: Undefined variable 'self'
