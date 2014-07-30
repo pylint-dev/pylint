@@ -22,6 +22,12 @@ class SphinxDocChecker(BaseChecker):
       the documentation, i.e. also report documented parameters that are missing
       in the signature. This is important to find cases where parameters are
       renamed only in the code, not in the documentation.
+
+    Activate this checker by adding the line::
+    
+        load-plugins=pylint.extensions.check_docs
+
+    to the ``MASTER`` section of your ``.pylintrc``.
     """
     __implements__ = IAstroidChecker
 
