@@ -1,0 +1,3 @@
+catching-non-exception:25::Catching an exception which doesn't inherit from BaseException: MyException
+catching-non-exception:31::Catching an exception which doesn't inherit from BaseException: MyException
+catching-non-exception:31::Catching an exception which doesn't inherit from BaseException: MySecondException
