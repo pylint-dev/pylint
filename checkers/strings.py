@@ -386,24 +386,30 @@ class StringMethodsChecker(BaseChecker):
                 key = 0
             if isinstance(key, int):
                 try:
-                    argument = utils.get_argument_from_call(node, key)
+                    argname = utils.get_argument_from_call(node, key)
                 except utils.NoSuchArgumentError:
                     continue
             else:
                 if key not in named:
                     continue
-                argument = named[key]
-            if argument in (astroid.YES, None):
+                argname = named[key]
+            if argname in (astroid.YES, None):
                 continue
             try:
-                argument = argument.infer().next()
+                argument = argname.infer().next()
             except astroid.InferenceError:
                 continue
             if not specifiers or argument is astroid.YES:
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
-
+            if argument.parent and isinstance(argument.parent, astroid.Arguments):
+                # Check to see if our argument is kwarg or vararg,
+                # and skip the check for this argument if so, because when inferring,
+                # astroid will return empty objects (dicts and tuples) and
+                # that can lead to false positives.
+                if argname.name in (argument.parent.kwarg, argument.parent.vararg):
+                    continue
             previous = argument
             parsed = []
             for is_attribute, specifier in specifiers:

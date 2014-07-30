@@ -1,0 +1,7 @@
+bad-open-mode:4::"rw" is not a valid mode for open.
+bad-open-mode:5::"rw" is not a valid mode for open.
+bad-open-mode:6::"rw" is not a valid mode for open.
+bad-open-mode:7::"U+" is not a valid mode for open.
+bad-open-mode:8::"rb+" is not a valid mode for open.
+bad-open-mode:9::"Uw" is not a valid mode for open.
+bad-open-mode:13::"Uwz" is not a valid mode for open.

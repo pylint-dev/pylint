@@ -1,0 +1,5 @@
+superfluous-parens:4::Unnecessary parens after 'if' keyword
+superfluous-parens:6::Unnecessary parens after 'not' keyword
+superfluous-parens:10::Unnecessary parens after 'for' keyword
+superfluous-parens:12::Unnecessary parens after 'if' keyword
+superfluous-parens:17::Unnecessary parens after 'del' keyword
