@@ -15,15 +15,14 @@
 
 Check format checker helper functions
 """
-from __future__ import with_statement
-
-import sys
-import re
+from __future__ import unicode_literals
+import io
 from os import linesep
+import re
+import sys
 import tokenize
-import StringIO
 
-from logilab.common.testlib import TestCase, unittest_main
+
 from astroid import test_utils
 
 from pylint.checkers.format import *
@@ -32,7 +31,7 @@ from pylint.testutils import CheckerTestCase, Message, set_config
 
 
 def tokenize_str(code):
-    return list(tokenize.generate_tokens(StringIO.StringIO(code).readline))
+    return list(tokenize.generate_tokens(io.StringIO(code).readline))
 
 
 class MultiStatementLineTest(CheckerTestCase):
@@ -255,4 +254,4 @@ class CheckSpaceTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest_main()
+    unittest.main()

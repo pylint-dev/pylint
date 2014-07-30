@@ -767,8 +767,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             module = node.root().import_module(name_parts[0], level=level)
         except AstroidBuildingException:
             return
-        except Exception, exc:
-            print 'Unhandled exception in VariablesChecker:', exc
+        except Exception:
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:
