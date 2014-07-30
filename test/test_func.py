@@ -40,27 +40,6 @@ class LintTestNonExistentModuleTC(LintTestUsingModule):
     _get_expected = lambda self: 'F:  1: No module named %snonexistent%s\n' % (quote, quote)
 
 
-class TestTests(unittest.TestCase):
-    """check that all testable messages have been checked"""
-    PORTED = set(['I0001', 'I0010', 'W0712', 'E1001', 'W1402', 'E1310', 'E0202',
-                  'W0711', 'W0108', 'E0603', 'W0710', 'E0710', 'E0711', 'W1001', 
-                  'E1124', 'E1120', 'E1121', 'E1123', 'E1003', 'E1002', 'W0212',
-                  'C0327', 'C0328',
-                  'W0109', 'E1004', 'W0604', 'W0601', 'W0602', 'C0112', 'C0330',
-                  'C0325', 'E0211', 'W1501'])
-
-    def test_exhaustivity(self):
-        # skip fatal messages
-        not_tested = set(msg.msgid for msg in linter.msgs_store.messages
-                         if msg.msgid[0] != 'F' and msg.may_be_emitted())
-        for msgid in test_reporter.message_ids:
-            try:
-                not_tested.remove(msgid)
-            except KeyError:
-                continue
-        not_tested -= self.PORTED
-        self.assertFalse(not_tested)
-
 
 class LintBuiltinModuleTest(LintTestUsingModule):
     output = join(MSG_DIR, 'builtin_module.txt')
@@ -87,10 +66,6 @@ def gen_tests(filter_rgx):
         tests.append(LintTestNonExistentModuleTC)
 
     tests.append(LintBuiltinModuleTest)
-
-    if not filter_rgx:
-        # test all features are tested :)
-        tests.append(TestTests)
 
     assert len(tests) < 196, "Please do not add new test cases here."
     return tests
