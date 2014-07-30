@@ -2,6 +2,10 @@ ChangeLog for Pylint
 ====================
 
 --
+    * 'dangerous-default-value' no longer evaluates the value of the arguments,
+      which could result in long error messages or sensitive data being leaked.
+      Closes issue #282
+
     * Fix a false positive with string formatting checker, when
       encountering a string which uses only position-based arguments.
       Closes issue #285.
