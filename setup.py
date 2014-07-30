@@ -127,7 +127,8 @@ class MyInstallLib(install_lib.install_lib):
                 dest = join(self.install_dir, base, directory)
                 if sys.version_info >= (3, 0):
                     exclude = set(('func_unknown_encoding.py',
-                                   'func_invalid_encoded_data.py'))
+                                   'func_invalid_encoded_data.py',
+                                   'invalid_encoded_data.py'))
                 else:
                     exclude = set()
                 shutil.rmtree(dest, ignore_errors=True)

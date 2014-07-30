@@ -76,3 +76,13 @@ def pprint_bad():
     print "{a[0]}".format(a=object)
     print log("{}".format(2, "info"))
     print "{0.missing}".format(2)
+    print "{0} {1} {2}".format(1, 2)
+    print "{0} {1}".format(1, 2, 3)
+
+def good_issue288(*args, **kwargs):
+    """ Test that using kwargs does not emit a false
+    positive.
+    """
+    data = 'Hello John Doe {0[0]}'.format(args)
+    print data
+    return 'Hello {0[name]}'.format(kwargs)

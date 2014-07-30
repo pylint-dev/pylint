@@ -136,12 +136,14 @@ else:
 def parse_format_method_string(format_string):
     """
     Parses a PEP 3101 format string, returning a tuple of
-    (keys, num_args),
-    where keys is the set of mapping keys in the format string and num_args
-    is the number of arguments required by the format string.
+    (keys, num_args, manual_pos_arg),
+    where keys is the set of mapping keys in the format string, num_args
+    is the number of arguments required by the format string and
+    manual_pos_arg is the number of arguments passed with the position.
     """
     keys = []
     num_args = 0
+    manual_pos_arg = 0
     formatter = string.Formatter()
     parseiterator = formatter.parse(format_string)
     try:
@@ -150,7 +152,9 @@ def parse_format_method_string(format_string):
                 # not a replacement format
                 continue
             name = result[1]
-            if name:
+            if name and str(name).isdigit():
+                manual_pos_arg += 1
+            elif name:
                 keyname, fielditerator = split_format_field_names(name)
                 if not isinstance(keyname, str):
                     # In Python 2 it will return long which will lead
@@ -163,7 +167,7 @@ def parse_format_method_string(format_string):
         # probably the format string is invalid
         # should we check the argument of the ValueError?
         raise utils.IncompleteFormatString(format_string)
-    return keys, num_args
+    return keys, num_args, manual_pos_arg
 
 def get_args(callfunc):
     """ Get the arguments from the given `CallFunc` node.
@@ -327,7 +331,7 @@ class StringMethodsChecker(BaseChecker):
         except astroid.InferenceError:
             return
         try:
-            fields, num_args = parse_format_method_string(strnode.value)
+            fields, num_args, manual_pos = parse_format_method_string(strnode.value)
         except utils.IncompleteFormatString:
             self.add_message('bad-format-string', node=node)
             return
@@ -336,7 +340,7 @@ class StringMethodsChecker(BaseChecker):
                             if isinstance(field[0], int))
         named_fields = set(field[0] for field in fields
                            if isinstance(field[0], str))
-        if manual_fields and num_args:
+        if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
             return
@@ -353,6 +357,8 @@ class StringMethodsChecker(BaseChecker):
                                      node=node,
                                      args=(field, ))
         else:
+            # num_args can be 0 if manual_pos is not.
+            num_args = num_args or manual_pos
             if positional > num_args:
                 # We can have two possibilities:
                 # * "{0} {1}".format(a, b)
@@ -362,9 +368,6 @@ class StringMethodsChecker(BaseChecker):
                     self.add_message('too-many-format-args', node=node)
             elif positional < num_args:
                 self.add_message('too-few-format-args', node=node)
-
-        if manual_fields and positional < len(manual_fields):
-            self.add_message('too-few-format-args', node=node)
 
         self._check_new_format_specifiers(node, fields, named)
 
@@ -383,24 +386,30 @@ class StringMethodsChecker(BaseChecker):
                 key = 0
             if isinstance(key, int):
                 try:
-                    argument = utils.get_argument_from_call(node, key)
+                    argname = utils.get_argument_from_call(node, key)
                 except utils.NoSuchArgumentError:
                     continue
             else:
                 if key not in named:
                     continue
-                argument = named[key]
-            if argument in (astroid.YES, None):
+                argname = named[key]
+            if argname in (astroid.YES, None):
                 continue
             try:
-                argument = argument.infer().next()
+                argument = argname.infer().next()
             except astroid.InferenceError:
                 continue
             if not specifiers or argument is astroid.YES:
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
-
+            if argument.parent and isinstance(argument.parent, astroid.Arguments):
+                # Check to see if our argument is kwarg or vararg,
+                # and skip the check for this argument if so, because when inferring,
+                # astroid will return empty objects (dicts and tuples) and
+                # that can lead to false positives.
+                if argname.name in (argument.parent.kwarg, argument.parent.vararg):
+                    continue
             previous = argument
             parsed = []
             for is_attribute, specifier in specifiers:

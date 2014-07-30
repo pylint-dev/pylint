@@ -1,7 +1,0 @@
-W:  6: "rw" is not a valid mode for open.
-W:  7: "rw" is not a valid mode for open.
-W:  8: "rw" is not a valid mode for open.
-W:  9: "U+" is not a valid mode for open.
-W: 10: "rb+" is not a valid mode for open.
-W: 11: "Uw" is not a valid mode for open.
-W: 15: "Uwz" is not a valid mode for open.
