@@ -121,6 +121,12 @@ MSGS = {
               'Used when the deprecated "``" (backtick) operator is used '
               'instead  of the str() function.',
               {'scope': WarningScope.NODE, 'maxversion': (3, 0)}),
+    'C0327': ('Mixed line endings LF and CRLF',
+              'mixed-line-endings',
+              'Used when there are mixed (LF and CRLF) newline signs in a file.'),
+    'C0328': ('Unexpected line ending format. There is \'%s\' while it should be \'%s\'.',
+              'unexpected-line-ending-format',
+              'Used when there is different newline than expected.'),
     }
 
 
@@ -442,7 +448,11 @@ class FormatChecker(BaseTokenChecker):
                 {'type': 'int', 'metavar': '<int>', 'default': 4,
                  'help': 'Number of spaces of indent required inside a hanging '
                          ' or continued line.'}),
-              )
+               ('expected-line-ending-format',
+                {'type': 'choice', 'metavar': '<empty or LF or CRLF>', 'default': '',
+                 'choices': ['', 'LF', 'CRLF'],
+                 'help': 'Expected format of line ending, e.g. empty (any line ending), LF or CRLF.'}),
+               )
 
     def __init__(self, linter=None):
         BaseTokenChecker.__init__(self, linter)
@@ -715,6 +725,7 @@ class FormatChecker(BaseTokenChecker):
         self._lines = {}
         self._visited_lines = {}
         token_handlers = self._prepare_token_dispatcher()
+        self._last_line_ending = None
 
         self._current_line = ContinuedLineState(tokens, self.config)
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
@@ -737,6 +748,7 @@ class FormatChecker(BaseTokenChecker):
                 check_equal = True
                 self._process_retained_warnings(TokenWrapper(tokens), idx)
                 self._current_line.next_logical_line()
+                self._check_line_ending(token, line_num)
             elif tok_type == tokenize.INDENT:
                 check_equal = False
                 self.check_indent_level(token, indents[-1]+1, line_num)
@@ -777,6 +789,23 @@ class FormatChecker(BaseTokenChecker):
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
             self.add_message('too-many-lines', args=line_num, line=1)
+
+    def _check_line_ending(self, line_ending, line_num):
+        # check if line endings are mixed
+        if self._last_line_ending is not None:
+            if line_ending != self._last_line_ending:
+                self.add_message('mixed-line-endings', line=line_num)
+
+        self._last_line_ending = line_ending
+
+        # check if line ending is as expected
+        expected = self.config.expected_line_ending_format
+        if expected:
+            line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")  # reduce multiple \n\n\n\n to one \n
+            line_ending = 'LF' if line_ending == '\n' else 'CRLF'
+            if line_ending != expected:
+                self.add_message('unexpected-line-ending-format', args=(line_ending, expected), line=line_num)
+
 
     def _process_retained_warnings(self, tokens, current_pos):
         single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ':')

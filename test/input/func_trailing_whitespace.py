@@ -1,5 +1,5 @@
 """Regression test for trailing-whitespace (C0303)."""
-
+# pylint: disable=mixed-line-endings
 __revision__ = 0
 
 print 'some trailing whitespace'   

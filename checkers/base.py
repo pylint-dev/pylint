@@ -62,6 +62,13 @@ if sys.version_info < (3, 0):
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = set(('exempt', 'ignore'))
 
+# A mapping from builtin-qname -> symbol, to be used when generating messages
+# about dangerous default values as arguments
+DEFAULT_ARGUMENT_SYMBOLS = dict(
+    zip(['.'.join([astroid.bases.BUILTINS, x]) for x in ('set', 'dict', 'list')],
+        ['set()', '{}', '[]'])
+)
+
 del re
 
 def in_loop(node):
@@ -645,15 +652,22 @@ functions, methods
                 value = default.infer().next()
             except astroid.InferenceError:
                 continue
-            builtins = astroid.bases.BUILTINS
+                
             if (isinstance(value, astroid.Instance) and
-                    value.qname() in ['.'.join([builtins, x]) for x in ('set', 'dict', 'list')]):
+                        value.qname() in DEFAULT_ARGUMENT_SYMBOLS):
                 if value is default:
-                    msg = default.as_string()
+                    msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
                 elif type(value) is astroid.Instance:
-                    msg = '%s (%s)' % (default.as_string(), value.qname())
+                    if isinstance(default, astroid.CallFunc):
+                        # this argument is direct call to list() or dict() etc
+                        msg = '%s() (%s)' % (value.name, value.qname())
+                    else:
+                        # this argument is a variable from somewhere else which turns
+                        # out to be a list or dict
+                        msg = '%s (%s)' % (default.as_string(), value.qname())
                 else:
-                    msg = '%s (%s)' % (default.as_string(), value.as_string())
+                    # this argument is a name
+                    msg = '%s (%s)' % (default.as_string(), DEFAULT_ARGUMENT_SYMBOLS[value.qname()])
                 self.add_message('dangerous-default-value', node=node, args=(msg,))
 
     @check_messages('unreachable', 'lost-exception')
