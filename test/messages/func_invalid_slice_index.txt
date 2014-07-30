@@ -1,5 +1,0 @@
-E: 11:function1: Slice index is not an int, None, or instance with __index__
-E: 11:function1: Slice index is not an int, None, or instance with __index__
-E: 15:function2: Slice index is not an int, None, or instance with __index__
-E: 15:function2: Slice index is not an int, None, or instance with __index__
-E: 24:function3: Slice index is not an int, None, or instance with __index__

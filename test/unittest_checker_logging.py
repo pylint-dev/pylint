@@ -1,9 +1,6 @@
 # Copyright 2014 Google Inc. All Rights Reserved.
-"""
-Unittest for the logging checker.
-"""
-from __future__ import with_statement
-from logilab.common.testlib import unittest_main
+"""Unittest for the logging checker."""
+import unittest
 from astroid import test_utils
 
 from pylint.checkers import logging
@@ -47,4 +44,4 @@ class LoggingModuleDetectionTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest_main()
+    unittest.main()

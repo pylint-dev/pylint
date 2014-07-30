@@ -22,8 +22,6 @@ import re
 from os import getcwd
 from os.path import abspath, dirname, join
 
-from logilab.common import testlib
-
 from pylint.testutils import (make_tests, LintTestUsingModule, LintTestUsingFile,
     LintTestUpdate, cb_test_gen, linter, test_reporter)
 
@@ -40,7 +38,6 @@ quote = "'" if sys.version_info >= (3, 3) else ''
 class LintTestNonExistentModuleTC(LintTestUsingModule):
     module = 'nonexistent'
     _get_expected = lambda self: 'F:  1: No module named %snonexistent%s\n' % (quote, quote)
-    tags = testlib.Tags(('generated','pylint_input_%s' % module))
 
 class TestTests(testlib.TestCase):
     """check that all testable messages have been checked"""
@@ -61,8 +58,6 @@ class TestTests(testlib.TestCase):
             except KeyError:
                 continue
         not_tested -= self.PORTED
-        not_tested.remove("C0401")  # requires optional lib python-enchant for spell checking
-        not_tested.remove("C0402")  # requires optional lib python-enchant for spell checking
         self.assertFalse(not_tested)
 
 
@@ -92,10 +87,6 @@ def gen_tests(filter_rgx):
 
     tests.append(LintBuiltinModuleTest)
 
-    if not filter_rgx:
-        # test all features are tested :)
-        tests.append(TestTests)
-
     assert len(tests) < 196, "Please do not add new test cases here."
     return tests
 
@@ -105,8 +96,12 @@ FILTER_RGX = None
 UPDATE = False
 
 def suite():
-    return testlib.TestSuite([unittest.makeSuite(test, suiteClass=testlib.TestSuite)
+    return unittest.TestSuite([unittest.makeSuite(test, suiteClass=unittest.TestSuite)
                               for test in gen_tests(FILTER_RGX)])
+
+
+def load_tests(loader, tests, pattern):
+    return suite()
 
 
 if __name__=='__main__':
@@ -117,4 +112,4 @@ if __name__=='__main__':
     if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    testlib.unittest_main(defaultTest='suite')
+    unittest.main(defaultTest='suite')

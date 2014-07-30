@@ -1,8 +1,8 @@
 """Unittest for the base checker."""
-from __future__ import with_statement
 
 import re
 import sys
+import unittest
 
 from astroid import test_utils
 from pylint.checkers import base
@@ -223,5 +223,4 @@ class MultiNamingStyleTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    from logilab.common.testlib import unittest_main
-    unittest_main()
+    unittest.main()

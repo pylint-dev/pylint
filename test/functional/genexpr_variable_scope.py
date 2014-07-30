@@ -2,5 +2,4 @@
 outside the genexpr scope
 """
 
-__revision__ = list(n for n in range(10))
-print n
+print n  # [undefined-variable]

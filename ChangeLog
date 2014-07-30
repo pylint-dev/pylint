@@ -6,6 +6,14 @@ ChangeLog for Pylint
       wrong-spelling-in-comment, wrong-spelling-in-docstring.
       New options: spelling-dict, spelling-ignore-words.
 
+    * Added new checks for line endings if they are mixed (LF vs CRLF)
+      or if they are not as expected. New messages: mixed-line-endings,
+      unexpected-line-ending-format. New option: expected-line-ending-format.
+
+    * 'dangerous-default-value' no longer evaluates the value of the arguments,
+      which could result in long error messages or sensitive data being leaked.
+      Closes issue #282
+
     * Fix a false positive with string formatting checker, when
       encountering a string which uses only position-based arguments.
       Closes issue #285.
