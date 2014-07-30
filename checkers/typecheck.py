@@ -56,11 +56,6 @@ MSGS = {
               'too-many-function-args',
               'Used when a function call passes too many positional \
               arguments.'),
-    'E1122': ('Duplicate keyword argument %r in %s call',
-              'duplicate-keyword-arg',
-              'Used when a function call passes the same keyword argument \
-              multiple times.',
-              {'maxversion': (2, 6)}),
     'E1123': ('Unexpected keyword argument %r in %s call',
               'unexpected-keyword-arg',
               'Used when a function call passes a keyword argument that \
@@ -383,11 +378,7 @@ accessed. Python regular expressions are accepted.'}
         num_positional_args = 0
         for arg in node.args:
             if isinstance(arg, astroid.Keyword):
-                keyword = arg.arg
-                if keyword in keyword_args:
-                    self.add_message('duplicate-keyword-arg', node=node,
-                                     args=(keyword, 'function'))
-                keyword_args.add(keyword)
+                keyword_args.add(arg.arg)
             else:
                 num_positional_args += 1
 
