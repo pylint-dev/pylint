@@ -20,6 +20,11 @@ import tokenize
 import string
 import re
 
+if sys.version_info[0] >= 3:
+    maketrans = str.maketrans
+else:
+    maketrans = string.maketrans
+
 import astroid
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
@@ -44,7 +49,7 @@ else:
     dict_choices = ['']
     instr = " To make it working install python-enchant package."
 
-table = string.maketrans("", "")
+table = maketrans("", "")
 
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings"""
