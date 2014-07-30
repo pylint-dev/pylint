@@ -13,7 +13,7 @@ help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  tests       to run whole test suit of PyLint"
 	@echo "  docs        to generate all docs including man pages and exemplary pylintrc"
-	@echo "  deb         to build debian .deb package"
+	@echo "  deb         to build debian .deb package (it works only on Debian based Linux distros)"
 	@echo "  sdist       to build source .tar.gz package"
 	@echo "  lint        to check Pylint sources with itself"
 	@echo "  all         to run all targets"
@@ -51,18 +51,19 @@ lint: $(PIP)
 	$(PIP) install .
 	$(PYVE)/bin/pylint lint.py || true  # for now ignore errors
 
-clean: /usr/bin/debuild /usr/bin/dh_pysupport
+clean:
 	rm -rf $(PYVE)
 	rm -rf .tox
 	rm -rf dist
 	rm -rf build
 	make clean -C doc
-	debuild clean
 	rm -rf $(PKG_DEB) ../pylint_*.changes ../pylint_*.build
+	debuild clean || true
 
 clobber:
 	hg purge -p
 	hg purge -a
+
 
 /usr/bin/debuild:
 	sudo apt-get -y --force-yes install devscripts
