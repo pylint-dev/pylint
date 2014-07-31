@@ -1,7 +1,7 @@
 """Unit tests for the variables checker."""
-from __future__ import with_statement
 import sys
 import os
+import unittest
 
 from astroid import test_utils
 from pylint.checkers import variables
@@ -53,5 +53,4 @@ class MissingSubmoduleTest(CheckerTestCase):
             sys.path.pop(0)
 
 if __name__ == '__main__':
-    from logilab.common.testlib import unittest_main
-    unittest_main()
+    unittest.main()

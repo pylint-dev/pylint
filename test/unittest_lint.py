@@ -12,15 +12,15 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+import cStringIO
 import sys
 import os
 import tempfile
 from shutil import rmtree
 from os import getcwd, chdir
 from os.path import join, basename, dirname, isdir, abspath
-from cStringIO import StringIO
+import unittest
 
-from logilab.common.testlib import TestCase, unittest_main, create_files
 from logilab.common.compat import reload
 
 from pylint import config
@@ -38,7 +38,7 @@ if sys.platform == 'win32':
 else:
     HOME = 'HOME'
 
-class GetNoteMessageTC(TestCase):
+class GetNoteMessageTC(unittest.TestCase):
     def test(self):
         msg = None
         for note in range(-1, 11):
@@ -50,8 +50,44 @@ class GetNoteMessageTC(TestCase):
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')
 
+def create_files(paths, chroot):
+    """Creates directories and files found in <path>.
 
-class PyLinterTC(TestCase):
+    :param paths: list of relative paths to files or directories
+    :param chroot: the root directory in which paths will be created
+
+    >>> from os.path import isdir, isfile
+    >>> isdir('/tmp/a')
+    False
+    >>> create_files(['a/b/foo.py', 'a/b/c/', 'a/b/c/d/e.py'], '/tmp')
+    >>> isdir('/tmp/a')
+    True
+    >>> isdir('/tmp/a/b/c')
+    True
+    >>> isfile('/tmp/a/b/c/d/e.py')
+    True
+    >>> isfile('/tmp/a/b/foo.py')
+    True
+    """
+    dirs, files = set(), set()
+    for path in paths:
+        path = join(chroot, path)
+        filename = basename(path)
+        # path is a directory path
+        if filename == '':
+            dirs.add(path)
+        # path is a filename path
+        else:
+            dirs.add(dirname(path))
+            files.add(path)
+    for dirpath in dirs:
+        if not isdir(dirpath):
+            os.makedirs(dirpath)
+    for filepath in files:
+        open(filepath, 'w').close()
+
+
+class PyLinterTC(unittest.TestCase):
 
     def setUp(self):
         self.linter = PyLinter()
@@ -318,13 +354,13 @@ class PyLinterTC(TestCase):
 
     def test_analyze_explicit_script(self):
         self.linter.set_reporter(TestReporter())
-        self.linter.check(self.datapath('ascript'))
+        self.linter.check(os.path.join(os.path.dirname(__file__), 'data', 'ascript'))
         self.assertEqual(
             ['C:  2: Line too long (175/80)'],
             self.linter.reporter.messages)
 
 
-class ConfigTC(TestCase):
+class ConfigTC(unittest.TestCase):
 
     def setUp(self):
         os.environ.pop('PYLINTRC', None)
@@ -431,7 +467,7 @@ class ConfigTC(TestCase):
             rmtree(chroot)
 
 
-class PreprocessOptionsTC(TestCase):
+class PreprocessOptionsTC(unittest.TestCase):
     def _callback(self, name, value):
         self.args.append((name, value))
 
@@ -470,7 +506,7 @@ class PreprocessOptionsTC(TestCase):
             {'bar' : (None, False)})
 
 
-class MessagesStoreTC(TestCase):
+class MessagesStoreTC(unittest.TestCase):
     def setUp(self):
         self.store = MessagesStore()
         class Checker(object):
@@ -528,7 +564,7 @@ class MessagesStoreTC(TestCase):
             msg, checkerref=False)
 
     def test_list_messages(self):
-        sys.stdout = StringIO()
+        sys.stdout = cStringIO.StringIO()
         try:
             self.store.list_messages()
             output = sys.stdout.getvalue()
@@ -552,4 +588,4 @@ class MessagesStoreTC(TestCase):
 
 
 if __name__ == '__main__':
-    unittest_main()
+    unittest.main()

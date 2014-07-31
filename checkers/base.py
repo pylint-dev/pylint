@@ -562,7 +562,7 @@ functions, methods
                     pass
                 else:
                     sibling = expr.previous_sibling()
-                    if (sibling.scope() is scope and
+                    if (sibling is not None and sibling.scope() is scope and
                             isinstance(sibling, astroid.Assign)):
                         return
             self.add_message('pointless-string-statement', node=node)

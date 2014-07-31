@@ -20,8 +20,7 @@ to be incorporated in the automatic functional test framework
 import sys
 import os
 from os.path import abspath, dirname, join
-
-from logilab.common.testlib import TestCase, unittest_main
+import unittest
 
 from pylint.testutils import TestReporter
 from pylint.lint import PyLinter
@@ -37,7 +36,7 @@ checkers.initialize(linter)
 REGR_DATA = join(dirname(abspath(__file__)), 'regrtest_data')
 sys.path.insert(1, REGR_DATA)
 
-class NonRegrTC(TestCase):
+class NonRegrTC(unittest.TestCase):
     def setUp(self):
         """call reporter.finalize() to cleanup
         pending messages if a test finished badly
@@ -138,5 +137,6 @@ class NonRegrTC(TestCase):
         got = linter.reporter.finalize().strip()
         self.assertEqual(got, "")
 
+
 if __name__ == '__main__':
-    unittest_main()
+    unittest.main()

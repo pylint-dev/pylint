@@ -1,19 +1,18 @@
+import cStringIO
 import sys
-from logilab.common.testlib import TestCase, unittest_main
-
-from cStringIO import StringIO
 from os.path import join, dirname, abspath
+import unittest
 
 from pylint.checkers import similar
 
 SIMILAR1 = join(dirname(abspath(__file__)), 'input', 'similar1')
 SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
 
-class SimilarTC(TestCase):
+class SimilarTC(unittest.TestCase):
     """test the similar command line utility"""
 
     def test_ignore_comments(self):
-        sys.stdout = StringIO()
+        sys.stdout = cStringIO.StringIO()
         try:
             similar.Run(['--ignore-comments', SIMILAR1, SIMILAR2])
         except SystemExit, ex:
@@ -42,7 +41,7 @@ TOTAL lines=44 duplicates=10 percent=22.73
 
 
     def test_ignore_docsrings(self):
-        sys.stdout = StringIO()
+        sys.stdout = cStringIO.StringIO()
         try:
             similar.Run(['--ignore-docstrings', SIMILAR1, SIMILAR2])
         except SystemExit, ex:
@@ -78,7 +77,7 @@ TOTAL lines=44 duplicates=13 percent=29.55
 
 
     def test_ignore_imports(self):
-        sys.stdout = StringIO()
+        sys.stdout = cStringIO.StringIO()
         try:
             similar.Run(['--ignore-imports', SIMILAR1, SIMILAR2])
         except SystemExit, ex:
@@ -94,7 +93,7 @@ TOTAL lines=44 duplicates=0 percent=0.00
 
 
     def test_ignore_nothing(self):
-        sys.stdout = StringIO()
+        sys.stdout = cStringIO.StringIO()
         try:
             similar.Run([SIMILAR1, SIMILAR2])
         except SystemExit, ex:
@@ -117,7 +116,7 @@ TOTAL lines=44 duplicates=5 percent=11.36
 """ % (SIMILAR1, SIMILAR2)).strip())
 
     def test_help(self):
-        sys.stdout = StringIO()
+        sys.stdout = cStringIO.StringIO()
         try:
             similar.Run(['--help'])
         except SystemExit, ex:
@@ -128,7 +127,7 @@ TOTAL lines=44 duplicates=5 percent=11.36
             sys.stdout = sys.__stdout__
 
     def test_no_args(self):
-        sys.stdout = StringIO()
+        sys.stdout = cStringIO.StringIO()
         try:
             similar.Run([])
         except SystemExit, ex:
@@ -139,4 +138,4 @@ TOTAL lines=44 duplicates=5 percent=11.36
             sys.stdout = sys.__stdout__
 
 if __name__ == '__main__':
-    unittest_main()
+    unittest.main()
