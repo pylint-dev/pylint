@@ -3,20 +3,17 @@
 from __future__ import print_function, division
 
 import re
-# import pprint
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.typecheck import TypeChecker
-from pylint.checkers.utils import check_messages
 import astroid.scoped_nodes
 
 
 class SphinxDocChecker(BaseChecker):
     """Checker for Sphinx documentation parameters
 
-    * Check that all function, method and constructor parameters are mentioned in
-      the Sphinx params and types part of the docstring. By convention,
+    * Check that all function, method and constructor parameters are mentioned
+      in the Sphinx params and types part of the docstring. By convention,
       constructor parameters are documented in the class docstring.
     * Check that there are no naming inconsistencies between the signature and
       the documentation, i.e. also report documented parameters that are missing
@@ -24,7 +21,7 @@ class SphinxDocChecker(BaseChecker):
       renamed only in the code, not in the documentation.
 
     Activate this checker by adding the line::
-    
+
         load-plugins=pylint.extensions.check_docs
 
     to the ``MASTER`` section of your ``.pylintrc``.
@@ -177,7 +174,7 @@ class SphinxDocChecker(BaseChecker):
                 else:
                     self.visit_function(body_item)
 
-            
+
 def register(linter):
     """Required method to auto register this checker.
 
