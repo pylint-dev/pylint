@@ -317,6 +317,13 @@ class StringMethodsChecker(BaseChecker):
 
     def _check_new_format(self, node, func):
         """ Check the new string formatting. """
+        # TODO: skip (for now) format nodes which don't have
+        #       an explicit string on the left side of the format operation.
+        #       We do this because our inference engine can't properly handle
+        #       redefinitions of the original string.
+        #       For more details, see issue 287.
+        if not isinstance(node.func.expr, astroid.Const):
+            return
         try:
             strnode = func.bound.infer().next()
         except astroid.InferenceError:
@@ -345,6 +352,10 @@ class StringMethodsChecker(BaseChecker):
                              node=node)
             return
 
+        check_args = False
+        # Consider "{[0]} {[1]}" as num_args.
+        num_args += sum(1 for field in named_fields
+                        if field == '')
         if named_fields:
             for field in named_fields:
                 if field not in named and field:
@@ -356,7 +367,19 @@ class StringMethodsChecker(BaseChecker):
                     self.add_message('unused-format-string-argument',
                                      node=node,
                                      args=(field, ))
+            # num_args can be 0 if manual_pos is not.
+            num_args = num_args or manual_pos
+            if positional or num_args:
+                if named or any(True for field in named_fields if field == ''):
+                    # Verify the required number of positional arguments
+                    # only if the .format got at least one keyword argument.
+                    # This means that the format strings accepts both
+                    # positional and named fields and we should warn
+                    # when one of the them is missing or is extra.
+                    check_args = True
         else:
+            check_args = True
+        if check_args:
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
             if positional > num_args:
