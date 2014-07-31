@@ -37,3 +37,28 @@ def function7(value=dict()):
 def function8(value=list()):
     """list is mutable and dangerous."""
     print value
+
+def function9(value=[1, 2, 3, 4]):
+    """list with items should not output item values in error message"""
+    print value
+
+def function10(value={'a': 1, 'b': 2}):
+    """dictionaries with items should not output item values in error message"""
+    print value
+
+def function11(value=list([1, 2, 3])):
+    """list with items should not output item values in error message"""
+    print value
+
+def function12(value=dict([('a', 1), ('b', 2)])):
+    """dictionaries with items should not output item values in error message"""
+    print value
+
+OINK = {
+    'a': 1,
+    'b': 2
+}
+
+def function13(value=OINK):
+    """dictionaries with items should not output item values in error message"""
+    print value

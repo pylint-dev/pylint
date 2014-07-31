@@ -34,6 +34,7 @@
 ;;; Code:
 
 (require 'compile)
+(require 'tramp)
 
 (defgroup pylint nil
   "Minor mode for running the Pylint Python checker"
