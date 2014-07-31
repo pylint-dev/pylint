@@ -317,6 +317,13 @@ class StringMethodsChecker(BaseChecker):
 
     def _check_new_format(self, node, func):
         """ Check the new string formatting. """
+        # TODO: skip (for now) format nodes which don't have
+        #       an explicit string on the left side of the format operation.
+        #       We do this because our inference engine can't properly handle
+        #       redefinitions of the original string.
+        #       For more details, see issue 287.
+        if not isinstance(node.func.expr, astroid.Const):
+            return
         try:
             strnode = func.bound.infer().next()
         except astroid.InferenceError:

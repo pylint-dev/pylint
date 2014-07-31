@@ -93,3 +93,14 @@ def good_issue288(*args, **kwargs):
     """
     'Hello John Doe {0[0]}'.format(args)
     'Hello {0[name]}'.format(kwargs)
+
+def good_issue287():
+    """ Test that the string format checker skips
+    format nodes which don't have a string as a parent
+    (but a subscript, name etc).
+    """
+    name = 'qwerty'
+    ret = {'comment': ''}
+    ret['comment'] = 'MySQL grant {0} is set to be revoked'
+    ret['comment'] = ret['comment'].format(name)
+    return ret, name
