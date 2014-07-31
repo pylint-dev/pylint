@@ -135,9 +135,9 @@ class SphinxDocChecker(BaseChecker):
         # Compare the function arguments with the ones found in the Sphinx
         # docstring.
         for message_id, pattern, not_needed in [
-            ('W9003', self.re_sphinx_param_in_docstring,
+            ('missing-sphinx-param', self.re_sphinx_param_in_docstring,
              self.not_needed_param_in_docstring),
-            ('W9004', self.re_sphinx_type_in_docstring,
+            ('missing-sphinx-type', self.re_sphinx_type_in_docstring,
              not_needed_type_in_docstring),
         ]:
             found_argument_names = re.findall(pattern, doc)

@@ -1,10 +1,12 @@
-"""Unittest for our pylint plugin."""
+"""Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
+in particular the Sphinx parameter documentation checker `SphinxDocChecker`
+"""
 from __future__ import division, print_function
 
 import unittest
 
 from astroid import test_utils
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import CheckerTestCase, Message
 
 from pylint.extensions.check_docs import SphinxDocChecker
 
@@ -26,18 +28,18 @@ class SpinxDocCheckerTest(CheckerTestCase):
         """)
         with self.assertAddsMessages(
                 Message(
-                    msg_id='W9003',
+                    msg_id='missing-sphinx-param',
                     node=node,
                     args=('x, y',)),
                 Message(
-                    msg_id='W9004',
+                    msg_id='missing-sphinx-type',
                     node=node,
                     args=('x, y',))):
             self.checker.visit_function(node)
 
     def test_missing_method_params_in_docstring(self):
-        """Example of a class method with missing parameter documentation in the
-        docstring
+        """Example of a class method with missing parameter documentation in
+        the docstring
         """
         node = test_utils.extract_node("""
         class Foo(object):
@@ -50,18 +52,18 @@ class SpinxDocCheckerTest(CheckerTestCase):
         method_node = node.body[0]
         with self.assertAddsMessages(
                 Message(
-                    msg_id='W9003',
+                    msg_id='missing-sphinx-param',
                     node=method_node,
                     args=('x, y',)),
                 Message(
-                    msg_id='W9004',
+                    msg_id='missing-sphinx-type',
                     node=method_node,
                     args=('x, y',))):
             self.checker.visit_class(node)
 
     def test_existing_func_params_in_docstring(self):
-        """Example of a function with correctly documented parameters and return
-        values
+        """Example of a function with correctly documented parameters and
+        return values
         """
         node = test_utils.extract_node("""
         def function_foo(xarg, yarg):
@@ -99,11 +101,11 @@ class SpinxDocCheckerTest(CheckerTestCase):
         """)
         with self.assertAddsMessages(
                 Message(
-                    msg_id='W9003',
+                    msg_id='missing-sphinx-param',
                     node=node,
                     args=('xarg, xarg1',)),
                 Message(
-                    msg_id='W9004',
+                    msg_id='missing-sphinx-type',
                     node=node,
                     args=('yarg, yarg1',))):
             self.checker.visit_function(node)
@@ -121,19 +123,19 @@ class SpinxDocCheckerTest(CheckerTestCase):
         """)
         with self.assertAddsMessages(
                 Message(
-                    msg_id='W9003',
+                    msg_id='missing-sphinx-param',
                     node=node,
                     args=('yarg1',)),
                 Message(
-                    msg_id='W9004',
+                    msg_id='missing-sphinx-type',
                     node=node,
                     args=('yarg1',))):
             self.checker.visit_function(node)
 
     def test_see_sentence_for_func_params_in_docstring(self):
         """Example for the usage of "For the other parameters, see" to avoid
-        too many repetitions, e.g. in functions or methods adhering to a given
-        interface
+        too many repetitions, e.g. in functions or methods adhering to a
+        given interface
         """
         node = test_utils.extract_node("""
         def function_foo(xarg, yarg):
@@ -166,11 +168,11 @@ class SpinxDocCheckerTest(CheckerTestCase):
         """)
         with self.assertAddsMessages(
                 Message(
-                    msg_id='W9003',
+                    msg_id='missing-sphinx-param',
                     node=node,
                     args=('x, y',)),
                 Message(
-                    msg_id='W9004',
+                    msg_id='missing-sphinx-type',
                     node=node,
                     args=('x, y',))):
             self.checker.visit_class(node)
