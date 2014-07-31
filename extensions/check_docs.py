@@ -25,6 +25,9 @@ class SphinxDocChecker(BaseChecker):
         load-plugins=pylint.extensions.check_docs
 
     to the ``MASTER`` section of your ``.pylintrc``.
+
+    :param linter: linter object
+    :type linter: :class:`pylint.lint.PyLinter`
     """
     __implements__ = IAstroidChecker
 
@@ -51,8 +54,7 @@ class SphinxDocChecker(BaseChecker):
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
-        self.check_arguments_mentioned_in_docstring(
-            node, node.doc, node.name, node.args)
+        self.check_arguments_mentioned_in_docstring(node, node.doc, node.args)
 
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
@@ -81,8 +83,7 @@ class SphinxDocChecker(BaseChecker):
 
     not_needed_param_in_docstring = set(['self', 'cls'])
 
-    def check_arguments_mentioned_in_docstring(
-            self, node, doc, name, arguments_node):
+    def check_arguments_mentioned_in_docstring(self, node, doc, arguments_node):
         """Check that all arguments in a function, method or class constructor
         on the one hand and the arguments mentioned in the Sphinx tags 'param'
         and 'type' on the other hand are consistent with each other.
@@ -103,9 +104,6 @@ class SphinxDocChecker(BaseChecker):
 
         :param doc: Docstring for the function, method or class.
         :type doc: str
-
-        :param name: Name of the function, method or class.
-        :type name: str
 
         :param arguments_node: Arguments node for the function, method or
             class constructor.
@@ -135,10 +133,10 @@ class SphinxDocChecker(BaseChecker):
         # Compare the function arguments with the ones found in the Sphinx
         # docstring.
         for message_id, pattern, not_needed in [
-            ('missing-sphinx-param', self.re_sphinx_param_in_docstring,
-             self.not_needed_param_in_docstring),
-            ('missing-sphinx-type', self.re_sphinx_type_in_docstring,
-             not_needed_type_in_docstring),
+                ('missing-sphinx-param', self.re_sphinx_param_in_docstring,
+                 self.not_needed_param_in_docstring),
+                ('missing-sphinx-type', self.re_sphinx_type_in_docstring,
+                 not_needed_type_in_docstring),
         ]:
             found_argument_names = re.findall(pattern, doc)
             if not tolerate_missing_params:
@@ -170,7 +168,7 @@ class SphinxDocChecker(BaseChecker):
                     and hasattr(body_item, 'name')):
                 if body_item.name in self.constructor_names:
                     self.check_arguments_mentioned_in_docstring(
-                        node, node.doc, node.name, body_item.args)
+                        node, node.doc, body_item.args)
                 else:
                     self.visit_function(body_item)
 

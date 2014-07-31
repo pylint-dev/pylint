@@ -27,14 +27,15 @@ class SpinxDocCheckerTest(CheckerTestCase):
             pass
         """)
         with self.assertAddsMessages(
-                Message(
-                    msg_id='missing-sphinx-param',
-                    node=node,
-                    args=('x, y',)),
-                Message(
-                    msg_id='missing-sphinx-type',
-                    node=node,
-                    args=('x, y',))):
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('x, y',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('x, y',))
+        ):
             self.checker.visit_function(node)
 
     def test_missing_method_params_in_docstring(self):
@@ -51,14 +52,15 @@ class SpinxDocCheckerTest(CheckerTestCase):
         """)
         method_node = node.body[0]
         with self.assertAddsMessages(
-                Message(
-                    msg_id='missing-sphinx-param',
-                    node=method_node,
-                    args=('x, y',)),
-                Message(
-                    msg_id='missing-sphinx-type',
-                    node=method_node,
-                    args=('x, y',))):
+            Message(
+                msg_id='missing-sphinx-param',
+                node=method_node,
+                args=('x, y',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=method_node,
+                args=('x, y',))
+        ):
             self.checker.visit_class(node)
 
     def test_existing_func_params_in_docstring(self):
@@ -100,14 +102,15 @@ class SpinxDocCheckerTest(CheckerTestCase):
             return xarg + yarg
         """)
         with self.assertAddsMessages(
-                Message(
-                    msg_id='missing-sphinx-param',
-                    node=node,
-                    args=('xarg, xarg1',)),
-                Message(
-                    msg_id='missing-sphinx-type',
-                    node=node,
-                    args=('yarg, yarg1',))):
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('xarg, xarg1',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('yarg, yarg1',))
+        ):
             self.checker.visit_function(node)
 
         node = test_utils.extract_node("""
@@ -122,14 +125,15 @@ class SpinxDocCheckerTest(CheckerTestCase):
             return xarg + yarg
         """)
         with self.assertAddsMessages(
-                Message(
-                    msg_id='missing-sphinx-param',
-                    node=node,
-                    args=('yarg1',)),
-                Message(
-                    msg_id='missing-sphinx-type',
-                    node=node,
-                    args=('yarg1',))):
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('yarg1',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('yarg1',))
+        ):
             self.checker.visit_function(node)
 
     def test_see_sentence_for_func_params_in_docstring(self):
@@ -167,14 +171,15 @@ class SpinxDocCheckerTest(CheckerTestCase):
 
         """)
         with self.assertAddsMessages(
-                Message(
-                    msg_id='missing-sphinx-param',
-                    node=node,
-                    args=('x, y',)),
-                Message(
-                    msg_id='missing-sphinx-type',
-                    node=node,
-                    args=('x, y',))):
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('x, y',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('x, y',))
+        ):
             self.checker.visit_class(node)
 
 
