@@ -23,6 +23,11 @@ ChangeLog for Pylint
 
     * Proper handle class level scope for lambdas.
 
+    * Handle 'too-few-format-args' or 'too-many-format-args' for format
+      strings with both named and positional fields. Closes issue #286.
+
+    * Analyze only strings by the string format checker. Closes issue #287.
+
 2014-07-26  --  1.3.0
 
     * Allow hanging continued indentation for implicitly concatenated
