@@ -319,14 +319,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                    and isinstance(stmt.ass_type(), astroid.AugAssign)
                    for stmt in stmts):
                 continue
-            stmt = stmts[0]
-            if isinstance(stmt, astroid.Import):
-                self.add_message('unused-import', args=name, node=stmt)
-            elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
-                if stmt.names[0][0] == '*':
-                    self.add_message('unused-wildcard-import', args=name, node=stmt)
-                else:
-                    self.add_message('unused-import', args=name, node=stmt)
+            for stmt in stmts:
+                if isinstance(stmt, astroid.Import):
+                    self.add_message('unused-import', args=stmt.names[0][0], node=stmt)
+                elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
+                    if stmt.names[0][0] == '*':
+                        self.add_message('unused-wildcard-import', args=name, node=stmt)
+                    else:
+                        self.add_message('unused-import', args=name, node=stmt)
         del self._to_consume
 
     def visit_class(self, node):
