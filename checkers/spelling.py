@@ -146,7 +146,8 @@ class SpellingChecker(BaseTokenChecker):
             word = word.lower()
 
             # strip starting u' from unicode literals and r' from raw strings
-            if (word.startswith("u'") or word.startswith('u"') or word.startswith("r'") or word.startswith('r"')) and len(word) > 2:
+            if (word.startswith("u'") or word.startswith('u"') or
+                word.startswith("r'") or word.startswith('r"')) and len(word) > 2:
                 word = word[2:]
 
             # if known word then continue
@@ -159,7 +160,7 @@ class SpellingChecker(BaseTokenChecker):
                     self.private_dict_file.write("%s\n" % word)
                     self.unknown_words.add(word)
             else:
-                suggestions = self.spelling_dict.suggest(word)[:4]
+                suggestions = self.spelling_dict.suggest(word)[:4]  # present upto 4 suggestions
 
                 m = re.search("(\W|^)(%s)(\W|$)" % word, line.lower())
                 if m:
