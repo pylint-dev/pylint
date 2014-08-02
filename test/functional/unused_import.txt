@@ -1,2 +1,4 @@
 unused-import:2::Unused import xml.etree
 unused-import:3::Unused import xml.sax
+unused-import:4::Unused os.path imported as test
+unused-import:5::Unused argv imported from sys as test2

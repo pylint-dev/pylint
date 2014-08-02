@@ -170,7 +170,7 @@ MSGS = {
               'global-at-module-level',
               'Used when you use the "global" statement at the module level \
               since it has no effect'),
-    'W0611': ('Unused import %s',
+    'W0611': ('Unused %s',
               'unused-import',
               'Used when an imported module or variable is not used.'),
     'W0612': ('Unused variable %r',
@@ -321,12 +321,20 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             for stmt in stmts:
                 if isinstance(stmt, astroid.Import):
-                    self.add_message('unused-import', args=stmt.names[0][0], node=stmt)
+                    if stmt.names[0][1] is None:
+                        msg = "import %s" % stmt.names[0][0]
+                    else:
+                        msg = "%s imported as %s" % (stmt.names[0][0], stmt.names[0][1])
+                    self.add_message('unused-import', args=msg, node=stmt)
                 elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
                     if stmt.names[0][0] == '*':
                         self.add_message('unused-wildcard-import', args=name, node=stmt)
                     else:
-                        self.add_message('unused-import', args=name, node=stmt)
+                        if stmt.names[0][1] is None:
+                            msg = "%s imported from %s" % stmt.names[0][0], stmt.modname
+                        else:
+                            msg = "%s imported from %s as %s" % (stmt.names[0][0], stmt.modname, stmt.names[0][1])
+                        self.add_message('unused-import', args=msg, node=stmt)
         del self._to_consume
 
     def visit_class(self, node):
