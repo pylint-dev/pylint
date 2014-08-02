@@ -331,7 +331,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         self.add_message('unused-wildcard-import', args=name, node=stmt)
                     else:
                         if stmt.names[0][1] is None:
-                            msg = "%s imported from %s" % stmt.names[0][0], stmt.modname
+                            msg = "%s imported from %s" % (stmt.names[0][0], stmt.modname)
                         else:
                             msg = "%s imported from %s as %s" % (stmt.names[0][0], stmt.modname, stmt.names[0][1])
                         self.add_message('unused-import', args=msg, node=stmt)
