@@ -326,7 +326,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 imported_name = stmt.names[0][0]  # this is: 'import imported_name' or 'from something import imported_name'
                 as_name = stmt.names[0][1]        # this is: 'import imported_name as as_name'
 
-                if isinstance(stmt, astroid.Import):
+                if isinstance(stmt, astroid.Import) or (isinstance(stmt, astroid.From) and not stmt.modname):
                     if as_name is None:
                         msg = "import %s" % imported_name
                     else:
