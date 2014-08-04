@@ -320,20 +320,26 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                    for stmt in stmts):
                 continue
             for stmt in stmts:
+                if not isinstance(stmt, astroid.Import) and not isinstance(stmt, astroid.From):
+                    continue
+
+                imported_name = stmt.names[0][0]  # this is: 'import imported_name' or 'from something import imported_name'
+                as_name = stmt.names[0][1]        # this is: 'import imported_name as as_name'
+
                 if isinstance(stmt, astroid.Import):
-                    if stmt.names[0][1] is None:
-                        msg = "import %s" % stmt.names[0][0]
+                    if as_name is None:
+                        msg = "import %s" % imported_name
                     else:
-                        msg = "%s imported as %s" % (stmt.names[0][0], stmt.names[0][1])
+                        msg = "%s imported as %s" % (imported_name, as_name)
                     self.add_message('unused-import', args=msg, node=stmt)
                 elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
-                    if stmt.names[0][0] == '*':
+                    if imported_name == '*':
                         self.add_message('unused-wildcard-import', args=name, node=stmt)
                     else:
-                        if stmt.names[0][1] is None:
-                            msg = "%s imported from %s" % (stmt.names[0][0], stmt.modname)
+                        if as_name is None:
+                            msg = "%s imported from %s" % (imported_name, stmt.modname)
                         else:
-                            msg = "%s imported from %s as %s" % (stmt.names[0][0], stmt.modname, stmt.names[0][1])
+                            msg = "%s imported from %s as %s" % (imported_name, stmt.modname, as_name)
                         self.add_message('unused-import', args=msg, node=stmt)
         del self._to_consume
 
