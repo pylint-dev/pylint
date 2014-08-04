@@ -133,6 +133,31 @@ else:
         # the output
         return keyname, _field_iterator_convertor(fielditerator)
 
+
+def collect_string_fields(format_string):
+    """ Given a format string, return an iterator
+    of all the valid format fields. It handles nested fields
+    as well.
+    """
+
+    formatter = string.Formatter()
+    parseiterator = formatter.parse(format_string)
+    try:
+        for result in parseiterator:
+            if all(item is None for item in result[1:]):
+                # not a replacement format
+                continue
+            name = result[1]
+            nested = result[2]
+            yield name
+            if nested:
+                for field in collect_string_fields(nested):
+                    yield field
+    except ValueError:
+        # probably the format string is invalid
+        # should we check the argument of the ValueError?
+        raise utils.IncompleteFormatString(format_string)
+
 def parse_format_method_string(format_string):
     """
     Parses a PEP 3101 format string, returning a tuple of
@@ -144,29 +169,18 @@ def parse_format_method_string(format_string):
     keys = []
     num_args = 0
     manual_pos_arg = 0
-    formatter = string.Formatter()
-    parseiterator = formatter.parse(format_string)
-    try:
-        for result in parseiterator:
-            if all(item is None for item in result[1:]):
-                # not a replacement format
-                continue
-            name = result[1]
-            if name and str(name).isdigit():
-                manual_pos_arg += 1
-            elif name:
-                keyname, fielditerator = split_format_field_names(name)
-                if not isinstance(keyname, str):
-                    # In Python 2 it will return long which will lead
-                    # to different output between 2 and 3
-                    keyname = int(keyname)
-                keys.append((keyname, list(fielditerator)))
-            else:
-                num_args += 1
-    except ValueError:
-        # probably the format string is invalid
-        # should we check the argument of the ValueError?
-        raise utils.IncompleteFormatString(format_string)
+    for name in collect_string_fields(format_string):
+        if name and str(name).isdigit():
+            manual_pos_arg += 1
+        elif name:
+            keyname, fielditerator = split_format_field_names(name)
+            if not isinstance(keyname, str):
+                # In Python 2 it will return long which will lead
+                # to different output between 2 and 3
+                keyname = int(keyname)
+            keys.append((keyname, list(fielditerator)))
+        else:
+            num_args += 1
     return keys, num_args, manual_pos_arg
 
 def get_args(callfunc):

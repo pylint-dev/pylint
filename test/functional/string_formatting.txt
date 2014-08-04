@@ -29,3 +29,7 @@ too-many-format-args:85:pprint_bad:Too many arguments for format string
 too-few-format-args:86:pprint_bad:Not enough arguments for format string
 too-few-format-args:87:pprint_bad:Not enough arguments for format string
 too-many-format-args:88:pprint_bad:Too many arguments for format string
+too-few-format-args:113:nested_issue294:Not enough arguments for format string
+too-many-format-args:114:nested_issue294:Too many arguments for format string
+missing-format-argument-key:115:nested_issue294:Missing keyword argument 'a' for format string
+missing-format-attribute:116:nested_issue294:Missing format attribute 'x' in format specifier 'a.x'

@@ -104,3 +104,13 @@ def good_issue287():
     ret['comment'] = 'MySQL grant {0} is set to be revoked'
     ret['comment'] = ret['comment'].format(name)
     return ret, name
+
+def nested_issue294():
+    """ Test nested format fields. """
+    '{0:>{1}}'.format(42, 24)
+    '{0:{a[1]}} {a}'.format(1, a=[1, 2])
+    '{:>{}}'.format(42, 24)
+    '{0:>{1}}'.format(42) # [too-few-format-args]
+    '{0:>{1}}'.format(42, 24, 54) # [too-many-format-args]
+    '{0:{a[1]}}'.format(1) # [missing-format-argument-key]
+    '{0:{a.x}}'.format(1, a=2) # [missing-format-attribute]
