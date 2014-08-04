@@ -35,20 +35,19 @@ else:
     NEXT_METHOD = 'next'
 ITER_METHODS = ('__iter__', '__getitem__')
 
-def _called_by_methods(func, klass, defining_methods):
-    """ Check if the func was called by any method from
-    *defining_methods*, belonging to the *klass*.
-    Returns True if so, False otherwise.
+def _called_in_methods(func, klass, methods):
+    """ Check if the func was called in any of the given methods,
+    belonging to the *klass*. Returns True if so, False otherwise.
     """
     if not isinstance(func, astroid.Function):
         return False
-    for meth in defining_methods:
+    for method in methods:
         try:
-            methods = klass.getattr(meth)
+            infered = klass.getattr(method)
         except astroid.NotFoundError:
             continue
-        for method in methods:
-            for callfunc in method.nodes_of_class(astroid.CallFunc):
+        for infer_method in infered:
+            for callfunc in infer_method.nodes_of_class(astroid.CallFunc):
                 try:
                     bound = next(callfunc.func.infer())
                 except (astroid.InferenceError, StopIteration):
@@ -331,7 +330,7 @@ a metaclass class method.'}
                             # If the attribute was set by a callfunc in any
                             # of the defining methods, then don't emit
                             # the warning.
-                            if _called_by_methods(node.frame(), cnode,
+                            if _called_in_methods(node.frame(), cnode,
                                                   defining_methods):
                                 continue
                             self.add_message('attribute-defined-outside-init',
