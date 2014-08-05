@@ -21,6 +21,7 @@
 import sys
 import tokenize
 import string
+import numbers
 
 import astroid
 
@@ -122,7 +123,7 @@ if _PY3K:
 else:
     def _field_iterator_convertor(iterator):
         for is_attr, key in iterator:
-            if not isinstance(key, str):
+            if isinstance(key, numbers.Number):
                 yield is_attr, int(key)
             else:
                 yield is_attr, key
@@ -174,7 +175,7 @@ def parse_format_method_string(format_string):
             manual_pos_arg += 1
         elif name:
             keyname, fielditerator = split_format_field_names(name)
-            if not isinstance(keyname, str):
+            if isinstance(keyname, numbers.Number):
                 # In Python 2 it will return long which will lead
                 # to different output between 2 and 3
                 keyname = int(keyname)
@@ -358,9 +359,9 @@ class StringMethodsChecker(BaseChecker):
             return
 
         manual_fields = set(field[0] for field in fields
-                            if isinstance(field[0], int))
+                            if isinstance(field[0], numbers.Number))
         named_fields = set(field[0] for field in fields
-                           if isinstance(field[0], str))
+                           if isinstance(field[0], basestring))
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
@@ -384,7 +385,9 @@ class StringMethodsChecker(BaseChecker):
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
             if positional or num_args:
-                if named or any(True for field in named_fields if field == ''):
+                empty = any(True for field in named_fields
+                            if field == '')
+                if named or empty:
                     # Verify the required number of positional arguments
                     # only if the .format got at least one keyword argument.
                     # This means that the format strings accepts both
@@ -421,7 +424,7 @@ class StringMethodsChecker(BaseChecker):
                 # to 0. It will not be present in `named`, so use the value
                 # 0 for it.
                 key = 0
-            if isinstance(key, int):
+            if isinstance(key, numbers.Number):
                 try:
                     argname = utils.get_argument_from_call(node, key)
                 except utils.NoSuchArgumentError:
