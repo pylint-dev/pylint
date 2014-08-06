@@ -314,6 +314,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
+
+        # fix local names in node.locals dict (xml.etree instead of xml)
+        # TODO: this should be improved in issue astroid#46
+        local_names = {}
         for name, stmts in not_consumed.iteritems():
             if any(isinstance(stmt, astroid.AssName)
                    and isinstance(stmt.ass_type(), astroid.AugAssign)
@@ -322,13 +326,33 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             for stmt in stmts:
                 if not isinstance(stmt, astroid.Import) and not isinstance(stmt, astroid.From):
                     continue
+                for imports in stmt.names:
+                    if imports[0] == "*":
+                        # in case of wildcard import pick the name from inside of imported module
+                        name2 = name
+                    else:
+                        # pick explicitly imported name
+                        name2 = imports[0]
+                    if name2 not in local_names:
+                        local_names[name2] = stmt
+        local_names = sorted(local_names.iteritems(), key=lambda a: a[1].fromlineno)
 
+        checked = set()
+        for name, stmt in local_names:
+            for imports in stmt.names:
                 # 'import imported_name' or 'from something import imported_name'
-                imported_name = stmt.names[0][0]
+                real_name = imported_name = imports[0]
+                if imported_name == "*":
+                    real_name = name
                 # 'import imported_name as as_name'
-                as_name = stmt.names[0][1]
+                as_name = imports[1]
 
-                if isinstance(stmt, astroid.Import) or (isinstance(stmt, astroid.From) and not stmt.modname):
+                if real_name in checked:
+                    continue
+                checked.add(real_name)
+
+                if isinstance(stmt, astroid.Import) or (isinstance(stmt, astroid.From) \
+                                                        and not stmt.modname):
                     if as_name is None:
                         msg = "import %s" % imported_name
                     else:

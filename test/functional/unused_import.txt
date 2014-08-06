@@ -3,3 +3,6 @@ unused-import:3::Unused import xml.sax
 unused-import:4::Unused os.path imported as test
 unused-import:5::Unused argv imported from sys as test2
 unused-import:6::Unused flags imported from sys
+unused-import:8::Unused Counter imported from collections
+unused-import:8::Unused OrderedDict imported from collections
+unused-import:8::Unused deque imported from collections
