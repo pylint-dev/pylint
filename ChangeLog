@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Improved presenting unused-import message. Closes issue #293.
+
     * Add new checker for finding spelling errors. New messages:
       wrong-spelling-in-comment, wrong-spelling-in-docstring.
       New options: spelling-dict, spelling-ignore-words.
