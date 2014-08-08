@@ -54,7 +54,7 @@ class SphinxDocChecker(BaseChecker):
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
-        self.check_arguments_mentioned_in_docstring(node, node.doc, node.args)
+        self.check_arguments_in_docstring(node, node.doc, node.args)
 
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
@@ -89,7 +89,7 @@ class SphinxDocChecker(BaseChecker):
 
     not_needed_param_in_docstring = set(['self', 'cls'])
 
-    def check_arguments_mentioned_in_docstring(self, node, doc, arguments_node):
+    def check_arguments_in_docstring(self, node, doc, arguments_node):
         """Check that all arguments in a function, method or class constructor
         on the one hand and the arguments mentioned in the Sphinx tags 'param'
         and 'type' on the other hand are consistent with each other.
@@ -191,7 +191,7 @@ class SphinxDocChecker(BaseChecker):
             if (isinstance(body_item, astroid.scoped_nodes.Function)
                     and hasattr(body_item, 'name')):
                 if body_item.name in self.constructor_names:
-                    self.check_arguments_mentioned_in_docstring(
+                    self.check_arguments_in_docstring(
                         node, node.doc, body_item.args)
                 else:
                     self.visit_function(body_item)
