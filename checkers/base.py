@@ -530,6 +530,7 @@ functions, methods
         self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0,
                                            method=0, class_=0)
+
     @check_messages('missing-module-attribute')
     def visit_module(self, node):
         """check module name, docstring and required arguments
@@ -634,7 +635,7 @@ functions, methods
             if node.args.args[i].name != call.args[i].name:
                 return
         if (isinstance(node.body.func, astroid.Getattr) and
-            isinstance(node.body.func.expr, astroid.CallFunc)):
+                isinstance(node.body.func.expr, astroid.CallFunc)):
             # Chained call, the intermediate call might
             # return something else (but we don't check that, yet).
             return
@@ -652,12 +653,12 @@ functions, methods
                 value = default.infer().next()
             except astroid.InferenceError:
                 continue
-                
+
             if (isinstance(value, astroid.Instance) and
-                        value.qname() in DEFAULT_ARGUMENT_SYMBOLS):
+                    value.qname() in DEFAULT_ARGUMENT_SYMBOLS):
                 if value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif type(value) is astroid.Instance:
+                elif isinstance(value, astroid.Instance):
                     if isinstance(default, astroid.CallFunc):
                         # this argument is direct call to list() or dict() etc
                         msg = '%s() (%s)' % (value.name, value.qname())
@@ -667,7 +668,8 @@ functions, methods
                         msg = '%s (%s)' % (default.as_string(), value.qname())
                 else:
                     # this argument is a name
-                    msg = '%s (%s)' % (default.as_string(), DEFAULT_ARGUMENT_SYMBOLS[value.qname()])
+                    msg = '%s (%s)' % (default.as_string(),
+                                       DEFAULT_ARGUMENT_SYMBOLS[value.qname()])
                 self.add_message('dangerous-default-value', node=node, args=(msg,))
 
     @check_messages('unreachable', 'lost-exception')
@@ -810,8 +812,8 @@ functions, methods
             if argument is astroid.YES:
                 return
             if argument is None:
-                # nothing was infered
-                # try to see if we have iter()
+                # Nothing was infered.
+                # Try to see if we have iter().
                 if isinstance(node.args[0], astroid.CallFunc):
                     try:
                         func = node.args[0].func.infer().next()
@@ -842,9 +844,9 @@ functions, methods
                     else:
                         break
                 else:
-                    # check if it is a .deque. It doesn't seem that
+                    # Check if it is a .deque. It doesn't seem that
                     # we can retrieve special methods
-                    # from C implemented constructs
+                    # from C implemented constructs.
                     if argument._proxied.qname().endswith(".deque"):
                         return
                     self.add_message('bad-reversed-sequence', node=node)
@@ -1075,6 +1077,7 @@ class DocStringChecker(_BasicChecker):
     def visit_class(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring('class', node)
+
     @check_messages('missing-docstring', 'empty-docstring')
     def visit_function(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
@@ -1108,11 +1111,11 @@ class DocStringChecker(_BasicChecker):
                 return
             self.stats['undocumented_'+node_type] += 1
             if (node.body and isinstance(node.body[0], astroid.Discard) and
-                isinstance(node.body[0].value, astroid.CallFunc)):
+                    isinstance(node.body[0].value, astroid.CallFunc)):
                 # Most likely a string with a format call. Let's see.
                 func = safe_infer(node.body[0].value.func)
                 if (isinstance(func, astroid.BoundMethod)
-                    and isinstance(func.bound, astroid.Instance)):
+                        and isinstance(func.bound, astroid.Instance)):
                     # Strings in Python 3, others in Python 2.
                     if PY3K and func.bound.name == 'str':
                         return
