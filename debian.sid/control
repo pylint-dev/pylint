@@ -13,7 +13,7 @@ Vcs-Browser: http://hg.logilab.org/pylint
 Package: pylint
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-logilab-common (>= 0.53), python-astroid
-Recommends: python-tk
+Recommends: python-tk, python-enchant
 XB-Python-Version: ${python:Versions}
 Description: python code static checker and UML diagram generator
  Pylint is a Python source code analyzer which looks for programming
@@ -38,7 +38,7 @@ Description: python code static checker and UML diagram generator
 Package: pylint3
 Architecture: all
 Depends: ${python3:Depends}, ${misc:Depends}, python3-logilab-common (>= 0.53), python3-astroid
-Recommends: python3-tk
+Recommends: python3-tk, python3-enchant
 XB-Python-Version: ${python3:Versions}
 Description: python code static checker and UML diagram generator
  Pylint is a Python source code analyzer which looks for programming

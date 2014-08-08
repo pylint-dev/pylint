@@ -2,6 +2,11 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Improved presenting unused-import message. Closes issue #293.
+
+    * Add new checker for finding spelling errors. New messages:
+      wrong-spelling-in-comment, wrong-spelling-in-docstring.
+      New options: spelling-dict, spelling-ignore-words.
 
     * Added new checks for line endings if they are mixed (LF vs CRLF)
       or if they are not as expected. New messages: mixed-line-endings,
@@ -22,6 +27,16 @@ ChangeLog for Pylint
 
     * Handle 'too-few-format-args' or 'too-many-format-args' for format
       strings with both named and positional fields. Closes issue #286.
+
+    * Analyze only strings by the string format checker. Closes issue #287.
+
+    * Properly handle nested format string fields. Closes issue #294.
+
+    * Don't emit 'attribute-defined-outside-init' if the attribute
+      was set by a function call in a defining method. Closes issue #192.
+
+    * Properly handle unicode format strings for Python 2.
+      Closes issue #296.
 
 2014-07-26  --  1.3.0
 
