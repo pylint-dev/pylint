@@ -22,7 +22,10 @@ import astroid
 from astroid import YES, Instance, unpack_infer
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import is_empty, is_raising, check_messages
+from pylint.checkers.utils import (
+    is_empty, is_raising,
+    check_messages, inherit_from_std_ex,
+    EXCEPTIONS_MODULE)
 from pylint.interfaces import IAstroidChecker
 
 def infer_bases(klass):
@@ -114,11 +117,6 @@ MSGS = {
               {'maxversion': (3, 0)}),
     }
 
-
-if sys.version_info < (3, 0):
-    EXCEPTIONS_MODULE = "exceptions"
-else:
-    EXCEPTIONS_MODULE = "builtins"
 
 class ExceptionsChecker(BaseChecker):
     """checks for
@@ -288,18 +286,6 @@ class ExceptionsChecker(BaseChecker):
 
                 exceptions_classes += excs
 
-
-def inherit_from_std_ex(node):
-    """return true if the given class node is subclass of
-    exceptions.Exception
-    """
-    if node.name in ('Exception', 'BaseException') \
-            and node.root().name == EXCEPTIONS_MODULE:
-        return True
-    for parent in node.ancestors(recurs=False):
-        if inherit_from_std_ex(parent):
-            return True
-    return False
 
 def register(linter):
     """required method to auto register this checker"""

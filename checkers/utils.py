@@ -30,6 +30,11 @@ BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = astroid.ListComp, astroid.SetComp, astroid.DictComp, astroid.GenExpr
 PY3K = sys.version_info[0] == 3
 
+if not PY3K:
+    EXCEPTIONS_MODULE = "exceptions"
+else:
+    EXCEPTIONS_MODULE = "builtins"
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -419,3 +424,14 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
             if isinstance(arg, astroid.Keyword) and arg.arg == keyword:
                 return arg.value
     raise NoSuchArgumentError
+
+def inherit_from_std_ex(node):
+    """
+    Return true if the given class node is subclass of
+    exceptions.Exception.
+    """
+    if node.name in ('Exception', 'BaseException') \
+            and node.root().name == EXCEPTIONS_MODULE:
+        return True
+    return any(inherit_from_std_ex(parent)
+               for parent in node.ancestors(recurs=False))
