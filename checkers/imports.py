@@ -295,7 +295,8 @@ given file (report RP0402 must not be disabled)'}
             return False
         if importedmodnode.name != importedasname:
             # this must be a relative import...
-            self.add_message('relative-import', args=(importedasname, importedmodnode.name),
+            self.add_message('relative-import',
+                             args=(importedasname, importedmodnode.name),
                              node=importnode)
 
     def _add_imported_module(self, node, importedmodname):

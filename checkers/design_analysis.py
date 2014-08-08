@@ -262,7 +262,8 @@ class MisdesignChecker(BaseChecker):
                                    self.config.min_public_methods))
 
     @check_messages('too-many-return-statements', 'too-many-branches',
-                    'too-many-arguments', 'too-many-locals', 'too-many-statements')
+                    'too-many-arguments', 'too-many-locals',
+                    'too-many-statements')
     def visit_function(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -291,7 +292,9 @@ class MisdesignChecker(BaseChecker):
         # init statements counter
         self._stmts = 1
 
-    @check_messages('too-many-return-statements', 'too-many-branches', 'too-many-arguments', 'too-many-locals', 'too-many-statements')
+    @check_messages('too-many-return-statements', 'too-many-branches',
+                    'too-many-arguments', 'too-many-locals',
+                    'too-many-statements')
     def leave_function(self, node):
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__

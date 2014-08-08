@@ -266,7 +266,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmts[0])
 
-    @check_messages('unused-import', 'unused-wildcard-import', 'redefined-builtin', 'undefined-all-variable', 'invalid-all-object')
+    @check_messages('unused-import', 'unused-wildcard-import',
+                    'redefined-builtin', 'undefined-all-variable',
+                    'invalid-all-object')
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -284,7 +286,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
                     if not isinstance(elt_name, astroid.Const) \
                              or not isinstance(elt_name.value, basestring):
-                        self.add_message('invalid-all-object', args=elt.as_string(), node=elt)
+                        self.add_message('invalid-all-object',
+                                         args=elt.as_string(), node=elt)
                         continue
                     elt_name = elt_name.value
                     # If elt is in not_consumed, remove it from not_consumed

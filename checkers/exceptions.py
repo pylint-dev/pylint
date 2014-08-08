@@ -138,8 +138,9 @@ class ExceptionsChecker(BaseChecker):
                ),
               )
 
-    @check_messages('raising-string', 'nonstandard-exception', 'raising-bad-type',
-                    'raising-non-exception', 'notimplemented-raised', 'bad-exception-context')
+    @check_messages('raising-string', 'nonstandard-exception',
+                    'raising-bad-type', 'raising-non-exception',
+                    'notimplemented-raised', 'bad-exception-context')
     def visit_raise(self, node):
         """visit raise possibly inferring value"""
         # ignore empty raise
@@ -235,10 +236,11 @@ class ExceptionsChecker(BaseChecker):
         """check for empty except"""
         exceptions_classes = []
         nb_handlers = len(node.handlers)
-        for index, handler  in enumerate(node.handlers):
+        for index, handler in enumerate(node.handlers):
             # single except doing nothing but "pass" without else clause
             if is_empty(handler.body) and not node.orelse:
-                self.add_message('pointless-except', node=handler.type or handler.body[0])
+                self.add_message('pointless-except',
+                                 node=handler.type or handler.body[0])
             if handler.type is None:
                 if not is_raising(handler.body):
                     self.add_message('bare-except', node=handler)
@@ -249,7 +251,8 @@ class ExceptionsChecker(BaseChecker):
                     self.add_message('bad-except-order', node=node, args=msg)
 
             elif isinstance(handler.type, astroid.BoolOp):
-                self.add_message('binary-op-exception', node=handler, args=handler.type.op)
+                self.add_message('binary-op-exception',
+                                 node=handler, args=handler.type.op)
             else:
                 try:
                     excs = list(unpack_infer(handler.type))
@@ -265,11 +268,13 @@ class ExceptionsChecker(BaseChecker):
                         if previous_exc in exc_ancestors:
                             msg = '%s is an ancestor class of %s' % (
                                 previous_exc.name, exc.name)
-                            self.add_message('bad-except-order', node=handler.type, args=msg)
+                            self.add_message('bad-except-order',
+                                             node=handler.type, args=msg)
                     if (exc.name in self.config.overgeneral_exceptions
                             and exc.root().name == EXCEPTIONS_MODULE
                             and not is_raising(handler.body)):
-                        self.add_message('broad-except', args=exc.name, node=handler.type)
+                        self.add_message('broad-except',
+                                         args=exc.name, node=handler.type)
 
                     if (not inherit_from_std_ex(exc) and
                             exc.root().name != BUILTINS_NAME):

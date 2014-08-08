@@ -282,7 +282,8 @@ a metaclass class method.'}
                 self.add_message('no-init', args=node, node=node)
         self._check_slots(node)
 
-    @check_messages('access-member-before-definition', 'attribute-defined-outside-init')
+    @check_messages('access-member-before-definition',
+                    'attribute-defined-outside-init')
     def leave_class(self, cnode):
         """close a class node:
         check that instance attributes are defined in __init__ and check
@@ -378,7 +379,8 @@ a metaclass class method.'}
             overridden_frame = overridden.frame()
             if overridden_frame.type == 'method':
                 overridden_frame = overridden_frame.parent.frame()
-            if isinstance(overridden_frame, Class) and klass._is_subtype_of(overridden_frame.qname()):
+            if (isinstance(overridden_frame, Class)
+                    and klass._is_subtype_of(overridden_frame.qname())):
                 args = (overridden.root().name, overridden.fromlineno)
                 self.add_message('method-hidden', args=args, node=node)
         except astroid.NotFoundError:
@@ -636,7 +638,8 @@ a metaclass class method.'}
                     lno = defstmt.fromlineno
                     for _node in nodes:
                         if _node.frame() is frame and _node.fromlineno < lno \
-                           and not are_exclusive(_node.statement(), defstmt, ('AttributeError', 'Exception', 'BaseException')):
+                           and not are_exclusive(_node.statement(), defstmt,
+                                                 ('AttributeError', 'Exception', 'BaseException')):
                             self.add_message('access-member-before-definition',
                                              node=_node, args=(attr, lno))
 
@@ -679,7 +682,8 @@ a metaclass class method.'}
             else:
                 self._check_first_arg_config(
                     first,
-                    self.config.valid_classmethod_first_arg, node, 'bad-mcs-method-argument',
+                    self.config.valid_classmethod_first_arg, node,
+                    'bad-mcs-method-argument',
                     node.name)
         # regular class
         else:
@@ -687,7 +691,8 @@ a metaclass class method.'}
             if node.type == 'classmethod':
                 self._check_first_arg_config(
                     first,
-                    self.config.valid_classmethod_first_arg, node, 'bad-classmethod-argument',
+                    self.config.valid_classmethod_first_arg, node,
+                    'bad-classmethod-argument',
                     node.name)
             # regular method without self as argument
             elif first != 'self':
@@ -749,7 +754,8 @@ a metaclass class method.'}
                     try:
                         method = node_method(node, name)
                     except astroid.NotFoundError:
-                        self.add_message('missing-interface-method', args=(name, iface.name),
+                        self.add_message('missing-interface-method',
+                                         args=(name, iface.name),
                                          node=node)
                         continue
                     # ignore inherited methods
@@ -799,7 +805,8 @@ a metaclass class method.'}
                     del not_called_yet[klass]
                 except KeyError:
                     if klass not in to_call:
-                        self.add_message('non-parent-init-called', node=expr, args=klass.name)
+                        self.add_message('non-parent-init-called',
+                                         node=expr, args=klass.name)
             except astroid.InferenceError:
                 continue
         for klass, method in not_called_yet.iteritems():
@@ -814,7 +821,8 @@ a metaclass class method.'}
         """
         if not (isinstance(method1, astroid.Function)
                 and isinstance(refmethod, astroid.Function)):
-            self.add_message('method-check-failed', args=(method1, refmethod), node=method1)
+            self.add_message('method-check-failed',
+                             args=(method1, refmethod), node=method1)
             return
         # don't care about functions with unknown argument (builtins)
         if method1.args.args is None or refmethod.args.args is None:
