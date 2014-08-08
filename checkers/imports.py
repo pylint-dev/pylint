@@ -27,9 +27,7 @@ from astroid.modutils import get_module_part, is_standard_module
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import (
-    check_messages, inherit_from_std_ex,
-    is_builtin_object)
+from pylint.checkers.utils import check_messages, inherit_from_std_ex
 
 def _except_import_error(node):
     """
@@ -51,7 +49,7 @@ def _except_import_error(node):
         for name in names:
             try:
                 for infered in name.infer():
-                    if (is_builtin_object(infered) and
+                    if (isinstance(infered, astroid.Class) and
                             inherit_from_std_ex(infered) and
                             infered.name == 'ImportError'):
                         return True
