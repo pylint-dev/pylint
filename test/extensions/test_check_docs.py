@@ -1,7 +1,7 @@
 """Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
 in particular the Sphinx parameter documentation checker `SphinxDocChecker`
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, absolute_import
 
 import unittest
 

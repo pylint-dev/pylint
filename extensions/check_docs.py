@@ -1,6 +1,6 @@
 """Pylint plugin for Sphinx parameter documentation checking
 """
-from __future__ import print_function, division
+from __future__ import print_function, division, absolute_import
 
 import re
 
@@ -68,12 +68,12 @@ class SphinxDocChecker(BaseChecker):
     re_sphinx_param_in_docstring = re.compile(r"""
         :param                  # Sphinx keyword
         \s+                     # whitespace
-        
+
         (?:                     # optional type declaration
         (\w+)
         \s+
         )?
-        
+
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
@@ -136,15 +136,26 @@ class SphinxDocChecker(BaseChecker):
             expected_argument_names.append(arguments_node.kwarg)
             not_needed_type_in_docstring.add(arguments_node.kwarg)
 
-        def compare_args(found_argument_names, message_id, not_needed):
+        def compare_args(found_argument_names, message_id, not_needed_names):
+            """Compare the found argument names with the expected ones and
+            generate a message if there are inconsistencies.
+
+            :param list found_argument_names: argument names found in the
+                docstring
+
+            :param str message_id: pylint message id
+
+            :param not_needed_names: names that may be omitted
+            :type not_needed_names: set of str
+            """
             if not tolerate_missing_params:
                 missing_or_differing_argument_names = (
                     (set(expected_argument_names) ^ set(found_argument_names))
-                    - not_needed)
+                    - not_needed_names)
             else:
                 missing_or_differing_argument_names = (
                     (set(found_argument_names) - set(expected_argument_names))
-                    - not_needed)
+                    - not_needed_names)
 
             if missing_or_differing_argument_names:
                 self.add_message(
@@ -167,7 +178,7 @@ class SphinxDocChecker(BaseChecker):
         found_argument_names = re.findall(self.re_sphinx_type_in_docstring, doc)
         compare_args(found_argument_names, 'missing-sphinx-type',
                      not_needed_type_in_docstring)
-    
+
     constructor_names = set(["__init__", "__new__"])
 
     def visit_class(self, node):
