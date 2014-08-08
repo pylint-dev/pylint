@@ -658,7 +658,7 @@ functions, methods
                     value.qname() in DEFAULT_ARGUMENT_SYMBOLS):
                 if value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif isinstance(value, astroid.Instance):
+                elif type(value) is astroid.Instance:
                     if isinstance(default, astroid.CallFunc):
                         # this argument is direct call to list() or dict() etc
                         msg = '%s() (%s)' % (value.name, value.qname())
