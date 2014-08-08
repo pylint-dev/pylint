@@ -170,7 +170,7 @@ MSGS = {
               'global-at-module-level',
               'Used when you use the "global" statement at the module level \
               since it has no effect'),
-    'W0611': ('Unused import %s',
+    'W0611': ('Unused %s',
               'unused-import',
               'Used when an imported module or variable is not used.'),
     'W0612': ('Unused variable %r',
@@ -317,19 +317,59 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
+
+        # fix local names in node.locals dict (xml.etree instead of xml)
+        # TODO: this should be improved in issue astroid#46
+        local_names = {}
         for name, stmts in not_consumed.iteritems():
             if any(isinstance(stmt, astroid.AssName)
                    and isinstance(stmt.ass_type(), astroid.AugAssign)
                    for stmt in stmts):
                 continue
-            stmt = stmts[0]
-            if isinstance(stmt, astroid.Import):
-                self.add_message('unused-import', args=name, node=stmt)
-            elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
-                if stmt.names[0][0] == '*':
-                    self.add_message('unused-wildcard-import', args=name, node=stmt)
-                else:
-                    self.add_message('unused-import', args=name, node=stmt)
+            for stmt in stmts:
+                if not isinstance(stmt, astroid.Import) and not isinstance(stmt, astroid.From):
+                    continue
+                for imports in stmt.names:
+                    if imports[0] == "*":
+                        # in case of wildcard import pick the name from inside of imported module
+                        name2 = name
+                    else:
+                        # pick explicitly imported name
+                        name2 = imports[0]
+                    if name2 not in local_names:
+                        local_names[name2] = stmt
+        local_names = sorted(local_names.iteritems(), key=lambda a: a[1].fromlineno)
+
+        checked = set()
+        for name, stmt in local_names:
+            for imports in stmt.names:
+                # 'import imported_name' or 'from something import imported_name'
+                real_name = imported_name = imports[0]
+                if imported_name == "*":
+                    real_name = name
+                # 'import imported_name as as_name'
+                as_name = imports[1]
+
+                if real_name in checked:
+                    continue
+                checked.add(real_name)
+
+                if isinstance(stmt, astroid.Import) or (isinstance(stmt, astroid.From) \
+                                                        and not stmt.modname):
+                    if as_name is None:
+                        msg = "import %s" % imported_name
+                    else:
+                        msg = "%s imported as %s" % (imported_name, as_name)
+                    self.add_message('unused-import', args=msg, node=stmt)
+                elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
+                    if imported_name == '*':
+                        self.add_message('unused-wildcard-import', args=name, node=stmt)
+                    else:
+                        if as_name is None:
+                            msg = "%s imported from %s" % (imported_name, stmt.modname)
+                        else:
+                            msg = "%s imported from %s as %s" % (imported_name, stmt.modname, as_name)
+                        self.add_message('unused-import', args=msg, node=stmt)
         del self._to_consume
 
     def visit_class(self, node):
