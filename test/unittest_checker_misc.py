@@ -12,15 +12,13 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-"""
-Tests for the misc checker.
-"""
-from __future__ import with_statement
+"""Tests for the misc checker."""
 
+import contextlib
+import os
 import sys
 import tempfile
-import os
-import contextlib
+import unittest
 
 from astroid import test_utils
 from pylint.checkers import misc
@@ -69,5 +67,4 @@ class FixmeTest(CheckerTestCase):
                 self.checker.process_module(module)
 
 if __name__ == '__main__':
-    from logilab.common.testlib import unittest_main
-    unittest_main()
+    unittest.main()

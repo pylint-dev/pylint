@@ -1,3 +1,0 @@
-E: 35: Catching an exception which doesn't inherit from BaseException: MyException
-E: 40: Catching an exception which doesn't inherit from BaseException: MyException
-E: 40: Catching an exception which doesn't inherit from BaseException: MySecondException

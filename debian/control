@@ -20,7 +20,7 @@ Depends: ${python:Depends},
          ${misc:Depends},
 	 python-logilab-common (>= 0.53.0),
 	 python-astroid (>= 1.2)
-Suggests: python-tk
+Suggests: python-tk, python-enchant
 XB-Python-Version: ${python:Versions}
 Description: python code static checker and UML diagram generator
  Pylint is a Python source code analyzer which looks for programming

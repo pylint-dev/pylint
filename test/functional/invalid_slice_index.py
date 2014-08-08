@@ -1,18 +1,17 @@
 """Errors for invalid slice indices"""
 # pylint: disable=too-few-public-methods, no-self-use
 
-__revision__ = 0
 
 TESTLIST = [1, 2, 3]
 
 # Invalid indices
 def function1():
     """functions used as indices"""
-    return TESTLIST[id:id:]
+    return TESTLIST[id:id:]  # [invalid-slice-index,invalid-slice-index]
 
 def function2():
     """strings used as indices"""
-    return TESTLIST['0':'1':]
+    return TESTLIST['0':'1':]  # [invalid-slice-index,invalid-slice-index]
 
 def function3():
     """class without __index__ used as index"""
@@ -21,7 +20,7 @@ def function3():
         """Class with no __index__ method"""
         pass
 
-    return TESTLIST[NoIndexTest()::]
+    return TESTLIST[NoIndexTest()::]  # [invalid-slice-index]
 
 # Valid indices
 def function4():

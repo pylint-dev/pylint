@@ -1,5 +1,5 @@
 """Unit tests for the variables checker."""
-from __future__ import with_statement
+import unittest
 
 from astroid import test_utils
 from pylint.checkers import classes
@@ -20,3 +20,6 @@ class VariablesCheckerTC(CheckerTestCase):
         with self.assertAddsMessages(Message('access-member-before-definition',
                                              node=n1.target, args=('first', n2.lineno))):
             self.walk(n1.root())
+
+if __name__ == '__main__':
+    unittest.main()

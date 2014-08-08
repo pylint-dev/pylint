@@ -1,29 +1,34 @@
 """Functional full-module tests for PyLint."""
-from __future__ import with_statement
+from __future__ import unicode_literals
+import collections
 import ConfigParser
-import contextlib
-import cStringIO
+import io
 import operator
 import os
 import re
 import sys
-
-from logilab.common import testlib
+import unittest
 
 from pylint import lint
 from pylint import reporters
 from pylint import checkers
 
+
 class NoFileError(Exception):
     pass
 
 # TODOs
-#  - use a namedtuple for expected lines
 #  - implement exhaustivity tests
-#  - call skipTests in setUp when not using logilab.testlib any more.
 
 # If message files should be updated instead of checked.
 UPDATE = False
+
+class OutputLine(collections.namedtuple('OutputLine', 
+                ['symbol', 'lineno', 'object', 'msg'])):
+    @classmethod
+    def from_msg(cls, msg):
+        return cls(msg.symbol, msg.line, msg.obj or '', msg.msg + '\n')
+
 
 # Common sub-expressions.
 _MESSAGE = {'msg': r'[a-z][a-z\-]+'}
@@ -123,10 +128,10 @@ def parse_expected_output(stream):
         parts = line.split(':', 3)
         if len(parts) != 4:
             symbol, lineno, obj, msg = lines.pop()
-            lines.append((symbol, lineno, obj, msg + line))
+            lines.append(OutputLine(symbol, lineno, obj, msg + line))
         else:
             linenum = int(parts[1])
-            lines.append((parts[0], linenum, parts[2], parts[3]))
+            lines.append(OutputLine(parts[0], linenum, parts[2], parts[3]))
     return lines
 
 
@@ -136,7 +141,7 @@ def get_expected_messages(stream):
     :param stream: File-like input stream.
     :returns: A dict mapping line,msg-symbol tuples to the count on this line.
     """
-    messages = {}
+    messages = collections.Counter()
     for i, line in enumerate(stream):
         match = _EXPECTED_RE.search(line)
         if match is None:
@@ -157,7 +162,6 @@ def get_expected_messages(stream):
                 continue
 
         for msg_id in match.group('msgs').split(','):
-            messages.setdefault((line, msg_id.strip()), 0)
             messages[line, msg_id.strip()] += 1
     return messages
 
@@ -173,21 +177,19 @@ def multiset_difference(left_op, right_op):
     :returns: The two multisets of missing and unexpected messages.
     """
     missing = left_op.copy()
+    missing.subtract(right_op)
     unexpected = {}
-    for key, value in right_op.iteritems():
-        missing.setdefault(key, 0)
-        missing[key] -= value
-        if missing[key] == 0:
-            del missing[key]
-        elif missing[key] < 0:
-            unexpected.setdefault(key, 0)
-            unexpected[key] = -missing.pop(key)
+    for key, value in missing.items():
+        if value <= 0:
+            missing.pop(key)
+            if value < 0:
+                unexpected[key] = -value
     return missing, unexpected
 
 
-class LintModuleTest(testlib.TestCase):
+class LintModuleTest(unittest.TestCase):
     def __init__(self, test_file):
-        super(LintModuleTest, self).__init__()
+        super(LintModuleTest, self).__init__('_runTest')
         test_reporter = TestReporter()
         self._linter = lint.PyLinter()
         self._linter.set_reporter(test_reporter)
@@ -200,7 +202,7 @@ class LintModuleTest(testlib.TestCase):
             pass
         self._test_file = test_file
 
-    def check_test(self):
+    def setUp(self):
         if (sys.version_info < self._test_file.options['min_pyver']
                 or sys.version_info >= self._test_file.options['max_pyver']):
             self.skipTest(
@@ -235,17 +237,14 @@ class LintModuleTest(testlib.TestCase):
     def _get_received(self):
         messages = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
-        received_msgs = {}
+        received_msgs = collections.Counter()
         received_output_lines = []
         for msg in messages:
-            received_msgs.setdefault((msg.line, msg.symbol), 0)
             received_msgs[msg.line, msg.symbol] += 1
-            received_output_lines.append(
-                (msg.symbol, msg.line, msg.obj or '', msg.msg + '\n'))
+            received_output_lines.append(OutputLine.from_msg(msg))
         return received_msgs, received_output_lines
 
-    def runTest(self):
-        self.check_test()
+    def _runTest(self):
         self._linter.check([self._test_file.module])
 
         expected_messages, expected_text = self._get_expected()
@@ -303,7 +302,7 @@ class LintModuleOutputUpdate(LintModuleTest):
 def suite():
     input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              'functional')
-    suite = testlib.TestSuite()
+    suite = unittest.TestSuite()
     for fname in os.listdir(input_dir):
         if fname != '__init__.py' and fname.endswith('.py'):
             test_file = TestFile(input_dir, fname)
@@ -314,8 +313,12 @@ def suite():
     return suite
 
 
+def load_tests(loader, tests, pattern):
+    return suite()
+
+
 if __name__=='__main__':
     if '-u' in sys.argv:
         UPDATE = True
         sys.argv.remove('-u')
-    testlib.unittest_main(defaultTest='suite')
+    unittest.main(defaultTest='suite')

@@ -22,8 +22,6 @@ import re
 from os import getcwd
 from os.path import abspath, dirname, join
 
-from logilab.common import testlib
-
 from pylint.testutils import (make_tests, LintTestUsingModule, LintTestUsingFile,
     LintTestUpdate, cb_test_gen, linter, test_reporter)
 
@@ -40,29 +38,7 @@ quote = "'" if sys.version_info >= (3, 3) else ''
 class LintTestNonExistentModuleTC(LintTestUsingModule):
     module = 'nonexistent'
     _get_expected = lambda self: 'F:  1: No module named %snonexistent%s\n' % (quote, quote)
-    tags = testlib.Tags(('generated','pylint_input_%s' % module))
 
-class TestTests(testlib.TestCase):
-    """check that all testable messages have been checked"""
-    PORTED = set(['I0001', 'I0010', 'W0712', 'E1001', 'W1402', 'E1310', 'E0202',
-                  'W0711', 'W0108', 'E0603', 'W0710', 'E0710', 'E0711', 'W1001', 
-                  'E1124', 'E1120', 'E1121', 'E1123', 'E1003', 'E1002', 'W0212',
-                  'C0327', 'C0328',
-                  'W0109', 'E1004', 'W0604', 'W0601', 'W0602', 'C0112', 'C0330',
-                  'C0325', 'E0211', 'W1501'])
-
-    @testlib.tag('coverage')
-    def test_exhaustivity(self):
-        # skip fatal messages
-        not_tested = set(msg.msgid for msg in linter.msgs_store.messages
-                         if msg.msgid[0] != 'F' and msg.may_be_emitted())
-        for msgid in test_reporter.message_ids:
-            try:
-                not_tested.remove(msgid)
-            except KeyError:
-                continue
-        not_tested -= self.PORTED
-        self.assertFalse(not_tested)
 
 
 class LintBuiltinModuleTest(LintTestUsingModule):
@@ -91,10 +67,6 @@ def gen_tests(filter_rgx):
 
     tests.append(LintBuiltinModuleTest)
 
-    if not filter_rgx:
-        # test all features are tested :)
-        tests.append(TestTests)
-
     assert len(tests) < 196, "Please do not add new test cases here."
     return tests
 
@@ -104,8 +76,12 @@ FILTER_RGX = None
 UPDATE = False
 
 def suite():
-    return testlib.TestSuite([unittest.makeSuite(test, suiteClass=testlib.TestSuite)
+    return unittest.TestSuite([unittest.makeSuite(test, suiteClass=unittest.TestSuite)
                               for test in gen_tests(FILTER_RGX)])
+
+
+def load_tests(loader, tests, pattern):
+    return suite()
 
 
 if __name__=='__main__':
@@ -116,4 +92,4 @@ if __name__=='__main__':
     if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    testlib.unittest_main(defaultTest='suite')
+    unittest.main(defaultTest='suite')

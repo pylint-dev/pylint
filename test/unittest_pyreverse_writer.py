@@ -23,8 +23,7 @@ import sys
 import codecs
 from os.path import join, dirname, abspath
 from difflib import unified_diff
-
-from logilab.common.testlib import TestCase, unittest_main
+import unittest
 
 from astroid import MANAGER
 from astroid.inspector import Linker
@@ -67,11 +66,11 @@ def get_project(module, name=None):
 
 CONFIG = Config()
 
-class DotWriterTC(TestCase):
+class DotWriterTC(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        project = get_project(cls.datadir)
+        project = get_project(os.path.join(os.path.dirname(__file__), 'data'))
         linker = Linker(project)
         handler = DiadefsHandler(CONFIG)
         dd = DefaultDiadefGenerator(linker, handler).visit(project)
@@ -89,7 +88,7 @@ class DotWriterTC(TestCase):
                 continue
 
     def _test_same_file(self, generated_file):
-        expected_file = self.datapath(generated_file)
+        expected_file = os.path.join(os.path.dirname(__file__), 'data', generated_file)
         generated = _file_lines(generated_file)
         expected = _file_lines(expected_file)
         generated = '\n'.join(generated)
@@ -109,7 +108,7 @@ class DotWriterTC(TestCase):
 
 
 
-class GetVisibilityTC(TestCase):
+class GetVisibilityTC(unittest.TestCase):
 
     def test_special(self):
         for name in ["__reduce_ex__",  "__setattr__"]:
@@ -133,4 +132,4 @@ class GetVisibilityTC(TestCase):
 
 
 if __name__ == '__main__':
-    unittest_main()
+    unittest.main()

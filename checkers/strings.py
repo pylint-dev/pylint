@@ -21,6 +21,7 @@
 import sys
 import tokenize
 import string
+import numbers
 
 import astroid
 
@@ -122,7 +123,7 @@ if _PY3K:
 else:
     def _field_iterator_convertor(iterator):
         for is_attr, key in iterator:
-            if not isinstance(key, str):
+            if isinstance(key, numbers.Number):
                 yield is_attr, int(key)
             else:
                 yield is_attr, key
@@ -132,6 +133,31 @@ else:
         # it will return longs, instead of ints, which will complicate
         # the output
         return keyname, _field_iterator_convertor(fielditerator)
+
+
+def collect_string_fields(format_string):
+    """ Given a format string, return an iterator
+    of all the valid format fields. It handles nested fields
+    as well.
+    """
+
+    formatter = string.Formatter()
+    parseiterator = formatter.parse(format_string)
+    try:
+        for result in parseiterator:
+            if all(item is None for item in result[1:]):
+                # not a replacement format
+                continue
+            name = result[1]
+            nested = result[2]
+            yield name
+            if nested:
+                for field in collect_string_fields(nested):
+                    yield field
+    except ValueError:
+        # probably the format string is invalid
+        # should we check the argument of the ValueError?
+        raise utils.IncompleteFormatString(format_string)
 
 def parse_format_method_string(format_string):
     """
@@ -144,29 +170,18 @@ def parse_format_method_string(format_string):
     keys = []
     num_args = 0
     manual_pos_arg = 0
-    formatter = string.Formatter()
-    parseiterator = formatter.parse(format_string)
-    try:
-        for result in parseiterator:
-            if all(item is None for item in result[1:]):
-                # not a replacement format
-                continue
-            name = result[1]
-            if name and str(name).isdigit():
-                manual_pos_arg += 1
-            elif name:
-                keyname, fielditerator = split_format_field_names(name)
-                if not isinstance(keyname, str):
-                    # In Python 2 it will return long which will lead
-                    # to different output between 2 and 3
-                    keyname = int(keyname)
-                keys.append((keyname, list(fielditerator)))
-            else:
-                num_args += 1
-    except ValueError:
-        # probably the format string is invalid
-        # should we check the argument of the ValueError?
-        raise utils.IncompleteFormatString(format_string)
+    for name in collect_string_fields(format_string):
+        if name and str(name).isdigit():
+            manual_pos_arg += 1
+        elif name:
+            keyname, fielditerator = split_format_field_names(name)
+            if isinstance(keyname, numbers.Number):
+                # In Python 2 it will return long which will lead
+                # to different output between 2 and 3
+                keyname = int(keyname)
+            keys.append((keyname, list(fielditerator)))
+        else:
+            num_args += 1
     return keys, num_args, manual_pos_arg
 
 def get_args(callfunc):
@@ -317,6 +332,13 @@ class StringMethodsChecker(BaseChecker):
 
     def _check_new_format(self, node, func):
         """ Check the new string formatting. """
+        # TODO: skip (for now) format nodes which don't have
+        #       an explicit string on the left side of the format operation.
+        #       We do this because our inference engine can't properly handle
+        #       redefinitions of the original string.
+        #       For more details, see issue 287.
+        if not isinstance(node.func.expr, astroid.Const):
+            return
         try:
             strnode = func.bound.infer().next()
         except astroid.InferenceError:
@@ -337,14 +359,18 @@ class StringMethodsChecker(BaseChecker):
             return
 
         manual_fields = set(field[0] for field in fields
-                            if isinstance(field[0], int))
+                            if isinstance(field[0], numbers.Number))
         named_fields = set(field[0] for field in fields
-                           if isinstance(field[0], str))
+                           if isinstance(field[0], basestring))
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
             return
 
+        check_args = False
+        # Consider "{[0]} {[1]}" as num_args.
+        num_args += sum(1 for field in named_fields
+                        if field == '')
         if named_fields:
             for field in named_fields:
                 if field not in named and field:
@@ -356,7 +382,21 @@ class StringMethodsChecker(BaseChecker):
                     self.add_message('unused-format-string-argument',
                                      node=node,
                                      args=(field, ))
+            # num_args can be 0 if manual_pos is not.
+            num_args = num_args or manual_pos
+            if positional or num_args:
+                empty = any(True for field in named_fields
+                            if field == '')
+                if named or empty:
+                    # Verify the required number of positional arguments
+                    # only if the .format got at least one keyword argument.
+                    # This means that the format strings accepts both
+                    # positional and named fields and we should warn
+                    # when one of the them is missing or is extra.
+                    check_args = True
         else:
+            check_args = True
+        if check_args:
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
             if positional > num_args:
@@ -384,7 +424,7 @@ class StringMethodsChecker(BaseChecker):
                 # to 0. It will not be present in `named`, so use the value
                 # 0 for it.
                 key = 0
-            if isinstance(key, int):
+            if isinstance(key, numbers.Number):
                 try:
                     argname = utils.get_argument_from_call(node, key)
                 except utils.NoSuchArgumentError:
