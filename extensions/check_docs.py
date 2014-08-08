@@ -68,6 +68,12 @@ class SphinxDocChecker(BaseChecker):
     re_sphinx_param_in_docstring = re.compile(r"""
         :param                  # Sphinx keyword
         \s+                     # whitespace
+        
+        (?:                     # optional type declaration
+        (\w+)
+        \s+
+        )?
+        
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
@@ -130,15 +136,7 @@ class SphinxDocChecker(BaseChecker):
             expected_argument_names.append(arguments_node.kwarg)
             not_needed_type_in_docstring.add(arguments_node.kwarg)
 
-        # Compare the function arguments with the ones found in the Sphinx
-        # docstring.
-        for message_id, pattern, not_needed in [
-                ('missing-sphinx-param', self.re_sphinx_param_in_docstring,
-                 self.not_needed_param_in_docstring),
-                ('missing-sphinx-type', self.re_sphinx_type_in_docstring,
-                 not_needed_type_in_docstring),
-        ]:
-            found_argument_names = re.findall(pattern, doc)
+        def compare_args(found_argument_names, message_id, not_needed):
             if not tolerate_missing_params:
                 missing_or_differing_argument_names = (
                     (set(expected_argument_names) ^ set(found_argument_names))
@@ -155,6 +153,21 @@ class SphinxDocChecker(BaseChecker):
                         sorted(missing_or_differing_argument_names)),),
                     node=node)
 
+        # Sphinx param declarations
+        found_argument_names = []
+        for match in re.finditer(self.re_sphinx_param_in_docstring, doc):
+            name = match.group(2)
+            found_argument_names.append(name)
+            if match.group(1) is not None:
+                not_needed_type_in_docstring.add(name)
+        compare_args(found_argument_names, 'missing-sphinx-param',
+                     self.not_needed_param_in_docstring)
+
+        # Sphinx type declarations
+        found_argument_names = re.findall(self.re_sphinx_type_in_docstring, doc)
+        compare_args(found_argument_names, 'missing-sphinx-type',
+                     not_needed_type_in_docstring)
+    
     constructor_names = set(["__init__", "__new__"])
 
     def visit_class(self, node):
