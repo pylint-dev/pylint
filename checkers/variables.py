@@ -318,7 +318,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if not self.config.init_import and node.package:
             return
 
-        # fix local names in node.locals dict (xml.etree instead of xml)
+        self._check_imports(not_consumed)
+
+    def _check_imports(self, not_consumed):
+        # Fix local names in node.locals dict (xml.etree instead of xml).
         # TODO: this should be improved in issue astroid#46
         local_names = {}
         for name, stmts in not_consumed.iteritems():
@@ -327,29 +330,29 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                    for stmt in stmts):
                 continue
             for stmt in stmts:
-                if not isinstance(stmt, astroid.Import) and not isinstance(stmt, astroid.From):
+                if not isinstance(stmt, (astroid.From, astroid.Import)):
                     continue
                 for imports in stmt.names:
                     if imports[0] == "*":
-                        # in case of wildcard import pick the name from inside of imported module
+                        # In case of wildcard import,
+                        # pick the name from inside of imported module.
                         name2 = name
                     else:
                         # pick explicitly imported name
                         name2 = imports[0]
                     if name2 not in local_names:
                         local_names[name2] = stmt
-        local_names = sorted(local_names.iteritems(), key=lambda a: a[1].fromlineno)
+        local_names = sorted(local_names.iteritems(),
+                             key=lambda a: a[1].fromlineno)
 
+        # Check for unused imports.
         checked = set()
         for name, stmt in local_names:
             for imports in stmt.names:
-                # 'import imported_name' or 'from something import imported_name'
                 real_name = imported_name = imports[0]
                 if imported_name == "*":
                     real_name = name
-                # 'import imported_name as as_name'
                 as_name = imports[1]
-
                 if real_name in checked:
                     continue
                 checked.add(real_name)
@@ -363,12 +366,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     self.add_message('unused-import', args=msg, node=stmt)
                 elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
                     if imported_name == '*':
-                        self.add_message('unused-wildcard-import', args=name, node=stmt)
+                        self.add_message('unused-wildcard-import',
+                                         args=name, node=stmt)
                     else:
                         if as_name is None:
                             msg = "%s imported from %s" % (imported_name, stmt.modname)
                         else:
-                            msg = "%s imported from %s as %s" % (imported_name, stmt.modname, as_name)
+                            fields = (imported_name, stmt.modname, as_name)
+                            msg = "%s imported from %s as %s" % fields
                         self.add_message('unused-import', args=msg, node=stmt)
         del self._to_consume
 
