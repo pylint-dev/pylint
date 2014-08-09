@@ -435,3 +435,30 @@ def inherit_from_std_ex(node):
         return True
     return any(inherit_from_std_ex(parent)
                for parent in node.ancestors(recurs=False))
+
+def is_import_error(handler):
+    """
+    Check if the given exception handler catches
+    ImportError.
+
+    :param handler: A node, representing an ExceptHandler node.
+    :returns: True if the handler catches ImportError, False otherwise.
+    """
+    names = None
+    if isinstance(handler.type, astroid.Tuple):
+        names = [name for name in handler.type.elts
+                 if isinstance(name, astroid.Name)]
+    elif isinstance(handler.type, astroid.Name):
+        names = [handler.type]
+    else:
+        # Don't try to infer that.
+        return
+    for name in names:
+        try:
+            for infered in name.infer():
+                if (isinstance(infered, astroid.Class) and
+                        inherit_from_std_ex(infered) and
+                        infered.name == 'ImportError'):
+                    return True
+        except astroid.InferenceError:
+            continue

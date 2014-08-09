@@ -35,6 +35,7 @@ from pylint.checkers.utils import (
     safe_infer,
     get_argument_from_call,
     NoSuchArgumentError,
+    is_import_error,
     )
 
 
@@ -70,6 +71,26 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
 )
 
 del re
+
+def _redefines_import(node):
+    """ Detect that the given node (AssName) is inside an
+    exception handler and redefines an import from the tryexcept body.
+    Returns True if the node redefines an import, False otherwise.
+    """
+    current = node
+    while current and not isinstance(current.parent, astroid.ExceptHandler):
+        current = current.parent
+    if not current or not is_import_error(current.parent):
+        return False
+    try_block = current.parent.parent
+    for import_node in try_block.nodes_of_class((astroid.From, astroid.Import)):
+        for name, alias in import_node.names:
+            if alias:
+                if alias == node.name:
+                    return True
+            elif name == node.name:
+                return True
+    return False
 
 def in_loop(node):
     """return True if the node is inside a kind of for loop"""
@@ -978,13 +999,17 @@ class NameChecker(_BasicChecker):
                 if isinstance(safe_infer(ass_type.value), astroid.Class):
                     self._check_name('class', node.name, node)
                 else:
-                    self._check_name('const', node.name, node)
+                    if not _redefines_import(node):
+                        # Don't emit if the name redefines an import
+                        # in an ImportError except handler.
+                        self._check_name('const', node.name, node)
             elif isinstance(ass_type, astroid.ExceptHandler):
                 self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.Function):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
-                self._check_name('variable', node.name, node)
+                if not _redefines_import(node):
+                    self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.Class):
             if not list(frame.local_attr_ancestors(node.name)):
                 self._check_name('class_attribute', node.name, node)

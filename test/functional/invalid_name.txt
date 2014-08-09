@@ -1,0 +1,2 @@
+invalid-name:10::Invalid constant name "aaa"
+invalid-name:14::Invalid constant name "time"

@@ -27,7 +27,7 @@ from astroid.modutils import get_module_part, is_standard_module
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, inherit_from_std_ex
+from pylint.checkers.utils import check_messages, is_import_error
 
 def _except_import_error(node):
     """
@@ -36,26 +36,7 @@ def _except_import_error(node):
     """
     if not isinstance(node, astroid.TryExcept):
         return
-    for handler in node.handlers:
-        names = None
-        if isinstance(handler.type, astroid.Tuple):
-            names = [name for name in handler.type.elts
-                     if isinstance(name, astroid.Name)]
-        elif isinstance(handler.type, astroid.Name):
-            names = [handler.type]
-        else:
-            # Don't try to infer that.
-            return
-        for name in names:
-            try:
-                for infered in name.infer():
-                    if (isinstance(infered, astroid.Class) and
-                            inherit_from_std_ex(infered) and
-                            infered.name == 'ImportError'):
-                        return True
-            except astroid.InferenceError:
-                continue
-    return False
+    return any(map(is_import_error, node.handlers))
 
 def get_first_import(node, context, name, base, level):
     """return the node where [base.]<name> is imported or None if not found
