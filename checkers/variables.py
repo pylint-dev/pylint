@@ -333,14 +333,19 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if not isinstance(stmt, (astroid.From, astroid.Import)):
                     continue
                 for imports in stmt.names:
+                    name2 = None
                     if imports[0] == "*":
                         # In case of wildcard import,
                         # pick the name from inside of imported module.
                         name2 = name
                     else:
-                        # pick explicitly imported name
-                        name2 = imports[0]
-                    if name2 not in local_names:
+                        if imports[0].find(".") > -1 or name in imports:
+                            # Most likely something like 'xml.etree',
+                            # which will appear in the .locals as
+                            # 'xml'.
+                            # Only pick the name if it wasn't consumed.
+                            name2 = imports[0]
+                    if name2 and name2 not in local_names:
                         local_names[name2] = stmt
         local_names = sorted(local_names.iteritems(),
                              key=lambda a: a[1].fromlineno)
@@ -355,10 +360,13 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 as_name = imports[1]
                 if real_name in checked:
                     continue
+                if name not in (real_name, as_name):
+                    continue
                 checked.add(real_name)
 
-                if isinstance(stmt, astroid.Import) or (isinstance(stmt, astroid.From) \
-                                                        and not stmt.modname):
+                if (isinstance(stmt, astroid.Import) or
+                        (isinstance(stmt, astroid.From) and
+                         not stmt.modname)):
                     if as_name is None:
                         msg = "import %s" % imported_name
                     else:
