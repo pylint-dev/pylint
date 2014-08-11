@@ -50,6 +50,10 @@ ChangeLog for Pylint
 
     * Don't count branches from nested functions.
 
+    * Fix a false positive with 'too-few-format-args', when the format
+      strings contains duplicate manual position arguments.
+      Closes issue #310.
+
 2014-07-26  --  1.3.0
 
     * Allow hanging continued indentation for implicitly concatenated

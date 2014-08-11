@@ -114,3 +114,8 @@ def nested_issue294():
     '{0:>{1}}'.format(42, 24, 54) # [too-many-format-args]
     '{0:{a[1]}}'.format(1) # [missing-format-argument-key]
     '{0:{a.x}}'.format(1, a=2) # [missing-format-attribute]
+
+def issue310():
+    """ Test a regression using duplicate manual position arguments. """
+    '{0} {1} {0}'.format(1, 2)
+    '{0} {1} {0}'.format(1) # [too-few-format-args]
