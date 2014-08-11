@@ -48,6 +48,8 @@ ChangeLog for Pylint
     * Don't emit 'invalid-name' when assigning a name in an
       ImportError handler. Closes issue #302.
 
+    * Don't count branches from nested functions.
+
 2014-07-26  --  1.3.0
 
     * Allow hanging continued indentation for implicitly concatenated
