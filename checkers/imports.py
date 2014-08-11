@@ -27,8 +27,16 @@ from astroid.modutils import get_module_part, is_standard_module
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, is_import_error
 
+def _except_import_error(node):
+    """
+    Check if the try-except node has an ImportError handler.
+    Return True if an ImportError handler was infered, False otherwise.
+    """
+    if not isinstance(node, astroid.TryExcept):
+        return
+    return any(map(is_import_error, node.handlers))
 
 def get_first_import(node, context, name, base, level):
     """return the node where [base.]<name> is imported or None if not found
@@ -278,7 +286,8 @@ given file (report RP0402 must not be disabled)'}
                 args = '%r (%s)' % (modname, ex)
             else:
                 args = repr(modname)
-            self.add_message("import-error", args=args, node=importnode)
+            if not _except_import_error(importnode.parent):
+                self.add_message("import-error", args=args, node=importnode)
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,
                                importedasname):
@@ -295,7 +304,8 @@ given file (report RP0402 must not be disabled)'}
             return False
         if importedmodnode.name != importedasname:
             # this must be a relative import...
-            self.add_message('relative-import', args=(importedasname, importedmodnode.name),
+            self.add_message('relative-import',
+                             args=(importedasname, importedmodnode.name),
                              node=importnode)
 
     def _add_imported_module(self, node, importedmodname):
