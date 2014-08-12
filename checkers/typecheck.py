@@ -540,7 +540,6 @@ accessed. Python regular expressions are accepted.'}
         # slice or instances with __index__.
 
         parent_type = safe_infer(node.parent.value)
-
         if not isinstance(parent_type, (astroid.Class, astroid.Instance)):
             return
 
@@ -569,13 +568,10 @@ accessed. Python regular expressions are accepted.'}
 
         if not isinstance(itemmethod, astroid.Function):
             return
-
         if itemmethod.root().name != BUILTINS:
             return
-
         if not itemmethod.parent:
             return
-
         if itemmethod.parent.name not in SEQUENCE_TYPES:
             return
 
@@ -586,7 +582,6 @@ accessed. Python regular expressions are accepted.'}
             index_type = node
         else:
             index_type = safe_infer(node)
-
         if index_type is None or index_type is astroid.YES:
             return
 
@@ -598,7 +593,6 @@ accessed. Python regular expressions are accepted.'}
         elif isinstance(index_type, astroid.Instance):
             if index_type.pytype() in (BUILTINS + '.int', BUILTINS + '.slice'):
                 return
-
             try:
                 index_type.getattr('__index__')
                 return
@@ -616,7 +610,6 @@ accessed. Python regular expressions are accepted.'}
                 continue
 
             index_type = safe_infer(index)
-
             if index_type is None or index_type is astroid.YES:
                 continue
 

@@ -38,6 +38,28 @@ ChangeLog for Pylint
     * Properly handle unicode format strings for Python 2.
       Closes issue #296.
 
+    * Don't emit 'import-error' if an import was protected by a try-except,
+      which excepted ImportError.
+ 
+    * Fix an 'unused-import' false positive, when the error was emitted
+      for all the members imported with 'from import' form.
+      Closes issue #304.
+
+    * Don't emit 'invalid-name' when assigning a name in an
+      ImportError handler. Closes issue #302.
+
+    * Don't count branches from nested functions.
+
+    * Fix a false positive with 'too-few-format-args', when the format
+      strings contains duplicate manual position arguments.
+      Closes issue #310.
+
+    * fixme regex handles comments without spaces after the hash.
+      Closes issue #311.
+
+    * Don't emit 'unused-import' when a special object is imported
+      (__all__, __doc__ etc.). Closes issue #309.
+
 2014-07-26  --  1.3.0
 
     * Allow hanging continued indentation for implicitly concatenated

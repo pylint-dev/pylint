@@ -169,10 +169,10 @@ def parse_format_method_string(format_string):
     """
     keys = []
     num_args = 0
-    manual_pos_arg = 0
+    manual_pos_arg = set()
     for name in collect_string_fields(format_string):
         if name and str(name).isdigit():
-            manual_pos_arg += 1
+            manual_pos_arg.add(str(name))
         elif name:
             keyname, fielditerator = split_format_field_names(name)
             if isinstance(keyname, numbers.Number):
@@ -182,7 +182,7 @@ def parse_format_method_string(format_string):
             keys.append((keyname, list(fielditerator)))
         else:
             num_args += 1
-    return keys, num_args, manual_pos_arg
+    return keys, num_args, len(manual_pos_arg)
 
 def get_args(callfunc):
     """ Get the arguments from the given `CallFunc` node.
@@ -238,7 +238,8 @@ class StringFormatChecker(BaseChecker):
                 utils.parse_format_string(format_string)
         except utils.UnsupportedFormatCharacter, e:
             c = format_string[e.index]
-            self.add_message('bad-format-character', node=node, args=(c, ord(c), e.index))
+            self.add_message('bad-format-character',
+                             node=node, args=(c, ord(c), e.index))
             return
         except utils.IncompleteFormatString:
             self.add_message('truncated-format-string', node=node)
@@ -261,7 +262,8 @@ class StringFormatChecker(BaseChecker):
                         if isinstance(key, basestring):
                             keys.add(key)
                         else:
-                            self.add_message('bad-format-string-key', node=node, args=key)
+                            self.add_message('bad-format-string-key',
+                                             node=node, args=key)
                     else:
                         # One of the keys was something other than a
                         # constant.  Since we can't tell what it is,
@@ -271,13 +273,16 @@ class StringFormatChecker(BaseChecker):
                 if not unknown_keys:
                     for key in required_keys:
                         if key not in keys:
-                            self.add_message('missing-format-string-key', node=node, args=key)
+                            self.add_message('missing-format-string-key',
+                                             node=node, args=key)
                 for key in keys:
                     if key not in required_keys:
-                        self.add_message('unused-format-string-key', node=node, args=key)
+                        self.add_message('unused-format-string-key',
+                                         node=node, args=key)
             elif isinstance(args, OTHER_NODES + (astroid.Tuple,)):
                 type_name = type(args).__name__
-                self.add_message('format-needs-mapping', node=node, args=type_name)
+                self.add_message('format-needs-mapping',
+                                 node=node, args=type_name)
             # else:
                 # The RHS of the format specifier is a name or
                 # expression.  It may be a mapping object, so

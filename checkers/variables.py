@@ -17,6 +17,7 @@
 """
 import os
 import sys
+import re
 from copy import copy
 
 import astroid
@@ -32,6 +33,8 @@ from pylint.checkers.utils import (
     is_defined_before, is_error, is_func_default, is_func_decorator,
     assign_parent, check_messages, is_inside_except, clobber_in_except,
     get_all_elements)
+
+SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 
 
 def in_for_else_branch(parent, stmt):
@@ -266,7 +269,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmts[0])
 
-    @check_messages('unused-import', 'unused-wildcard-import', 'redefined-builtin', 'undefined-all-variable', 'invalid-all-object')
+    @check_messages('unused-import', 'unused-wildcard-import',
+                    'redefined-builtin', 'undefined-all-variable',
+                    'invalid-all-object')
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -284,7 +289,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
                     if not isinstance(elt_name, astroid.Const) \
                              or not isinstance(elt_name.value, basestring):
-                        self.add_message('invalid-all-object', args=elt.as_string(), node=elt)
+                        self.add_message('invalid-all-object',
+                                         args=elt.as_string(), node=elt)
                         continue
                     elt_name = elt_name.value
                     # If elt is in not_consumed, remove it from not_consumed
@@ -315,7 +321,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if not self.config.init_import and node.package:
             return
 
-        # fix local names in node.locals dict (xml.etree instead of xml)
+        self._check_imports(not_consumed)
+
+    def _check_imports(self, not_consumed):
+        # Fix local names in node.locals dict (xml.etree instead of xml).
         # TODO: this should be improved in issue astroid#46
         local_names = {}
         for name, stmts in not_consumed.iteritems():
@@ -324,48 +333,67 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                    for stmt in stmts):
                 continue
             for stmt in stmts:
-                if not isinstance(stmt, astroid.Import) and not isinstance(stmt, astroid.From):
+                if not isinstance(stmt, (astroid.From, astroid.Import)):
                     continue
                 for imports in stmt.names:
+                    name2 = None
                     if imports[0] == "*":
-                        # in case of wildcard import pick the name from inside of imported module
+                        # In case of wildcard import,
+                        # pick the name from inside of imported module.
                         name2 = name
                     else:
-                        # pick explicitly imported name
-                        name2 = imports[0]
-                    if name2 not in local_names:
+                        if imports[0].find(".") > -1 or name in imports:
+                            # Most likely something like 'xml.etree',
+                            # which will appear in the .locals as
+                            # 'xml'.
+                            # Only pick the name if it wasn't consumed.
+                            name2 = imports[0]
+                    if name2 and name2 not in local_names:
                         local_names[name2] = stmt
-        local_names = sorted(local_names.iteritems(), key=lambda a: a[1].fromlineno)
+        local_names = sorted(local_names.iteritems(),
+                             key=lambda a: a[1].fromlineno)
 
+        # Check for unused imports.
         checked = set()
         for name, stmt in local_names:
             for imports in stmt.names:
-                # 'import imported_name' or 'from something import imported_name'
                 real_name = imported_name = imports[0]
                 if imported_name == "*":
                     real_name = name
-                # 'import imported_name as as_name'
                 as_name = imports[1]
-
                 if real_name in checked:
+                    continue
+                if name not in (real_name, as_name):
                     continue
                 checked.add(real_name)
 
-                if isinstance(stmt, astroid.Import) or (isinstance(stmt, astroid.From) \
-                                                        and not stmt.modname):
+                if (isinstance(stmt, astroid.Import) or
+                        (isinstance(stmt, astroid.From) and
+                         not stmt.modname)):
+                    if (isinstance(stmt, astroid.From) and
+                            SPECIAL_OBJ.search(imported_name)):
+                        # Filter special objects (__doc__, __all__) etc.,
+                        # because they can be imported for exporting.
+                        continue
                     if as_name is None:
                         msg = "import %s" % imported_name
                     else:
                         msg = "%s imported as %s" % (imported_name, as_name)
                     self.add_message('unused-import', args=msg, node=stmt)
                 elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
+                    if SPECIAL_OBJ.search(imported_name):
+                        # Filter special objects (__doc__, __all__) etc.,
+                        # because they can be imported for exporting.
+                        continue
                     if imported_name == '*':
-                        self.add_message('unused-wildcard-import', args=name, node=stmt)
+                        self.add_message('unused-wildcard-import',
+                                         args=name, node=stmt)
                     else:
                         if as_name is None:
                             msg = "%s imported from %s" % (imported_name, stmt.modname)
                         else:
-                            msg = "%s imported from %s as %s" % (imported_name, stmt.modname, as_name)
+                            fields = (imported_name, stmt.modname, as_name)
+                            msg = "%s imported from %s as %s" % fields
                         self.add_message('unused-import', args=msg, node=stmt)
         del self._to_consume
 
