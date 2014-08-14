@@ -22,3 +22,4 @@ class A3123(object):
 
     smeth = staticmethod(smeth)
 
+    prop = property(lambda self: self._protected)
