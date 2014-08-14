@@ -27,7 +27,7 @@ from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     PYMETHODS, overrides_a_method, check_messages, is_attr_private,
-    is_attr_protected, node_frame_class, safe_infer)
+    is_attr_protected, node_frame_class, safe_infer, is_builtin_object)
 
 if sys.version_info >= (3, 0):
     NEXT_METHOD = '__next__'
@@ -581,6 +581,23 @@ a metaclass class method.'}
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
             if not (callee == klass.name or callee in klass.basenames):
+                # Detect property assignments in the body of the class.
+                # This is acceptable:
+                #
+                # class A:
+                #     b = property(lambda: self._b)
+
+                stmt = node.parent.statement()
+                try:
+                    if (isinstance(stmt, astroid.Assign) and
+                            (stmt in klass.body or klass.parent_of(stmt)) and
+                            isinstance(stmt.value, astroid.CallFunc) and
+                            isinstance(stmt.value.func, astroid.Name) and
+                            stmt.value.func.name == 'property' and
+                            is_builtin_object(next(stmt.value.func.infer(), None))):
+                        return
+                except astroid.InferenceError:
+                    pass
                 self.add_message('protected-access', node=node, args=attrname)
 
     def visit_name(self, node):
