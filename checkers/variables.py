@@ -17,6 +17,7 @@
 """
 import os
 import sys
+import re
 from copy import copy
 
 import astroid
@@ -32,6 +33,8 @@ from pylint.checkers.utils import (
     is_defined_before, is_error, is_func_default, is_func_decorator,
     assign_parent, check_messages, is_inside_except, clobber_in_except,
     get_all_elements)
+
+SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 
 
 def in_for_else_branch(parent, stmt):
@@ -367,12 +370,21 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if (isinstance(stmt, astroid.Import) or
                         (isinstance(stmt, astroid.From) and
                          not stmt.modname)):
+                    if (isinstance(stmt, astroid.From) and
+                            SPECIAL_OBJ.search(imported_name)):
+                        # Filter special objects (__doc__, __all__) etc.,
+                        # because they can be imported for exporting.
+                        continue
                     if as_name is None:
                         msg = "import %s" % imported_name
                     else:
                         msg = "%s imported as %s" % (imported_name, as_name)
                     self.add_message('unused-import', args=msg, node=stmt)
                 elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
+                    if SPECIAL_OBJ.search(imported_name):
+                        # Filter special objects (__doc__, __all__) etc.,
+                        # because they can be imported for exporting.
+                        continue
                     if imported_name == '*':
                         self.add_message('unused-wildcard-import',
                                          args=name, node=stmt)

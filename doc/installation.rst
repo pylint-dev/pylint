@@ -1,4 +1,3 @@
-
 Installation
 ------------
 
@@ -63,16 +62,16 @@ On Windows, once you have installed Pylint, the command line usage is ::
   pylint.bat [options] module_or_package
 
 But this will only work if *pylint.bat* is either in the current
-directory, or on your system path. (*setup.py* install install *python.bat*
+directory, or on your system path. (*setup.py* will install *python.bat*
 to the *Scripts* subdirectory of your Python installation -- e.g.
 C:\Python24\Scripts.) You can do any of the following to solve this:
 
-1. change to the appropriate directory before running pylint.bat
+1. Change to the appropriate directory before running pylint.bat
 
-2. add the Scripts directory to your path statement in your autoexec.bat
+2. Add the Scripts directory to your path statement in your autoexec.bat
    file (this file is found in the root directory of your boot-drive)
 
-3. create a 'redirect' batch file in a directory actually on your
+3. Create a 'redirect' batch file in a directory actually on your
    systems path
 
 To effect (2), simply append the appropriate directory name to the PATH=

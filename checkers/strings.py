@@ -169,10 +169,10 @@ def parse_format_method_string(format_string):
     """
     keys = []
     num_args = 0
-    manual_pos_arg = 0
+    manual_pos_arg = set()
     for name in collect_string_fields(format_string):
         if name and str(name).isdigit():
-            manual_pos_arg += 1
+            manual_pos_arg.add(str(name))
         elif name:
             keyname, fielditerator = split_format_field_names(name)
             if isinstance(keyname, numbers.Number):
@@ -182,7 +182,7 @@ def parse_format_method_string(format_string):
             keys.append((keyname, list(fielditerator)))
         else:
             num_args += 1
-    return keys, num_args, manual_pos_arg
+    return keys, num_args, len(manual_pos_arg)
 
 def get_args(callfunc):
     """ Get the arguments from the given `CallFunc` node.

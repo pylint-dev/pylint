@@ -249,6 +249,20 @@ accessed. Python regular expressions are accepted.'}
                 # explicit skipping of module member access
                 if owner.root().name in self.config.ignored_modules:
                     continue
+                if isinstance(owner, astroid.Class):
+                    # Look up in the metaclass only if the owner is itself
+                    # a class.
+                    # TODO: getattr doesn't return by default members
+                    # from the metaclass, because handling various cases
+                    # of methods accessible from the metaclass itself
+                    # and/or subclasses only is too complicated for little to
+                    # no benefit.
+                    metaclass = owner.metaclass()
+                    try:
+                        if metaclass and metaclass.getattr(node.attrname):
+                            continue
+                    except NotFoundError:
+                        pass
                 missingattr.add((owner, name))
                 continue
             # stop on the first found

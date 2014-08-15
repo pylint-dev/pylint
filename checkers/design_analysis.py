@@ -15,13 +15,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """check for signs of poor design"""
 
+import re
+from collections import defaultdict
+
 from astroid import Function, If, InferenceError
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-
-import re
 
 # regexp for ignored argument name
 IGNORED_ARGUMENT_NAMES = re.compile('_.*')
@@ -174,7 +175,7 @@ class MisdesignChecker(BaseChecker):
         """initialize visit variables"""
         self.stats = self.linter.add_stats()
         self._returns = []
-        self._branches = []
+        self._branches = defaultdict(int)
         self._used_abstracts = {}
         self._used_ifaces = {}
         self._abstracts = []
@@ -200,7 +201,6 @@ class MisdesignChecker(BaseChecker):
     def visit_class(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
-        self._inc_branch()
         # Is the total inheritance hierarchy is 7 or less?
         nb_parents = len(list(node.ancestors()))
         if nb_parents > self.config.max_parents:
@@ -268,10 +268,8 @@ class MisdesignChecker(BaseChecker):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
-        self._inc_branch()
         # init branch and returns counters
         self._returns.append(0)
-        self._branches.append(0)
         # check number of arguments
         args = node.args.args
         if args is not None:
@@ -303,7 +301,7 @@ class MisdesignChecker(BaseChecker):
         if returns > self.config.max_returns:
             self.add_message('too-many-return-statements', node=node,
                              args=(returns, self.config.max_returns))
-        branches = self._branches.pop()
+        branches = self._branches[node]
         if branches > self.config.max_branches:
             self.add_message('too-many-branches', node=node,
                              args=(branches, self.config.max_branches))
@@ -330,12 +328,12 @@ class MisdesignChecker(BaseChecker):
         branches = len(node.handlers)
         if node.orelse:
             branches += 1
-        self._inc_branch(branches)
+        self._inc_branch(node, branches)
         self._stmts += branches
 
-    def visit_tryfinally(self, _):
+    def visit_tryfinally(self, node):
         """increments the branches counter"""
-        self._inc_branch(2)
+        self._inc_branch(node, 2)
         self._stmts += 2
 
     def visit_if(self, node):
@@ -345,7 +343,7 @@ class MisdesignChecker(BaseChecker):
         if node.orelse and (len(node.orelse) > 1 or
                             not isinstance(node.orelse[0], If)):
             branches += 1
-        self._inc_branch(branches)
+        self._inc_branch(node, branches)
         self._stmts += branches
 
     def visit_while(self, node):
@@ -353,15 +351,13 @@ class MisdesignChecker(BaseChecker):
         branches = 1
         if node.orelse:
             branches += 1
-        self._inc_branch(branches)
+        self._inc_branch(node, branches)
 
     visit_for = visit_while
 
-    def _inc_branch(self, branchesnum=1):
+    def _inc_branch(self, node, branchesnum=1):
         """increments the branches counter"""
-        branches = self._branches
-        for i in xrange(len(branches)):
-            branches[i] += branchesnum
+        self._branches[node.scope()] += branchesnum
 
     # FIXME: make a nice report...
 

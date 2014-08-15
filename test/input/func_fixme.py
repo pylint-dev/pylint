@@ -12,3 +12,4 @@ def function():
 
     # TODO: Do something with the variables
     xxx = "n/a"  # XXX: Fix this later
+    #FIXME: no space after hash
