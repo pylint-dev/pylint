@@ -66,6 +66,9 @@ ChangeLog for Pylint
     * Don't emit 'protected-access' if the attribute is accessed using
       a property defined at the class level.
 
+    * Detect calls of the parent's __init__, through a binded super() call.
+
+
 2014-07-26  --  1.3.0
 
     * Allow hanging continued indentation for implicitly concatenated

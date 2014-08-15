@@ -818,6 +818,17 @@ a metaclass class method.'}
                 klass = expr.expr.infer().next()
                 if klass is YES:
                     continue
+                # The infered klass can be super(), which was
+                # assigned to a variable and the `__init__` was called later.
+                #
+                # base = super()
+                # base.__init__(...)
+
+                if (isinstance(klass, astroid.Instance) and
+                        isinstance(klass._proxied, astroid.Class) and
+                        is_builtin_object(klass._proxied) and
+                        klass._proxied.name == 'super'):
+                    return
                 try:
                     del not_called_yet[klass]
                 except KeyError:
