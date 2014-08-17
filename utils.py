@@ -376,7 +376,9 @@ class MessagesHandlerMixIn(object):
             module, obj = get_module_and_frameid(node)
             path = node.root().file
         # add the message
-        self.reporter.add_message(msgid, (path, module, obj, line or 1, col_offset or 0), msg)
+        self.reporter.handle_message(
+            Message(msgid, symbol, 
+                    (path, module, obj, line or 1, col_offset or 0), msg))
 
     def print_full_documentation(self):
         """output a full documentation in ReST format"""

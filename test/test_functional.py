@@ -48,8 +48,8 @@ def parse_python_version(str):
 
 
 class TestReporter(reporters.BaseReporter):
-    def add_message(self, msg_id, location, msg):
-        self.messages.append(utils.Message(msg_id, self.linter.msgs_store.check_message_id(msg_id).symbol, location, msg))
+    def handle_message(self, msg):
+        self.messages.append(msg)
 
     def on_set_current_module(self, module, filepath):
         self.messages = []

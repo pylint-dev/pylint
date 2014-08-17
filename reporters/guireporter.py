@@ -19,10 +19,9 @@ class GUIReporter(BaseReporter):
         BaseReporter.__init__(self, output)
         self.gui = gui
 
-    def add_message(self, msg_id, location, msg):
+    def handle_message(self, msg):
         """manage message of different type and in the context of path"""
-        message = utils.Message(msg_id, self.linter.msgs_store.check_message_id(msg_id).symbol, location, msg)
-        self.gui.msg_queue.put(message)
+        self.gui.msg_queue.put(msg)
 
     def _display(self, layout):
         """launch layouts display"""

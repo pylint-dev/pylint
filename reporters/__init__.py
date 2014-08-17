@@ -60,9 +60,16 @@ class BaseReporter(object):
         # Build the path prefix to strip to get relative paths
         self.path_strip_prefix = os.getcwd() + os.sep
 
+    def handle_message(self, msg):
+        """Handle a new message triggered on the current file.
+
+        Invokes the legacy add_message API by default."""
+        self.add_message(
+            msg.msg_id, (msg.abspath, msg.module, msg.obj, msg.line, msg.column), 
+            msg.msg)
+
     def add_message(self, msg_id, location, msg):
-        """Client API to send a message"""
-        # Shall we store the message objects somewhere, do some validity checking ?
+        """Deprecated, do not use."""
         raise NotImplementedError
 
     def set_output(self, output=None):

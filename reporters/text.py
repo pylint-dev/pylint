@@ -24,7 +24,6 @@ from logilab.common.textutils import colorize_ansi
 
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
-from pylint import utils
 
 TITLE_UNDERLINES = ['', '=', '-', '.']
 
@@ -49,17 +48,15 @@ class TextReporter(BaseReporter):
         """Convenience method to write a formated message with class default template"""
         self.writeln(msg.format(self._template))
 
-    def add_message(self, msg_id, location, msg):
+    def handle_message(self, msg):
         """manage message of different type and in the context of path"""
-        m = utils.Message(msg_id, self.linter.msgs_store.check_message_id(msg_id).symbol, 
-                          location, msg)
-        if m.module not in self._modules:
-            if m.module:
-                self.writeln('************* Module %s' % m.module)
-                self._modules.add(m.module)
+        if msg.module not in self._modules:
+            if msg.module:
+                self.writeln('************* Module %s' % msg.module)
+                self._modules.add(msg.module)
             else:
                 self.writeln('************* ')
-        self.write_message(m)
+        self.write_message(msg)
 
     def _display(self, layout):
         """launch layouts display"""
@@ -116,11 +113,10 @@ class ColorizedTextReporter(TextReporter):
         except KeyError:
             return None, None
 
-    def add_message(self, msg_id, location, msg):
+    def handle_message(self, msg):
         """manage message of different types, and colorize output
         using ansi escape codes
         """
-        msg = utils.Message(msg_id, self.linter.msgs_store.check_message_id(msg_id).symbol, location, msg)
         if msg.module not in self._modules:
             color, style = self._get_decoration('S')
             if msg.module:
