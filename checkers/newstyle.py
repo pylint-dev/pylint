@@ -74,14 +74,14 @@ class NewStyleConflictChecker(BaseChecker):
 
     @check_messages('slots-on-old-class', 'old-style-class')
     def visit_class(self, node):
-        """check __slots__ usage
+        """ Check __slots__ in old style classes and old
+        style class definition.
         """
         if '__slots__' in node and not node.newstyle:
             self.add_message('slots-on-old-class', node=node)
-        # The node type could be class, exception, metaclass, or
-        # interface.  Presumably, the non-class-type nodes would always
-        # have an explicit base class anyway.
-        if not node.bases and node.type == 'class':
+        # If the class node is not marked as newstyle and it has no explicitly
+        # defined metaclass, then it's an old style class.
+        if not node.newstyle and node.type == 'class' and not node.metaclass():
             self.add_message('old-style-class', node=node)
 
     @check_messages('property-on-old-class')
