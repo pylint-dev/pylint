@@ -9,10 +9,10 @@ import re
 import sys
 import unittest
 
+from pylint import checkers
 from pylint import lint
 from pylint import reporters
-from pylint import checkers
-
+from pylint import utils
 
 class NoFileError(Exception):
     pass
@@ -49,7 +49,7 @@ def parse_python_version(str):
 
 class TestReporter(reporters.BaseReporter):
     def add_message(self, msg_id, location, msg):
-        self.messages.append(reporters.Message(self, msg_id, location, msg))
+        self.messages.append(utils.Message(msg_id, self.linter.msgs_store.check_message_id(msg_id).symbol, location, msg))
 
     def on_set_current_module(self, module, filepath):
         self.messages = []

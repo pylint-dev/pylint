@@ -17,11 +17,13 @@
 main pylint class
 """
 
+import collections
+import os
 import re
 import sys
 import tokenize
-import os
-from warnings import warn
+import warnings
+
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 from logilab.common.interface import implements
@@ -75,6 +77,28 @@ class WarningScope(object):
     LINE = 'line-based-msg'
     NODE = 'node-based-msg'
 
+_MsgBase = collections.namedtuple(
+    '_MsgBase', 
+    ['msg_id', 'symbol', 'msg', 'C', 'category', 'abspath', 'module', 'obj',
+     'line', 'column'])
+
+
+class Message(_MsgBase):
+    """This class represent a message to be issued by the reporters"""
+    def __new__(cls, msg_id, symbol, location, msg):
+        return _MsgBase.__new__(
+            cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]], *location)
+
+    def format(self, template):
+        """Format the message according to the given template.
+
+        The template format is the one of the format method :
+        cf. http://docs.python.org/2/library/string.html#formatstrings
+        """
+        # For some reason, _asdict on derived namedtuples does not work with
+        # Python 3.4. Needs some investigation.
+        return template.format(**dict(zip(self._fields, self)))
+
 
 def get_module_and_frameid(node):
     """return the module name and the frame id in the module"""
@@ -124,8 +148,8 @@ def build_message_def(checker, msgid, msg_tuple):
         # messages should have a symbol, but for backward compatibility
         # they may not.
         (msg, descr) = msg_tuple
-        warn("[pylint 0.26] description of message %s doesn't include "
-             "a symbolic name" % msgid, DeprecationWarning)
+        warnings.warn("[pylint 0.26] description of message %s doesn't include "
+                      "a symbolic name" % msgid, DeprecationWarning)
         symbol = None
     options.setdefault('scope', default_scope)
     return MessageDefinition(checker, msgid, msg, descr, symbol, **options)

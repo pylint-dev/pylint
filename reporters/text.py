@@ -23,7 +23,8 @@ from logilab.common.ureports import TextWriter
 from logilab.common.textutils import colorize_ansi
 
 from pylint.interfaces import IReporter
-from pylint.reporters import BaseReporter, Message
+from pylint.reporters import BaseReporter
+from pylint import utils
 
 TITLE_UNDERLINES = ['', '=', '-', '.']
 
@@ -50,7 +51,8 @@ class TextReporter(BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         """manage message of different type and in the context of path"""
-        m = Message(self, msg_id, location, msg)
+        m = utils.Message(msg_id, self.linter.msgs_store.check_message_id(msg_id).symbol, 
+                          location, msg)
         if m.module not in self._modules:
             if m.module:
                 self.writeln('************* Module %s' % m.module)
@@ -118,7 +120,7 @@ class ColorizedTextReporter(TextReporter):
         """manage message of different types, and colorize output
         using ansi escape codes
         """
-        msg = Message(self, msg_id, location, msg)
+        msg = utils.Message(msg_id, self.linter.msgs_store.check_message_id(msg_id).symbol, location, msg)
         if msg.module not in self._modules:
             color, style = self._get_decoration('S')
             if msg.module:
@@ -130,8 +132,10 @@ class ColorizedTextReporter(TextReporter):
             self.writeln(modsep)
             self._modules.add(msg.module)
         color, style = self._get_decoration(msg.C)
-        for attr in ('msg', 'symbol', 'category', 'C'):
-            setattr(msg, attr, colorize_ansi(getattr(msg, attr), color, style))
+
+        msg = msg._replace(
+            **{attr: colorize_ansi(getattr(msg, attr), color, style)
+               for attr in ('msg', 'symbol', 'category', 'C')}) 
         self.write_message(msg)
 
 
