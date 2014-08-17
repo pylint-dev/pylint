@@ -25,6 +25,7 @@
 
   Display help messages about given message identifiers and exit.
 """
+from __future__ import print_function
 
 # import this first to avoid builtin namespace pollution
 from pylint.checkers import utils #pylint: disable=unused-import
@@ -413,8 +414,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         try:
             BaseTokenChecker.set_option(self, optname, value, action, optdict)
         except UnsupportedAction:
-            print >> sys.stderr, 'option %s can\'t be read from config file' % \
-                  optname
+            print('option %s can\'t be read from config file' % \
+                  optname, file=sys.stderr)
 
     def register_reporter(self, reporter_class):
         self._reporters[reporter_class.name] = reporter_class
@@ -633,11 +634,11 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         """return a ast(roid) representation for a module"""
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
-        except SyntaxError, ex:
+        except SyntaxError as ex:
             self.add_message('syntax-error', line=ex.lineno, args=ex.msg)
-        except AstroidBuildingException, ex:
+        except AstroidBuildingException as ex:
             self.add_message('parse-error', args=ex)
-        except Exception, ex:
+        except Exception as ex:
             import traceback
             traceback.print_exc()
             self.add_message('astroid-error', args=(ex.__class__, ex))
@@ -647,7 +648,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         # call raw checkers if possible
         try:
             tokens = tokenize_module(astroid)
-        except tokenize.TokenError, ex:
+        except tokenize.TokenError as ex:
             self.add_message('syntax-error', line=ex.args[1][0], args=ex.args[0])
             return
 
@@ -718,7 +719,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         evaluation = self.config.evaluation
         try:
             note = eval(evaluation, {}, self.stats)
-        except Exception, ex:
+        except Exception as ex:
             msg = 'An exception occurred while rating: %s' % ex
         else:
             stats['global_note'] = note
@@ -858,8 +859,8 @@ group are mutually exclusive.'),
                 'rcfile':       (self.cb_set_rcfile, True),
                 'load-plugins': (self.cb_add_plugins, True),
                 })
-        except ArgumentPreprocessingError, ex:
-            print >> sys.stderr, ex
+        except ArgumentPreprocessingError as ex:
+            print(ex, file=sys.stderr)
             sys.exit(32)
 
         self.linter = linter = self.LinterClass((
@@ -983,18 +984,18 @@ group are mutually exclusive.'),
             linter.set_reporter(reporter)
         try:
             args = linter.load_command_line_configuration(args)
-        except SystemExit, exc:
+        except SystemExit as exc:
             if exc.code == 2: # bad options
                 exc.code = 32
             raise
         if not args:
-            print linter.help()
+            print(linter.help())
             sys.exit(32)
         # insert current working directory to the python path to have a correct
         # behaviour
         linter.prepare_import_path(args)
         if self.linter.config.profile:
-            print >> sys.stderr, '** profiled run'
+            print('** profiled run', file=sys.stderr)
             import cProfile, pstats
             cProfile.runctx('linter.check(%r)' % args, globals(), locals(),
                             'stones.prof')

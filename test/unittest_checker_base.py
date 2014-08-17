@@ -82,8 +82,6 @@ class NameCheckerTest(CheckerTestCase):
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
     def test_property_names(self):
-        if sys.version_info < (2, 6):
-            self.skip('abc module does not exist on 2.5')
         # If a method is annotated with @property, it's name should
         # match the attr regex. Since by default the attribute regex is the same
         # as the method regex, we override it here.

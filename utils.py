@@ -16,6 +16,7 @@
 """some various utilities and helper classes, most of them used in the
 main pylint class
 """
+from __future__ import print_function
 
 import collections
 import os
@@ -53,7 +54,7 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-MSG_TYPES_LONG = dict([(v, k) for k, v in MSG_TYPES.iteritems()])
+MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.iteritems()}
 
 MSG_TYPES_STATUS = {
     'I' : 0,
@@ -403,18 +404,18 @@ class MessagesHandlerMixIn(object):
         for checker in self.get_checkers():
             if checker.name == 'master':
                 prefix = 'Main '
-                print "Options"
-                print '-------\n'
+                print("Options")
+                print('-------\n')
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:
                             title = 'General options'
                         else:
                             title = '%s options' % section.capitalize()
-                        print title
-                        print '~' * len(title)
+                        print(title)
+                        print('~' * len(title))
                         rest_format_section(sys.stdout, None, options)
-                        print
+                        print()
             else:
                 try:
                     by_checker[checker.name][0] += checker.options_and_values()
@@ -427,32 +428,32 @@ class MessagesHandlerMixIn(object):
         for checker, (options, msgs, reports) in by_checker.iteritems():
             prefix = ''
             title = '%s checker' % checker
-            print title
-            print '-' * len(title)
-            print
+            print(title)
+            print('-' * len(title))
+            print()
             if options:
                 title = 'Options'
-                print title
-                print '~' * len(title)
+                print(title)
+                print('~' * len(title))
                 rest_format_section(sys.stdout, None, options)
-                print
+                print()
             if msgs:
                 title = ('%smessages' % prefix).capitalize()
-                print title
-                print '~' * len(title)
+                print(title)
+                print('~' * len(title))
                 for msgid, msg in sorted(msgs.iteritems(),
-                                         key=lambda (k, v): (_MSG_ORDER.index(k[0]), k)):
+                                         key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
                     msg = build_message_def(checker, msgid, msg)
-                    print msg.format_help(checkerref=False)
-                print
+                    print(msg.format_help(checkerref=False))
+                print()
             if reports:
                 title = ('%sreports' % prefix).capitalize()
-                print title
-                print '~' * len(title)
+                print(title)
+                print('~' * len(title))
                 for report in reports:
-                    print ':%s: %s' % report[:2]
-                print
-            print
+                    print(':%s: %s' % report[:2])
+                print()
+            print()
 
 
 class FileState(object):
@@ -649,11 +650,11 @@ class MessagesStore(object):
         """display help messages for the given message identifiers"""
         for msgid in msgids:
             try:
-                print self.check_message_id(msgid).format_help(checkerref=True)
-                print
-            except UnknownMessage, ex:
-                print ex
-                print
+                print(self.check_message_id(msgid).format_help(checkerref=True))
+                print()
+            except UnknownMessage as ex:
+                print(ex)
+                print()
                 continue
 
     def list_messages(self):
@@ -662,8 +663,8 @@ class MessagesStore(object):
         for msg in msgs:
             if not msg.may_be_emitted():
                 continue
-            print msg.format_help(checkerref=False)
-        print
+            print(msg.format_help(checkerref=False))
+        print()
 
 
 class ReportsHandlerMixIn(object):
@@ -771,7 +772,7 @@ def expand_modules(files_or_modules, black_list):
                 if filepath is None:
                     errors.append({'key' : 'ignored-builtin-module', 'mod': modname})
                     continue
-            except (ImportError, SyntaxError), ex:
+            except (ImportError, SyntaxError) as ex:
                 # FIXME p3k : the SyntaxError is a Python bug and should be
                 # removed as soon as possible http://bugs.python.org/issue10588
                 errors.append({'key': 'fatal', 'mod': modname, 'ex': ex})
@@ -874,7 +875,7 @@ def register_plugins(linter, directory):
             except ValueError:
                 # empty module name (usually emacs auto-save files)
                 continue
-            except ImportError, exc:
+            except ImportError as exc:
                 print >> sys.stderr, "Problem importing module %s: %s" % (filename, exc)
             else:
                 if hasattr(module, 'register'):

@@ -417,7 +417,7 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     try:
         if position is not None and not isinstance(callfunc_node.args[position], astroid.Keyword):
             return callfunc_node.args[position]
-    except IndexError, error:
+    except IndexError as error:
         raise NoSuchArgumentError(error)
     if keyword:
         for arg in callfunc_node.args:

@@ -27,10 +27,6 @@ if sys.version_info >= (3, 0):
     def cmp(a, b):
         return (a > b) - (a < b)
 
-if sys.version_info < (2, 6):
-    import stringformat
-    stringformat.init(True)
-
 def diff_string(old, new):
     """given a old and new int value, return a string representing the
     difference
