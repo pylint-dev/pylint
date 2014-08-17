@@ -16,7 +16,7 @@ missing-format-argument-key:71:pprint_bad:Missing keyword argument 'b' for forma
 missing-format-argument-key:72:pprint_bad:Missing keyword argument 'a' for format string
 missing-format-attribute:74:pprint_bad:Missing format attribute 'length' in format specifier 'a.ids.__len__.length'
 invalid-format-index:75:pprint_bad:Using invalid lookup key 400 in format specifier 'a.ids[3][400]'
-invalid-format-index:76:pprint_bad:Using invalid lookup key "'string'" in format specifier 'a.ids[3]["\'string\'"]'
+invalid-format-index:76:pprint_bad:"Using invalid lookup key ""'string'"" in format specifier 'a.ids[3][""\'string\'""]'"
 invalid-format-index:77:pprint_bad:Using invalid lookup key 1 in format specifier '0[0][1]'
 invalid-format-index:78:pprint_bad:Using invalid lookup key 0 in format specifier '0[0][0]'
 missing-format-argument-key:80:pprint_bad:Missing keyword argument 'b' for format string

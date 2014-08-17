@@ -1,5 +1,6 @@
 """Functional full-module tests for PyLint."""
 from __future__ import unicode_literals
+import csv
 import collections
 import ConfigParser
 import io
@@ -14,6 +15,18 @@ from pylint import lint
 from pylint import reporters
 from pylint import utils
 
+class test_dialect(csv.excel):
+    if sys.version_info[0] < 3:
+        delimiter = b':'
+        lineterminator = b'\n'
+    else:
+        delimiter = ':'
+        lineterminator = '\n'
+
+
+csv.register_dialect('test', test_dialect)
+
+
 class NoFileError(Exception):
     pass
 
@@ -27,7 +40,11 @@ class OutputLine(collections.namedtuple('OutputLine',
                 ['symbol', 'lineno', 'object', 'msg'])):
     @classmethod
     def from_msg(cls, msg):
-        return cls(msg.symbol, msg.line, msg.obj or '', msg.msg + '\n')
+        return cls(msg.symbol, msg.line, msg.obj or '', msg.msg)
+
+    @classmethod
+    def from_csv(cls, row):
+        return cls(row[0], int(row[1]), row[2], row[3])
 
 
 # Common sub-expressions.
@@ -123,16 +140,7 @@ _OPERATORS = {
 }
 
 def parse_expected_output(stream):
-    lines = []
-    for line in stream:
-        parts = line.split(':', 3)
-        if len(parts) != 4:
-            symbol, lineno, obj, msg = lines.pop()
-            lines.append(OutputLine(symbol, lineno, obj, msg + line))
-        else:
-            linenum = int(parts[1])
-            lines.append(OutputLine(parts[0], linenum, parts[2], parts[3]))
-    return lines
+    return [OutputLine.from_csv(row) for row in csv.reader(stream, 'test')]
 
 
 def get_expected_messages(stream):
@@ -295,9 +303,10 @@ class LintModuleOutputUpdate(LintModuleTest):
             remaining.extend(received_lines)
             remaining.sort(key=lambda m: (m[1], m[0], m[3]))
             with open(self._test_file.expected_output, 'w') as fobj:
+                writer = csv.writer(fobj, dialect='test')
                 for line in remaining:
-                    fobj.write('{0}:{1}:{2}:{3}'.format(*line))
-
+                    #fobj.write('{0}:{1}:{2}:{3}'.format(*line))
+                    writer.writerow(line)
 
 def suite():
     input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
