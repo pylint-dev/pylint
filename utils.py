@@ -640,6 +640,21 @@ class ReportsHandlerMixIn(object):
         self._reports = {}
         self._reports_state = {}
 
+    @property
+    def _sorted_reports(self):
+        """ Return a list of reports, sorted in the order
+        of their reporting priority.
+        """
+        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
+        try:
+            # Remove the current reporter and add it
+            # at the end of the list.
+            reports.pop(reports.index(self))
+        except ValueError:
+            pass
+        reports.append(self)
+        return reports
+
     def register_report(self, reportid, r_title, r_cb, checker):
         """register a report
 
@@ -671,7 +686,7 @@ class ReportsHandlerMixIn(object):
         """render registered reports"""
         sect = Section('Report',
                        '%s statements analysed.'% (self.stats['statement']))
-        for checker in self._reports:
+        for checker in self._sorted_reports:
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.report_is_enabled(reportid):
                     continue
