@@ -1055,7 +1055,7 @@ group are mutually exclusive.'),
 
     def cb_list_confidence_levels(self, option, optname, value, parser):
         for level in CONFIDENCE_LEVELS:
-            print '%-18s: %s' % level
+            print('%-18s: %s' % level)
         sys.exit(0)
 
 def cb_init_hook(optname, value):
