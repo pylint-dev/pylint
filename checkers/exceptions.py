@@ -291,7 +291,7 @@ class ExceptionsChecker(BaseChecker):
                 for part, exc in excs:
                     if exc is YES:
                         continue
-                    if isinstance(exc, astroid.Instance):
+                    if isinstance(exc, astroid.Instance) and inherit_from_std_ex(exc):
                         exc = exc._proxied
                     if not isinstance(exc, astroid.Class):
                         # Don't emit the warning if the infered stmt
