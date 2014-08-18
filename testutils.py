@@ -245,6 +245,7 @@ class LintTestUsingModule(unittest.TestCase):
     depends = None
     output = None
     _TEST_TYPE = 'module'
+    maxDiff = None
 
     def shortDescription(self):
         values = {'mode' : self._TEST_TYPE,
