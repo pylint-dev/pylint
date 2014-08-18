@@ -71,6 +71,8 @@ ChangeLog for Pylint
     * Check that a class has an explicitly defined metaclass before
       emitting 'old-style-class' for Python 2.
 
+    * Emit 'catching-non-exception' for non-class nodes. Closes issue #303.
+
 
 2014-07-26  --  1.3.0
 
