@@ -336,7 +336,7 @@ class ExceptionsChecker(BaseChecker):
                         fully_infered = all(inferit is not YES
                                             for inferit in bases)
                         if fully_infered:
-                            print("Infered", fully_infered, bases)
+                            print("Infered", fully_infered, bases, exc)
                             self.add_message('catching-non-exception',
                                              node=handler.type,
                                              args=(exc.name, ))
