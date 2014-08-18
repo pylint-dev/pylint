@@ -291,6 +291,8 @@ class ExceptionsChecker(BaseChecker):
                 for part, exc in excs:
                     if exc is YES:
                         continue
+                    if isinstance(exc, astroid.Instance):
+                        exc = exc._proxied
                     if not isinstance(exc, astroid.Class):
                         # Don't emit the warning if the infered stmt
                         # is None, but the exception handler is something else,
