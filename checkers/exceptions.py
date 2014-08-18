@@ -295,6 +295,7 @@ class ExceptionsChecker(BaseChecker):
                         # Don't emit the warning if the infered stmt
                         # is None, but the exception handler is something else,
                         # maybe it was redefined.
+                        print("not a class", exc, type(exc), exc.as_string())
                         if (isinstance(exc, astroid.Const) and
                                 exc.value is None):
                             if ((isinstance(handler.type, astroid.Const) and
@@ -336,7 +337,6 @@ class ExceptionsChecker(BaseChecker):
                         fully_infered = all(inferit is not YES
                                             for inferit in bases)
                         if fully_infered:
-                            print("Infered", fully_infered, bases, exc)
                             self.add_message('catching-non-exception',
                                              node=handler.type,
                                              args=(exc.name, ))
