@@ -652,7 +652,8 @@ class ReportsHandlerMixIn(object):
             reports.pop(reports.index(self))
         except ValueError:
             pass
-        reports.append(self)
+        else:
+            reports.append(self)
         return reports
 
     def register_report(self, reportid, r_title, r_cb, checker):
