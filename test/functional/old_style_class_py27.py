@@ -4,14 +4,14 @@
 class Old: # [old-style-class]
     """ old style class """
 
-class Child(Old): # [old-style-class]
-    """ still an old style class """
+class Child(Old):
+    """ Old style class, but don't emit for it. """
+
+class NotOldStyle2:
+    """ Because I have a metaclass at class level. """
+    __metaclass__ = type
 
 __metaclass__ = type
 
 class NotOldStyle:
     """ Because I have a metaclass at global level. """
-
-class NotOldStyle2:
-    """ Because I have a metaclass at class level. """
-    __metaclass__ = type
