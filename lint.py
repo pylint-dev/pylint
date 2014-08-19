@@ -420,6 +420,18 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     def register_reporter(self, reporter_class):
         self._reporters[reporter_class.name] = reporter_class
 
+    def report_order(self):
+        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
+        try:
+            # Remove the current reporter and add it
+            # at the end of the list.
+            reports.pop(reports.index(self))
+        except ValueError:
+            pass
+        else:
+            reports.append(self)
+        return reports
+
     # checkers manipulation methods ############################################
 
     def register_checker(self, checker):
