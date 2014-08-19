@@ -46,7 +46,8 @@ class OpenModeChecker(BaseChecker):
                   'Using datetetime.time in a boolean context can hide '
                   'subtle bugs when the time they represent matches '
                   'midnight UTC. This behaviour was fixed in Python 3.5. '
-                  'See http://bugs.python.org/issue13936 for reference.'),
+                  'See http://bugs.python.org/issue13936 for reference.',
+                  {'maxversion': (3, 5)}),
         }
 
     @utils.check_messages('bad-open-mode')
