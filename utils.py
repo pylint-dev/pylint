@@ -80,8 +80,8 @@ class WarningScope(object):
     NODE = 'node-based-msg'
 
 _MsgBase = collections.namedtuple(
-    '_MsgBase', 
-    ['msg_id', 'symbol', 'msg', 'C', 'category', 'confidence', 
+    '_MsgBase',
+    ['msg_id', 'symbol', 'msg', 'C', 'category', 'confidence',
      'abspath', 'module', 'obj', 'line', 'column'])
 
 
@@ -89,7 +89,7 @@ class Message(_MsgBase):
     """This class represent a message to be issued by the reporters"""
     def __new__(cls, msg_id, symbol, location, msg, confidence):
         return _MsgBase.__new__(
-            cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]], 
+            cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]],
             confidence, *location)
 
     def format(self, template):
@@ -675,21 +675,11 @@ class ReportsHandlerMixIn(object):
         self._reports = {}
         self._reports_state = {}
 
-    @property
-    def _sorted_reports(self):
+    def report_order(self):
         """ Return a list of reports, sorted in the order
-        of their reporting priority.
+        in which they must be called.
         """
-        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
-        try:
-            # Remove the current reporter and add it
-            # at the end of the list.
-            reports.pop(reports.index(self))
-        except ValueError:
-            pass
-        else:
-            reports.append(self)
-        return reports
+        return list(self._reports)
 
     def register_report(self, reportid, r_title, r_cb, checker):
         """register a report
@@ -722,7 +712,7 @@ class ReportsHandlerMixIn(object):
         """render registered reports"""
         sect = Section('Report',
                        '%s statements analysed.'% (self.stats['statement']))
-        for checker in self._sorted_reports:
+        for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.report_is_enabled(reportid):
                     continue
