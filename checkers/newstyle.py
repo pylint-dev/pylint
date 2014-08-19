@@ -19,9 +19,9 @@ import sys
 
 import astroid
 
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, has_known_bases
 
 MSGS = {
     'E1001': ('Use of __slots__ on an old style class',
@@ -74,15 +74,21 @@ class NewStyleConflictChecker(BaseChecker):
 
     @check_messages('slots-on-old-class', 'old-style-class')
     def visit_class(self, node):
-        """check __slots__ usage
+        """ Check __slots__ in old style classes and old
+        style class definition.
         """
         if '__slots__' in node and not node.newstyle:
-            self.add_message('slots-on-old-class', node=node)
+            confidence = (INFERENCE if has_known_bases(node)
+                          else INFERENCE_FAILURE)
+            self.add_message('slots-on-old-class', node=node,
+                             confidence=confidence)
         # The node type could be class, exception, metaclass, or
         # interface.  Presumably, the non-class-type nodes would always
         # have an explicit base class anyway.
-        if not node.bases and node.type == 'class':
-            self.add_message('old-style-class', node=node)
+        if not node.bases and node.type == 'class' and not node.metaclass():
+            # We use confidence HIGH here because this message should only ever
+            # be emitted for classes at the root of the inheritance hierarchyself.
+            self.add_message('old-style-class', node=node, confidence=HIGH)
 
     @check_messages('property-on-old-class')
     def visit_callfunc(self, node):
@@ -91,9 +97,12 @@ class NewStyleConflictChecker(BaseChecker):
         if (isinstance(parent, astroid.Class) and
                 not parent.newstyle and
                 isinstance(node.func, astroid.Name)):
+            confidence = (INFERENCE if has_known_bases(parent)
+                          else INFERENCE_FAILURE)
             name = node.func.name
             if name == 'property':
-                self.add_message('property-on-old-class', node=node)
+                self.add_message('property-on-old-class', node=node, 
+                                 confidence=confidence)
 
     @check_messages('super-on-old-class', 'bad-super-call', 'missing-super-argument')
     def visit_function(self, node):
@@ -111,9 +120,12 @@ class NewStyleConflictChecker(BaseChecker):
             if isinstance(call, astroid.CallFunc) and \
                isinstance(call.func, astroid.Name) and \
                call.func.name == 'super':
+                confidence = (INFERENCE if has_known_bases(klass)
+                              else INFERENCE_FAILURE)
                 if not klass.newstyle:
                     # super should not be used on an old style class
-                    self.add_message('super-on-old-class', node=node)
+                    self.add_message('super-on-old-class', node=node,
+                                      confidence=confidence)
                 else:
                     # super first arg should be the class
                     if not call.args and sys.version_info[0] == 3:
@@ -127,7 +139,8 @@ class NewStyleConflictChecker(BaseChecker):
                         continue
 
                     if supcls is None:
-                        self.add_message('missing-super-argument', node=call)
+                        self.add_message('missing-super-argument', node=call,
+                                         confidence=confidence)
                         continue
 
                     if klass is not supcls:
@@ -143,7 +156,8 @@ class NewStyleConflictChecker(BaseChecker):
                         if name is not None:
                             self.add_message('bad-super-call',
                                              node=call,
-                                             args=(name, ))
+                                             args=(name, ),
+                                             confidence=confidence)
 
 
 def register(linter):

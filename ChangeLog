@@ -2,6 +2,11 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Each message now comes with a confidence level attached, and
+      can be filtered base on this level. This allows to filter out
+      all messages that were emitted even though an inference failure
+      happened during checking.
+
     * Improved presenting unused-import message. Closes issue #293.
 
     * Add new checker for finding spelling errors. New messages:
@@ -62,6 +67,19 @@ ChangeLog for Pylint
  
     * Look in the metaclass, if defined, for members not found in the current
       class. Closes issue #306.
+
+    * Don't emit 'protected-access' if the attribute is accessed using
+      a property defined at the class level.
+
+    * Detect calls of the parent's __init__, through a binded super() call.
+
+    * Check that a class has an explicitly defined metaclass before
+      emitting 'old-style-class' for Python 2.
+
+    * Emit 'catching-non-exception' for non-class nodes. Closes issue #303.
+
+    * Order of reporting is consistent.
+
 
 2014-07-26  --  1.3.0
 

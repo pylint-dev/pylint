@@ -25,14 +25,14 @@ from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
 
 from logilab.common.modutils import file_from_modpath
 
-from pylint.interfaces import IAstroidChecker
+from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     PYMETHODS, is_ancestor_name, is_builtin,
     is_defined_before, is_error, is_func_default, is_func_decorator,
     assign_parent, check_messages, is_inside_except, clobber_in_except,
-    get_all_elements)
+    get_all_elements, has_known_bases)
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 
@@ -486,6 +486,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         klass = node.parent.frame()
         if is_method and (klass.type == 'interface' or node.is_abstract()):
             return
+        if is_method and isinstance(klass, astroid.Class):
+            confidence = INFERENCE if has_known_bases(klass) else INFERENCE_FAILURE
+        else:
+            confidence = HIGH
         authorized_rgx = self.config.dummy_variables_rgx
         called_overridden = False
         argnames = node.argnames()
@@ -539,7 +543,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # don't check callback arguments XXX should be configurable
                 if node.name.startswith('cb_') or node.name.endswith('_cb'):
                     continue
-                self.add_message('unused-argument', args=name, node=stmt)
+                self.add_message('unused-argument', args=name, node=stmt,
+                                 confidence=confidence)
             else:
                 if stmt.parent and isinstance(stmt.parent, astroid.Assign):
                     if name in nonlocal_names:

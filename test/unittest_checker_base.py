@@ -82,8 +82,6 @@ class NameCheckerTest(CheckerTestCase):
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
     def test_property_names(self):
-        if sys.version_info < (2, 6):
-            self.skip('abc module does not exist on 2.5')
         # If a method is annotated with @property, it's name should
         # match the attr regex. Since by default the attribute regex is the same
         # as the method regex, we override it here.
@@ -161,18 +159,19 @@ class MultiNamingStyleTest(CheckerTestCase):
     MULTI_STYLE_RE = re.compile('(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$')
 
     @set_config(class_rgx=MULTI_STYLE_RE)
-    def test_multi_name_detection_first(self):
+    def test_multi_name_detection_majority(self):
         classes = test_utils.extract_node("""
-        class CLASSA(object): #@
-            pass
         class classb(object): #@
+            pass
+        class CLASSA(object): #@
             pass
         class CLASSC(object): #@
             pass
         """)
-        with self.assertAddsMessages(Message('invalid-name', node=classes[1], args=('class', 'classb', ''))):
+        with self.assertAddsMessages(Message('invalid-name', node=classes[0], args=('class', 'classb', ''))):
             for cls in classes:
                 self.checker.visit_class(cls)
+            self.checker.leave_module(cls.root)
 
     @set_config(class_rgx=MULTI_STYLE_RE)
     def test_multi_name_detection_first_invalid(self):
@@ -188,6 +187,7 @@ class MultiNamingStyleTest(CheckerTestCase):
                                      Message('invalid-name', node=classes[2], args=('class', 'CLASSC', ''))):
             for cls in classes:
                 self.checker.visit_class(cls)
+            self.checker.leave_module(cls.root)
 
     @set_config(method_rgx=MULTI_STYLE_RE,
                 function_rgx=MULTI_STYLE_RE,
@@ -204,6 +204,7 @@ class MultiNamingStyleTest(CheckerTestCase):
         with self.assertAddsMessages(Message('invalid-name', node=function_defs[1], args=('function', 'FUNC', ''))):
             for func in function_defs:
                 self.checker.visit_function(func)
+            self.checker.leave_module(func.root)
 
     @set_config(function_rgx=re.compile('(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$'))
     def test_multi_name_detection_exempt(self):
@@ -220,6 +221,7 @@ class MultiNamingStyleTest(CheckerTestCase):
         with self.assertAddsMessages(Message('invalid-name', node=function_defs[3], args=('function', 'UPPER', ''))):
             for func in function_defs:
                 self.checker.visit_function(func)
+            self.checker.leave_module(func.root)
 
 
 if __name__ == '__main__':

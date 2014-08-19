@@ -46,6 +46,8 @@ from logilab.common.configuration import OptionsProviderMixIn
 
 from pylint.reporters import diff_string
 from pylint.utils import register_plugins
+from pylint.interfaces import UNDEFINED
+
 
 def table_lines_from_stats(stats, old_stats, columns):
     """get values listed in <columns> from <stats> and <old_stats>,
@@ -90,9 +92,9 @@ class BaseChecker(OptionsProviderMixIn):
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
 
-    def add_message(self, msg_id, line=None, node=None, args=None):
+    def add_message(self, msg_id, line=None, node=None, args=None, confidence=UNDEFINED):
         """add a message of a given type"""
-        self.linter.add_message(msg_id, line, node, args)
+        self.linter.add_message(msg_id, line, node, args, confidence)
 
     # dummy methods implementing the IChecker interface
 

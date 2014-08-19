@@ -45,3 +45,21 @@ try:
     1 + 3
 except (SkipException, SecondSkipException):
     print "caught"
+
+try:
+    1 + 42
+# +1:[catching-non-exception,catching-non-exception]
+except (None, list()):
+    print "caught"
+
+try:
+    1 + 24
+except None: # [catching-non-exception]
+    print "caught"
+
+EXCEPTION = None
+EXCEPTION = ZeroDivisionError
+try:
+    1 + 46
+except EXCEPTION:
+    print "caught"

@@ -62,7 +62,7 @@ On Windows, once you have installed Pylint, the command line usage is ::
   pylint.bat [options] module_or_package
 
 But this will only work if *pylint.bat* is either in the current
-directory, or on your system path. (*setup.py* install install *python.bat*
+directory, or on your system path. (*setup.py* will install *python.bat*
 to the *Scripts* subdirectory of your Python installation -- e.g.
 C:\Python24\Scripts.) You can do any of the following to solve this:
 

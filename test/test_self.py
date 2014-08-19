@@ -33,9 +33,9 @@ class MultiReporter(BaseReporter):
         for rep in self._reporters:
             rep.on_set_current_module(*args, **kwargs)
 
-    def add_message(self, *args, **kwargs):
+    def handle_message(self, msg):
         for rep in self._reporters:
-            rep.add_message(*args, **kwargs)
+            rep.handle_message(msg)
 
     def display_results(self, layout):
         pass
