@@ -83,6 +83,9 @@ ChangeLog for Pylint
     * Add a new warning, 'boolean-datetime', emitted when an instance
       of 'datetime.time' is used in a boolean context. Closes issue #239.
 
+    * Add a new warning, 'logging-bad-use-of-str-format', emitted when .format()
+      string interpolation is used within logging function calls.
+      
 
 2014-07-26  --  1.3.0
 
