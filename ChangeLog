@@ -7,9 +7,27 @@ ChangeLog for Pylint
       Closes issue #285.
 
     * Fix a false positive with string formatting checker, when using
-      keyword argument packing. Closes issue #288.
+      keyword argument packing. Closes issue #288.    
 
-    * Proper handle class level scope for lambdas.
+    * Handle 'too-few-format-args' or 'too-many-format-args' for format
+      strings with both named and positional fields. Closes issue #286.
+
+    * Analyze only strings by the string format checker. Closes issue #287.
+
+    * Properly handle nested format string fields. Closes issue #294.
+    
+    * Properly handle unicode format strings for Python 2.
+      Closes issue #296.
+ 
+    * Fix a false positive with 'too-few-format-args', when the format
+      strings contains duplicate manual position arguments.
+      Closes issue #310.
+
+    * fixme regex handles comments without spaces after the hash.
+      Closes issue #311.
+
+    * Fix a crash encountered when looking for attribute docstrings.
+ 
 
 2014-07-26  --  1.3.0
 
