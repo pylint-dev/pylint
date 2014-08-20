@@ -151,7 +151,8 @@ class LoggingChecker(checkers.BaseChecker):
           True, if the node represents a method call for the given type and
           method names, False otherwise.
         """
-        assert isinstance(callfunc_node, astroid.CallFunc)
+        if not isinstance(callfunc_node, astroid.CallFunc):
+          return False
         func = utils.safe_infer(callfunc_node.func)
         return (isinstance(func, astroid.BoundMethod)
                 and isinstance(func.bound, astroid.Instance)
