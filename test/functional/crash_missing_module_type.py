@@ -1,4 +1,4 @@
-""" Test for a regression found in
+""" Test for a crash found in
 https://bitbucket.org/logilab/astroid/issue/45/attributeerror-module-object-has-no#comment-11944673
 """
 # pylint: disable=no-init, invalid-name, too-few-public-methods, redefined-outer-name
