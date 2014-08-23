@@ -54,6 +54,17 @@ class EncodingChecker(BaseChecker):
                           'separated by a comma.')}),)
 
     def _check_note(self, notes, lineno, line):
+        # First, simply check if the notes are in the line at all. This is an
+        # optimisation to prevent using the regular expression on every line,
+        # but rather only on lines which may actually contain one of the notes.
+        # This prevents a pathological problem with lines that are hundreds
+        # of thousands of characters long.
+        for note in self.config.notes:
+            if note in line:
+                break
+        else:
+            return
+
         match = notes.search(line)
         if not match:
             return
