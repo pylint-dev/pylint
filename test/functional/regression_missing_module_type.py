@@ -6,7 +6,7 @@ def decor(trop):
     """ decorator """
     return trop
 
-class Foo:
+class Foo(object):
     """ Class """
     @decor
     def prop(self):
