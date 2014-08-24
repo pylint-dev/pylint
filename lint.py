@@ -717,6 +717,11 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
+            if self.config.output_format == 'html':
+                # No output will be emitted for the html
+                # reporter if the file doesn't exist, so emit
+                # the results here.
+                self.reporter.display_results(Section())
             self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
