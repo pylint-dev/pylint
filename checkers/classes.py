@@ -344,9 +344,11 @@ a metaclass class method.'}
         try:
             overridden = klass.instance_attr(node.name)[0] # XXX
             overridden_frame = overridden.frame()
-            if overridden_frame.type == 'method':
+            if (isinstance(overridden_frame, astroid.Function)
+                    and overridden_frame.type == 'method'):
                 overridden_frame = overridden_frame.parent.frame()
-            if isinstance(overridden_frame, Class) and klass._is_subtype_of(overridden_frame.qname()):
+            if (isinstance(overridden_frame, Class)
+                    and klass._is_subtype_of(overridden_frame.qname())):
                 args = (overridden.root().name, overridden.fromlineno)
                 self.add_message('method-hidden', args=args, node=node)
         except astroid.NotFoundError:
