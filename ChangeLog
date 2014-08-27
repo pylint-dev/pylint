@@ -88,6 +88,10 @@ ChangeLog for Pylint
 
     * Generate html output for missing files. Closes issue #320.
 
+    * Fix a false positive with 'too-many-format-args', when the format
+      string contains mixed attribute access arguments and manual
+      fields. Closes issue #322.
+
 
 2014-07-26  --  1.3.0
 

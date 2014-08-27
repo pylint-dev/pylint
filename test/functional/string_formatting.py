@@ -119,3 +119,11 @@ def issue310():
     """ Test a regression using duplicate manual position arguments. """
     '{0} {1} {0}'.format(1, 2)
     '{0} {1} {0}'.format(1) # [too-few-format-args]
+
+def issue322():
+    """ Test a regression using mixed manual position arguments
+    and attribute access arguments.
+    """
+    '{0}{1[FOO]}'.format(123, {'FOO': 456})
+    '{0}{1[FOO]}'.format(123, {'FOO': 456}, 321) # [too-many-format-args]
+    '{0}{1[FOO]}'.format(123) # [too-few-format-args]
