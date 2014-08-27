@@ -1,5 +1,6 @@
 """Functional full-module tests for PyLint."""
 from __future__ import unicode_literals
+import csv
 import collections
 import ConfigParser
 import io
@@ -9,13 +10,30 @@ import re
 import sys
 import unittest
 
+from pylint import checkers
+from pylint import interfaces
 from pylint import lint
 from pylint import reporters
-from pylint import checkers
+from pylint import utils
+
+class test_dialect(csv.excel):
+    if sys.version_info[0] < 3:
+        delimiter = b':'
+        lineterminator = b'\n'
+    else:
+        delimiter = ':'
+        lineterminator = '\n'
+
+
+csv.register_dialect('test', test_dialect)
 
 
 class NoFileError(Exception):
     pass
+
+# Notes:
+# - for the purpose of this test, the confidence levels HIGH and UNDEFINED
+#   are treated as the same.
 
 # TODOs
 #  - implement exhaustivity tests
@@ -24,10 +42,24 @@ class NoFileError(Exception):
 UPDATE = False
 
 class OutputLine(collections.namedtuple('OutputLine', 
-                ['symbol', 'lineno', 'object', 'msg'])):
+                ['symbol', 'lineno', 'object', 'msg', 'confidence'])):
     @classmethod
     def from_msg(cls, msg):
-        return cls(msg.symbol, msg.line, msg.obj or '', msg.msg + '\n')
+        return cls(
+            msg.symbol, msg.line, msg.obj or '', msg.msg, 
+            msg.confidence.name
+            if msg.confidence != interfaces.UNDEFINED else interfaces.HIGH.name)
+
+    @classmethod
+    def from_csv(cls, row):
+        confidence = row[4] if len(row) == 5 else interfaces.HIGH.name
+        return cls(row[0], int(row[1]), row[2], row[3], confidence)
+
+    def to_csv(self):
+        if self.confidence == interfaces.HIGH.name:
+            return self[:-1]
+        else:
+            return self
 
 
 # Common sub-expressions.
@@ -48,8 +80,8 @@ def parse_python_version(str):
 
 
 class TestReporter(reporters.BaseReporter):
-    def add_message(self, msg_id, location, msg):
-        self.messages.append(reporters.Message(self, msg_id, location, msg))
+    def handle_message(self, msg):
+        self.messages.append(msg)
 
     def on_set_current_module(self, module, filepath):
         self.messages = []
@@ -123,16 +155,7 @@ _OPERATORS = {
 }
 
 def parse_expected_output(stream):
-    lines = []
-    for line in stream:
-        parts = line.split(':', 3)
-        if len(parts) != 4:
-            symbol, lineno, obj, msg = lines.pop()
-            lines.append(OutputLine(symbol, lineno, obj, msg + line))
-        else:
-            linenum = int(parts[1])
-            lines.append(OutputLine(parts[0], linenum, parts[2], parts[3]))
-    return lines
+    return [OutputLine.from_csv(row) for row in csv.reader(stream, 'test')]
 
 
 def get_expected_messages(stream):
@@ -284,7 +307,7 @@ class LintModuleOutputUpdate(LintModuleTest):
         try:
             return super(LintModuleOutputUpdate, self)._open_expected_file()
         except IOError:
-            return contextlib.closing(cStringIO.StringIO())
+            return io.StringIO()
 
     def _check_output_text(self, expected_messages, expected_lines,
                            received_lines):
@@ -295,9 +318,9 @@ class LintModuleOutputUpdate(LintModuleTest):
             remaining.extend(received_lines)
             remaining.sort(key=lambda m: (m[1], m[0], m[3]))
             with open(self._test_file.expected_output, 'w') as fobj:
+                writer = csv.writer(fobj, dialect='test')
                 for line in remaining:
-                    fobj.write('{0}:{1}:{2}:{3}'.format(*line))
-
+                    writer.writerow(line.to_csv())
 
 def suite():
     input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),

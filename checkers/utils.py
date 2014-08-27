@@ -417,7 +417,7 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     try:
         if position is not None and not isinstance(callfunc_node.args[position], astroid.Keyword):
             return callfunc_node.args[position]
-    except IndexError, error:
+    except IndexError as error:
         raise NoSuchArgumentError(error)
     if keyword:
         for arg in callfunc_node.args:
@@ -462,3 +462,22 @@ def is_import_error(handler):
                     return True
         except astroid.InferenceError:
             continue
+
+def has_known_bases(klass):
+    """Returns true if all base classes of a class could be inferred."""
+    try:
+        return klass._all_bases_known
+    except AttributeError:
+        pass
+    try:
+        for base in klass.bases:
+            result = base.infer().next()
+            # TODO: check for A->B->A->B pattern in class structure too?
+            if not isinstance(result, astroid.Class) or result is klass or not has_known_bases(result):
+                klass._all_bases_known = False
+                return False
+    except astroid.InferenceError:
+        klass._all_bases_known = False
+        return False
+    klass._all_bases_known = True
+    return True

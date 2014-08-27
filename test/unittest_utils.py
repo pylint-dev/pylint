@@ -15,6 +15,7 @@ import unittest
 
 from astroid import test_utils
 from pylint import utils
+from pylint import interfaces
 from pylint.checkers.utils import check_messages
 
 
@@ -59,4 +60,3 @@ class PyLintASTWalkerTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

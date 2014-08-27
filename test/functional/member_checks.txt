@@ -1,0 +1,9 @@
+no-member:24:Client.__init__:Class 'Provider' has no 'cattribute' member:INFERENCE
+no-member:34:Client.use_method:Instance of 'Provider' has no 'hophophop' member:INFERENCE
+no-member:39:Client.use_attr:Instance of 'Provider' has no 'attribute' member:INFERENCE
+no-member:51:Client.test_bt_types:Instance of 'list' has no 'apppend' member:INFERENCE
+no-member:53:Client.test_bt_types:Instance of 'dict' has no 'set' member:INFERENCE
+no-member:55:Client.test_bt_types:Instance of 'tuple' has no 'append' member:INFERENCE
+no-member:57:Client.test_bt_types:Instance of 'str' has no 'loower' member:INFERENCE
+no-member:59:Client.test_bt_types:Instance of 'int' has no 'whatever' member:INFERENCE
+no-member:63::Instance of 'int' has no 'lower' member:INFERENCE_FAILURE

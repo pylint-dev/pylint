@@ -19,6 +19,7 @@ import re
 import sys
 
 import astroid
+from astroid.bases import Instance
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -40,6 +41,13 @@ class OpenModeChecker(BaseChecker):
                   'bad-open-mode',
                   'Python supports: r, w, a modes with b, +, and U options. '
                   'See http://docs.python.org/2/library/functions.html#open'),
+        'W1502': ('Using datetime.time in a boolean context.',
+                  'boolean-datetime',
+                  'Using datetetime.time in a boolean context can hide '
+                  'subtle bugs when the time they represent matches '
+                  'midnight UTC. This behaviour was fixed in Python 3.5. '
+                  'See http://bugs.python.org/issue13936 for reference.',
+                  {'maxversion': (3, 5)}),
         }
 
     @utils.check_messages('bad-open-mode')
@@ -50,6 +58,36 @@ class OpenModeChecker(BaseChecker):
             if infer and infer.root().name == OPEN_MODULE:
                 if getattr(node.func, 'name', None) in ('open', 'file'):
                     self._check_open_mode(node)
+
+    @utils.check_messages('boolean-datetime')
+    def visit_unaryop(self, node):
+        if node.op == 'not':
+            self._check_datetime(node.operand)
+
+    @utils.check_messages('boolean-datetime')
+    def visit_if(self, node):
+        self._check_datetime(node.test)
+
+    @utils.check_messages('boolean-datetime')
+    def visit_ifexp(self, node):
+        self._check_datetime(node.test)
+
+    @utils.check_messages('boolean-datetime')
+    def visit_boolop(self, node):
+        for value in node.values:
+            self._check_datetime(value)
+
+    def _check_datetime(self, node):
+        """ Check that a datetime was infered.
+        If so, emit boolean-datetime warning.
+        """
+        try:
+            infered = next(node.infer())
+        except astroid.InferenceError:
+            return
+        if (isinstance(infered, Instance) and
+                infered.qname() == 'datetime.time'):
+            self.add_message('boolean-datetime', node=node)
 
     def _check_open_mode(self, node):
         """Check that the mode argument of an open or file call is valid."""

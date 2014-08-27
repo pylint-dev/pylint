@@ -25,6 +25,7 @@
 
   Display help messages about given message identifiers and exit.
 """
+from __future__ import print_function
 
 # import this first to avoid builtin namespace pollution
 from pylint.checkers import utils #pylint: disable=unused-import
@@ -51,7 +52,7 @@ from pylint.utils import (
     PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn, ReportsHandlerMixIn,
     MessagesStore, FileState, EmptyReport,
     expand_modules, tokenize_module)
-from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker
+from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker, CONFIDENCE_LEVELS
 from pylint.checkers import (BaseTokenChecker,
                              table_lines_from_stats,
                              initialize as checkers_initialize)
@@ -238,6 +239,15 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                   'help' : 'Add a comment according to your evaluation note. '
                            'This is used by the global evaluation report (RP0004).'}),
 
+                ('confidence',
+                 {'type' : 'multiple_choice', 'metavar': '<levels>',
+                  'default': '',
+                  'choices': [c.name for c in CONFIDENCE_LEVELS],
+                  'group': 'Messages control',
+                  'help' : 'Only show warnings with the listed confidence levels.'
+                           ' Leave empty to show all. Valid levels: %s' % (
+                            ', '.join(c.name for c in CONFIDENCE_LEVELS),)}),
+
                 ('enable',
                  {'type' : 'csv', 'metavar': '<msg ids>',
                   'short': 'e',
@@ -404,11 +414,23 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         try:
             BaseTokenChecker.set_option(self, optname, value, action, optdict)
         except UnsupportedAction:
-            print >> sys.stderr, 'option %s can\'t be read from config file' % \
-                  optname
+            print('option %s can\'t be read from config file' % \
+                  optname, file=sys.stderr)
 
     def register_reporter(self, reporter_class):
         self._reporters[reporter_class.name] = reporter_class
+
+    def report_order(self):
+        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
+        try:
+            # Remove the current reporter and add it
+            # at the end of the list.
+            reports.pop(reports.index(self))
+        except ValueError:
+            pass
+        else:
+            reports.append(self)
+        return reports
 
     # checkers manipulation methods ############################################
 
@@ -624,11 +646,11 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         """return a ast(roid) representation for a module"""
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
-        except SyntaxError, ex:
+        except SyntaxError as ex:
             self.add_message('syntax-error', line=ex.lineno, args=ex.msg)
-        except AstroidBuildingException, ex:
+        except AstroidBuildingException as ex:
             self.add_message('parse-error', args=ex)
-        except Exception, ex:
+        except Exception as ex:
             import traceback
             traceback.print_exc()
             self.add_message('astroid-error', args=(ex.__class__, ex))
@@ -638,7 +660,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         # call raw checkers if possible
         try:
             tokens = tokenize_module(astroid)
-        except tokenize.TokenError, ex:
+        except tokenize.TokenError as ex:
             self.add_message('syntax-error', line=ex.args[1][0], args=ex.args[0])
             return
 
@@ -695,6 +717,11 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
+            if self.config.output_format == 'html':
+                # No output will be emitted for the html
+                # reporter if the file doesn't exist, so emit
+                # the results here.
+                self.reporter.display_results(Section())
             self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
@@ -709,7 +736,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         evaluation = self.config.evaluation
         try:
             note = eval(evaluation, {}, self.stats)
-        except Exception, ex:
+        except Exception as ex:
             msg = 'An exception occurred while rating: %s' % ex
         else:
             stats['global_note'] = note
@@ -849,8 +876,8 @@ group are mutually exclusive.'),
                 'rcfile':       (self.cb_set_rcfile, True),
                 'load-plugins': (self.cb_add_plugins, True),
                 })
-        except ArgumentPreprocessingError, ex:
-            print >> sys.stderr, ex
+        except ArgumentPreprocessingError as ex:
+            print(ex, file=sys.stderr)
             sys.exit(32)
 
         self.linter = linter = self.LinterClass((
@@ -876,6 +903,12 @@ group are mutually exclusive.'),
             ('list-msgs',
              {'action' : 'callback', 'metavar': '<msg-id>',
               'callback' : self.cb_list_messages,
+              'group': 'Commands', 'level': 1,
+              'help' : "Generate pylint's messages."}),
+
+            ('list-conf-levels',
+             {'action' : 'callback',
+              'callback' : self.cb_list_confidence_levels,
               'group': 'Commands', 'level': 1,
               'help' : "Generate pylint's messages."}),
 
@@ -968,18 +1001,18 @@ group are mutually exclusive.'),
             linter.set_reporter(reporter)
         try:
             args = linter.load_command_line_configuration(args)
-        except SystemExit, exc:
+        except SystemExit as exc:
             if exc.code == 2: # bad options
                 exc.code = 32
             raise
         if not args:
-            print linter.help()
+            print(linter.help())
             sys.exit(32)
         # insert current working directory to the python path to have a correct
         # behaviour
         linter.prepare_import_path(args)
         if self.linter.config.profile:
-            print >> sys.stderr, '** profiled run'
+            print('** profiled run', file=sys.stderr)
             import cProfile, pstats
             cProfile.runctx('linter.check(%r)' % args, globals(), locals(),
                             'stones.prof')
@@ -1035,6 +1068,11 @@ group are mutually exclusive.'),
     def cb_list_messages(self, option, optname, value, parser): # FIXME
         """optik callback for printing available messages"""
         self.linter.msgs_store.list_messages()
+        sys.exit(0)
+
+    def cb_list_confidence_levels(self, option, optname, value, parser):
+        for level in CONFIDENCE_LEVELS:
+            print('%-18s: %s' % level)
         sys.exit(0)
 
 def cb_init_hook(optname, value):

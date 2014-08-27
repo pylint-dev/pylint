@@ -1,5 +1,5 @@
 """Test warnings about access to undefined variables."""
-# pylint: disable=too-few-public-methods, no-init, no-self-use
+# pylint: disable=too-few-public-methods, no-init, no-self-use, old-style-class
 
 DEFINED = 1
 

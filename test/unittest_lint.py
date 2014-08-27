@@ -26,12 +26,13 @@ from logilab.common.compat import reload
 from pylint import config
 from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
      ArgumentPreprocessingError
-from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, \
+from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
     MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
     build_message_def, tokenize_module
 from pylint.testutils import TestReporter
-from pylint.reporters import text
+from pylint.reporters import text, html
 from pylint import checkers
+from pylint import interfaces
 
 if sys.platform == 'win32':
     HOME = 'USERPROFILE'
@@ -139,19 +140,26 @@ class PyLinterTC(unittest.TestCase):
         self.assertTrue(linter.is_message_enabled('C0121', line=1))
 
     def test_message_state_scope(self):
+        class FakeConfig(object):
+            confidence = ['HIGH']
+
         linter = self.init_linter()
-        fs = linter.file_state
         linter.disable('C0121')
         self.assertEqual(MSG_STATE_SCOPE_CONFIG,
-                         fs._message_state_scope('C0121'))
+                         linter.get_message_state_scope('C0121'))
         linter.disable('W0101', scope='module', line=3)
         self.assertEqual(MSG_STATE_SCOPE_CONFIG,
-                         fs._message_state_scope('C0121'))
+                         linter.get_message_state_scope('C0121'))
         self.assertEqual(MSG_STATE_SCOPE_MODULE,
-                         fs._message_state_scope('W0101', 3))
+                         linter.get_message_state_scope('W0101', 3))
         linter.enable('W0102', scope='module', line=3)
         self.assertEqual(MSG_STATE_SCOPE_MODULE,
-                         fs._message_state_scope('W0102', 3))
+                         linter.get_message_state_scope('W0102', 3))
+        linter.config = FakeConfig()
+        self.assertEqual(
+            MSG_STATE_CONFIDENCE,
+            linter.get_message_state_scope('this-is-bad',
+                                           confidence=interfaces.INFERENCE))
 
     def test_enable_message_block(self):
         linter = self.init_linter()
@@ -358,6 +366,15 @@ class PyLinterTC(unittest.TestCase):
         self.assertEqual(
             ['C:  2: Line too long (175/80)'],
             self.linter.reporter.messages)
+
+    def test_html_reporter_missing_files(self):
+        output = cStringIO.StringIO()
+        self.linter.set_reporter(html.HTMLReporter(output))
+        self.linter.set_option('output-format', 'html')
+        self.linter.check('troppoptop.py')
+        value = output.getvalue()
+        self.assertIn('troppoptop.py', value)
+        self.assertIn('fatal', value)
 
 
 class ConfigTC(unittest.TestCase):

@@ -16,12 +16,15 @@
 """some various utilities and helper classes, most of them used in the
 main pylint class
 """
+from __future__ import print_function
 
+import collections
+import os
 import re
 import sys
 import tokenize
-import os
-from warnings import warn
+import warnings
+
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 from logilab.common.interface import implements
@@ -33,7 +36,7 @@ from astroid import nodes, Module
 from astroid.modutils import modpath_from_file, get_module_files, \
     file_from_modpath, load_module_from_file
 
-from pylint.interfaces import IRawChecker, ITokenChecker
+from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED
 
 
 class UnknownMessage(Exception):
@@ -51,7 +54,7 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-MSG_TYPES_LONG = dict([(v, k) for k, v in MSG_TYPES.iteritems()])
+MSG_TYPES_LONG = {v: k for k, v in MSG_TYPES.iteritems()}
 
 MSG_TYPES_STATUS = {
     'I' : 0,
@@ -65,6 +68,7 @@ MSG_TYPES_STATUS = {
 _MSG_ORDER = 'EWRCIF'
 MSG_STATE_SCOPE_CONFIG = 0
 MSG_STATE_SCOPE_MODULE = 1
+MSG_STATE_CONFIDENCE = 2
 
 OPTION_RGX = re.compile(r'\s*#.*\bpylint:(.*)')
 
@@ -74,6 +78,29 @@ _SCOPE_EXEMPT = 'FR'
 class WarningScope(object):
     LINE = 'line-based-msg'
     NODE = 'node-based-msg'
+
+_MsgBase = collections.namedtuple(
+    '_MsgBase',
+    ['msg_id', 'symbol', 'msg', 'C', 'category', 'confidence',
+     'abspath', 'module', 'obj', 'line', 'column'])
+
+
+class Message(_MsgBase):
+    """This class represent a message to be issued by the reporters"""
+    def __new__(cls, msg_id, symbol, location, msg, confidence):
+        return _MsgBase.__new__(
+            cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]],
+            confidence, *location)
+
+    def format(self, template):
+        """Format the message according to the given template.
+
+        The template format is the one of the format method :
+        cf. http://docs.python.org/2/library/string.html#formatstrings
+        """
+        # For some reason, _asdict on derived namedtuples does not work with
+        # Python 3.4. Needs some investigation.
+        return template.format(**dict(zip(self._fields, self)))
 
 
 def get_module_and_frameid(node):
@@ -124,8 +151,8 @@ def build_message_def(checker, msgid, msg_tuple):
         # messages should have a symbol, but for backward compatibility
         # they may not.
         (msg, descr) = msg_tuple
-        warn("[pylint 0.26] description of message %s doesn't include "
-             "a symbolic name" % msgid, DeprecationWarning)
+        warnings.warn("[pylint 0.26] description of message %s doesn't include "
+                      "a symbolic name" % msgid, DeprecationWarning)
         symbol = None
     options.setdefault('scope', default_scope)
     return MessageDefinition(checker, msgid, msg, descr, symbol, **options)
@@ -278,12 +305,25 @@ class MessagesHandlerMixIn(object):
             # sync configuration object
             self.config.enable = [mid for mid, val in msgs.iteritems() if val]
 
-    def is_message_enabled(self, msg_descr, line=None):
+    def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
+        """Returns the scope at which a message was enabled/disabled."""
+        if self.config.confidence and confidence.name not in self.config.confidence:
+            return MSG_STATE_CONFIDENCE
+        try:
+            if line in self.file_state._module_msgs_state[msgid]:
+                return MSG_STATE_SCOPE_MODULE
+        except (KeyError, TypeError):
+            return MSG_STATE_SCOPE_CONFIG
+
+    def is_message_enabled(self, msg_descr, line=None, confidence=None):
         """return true if the message associated to the given message id is
         enabled
 
         msgid may be either a numeric or symbolic message id.
         """
+        if self.config.confidence and confidence:
+            if confidence.name not in self.config.confidence:
+                return False
         try:
             msgid = self.msgs_store.check_message_id(msg_descr).msgid
         except UnknownMessage:
@@ -298,7 +338,7 @@ class MessagesHandlerMixIn(object):
         except KeyError:
             return self._msgs_state.get(msgid, True)
 
-    def add_message(self, msg_descr, line=None, node=None, args=None):
+    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED):
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args
@@ -328,8 +368,10 @@ class MessagesHandlerMixIn(object):
         else:
             col_offset = None
         # should this message be displayed
-        if not self.is_message_enabled(msgid, line):
-            self.file_state.handle_ignored_message(msgid, line, node, args)
+        if not self.is_message_enabled(msgid, line, confidence):
+            self.file_state.handle_ignored_message(
+                self.get_message_state_scope(msgid, line, confidence),
+                msgid, line, node, args, confidence)
             return
         # update stats
         msg_cat = MSG_TYPES[msgid[0]]
@@ -352,7 +394,9 @@ class MessagesHandlerMixIn(object):
             module, obj = get_module_and_frameid(node)
             path = node.root().file
         # add the message
-        self.reporter.add_message(msgid, (path, module, obj, line or 1, col_offset or 0), msg)
+        self.reporter.handle_message(
+            Message(msgid, symbol,
+                    (path, module, obj, line or 1, col_offset or 0), msg, confidence))
 
     def print_full_documentation(self):
         """output a full documentation in ReST format"""
@@ -360,18 +404,18 @@ class MessagesHandlerMixIn(object):
         for checker in self.get_checkers():
             if checker.name == 'master':
                 prefix = 'Main '
-                print "Options"
-                print '-------\n'
+                print("Options")
+                print('-------\n')
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:
                             title = 'General options'
                         else:
                             title = '%s options' % section.capitalize()
-                        print title
-                        print '~' * len(title)
+                        print(title)
+                        print('~' * len(title))
                         rest_format_section(sys.stdout, None, options)
-                        print
+                        print()
             else:
                 try:
                     by_checker[checker.name][0] += checker.options_and_values()
@@ -384,32 +428,32 @@ class MessagesHandlerMixIn(object):
         for checker, (options, msgs, reports) in by_checker.iteritems():
             prefix = ''
             title = '%s checker' % checker
-            print title
-            print '-' * len(title)
-            print
+            print(title)
+            print('-' * len(title))
+            print()
             if options:
                 title = 'Options'
-                print title
-                print '~' * len(title)
+                print(title)
+                print('~' * len(title))
                 rest_format_section(sys.stdout, None, options)
-                print
+                print()
             if msgs:
                 title = ('%smessages' % prefix).capitalize()
-                print title
-                print '~' * len(title)
+                print(title)
+                print('~' * len(title))
                 for msgid, msg in sorted(msgs.iteritems(),
-                                         key=lambda (k, v): (_MSG_ORDER.index(k[0]), k)):
+                                         key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
                     msg = build_message_def(checker, msgid, msg)
-                    print msg.format_help(checkerref=False)
-                print
+                    print(msg.format_help(checkerref=False))
+                print()
             if reports:
                 title = ('%sreports' % prefix).capitalize()
-                print title
-                print '~' * len(title)
+                print(title)
+                print('~' * len(title))
                 for report in reports:
-                    print ':%s: %s' % report[:2]
-                print
-            print
+                    print(':%s: %s' % report[:2])
+                print()
+            print()
 
 
 class FileState(object):
@@ -493,28 +537,19 @@ class FileState(object):
         except KeyError:
             self._module_msgs_state[msg.msgid] = {line: status}
 
-    def handle_ignored_message(self, msgid, line, node, args):
+    def handle_ignored_message(self, state_scope, msgid, line, node, args, confidence):
         """Report an ignored message.
 
         state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
         depending on whether the message was disabled locally in the module,
         or globally. The other arguments are the same as for add_message.
         """
-        state_scope = self._message_state_scope(msgid, line)
         if state_scope == MSG_STATE_SCOPE_MODULE:
             try:
                 orig_line = self._suppression_mapping[(msgid, line)]
                 self._ignored_msgs.setdefault((msgid, orig_line), set()).add(line)
             except KeyError:
                 pass
-
-    def _message_state_scope(self, msgid, line=None):
-        """Returns the scope at which a message was enabled/disabled."""
-        try:
-            if line in self._module_msgs_state[msgid]:
-                return MSG_STATE_SCOPE_MODULE
-        except KeyError:
-            return MSG_STATE_SCOPE_CONFIG
 
     def iter_spurious_suppression_messages(self, msgs_store):
         for warning, lines in self._raw_module_msgs_state.iteritems():
@@ -615,11 +650,11 @@ class MessagesStore(object):
         """display help messages for the given message identifiers"""
         for msgid in msgids:
             try:
-                print self.check_message_id(msgid).format_help(checkerref=True)
-                print
-            except UnknownMessage, ex:
-                print ex
-                print
+                print(self.check_message_id(msgid).format_help(checkerref=True))
+                print()
+            except UnknownMessage as ex:
+                print(ex)
+                print()
                 continue
 
     def list_messages(self):
@@ -628,8 +663,8 @@ class MessagesStore(object):
         for msg in msgs:
             if not msg.may_be_emitted():
                 continue
-            print msg.format_help(checkerref=False)
-        print
+            print(msg.format_help(checkerref=False))
+        print()
 
 
 class ReportsHandlerMixIn(object):
@@ -639,6 +674,12 @@ class ReportsHandlerMixIn(object):
     def __init__(self):
         self._reports = {}
         self._reports_state = {}
+
+    def report_order(self):
+        """ Return a list of reports, sorted in the order
+        in which they must be called.
+        """
+        return list(self._reports)
 
     def register_report(self, reportid, r_title, r_cb, checker):
         """register a report
@@ -671,7 +712,7 @@ class ReportsHandlerMixIn(object):
         """render registered reports"""
         sect = Section('Report',
                        '%s statements analysed.'% (self.stats['statement']))
-        for checker in self._reports:
+        for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.report_is_enabled(reportid):
                     continue
@@ -721,7 +762,7 @@ def expand_modules(files_or_modules, black_list):
                 if filepath is None:
                     errors.append({'key' : 'ignored-builtin-module', 'mod': modname})
                     continue
-            except (ImportError, SyntaxError), ex:
+            except (ImportError, SyntaxError) as ex:
                 # FIXME p3k : the SyntaxError is a Python bug and should be
                 # removed as soon as possible http://bugs.python.org/issue10588
                 errors.append({'key': 'fatal', 'mod': modname, 'ex': ex})
@@ -824,7 +865,7 @@ def register_plugins(linter, directory):
             except ValueError:
                 # empty module name (usually emacs auto-save files)
                 continue
-            except ImportError, exc:
+            except ImportError as exc:
                 print >> sys.stderr, "Problem importing module %s: %s" % (filename, exc)
             else:
                 if hasattr(module, 'register'):

@@ -141,7 +141,7 @@ class UnittestLinter(object):
         finally:
             self._messages = []
 
-    def add_message(self, msg_id, line=None, node=None, args=None):
+    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None):
         self._messages.append(Message(msg_id, line, node, args))
 
     def is_message_enabled(self, *unused_args):
@@ -245,6 +245,7 @@ class LintTestUsingModule(unittest.TestCase):
     depends = None
     output = None
     _TEST_TYPE = 'module'
+    maxDiff = None
 
     def shortDescription(self):
         values = {'mode' : self._TEST_TYPE,

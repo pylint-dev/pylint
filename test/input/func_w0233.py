@@ -34,3 +34,17 @@ class DDDD(AAAA):
             AAAA.__init__(self)
         else:
             AAAA.__init__(self)
+
+class Super(dict):
+    """ test late binding super() call """
+    def __init__(self):
+        base = super()
+        base.__init__()
+
+class Super2(dict):
+    """ Using the same idiom as Super, but without calling
+    the __init__ method.
+    """
+    def __init__(self):
+        base = super()
+        base.__woohoo__()

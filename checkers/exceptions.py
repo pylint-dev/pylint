@@ -19,14 +19,44 @@ import sys
 from logilab.common.compat import builtins
 BUILTINS_NAME = builtins.__name__
 import astroid
-from astroid import YES, Instance, unpack_infer
+from astroid import YES, Instance, unpack_infer, List, Tuple
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_empty, is_raising,
     check_messages, inherit_from_std_ex,
-    EXCEPTIONS_MODULE)
-from pylint.interfaces import IAstroidChecker
+    EXCEPTIONS_MODULE, has_known_bases)
+from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
+
+def _annotated_unpack_infer(stmt, context=None):
+    """
+    Recursively generate nodes inferred by the given statement.
+    If the inferred value is a list or a tuple, recurse on the elements.
+    Returns an iterator which yields tuples in the format
+    ('original node', 'infered node').
+    """
+    # TODO: the same code as unpack_infer, except for the annotated
+    # return. We need this type of annotation only here and
+    # there is no point in complicating the API for unpack_infer.
+    # If the need arises, this behaviour can be promoted to unpack_infer
+    # as well.
+    if isinstance(stmt, (List, Tuple)):
+        for elt in stmt.elts:
+            for infered_elt in unpack_infer(elt, context):
+                yield elt, infered_elt
+        return
+    # if infered is a final node, return it and stop
+    infered = next(stmt.infer(context))
+    if infered is stmt:
+        yield stmt, infered
+        return
+    # else, infer recursivly, except YES object that should be returned as is
+    for infered in stmt.infer(context):
+        if infered is YES:
+            yield stmt, infered
+        else:
+            for inf_inf in unpack_infer(infered, context):
+                yield stmt, inf_inf
 
 def infer_bases(klass):
     """ Fully infer the bases of the klass node.
@@ -204,7 +234,9 @@ class ExceptionsChecker(BaseChecker):
                 if expr.newstyle:
                     self.add_message('raising-non-exception', node=node)
                 else:
-                    self.add_message('nonstandard-exception', node=node)
+                    self.add_message(
+                        'nonstandard-exception', node=node,
+                         confidence=INFERENCE if has_known_bases(expr) else INFERENCE_FAILURE)
             else:
                 value_found = False
         else:
@@ -255,13 +287,36 @@ class ExceptionsChecker(BaseChecker):
                                  node=handler, args=handler.type.op)
             else:
                 try:
-                    excs = list(unpack_infer(handler.type))
+                    excs = list(_annotated_unpack_infer(handler.type))
                 except astroid.InferenceError:
                     continue
-                for exc in excs:
-                    # XXX skip other non class nodes
-                    if exc is YES or not isinstance(exc, astroid.Class):
+                for part, exc in excs:
+                    if exc is YES:
                         continue
+                    if isinstance(exc, astroid.Instance) and inherit_from_std_ex(exc):
+                        exc = exc._proxied
+                    if not isinstance(exc, astroid.Class):
+                        # Don't emit the warning if the infered stmt
+                        # is None, but the exception handler is something else,
+                        # maybe it was redefined.
+                        if (isinstance(exc, astroid.Const) and
+                                exc.value is None):
+                            if ((isinstance(handler.type, astroid.Const) and
+                                     handler.type.value is None) or
+                                     handler.type.parent_of(exc)):
+                                # If the exception handler catches None or
+                                # the exception component, which is None, is
+                                # defined by the entire exception handler, then
+                                # emit a warning.
+                                self.add_message('catching-non-exception',
+                                                 node=handler.type,
+                                                 args=(part.as_string(), ))
+                        else:
+                            self.add_message('catching-non-exception',
+                                             node=handler.type,
+                                             args=(part.as_string(), ))
+                        continue
+
                     exc_ancestors = [anc for anc in exc.ancestors()
                                      if isinstance(anc, astroid.Class)]
                     for previous_exc in exceptions_classes:
@@ -289,7 +344,7 @@ class ExceptionsChecker(BaseChecker):
                                              node=handler.type,
                                              args=(exc.name, ))
 
-                exceptions_classes += excs
+                exceptions_classes += [exc for _, exc in excs]
 
 
 def register(linter):
