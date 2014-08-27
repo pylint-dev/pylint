@@ -137,6 +137,38 @@ def _detect_global_scope(node, frame, defframe):
     # and the definition of the first depends on the second.
     return frame.lineno < defframe.lineno
 
+def _fix_dot_imports(not_consumed):
+    """ Try to fix imports with multiple dots, by returning a dictionary
+    with the import names expanded. The function unflattens root imports,
+    like 'xml' (when we have both 'xml.etree' and 'xml.sax'), to 'xml.etree'
+    and 'xml.sax' respectively.
+    """
+    # TODO: this should be improved in issue astroid #46
+    names = {}
+    for name, stmts in not_consumed.iteritems():
+        if any(isinstance(stmt, astroid.AssName)
+               and isinstance(stmt.ass_type(), astroid.AugAssign)
+               for stmt in stmts):
+            continue
+        for stmt in stmts:
+            if not isinstance(stmt, (astroid.From, astroid.Import)):
+                continue
+            for imports in stmt.names:
+                second_name = None
+                if imports[0] == "*":
+                    # In case of wildcard imports,
+                    # pick the name from inside the imported module.
+                    second_name = name
+                else:
+                    if imports[0].find(".") > -1 or name in imports:
+                        # Most likely something like 'xml.etree',
+                        # which will appear in the .locals as 'xml'.
+                        # Only pick the name if it wasn't consumed.
+                        second_name = imports[0]
+                if second_name and second_name not in names:
+                    names[second_name] = stmt
+    return sorted(names.items(), key=lambda a: a[1].fromlineno)
+
 
 MSGS = {
     'E0601': ('Using variable %r before assignment',
@@ -324,36 +356,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         self._check_imports(not_consumed)
 
     def _check_imports(self, not_consumed):
-        # Fix local names in node.locals dict (xml.etree instead of xml).
-        # TODO: this should be improved in issue astroid#46
-        local_names = {}
-        for name, stmts in not_consumed.iteritems():
-            if any(isinstance(stmt, astroid.AssName)
-                   and isinstance(stmt.ass_type(), astroid.AugAssign)
-                   for stmt in stmts):
-                continue
-            for stmt in stmts:
-                if not isinstance(stmt, (astroid.From, astroid.Import)):
-                    continue
-                for imports in stmt.names:
-                    name2 = None
-                    if imports[0] == "*":
-                        # In case of wildcard import,
-                        # pick the name from inside of imported module.
-                        name2 = name
-                    else:
-                        if imports[0].find(".") > -1 or name in imports:
-                            # Most likely something like 'xml.etree',
-                            # which will appear in the .locals as
-                            # 'xml'.
-                            # Only pick the name if it wasn't consumed.
-                            name2 = imports[0]
-                    if name2 and name2 not in local_names:
-                        local_names[name2] = stmt
-        local_names = sorted(local_names.iteritems(),
-                             key=lambda a: a[1].fromlineno)
-
-        # Check for unused imports.
+        local_names = _fix_dot_imports(not_consumed)
         checked = set()
         for name, stmt in local_names:
             for imports in stmt.names:

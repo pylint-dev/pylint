@@ -178,6 +178,7 @@ def parse_format_method_string(format_string):
             if isinstance(keyname, numbers.Number):
                 # In Python 2 it will return long which will lead
                 # to different output between 2 and 3
+                manual_pos_arg.add(keyname)
                 keyname = int(keyname)
             keys.append((keyname, list(fielditerator)))
         else:
@@ -363,8 +364,6 @@ class StringMethodsChecker(BaseChecker):
             self.add_message('bad-format-string', node=node)
             return
 
-        manual_fields = set(field[0] for field in fields
-                            if isinstance(field[0], numbers.Number))
         named_fields = set(field[0] for field in fields
                            if isinstance(field[0], basestring))
         if num_args and manual_pos:
@@ -405,12 +404,7 @@ class StringMethodsChecker(BaseChecker):
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
             if positional > num_args:
-                # We can have two possibilities:
-                # * "{0} {1}".format(a, b)
-                # * "{} {} {}".format(a, b, c, d)
-                # We can check the manual keys for the first one.
-                if len(manual_fields) != positional:
-                    self.add_message('too-many-format-args', node=node)
+                self.add_message('too-many-format-args', node=node)
             elif positional < num_args:
                 self.add_message('too-few-format-args', node=node)
 

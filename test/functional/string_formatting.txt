@@ -34,3 +34,5 @@ too-many-format-args:114:nested_issue294:Too many arguments for format string
 missing-format-argument-key:115:nested_issue294:Missing keyword argument 'a' for format string
 missing-format-attribute:116:nested_issue294:Missing format attribute 'x' in format specifier 'a.x'
 too-few-format-args:121:issue310:Not enough arguments for format string
+too-many-format-args:128:issue322:Too many arguments for format string
+too-few-format-args:129:issue322:Not enough arguments for format string
