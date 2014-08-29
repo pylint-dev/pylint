@@ -237,7 +237,7 @@ class StringFormatChecker(BaseChecker):
         try:
             required_keys, required_num_args = \
                 utils.parse_format_string(format_string)
-        except utils.UnsupportedFormatCharacter, e:
+        except utils.UnsupportedFormatCharacter as e:
             c = format_string[e.index]
             self.add_message('bad-format-character',
                              node=node, args=(c, ord(c), e.index))
@@ -346,7 +346,7 @@ class StringMethodsChecker(BaseChecker):
         if not isinstance(node.func.expr, astroid.Const):
             return
         try:
-            strnode = func.bound.infer().next()
+            strnode = next(func.bound.infer())
         except astroid.InferenceError:
             return
         if not isinstance(strnode, astroid.Const):
@@ -435,7 +435,7 @@ class StringMethodsChecker(BaseChecker):
             if argname in (astroid.YES, None):
                 continue
             try:
-                argument = argname.infer().next()
+                argument = next(argname.infer())
             except astroid.InferenceError:
                 continue
             if not specifiers or argument is astroid.YES:
@@ -492,7 +492,7 @@ class StringMethodsChecker(BaseChecker):
                         break
 
                 try:
-                    previous = previous.infer().next()
+                    previous = next(previous.infer())
                 except astroid.InferenceError:
                     # can't check further if we can't infer it
                     break

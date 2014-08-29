@@ -24,6 +24,9 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 import keyword
 import sys
 import tokenize
+from functools import reduce
+import six
+from six.moves import zip
 
 if not hasattr(tokenize, 'NL'):
     raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
@@ -506,7 +509,7 @@ class FormatChecker(BaseTokenChecker):
         keyword_token = tokens[start][1]
         line_num = tokens[start][2][0]
 
-        for i in xrange(start, len(tokens) - 1):
+        for i in range(start, len(tokens) - 1):
             token = tokens[i]
 
             # If we hit a newline, then assume any parens were for continuation.
@@ -812,7 +815,7 @@ class FormatChecker(BaseTokenChecker):
 
         for indent_pos, state, offsets in self._current_line.retained_warnings:
             block_type = offsets[tokens.start_col(indent_pos)]
-            hints = dict((k, v) for k, v in offsets.iteritems()
+            hints = dict((k, v) for k, v in six.iteritems(offsets)
                          if v != block_type)
             if single_line_block_stmt and block_type == WITH_BODY:
                 self._add_continuation_message(state, hints, tokens, indent_pos)
@@ -886,7 +889,7 @@ class FormatChecker(BaseTokenChecker):
             tolineno = node.tolineno
         assert tolineno, node
         lines = []
-        for line in xrange(line, tolineno + 1):
+        for line in range(line, tolineno + 1):
             self._visited_lines[line] = 1
             try:
                 lines.append(self._lines[line].rstrip())

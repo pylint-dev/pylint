@@ -16,6 +16,7 @@
 :text: the default one grouping messages by module
 :colorized: an ANSI colorized text reporter
 """
+from __future__ import print_function
 
 import warnings
 
@@ -60,7 +61,7 @@ class TextReporter(BaseReporter):
 
     def _display(self, layout):
         """launch layouts display"""
-        print >> self.out
+        print(file=self.out)
         TextWriter().format(layout, self.out)
 
 

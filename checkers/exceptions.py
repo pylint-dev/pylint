@@ -67,7 +67,7 @@ def infer_bases(klass):
     """
     for base in klass.bases:
         try:
-            inferit = base.infer().next()
+            inferit = next(base.infer())
         except astroid.InferenceError:
             continue
         if inferit is YES:
@@ -178,7 +178,7 @@ class ExceptionsChecker(BaseChecker):
             return
         if PY3K and node.cause:
             try:
-                cause = node.cause.infer().next()
+                cause = next(node.cause.infer())
             except astroid.InferenceError:
                 pass
             else:
@@ -197,7 +197,7 @@ class ExceptionsChecker(BaseChecker):
             return
         else:
             try:
-                value = unpack_infer(expr).next()
+                value = next(unpack_infer(expr))
             except astroid.InferenceError:
                 return
             self._check_raise_value(node, value)

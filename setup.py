@@ -20,6 +20,7 @@
 # with pylint.  If not, see <http://www.gnu.org/licenses/>.
 """Generic Setup script, takes package info from __pkginfo__.py file.
 """
+from __future__ import print_function
 __docformat__ = "restructuredtext en"
 
 import os
@@ -38,14 +39,7 @@ except ImportError:
     from distutils.command import install_lib
     USE_SETUPTOOLS = 0
 
-try:
-    # pylint: disable=no-name-in-module
-    # python3
-    from distutils.command.build_py import build_py_2to3 as build_py
-except ImportError:
-    # pylint: disable=no-name-in-module
-    # python2.x
-    from distutils.command.build_py import build_py
+from distutils.command.build_py import build_py
 
 sys.modules.pop('__pkginfo__', None)
 # import optional features
@@ -144,7 +138,7 @@ class MyInstallLib(install_lib.install_lib):
                     # process manually python file in include_dirs (test data)
                     # pylint: disable=no-name-in-module
                     from distutils.util import run_2to3
-                    print('running 2to3 on', dest)
+                    print(('running 2to3 on', dest))
                     run_2to3([dest])
 
     # override this since pip/easy_install attempt to byte compile test data

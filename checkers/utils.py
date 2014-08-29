@@ -87,11 +87,11 @@ def safe_infer(node):
     """
     try:
         inferit = node.infer()
-        value = inferit.next()
+        value = next(inferit)
     except astroid.InferenceError:
         return
     try:
-        inferit.next()
+        next(inferit)
         return # None if there is ambiguity on the inferred node
     except astroid.InferenceError:
         return # there is some kind of ambiguity
@@ -471,7 +471,7 @@ def has_known_bases(klass):
         pass
     try:
         for base in klass.bases:
-            result = base.infer().next()
+            result = next(base.infer())
             # TODO: check for A->B->A->B pattern in class structure too?
             if not isinstance(result, astroid.Class) or result is klass or not has_known_bases(result):
                 klass._all_bases_known = False

@@ -178,7 +178,7 @@ class LoggingChecker(checkers.BaseChecker):
                     # Keyword checking on logging strings is complicated by
                     # special keywords - out of scope.
                     return
-            except utils.UnsupportedFormatCharacter, ex:
+            except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
                 self.add_message('logging-unsupported-format', node=node,
                                  args=(char, ord(char), ex.index))
