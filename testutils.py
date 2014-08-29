@@ -19,7 +19,6 @@ from __future__ import print_function
 import collections
 import contextlib
 import functools
-import cStringIO
 import sys
 import re
 import unittest
@@ -35,7 +34,9 @@ from pylint.utils import PyLintASTWalker
 from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
+
 import six
+from six.moves import StringIO
 
 
 # Utils
@@ -96,7 +97,7 @@ class TestReporter(BaseReporter):
         self.reset()
 
     def reset(self):
-        self.out = cStringIO.StringIO()
+        self.out = StringIO()
         self.messages = []
 
     def add_message(self, msg_id, location, msg):
