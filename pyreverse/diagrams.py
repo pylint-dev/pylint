@@ -77,8 +77,8 @@ class ClassDiagram(Figure, FilterMixIn):
     def get_attrs(self, node):
         """return visible attributes, possibly with class name"""
         attrs = []
-        for node_name, ass_nodes in node.instance_attrs_type.items() + \
-                                node.locals_type.items():
+        for node_name, ass_nodes in list(node.instance_attrs_type.items()) + \
+                                list(node.locals_type.items()):
             if not self.show_attr(node_name):
                 continue
             names = self.class_names(ass_nodes)
@@ -170,8 +170,8 @@ class ClassDiagram(Figure, FilterMixIn):
                 except KeyError:
                     continue
             # associations link
-            for name, values in node.instance_attrs_type.items() + \
-                                node.locals_type.items():
+            for name, values in list(node.instance_attrs_type.items()) + \
+                                list(node.locals_type.items()):
                 for value in values:
                     if value is astroid.YES:
                         continue

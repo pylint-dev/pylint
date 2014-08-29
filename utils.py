@@ -505,7 +505,7 @@ class FileState(object):
         else:
             firstchildlineno = last
         for msgid, lines in six.iteritems(msg_state):
-            for lineno, state in lines.items():
+            for lineno, state in list(lines.items()):
                 original_lineno = lineno
                 if first <= lineno <= last:
                     # Set state for all lines for this block, if the
@@ -560,7 +560,7 @@ class FileState(object):
                     yield 'useless-suppression', line, \
                         (msgs_store.get_msg_display_string(warning),)
         # don't use iteritems here, _ignored_msgs may be modified by add_message
-        for (warning, from_), lines in self._ignored_msgs.items():
+        for (warning, from_), lines in list(self._ignored_msgs.items()):
             for line in lines:
                 yield 'suppressed-message', line, \
                     (msgs_store.get_msg_display_string(warning), from_)

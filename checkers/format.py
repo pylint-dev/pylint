@@ -345,7 +345,8 @@ class ContinuedLineState(object):
             # current indent level
             paren_align = self._cont_stack[-1].valid_outdent_offsets
             next_align = self._cont_stack[-1].valid_continuation_offsets.copy()
-            next_align[next_align.keys()[0] + self._continuation_size] = True
+            next_align_keys = list(next_align.keys())
+            next_align[next_align_keys[0] + self._continuation_size] = True
             # Note that the continuation of
             # d = {
             #       'a': 'b'

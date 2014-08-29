@@ -99,8 +99,8 @@ class DiaDefGenerator(object):
         """return associated nodes of a class node"""
         if level == 0:
             return
-        for ass_nodes in klass_node.instance_attrs_type.values() + \
-                         klass_node.locals_type.values():
+        for ass_nodes in list(klass_node.instance_attrs_type.values()) + \
+                         list(klass_node.locals_type.values()):
             for ass_node in ass_nodes:
                 if isinstance(ass_node, astroid.Instance):
                     ass_node = ass_node._proxied
