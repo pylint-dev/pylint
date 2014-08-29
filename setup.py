@@ -20,7 +20,7 @@
 # with pylint.  If not, see <http://www.gnu.org/licenses/>.
 """Generic Setup script, takes package info from __pkginfo__.py file.
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 __docformat__ = "restructuredtext en"
 
 import os
