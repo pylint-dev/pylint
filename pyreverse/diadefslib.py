@@ -198,7 +198,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
         else:
             module = project.modules[0]
             klass = klass.split('.')[-1]
-        klass = module.ilookup(klass).next()
+        klass = next(module.ilookup(klass))
 
         anc_level, ass_level = self._get_levels()
         self.extract_classes(klass, anc_level, ass_level)
