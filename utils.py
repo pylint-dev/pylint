@@ -868,7 +868,8 @@ def register_plugins(linter, directory):
                 # empty module name (usually emacs auto-save files)
                 continue
             except ImportError as exc:
-                print >> sys.stderr, "Problem importing module %s: %s" % (filename, exc)
+                print("Problem importing module %s: %s" % (filename, exc),
+                      file=sys.stderr)
             else:
                 if hasattr(module, 'register'):
                     module.register(linter)
