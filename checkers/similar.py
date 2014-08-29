@@ -18,13 +18,14 @@
 """
 from __future__ import print_function
 import sys
-from itertools import izip
 
 from logilab.common.ureports import Table
 
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
+
 import six
+from six.moves import zip
 
 
 class Similar(object):
@@ -109,7 +110,7 @@ class Similar(object):
             for index2 in find(lineset1[index1]):
                 non_blank = 0
                 for num, ((_, line1), (_, line2)) in enumerate(
-                        izip(lines1(index1), lines2(index2))):
+                        zip(lines1(index1), lines2(index2))):
                     if line1 != line2:
                         if non_blank > min_lines:
                             yield num, lineset1, index1, lineset2, index2
