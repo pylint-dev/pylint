@@ -974,7 +974,7 @@ class NameChecker(_BasicChecker):
             if len(all_groups) < 2:
                 continue
             groups = collections.defaultdict(list)
-            min_warnings = sys.maxint
+            min_warnings = sys.maxsize
             for group in six.itervalues(all_groups):
                 groups[len(group)].append(group)
                 min_warnings = min(len(group), min_warnings)
