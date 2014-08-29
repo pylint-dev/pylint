@@ -321,7 +321,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         continue
 
                     if not isinstance(elt_name, astroid.Const) \
-                             or not isinstance(elt_name.value, basestring):
+                             or not isinstance(elt_name.value, six.string_types):
                         self.add_message('invalid-all-object',
                                          args=elt.as_string(), node=elt)
                         continue

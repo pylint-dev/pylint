@@ -578,7 +578,7 @@ functions, methods
         """check for various kind of statements without effect"""
         expr = node.value
         if isinstance(expr, astroid.Const) and isinstance(expr.value,
-                                                          basestring):
+                                                          six.string_types):
             # treat string statement in a separated message
             # Handle PEP-257 attribute docstrings.
             # An attribute docstring is defined as being a string right after
