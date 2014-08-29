@@ -30,6 +30,9 @@ from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
+import six
+
+
 _PY3K = sys.version_info[:2] >= (3, 0)
 _PY27 = sys.version_info[:2] == (2, 7)
 
@@ -231,13 +234,13 @@ class StringFormatChecker(BaseChecker):
         args = node.right
 
         if not (isinstance(left, astroid.Const)
-                and isinstance(left.value, basestring)):
+                and isinstance(left.value, six.string_types)):
             return
         format_string = left.value
         try:
             required_keys, required_num_args = \
                 utils.parse_format_string(format_string)
-        except utils.UnsupportedFormatCharacter, e:
+        except utils.UnsupportedFormatCharacter as e:
             c = format_string[e.index]
             self.add_message('bad-format-character',
                              node=node, args=(c, ord(c), e.index))
@@ -260,7 +263,7 @@ class StringFormatChecker(BaseChecker):
                 for k, _ in args.items:
                     if isinstance(k, astroid.Const):
                         key = k.value
-                        if isinstance(key, basestring):
+                        if isinstance(key, six.string_types):
                             keys.add(key)
                         else:
                             self.add_message('bad-format-string-key',
@@ -346,7 +349,7 @@ class StringMethodsChecker(BaseChecker):
         if not isinstance(node.func.expr, astroid.Const):
             return
         try:
-            strnode = func.bound.infer().next()
+            strnode = next(func.bound.infer())
         except astroid.InferenceError:
             return
         if not isinstance(strnode, astroid.Const):
@@ -365,7 +368,7 @@ class StringMethodsChecker(BaseChecker):
             return
 
         named_fields = set(field[0] for field in fields
-                           if isinstance(field[0], basestring))
+                           if isinstance(field[0], six.string_types))
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
@@ -435,7 +438,7 @@ class StringMethodsChecker(BaseChecker):
             if argname in (astroid.YES, None):
                 continue
             try:
-                argument = argname.infer().next()
+                argument = next(argname.infer())
             except astroid.InferenceError:
                 continue
             if not specifiers or argument is astroid.YES:
@@ -492,7 +495,7 @@ class StringMethodsChecker(BaseChecker):
                         break
 
                 try:
-                    previous = previous.infer().next()
+                    previous = next(previous.infer())
                 except astroid.InferenceError:
                     # can't check further if we can't infer it
                     break

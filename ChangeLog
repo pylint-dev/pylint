@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Port source code to be Python 2/3 compatible. This drops the
+      need for 2to3, but does drop support for Python 2.5.
+
     * Each message now comes with a confidence level attached, and
       can be filtered base on this level. This allows to filter out
       all messages that were emitted even though an inference failure

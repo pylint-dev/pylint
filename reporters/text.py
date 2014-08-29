@@ -16,6 +16,7 @@
 :text: the default one grouping messages by module
 :colorized: an ANSI colorized text reporter
 """
+from __future__ import print_function
 
 import warnings
 
@@ -24,6 +25,7 @@ from logilab.common.textutils import colorize_ansi
 
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
+import six
 
 TITLE_UNDERLINES = ['', '=', '-', '.']
 
@@ -42,7 +44,7 @@ class TextReporter(BaseReporter):
         self._template = None
 
     def on_set_current_module(self, module, filepath):
-        self._template = unicode(self.linter.config.msg_template or self.line_format)
+        self._template = six.text_type(self.linter.config.msg_template or self.line_format)
 
     def write_message(self, msg):
         """Convenience method to write a formated message with class default template"""
@@ -60,7 +62,7 @@ class TextReporter(BaseReporter):
 
     def _display(self, layout):
         """launch layouts display"""
-        print >> self.out
+        print(file=self.out)
         TextWriter().format(layout, self.out)
 
 

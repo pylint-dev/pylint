@@ -14,11 +14,11 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """functional/non regression tests for pylint"""
+from __future__ import print_function
 
 import collections
 import contextlib
 import functools
-import cStringIO
 import sys
 import re
 import unittest
@@ -34,6 +34,9 @@ from pylint.utils import PyLintASTWalker
 from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
+
+import six
+from six.moves import StringIO
 
 
 # Utils
@@ -94,7 +97,7 @@ class TestReporter(BaseReporter):
         self.reset()
 
     def reset(self):
-        self.out = cStringIO.StringIO()
+        self.out = StringIO()
         self.messages = []
 
     def add_message(self, msg_id, location, msg):
@@ -113,7 +116,7 @@ class TestReporter(BaseReporter):
     def finalize(self):
         self.messages.sort()
         for msg in self.messages:
-            print >> self.out, msg
+            print(msg, file=self.out)
         result = self.out.getvalue()
         self.reset()
         return result
@@ -148,7 +151,7 @@ class UnittestLinter(object):
         return True
 
     def add_stats(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in six.iteritems(kwargs):
             self.stats[name] = value
         return self.stats
 
@@ -161,7 +164,7 @@ def set_config(**kwargs):
     def _Wrapper(fun):
         @functools.wraps(fun)
         def _Forward(self):
-            for key, value in kwargs.iteritems():
+            for key, value in six.iteritems(kwargs):
                 setattr(self.checker.config, key, value)
             if isinstance(self, CheckerTestCase):
                 # reopen checker in case, it may be interested in configuration change
@@ -180,7 +183,7 @@ class CheckerTestCase(unittest.TestCase):
     def setUp(self):
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter) # pylint: disable=not-callable
-        for key, value in self.CONFIG.iteritems():
+        for key, value in six.iteritems(self.CONFIG):
             setattr(self.checker.config, key, value)
         self.checker.open()
 
@@ -277,11 +280,11 @@ class LintTestUsingModule(unittest.TestCase):
             self.linter.disable('I')
         try:
             self.linter.check(tocheck)
-        except Exception, ex:
+        except Exception as ex:
             # need finalization to restore a correct state
             self.linter.reporter.finalize()
             ex.file = tocheck
-            print ex
+            print(ex)
             ex.__str__ = exception_str
             raise
         self._check_result(self.linter.reporter.finalize())
