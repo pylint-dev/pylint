@@ -60,6 +60,7 @@ from pylint.reporters import initialize as reporters_initialize
 from pylint import config
 
 from pylint.__pkginfo__ import version
+import six
 
 
 
@@ -449,7 +450,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         checker.load_defaults()
 
     def disable_noerror_messages(self):
-        for msgcat, msgids in self.msgs_store._msgs_by_category.iteritems():
+        for msgcat, msgids in six.iteritems(self.msgs_store._msgs_by_category):
             if msgcat == 'E':
                 for msgid in msgids:
                     self.enable(msgid)
@@ -459,7 +460,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
     def disable_reporters(self):
         """disable all reporters"""
-        for reporters in self._reports.itervalues():
+        for reporters in six.itervalues(self._reports):
             for report_id, _title, _cb in reporters:
                 self.disable_report(report_id)
 
@@ -524,7 +525,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
     def get_checkers(self):
         """return all available checkers as a list"""
-        return [self] + [c for checkers in self._checkers.itervalues()
+        return [self] + [c for checkers in six.itervalues(self._checkers)
                          for c in checkers if c is not self]
 
     def prepare_checkers(self):
@@ -639,7 +640,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         self.current_file = filepath or modname
         self.stats['by_module'][modname] = {}
         self.stats['by_module'][modname]['statement'] = 0
-        for msg_cat in MSG_TYPES.itervalues():
+        for msg_cat in six.itervalues(MSG_TYPES):
             self.stats['by_module'][modname][msg_cat] = 0
 
     def get_ast(self, filepath, modname):
@@ -691,7 +692,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         self.stats = {'by_module' : {},
                       'by_msg' : {},
                      }
-        for msg_cat in MSG_TYPES.itervalues():
+        for msg_cat in six.itervalues(MSG_TYPES):
             self.stats[msg_cat] = 0
 
     def close(self):
@@ -764,7 +765,7 @@ def report_messages_stats(sect, stats, _):
         # don't print this report when we didn't detected any errors
         raise EmptyReport()
     in_order = sorted([(value, msg_id)
-                       for msg_id, value in stats['by_msg'].iteritems()
+                       for msg_id, value in six.iteritems(stats['by_msg'])
                        if not msg_id.startswith('I')])
     in_order.reverse()
     lines = ('message id', 'occurrences')
@@ -780,7 +781,7 @@ def report_messages_by_module_stats(sect, stats, _):
     by_mod = {}
     for m_type in ('fatal', 'error', 'warning', 'refactor', 'convention'):
         total = stats[m_type]
-        for module in stats['by_module'].iterkeys():
+        for module in six.iterkeys(stats['by_module']):
             mod_total = stats['by_module'][module][m_type]
             if total == 0:
                 percent = 0
@@ -788,7 +789,7 @@ def report_messages_by_module_stats(sect, stats, _):
                 percent = float((mod_total)*100) / total
             by_mod.setdefault(module, {})[m_type] = percent
     sorted_result = []
-    for module, mod_info in by_mod.iteritems():
+    for module, mod_info in six.iteritems(by_mod):
         sorted_result.append((mod_info['error'],
                               mod_info['warning'],
                               mod_info['refactor'],
@@ -1077,7 +1078,7 @@ group are mutually exclusive.'),
 
 def cb_init_hook(optname, value):
     """exec arbitrary code to set sys.path for instance"""
-    exec value
+    exec(value)
 
 
 if __name__ == '__main__':
