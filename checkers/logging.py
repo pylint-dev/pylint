@@ -34,7 +34,7 @@ MSGS = {
               'http://www.python.org/dev/peps/pep-0282/.'),
    'W1202': ('Use % formatting in logging functions but pass the % parameters '
               'as arguments',
-              'logging-bad-use-of-str-format',
+              'logging-format-interpolation',
               'Used when a logging statement has a call form of '
               '"logging.<logging method>(format_string.format(format_args...))"'
               '. Such calls should use % formatting instead, but leave '
@@ -152,7 +152,7 @@ class LoggingChecker(checkers.BaseChecker):
           method names, False otherwise.
         """
         if not isinstance(callfunc_node, astroid.CallFunc):
-          return False
+            return False
         func = utils.safe_infer(callfunc_node.func)
         return (isinstance(func, astroid.BoundMethod)
                 and isinstance(func.bound, astroid.Instance)
@@ -190,7 +190,7 @@ class LoggingChecker(checkers.BaseChecker):
           callfunc_node: CallFunc AST node to be checked.
         """
         if self.is_method_call(callfunc_node, ('str', 'unicode'), ('format',)):
-            self.add_message('logging-bad-use-of-str-format', node=callfunc_node)
+            self.add_message('logging-format-interpolation', node=callfunc_node)
 
     def _check_format_string(self, node, format_arg):
         """Checks that format string tokens match the supplied arguments.
