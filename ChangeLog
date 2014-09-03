@@ -45,7 +45,7 @@ ChangeLog for Pylint
 
     * Don't emit 'import-error' if an import was protected by a try-except,
       which excepted ImportError.
-
+ 
     * Fix an 'unused-import' false positive, when the error was emitted
       for all the members imported with 'from import' form.
       Closes issue #304.
@@ -64,7 +64,7 @@ ChangeLog for Pylint
 
     * Don't emit 'unused-import' when a special object is imported
       (__all__, __doc__ etc.). Closes issue #309.
-
+ 
     * Look in the metaclass, if defined, for members not found in the current
       class. Closes issue #306.
 
@@ -82,18 +82,6 @@ ChangeLog for Pylint
 
     * Add a new warning, 'boolean-datetime', emitted when an instance
       of 'datetime.time' is used in a boolean context. Closes issue #239.
-
-    * Fix a crash which ocurred while checking for 'method-hidden',                                                                                     
-      when the parent frame was something different than a function.                                                                                    
-                                                                                                                                                        
-    * Generate html output for missing files. Closes issue #320.                                                                                        
-                                                                                                                                                        
-    * Fix a false positive with 'too-many-format-args', when the format                                                                                 
-      string contains mixed attribute access arguments and manual                                                                                       
-      fields. Closes issue #322.                                                                                                                        
-                                                                                                                                                        
-    * Extend the cases where 'undefined-variable' and 'used-before-assignment'                                                                          
-      can be detected. Closes issue #291.
 
     * Add a new warning, 'logging-format-interpolation', emitted when .format()
       string interpolation is used within logging function calls.
