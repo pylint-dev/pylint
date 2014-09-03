@@ -37,6 +37,7 @@ import six
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 
+PY3K = sys.version_info >= (3, 0)
 
 def in_for_else_branch(parent, stmt):
     """Returns True if stmt in inside the else branch for a parent For stmt."""
@@ -731,9 +732,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # class A:
                 #    b = 1
                 #    c = lambda b=b: b * b
-                class_assignment = (isinstance(frame, astroid.Class) and
-                                    name in frame.locals)
-                if not class_assignment:
+                if not (isinstance(frame, astroid.Class) and
+                            name in frame.locals):
                     continue
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
@@ -773,9 +773,34 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             maybee0601 = not any(isinstance(child, astroid.Nonlocal)
                                                  and name in child.names
                                                  for child in defframe.get_children())
+
+                # Handle a couple of class scoping issues.
+                annotation_return = False
+                # The class reuses itself in the class scope.
+                recursive_klass = (frame is defframe and
+                                       defframe.parent_of(node) and
+                                       isinstance(defframe, astroid.Class) and
+                                       node.name == defframe.name)
                 if (self._to_consume[-1][-1] == 'lambda' and
                         isinstance(frame, astroid.Class)
                         and name in frame.locals):
+                    maybee0601 = True
+                elif (isinstance(defframe, astroid.Class) and
+                          isinstance(frame, astroid.Function)):
+                    # Special rule for function return annotations,
+                    # which uses the same name as the class where
+                    # the function lives.
+                    if (PY3K and node is frame.returns and
+                            defframe.parent_of(frame.returns)):
+                        maybee0601 = annotation_return = True
+
+                    if (maybee0601 and defframe.name in defframe.locals and
+                            defframe.locals[name][0].lineno < frame.lineno):
+                        # Detect class assignments with the same
+                        # name as the class. In this case, no warning
+                        # should be raised.
+                        maybee0601 = False
+                elif recursive_klass:
                     maybee0601 = True
                 else:
                     maybee0601 = maybee0601 and stmt.fromlineno <= defstmt.fromlineno
@@ -785,8 +810,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         and not are_exclusive(stmt, defstmt, ('NameError',
                                                               'Exception',
                                                               'BaseException'))):
-                    if defstmt is stmt and isinstance(node, (astroid.DelName,
-                                                             astroid.AssName)):
+                    if recursive_klass or (defstmt is stmt and
+                                              isinstance(node, (astroid.DelName,
+                                                                    astroid.AssName))):
+                        self.add_message('undefined-variable', args=name, node=node)
+                    elif annotation_return:
                         self.add_message('undefined-variable', args=name, node=node)
                     elif self._to_consume[-1][-1] != 'lambda':
                         # E0601 may *not* occurs in lambda scope.
