@@ -287,6 +287,13 @@ variables (i.e. expectedly not used).'}),
                  'help' : 'List of additional names supposed to be defined in \
 builtins. Remember that you should avoid to define new builtins when possible.'
                 }),
+               ("callbacks",
+                {'default' : ('cb_', '_cb'), 'type' : 'csv',
+                 'metavar' : '<callbacks>',
+                 'help' : 'List of strings which can identify a callback '
+                          'function by name. A callback name must start or '
+                          'end with one of those strings.'}
+               )
               )
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -545,8 +552,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         continue
                     if node.name in PYMETHODS and node.name not in ('__init__', '__new__'):
                         continue
-                # don't check callback arguments XXX should be configurable
-                if node.name.startswith('cb_') or node.name.endswith('_cb'):
+                # don't check callback arguments
+                if any(node.name.startswith(cb) or node.name.endswith(cb)
+                       for cb in self.config.callbacks):
                     continue
                 self.add_message('unused-argument', args=name, node=stmt,
                                  confidence=confidence)

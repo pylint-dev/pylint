@@ -98,6 +98,8 @@ ChangeLog for Pylint
     * Extend the cases where 'undefined-variable' and 'used-before-assignment'
       can be detected. Closes issue #291.
 
+    * Allow the customisation of callback identifiers. Closes issue #326.
+
 
 2014-07-26  --  1.3.0
 
