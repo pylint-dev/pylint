@@ -101,6 +101,9 @@ ChangeLog for Pylint
     * Add support for customising callback identifiers, by adding a new
       '--callbacks' command line option. Closes issue #326.
 
+    * Add a new warning, 'logging-format-interpolation', emitted when .format()
+      string interpolation is used within logging function calls.
+
 
 2014-07-26  --  1.3.0
 
