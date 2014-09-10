@@ -39,6 +39,8 @@ Order doesn't matter (not that much, at least ;)
 * Michal Nowikowski: wrong-spelling-in-comment, wrong-spelling-in-docstring and
   other patches.
 
+* David Lindquist: logging-format-interpolation warning.
+
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
   Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others):
   bug reports, feedback, feature requests... Many other people have contributed
