@@ -911,6 +911,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         if infered is astroid.YES:
             return
+        if (isinstance(infered.parent, astroid.Arguments) and
+                isinstance(node.value, astroid.Name) and
+                node.value.name == infered.parent.vararg):
+            # Variable-length argument, we can't determine the length.
+            return
         if isinstance(infered, (astroid.Tuple, astroid.List)):
             # attempt to check unpacking is properly balanced
             values = infered.itered()

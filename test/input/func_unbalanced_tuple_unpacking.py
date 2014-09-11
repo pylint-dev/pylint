@@ -77,3 +77,12 @@ class UnbalancedUnpacking(object):
         self.a, self.b = temp()
         self.a, self.b = temp2()
         self.a, self.b = unpack()
+
+
+def issue329(*args):
+    """ Don't emit unbalanced tuple unpacking if the
+    rhs of the assignment is a variable-length argument,
+    because we don't know the actual length of the tuple.
+    """
+    first, second, third = args
+    return first, second, third

@@ -104,6 +104,9 @@ ChangeLog for Pylint
     * Add a new warning, 'logging-format-interpolation', emitted when .format()
       string interpolation is used within logging function calls.
 
+    * Don't emit 'unbalanced-tuple-unpacking' when the rhs of the assignment
+      is a variable length argument. Closes issue #329.
+
 
 2014-07-26  --  1.3.0
 
