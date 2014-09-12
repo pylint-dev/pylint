@@ -473,7 +473,9 @@ def has_known_bases(klass):
         for base in klass.bases:
             result = next(base.infer())
             # TODO: check for A->B->A->B pattern in class structure too?
-            if not isinstance(result, astroid.Class) or result is klass or not has_known_bases(result):
+            if (not isinstance(result, astroid.Class) or
+                    result is klass or
+                    not has_known_bases(result)):
                 klass._all_bases_known = False
                 return False
     except astroid.InferenceError:
