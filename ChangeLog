@@ -107,6 +107,9 @@ ChangeLog for Pylint
     * Don't emit 'unbalanced-tuple-unpacking' when the rhs of the assignment
       is a variable length argument. Closes issue #329.
 
+    * Add a new warning, 'inherit-non-class', emitted when a class inherits
+      from something which is not a class. Closes issue #331.
+
 
 2014-07-26  --  1.3.0
 
