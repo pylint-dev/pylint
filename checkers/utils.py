@@ -469,17 +469,13 @@ def has_known_bases(klass):
         return klass._all_bases_known
     except AttributeError:
         pass
-    try:
-        for base in klass.bases:
-            result = next(base.infer())
-            # TODO: check for A->B->A->B pattern in class structure too?
-            if (not isinstance(result, astroid.Class) or
-                    result is klass or
-                    not has_known_bases(result)):
-                klass._all_bases_known = False
-                return False
-    except astroid.InferenceError:
-        klass._all_bases_known = False
-        return False
+    for base in klass.bases:
+        result = safe_infer(base)
+        # TODO: check for A->B->A->B pattern in class structure too?
+        if (not isinstance(result, astroid.Class) or
+                result is klass or
+                not has_known_bases(result)):
+            klass._all_bases_known = False
+            return False
     klass._all_bases_known = True
     return True
