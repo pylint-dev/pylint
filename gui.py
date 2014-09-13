@@ -14,6 +14,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Tkinker gui for pylint"""
+from __future__ import print_function
 
 import os
 import sys
@@ -86,7 +87,7 @@ class BasicStream(object):
         """finalize what the contents of the dict should look like before output"""
         for item in self.outdict:
             num_empty = self.outdict[item].count('')
-            for _ in xrange(num_empty):
+            for _ in range(num_empty):
                 self.outdict[item].remove('')
             if self.outdict[item]:
                 self.outdict[item].pop(0)
@@ -503,7 +504,7 @@ def lint_thread(module, reporter, gui):
 def Run(args):
     """launch pylint gui from args"""
     if args:
-        print 'USAGE: pylint-gui\n launch a simple pylint gui using Tk'
+        print('USAGE: pylint-gui\n launch a simple pylint gui using Tk')
         sys.exit(1)
     gui = LintGui()
     gui.mainloop()

@@ -1,0 +1,3 @@
+undefined-variable:8:Undefined.test:Undefined variable 'Undefined'
+undefined-variable:33:Undefined1.InnerScope.test_undefined:Undefined variable 'Undef'
+undefined-variable:36:Undefined1.InnerScope.test1:Undefined variable 'ABC'

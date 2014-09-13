@@ -18,6 +18,7 @@
 
   create UML diagrams for classes and modules in <packages>
 """
+from __future__ import print_function
 
 import sys, os
 from logilab.common.configuration import ConfigurationMixIn
@@ -99,7 +100,7 @@ class Run(ConfigurationMixIn):
     def run(self, args):
         """checking arguments and run project"""
         if not args:
-            print self.help()
+            print(self.help())
             return 1
         # insert current working directory to the python path to recognize
         # dependencies to local modules even if cwd is not in the PYTHONPATH

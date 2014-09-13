@@ -5,7 +5,7 @@ import unittest
 
 from astroid import test_utils
 from pylint.checkers import variables
-from pylint.testutils import CheckerTestCase, linter, set_config
+from pylint.testutils import CheckerTestCase, linter, set_config, Message
 
 class VariablesCheckerTC(CheckerTestCase):
 
@@ -35,6 +35,49 @@ class VariablesCheckerTC(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.checker.visit_from(node)
+
+    @set_config(callbacks=('callback_', '_callback'))
+    def test_custom_callback_string(self):
+        """ Test the --calbacks option works. """
+        def cleanup():
+            self.checker._to_consume = _to_consume
+        _to_consume = self.checker._to_consume
+        self.checker._to_consume = []
+        self.addCleanup(cleanup)
+
+        node = test_utils.extract_node("""
+        def callback_one(abc):
+             ''' should not emit unused-argument. '''
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
+            self.checker.leave_function(node)
+
+        node = test_utils.extract_node("""
+        def two_callback(abc, defg):
+             ''' should not emit unused-argument. '''
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
+            self.checker.leave_function(node)
+
+        node = test_utils.extract_node("""
+        def normal_func(abc):
+             ''' should emit unused-argument. '''
+        """)
+        with self.assertAddsMessages(
+                Message('unused-argument', node=node['abc'], args='abc')):
+            self.checker.visit_function(node)
+            self.checker.leave_function(node)
+
+        node = test_utils.extract_node("""
+        def cb_func(abc):
+             ''' Previous callbacks are overriden. '''
+        """)
+        with self.assertAddsMessages(
+                Message('unused-argument', node=node['abc'], args='abc')):
+            self.checker.visit_function(node)
+            self.checker.leave_function(node)
 
 
 class MissingSubmoduleTest(CheckerTestCase):

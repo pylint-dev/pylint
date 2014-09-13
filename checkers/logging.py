@@ -20,6 +20,9 @@ from pylint import interfaces
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
+import six
+
+
 MSGS = {
     'W1201': ('Specify string format arguments as logging function parameters',
               'logging-not-lazy',
@@ -32,6 +35,14 @@ MSGS = {
               'interpolation in those cases in which no message will be '
               'logged. For more, see '
               'http://www.python.org/dev/peps/pep-0282/.'),
+   'W1202': ('Use % formatting in logging functions but pass the % '
+             'parameters as arguments',
+             'logging-format-interpolation',
+             'Used when a logging statement has a call form of '
+             '"logging.<logging method>(format_string.format(format_args...))"'
+             '. Such calls should use % formatting instead, but leave '
+             'interpolation to the logging function by passing the parameters '
+             'as arguments.'),
     'E1200': ('Unsupported logging format character %r (%#02x) at index %d',
               'logging-unsupported-format',
               'Used when an unsupported format character is used in a logging\
@@ -62,11 +73,11 @@ class LoggingChecker(checkers.BaseChecker):
     msgs = MSGS
 
     options = (('logging-modules',
-                {'default' : ('logging',),
-                 'type' : 'csv',
-                 'metavar' : '<comma separated list>',
-                 'help' : 'Logging modules to check that the string format '
-                          'arguments are in logging function parameter format'}
+                {'default': ('logging',),
+                 'type': 'csv',
+                 'metavar': '<comma separated list>',
+                 'help': 'Logging modules to check that the string format '
+                         'arguments are in logging function parameter format'}
                ),
               )
 
@@ -131,6 +142,26 @@ class LoggingChecker(checkers.BaseChecker):
                 return
         self._check_log_method(node, name)
 
+    def is_method_call(self, callfunc_node, types=(), methods=()):
+        """Determines if a CallFunc node represents a method call.
+
+        Args:
+          callfunc_node: The CallFunc AST node to check.
+          types: Optional sequence of caller type names to restrict check.
+          methods: Optional sequence of method names to restrict check.
+
+        Returns:
+          True, if the node represents a method call for the given type and
+          method names, False otherwise.
+        """
+        if not isinstance(callfunc_node, astroid.CallFunc):
+            return False
+        func = utils.safe_infer(callfunc_node.func)
+        return (isinstance(func, astroid.BoundMethod)
+                and isinstance(func.bound, astroid.Instance)
+                and (func.bound.name in types if types else True)
+                and (func.name in methods if methods else True))
+
     def _check_log_method(self, node, name):
         """Checks calls to logging.log(level, format, *format_args)."""
         if name == 'log':
@@ -150,8 +181,19 @@ class LoggingChecker(checkers.BaseChecker):
 
         if isinstance(node.args[format_pos], astroid.BinOp) and node.args[format_pos].op == '%':
             self.add_message('logging-not-lazy', node=node)
+        elif isinstance(node.args[format_pos], astroid.CallFunc):
+            self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
+
+    def _check_call_func(self, callfunc_node):
+        """Checks that function call is not format_string.format().
+
+        Args:
+          callfunc_node: CallFunc AST node to be checked.
+        """
+        if self.is_method_call(callfunc_node, ('str', 'unicode'), ('format',)):
+            self.add_message('logging-format-interpolation', node=callfunc_node)
 
     def _check_format_string(self, node, format_arg):
         """Checks that format string tokens match the supplied arguments.
@@ -166,7 +208,7 @@ class LoggingChecker(checkers.BaseChecker):
             # don't check any further.
             return
         format_string = node.args[format_arg].value
-        if not isinstance(format_string, basestring):
+        if not isinstance(format_string, six.string_types):
             # If the log format is constant non-string (e.g. logging.debug(5)),
             # ensure there are no arguments.
             required_num_args = 0
@@ -178,7 +220,7 @@ class LoggingChecker(checkers.BaseChecker):
                     # Keyword checking on logging strings is complicated by
                     # special keywords - out of scope.
                     return
-            except utils.UnsupportedFormatCharacter, ex:
+            except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
                 self.add_message('logging-unsupported-format', node=node,
                                  args=(char, ord(char), ex.index))

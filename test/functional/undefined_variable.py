@@ -109,6 +109,18 @@ class TestClass(Ancestor):  # [used-before-assignment]
             """ no op """
         return MissingAncestor1
 
+class Self(object):
+    """ Detect when using the same name inside the class scope. """
+    obj = Self # [undefined-variable]
+
+class Self1(object):
+    """ No error should be raised here. """
+
+    def test(self):
+        """ empty """
+        return Self1
+
+
 class Ancestor(object):
     """ No op """
 

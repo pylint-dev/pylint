@@ -133,7 +133,7 @@ class NewStyleConflictChecker(BaseChecker):
                         continue
 
                     try:
-                        supcls = (call.args and call.args[0].infer().next()
+                        supcls = (call.args and next(call.args[0].infer())
                                   or None)
                     except astroid.InferenceError:
                         continue

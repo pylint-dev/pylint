@@ -33,9 +33,11 @@ from pylint.checkers.utils import (
     is_defined_before, is_error, is_func_default, is_func_decorator,
     assign_parent, check_messages, is_inside_except, clobber_in_except,
     get_all_elements, has_known_bases)
+import six
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 
+PY3K = sys.version_info >= (3, 0)
 
 def in_for_else_branch(parent, stmt):
     """Returns True if stmt in inside the else branch for a parent For stmt."""
@@ -45,7 +47,7 @@ def in_for_else_branch(parent, stmt):
 def overridden_method(klass, name):
     """get overridden method if any"""
     try:
-        parent = klass.local_attr_ancestors(name).next()
+        parent = next(klass.local_attr_ancestors(name))
     except (StopIteration, KeyError):
         return None
     try:
@@ -145,7 +147,7 @@ def _fix_dot_imports(not_consumed):
     """
     # TODO: this should be improved in issue astroid #46
     names = {}
-    for name, stmts in not_consumed.iteritems():
+    for name, stmts in six.iteritems(not_consumed):
         if any(isinstance(stmt, astroid.AssName)
                and isinstance(stmt.ass_type(), astroid.AugAssign)
                for stmt in stmts):
@@ -285,6 +287,13 @@ variables (i.e. expectedly not used).'}),
                  'help' : 'List of additional names supposed to be defined in \
 builtins. Remember that you should avoid to define new builtins when possible.'
                 }),
+               ("callbacks",
+                {'default' : ('cb_', '_cb'), 'type' : 'csv',
+                 'metavar' : '<callbacks>',
+                 'help' : 'List of strings which can identify a callback '
+                          'function by name. A callback name must start or '
+                          'end with one of those strings.'}
+               )
               )
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -296,7 +305,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         checks globals doesn't overrides builtins
         """
         self._to_consume = [(copy(node.locals), {}, 'module')]
-        for name, stmts in node.locals.iteritems():
+        for name, stmts in six.iteritems(node.locals):
             if is_builtin(name) and not is_inside_except(stmts[0]):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmts[0])
@@ -311,16 +320,16 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         not_consumed = self._to_consume.pop()[0]
         # attempt to check for __all__ if defined
         if '__all__' in node.locals:
-            assigned = node.igetattr('__all__').next()
+            assigned = next(node.igetattr('__all__'))
             if assigned is not astroid.YES:
                 for elt in getattr(assigned, 'elts', ()):
                     try:
-                        elt_name = elt.infer().next()
+                        elt_name = next(elt.infer())
                     except astroid.InferenceError:
                         continue
 
                     if not isinstance(elt_name, astroid.Const) \
-                             or not isinstance(elt_name.value, basestring):
+                             or not isinstance(elt_name.value, six.string_types):
                         self.add_message('invalid-all-object',
                                          args=elt.as_string(), node=elt)
                         continue
@@ -503,7 +512,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         for nonlocal_stmt in node.nodes_of_class(astroid.Nonlocal):
             nonlocal_names.update(set(nonlocal_stmt.names))
 
-        for name, stmts in not_consumed.iteritems():
+        for name, stmts in six.iteritems(not_consumed):
             # ignore some special names specified by user configuration
             if authorized_rgx.match(name):
                 continue
@@ -543,8 +552,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         continue
                     if node.name in PYMETHODS and node.name not in ('__init__', '__new__'):
                         continue
-                # don't check callback arguments XXX should be configurable
-                if node.name.startswith('cb_') or node.name.endswith('_cb'):
+                # don't check callback arguments
+                if any(node.name.startswith(cb) or node.name.endswith(cb)
+                       for cb in self.config.callbacks):
                     continue
                 self.add_message('unused-argument', args=name, node=stmt,
                                  confidence=confidence)
@@ -730,9 +740,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # class A:
                 #    b = 1
                 #    c = lambda b=b: b * b
-                class_assignment = (isinstance(frame, astroid.Class) and
-                                    name in frame.locals)
-                if not class_assignment:
+                if not (isinstance(frame, astroid.Class) and
+                            name in frame.locals):
                     continue
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
@@ -772,9 +781,34 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             maybee0601 = not any(isinstance(child, astroid.Nonlocal)
                                                  and name in child.names
                                                  for child in defframe.get_children())
+
+                # Handle a couple of class scoping issues.
+                annotation_return = False
+                # The class reuses itself in the class scope.
+                recursive_klass = (frame is defframe and
+                                       defframe.parent_of(node) and
+                                       isinstance(defframe, astroid.Class) and
+                                       node.name == defframe.name)
                 if (self._to_consume[-1][-1] == 'lambda' and
                         isinstance(frame, astroid.Class)
                         and name in frame.locals):
+                    maybee0601 = True
+                elif (isinstance(defframe, astroid.Class) and
+                          isinstance(frame, astroid.Function)):
+                    # Special rule for function return annotations,
+                    # which uses the same name as the class where
+                    # the function lives.
+                    if (PY3K and node is frame.returns and
+                            defframe.parent_of(frame.returns)):
+                        maybee0601 = annotation_return = True
+
+                    if (maybee0601 and defframe.name in defframe.locals and
+                            defframe.locals[name][0].lineno < frame.lineno):
+                        # Detect class assignments with the same
+                        # name as the class. In this case, no warning
+                        # should be raised.
+                        maybee0601 = False
+                elif recursive_klass:
                     maybee0601 = True
                 else:
                     maybee0601 = maybee0601 and stmt.fromlineno <= defstmt.fromlineno
@@ -784,8 +818,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         and not are_exclusive(stmt, defstmt, ('NameError',
                                                               'Exception',
                                                               'BaseException'))):
-                    if defstmt is stmt and isinstance(node, (astroid.DelName,
-                                                             astroid.AssName)):
+                    if recursive_klass or (defstmt is stmt and
+                                              isinstance(node, (astroid.DelName,
+                                                                    astroid.AssName))):
+                        self.add_message('undefined-variable', args=name, node=node)
+                    elif annotation_return:
                         self.add_message('undefined-variable', args=name, node=node)
                     elif self._to_consume[-1][-1] != 'lambda':
                         # E0601 may *not* occurs in lambda scope.
@@ -829,7 +866,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         for name, _ in node.names:
             parts = name.split('.')
             try:
-                module = node.infer_name_module(parts[0]).next()
+                module = next(node.infer_name_module(parts[0]))
             except astroid.ResolveError:
                 continue
             self._check_module_attrs(node, module, parts[1:])
@@ -874,6 +911,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """
         if infered is astroid.YES:
             return
+        if (isinstance(infered.parent, astroid.Arguments) and
+                isinstance(node.value, astroid.Name) and
+                node.value.name == infered.parent.vararg):
+            # Variable-length argument, we can't determine the length.
+            return
         if isinstance(infered, (astroid.Tuple, astroid.List)):
             # attempt to check unpacking is properly balanced
             values = infered.itered()
@@ -916,7 +958,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 module = None
                 break
             try:
-                module = module.getattr(name)[0].infer().next()
+                module = next(module.getattr(name)[0].infer())
                 if module is astroid.YES:
                     return None
             except astroid.NotFoundError:

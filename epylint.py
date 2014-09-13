@@ -45,6 +45,7 @@ For example:
 You may also use py_run to run pylint with desired options and get back (or not)
 its output.
 """
+from __future__ import print_function
 
 import sys, os
 import os.path as osp
@@ -102,7 +103,7 @@ def lint(filename, options=None):
         parts = line.split(":")
         if parts and parts[0] == child_path:
             line = ":".join([filename] + parts[1:])
-        print line,
+        print(line, end=' ')
 
     process.wait()
     return process.returncode
@@ -162,10 +163,10 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
 
 def Run():
     if len(sys.argv) == 1:
-        print "Usage: %s <filename> [options]" % sys.argv[0]
+        print("Usage: %s <filename> [options]" % sys.argv[0])
         sys.exit(1)
     elif not osp.exists(sys.argv[1]):
-        print "%s does not exist" % sys.argv[1]
+        print("%s does not exist" % sys.argv[1])
         sys.exit(1)
     else:
         sys.exit(lint(sys.argv[1], sys.argv[2:]))

@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Port source code to be Python 2/3 compatible. This drops the
+      need for 2to3, but does drop support for Python 2.5.
+
     * Each message now comes with a confidence level attached, and
       can be filtered base on this level. This allows to filter out
       all messages that were emitted even though an inference failure
@@ -97,6 +100,21 @@ ChangeLog for Pylint
     * Fix a false positive with 'too-many-format-args', when the format
       string contains mixed attribute access arguments and manual
       fields. Closes issue #322.
+
+    * Extend the cases where 'undefined-variable' and 'used-before-assignment'
+      can be detected. Closes issue #291.
+
+    * Add support for customising callback identifiers, by adding a new
+      '--callbacks' command line option. Closes issue #326.
+
+    * Add a new warning, 'logging-format-interpolation', emitted when .format()
+      string interpolation is used within logging function calls.
+
+    * Don't emit 'unbalanced-tuple-unpacking' when the rhs of the assignment
+      is a variable length argument. Closes issue #329.
+
+    * Add a new warning, 'inherit-non-class', emitted when a class inherits
+      from something which is not a class. Closes issue #331.
 
 
 2014-07-26  --  1.3.0

@@ -12,6 +12,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """utilities methods and classes for reporters"""
+from __future__ import print_function
 
 import sys
 import locale
@@ -90,7 +91,7 @@ class BaseReporter(object):
 
     def writeln(self, string=''):
         """write a line in the output buffer"""
-        print >> self.out, self.encode(string)
+        print(self.encode(string), file=self.out)
 
     def display_results(self, layout):
         """display results encapsulated in the layout tree"""

@@ -15,3 +15,4 @@ used-before-assignment:86:test_arguments:Using variable 'TestClass' before assig
 used-before-assignment:90:TestClass:Using variable 'Ancestor' before assignment
 used-before-assignment:93:TestClass.MissingAncestor:Using variable 'Ancestor1' before assignment
 used-before-assignment:100:TestClass.test1.UsingBeforeDefinition:Using variable 'Empty' before assignment
+undefined-variable:114:Self:Undefined variable 'Self'

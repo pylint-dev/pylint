@@ -211,6 +211,8 @@ def multiset_difference(left_op, right_op):
 
 
 class LintModuleTest(unittest.TestCase):
+    maxDiff = None
+
     def __init__(self, test_file):
         super(LintModuleTest, self).__init__('_runTest')
         test_reporter = TestReporter()
