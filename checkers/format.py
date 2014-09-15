@@ -68,7 +68,7 @@ MSGS = {
     'C0301': ('Line too long (%s/%s)',
               'line-too-long',
               'Used when a line is longer than a given number of characters.'),
-    'C0302': ('Too many lines in module (%s)', # was W0302
+    'C0302': ('Too many lines in module (%s/%s)', # was W0302
               'too-many-lines',
               'Used when a module has too much lines, reducing its readability.'
              ),
@@ -792,7 +792,7 @@ class FormatChecker(BaseTokenChecker):
 
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
-            self.add_message('too-many-lines', args=line_num, line=1)
+            self.add_message('too-many-lines', args=(line_num, self.config.max_module_lines), line=1)
 
     def _check_line_ending(self, line_ending, line_num):
         # check if line endings are mixed
