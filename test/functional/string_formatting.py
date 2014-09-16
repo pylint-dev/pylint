@@ -127,3 +127,19 @@ def issue322():
     '{0}{1[FOO]}'.format(123, {'FOO': 456})
     '{0}{1[FOO]}'.format(123, {'FOO': 456}, 321) # [too-many-format-args]
     '{0}{1[FOO]}'.format(123) # [too-few-format-args]
+
+def issue338():
+    """
+    Check that using a namedtuple subclass doesn't crash when
+    trying to infer EmptyNodes (resulted after mocking the
+    members of namedtuples).
+    """
+    from collections import namedtuple
+
+    class Crash(namedtuple("C", "foo bar")):
+        """ Looking for attributes in __str__ will crash,
+        because EmptyNodes can't be infered.
+        """
+        def __str__(self):
+            return "{0.foo}: {0.bar}".format(self)
+    return Crash
