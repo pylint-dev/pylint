@@ -37,7 +37,7 @@ class FirstBadContextManager(object):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type):
+    def __exit__(self, exc_type): # [bad-context-manager]
         pass
 
 class SecondBadContextManager(object):
@@ -46,7 +46,7 @@ class SecondBadContextManager(object):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, value, tb, stack):
+    def __exit__(self, exc_type, value, tb, stack): # [bad-context-manager]
         pass
 
 class ThirdBadContextManager(object):
@@ -55,8 +55,6 @@ class ThirdBadContextManager(object):
     def __enter__(self):
         return self
 
+    # +1: [bad-context-manager]
     def __exit__(self, exc_type, value, tb, stack, *args):
         pass
-
-
-

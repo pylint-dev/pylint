@@ -39,20 +39,20 @@ def uninferable(seq):
 
 def test(path):
     """ test function """
-    seq = reversed()
-    seq = reversed(None)
+    seq = reversed() # [missing-reversed-argument]
+    seq = reversed(None) # [bad-reversed-sequence]
     seq = reversed([1, 2, 3])
     seq = reversed((1, 2, 3))
-    seq = reversed(set())
-    seq = reversed({'a': 1, 'b': 2})
-    seq = reversed(iter([1, 2, 3]))
+    seq = reversed(set()) # [bad-reversed-sequence]
+    seq = reversed({'a': 1, 'b': 2}) # [bad-reversed-sequence]
+    seq = reversed(iter([1, 2, 3])) # [bad-reversed-sequence]
     seq = reversed(GoodReversed())
     seq = reversed(SecondGoodReversed())
-    seq = reversed(BadReversed())
-    seq = reversed(SecondBadReversed())
+    seq = reversed(BadReversed()) # [bad-reversed-sequence]
+    seq = reversed(SecondBadReversed()) # [bad-reversed-sequence]
     seq = reversed(range(100))
-    seq = reversed(ThirdBadReversed())
-    seq = reversed(lambda: None)
+    seq = reversed(ThirdBadReversed()) # [bad-reversed-sequence]
+    seq = reversed(lambda: None) # [bad-reversed-sequence]
     seq = reversed(deque([]))
     seq = reversed("123")
     seq = uninferable([1, 2, 3])

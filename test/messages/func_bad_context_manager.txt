@@ -1,3 +1,0 @@
-E: 40:FirstBadContextManager.__exit__: __exit__ must accept 3 arguments: type, value, traceback
-E: 49:SecondBadContextManager.__exit__: __exit__ must accept 3 arguments: type, value, traceback
-E: 58:ThirdBadContextManager.__exit__: __exit__ must accept 3 arguments: type, value, traceback
