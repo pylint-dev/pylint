@@ -50,10 +50,10 @@ class SpellingCheckerTest(CheckerTestCase):
     def test_check_bad_coment(self):
         with self.assertAddsMessages(
             Message('wrong-spelling-in-comment', line=1,
-                    args=(u'coment', u'# bad coment',
+                    args=('coment', '# bad coment',
                           '      ^^^^^^',
-                          u"comet' or 'comment' or 'cement' or 'comest"))):
-            self.checker.process_tokens(tokenize_str(u"# bad coment"))
+                          "comet' or 'comment' or 'moment' or 'foment"))):
+            self.checker.process_tokens(tokenize_str("# bad coment"))
 
     @unittest.skipIf(spell_dict is None,
                      "missing python-enchant package or missing "
@@ -61,21 +61,21 @@ class SpellingCheckerTest(CheckerTestCase):
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_docstring(self):
         stmt = test_utils.extract_node(
-            u'def fff():\n   """bad coment"""\n   pass')
+            'def fff():\n   """bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'bad coment',
                           '    ^^^^^^',
-                          "comet' or 'comment' or 'cement' or 'comest"))):
+                          "comet' or 'comment' or 'moment' or 'foment"))):
             self.checker.visit_function(stmt)
 
         stmt = test_utils.extract_node(
-            u'class Abc(object):\n   """bad comenta"""\n   pass')
+            'class Abc(object):\n   """bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
-                    args=('comenta', 'bad comenta',
+                    args=('coment', 'bad coment',
                           '    ^^^^^^',
-                          "comet' or 'comment' or 'cement' or 'comest"))):
+                          "comet' or 'comment' or 'moment' or 'foment"))):
             self.checker.visit_class(stmt)
 
 
