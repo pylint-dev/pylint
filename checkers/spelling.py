@@ -25,11 +25,8 @@ if sys.version_info[0] >= 3:
 else:
     maketrans = string.maketrans
 
-import astroid
-
-from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
-from pylint.checkers import BaseChecker, BaseTokenChecker
-from pylint.checkers import utils
+from pylint.interfaces import ITokenChecker, IAstroidChecker
+from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 
 try:
@@ -202,7 +199,7 @@ class SpellingChecker(BaseTokenChecker):
             return
 
         # Process tokens and look for comments.
-        for (tok_type, token, (start_row, start_col), _, _) in tokens:
+        for (tok_type, token, (start_row, _), _, _) in tokens:
             if tok_type == tokenize.COMMENT:
                 self._check_spelling('wrong-spelling-in-comment',
                                      token, start_row)
