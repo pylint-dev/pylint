@@ -737,11 +737,28 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     base_scope_type == 'comprehension' and i == start_index-1):
                 # Detect if we are in a local class scope, as an assignment.
                 # For example, the following is fair game.
+                #
                 # class A:
                 #    b = 1
                 #    c = lambda b=b: b * b
-                if not (isinstance(frame, astroid.Class) and
-                            name in frame.locals):
+                #
+                # class B:
+                #    tp = 1
+                #    def func(self, arg: tp):
+                #        ...
+
+                in_annotation = (
+                    PY3K and isinstance(frame, astroid.Function)
+                    and node.statement() is frame and
+                    (node in frame.args.annotations
+                     or node is frame.args.varargannotation
+                     or node is frame.args.kwargannotation))
+                if in_annotation:
+                    frame_locals = frame.parent.scope().locals
+                else:
+                    frame_locals = frame.locals
+                if not ((isinstance(frame, astroid.Class) or in_annotation)
+                        and name in frame_locals):
                     continue
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop

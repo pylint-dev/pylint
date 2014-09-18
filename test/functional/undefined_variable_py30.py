@@ -35,3 +35,24 @@ class Undefined1:
 
         def test1(self)->ABC: # [undefined-variable]
             """ Triggers undefined-variable. """
+
+
+class FalsePositive342(object):
+    # pylint: disable=line-too-long
+    """ Fix some false positives found in
+    https://bitbucket.org/logilab/pylint/issue/342/spurious-undefined-variable-for-class
+    """
+
+    top = 42
+
+    def test_good(self, abc: top):
+        """ top is defined at this moment. """
+
+    def test_bad(self, abc: trop): # [undefined-variable]
+        """ trop is undefined at this moment. """
+
+    def test_bad1(self, *args: trop1): # [undefined-variable]
+        """ trop1 is undefined at this moment. """
+
+    def test_bad2(self, **abc: trop2): # [undefined-variable]
+        """ trop2 is undefined at this moment. """
