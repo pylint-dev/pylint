@@ -41,12 +41,12 @@ class NoFileError(Exception):
 # If message files should be updated instead of checked.
 UPDATE = False
 
-class OutputLine(collections.namedtuple('OutputLine', 
+class OutputLine(collections.namedtuple('OutputLine',
                 ['symbol', 'lineno', 'object', 'msg', 'confidence'])):
     @classmethod
     def from_msg(cls, msg):
         return cls(
-            msg.symbol, msg.line, msg.obj or '', msg.msg, 
+            msg.symbol, msg.line, msg.obj or '', msg.msg.replace("\r\n", "\n"),
             msg.confidence.name
             if msg.confidence != interfaces.UNDEFINED else interfaces.HIGH.name)
 
@@ -242,14 +242,20 @@ class LintModuleTest(unittest.TestCase):
             self.skipTest('Requires %s to be present.' % (','.join(missing),))
 
     def __str__(self):
-        return "%s (%s.%s)" % (self._test_file.base, self.__class__.__module__, 
+        return "%s (%s.%s)" % (self._test_file.base, self.__class__.__module__,
                                self.__class__.__name__)
 
     def _open_expected_file(self):
-        return open(self._test_file.expected_output, 'U')
+        return open(self._test_file.expected_output)
+
+    def _open_source_file(self):
+        if self._test_file.base == "invalid_encoded_data":
+            return open(self._test_file.source)
+        else:
+            return io.open(self._test_file.source, encoding="utf8")
 
     def _get_expected(self):
-        with open(self._test_file.source) as fobj:
+        with self._open_source_file() as fobj:
             expected_msgs = get_expected_messages(fobj)
 
         if expected_msgs:
@@ -297,7 +303,7 @@ class LintModuleTest(unittest.TestCase):
                 omitted.append(msg)
         return emitted, omitted
 
-    def _check_output_text(self, expected_messages, expected_lines, 
+    def _check_output_text(self, expected_messages, expected_lines,
                            received_lines):
         self.assertSequenceEqual(
             self._split_lines(expected_messages, expected_lines)[0],
