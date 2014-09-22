@@ -64,7 +64,7 @@ An example available from the examples directory:
             # no error
             print self.bla
             try:
-                 pylint: enable=no-member
+                # pylint: enable=no-member
                 # error
                 print self.blip
             except UndefinedName: # pylint: disable=undefined-variable
