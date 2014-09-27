@@ -149,6 +149,6 @@ def issue351():
     Check that the format method can be assigned to a variable, ie:
     """
     fmt = 'test {} {}'.format
-    fmt('arg1')
+    fmt('arg1') # [too-few-format-args]
     fmt('arg1', 'arg2')
-    fmt('arg1', 'arg2', 'arg3')
+    fmt('arg1', 'arg2', 'arg3') # [too-many-format-args]
