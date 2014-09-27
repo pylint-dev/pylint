@@ -114,6 +114,9 @@ ChangeLog for Pylint
       can be found as a class assignment and used in a function annotation.
       Closes issue #342.
 
+    * Handle assignment of the string format method to a variable.
+      Closes issue #351.
+
 
 2014-07-26  --  1.3.0
 

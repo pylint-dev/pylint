@@ -143,3 +143,12 @@ def issue338():
         def __str__(self):
             return "{0.foo}: {0.bar}".format(self)
     return Crash
+
+def issue351():
+    """
+    Check that the format method can be assigned to a variable, ie:
+    """
+    fmt = 'test {} {}'.format
+    fmt('arg1')
+    fmt('arg1', 'arg2')
+    fmt('arg1', 'arg2', 'arg3')
