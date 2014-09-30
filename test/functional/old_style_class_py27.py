@@ -11,6 +11,7 @@ class NotOldStyle2:
     """ Because I have a metaclass at class level. """
     __metaclass__ = type
 
+# pylint: disable=redefined-builtin
 __metaclass__ = type
 
 class NotOldStyle:
