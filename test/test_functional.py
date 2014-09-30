@@ -8,6 +8,7 @@ import operator
 import os
 import re
 import sys
+import platform
 import unittest
 
 from pylint import checkers
@@ -106,7 +107,8 @@ class TestFile(object):
         self.options = {
             'min_pyver': (2, 5),
             'max_pyver': (4, 0),
-            'requires': []
+            'requires': [],
+            'except_implementations': [],
             }
         self._parse_options()
 
@@ -240,6 +242,16 @@ class LintModuleTest(unittest.TestCase):
                 missing.append(req)
         if missing:
             self.skipTest('Requires %s to be present.' % (','.join(missing),))
+        if self._test_file.options['except_implementations']:
+            implementations = [
+                item.strip for item in
+                self._test_file.options['except_implementations'].split(",")
+            ]
+            implementation = platform.python_implementation()
+            if implementation not in implementations:
+                self.skipTest(
+                    'Test cannot run with Python implementation %r'
+                     % (implementation, ))
 
     def __str__(self):
         return "%s (%s.%s)" % (self._test_file.base, self.__class__.__module__,
