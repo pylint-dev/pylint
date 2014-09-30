@@ -145,8 +145,8 @@ def collect_string_fields(format_string):
     """
 
     formatter = string.Formatter()
-    parseiterator = formatter.parse(format_string)
     try:
+        parseiterator = formatter.parse(format_string)
         for result in parseiterator:
             if all(item is None for item in result[1:]):
                 # not a replacement format
