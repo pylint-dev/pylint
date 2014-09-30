@@ -1,0 +1,23 @@
+Release Process
+===============
+
+1. Preparation
+   1. Check if the dependencies of the package are correct
+   2. Update the version number in __pkginfo__
+   3. Put the version number and the release date into the changelog
+   4. Submit your changes.
+
+2. Make sure the tests are passing on drone.io:
+   https://drone.io/bitbucket.org/logilab/pylint
+
+3. Add a new tag 'pylint-$VERSION'
+
+5. Publish all remaining changes to the Bitbucket repository:
+   https://bitbucket.org/logilab/pylint
+
+4. Run
+   
+   $ python setup.py register sdist bdist_wheel --formats=gztar upload
+
+   to release a new version to PyPI.
+  
