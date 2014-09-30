@@ -355,7 +355,7 @@ def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
     for module_file, messages_file in (
             get_tests_info(input_dir, msg_dir, 'func_', '')
     ):
-        if not is_to_run(module_file):
+        if not is_to_run(module_file) or module_file.endswith('.pyc'):
             continue
         base = module_file.replace('func_', '').replace('.py', '')
 
