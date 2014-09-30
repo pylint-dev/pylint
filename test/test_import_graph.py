@@ -19,7 +19,8 @@ class DependenciesGraphTC(unittest.TestCase):
     def test_dependencies_graph(self):
         imports.dependencies_graph(self.dest, {'labas': ['hoho', 'yep'],
                                                'hoho': ['yep']})
-        self.assertEqual(open(self.dest).read().strip(),
+        with open(self.dest) as stream:
+            self.assertEqual(stream.read().strip(),
                           '''
 digraph "dependencies_graph" {
 rankdir=LR
