@@ -62,7 +62,8 @@ STD_BLACKLIST = ('CVS', '.svn', '.hg', 'debian', 'dist', 'build')
 IGNORED_EXTENSIONS = ('.pyc', '.pyo', '.elc', '~')
 
 if exists('README'):
-    long_description = open('README').read()
+    with open('README') as stream:
+        long_description = stream.read()
 else:
     long_description = ''
 
