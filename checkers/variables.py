@@ -564,6 +564,23 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         continue
                 self.add_message('unused-variable', args=name, node=stmt)
 
+    def _find_frame_imports(self, name, frame):
+        """
+        Detect imports in the frame, with the required
+        *name*. Such imports can be considered assignments.
+        Returns True if an import for the given name was found.
+        """
+        imports = frame.nodes_of_class((astroid.Import, astroid.From))
+        for import_node in imports:
+            for import_name, import_alias in import_node.names:
+                # If the import uses an alias, check only that.
+                # Otherwise, check only the import name.
+                if import_alias:
+                    if import_alias == name:
+                        return True
+                elif import_name and import_name == name:
+                    return True
+
     @check_messages('global-variable-undefined', 'global-variable-not-assigned', 'global-statement',
                     'global-at-module-level', 'redefined-builtin')
     def visit_global(self, node):
@@ -589,25 +606,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     # same scope level assignment
                     break
             else:
-                # global but no assignment
-                # Detect imports in the current frame, with the required
-                # name. Such imports can be considered assignments.
-                imports = frame.nodes_of_class((astroid.Import, astroid.From))
-                for import_node in imports:
-                    found = False
-                    for import_name, import_alias in import_node.names:
-                        # If the import uses an alias, check only that.
-                        # Otherwise, check only the import name.
-                        if import_alias:
-                            if import_alias == name:
-                                found = True
-                                break
-                        elif import_name and import_name == name:
-                            found = True
-                            break
-                    if found:
-                        break
-                else:
+                if not self._find_frame_imports(name, frame):
                     self.add_message('global-variable-not-assigned',
                                      args=name, node=node)
                 default_message = False
