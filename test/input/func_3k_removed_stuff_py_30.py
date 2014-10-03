@@ -1,6 +1,6 @@
 """test relative import
 """
-__revision__ = apply(map, (str, (1, 2, 3)))
+__revision__ = filter(None, map(str, (1, 2, 3)))
 from __future__ import generators
 
 import func_w0302
@@ -11,5 +11,3 @@ def function():
     unic = u"unicode"
     low = unic.looower
     return low
-
-

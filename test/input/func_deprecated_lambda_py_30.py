@@ -1,6 +1,8 @@
 # pylint: disable=missing-docstring,bad-builtin,invalid-name
 __revision__ = "$Id$"
 
+import functools
+
 # Don't do this, use a comprehension instead.
 assert map(lambda x: x*2, [1, 2, 3]) == [2, 4, 6]
 
@@ -11,7 +13,7 @@ double = lambda x: x * 2
 assert map(double, [1, 2, 3]) == [2, 4, 6]
 
 # It's also ok to pass lambdas to other functions.
-assert reduce(lambda x, y: x * y, [1, 2, 3, 4]) == 24
+assert functools.reduce(lambda x, y: x * y, [1, 2, 3, 4]) == 24
 
 # Or to a undefined function or one with varargs
 def f(*a):

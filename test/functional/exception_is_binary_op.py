@@ -2,11 +2,11 @@
 
 try:
     pass
-except Exception or StandardError:  # [binary-op-exception]
+except Exception or BaseException:  # [binary-op-exception]
     print "caught1"
-except Exception and StandardError:  # [binary-op-exception]
+except Exception and BaseException:  # [binary-op-exception]
     print "caught2"
-except Exception or StandardError:  # [binary-op-exception]
+except Exception or BaseException:  # [binary-op-exception]
     print "caught3"
-except (Exception or StandardError), exc:  # [binary-op-exception]
+except (Exception or BaseException), exc:  # [binary-op-exception]
     print "caught4"

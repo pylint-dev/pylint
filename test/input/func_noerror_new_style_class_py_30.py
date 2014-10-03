@@ -6,7 +6,7 @@ bug notified by Pierre Rouleau on 2005-04-24
 
 __revision__ = None
 
-class File(file):
+class File(file):  # pylint: disable=file-builtin
     """ Testing new-style class inheritance from file"""
 
     #

@@ -41,7 +41,8 @@ Order doesn't matter (not that much, at least ;)
 
 * David Lindquist: logging-format-interpolation warning.
 
-* Brett Cannon: Port source code to be Python 2/3 compatible.
+* Brett Cannon: Port source code to be Python 2/3 compatible, Python 3
+  checker.
 
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
   Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others):

@@ -48,7 +48,7 @@ ChangeLog for Pylint
 
     * Don't emit 'import-error' if an import was protected by a try-except,
       which excepted ImportError.
- 
+
     * Fix an 'unused-import' false positive, when the error was emitted
       for all the members imported with 'from import' form.
       Closes issue #304.
@@ -67,7 +67,7 @@ ChangeLog for Pylint
 
     * Don't emit 'unused-import' when a special object is imported
       (__all__, __doc__ etc.). Closes issue #309.
- 
+
     * Look in the metaclass, if defined, for members not found in the current
       class. Closes issue #306.
 
@@ -118,6 +118,13 @@ ChangeLog for Pylint
       Closes issue #351.
 
     * Support wheel packaging format for PyPi. Closes issue #334.
+
+    * Check that various built-ins that do not exist in Python 3 are not
+      used: apply, basestring, buffer, cmp, coerce, execfile, file, long
+      raw_input, reduce, StandardError, unicode, and xrange.
+
+    * Warn for magic methods which are not used in any way in Python 3:
+      __coerce__, __delslice__, __getslice__, and __setslice__.
 
 
 2014-07-26  --  1.3.0
