@@ -1,22 +1,22 @@
 """Check possible unbalanced tuple unpacking """
 
-from input.unpacking import unpack
+from functional.unpacking import unpack
 
 __revision__ = 0
 
 def do_stuff():
     """This is not right."""
-    first, second = 1, 2, 3
+    first, second = 1, 2, 3 # [unbalanced-tuple-unpacking]
     return first + second
 
 def do_stuff1():
     """This is not right."""
-    first, second = [1, 2, 3]
+    first, second = [1, 2, 3] # [unbalanced-tuple-unpacking]
     return first + second
 
 def do_stuff2():
     """This is not right."""
-    (first, second) = 1, 2, 3
+    (first, second) = 1, 2, 3 # [unbalanced-tuple-unpacking]
     return first + second
 
 def do_stuff3():
@@ -47,7 +47,7 @@ def temp():
 
 def do_stuff7():
     """ This is not right """
-    first, second = temp()
+    first, second = temp() # [unbalanced-tuple-unpacking]
     return first + second
 
 def temp2():
@@ -66,7 +66,7 @@ def do_stuff8():
 
 def do_stuff9():
     """ This is not correct """
-    first, second = unpack()
+    first, second = unpack() # [unbalanced-tuple-unpacking]
     return first + second
 
 class UnbalancedUnpacking(object):
@@ -74,9 +74,9 @@ class UnbalancedUnpacking(object):
     # pylint: disable=attribute-defined-outside-init, invalid-name, too-few-public-methods
     def test(self):
         """ unpacking in instance attributes """
-        self.a, self.b = temp()
+        self.a, self.b = temp() # [unbalanced-tuple-unpacking]
         self.a, self.b = temp2()
-        self.a, self.b = unpack()
+        self.a, self.b = unpack() # [unbalanced-tuple-unpacking]
 
 
 def issue329(*args):

@@ -3,7 +3,7 @@
 # pylint: disable=too-few-public-methods, invalid-name, attribute-defined-outside-init, unused-variable
 
 from os import rename as nonseq_func
-from input.unpacking import nonseq
+from functional.unpacking import nonseq
 
 __revision__ = 0
 
@@ -58,14 +58,14 @@ def bad_unpacking():
         return None
     return [1, 2]
 
-a, b = NonSeq()
-a, b = ValueError
-a, b = None
-a, b = 1
-a, b = nonseq
-a, b = nonseq()
-a, b = bad_unpacking()
-a, b = nonseq_func
+a, b = NonSeq() # [unpacking-non-sequence]
+a, b = ValueError # [unpacking-non-sequence]
+a, b = None # [unpacking-non-sequence]
+a, b = 1 # [unpacking-non-sequence]
+a, b = nonseq # [unpacking-non-sequence]
+a, b = nonseq() # [unpacking-non-sequence]
+a, b = bad_unpacking() # [unpacking-non-sequence]
+a, b = nonseq_func # [unpacking-non-sequence]
 
 class ClassUnpacking(object):
     """ Check unpacking as instance attributes. """
@@ -80,7 +80,7 @@ class ClassUnpacking(object):
         c, self.a = good_unpacking()
         self.a, self.b = Iter()
 
-        self.a, self.b = NonSeq()
-        self.a, self.b = ValueError
-        self.a, self.b = bad_unpacking()
-        self.a, c = nonseq_func
+        self.a, self.b = NonSeq() # [unpacking-non-sequence]
+        self.a, self.b = ValueError # [unpacking-non-sequence]
+        self.a, self.b = bad_unpacking() # [unpacking-non-sequence]
+        self.a, c = nonseq_func # [unpacking-non-sequence]

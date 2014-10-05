@@ -15,7 +15,7 @@ class Bad(object):
     __slots__ = ['member']
 
     def __init__(self):
-        self.missing = 42
+        self.missing = 42 # [assigning-non-slot]
 
 class Bad2(object):
     """ missing not in slots """
@@ -23,7 +23,7 @@ class Bad2(object):
 
     def __init__(self):
         self.deque = 42
-        self.missing = 42
+        self.missing = 42 # [assigning-non-slot]
 
 class Bad3(Bad):
     """ missing not found in slots """
@@ -33,7 +33,7 @@ class Bad3(Bad):
     def __init__(self):
         self.component = 42
         self.member = 24
-        self.missing = 42
+        self.missing = 42 # [assigning-non-slot]
         super(Bad3, self).__init__()
 
 class Good(Empty):
