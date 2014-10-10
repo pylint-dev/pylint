@@ -1,5 +1,5 @@
 ''' Test for inheritence '''
-
+from __future__ import print_function
 __revision__ = 1
 
 class AAAA(object):
@@ -10,11 +10,11 @@ class AAAA(object):
 
     def method1(self):
         ''' method 1 '''
-        print self
+        print(self)
 
     def method2(self):
         ''' method 2 '''
-        print self
+        print(self)
 
 class BBBB(AAAA):
     ''' class BBBB '''

@@ -1,4 +1,5 @@
 """Test for the invalid-name warning."""
+# pylint: disable=print-statement
 import abc
 import collections
 

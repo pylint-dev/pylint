@@ -1,5 +1,5 @@
 """Check for definitions and usage happening on the same line."""
-#pylint: disable=missing-docstring,multiple-statements
+#pylint: disable=missing-docstring,multiple-statements,print-statement
 
 print [index
        for index in range(10)]

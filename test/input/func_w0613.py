@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903, print-statement
 """test unused argument
 """
 
@@ -40,4 +40,3 @@ class BBBB(object):
     def __init__(self, arg):
         """Constructor with an extra parameter. Should raise a warning"""
         self.spam = 1
-

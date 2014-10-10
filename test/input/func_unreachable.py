@@ -1,22 +1,21 @@
 """docstring"""
-
+from __future__ import print_function
 __revision__ = ''
 
 def func1():
     """docstring"""
     return 1
-    print 'unreachable'
+    print('unreachable')
 
 def func2():
     """docstring"""
     while 1:
         break
-        print 'unreachable'
+        print('unreachable')
 
 def func3():
     """docstring"""
     for i in (1, 2, 3):
-        print i
+        print(i)
         continue
-        print 'unreachable'
-
+        print('unreachable')

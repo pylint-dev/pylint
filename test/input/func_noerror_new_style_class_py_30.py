@@ -3,7 +3,7 @@ on a file are correctly handled
 
 bug notified by Pierre Rouleau on 2005-04-24
 """
-
+from __future__ import print_function
 __revision__ = None
 
 class File(file):  # pylint: disable=file-builtin
@@ -17,8 +17,8 @@ class File(file):  # pylint: disable=file-builtin
         self.verbose = verbose
         super(File, self).__init__(name, mode, buffering)
         if self.verbose:
-            print "File %s is opened.  The mode is: %s" % (self.name,
-                                                           self.mode)
+            print("File %s is opened.  The mode is: %s" % (self.name,
+                                                           self.mode))
 
     #
     def write(self, a_string):
@@ -39,7 +39,7 @@ class File(file):  # pylint: disable=file-builtin
         """Close the file."""
 
         if self.verbose:
-            print "Closing file %s" % self.name
+            print("Closing file %s" % self.name)
 
         super(File, self).close()
         self.was_modified = False

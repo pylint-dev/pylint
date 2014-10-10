@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903, print-statement
 """for Sub.inherited, only the warning for "aay" is desired.
 The warnings for "aab" and "aac"  are most likely false positives though,
 because there could be another subclass that overrides the same method and does
@@ -29,4 +29,3 @@ class Sub2(Base):
     def inherited(self, aaa, aab, aac):
         "overridden method, use every argument"
         return aaa + aab + aac
-

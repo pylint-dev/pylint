@@ -1,6 +1,6 @@
 """test unused variable
 """
-# pylint: disable=invalid-name, redefined-outer-name
+# pylint: disable=invalid-name, redefined-outer-name, print-statement
 __revision__ = 0
 PATH = OS = collections = deque = None
 
@@ -35,4 +35,3 @@ def test_global():
     from sys import version as VERSION
     import this
     import re as RE
-

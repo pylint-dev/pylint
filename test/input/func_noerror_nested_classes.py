@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903, print-statement
 """crash test"""
 
 __revision__ = 1

@@ -1,4 +1,4 @@
-# pylint:disable=C0103
+# pylint:disable=C0103, print-statement
 """ho ho ho"""
 __revision__ = 'toto'
 
@@ -28,4 +28,3 @@ def reraise():
         raise exc
 
 raise e3
-

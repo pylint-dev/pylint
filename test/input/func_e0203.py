@@ -1,6 +1,6 @@
 """check for method without self as first argument
 """
-
+from __future__ import print_function
 __revision__ = 0
 
 
@@ -16,4 +16,4 @@ class Abcd(object):
 
     def edf(self):
         """justo ne more method"""
-        print 'yapudju in', self
+        print('yapudju in', self)

@@ -1,6 +1,6 @@
 """Test for catching non-exceptions."""
 import socket
-# pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors,print-statement
 
 class MyException(object):
     """Custom 'exception'."""

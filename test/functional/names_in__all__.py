@@ -7,7 +7,7 @@
 * This module imports path and republished it in __all__. No errors
   are expected.
 """
-
+from __future__ import print_function
 
 from os import path
 from collections import deque
@@ -39,7 +39,7 @@ class Klass(object):
     def func(self):
         """A klass method"""
         inner = None
-        print inner
+        print(inner)
 
     class InnerKlass(object):
         """A inner klass"""

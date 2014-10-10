@@ -1,5 +1,5 @@
 """don't want E1101 if __getattr__ is defined"""
-
+from __future__ import print_function
 __revision__ = None
 
 class MyString(object):
@@ -20,4 +20,4 @@ class MyString(object):
         return self.string.upper()
 
 MYSTRING = MyString("abc")
-print MYSTRING.title()
+print(MYSTRING.title())

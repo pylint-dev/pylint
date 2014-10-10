@@ -122,6 +122,13 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_function(node)
 
+    @python2_only
+    def test_print_statement(self):
+        node = test_utils.extract_node('print "Hello, World!" #@')
+        message = testutils.Message('print-statement', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_print(node)
+
 
 if __name__ == '__main__':
     unittest.main()

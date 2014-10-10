@@ -1,6 +1,6 @@
 """test string format error
 """
-
+# pylint: disable=print-statement
 __revision__ = 1
 
 PARG_1 = PARG_2 = PARG_3 = 1
@@ -19,4 +19,3 @@ def pprint():
     print "%2z" % PARG_1
     print "strange format %2" % PARG_2
     print "works in 3 %a" % 1
-

@@ -1,4 +1,4 @@
-# pylint: disable=
+# pylint: disable=print-statement
 """check getattr if inference succeed"""
 
 

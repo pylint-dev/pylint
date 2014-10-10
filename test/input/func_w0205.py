@@ -1,5 +1,5 @@
 """check different signatures"""
-
+from __future__ import print_function
 __revision__ = 0
 
 class Abcd(object):
@@ -8,7 +8,7 @@ class Abcd(object):
         self.aarg = False
     def abcd(self, aaa=1, bbbb=None):
         """hehehe"""
-        print self, aaa, bbbb
+        print(self, aaa, bbbb)
     def args(self):
         """gaarrrggll"""
         self.aarg = True
@@ -21,4 +21,4 @@ class Cdef(Abcd):
 
     def abcd(self, aaa, bbbb=None):
         """hehehe"""
-        print self, aaa, bbbb
+        print(self, aaa, bbbb)

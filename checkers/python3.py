@@ -15,6 +15,7 @@
 from __future__ import absolute_import
 
 from pylint import checkers, interfaces
+from pylint.checkers import utils
 
 
 class Python3Checker(checkers.BaseChecker):
@@ -26,6 +27,11 @@ class Python3Checker(checkers.BaseChecker):
     msgs = {
         # Errors for what will syntactically break in Python 3, warnings for
         # everything else.
+        'E1601': ('print statement used',
+                  'print-statement',
+                  'Used when a print statement is used '
+                  '(`print` is a function in Python 3)',
+                  {'maxversion': (3,0)}),
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
@@ -150,6 +156,10 @@ class Python3Checker(checkers.BaseChecker):
             if node.name in self._missing_builtins:
                 message = node.name.lower() + '-builtin'
                 self.add_message(message, node=node)
+
+    @utils.check_messages('print-statement')
+    def visit_print(self, node):
+        self.add_message('print-statement', node=node)
 
 
 def register(linter):

@@ -1,6 +1,6 @@
 """Accessing a protected method through super() is ok."""
 
-# pylint: disable=missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods, print-statement
 
 __revision__ = None
 

@@ -1,5 +1,5 @@
 """ Checks for boolean uses of datetime.time. """
-# pylint: disable=superfluous-parens
+# pylint: disable=superfluous-parens,print-statement
 import datetime
 
 if datetime.time(0, 0, 0): # [boolean-datetime]

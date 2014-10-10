@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,star-args
+# pylint: disable=too-few-public-methods,star-args, print-statement
 """test access to __name__ gives undefined member on new/old class instances
 but not on new/old class object
 """

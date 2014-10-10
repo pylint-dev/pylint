@@ -1,17 +1,17 @@
 """check empty except statement
 """
-
+from __future__ import print_function
 __revision__ = 0
 
 if __revision__:
     try:
-        print __revision__
+        print(__revision__)
     except:
-        print 'error'
+        print('error')
 
 try:
     __revision__ += 1
 except TypeError:
-    print 'error'
+    print('error')
 except Exception:
-    print 'error'
+    print('error')

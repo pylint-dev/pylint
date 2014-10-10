@@ -1,5 +1,5 @@
 """Check for else branches on loops with break an return only."""
-
+from __future__ import print_function
 __revision__ = 0
 
 def test_return_for():
@@ -8,14 +8,14 @@ def test_return_for():
         if i % 2:
             return i
     else:  # [useless-else-on-loop]
-        print 'math is broken'
+        print('math is broken')
 
 def test_return_while():
     """else + return is not accetable."""
     while True:
         return 1
     else:  # [useless-else-on-loop]
-        print 'math is broken'
+        print('math is broken')
 
 
 while True:
@@ -24,19 +24,19 @@ while True:
         for _ in range(10):
             break
 else:  # [useless-else-on-loop]
-    print 'or else!'
+    print('or else!')
 
 
 while True:
     while False:
         break
 else:  # [useless-else-on-loop]
-    print 'or else!'
+    print('or else!')
 
 for j in range(10):
     pass
 else:  # [useless-else-on-loop]
-    print 'fat chance'
+    print('fat chance')
     for j in range(10):
         break
 
@@ -52,4 +52,4 @@ def test_return_for2():
         else:
             break
     else:
-        print 'great math'
+        print('great math')

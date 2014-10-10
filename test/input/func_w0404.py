@@ -1,5 +1,5 @@
 """Unittests for W0404 (reimport)"""
-
+from __future__ import print_function
 __revision__ = 0
 
 import sys
@@ -15,7 +15,7 @@ import sys
 def no_reimport():
     """docstring"""
     import os
-    print os
+    print(os)
 
 
 def reimport():

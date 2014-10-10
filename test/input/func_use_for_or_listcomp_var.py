@@ -1,5 +1,5 @@
 """test a warning is triggered when using for a lists comprehension variable"""
-
+# pylint: disable=print-statement
 __revision__ = 'yo'
 
 TEST_LC = [C for C in __revision__ if C.isalpha()]

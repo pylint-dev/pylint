@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,print-statement
 """check method hidding ancestor attribute
 """
 

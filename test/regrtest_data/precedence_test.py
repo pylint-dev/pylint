@@ -13,9 +13,9 @@
   print AudioTime.DECIMAL
 
 """
-
+from __future__ import print_function
 __revision__ = 0
 
 from package import AudioTime
 
-print AudioTime.DECIMAL
+print(AudioTime.DECIMAL)
