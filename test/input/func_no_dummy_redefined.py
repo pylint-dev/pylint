@@ -11,4 +11,4 @@ def clobbering():
     """Clobbers a dummy name from the outer scope."""
     value = 9
     for _ in range(7):
-        print value
+        print value  # pylint: disable=print-statement

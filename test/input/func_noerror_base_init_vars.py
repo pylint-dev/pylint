@@ -1,4 +1,4 @@
-# pylint:disable=R0201
+# pylint:disable=R0201, print-statement
 """Checks that class variables are seen as inherited !
 """
 __revision__ = ''
@@ -33,4 +33,3 @@ class MyClass(BaseClass):
 if __name__ == '__main__':
     OBJ = MyClass()
     OBJ.met()
-

@@ -1,6 +1,6 @@
 """test max branch
 """
-
+# pylint: disable=print-statement
 __revision__ = ''
 
 def stupid_function(arg1, arg2, arg3, arg4, arg5):

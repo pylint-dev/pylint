@@ -1,5 +1,5 @@
 """Regression test case for bad-continuation."""
-
+# pylint: disable=print-statement
 # Various alignment for brackets
 LIST0 = [
     1, 2, 3

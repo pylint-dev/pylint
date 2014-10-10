@@ -1,6 +1,6 @@
 """check reimport
 """
-
+from __future__ import print_function
 __revision__ = 0
 
 import os
@@ -12,9 +12,9 @@ import re as _re
 _re.match('yo', '.*')
 
 if __revision__:
-    print os
+    print(os)
     from os.path import exists
-    print join, exists
+    print(join, exists)
 
 def func(yooo):
     """reimport in different scope"""
@@ -25,7 +25,7 @@ def func(yooo):
 
 if 1:
     import sys
-    print sys.modules
+    print(sys.modules)
 else:
-    print 'bla'
+    print('bla')
     import sys

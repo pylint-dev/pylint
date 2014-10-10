@@ -1,3 +1,4 @@
+# pylint: disable=print-statement
 """Tests for loopvar-in-closure."""
 
 def good_case():

@@ -1,6 +1,6 @@
 """Checks if static / class methods works fine in Pylint
 """
-
+from __future__ import print_function
 __revision__ = ''
 
 class MyClass(object):
@@ -12,12 +12,12 @@ class MyClass(object):
     def static_met(var1, var2):
         """This is a static method
         """
-        print var1, var2
+        print(var1, var2)
 
     def class_met(cls, var1):
         """This is a class method
         """
-        print cls, var1
+        print(cls, var1)
 
     static_met = staticmethod(static_met)
     class_met = classmethod(class_met)

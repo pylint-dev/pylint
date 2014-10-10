@@ -1,6 +1,9 @@
 """check unused import
 """
+# pylint: disable=print-statement
+
 __revision__ = 1
+
 import os
 import sys
 

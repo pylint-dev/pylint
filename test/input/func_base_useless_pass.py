@@ -5,5 +5,5 @@ __revision__ = None
 try:
     A = 2
 except ValueError:
-    print A
+    print A  # pylint: disable=print-statement
     pass

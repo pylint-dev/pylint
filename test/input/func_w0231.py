@@ -1,20 +1,20 @@
 # pylint: disable=R0903
 """test for __init__ not called
 """
-
+from __future__ import print_function
 __revision__ = '$Id: func_w0231.py,v 1.3 2004-09-29 08:35:13 syt Exp $'
 
 class AAAA:
     """ancestor 1"""
 
     def __init__(self):
-        print 'init', self
+        print('init', self)
 
 class BBBB:
     """ancestor 2"""
 
     def __init__(self):
-        print 'init', self
+        print('init', self)
 
 class CCCC:
     """ancestor 3"""
@@ -30,7 +30,7 @@ class NewStyleA(object):
     """new style class"""
     def __init__(self):
         super(NewStyleA, self).__init__()
-        print 'init', self
+        print('init', self)
 
 class NewStyleB(NewStyleA):
     """derived new style class"""

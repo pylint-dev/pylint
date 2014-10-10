@@ -1,5 +1,5 @@
 """http://www.logilab.org/ticket/8771"""
-
+# pylint: disable=print-statement
 __revision__ = 2
 
 def generator():

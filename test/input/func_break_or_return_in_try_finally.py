@@ -1,12 +1,12 @@
 'Exeptions may be silently swallowed'
-
+from __future__ import print_function
 __revision__ = None
 
 def insidious_break_and_return():
     """I found you !"""
     for i in range(0, -5, -1):
         my_var = 0
-        print i
+        print(i)
         try:
             my_var += 1.0/i
             if i < -3:

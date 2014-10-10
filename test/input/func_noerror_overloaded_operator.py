@@ -1,4 +1,4 @@
-# pylint: disable=C0111,R0903
+# pylint: disable=C0111,R0903,print-statement
 """#3291"""
 __revision__ = 1
 

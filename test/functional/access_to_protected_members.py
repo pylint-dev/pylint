@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, W0231
+# pylint: disable=too-few-public-methods, W0231, print-statement
 """Test external access to protected class members."""
 
 
@@ -36,4 +36,3 @@ INST._protected = 2  # [protected-access]
 print INST._protected  # [protected-access]
 INST._cls_protected = 3  # [protected-access]
 print INST._cls_protected  # [protected-access]
-

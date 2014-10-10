@@ -1,5 +1,5 @@
 """docstring"""
-
+# pylint: disable=print-statement
 __revision__ = ''
 
 HEHE = {}

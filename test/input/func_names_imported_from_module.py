@@ -1,4 +1,4 @@
-#pylint: disable=W0401,W0611
+#pylint: disable=W0401,W0611,print-statement
 """check unexistant names imported are reported"""
 
 __revision__ = None
@@ -25,4 +25,3 @@ from re import findiiter, compiile
 
 import os
 'SOMEVAR' in os.environ
-

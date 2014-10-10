@@ -1,7 +1,7 @@
 # pylint: disable=R0903,R0922
 """test overriding of abstract method
 """
-
+from __future__ import print_function
 __revision__ = '$Id: func_w0223.py,v 1.2 2004-09-29 08:35:13 syt Exp $'
 
 class Abstract(object):
@@ -33,4 +33,4 @@ class Concret(Abstract):
 
     def aaaa(self):
         """overidden form Abstract"""
-        print self
+        print(self)

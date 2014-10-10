@@ -1,3 +1,4 @@
+# pylint: disable=print-statement
 """docstring"""
 __revision__ = '$Id: func_indent.py,v 1.4 2003-10-17 21:59:31 syt Exp $'
 

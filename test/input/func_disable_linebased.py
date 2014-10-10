@@ -1,5 +1,5 @@
 # This is a very very very very very very very very very very very very very very very very very very very very very long line.
-# pylint: disable=line-too-long
+# pylint: disable=line-too-long, print-statement
 """Make sure enable/disable pragmas work for messages that are applied to lines and not syntax nodes.
 
 A disable pragma for a message that applies to nodes is applied to the whole

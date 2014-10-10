@@ -1,4 +1,4 @@
-# pylint:disable=R0201
+# pylint:disable=R0201, print-statement
 """docstring"""
 __revision__ = ''
 
@@ -110,5 +110,3 @@ class EmptyImplements(object):
 
     def besilent(self):
         """public method 2/2"""
-
-
