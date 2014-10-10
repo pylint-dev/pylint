@@ -95,6 +95,7 @@ class TestReporter(BaseReporter):
     def __init__(self):
         self.message_ids = {}
         self.reset()
+        self.path_strip_prefix = os.getcwd() + os.sep
 
     def reset(self):
         self.out = StringIO()
