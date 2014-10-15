@@ -27,7 +27,8 @@ from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     PYMETHODS, overrides_a_method, check_messages, is_attr_private,
-    is_attr_protected, node_frame_class, safe_infer, is_builtin_object)
+    is_attr_protected, node_frame_class, safe_infer, is_builtin_object,
+    decorated_with_property)
 import six
 
 if sys.version_info >= (3, 0):
@@ -70,6 +71,34 @@ def class_is_abstract(node):
         if method.parent.frame() is node:
             if method.is_abstract(pass_is_abstract=False):
                 return True
+    return False
+
+def _is_attribute_property(name, klass):
+    """ Check if the given attribute *name* is a property
+    in the given *klass*.
+
+    It will look for `property` calls or for functions
+    with the given name, decorated by `property` or `property`
+    subclasses.
+    Returns ``True`` if the name is a property in the given klass,
+    ``False`` otherwise.
+    """
+
+    try:
+        attributes = klass.getattr(name)
+    except astroid.NotFoundError:
+        return False
+    property_name = "{0}.property".format(BUILTINS)
+    for attr in attributes:
+        try:
+            infered = next(attr.infer())
+        except astroid.InferenceError:
+            continue
+        if (isinstance(infered, astroid.Function) and
+                decorated_with_property(infered)):
+            return True
+        if infered.pytype() == property_name:
+            return True
     return False
 
 
@@ -556,6 +585,10 @@ a metaclass class method.'}
                 # If we have a '__dict__' in slots, then
                 # assigning any name is valid.
                 if not any(slot.value == '__dict__' for slot in slots):
+                    if _is_attribute_property(node.attrname, klass):
+                        # Properties circumvent the slots mechanism,
+                        # so we should not emit a warning for them.
+                        return
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
 

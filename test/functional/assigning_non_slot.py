@@ -1,7 +1,7 @@
 """ Checks assigning attributes not found in class slots
 will trigger assigning-non-slot warning.
 """
-# pylint: disable=too-few-public-methods, no-init
+# pylint: disable=too-few-public-methods, no-init, missing-docstring
 from collections import deque
 
 __revision__ = 0
@@ -53,3 +53,36 @@ class Good2(object):
     def __init__(self):
         self.comp = 4
         self.missing = 5
+
+class PropertyGood(object):
+    """ Using properties is safe. """
+
+    __slots__ = ['tmp', '_value']
+
+    @property
+    def test(self):
+        return self._value
+
+    @test.setter
+    def test(self, value):
+        # pylint: disable=attribute-defined-outside-init
+        self._value = value
+
+    def __init__(self):
+        self.test = 42
+
+class PropertyGood2(object):
+    """ Using properties in the body of the class is safe. """
+    __slots__ = ['_value']
+
+    def _getter(self):
+        return self._value
+
+    def _setter(self, value):
+        # pylint: disable=attribute-defined-outside-init
+        self._value = value
+
+    test = property(_getter, _setter)
+
+    def __init__(self):
+        self.test = 24

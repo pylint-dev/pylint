@@ -126,6 +126,9 @@ ChangeLog for Pylint
     * Warn for magic methods which are not used in any way in Python 3:
       __coerce__, __delslice__, __getslice__, and __setslice__.
 
+    * Don't emit 'assigning-non-slot' when the assignment is for a property.
+      Closes issue #359.
+
 
 2014-07-26  --  1.3.0
 
