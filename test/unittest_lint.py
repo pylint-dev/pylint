@@ -39,6 +39,12 @@ if sys.platform == 'win32':
 else:
     HOME = 'HOME'
 
+def remove(file):
+    try:
+        os.remove(file)
+    except OSError:
+        pass
+
 class GetNoteMessageTC(unittest.TestCase):
     def test(self):
         msg = None
@@ -254,21 +260,21 @@ class PyLinterTC(unittest.TestCase):
             strio = 'io'
         self.linter.config.files_output = True
         pylint_strio = 'pylint_%s.txt' % strio
-        try:
-            self.linter.check(strio)
-            self.assertTrue(os.path.exists(pylint_strio))
-            self.assertTrue(os.path.exists('pylint_global.txt'))
-        finally:
-            try:
-                os.remove(pylint_strio)
-                os.remove('pylint_global.txt')
-            except:
-                pass
+        files = [pylint_strio, 'pylint_global.txt']
+        for file in files:
+            self.addCleanup(remove, file)
+
+        self.linter.check(strio)
+        self.linter.generate_reports()
+        for f in files:
+            self.assertTrue(os.path.exists(f))
 
     def test_lint_should_analyze_file(self):
         self.linter.set_reporter(text.TextReporter())
         self.linter.config.files_output = True
         self.linter.should_analyze_file = lambda *args: False
+        self.addCleanup(remove, 'pylint_logilab.txt')
+
         self.linter.check('logilab')
         self.assertTrue(os.path.exists('pylint_logilab.txt'))
         self.assertFalse(os.path.exists('pylint_logilab_common.txt'))
@@ -372,6 +378,7 @@ class PyLinterTC(unittest.TestCase):
         self.linter.set_reporter(html.HTMLReporter(output))
         self.linter.set_option('output-format', 'html')
         self.linter.check('troppoptop.py')
+        self.linter.generate_reports()
         value = output.getvalue()
         self.assertIn('troppoptop.py', value)
         self.assertIn('fatal', value)

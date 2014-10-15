@@ -36,7 +36,13 @@ import tokenize
 from operator import attrgetter
 from warnings import warn
 
-from logilab.common.configuration import UnsupportedAction, OptionsManagerMixIn
+try:
+    import multiprocessing
+except ImportError:
+    multiprocessing = None
+
+from logilab.common.configuration import (
+    UnsupportedAction, OptionsManagerMixIn, format_option_value)
 from logilab.common.optik_ext import check_csv
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip, unquote
@@ -51,12 +57,12 @@ from pylint.utils import (
     MSG_TYPES, OPTION_RGX,
     PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn, ReportsHandlerMixIn,
     MessagesStore, FileState, EmptyReport,
-    expand_modules, tokenize_module)
+    expand_modules, tokenize_module, Message)
 from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker, CONFIDENCE_LEVELS
 from pylint.checkers import (BaseTokenChecker,
                              table_lines_from_stats,
                              initialize as checkers_initialize)
-from pylint.reporters import initialize as reporters_initialize
+from pylint.reporters import initialize as reporters_initialize, CollectingReporter
 from pylint import config
 
 from pylint.__pkginfo__ import version
@@ -153,6 +159,55 @@ def _deprecated_option(shortname, opt_type):
         sys.stderr.write('Warning: option %s is deprecated and ignored.\n' % (optname,))
     return {'short': shortname, 'help': 'DEPRECATED', 'hide': True,
             'type': opt_type, 'action': 'callback', 'callback': _warn_deprecated}
+
+
+if multiprocessing is not None:
+    class ChildLinter(multiprocessing.Process):  # pylint: disable=no-member
+        def run(self):
+            tasks_queue, results_queue, config = self._args  # pylint: disable=no-member
+
+            for file_or_module in iter(tasks_queue.get, 'STOP'):
+                result = self._run_linter(config, file_or_module[0])
+                try:
+                    results_queue.put(result)
+                except Exception as ex:
+                    print("internal error with sending report for module %s" % file_or_module, file=sys.stderr)
+                    print(ex, file=sys.stderr)
+                    results_queue.put({})
+
+        def _run_linter(self, config, file_or_module):
+            linter = PyLinter()
+
+            # Register standard checkers.
+            linter.load_default_plugins()
+            # Load command line plugins.
+            # TODO linter.load_plugin_modules(self._plugins)
+            # i.e. Run options are not available here as they are patches to Pylinter options.
+            # To fix it Run options should be moved to Pylinter class to make them
+            # available here.
+
+            linter.disable('pointless-except')
+            linter.disable('suppressed-message')
+            linter.disable('useless-suppression')
+
+            # Copy config with skipping command-line specific options.
+            linter_config = {}
+            filter_options = {"symbols", "include-ids"}
+            for opt_providers in six.itervalues(linter._all_options):
+                for optname, optdict in opt_providers.options:
+                    if optname not in filter_options:
+                        linter_config[optname] = config[optname]
+            linter_config['jobs'] = 1  # Child does not parallelize any further.
+            linter.load_configuration(**linter_config)
+
+            linter.set_reporter(CollectingReporter())
+
+            # Run the checks.
+            linter.check(file_or_module)
+
+            msgs = [m.get_init_args() for m in linter.reporter.messages]
+            return (file_or_module, linter.file_state.base_name, linter.current_name,
+                     msgs, linter.stats, linter.msg_status)
 
 
 class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
@@ -286,7 +341,14 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
                 ('include-ids', _deprecated_option('i', 'yn')),
                 ('symbols', _deprecated_option('s', 'yn')),
-               )
+
+                ('jobs',
+                 {'type' : 'int', 'metavar': '<n-processes>',
+                  'short': 'j',
+                  'default': 1,
+                  'help' : '''Use multiple processes to speed up PyLint.''',
+                  }), # jobs
+            )
 
     option_groups = (
         ('Messages control', 'Options controling analysis messages'),
@@ -539,7 +601,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             messages = set(msg for msg in checker.msgs
                            if msg[0] != 'F' and self.is_message_enabled(msg))
             if (messages or
-                    any(self.report_is_enabled(r[0]) for r in checker.reports)):
+                any(self.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)
         # Sort checkers by priority
         neededcheckers = sorted(neededcheckers, key=attrgetter('priority'),
@@ -574,6 +636,104 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
+
+        if self.config.jobs == 1:
+            self._do_check(files_or_modules)
+        else:
+            self._parallel_check(files_or_modules)
+
+    def _parallel_check(self, files_or_modules):
+        """Spawn a defined number of subprocesses."""
+
+        manager = multiprocessing.Manager()  # pylint: disable=no-member
+        tasks_queue = manager.Queue()  # pylint: disable=no-member
+        results_queue = manager.Queue()  # pylint: disable=no-member
+
+        # Prepare configuration for child linters.
+        config = {}
+        for opt_providers in six.itervalues(self._all_options):
+            for optname, optdict, val in opt_providers.options_and_values():
+                config[optname] = format_option_value(optdict, val)
+
+        # Reset stats.
+        self.open()
+
+        # Spawn child linters.
+        childs = []
+        for _ in range(self.config.jobs):
+            cl = ChildLinter(args=(tasks_queue, results_queue, config))
+            cl.start()  # pylint: disable=no-member
+            childs.append(cl)
+
+        # send files to child linters
+        for files_or_module in files_or_modules:
+            tasks_queue.put([files_or_module])
+
+        # collect results from child linters
+        failed = False
+        all_stats = []
+        for i in range(len(files_or_modules)):
+            try:
+                (
+                    file_or_module,
+                    self.file_state.base_name,
+                    module,
+                    messages,
+                    stats,
+                    msg_status
+                ) = results_queue.get()
+            except Exception as ex:
+                print("internal error while receiving results from child linter",
+                      file=sys.stderr)
+                print(ex, file=sys.stderr)
+                failed = True
+                break
+
+            if file_or_module == files_or_modules[-1]:
+                last_module = module
+
+            for msg in messages:
+                msg = Message(*msg)
+                self.set_current_module(module)
+                self.reporter.handle_message(msg)
+
+            all_stats.append(stats)
+            self.msg_status |= msg_status
+
+        # Stop child linters and wait for their completion.
+        for i in range(self.config.jobs):
+            tasks_queue.put('STOP')
+        for cl in childs:
+            cl.join()
+
+        if failed:
+            print("Error occured, stopping the linter.", file=sys.stderr)
+            sys.exit(32)
+
+        all_stats.append(self.stats)
+        all_stats = self._merge_stats(all_stats)
+        self.stats = all_stats
+        self.current_name = last_module
+
+        # Insert stats data to local checkers.
+        for checker in self.get_checkers():
+            if checker is not self:
+                checker.stats = self.stats
+
+    def _merge_stats(self, stats):
+        merged = {}
+        for stat in stats:
+            for key, item in six.iteritems(stat):
+                if key not in merged:
+                    merged[key] = item
+                else:
+                    if isinstance(item, dict):
+                        merged[key].update(item)
+                    else:
+                        merged[key] = merged[key] + item
+        return merged
+
+    def _do_check(self, files_or_modules):
         walker = PyLintASTWalker(self)
         checkers = self.prepare_checkers()
         tokencheckers = [c for c in checkers if implements(c, ITokenChecker)
@@ -610,7 +770,6 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             for msgid, line, args in self.file_state.iter_spurious_suppression_messages(self.msgs_store):
                 self.add_message(msgid, line, None, args)
         # notify global end
-        self.set_current_module('')
         self.stats['statement'] = walker.nbstatements
         checkers.reverse()
         for checker in checkers:
@@ -695,7 +854,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         for msg_cat in six.itervalues(MSG_TYPES):
             self.stats[msg_cat] = 0
 
-    def close(self):
+    def generate_reports(self):
         """close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
@@ -1009,6 +1168,20 @@ group are mutually exclusive.'),
         if not args:
             print(linter.help())
             sys.exit(32)
+
+        if linter.config.jobs < 0:
+            print("Jobs number (%d) should be greater than 0"
+                  % linter.config.jobs, file=sys.stderr)
+            sys.exit(32)
+        if linter.config.jobs > 1 or linter.config.jobs == 0:
+            if multiprocessing is None:
+                print("Multiprocessing library is missing, "
+                      "fallback to single process", file=sys.stderr)
+                linter.set_option("jobs", 1)
+            else:
+                if linter.config.jobs == 0:
+                    linter.config.jobs = multiprocessing.cpu_count()
+
         # insert current working directory to the python path to have a correct
         # behaviour
         linter.prepare_import_path(args)
@@ -1023,6 +1196,7 @@ group are mutually exclusive.'),
             data.print_stats(30)
         else:
             linter.check(args)
+            linter.generate_reports()
         linter.cleanup_import_path()
         if exit:
             sys.exit(self.linter.msg_status)

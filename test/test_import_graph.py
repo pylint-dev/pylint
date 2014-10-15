@@ -52,6 +52,7 @@ class ImportCheckerTC(unittest.TestCase):
         l.global_set_option('ignore', ('func_unknown_encoding.py',))
         try:
             l.check('input')
+            l.generate_reports()
             self.assertTrue(exists('import.dot'))
             self.assertTrue(exists('ext_import.dot'))
             self.assertTrue(exists('int_import.dot'))

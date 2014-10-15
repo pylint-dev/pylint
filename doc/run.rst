@@ -90,7 +90,7 @@ expression in special cases). For a full list of options, use ``--help``
 
 Specifying all the options suitable for your setup and coding
 standards can be tedious, so it is possible to use a configuration file to
-specify the default values.  You can specify a configuration file on the 
+specify the default values.  You can specify a configuration file on the
 command line using the ``--rcfile`` option.  Otherwise, Pylint searches for a
 configuration file in the following order and uses the first one it finds:
 
@@ -117,7 +117,7 @@ includes:
 * Options appearing before ``--generate-rcfile`` on the Pylint command line
 
 Of course you can also start with the default values and hand tune the
-configuration. 
+configuration.
 
 Other useful global options include:
 
@@ -128,5 +128,26 @@ Other useful global options include:
 --output-format=<format>   Select output format (text, html, custom).
 --msg-template=<template>  Modifiy text output message template.
 --list-msgs                Generate pylint's messages.
---full-documentation       Generate pylint's full documentation, in reST 
+--full-documentation       Generate pylint's full documentation, in reST
                              format.
+
+Parallel execution
+------------------
+
+It is possible to speed up the execution of Pylint. If the running computer has more CPUs than one
+then the files to be checked could be spread on all processors to Pylint sub-processes.
+This functionality is exposed via ``-j`` command line parameter. It takes a number of sub-processes
+that should be spawned. If provided number is 0 then the number of CPUs will be taken.
+Default number is 1.
+
+Example::
+
+  pylint -j 4 mymodule1.py mymodule2.py mymodule3.py mymodule4.py
+
+This will spawn 4 parallel Pylint sub-process. Each provided module will be checked in parallel.
+Discovered problems by checkers are not displayed immediatelly. They are shown just after completing
+checking a module.
+
+There are some limitations in running checks in parallel in current implementation.
+It is not possible to use custom plugins (i.e. ``--load-plugins`` option).
+It is also not possible to use initialization hook (i.e. ``--init-hook`` option).

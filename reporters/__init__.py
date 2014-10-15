@@ -62,7 +62,7 @@ class BaseReporter(object):
 
         Invokes the legacy add_message API by default."""
         self.add_message(
-            msg.msg_id, (msg.abspath, msg.module, msg.obj, msg.line, msg.column), 
+            msg.msg_id, (msg.abspath, msg.module, msg.obj, msg.line, msg.column),
             msg.msg)
 
     def add_message(self, msg_id, location, msg):
@@ -113,6 +113,19 @@ class BaseReporter(object):
     def on_close(self, stats, previous_stats):
         """global end of analyzis"""
         pass
+
+
+class CollectingReporter(BaseReporter):
+    """collects messages"""
+
+    name = 'collector'
+
+    def __init__(self):
+        BaseReporter.__init__(self)
+        self.messages = []
+
+    def handle_message(self, msg):
+        self.messages.append(msg)
 
 
 def initialize(linter):

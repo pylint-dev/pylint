@@ -16,6 +16,8 @@ ChangeLog for Pylint
       wrong-spelling-in-comment, wrong-spelling-in-docstring.
       New options: spelling-dict, spelling-ignore-words.
 
+    * Add new '-j' option for running checks in sub-processes.
+
     * Added new checks for line endings if they are mixed (LF vs CRLF)
       or if they are not as expected. New messages: mixed-line-endings,
       unexpected-line-ending-format. New option: expected-line-ending-format.

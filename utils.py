@@ -94,6 +94,10 @@ class Message(_MsgBase):
             cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]],
             confidence, *location)
 
+    def get_init_args(self):
+        location = (self.abspath, self.module, self.obj, self.line, self.column)
+        return (self.msg_id, self.symbol, location, self.msg, self.confidence)
+
     def format(self, template):
         """Format the message according to the given template.
 
