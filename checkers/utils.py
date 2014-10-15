@@ -479,3 +479,23 @@ def has_known_bases(klass):
             return False
     klass._all_bases_known = True
     return True
+
+def decorated_with_property(node):
+    """ Detect if the given function node is decorated with a property. """
+    if not node.decorators:
+        return False
+    for decorator in node.decorators.nodes:
+        if not isinstance(decorator, astroid.Name):
+            continue
+        try:
+            for infered in decorator.infer():
+                if isinstance(infered, astroid.Class):
+                    if (infered.root().name == BUILTINS_NAME and
+                            infered.name == 'property'):
+                        return True
+                    for ancestor in infered.ancestors():
+                        if (ancestor.name == 'property' and
+                                ancestor.root().name == BUILTINS_NAME):
+                            return True
+        except astroid.InferenceError:
+            pass

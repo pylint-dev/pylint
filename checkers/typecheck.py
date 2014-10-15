@@ -25,7 +25,9 @@ from astroid.bases import BUILTINS
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import safe_infer, is_super, check_messages
+from pylint.checkers.utils import (
+    safe_infer, is_super,
+    check_messages, decorated_with_property)
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -336,43 +338,17 @@ accessed. Python regular expressions are accepted.'}
         except astroid.NotFoundError:
             return
 
-        stop_checking = False
         for attr in attrs:
             if attr is astroid.YES:
                 continue
-            if stop_checking:
-                break
             if not isinstance(attr, astroid.Function):
                 continue
 
             # Decorated, see if it is decorated with a property
-            if not attr.decorators:
-                continue
-            for decorator in attr.decorators.nodes:
-                if not isinstance(decorator, astroid.Name):
-                    continue
-                try:
-                    for infered in decorator.infer():
-                        property_like = False
-                        if isinstance(infered, astroid.Class):
-                            if (infered.root().name == BUILTINS and
-                                    infered.name == 'property'):
-                                property_like = True
-                            else:
-                                for ancestor in infered.ancestors():
-                                    if (ancestor.name == 'property' and
-                                            ancestor.root().name == BUILTINS):
-                                        property_like = True
-                                        break
-                            if property_like:
-                                self.add_message('not-callable', node=node,
-                                                 args=node.func.as_string())
-                                stop_checking = True
-                                break
-                except InferenceError:
-                    pass
-                if stop_checking:
-                    break
+            if decorated_with_property(attr):
+                self.add_message('not-callable', node=node,
+                                 args=node.func.as_string())
+                break
 
     @check_messages(*(list(MSGS.keys())))
     def visit_callfunc(self, node):
