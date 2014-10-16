@@ -47,6 +47,21 @@ class PyLinterTC(unittest.TestCase):
                                   'C0301:001\n'
                                   'C0301:002\n')
 
+    def test_parseable_output_regression(self):
+        output = cStringIO.StringIO()
+        linter = PyLinter(reporter=ParseableTextReporter())
+        checkers.initialize(linter)
+        linter.config.persistent = 0
+        linter.reporter.set_output(output)
+        linter.set_option('output-format', 'parseable')
+        linter.open()
+        linter.set_current_module('0123')
+        linter.add_message('line-too-long', line=1, args=(1, 2))
+        self.assertMultiLineEqual(output.getvalue(),
+                                  '************* Module 0123\n'
+                                  '0123:1: [C0301(line-too-long), ] '
+                                  'Line too long (1/2)\n')
+
 
 if __name__ == '__main__':
     unittest.main()

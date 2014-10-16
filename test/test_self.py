@@ -12,6 +12,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import sys
+import os
 from os.path import join, dirname, abspath
 from cStringIO import StringIO
 import tempfile
@@ -28,6 +29,7 @@ HERE = abspath(dirname(__file__))
 class MultiReporter(BaseReporter):
     def __init__(self, reporters):
         self._reporters = reporters
+        self.path_strip_prefix = os.getcwd() + os.sep
 
     def on_set_current_module(self, *args, **kwargs):
         for rep in self._reporters:

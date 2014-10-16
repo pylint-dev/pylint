@@ -131,6 +131,8 @@ ChangeLog for Pylint
     * Don't emit 'assigning-non-slot' when the assignment is for a property.
       Closes issue #359.
 
+    * Fix for regression: '{path}' was no longer accepted in '--msg-template'.
+
 
 2014-07-26  --  1.3.0
 

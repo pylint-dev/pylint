@@ -84,7 +84,7 @@ class WarningScope(object):
 _MsgBase = collections.namedtuple(
     '_MsgBase',
     ['msg_id', 'symbol', 'msg', 'C', 'category', 'confidence',
-     'abspath', 'module', 'obj', 'line', 'column'])
+     'abspath', 'path', 'module', 'obj', 'line', 'column'])
 
 
 class Message(_MsgBase):
@@ -95,7 +95,13 @@ class Message(_MsgBase):
             confidence, *location)
 
     def get_init_args(self):
-        location = (self.abspath, self.module, self.obj, self.line, self.column)
+        location = (
+            self.abspath,
+            self.path,
+            self.module,
+            self.obj, 
+            self.line,
+            self.column)
         return (self.msg_id, self.symbol, location, self.msg, self.confidence)
 
     def format(self, template):
@@ -395,14 +401,15 @@ class MessagesHandlerMixIn(object):
         # get module and object
         if node is None:
             module, obj = self.current_name, ''
-            path = self.current_file
+            abspath = self.current_file
         else:
             module, obj = get_module_and_frameid(node)
-            path = node.root().file
+            abspath = node.root().file
+        path = abspath.replace(self.reporter.path_strip_prefix, '')
         # add the message
         self.reporter.handle_message(
             Message(msgid, symbol,
-                    (path, module, obj, line or 1, col_offset or 0), msg, confidence))
+                    (abspath, path, module, obj, line or 1, col_offset or 0), msg, confidence))
 
     def print_full_documentation(self):
         """output a full documentation in ReST format"""

@@ -24,7 +24,7 @@ import re
 import unittest
 
 from glob import glob
-from os import linesep
+from os import linesep, getcwd, sep
 from os.path import abspath, basename, dirname, isdir, join, splitext
 
 
@@ -95,6 +95,7 @@ class TestReporter(BaseReporter):
     def __init__(self):
         self.message_ids = {}
         self.reset()
+        self.path_strip_prefix = getcwd() + sep
 
     def reset(self):
         self.out = StringIO()
