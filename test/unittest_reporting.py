@@ -19,7 +19,7 @@ import unittest
 
 from pylint.lint import PyLinter
 from pylint import checkers
-from pylint.reporters.text import TextReporter
+from pylint.reporters.text import TextReporter, ParseableTextReporter
 
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')
