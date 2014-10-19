@@ -33,6 +33,7 @@ from pylint.checkers import utils #pylint: disable=unused-import
 import sys
 import os
 import tokenize
+from contextlib import contextmanager
 from operator import attrgetter
 from warnings import warn
 
@@ -71,8 +72,9 @@ import six
 
 
 def _get_python_path(filepath):
-    dirname = os.path.dirname(os.path.realpath(
-        os.path.expanduser(filepath)))
+    dirname = os.path.realpath(os.path.expanduser(filepath))
+    if not os.path.isdir(dirname):
+        dirname = os.path.dirname(dirname)
     while True:
         if not os.path.exists(os.path.join(dirname, "__init__.py")):
             return dirname
@@ -410,17 +412,6 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         # the option has been set before the plugins had been loaded.
         if not self.reporter:
             self._load_reporter()
-
-    def prepare_import_path(self, args):
-        """Prepare sys.path for running the linter checks."""
-        if len(args) == 1:
-            sys.path.insert(0, _get_python_path(args[0]))
-        else:
-            sys.path.insert(0, os.getcwd())
-
-    def cleanup_import_path(self):
-        """Revert any changes made to sys.path in prepare_import_path."""
-        sys.path.pop(0)
 
     def load_plugin_modules(self, modnames):
         """take a list of module names which are pylint plugins and load
@@ -1015,6 +1006,31 @@ def preprocess_options(args, search_for):
         else:
             i += 1
 
+
+@contextmanager
+def fix_import_path(args):
+    """Prepare sys.path for running the linter checks.
+
+    Within this context, each of the given arguments is importable.
+    Paths are added to sys.path in corresponding order to the arguments.
+    We avoid adding duplicate directories to sys.path.
+    `sys.path` is reset to its original value upon exitign this context.
+    """
+    orig = list(sys.path)
+    changes = []
+    for arg in args:
+        path = _get_python_path(arg)
+        if path in changes:
+            continue
+        else:
+            changes.append(path)
+    sys.path[:] = changes + sys.path
+    try:
+        yield
+    finally:
+        sys.path[:] = orig
+
+
 class Run(object):
     """helper class to use as main for pylint :
 
@@ -1184,20 +1200,19 @@ group are mutually exclusive.'),
 
         # insert current working directory to the python path to have a correct
         # behaviour
-        linter.prepare_import_path(args)
-        if self.linter.config.profile:
-            print('** profiled run', file=sys.stderr)
-            import cProfile, pstats
-            cProfile.runctx('linter.check(%r)' % args, globals(), locals(),
-                            'stones.prof')
-            data = pstats.Stats('stones.prof')
-            data.strip_dirs()
-            data.sort_stats('time', 'calls')
-            data.print_stats(30)
-        else:
-            linter.check(args)
+        with fix_import_path(args):
+            if self.linter.config.profile:
+                print('** profiled run', file=sys.stderr)
+                import cProfile, pstats
+                cProfile.runctx('linter.check(%r)' % args, globals(), locals(),
+                                'stones.prof')
+                data = pstats.Stats('stones.prof')
+                data.strip_dirs()
+                data.sort_stats('time', 'calls')
+                data.print_stats(30)
+            else:
+                linter.check(args)
             linter.generate_reports()
-        linter.cleanup_import_path()
         if exit:
             sys.exit(self.linter.msg_status)
 

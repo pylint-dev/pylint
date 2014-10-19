@@ -12,18 +12,19 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+from contextlib import contextmanager
 import cStringIO
 import sys
 import os
 import tempfile
 from shutil import rmtree
 from os import getcwd, chdir
-from os.path import join, basename, dirname, isdir, abspath
+from os.path import join, basename, dirname, isdir, abspath, sep
 import unittest
 
 from logilab.common.compat import reload
 
-from pylint import config
+from pylint import config, lint
 from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
      ArgumentPreprocessingError
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
@@ -57,7 +58,28 @@ class GetNoteMessageTC(unittest.TestCase):
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')
 
-def create_files(paths, chroot):
+
+@contextmanager
+def tempdir():
+    """Create a temp directory and change the current location to it.
+
+    This is supposed to be used with a *with* statement.
+    """
+    tmp = tempfile.mkdtemp()
+
+    # Get real path of tempfile, otherwise test fail on mac os x
+    current_dir = getcwd()
+    chdir(tmp)
+    abs_tmp = abspath('.')
+
+    try:
+        yield abs_tmp
+    finally:
+        chdir(current_dir)
+        rmtree(abs_tmp)
+
+
+def create_files(paths, chroot='.'):
     """Creates directories and files found in <path>.
 
     :param paths: list of relative paths to files or directories
@@ -92,6 +114,78 @@ def create_files(paths, chroot):
             os.makedirs(dirpath)
     for filepath in files:
         open(filepath, 'w').close()
+
+
+class SysPathFixupTC(unittest.TestCase):
+    def setUp(self):
+        self.orig = list(sys.path)
+        self.fake = [1, 2, 3]
+        sys.path[:] = self.fake
+
+    def tearDown(self):
+        sys.path[:] = self.orig
+
+    def test_no_args(self):
+        with lint.fix_import_path([]):
+            self.assertEqual(sys.path, self.fake)
+        self.assertEqual(sys.path, self.fake)
+
+    def test_one_arg(self):
+        with tempdir() as chroot:
+            create_files(['a/b/__init__.py'])
+            expected = [join(chroot, 'a')] + self.fake
+
+            cases = (
+                ['a/b/'],
+                ['a/b'],
+                ['a/b/__init__.py'],
+                ['a/'],
+                ['a'],
+            )
+
+            self.assertEqual(sys.path, self.fake)
+            for case in cases:
+                with lint.fix_import_path(case):
+                    self.assertEqual(sys.path, expected)
+                self.assertEqual(sys.path, self.fake)
+
+    def test_two_similar_args(self):
+        with tempdir() as chroot:
+            create_files(['a/b/__init__.py', 'a/c/__init__.py'])
+            expected = [join(chroot, 'a')] + self.fake
+
+            cases = (
+                ['a/b', 'a/c'],
+                ['a/c/', 'a/b/'],
+                ['a/b/__init__.py', 'a/c/__init__.py'],
+                ['a', 'a/c/__init__.py'],
+            )
+
+            self.assertEqual(sys.path, self.fake)
+            for case in cases:
+                with lint.fix_import_path(case):
+                    self.assertEqual(sys.path, expected)
+                self.assertEqual(sys.path, self.fake)
+
+    def test_more_args(self):
+        with tempdir() as chroot:
+            create_files(['a/b/c/__init__.py', 'a/d/__init__.py', 'a/e/f.py'])
+            expected = [
+                join(chroot, suffix)
+                for suffix in [sep.join(('a', 'b')), 'a', sep.join(('a', 'e'))]
+            ] + self.fake
+
+            cases = (
+                ['a/b/c/__init__.py', 'a/d/__init__.py', 'a/e/f.py'],
+                ['a/b/c', 'a', 'a/e'],
+                ['a/b/c', 'a', 'a/b/c', 'a/e', 'a'],
+            )
+
+            self.assertEqual(sys.path, self.fake)
+            for case in cases:
+                with lint.fix_import_path(case):
+                    self.assertEqual(sys.path, expected)
+                self.assertEqual(sys.path, self.fake)
 
 
 class PyLinterTC(unittest.TestCase):
@@ -428,18 +522,10 @@ class ConfigTC(unittest.TestCase):
             reload(config)
 
     def test_pylintrc_parentdir(self):
-        chroot = tempfile.mkdtemp()
+        with tempdir() as chroot:
 
-        # Get real path of tempfile, otherwise test fail on mac os x
-        cdir = getcwd()
-        chdir(chroot)
-        chroot = abspath('.')
-        chdir(cdir)
-
-        try:
             create_files(['a/pylintrc', 'a/b/__init__.py', 'a/b/pylintrc',
-                          'a/b/c/__init__.py', 'a/b/c/d/__init__.py'], chroot)
-            os.chdir(chroot)
+                          'a/b/c/__init__.py', 'a/b/c/d/__init__.py'])
             fake_home = tempfile.mkdtemp('fake-home')
             home = os.environ[HOME]
             try:
@@ -456,39 +542,26 @@ class ConfigTC(unittest.TestCase):
             for basedir, expected in results.items():
                 os.chdir(join(chroot, basedir))
                 self.assertEqual(config.find_pylintrc(), expected)
-        finally:
-            os.chdir(HERE)
-            rmtree(chroot)
 
     def test_pylintrc_parentdir_no_package(self):
-        chroot = tempfile.mkdtemp()
-
-        # Get real path of tempfile, otherwise test fail on mac os x
-        cdir = getcwd()
-        chdir(chroot)
-        chroot = abspath('.')
-        chdir(cdir)
-
-        fake_home = tempfile.mkdtemp('fake-home')
-        home = os.environ[HOME]
-        os.environ[HOME] = fake_home
-        try:
-            create_files(['a/pylintrc', 'a/b/pylintrc', 'a/b/c/d/__init__.py'], chroot)
-            os.chdir(chroot)
-            self.assertEqual(config.find_pylintrc(), None)
-            results = {'a'       : join(chroot, 'a', 'pylintrc'),
-                       'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
-                       'a/b/c'   : None,
-                       'a/b/c/d' : None,
-                       }
-            for basedir, expected in results.items():
-                os.chdir(join(chroot, basedir))
-                self.assertEqual(config.find_pylintrc(), expected)
-        finally:
-            os.environ[HOME] = home
-            rmtree(fake_home, ignore_errors=True)
-            os.chdir(HERE)
-            rmtree(chroot)
+        with tempdir() as chroot:
+            fake_home = tempfile.mkdtemp('fake-home')
+            home = os.environ[HOME]
+            os.environ[HOME] = fake_home
+            try:
+                create_files(['a/pylintrc', 'a/b/pylintrc', 'a/b/c/d/__init__.py'])
+                self.assertEqual(config.find_pylintrc(), None)
+                results = {'a'       : join(chroot, 'a', 'pylintrc'),
+                           'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
+                           'a/b/c'   : None,
+                           'a/b/c/d' : None,
+                           }
+                for basedir, expected in results.items():
+                    os.chdir(join(chroot, basedir))
+                    self.assertEqual(config.find_pylintrc(), expected)
+            finally:
+                os.environ[HOME] = home
+                rmtree(fake_home, ignore_errors=True)
 
 
 class PreprocessOptionsTC(unittest.TestCase):
