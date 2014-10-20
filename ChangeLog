@@ -133,6 +133,9 @@ ChangeLog for Pylint
 
     * Fix for regression: '{path}' was no longer accepted in '--msg-template'.
 
+    * Report the percentage of all messages, not just for errors and warnings.
+      Closes issue #319.
+
 
 2014-07-26  --  1.3.0
 

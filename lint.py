@@ -949,8 +949,6 @@ def report_messages_by_module_stats(sect, stats, _):
     sorted_result.reverse()
     lines = ['module', 'error', 'warning', 'refactor', 'convention']
     for line in sorted_result:
-        if line[0] == 0 and line[1] == 0:
-            break
         lines.append(line[-1])
         for val in line[:-1]:
             lines.append('%.2f' % val)
