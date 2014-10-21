@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 import sys
 
+from .__pkginfo__ import version as __version__
+
 def run_pylint():
     """run pylint"""
     from pylint.lint import Run
