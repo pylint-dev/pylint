@@ -28,9 +28,6 @@ from functools import reduce
 import six
 from six.moves import zip
 
-if not hasattr(tokenize, 'NL'):
-    raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
-
 from astroid import nodes
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
