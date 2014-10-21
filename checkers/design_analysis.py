@@ -241,12 +241,9 @@ class MisdesignChecker(BaseChecker):
     def leave_class(self, node):
         """check number of public methods"""
         nb_public_methods = 0
-        special_methods = set()
         for method in node.methods():
             if not method.name.startswith('_'):
                 nb_public_methods += 1
-            if method.name.startswith("__"):
-                special_methods.add(method.name)
         # Does the class contain less than 20 public methods ?
         if nb_public_methods > self.config.max_public_methods:
             self.add_message('too-many-public-methods', node=node,
