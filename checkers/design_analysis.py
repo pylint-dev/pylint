@@ -254,7 +254,7 @@ class MisdesignChecker(BaseChecker):
             return
         # Does the class contain more than 5 public methods ?
         if nb_public_methods < self.config.min_public_methods:
-            self.add_message('R0903', node=node,
+            self.add_message('too-few-public-methods', node=node,
                              args=(nb_public_methods,
                                    self.config.min_public_methods))
 
