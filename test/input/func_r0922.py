@@ -1,6 +1,6 @@
 """test max methods"""
 __revision__ = None
-
+# pylint: disable=too-few-public-methods
 class Aaaa(object):
     """yo"""
     def __init__(self):

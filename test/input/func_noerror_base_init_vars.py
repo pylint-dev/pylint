@@ -1,4 +1,4 @@
-# pylint:disable=R0201, print-statement
+# pylint:disable=R0201, print-statement, too-few-public-methods
 """Checks that class variables are seen as inherited !
 """
 __revision__ = ''

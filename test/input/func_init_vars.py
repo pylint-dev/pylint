@@ -1,6 +1,6 @@
 """Checks that class variables are seen as inherited !
 """
-# pylint: disable=print-statement
+# pylint: disable=print-statement, too-few-public-methods
 __revision__ = ''
 
 

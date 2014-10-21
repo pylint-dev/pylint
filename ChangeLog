@@ -136,6 +136,9 @@ ChangeLog for Pylint
     * Report the percentage of all messages, not just for errors and warnings.
       Closes issue #319.
 
+    * 'too-many-public-methods' is reported only for methods defined in a class,
+      not in its ancestors. Closes issue #248.
+
 
 2014-07-26  --  1.3.0
 

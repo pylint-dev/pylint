@@ -241,7 +241,7 @@ class MisdesignChecker(BaseChecker):
     def leave_class(self, node):
         """check number of public methods"""
         nb_public_methods = 0
-        for method in node.methods():
+        for method in node.mymethods():
             if not method.name.startswith('_'):
                 nb_public_methods += 1
         # Does the class contain less than 20 public methods ?

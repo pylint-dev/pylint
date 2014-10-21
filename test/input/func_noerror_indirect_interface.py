@@ -1,7 +1,7 @@
 """shows a bug where pylint can't find interfaces when they are
 used indirectly. See input/indirect[123].py for details on the
 setup"""
-# pylint: disable=old-style-class
+# pylint: disable=old-style-class, too-few-public-methods
 __revision__ = None
 
 from input.indirect2 import AbstractToto

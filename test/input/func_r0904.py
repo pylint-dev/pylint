@@ -71,3 +71,10 @@ class Aaaa(object):
 
     def _dontcount(self):
         """not public"""
+
+class BBB(Aaaa):
+    """Don't emit for methods defined in the parent."""
+    def meth1(self):
+        """trop"""
+    def meth2(self):
+        """tzop"""
