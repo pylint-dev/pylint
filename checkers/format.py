@@ -26,7 +26,7 @@ import sys
 import tokenize
 from functools import reduce
 import six
-from six.moves import zip
+from six.moves import zip, map, filter
 
 from astroid import nodes
 
@@ -789,7 +789,15 @@ class FormatChecker(BaseTokenChecker):
 
         line_num -= 1 # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
-            self.add_message('too-many-lines', args=(line_num, self.config.max_module_lines), line=1)
+            # Get the line where the too-many-lines (or its message id)
+            # was disabled or default to 1.
+            symbol = self.linter.msgs_store.check_message_id('too-many-lines')
+            names = (symbol.msgid, 'too-many-lines')
+            line = next(filter(None,
+                               map(self.linter._pragma_lineno.get, names)), 1)
+            self.add_message('too-many-lines',
+                             args=(line_num, self.config.max_module_lines),
+                             line=line)
 
     def _check_line_ending(self, line_ending, line_num):
         # check if line endings are mixed

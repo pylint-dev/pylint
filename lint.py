@@ -367,6 +367,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         self._reporter_name = None
         self._reporters = {}
         self._checkers = {}
+        self._pragma_lineno = {}
         self._ignore_file = False
         # visit variables
         self.file_state = FileState()
@@ -532,6 +533,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         """process tokens from the current module to search for module/block
         level options
         """
+        control_pragmas = {'disable', 'enable'}
         for (tok_type, content, start, _, _) in tokens:
             if tok_type != tokenize.COMMENT:
                 continue
@@ -561,6 +563,10 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                     # found a "(dis|en)able-msg" pragma deprecated suppresssion
                     self.add_message('deprecated-pragma', line=start[0], args=(opt, opt.replace('-msg', '')))
                 for msgid in splitstrip(value):
+                    # Add the line where a control pragma was encountered.
+                    if opt in control_pragmas:
+                        self._pragma_lineno[msgid] = start[0]
+
                     try:
                         if (opt, msgid) == ('disable', 'all'):
                             self.add_message('deprecated-pragma', line=start[0], args=('disable=all', 'skip-file'))
