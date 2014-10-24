@@ -142,15 +142,18 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_import(node)
 
     def test_absolute_import(self):
-        module_import = test_utils.build_module('from __future__ import absolute_import; import os')
-        module_from = test_utils.build_module('from __future__ import absolute_import; from os import path')
+        module_import = test_utils.build_module(
+                'from __future__ import absolute_import; import os')
+        module_from = test_utils.build_module(
+                'from __future__ import absolute_import; from os import path')
         with self.assertNoMessages():
             for module in (module_import, module_from):
                 self.walk(module)
 
     def test_division(self):
         node = test_utils.extract_node('3 / 2  #@')
-        with self.assertAddsMessages(testutils.Message('division', node=node)):
+        message = testutils.Message('old-division', node=node)
+        with self.assertAddsMessages(message):
             self.checker.visit_binop(node)
 
     def test_division_with_future_statement(self):

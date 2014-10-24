@@ -142,6 +142,12 @@ ChangeLog for Pylint
     * 'too-many-lines' disable pragma can be located on any line, not only the
       first. Closes issue #321.
 
+    * Warn in Python 2.7 when an import statement is found without a
+      corresponding `from __future__ import absolute_import`.
+
+    * Warn in Python 2.7 when a non-floor division operation is found without
+      a corresponding `from __future__ import division`.
+
 
 2014-07-26  --  1.3.0
 

@@ -125,7 +125,7 @@ class Python3Checker(checkers.BaseChecker):
                   ' (default behaviour in Python 3)',
                   {'maxversion': (3, 0)}),
         'W1619': ('division w/o __future__ statement',
-                  'division',
+                  'old-division',
                   'Used for non-floor division w/o a float literal or '
                   '``from __future__ import division``'
                   '(Python 3 returns a float for int division unconditionally)',
@@ -181,11 +181,11 @@ class Python3Checker(checkers.BaseChecker):
 
     @utils.check_messages('no-absolute-import')
     def visit_from(self, node):
-        if node.modname == u'__future__' :
+        if node.modname == '__future__' :
             for name, _ in node.names:
-                if name == u'division':
+                if name == 'division':
                     self._future_division = True
-                elif name == u'absolute_import':
+                elif name == 'absolute_import':
                     self._future_absolute_import = True
         elif not self._future_absolute_import:
             self.add_message('no-absolute-import', node=node)
@@ -195,14 +195,14 @@ class Python3Checker(checkers.BaseChecker):
         if not self._future_absolute_import:
             self.add_message('no-absolute-import', node=node)
 
-    @utils.check_messages('division')
+    @utils.check_messages('old-division')
     def visit_binop(self, node):
-        if not self._future_division and node.op == u'/':
+        if not self._future_division and node.op == '/':
             for arg in (node.left, node.right):
                 if isinstance(arg, astroid.Const) and isinstance(arg.value, float):
                     break
             else:
-                self.add_message('division', node=node)
+                self.add_message('old-division', node=node)
 
 
 def register(linter):
