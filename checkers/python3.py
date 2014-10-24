@@ -14,6 +14,7 @@
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 from __future__ import absolute_import
 
+import astroid
 from pylint import checkers, interfaces
 from pylint.checkers import utils
 
@@ -123,6 +124,12 @@ class Python3Checker(checkers.BaseChecker):
                   '`from __future__ import absolute_import`'
                   ' (default behaviour in Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1619': ('division w/o __future__ statement',
+                  'division',
+                  'Used for non-floor division w/o a float literal or '
+                  '``from __future__ import division``'
+                  '(Python 3 returns a float for int division unconditionally)',
+                  {'maxversion': (3, 0)}),
     }
 
     _missing_builtins = frozenset([
@@ -187,6 +194,15 @@ class Python3Checker(checkers.BaseChecker):
     def visit_import(self, node):
         if not self._future_absolute_import:
             self.add_message('no-absolute-import', node=node)
+
+    @utils.check_messages('division')
+    def visit_binop(self, node):
+        if not self._future_division and node.op == u'/':
+            for arg in (node.left, node.right):
+                if isinstance(arg, astroid.Const) and isinstance(arg.value, float):
+                    break
+            else:
+                self.add_message('division', node=node)
 
 
 def register(linter):

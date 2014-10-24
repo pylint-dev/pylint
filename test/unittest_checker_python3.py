@@ -148,6 +148,28 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             for module in (module_import, module_from):
                 self.walk(module)
 
+    def test_division(self):
+        node = test_utils.extract_node('3 / 2  #@')
+        with self.assertAddsMessages(testutils.Message('division', node=node)):
+            self.checker.visit_binop(node)
+
+    def test_division_with_future_statement(self):
+        module = test_utils.build_module('from __future__ import division; 3 / 2')
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def test_floor_division(self):
+        node = test_utils.extract_node(' 3 // 2  #@')
+        with self.assertNoMessages():
+            self.checker.visit_binop(node)
+
+    def test_division_by_float(self):
+        left_node = test_utils.extract_node('3.0 / 2 #@')
+        right_node = test_utils.extract_node(' 3 / 2.0  #@')
+        with self.assertNoMessages():
+            for node in (left_node, right_node):
+                self.checker.visit_binop(node)
+
 
 if __name__ == '__main__':
     unittest.main()
