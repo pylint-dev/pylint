@@ -1,5 +1,5 @@
 """Check possible unbalanced tuple unpacking """
-
+from __future__ import absolute_import
 from functional.unpacking import unpack
 
 __revision__ = 0

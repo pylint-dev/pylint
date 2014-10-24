@@ -1,6 +1,6 @@
 """check use of * or **
 """
-
+# pylint: disable=no-absolute-import
 from operator import add
 __revision__ = reduce(*(add, (1, 2, 3)))
 

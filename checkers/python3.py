@@ -117,6 +117,12 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when a __setslice__ method is defined '
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1618': ('import missing `from __future__ import absolute_import`',
+                  'no-absolute-import',
+                  'Used when an import is not accompanied by '
+                  '`from __future__ import absolute_import`'
+                  ' (default behaviour in Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _missing_builtins = frozenset([
@@ -142,6 +148,11 @@ class Python3Checker(checkers.BaseChecker):
         '__setslice__',
     ])
 
+    def __init__(self, *args, **kwargs):
+        self._future_division = False
+        self._future_absolute_import = False
+        super(Python3Checker, self).__init__(*args, **kwargs)
+
     def visit_function(self, node):
         if node.is_method() and node.name in self._unused_magic_methods:
             method_name = node.name
@@ -160,6 +171,22 @@ class Python3Checker(checkers.BaseChecker):
     @utils.check_messages('print-statement')
     def visit_print(self, node):
         self.add_message('print-statement', node=node)
+
+    @utils.check_messages('no-absolute-import')
+    def visit_from(self, node):
+        if node.modname == u'__future__' :
+            for name, _ in node.names:
+                if name == u'division':
+                    self._future_division = True
+                elif name == u'absolute_import':
+                    self._future_absolute_import = True
+        elif not self._future_absolute_import:
+            self.add_message('no-absolute-import', node=node)
+
+    @utils.check_messages('no-absolute-import')
+    def visit_import(self, node):
+        if not self._future_absolute_import:
+            self.add_message('no-absolute-import', node=node)
 
 
 def register(linter):

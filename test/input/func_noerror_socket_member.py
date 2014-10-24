@@ -14,8 +14,8 @@ False E1101 positive, line 23:
     Instance of '_socketobject' has no 'connect' member
 
 """
+from __future__ import absolute_import
 __revision__ = None
-
 import socket
 
 if __name__ == "__main__":

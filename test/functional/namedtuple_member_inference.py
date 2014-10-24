@@ -3,7 +3,7 @@
 Regression test for:
 https://bitbucket.org/logilab/pylint/issue/93/pylint-crashes-on-namedtuple-attribute
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 __revision__ = None
 

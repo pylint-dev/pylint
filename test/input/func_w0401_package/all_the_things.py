@@ -1,4 +1,5 @@
 """All the things!"""
+# pylint: disable=no-absolute-import
 __revision__ = None
 from .thing1 import THING1
 from .thing2 import THING2

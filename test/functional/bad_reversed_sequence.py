@@ -1,6 +1,6 @@
 """ Checks that reversed() receive proper argument """
 
-# pylint: disable=too-few-public-methods,no-self-use
+# pylint: disable=too-few-public-methods,no-self-use,no-absolute-import
 from collections import deque
 
 __revision__ = 0

@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error
+# pylint: disable=too-few-public-methods,import-error, no-absolute-import
 """check use of super"""
 
 from unknown import Missing

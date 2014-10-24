@@ -1,5 +1,5 @@
 """ Test that import errors are detected. """
-# pylint: disable=invalid-name, unused-import
+# pylint: disable=invalid-name, unused-import, no-absolute-import
 import totally_missing # [import-error]
 
 try:

@@ -3,7 +3,7 @@
 # pylint: disable=R0903
 """test bugfix for #113231 in logging checker
 """
-
+from __future__ import absolute_import
 __revision__ = ''
 
 # Muck up the names in an effort to confuse...

@@ -1,4 +1,4 @@
-# pylint:disable=C0103, print-statement
+# pylint:disable=C0103, print-statement, no-absolute-import
 """ho ho ho"""
 __revision__ = 'toto'
 

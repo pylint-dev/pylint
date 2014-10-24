@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,bad-builtin,invalid-name
+# pylint: disable=missing-docstring,bad-builtin,invalid-name,no-absolute-import
 __revision__ = "$Id$"
 
 import functools

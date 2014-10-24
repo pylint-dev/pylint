@@ -1,5 +1,5 @@
 """unused import"""
-# pylint: disable=undefined-all-variable, import-error
+# pylint: disable=undefined-all-variable, import-error, no-absolute-import
 import xml.etree  # [unused-import]
 import xml.sax  # [unused-import]
 import os.path as test  # [unused-import]
@@ -10,5 +10,3 @@ from collections import deque, OrderedDict, Counter
 DATA = Counter()
 
 from never import __all__
-
-

@@ -1,6 +1,6 @@
 """check unused import
 """
-# pylint: disable=print-statement
+# pylint: disable=print-statement, no-absolute-import
 
 __revision__ = 1
 

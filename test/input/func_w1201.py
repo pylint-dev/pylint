@@ -1,4 +1,4 @@
-# pylint: disable=E1101
+# pylint: disable=E1101, no-absolute-import
 """test checking use of the logging module
 """
 

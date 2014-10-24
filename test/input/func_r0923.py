@@ -1,6 +1,6 @@
 """test max methods"""
+from __future__ import absolute_import
 __revision__ = None
-
 from logilab.common.interface import Interface
 
 class IAaaa(Interface):
@@ -29,4 +29,3 @@ class Concret(object):
     def meth2(self):
         """hehehe"""
         return "et hop", self
-

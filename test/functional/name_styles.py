@@ -1,5 +1,5 @@
 """Test for the invalid-name warning."""
-# pylint: disable=print-statement
+# pylint: disable=print-statement, no-absolute-import
 import abc
 import collections
 

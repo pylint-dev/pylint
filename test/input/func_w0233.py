@@ -1,4 +1,4 @@
-# pylint: disable=R0903,W0212,W0403,W0406
+# pylint: disable=R0903,W0212,W0403,W0406,no-absolute-import
 """test for call to __init__ from a non ancestor class
 """
 from __future__ import print_function

@@ -1,5 +1,5 @@
 """bla"""
-
+# pylint: disable=no-absolute-import
 __revision__ = 'yo'
 
 

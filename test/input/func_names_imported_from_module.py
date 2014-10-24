@@ -1,4 +1,4 @@
-#pylint: disable=W0401,W0611,print-statement
+#pylint: disable=W0401,W0611,print-statement,no-absolute-import
 """check unexistant names imported are reported"""
 
 __revision__ = None

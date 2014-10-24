@@ -1,5 +1,5 @@
 """ This should not warn about `prop` being abstract in Child """
-# pylint: disable=too-few-public-methods,abstract-class-little-used
+# pylint: disable=too-few-public-methods,abstract-class-little-used,no-absolute-import
 
 import abc
 

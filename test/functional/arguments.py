@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods, no-absolute-import
 """Test function argument checker"""
 
 def decorator(fun):

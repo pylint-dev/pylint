@@ -1,6 +1,6 @@
 """test unused variable
 """
-# pylint: disable=invalid-name, redefined-outer-name, print-statement
+# pylint: disable=invalid-name, redefined-outer-name, print-statement, no-absolute-import
 __revision__ = 0
 PATH = OS = collections = deque = None
 
