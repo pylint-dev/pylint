@@ -33,6 +33,7 @@ from pylint.checkers import utils #pylint: disable=unused-import
 import sys
 import os
 import tokenize
+from collections import defaultdict
 from contextlib import contextmanager
 from operator import attrgetter
 from warnings import warn
@@ -366,7 +367,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         self.reporter = None
         self._reporter_name = None
         self._reporters = {}
-        self._checkers = {}
+        self._checkers = defaultdict(list)
         self._pragma_lineno = {}
         self._ignore_file = False
         # visit variables
@@ -495,7 +496,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         checker is an object implementing IRawChecker or / and IAstroidChecker
         """
         assert checker.priority <= 0, 'checker priority can\'t be >= 0'
-        self._checkers.setdefault(checker.name, []).append(checker)
+        self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
         self.register_options_provider(checker)
@@ -934,7 +935,7 @@ def report_messages_by_module_stats(sect, stats, _):
     if len(stats['by_module']) == 1:
         # don't print this report when we are analysing a single module
         raise EmptyReport()
-    by_mod = {}
+    by_mod = defaultdict(dict)
     for m_type in ('fatal', 'error', 'warning', 'refactor', 'convention'):
         total = stats[m_type]
         for module in six.iterkeys(stats['by_module']):
@@ -943,7 +944,7 @@ def report_messages_by_module_stats(sect, stats, _):
                 percent = 0
             else:
                 percent = float((mod_total)*100) / total
-            by_mod.setdefault(module, {})[m_type] = percent
+            by_mod[module][m_type] = percent
     sorted_result = []
     for module, mod_info in six.iteritems(by_mod):
         sorted_result.append((mod_info['error'],

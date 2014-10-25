@@ -18,6 +18,7 @@
 from __future__ import generators
 
 import sys
+from collections import defaultdict
 
 import astroid
 from astroid import YES, Instance, are_exclusive, AssAttr, Class
@@ -305,7 +306,7 @@ a metaclass class method.'}
     def visit_class(self, node):
         """init visit variable _accessed and check interfaces
         """
-        self._accessed.append({})
+        self._accessed.append(defaultdict(list))
         self._check_bases_classes(node)
         self._check_interfaces(node)
         # if not an interface, exception, metaclass
@@ -551,7 +552,7 @@ a metaclass class method.'}
         attrname = node.attrname
         # Check self
         if self.is_first_attr(node):
-            self._accessed[-1].setdefault(attrname, []).append(node)
+            self._accessed[-1][attrname].append(node)
             return
         if not self.linter.is_message_enabled('protected-access'):
             return
@@ -560,7 +561,7 @@ a metaclass class method.'}
 
     def visit_assattr(self, node):
         if isinstance(node.ass_type(), astroid.AugAssign) and self.is_first_attr(node):
-            self._accessed[-1].setdefault(node.attrname, []).append(node)
+            self._accessed[-1][node.attrname].append(node)
         self._check_in_slots(node)
 
     def _check_in_slots(self, node):

@@ -18,6 +18,7 @@
 """
 from __future__ import print_function
 import sys
+from collections import defaultdict
 
 from logilab.common.ureports import Table
 
@@ -61,9 +62,9 @@ class Similar(object):
 
     def _compute_sims(self):
         """compute similarities in appended files"""
-        no_duplicates = {}
+        no_duplicates = defaultdict(list)
         for num, lineset1, idx1, lineset2, idx2 in self._iter_sims():
-            duplicate = no_duplicates.setdefault(num, [])
+            duplicate = no_duplicates[num]
             for couples in duplicate:
                 if (lineset1, idx1) in couples or (lineset2, idx2) in couples:
                     couples.add((lineset1, idx1))
@@ -210,10 +211,10 @@ class LineSet(object):
 
     def _mk_index(self):
         """create the index for this set"""
-        index = {}
+        index = defaultdict(list)
         for line_no, line in enumerate(self._stripped_lines):
             if line:
-                index.setdefault(line, []).append(line_no)
+                index[line].append(line_no)
         return index
 
 

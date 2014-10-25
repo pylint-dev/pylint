@@ -476,7 +476,7 @@ class FileState(object):
         self.base_name = modname
         self._module_msgs_state = {}
         self._raw_module_msgs_state = {}
-        self._ignored_msgs = {}
+        self._ignored_msgs = collections.defaultdict(set)
         self._suppression_mapping = {}
 
     def collect_block_lines(self, msgs_store, module_node):
@@ -560,7 +560,7 @@ class FileState(object):
         if state_scope == MSG_STATE_SCOPE_MODULE:
             try:
                 orig_line = self._suppression_mapping[(msgid, line)]
-                self._ignored_msgs.setdefault((msgid, orig_line), set()).add(line)
+                self._ignored_msgs[(msgid, orig_line)].add(line)
             except KeyError:
                 pass
 
@@ -592,7 +592,7 @@ class MessagesStore(object):
         # message definitions. May contain several names for each definition
         # object.
         self._alternative_names = {}
-        self._msgs_by_category = {}
+        self._msgs_by_category = collections.defaultdict(list)
 
     @property
     def messages(self):
@@ -634,7 +634,7 @@ class MessagesStore(object):
             for old_id, old_symbol in msg.old_names:
                 self._alternative_names[old_id] = msg
                 self._alternative_names[old_symbol] = msg
-            self._msgs_by_category.setdefault(msg.msgid[0], []).append(msg.msgid)
+            self._msgs_by_category[msg.msgid[0]].append(msg.msgid)
 
     def check_message_id(self, msgid):
         """returns the Message object for this message.
@@ -685,7 +685,7 @@ class ReportsHandlerMixIn(object):
     related methods for the main lint class
     """
     def __init__(self):
-        self._reports = {}
+        self._reports = collections.defaultdict(list)
         self._reports_state = {}
 
     def report_order(self):
@@ -703,7 +703,7 @@ class ReportsHandlerMixIn(object):
         checker is the checker defining the report
         """
         reportid = reportid.upper()
-        self._reports.setdefault(checker, []).append((reportid, r_title, r_cb))
+        self._reports[checker].append((reportid, r_title, r_cb))
 
     def enable_report(self, reportid):
         """disable the report of the given id"""
@@ -800,8 +800,8 @@ class PyLintASTWalker(object):
     def __init__(self, linter):
         # callbacks per node types
         self.nbstatements = 1
-        self.visit_events = {}
-        self.leave_events = {}
+        self.visit_events = collections.defaultdict(list)
+        self.leave_events = collections.defaultdict(list)
         self.linter = linter
 
     def _is_method_enabled(self, method):
@@ -827,20 +827,20 @@ class PyLintASTWalker(object):
                 v_meth = getattr(checker, member)
                 # don't use visit_methods with no activated message:
                 if self._is_method_enabled(v_meth):
-                    visits.setdefault(cid, []).append(v_meth)
+                    visits[cid].append(v_meth)
                     vcids.add(cid)
             elif member.startswith('leave_'):
                 l_meth = getattr(checker, member)
                 # don't use leave_methods with no activated message:
                 if self._is_method_enabled(l_meth):
-                    leaves.setdefault(cid, []).append(l_meth)
+                    leaves[cid].append(l_meth)
                     lcids.add(cid)
         visit_default = getattr(checker, 'visit_default', None)
         if visit_default:
             for cls in nodes.ALL_NODE_CLASSES:
                 cid = cls.__name__.lower()
                 if cid not in vcids:
-                    visits.setdefault(cid, []).append(visit_default)
+                    visits[cid].append(visit_default)
         # for now we have no "leave_default" method in Pylint
 
     def walk(self, astroid):

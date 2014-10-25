@@ -16,6 +16,7 @@
 """imports checkers for Python code"""
 
 import sys
+from collections import defaultdict
 
 from logilab.common.graph import get_cycles, DotBackend
 from logilab.common.ureports import VerbatimText, Paragraph
@@ -230,7 +231,7 @@ given file (report RP0402 must not be disabled)'}
         self.linter.add_stats(dependencies={})
         self.linter.add_stats(cycles=[])
         self.stats = self.linter.stats
-        self.import_graph = {}
+        self.import_graph = defaultdict(set)
 
     def close(self):
         """called before visiting project (i.e set of modules)"""
@@ -327,8 +328,8 @@ given file (report RP0402 must not be disabled)'}
             if not context_name in importedmodnames:
                 importedmodnames.add(context_name)
             # update import graph
-            mgraph = self.import_graph.setdefault(context_name, set())
-            if not importedmodname in mgraph:
+            mgraph = self.import_graph[context_name]
+            if importedmodname not in mgraph:
                 mgraph.add(importedmodname)
 
     def _check_deprecated_module(self, node, mod_path):
