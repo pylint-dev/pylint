@@ -109,9 +109,8 @@ class MyInstallLib(install_lib.install_lib):
             product_init = join(self.install_dir, subpackage_of, '__init__.py')
             if not exists(product_init):
                 self.announce('creating %s' % product_init)
-                stream = open(product_init, 'w')
-                stream.write(EMPTY_FILE)
-                stream.close()
+                with open(product_init, 'w') as stream:
+                    stream.write(EMPTY_FILE)
         # manually install included directories if any
         if include_dirs:
             if subpackage_of:
