@@ -16,7 +16,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """pylint packaging information"""
 from __future__ import absolute_import
-import sys
 
 modname = distname = 'pylint'
 
@@ -24,8 +23,6 @@ numversion = (1, 3, 0)
 version = '.'.join([str(num) for num in numversion])
 
 install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.2', 'six']
-if sys.version_info < (2, 6):
-    install_requires.append('StringFormat')
 
 license = 'GPL'
 description = "python code static checker"
