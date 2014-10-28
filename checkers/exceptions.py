@@ -58,23 +58,6 @@ def _annotated_unpack_infer(stmt, context=None):
             for inf_inf in unpack_infer(infered, context):
                 yield stmt, inf_inf
 
-def infer_bases(klass):
-    """ Fully infer the bases of the klass node.
-
-    This doesn't use .ancestors(), because we need
-    the non-inferable nodes (YES nodes),
-    which can't be retrieved from .ancestors()
-    """
-    for base in klass.bases:
-        try:
-            inferit = next(base.infer())
-        except astroid.InferenceError:
-            continue
-        if inferit is YES:
-            yield inferit
-        else:
-            for base in infer_bases(inferit):
-                yield base
 
 PY3K = sys.version_info >= (3, 0)
 OVERGENERAL_EXCEPTIONS = ('Exception',)
@@ -333,13 +316,7 @@ class ExceptionsChecker(BaseChecker):
 
                     if (not inherit_from_std_ex(exc) and
                             exc.root().name != BUILTINS_NAME):
-                        # try to see if the exception is based on a C based
-                        # exception, by infering all the base classes and
-                        # looking for inference errors
-                        bases = infer_bases(exc)
-                        fully_infered = all(inferit is not YES
-                                            for inferit in bases)
-                        if fully_infered:
+                        if has_known_bases(exc):
                             self.add_message('catching-non-exception',
                                              node=handler.type,
                                              args=(exc.name, ))
