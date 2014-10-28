@@ -1,3 +1,2 @@
 no-member:17:test:Class 'Thing' has no 'x' member:INFERENCE
-protected-access:21:test:Access to a protected member _replace of a client class
 no-member:23:test:Instance of 'Fantastic' has no 'foo' member:INFERENCE

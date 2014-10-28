@@ -18,6 +18,6 @@ def test():
     fan = Fantastic(1)
     print(fan.foo)
     # Should not raise protected-access.
-    fan2 = fan._replace(foo=2)  # [protected-access]
+    fan2 = fan._replace(foo=2)
     # This is a bug.
     print(fan2.foo)  # [no-member]

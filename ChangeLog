@@ -148,6 +148,9 @@ ChangeLog for Pylint
     * Warn in Python 2.7 when a non-floor division operation is found without
       a corresponding `from __future__ import division`.
 
+    * Add a new option, 'exclude-protected', for excluding members
+      from the protected-access warning. Closes issue #48.
+
 
 2014-07-26  --  1.3.0
 

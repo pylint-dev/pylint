@@ -295,7 +295,16 @@ a class method.'}
                  'help' : 'List of valid names for the first argument in \
 a metaclass class method.'}
                ),
-              )
+               ('exclude-protected',
+                {
+                    'default': (
+                        # namedtuple public API.
+                        '_asdict', '_fields', '_replace', '_source', '_make'),
+                    'type': 'csv',
+                    'metavar': '<protected access exclusions>',
+                    'help': ('List of member names, which should be excluded '
+                             'from the protected access warning.')}
+               ))
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -616,7 +625,8 @@ a metaclass class method.'}
         '''
         attrname = node.attrname
 
-        if is_attr_protected(attrname):
+        if (is_attr_protected(attrname) and
+                attrname not in self.config.exclude_protected):
 
             klass = node_frame_class(node)
 
