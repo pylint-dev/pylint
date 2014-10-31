@@ -6,4 +6,4 @@ def gen():
     yield
 
 GEN = gen()
-GEN.next()
+next(GEN)

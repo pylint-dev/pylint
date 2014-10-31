@@ -173,6 +173,50 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             for node in (left_node, right_node):
                 self.checker.visit_binop(node)
 
+    def test_dict_iter_method(self):
+        for meth in ('keys', 'values', 'items'):
+            node = test_utils.extract_node('x.iter%s()  #@' % meth)
+            message = testutils.Message('dict-iter-method', node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_callfunc(node)
+
+    def test_dict_not_iter_method(self):
+        arg_node = test_utils.extract_node('x.iterkeys(x)  #@')
+        stararg_node = test_utils.extract_node('x.iterkeys(*x)  #@')
+        kwarg_node = test_utils.extract_node('x.iterkeys(y=x)  #@')
+        with self.assertNoMessages():
+            for node in (arg_node, stararg_node, kwarg_node):
+                self.checker.visit_callfunc(node)
+
+    def test_dict_view_method(self):
+        for meth in ('keys', 'values', 'items'):
+            node = test_utils.extract_node('x.view%s()  #@' % meth)
+            message = testutils.Message('dict-view-method', node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_callfunc(node)
+
+    def test_dict_not_view_method(self):
+        arg_node = test_utils.extract_node('x.viewkeys(x)  #@')
+        stararg_node = test_utils.extract_node('x.viewkeys(*x)  #@')
+        kwarg_node = test_utils.extract_node('x.viewkeys(y=x)  #@')
+        with self.assertNoMessages():
+            for node in (arg_node, stararg_node, kwarg_node):
+                self.checker.visit_callfunc(node)
+
+    def test_next_method(self):
+        node = test_utils.extract_node('x.next()  #@')
+        message = testutils.Message('next-method-called', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+
+    def test_not_next_method(self):
+        arg_node = test_utils.extract_node('x.next(x)  #@')
+        stararg_node = test_utils.extract_node('x.next(*x)  #@')
+        kwarg_node = test_utils.extract_node('x.next(y=x)  #@')
+        with self.assertNoMessages():
+            for node in (arg_node, stararg_node, kwarg_node):
+                self.checker.visit_callfunc(node)
+
 
 if __name__ == '__main__':
     unittest.main()

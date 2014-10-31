@@ -130,6 +130,21 @@ class Python3Checker(checkers.BaseChecker):
                   '``from __future__ import division``'
                   '(Python 3 returns a float for int division unconditionally)',
                   {'maxversion': (3, 0)}),
+        'W1620': ('Calling a dict.iter*() method',
+                  'dict-iter-method',
+                  'Used for calls to dict.iterkeys(), itervalues() or iteritems() '
+                  '(Python 3 lacks these methods)',
+                  {'maxversion': (3, 0)}),
+        'W1621': ('Calling a dict.view*() method',
+                  'dict-view-method',
+                  'Used for calls to dict.viewkeys(), viewvalues() or viewitems() '
+                  '(Python 3 lacks these methods)',
+                  {'maxversion': (3, 0)}),
+        'W1622': ('Called a next() method on an object',
+                  'next-method-called',
+                  "Used when an object's next() method is called "
+                  '(Python 3 uses the next() built-in function)',
+                  {'maxversion': (3, 0)}),
     }
 
     _missing_builtins = frozenset([
@@ -203,6 +218,16 @@ class Python3Checker(checkers.BaseChecker):
                     break
             else:
                 self.add_message('old-division', node=node)
+
+    def visit_callfunc(self, node):
+        if hasattr(node.func, 'attrname'):
+            if not any([node.args, node.starargs, node.kwargs]):
+                if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
+                    self.add_message('dict-iter-method', node=node)
+                elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
+                    self.add_message('dict-view-method', node=node)
+                elif node.func.attrname == 'next':
+                    self.add_message('next-method-called', node=node)
 
 
 def register(linter):
