@@ -217,6 +217,19 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             for node in (arg_node, stararg_node, kwarg_node):
                 self.checker.visit_callfunc(node)
 
+    def test_metaclass_assignment(self):
+        node = test_utils.extract_node("""
+            class Foo(object):
+                __metaclass__ = type  #@""")
+        message = testutils.Message('metaclass-assignment', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_assign(node)
+
+    def test_metaclass_global_assignment(self):
+        node = test_utils.extract_node('__metaclass__ = type  #@')
+        with self.assertNoMessages():
+            self.checker.visit_assign(node)
+
 
 if __name__ == '__main__':
     unittest.main()

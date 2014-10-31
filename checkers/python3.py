@@ -145,6 +145,11 @@ class Python3Checker(checkers.BaseChecker):
                   "Used when an object's next() method is called "
                   '(Python 3 uses the next() built-in function)',
                   {'maxversion': (3, 0)}),
+        'W1623': ("Assigning to a class' __metaclass__ attribute",
+                  'metaclass-assignment',
+                  "Used when a metaclass is specified by assigning to __metaclass__ "
+                  '(Python 3 specifies the metaclass as a class statement argument)',
+                  {'maxversion': (3, 0)}),
     }
 
     _missing_builtins = frozenset([
@@ -209,6 +214,13 @@ class Python3Checker(checkers.BaseChecker):
     def visit_import(self, node):
         if not self._future_absolute_import:
             self.add_message('no-absolute-import', node=node)
+
+    @utils.check_messages('metaclass-assignment')
+    def visit_assign(self, node):
+        if isinstance(node.scope(), astroid.Class):
+            for target in node.targets:
+                if hasattr(target, 'name') and target.name == '__metaclass__':
+                    self.add_message('metaclass-assignment', node=node)
 
     @utils.check_messages('old-division')
     def visit_binop(self, node):

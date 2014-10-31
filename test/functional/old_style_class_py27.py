@@ -1,5 +1,5 @@
 """ Tests for old style classes. """
-# pylint: disable=no-init, too-few-public-methods, invalid-name
+# pylint: disable=no-init, too-few-public-methods, invalid-name, metaclass-assignment
 
 class Old: # [old-style-class]
     """ old style class """

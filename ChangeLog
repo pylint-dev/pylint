@@ -157,6 +157,9 @@ ChangeLog for Pylint
     * Warn in Python 2 when calling an object's next() method; Python 3 uses
       __next__() instead.
 
+    * Warn when assigning to __metaclass__ at a class scope; in Python 3 a
+      metaclass is specified as an argument to the 'class' statement.
+
 
 2014-07-26  --  1.3.0
 

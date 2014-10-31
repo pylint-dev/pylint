@@ -1,5 +1,5 @@
 """ Various tests for class members access. """
-# pylint: disable=R0903,print-statement,no-absolute-import
+# pylint: disable=R0903,print-statement,no-absolute-import, metaclass-assignment
 
 class MyClass(object):
     """class docstring"""

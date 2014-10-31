@@ -1,4 +1,4 @@
-# pylint: disable=R0903, print-statement
+# pylint: disable=R0903, print-statement, metaclass-assignment
 """test attribute access on metaclass"""
 
 
