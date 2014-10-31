@@ -232,12 +232,25 @@ class Python3Checker(checkers.BaseChecker):
     def visit_callfunc(self, node):
         if hasattr(node.func, 'attrname'):
             if not any([node.args, node.starargs, node.kwargs]):
-                if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
-                    self.add_message('dict-iter-method', node=node)
-                elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
-                    self.add_message('dict-view-method', node=node)
-                elif node.func.attrname == 'next':
+                if node.func.attrname == 'next':
                     self.add_message('next-method-called', node=node)
+                else:
+                    inferred = node.func.expr.infer()
+                    inferred_types = set()
+                    try:
+                        while True:
+                            try:
+                                inferred_types.add(next(inferred))
+                            except (astroid.InferenceError, astroid.UnresolvableName):
+                                pass
+                    except StopIteration:
+                        pass
+                    maybe_dict = any(isinstance(x, astroid.Dict) for x in inferred_types)
+                    if not inferred_types or maybe_dict:
+                        if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
+                            self.add_message('dict-iter-method', node=node)
+                        elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
+                            self.add_message('dict-view-method', node=node)
 
 
 def register(linter):

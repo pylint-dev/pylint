@@ -180,12 +180,19 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_callfunc(node)
 
+    def test_dict_iter_method_on_dict(self):
+        node = test_utils.extract_node('{}.iterkeys()')
+        message = testutils.Message('dict-iter-method', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+
     def test_dict_not_iter_method(self):
         arg_node = test_utils.extract_node('x.iterkeys(x)  #@')
         stararg_node = test_utils.extract_node('x.iterkeys(*x)  #@')
         kwarg_node = test_utils.extract_node('x.iterkeys(y=x)  #@')
+        non_dict_node = test_utils.extract_node('x=[]\nx.iterkeys() #@')
         with self.assertNoMessages():
-            for node in (arg_node, stararg_node, kwarg_node):
+            for node in (arg_node, stararg_node, kwarg_node, non_dict_node):
                 self.checker.visit_callfunc(node)
 
     def test_dict_view_method(self):
@@ -195,12 +202,19 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_callfunc(node)
 
+    def test_dict_view_method_on_dict(self):
+        node = test_utils.extract_node('{}.viewkeys()')
+        message = testutils.Message('dict-view-method', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+
     def test_dict_not_view_method(self):
         arg_node = test_utils.extract_node('x.viewkeys(x)  #@')
         stararg_node = test_utils.extract_node('x.viewkeys(*x)  #@')
         kwarg_node = test_utils.extract_node('x.viewkeys(y=x)  #@')
+        non_dict_node = test_utils.extract_node('x=[]\nx.viewkeys() #@')
         with self.assertNoMessages():
-            for node in (arg_node, stararg_node, kwarg_node):
+            for node in (arg_node, stararg_node, kwarg_node, non_dict_node):
                 self.checker.visit_callfunc(node)
 
     def test_next_method(self):
