@@ -219,16 +219,16 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def test_metaclass_assignment(self):
         node = test_utils.extract_node("""
-            class Foo(object):
-                __metaclass__ = type  #@""")
+            class Foo(object):  #@
+                __metaclass__ = type""")
         message = testutils.Message('metaclass-assignment', node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_assign(node)
+            self.checker.visit_class(node)
 
     def test_metaclass_global_assignment(self):
-        node = test_utils.extract_node('__metaclass__ = type  #@')
+        module = test_utils.build_module('__metaclass__ = type')
         with self.assertNoMessages():
-            self.checker.visit_assign(node)
+            self.walk(module)
 
 
 if __name__ == '__main__':

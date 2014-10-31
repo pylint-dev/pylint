@@ -216,11 +216,9 @@ class Python3Checker(checkers.BaseChecker):
             self.add_message('no-absolute-import', node=node)
 
     @utils.check_messages('metaclass-assignment')
-    def visit_assign(self, node):
-        if isinstance(node.scope(), astroid.Class):
-            for target in node.targets:
-                if hasattr(target, 'name') and target.name == '__metaclass__':
-                    self.add_message('metaclass-assignment', node=node)
+    def visit_class(self, node):
+        if '__metaclass__' in node.locals:
+            self.add_message('metaclass-assignment', node=node)
 
     @utils.check_messages('old-division')
     def visit_binop(self, node):
