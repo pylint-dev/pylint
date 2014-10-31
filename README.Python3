@@ -10,17 +10,13 @@ Please, consider python3 >= 3.2 only.
 Approach
 --------
 
-We maintain a Python 2 base and use 2to3 to generate Python 3 code.
-
-2to3 is integrated into the distutils installation process and will be run as a
-build step when invoked by the python3 interpreter::
-
-  NO_SETUPTOOLS=1 python3 setup.py install --no-compile
+We maintain a code base that is Python 2/3 compatible simultaneously.
 
 In order to run pylint locally, you have to install the dependencies::
 
   easy_install-3.2 logilab-common
   easy_install-3.2 astroid
+  easy_install-3.2 six
 
 
 Debian
@@ -34,4 +30,4 @@ the debian/ folder::
 
 Resources
 ---------
-http://wiki.python.org/moin/PortingPythonToPy3k
+https://docs.python.org/3/howto/pyporting.html
