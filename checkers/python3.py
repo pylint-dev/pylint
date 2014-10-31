@@ -26,8 +26,8 @@ def _check_dict_node(node):
             inferred_types.add(inferred_node)
     except (astroid.InferenceError, astroid.UnresolvableName):
         pass
-    return (not inferred_types or
-                any(isinstance(x, astroid.Dict) for x in inferred_types))
+    return (not inferred_types
+            or any(isinstance(x, astroid.Dict) for x in inferred_types))
 
 
 class Python3Checker(checkers.BaseChecker):
@@ -241,16 +241,18 @@ class Python3Checker(checkers.BaseChecker):
                 self.add_message('old-division', node=node)
 
     def visit_callfunc(self, node):
-        if hasattr(node.func, 'attrname'):
-            if not any([node.args, node.starargs, node.kwargs]):
-                if node.func.attrname == 'next':
-                    self.add_message('next-method-called', node=node)
-                else:
-                    if _check_dict_node(node.func.expr):
-                        if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
-                            self.add_message('dict-iter-method', node=node)
-                        elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
-                            self.add_message('dict-view-method', node=node)
+        if not isinstance(node.func, astroid.Getattr):
+            return
+        if any([node.args, node.starargs, node.kwargs]):
+            return
+        if node.func.attrname == 'next':
+            self.add_message('next-method-called', node=node)
+        else:
+            if _check_dict_node(node.func.expr):
+                if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
+                    self.add_message('dict-iter-method', node=node)
+                elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
+                    self.add_message('dict-view-method', node=node)
 
 
 def register(linter):
