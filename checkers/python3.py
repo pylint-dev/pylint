@@ -43,7 +43,7 @@ class Python3Checker(checkers.BaseChecker):
                   'print-statement',
                   'Used when a print statement is used '
                   '(`print` is a function in Python 3)',
-                  {'maxversion': (3,0)}),
+                  {'maxversion': (3, 0)}),
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
@@ -212,7 +212,7 @@ class Python3Checker(checkers.BaseChecker):
 
     @utils.check_messages('no-absolute-import')
     def visit_from(self, node):
-        if node.modname == '__future__' :
+        if node.modname == '__future__':
             for name, _ in node.names:
                 if name == 'division':
                     self._future_division = True
