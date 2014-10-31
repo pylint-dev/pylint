@@ -18,6 +18,17 @@ import astroid
 from pylint import checkers, interfaces
 from pylint.checkers import utils
 
+def _check_dict_node(node):
+    inferred = node.infer()
+    inferred_types = set()
+    try:
+        for inferred_node in inferred:
+            inferred_types.add(inferred_node)
+    except (astroid.InferenceError, astroid.UnresolvableName):
+        pass
+    return (not inferred_types or
+                any(isinstance(x, astroid.Dict) for x in inferred_types))
+
 
 class Python3Checker(checkers.BaseChecker):
 
@@ -235,18 +246,7 @@ class Python3Checker(checkers.BaseChecker):
                 if node.func.attrname == 'next':
                     self.add_message('next-method-called', node=node)
                 else:
-                    inferred = node.func.expr.infer()
-                    inferred_types = set()
-                    try:
-                        while True:
-                            try:
-                                inferred_types.add(next(inferred))
-                            except (astroid.InferenceError, astroid.UnresolvableName):
-                                pass
-                    except StopIteration:
-                        pass
-                    maybe_dict = any(isinstance(x, astroid.Dict) for x in inferred_types)
-                    if not inferred_types or maybe_dict:
+                    if _check_dict_node(node.func.expr):
                         if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
                             self.add_message('dict-iter-method', node=node)
                         elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
