@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Add a simple json reporter. You can use it using `-f json`
+
     * Port source code to be Python 2/3 compatible. This drops the
       need for 2to3, but does drop support for Python 2.5.
 
@@ -1671,4 +1673,3 @@ ChangeLog for Pylint
 
 2003-05-19  --  0.1
     * initial release
-* Add a simple json reporter. You can use it using `-f json`
