@@ -1671,3 +1671,4 @@ ChangeLog for Pylint
 
 2003-05-19  --  0.1
     * initial release
+* Add a simple json reporter. You can use it using `-f json`
