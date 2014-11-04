@@ -3,35 +3,33 @@
  IDE integration
 =================
 
-To use Pylint with Emacs, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8
+To use Pylint with:
 
-To use Pylint with Vim, see
-http://www.vim.org/scripts/script.php?script_id=891
+ - Emacs_, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8,
+ - Vim_, see http://www.vim.org/scripts/script.php?script_id=891,
+ - Eclipse_ and PyDev_, see http://pydev.org/manual_adv_pylint.html,
+ - Komodo_, see http://mateusz.loskot.net/posts/2006/01/15/running-pylint-from-komodo/,
+ - gedit_, see https://launchpad.net/gedit-pylint-2 or https://wiki.gnome.org/Apps/Gedit/PylintPlugin,
+ - WingIDE_, see http://www.wingware.com/doc/edit/pylint,
+ - PyCharm_, see http://blog.saturnlaboratories.co.za/archive/2012/09/10/running-pylint-pycharm.
 
-To use Pylint with Eclipse, see http://pydev.org
+Pylint is integrated in:
 
-To use Pylint with Komodo_, see
-http://mateusz.loskot.net/2006/01/15/running-pylint-from-komodo/
+ - Eric_ IDE, see the `Project > Check` menu,
+ - Spyder_, see http://packages.python.org/spyder/pylint.html,
+ - pyscripter_, see the `Tool -> Tools` menu.
 
-To use Pylint with gedit_, see
-http://live.gnome.org/Gedit/PylintPlugin
-
-To use Pylint with WingIDE_, see
-http://www.wingware.com/doc/edit/pylint
-
-Pylint is integrated in Eric_ IDE, see the `Project > Check` menu.
-
-Pylint is integrated in Spyder_, see http://packages.python.org/spyder/pylint.html
-
-Pylint is integrated in pyscripter_, see the `Tool -> Tools` menu.
-
+.. _Emacs: http://www.gnu.org/software/emacs/
+.. _Vim: http://www.vim.org/
+.. _Eclipse: https://www.eclipse.org/
 .. _Eric: http://eric-ide.python-projects.org/
 .. _pyscripter: http://code.google.com/p/pyscripter/
 .. _pydev: http://pydev.org
 .. _Komodo: http://www.activestate.com/Products/Komodo/
-.. _gedit: http://www.gnome.org/projects/gedit/
+.. _gedit: https://wiki.gnome.org/Apps/Gedit
 .. _WingIDE: http://www.wingware.com/
 .. _spyder: http://code.google.com/p/spyderlib/
+.. _PyCharm: http://www.jetbrains.com/pycharm/
 
 Using Pylint thru flymake in Emacs
 ==================================

@@ -12,7 +12,7 @@ profile=no
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=.hg,test
+ignore=CVS
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -27,8 +27,15 @@ include-ids=no
 # DEPRECATED
 symbols=no
 
+# Use multiple processes to speed up Pylint.
+jobs=1
+
 
 [MESSAGES CONTROL]
+
+# Only show warnings with the listed confidence levels. Leave empty to show
+# all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED
+confidence=
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -85,30 +92,22 @@ comment=no
 logging-modules=logging
 
 
-[FORMAT]
+[VARIABLES]
 
-# Maximum number of characters on a single line.
-max-line-length=80
+# Tells whether we should check for unused import in __init__ files.
+init-import=no
 
-# Regexp for a line that is allowed to be longer than the limit.
-ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+# A regular expression matching the name of dummy variables (i.e. expectedly
+# not used).
+dummy-variables-rgx=_$|dummy
 
-# Allow the body of an if to be on the same line as the test if there is no
-# else.
-single-line-if-stmt=no
+# List of additional names supposed to be defined in builtins. Remember that
+# you should avoid to define new builtins when possible.
+additional-builtins=
 
-# List of optional constructs for which whitespace checking is disabled
-no-space-check=trailing-comma,dict-separator
-
-# Maximum number of lines in a module
-max-module-lines=1000
-
-# String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
-# tab).
-indent-string='    '
-
-# Number of spaces of indent required inside a hanging or continued line.
-indent-after-paren=4
+# List of strings which can identify a callback function by name. A callback
+# name must start or end with one of those strings.
+callbacks=cb_,_cb
 
 
 [BASIC]
@@ -117,7 +116,7 @@ indent-after-paren=4
 required-attributes=
 
 # List of builtins function names that should not be used, separated by a comma
-bad-functions=map,filter,apply,input
+bad-functions=map,filter,input
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,j,k,ex,Run,_
@@ -201,21 +200,6 @@ no-docstring-rgx=__.*__
 docstring-min-length=-1
 
 
-[SIMILARITIES]
-
-# Minimum lines number of a similarity.
-min-similarity-lines=4
-
-# Ignore comments when computing similarities.
-ignore-comments=yes
-
-# Ignore docstrings when computing similarities.
-ignore-docstrings=yes
-
-# Ignore imports when computing similarities.
-ignore-imports=no
-
-
 [MISCELLANEOUS]
 
 # List of note tags to take in consideration, separated by a comma.
@@ -247,36 +231,85 @@ zope=no
 generated-members=REQUEST,acl_users,aq_parent
 
 
-[VARIABLES]
+[SPELLING]
 
-# Tells whether we should check for unused import in __init__ files.
-init-import=no
+# Spelling dictionary name. Available dictionaries: none. To make it working
+# install python-enchant package.
+spelling-dict=
 
-# A regular expression matching the name of dummy variables (i.e. expectedly
-# not used).
-dummy-variables-rgx=_|dummy
+# List of comma separated words that should not be checked.
+spelling-ignore-words=
 
-# List of additional names supposed to be defined in builtins. Remember that
-# you should avoid to define new builtins when possible.
-additional-builtins=
+# A path to a file that contains private dictionary; one word per line.
+spelling-private-dict-file=
+
+# Tells whether to store unknown words to indicated private dictionary in
+# --spelling-private-dict-file option instead of raising a message.
+spelling-store-unknown-words=no
 
 
-[IMPORTS]
+[FORMAT]
 
-# Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+# Maximum number of characters on a single line.
+max-line-length=80
 
-# Create a graph of every (i.e. internal and external) dependencies in the
-# given file (report RP0402 must not be disabled)
-import-graph=
+# Regexp for a line that is allowed to be longer than the limit.
+ignore-long-lines=^\s*(# )?<?https?://\S+>?$
 
-# Create a graph of external dependencies in the given file (report RP0402 must
-# not be disabled)
-ext-import-graph=
+# Allow the body of an if to be on the same line as the test if there is no
+# else.
+single-line-if-stmt=no
 
-# Create a graph of internal dependencies in the given file (report RP0402 must
-# not be disabled)
-int-import-graph=
+# List of optional constructs for which whitespace checking is disabled
+no-space-check=trailing-comma,dict-separator
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
+# tab).
+indent-string='    '
+
+# Number of spaces of indent required inside a hanging or continued line.
+indent-after-paren=4
+
+# Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
+expected-line-ending-format=
+
+
+[SIMILARITIES]
+
+# Minimum lines number of a similarity.
+min-similarity-lines=4
+
+# Ignore comments when computing similarities.
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities.
+ignore-imports=no
+
+
+[CLASSES]
+
+# List of interface methods to ignore, separated by a comma. This is used for
+# instance to not check methods defines in Zope's Interface base class.
+ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
+
+# List of method names used to declare (i.e. assign) instance attributes.
+defining-attr-methods=__init__,__new__,setUp
+
+# List of valid names for the first argument in a class method.
+valid-classmethod-first-arg=cls
+
+# List of valid names for the first argument in a metaclass class method.
+valid-metaclass-classmethod-first-arg=mcs
+
+# List of member names, which should be excluded from the protected access
+# warning.
+exclude-protected=_asdict,_fields,_replace,_source,_make
 
 
 [DESIGN]
@@ -313,20 +346,22 @@ min-public-methods=2
 max-public-methods=20
 
 
-[CLASSES]
+[IMPORTS]
 
-# List of interface methods to ignore, separated by a comma. This is used for
-# instance to not check methods defines in Zope's Interface base class.
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
+# Deprecated modules which should not be used, separated by a comma
+deprecated-modules=regsub,TERMIOS,Bastion,rexec
 
-# List of method names used to declare (i.e. assign) instance attributes.
-defining-attr-methods=__init__,__new__,setUp
+# Create a graph of every (i.e. internal and external) dependencies in the
+# given file (report RP0402 must not be disabled)
+import-graph=
 
-# List of valid names for the first argument in a class method.
-valid-classmethod-first-arg=cls
+# Create a graph of external dependencies in the given file (report RP0402 must
+# not be disabled)
+ext-import-graph=
 
-# List of valid names for the first argument in a metaclass class method.
-valid-metaclass-classmethod-first-arg=mcs
+# Create a graph of internal dependencies in the given file (report RP0402 must
+# not be disabled)
+int-import-graph=
 
 
 [EXCEPTIONS]

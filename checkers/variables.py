@@ -201,7 +201,7 @@ MSGS = {
     'W0603': ('Using the global statement', # W0121
               'global-statement',
               'Used when you use the "global" statement to update a global \
-              variable. PyLint just try to discourage this \
+              variable. Pylint just try to discourage this \
               usage. That doesn\'t mean you can not use it !'),
     'W0604': ('Using the global statement at the module level', # W0103
               'global-at-module-level',
