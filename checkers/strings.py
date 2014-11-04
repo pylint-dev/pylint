@@ -352,7 +352,8 @@ class StringMethodsChecker(BaseChecker):
         #
         #    fmt = 'some string {}'.format
         #    fmt('arg')
-        if hasattr(node.func, 'expr') and not isinstance(node.func.expr, astroid.Const):
+        if (isinstance(node.func, astroid.Getattr)
+                and not isinstance(node.func.expr, astroid.Const)):
             return
         try:
             strnode = next(func.bound.infer())
