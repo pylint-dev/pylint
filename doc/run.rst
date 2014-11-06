@@ -52,7 +52,7 @@ assuming Pylint options are stored in ``pylint_options`` string, as:
   lint.py_run(pylint_options)
 
 To silently run Pylint on a ``module_name.py`` module,
-and get its standart output and error:
+and get its standard output and error:
 
 .. sourcecode:: python
 
