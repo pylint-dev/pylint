@@ -1,13 +1,13 @@
 .. -*- coding: utf-8 -*-
 
 ===============
- Configuration 
+ Configuration
 ===============
 
 Naming Styles
 -------------
 
-PyLint recognizes a number of different name types internally. With a few
+Pylint recognizes a number of different name types internally. With a few
 exceptions, the type of the name is governed by the location the assignment to a
 name is found in, and not the type of object assigned.
 
@@ -88,10 +88,10 @@ Large code bases that have been worked on for multiple years often exhibit an
 evolution in style as well. In some cases, modules can be in the same package,
 but still have different naming style based on the stratum they belong to.
 However, intra-module consistency should still be required, to make changes
-inside a single file easier. For this case, PyLint supports regular expression
-with several named capturing group. 
+inside a single file easier. For this case, Pylint supports regular expression
+with several named capturing group.
 
-Rather than emitting name warnings immediately, PyLint will determine the
+Rather than emitting name warnings immediately, Pylint will determine the
 prevalent naming style inside each module and enforce it on all names.
 
 Consider the following (simplified) example::

@@ -349,7 +349,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                  {'type' : 'int', 'metavar': '<n-processes>',
                   'short': 'j',
                   'default': 1,
-                  'help' : '''Use multiple processes to speed up PyLint.''',
+                  'help' : '''Use multiple processes to speed up Pylint.''',
                   }), # jobs
             )
 

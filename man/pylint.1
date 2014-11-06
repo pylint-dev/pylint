@@ -1,4 +1,4 @@
-.TH pylint 1 "2014-7-25" pylint
+.TH pylint 1 "2014-11-4" pylint
 .SH NAME
 .B pylint
 \- python code static checker
@@ -45,16 +45,20 @@ Python code to execute, usually for sys.path manipulation such as pygtk.require(
 .IP "--errors-only, -E"
 In error mode, checkers without error messages are disabled and for others, only the ERROR messages are displayed, and no reports are done by default
 .IP "--ignore=<file>[,<file>...]"
-Add files or directories to the blacklist. They should be base names, not paths. [current: .hg,test]
+Add files or directories to the blacklist. They should be base names, not paths. [current: CVS]
 .IP "--persistent=<y_or_n>"
 Pickle collected data for later comparisons. [current: yes]
 .IP "--load-plugins=<modules>"
 List of plugins (as comma separated values of python modules names) to load, usually to register additional checkers. [current: none]
+.IP "--jobs=<n-processes>, -j <n-processes>"
+Use multiple processes to speed up Pylint. [current: 1]
 
 .SH COMMANDS
 .IP "--help-msg=<msg-id>"
 Display a help message for the given message id and exit. The value may be a comma separated list of message ids.
 .IP "--list-msgs"
+Generate pylint's messages.
+.IP "--list-conf-levels"
 Generate pylint's messages.
 .IP "--full-documentation"
 Generate pylint's full documentation.
@@ -62,6 +66,8 @@ Generate pylint's full documentation.
 Generate a sample configuration file according to the current configuration. You can put other options before this one to get them in the generated configuration.
 
 .SH MESSAGES CONTROL
+.IP "--confidence=<levels>"
+Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED [current: none]
 .IP "--enable=<msg ids>, -e <msg ids>"
 Enable the message, report, category or checker with the given id(s). You can either give multiple identifier separated by comma (,) or put this option multiple time. See also the "--disable" option for examples.
 .IP "--disable=<msg ids>, -d <msg ids>"
@@ -81,19 +87,35 @@ Add a comment according to your evaluation note. This is used by the global eval
 .IP "--msg-template=<template>"
 Template used to display messages. This is a python new-style format string used to format the message information. See doc for all details
 
-.SH IMPORTS
-.IP "--deprecated-modules=<modules>"
-Deprecated modules which should not be used, separated by a comma [current: regsub,string,TERMIOS,Bastion,rexec]
-.IP "--import-graph=<file.dot>"
-Create a graph of every (i.e. internal and external) dependencies in the given file (report RP0402 must not be disabled) [current: none]
-.IP "--ext-import-graph=<file.dot>"
-Create a graph of external dependencies in the given file (report RP0402 must not be disabled) [current: none]
-.IP "--int-import-graph=<file.dot>"
-Create a graph of internal dependencies in the given file (report RP0402 must not be disabled) [current: none]
+.SH EXCEPTIONS
+.IP "--overgeneral-exceptions=<comma-separated class names>"
+Exceptions that will emit a warning when being caught. Defaults to "Exception" [current: Exception]
+
+.SH CLASSES
+.IP "--ignore-iface-methods=<method names>"
+List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class. [current: isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by]
+.IP "--defining-attr-methods=<method names>"
+List of method names used to declare (i.e. assign) instance attributes. [current: __init__,__new__,setUp]
+.IP "--valid-classmethod-first-arg=<argument names>"
+List of valid names for the first argument in a class method. [current: cls]
+.IP "--valid-metaclass-classmethod-first-arg=<argument names>"
+List of valid names for the first argument in a metaclass class method. [current: mcs]
+.IP "--exclude-protected=<protected access exclusions>"
+List of member names, which should be excluded from the protected access warning. [current: _asdict,_fields,_replace,_source,_make]
 
 .SH LOGGING
 .IP "--logging-modules=<comma separated list>"
 Logging modules to check that the string format arguments are in logging function parameter format [current: logging]
+
+.SH VARIABLES
+.IP "--init-import=<y_or_n>"
+Tells whether we should check for unused import in __init__ files. [current: no]
+.IP "--dummy-variables-rgx=<regexp>"
+A regular expression matching the name of dummy variables (i.e. expectedly not used). [current: _$|dummy]
+.IP "--additional-builtins=<comma separated list>"
+List of additional names supposed to be defined in builtins. Remember that you should avoid to define new builtins when possible. [current: none]
+.IP "--callbacks=<callbacks>"
+List of strings which can identify a callback function by name. A callback name must start or end with one of those strings. [current: cb_,_cb]
 
 .SH DESIGN
 .IP "--max-args=<int>"
@@ -117,27 +139,11 @@ Minimum number of public methods for a class (see R0903). [current: 2]
 .IP "--max-public-methods=<num>"
 Maximum number of public methods for a class (see R0904). [current: 20]
 
-.SH FORMAT
-.IP "--max-line-length=<int>"
-Maximum number of characters on a single line. [current: 80]
-.IP "--ignore-long-lines=<regexp>"
-Regexp for a line that is allowed to be longer than the limit. [current: ^\s*(# )?<?https?://\S+>?$]
-.IP "--single-line-if-stmt=<y_or_n>"
-Allow the body of an if to be on the same line as the test if there is no else. [current: no]
-.IP "--no-space-check=NO_SPACE_CHECK"
-List of optional constructs for which whitespace checking is disabled [current: trailing-comma,dict-separator]
-.IP "--max-module-lines=<int>"
-Maximum number of lines in a module [current: 1000]
-.IP "--indent-string=<string>"
-String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab). [current: '    ']
-.IP "--indent-after-paren=<int>"
-Number of spaces of indent required inside a hanging  or continued line. [current: 4]
-
 .SH BASIC
 .IP "--required-attributes=<attributes>"
 Required attributes for module, separated by a comma [current: none]
 .IP "--bad-functions=<builtin function names>"
-List of builtins function names that should not be used, separated by a comma [current: map,filter,apply,input]
+List of builtins function names that should not be used, separated by a comma [current: map,filter,input]
 .IP "--good-names=<names>"
 Good variable names which should always be accepted, separated by a comma [current: i,j,k,ex,Run,_]
 .IP "--bad-names=<names>"
@@ -191,20 +197,6 @@ Regular expression which should only match function or class names that do not r
 .IP "--docstring-min-length=<int>"
 Minimum line length for functions/classes that require docstrings, shorter ones are exempt. [current: -1]
 
-.SH EXCEPTIONS
-.IP "--overgeneral-exceptions=<comma-separated class names>"
-Exceptions that will emit a warning when being caught. Defaults to "Exception" [current: Exception]
-
-.SH SIMILARITIES
-.IP "--min-similarity-lines=<int>"
-Minimum lines number of a similarity. [current: 4]
-.IP "--ignore-comments=<y or n>"
-Ignore comments when computing similarities. [current: yes]
-.IP "--ignore-docstrings=<y or n>"
-Ignore docstrings when computing similarities. [current: yes]
-.IP "--ignore-imports=<y or n>"
-Ignore imports when computing similarities. [current: no]
-
 .SH MISCELLANEOUS
 .IP "--notes=<comma separated values>"
 List of note tags to take in consideration, separated by a comma. [current: FIXME,XXX,TODO]
@@ -221,23 +213,53 @@ When zope mode is activated, add a predefined set of Zope acquired attributes to
 .IP "--generated-members=<members names>"
 List of members which are set dynamically and missed by pylint inference system, and so shouldn't trigger E0201 when accessed. Python regular expressions are accepted. [current: REQUEST,acl_users,aq_parent]
 
-.SH VARIABLES
-.IP "--init-import=<y_or_n>"
-Tells whether we should check for unused import in __init__ files. [current: no]
-.IP "--dummy-variables-rgx=<regexp>"
-A regular expression matching the name of dummy variables (i.e. expectedly not used). [current: _|dummy]
-.IP "--additional-builtins=<comma separated list>"
-List of additional names supposed to be defined in builtins. Remember that you should avoid to define new builtins when possible. [current: none]
+.SH SPELLING
+.IP "--spelling-dict=<dict name>"
+Spelling dictionary name. Available dictionaries: none. To make it working install python-enchant package. [current: none]
+.IP "--spelling-ignore-words=<comma separated words>"
+List of comma separated words that should not be checked. [current: none]
+.IP "--spelling-private-dict-file=<path to file>"
+A path to a file that contains private dictionary; one word per line. [current: none]
+.IP "--spelling-store-unknown-words=<y_or_n>"
+Tells whether to store unknown words to indicated private dictionary in --spelling-private-dict-file option instead of raising a message. [current: no]
 
-.SH CLASSES
-.IP "--ignore-iface-methods=<method names>"
-List of interface methods to ignore, separated by a comma. This is used for instance to not check methods defines in Zope's Interface base class. [current: isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by]
-.IP "--defining-attr-methods=<method names>"
-List of method names used to declare (i.e. assign) instance attributes. [current: __init__,__new__,setUp]
-.IP "--valid-classmethod-first-arg=<argument names>"
-List of valid names for the first argument in a class method. [current: cls]
-.IP "--valid-metaclass-classmethod-first-arg=<argument names>"
-List of valid names for the first argument in a metaclass class method. [current: mcs]
+.SH FORMAT
+.IP "--max-line-length=<int>"
+Maximum number of characters on a single line. [current: 80]
+.IP "--ignore-long-lines=<regexp>"
+Regexp for a line that is allowed to be longer than the limit. [current: ^\s*(# )?<?https?://\S+>?$]
+.IP "--single-line-if-stmt=<y_or_n>"
+Allow the body of an if to be on the same line as the test if there is no else. [current: no]
+.IP "--no-space-check=NO_SPACE_CHECK"
+List of optional constructs for which whitespace checking is disabled [current: trailing-comma,dict-separator]
+.IP "--max-module-lines=<int>"
+Maximum number of lines in a module [current: 1000]
+.IP "--indent-string=<string>"
+String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab). [current: '    ']
+.IP "--indent-after-paren=<int>"
+Number of spaces of indent required inside a hanging  or continued line. [current: 4]
+.IP "--expected-line-ending-format=<empty or LF or CRLF>"
+Expected format of line ending, e.g. empty (any line ending), LF or CRLF. [current: none]
+
+.SH IMPORTS
+.IP "--deprecated-modules=<modules>"
+Deprecated modules which should not be used, separated by a comma [current: regsub,TERMIOS,Bastion,rexec]
+.IP "--import-graph=<file.dot>"
+Create a graph of every (i.e. internal and external) dependencies in the given file (report RP0402 must not be disabled) [current: none]
+.IP "--ext-import-graph=<file.dot>"
+Create a graph of external dependencies in the given file (report RP0402 must not be disabled) [current: none]
+.IP "--int-import-graph=<file.dot>"
+Create a graph of internal dependencies in the given file (report RP0402 must not be disabled) [current: none]
+
+.SH SIMILARITIES
+.IP "--min-similarity-lines=<int>"
+Minimum lines number of a similarity. [current: 4]
+.IP "--ignore-comments=<y or n>"
+Ignore comments when computing similarities. [current: yes]
+.IP "--ignore-docstrings=<y or n>"
+Ignore docstrings when computing similarities. [current: yes]
+.IP "--ignore-imports=<y or n>"
+Ignore imports when computing similarities. [current: no]
 
 .SH ENVIRONMENT VARIABLES
 

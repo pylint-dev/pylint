@@ -43,7 +43,7 @@ MSGS = {
               {'maxversion': (3, 0)}),
     'W1001': ('Use of "property" on an old style class',
               'property-on-old-class',
-              'Used when PyLint detect the use of the builtin "property" \
+              'Used when Pylint detect the use of the builtin "property" \
               on an old style class while this is relying on new style \
               classes features.',
               {'maxversion': (3, 0)}),

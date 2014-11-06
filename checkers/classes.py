@@ -106,7 +106,7 @@ def _is_attribute_property(name, klass):
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
               'method-check-failed',
-              'Used when PyLint has been unable to check methods signature \
+              'Used when Pylint has been unable to check methods signature \
               compatibility for an unexpected reason. Please report this kind \
               if you don\'t make sense of it.'),
 
@@ -193,7 +193,7 @@ MSGS = {
              ),
     'F0220': ('failed to resolve interfaces implemented by %s (%s)', # W0224
               'unresolved-interface',
-              'Used when a PyLint as failed to find interfaces implemented by \
+              'Used when a Pylint as failed to find interfaces implemented by \
                a class'),
 
 
