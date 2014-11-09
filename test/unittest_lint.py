@@ -13,7 +13,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from contextlib import contextmanager
-import cStringIO
 import sys
 import os
 import tempfile
@@ -21,6 +20,8 @@ from shutil import rmtree
 from os import getcwd, chdir
 from os.path import join, basename, dirname, isdir, abspath, sep
 import unittest
+
+import six
 
 from logilab.common.compat import reload
 
@@ -468,7 +469,7 @@ class PyLinterTC(unittest.TestCase):
             self.linter.reporter.messages)
 
     def test_html_reporter_missing_files(self):
-        output = cStringIO.StringIO()
+        output = six.StringIO()
         self.linter.set_reporter(html.HTMLReporter(output))
         self.linter.set_option('output-format', 'html')
         self.linter.check('troppoptop.py')
@@ -661,7 +662,7 @@ class MessagesStoreTC(unittest.TestCase):
             msg, checkerref=False)
 
     def test_list_messages(self):
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         try:
             self.store.list_messages()
             output = sys.stdout.getvalue()

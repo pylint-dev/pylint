@@ -20,6 +20,8 @@ unittest for the extensions.diadefslib modules
 import unittest
 import sys
 
+import six
+
 import astroid
 from astroid import MANAGER
 from astroid.inspector import Linker
@@ -38,7 +40,7 @@ def _process_classes(classes):
 def _process_relations(relations):
     """extract relation indices from a relation list"""
     result = []
-    for rel_type, rels in relations.iteritems():
+    for rel_type, rels in six.iteritems(relations):
         for rel in rels:
             result.append( (rel_type, rel.from_object.title,
                             rel.to_object.title) )

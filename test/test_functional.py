@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 import csv
 import collections
-import ConfigParser
 import io
 import operator
 import os
@@ -10,6 +9,9 @@ import re
 import sys
 import platform
 import unittest
+
+import six
+from six.moves import configparser
 
 from pylint import checkers
 from pylint import interfaces
@@ -113,7 +115,7 @@ class TestFile(object):
         self._parse_options()
 
     def _parse_options(self):
-        cp = ConfigParser.ConfigParser()
+        cp = configparser.ConfigParser()
         cp.add_section('testoptions')
         try:
             cp.read(self.option_file)
@@ -204,7 +206,7 @@ def multiset_difference(left_op, right_op):
     missing = left_op.copy()
     missing.subtract(right_op)
     unexpected = {}
-    for key, value in missing.items():
+    for key, value in list(six.iteritems(missing)):
         if value <= 0:
             missing.pop(key)
             if value < 0:
