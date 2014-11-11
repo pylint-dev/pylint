@@ -453,12 +453,9 @@ class StringMethodsChecker(BaseChecker):
                 # use attribute / item access
                 continue
             if argument.parent and isinstance(argument.parent, astroid.Arguments):
-                # Check to see if our argument is kwarg or vararg,
-                # and skip the check for this argument if so, because when inferring,
-                # astroid will return empty objects (dicts and tuples) and
-                # that can lead to false positives.
-                if argname.name in (argument.parent.kwarg, argument.parent.vararg):
-                    continue
+                # Ignore any object coming from an argument,
+                # because we can't infer its value properly.
+                continue
             previous = argument
             parsed = []
             for is_attribute, specifier in specifiers:

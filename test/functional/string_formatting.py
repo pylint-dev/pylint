@@ -152,3 +152,22 @@ def issue351():
     fmt('arg1') # [too-few-format-args]
     fmt('arg1', 'arg2')
     fmt('arg1', 'arg2', 'arg3') # [too-many-format-args]
+
+def issue373():
+    """
+    Ignore any object coming from an argument.
+    """
+    class SomeClass(object):
+        """ empty docstring. """
+        def __init__(self, opts=None):
+            self.opts = opts
+
+        def dunc(self, arg):
+            """Don't try to analyze this."""
+            return "A{0}{1}".format(arg, self.opts)
+
+        def func(self):
+            """Don't try to analyze the following string."""
+            return 'AAA{0[iface]}BBB{0[port]}'.format(self.opts)
+
+    return SomeClass

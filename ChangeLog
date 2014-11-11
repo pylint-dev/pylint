@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Don't try to analyze string formatting with objects coming from
+      function arguments. Closes issue #373.
+
     * Port source code to be Python 2/3 compatible. This drops the
       need for 2to3, but does drop support for Python 2.5.
 
