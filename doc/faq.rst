@@ -1,5 +1,7 @@
 .. -*- coding: utf-8 -*-
 
+.. _faq:
+
 ==========================
 Frequently Asked Questions
 ==========================
@@ -169,7 +171,6 @@ No, starting from 0.25.3, you can use symbolic names for messages::
 
     # pylint: disable=fixme, line-too-long
 
-You can show these symbols in the output with the `-sy` option.
 
 4.5 I have a callback function where I have no control over received arguments. How do I avoid getting unused argument warnings?
 ----------------------------------------------------------------------------------------------------------------------------------

@@ -8,7 +8,8 @@ You can find some simple examples in the examples
 directory of the distribution (custom.py and custom_raw.py). I'll try to
 quickly explain the essentials here.
 
-First, there are two kinds of checkers :
+First, there are two kinds of checkers:
+
 * raw checkers, which are analysing each module as a raw file stream
 * ast checkers, which are working on an ast representation of the module
 
@@ -25,8 +26,8 @@ Checkers are ordered by priority. For each module, Pylint's engine:
 
 1. give the module source file as a stream to raw checkers
 2. get an ast representation for the module
-3. make a depth first descent of the tree, calling visit_<> on each AST
-   checker when entering a node, and living_<> on the back traversal
+3. make a depth first descent of the tree, calling ``visit_<>`` on each AST
+   checker when entering a node, and ``leave_<>`` on the back traversal
 
 Notice that the source code is probably the best source of
 documentation, it should be clear and well documented. Don't hesitate to

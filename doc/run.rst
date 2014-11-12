@@ -31,9 +31,9 @@ directory is automatically added on top of the python path ::
 will work if "directory" is a python package (i.e. has an __init__.py
 file) or if "directory" is in the python path.
 
-For more details on this see the Frequently Asked Questions.
+For more details on this see the :ref:`faq`.
 
-You can also start a thin gui around Pylint (require TkInter) by
+You can also start a thin gui around Pylint (require tkinter) by
 typing ::
 
   pylint-gui
@@ -43,7 +43,7 @@ or module to check, at Pylint messages will be displayed in the user
 interface.
 
 It is also possible to call Pylint from an other python program,
-thanks to ``py_run()`` function in ``lint`` module,
+thanks to ``py_run()`` function in ``epylint`` module,
 assuming Pylint options are stored in ``pylint_options`` string, as:
 
 .. sourcecode:: python
@@ -57,7 +57,7 @@ and get its standard output and error:
 .. sourcecode:: python
 
   from pylint import epylint as lint
-  (pylint_stdout, pylint_stderr) = lint.py_run('module_name.py', True)
+  (pylint_stdout, pylint_stderr) = lint.py_run('module_name.py', return_std=True)
 
 
 Command line options
@@ -134,20 +134,23 @@ Other useful global options include:
 Parallel execution
 ------------------
 
-It is possible to speed up the execution of Pylint. If the running computer has more CPUs than one
-then the files to be checked could be spread on all processors to Pylint sub-processes.
-This functionality is exposed via ``-j`` command line parameter. It takes a number of sub-processes
-that should be spawned. If provided number is 0 then the number of CPUs will be taken.
-Default number is 1.
+It is possible to speed up the execution of Pylint. If the running computer
+has more CPUs than one, then the files to be checked could be spread on all
+processors to Pylint sub-processes.
+This functionality is exposed via ``-j`` command line parameter.
+It takes a number of sub-processes that should be spawned.
+If the provided number is 0 then the number of CPUs will be used.
+The default number of workers is 1.
 
 Example::
 
   pylint -j 4 mymodule1.py mymodule2.py mymodule3.py mymodule4.py
 
-This will spawn 4 parallel Pylint sub-process. Each provided module will be checked in parallel.
-Discovered problems by checkers are not displayed immediatelly. They are shown just after completing
-checking a module.
+This will spawn 4 parallel Pylint sub-process, where each provided module will
+be checked in parallel. Discovered problems by checkers are not displayed
+immediately. They are shown just after completing checking a module.
 
-There are some limitations in running checks in parallel in current implementation.
-It is not possible to use custom plugins (i.e. ``--load-plugins`` option).
-It is also not possible to use initialization hook (i.e. ``--init-hook`` option).
+There are some limitations in running checks in parallel in current
+implementation. It is not possible to use custom plugins
+(i.e. ``--load-plugins`` option), nor it is not possible to use
+initialization hooks (i.e. ``--init-hook`` option).
