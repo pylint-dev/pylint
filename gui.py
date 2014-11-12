@@ -19,13 +19,19 @@ from __future__ import print_function
 import os
 import sys
 import re
-import Queue
 from threading import Thread
-from Tkinter import (Tk, Frame, Listbox, Entry, Label, Button, Scrollbar,
-                     Checkbutton, Radiobutton, IntVar, StringVar)
-from Tkinter import (TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH, SUNKEN, W,
-                     HORIZONTAL, DISABLED, NORMAL, W)
-from tkFileDialog import askopenfilename, askdirectory
+
+import six
+
+from six.moves.tkinter import (
+    Tk, Frame, Listbox, Entry, Label, Button, Scrollbar,
+    Checkbutton, Radiobutton, IntVar, StringVar,
+    TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH, SUNKEN, W,
+    HORIZONTAL, DISABLED, NORMAL, W,
+)
+from six.moves.tkinter_tkfiledialog import (
+    askopenfilename, askdirectory,
+)
 
 import pylint.lint
 from pylint.reporters.guireporter import GUIReporter
@@ -119,7 +125,7 @@ class LintGui(object):
         #reporter
         self.reporter = None
         #message queue for output from reporter
-        self.msg_queue = Queue.Queue()
+        self.msg_queue = six.moves.queue.Queue()
         self.msgs = []
         self.visible_msgs = []
         self.filenames = []
@@ -376,7 +382,7 @@ class LintGui(object):
                     fg_color = COLORS.get(msg_str[:3], 'black')
                     self.lb_messages.itemconfigure(END, fg=fg_color)
 
-            except Queue.Empty:
+            except six.moves.queue.Empty:
                 pass
         return True
 
