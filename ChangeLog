@@ -163,6 +163,9 @@ ChangeLog for Pylint
     * Warn when assigning to __metaclass__ at a class scope; in Python 3 a
       metaclass is specified as an argument to the 'class' statement.
 
+    * Warn when performing parameter tuple unpacking; it is not supported in
+      Python 3.
+
 
 2014-07-26  --  1.3.0
 

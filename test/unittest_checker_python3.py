@@ -244,6 +244,13 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    @python2_only
+    def test_parameter_unpacking(self):
+        node = test_utils.extract_node('def func((a, b)):#@\n pass')
+        arg = node.args.args[0]
+        with self.assertAddsMessages(testutils.Message('parameter-unpacking', node=arg)):
+            self.walk(node)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -44,6 +44,11 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when a print statement is used '
                   '(`print` is a function in Python 3)',
                   {'maxversion': (3, 0)}),
+        'E1602': ('Parameter unpacking specified',
+                  'parameter-unpacking',
+                  'Used when parameter unpacking is specified for a function'
+                  "(Python 3 doesn't allow it)",
+                  {'maxversion': (3, 0)}),
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
@@ -197,6 +202,12 @@ class Python3Checker(checkers.BaseChecker):
             if node.name.startswith('__'):
                 method_name = node.name[2:-2]
             self.add_message(method_name + '-method', node=node)
+
+    @utils.check_messages('parameter-unpacking')
+    def visit_arguments(self, node):
+        for arg in node.args:
+            if isinstance(arg, astroid.Tuple):
+                self.add_message('parameter-unpacking', node=arg)
 
     def visit_name(self, node):
         """Detect when a built-in that is missing in Python 3 is referenced."""
