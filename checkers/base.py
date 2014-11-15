@@ -290,8 +290,7 @@ class BasicErrorChecker(_BasicChecker):
         'E0110': ('Abstract class with abstract methods instantiated',
                   'abstract-class-instantiated',
                   'Used when an abstract class with `abc.ABCMeta` as metaclass '
-                  'has abstract methods and is instantiated.',
-                  {'minversion': (3, 0)}),
+                  'has abstract methods and is instantiated.'),
         'W0120': ('Else clause on loop without a break statement',
                   'useless-else-on-loop',
                   'Loops should only have an else clause if they can exit early '
