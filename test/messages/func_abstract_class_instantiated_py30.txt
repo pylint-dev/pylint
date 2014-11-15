@@ -1,2 +1,0 @@
-E: 42:main: Abstract class with abstract methods instantiated
-E: 43:main: Abstract class with abstract methods instantiated

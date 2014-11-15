@@ -1,3 +1,0 @@
-E: 53:main: Abstract class with abstract methods instantiated
-E: 54:main: Abstract class with abstract methods instantiated
-E: 55:main: Abstract class with abstract methods instantiated

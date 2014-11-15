@@ -1,5 +1,0 @@
-E: 64:main: Abstract class with abstract methods instantiated
-E: 65:main: Abstract class with abstract methods instantiated
-E: 66:main: Abstract class with abstract methods instantiated
-E: 67:main: Abstract class with abstract methods instantiated
-W: 54:FourthBadClass: Method 'test' is abstract in class 'ThirdBadClass' but is not overridden

@@ -5,6 +5,7 @@ abstract methods.
 
 # pylint: disable=too-few-public-methods, missing-docstring, abstract-class-not-used
 # pylint: disable=no-absolute-import, metaclass-assignment, abstract-class-little-used
+# pylint: disable=abstract-method
 
 __revision__ = 0
 
@@ -61,7 +62,7 @@ def main():
     SecondGoodClass()
     ThirdGoodClass()
     FourthGoodClass()
-    BadClass()
-    SecondBadClass()
-    ThirdBadClass()
-    FourthBadClass()
+    BadClass() # [abstract-class-instantiated]
+    SecondBadClass() # [abstract-class-instantiated]
+    ThirdBadClass() # [abstract-class-instantiated]
+    FourthBadClass() # [abstract-class-instantiated]
