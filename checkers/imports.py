@@ -237,7 +237,8 @@ given file (report RP0402 must not be disabled)'}
         """called before visiting project (i.e set of modules)"""
         # don't try to compute cycles if the associated message is disabled
         if self.linter.is_message_enabled('cyclic-import'):
-            for cycle in get_cycles(self.import_graph):
+            vertices = list(self.import_graph)
+            for cycle in get_cycles(self.import_graph, vertices=vertices):
                 self.add_message('cyclic-import', args=' -> '.join(cycle))
 
     def visit_import(self, node):
