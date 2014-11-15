@@ -1,1 +1,1 @@
-W:  6: Use of the <> operator
+E:  6: Use of the <> operator

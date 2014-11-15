@@ -105,11 +105,6 @@ MSGS = {
               {'old_names': [('C0323', 'no-space-after-operator'),
                              ('C0324', 'no-space-after-comma'),
                              ('C0322', 'no-space-before-operator')]}),
-    'W0331': ('Use of the <> operator',
-              'old-ne-operator',
-              'Used when the deprecated "<>" operator is used instead '
-              'of "!=".',
-              {'maxversion': (3, 0)}),
     'W0332': ('Use of "l" as long integer identifier',
               'lowercase-l-suffix',
               'Used when a lower case "l" is used to mark a long integer. You '
@@ -403,7 +398,6 @@ class FormatChecker(BaseTokenChecker):
     * unauthorized constructions
     * strict indentation
     * line length
-    * use of <> instead of !=
     """
 
     __implements__ = (ITokenChecker, IAstroidChecker, IRawChecker)
@@ -673,10 +667,6 @@ class FormatChecker(BaseTokenChecker):
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left
 
-    def _handle_old_ne_operator(self, tokens, i):
-        if tokens[i][1] == '<>':
-            self.add_message('old-ne-operator', line=tokens[i][2][0])
-
     def _prepare_token_dispatcher(self):
         raw = [
             (_KEYWORD_TOKENS,
@@ -696,7 +686,6 @@ class FormatChecker(BaseTokenChecker):
 
             (['lambda'], self._open_lambda),
 
-            (['<>'], self._handle_old_ne_operator),
             ]
 
         dispatch = {}
