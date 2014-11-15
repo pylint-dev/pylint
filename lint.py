@@ -650,24 +650,18 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         else:
             self._parallel_check(files_or_modules)
 
-    def _parallel_check(self, files_or_modules):
-        """Spawn a defined number of subprocesses."""
-
-        manager = multiprocessing.Manager()  # pylint: disable=no-member
-        tasks_queue = manager.Queue()  # pylint: disable=no-member
-        results_queue = manager.Queue()  # pylint: disable=no-member
-
+    def _parallel_task(self, files_or_modules):
         # Prepare configuration for child linters.
         config = {}
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
                 config[optname] = format_option_value(optdict, val)
 
-        # Reset stats.
-        self.open()
-
-        # Spawn child linters.
         childs = []
+        manager = multiprocessing.Manager()  # pylint: disable=no-member
+        tasks_queue = manager.Queue()  # pylint: disable=no-member
+        results_queue = manager.Queue()  # pylint: disable=no-member
+
         for _ in range(self.config.jobs):
             cl = ChildLinter(args=(tasks_queue, results_queue, config))
             cl.start()  # pylint: disable=no-member
@@ -679,23 +673,41 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
         # collect results from child linters
         failed = False
-        all_stats = []
-        for i in range(len(files_or_modules)):
+        for _ in files_or_modules:
             try:
-                (
-                    file_or_module,
-                    self.file_state.base_name,
-                    module,
-                    messages,
-                    stats,
-                    msg_status
-                ) = results_queue.get()
+                result = results_queue.get()
             except Exception as ex:
                 print("internal error while receiving results from child linter",
                       file=sys.stderr)
                 print(ex, file=sys.stderr)
                 failed = True
                 break
+            yield result
+
+        # Stop child linters and wait for their completion.
+        for _ in range(self.config.jobs):
+            tasks_queue.put('STOP')
+        for cl in childs:
+            cl.join()
+
+        if failed:
+            print("Error occured, stopping the linter.", file=sys.stderr)
+            sys.exit(32)
+
+    def _parallel_check(self, files_or_modules):
+        # Reset stats.
+        self.open()
+
+        all_stats = []
+        for result in self._parallel_task(files_or_modules):
+            (
+                file_or_module,
+                self.file_state.base_name,
+                module,
+                messages,
+                stats,
+                msg_status
+            ) = result
 
             if file_or_module == files_or_modules[-1]:
                 last_module = module
@@ -707,16 +719,6 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
             all_stats.append(stats)
             self.msg_status |= msg_status
-
-        # Stop child linters and wait for their completion.
-        for i in range(self.config.jobs):
-            tasks_queue.put('STOP')
-        for cl in childs:
-            cl.join()
-
-        if failed:
-            print("Error occured, stopping the linter.", file=sys.stderr)
-            sys.exit(32)
 
         all_stats.append(self.stats)
         all_stats = _merge_stats(all_stats)
