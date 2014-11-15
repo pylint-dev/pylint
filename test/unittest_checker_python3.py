@@ -28,6 +28,8 @@ def python2_only(test):
     return unittest.skipIf(sys.version_info[0] > 2, 'Python 2 only')(test)
 
 
+# TODO(cpopa): Port these to the functional test framework instead.
+
 class Python3CheckerTest(testutils.CheckerTestCase):
 
     CHECKER_CLASS = checker.Python3Checker
