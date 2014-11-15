@@ -37,6 +37,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 from operator import attrgetter
 from warnings import warn
+from itertools import chain
 try:
     import multiprocessing
 except ImportError:
@@ -720,9 +721,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             all_stats.append(stats)
             self.msg_status |= msg_status
 
-        all_stats.append(self.stats)
-        all_stats = _merge_stats(all_stats)
-        self.stats = all_stats
+        self.stats =  _merge_stats(chain(all_stats, [self.stats]))
         self.current_name = last_module
 
         # Insert stats data to local checkers.
