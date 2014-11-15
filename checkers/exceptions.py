@@ -117,12 +117,6 @@ MSGS = {
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),
-    'W0712': ('Implicit unpacking of exceptions is not supported in Python 3',
-              'unpacking-in-except',
-              'Python3 will not allow implicit unpacking of exceptions in except '
-              'clauses. '
-              'See http://www.python.org/dev/peps/pep-3110/',
-              {'maxversion': (3, 0)}),
     }
 
 
@@ -220,12 +214,6 @@ class ExceptionsChecker(BaseChecker):
         else:
             value_found = False
         return value_found
-
-    @check_messages('unpacking-in-except')
-    def visit_excepthandler(self, node):
-        """Visit an except handler block and check for exception unpacking."""
-        if isinstance(node.name, (astroid.Tuple, astroid.List)):
-            self.add_message('unpacking-in-except', node=node)
 
     @check_messages('bare-except', 'broad-except', 'pointless-except',
                     'binary-op-exception', 'bad-except-order',

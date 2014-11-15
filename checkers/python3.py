@@ -49,6 +49,14 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when parameter unpacking is specified for a function'
                   "(Python 3 doesn't allow it)",
                   {'maxversion': (3, 0)}),
+        'E1603': ('Implicit unpacking of exceptions is not supported '
+                  'in Python 3',
+                  'unpacking-in-except',
+                  'Python3 will not allow implicit unpacking of '
+                  'exceptions in except clauses. '
+                  'See http://www.python.org/dev/peps/pep-3110/',
+                  {'maxversion': (3, 0),
+                   'old_names': [('W0712', 'unpacking-in-except')]}),
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
@@ -285,6 +293,12 @@ class Python3Checker(checkers.BaseChecker):
                     self.add_message('indexing-exception', node=node)
         except astroid.InferenceError:
             return
+
+    @utils.check_messages('unpacking-in-except')
+    def visit_excepthandler(self, node):
+        """Visit an except handler block and check for exception unpacking."""
+        if isinstance(node.name, (astroid.Tuple, astroid.List)):
+            self.add_message('unpacking-in-except', node=node)
 
 
 def register(linter):
