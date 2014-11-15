@@ -18,6 +18,7 @@ import tokenize
 
 import astroid
 from pylint import checkers, interfaces
+from pylint.utils import WarningScope
 from pylint.checkers import utils
 
 def _check_dict_node(node):
@@ -67,6 +68,13 @@ class Python3Checker(checkers.BaseChecker):
                   "instead of 'raise foo(bar)'.",
                   {'maxversion': (3, 0),
                    'old_names': [('W0121', 'old-raise-syntax')]}),
+        'E1606': ('Use of the `` operator',
+                  'backtick',
+                  'Used when the deprecated "``" (backtick) operator is used '
+                  'instead  of the str() function.',
+                  {'scope': WarningScope.NODE,
+                   'maxversion': (3, 0),
+                   'old_names': [('W0333', 'backtick')]}),
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
@@ -315,6 +323,10 @@ class Python3Checker(checkers.BaseChecker):
         """Visit an except handler block and check for exception unpacking."""
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message('unpacking-in-except', node=node)
+
+    @utils.check_messages('backtick')
+    def visit_backquote(self, node):
+        self.add_message('backtick', node=node)
 
     @utils.check_messages('raising-string', 'old-raise-syntax')
     def visit_raise(self, node):

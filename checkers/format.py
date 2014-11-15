@@ -116,11 +116,6 @@ MSGS = {
               'should use a upper case "L" since the letter "l" looks too much '
               'like the digit "1"',
               {'maxversion': (3, 0)}),
-    'W0333': ('Use of the `` operator',
-              'backtick',
-              'Used when the deprecated "``" (backtick) operator is used '
-              'instead  of the str() function.',
-              {'scope': WarningScope.NODE, 'maxversion': (3, 0)}),
     'C0327': ('Mixed line endings LF and CRLF',
               'mixed-line-endings',
               'Used when there are mixed (LF and CRLF) newline signs in a file.'),
@@ -918,10 +913,6 @@ class FormatChecker(BaseTokenChecker):
             return
         self.add_message('multiple-statements', node=node)
         self._visited_lines[line] = 2
-
-    @check_messages('backtick')
-    def visit_backquote(self, node):
-        self.add_message('backtick', node=node)
 
     def check_lines(self, lines, i):
         """check lines have less than a maximum number of characters
