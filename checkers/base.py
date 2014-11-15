@@ -183,11 +183,12 @@ def decorated_with_abc(func):
                 return True
 
 def has_abstract_methods(node):
-    """ Determine if the given `node` has
+    """
+    Determine if the given `node` has
     abstract methods, defined with `abc` module.
     """
     return any(decorated_with_abc(meth)
-               for meth in node.mymethods())
+               for meth in node.methods())
 
 def report_by_type_stats(sect, stats, old_stats):
     """make a report of
@@ -387,17 +388,16 @@ class BasicErrorChecker(_BasicChecker):
             return
         # __init__ was called
         metaclass = infered.metaclass()
+        abstract_methods = has_abstract_methods(infered)
         if metaclass is None:
             # Python 3.4 has `abc.ABC`, which won't be detected
             # by ClassNode.metaclass()
             for ancestor in infered.ancestors():
-                if (ancestor.qname() == 'abc.ABC' and
-                        has_abstract_methods(infered)):
+                if ancestor.qname() == 'abc.ABC' and abstract_methods:
                     self.add_message('abstract-class-instantiated', node=node)
                     break
             return
-        if (metaclass.qname() == 'abc.ABCMeta' and
-                has_abstract_methods(infered)):
+        if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
             self.add_message('abstract-class-instantiated', node=node)
 
     def _check_else_on_loop(self, node):
