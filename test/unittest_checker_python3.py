@@ -27,7 +27,6 @@ def python2_only(test):
     """Decorator for any tests that will fail under Python 3."""
     return unittest.skipIf(sys.version_info[0] > 2, 'Python 2 only')(test)
 
-
 # TODO(cpopa): Port these to the functional test framework instead.
 
 class Python3CheckerTest(testutils.CheckerTestCase):
@@ -254,5 +253,19 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.walk(node)
 
 
+class Python3TokenCheckerTest(testutils.CheckerTestCase):
+
+    CHECKER_CLASS = checker.Python3TokenChecker
+
+    @python2_only
+    def test_long_suffix(self):
+        for code in ("1l", "1L"):
+            tokens = testutils.tokenize_str(code)
+            with self.assertAddsMessages(
+                    testutils.Message('long-suffix', line=1)):
+                self.checker.process_tokens(tokens)
+
+
 if __name__ == '__main__':
     unittest.main()
+    

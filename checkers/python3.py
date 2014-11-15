@@ -14,6 +14,8 @@
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 from __future__ import absolute_import
 
+import tokenize
+
 import astroid
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -345,5 +347,25 @@ class Python3Checker(checkers.BaseChecker):
                 return True
 
 
+class Python3TokenChecker(checkers.BaseTokenChecker):
+    __implements__ = interfaces.ITokenChecker
+    name = 'python3'
+    msgs = {
+        'E1605': ('Use of long suffix',
+                  'long-suffix',
+                  'Used when "l" or "L" is used to mark a long integer. '
+                  'This will not work in Python 3, since `int` and `long` '
+                  'types have merged.',
+                  {'maxversion': (3, 0)}),
+    }
+
+    def process_tokens(self, tokens):
+        for (tok_type, token, start, _, _) in tokens:
+            if tok_type == tokenize.NUMBER and token.lower().endswith('l'):
+                # This has a different semantic than lowercase-l-suffix.
+                self.add_message('long-suffix', line=start[0])
+
+
 def register(linter):
     linter.register_checker(Python3Checker(linter))
+    linter.register_checker(Python3TokenChecker(linter))
