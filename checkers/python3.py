@@ -180,6 +180,12 @@ class Python3Checker(checkers.BaseChecker):
                   '`exception.args[index]` instead.',
                   {'maxversion': (3, 0),
                    'old_names': [('W0713', 'indexing-exception')]}),
+        'W1625': ('Raising a string exception',
+                  'raising-string',
+                  'Used when a string exception is raised. This will not '
+                  'work on Python 3.',
+                  {'maxversion': (3, 0),
+                   'old_names': [('W0701', 'raising-string')]}),
     }
 
     _missing_builtins = frozenset([
@@ -299,6 +305,29 @@ class Python3Checker(checkers.BaseChecker):
         """Visit an except handler block and check for exception unpacking."""
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message('unpacking-in-except', node=node)
+
+    @utils.check_messages('raising-string')
+    def visit_raise(self, node):
+        """Visit a raise statement and check for raising strings."""
+        # Ignore empty raise.
+        if node.exc is None:
+            return
+        expr = node.exc
+        if self._check_raise_value(node, expr):
+            return
+        else:
+            try:
+                value = next(astroid.unpack_infer(expr))
+            except astroid.InferenceError:
+                return
+            self._check_raise_value(node, value)
+
+    def _check_raise_value(self, node, expr):
+        if isinstance(expr, astroid.Const):
+            value = expr.value
+            if isinstance(value, str):
+                self.add_message('raising-string', node=node)
+                return True
 
 
 def register(linter):

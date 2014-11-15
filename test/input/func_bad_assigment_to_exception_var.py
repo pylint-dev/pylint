@@ -12,7 +12,7 @@ try:
 except Exception, ex:
     print ex
     _, _, tb = sys.exc_info()
-    raise e2
+
 
 
 def func():

@@ -91,10 +91,6 @@ MSGS = {
               'catching-non-exception',
               'Used when a class which doesn\'t inherit from \
                BaseException is used as an exception in an except clause.'),
-
-    'W0701': ('Raising a string exception',
-              'raising-string',
-              'Used when a string exception is raised.'),
     'W0702': ('No exception type(s) specified',
               'bare-except',
               'Used when an except clause doesn\'t specify exceptions type to \
@@ -140,7 +136,7 @@ class ExceptionsChecker(BaseChecker):
                ),
               )
 
-    @check_messages('raising-string', 'nonstandard-exception',
+    @check_messages('nonstandard-exception',
                     'raising-bad-type', 'raising-non-exception',
                     'notimplemented-raised', 'bad-exception-context')
     def visit_raise(self, node):
@@ -181,7 +177,8 @@ class ExceptionsChecker(BaseChecker):
         if isinstance(expr, astroid.Const):
             value = expr.value
             if isinstance(value, str):
-                self.add_message('raising-string', node=node)
+                # raising-string will be emitted from python3 porting checker.
+                pass
             else:
                 self.add_message('raising-bad-type', node=node,
                                  args=value.__class__.__name__)
@@ -195,8 +192,6 @@ class ExceptionsChecker(BaseChecker):
                   isinstance(expr.func, astroid.Name) and
                   expr.func.name == 'NotImplemented')):
             self.add_message('notimplemented-raised', node=node)
-        elif isinstance(expr, astroid.BinOp) and expr.op == '%':
-            self.add_message('raising-string', node=node)
         elif isinstance(expr, (Instance, astroid.Class)):
             if isinstance(expr, Instance):
                 expr = expr._proxied
