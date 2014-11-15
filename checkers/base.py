@@ -477,8 +477,9 @@ functions, methods
                   'times.'),
         'W0122': ('Use of exec',
                   'exec-used',
-                  'Used when you use the "exec" statement (function for Python 3), to discourage its '
-                  'usage. That doesn\'t mean you can not use it !'),
+                  'Used when you use the "exec" statement (function for Python '
+                  '3), to discourage its usage. That doesn\'t '
+                  'mean you can not use it !'),
         'W0123': ('Use of eval',
                   'eval-used',
                   'Used when you use the "eval" function, to discourage its '
