@@ -166,6 +166,12 @@ class Python3Checker(checkers.BaseChecker):
                   "Used when a metaclass is specified by assigning to __metaclass__ "
                   '(Python 3 specifies the metaclass as a class statement argument)',
                   {'maxversion': (3, 0)}),
+        'W1624': ('Indexing exceptions will not work on Python 3',
+                  'indexing-exception',
+                  'Indexing exceptions will not work on Python 3. Use '
+                  '`exception.args[index]` instead.',
+                  {'maxversion': (3, 0),
+                   'old_names': [('W0713', 'indexing-exception')]}),
     }
 
     _missing_builtins = frozenset([
@@ -264,6 +270,18 @@ class Python3Checker(checkers.BaseChecker):
                     self.add_message('dict-iter-method', node=node)
                 elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
                     self.add_message('dict-view-method', node=node)
+
+    @utils.check_messages('indexing-exception')
+    def visit_subscript(self, node):
+        """ Look for indexing exceptions. """
+        try:
+            for infered in node.value.infer():
+                if not isinstance(infered, astroid.Instance):
+                    continue
+                if utils.inherit_from_std_ex(infered):
+                    self.add_message('indexing-exception', node=node)
+        except astroid.InferenceError:
+            return
 
 
 def register(linter):
