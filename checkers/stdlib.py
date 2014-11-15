@@ -32,9 +32,9 @@ if sys.version_info >= (3, 0):
 else:
     OPEN_MODULE = '__builtin__'
 
-class OpenModeChecker(BaseChecker):
+class StdlibChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
-    name = 'open_mode'
+    name = 'stdlib'
 
     msgs = {
         'W1501': ('"%s" is not a valid mode for open.',
@@ -104,5 +104,5 @@ class OpenModeChecker(BaseChecker):
 
 def register(linter):
     """required method to auto register this checker """
-    linter.register_checker(OpenModeChecker(linter))
+    linter.register_checker(StdlibChecker(linter))
 
