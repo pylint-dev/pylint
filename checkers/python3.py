@@ -68,7 +68,7 @@ class Python3Checker(checkers.BaseChecker):
                   "instead of 'raise foo(bar)'.",
                   {'maxversion': (3, 0),
                    'old_names': [('W0121', 'old-raise-syntax')]}),
-        'E1606': ('Use of the `` operator',
+        'E1605': ('Use of the `` operator',
                   'backtick',
                   'Used when the deprecated "``" (backtick) operator is used '
                   'instead  of the str() function.',
@@ -363,7 +363,7 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
     __implements__ = interfaces.ITokenChecker
     name = 'python3'
     msgs = {
-        'E1605': ('Use of long suffix',
+        'E1606': ('Use of long suffix',
                   'long-suffix',
                   'Used when "l" or "L" is used to mark a long integer. '
                   'This will not work in Python 3, since `int` and `long` '
