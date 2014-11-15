@@ -257,6 +257,9 @@ class Python3Checker(checkers.BaseChecker):
             else:
                 self.add_message('old-division', node=node)
 
+    @utils.check_messages('next-method-called',
+                          'dict-iter-method',
+                          'dict-view-method')
     def visit_callfunc(self, node):
         if not isinstance(node.func, astroid.Getattr):
             return
