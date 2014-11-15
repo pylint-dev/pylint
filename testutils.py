@@ -22,6 +22,7 @@ import functools
 import sys
 import re
 import unittest
+import tokenize
 
 from glob import glob
 from os import linesep, getcwd, sep
@@ -368,3 +369,6 @@ def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
             if test:
                 tests.append(test)
     return tests
+
+def tokenize_str(code):
+    return list(tokenize.generate_tokens(StringIO(code).readline))

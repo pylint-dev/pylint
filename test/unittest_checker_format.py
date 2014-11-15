@@ -16,22 +16,17 @@
 Check format checker helper functions
 """
 from __future__ import unicode_literals
-import io
 from os import linesep
 import re
 import sys
-import tokenize
-
 
 from astroid import test_utils
 
 from pylint.checkers.format import *
 
-from pylint.testutils import CheckerTestCase, Message, set_config
-
-
-def tokenize_str(code):
-    return list(tokenize.generate_tokens(io.StringIO(code).readline))
+from pylint.testutils import (
+      CheckerTestCase, Message, set_config, tokenize_str,
+)
 
 
 class MultiStatementLineTest(CheckerTestCase):
