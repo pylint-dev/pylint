@@ -57,6 +57,14 @@ class Python3Checker(checkers.BaseChecker):
                   'See http://www.python.org/dev/peps/pep-3110/',
                   {'maxversion': (3, 0),
                    'old_names': [('W0712', 'unpacking-in-except')]}),
+        'E1604': ('Use raise ErrorClass(args) instead of '
+                  'raise ErrorClass, args.',
+                  'old-raise-syntax',
+                  "Used when the alternate raise syntax "
+                  "'raise foo, bar' is used "
+                  "instead of 'raise foo(bar)'.",
+                  {'maxversion': (3, 0),
+                   'old_names': [('W0121', 'old-raise-syntax')]}),
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
@@ -306,9 +314,16 @@ class Python3Checker(checkers.BaseChecker):
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
             self.add_message('unpacking-in-except', node=node)
 
-    @utils.check_messages('raising-string')
+    @utils.check_messages('raising-string', 'old-raise-syntax')
     def visit_raise(self, node):
-        """Visit a raise statement and check for raising strings."""
+        """Visit a raise statement and check for raising
+        strings or old-raise-syntax.
+        """
+        if (node.exc is not None and
+                node.inst is not None and
+                node.tback is None):
+            self.add_message('old-raise-syntax', node=node)
+
         # Ignore empty raise.
         if node.exc is None:
             return

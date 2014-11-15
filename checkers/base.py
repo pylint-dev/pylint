@@ -508,12 +508,6 @@ functions, methods
                   'A call of assert on a tuple will always evaluate to true if '
                   'the tuple is not empty, and will always evaluate to false if '
                   'it is.'),
-        'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
-                  'old-raise-syntax',
-                  "Used when the alternate raise syntax 'raise foo, bar' is used "
-                  "instead of 'raise foo(bar)'.",
-                  {'maxversion': (3, 0)}),
-
         'C0121': ('Missing required attribute "%s"', # W0103
                   'missing-module-attribute',
                   'Used when an attribute required for modules is missing.'),
@@ -727,16 +721,12 @@ functions, methods
         # 2 - Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'break', (astroid.For, astroid.While,))
 
-    @check_messages('unreachable', 'old-raise-syntax')
+    @check_messages('unreachable')
     def visit_raise(self, node):
         """check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
-        if sys.version_info >= (3, 0):
-            return
-        if node.exc is not None and node.inst is not None and node.tback is None:
-            self.add_message('old-raise-syntax', node=node)
 
     @check_messages('exec-used')
     def visit_exec(self, node):
