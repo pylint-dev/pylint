@@ -37,12 +37,12 @@ from collections import defaultdict
 from contextlib import contextmanager
 from operator import attrgetter
 from warnings import warn
-
 try:
     import multiprocessing
 except ImportError:
     multiprocessing = None
 
+import six
 from logilab.common.configuration import (
     UnsupportedAction, OptionsManagerMixIn, format_option_value)
 from logilab.common.optik_ext import check_csv
@@ -50,7 +50,6 @@ from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip, unquote
 from logilab.common.ureports import Table, Text, Section
 from logilab.common.__pkginfo__ import version as common_version
-
 from astroid import MANAGER, AstroidBuildingException
 from astroid.__pkginfo__ import version as astroid_version
 from astroid.modutils import load_module_from_name, get_module_part
@@ -66,9 +65,7 @@ from pylint.checkers import (BaseTokenChecker,
                              initialize as checkers_initialize)
 from pylint.reporters import initialize as reporters_initialize, CollectingReporter
 from pylint import config
-
 from pylint.__pkginfo__ import version
-import six
 
 
 
@@ -83,6 +80,20 @@ def _get_python_path(filepath):
         dirname = os.path.dirname(dirname)
         if old_dirname == dirname:
             return os.getcwd()
+
+
+def _merge_stats(stats):
+    merged = {}
+    for stat in stats:
+        for key, item in six.iteritems(stat):
+            if key not in merged:
+                merged[key] = item
+            else:
+                if isinstance(item, dict):
+                    merged[key].update(item)
+                else:
+                    merged[key] = merged[key] + item
+    return merged
 
 
 # Python Linter class #########################################################
@@ -709,7 +720,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             sys.exit(32)
 
         all_stats.append(self.stats)
-        all_stats = self._merge_stats(all_stats)
+        all_stats = _merge_stats(all_stats)
         self.stats = all_stats
         self.current_name = last_module
 
@@ -717,19 +728,6 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         for checker in self.get_checkers():
             if checker is not self:
                 checker.stats = self.stats
-
-    def _merge_stats(self, stats):
-        merged = {}
-        for stat in stats:
-            for key, item in six.iteritems(stat):
-                if key not in merged:
-                    merged[key] = item
-                else:
-                    if isinstance(item, dict):
-                        merged[key].update(item)
-                    else:
-                        merged[key] = merged[key] + item
-        return merged
 
     def _do_check(self, files_or_modules):
         walker = PyLintASTWalker(self)
@@ -968,12 +966,6 @@ def report_messages_by_module_stats(sect, stats, _):
 
 
 # utilities ###################################################################
-
-# this may help to import modules using gettext
-# XXX syt, actually needed since we don't import code?
-
-from logilab.common.compat import builtins
-builtins._ = str
 
 
 class ArgumentPreprocessingError(Exception):
