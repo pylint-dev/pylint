@@ -131,9 +131,6 @@ class RunTC(unittest.TestCase):
         self._runtest([join(HERE, 'regrtest_data/no_stdout_encoding.py')],
                       out=strio)
 
-    @unittest.skipIf(sys.platform.startswith("win") and sys.version_info[0] == 2,
-                     "This test does not work on Python 2.X due to a bug in "
-                     "multiprocessing.")
     def test_parallel_execution(self):
         self._runtest(['-j 2', 'pylint/test/functional/arguments.py',
                        'pylint/test/functional/bad_continuation.py'], code=1)

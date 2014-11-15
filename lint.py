@@ -649,7 +649,19 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         if self.config.jobs == 1:
             self._do_check(files_or_modules)
         else:
-            self._parallel_check(files_or_modules)
+            # Hack that permits running pylint, on Windows, with -m switch
+            # and with --jobs, as in 'py -2 -m pylint .. --jobs'.
+            # For more details why this is needed,
+            # see Python issue http://bugs.python.org/issue10845.
+
+            mock_main = six.PY2 and __name__ != '__main__' # -m switch
+            if mock_main:
+                sys.modules['__main__'] = sys.modules[__name__]
+            try:
+                self._parallel_check(files_or_modules)
+            finally:
+                if mock_main:
+                   sys.modules.pop('__main__')
 
     def _parallel_task(self, files_or_modules):
         # Prepare configuration for child linters.
