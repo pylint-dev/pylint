@@ -245,7 +245,6 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     priority = 0
     level = 0
     msgs = MSGS
-    may_be_disabled = False
 
     @staticmethod
     def make_options():
