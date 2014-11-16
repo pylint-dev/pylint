@@ -376,21 +376,33 @@ def tokenize_str(code):
     return list(tokenize.generate_tokens(StringIO(code).readline))
 
 @contextlib.contextmanager
-def create_file_backed_module(code):
+def create_tempfile(content=None):
+    """Create a new temporary file.
+
+    If *content* parameter is given, then it will be written
+    in the temporary file, before passing it back.
+    This is a context manager and should be used with a *with* statement.
+    """
     # Can't use tempfile.NamedTemporaryFile here
     # because on Windows the file must be closed before writing to it,
     # see http://bugs.python.org/issue14243
     fd, tmp = tempfile.mkstemp()
-    if sys.version_info >= (3, 0):
-        # erff
-        os.write(fd, bytes(code, 'ascii'))
-    else:
-        os.write(fd, code)
-
+    if content:
+        if sys.version_info >= (3, 0):
+            # erff
+            os.write(fd, bytes(content, 'ascii'))
+        else:
+            os.write(fd, content)
     try:
-        module = test_utils.build_module(code)
-        module.file = tmp
-        yield module
+        yield tmp
     finally:
         os.close(fd)
         os.remove(tmp)
+
+@contextlib.contextmanager
+def create_file_backed_module(code):
+    """Create an astroid module for the given code, backed by a real file."""
+    with create_tempfile() as temp:
+        module = test_utils.build_module(code)
+        module.file = temp
+        yield module
