@@ -19,16 +19,18 @@ from __future__ import print_function
 import collections
 import contextlib
 import functools
+import os
 import sys
 import re
 import unittest
+import tempfile
 import tokenize
 
 from glob import glob
 from os import linesep, getcwd, sep
 from os.path import abspath, basename, dirname, isdir, join, splitext
 
-
+from astroid import test_utils
 
 from pylint import checkers
 from pylint.utils import PyLintASTWalker
@@ -372,3 +374,23 @@ def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
 
 def tokenize_str(code):
     return list(tokenize.generate_tokens(StringIO(code).readline))
+
+@contextlib.contextmanager
+def create_file_backed_module(code):
+    # Can't use tempfile.NamedTemporaryFile here
+    # because on Windows the file must be closed before writing to it,
+    # see http://bugs.python.org/issue14243
+    fd, tmp = tempfile.mkstemp()
+    if sys.version_info >= (3, 0):
+        # erff
+        os.write(fd, bytes(code, 'ascii'))
+    else:
+        os.write(fd, code)
+
+    try:
+        module = test_utils.build_module(code)
+        module.file = tmp
+        yield module
+    finally:
+        os.close(fd)
+        os.remove(tmp)
