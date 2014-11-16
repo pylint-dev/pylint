@@ -515,6 +515,11 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             self.msgs_store.register_messages(checker)
         checker.load_defaults()
 
+        # Register the checker, but disable all of its messages.
+        # TODO(cpopa): we should have a better API for this.
+        if not getattr(checker, 'enabled', True):
+            self.disable(checker.name)
+
     def disable_noerror_messages(self):
         for msgcat, msgids in six.iteritems(self.msgs_store._msgs_by_category):
             if msgcat == 'E':

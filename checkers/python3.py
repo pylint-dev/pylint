@@ -36,7 +36,7 @@ def _check_dict_node(node):
 class Python3Checker(checkers.BaseChecker):
 
     __implements__ = interfaces.IAstroidChecker
-
+    enabled = False
     name = 'python3'
 
     msgs = {
@@ -362,6 +362,8 @@ class Python3Checker(checkers.BaseChecker):
 class Python3TokenChecker(checkers.BaseTokenChecker):
     __implements__ = interfaces.ITokenChecker
     name = 'python3'
+    enabled = False
+
     msgs = {
         'E1606': ('Use of long suffix',
                   'long-suffix',

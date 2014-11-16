@@ -478,6 +478,14 @@ class PyLinterTC(unittest.TestCase):
         self.assertIn('troppoptop.py', value)
         self.assertIn('fatal', value)
 
+    def test_python3_checker_disabled(self):
+        checker_names = [c.name for c in self.linter.prepare_checkers()]
+        self.assertNotIn('python3', checker_names)
+
+        self.linter.set_option('enable', 'python3')
+        checker_names = [c.name for c in self.linter.prepare_checkers()]
+        self.assertIn('python3', checker_names)
+
 
 class ConfigTC(unittest.TestCase):
 

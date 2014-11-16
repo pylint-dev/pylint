@@ -84,6 +84,8 @@ class BaseChecker(OptionsProviderMixIn):
     msgs = {}
     # reports issued by this checker
     reports = ()
+    # mark this checker as enabled or not.
+    enabled = True
 
     def __init__(self, linter=None):
         """checker instances should have the linter as argument
