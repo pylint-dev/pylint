@@ -237,6 +237,14 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when a __cmp__ method is defined '
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1631': ('map is used as implicitly evaluated call',
+                  'implicit-map-evaluation',
+                  'Used when the map builtin is used as implicitly '
+                  'evaluated call, as in "map(func, args)" on a single line. '
+                  'This behaviour will not work in Python 3, where '
+                  'map is a generator and must be evaluated. '
+                  'Prefer a for-loop as alternative.',
+                  {'maxversion': (3, 0)}),
     }
 
     _missing_builtins = frozenset([
@@ -284,6 +292,14 @@ class Python3Checker(checkers.BaseChecker):
         for arg in node.args:
             if isinstance(arg, astroid.Tuple):
                 self.add_message('parameter-unpacking', node=arg)
+
+    @utils.check_messages('implicit-map-evaluation')
+    def visit_discard(self, node):
+        if (isinstance(node.value, astroid.CallFunc) and
+                node.value.func.name == 'map'):
+            module = node.value.func.lookup('map')[0]
+            if getattr(module, 'name', None) == '__builtin__':
+                self.add_message('implicit-map-evaluation', node=node)
 
     def visit_name(self, node):
         """Detect when a built-in that is missing in Python 3 is referenced."""

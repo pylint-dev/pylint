@@ -182,6 +182,9 @@ ChangeLog for Pylint
 
     * Add 'old-octal-literal' to Python 3 porting checker, emitted when
       encountering octals with the old syntax.
+
+    * Add 'implicit-map-evaluation' to Python 3 porting checker, emitted
+      when encountering the use of map builtin, without explicit evaluation.
       
 
 
