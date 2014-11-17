@@ -23,7 +23,7 @@ from pylint.utils import WarningScope
 from pylint.checkers import utils
 
 
-_OLD_OCTAL = re.compile("\d{2}")
+_OLD_OCTAL = re.compile("0\d{1}")
 
 def _is_old_octal(literal):
     return _OLD_OCTAL.match(literal)
