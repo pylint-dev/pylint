@@ -31,7 +31,6 @@ def python2_only(test):
 # TODO(cpopa): Port these to the functional test framework instead.
 
 class Python3CheckerTest(testutils.CheckerTestCase):
-
     CHECKER_CLASS = checker.Python3Checker
 
     def check_bad_builtin(self, builtin_name):
@@ -41,56 +40,25 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_name(node)
 
     @python2_only
-    def test_apply_builtin(self):
-        self.check_bad_builtin('apply')
+    def test_bad_builtins(self):
+        builtins = [
+            'apply',
+            'buffer',
+            'cmp',
+            'coerce',
+            'execfile',
+            'file',
+            'long',
+            'raw_input',
+            'reduce',
+            'StandardError',
+            'unicode',
+            'xrange',
+            'reload',
+        ]
+        for builtin in builtins:
+            self.check_bad_builtin(builtin)
 
-    @python2_only
-    def test_buffer_builtin(self):
-        self.check_bad_builtin('buffer')
-
-    @python2_only
-    def test_cmp_builtin(self):
-        self.check_bad_builtin('cmp')
-
-    @python2_only
-    def test_coerce_builtin(self):
-        self.check_bad_builtin('coerce')
-
-    @python2_only
-    def test_execfile_builtin(self):
-        self.check_bad_builtin('execfile')
-
-    @python2_only
-    def test_file_builtin(self):
-        self.check_bad_builtin('file')
-
-    @python2_only
-    def test_long_builtin(self):
-        self.check_bad_builtin('long')
-
-    @python2_only
-    def test_raw_input_builtin(self):
-        self.check_bad_builtin('raw_input')
-
-    @python2_only
-    def test_reduce_builtin(self):
-        self.check_bad_builtin('reduce')
-
-    @python2_only
-    def test_StandardError_builtin(self):
-        self.check_bad_builtin('StandardError')
-
-    @python2_only
-    def test_unicode_builtin(self):
-        self.check_bad_builtin('unicode')
-
-    @python2_only
-    def test_xrange_builtin(self):
-        self.check_bad_builtin('xrange')
-
-    @python2_only
-    def test_reload_builtin(self):
-        self.check_bad_builtin('reload')
 
     def test_delslice_method(self):
         node = test_utils.extract_node("""
