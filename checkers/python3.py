@@ -26,7 +26,7 @@ from pylint.checkers import utils
 _OLD_OCTAL = re.compile("0\d{1}")
 
 def _is_old_octal(literal):
-    return _OLD_OCTAL.match(literal)
+    return _OLD_OCTAL.match(literal) and set(literal) != set(['0'])
 
 def _check_dict_node(node):
     inferred = node.infer()
