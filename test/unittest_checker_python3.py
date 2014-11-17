@@ -80,6 +80,18 @@ class Python3CheckerTest(testutils.CheckerTestCase):
     def test_coerce_method(self):
         self._test_defined_method('coerce', 'coerce-method')
 
+    def test_oct_method(self):
+        self._test_defined_method('oct', 'oct-method')
+
+    def test_hex_method(self):
+        self._test_defined_method('hex', 'hex-method')
+
+    def test_nonzero_method(self):
+        self._test_defined_method('nonzero', 'nonzero-method')
+
+    def test_cmp_method(self):
+        self._test_defined_method('cmp', 'cmp-method')
+
     @python2_only
     def test_print_statement(self):
         node = test_utils.extract_node('print "Hello, World!" #@')

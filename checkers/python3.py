@@ -217,6 +217,26 @@ class Python3Checker(checkers.BaseChecker):
                   '(missing from Python 3). You can use instead imp.reload '
                   'or importlib.reload.',
                   {'maxversion': (3, 0)}),
+        'W1627': ('__oct__ method defined',
+                  'oct-method',
+                  'Used when a __oct__ method is defined '
+                  '(method is not used by Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1628': ('__hex__ method defined',
+                  'hex-method',
+                  'Used when a __hex__ method is defined '
+                  '(method is not used by Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1629': ('__nonzero__ method defined',
+                  'nonzero-method',
+                  'Used when a __nonzero__ method is defined '
+                  '(method is not used by Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1630': ('__cmp__ method defined',
+                  'cmp-method',
+                  'Used when a __cmp__ method is defined '
+                  '(method is not used by Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _missing_builtins = frozenset([
@@ -241,6 +261,10 @@ class Python3Checker(checkers.BaseChecker):
         '__delslice__',
         '__getslice__',
         '__setslice__',
+        '__oct__',
+        '__hex__',
+        '__nonzero__',
+        '__cmp__',
     ])
 
     def __init__(self, *args, **kwargs):
