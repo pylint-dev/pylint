@@ -296,7 +296,7 @@ class Python3Checker(checkers.BaseChecker):
     @utils.check_messages('implicit-map-evaluation')
     def visit_discard(self, node):
         if (isinstance(node.value, astroid.CallFunc) and
-                isinstance(node.value.func, astroid.Function) and
+                isinstance(node.value.func, astroid.Name) and
                 node.value.func.name == 'map'):
             module = node.value.func.lookup('map')[0]
             if getattr(module, 'name', None) == '__builtin__':
