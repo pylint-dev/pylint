@@ -294,27 +294,24 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
 
     CHECKER_CLASS = checker.Python3TokenChecker
 
+    def _test_token_message(self, code, symbolic_message):
+        tokens = testutils.tokenize_str(code)
+        message = testutils.Message(symbolic_message, line=1)
+        with self.assertAddsMessages(message):
+            self.checker.process_tokens(tokens)
+
     @python2_only
     def test_long_suffix(self):
         for code in ("1l", "1L"):
-            tokens = testutils.tokenize_str(code)
-            with self.assertAddsMessages(
-                    testutils.Message('long-suffix', line=1)):
-                self.checker.process_tokens(tokens)
+            self._test_token_message(code, 'long-suffix')
 
     @python2_only
     def test_old_ne_operator(self):
-        tokens = testutils.tokenize_str("1 <> 2")
-        message = testutils.Message('old-ne-operator', line=1)
-        with self.assertAddsMessages(message):
-            self.checker.process_tokens(tokens)
+        self._test_token_message("1 <> 2", "old-ne-operator")
 
     @python2_only
     def test_old_octal_literal(self):
-        tokens = testutils.tokenize_str("045")
-        message = testutils.Message('old-octal-literal', line=1)
-        with self.assertAddsMessages(message):
-            self.checker.process_tokens(tokens)
+        self._test_token_message("045", "old-octal-literal")
 
 
 if __name__ == '__main__':
