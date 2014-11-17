@@ -126,7 +126,7 @@ ChangeLog for Pylint
 
     * Check that various built-ins that do not exist in Python 3 are not
       used: apply, basestring, buffer, cmp, coerce, execfile, file, long
-      raw_input, reduce, StandardError, unicode, and xrange.
+      raw_input, reduce, StandardError, unicode, reload and xrange.
 
     * Warn for magic methods which are not used in any way in Python 3:
       __coerce__, __delslice__, __getslice__, and __setslice__.

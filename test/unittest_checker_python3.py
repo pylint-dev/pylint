@@ -88,6 +88,10 @@ class Python3CheckerTest(testutils.CheckerTestCase):
     def test_xrange_builtin(self):
         self.check_bad_builtin('xrange')
 
+    @python2_only
+    def test_reload_builtin(self):
+        self.check_bad_builtin('reload')
+
     def test_delslice_method(self):
         node = test_utils.extract_node("""
             class Foo(object):

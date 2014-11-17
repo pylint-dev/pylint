@@ -204,6 +204,12 @@ class Python3Checker(checkers.BaseChecker):
                   'work on Python 3.',
                   {'maxversion': (3, 0),
                    'old_names': [('W0701', 'raising-string')]}),
+        'W1626': ('reload built-in referenced',
+                  'reload-builtin',
+                  'Used when the reload built-in function is referenced '
+                  '(missing from Python 3). You can use instead imp.reload '
+                  'or importlib.reload.',
+                  {'maxversion': (3, 0)}),
     }
 
     _missing_builtins = frozenset([
@@ -220,6 +226,7 @@ class Python3Checker(checkers.BaseChecker):
         'StandardError',
         'unicode',
         'xrange',
+        'reload',
     ])
 
     _unused_magic_methods = frozenset([
