@@ -290,6 +290,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.walk(node)
 
 
+@python2_only
 class Python3TokenCheckerTest(testutils.CheckerTestCase):
 
     CHECKER_CLASS = checker.Python3TokenChecker
@@ -300,16 +301,13 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.process_tokens(tokens)
 
-    @python2_only
     def test_long_suffix(self):
         for code in ("1l", "1L"):
             self._test_token_message(code, 'long-suffix')
 
-    @python2_only
     def test_old_ne_operator(self):
         self._test_token_message("1 <> 2", "old-ne-operator")
 
-    @python2_only
     def test_old_octal_literal(self):
         self._test_token_message("045", "old-octal-literal")
 
