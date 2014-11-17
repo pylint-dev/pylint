@@ -29,9 +29,9 @@ def _is_old_octal(literal):
     return _OLD_OCTAL.match(literal) and set(literal) != set(['0'])
 
 def _check_dict_node(node):
-    inferred = node.infer()
     inferred_types = set()
     try:
+        inferred = node.infer()
         for inferred_node in inferred:
             inferred_types.add(inferred_node)
     except (astroid.InferenceError, astroid.UnresolvableName):
