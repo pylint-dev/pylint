@@ -59,42 +59,26 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         for builtin in builtins:
             self.check_bad_builtin(builtin)
 
+    def _test_defined_method(self, method, warning):
+        node = test_utils.extract_node("""
+            class Foo(object):
+                def __{0}__(self, other):  #@
+                    pass""".format(method))
+        message = testutils.Message(warning, node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_function(node)
 
     def test_delslice_method(self):
-        node = test_utils.extract_node("""
-            class Foo(object):
-                def __delslice__(self, i, j):  #@
-                    pass""")
-        message = testutils.Message('delslice-method', node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_function(node)
+        self._test_defined_method('delslice', 'delslice-method')
 
     def test_getslice_method(self):
-        node = test_utils.extract_node("""
-            class Foo(object):
-                def __getslice__(self, i, j):  #@
-                    pass""")
-        message = testutils.Message('getslice-method', node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_function(node)
+        self._test_defined_method('getslice', 'getslice-method')
 
     def test_setslice_method(self):
-        node = test_utils.extract_node("""
-            class Foo(object):
-                def __setslice__(self, i, j, value):  #@
-                    pass""")
-        message = testutils.Message('setslice-method', node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_function(node)
+        self._test_defined_method('setslice', 'setslice-method')
 
     def test_coerce_method(self):
-        node = test_utils.extract_node("""
-            class Foo(object):
-                def __coerce__(self, other):  #@
-                    pass""")
-        message = testutils.Message('coerce-method', node=node)
-        with self.assertAddsMessages(message):
-            self.checker.visit_function(node)
+        self._test_defined_method('coerce', 'coerce-method')
 
     @python2_only
     def test_print_statement(self):
