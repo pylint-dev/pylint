@@ -69,6 +69,22 @@ from pylint import config
 from pylint.__pkginfo__ import version
 
 
+def _get_new_args(message):
+    location = (
+        message.abspath,
+        message.path,
+        message.module,
+        message.obj,
+        message.line,
+        message.column,
+    )
+    return (
+        message.msg_id,
+        message.symbol,
+        location,
+        message.msg,
+        message.confidence,
+    )
 
 def _get_python_path(filepath):
     dirname = os.path.realpath(os.path.expanduser(filepath))
@@ -220,7 +236,7 @@ if multiprocessing is not None:
             # Run the checks.
             linter.check(file_or_module)
 
-            msgs = [m.get_init_args() for m in linter.reporter.messages]
+            msgs = [_get_new_args(m) for m in linter.reporter.messages]
             return (file_or_module, linter.file_state.base_name, linter.current_name,
                      msgs, linter.stats, linter.msg_status)
 
