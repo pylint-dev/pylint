@@ -175,10 +175,9 @@ ChangeLog for Pylint
     * Add support for disabling a checker, by specifying an 'enabled'
       attribute on the checker class.
       
-    * Add a new CLI option, '--py3k', for enabling the Python 3 porting
-      mode. This mode will emit warnings and errors for constructs
-      invalid or removed in Python 3, helping the users of Pylint
-      to port their projects.
+    * Add a new CLI option, --py3k, for enabling Python 3 porting mode. This
+      mode will disable all other checkers and will emit warnings and
+      errors for constructs which are invalid or removed in Python 3.
 
     * Add 'old-octal-literal' to Python 3 porting checker, emitted when
       encountering octals with the old syntax.
