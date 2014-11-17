@@ -309,6 +309,13 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.process_tokens(tokens)
 
+    @python2_only
+    def test_old_octal_literal(self):
+        tokens = testutils.tokenize_str("045")
+        message = testutils.Message('old-octal-literal', line=1)
+        with self.assertAddsMessages(message):
+            self.checker.process_tokens(tokens)
+
 
 if __name__ == '__main__':
     unittest.main()

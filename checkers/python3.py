@@ -14,12 +14,19 @@
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 from __future__ import absolute_import
 
+import re
 import tokenize
 
 import astroid
 from pylint import checkers, interfaces
 from pylint.utils import WarningScope
 from pylint.checkers import utils
+
+
+_OLD_OCTAL = re.compile("\d{2}")
+
+def _is_old_octal(literal):
+    return _OLD_OCTAL.match(literal)
 
 def _check_dict_node(node):
     inferred = node.infer()
@@ -384,13 +391,22 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                   'of "!=". This is removed in Python 3.',
                   {'maxversion': (3, 0),
                    'old_names': [('W0331', 'old-ne-operator')]}),
+        'E1608': ('Use of old octal literal',
+                  'old-octal-literal',
+                  'Usen when encountering the old octal syntax, '
+                  'removed in Python 3. To use the new syntax, '
+                  'prepend 0o on the number.',
+                  {'maxversion': (3, 0)}),
     }
 
     def process_tokens(self, tokens):
         for idx, (tok_type, token, start, _, _) in enumerate(tokens):
-            if tok_type == tokenize.NUMBER and token.lower().endswith('l'):
-                # This has a different semantic than lowercase-l-suffix.
-                self.add_message('long-suffix', line=start[0])
+            if tok_type == tokenize.NUMBER:
+                if token.lower().endswith('l'):
+                    # This has a different semantic than lowercase-l-suffix.
+                    self.add_message('long-suffix', line=start[0])
+                elif _is_old_octal(token):
+                    self.add_message('old-octal-literal', line=start[0])
             if tokens[idx][1] == '<>':
                 self.add_message('old-ne-operator', line=tokens[idx][2][0])
 

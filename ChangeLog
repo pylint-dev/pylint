@@ -179,6 +179,9 @@ ChangeLog for Pylint
       mode. This mode will emit warnings and errors for constructs
       invalid or removed in Python 3, helping the users of Pylint
       to port their projects.
+
+    * Add 'old-octal-literal' to Python 3 porting checker, emitted when
+      encountering octals with the old syntax.
       
 
 
