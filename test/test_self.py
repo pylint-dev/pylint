@@ -135,5 +135,14 @@ class RunTC(unittest.TestCase):
         self._runtest(['-j 2', 'pylint/test/functional/arguments.py',
                        'pylint/test/functional/bad_continuation.py'], code=1)
 
+    def test_py3k_option(self):
+        # Test that --py3k flag works.
+        rc_code = 2 if six.PY2 else 0
+        self._runtest([join(HERE, 'functional', 'unpacked_exceptions.py'),
+                       '--py3k'],
+                      code=rc_code)
+
+
+
 if __name__ == '__main__':
     unittest.main()

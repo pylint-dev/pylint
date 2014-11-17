@@ -16,6 +16,7 @@ from __future__ import absolute_import
 
 import sys
 import unittest
+import textwrap
 
 from astroid import test_utils
 
@@ -129,6 +130,13 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         message = testutils.Message('print-statement', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_print(node)
+
+    @python2_only
+    def test_backtick(self):
+        node = test_utils.extract_node('`test`')
+        message = testutils.Message('backtick', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_backquote(node)
 
     def test_relative_import(self):
         node = test_utils.extract_node('import string  #@')
@@ -250,6 +258,31 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         node = test_utils.extract_node('def func((a, b)):#@\n pass')
         arg = node.args.args[0]
         with self.assertAddsMessages(testutils.Message('parameter-unpacking', node=arg)):
+            self.checker.visit_arguments(node.args)
+
+    @python2_only
+    def test_old_raise_syntax(self):
+        node = test_utils.extract_node('raise Exception, "test"')
+        message = testutils.Message('old-raise-syntax', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_raise(node)
+
+    @python2_only
+    def test_raising_string(self):
+        node = test_utils.extract_node('raise "Test"')
+        message = testutils.Message('raising-string', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_raise(node)
+
+    @python2_only
+    def test_checker_disabled_by_default(self):
+        node = test_utils.build_module(textwrap.dedent("""
+        abc = 1l
+        raise Exception, "test"
+        raise "test"
+        `abc`
+        """))
+        with self.assertNoMessages():
             self.walk(node)
 
 
@@ -264,6 +297,13 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
             with self.assertAddsMessages(
                     testutils.Message('long-suffix', line=1)):
                 self.checker.process_tokens(tokens)
+
+    @python2_only
+    def test_old_ne_operator(self):
+        tokens = testutils.tokenize_str("1 <> 2")
+        message = testutils.Message('old-ne-operator', line=1)
+        with self.assertAddsMessages(message):
+            self.checker.process_tokens(tokens)
 
 
 if __name__ == '__main__':

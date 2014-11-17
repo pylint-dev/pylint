@@ -1131,6 +1131,12 @@ group are mutually exclusive.'),
                        'disabled and for others, only the ERROR messages are '
                        'displayed, and no reports are done by default'''}),
 
+            ('py3k',
+             {'action' : 'callback', 'callback' : self.cb_python3_porting_mode,
+              'help' : 'In Python 3 porting mode, all checkers will be '
+                       'disabled and only messages emitted by the porting '
+                       'checker will be displayed'}),
+
             ('profile',
              {'type' : 'yn', 'metavar' : '<y_or_n>',
               'default': False, 'hide': True,
@@ -1281,6 +1287,12 @@ group are mutually exclusive.'),
         for level in CONFIDENCE_LEVELS:
             print('%-18s: %s' % level)
         sys.exit(0)
+
+    def cb_python3_porting_mode(self, *args, **kwargs):
+        """Activate only the python3 porting checker."""
+        self.linter.disable('all')
+        self.linter.enable('python3')
+
 
 def cb_init_hook(optname, value):
     """exec arbitrary code to set sys.path for instance"""
