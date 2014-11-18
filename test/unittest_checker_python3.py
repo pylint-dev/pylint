@@ -283,10 +283,11 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
         self._test_token_message("1 <> 2", "old-ne-operator")
 
     def test_old_octal_literal(self):
-        self._test_token_message("045", "old-octal-literal")
+        for octal in ("045", "055", "075", "077", "076543"):
+            self._test_token_message(octal, "old-octal-literal")
 
         # Make sure we are catching only octals.
-        for non_octal in ("45", "00"):
+        for non_octal in ("45", "00", "085", "08"):
             tokens = testutils.tokenize_str(non_octal)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)
