@@ -203,7 +203,7 @@ class ExceptionsChecker(BaseChecker):
                 else:
                     self.add_message(
                         'nonstandard-exception', node=node,
-                         confidence=INFERENCE if has_known_bases(expr) else INFERENCE_FAILURE)
+                        confidence=INFERENCE if has_known_bases(expr) else INFERENCE_FAILURE)
             else:
                 value_found = False
         else:
@@ -251,8 +251,8 @@ class ExceptionsChecker(BaseChecker):
                         if (isinstance(exc, astroid.Const) and
                                 exc.value is None):
                             if ((isinstance(handler.type, astroid.Const) and
-                                     handler.type.value is None) or
-                                     handler.type.parent_of(exc)):
+                                 handler.type.value is None) or
+                                    handler.type.parent_of(exc)):
                                 # If the exception handler catches None or
                                 # the exception component, which is None, is
                                 # defined by the entire exception handler, then

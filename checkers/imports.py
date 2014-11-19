@@ -18,6 +18,9 @@
 import sys
 from collections import defaultdict
 
+import six
+from six.moves import map # pylint: disable=redefined-builtin
+
 from logilab.common.graph import get_cycles, DotBackend
 from logilab.common.ureports import VerbatimText, Paragraph
 
@@ -29,8 +32,6 @@ from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_import_error
-import six
-from six.moves import map
 
 def _except_import_error(node):
     """
@@ -245,7 +246,7 @@ given file (report RP0402 must not be disabled)'}
         """triggered when an import statement is seen"""
         modnode = node.root()
         for name, _ in node.names:
-            importedmodnode = self.get_imported_module(modnode, node, name)
+            importedmodnode = self.get_imported_module(node, name)
             if importedmodnode is None:
                 continue
             self._check_relative_import(modnode, node, importedmodnode, name)
@@ -272,7 +273,7 @@ given file (report RP0402 must not be disabled)'}
             if name == '*':
                 self.add_message('wildcard-import', args=basename, node=node)
         modnode = node.root()
-        importedmodnode = self.get_imported_module(modnode, node, basename)
+        importedmodnode = self.get_imported_module(node, basename)
         if importedmodnode is None:
             return
         self._check_relative_import(modnode, node, importedmodnode, basename)
@@ -282,7 +283,7 @@ given file (report RP0402 must not be disabled)'}
                 self._add_imported_module(node, '%s.%s' % (importedmodnode.name, name))
                 self._check_reimport(node, name, basename, node.level)
 
-    def get_imported_module(self, modnode, importnode, modname):
+    def get_imported_module(self, importnode, modname):
         try:
             return importnode.do_import_module(modname)
         except astroid.InferenceError as ex:

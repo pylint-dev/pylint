@@ -18,7 +18,6 @@ from cgi import escape
 
 from logilab.common.ureports import HTMLWriter, Section, Table
 
-from pylint import utils
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
 

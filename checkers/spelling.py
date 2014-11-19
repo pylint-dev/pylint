@@ -135,7 +135,7 @@ class SpellingChecker(BaseTokenChecker):
         words = []
         for word in line2.split():
             # Skip words with digits.
-            if len(re.findall("\d", word)) > 0:
+            if len(re.findall(r"\d", word)) > 0:
                 continue
 
             # Skip words with mixed big and small letters,
@@ -181,7 +181,7 @@ class SpellingChecker(BaseTokenChecker):
                 # TODO: add support for customising this.
                 suggestions = self.spelling_dict.suggest(word)[:4]
 
-                m = re.search("(\W|^)(%s)(\W|$)" % word, line.lower())
+                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line.lower())
                 if m:
                     # Start position of second group in regex.
                     col = m.regs[2][0]

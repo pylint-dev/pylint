@@ -4,7 +4,6 @@ import sys
 
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
-from pylint import utils
 from logilab.common.ureports import TextWriter
 
 

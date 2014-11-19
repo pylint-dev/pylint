@@ -24,9 +24,10 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 import keyword
 import sys
 import tokenize
-from functools import reduce
+from functools import reduce # pylint: disable=redefined-builtin
+
 import six
-from six.moves import zip, map, filter
+from six.moves import zip, map, filter # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
@@ -442,7 +443,7 @@ class FormatChecker(BaseTokenChecker):
                 {'type': 'choice', 'metavar': '<empty or LF or CRLF>', 'default': '',
                  'choices': ['', 'LF', 'CRLF'],
                  'help': 'Expected format of line ending, e.g. empty (any line ending), LF or CRLF.'}),
-               )
+              )
 
     def __init__(self, linter=None):
         BaseTokenChecker.__init__(self, linter)
@@ -622,13 +623,13 @@ class FormatChecker(BaseTokenChecker):
                 return 'No', 'allowed'
 
         def _name_construct(token):
-            if tokens[i][1] == ',':
+            if token[1] == ',':
                 return 'comma'
-            elif tokens[i][1] == ':':
+            elif token[1] == ':':
                 return ':'
-            elif tokens[i][1] in '()[]{}':
+            elif token[1] in '()[]{}':
                 return 'bracket'
-            elif tokens[i][1] in ('<', '>', '<=', '>=', '!=', '=='):
+            elif token[1] in ('<', '>', '<=', '>=', '!=', '=='):
                 return 'comparison'
             else:
                 if self._inside_brackets('('):
@@ -637,7 +638,8 @@ class FormatChecker(BaseTokenChecker):
                     return 'assignment'
 
         good_space = [True, True]
-        pairs = [(tokens[i-1], tokens[i]), (tokens[i], tokens[i+1])]
+        token = tokens[i]
+        pairs = [(tokens[i-1], token), (token, tokens[i+1])]
 
         for other_idx, (policy, token_pair) in enumerate(zip(policies, pairs)):
             if token_pair[other_idx][0] in _EOL or policy == _IGNORE:
@@ -658,11 +660,11 @@ class FormatChecker(BaseTokenChecker):
                 if not ok:
                     warnings.append((policy, position))
         for policy, position in warnings:
-            construct = _name_construct(tokens[i])
+            construct = _name_construct(token)
             count, state = _policy_string(policy)
-            self.add_message('bad-whitespace', line=tokens[i][2][0],
+            self.add_message('bad-whitespace', line=token[2][0],
                              args=(count, state, position, construct,
-                                   _underline_token(tokens[i])))
+                                   _underline_token(token)))
 
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left

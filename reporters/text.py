@@ -133,7 +133,7 @@ class ColorizedTextReporter(TextReporter):
 
         msg = msg._replace(
             **{attr: colorize_ansi(getattr(msg, attr), color, style)
-               for attr in ('msg', 'symbol', 'category', 'C')}) 
+               for attr in ('msg', 'symbol', 'category', 'C')})
         self.write_message(msg)
 
 

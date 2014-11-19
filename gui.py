@@ -104,7 +104,7 @@ class BasicStream(object):
         self.gui.tabs = self.outdict
         try:
             self.gui.rating.set(self.outdict['Global evaluation'][0])
-        except:
+        except KeyError:
             self.gui.rating.set('Error')
         self.gui.refresh_results_window()
 
@@ -328,7 +328,7 @@ class LintGui(object):
         self.txt_module.focus_set()
 
 
-    def select_recent_file(self, event):
+    def select_recent_file(self, event): # pylint: disable=unused-argument
         """adds the selected file in the history listbox to the Module box"""
         if not self.showhistory.size():
             return
@@ -359,7 +359,7 @@ class LintGui(object):
         try:
             for res in self.tabs[self.box.get()]:
                 self.results.insert(END, res)
-        except:
+        except KeyError:
             pass
 
     def process_incoming(self):
@@ -402,7 +402,7 @@ class LintGui(object):
         """quit the application"""
         self.root.quit()
 
-    def halt(self):
+    def halt(self): # pylint: disable=no-self-use
         """program halt placeholder"""
         return
 
@@ -483,7 +483,7 @@ class LintGui(object):
 
         self.root.configure(cursor='')
 
-    def show_sourcefile(self, event=None):
+    def show_sourcefile(self, event=None):  # pylint: disable=unused-argument
         selected = self.lb_messages.curselection()
         if not selected:
             return

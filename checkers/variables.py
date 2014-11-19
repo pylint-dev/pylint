@@ -21,7 +21,7 @@ import re
 from copy import copy
 
 import astroid
-from astroid import are_exclusive, builtin_lookup, AstroidBuildingException
+from astroid import are_exclusive, builtin_lookup
 from astroid import modutils
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
@@ -169,6 +169,23 @@ def _fix_dot_imports(not_consumed):
                 if second_name and second_name not in names:
                     names[second_name] = stmt
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
+
+def _find_frame_imports(name, frame):
+    """
+    Detect imports in the frame, with the required
+    *name*. Such imports can be considered assignments.
+    Returns True if an import for the given name was found.
+    """
+    imports = frame.nodes_of_class((astroid.Import, astroid.From))
+    for import_node in imports:
+        for import_name, import_alias in import_node.names:
+            # If the import uses an alias, check only that.
+            # Otherwise, check only the import name.
+            if import_alias:
+                if import_alias == name:
+                    return True
+            elif import_name and import_name == name:
+                return True
 
 
 MSGS = {
@@ -563,23 +580,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         continue
                 self.add_message('unused-variable', args=name, node=stmt)
 
-    def _find_frame_imports(self, name, frame):
-        """
-        Detect imports in the frame, with the required
-        *name*. Such imports can be considered assignments.
-        Returns True if an import for the given name was found.
-        """
-        imports = frame.nodes_of_class((astroid.Import, astroid.From))
-        for import_node in imports:
-            for import_name, import_alias in import_node.names:
-                # If the import uses an alias, check only that.
-                # Otherwise, check only the import name.
-                if import_alias:
-                    if import_alias == name:
-                        return True
-                elif import_name and import_name == name:
-                    return True
-
     @check_messages('global-variable-undefined', 'global-variable-not-assigned', 'global-statement',
                     'global-at-module-level', 'redefined-builtin')
     def visit_global(self, node):
@@ -605,7 +605,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     # same scope level assignment
                     break
             else:
-                if not self._find_frame_imports(name, frame):
+                if not _find_frame_imports(name, frame):
                     self.add_message('global-variable-not-assigned',
                                      args=name, node=node)
                 default_message = False
@@ -625,7 +625,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if default_message:
             self.add_message('global-statement', node=node)
 
-    def _check_late_binding_closure(self, node, assignment_node, scope_type):
+    def _check_late_binding_closure(self, node, assignment_node):
         def _is_direct_lambda_call():
             return (isinstance(node_scope.parent, astroid.CallFunc)
                     and node_scope.parent.func is node_scope)
@@ -762,7 +762,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # variable used outside the loop
             if name in consumed:
                 defnode = assign_parent(consumed[name][0])
-                self._check_late_binding_closure(node, defnode, scope_type)
+                self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
                 break
             # mark the name as consumed if it's defined in this scope
@@ -774,7 +774,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # checks for use before assignment
             defnode = assign_parent(to_consume[name][0])
             if defnode is not None:
-                self._check_late_binding_closure(node, defnode, scope_type)
+                self._check_late_binding_closure(node, defnode)
                 defstmt = defnode.statement()
                 defframe = defstmt.frame()
                 maybee0601 = True
@@ -801,15 +801,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 annotation_return = False
                 # The class reuses itself in the class scope.
                 recursive_klass = (frame is defframe and
-                                       defframe.parent_of(node) and
-                                       isinstance(defframe, astroid.Class) and
-                                       node.name == defframe.name)
+                                   defframe.parent_of(node) and
+                                   isinstance(defframe, astroid.Class) and
+                                   node.name == defframe.name)
                 if (self._to_consume[-1][-1] == 'lambda' and
                         isinstance(frame, astroid.Class)
                         and name in frame.locals):
                     maybee0601 = True
                 elif (isinstance(defframe, astroid.Class) and
-                          isinstance(frame, astroid.Function)):
+                      isinstance(frame, astroid.Function)):
                     # Special rule for function return annotations,
                     # which uses the same name as the class where
                     # the function lives.
@@ -834,8 +834,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                                               'Exception',
                                                               'BaseException'))):
                     if recursive_klass or (defstmt is stmt and
-                                              isinstance(node, (astroid.DelName,
-                                                                    astroid.AssName))):
+                                           isinstance(node, (astroid.DelName,
+                                                             astroid.AssName))):
                         self.add_message('undefined-variable', args=name, node=node)
                     elif annotation_return:
                         self.add_message('undefined-variable', args=name, node=node)
@@ -893,9 +893,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         level = getattr(node, 'level', None)
         try:
             module = node.root().import_module(name_parts[0], level=level)
-        except AstroidBuildingException:
-            return
-        except Exception:
+        except Exception: # pylint: disable=broad-except
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:

@@ -59,7 +59,7 @@ def table_lines_from_stats(stats, old_stats, columns):
     lines = []
     for m_type in columns:
         new = stats[m_type]
-        format = str
+        format = str # pylint: disable=redefined-builtin
         if isinstance(new, float):
             format = lambda num: '%.3f' % num
         old = old_stats.get(m_type)

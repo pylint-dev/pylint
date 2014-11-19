@@ -53,7 +53,7 @@ def load_results(base):
     try:
         with open(data_file, _PICK_LOAD) as stream:
             return pickle.load(stream)
-    except:
+    except Exception: # pylint: disable=broad-except
         return {}
 
 if sys.version_info < (3, 0):

@@ -101,7 +101,7 @@ class NewStyleConflictChecker(BaseChecker):
                           else INFERENCE_FAILURE)
             name = node.func.name
             if name == 'property':
-                self.add_message('property-on-old-class', node=node, 
+                self.add_message('property-on-old-class', node=node,
                                  confidence=confidence)
 
     @check_messages('super-on-old-class', 'bad-super-call', 'missing-super-argument')
@@ -125,7 +125,7 @@ class NewStyleConflictChecker(BaseChecker):
                 if not klass.newstyle:
                     # super should not be used on an old style class
                     self.add_message('super-on-old-class', node=node,
-                                      confidence=confidence)
+                                     confidence=confidence)
                 else:
                     # super first arg should be the class
                     if not call.args and sys.version_info[0] == 3:

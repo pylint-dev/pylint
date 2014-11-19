@@ -95,7 +95,8 @@ class TestReporter(BaseReporter):
 
     __implements____ = IReporter
 
-    def __init__(self):
+    def __init__(self): # pylint: disable=super-init-not-called
+
         self.message_ids = {}
         self.reset()
         self.path_strip_prefix = getcwd() + sep
@@ -137,6 +138,7 @@ class Message(collections.namedtuple('Message',
 
 class UnittestLinter(object):
     """A fake linter class to capture checker messages."""
+    # pylint: disable=unused-argument, no-self-use
 
     def __init__(self):
         self._messages = []
@@ -148,7 +150,8 @@ class UnittestLinter(object):
         finally:
             self._messages = []
 
-    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None):
+    def add_message(self, msg_id, line=None, node=None, args=None,
+                    confidence=None):
         self._messages.append(Message(msg_id, line, node, args))
 
     def is_message_enabled(self, *unused_args):
@@ -237,7 +240,7 @@ else:
 
 INFO_TEST_RGX = re.compile(r'^func_i\d\d\d\d$')
 
-def exception_str(self, ex):
+def exception_str(self, ex): # pylint: disable=unused-argument
     """function used to replace default __str__ method of exception instances"""
     return 'in %s\n:: %s' % (ex.file, ', '.join(ex.args))
 
@@ -335,6 +338,7 @@ class LintTestUpdate(LintTestUsingModule):
 
 def cb_test_gen(base_class):
     def call(input_dir, msg_dir, module_file, messages_file, dependencies):
+        # pylint: disable=no-init
         class LintTC(base_class):
             module = module_file.replace('.py', '')
             output = messages_file

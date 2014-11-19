@@ -24,8 +24,10 @@ import re
 import sys
 import tokenize
 import warnings
-
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
+
+import six
+from six.moves import zip  # pylint: disable=redefined-builtin
 
 from logilab.common.interface import implements
 from logilab.common.textutils import normalize_text
@@ -37,8 +39,6 @@ from astroid.modutils import modpath_from_file, get_module_files, \
     file_from_modpath, load_module_from_file
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED
-import six
-from six.moves import zip
 
 
 class UnknownMessage(Exception):
@@ -121,11 +121,11 @@ def get_module_and_frameid(node):
     obj.reverse()
     return module, '.'.join(obj)
 
-def category_id(id):
-    id = id.upper()
-    if id in MSG_TYPES:
-        return id
-    return MSG_TYPES_LONG.get(id)
+def category_id(cid):
+    cid = cid.upper()
+    if cid in MSG_TYPES:
+        return cid
+    return MSG_TYPES_LONG.get(cid)
 
 
 def tokenize_module(module):
@@ -557,7 +557,8 @@ class FileState(object):
         except KeyError:
             self._module_msgs_state[msg.msgid] = {line: status}
 
-    def handle_ignored_message(self, state_scope, msgid, line, node, args, confidence):
+    def handle_ignored_message(self, state_scope, msgid, line,
+                               node, args, confidence): # pylint: disable=unused-argument
         """Report an ignored message.
 
         state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,

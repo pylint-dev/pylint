@@ -145,7 +145,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
             self.pkgdiagram = None
         self.classdiagram = ClassDiagram('classes %s' % node.name, mode)
 
-    def leave_project(self, node):
+    def leave_project(self, node): # pylint: disable=unused-argument
         """leave the astroid.Project node
 
         return the generated diagram definition

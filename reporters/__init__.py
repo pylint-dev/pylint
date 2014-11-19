@@ -25,7 +25,7 @@ CMPS = ['=', '-', '+']
 
 # py3k has no more cmp builtin
 if sys.version_info >= (3, 0):
-    def cmp(a, b):
+    def cmp(a, b): # pylint: disable=redefined-builtin
         return (a > b) - (a < b)
 
 def diff_string(old, new):

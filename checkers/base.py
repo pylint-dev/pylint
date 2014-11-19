@@ -19,10 +19,16 @@
 import collections
 import itertools
 import sys
-import astroid
+import re
+
+import six
+from six.moves import zip  # pylint: disable=redefined-builtin
+
 from logilab.common.ureports import Table
-from astroid import are_exclusive, InferenceError
+
+import astroid
 import astroid.bases
+from astroid import are_exclusive, InferenceError
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import EmptyReport
@@ -41,10 +47,6 @@ from pylint.checkers.utils import (
     is_import_error,
     )
 
-
-import re
-import six
-from six.moves import zip
 
 # regex for class/function/variable/constant name
 CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
@@ -126,6 +128,7 @@ def _loop_exits_early(loop):
     for child in loop.body:
         if isinstance(child, loop_nodes):
             # break statement may be in orelse of child loop.
+            # pylint: disable=superfluous-parens
             for orelse in (child.orelse or ()):
                 for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
                     return True
@@ -133,6 +136,13 @@ def _loop_exits_early(loop):
         for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True
     return False
+
+def _is_multi_naming_match(match, node_type, confidence):
+    return (match is not None and
+            match.lastgroup is not None and
+            match.lastgroup not in EXEMPT_NAME_CATEGORIES
+            and (node_type != 'method' or confidence != INFERENCE_FAILURE))
+
 
 if sys.version_info < (3, 0):
     PROPERTY_CLASSES = set(('__builtin__.property', 'abc.abstractproperty'))
@@ -559,7 +569,7 @@ functions, methods
             if attr not in node:
                 self.add_message('missing-module-attribute', node=node, args=attr)
 
-    def visit_class(self, node):
+    def visit_class(self, node): # pylint: disable=unused-argument
         """check module name, docstring and redefinition
         increment branch counter
         """
@@ -789,7 +799,7 @@ functions, methods
         """update try...finally flag"""
         self._tryfinallys.append(node)
 
-    def leave_tryfinally(self, node):
+    def leave_tryfinally(self, node): # pylint: disable=unused-argument
         """update try...finally flag"""
         self._tryfinallys.pop()
 
@@ -958,8 +968,8 @@ class NameChecker(_BasicChecker):
         self._check_name('module', node.name.split('.')[-1], node)
         self._bad_names = {}
 
-    def leave_module(self, node):
-        for category, all_groups in six.iteritems(self._bad_names):
+    def leave_module(self, node): # pylint: disable=unused-argument
+        for all_groups in six.itervalues(self._bad_names):
             if len(all_groups) < 2:
                 continue
             groups = collections.defaultdict(list)
@@ -1044,12 +1054,6 @@ class NameChecker(_BasicChecker):
     def _find_name_group(self, node_type):
         return self._name_group.get(node_type, node_type)
 
-    def _is_multi_naming_match(self, match, node_type, confidence):
-        return (match is not None and
-                match.lastgroup is not None and
-                match.lastgroup not in EXEMPT_NAME_CATEGORIES
-                and (node_type != 'method' or confidence != INFERENCE_FAILURE))
-
     def _raise_name_warning(self, node, node_type, name, confidence):
         type_label = _NAME_TYPES[node_type][1]
         hint = ''
@@ -1074,7 +1078,7 @@ class NameChecker(_BasicChecker):
         regexp = getattr(self.config, node_type + '_rgx')
         match = regexp.match(name)
 
-        if self._is_multi_naming_match(match, node_type, confidence):
+        if _is_multi_naming_match(match, node_type, confidence):
             name_group = self._find_name_group(node_type)
             bad_name_group = self._bad_names.setdefault(name_group, {})
             warnings = bad_name_group.setdefault(match.lastgroup, [])
