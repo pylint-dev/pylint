@@ -465,7 +465,7 @@ class PyLinterTC(unittest.TestCase):
         self.linter.set_reporter(TestReporter())
         self.linter.check(os.path.join(os.path.dirname(__file__), 'data', 'ascript'))
         self.assertEqual(
-            ['C:  2: Line too long (175/80)'],
+            ['C:  2: Line too long (175/100)'],
             self.linter.reporter.messages)
 
     def test_html_reporter_missing_files(self):
