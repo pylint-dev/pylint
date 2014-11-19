@@ -2,6 +2,8 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Change default max-line-length to 100 rather than 80
+
     * Drop BaseRawChecker class which were only there for backward
       compat for a while now
 

@@ -410,7 +410,7 @@ class FormatChecker(BaseTokenChecker):
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
     options = (('max-line-length',
-                {'default' : 80, 'type' : "int", 'metavar' : '<int>',
+                {'default' : 100, 'type' : "int", 'metavar' : '<int>',
                  'help' : 'Maximum number of characters on a single line.'}),
                ('ignore-long-lines',
                 {'type': 'regexp', 'metavar': '<regexp>',
