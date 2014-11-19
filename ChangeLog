@@ -2,6 +2,9 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Drop BaseRawChecker class which were only there for backward
+      compat for a while now
+
     * Don't try to analyze string formatting with objects coming from
       function arguments. Closes issue #373.
 

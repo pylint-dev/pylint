@@ -109,31 +109,6 @@ class BaseChecker(OptionsProviderMixIn):
         """called after visiting project (i.e set of modules)"""
 
 
-class BaseRawChecker(BaseChecker):
-    """base class for raw checkers"""
-
-    def process_module(self, node):
-        """process a module
-
-        the module's content is accessible via the stream object
-
-        stream must implement the readline method
-        """
-        warnings.warn("Modules that need access to the tokens should "
-                      "use the ITokenChecker interface.",
-                      DeprecationWarning)
-        stream = node.file_stream
-        stream.seek(0) # XXX may be removed with astroid > 0.23
-        if sys.version_info <= (3, 0):
-            self.process_tokens(tokenize.generate_tokens(stream.readline))
-        else:
-            self.process_tokens(tokenize.tokenize(stream.readline))
-
-    def process_tokens(self, tokens):
-        """should be overridden by subclasses"""
-        raise NotImplementedError()
-
-
 class BaseTokenChecker(BaseChecker):
     """Base class for checkers that want to have access to the token stream."""
 
