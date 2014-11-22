@@ -23,7 +23,7 @@ from pylint.reporters import BaseReporter
 
 
 class JSONReporter(BaseReporter):
-    """Report messages and layouts in HTML."""
+    """Report messages and layouts in JSON."""
 
     __implements__ = IReporter
     name = 'json'
@@ -42,7 +42,9 @@ class JSONReporter(BaseReporter):
             'obj': message.obj,
             'line': message.line,
             'column': message.column,
-            'message': escape(message.msg),
+            'path': message.path,
+            'symbol ': message.symbol,
+            'message': escape(message.msg or ''),
         })
 
     def _display(self, layout):
