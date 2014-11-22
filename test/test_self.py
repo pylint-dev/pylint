@@ -22,6 +22,7 @@ from pylint.lint import Run
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.html import HTMLReporter
+from pylint.reporters.json import JSONReporter
 
 HERE = abspath(dirname(__file__))
 
@@ -93,7 +94,8 @@ class RunTC(unittest.TestCase):
         reporters = [
             TextReporter(StringIO()),
             HTMLReporter(StringIO()),
-            ColorizedTextReporter(StringIO())
+            ColorizedTextReporter(StringIO()),
+            JSONReporter(StringIO()),
         ]
         self._runtest(['pylint/test/functional/arguments.py'],
                       reporter=MultiReporter(reporters), code=1)
