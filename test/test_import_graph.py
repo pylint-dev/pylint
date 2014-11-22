@@ -1,8 +1,9 @@
 import sys
 import os
 from os.path import exists
-from cStringIO import StringIO
 import unittest
+
+import six
 
 from pylint.checkers import initialize, imports
 from pylint.lint import PyLinter

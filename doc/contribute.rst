@@ -47,7 +47,7 @@ http://lists.logilab.org/pipermail/python-projects/
 Forge
 -----
 
-Pylint is developped using the mercurial_ distributed version control system.
+Pylint is developed using the mercurial_ distributed version control system.
 
 You can clone Pylint and its dependencies from ::
 
@@ -64,7 +64,7 @@ your patch gets accepted.
 
     - Pylint keeps a set of unit tests in the /test directory. The
       `test_func.py` module uses external files to have some kind of easy
-      functionnal testing. To get your patch accepted you must write (or change)
+      functional testing. To get your patch accepted you must write (or change)
       a test input file in the `test/input` directory and message file in the
       `test/messages` directory. Then run `python test_func.py` to ensure that
       your test is green.
@@ -117,7 +117,7 @@ without installing them.  You can run all the unit tests like so::
 The -S flag keeps distutils from interfering with sys.path.  YMMV.
 
 
-Adding new functionnal tests
+Adding new functional tests
 ----------------------------
 
 Pylint comes with an easy way to write functional tests for new checks:

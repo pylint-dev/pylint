@@ -19,15 +19,18 @@ from __future__ import print_function
 import collections
 import contextlib
 import functools
+import os
 import sys
 import re
 import unittest
+import tempfile
+import tokenize
 
 from glob import glob
 from os import linesep, getcwd, sep
 from os.path import abspath, basename, dirname, isdir, join, splitext
 
-
+from astroid import test_utils
 
 from pylint import checkers
 from pylint.utils import PyLintASTWalker
@@ -92,7 +95,8 @@ class TestReporter(BaseReporter):
 
     __implements____ = IReporter
 
-    def __init__(self):
+    def __init__(self): # pylint: disable=super-init-not-called
+
         self.message_ids = {}
         self.reset()
         self.path_strip_prefix = getcwd() + sep
@@ -134,6 +138,7 @@ class Message(collections.namedtuple('Message',
 
 class UnittestLinter(object):
     """A fake linter class to capture checker messages."""
+    # pylint: disable=unused-argument, no-self-use
 
     def __init__(self):
         self._messages = []
@@ -145,7 +150,8 @@ class UnittestLinter(object):
         finally:
             self._messages = []
 
-    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None):
+    def add_message(self, msg_id, line=None, node=None, args=None,
+                    confidence=None):
         self._messages.append(Message(msg_id, line, node, args))
 
     def is_message_enabled(self, *unused_args):
@@ -234,7 +240,7 @@ else:
 
 INFO_TEST_RGX = re.compile(r'^func_i\d\d\d\d$')
 
-def exception_str(self, ex):
+def exception_str(self, ex): # pylint: disable=unused-argument
     """function used to replace default __str__ method of exception instances"""
     return 'in %s\n:: %s' % (ex.file, ', '.join(ex.args))
 
@@ -332,6 +338,7 @@ class LintTestUpdate(LintTestUsingModule):
 
 def cb_test_gen(base_class):
     def call(input_dir, msg_dir, module_file, messages_file, dependencies):
+        # pylint: disable=no-init
         class LintTC(base_class):
             module = module_file.replace('.py', '')
             output = messages_file
@@ -368,3 +375,38 @@ def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
             if test:
                 tests.append(test)
     return tests
+
+def tokenize_str(code):
+    return list(tokenize.generate_tokens(StringIO(code).readline))
+
+@contextlib.contextmanager
+def create_tempfile(content=None):
+    """Create a new temporary file.
+
+    If *content* parameter is given, then it will be written
+    in the temporary file, before passing it back.
+    This is a context manager and should be used with a *with* statement.
+    """
+    # Can't use tempfile.NamedTemporaryFile here
+    # because on Windows the file must be closed before writing to it,
+    # see http://bugs.python.org/issue14243
+    fd, tmp = tempfile.mkstemp()
+    if content:
+        if sys.version_info >= (3, 0):
+            # erff
+            os.write(fd, bytes(content, 'ascii'))
+        else:
+            os.write(fd, content)
+    try:
+        yield tmp
+    finally:
+        os.close(fd)
+        os.remove(tmp)
+
+@contextlib.contextmanager
+def create_file_backed_module(code):
+    """Create an astroid module for the given code, backed by a real file."""
+    with create_tempfile() as temp:
+        module = test_utils.build_module(code)
+        module.file = temp
+        yield module

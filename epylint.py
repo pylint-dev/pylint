@@ -114,18 +114,18 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
     """Run pylint from python
 
     ``command_options`` is a string containing ``pylint`` command line options;
-    ``return_std`` (boolean) indicates return of created standart output
+    ``return_std`` (boolean) indicates return of created standard output
     and error (see below);
-    ``stdout`` and ``stderr`` are 'file-like' objects in which standart output
+    ``stdout`` and ``stderr`` are 'file-like' objects in which standard output
     could be written.
 
     Calling agent is responsible for stdout/err management (creation, close).
-    Default standart output and error are those from sys,
+    Default standard output and error are those from sys,
     or standalone ones (``subprocess.PIPE``) are used
     if they are not set and ``return_std``.
 
     If ``return_std`` is set to ``True``, this function returns a 2-uple
-    containing standart output and error related to created process,
+    containing standard output and error related to created process,
     as follows: ``(stdout, stderr)``.
 
     A trivial usage could be as follows:
@@ -134,14 +134,14 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
         pylint 0.18.1,
             ...
 
-    To silently run Pylint on a module, and get its standart output and error:
+    To silently run Pylint on a module, and get its standard output and error:
         >>> (pylint_stdout, pylint_stderr) = py_run( 'module_name.py', True)
     """
     # Create command line to call pylint
     if os.name == 'nt':
         script += '.bat'
     command_line = script + ' ' + command_options
-    # Providing standart output and/or error if not set
+    # Providing standard output and/or error if not set
     if stdout is None:
         if return_std:
             stdout = PIPE
@@ -156,7 +156,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
     p = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
               env=_get_env(), universal_newlines=True)
     p.wait()
-    # Return standart output and error
+    # Return standard output and error
     if return_std:
         return (p.stdout, p.stderr)
 

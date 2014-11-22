@@ -19,10 +19,16 @@
 import collections
 import itertools
 import sys
-import astroid
+import re
+
+import six
+from six.moves import zip  # pylint: disable=redefined-builtin
+
 from logilab.common.ureports import Table
-from astroid import are_exclusive, InferenceError
+
+import astroid
 import astroid.bases
+from astroid import are_exclusive, InferenceError
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import EmptyReport
@@ -41,10 +47,6 @@ from pylint.checkers.utils import (
     is_import_error,
     )
 
-
-import re
-import six
-from six.moves import zip
 
 # regex for class/function/variable/constant name
 CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
@@ -126,6 +128,7 @@ def _loop_exits_early(loop):
     for child in loop.body:
         if isinstance(child, loop_nodes):
             # break statement may be in orelse of child loop.
+            # pylint: disable=superfluous-parens
             for orelse in (child.orelse or ()):
                 for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
                     return True
@@ -133,6 +136,13 @@ def _loop_exits_early(loop):
         for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True
     return False
+
+def _is_multi_naming_match(match, node_type, confidence):
+    return (match is not None and
+            match.lastgroup is not None and
+            match.lastgroup not in EXEMPT_NAME_CATEGORIES
+            and (node_type != 'method' or confidence != INFERENCE_FAILURE))
+
 
 if sys.version_info < (3, 0):
     PROPERTY_CLASSES = set(('__builtin__.property', 'abc.abstractproperty'))
@@ -183,11 +193,12 @@ def decorated_with_abc(func):
                 return True
 
 def has_abstract_methods(node):
-    """ Determine if the given `node` has
+    """
+    Determine if the given `node` has
     abstract methods, defined with `abc` module.
     """
     return any(decorated_with_abc(meth)
-               for meth in node.mymethods())
+               for meth in node.methods())
 
 def report_by_type_stats(sect, stats, old_stats):
     """make a report of
@@ -290,8 +301,7 @@ class BasicErrorChecker(_BasicChecker):
         'E0110': ('Abstract class with abstract methods instantiated',
                   'abstract-class-instantiated',
                   'Used when an abstract class with `abc.ABCMeta` as metaclass '
-                  'has abstract methods and is instantiated.',
-                  {'minversion': (3, 0)}),
+                  'has abstract methods and is instantiated.'),
         'W0120': ('Else clause on loop without a break statement',
                   'useless-else-on-loop',
                   'Loops should only have an else clause if they can exit early '
@@ -388,17 +398,16 @@ class BasicErrorChecker(_BasicChecker):
             return
         # __init__ was called
         metaclass = infered.metaclass()
+        abstract_methods = has_abstract_methods(infered)
         if metaclass is None:
             # Python 3.4 has `abc.ABC`, which won't be detected
             # by ClassNode.metaclass()
             for ancestor in infered.ancestors():
-                if (ancestor.qname() == 'abc.ABC' and
-                        has_abstract_methods(infered)):
+                if ancestor.qname() == 'abc.ABC' and abstract_methods:
                     self.add_message('abstract-class-instantiated', node=node)
                     break
             return
-        if (metaclass.qname() == 'abc.ABCMeta' and
-                has_abstract_methods(infered)):
+        if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
             self.add_message('abstract-class-instantiated', node=node)
 
     def _check_else_on_loop(self, node):
@@ -478,8 +487,9 @@ functions, methods
                   'times.'),
         'W0122': ('Use of exec',
                   'exec-used',
-                  'Used when you use the "exec" statement (function for Python 3), to discourage its '
-                  'usage. That doesn\'t mean you can not use it !'),
+                  'Used when you use the "exec" statement (function for Python '
+                  '3), to discourage its usage. That doesn\'t '
+                  'mean you can not use it !'),
         'W0123': ('Use of eval',
                   'eval-used',
                   'Used when you use the "eval" function, to discourage its '
@@ -508,12 +518,6 @@ functions, methods
                   'A call of assert on a tuple will always evaluate to true if '
                   'the tuple is not empty, and will always evaluate to false if '
                   'it is.'),
-        'W0121': ('Use raise ErrorClass(args) instead of raise ErrorClass, args.',
-                  'old-raise-syntax',
-                  "Used when the alternate raise syntax 'raise foo, bar' is used "
-                  "instead of 'raise foo(bar)'.",
-                  {'maxversion': (3, 0)}),
-
         'C0121': ('Missing required attribute "%s"', # W0103
                   'missing-module-attribute',
                   'Used when an attribute required for modules is missing.'),
@@ -565,7 +569,7 @@ functions, methods
             if attr not in node:
                 self.add_message('missing-module-attribute', node=node, args=attr)
 
-    def visit_class(self, node):
+    def visit_class(self, node): # pylint: disable=unused-argument
         """check module name, docstring and redefinition
         increment branch counter
         """
@@ -727,16 +731,12 @@ functions, methods
         # 2 - Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'break', (astroid.For, astroid.While,))
 
-    @check_messages('unreachable', 'old-raise-syntax')
+    @check_messages('unreachable')
     def visit_raise(self, node):
         """check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
-        if sys.version_info >= (3, 0):
-            return
-        if node.exc is not None and node.inst is not None and node.tback is None:
-            self.add_message('old-raise-syntax', node=node)
 
     @check_messages('exec-used')
     def visit_exec(self, node):
@@ -799,7 +799,7 @@ functions, methods
         """update try...finally flag"""
         self._tryfinallys.append(node)
 
-    def leave_tryfinally(self, node):
+    def leave_tryfinally(self, node): # pylint: disable=unused-argument
         """update try...finally flag"""
         self._tryfinallys.pop()
 
@@ -968,8 +968,8 @@ class NameChecker(_BasicChecker):
         self._check_name('module', node.name.split('.')[-1], node)
         self._bad_names = {}
 
-    def leave_module(self, node):
-        for category, all_groups in six.iteritems(self._bad_names):
+    def leave_module(self, node): # pylint: disable=unused-argument
+        for all_groups in six.itervalues(self._bad_names):
             if len(all_groups) < 2:
                 continue
             groups = collections.defaultdict(list)
@@ -1054,12 +1054,6 @@ class NameChecker(_BasicChecker):
     def _find_name_group(self, node_type):
         return self._name_group.get(node_type, node_type)
 
-    def _is_multi_naming_match(self, match, node_type, confidence):
-        return (match is not None and
-                match.lastgroup is not None and
-                match.lastgroup not in EXEMPT_NAME_CATEGORIES
-                and (node_type != 'method' or confidence != INFERENCE_FAILURE))
-
     def _raise_name_warning(self, node, node_type, name, confidence):
         type_label = _NAME_TYPES[node_type][1]
         hint = ''
@@ -1084,7 +1078,7 @@ class NameChecker(_BasicChecker):
         regexp = getattr(self.config, node_type + '_rgx')
         match = regexp.match(name)
 
-        if self._is_multi_naming_match(match, node_type, confidence):
+        if _is_multi_naming_match(match, node_type, confidence):
             name_group = self._find_name_group(node_type)
             bad_name_group = self._bad_names.setdefault(name_group, {})
             warnings = bad_name_group.setdefault(match.lastgroup, [])

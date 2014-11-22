@@ -24,9 +24,10 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 import keyword
 import sys
 import tokenize
-from functools import reduce
+from functools import reduce # pylint: disable=redefined-builtin
+
 import six
-from six.moves import zip, map, filter
+from six.moves import zip, map, filter # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
@@ -105,22 +106,12 @@ MSGS = {
               {'old_names': [('C0323', 'no-space-after-operator'),
                              ('C0324', 'no-space-after-comma'),
                              ('C0322', 'no-space-before-operator')]}),
-    'W0331': ('Use of the <> operator',
-              'old-ne-operator',
-              'Used when the deprecated "<>" operator is used instead '
-              'of "!=".',
-              {'maxversion': (3, 0)}),
     'W0332': ('Use of "l" as long integer identifier',
               'lowercase-l-suffix',
               'Used when a lower case "l" is used to mark a long integer. You '
               'should use a upper case "L" since the letter "l" looks too much '
               'like the digit "1"',
               {'maxversion': (3, 0)}),
-    'W0333': ('Use of the `` operator',
-              'backtick',
-              'Used when the deprecated "``" (backtick) operator is used '
-              'instead  of the str() function.',
-              {'scope': WarningScope.NODE, 'maxversion': (3, 0)}),
     'C0327': ('Mixed line endings LF and CRLF',
               'mixed-line-endings',
               'Used when there are mixed (LF and CRLF) newline signs in a file.'),
@@ -408,7 +399,6 @@ class FormatChecker(BaseTokenChecker):
     * unauthorized constructions
     * strict indentation
     * line length
-    * use of <> instead of !=
     """
 
     __implements__ = (ITokenChecker, IAstroidChecker, IRawChecker)
@@ -420,7 +410,7 @@ class FormatChecker(BaseTokenChecker):
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
     options = (('max-line-length',
-                {'default' : 80, 'type' : "int", 'metavar' : '<int>',
+                {'default' : 100, 'type' : "int", 'metavar' : '<int>',
                  'help' : 'Maximum number of characters on a single line.'}),
                ('ignore-long-lines',
                 {'type': 'regexp', 'metavar': '<regexp>',
@@ -453,7 +443,7 @@ class FormatChecker(BaseTokenChecker):
                 {'type': 'choice', 'metavar': '<empty or LF or CRLF>', 'default': '',
                  'choices': ['', 'LF', 'CRLF'],
                  'help': 'Expected format of line ending, e.g. empty (any line ending), LF or CRLF.'}),
-               )
+              )
 
     def __init__(self, linter=None):
         BaseTokenChecker.__init__(self, linter)
@@ -633,13 +623,13 @@ class FormatChecker(BaseTokenChecker):
                 return 'No', 'allowed'
 
         def _name_construct(token):
-            if tokens[i][1] == ',':
+            if token[1] == ',':
                 return 'comma'
-            elif tokens[i][1] == ':':
+            elif token[1] == ':':
                 return ':'
-            elif tokens[i][1] in '()[]{}':
+            elif token[1] in '()[]{}':
                 return 'bracket'
-            elif tokens[i][1] in ('<', '>', '<=', '>=', '!=', '=='):
+            elif token[1] in ('<', '>', '<=', '>=', '!=', '=='):
                 return 'comparison'
             else:
                 if self._inside_brackets('('):
@@ -648,7 +638,8 @@ class FormatChecker(BaseTokenChecker):
                     return 'assignment'
 
         good_space = [True, True]
-        pairs = [(tokens[i-1], tokens[i]), (tokens[i], tokens[i+1])]
+        token = tokens[i]
+        pairs = [(tokens[i-1], token), (token, tokens[i+1])]
 
         for other_idx, (policy, token_pair) in enumerate(zip(policies, pairs)):
             if token_pair[other_idx][0] in _EOL or policy == _IGNORE:
@@ -669,18 +660,14 @@ class FormatChecker(BaseTokenChecker):
                 if not ok:
                     warnings.append((policy, position))
         for policy, position in warnings:
-            construct = _name_construct(tokens[i])
+            construct = _name_construct(token)
             count, state = _policy_string(policy)
-            self.add_message('bad-whitespace', line=tokens[i][2][0],
+            self.add_message('bad-whitespace', line=token[2][0],
                              args=(count, state, position, construct,
-                                   _underline_token(tokens[i])))
+                                   _underline_token(token)))
 
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left
-
-    def _handle_old_ne_operator(self, tokens, i):
-        if tokens[i][1] == '<>':
-            self.add_message('old-ne-operator', line=tokens[i][2][0])
 
     def _prepare_token_dispatcher(self):
         raw = [
@@ -701,7 +688,6 @@ class FormatChecker(BaseTokenChecker):
 
             (['lambda'], self._open_lambda),
 
-            (['<>'], self._handle_old_ne_operator),
             ]
 
         dispatch = {}
@@ -918,10 +904,6 @@ class FormatChecker(BaseTokenChecker):
             return
         self.add_message('multiple-statements', node=node)
         self._visited_lines[line] = 2
-
-    @check_messages('backtick')
-    def visit_backquote(self, node):
-        self.add_message('backtick', node=node)
 
     def check_lines(self, lines, i):
         """check lines have less than a maximum number of characters

@@ -2,6 +2,14 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Change default max-line-length to 100 rather than 80
+
+    * Drop BaseRawChecker class which were only there for backward
+      compat for a while now
+
+    * Don't try to analyze string formatting with objects coming from
+      function arguments. Closes issue #373.
+
     * Port source code to be Python 2/3 compatible. This drops the
       need for 2to3, but does drop support for Python 2.5.
 
@@ -123,10 +131,11 @@ ChangeLog for Pylint
 
     * Check that various built-ins that do not exist in Python 3 are not
       used: apply, basestring, buffer, cmp, coerce, execfile, file, long
-      raw_input, reduce, StandardError, unicode, and xrange.
+      raw_input, reduce, StandardError, unicode, reload and xrange.
 
     * Warn for magic methods which are not used in any way in Python 3:
-      __coerce__, __delslice__, __getslice__, and __setslice__.
+      __coerce__, __delslice__, __getslice__, __setslice__, __cmp__,
+      __oct__, __nonzero__ and __hex__.
 
     * Don't emit 'assigning-non-slot' when the assignment is for a property.
       Closes issue #359.
@@ -160,13 +169,36 @@ ChangeLog for Pylint
     * Warn when assigning to __metaclass__ at a class scope; in Python 3 a
       metaclass is specified as an argument to the 'class' statement.
 
+    * Warn when performing parameter tuple unpacking; it is not supported in
+      Python 3.
+
+    * 'abstract-class-instantiated' is also emitted for Python 2.
+      It was previously disabled.
+
+    * Add 'long-suffix' error, emitted when encountering the long suffix
+      on numbers.
+
+    * Add support for disabling a checker, by specifying an 'enabled'
+      attribute on the checker class.
+      
+    * Add a new CLI option, --py3k, for enabling Python 3 porting mode. This
+      mode will disable all other checkers and will emit warnings and
+      errors for constructs which are invalid or removed in Python 3.
+
+    * Add 'old-octal-literal' to Python 3 porting checker, emitted when
+      encountering octals with the old syntax.
+
+    * Add 'implicit-map-evaluation' to Python 3 porting checker, emitted
+      when encountering the use of map builtin, without explicit evaluation.
+      
+
 
 2014-07-26  --  1.3.0
 
     * Allow hanging continued indentation for implicitly concatenated
       strings. Closes issue #232.
 
-    * PyLint works under Python 2.5 again, and its test suite passes.
+    * Pylint works under Python 2.5 again, and its test suite passes.
 
     * Fix some false positives for the cellvar-from-loop warnings.
       Closes issue #233.

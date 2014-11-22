@@ -11,11 +11,11 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-import cStringIO
 import os
 from os.path import join, dirname, abspath
 import unittest
 
+import six
 
 from pylint.lint import PyLinter
 from pylint import checkers
@@ -35,7 +35,7 @@ class PyLinterTC(unittest.TestCase):
         os.environ.pop('PYLINTRC', None)
 
     def test_template_option(self):
-        output = cStringIO.StringIO()
+        output = six.StringIO()
         self.linter.reporter.set_output(output)
         self.linter.set_option('msg-template', '{msg_id}:{line:03d}')
         self.linter.open()
@@ -48,7 +48,7 @@ class PyLinterTC(unittest.TestCase):
                                   'C0301:002\n')
 
     def test_parseable_output_regression(self):
-        output = cStringIO.StringIO()
+        output = six.StringIO()
         linter = PyLinter(reporter=ParseableTextReporter())
         checkers.initialize(linter)
         linter.config.persistent = 0

@@ -1,4 +1,4 @@
-# Makefile for handling various tasks of PyLint sources
+# Makefile for handling various tasks of Pylint sources
 PYVE=pyve
 PIP=$(PYVE)/bin/pip
 TOX=$(PYVE)/bin/tox

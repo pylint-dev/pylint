@@ -1,0 +1,3 @@
+abstract-class-instantiated:46:main:Abstract class with abstract methods instantiated
+abstract-class-instantiated:47:main:Abstract class with abstract methods instantiated
+abstract-class-instantiated:48:main:Abstract class with abstract methods instantiated

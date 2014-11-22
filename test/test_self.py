@@ -14,9 +14,10 @@
 import sys
 import os
 from os.path import join, dirname, abspath
-from cStringIO import StringIO
 import tempfile
 import unittest
+
+import six
 
 from pylint.lint import Run
 from pylint.reporters import BaseReporter
@@ -62,7 +63,7 @@ class RunTC(unittest.TestCase):
 
     def _runtest(self, args, reporter=None, out=None, code=28):
         if out is None:
-            out = StringIO()
+            out = six.StringIO()
         try:
             sys.stderr = sys.stdout = out
             try:
@@ -86,16 +87,16 @@ class RunTC(unittest.TestCase):
 
     def test_pkginfo(self):
         """Make pylint check itself."""
-        self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(StringIO()),
+        self._runtest(['pylint.__pkginfo__'], reporter=TextReporter(six.StringIO()),
                       code=0)
 
     def test_all(self):
         """Make pylint check itself."""
         reporters = [
-            TextReporter(StringIO()),
-            HTMLReporter(StringIO()),
-            ColorizedTextReporter(StringIO()),
-            JSONReporter(StringIO()),
+            TextReporter(six.StringIO()),
+            HTMLReporter(six.StringIO()),
+            ColorizedTextReporter(six.StringIO()),
+            JSONReporter(six.StringIO())
         ]
         self._runtest(['pylint/test/functional/arguments.py'],
                       reporter=MultiReporter(reporters), code=1)
@@ -127,17 +128,23 @@ class RunTC(unittest.TestCase):
         if sys.version_info < (3, 0):
             strio = tempfile.TemporaryFile()
         else:
-            strio = StringIO()
+            strio = six.StringIO()
         assert strio.encoding is None
         self._runtest([join(HERE, 'regrtest_data/no_stdout_encoding.py')],
                       out=strio)
 
-    @unittest.skipIf(sys.platform.startswith("win") and sys.version_info[0] == 2,
-                     "This test does not work on Python 2.X due to a bug in "
-                     "multiprocessing.")
     def test_parallel_execution(self):
         self._runtest(['-j 2', 'pylint/test/functional/arguments.py',
                        'pylint/test/functional/bad_continuation.py'], code=1)
+
+    def test_py3k_option(self):
+        # Test that --py3k flag works.
+        rc_code = 2 if six.PY2 else 0
+        self._runtest([join(HERE, 'functional', 'unpacked_exceptions.py'),
+                       '--py3k'],
+                      code=rc_code)
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,8 @@
-import cStringIO
 import sys
 from os.path import join, dirname, abspath
 import unittest
+
+import six
 
 from pylint.checkers import similar
 
@@ -12,10 +13,10 @@ class SimilarTC(unittest.TestCase):
     """test the similar command line utility"""
 
     def test_ignore_comments(self):
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         try:
             similar.Run(['--ignore-comments', SIMILAR1, SIMILAR2])
-        except SystemExit, ex:
+        except SystemExit as ex:
             self.assertEqual(ex.code, 0)
             output = sys.stdout.getvalue()
         else:
@@ -41,10 +42,10 @@ TOTAL lines=44 duplicates=10 percent=22.73
 
 
     def test_ignore_docsrings(self):
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         try:
             similar.Run(['--ignore-docstrings', SIMILAR1, SIMILAR2])
-        except SystemExit, ex:
+        except SystemExit as ex:
             self.assertEqual(ex.code, 0)
             output = sys.stdout.getvalue()
         else:
@@ -77,10 +78,10 @@ TOTAL lines=44 duplicates=13 percent=29.55
 
 
     def test_ignore_imports(self):
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         try:
             similar.Run(['--ignore-imports', SIMILAR1, SIMILAR2])
-        except SystemExit, ex:
+        except SystemExit as ex:
             self.assertEqual(ex.code, 0)
             output = sys.stdout.getvalue()
         else:
@@ -93,10 +94,10 @@ TOTAL lines=44 duplicates=0 percent=0.00
 
 
     def test_ignore_nothing(self):
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         try:
             similar.Run([SIMILAR1, SIMILAR2])
-        except SystemExit, ex:
+        except SystemExit as ex:
             self.assertEqual(ex.code, 0)
             output = sys.stdout.getvalue()
         else:
@@ -116,10 +117,10 @@ TOTAL lines=44 duplicates=5 percent=11.36
 """ % (SIMILAR1, SIMILAR2)).strip())
 
     def test_help(self):
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         try:
             similar.Run(['--help'])
-        except SystemExit, ex:
+        except SystemExit as ex:
             self.assertEqual(ex.code, 0)
         else:
             self.fail('not system exit')
@@ -127,10 +128,10 @@ TOTAL lines=44 duplicates=5 percent=11.36
             sys.stdout = sys.__stdout__
 
     def test_no_args(self):
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         try:
             similar.Run([])
-        except SystemExit, ex:
+        except SystemExit as ex:
             self.assertEqual(ex.code, 1)
         else:
             self.fail('not system exit')

@@ -33,7 +33,7 @@ C
 category
     fullname of the message category
 
-For exemple the former (pre 1.0) default format can be obtained with::
+For example, the former (pre 1.0) default format can be obtained with::
 
   pylint --msg-template='{msg_id}:{line:3d},{column}: {obj}: {msg}'
 

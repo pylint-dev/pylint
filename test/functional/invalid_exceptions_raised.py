@@ -28,7 +28,7 @@ def bad_case1():
 
 def bad_case2():
     """raise"""
-    # +2:<3.0:[old-raise-syntax,nonstandard-exception]
+    # +2:<3.0:[nonstandard-exception]
     # +1:>=3.0:[raising-non-exception]
     raise OldStyleClass, 'hop'
 
@@ -38,7 +38,6 @@ def bad_case3():
 
 def bad_case4():
     """raise"""
-    # +1:<3.0:[old-raise-syntax]
     raise NotImplemented, 'hop'  # [notimplemented-raised]
 
 def bad_case5():

@@ -1,3 +1,8 @@
+
+.. image:: https://drone.io/bitbucket.org/logilab/pylint/status.png
+    :alt: drone.io Build Status
+    :target: https://drone.io/bitbucket.org/logilab/pylint
+
 README for Pylint - http://www.pylint.org/
 ==========================================
 

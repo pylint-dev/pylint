@@ -453,12 +453,9 @@ class StringMethodsChecker(BaseChecker):
                 # use attribute / item access
                 continue
             if argument.parent and isinstance(argument.parent, astroid.Arguments):
-                # Check to see if our argument is kwarg or vararg,
-                # and skip the check for this argument if so, because when inferring,
-                # astroid will return empty objects (dicts and tuples) and
-                # that can lead to false positives.
-                if argname.name in (argument.parent.kwarg, argument.parent.vararg):
-                    continue
+                # Ignore any object coming from an argument,
+                # because we can't infer its value properly.
+                continue
             previous = argument
             parsed = []
             for is_attribute, specifier in specifiers:
@@ -541,17 +538,18 @@ class StringConstantChecker(BaseTokenChecker):
         self._unicode_literals = 'unicode_literals' in module.future_imports
 
     def process_tokens(self, tokens):
-        for (tok_type, token, (start_row, start_col), _, _) in tokens:
+        for (tok_type, token, (start_row, _), _, _) in tokens:
             if tok_type == tokenize.STRING:
                 # 'token' is the whole un-parsed token; we can look at the start
                 # of it to see whether it's a raw or unicode string etc.
-                self.process_string_token(token, start_row, start_col)
+                self.process_string_token(token, start_row)
 
-    def process_string_token(self, token, start_row, start_col):
+    def process_string_token(self, token, start_row):
         for i, c in enumerate(token):
             if c in '\'\"':
                 quote_char = c
                 break
+        # pylint: disable=undefined-loop-variable
         prefix = token[:i].lower() #  markers like u, b, r.
         after_prefix = token[i:]
         if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char:
@@ -560,18 +558,15 @@ class StringConstantChecker(BaseTokenChecker):
             string_body = after_prefix[1:-1]  # Chop off quotes
         # No special checks on raw strings at the moment.
         if 'r' not in prefix:
-            self.process_non_raw_string_token(prefix, string_body,
-                                              start_row, start_col)
+            self.process_non_raw_string_token(prefix, string_body, start_row)
 
-    def process_non_raw_string_token(self, prefix, string_body, start_row,
-                                     start_col):
+    def process_non_raw_string_token(self, prefix, string_body, start_row):
         """check for bad escapes in a non-raw string.
 
         prefix: lowercase string of eg 'ur' string prefix markers.
         string_body: the un-parsed body of the string, not including the quote
         marks.
         start_row: integer line number in the source.
-        start_col: integer column number in the source.
         """
         # Walk through the string; if we see a backslash then escape the next
         # character, and skip over it.  If we see a non-escaped character,

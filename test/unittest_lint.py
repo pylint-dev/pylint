@@ -13,7 +13,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 from contextlib import contextmanager
-import cStringIO
 import sys
 import os
 import tempfile
@@ -21,6 +20,8 @@ from shutil import rmtree
 from os import getcwd, chdir
 from os.path import join, basename, dirname, isdir, abspath, sep
 import unittest
+
+import six
 
 from logilab.common.compat import reload
 
@@ -464,11 +465,11 @@ class PyLinterTC(unittest.TestCase):
         self.linter.set_reporter(TestReporter())
         self.linter.check(os.path.join(os.path.dirname(__file__), 'data', 'ascript'))
         self.assertEqual(
-            ['C:  2: Line too long (175/80)'],
+            ['C:  2: Line too long (175/100)'],
             self.linter.reporter.messages)
 
     def test_html_reporter_missing_files(self):
-        output = cStringIO.StringIO()
+        output = six.StringIO()
         self.linter.set_reporter(html.HTMLReporter(output))
         self.linter.set_option('output-format', 'html')
         self.linter.check('troppoptop.py')
@@ -476,6 +477,14 @@ class PyLinterTC(unittest.TestCase):
         value = output.getvalue()
         self.assertIn('troppoptop.py', value)
         self.assertIn('fatal', value)
+
+    def test_python3_checker_disabled(self):
+        checker_names = [c.name for c in self.linter.prepare_checkers()]
+        self.assertNotIn('python3', checker_names)
+
+        self.linter.set_option('enable', 'python3')
+        checker_names = [c.name for c in self.linter.prepare_checkers()]
+        self.assertIn('python3', checker_names)
 
 
 class ConfigTC(unittest.TestCase):
@@ -661,7 +670,7 @@ class MessagesStoreTC(unittest.TestCase):
             msg, checkerref=False)
 
     def test_list_messages(self):
-        sys.stdout = cStringIO.StringIO()
+        sys.stdout = six.StringIO()
         try:
             self.store.list_messages()
             output = sys.stdout.getvalue()

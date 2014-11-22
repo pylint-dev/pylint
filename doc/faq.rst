@@ -1,5 +1,7 @@
 .. -*- coding: utf-8 -*-
 
+.. _faq:
+
 ==========================
 Frequently Asked Questions
 ==========================
@@ -169,7 +171,6 @@ No, starting from 0.25.3, you can use symbolic names for messages::
 
     # pylint: disable=fixme, line-too-long
 
-You can show these symbols in the output with the `-sy` option.
 
 4.5 I have a callback function where I have no control over received arguments. How do I avoid getting unused argument warnings?
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -191,30 +192,6 @@ tricks like: ::
     disable= wildcard-import,
      method-hidden,
      too-many-lines
-
-4.7 Why do I get a lot of spurious "unused variables messages" when using psyobj from psyco_?
-----------------------------------------------------------------------------------------------
-
-This is actually due to a bug in psyco, making the locals()
-function for objects inheriting from *psyobj* returning an empty
-dictionary. For the moment, the only way to fix this is to use the
-PYLINT_IMPORT environment variable to not use psyco during Pylint
-checking. Sample code ::
-
-	import os
-	try:
-		if os.environ.has_key('PYLINT_IMPORT'):
-			raise ImportError()
-	from psyco.classes import psyobj
-	except ImportError:
-		class psyobj:
-			pass
-
-NOTICE: this problem should not occur with Pylint >= 0.5 since from
-this version Pylint is not looking anymore for information in living
-objects (i.e. it no longer imports analysed modules)
-
-.. _psyco: http://psyco.sf.net
 
 5. Classes and Inheritance
 ==========================

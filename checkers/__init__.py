@@ -59,7 +59,7 @@ def table_lines_from_stats(stats, old_stats, columns):
     lines = []
     for m_type in columns:
         new = stats[m_type]
-        format = str
+        format = str # pylint: disable=redefined-builtin
         if isinstance(new, float):
             format = lambda num: '%.3f' % num
         old = old_stats.get(m_type)
@@ -84,6 +84,8 @@ class BaseChecker(OptionsProviderMixIn):
     msgs = {}
     # reports issued by this checker
     reports = ()
+    # mark this checker as enabled or not.
+    enabled = True
 
     def __init__(self, linter=None):
         """checker instances should have the linter as argument
@@ -105,31 +107,6 @@ class BaseChecker(OptionsProviderMixIn):
 
     def close(self):
         """called after visiting project (i.e set of modules)"""
-
-
-class BaseRawChecker(BaseChecker):
-    """base class for raw checkers"""
-
-    def process_module(self, node):
-        """process a module
-
-        the module's content is accessible via the stream object
-
-        stream must implement the readline method
-        """
-        warnings.warn("Modules that need access to the tokens should "
-                      "use the ITokenChecker interface.",
-                      DeprecationWarning)
-        stream = node.file_stream
-        stream.seek(0) # XXX may be removed with astroid > 0.23
-        if sys.version_info <= (3, 0):
-            self.process_tokens(tokenize.generate_tokens(stream.readline))
-        else:
-            self.process_tokens(tokenize.tokenize(stream.readline))
-
-    def process_tokens(self, tokens):
-        """should be overridden by subclasses"""
-        raise NotImplementedError()
 
 
 class BaseTokenChecker(BaseChecker):

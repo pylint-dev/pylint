@@ -24,8 +24,10 @@ import re
 import sys
 import tokenize
 import warnings
-
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
+
+import six
+from six.moves import zip  # pylint: disable=redefined-builtin
 
 from logilab.common.interface import implements
 from logilab.common.textutils import normalize_text
@@ -37,8 +39,6 @@ from astroid.modutils import modpath_from_file, get_module_files, \
     file_from_modpath, load_module_from_file
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED
-import six
-from six.moves import zip
 
 
 class UnknownMessage(Exception):
@@ -94,16 +94,6 @@ class Message(_MsgBase):
             cls, msg_id, symbol, msg, msg_id[0], MSG_TYPES[msg_id[0]],
             confidence, *location)
 
-    def get_init_args(self):
-        location = (
-            self.abspath,
-            self.path,
-            self.module,
-            self.obj, 
-            self.line,
-            self.column)
-        return (self.msg_id, self.symbol, location, self.msg, self.confidence)
-
     def format(self, template):
         """Format the message according to the given template.
 
@@ -131,11 +121,11 @@ def get_module_and_frameid(node):
     obj.reverse()
     return module, '.'.join(obj)
 
-def category_id(id):
-    id = id.upper()
-    if id in MSG_TYPES:
-        return id
-    return MSG_TYPES_LONG.get(id)
+def category_id(cid):
+    cid = cid.upper()
+    if cid in MSG_TYPES:
+        return cid
+    return MSG_TYPES_LONG.get(cid)
 
 
 def tokenize_module(module):
@@ -413,12 +403,15 @@ class MessagesHandlerMixIn(object):
 
     def print_full_documentation(self):
         """output a full documentation in ReST format"""
+        print("Pylint global options and switches")
+        print("----------------------------------")
+        print("")
+        print("Pylint provides global options and switches.")
+        print("")
+
         by_checker = {}
         for checker in self.get_checkers():
             if checker.name == 'master':
-                prefix = 'Main '
-                print("Options")
-                print('-------\n')
                 if checker.options:
                     for section, options in checker.options_by_section():
                         if section is None:
@@ -428,7 +421,7 @@ class MessagesHandlerMixIn(object):
                         print(title)
                         print('~' * len(title))
                         rest_format_section(sys.stdout, None, options)
-                        print()
+                        print("")
             else:
                 try:
                     by_checker[checker.name][0] += checker.options_and_values()
@@ -438,35 +431,49 @@ class MessagesHandlerMixIn(object):
                     by_checker[checker.name] = [list(checker.options_and_values()),
                                                 dict(checker.msgs),
                                                 list(checker.reports)]
+
+        print("Pylint checkers' options and switches")
+        print("-------------------------------------")
+        print("")
+        print("Pylint checkers can provide three set of features:")
+        print("")
+        print("* options that control their execution,")
+        print("* messages that they can raise,")
+        print("* reports that they can generate.")
+        print("")
+        print("Below is a list of all checkers and their features.")
+        print("")
+
         for checker, (options, msgs, reports) in six.iteritems(by_checker):
-            prefix = ''
-            title = '%s checker' % checker
+            title = '%s checker' % (checker.replace("_", " ").title())
             print(title)
-            print('-' * len(title))
-            print()
+            print('~' * len(title))
+            print("")
+            print("Verbatim name of the checker is ``%s``." % checker)
+            print("")
             if options:
                 title = 'Options'
                 print(title)
-                print('~' * len(title))
+                print('^' * len(title))
                 rest_format_section(sys.stdout, None, options)
-                print()
+                print("")
             if msgs:
-                title = ('%smessages' % prefix).capitalize()
+                title = 'Messages'
                 print(title)
                 print('~' * len(title))
                 for msgid, msg in sorted(six.iteritems(msgs),
                                          key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
                     msg = build_message_def(checker, msgid, msg)
                     print(msg.format_help(checkerref=False))
-                print()
+                print("")
             if reports:
-                title = ('%sreports' % prefix).capitalize()
+                title = 'Reports'
                 print(title)
                 print('~' * len(title))
                 for report in reports:
                     print(':%s: %s' % report[:2])
-                print()
-            print()
+                print("")
+            print("")
 
 
 class FileState(object):
@@ -550,7 +557,8 @@ class FileState(object):
         except KeyError:
             self._module_msgs_state[msg.msgid] = {line: status}
 
-    def handle_ignored_message(self, state_scope, msgid, line, node, args, confidence):
+    def handle_ignored_message(self, state_scope, msgid, line,
+                               node, args, confidence): # pylint: disable=unused-argument
         """Report an ignored message.
 
         state_scope is either MSG_STATE_SCOPE_MODULE or MSG_STATE_SCOPE_CONFIG,
@@ -664,10 +672,10 @@ class MessagesStore(object):
         for msgid in msgids:
             try:
                 print(self.check_message_id(msgid).format_help(checkerref=True))
-                print()
+                print("")
             except UnknownMessage as ex:
                 print(ex)
-                print()
+                print("")
                 continue
 
     def list_messages(self):
@@ -677,7 +685,7 @@ class MessagesStore(object):
             if not msg.may_be_emitted():
                 continue
             print(msg.format_help(checkerref=False))
-        print()
+        print("")
 
 
 class ReportsHandlerMixIn(object):

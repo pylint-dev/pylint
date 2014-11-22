@@ -37,12 +37,13 @@ from collections import defaultdict
 from contextlib import contextmanager
 from operator import attrgetter
 from warnings import warn
-
+from itertools import chain
 try:
     import multiprocessing
 except ImportError:
     multiprocessing = None
 
+import six
 from logilab.common.configuration import (
     UnsupportedAction, OptionsManagerMixIn, format_option_value)
 from logilab.common.optik_ext import check_csv
@@ -50,7 +51,6 @@ from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip, unquote
 from logilab.common.ureports import Table, Text, Section
 from logilab.common.__pkginfo__ import version as common_version
-
 from astroid import MANAGER, AstroidBuildingException
 from astroid.__pkginfo__ import version as astroid_version
 from astroid.modutils import load_module_from_name, get_module_part
@@ -66,11 +66,25 @@ from pylint.checkers import (BaseTokenChecker,
                              initialize as checkers_initialize)
 from pylint.reporters import initialize as reporters_initialize, CollectingReporter
 from pylint import config
-
 from pylint.__pkginfo__ import version
-import six
 
 
+def _get_new_args(message):
+    location = (
+        message.abspath,
+        message.path,
+        message.module,
+        message.obj,
+        message.line,
+        message.column,
+    )
+    return (
+        message.msg_id,
+        message.symbol,
+        location,
+        message.msg,
+        message.confidence,
+    )
 
 def _get_python_path(filepath):
     dirname = os.path.realpath(os.path.expanduser(filepath))
@@ -83,6 +97,20 @@ def _get_python_path(filepath):
         dirname = os.path.dirname(dirname)
         if old_dirname == dirname:
             return os.getcwd()
+
+
+def _merge_stats(stats):
+    merged = {}
+    for stat in stats:
+        for key, item in six.iteritems(stat):
+            if key not in merged:
+                merged[key] = item
+            else:
+                if isinstance(item, dict):
+                    merged[key].update(item)
+                else:
+                    merged[key] = merged[key] + item
+    return merged
 
 
 # Python Linter class #########################################################
@@ -158,16 +186,16 @@ MSGS = {
 
 
 def _deprecated_option(shortname, opt_type):
-    def _warn_deprecated(option, optname, *args):
+    def _warn_deprecated(option, optname, *args): # pylint: disable=unused-argument
         sys.stderr.write('Warning: option %s is deprecated and ignored.\n' % (optname,))
     return {'short': shortname, 'help': 'DEPRECATED', 'hide': True,
             'type': opt_type, 'action': 'callback', 'callback': _warn_deprecated}
 
 
 if multiprocessing is not None:
-    class ChildLinter(multiprocessing.Process):  # pylint: disable=no-member
+    class ChildLinter(multiprocessing.Process): # pylint: disable=no-member
         def run(self):
-            tasks_queue, results_queue, config = self._args  # pylint: disable=no-member
+            tasks_queue, results_queue, config = self._args # pylint: disable=no-member
 
             for file_or_module in iter(tasks_queue.get, 'STOP'):
                 result = self._run_linter(config, file_or_module[0])
@@ -197,7 +225,7 @@ if multiprocessing is not None:
             linter_config = {}
             filter_options = {"symbols", "include-ids"}
             for opt_providers in six.itervalues(linter._all_options):
-                for optname, optdict in opt_providers.options:
+                for optname, _ in opt_providers.options:
                     if optname not in filter_options:
                         linter_config[optname] = config[optname]
             linter_config['jobs'] = 1  # Child does not parallelize any further.
@@ -208,9 +236,9 @@ if multiprocessing is not None:
             # Run the checks.
             linter.check(file_or_module)
 
-            msgs = [m.get_init_args() for m in linter.reporter.messages]
+            msgs = [_get_new_args(m) for m in linter.reporter.messages]
             return (file_or_module, linter.file_state.base_name, linter.current_name,
-                     msgs, linter.stats, linter.msg_status)
+                    msgs, linter.stats, linter.msg_status)
 
 
 class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
@@ -234,7 +262,6 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     priority = 0
     level = 0
     msgs = MSGS
-    may_be_disabled = False
 
     @staticmethod
     def make_options():
@@ -305,7 +332,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                   'group': 'Messages control',
                   'help' : 'Only show warnings with the listed confidence levels.'
                            ' Leave empty to show all. Valid levels: %s' % (
-                            ', '.join(c.name for c in CONFIDENCE_LEVELS),)}),
+                               ', '.join(c.name for c in CONFIDENCE_LEVELS),)}),
 
                 ('enable',
                  {'type' : 'csv', 'metavar': '<msg ids>',
@@ -349,9 +376,9 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                  {'type' : 'int', 'metavar': '<n-processes>',
                   'short': 'j',
                   'default': 1,
-                  'help' : '''Use multiple processes to speed up PyLint.''',
-                  }), # jobs
-            )
+                  'help' : '''Use multiple processes to speed up Pylint.''',
+                 }), # jobs
+               )
 
     option_groups = (
         ('Messages control', 'Options controling analysis messages'),
@@ -504,6 +531,11 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             self.msgs_store.register_messages(checker)
         checker.load_defaults()
 
+        # Register the checker, but disable all of its messages.
+        # TODO(cpopa): we should have a better API for this.
+        if not getattr(checker, 'enabled', True):
+            self.disable(checker.name)
+
     def disable_noerror_messages(self):
         for msgcat, msgids in six.iteritems(self.msgs_store._msgs_by_category):
             if msgcat == 'E':
@@ -599,14 +631,14 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             messages = set(msg for msg in checker.msgs
                            if msg[0] != 'F' and self.is_message_enabled(msg))
             if (messages or
-                any(self.report_is_enabled(r[0]) for r in checker.reports)):
+                    any(self.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)
         # Sort checkers by priority
         neededcheckers = sorted(neededcheckers, key=attrgetter('priority'),
                                 reverse=True)
         return neededcheckers
 
-    def should_analyze_file(self, modname, path): # pylint: disable=unused-argument
+    def should_analyze_file(self, modname, path): # pylint: disable=unused-argument, no-self-use
         """Returns whether or not a module should be checked.
 
         This implementation returns True for all python source file, indicating
@@ -638,26 +670,32 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         if self.config.jobs == 1:
             self._do_check(files_or_modules)
         else:
-            self._parallel_check(files_or_modules)
+            # Hack that permits running pylint, on Windows, with -m switch
+            # and with --jobs, as in 'py -2 -m pylint .. --jobs'.
+            # For more details why this is needed,
+            # see Python issue http://bugs.python.org/issue10845.
 
-    def _parallel_check(self, files_or_modules):
-        """Spawn a defined number of subprocesses."""
+            mock_main = six.PY2 and __name__ != '__main__' # -m switch
+            if mock_main:
+                sys.modules['__main__'] = sys.modules[__name__]
+            try:
+                self._parallel_check(files_or_modules)
+            finally:
+                if mock_main:
+                    sys.modules.pop('__main__')
 
-        manager = multiprocessing.Manager()  # pylint: disable=no-member
-        tasks_queue = manager.Queue()  # pylint: disable=no-member
-        results_queue = manager.Queue()  # pylint: disable=no-member
-
+    def _parallel_task(self, files_or_modules):
         # Prepare configuration for child linters.
         config = {}
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
                 config[optname] = format_option_value(optdict, val)
 
-        # Reset stats.
-        self.open()
-
-        # Spawn child linters.
         childs = []
+        manager = multiprocessing.Manager()  # pylint: disable=no-member
+        tasks_queue = manager.Queue()  # pylint: disable=no-member
+        results_queue = manager.Queue()  # pylint: disable=no-member
+
         for _ in range(self.config.jobs):
             cl = ChildLinter(args=(tasks_queue, results_queue, config))
             cl.start()  # pylint: disable=no-member
@@ -669,23 +707,41 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
         # collect results from child linters
         failed = False
-        all_stats = []
-        for i in range(len(files_or_modules)):
+        for _ in files_or_modules:
             try:
-                (
-                    file_or_module,
-                    self.file_state.base_name,
-                    module,
-                    messages,
-                    stats,
-                    msg_status
-                ) = results_queue.get()
+                result = results_queue.get()
             except Exception as ex:
                 print("internal error while receiving results from child linter",
                       file=sys.stderr)
                 print(ex, file=sys.stderr)
                 failed = True
                 break
+            yield result
+
+        # Stop child linters and wait for their completion.
+        for _ in range(self.config.jobs):
+            tasks_queue.put('STOP')
+        for cl in childs:
+            cl.join()
+
+        if failed:
+            print("Error occured, stopping the linter.", file=sys.stderr)
+            sys.exit(32)
+
+    def _parallel_check(self, files_or_modules):
+        # Reset stats.
+        self.open()
+
+        all_stats = []
+        for result in self._parallel_task(files_or_modules):
+            (
+                file_or_module,
+                self.file_state.base_name,
+                module,
+                messages,
+                stats,
+                msg_status
+            ) = result
 
             if file_or_module == files_or_modules[-1]:
                 last_module = module
@@ -698,38 +754,13 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             all_stats.append(stats)
             self.msg_status |= msg_status
 
-        # Stop child linters and wait for their completion.
-        for i in range(self.config.jobs):
-            tasks_queue.put('STOP')
-        for cl in childs:
-            cl.join()
-
-        if failed:
-            print("Error occured, stopping the linter.", file=sys.stderr)
-            sys.exit(32)
-
-        all_stats.append(self.stats)
-        all_stats = self._merge_stats(all_stats)
-        self.stats = all_stats
+        self.stats = _merge_stats(chain(all_stats, [self.stats]))
         self.current_name = last_module
 
         # Insert stats data to local checkers.
         for checker in self.get_checkers():
             if checker is not self:
                 checker.stats = self.stats
-
-    def _merge_stats(self, stats):
-        merged = {}
-        for stat in stats:
-            for key, item in six.iteritems(stat):
-                if key not in merged:
-                    merged[key] = item
-                else:
-                    if isinstance(item, dict):
-                        merged[key].update(item)
-                    else:
-                        merged[key] = merged[key] + item
-        return merged
 
     def _do_check(self, files_or_modules):
         walker = PyLintASTWalker(self)
@@ -808,7 +839,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             self.add_message('syntax-error', line=ex.lineno, args=ex.msg)
         except AstroidBuildingException as ex:
             self.add_message('parse-error', args=ex)
-        except Exception as ex:
+        except Exception as ex: # pylint: disable=broad-except
             import traceback
             traceback.print_exc()
             self.add_message('astroid-error', args=(ex.__class__, ex))
@@ -893,8 +924,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         # get a global note for the code
         evaluation = self.config.evaluation
         try:
-            note = eval(evaluation, {}, self.stats)
-        except Exception as ex:
+            note = eval(evaluation, {}, self.stats) # pylint: disable=eval-used
+        except Exception as ex: # pylint: disable=broad-except
             msg = 'An exception occurred while rating: %s' % ex
         else:
             stats['global_note'] = note
@@ -968,12 +999,6 @@ def report_messages_by_module_stats(sect, stats, _):
 
 
 # utilities ###################################################################
-
-# this may help to import modules using gettext
-# XXX syt, actually needed since we don't import code?
-
-from logilab.common.compat import builtins
-builtins._ = str
 
 
 class ArgumentPreprocessingError(Exception):
@@ -1092,7 +1117,7 @@ group are mutually exclusive.'),
 
             ('list-conf-levels',
              {'action' : 'callback',
-              'callback' : self.cb_list_confidence_levels,
+              'callback' : cb_list_confidence_levels,
               'group': 'Commands', 'level': 1,
               'help' : "Generate pylint's messages."}),
 
@@ -1121,6 +1146,12 @@ group are mutually exclusive.'),
               'help' : 'In error mode, checkers without error messages are '
                        'disabled and for others, only the ERROR messages are '
                        'displayed, and no reports are done by default'''}),
+
+            ('py3k',
+             {'action' : 'callback', 'callback' : self.cb_python3_porting_mode,
+              'help' : 'In Python 3 porting mode, all checkers will be '
+                       'disabled and only messages emitted by the porting '
+                       'checker will be displayed'}),
 
             ('profile',
              {'type' : 'yn', 'metavar' : '<y_or_n>',
@@ -1268,14 +1299,20 @@ group are mutually exclusive.'),
         self.linter.msgs_store.list_messages()
         sys.exit(0)
 
-    def cb_list_confidence_levels(self, option, optname, value, parser):
-        for level in CONFIDENCE_LEVELS:
-            print('%-18s: %s' % level)
-        sys.exit(0)
+    def cb_python3_porting_mode(self, *args, **kwargs):
+        """Activate only the python3 porting checker."""
+        self.linter.disable('all')
+        self.linter.enable('python3')
+
+
+def cb_list_confidence_levels(option, optname, value, parser):
+    for level in CONFIDENCE_LEVELS:
+        print('%-18s: %s' % level)
+    sys.exit(0)
 
 def cb_init_hook(optname, value):
     """exec arbitrary code to set sys.path for instance"""
-    exec(value)
+    exec(value) # pylint: disable=exec-used
 
 
 if __name__ == '__main__':

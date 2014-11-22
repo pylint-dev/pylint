@@ -13,13 +13,15 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Unittest for the spelling checker."""
+
 import unittest
-import tokenize
-import io
+
 from astroid import test_utils
 
 from pylint.checkers import spelling
-from pylint.testutils import CheckerTestCase, Message, set_config
+from pylint.testutils import (
+    CheckerTestCase, Message, set_config, tokenize_str,
+)
 
 # try to create enchant dictionary
 try:
@@ -34,10 +36,6 @@ if enchant is not None:
         spell_dict = "en_US"
     except enchant.DictNotFoundError:
         pass
-
-
-def tokenize_str(code):
-    return list(tokenize.generate_tokens(io.StringIO(code).readline))
 
 
 class SpellingCheckerTest(CheckerTestCase):

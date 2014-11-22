@@ -68,7 +68,7 @@ MSGS = {
               'Used when except clauses are not in the correct order (from the '
               'more specific to the more generic). If you don\'t fix the order, '
               'some exceptions may not be catched by the most specific handler.'),
-    'E0702': ('Raising %s while only classes, instances or string are allowed',
+    'E0702': ('Raising %s while only classes or instances are allowed',
               'raising-bad-type',
               'Used when something which is neither a class, an instance or a \
               string is raised (i.e. a `TypeError` will be raised).'),
@@ -91,10 +91,6 @@ MSGS = {
               'catching-non-exception',
               'Used when a class which doesn\'t inherit from \
                BaseException is used as an exception in an except clause.'),
-
-    'W0701': ('Raising a string exception',
-              'raising-string',
-              'Used when a string exception is raised.'),
     'W0702': ('No exception type(s) specified',
               'bare-except',
               'Used when an except clause doesn\'t specify exceptions type to \
@@ -117,17 +113,6 @@ MSGS = {
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),
-    'W0712': ('Implicit unpacking of exceptions is not supported in Python 3',
-              'unpacking-in-except',
-              'Python3 will not allow implicit unpacking of exceptions in except '
-              'clauses. '
-              'See http://www.python.org/dev/peps/pep-3110/',
-              {'maxversion': (3, 0)}),
-    'W0713': ('Indexing exceptions will not work on Python 3',
-              'indexing-exception',
-              'Indexing exceptions will not work on Python 3. Use '
-              '`exception.args[index]` instead.',
-              {'maxversion': (3, 0)}),
     }
 
 
@@ -151,7 +136,7 @@ class ExceptionsChecker(BaseChecker):
                ),
               )
 
-    @check_messages('raising-string', 'nonstandard-exception',
+    @check_messages('nonstandard-exception',
                     'raising-bad-type', 'raising-non-exception',
                     'notimplemented-raised', 'bad-exception-context')
     def visit_raise(self, node):
@@ -192,7 +177,8 @@ class ExceptionsChecker(BaseChecker):
         if isinstance(expr, astroid.Const):
             value = expr.value
             if isinstance(value, str):
-                self.add_message('raising-string', node=node)
+                # raising-string will be emitted from python3 porting checker.
+                pass
             else:
                 self.add_message('raising-bad-type', node=node,
                                  args=value.__class__.__name__)
@@ -206,8 +192,6 @@ class ExceptionsChecker(BaseChecker):
                   isinstance(expr.func, astroid.Name) and
                   expr.func.name == 'NotImplemented')):
             self.add_message('notimplemented-raised', node=node)
-        elif isinstance(expr, astroid.BinOp) and expr.op == '%':
-            self.add_message('raising-string', node=node)
         elif isinstance(expr, (Instance, astroid.Class)):
             if isinstance(expr, Instance):
                 expr = expr._proxied
@@ -219,30 +203,12 @@ class ExceptionsChecker(BaseChecker):
                 else:
                     self.add_message(
                         'nonstandard-exception', node=node,
-                         confidence=INFERENCE if has_known_bases(expr) else INFERENCE_FAILURE)
+                        confidence=INFERENCE if has_known_bases(expr) else INFERENCE_FAILURE)
             else:
                 value_found = False
         else:
             value_found = False
         return value_found
-
-    @check_messages('unpacking-in-except')
-    def visit_excepthandler(self, node):
-        """Visit an except handler block and check for exception unpacking."""
-        if isinstance(node.name, (astroid.Tuple, astroid.List)):
-            self.add_message('unpacking-in-except', node=node)
-
-    @check_messages('indexing-exception')
-    def visit_subscript(self, node):
-        """ Look for indexing exceptions. """
-        try:
-            for infered in node.value.infer():
-                if not isinstance(infered, astroid.Instance):
-                    continue
-                if inherit_from_std_ex(infered):
-                    self.add_message('indexing-exception', node=node)
-        except astroid.InferenceError:
-            return
 
     @check_messages('bare-except', 'broad-except', 'pointless-except',
                     'binary-op-exception', 'bad-except-order',
@@ -285,8 +251,8 @@ class ExceptionsChecker(BaseChecker):
                         if (isinstance(exc, astroid.Const) and
                                 exc.value is None):
                             if ((isinstance(handler.type, astroid.Const) and
-                                     handler.type.value is None) or
-                                     handler.type.parent_of(exc)):
+                                 handler.type.value is None) or
+                                    handler.type.parent_of(exc)):
                                 # If the exception handler catches None or
                                 # the exception component, which is None, is
                                 # defined by the entire exception handler, then
