@@ -17,7 +17,7 @@ Release Process
 
 4. Run
    
-   $ python setup.py register sdist bdist_wheel --formats=gztar upload
+   $ python setup.py register sdist --formats=gztar bdist_wheel upload
 
    to release a new version to PyPI.
   
