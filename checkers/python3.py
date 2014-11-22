@@ -23,10 +23,17 @@ from pylint.utils import WarningScope
 from pylint.checkers import utils
 
 
-_OLD_OCTAL = re.compile("^0+[1-7]+$")
+_ZERO = re.compile("^0+$")
 
 def _is_old_octal(literal):
-    return _OLD_OCTAL.match(literal)
+    if _ZERO.match(literal):
+        return False
+    if re.match('0\d+', literal):
+        try:
+            int(literal, 8)
+        except ValueError:
+            return False
+        return True
 
 def _check_dict_node(node):
     inferred_types = set()
