@@ -287,7 +287,7 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
             self._test_token_message(octal, "old-octal-literal")
 
         # Make sure we are catching only octals.
-        for non_octal in ("45", "00", "085", "08"):
+        for non_octal in ("45", "00", "085", "08", "1"):
             tokens = testutils.tokenize_str(non_octal)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)

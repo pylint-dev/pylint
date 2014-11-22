@@ -1,5 +1,4 @@
 """This is gramatically correct, but it's still a SyntaxError"""
-__revision__ = None
-yield 1
+yield 1  # [yield-outside-function]
 
 LAMBDA_WITH_YIELD = lambda: (yield)

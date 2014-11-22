@@ -118,7 +118,7 @@ class StdlibChecker(BaseChecker):
             reading = True
         if text and binary:
             return False
-        total = reading + writing + appending + creating if six.PY3 else 0
+        total = reading + writing + appending + (creating if six.PY3 else 0)
         if total > 1:
             return False
         if not (reading or writing or appending or creating and six.PY3):

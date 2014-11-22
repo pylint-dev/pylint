@@ -23,6 +23,7 @@ from collections import defaultdict
 import astroid
 from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator, BUILTINS
+from astroid.inference import InferenceContext
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -338,7 +339,7 @@ a metaclass class method.'}
             if ancestor in (YES, None):
                 continue
             if (isinstance(ancestor, astroid.Instance) and
-                    ancestor._is_subtype_of('%s.type' % (BUILTINS,))):
+                    ancestor.is_subtype_of('%s.type' % (BUILTINS,))):
                 continue
             if not isinstance(ancestor, astroid.Class):
                 self.add_message('inherit-non-class',
@@ -443,7 +444,7 @@ a metaclass class method.'}
                     and overridden_frame.type == 'method'):
                 overridden_frame = overridden_frame.parent.frame()
             if (isinstance(overridden_frame, Class)
-                    and klass._is_subtype_of(overridden_frame.qname())):
+                    and klass.is_subtype_of(overridden_frame.qname())):
                 args = (overridden.root().name, overridden.fromlineno)
                 self.add_message('method-hidden', args=args, node=node)
         except astroid.NotFoundError:

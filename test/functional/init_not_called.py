@@ -2,28 +2,27 @@
 """test for __init__ not called
 """
 from __future__ import print_function
-__revision__ = '$Id: func_w0231.py,v 1.3 2004-09-29 08:35:13 syt Exp $'
 
-class AAAA:
+class AAAA:  # <3.0:[old-style-class]
     """ancestor 1"""
 
     def __init__(self):
         print('init', self)
 
-class BBBB:
+class BBBB:  # <3.0:[old-style-class]
     """ancestor 2"""
 
     def __init__(self):
         print('init', self)
 
-class CCCC:
+class CCCC:  # <3.0:[old-style-class,no-init]
     """ancestor 3"""
 
 
 class ZZZZ(AAAA, BBBB, CCCC):
     """derived class"""
 
-    def __init__(self):
+    def __init__(self):  # [super-init-not-called]
         AAAA.__init__(self)
 
 class NewStyleA(object):
@@ -56,5 +55,5 @@ class NewStyleC(object):
 
 class AssignedInit(NewStyleC):
     """No init called."""
-    def __init__(self):
+    def __init__(self):  # [super-init-not-called]
         self.arg = 0

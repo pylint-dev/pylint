@@ -377,7 +377,21 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                   'short': 'j',
                   'default': 1,
                   'help' : '''Use multiple processes to speed up Pylint.''',
-                 }), # jobs
+                 }),
+
+                ('unsafe-load-any-extension',
+                 {'type': 'yn', 'metavar': '<yn>', 'default': False, 'hide': True,
+                  'help': ('Allow loading of arbitrary C extensions. Extensions'
+                           ' are imported into the active Python interpreter and'
+                           ' may run arbitrary code.')}),
+
+                ('extension-pkg-whitelist',
+                  {'type': 'csv', 'metavar': '<pkg[,pkg]>', 'default': [],
+                   'help': ('A comma-separated list of package or module names'
+                            ' from where C extensions may be loaded. Extensions are'
+                            ' loading into the active Python interpreter and may run'
+                            ' arbitrary code')}
+                  ),
                )
 
     option_groups = (
@@ -846,6 +860,20 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
     def check_astroid_module(self, astroid, walker, rawcheckers, tokencheckers):
         """check a module from its astroid representation, real work"""
+        try:
+            return self._check_astroid_module(astroid, walker,
+                                              rawcheckers, tokencheckers)
+        finally:
+            # Close file_stream, if opened, to avoid to open many files.
+            if astroid.file_stream:
+                astroid.file_stream.close()
+                # TODO(cpopa): This is an implementation detail, but it will
+                # be moved in astroid at some point.
+                # We invalidate the cached property, to let the others
+                # modules which relies on this one to get a new file stream.
+                del astroid.file_stream
+
+    def _check_astroid_module(self, astroid, walker, rawcheckers, tokencheckers):
         # call raw checkers if possible
         try:
             tokens = tokenize_module(astroid)
@@ -880,6 +908,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         self.stats = {'by_module' : {},
                       'by_msg' : {},
                      }
+        MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
+        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_whitelist)
         for msg_cat in six.itervalues(MSG_TYPES):
             self.stats[msg_cat] = 0
 
