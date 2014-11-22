@@ -48,16 +48,24 @@ class StdlibChecker(BaseChecker):
                   'midnight UTC. This behaviour was fixed in Python 3.5. '
                   'See http://bugs.python.org/issue13936 for reference.',
                   {'maxversion': (3, 5)}),
-        }
+        'W1503': ('Redundant use of assertTrue or assertFalse with constant '
+                  'value %r',
+                  'redundant-assert',
+                  'Using assertTrue or assertFalse when the first'
+                  'argument is literal, is redundant.')
+    }
 
-    @utils.check_messages('bad-open-mode')
+    @utils.check_messages('bad-open-mode', 'redundant-assert')
     def visit_callfunc(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
             infer = utils.safe_infer(node.func)
-            if infer and infer.root().name == OPEN_MODULE:
-                if getattr(node.func, 'name', None) in ('open', 'file'):
-                    self._check_open_mode(node)
+            if infer:
+                if infer.root().name == OPEN_MODULE:
+                    if getattr(node.func, 'name', None) in ('open', 'file'):
+                        self._check_open_mode(node)
+                if infer.root().name == 'unittest.case':
+                    self._check_redundant_assert(node, infer)
 
     @utils.check_messages('boolean-datetime')
     def visit_unaryop(self, node):
@@ -76,6 +84,13 @@ class StdlibChecker(BaseChecker):
     def visit_boolop(self, node):
         for value in node.values:
             self._check_datetime(value)
+
+    def _check_redundant_assert(self, node, infer):
+        if (infer.name in ['assertTrue', 'assertFalse'] and
+           isinstance(infer, astroid.bases.BoundMethod) and
+           isinstance(node.args[0], astroid.node_classes.Const)):
+            self.add_message('redundant-assert', args=(node.args[0].value,),
+                             node=node)
 
     def _check_datetime(self, node):
         """ Check that a datetime was infered.
