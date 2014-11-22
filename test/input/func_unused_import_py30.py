@@ -1,5 +1,6 @@
 """check unused import for metaclasses
 """
+# pylint: disable=no-init,too-few-public-methods
 __revision__ = 1
 import abc
 import sys

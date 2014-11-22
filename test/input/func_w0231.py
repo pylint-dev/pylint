@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903,no-init
 """test for __init__ not called
 """
 from __future__ import print_function
