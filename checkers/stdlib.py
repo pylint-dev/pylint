@@ -16,6 +16,7 @@
 """Checkers for various standard library functions."""
 
 import re
+import six
 import sys
 
 import astroid
@@ -25,7 +26,6 @@ from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
-_VALID_OPEN_MODE_REGEX = re.compile(r'^(r?U|[rwa]\+?b?)$')
 
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
@@ -89,6 +89,46 @@ class StdlibChecker(BaseChecker):
                 infered.qname() == 'datetime.time'):
             self.add_message('boolean-datetime', node=node)
 
+    @staticmethod
+    def _check_mode_str(mode):
+        # check type
+        cls = str if six.PY3 else basestring
+        if not isinstance(mode, cls):
+            return False
+        # check syntax
+        modes = set(mode)
+        _mode = "rwatb+U"
+        if six.PY3:
+            _mode += "x"
+        if modes - set(_mode) or len(mode) > len(modes):
+            return False
+        # check logic
+        creating = False
+        if six.PY3:
+            creating = "x" in modes
+        reading = "r" in modes
+        writing = "w" in modes
+        appending = "a" in modes
+        updating = "+" in modes
+        text = "t" in modes
+        binary = "b" in modes
+        if "U" in modes:
+            if writing or appending or creating and six.PY3:
+                return False
+            reading = True
+        if text and binary:
+            return False
+        total = reading + writing + appending + creating if six.PY3 else 0
+        if total > 1:
+            return False
+        if not (reading or writing or appending or creating and six.PY3):
+            return False
+        # 2.x constraints
+        if not six.PY3:
+            if mode[0] not in ("r", "w", "a", "U"):
+                return False
+        return True
+
     def _check_open_mode(self, node):
         """Check that the mode argument of an open or file call is valid."""
         try:
@@ -96,7 +136,7 @@ class StdlibChecker(BaseChecker):
             if mode_arg:
                 mode_arg = utils.safe_infer(mode_arg)
                 if (isinstance(mode_arg, astroid.Const)
-                        and not _VALID_OPEN_MODE_REGEX.match(mode_arg.value)):
+                        and not self._check_mode_str(mode_arg.value)):
                     self.add_message('bad-open-mode', node=node,
                                      args=(mode_arg.value))
         except (utils.NoSuchArgumentError, TypeError):
