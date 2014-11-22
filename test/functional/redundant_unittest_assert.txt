@@ -1,0 +1,1 @@
+redundant-assert:12:Tests.test_something:"Redundant use of assertTrue or assertFalse with constant value 'I meant assertEqual'"
