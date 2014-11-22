@@ -1,2 +1,0 @@
-W: 26:ZZZZ.__init__: __init__ method from base class 'BBBB' is not called
-W: 59:AssignedInit.__init__: __init__ method from base class 'NewStyleC' is not called

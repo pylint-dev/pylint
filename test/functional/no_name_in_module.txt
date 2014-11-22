@@ -1,0 +1,11 @@
+import-error:5::Unable to import 'logilab.common.tutu'
+no-name-in-module:5::No name 'tutu' in module 'logilab.common'
+no-name-in-module:6::No name 'toto' in module 'logilab.common'
+no-member:10::Module 'logilab.common.modutils' has no 'nonexistant_function' member:INFERENCE
+no-member:11::Module 'logilab.common.modutils' has no 'another' member:INFERENCE
+no-member:12::Module 'logilab.common.modutils' has no 'yo' member:INFERENCE
+no-member:16::Module 'sys' has no 'stdoout' member:INFERENCE
+import-error:22::Unable to import 'rie'
+no-name-in-module:23::No name 'compiile' in module 're'
+no-name-in-module:23::No name 'findiiter' in module 're'
+pointless-statement:26::Statement seems to have no effect

@@ -1,0 +1,4 @@
+invalid-slots:42:SecondBad:Invalid __slots__ object
+invalid-slots-object:46:ThirdBad:Invalid object '2' in __slots__, must contain only non empty strings
+invalid-slots:48:FourthBad:Invalid __slots__ object
+invalid-slots-object:52:FifthBad:"Invalid object ""''"" in __slots__, must contain only non empty strings"

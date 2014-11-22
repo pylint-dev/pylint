@@ -10,7 +10,6 @@ def func():
     else:
         return [str(var) for var in range(3)]
 
-__revision__ = 0
 
 class NotIterable(object):
     def __iter_(self):
@@ -40,17 +39,17 @@ class SeventhGood(object):
 class Bad(object):
     __slots__ = list
 
-class SecondBad(object):
+class SecondBad(object):  # [invalid-slots]
     __slots__ = 1
 
 class ThirdBad(object):
-    __slots__ = ('a', 2)
+    __slots__ = ('a', 2)  # [invalid-slots-object]
 
-class FourthBad(object):
+class FourthBad(object):  # [invalid-slots]
     __slots__ = NotIterable()
 
 class FifthBad(object):
-    __slots__ = ("a", "b", "")
+    __slots__ = ("a", "b", "")  # [invalid-slots-object]
 
 class PotentiallyGood(object):
     __slots__ = func()
