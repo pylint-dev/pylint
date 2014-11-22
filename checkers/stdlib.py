@@ -57,7 +57,7 @@ class StdlibChecker(BaseChecker):
                   'should be emited.')
     }
 
-    @utils.check_messages('bad-open-mode', 'redundant-unitetest-assert')
+    @utils.check_messages('bad-open-mode', 'redundant-unittest-assert')
     def visit_callfunc(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
@@ -88,9 +88,9 @@ class StdlibChecker(BaseChecker):
             self._check_datetime(value)
 
     def _check_redundant_assert(self, node, infer):
-        if (infer.name in ['assertTrue', 'assertFalse'] and
-                isinstance(infer, astroid.BoundMethod) and
-                isinstance(node.args[0], astroid.Const)):
+        if (isinstance(infer, astroid.BoundMethod) and
+                isinstance(node.args[0], astroid.Const) and
+                infer.name in ['assertTrue', 'assertFalse']):
             self.add_message('redundant-unittest-assert',
                              args=(node.args[0].value, ),
                              node=node)

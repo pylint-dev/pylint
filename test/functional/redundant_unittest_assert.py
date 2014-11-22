@@ -17,3 +17,8 @@ class Tests(unittest.TestCase):
         self.assertTrue('I meant assertEqual not assertTrue', some_var)
         # +1:[redundant-unittest-assert]
         self.assertFalse('I meant assertEqual not assertFalse', some_var)
+        # +1:[redundant-unittest-assert]
+        self.assertTrue(True, some_var)
+
+        self.assertTrue('should be' in some_var, some_var)
+        self.assertTrue(some_var, some_var)
