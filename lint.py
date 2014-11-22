@@ -377,7 +377,21 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                   'short': 'j',
                   'default': 1,
                   'help' : '''Use multiple processes to speed up Pylint.''',
-                 }), # jobs
+                 }),
+
+                ('unsafe-load-any-extension',
+                 {'type': 'yn', 'metavar': '<yn>', 'default': False, 'hide': True,
+                  'help': ('Allow loading of arbitrary C extensions. Extensions'
+                           ' are imported into the active Python interpreter and'
+                           ' may run arbitrary code.')}),
+
+                ('extension-pkg-whitelist',
+                  {'type': 'csv', 'metavar': '<pkg[,pkg]>', 'default': [],
+                   'help': ('A comma-separated list of package or module names'
+                            ' from where C extensions may be loaded. Extensions are'
+                            ' loading into the active Python interpreter and may run'
+                            ' arbitrary code')}
+                  ),
                )
 
     option_groups = (
@@ -894,6 +908,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         self.stats = {'by_module' : {},
                       'by_msg' : {},
                      }
+        MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
+        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_whitelist)
         for msg_cat in six.itervalues(MSG_TYPES):
             self.stats[msg_cat] = 0
 

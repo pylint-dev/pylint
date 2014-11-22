@@ -2,6 +2,13 @@ ChangeLog for Pylint
 ====================
 
 --
+    * Added new options for controlling the loading of C extensions.
+      By default, only C extensions from the stdlib will be loaded
+      into the active Python interpreter for inspection, because they
+      can run arbitrary code on import. The option 
+      `--extension-pkg-whitelist` can be used to specify modules
+      or packages that are safe to load.
+
     * Change default max-line-length to 100 rather than 80
 
     * Drop BaseRawChecker class which were only there for backward
