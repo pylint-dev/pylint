@@ -50,12 +50,14 @@ class StdlibChecker(BaseChecker):
                   {'maxversion': (3, 5)}),
         'W1503': ('Redundant use of assertTrue or assertFalse with constant '
                   'value %r',
-                  'redundant-assert',
-                  'Using assertTrue or assertFalse when the first'
-                  'argument is literal, is redundant.')
+                  'redundant-unittest-assert',
+                  'The first argument of assertTrue and assertFalse is'
+                  'a condition. If a constant is passed as parameter, that'
+                  'condition will be always true. In this case a warning '
+                  'should be emited.')
     }
 
-    @utils.check_messages('bad-open-mode', 'redundant-assert')
+    @utils.check_messages('bad-open-mode', 'redundant-unitetest-assert')
     def visit_callfunc(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
@@ -87,9 +89,10 @@ class StdlibChecker(BaseChecker):
 
     def _check_redundant_assert(self, node, infer):
         if (infer.name in ['assertTrue', 'assertFalse'] and
-           isinstance(infer, astroid.bases.BoundMethod) and
-           isinstance(node.args[0], astroid.node_classes.Const)):
-            self.add_message('redundant-assert', args=(node.args[0].value,),
+                isinstance(infer, astroid.BoundMethod) and
+                isinstance(node.args[0], astroid.Const)):
+            self.add_message('redundant-unittest-assert',
+                             args=(node.args[0].value, ),
                              node=node)
 
     def _check_datetime(self, node):
