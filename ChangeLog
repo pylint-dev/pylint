@@ -1,7 +1,8 @@
 ChangeLog for Pylint
 ====================
 
---
+2014-11-23 -- 1.4.0
+
     * Added new options for controlling the loading of C extensions.
       By default, only C extensions from the stdlib will be loaded
       into the active Python interpreter for inspection, because they
