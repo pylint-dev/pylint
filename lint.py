@@ -45,7 +45,7 @@ except ImportError:
 
 import six
 from logilab.common.configuration import (
-    UnsupportedAction, OptionsManagerMixIn, format_option_value)
+    UnsupportedAction, OptionsManagerMixIn)
 from logilab.common.optik_ext import check_csv
 from logilab.common.interface import implements
 from logilab.common.textutils import splitstrip, unquote
@@ -213,24 +213,26 @@ if multiprocessing is not None:
             linter.load_default_plugins()
             # Load command line plugins.
             # TODO linter.load_plugin_modules(self._plugins)
-            # i.e. Run options are not available here as they are patches to Pylinter options.
-            # To fix it Run options should be moved to Pylinter class to make them
-            # available here.
 
             linter.disable('pointless-except')
             linter.disable('suppressed-message')
             linter.disable('useless-suppression')
 
-            # Copy config with skipping command-line specific options.
-            linter_config = {}
-            filter_options = {"symbols", "include-ids"}
-            for opt_providers in six.itervalues(linter._all_options):
-                for optname, _ in opt_providers.options:
-                    if optname not in filter_options:
-                        linter_config[optname] = config[optname]
-            linter_config['jobs'] = 1  # Child does not parallelize any further.
-            linter.load_configuration(**linter_config)
+            # TODO(cpopa): the sub-linters will not know all the options
+            # because they are not available here, as they are patches to
+            # PyLinter options. The following is just a hack to handle
+            # just a part of the options available in the Run class.
 
+            if 'disable_msg' in config:
+                # Disable everything again. We don't have access
+                # to the original linter though.
+                for msgid in config['disable_msg']:
+                    linter.disable(msgid)
+            for key in set(config) - set(dict(linter.options)):
+                del config[key]
+
+            config['jobs'] = 1  # Child does not parallelize any further.
+            linter.load_configuration(**config)
             linter.set_reporter(CollectingReporter())
 
             # Run the checks.
@@ -700,11 +702,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
 
     def _parallel_task(self, files_or_modules):
         # Prepare configuration for child linters.
-        config = {}
-        for opt_providers in six.itervalues(self._all_options):
-            for optname, optdict, val in opt_providers.options_and_values():
-                config[optname] = format_option_value(optdict, val)
-
+        config = vars(self.config)
         childs = []
         manager = multiprocessing.Manager()  # pylint: disable=no-member
         tasks_queue = manager.Queue()  # pylint: disable=no-member
