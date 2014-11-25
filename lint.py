@@ -862,14 +862,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             return self._check_astroid_module(astroid, walker,
                                               rawcheckers, tokencheckers)
         finally:
-            # Close file_stream, if opened, to avoid to open many files.
-            if astroid.file_stream:
-                astroid.file_stream.close()
-                # TODO(cpopa): This is an implementation detail, but it will
-                # be moved in astroid at some point.
-                # We invalidate the cached property, to let the others
-                # modules which relies on this one to get a new file stream.
-                del astroid.file_stream
+            # Close the streams opened by the ast module.
+            astroid.close()
 
     def _check_astroid_module(self, astroid, walker, rawcheckers, tokencheckers):
         # call raw checkers if possible
