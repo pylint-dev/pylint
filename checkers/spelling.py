@@ -97,7 +97,7 @@ class SpellingChecker(BaseTokenChecker):
         if not dict_name:
             return
 
-        self.ignore_list = self.config.spelling_ignore_words.split(",")
+        self.ignore_list = [w.strip() for w in self.config.spelling_ignore_words.split(",")]
         # "param" appears in docstring in param description and
         # "pylint" appears in comments in pylint pragmas.
         self.ignore_list.extend(["param", "pylint"])

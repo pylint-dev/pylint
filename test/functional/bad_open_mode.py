@@ -12,3 +12,7 @@ open('foo.bar', buffering=2)
 WRITE_MODE = 'w'
 open('foo.bar', 'U' + WRITE_MODE + 'z')  # [bad-open-mode]
 open('foo.bar', 'br')  # [bad-open-mode]
+open('foo.bar', 'wU') # [bad-open-mode]
+open('foo.bar', 'r+b')
+open('foo.bar', 'r+')
+open('foo.bar', 'w+')

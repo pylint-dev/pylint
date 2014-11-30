@@ -685,9 +685,12 @@ functions, methods
 
             if (isinstance(value, astroid.Instance) and
                     value.qname() in DEFAULT_ARGUMENT_SYMBOLS):
+                is_infered_builtin = isinstance(
+                    value,
+                    (astroid.List, astroid.Tuple, astroid.Set))
                 if value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif type(value) is astroid.Instance:
+                elif type(value) is astroid.Instance or is_infered_builtin:
                     if isinstance(default, astroid.CallFunc):
                         # this argument is direct call to list() or dict() etc
                         msg = '%s() (%s)' % (value.name, value.qname())

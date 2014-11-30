@@ -17,9 +17,11 @@ import unittest
 
 import six
 
+from logilab.common.ureports import Section
 from pylint.lint import PyLinter
 from pylint import checkers
 from pylint.reporters.text import TextReporter, ParseableTextReporter
+from pylint.reporters.html import HTMLReporter
 
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')
@@ -62,6 +64,51 @@ class PyLinterTC(unittest.TestCase):
                                   '0123:1: [C0301(line-too-long), ] '
                                   'Line too long (1/2)\n')
 
+    @unittest.expectedFailure
+    def test_html_reporter_type(self):
+        # Integration test for issue #263
+        # https://bitbucket.org/logilab/pylint/issue/263/html-report-type-problems
+        expected = '''<html>
+<body>
+<div>
+<div>
+<h2>Messages</h2>
+<table>
+<tr class="header">
+<th>type</th>
+<th>module</th>
+<th>object</th>
+<th>line</th>
+<th>col_offset</th>
+<th>message</th>
+</tr>
+<tr class="even">
+<td>convention</td>
+<td>0123</td>
+<td>&#160;</td>
+<td>1</td>
+<td>0</td>
+<td>Exactly one space required before comparison
+a&lt; 5: print "zero"</td>
+</tr>
+</table>
+</div>
+</div>
+</body>
+</html>
+'''
+        output = six.StringIO()
+        linter = PyLinter(reporter=HTMLReporter())
+        checkers.initialize(linter)
+        linter.config.persistent = 0
+        linter.reporter.set_output(output)
+        linter.open()
+        linter.set_current_module('0123')
+        linter.add_message('bad-whitespace', line=1,
+                           args=('Exactly one', 'required', 'before',
+                                 'comparison', 'a< 5: print "zero"'))
+        linter.reporter.display_results(Section())
+        self.assertMultiLineEqual(output.getvalue(), expected)
 
 if __name__ == '__main__':
     unittest.main()
