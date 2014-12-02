@@ -44,3 +44,19 @@ class CrashSuper(object):
     """ test a crash with this checker """
     def __init__(self):
         super(Getattr.name, self).__init__()  # [bad-super-call]
+
+class Empty(object):
+    """Just an empty class."""
+
+class SuperDifferentScope(object):
+    """Don'emit bad-super-call when the super call is in another scope.
+    For reference, see https://bitbucket.org/logilab/pylint/issue/403.
+    """
+    @staticmethod
+    def test():
+        """Test that a bad-super-call is not emitted for this case."""
+        class FalsePositive(Empty):
+            """The following super is in another scope than `test`."""
+            def __init__(self, arg):
+                super(FalsePositive, self).__init__(arg)
+        super(object, 1).__init__() # [bad-super-call]

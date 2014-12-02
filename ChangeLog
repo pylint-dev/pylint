@@ -1,6 +1,10 @@
 ChangeLog for Pylint
 ====================
 
+--
+    * Look only in the current function's scope for bad-super-call.
+      Closes issue #403.
+
 2014-11-23 -- 1.4.0
 
     * Added new options for controlling the loading of C extensions.

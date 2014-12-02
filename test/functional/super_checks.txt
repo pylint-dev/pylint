@@ -6,3 +6,4 @@ missing-super-argument:27:Py3kAaaa.__init__:Missing argument to super():INFERENC
 bad-super-call:32:Py3kWrongSuper.__init__:Bad first argument 'NewAaaa' given to super():INFERENCE
 bad-super-call:37:WrongNameRegression.__init__:Bad first argument 'Missing' given to super():INFERENCE
 bad-super-call:46:CrashSuper.__init__:Bad first argument 'NewAaaa' given to super():INFERENCE
+bad-super-call:62:SuperDifferentScope.test:Bad first argument 'object' given to super():INFERENCE
