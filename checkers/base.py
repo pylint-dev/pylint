@@ -676,7 +676,13 @@ functions, methods
         variable names, max locals
         """
         self.stats[node.is_method() and 'method' or 'function'] += 1
+        self._check_dangerous_default(node)
+
+    def _check_dangerous_default(self, node):
         # check for dangerous default values as arguments
+        is_iterable = lambda n: isinstance(n, (astroid.List,
+                                               astroid.Set,
+                                               astroid.Dict))
         for default in node.args.defaults:
             try:
                 value = next(default.infer())
@@ -685,24 +691,30 @@ functions, methods
 
             if (isinstance(value, astroid.Instance) and
                     value.qname() in DEFAULT_ARGUMENT_SYMBOLS):
-                is_infered_builtin = isinstance(
-                    value,
-                    (astroid.List, astroid.Tuple, astroid.Set))
+
                 if value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif type(value) is astroid.Instance or is_infered_builtin:
-                    if isinstance(default, astroid.CallFunc):
-                        # this argument is direct call to list() or dict() etc
+                elif type(value) is astroid.Instance or is_iterable(value):
+                    # We are here in the following situation(s):
+                    #   * a dict/set/list/tuple call which wasn't inferred
+                    #     to a syntax node ({}, () etc.). This can happen
+                    #     when the arguments are invalid or unknown to
+                    #     the inference.
+                    #   * a variable from somewhere else, which turns out to be a list
+                    #     or a dict.
+                    if is_iterable(default):
+                        msg = value.pytype()
+                    elif isinstance(default, astroid.CallFunc):
                         msg = '%s() (%s)' % (value.name, value.qname())
                     else:
-                        # this argument is a variable from somewhere else which turns
-                        # out to be a list or dict
                         msg = '%s (%s)' % (default.as_string(), value.qname())
                 else:
                     # this argument is a name
                     msg = '%s (%s)' % (default.as_string(),
                                        DEFAULT_ARGUMENT_SYMBOLS[value.qname()])
-                self.add_message('dangerous-default-value', node=node, args=(msg,))
+                self.add_message('dangerous-default-value',
+                                 node=node,
+                                 args=(msg, ))
 
     @check_messages('unreachable', 'lost-exception')
     def visit_return(self, node):
