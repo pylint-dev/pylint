@@ -42,21 +42,14 @@ def _annotated_unpack_infer(stmt, context=None):
     # as well.
     if isinstance(stmt, (List, Tuple)):
         for elt in stmt.elts:
-            for infered_elt in unpack_infer(elt, context):
-                yield elt, infered_elt
+            inferred = safe_infer(elt)
+            if inferred and inferred is not YES:
+                yield elt, inferred
         return
-    # if infered is a final node, return it and stop
-    infered = next(stmt.infer(context))
-    if infered is stmt:
-        yield stmt, infered
-        return
-    # else, infer recursivly, except YES object that should be returned as is
     for infered in stmt.infer(context):
         if infered is YES:
-            yield stmt, infered
-        else:
-            for inf_inf in unpack_infer(infered, context):
-                yield stmt, inf_inf
+            continue
+        yield stmt, infered
 
 
 PY3K = sys.version_info >= (3, 0)
