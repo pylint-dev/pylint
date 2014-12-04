@@ -25,7 +25,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_empty, is_raising,
     check_messages, inherit_from_std_ex,
-    EXCEPTIONS_MODULE, has_known_bases)
+    EXCEPTIONS_MODULE, has_known_bases, safe_infer)
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 
 def _annotated_unpack_infer(stmt, context=None):
@@ -145,21 +145,17 @@ class ExceptionsChecker(BaseChecker):
         if node.exc is None:
             return
         if PY3K and node.cause:
-            try:
-                cause = next(node.cause.infer())
-            except astroid.InferenceError:
-                pass
-            else:
-                if cause is YES:
-                    return
-                if isinstance(cause, astroid.Const):
-                    if cause.value is not None:
-                        self.add_message('bad-exception-context',
-                                         node=node)
-                elif (not isinstance(cause, astroid.Class) and
-                      not inherit_from_std_ex(cause)):
+            cause = safe_infer(node.cause)
+            if cause is YES or cause is None:
+                return
+            if isinstance(cause, astroid.Const):
+                if cause.value is not None:
                     self.add_message('bad-exception-context',
                                      node=node)
+            elif (not isinstance(cause, astroid.Class) and
+                  not inherit_from_std_ex(cause)):
+                self.add_message('bad-exception-context',
+                                 node=node)
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
