@@ -121,7 +121,7 @@ class MyInstallLib(install_lib.install_lib):
                 dest = join(self.install_dir, base, directory)
                 if sys.version_info >= (3, 0):
                     exclude = set(['invalid_encoded_data*',
-                                   'unkown_encoding*'])
+                                   'unknown_encoding*'])
                 else:
                     exclude = set()
                 shutil.rmtree(dest, ignore_errors=True)
