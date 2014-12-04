@@ -179,7 +179,7 @@ def _determine_function_name_type(node):
             return 'attr'
     return 'method'
 
-def decorated_with_abc(func):
+def _decorated_with_abc(func):
     """ Determine if the `func` node is decorated
     with `abc` decorators (abstractmethod et co.)
     """
@@ -192,12 +192,12 @@ def decorated_with_abc(func):
             if infered and infered.qname() in ABC_METHODS:
                 return True
 
-def has_abstract_methods(node):
+def _has_abstract_methods(node):
     """
     Determine if the given `node` has
     abstract methods, defined with `abc` module.
     """
-    return any(decorated_with_abc(meth)
+    return any(_decorated_with_abc(meth)
                for meth in node.methods())
 
 def report_by_type_stats(sect, stats, old_stats):
@@ -398,7 +398,7 @@ class BasicErrorChecker(_BasicChecker):
             return
         # __init__ was called
         metaclass = infered.metaclass()
-        abstract_methods = has_abstract_methods(infered)
+        abstract_methods = _has_abstract_methods(infered)
         if metaclass is None:
             # Python 3.4 has `abc.ABC`, which won't be detected
             # by ClassNode.metaclass()
