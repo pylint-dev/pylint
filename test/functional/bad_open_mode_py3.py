@@ -12,3 +12,12 @@ open(NAME, "rwx")  # [bad-open-mode]
 open(NAME, "rr")  # [bad-open-mode]
 open(NAME, "+")  # [bad-open-mode]
 open(NAME, "xw")  # [bad-open-mode]
+open(NAME, "ab+")
+open(NAME, "a+b")
+open(NAME, "+ab")
+open(NAME, "+rUb")
+open(NAME, "x+b")
+open(NAME, "Ua")  # [bad-open-mode]
+open(NAME, "Ur++")  # [bad-open-mode]
+open(NAME, "Ut")
+open(NAME, "Ubr")

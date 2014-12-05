@@ -57,6 +57,8 @@ def _check_mode_str(mode):
         if writing or appending or creating and six.PY3:
             return False
         reading = True
+        if not six.PY3:
+            binary = True
     if text and binary:
         return False
     total = reading + writing + appending + (creating if six.PY3 else 0)
@@ -64,8 +66,12 @@ def _check_mode_str(mode):
         return False
     if not (reading or writing or appending or creating and six.PY3):
         return False
-    # 2.x constraints
+    # other 2.x constraints
     if not six.PY3:
+        if "U" in mode:
+            mode = mode.replace("U", "")
+            if "r" not in mode:
+                mode = "r" + mode
         return mode[0] in ("r", "w", "a", "U")
     return True
 
@@ -77,7 +83,8 @@ class StdlibChecker(BaseChecker):
     msgs = {
         'W1501': ('"%s" is not a valid mode for open.',
                   'bad-open-mode',
-                  'Python supports: r, w, a modes with b, +, and U options. '
+                  'Python supports: r, w, a[, x] modes with b, +, '
+                  'and U (only with r) options. '
                   'See http://docs.python.org/2/library/functions.html#open'),
         'W1502': ('Using datetime.time in a boolean context.',
                   'boolean-datetime',

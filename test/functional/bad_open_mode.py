@@ -17,3 +17,21 @@ open('foo.bar', 'r+b')
 open('foo.bar', 'r+')
 open('foo.bar', 'w+')
 open('foo.bar', 'xb')  # [bad-open-mode]
+open('foo.bar', 'rx')  # [bad-open-mode]
+open('foo.bar', 'Ur')
+open('foo.bar', 'rU')
+open('foo.bar', 'rUb')
+open('foo.bar', 'rUb+')
+open('foo.bar', 'rU+b')
+open('foo.bar', 'r+Ub')
+open('foo.bar', '+rUb')  # [bad-open-mode]
+open('foo.bar', 'ab+')
+open('foo.bar', 'a+b')
+open('foo.bar', 'aU')  # [bad-open-mode]
+open('foo.bar', 'U+b')
+open('foo.bar', '+Ub')
+open('foo.bar', 'b+U')
+open('foo.bar', 'Urb+')
+open('foo.bar', 'Ur+b')
+open('foo.bar', 'Ubr')  # [bad-open-mode]
+open('foo.bar', 'Ut')  # [bad-open-mode]
