@@ -585,6 +585,8 @@ a metaclass class method.'}
                 return
 
             slots = klass.slots()
+            if slots is None:
+                return
             # If any ancestor doesn't use slots, the slots
             # defined for this class are superfluous.
             if any('__slots__' not in ancestor.locals and
