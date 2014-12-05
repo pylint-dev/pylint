@@ -11,3 +11,4 @@ open(NAME, "xb")
 open(NAME, "rwx")  # [bad-open-mode]
 open(NAME, "rr")  # [bad-open-mode]
 open(NAME, "+")  # [bad-open-mode]
+open(NAME, "xw")  # [bad-open-mode]

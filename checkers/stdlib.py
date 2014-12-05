@@ -40,13 +40,13 @@ def _check_mode_str(mode):
     # check syntax
     modes = set(mode)
     _mode = "rwatb+U"
+    creating = False
     if six.PY3:
         _mode += "x"
         creating = "x" in modes
     if modes - set(_mode) or len(mode) > len(modes):
         return False
     # check logic
-    creating = False
     reading = "r" in modes
     writing = "w" in modes
     appending = "a" in modes

@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903,missing-docstring,no-self-use
 """
     'E1102': ('%s is not callable',
               'Used when an object being called has been infered to a non \
@@ -71,3 +71,48 @@ class PropertyTest(object):
 PROP = PropertyTest()
 PROP.test(40)
 PROP.custom()
+
+# Safe from not-callable when using properties.
+
+class SafeProperty(object):
+    @property
+    def static(self):
+        return staticmethod
+
+    @property
+    def klass(self):
+        return classmethod
+
+    @property
+    def get_lambda(self):
+        return lambda: None
+
+    @property
+    def other_function(self):
+        def function(arg):
+            return arg
+        return function
+
+    @property
+    def dict_builtin(self):
+        return dict
+
+    @property
+    def range_builtin(self):
+        return range
+
+    @property
+    def instance(self):
+        class Empty(object):
+            def __call__(self):
+                return 42
+        return Empty()
+
+PROP1 = SafeProperty()
+PROP1.static(2)
+PROP1.klass(2)
+PROP1.get_lambda()
+PROP1.other_function(4)
+PROP1.dict_builtin()
+PROP1.range_builtin(4)
+PROP1.instance()

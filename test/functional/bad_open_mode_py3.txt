@@ -1,3 +1,4 @@
 bad-open-mode:11::"""rwx"" is not a valid mode for open."
 bad-open-mode:12::"""rr"" is not a valid mode for open."
 bad-open-mode:13::"""+"" is not a valid mode for open."
+bad-open-mode:14::"""xw"" is not a valid mode for open."

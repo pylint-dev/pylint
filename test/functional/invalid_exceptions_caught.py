@@ -63,3 +63,9 @@ try:
     1 + 46
 except EXCEPTION:
     print "caught"
+
+try:
+    1 + 42
+# +1:[catching-non-exception,catching-non-exception,catching-non-exception]
+except (list([4, 5, 6]), None, ZeroDivisionError, 4):
+    print "caught"

@@ -21,7 +21,11 @@ import astroid
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, has_known_bases
+from pylint.checkers.utils import (
+    check_messages,
+    has_known_bases,
+    node_frame_class,
+)
 
 MSGS = {
     'E1001': ('Use of __slots__ on an old style class',
@@ -112,6 +116,9 @@ class NewStyleConflictChecker(BaseChecker):
             return
         klass = node.parent.frame()
         for stmt in node.nodes_of_class(astroid.CallFunc):
+            if node_frame_class(stmt) != node_frame_class(node):
+                # Don't look down in other scopes.
+                continue
             expr = stmt.func
             if not isinstance(expr, astroid.Getattr):
                 continue

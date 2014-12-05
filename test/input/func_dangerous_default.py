@@ -62,3 +62,15 @@ OINK = {
 def function13(value=OINK):
     """dictionaries with items should not output item values in error message"""
     print value
+
+def function14(value=dict([(1, 2), (1, 2, 3)])):
+    """a dictionary which will not be inferred to a syntax AST, but to an
+    astroid.Instance.
+    """
+    return value
+
+INVALID_DICT = dict([(1, 2), (1, 2, 3)])
+
+def function15(value=INVALID_DICT):
+    """The same situation as function14."""
+    return value

@@ -344,11 +344,16 @@ accessed. Python regular expressions are accepted.'}
             if not isinstance(attr, astroid.Function):
                 continue
 
-            # Decorated, see if it is decorated with a property
+            # Decorated, see if it is decorated with a property.
+            # Also, check the returns and see if they are callable.
             if decorated_with_property(attr):
-                self.add_message('not-callable', node=node,
-                                 args=node.func.as_string())
-                break
+                if all(return_node.callable()
+                       for return_node in attr.infer_call_result(node)):
+                    continue
+                else:
+                    self.add_message('not-callable', node=node,
+                                     args=node.func.as_string())
+                    break
 
     @check_messages(*(list(MSGS.keys())))
     def visit_callfunc(self, node):
