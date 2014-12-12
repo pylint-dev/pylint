@@ -48,8 +48,10 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             'coerce',
             'execfile',
             'file',
+            'input',
             'long',
             'raw_input',
+            'round',
             'reduce',
             'StandardError',
             'unicode',
@@ -295,4 +297,3 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    

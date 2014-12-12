@@ -252,9 +252,19 @@ class Python3Checker(checkers.BaseChecker):
                   'map is a generator and must be evaluated. '
                   'Prefer a for-loop as alternative.',
                   {'maxversion': (3, 0)}),
+        'W1632': ('input built-in referenced',
+                  'input-builtin',
+                  'Used when the input built-in is referenced '
+                  '(backwards-incomptible semantics in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1633': ('round built-in referenced',
+                  'round-builtin',
+                  'Used when the round built-in is referenced '
+                  '(backwards-incomptible semantics in Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
-    _missing_builtins = frozenset([
+    _bad_builtins = frozenset([
         'apply',
         'basestring',
         'buffer',
@@ -262,9 +272,11 @@ class Python3Checker(checkers.BaseChecker):
         'coerce',
         'execfile',
         'file',
+        'input',  # Not missing, but incompatible semantics
         'long',
         'raw_input',
         'reduce',
+        'round',  # Not missing, but incompatible semantics
         'StandardError',
         'unicode',
         'xrange',
@@ -310,10 +322,10 @@ class Python3Checker(checkers.BaseChecker):
                 self.add_message('implicit-map-evaluation', node=node)
 
     def visit_name(self, node):
-        """Detect when a built-in that is missing in Python 3 is referenced."""
+        """Detect when a "bad" built-in is referenced."""
         found_node = node.lookup(node.name)[0]
         if getattr(found_node, 'name', None) == '__builtin__':
-            if node.name in self._missing_builtins:
+            if node.name in self._bad_builtins:
                 message = node.name.lower() + '-builtin'
                 self.add_message(message, node=node)
 
