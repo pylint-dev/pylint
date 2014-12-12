@@ -8,13 +8,16 @@ ChangeLog for Pylint
     * Check the return of properties when checking for not-callable.
       Closes issue #406.
 
+    * Warn about using the input() or round() built-ins for Python 3.
+      Closes issue #411.
+
 
 2014-11-23 -- 1.4.0
 
     * Added new options for controlling the loading of C extensions.
       By default, only C extensions from the stdlib will be loaded
       into the active Python interpreter for inspection, because they
-      can run arbitrary code on import. The option 
+      can run arbitrary code on import. The option
       `--extension-pkg-whitelist` can be used to specify modules
       or packages that are safe to load.
 
@@ -196,7 +199,7 @@ ChangeLog for Pylint
 
     * Add support for disabling a checker, by specifying an 'enabled'
       attribute on the checker class.
-      
+
     * Add a new CLI option, --py3k, for enabling Python 3 porting mode. This
       mode will disable all other checkers and will emit warnings and
       errors for constructs which are invalid or removed in Python 3.
@@ -206,7 +209,7 @@ ChangeLog for Pylint
 
     * Add 'implicit-map-evaluation' to Python 3 porting checker, emitted
       when encountering the use of map builtin, without explicit evaluation.
-      
+
 
 
 2014-07-26  --  1.3.0
