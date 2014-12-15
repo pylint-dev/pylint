@@ -255,12 +255,12 @@ class Python3Checker(checkers.BaseChecker):
         'W1632': ('input built-in referenced',
                   'input-builtin',
                   'Used when the input built-in is referenced '
-                  '(backwards-incomptible semantics in Python 3)',
+                  '(backwards-incompatible semantics in Python 3)',
                   {'maxversion': (3, 0)}),
         'W1633': ('round built-in referenced',
                   'round-builtin',
                   'Used when the round built-in is referenced '
-                  '(backwards-incomptible semantics in Python 3)',
+                  '(backwards-incompatible semantics in Python 3)',
                   {'maxversion': (3, 0)}),
     }
 
