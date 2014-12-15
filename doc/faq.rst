@@ -67,10 +67,22 @@ Pylint from the repository, simply invoke ::
 -----------------------------------
 
 Pylint requires the latest `astroid`_ and `logilab-common`_ packages. It should be
-compatible with any Python version greater than 2.5.0.
+compatible with any Python version greater than 2.7.0.
 
 .. _`astroid`: https://bitbucket.org/logilab/astroid
 .. _`logilab-common`: http://www.logilab.org/project/logilab-common
+
+2.4 What versions of Python is Pylint supporting?
+--------------------------------------------------
+
+Since Pylint 1.4, we support only Python 2.7+ and Python 3.3+.
+Using this strategy really helps in maintaining a code base compatible
+with both versions and from this benefits not only the maintainers,
+but the end users as well, because it's easier to add and test
+new features.
+If support for Python 2.6 is absolutely required, then the version
+from pylint-1.3 branch can be used. It will receive backports of
+bug fixes for a while.
 
 
 3. Running Pylint
