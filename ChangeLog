@@ -11,6 +11,9 @@ ChangeLog for Pylint
     * Warn about using the input() or round() built-ins for Python 3.
       Closes issue #411.
 
+    * Proper abstract method lookup while checking for
+      abstract-class-instantiated. Closes issue #401.
+
 
 2014-11-23 -- 1.4.0
 

@@ -197,8 +197,37 @@ def _has_abstract_methods(node):
     Determine if the given `node` has
     abstract methods, defined with `abc` module.
     """
-    return any(_decorated_with_abc(meth)
-               for meth in node.methods())
+    visited = set()
+    try:
+        mro = reversed(node.mro())
+    except NotImplementedError:
+        # Old style class, it will not have a mro.
+        return False
+    for ancestor in mro:
+        for obj in ancestor.values():
+            infered = obj
+            if isinstance(obj, astroid.AssName):
+                infered = safe_infer(obj)
+                if not infered:
+                    continue
+                if not isinstance(infered, astroid.Function):
+                    if obj.name in visited:
+                        visited.remove(obj.name)
+            if isinstance(infered, astroid.Function):
+                # It's critical to use the original name,
+                # since after inferring, an object can be something
+                # else than expected, as in the case of the
+                # following assignment.
+                #
+                # class A:
+                #     def keys(self): pass
+                #     __iter__ = keys
+                abstract = _decorated_with_abc(infered)
+                if abstract:
+                    visited.add(obj.name)
+                elif not abstract and obj.name in visited:
+                    visited.remove(obj.name)
+    return len(visited) > 0
 
 def report_by_type_stats(sect, stats, old_stats):
     """make a report of
