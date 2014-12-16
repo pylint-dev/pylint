@@ -248,7 +248,7 @@ lower bound on it. By default, the formula to calculate score is ::
     10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
 
 However, this option can be changed in the Pylint rc file. If having negative
-values really bugs you, you can set the formula to be the minimum of 0 and the
+values really bugs you, you can set the formula to be the maximum of 0 and the
 above expression.
 
 
