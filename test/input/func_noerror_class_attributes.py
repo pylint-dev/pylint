@@ -1,4 +1,4 @@
-"""Test that valide class attribut doesn't trigger errors"""
+"""Test that valid class attribute doesn't trigger errors"""
 __revision__ = 'sponge bob'
 
 class Clazz(object):
