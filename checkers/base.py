@@ -45,6 +45,7 @@ from pylint.checkers.utils import (
     has_known_bases,
     NoSuchArgumentError,
     is_import_error,
+    unimplemented_abstract_methods,
     )
 
 
@@ -148,8 +149,7 @@ if sys.version_info < (3, 0):
     PROPERTY_CLASSES = set(('__builtin__.property', 'abc.abstractproperty'))
 else:
     PROPERTY_CLASSES = set(('builtins.property', 'abc.abstractproperty'))
-ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
-                   'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
+
 
 def _determine_function_name_type(node):
     """Determine the name type whose regex the a function's name should match.
@@ -179,55 +179,17 @@ def _determine_function_name_type(node):
             return 'attr'
     return 'method'
 
-def _decorated_with_abc(func):
-    """ Determine if the `func` node is decorated
-    with `abc` decorators (abstractmethod et co.)
-    """
-    if func.decorators:
-        for node in func.decorators.nodes:
-            try:
-                infered = next(node.infer())
-            except InferenceError:
-                continue
-            if infered and infered.qname() in ABC_METHODS:
-                return True
+
 
 def _has_abstract_methods(node):
     """
-    Determine if the given `node` has
-    abstract methods, defined with `abc` module.
+    Determine if the given `node` has abstract methods.
+
+    The methods should be made abstract by decorating them
+    with `abc` decorators.
     """
-    visited = set()
-    try:
-        mro = reversed(node.mro())
-    except NotImplementedError:
-        # Old style class, it will not have a mro.
-        return False
-    for ancestor in mro:
-        for obj in ancestor.values():
-            infered = obj
-            if isinstance(obj, astroid.AssName):
-                infered = safe_infer(obj)
-                if not infered:
-                    continue
-                if not isinstance(infered, astroid.Function):
-                    if obj.name in visited:
-                        visited.remove(obj.name)
-            if isinstance(infered, astroid.Function):
-                # It's critical to use the original name,
-                # since after inferring, an object can be something
-                # else than expected, as in the case of the
-                # following assignment.
-                #
-                # class A:
-                #     def keys(self): pass
-                #     __iter__ = keys
-                abstract = _decorated_with_abc(infered)
-                if abstract:
-                    visited.add(obj.name)
-                elif not abstract and obj.name in visited:
-                    visited.remove(obj.name)
-    return len(visited) > 0
+    return len(unimplemented_abstract_methods(node)) > 0
+
 
 def report_by_type_stats(sect, stats, old_stats):
     """make a report of

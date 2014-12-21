@@ -1,4 +1,0 @@
-R: 22:AbstractB: Abstract class not referenced
-W: 31:Concret: Method 'bbbb' is abstract in class 'Abstract' but is not overridden
-
-

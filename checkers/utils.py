@@ -34,6 +34,8 @@ if not PY3K:
     EXCEPTIONS_MODULE = "exceptions"
 else:
     EXCEPTIONS_MODULE = "builtins"
+ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
+                   'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
 
 
 class NoSuchArgumentError(Exception):
@@ -499,3 +501,60 @@ def decorated_with_property(node):
                             return True
         except astroid.InferenceError:
             pass
+
+
+def decorated_with_abc(func):
+    """Determine if the `func` node is decorated with `abc` decorators."""
+    if func.decorators:
+        for node in func.decorators.nodes:
+            try:
+                infered = next(node.infer())
+            except astroid.InferenceError:
+                continue
+            if infered and infered.qname() in ABC_METHODS:
+                return True
+
+
+def unimplemented_abstract_methods(node, is_abstract_cb=decorated_with_abc):
+    """
+    Get the unimplemented abstract methods for the given *node*.
+
+    A method can be considered abstract if the callback *is_abstract_cb*
+    returns a ``True`` value. The check defaults to verifying that
+    a method is decorated with abstract methods.
+    The function will work only for new-style classes. For old-style
+    classes, it will simply return an empty dictionary.
+    For the rest of them, it will return a dictionary of abstract method
+    names and their inferred objects.
+    """
+    visited = {}
+    try:
+        mro = reversed(node.mro())
+    except NotImplementedError:
+        # Old style class, it will not have a mro.
+        return {}
+    for ancestor in mro:
+        for obj in ancestor.values():
+            infered = obj
+            if isinstance(obj, astroid.AssName):
+                infered = safe_infer(obj)
+                if not infered:
+                    continue
+                if not isinstance(infered, astroid.Function):
+                    if obj.name in visited:
+                        del visited[obj.name]
+            if isinstance(infered, astroid.Function):
+                # It's critical to use the original name,
+                # since after inferring, an object can be something
+                # else than expected, as in the case of the
+                # following assignment.
+                #
+                # class A:
+                #     def keys(self): pass
+                #     __iter__ = keys
+                abstract = is_abstract_cb(infered)
+                if abstract:
+                    visited[obj.name] = infered
+                elif not abstract and obj.name in visited:
+                    del visited[obj.name]
+    return visited

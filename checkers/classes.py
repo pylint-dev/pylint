@@ -30,7 +30,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     PYMETHODS, overrides_a_method, check_messages, is_attr_private,
     is_attr_protected, node_frame_class, safe_infer, is_builtin_object,
-    decorated_with_property)
+    decorated_with_property, unimplemented_abstract_methods)
 import six
 
 if sys.version_info >= (3, 0):
@@ -800,21 +800,28 @@ a metaclass class method.'}
         """check that the given class node implements abstract methods from
         base classes
         """
+        def is_abstract(method):
+            return method.is_abstract(pass_is_abstract=False)
+
         # check if this class abstract
         if class_is_abstract(node):
             return
-        for method in node.methods():
+
+        methods = sorted(
+            unimplemented_abstract_methods(node, is_abstract).items(),
+            key=lambda item: item[0],
+        )
+        for name, method in methods:
             owner = method.parent.frame()
             if owner is node:
                 continue
             # owner is not this class, it must be a parent class
             # check that the ancestor's method is not abstract
-            if method.name in node.locals:
+            if name in node.locals:
                 # it is redefined as an attribute or with a descriptor
                 continue
-            if method.is_abstract(pass_is_abstract=False):
-                self.add_message('abstract-method', node=node,
-                                 args=(method.name, owner.name))
+            self.add_message('abstract-method', node=node,
+                             args=(name, owner.name))
 
     def _check_interfaces(self, node):
         """check that the given class node really implements declared

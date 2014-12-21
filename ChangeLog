@@ -14,6 +14,8 @@ ChangeLog for Pylint
     * Proper abstract method lookup while checking for
       abstract-class-instantiated. Closes issue #401.
 
+    * Use a mro traversal for finding abstract methods. Closes issue #415.
+
 
 2014-11-23 -- 1.4.0
 
