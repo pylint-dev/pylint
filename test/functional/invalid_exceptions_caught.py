@@ -1,5 +1,5 @@
 """Test for catching non-exceptions."""
-# pylint: disable=too-many-ancestors, print-statement, no-absolute-import
+# pylint: disable=too-many-ancestors, print-statement, no-absolute-import, import-error
 import socket
 
 class MyException(object):
@@ -68,4 +68,25 @@ try:
     1 + 42
 # +1:[catching-non-exception,catching-non-exception,catching-non-exception]
 except (list([4, 5, 6]), None, ZeroDivisionError, 4):
+    print "caught"
+
+EXCEPTION_TUPLE = (ZeroDivisionError, OSError)
+NON_EXCEPTION_TUPLE = (ZeroDivisionError, OSError, 4)
+
+try:
+    1 + 42
+except EXCEPTION_TUPLE:
+    print "caught"
+
+try:
+    1 + 42
+except NON_EXCEPTION_TUPLE: # [catching-non-exception]
+    print "caught"
+
+from missing_import import UnknownError
+UNKNOWN_COMPONENTS = (ZeroDivisionError, UnknownError)
+
+try:
+    1 + 42
+except UNKNOWN_COMPONENTS:
     print "caught"

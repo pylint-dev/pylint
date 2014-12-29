@@ -16,6 +16,9 @@ ChangeLog for Pylint
 
     * Use a mro traversal for finding abstract methods. Closes issue #415.
 
+    * Fix a false positive with catching-non-exception and tuples of
+      exceptions.
+
 
 2014-11-23 -- 1.4.0
 

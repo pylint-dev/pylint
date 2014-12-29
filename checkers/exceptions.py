@@ -199,6 +199,46 @@ class ExceptionsChecker(BaseChecker):
             value_found = False
         return value_found
 
+    def _check_catching_non_exception(self, handler, exc, part):
+        if isinstance(exc, astroid.Tuple):
+            # Check if it is a tuple of exceptions.
+            inferred = [safe_infer(elt) for elt in exc.elts]
+            if any(node is astroid.YES for node in inferred):
+                # Don't emit if we don't know every component.
+                return
+            if all(node and inherit_from_std_ex(node)
+                   for node in inferred):
+                return
+
+        if not isinstance(exc, astroid.Class):
+            # Don't emit the warning if the infered stmt
+            # is None, but the exception handler is something else,
+            # maybe it was redefined.
+            if (isinstance(exc, astroid.Const) and
+                    exc.value is None):
+                if ((isinstance(handler.type, astroid.Const) and
+                     handler.type.value is None) or
+                        handler.type.parent_of(exc)):
+                    # If the exception handler catches None or
+                    # the exception component, which is None, is
+                    # defined by the entire exception handler, then
+                    # emit a warning.
+                    self.add_message('catching-non-exception',
+                                     node=handler.type,
+                                     args=(part.as_string(), ))
+            else:
+                self.add_message('catching-non-exception',
+                                 node=handler.type,
+                                 args=(part.as_string(), ))
+            return
+        if (not inherit_from_std_ex(exc) and
+                exc.root().name != BUILTINS_NAME):
+            if has_known_bases(exc):
+                self.add_message('catching-non-exception',
+                                 node=handler.type,
+                                 args=(exc.name, ))
+
+
     @check_messages('bare-except', 'broad-except', 'pointless-except',
                     'binary-op-exception', 'bad-except-order',
                     'catching-non-exception')
@@ -233,26 +273,10 @@ class ExceptionsChecker(BaseChecker):
                         continue
                     if isinstance(exc, astroid.Instance) and inherit_from_std_ex(exc):
                         exc = exc._proxied
+
+                    self._check_catching_non_exception(handler, exc, part)
+
                     if not isinstance(exc, astroid.Class):
-                        # Don't emit the warning if the infered stmt
-                        # is None, but the exception handler is something else,
-                        # maybe it was redefined.
-                        if (isinstance(exc, astroid.Const) and
-                                exc.value is None):
-                            if ((isinstance(handler.type, astroid.Const) and
-                                 handler.type.value is None) or
-                                    handler.type.parent_of(exc)):
-                                # If the exception handler catches None or
-                                # the exception component, which is None, is
-                                # defined by the entire exception handler, then
-                                # emit a warning.
-                                self.add_message('catching-non-exception',
-                                                 node=handler.type,
-                                                 args=(part.as_string(), ))
-                        else:
-                            self.add_message('catching-non-exception',
-                                             node=handler.type,
-                                             args=(part.as_string(), ))
                         continue
 
                     exc_ancestors = [anc for anc in exc.ancestors()
@@ -268,13 +292,6 @@ class ExceptionsChecker(BaseChecker):
                             and not is_raising(handler.body)):
                         self.add_message('broad-except',
                                          args=exc.name, node=handler.type)
-
-                    if (not inherit_from_std_ex(exc) and
-                            exc.root().name != BUILTINS_NAME):
-                        if has_known_bases(exc):
-                            self.add_message('catching-non-exception',
-                                             node=handler.type,
-                                             args=(exc.name, ))
 
                 exceptions_classes += [exc for _, exc in excs]
 
