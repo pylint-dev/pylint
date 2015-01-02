@@ -16,17 +16,21 @@
 """
 import sys
 
-from logilab.common.compat import builtins
-BUILTINS_NAME = builtins.__name__
 import astroid
 from astroid import YES, Instance, unpack_infer, List, Tuple
+from logilab.common.compat import builtins
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    is_empty, is_raising,
-    check_messages, inherit_from_std_ex,
-    EXCEPTIONS_MODULE, has_known_bases, safe_infer)
+    is_empty,
+    is_raising,
+    check_messages,
+    inherit_from_std_ex,
+    EXCEPTIONS_MODULE,
+    has_known_bases,
+    safe_infer)
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
+
 
 def _annotated_unpack_infer(stmt, context=None):
     """
@@ -54,7 +58,7 @@ def _annotated_unpack_infer(stmt, context=None):
 
 PY3K = sys.version_info >= (3, 0)
 OVERGENERAL_EXCEPTIONS = ('Exception',)
-
+BUILTINS_NAME = builtins.__name__
 MSGS = {
     'E0701': ('Bad except clauses order (%s)',
               'bad-except-order',
@@ -171,11 +175,13 @@ class ExceptionsChecker(BaseChecker):
             else:
                 self.add_message('raising-bad-type', node=node,
                                  args=value.__class__.__name__)
-        elif (isinstance(expr, astroid.Name) and \
-                 expr.name in ('None', 'True', 'False')) or \
-                 isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
-                                   astroid.Module, astroid.Function)):
-            self.add_message('raising-bad-type', node=node, args=expr.name)
+        elif ((isinstance(expr, astroid.Name) and
+               expr.name in ('None', 'True', 'False')) or
+              isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
+                                astroid.Module, astroid.Function))):
+            self.add_message('raising-bad-type',
+                             node=node,
+                             args=expr.name)
         elif ((isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
               or (isinstance(expr, astroid.CallFunc) and
                   isinstance(expr.func, astroid.Name) and
@@ -190,9 +196,13 @@ class ExceptionsChecker(BaseChecker):
                 if expr.newstyle:
                     self.add_message('raising-non-exception', node=node)
                 else:
+                    if has_known_bases(expr):
+                        confidence = INFERENCE
+                    else:
+                        confidence = INFERENCE_FAILURE
                     self.add_message(
                         'nonstandard-exception', node=node,
-                        confidence=INFERENCE if has_known_bases(expr) else INFERENCE_FAILURE)
+                        confidence=confidence)
             else:
                 value_found = False
         else:
@@ -271,7 +281,8 @@ class ExceptionsChecker(BaseChecker):
                 for part, exc in excs:
                     if exc is YES:
                         continue
-                    if isinstance(exc, astroid.Instance) and inherit_from_std_ex(exc):
+                    if (isinstance(exc, astroid.Instance)
+                            and inherit_from_std_ex(exc)):
                         exc = exc._proxied
 
                     self._check_catching_non_exception(handler, exc, part)
