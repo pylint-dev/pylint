@@ -39,11 +39,6 @@ def _annotated_unpack_infer(stmt, context=None):
     Returns an iterator which yields tuples in the format
     ('original node', 'infered node').
     """
-    # TODO: the same code as unpack_infer, except for the annotated
-    # return. We need this type of annotation only here and
-    # there is no point in complicating the API for unpack_infer.
-    # If the need arises, this behaviour can be promoted to unpack_infer
-    # as well.
     if isinstance(stmt, (List, Tuple)):
         for elt in stmt.elts:
             inferred = safe_infer(elt)
