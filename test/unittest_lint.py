@@ -26,11 +26,11 @@ import six
 from logilab.common.compat import reload
 
 from pylint import config, lint
-from pylint.lint import PyLinter, Run, UnknownMessage, preprocess_options, \
+from pylint.lint import PyLinter, Run, preprocess_options, \
      ArgumentPreprocessingError
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
     MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
-    build_message_def, tokenize_module
+    build_message_def, tokenize_module, UnknownMessage
 from pylint.testutils import TestReporter
 from pylint.reporters import text, html
 from pylint import checkers

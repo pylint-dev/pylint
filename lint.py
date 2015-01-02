@@ -27,47 +27,39 @@
 """
 from __future__ import print_function
 
-# import this first to avoid builtin namespace pollution
-from pylint.checkers import utils #pylint: disable=unused-import
-
-import sys
+import collections
+import contextlib
+import itertools
+import operator
 import os
-import tokenize
-from collections import defaultdict
-from contextlib import contextmanager
-from operator import attrgetter
-from warnings import warn
-from itertools import chain
 try:
     import multiprocessing
 except ImportError:
     multiprocessing = None
+import sys
+import tokenize
+import warnings
 
-import six
-from logilab.common.configuration import (
-    UnsupportedAction, OptionsManagerMixIn)
-from logilab.common.optik_ext import check_csv
-from logilab.common.interface import implements
-from logilab.common.textutils import splitstrip, unquote
-from logilab.common.ureports import Table, Text, Section
-from logilab.common.__pkginfo__ import version as common_version
-from astroid import MANAGER, AstroidBuildingException
+import astroid
 from astroid.__pkginfo__ import version as astroid_version
-from astroid.modutils import load_module_from_name, get_module_part
+from astroid import modutils
+from logilab.common import configuration
+from logilab.common import optik_ext
+from logilab.common import interface
+from logilab.common import textutils
+from logilab.common import ureports
+from logilab.common.__pkginfo__ import version as common_version
+import six
 
-from pylint.utils import (
-    MSG_TYPES, OPTION_RGX,
-    PyLintASTWalker, UnknownMessage, MessagesHandlerMixIn, ReportsHandlerMixIn,
-    MessagesStore, FileState, EmptyReport,
-    expand_modules, tokenize_module, Message)
-from pylint.interfaces import IRawChecker, ITokenChecker, IAstroidChecker, CONFIDENCE_LEVELS
-from pylint.checkers import (BaseTokenChecker,
-                             table_lines_from_stats,
-                             initialize as checkers_initialize)
-from pylint.reporters import initialize as reporters_initialize, CollectingReporter
+from pylint import checkers
+from pylint import interfaces
+from pylint import reporters
+from pylint import utils
 from pylint import config
 from pylint.__pkginfo__ import version
 
+
+MANAGER = astroid.MANAGER
 
 def _get_new_args(message):
     location = (
@@ -233,7 +225,7 @@ if multiprocessing is not None:
 
             config['jobs'] = 1  # Child does not parallelize any further.
             linter.load_configuration(**config)
-            linter.set_reporter(CollectingReporter())
+            linter.set_reporter(reporters.CollectingReporter())
 
             # Run the checks.
             linter.check(file_or_module)
@@ -243,8 +235,10 @@ if multiprocessing is not None:
                     msgs, linter.stats, linter.msg_status)
 
 
-class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
-               BaseTokenChecker):
+class PyLinter(configuration.OptionsManagerMixIn,
+               utils.MessagesHandlerMixIn,
+               utils.ReportsHandlerMixIn,
+               checkers.BaseTokenChecker):
     """lint Python modules using external checkers.
 
     This is the main checker controlling the other ones and the reports
@@ -258,7 +252,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     to ensure the latest code version is actually checked.
     """
 
-    __implements__ = (ITokenChecker,)
+    __implements__ = (interfaces.ITokenChecker, )
 
     name = 'master'
     priority = 0
@@ -330,11 +324,11 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                 ('confidence',
                  {'type' : 'multiple_choice', 'metavar': '<levels>',
                   'default': '',
-                  'choices': [c.name for c in CONFIDENCE_LEVELS],
+                  'choices': [c.name for c in interfaces.CONFIDENCE_LEVELS],
                   'group': 'Messages control',
                   'help' : 'Only show warnings with the listed confidence levels.'
                            ' Leave empty to show all. Valid levels: %s' % (
-                               ', '.join(c.name for c in CONFIDENCE_LEVELS),)}),
+                               ', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS),)}),
 
                 ('enable',
                  {'type' : 'csv', 'metavar': '<msg ids>',
@@ -406,15 +400,15 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         # some stuff has to be done before ancestors initialization...
         #
         # messages store / checkers / reporter / astroid manager
-        self.msgs_store = MessagesStore()
+        self.msgs_store = utils.MessagesStore()
         self.reporter = None
         self._reporter_name = None
         self._reporters = {}
-        self._checkers = defaultdict(list)
+        self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
         self._ignore_file = False
         # visit variables
-        self.file_state = FileState()
+        self.file_state = utils.FileState()
         self.current_name = None
         self.current_file = None
         self.stats = None
@@ -428,12 +422,13 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                                     'enable-msg': self.enable}
         full_version = '%%prog %s, \nastroid %s, common %s\nPython %s' % (
             version, astroid_version, common_version, sys.version)
-        OptionsManagerMixIn.__init__(self, usage=__doc__,
-                                     version=full_version,
-                                     config_file=pylintrc or config.PYLINTRC)
-        MessagesHandlerMixIn.__init__(self)
-        ReportsHandlerMixIn.__init__(self)
-        BaseTokenChecker.__init__(self)
+        configuration.OptionsManagerMixIn.__init__(
+            self, usage=__doc__,
+            version=full_version,
+            config_file=pylintrc or config.PYLINTRC)
+        utils.MessagesHandlerMixIn.__init__(self)
+        utils.ReportsHandlerMixIn.__init__(self)
+        checkers.BaseTokenChecker.__init__(self)
         # provided reports
         self.reports = (('RP0001', 'Messages by category',
                          report_total_messages_stats),
@@ -451,8 +446,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             self.set_reporter(reporter)
 
     def load_default_plugins(self):
-        checkers_initialize(self)
-        reporters_initialize(self)
+        checkers.initialize(self)
+        reporters.initialize(self)
         # Make sure to load the default reporter, because
         # the option has been set before the plugins had been loaded.
         if not self.reporter:
@@ -466,7 +461,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             if modname in self._dynamic_plugins:
                 continue
             self._dynamic_plugins.add(modname)
-            module = load_module_from_name(modname)
+            module = modutils.load_module_from_name(modname)
             module.register(self)
 
     def _load_reporter(self):
@@ -475,7 +470,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             self.set_reporter(self._reporters[name]())
         else:
             qname = self._reporter_name
-            module = load_module_from_name(get_module_part(qname))
+            module = modutils.load_module_from_name(
+                modutils.get_module_part(qname))
             class_name = qname.split('.')[-1]
             reporter_class = getattr(module, class_name)
             self.set_reporter(reporter_class())
@@ -496,9 +492,10 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                     meth = self._options_methods[optname]
                 except KeyError:
                     meth = self._bw_options_methods[optname]
-                    warn('%s is deprecated, replace it by %s' % (
-                        optname, optname.split('-')[0]), DeprecationWarning)
-                value = check_csv(None, optname, value)
+                    warnings.warn('%s is deprecated, replace it by %s' % (
+                                  optname, optname.split('-')[0]),
+                                  DeprecationWarning)
+                value = optik_ext.check_csv(None, optname, value)
                 if isinstance(value, (list, tuple)):
                     for _id in value:
                         meth(_id, ignore_unknown=True)
@@ -511,8 +508,9 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             if self._reporters:
                 self._load_reporter()
         try:
-            BaseTokenChecker.set_option(self, optname, value, action, optdict)
-        except UnsupportedAction:
+            checkers.BaseTokenChecker.set_option(self, optname,
+                                                 value, action, optdict)
+        except configuration.UnsupportedAction:
             print('option %s can\'t be read from config file' % \
                   optname, file=sys.stderr)
 
@@ -564,7 +562,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     def disable_reporters(self):
         """disable all reporters"""
         for reporters in six.itervalues(self._reports):
-            for report_id, _title, _cb in reporters:
+            for report_id, _, _ in reporters:
                 self.disable_report(report_id)
 
     def error_mode(self):
@@ -586,7 +584,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         for (tok_type, content, start, _, _) in tokens:
             if tok_type != tokenize.COMMENT:
                 continue
-            match = OPTION_RGX.search(content)
+            match = utils.OPTION_RGX.search(content)
             if match is None:
                 continue
             if match.group(1).strip() == "disable-all" or \
@@ -611,7 +609,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                     meth = self._bw_options_methods[opt]
                     # found a "(dis|en)able-msg" pragma deprecated suppresssion
                     self.add_message('deprecated-pragma', line=start[0], args=(opt, opt.replace('-msg', '')))
-                for msgid in splitstrip(value):
+                for msgid in textutils.splitstrip(value):
                     # Add the line where a control pragma was encountered.
                     if opt in control_pragmas:
                         self._pragma_lineno[msgid] = start[0]
@@ -623,7 +621,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                             self._ignore_file = True
                             return
                         meth(msgid, 'module', start[0])
-                    except UnknownMessage:
+                    except utils.UnknownMessage:
                         self.add_message('bad-option-value', args=msgid, line=start[0])
             else:
                 self.add_message('unrecognized-inline-option', args=opt, line=start[0])
@@ -650,7 +648,8 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                     any(self.report_is_enabled(r[0]) for r in checker.reports)):
                 neededcheckers.append(checker)
         # Sort checkers by priority
-        neededcheckers = sorted(neededcheckers, key=attrgetter('priority'),
+        neededcheckers = sorted(neededcheckers,
+                                key=operator.attrgetter('priority'),
                                 reverse=True)
         return neededcheckers
 
@@ -759,14 +758,14 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                 last_module = module
 
             for msg in messages:
-                msg = Message(*msg)
+                msg = utils.Message(*msg)
                 self.set_current_module(module)
                 self.reporter.handle_message(msg)
 
             all_stats.append(stats)
             self.msg_status |= msg_status
 
-        self.stats = _merge_stats(chain(all_stats, [self.stats]))
+        self.stats = _merge_stats(itertools.chain(all_stats, [self.stats]))
         self.current_name = last_module
 
         # Insert stats data to local checkers.
@@ -775,15 +774,17 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                 checker.stats = self.stats
 
     def _do_check(self, files_or_modules):
-        walker = PyLintASTWalker(self)
+        walker = utils.PyLintASTWalker(self)
         checkers = self.prepare_checkers()
-        tokencheckers = [c for c in checkers if implements(c, ITokenChecker)
+        tokencheckers = [c for c in checkers
+                         if interface.implements(c, interfaces.ITokenChecker)
                          and c is not self]
-        rawcheckers = [c for c in checkers if implements(c, IRawChecker)]
+        rawcheckers = [c for c in checkers
+                       if interface.implements(c, interfaces.IRawChecker)]
         # notify global begin
         for checker in checkers:
             checker.open()
-            if implements(checker, IAstroidChecker):
+            if interface.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
@@ -795,18 +796,18 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                 self.reporter.set_output(open(reportfile, 'w'))
             self.set_current_module(modname, filepath)
             # get the module representation
-            astroid = self.get_ast(filepath, modname)
-            if astroid is None:
+            ast_node = self.get_ast(filepath, modname)
+            if ast_node is None:
                 continue
             # XXX to be correct we need to keep module_msgs_state for every
             # analyzed module (the problem stands with localized messages which
             # are only detected in the .close step)
-            self.file_state = FileState(descr['basename'])
+            self.file_state = utils.FileState(descr['basename'])
             self._ignore_file = False
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
-            self.current_file = astroid.file # pylint: disable=maybe-no-member
-            self.check_astroid_module(astroid, walker, rawcheckers, tokencheckers)
+            self.current_file = ast_node.file # pylint: disable=maybe-no-member
+            self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
             # warn about spurious inline messages handling
             for msgid, line, args in self.file_state.iter_spurious_suppression_messages(self.msgs_store):
                 self.add_message(msgid, line, None, args)
@@ -819,7 +820,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
     def expand_files(self, modules):
         """get modules and errors from a list of modules and handle errors
         """
-        result, errors = expand_modules(modules, self.config.black_list)
+        result, errors = utils.expand_modules(modules, self.config.black_list)
         for error in errors:
             message = modname = error["mod"]
             key = error["key"]
@@ -840,7 +841,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         self.current_file = filepath or modname
         self.stats['by_module'][modname] = {}
         self.stats['by_module'][modname]['statement'] = 0
-        for msg_cat in six.itervalues(MSG_TYPES):
+        for msg_cat in six.itervalues(utils.MSG_TYPES):
             self.stats['by_module'][modname][msg_cat] = 0
 
     def get_ast(self, filepath, modname):
@@ -849,32 +850,34 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except SyntaxError as ex:
             self.add_message('syntax-error', line=ex.lineno, args=ex.msg)
-        except AstroidBuildingException as ex:
+        except astroid.AstroidBuildingException as ex:
             self.add_message('parse-error', args=ex)
         except Exception as ex: # pylint: disable=broad-except
             import traceback
             traceback.print_exc()
             self.add_message('astroid-error', args=(ex.__class__, ex))
 
-    def check_astroid_module(self, astroid, walker, rawcheckers, tokencheckers):
-        """check a module from its astroid representation, real work"""
+    def check_astroid_module(self, ast_node, walker,
+                             rawcheckers, tokencheckers):
+        """Check a module from its astroid representation."""
         try:
-            return self._check_astroid_module(astroid, walker,
+            return self._check_astroid_module(ast_node, walker,
                                               rawcheckers, tokencheckers)
         finally:
             # Close the streams opened by the ast module.
-            astroid.close()
+            ast_node.close()
 
-    def _check_astroid_module(self, astroid, walker, rawcheckers, tokencheckers):
+    def _check_astroid_module(self, ast_node, walker,
+                              rawcheckers, tokencheckers):
         # call raw checkers if possible
         try:
-            tokens = tokenize_module(astroid)
+            tokens = utils.tokenize_module(ast_node)
         except tokenize.TokenError as ex:
             self.add_message('syntax-error', line=ex.args[1][0], args=ex.args[0])
             return
 
-        if not astroid.pure_python:
-            self.add_message('raw-checker-failed', args=astroid.name)
+        if not ast_node.pure_python:
+            self.add_message('raw-checker-failed', args=ast_node.name)
         else:
             #assert astroid.file.endswith('.py')
             # invoke ITokenChecker interface on self to fetch module/block
@@ -883,14 +886,14 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
             if self._ignore_file:
                 return False
             # walk ast to collect line numbers
-            self.file_state.collect_block_lines(self.msgs_store, astroid)
+            self.file_state.collect_block_lines(self.msgs_store, ast_node)
             # run raw and tokens checkers
             for checker in rawcheckers:
-                checker.process_module(astroid)
+                checker.process_module(ast_node)
             for checker in tokencheckers:
                 checker.process_tokens(tokens)
         # generate events to astroid checkers
-        walker.walk(astroid)
+        walker.walk(ast_node)
         return True
 
     # IAstroidChecker interface #################################################
@@ -901,8 +904,9 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                       'by_msg' : {},
                      }
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
-        MANAGER.extension_package_whitelist.update(self.config.extension_pkg_whitelist)
-        for msg_cat in six.itervalues(MSG_TYPES):
+        MANAGER.extension_package_whitelist.update(
+            self.config.extension_pkg_whitelist)
+        for msg_cat in six.itervalues(utils.MSG_TYPES):
             self.stats[msg_cat] = 0
 
     def generate_reports(self):
@@ -921,7 +925,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                     filename = 'pylint_global.' + self.reporter.extension
                     self.reporter.set_output(open(filename, 'w'))
             else:
-                sect = Section()
+                sect = ureports.Section()
             if self.config.reports or self.config.output_format == 'html':
                 self.reporter.display_results(sect)
             # save results if persistent run
@@ -932,7 +936,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                 # No output will be emitted for the html
                 # reporter if the file doesn't exist, so emit
                 # the results here.
-                self.reporter.display_results(Section())
+                self.reporter.display_results(ureports.Section())
             self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
@@ -942,7 +946,7 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         if stats['statement'] == 0:
-            raise EmptyReport()
+            raise utils.EmptyReport()
         # get a global note for the code
         evaluation = self.config.evaluation
         try:
@@ -957,23 +961,23 @@ class PyLinter(OptionsManagerMixIn, MessagesHandlerMixIn, ReportsHandlerMixIn,
                 msg += ' (previous run: %.2f/10, %+.2f)' % (pnote, note - pnote)
             if self.config.comment:
                 msg = '%s\n%s' % (msg, config.get_note_message(note))
-        sect.append(Text(msg))
+        sect.append(ureports.Text(msg))
 
 # some reporting functions ####################################################
 
 def report_total_messages_stats(sect, stats, previous_stats):
     """make total errors / warnings report"""
     lines = ['type', 'number', 'previous', 'difference']
-    lines += table_lines_from_stats(stats, previous_stats,
-                                    ('convention', 'refactor',
-                                     'warning', 'error'))
-    sect.append(Table(children=lines, cols=4, rheaders=1))
+    lines += checkers.table_lines_from_stats(stats, previous_stats,
+                                             ('convention', 'refactor',
+                                              'warning', 'error'))
+    sect.append(ureports.Table(children=lines, cols=4, rheaders=1))
 
 def report_messages_stats(sect, stats, _):
     """make messages type report"""
     if not stats['by_msg']:
         # don't print this report when we didn't detected any errors
-        raise EmptyReport()
+        raise utils.EmptyReport()
     in_order = sorted([(value, msg_id)
                        for msg_id, value in six.iteritems(stats['by_msg'])
                        if not msg_id.startswith('I')])
@@ -981,14 +985,14 @@ def report_messages_stats(sect, stats, _):
     lines = ('message id', 'occurrences')
     for value, msg_id in in_order:
         lines += (msg_id, str(value))
-    sect.append(Table(children=lines, cols=2, rheaders=1))
+    sect.append(ureports.Table(children=lines, cols=2, rheaders=1))
 
 def report_messages_by_module_stats(sect, stats, _):
     """make errors / warnings by modules report"""
     if len(stats['by_module']) == 1:
         # don't print this report when we are analysing a single module
-        raise EmptyReport()
-    by_mod = defaultdict(dict)
+        raise utils.EmptyReport()
+    by_mod = collections.defaultdict(dict)
     for m_type in ('fatal', 'error', 'warning', 'refactor', 'convention'):
         total = stats[m_type]
         for module in six.iterkeys(stats['by_module']):
@@ -1016,8 +1020,8 @@ def report_messages_by_module_stats(sect, stats, _):
         for val in line[:-1]:
             lines.append('%.2f' % val)
     if len(lines) == 5:
-        raise EmptyReport()
-    sect.append(Table(children=lines, cols=5, rheaders=1))
+        raise utils.EmptyReport()
+    sect.append(ureports.Table(children=lines, cols=5, rheaders=1))
 
 
 # utilities ###################################################################
@@ -1062,7 +1066,7 @@ def preprocess_options(args, search_for):
             i += 1
 
 
-@contextmanager
+@contextlib.contextmanager
 def fix_import_path(args):
     """Prepare sys.path for running the linter checks.
 
@@ -1223,10 +1227,12 @@ group are mutually exclusive.'),
         # run init hook, if present, before loading plugins
         if config_parser.has_option('MASTER', 'init-hook'):
             cb_init_hook('init-hook',
-                         unquote(config_parser.get('MASTER', 'init-hook')))
+                         textutils.unquote(config_parser.get('MASTER',
+                                                             'init-hook')))
         # is there some additional plugins in the file configuration, in
         if config_parser.has_option('MASTER', 'load-plugins'):
-            plugins = splitstrip(config_parser.get('MASTER', 'load-plugins'))
+            plugins = textutils.splitstrip(
+                config_parser.get('MASTER', 'load-plugins'))
             linter.load_plugin_modules(plugins)
         # now we can load file config and command line, plugins (which can
         # provide options) have been registered
@@ -1283,7 +1289,7 @@ group are mutually exclusive.'),
 
     def cb_add_plugins(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
-        self._plugins.extend(splitstrip(value))
+        self._plugins.extend(textutils.splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):
         """error mode:
@@ -1308,7 +1314,7 @@ group are mutually exclusive.'),
 
     def cb_help_message(self, option, optname, value, parser):
         """optik callback for printing some help about a particular message"""
-        self.linter.msgs_store.help_message(splitstrip(value))
+        self.linter.msgs_store.help_message(textutils.splitstrip(value))
         sys.exit(0)
 
     def cb_full_documentation(self, option, optname, value, parser):
@@ -1328,7 +1334,7 @@ group are mutually exclusive.'),
 
 
 def cb_list_confidence_levels(option, optname, value, parser):
-    for level in CONFIDENCE_LEVELS:
+    for level in interfaces.CONFIDENCE_LEVELS:
         print('%-18s: %s' % level)
     sys.exit(0)
 
