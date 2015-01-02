@@ -289,7 +289,7 @@ class BasicErrorChecker(_BasicChecker):
                   'duplicate-argument-name',
                   'Duplicate argument names in function definitions are syntax'
                   ' errors.'),
-        'E0110': ('Abstract class with abstract methods instantiated',
+        'E0110': ('Abstract class %r with abstract methods instantiated',
                   'abstract-class-instantiated',
                   'Used when an abstract class with `abc.ABCMeta` as metaclass '
                   'has abstract methods and is instantiated.'),
@@ -395,11 +395,15 @@ class BasicErrorChecker(_BasicChecker):
             # by ClassNode.metaclass()
             for ancestor in infered.ancestors():
                 if ancestor.qname() == 'abc.ABC' and abstract_methods:
-                    self.add_message('abstract-class-instantiated', node=node)
+                    self.add_message('abstract-class-instantiated',
+                                     args=(infered.name, ),
+                                     node=node)
                     break
             return
         if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
-            self.add_message('abstract-class-instantiated', node=node)
+            self.add_message('abstract-class-instantiated',
+                             args=(infered.name, ),
+                             node=node)
 
     def _check_else_on_loop(self, node):
         """Check that any loop with an else clause has a break statement."""

@@ -1,4 +1,4 @@
-abstract-class-instantiated:65:main:Abstract class with abstract methods instantiated
-abstract-class-instantiated:66:main:Abstract class with abstract methods instantiated
-abstract-class-instantiated:67:main:Abstract class with abstract methods instantiated
-abstract-class-instantiated:68:main:Abstract class with abstract methods instantiated
+abstract-class-instantiated:65:main:Abstract class 'BadClass' with abstract methods instantiated
+abstract-class-instantiated:66:main:Abstract class 'SecondBadClass' with abstract methods instantiated
+abstract-class-instantiated:67:main:Abstract class 'ThirdBadClass' with abstract methods instantiated
+abstract-class-instantiated:68:main:Abstract class 'FourthBadClass' with abstract methods instantiated
