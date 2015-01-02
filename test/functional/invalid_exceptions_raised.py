@@ -16,6 +16,21 @@ def good_case():
     """raise"""
     raise ValidException('hop')
 
+def good_case1():
+    """zlib.error is defined in C module."""
+    import zlib
+    raise zlib.error(4)
+
+def good_case2():
+    """decimal.DivisionByZero is defined in C on Python 3."""
+    import decimal
+    raise decimal.DivisionByZero(4)
+
+def good_case3():
+    """io.BlockingIOError is defined in C."""
+    import io
+    raise io.BlockingIOError
+
 def bad_case0():
     """raise"""
     # +2:<3.0:[nonstandard-exception]
@@ -44,7 +59,18 @@ def bad_case5():
     """raise"""
     raise 1  # [raising-bad-type]
 
-def base_case6():
+def bad_case6():
     """raise"""
     raise None  # [raising-bad-type]
 
+def bad_case7():
+    """raise list"""
+    raise list # [raising-non-exception]
+
+def bad_case8():
+    """raise tuple"""
+    raise tuple # [raising-non-exception]
+
+def bad_case9():
+    """raise dict"""
+    raise dict # [raising-non-exception]

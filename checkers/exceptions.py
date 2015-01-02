@@ -193,8 +193,7 @@ class ExceptionsChecker(BaseChecker):
                 # pylint: disable=protected-access
                 expr = expr._proxied
             if (isinstance(expr, astroid.Class) and
-                    not inherit_from_std_ex(expr) and
-                    expr.root().name != BUILTINS_NAME):
+                    not inherit_from_std_ex(expr)):
                 if expr.newstyle:
                     self.add_message('raising-non-exception', node=node)
                 else:
