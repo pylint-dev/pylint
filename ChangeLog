@@ -22,6 +22,9 @@ ChangeLog for Pylint
     * Fix a false negative with raising-non-exception, when the raise used
       an uninferrable exception context.
 
+    * Fix a false positive on Python 2 for raising-bad-type, when
+      raising tuples in the form 'raise (ZeroDivisionError, None)'.
+
 
 2014-11-23 -- 1.4.0
 

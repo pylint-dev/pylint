@@ -180,9 +180,28 @@ class ExceptionsChecker(BaseChecker):
                expr.name in ('None', 'True', 'False')) or
               isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
                                 astroid.Module, astroid.Function))):
-            self.add_message('raising-bad-type',
-                             node=node,
-                             args=expr.name)
+            emit = True
+            if not PY3K and isinstance(expr, astroid.Tuple):
+                # On Python 2, using the following is not an error:
+                #    raise (ZeroDivisionError, None)
+                #    raise (ZeroDivisionError, )
+                # What's left to do is to check that the first
+                # argument is indeed an exception.
+                # Verifying the other arguments is not
+                # the scope of this check.
+                first = expr.elts[0]
+                inferred = safe_infer(first)
+                if isinstance(inferred, Instance):
+                    # pylint: disable=protected-access
+                    inferred = inferred._proxied
+                if (inferred is YES or
+                        isinstance(inferred, astroid.Class)
+                        and inherit_from_std_ex(inferred)):
+                    emit = False
+            if emit:
+                self.add_message('raising-bad-type',
+                                 node=node,
+                                 args=expr.name)
         elif ((isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
               or (isinstance(expr, astroid.CallFunc) and
                   isinstance(expr.func, astroid.Name) and
