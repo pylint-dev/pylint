@@ -19,6 +19,9 @@ ChangeLog for Pylint
     * Fix a false positive with catching-non-exception and tuples of
       exceptions.
 
+    * Fix a false negative with raising-non-exception, when the raise used
+      an uninferrable exception context.
+
 
 2014-11-23 -- 1.4.0
 
