@@ -164,10 +164,8 @@ class ExceptionsChecker(BaseChecker):
         value_found = True
         if isinstance(expr, astroid.Const):
             value = expr.value
-            if isinstance(value, str):
+            if not isinstance(value, str):
                 # raising-string will be emitted from python3 porting checker.
-                pass
-            else:
                 self.add_message('raising-bad-type', node=node,
                                  args=value.__class__.__name__)
         elif ((isinstance(expr, astroid.Name) and
@@ -184,6 +182,7 @@ class ExceptionsChecker(BaseChecker):
             self.add_message('notimplemented-raised', node=node)
         elif isinstance(expr, (Instance, astroid.Class)):
             if isinstance(expr, Instance):
+                # pylint: disable=protected-access
                 expr = expr._proxied
             if (isinstance(expr, astroid.Class) and
                     not inherit_from_std_ex(expr) and
@@ -243,7 +242,6 @@ class ExceptionsChecker(BaseChecker):
                                  node=handler.type,
                                  args=(exc.name, ))
 
-
     @check_messages('bare-except', 'broad-except', 'pointless-except',
                     'binary-op-exception', 'bad-except-order',
                     'catching-non-exception')
@@ -278,6 +276,7 @@ class ExceptionsChecker(BaseChecker):
                         continue
                     if (isinstance(exc, astroid.Instance)
                             and inherit_from_std_ex(exc)):
+                        # pylint: disable=protected-access
                         exc = exc._proxied
 
                     self._check_catching_non_exception(handler, exc, part)
