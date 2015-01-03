@@ -14,6 +14,7 @@
 import os
 from os.path import join, dirname, abspath
 import unittest
+import warnings
 
 import six
 
@@ -49,9 +50,19 @@ class PyLinterTC(unittest.TestCase):
                                   'C0301:001\n'
                                   'C0301:002\n')
 
+    def test_parseable_output_deprecated(self):
+        with warnings.catch_warnings(record=True) as cm:
+            warnings.simplefilter("always")
+            ParseableTextReporter()
+        
+        self.assertEqual(len(cm), 1)
+        self.assertIsInstance(cm[0].message, DeprecationWarning)
+
     def test_parseable_output_regression(self):
         output = six.StringIO()
-        linter = PyLinter(reporter=ParseableTextReporter())
+        with warnings.catch_warnings(record=True):
+            linter = PyLinter(reporter=ParseableTextReporter())
+
         checkers.initialize(linter)
         linter.config.persistent = 0
         linter.reporter.set_output(output)
