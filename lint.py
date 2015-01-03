@@ -861,16 +861,6 @@ class PyLinter(configuration.OptionsManagerMixIn,
                              rawcheckers, tokencheckers):
         """Check a module from its astroid representation."""
         try:
-            return self._check_astroid_module(ast_node, walker,
-                                              rawcheckers, tokencheckers)
-        finally:
-            # Close the streams opened by the ast module.
-            ast_node.close()
-
-    def _check_astroid_module(self, ast_node, walker,
-                              rawcheckers, tokencheckers):
-        # call raw checkers if possible
-        try:
             tokens = utils.tokenize_module(ast_node)
         except tokenize.TokenError as ex:
             self.add_message('syntax-error', line=ex.args[1][0], args=ex.args[0])

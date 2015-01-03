@@ -46,7 +46,7 @@ class IRawChecker(IChecker):
     def process_module(self, astroid):
         """ process a module
 
-        the module's content is accessible via astroid.file_stream
+        the module's content is accessible via astroid.stream
         """
 
 

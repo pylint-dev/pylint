@@ -18,11 +18,12 @@ class MyRawChecker(BaseChecker):
     def process_module(self, node):
         """process a module
 
-        the module's content is accessible via node.file_stream object
+        the module's content is accessible via node.stream() function
         """
-        for (lineno, line) in enumerate(node.file_stream):
-            if line.rstrip().endswith('\\'):
-                self.add_message('W9901', line=lineno)
+        with module.stream() as stream:
+            for (lineno, line) in enumerate(stream):
+                if line.rstrip().endswith('\\'):
+                    self.add_message('W9901', line=lineno)
 
 
 def register(linter):

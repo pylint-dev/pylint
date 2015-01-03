@@ -82,8 +82,6 @@ class EncodingChecker(BaseChecker):
         """inspect the source file to find encoding problem or fixmes like
         notes
         """
-        stream = module.file_stream
-        stream.seek(0)  # XXX may be removed with astroid > 0.23
         if self.config.notes:
             notes = re.compile(
                 r'.*?#\s*(%s)(:*\s*.+)' % "|".join(self.config.notes))
@@ -94,10 +92,11 @@ class EncodingChecker(BaseChecker):
         else:
             encoding = 'ascii'
 
-        for lineno, line in enumerate(stream):
-            line = self._check_encoding(lineno + 1, line, encoding)
-            if line is not None and notes:
-                self._check_note(notes, lineno + 1, line)
+        with module.stream() as stream:
+            for lineno, line in enumerate(stream):
+                line = self._check_encoding(lineno + 1, line, encoding)
+                if line is not None and notes:
+                    self._check_note(notes, lineno + 1, line)
 
 
 def register(linter):
