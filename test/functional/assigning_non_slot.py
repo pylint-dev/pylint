@@ -86,3 +86,15 @@ class PropertyGood2(object):
 
     def __init__(self):
         self.test = 24
+
+class UnicodeSlots(object):
+    """Using unicode objects in __slots__ is okay.
+
+    On Python 3.3 onward, u'' is equivalent to '',
+    so this test should be safe for both versions.
+    """
+    __slots__ = (u'first', u'second')
+
+    def __init__(self):
+        self.first = 42
+        self.second = 24

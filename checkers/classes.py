@@ -496,7 +496,7 @@ a metaclass class method.'}
             if infered is YES:
                 continue
             if (not isinstance(infered, astroid.Const) or
-                    not isinstance(infered.value, str)):
+                    not isinstance(infered.value, six.string_types)):
                 self.add_message('invalid-slots-object',
                                  args=infered.as_string(),
                                  node=elt)

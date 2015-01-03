@@ -25,6 +25,9 @@ ChangeLog for Pylint
     * Fix a false positive on Python 2 for raising-bad-type, when
       raising tuples in the form 'raise (ZeroDivisionError, None)'.
 
+    * Fix a false positive with invalid-slots-objects, where the slot entry
+      was an unicode string on Python 2. Closes issue #421.
+
 
 2014-11-23 -- 1.4.0
 
