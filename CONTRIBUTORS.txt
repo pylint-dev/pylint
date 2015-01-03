@@ -44,6 +44,8 @@ Order doesn't matter (not that much, at least ;)
 * Brett Cannon: Port source code to be Python 2/3 compatible, Python 3
   checker.
 
+* Vlad Temian: redundant-unittest-assert and the JSON reporter.
+
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
   Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others):
   bug reports, feedback, feature requests... Many other people have contributed
