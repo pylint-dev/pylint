@@ -93,13 +93,13 @@ class StdlibChecker(BaseChecker):
                   'midnight UTC. This behaviour was fixed in Python 3.5. '
                   'See http://bugs.python.org/issue13936 for reference.',
                   {'maxversion': (3, 5)}),
-        'W1503': ('Redundant use of assertTrue or assertFalse with constant '
+        'W1503': ('Redundant use of %s with constant '
                   'value %r',
                   'redundant-unittest-assert',
                   'The first argument of assertTrue and assertFalse is'
                   'a condition. If a constant is passed as parameter, that'
                   'condition will be always true. In this case a warning '
-                  'should be emited.')
+                  'should be emitted.')
     }
 
     @utils.check_messages('bad-open-mode', 'redundant-unittest-assert')
@@ -137,7 +137,7 @@ class StdlibChecker(BaseChecker):
                 isinstance(node.args[0], astroid.Const) and
                 infer.name in ['assertTrue', 'assertFalse']):
             self.add_message('redundant-unittest-assert',
-                             args=(node.args[0].value, ),
+                             args=(infer.name, node.args[0].value, ),
                              node=node)
 
     def _check_datetime(self, node):

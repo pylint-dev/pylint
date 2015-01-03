@@ -28,6 +28,11 @@ ChangeLog for Pylint
     * Fix a false positive with invalid-slots-objects, where the slot entry
       was an unicode string on Python 2. Closes issue #421.
 
+    * Add a new warning, 'redundant-unittest-assert', emitted when using
+      unittest's methods assertTrue and assertFalse with constant value
+      as argument. Patch by Vlad Temian.
+
+
 
 2014-11-23 -- 1.4.0
 

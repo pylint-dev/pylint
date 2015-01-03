@@ -8,7 +8,7 @@ it should emit a warning message.
 
 import unittest
 
-
+@unittest.skip("don't run this")
 class Tests(unittest.TestCase):
     def test_something(self):
         ''' Simple test '''
@@ -19,6 +19,12 @@ class Tests(unittest.TestCase):
         self.assertFalse('I meant assertEqual not assertFalse', some_var)
         # +1:[redundant-unittest-assert]
         self.assertTrue(True, some_var)
+        # +1:[redundant-unittest-assert]
+        self.assertFalse(False, some_var)
+        # +1:[redundant-unittest-assert]
+        self.assertFalse(None, some_var)
+        # +1:[redundant-unittest-assert]
+        self.assertTrue(0, some_var)
 
         self.assertTrue('should be' in some_var, some_var)
         self.assertTrue(some_var, some_var)
