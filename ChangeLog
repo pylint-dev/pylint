@@ -32,6 +32,8 @@ ChangeLog for Pylint
       unittest's methods assertTrue and assertFalse with constant value
       as argument. Patch by Vlad Temian.
 
+    * Add a new JSON reporter, usable through -f flag.
+
 
 
 2014-11-23 -- 1.4.0

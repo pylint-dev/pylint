@@ -43,7 +43,7 @@ class JSONReporter(BaseReporter):
             'line': message.line,
             'column': message.column,
             'path': message.path,
-            'symbol ': message.symbol,
+            'symbol': message.symbol,
             'message': escape(message.msg or ''),
         })
 

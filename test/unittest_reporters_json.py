@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2014 LOGILAB S.A. (Paris, FRANCE).
+# Copyright (c) 2003-2015 LOGILAB S.A. (Paris, FRANCE).
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -11,10 +11,13 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+"""Test for the JSON reporter."""
+
 import json
-import six
 import unittest
 
+import six
 
 from pylint.lint import PyLinter
 from pylint import checkers
@@ -38,16 +41,20 @@ class TestJSONReporter(unittest.TestCase):
 
         # we call this method because we didn't actually run the checkers
         reporter.display_results(None)
-        asserted_result = [{
-            "obj": "",
-            "column": 0,
-            "module": "0123",
-            "message": "Line too long (1/2)",
-            "line": 1,
-            "type": "convention",
-        }]
+        expected_result = [[
+            ("column", 0),
+            ("line", 1),
+            ("message", "Line too long (1/2)"),
+            ("module", "0123"),
+            ("obj", ""),
+            ("path", "0123"),
+            ("symbol", "line-too-long"),
+            ("type", "convention"),
+        ]]
         report_result = json.loads(output.getvalue())
-        self.assertEqual(report_result, asserted_result)
+        report_result = [sorted(report_result[0].items(),
+                                key=lambda item: item[0])]
+        self.assertEqual(report_result, expected_result)
 
 
 if __name__ == '__main__':
