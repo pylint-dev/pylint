@@ -25,7 +25,7 @@ import six
 
 from six.moves.tkinter import (
     Tk, Frame, Listbox, Entry, Label, Button, Scrollbar,
-    Checkbutton, Radiobutton, IntVar, StringVar,
+    Checkbutton, Radiobutton, IntVar, StringVar, PanedWindow,
     TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH, SUNKEN, W,
     HORIZONTAL, DISABLED, NORMAL, W,
 )
@@ -150,23 +150,34 @@ class LintGui(object):
 
     def init_gui(self):
         """init helper"""
+
+        window = PanedWindow(self.root, orient="vertical")
+        window.pack(side=TOP, fill=BOTH, expand=True)
+
+        top_pane = Frame(window)
+        window.add(top_pane)
+        mid_pane = Frame(window)
+        window.add(mid_pane)
+        bottom_pane = Frame(window)
+        window.add(bottom_pane)
+
         #setting up frames
-        top_frame = Frame(self.root)
-        mid_frame = Frame(self.root)
-        radio_frame = Frame(self.root)
-        res_frame = Frame(self.root)
-        msg_frame = Frame(self.root)
-        check_frame = Frame(self.root)
-        history_frame = Frame(self.root)
-        btn_frame = Frame(self.root)
-        rating_frame = Frame(self.root)
+        top_frame = Frame(top_pane)
+        mid_frame = Frame(top_pane)
+        history_frame = Frame(top_pane)
+        radio_frame = Frame(mid_pane)
+        rating_frame = Frame(mid_pane)
+        res_frame = Frame(mid_pane)
+        check_frame = Frame(bottom_pane)
+        msg_frame = Frame(bottom_pane)
+        btn_frame = Frame(bottom_pane)
         top_frame.pack(side=TOP, fill=X)
         mid_frame.pack(side=TOP, fill=X)
         history_frame.pack(side=TOP, fill=BOTH, expand=True)
-        radio_frame.pack(side=TOP, fill=BOTH, expand=True)
-        rating_frame.pack(side=TOP, fill=BOTH, expand=True)
+        radio_frame.pack(side=TOP, fill=X)
+        rating_frame.pack(side=TOP, fill=X)
         res_frame.pack(side=TOP, fill=BOTH, expand=True)
-        check_frame.pack(side=TOP, fill=BOTH, expand=True)
+        check_frame.pack(side=TOP, fill=X)
         msg_frame.pack(side=TOP, fill=BOTH, expand=True)
         btn_frame.pack(side=TOP, fill=X)
 
