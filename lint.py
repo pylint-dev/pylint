@@ -206,25 +206,17 @@ if multiprocessing is not None:
             # Load command line plugins.
             # TODO linter.load_plugin_modules(self._plugins)
 
-            linter.disable('pointless-except')
-            linter.disable('suppressed-message')
-            linter.disable('useless-suppression')
+            # this flags should not be propagated
+            filter_options = {'symbols', 'include-ids', 'rcfile', 'init-hook', 'help-msg', 'list-msgs', 'list-conf-levels',
+                              'full-documentation', 'generate-rcfile', 'generate-man', 'profile', 'long-help', 'py3k', 'errors-only'}
+            sublinter_config = {}
+            for opt_providers in six.itervalues(linter._all_options):
+                for optname, _ in opt_providers.options:
+                    if optname not in filter_options:
+                        sublinter_config[optname] = config[optname]
 
-            # TODO(cpopa): the sub-linters will not know all the options
-            # because they are not available here, as they are patches to
-            # PyLinter options. The following is just a hack to handle
-            # just a part of the options available in the Run class.
-
-            if 'disable_msg' in config:
-                # Disable everything again. We don't have access
-                # to the original linter though.
-                for msgid in config['disable_msg']:
-                    linter.disable(msgid)
-            for key in set(config) - set(dict(linter.options)):
-                del config[key]
-
-            config['jobs'] = 1  # Child does not parallelize any further.
-            linter.load_configuration(**config)
+            sublinter_config['jobs'] = 1  # Child does not parallelize any further.
+            linter.load_configuration(**sublinter_config)
             linter.set_reporter(reporters.CollectingReporter())
 
             # Run the checks.
@@ -501,12 +493,14 @@ class PyLinter(configuration.OptionsManagerMixIn,
                         meth(_id, ignore_unknown=True)
                 else:
                     meth(value)
+                return # no need to call set_option, disable/enable methods do it
         elif optname == 'output-format':
             self._reporter_name = value
             # If the reporters are already available, load
             # the reporter class.
             if self._reporters:
                 self._load_reporter()
+
         try:
             checkers.BaseTokenChecker.set_option(self, optname,
                                                  value, action, optdict)
@@ -701,7 +695,11 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def _parallel_task(self, files_or_modules):
         # Prepare configuration for child linters.
-        config = vars(self.config)
+        config = {}
+        for opt_providers in six.itervalues(self._all_options):
+            for optname, optdict, val in opt_providers.options_and_values():
+                config[optname] = configuration.format_option_value(optdict, val)
+
         childs = []
         manager = multiprocessing.Manager()  # pylint: disable=no-member
         tasks_queue = manager.Queue()  # pylint: disable=no-member
