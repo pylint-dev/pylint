@@ -34,6 +34,9 @@ ChangeLog for Pylint
 
     * Add a new JSON reporter, usable through -f flag.
 
+    * Add the method names for the 'signature-differs' and 'argument-differs'
+      warnings. Closes issue #433.
+
 
 
 2014-11-23 -- 1.4.0
