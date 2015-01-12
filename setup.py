@@ -190,7 +190,7 @@ def install(**kwargs):
     kwargs['packages'] = packages
     cmdclass = {'install_lib': MyInstallLib,
                 'build_py': build_py}
-    if easy_install:
+    if easy_install_lib:
         cmdclass['easy_install'] = easy_install
     return setup(name=distname,
                  version=version,
