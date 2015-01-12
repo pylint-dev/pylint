@@ -37,6 +37,7 @@ ChangeLog for Pylint
     * Add the method names for the 'signature-differs' and 'argument-differs'
       warnings. Closes issue #433.
 
+    * Don't compile test files when installing.
 
 
 2014-11-23 -- 1.4.0

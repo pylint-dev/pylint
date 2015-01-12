@@ -32,12 +32,14 @@ try:
     if os.environ.get('NO_SETUPTOOLS'):
         raise ImportError()
     from setuptools import setup
+    from setuptools.command import easy_install as easy_install_lib
     from setuptools.command import install_lib
     USE_SETUPTOOLS = 1
 except ImportError:
     from distutils.core import setup
     from distutils.command import install_lib
     USE_SETUPTOOLS = 0
+    easy_install_lib = None
 
 from distutils.command.build_py import build_py
 
@@ -97,6 +99,11 @@ except ImportError:
     pass
 '''
 
+def _filter_tests(files):
+    testdir = join('pylint', 'test')
+    return [f for f in files if testdir not in f]
+
+
 class MyInstallLib(install_lib.install_lib):
     """extend install_lib command to handle package __init__.py and
     include_dirs variable if necessary
@@ -138,9 +145,19 @@ class MyInstallLib(install_lib.install_lib):
     # files, some of them being syntactically wrong by design, and this scares
     # the end-user
     def byte_compile(self, files):
-        testdir = join('pylint', 'test')
-        files = [f for f in files if testdir not in f]
+        files = _filter_tests(files)
         install_lib.install_lib.byte_compile(self, files)
+
+
+if easy_install_lib:
+    class easy_install(easy_install_lib.easy_install):
+        # override this since pip/easy_install attempt to byte compile
+        # test data files, some of them being syntactically wrong by design,
+        # and this scares the end-user
+        def byte_compile(self, files):
+            files = _filter_tests(files)
+            easy_install_lib.easy_install.byte_compile(self, files)
+
 
 def install(**kwargs):
     """setup entry point"""
@@ -171,6 +188,10 @@ def install(**kwargs):
             'symilar = pylint:run_symilar',
         ]}
     kwargs['packages'] = packages
+    cmdclass = {'install_lib': MyInstallLib,
+                'build_py': build_py}
+    if easy_install:
+        cmdclass['easy_install'] = easy_install
     return setup(name=distname,
                  version=version,
                  license=license,
@@ -183,8 +204,7 @@ def install(**kwargs):
                  classifiers=classifiers,
                  data_files=data_files,
                  ext_modules=ext_modules,
-                 cmdclass={'install_lib': MyInstallLib,
-                           'build_py': build_py},
+                 cmdclass=cmdclass,
                  **kwargs)
 
 if __name__ == '__main__':
