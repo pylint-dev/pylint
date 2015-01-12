@@ -134,7 +134,7 @@ class StdlibChecker(BaseChecker):
 
     def _check_redundant_assert(self, node, infer):
         if (isinstance(infer, astroid.BoundMethod) and
-                isinstance(node.args[0], astroid.Const) and
+                node.args and isinstance(node.args[0], astroid.Const) and
                 infer.name in ['assertTrue', 'assertFalse']):
             self.add_message('redundant-unittest-assert',
                              args=(infer.name, node.args[0].value, ),
