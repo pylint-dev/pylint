@@ -179,11 +179,11 @@ MSGS = {
               'missing-interface-method',
               'Used when a method declared in an interface is missing from a \
               class implementing this interface'),
-    'W0221': ('Arguments number differs from %s method',
+    'W0221': ('Arguments number differs from %s %r method',
               'arguments-differ',
               'Used when a method has a different number of arguments than in \
               the implemented interface or in an overridden method.'),
-    'W0222': ('Signature differs from %s method',
+    'W0222': ('Signature differs from %s %r method',
               'signature-differs',
               'Used when a method signature is different than in the \
               implemented interface or in an overridden method.'),
@@ -939,9 +939,13 @@ a metaclass class method.'}
         if is_attr_private(method1.name):
             return
         if len(method1.args.args) != len(refmethod.args.args):
-            self.add_message('arguments-differ', args=class_type, node=method1)
+            self.add_message('arguments-differ',
+                             args=(class_type, method1.name),
+                             node=method1)
         elif len(method1.args.defaults) < len(refmethod.args.defaults):
-            self.add_message('signature-differs', args=class_type, node=method1)
+            self.add_message('signature-differs',
+                             args=(class_type, method1.name),
+                             node=method1)
 
     def is_first_attr(self, node):
         """Check that attribute lookup name use first attribute variable name
