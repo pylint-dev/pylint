@@ -270,8 +270,8 @@ class MessagesHandlerMixIn(object):
             msgs = self._msgs_state
             msgs[msg.msgid] = False
             # sync configuration object
-            self.config.disable_msg = [mid for mid, val in six.iteritems(msgs)
-                                       if not val]
+            self.config.disable = [mid for mid, val in six.iteritems(msgs)
+                                   if not val]
 
     def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """reenable message of the given id"""
