@@ -187,10 +187,11 @@ def _deprecated_option(shortname, opt_type):
 if multiprocessing is not None:
     class ChildLinter(multiprocessing.Process): # pylint: disable=no-member
         def run(self):
-            tasks_queue, results_queue, config = self._args # pylint: disable=no-member
+            tasks_queue, results_queue, self._config, self._ignored_opts = self._args # pylint: disable=no-member
 
+            # run linter for received files/modules
             for file_or_module in iter(tasks_queue.get, 'STOP'):
-                result = self._run_linter(config, file_or_module[0])
+                result = self._run_linter(file_or_module[0])
                 try:
                     results_queue.put(result)
                 except Exception as ex:
@@ -198,7 +199,7 @@ if multiprocessing is not None:
                     print(ex, file=sys.stderr)
                     results_queue.put({})
 
-        def _run_linter(self, config, file_or_module):
+        def _run_linter(self, file_or_module):
             linter = PyLinter()
 
             # Register standard checkers.
@@ -206,16 +207,17 @@ if multiprocessing is not None:
             # Load command line plugins.
             # TODO linter.load_plugin_modules(self._plugins)
 
-            # this flags should not be propagated
-            filter_options = {'symbols', 'include-ids', 'rcfile', 'init-hook', 'help-msg', 'list-msgs', 'list-conf-levels',
-                              'full-documentation', 'generate-rcfile', 'generate-man', 'profile', 'long-help', 'py3k', 'errors-only'}
+            # prepare config for sublinters; some flags should not be propagated
+            filter_options = {'symbols', 'include-ids', 'long-help'}
+            filter_options.update(self._ignored_opts)
             sublinter_config = {}
             for opt_providers in six.itervalues(linter._all_options):
                 for optname, _ in opt_providers.options:
                     if optname not in filter_options:
-                        sublinter_config[optname] = config[optname]
+                        sublinter_config[optname] = self._config[optname]
 
             sublinter_config['jobs'] = 1  # Child does not parallelize any further.
+
             linter.load_configuration(**sublinter_config)
             linter.set_reporter(reporters.CollectingReporter())
 
@@ -405,6 +407,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         self.current_file = None
         self.stats = None
         # init options
+        self._external_opts = options
         self.options = options + PyLinter.make_options()
         self.option_groups = option_groups + PyLinter.option_groups
         self._options_methods = {
@@ -705,8 +708,10 @@ class PyLinter(configuration.OptionsManagerMixIn,
         tasks_queue = manager.Queue()  # pylint: disable=no-member
         results_queue = manager.Queue()  # pylint: disable=no-member
 
+        ignored_opts = [opt_name for opt_name, _ in self._external_opts]
+
         for _ in range(self.config.jobs):
-            cl = ChildLinter(args=(tasks_queue, results_queue, config))
+            cl = ChildLinter(args=(tasks_queue, results_queue, config, ignored_opts))
             cl.start()  # pylint: disable=no-member
             childs.append(cl)
 
