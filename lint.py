@@ -187,9 +187,11 @@ def _deprecated_option(shortname, opt_type):
 if multiprocessing is not None:
     class ChildLinter(multiprocessing.Process): # pylint: disable=no-member
         def run(self):
-            tasks_queue, results_queue, self._config, self._ignored_opts = self._args # pylint: disable=no-member
+            tasks_queue, results_queue, self._config = self._args # pylint: disable=no-member
 
-            # run linter for received files/modules
+            self._config["jobs"] = 1  # Child does not parallelize any further.
+
+            # Run linter for received files/modules.
             for file_or_module in iter(tasks_queue.get, 'STOP'):
                 result = self._run_linter(file_or_module[0])
                 try:
@@ -207,18 +209,7 @@ if multiprocessing is not None:
             # Load command line plugins.
             # TODO linter.load_plugin_modules(self._plugins)
 
-            # prepare config for sublinters; some flags should not be propagated
-            filter_options = {'symbols', 'include-ids', 'long-help'}
-            filter_options.update(self._ignored_opts)
-            sublinter_config = {}
-            for opt_providers in six.itervalues(linter._all_options):
-                for optname, _ in opt_providers.options:
-                    if optname not in filter_options:
-                        sublinter_config[optname] = self._config[optname]
-
-            sublinter_config['jobs'] = 1  # Child does not parallelize any further.
-
-            linter.load_configuration(**sublinter_config)
+            linter.load_configuration(**self._config)
             linter.set_reporter(reporters.CollectingReporter())
 
             # Run the checks.
@@ -698,20 +689,21 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def _parallel_task(self, files_or_modules):
         # Prepare configuration for child linters.
+        filter_options = {'symbols', 'include-ids', 'long-help'}
+        filter_options.update([opt_name for opt_name, _ in self._external_opts])
         config = {}
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
-                config[optname] = configuration.format_option_value(optdict, val)
+                if optname not in filter_options:
+                    config[optname] = configuration.format_option_value(optdict, val)
 
         childs = []
         manager = multiprocessing.Manager()  # pylint: disable=no-member
         tasks_queue = manager.Queue()  # pylint: disable=no-member
         results_queue = manager.Queue()  # pylint: disable=no-member
 
-        ignored_opts = [opt_name for opt_name, _ in self._external_opts]
-
         for _ in range(self.config.jobs):
-            cl = ChildLinter(args=(tasks_queue, results_queue, config, ignored_opts))
+            cl = ChildLinter(args=(tasks_queue, results_queue, config))
             cl.start()  # pylint: disable=no-member
             childs.append(cl)
 
