@@ -533,6 +533,10 @@ def unimplemented_abstract_methods(node, is_abstract_cb=decorated_with_abc):
     except NotImplementedError:
         # Old style class, it will not have a mro.
         return {}
+    except astroid.ResolveError:
+        # Probably inconsistent hierarchy, don'try
+        # to figure this out here.
+        return {}
     for ancestor in mro:
         for obj in ancestor.values():
             infered = obj
