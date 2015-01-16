@@ -1,7 +1,8 @@
 ChangeLog for Pylint
 ====================
 
---
+2015-01-16 -- 1.4.1
+
     * Look only in the current function's scope for bad-super-call.
       Closes issue #403.
 
