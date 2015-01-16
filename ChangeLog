@@ -39,6 +39,9 @@ ChangeLog for Pylint
 
     * Don't compile test files when installing.
 
+    * Fix a crash which occurred when using multiple jobs and the files
+      given as argument didn't exist at all.
+
 
 2014-11-23 -- 1.4.0
 

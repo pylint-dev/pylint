@@ -674,11 +674,11 @@ class PyLinter(configuration.OptionsManagerMixIn,
             self._do_check(files_or_modules)
         else:
             # Hack that permits running pylint, on Windows, with -m switch
-            # and with --jobs, as in 'py -2 -m pylint .. --jobs'.
+            # and with --jobs, as in 'python -2 -m pylint .. --jobs'.
             # For more details why this is needed,
             # see Python issue http://bugs.python.org/issue10845.
 
-            mock_main = six.PY2 and __name__ != '__main__' # -m switch
+            mock_main = __name__ != '__main__' # -m switch
             if mock_main:
                 sys.modules['__main__'] = sys.modules[__name__]
             try:
