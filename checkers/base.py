@@ -1171,6 +1171,11 @@ class DocStringChecker(_BasicChecker):
                 lines = node.body[-1].lineno - node.body[0].lineno + 1
             else:
                 lines = 0
+
+            if node_type == 'module' and not lines:
+                # If the module has no body, there's no reason
+                # to require a docstring.
+                return
             max_lines = self.config.docstring_min_length
 
             if node_type != 'module' and max_lines > -1 and lines < max_lines:
