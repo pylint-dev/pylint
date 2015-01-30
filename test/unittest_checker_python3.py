@@ -18,6 +18,7 @@ import sys
 import unittest
 import textwrap
 
+import astroid
 from astroid import test_utils
 
 from pylint import testutils
@@ -60,6 +61,63 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         ]
         for builtin in builtins:
             self.check_bad_builtin(builtin)
+
+    @python2_only
+    def test_returned_iterator(self):
+        module = test_utils.build_module("for x in map(None, [1]): pass")
+        with self.assertNoMessages():
+            self.walk(module)
+        node = test_utils.extract_node("""
+        for x in (y(
+            map(None, [1]) #@
+        )):
+            pass
+        """)
+        message = testutils.Message('map-builtin-not-iterating', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+        module = test_utils.build_module("x = (x for x in map(None, [1]))")
+        with self.assertNoMessages():
+            self.walk(module)
+        module = test_utils.build_module("x = [x for x in map(None, [1])]")
+        with self.assertNoMessages():
+            self.walk(module)
+        node = test_utils.extract_node("""
+        list(
+            map(None, x) #@
+            for x in [1]
+        )
+        """)
+        # For some reason extract_node won't grab the map() call.
+        assert isinstance(node, astroid.GenExpr)
+        node = node.elt
+        message = testutils.Message('map-builtin-not-iterating', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+        node = test_utils.extract_node("""
+        [
+            map(None, x) #@
+        for x in [[1]]]
+        """)
+        # For some reason extract_node won't grab the map() call.
+        node = node.elt
+        message = testutils.Message('map-builtin-not-iterating', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+        module = test_utils.build_module("x = list(map(None, [1]))")
+        with self.assertNoMessages():
+            self.walk(module)
+        node = test_utils.extract_node("""
+        y(
+            map(None, [1]) #@
+        )
+        """)
+        message = testutils.Message('map-builtin-not-iterating', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+        module = test_utils.build_module("x = ''.join(map(None, [1]))")
+        with self.assertNoMessages():
+            self.walk(module)
 
     def _test_defined_method(self, method, warning):
         node = test_utils.extract_node("""

@@ -12,7 +12,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Check Python 2 code for Python 2/3 source-compatible issues."""
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import re
 import tokenize
@@ -45,6 +45,40 @@ def _check_dict_node(node):
         pass
     return (not inferred_types
             or any(isinstance(x, astroid.Dict) for x in inferred_types))
+
+def _is_builtin(node):
+    return getattr(node, 'name', None) == '__builtin__'
+
+_accepts_iterator = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
+                     'all', 'enumerate'}
+
+def _in_iterating_context(node):
+    """Check if the node is being used as an iterator.
+
+    Definition is taken from lib2to3.fixer_util.in_special_context().
+    """
+    parent = node.parent
+    # Since a call can't be the loop variant we only need to know if the node's
+    # parent is a 'for' loop to know it's being used as the iterator for the
+    # loop.
+    if isinstance(parent, astroid.For):
+        return True
+    # Need to make sure the use of the node is in the iterator part of the
+    # comprehension.
+    elif isinstance(parent, astroid.Comprehension):
+        if parent.iter == node:
+            return True
+    # Various built-ins can take in an iterable or list and lead to the same
+    # value.
+    elif isinstance(parent, astroid.CallFunc):
+        if isinstance(parent.func, astroid.Name):
+            parent_scope = parent.func.lookup(parent.func.name)[0]
+            if _is_builtin(parent_scope) and parent.func.name in _accepts_iterator:
+                return True
+        elif isinstance(parent.func, astroid.Getattr):
+            if parent.func.attrname == 'join':
+                return True
+    return False
 
 
 class Python3Checker(checkers.BaseChecker):
@@ -262,6 +296,11 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when the round built-in is referenced '
                   '(backwards-incompatible semantics in Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1634': ('map built-in referenced when not iterating',
+                  'map-builtin-not-iterating',
+                  'Used when the map built-in is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -318,13 +357,13 @@ class Python3Checker(checkers.BaseChecker):
                 isinstance(node.value.func, astroid.Name) and
                 node.value.func.name == 'map'):
             module = node.value.func.lookup('map')[0]
-            if getattr(module, 'name', None) == '__builtin__':
+            if _is_builtin(module):
                 self.add_message('implicit-map-evaluation', node=node)
 
     def visit_name(self, node):
         """Detect when a "bad" built-in is referenced."""
         found_node = node.lookup(node.name)[0]
-        if getattr(found_node, 'name', None) == '__builtin__':
+        if _is_builtin(found_node):
             if node.name in self._bad_builtins:
                 message = node.name.lower() + '-builtin'
                 self.add_message(message, node=node)
@@ -363,22 +402,24 @@ class Python3Checker(checkers.BaseChecker):
             else:
                 self.add_message('old-division', node=node)
 
-    @utils.check_messages('next-method-called',
-                          'dict-iter-method',
-                          'dict-view-method')
     def visit_callfunc(self, node):
-        if not isinstance(node.func, astroid.Getattr):
-            return
-        if any([node.args, node.starargs, node.kwargs]):
-            return
-        if node.func.attrname == 'next':
-            self.add_message('next-method-called', node=node)
-        else:
-            if _check_dict_node(node.func.expr):
-                if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
-                    self.add_message('dict-iter-method', node=node)
-                elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
-                    self.add_message('dict-view-method', node=node)
+        if isinstance(node.func, astroid.Getattr):
+            if any([node.args, node.starargs, node.kwargs]):
+                return
+            if node.func.attrname == 'next':
+                self.add_message('next-method-called', node=node)
+            else:
+                if _check_dict_node(node.func.expr):
+                    if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
+                        self.add_message('dict-iter-method', node=node)
+                    elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
+                        self.add_message('dict-view-method', node=node)
+        elif isinstance(node.func, astroid.Name):
+            found_node = node.func.lookup(node.func.name)[0]
+            if _is_builtin(found_node):
+                if node.func.name == 'map' and not _in_iterating_context(node):
+                    self.add_message('map-builtin-not-iterating', node=node)
+
 
     @utils.check_messages('indexing-exception')
     def visit_subscript(self, node):
