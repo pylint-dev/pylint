@@ -181,7 +181,7 @@ def parse_format_method_string(format_string):
             if isinstance(keyname, numbers.Number):
                 # In Python 2 it will return long which will lead
                 # to different output between 2 and 3
-                manual_pos_arg.add(keyname)
+                manual_pos_arg.add(str(keyname))
                 keyname = int(keyname)
             keys.append((keyname, list(fielditerator)))
         else:

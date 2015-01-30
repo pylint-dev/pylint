@@ -106,7 +106,6 @@ configuration file in the following order and uses the first one it finds:
    #. ``.pylintrc`` in your home directory
    #. ``.config/pylintrc`` in your home directory
 
-   else, ``.pylintrc`` in the current working directory
 #. ``/etc/pylintrc``
 
 The ``--generate-rcfile`` option will generate a commented configuration file

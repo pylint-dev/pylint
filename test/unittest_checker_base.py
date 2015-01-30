@@ -13,8 +13,13 @@ class DocstringTest(CheckerTestCase):
     CHECKER_CLASS = base.DocStringChecker
 
     def test_missing_docstring_module(self):
-        module = test_utils.build_module("")
+        module = test_utils.build_module("something")
         with self.assertAddsMessages(Message('missing-docstring', node=module, args=('module',))):
+            self.checker.visit_module(module)
+
+    def test_missing_docstring_emtpy_module(self):
+        module = test_utils.build_module("")
+        with self.assertNoMessages():
             self.checker.visit_module(module)
 
     def test_empty_docstring_module(self):

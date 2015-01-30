@@ -171,3 +171,13 @@ def issue373():
             return 'AAA{0[iface]}BBB{0[port]}'.format(self.opts)
 
     return SomeClass
+
+def issue_463():
+    """
+    Mix positional arguments, `{0}`, with positional
+    arguments with attribute access, `{0.__x__}`.
+    """
+    data = "{0.__class__.__name__}: {0}".format(42)
+    data2 = "{0[0]}: {0}".format([1])
+    return (data, data2)
+

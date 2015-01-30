@@ -115,7 +115,7 @@ output buffer, to go to the lines where pylint found matches.
                    'identity
                    (list pylint-command
                          (mapconcat 'identity pylint-options " ")
-                         (comint-quote-filename file)) " ")))
+                         (shell-quote-argument file)) " ")))
 
     (compilation-start command 'pylint-mode)))
 
