@@ -62,64 +62,86 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         for builtin in builtins:
             self.check_bad_builtin(builtin)
 
-    @python2_only
-    def test_returned_iterator(self):
-        module = test_utils.build_module("for x in map(None, [1]): pass")
+    def iterating_context_test(self, fxn):
+        """Helper for verifying a function isn't used as an iterator."""
+        checker = '{}-builtin-not-iterating'.format(fxn)
+        code = "for x in {}(None, [1]): pass".format(fxn)
+        module = test_utils.build_module(code)
         with self.assertNoMessages():
             self.walk(module)
         node = test_utils.extract_node("""
         for x in (y(
-            map(None, [1]) #@
+            {}(None, [1]) #@
         )):
             pass
-        """)
-        message = testutils.Message('map-builtin-not-iterating', node=node)
+        """.format(fxn))
+        message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_callfunc(node)
-        module = test_utils.build_module("x = (x for x in map(None, [1]))")
+        code = "x = (x for x in {}(None, [1]))".format(fxn)
+        module = test_utils.build_module(code)
         with self.assertNoMessages():
             self.walk(module)
-        module = test_utils.build_module("x = [x for x in map(None, [1])]")
+        code = "x = [x for x in {}(None, [1])]".format(fxn)
+        module = test_utils.build_module(code)
         with self.assertNoMessages():
             self.walk(module)
         node = test_utils.extract_node("""
         list(
-            map(None, x) #@
+            {}(None, x) #@
             for x in [1]
         )
-        """)
+        """.format(fxn))
         # For some reason extract_node won't grab the map() call.
         assert isinstance(node, astroid.GenExpr)
         node = node.elt
-        message = testutils.Message('map-builtin-not-iterating', node=node)
+        message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_callfunc(node)
         node = test_utils.extract_node("""
         [
-            map(None, x) #@
+            {}(None, x) #@
         for x in [[1]]]
-        """)
+        """.format(fxn))
         # For some reason extract_node won't grab the map() call.
         node = node.elt
-        message = testutils.Message('map-builtin-not-iterating', node=node)
+        message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_callfunc(node)
-        module = test_utils.build_module("x = list(map(None, [1]))")
+        module = test_utils.build_module("x = list({}(None, [1]))".format(fxn))
         with self.assertNoMessages():
             self.walk(module)
         node = test_utils.extract_node("""
         y(
-            map(None, [1]) #@
+            {}(None, [1]) #@
         )
-        """)
-        message = testutils.Message('map-builtin-not-iterating', node=node)
+        """.format(fxn))
+        message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_callfunc(node)
-        module = test_utils.build_module("x = ''.join(map(None, [1]))")
+        code = "x = ''.join({}(None, [1]))".format(fxn)
+        module = test_utils.build_module(code)
         with self.assertNoMessages():
             self.walk(module)
 
-    def _test_defined_method(self, method, warning):
+    @python2_only
+    def test_map_in_iterating_context(self):
+        self.iterating_context_test('map')
+
+    @python2_only
+    def test_zip_in_iterating_context(self):
+        self.iterating_context_test('zip')
+
+    @python2_only
+    def test_range_in_iterating_context(self):
+        self.iterating_context_test('range')
+
+    @python2_only
+    def test_filter_in_iterating_context(self):
+        self.iterating_context_test('filter')
+
+    def defined_method_test(self, method, warning):
+        """Helper for verifying that a certain method is not defined."""
         node = test_utils.extract_node("""
             class Foo(object):
                 def __{0}__(self, other):  #@
@@ -129,28 +151,28 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_function(node)
 
     def test_delslice_method(self):
-        self._test_defined_method('delslice', 'delslice-method')
+        self.defined_method_test('delslice', 'delslice-method')
 
     def test_getslice_method(self):
-        self._test_defined_method('getslice', 'getslice-method')
+        self.defined_method_test('getslice', 'getslice-method')
 
     def test_setslice_method(self):
-        self._test_defined_method('setslice', 'setslice-method')
+        self.defined_method_test('setslice', 'setslice-method')
 
     def test_coerce_method(self):
-        self._test_defined_method('coerce', 'coerce-method')
+        self.defined_method_test('coerce', 'coerce-method')
 
     def test_oct_method(self):
-        self._test_defined_method('oct', 'oct-method')
+        self.defined_method_test('oct', 'oct-method')
 
     def test_hex_method(self):
-        self._test_defined_method('hex', 'hex-method')
+        self.defined_method_test('hex', 'hex-method')
 
     def test_nonzero_method(self):
-        self._test_defined_method('nonzero', 'nonzero-method')
+        self.defined_method_test('nonzero', 'nonzero-method')
 
     def test_cmp_method(self):
-        self._test_defined_method('cmp', 'cmp-method')
+        self.defined_method_test('cmp', 'cmp-method')
 
     @python2_only
     def test_print_statement(self):

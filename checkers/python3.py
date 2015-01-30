@@ -301,6 +301,21 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when the map built-in is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1635': ('zip built-in referenced when not iterating',
+                  'zip-builtin-not-iterating',
+                  'Used when the zip built-in is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1636': ('range built-in referenced when not iterating',
+                  'range-builtin-not-iterating',
+                  'Used when the range built-in is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1637': ('filter built-in referenced when not iterating',
+                  'filter-builtin-not-iterating',
+                  'Used when the filter built-in is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -417,8 +432,10 @@ class Python3Checker(checkers.BaseChecker):
         elif isinstance(node.func, astroid.Name):
             found_node = node.func.lookup(node.func.name)[0]
             if _is_builtin(found_node):
-                if node.func.name == 'map' and not _in_iterating_context(node):
-                    self.add_message('map-builtin-not-iterating', node=node)
+                if node.func.name in ('filter', 'map', 'range', 'zip'):
+                    if not _in_iterating_context(node):
+                        checker = '{}-builtin-not-iterating'.format(node.func.name)
+                        self.add_message(checker, node=node)
 
 
     @utils.check_messages('indexing-exception')
