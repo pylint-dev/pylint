@@ -234,28 +234,35 @@ class MisdesignChecker(BaseChecker):
             except KeyError:
                 self._used_abstracts[parent] = 1
 
-    @check_messages('too-many-ancestors', 'too-many-instance-attributes',
-                    'too-few-public-methods', 'too-many-public-methods',
-                    'abstract-class-not-used', 'abstract-class-little-used',
-                    'interface-not-implemented')
+    @check_messages('too-few-public-methods', 'too-many-public-methods')
     def leave_class(self, node):
         """check number of public methods"""
-        nb_public_methods = 0
-        for method in node.mymethods():
-            if not method.name.startswith('_'):
-                nb_public_methods += 1
-        # Does the class contain less than 20 public methods ?
-        if nb_public_methods > self.config.max_public_methods:
+        my_methods = sum(1 for method in node.mymethods()
+                         if not method.name.startswith('_'))
+        all_methods = sum(1 for method in node.methods()
+                          if not method.name.startswith('_'))
+
+        # Does the class contain less than n public methods ?
+        # This checks only the methods defined in the current class,
+        # since the user might not have control over the classes
+        # from the ancestors. It avoids some false positives
+        # for classes such as unittest.TestCase, which provides
+        # a lot of assert methods. It doesn't make sense to warn
+        # when the user subclasses TestCase to add his own tests.
+        if my_methods > self.config.max_public_methods:
             self.add_message('too-many-public-methods', node=node,
-                             args=(nb_public_methods,
+                             args=(my_methods,
                                    self.config.max_public_methods))
         # stop here for exception, metaclass and interface classes
         if node.type != 'class':
             return
-        # Does the class contain more than 5 public methods ?
-        if nb_public_methods < self.config.min_public_methods:
+
+        # Does the class contain more than n public methods ?
+        # This checks all the methods defined by ancestors and
+        # by the current class.
+        if all_methods < self.config.min_public_methods:
             self.add_message('too-few-public-methods', node=node,
-                             args=(nb_public_methods,
+                             args=(all_methods,
                                    self.config.min_public_methods))
 
     @check_messages('too-many-return-statements', 'too-many-branches',
