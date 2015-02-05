@@ -13,6 +13,9 @@ ChangeLog for Pylint
     * Take in account all the methods from the ancestors
       when checking for too-few-public-methods. Closes issue #471.
 
+    * Catch enchant errors and emit 'invalid-characters-in-docstring'
+      when checking for spelling errors. Closes issue #469.
+
 
 2015-01-16 -- 1.4.1
 
