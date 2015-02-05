@@ -76,6 +76,18 @@ class SpellingCheckerTest(CheckerTestCase):
                           "comet' or 'comment' or 'moment' or 'foment"))):
             self.checker.visit_class(stmt)
 
+    @unittest.skipIf(spell_dict is None,
+                     "missing python-enchant package or missing "
+                     "spelling dictionaries")
+    @set_config(spelling_dict=spell_dict)
+    def test_invalid_docstring_characters(self):
+        stmt = test_utils.extract_node(
+            'def fff():\n   """test\\x00"""\n   pass')
+        with self.assertAddsMessages(
+            Message('invalid-characters-in-docstring', line=2,
+                    args=('test\x00',))):
+            self.checker.visit_function(stmt)
+
 
 if __name__ == '__main__':
     unittest.main()
