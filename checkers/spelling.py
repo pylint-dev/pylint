@@ -131,6 +131,8 @@ class SpellingChecker(BaseTokenChecker):
         line2 = re.sub("([^a-zA-Z]|^)'", " ", line2)
         # Replace punctuation signs with space e.g. and/or -> and or
         line2 = self.punctuation_regex.sub(' ', line2)
+        # Replace null bytes with space
+        line2 = line2.replace('\x00', ' ')
 
         words = []
         for word in line2.split():
