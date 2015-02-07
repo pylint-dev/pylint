@@ -38,7 +38,7 @@ from pylint.reporters.guireporter import GUIReporter
 
 HOME = os.path.expanduser('~/')
 HISTORY = '.pylint-gui-history'
-COLORS = {'(I)':'lightblue',
+COLORS = {'(I)':'green',
           '(C)':'blue', '(R)':'darkblue',
           '(W)':'black', '(E)':'darkred',
           '(F)':'red'}
