@@ -16,6 +16,9 @@ ChangeLog for Pylint
     * Catch enchant errors and emit 'invalid-characters-in-docstring'
       when checking for spelling errors. Closes issue #469.
 
+    * Use all the inferred statements for the super-init-not-called
+      check. Closes issue #389.
+
 
 2015-01-16 -- 1.4.1
 

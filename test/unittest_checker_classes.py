@@ -61,6 +61,22 @@ class VariablesCheckerTC(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_function(node)
 
+    def test_super_init_not_called_regression(self):
+        # This should not emit a super-init-not-called
+        # warning. It previously did this, because
+        # ``next(node.infer())`` was used in that checker's
+        # logic and the first inferred node was an YES object,
+        # leading to this false positive.
+        node = test_utils.extract_node("""
+        import ctypes
+
+        class Foo(ctypes.BigEndianStructure):
+            def __init__(self): #@
+                ctypes.BigEndianStructure.__init__(self)
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
+
 
 if __name__ == '__main__':
     unittest.main()

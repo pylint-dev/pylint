@@ -893,26 +893,27 @@ a metaclass class method.'}
                expr.expr.func.name == 'super':
                 return
             try:
-                klass = next(expr.expr.infer())
-                if klass is YES:
-                    continue
-                # The infered klass can be super(), which was
-                # assigned to a variable and the `__init__` was called later.
-                #
-                # base = super()
-                # base.__init__(...)
+                for klass in expr.expr.infer():
+                    if klass is YES:
+                        continue
+                    # The infered klass can be super(), which was
+                    # assigned to a variable and the `__init__`
+                    # was called later.
+                    #
+                    # base = super()
+                    # base.__init__(...)
 
-                if (isinstance(klass, astroid.Instance) and
-                        isinstance(klass._proxied, astroid.Class) and
-                        is_builtin_object(klass._proxied) and
-                        klass._proxied.name == 'super'):
-                    return
-                try:
-                    del not_called_yet[klass]
-                except KeyError:
-                    if klass not in to_call:
-                        self.add_message('non-parent-init-called',
-                                         node=expr, args=klass.name)
+                    if (isinstance(klass, astroid.Instance) and
+                            isinstance(klass._proxied, astroid.Class) and
+                            is_builtin_object(klass._proxied) and
+                            klass._proxied.name == 'super'):
+                        return
+                    try:
+                        del not_called_yet[klass]
+                    except KeyError:
+                        if klass not in to_call:
+                            self.add_message('non-parent-init-called',
+                                             node=expr, args=klass.name)
             except astroid.InferenceError:
                 continue
         for klass, method in six.iteritems(not_called_yet):
