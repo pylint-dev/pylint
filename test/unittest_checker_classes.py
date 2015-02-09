@@ -1,5 +1,6 @@
 """Unit tests for the variables checker."""
 import unittest
+import sys
 
 from astroid import test_utils
 from pylint.checkers import classes
@@ -44,6 +45,21 @@ class VariablesCheckerTC(CheckerTestCase):
                         node=node.body[-1].value,
                         args='_teta')):
             self.walk(node.root())
+
+    @unittest.skipUnless(sys.version_info[0] == 3,
+                         "The test works on Python 3.")
+    def test_regression_non_parent_init_called_tracemalloc(self):
+        # This used to raise a non-parent-init-called on Pylint 1.3
+        # See issue https://bitbucket.org/logilab/pylint/issue/308/
+        # for reference.
+        node = test_utils.extract_node("""
+        from tracemalloc import Sequence
+        class _Traces(Sequence):
+            def __init__(self, traces): #@
+                Sequence.__init__(self)
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
 
 
 if __name__ == '__main__':
