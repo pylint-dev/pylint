@@ -39,7 +39,6 @@ To enable flymake for Python, insert the following into your .emacs:
 .. sourcecode:: common-lisp
 
     ;; Configure flymake for Python
-    (setq pylint "epylint")
     (when (load "flymake" t)
       (defun flymake-pylint-init ()
         (let* ((temp-file (flymake-init-create-temp-buffer-copy
@@ -47,7 +46,7 @@ To enable flymake for Python, insert the following into your .emacs:
                (local-file (file-relative-name
                             temp-file
                             (file-name-directory buffer-file-name))))
-          (list (expand-file-name pylint "") (list local-file))))
+          (list "epylint" (list local-file))))
       (add-to-list 'flymake-allowed-file-name-masks
                    '("\\.py\\'" flymake-pylint-init)))
 
