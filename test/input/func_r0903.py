@@ -12,3 +12,19 @@ class Aaaa(object):
     def _dontcount(self):
         """not public"""
         print(self)
+
+
+# Don't emit for these cases.
+class Klass(object):
+    """docstring"""
+
+    def meth1(self):
+        """first"""
+
+    def meth2(self):
+        """second"""
+
+
+class EnoughPublicMethods(Klass):
+    """We shouldn't emit too-few-public-methods for this."""
+

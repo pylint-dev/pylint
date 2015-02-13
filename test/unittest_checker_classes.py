@@ -1,5 +1,6 @@
 """Unit tests for the variables checker."""
 import unittest
+import sys
 
 from astroid import test_utils
 from pylint.checkers import classes
@@ -44,6 +45,37 @@ class VariablesCheckerTC(CheckerTestCase):
                         node=node.body[-1].value,
                         args='_teta')):
             self.walk(node.root())
+
+    @unittest.skipUnless(sys.version_info[0] == 3,
+                         "The test works on Python 3.")
+    def test_regression_non_parent_init_called_tracemalloc(self):
+        # This used to raise a non-parent-init-called on Pylint 1.3
+        # See issue https://bitbucket.org/logilab/pylint/issue/308/
+        # for reference.
+        node = test_utils.extract_node("""
+        from tracemalloc import Sequence
+        class _Traces(Sequence):
+            def __init__(self, traces): #@
+                Sequence.__init__(self)
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
+
+    def test_super_init_not_called_regression(self):
+        # This should not emit a super-init-not-called
+        # warning. It previously did this, because
+        # ``next(node.infer())`` was used in that checker's
+        # logic and the first inferred node was an YES object,
+        # leading to this false positive.
+        node = test_utils.extract_node("""
+        import ctypes
+
+        class Foo(ctypes.BigEndianStructure):
+            def __init__(self): #@
+                ctypes.BigEndianStructure.__init__(self)
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
 
 
 if __name__ == '__main__':
