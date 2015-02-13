@@ -47,7 +47,7 @@ def _check_dict_node(node):
             or any(isinstance(x, astroid.Dict) for x in inferred_types))
 
 def _is_builtin(node):
-    return getattr(node, 'name', None) == '__builtin__'
+    return getattr(node, 'name', None) in ('__builtin__', 'builtins')
 
 _accepts_iterator = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
                      'all', 'enumerate'}
