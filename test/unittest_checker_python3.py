@@ -316,7 +316,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
     def test_implicit_map_evaluation(self):
         node = test_utils.extract_node('map(str, [1, 2, 3])')
         discard = node.parent
-        message = testutils.Message('implicit-map-evaluation', node=discard)
+        message = testutils.Message('map-builtin-not-iterating', node=discard)
         with self.assertAddsMessages(message):
             # Use node.parent because extract_node returns the value
             # of a discard node, not the discard itself.
