@@ -67,4 +67,4 @@ scripts = [join('bin', filename)
            for filename in ('pylint', 'pylint-gui', "symilar", "epylint",
                             "pyreverse")]
 
-include_dirs = ['test']
+include_dirs = [join('pylint', 'test')]
