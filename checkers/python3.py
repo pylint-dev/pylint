@@ -270,7 +270,7 @@ class Python3Checker(checkers.BaseChecker):
         'W1635': ('unichr built-in referenced',
                   'unichr-builtin',
                   'Used when the unichr built-in is referenced '
-                  '(Use char in Python 3)',
+                  '(Use chr in Python 3)',
                   {'maxversion': (3, 0)}),
     }
 
