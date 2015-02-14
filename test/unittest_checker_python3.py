@@ -55,6 +55,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             'round',
             'reduce',
             'StandardError',
+            'unichr',
             'unicode',
             'xrange',
             'reload',
