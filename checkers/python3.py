@@ -262,6 +262,11 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when the round built-in is referenced '
                   '(backwards-incompatible semantics in Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1634': ('intern built-in referenced',
+                  'intern-builtin',
+                  'Used when the intern built-in is referenced '
+                  '(Moved to sys.intern in Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -273,6 +278,7 @@ class Python3Checker(checkers.BaseChecker):
         'execfile',
         'file',
         'input',  # Not missing, but incompatible semantics
+        'intern',
         'long',
         'raw_input',
         'reduce',

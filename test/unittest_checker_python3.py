@@ -49,6 +49,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             'execfile',
             'file',
             'input',
+            'intern',
             'long',
             'raw_input',
             'round',
