@@ -59,8 +59,8 @@ get-orig-source:
 
 # Build architecture-independent files here.
 binary-indep: build install
-	dh_testdir 
-	dh_testroot 
+	dh_testdir
+	dh_testroot
 	dh_install -i
 	dh_pysupport -i
 	dh_installchangelogs -i ChangeLog
@@ -72,7 +72,7 @@ binary-indep: build install
 	dh_compress -i -X.py -X.ini -X.xml -Xtest
 	dh_fixperms -i
 	dh_installdeb -i
-	dh_gencontrol -i 
+	dh_gencontrol -i
 	dh_md5sums -i
 	dh_builddeb -i
 

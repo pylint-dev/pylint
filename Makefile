@@ -3,7 +3,7 @@ PYVE=pyve
 PIP=$(PYVE)/bin/pip
 TOX=$(PYVE)/bin/tox
 
-VERSION=$(shell PYTHONPATH=. python -c "from __pkginfo__ import version; print version")
+VERSION=$(shell PYTHONPATH=. python -c "from pylint.__pkginfo__ import version; print version")
 
 PKG_SDIST=dist/pylint-$(VERSION).tar.gz
 PKG_DEB=../pylint_$(VERSION)-1_all.deb
