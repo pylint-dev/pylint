@@ -27,6 +27,9 @@ ChangeLog for Pylint
 
     * Add support for editable installations.
 
+    * The HTML output accepts the `--msg-template` option. Patch by
+      Dan Goldsmith.
+
 
 2015-01-16 -- 1.4.1
 
