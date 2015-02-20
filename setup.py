@@ -43,31 +43,28 @@ except ImportError:
 
 from distutils.command.build_py import build_py
 
-sys.modules.pop('__pkginfo__', None)
-# import optional features
-__pkginfo__ = __import__("__pkginfo__")
-# import required features
-from __pkginfo__ import modname, version, license, description, \
-     web, author, author_email, classifiers
 
-distname = getattr(__pkginfo__, 'distname', modname)
-scripts = getattr(__pkginfo__, 'scripts', [])
-data_files = getattr(__pkginfo__, 'data_files', None)
-subpackage_of = getattr(__pkginfo__, 'subpackage_of', None)
-include_dirs = getattr(__pkginfo__, 'include_dirs', [])
-ext_modules = getattr(__pkginfo__, 'ext_modules', None)
-install_requires = getattr(__pkginfo__, 'install_requires', None)
-dependency_links = getattr(__pkginfo__, 'dependency_links', [])
+base_dir = os.path.dirname(__file__)
 
-STD_BLACKLIST = ('CVS', '.svn', '.hg', 'debian', 'dist', 'build')
+__pkginfo__ = {}
+with open(os.path.join(base_dir, "pylint", "__pkginfo__.py")) as f:
+    exec(f.read(), __pkginfo__)
+modname = __pkginfo__['modname']
+distname = __pkginfo__.get('distname', modname)
+scripts = __pkginfo__.get('scripts', [])
+data_files = __pkginfo__.get('data_files', None)
+include_dirs = __pkginfo__.get('include_dirs', [])
+ext_modules = __pkginfo__.get('ext_modules', None)
+install_requires = __pkginfo__.get('install_requires', None)
+dependency_links = __pkginfo__.get('dependency_links', [])
 
-IGNORED_EXTENSIONS = ('.pyc', '.pyo', '.elc', '~')
-
-if exists('README'):
-    with open('README') as stream:
+readme_path = join(base_dir, 'README')
+if exists(readme_path):
+    with open(readme_path) as stream:
         long_description = stream.read()
 else:
     long_description = ''
+
 
 def ensure_scripts(linux_scripts):
     """Creates the proper script names required for each platform
@@ -77,6 +74,7 @@ def ensure_scripts(linux_scripts):
     if util.get_platform()[:3] == 'win':
         return linux_scripts + [script + '.bat' for script in linux_scripts]
     return linux_scripts
+
 
 def get_packages(directory, prefix):
     """return a list of subpackages for the given directory"""
@@ -92,12 +90,6 @@ def get_packages(directory, prefix):
                 result += get_packages(absfile, result[-1])
     return result
 
-EMPTY_FILE = '''"""generated file, don't modify or your data will be lost"""
-try:
-    __import__('pkg_resources').declare_namespace(__name__)
-except ImportError:
-    pass
-'''
 
 def _filter_tests(files):
     testdir = join('pylint', 'test')
@@ -111,21 +103,10 @@ class MyInstallLib(install_lib.install_lib):
     def run(self):
         """overridden from install_lib class"""
         install_lib.install_lib.run(self)
-        # create Products.__init__.py if needed
-        if subpackage_of:
-            product_init = join(self.install_dir, subpackage_of, '__init__.py')
-            if not exists(product_init):
-                self.announce('creating %s' % product_init)
-                with open(product_init, 'w') as stream:
-                    stream.write(EMPTY_FILE)
         # manually install included directories if any
         if include_dirs:
-            if subpackage_of:
-                base = join(subpackage_of, modname)
-            else:
-                base = modname
             for directory in include_dirs:
-                dest = join(self.install_dir, base, directory)
+                dest = join(self.install_dir, directory)
                 if sys.version_info >= (3, 0):
                     exclude = set(['invalid_encoded_data*',
                                    'unknown_encoding*'])
@@ -167,15 +148,7 @@ def install(**kwargs):
     # install-layout option was introduced in 2.5.3-1~exp1
     elif sys.version_info < (2, 5, 4) and '--install-layout=deb' in sys.argv:
         sys.argv.remove('--install-layout=deb')
-    if subpackage_of:
-        package = subpackage_of + '.' + modname
-        kwargs['package_dir'] = {package : '.'}
-        packages = [package] + get_packages(os.getcwd(), package)
-        if USE_SETUPTOOLS:
-            kwargs['namespace_packages'] = [subpackage_of]
-    else:
-        kwargs['package_dir'] = {modname : '.'}
-        packages = [modname] + get_packages(os.getcwd(), modname)
+    packages = [modname] + get_packages(join(base_dir, 'pylint'), modname)
     if USE_SETUPTOOLS:
         if install_requires:
             kwargs['install_requires'] = install_requires
@@ -193,15 +166,15 @@ def install(**kwargs):
     if easy_install_lib:
         cmdclass['easy_install'] = easy_install
     return setup(name=distname,
-                 version=version,
+                 version=__pkginfo__['version'],
                  license=license,
-                 description=description,
+                 description=__pkginfo__['description'],
                  long_description=long_description,
-                 author=author,
-                 author_email=author_email,
-                 url=web,
+                 author=__pkginfo__['author'],
+                 author_email=__pkginfo__['author_email'],
+                 url=__pkginfo__['web'],
                  scripts=ensure_scripts(scripts),
-                 classifiers=classifiers,
+                 classifiers=__pkginfo__['classifiers'],
                  data_files=data_files,
                  ext_modules=ext_modules,
                  cmdclass=cmdclass,

@@ -289,22 +289,32 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when the round built-in is referenced '
                   '(backwards-incompatible semantics in Python 3)',
                   {'maxversion': (3, 0)}),
-        'W1634': ('map built-in referenced when not iterating',
+        'W1634': ('intern built-in referenced',
+                  'intern-builtin',
+                  'Used when the intern built-in is referenced '
+                  '(Moved to sys.intern in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1635': ('unichr built-in referenced',
+                  'unichr-builtin',
+                  'Used when the unichr built-in is referenced '
+                  '(Use chr in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1636': ('map built-in referenced when not iterating',
                   'map-builtin-not-iterating',
                   'Used when the map built-in is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
                   {'maxversion': (3, 0)}),
-        'W1635': ('zip built-in referenced when not iterating',
+        'W1637': ('zip built-in referenced when not iterating',
                   'zip-builtin-not-iterating',
                   'Used when the zip built-in is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
                   {'maxversion': (3, 0)}),
-        'W1636': ('range built-in referenced when not iterating',
+        'W1638': ('range built-in referenced when not iterating',
                   'range-builtin-not-iterating',
                   'Used when the range built-in is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
                   {'maxversion': (3, 0)}),
-        'W1637': ('filter built-in referenced when not iterating',
+        'W1639': ('filter built-in referenced when not iterating',
                   'filter-builtin-not-iterating',
                   'Used when the filter built-in is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
@@ -320,11 +330,13 @@ class Python3Checker(checkers.BaseChecker):
         'execfile',
         'file',
         'input',  # Not missing, but incompatible semantics
+        'intern',
         'long',
         'raw_input',
         'reduce',
         'round',  # Not missing, but incompatible semantics
         'StandardError',
+        'unichr',
         'unicode',
         'xrange',
         'reload',

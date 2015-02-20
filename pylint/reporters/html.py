@@ -13,8 +13,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """HTML reporter"""
 
+import itertools
+import string
 import sys
-from cgi import escape
 
 from logilab.common.ureports import HTMLWriter, Section, Table
 
@@ -32,11 +33,41 @@ class HTMLReporter(BaseReporter):
     def __init__(self, output=sys.stdout):
         BaseReporter.__init__(self, output)
         self.msgs = []
+        # Add placeholders for title and parsed messages
+        self.header = None
+        self.msgargs = []
+
+    @staticmethod
+    def _parse_msg_template(msg_template):
+        formatter = string.Formatter()
+        parsed = formatter.parse(msg_template)
+        for item in parsed:
+            if item[1]:
+                yield item[1]
+
+    def _parse_template(self):
+        """Helper function to parse the message template"""
+        self.header = []
+        if self.linter.config.msg_template:
+            msg_template = self.linter.config.msg_template
+        else:
+            msg_template = '{category}{module}{obj}{line}{column}{msg}'
+
+        _header, _msgs = itertools.tee(self._parse_msg_template(msg_template))
+        self.header = list(_header)
+        self.msgargs = list(_msgs)
 
     def handle_message(self, msg):
         """manage message of different type and in the context of path"""
-        self.msgs += (msg.category, msg.module, msg.obj,
-                      str(msg.line), str(msg.column), escape(msg.msg))
+
+        # It would be better to do this in init, but currently we do not
+        # have access to the linter (as it is setup in lint.set_reporter()
+        # Therefore we try to parse just the once.
+        if self.header is None:
+            self._parse_template()
+
+        # We want to add the lines given by the template
+        self.msgs += [str(getattr(msg, field)) for field in self.msgargs]
 
     def set_output(self, output=None):
         """set output stream
@@ -55,11 +86,12 @@ class HTMLReporter(BaseReporter):
         """
         if self.msgs:
             # add stored messages to the layout
-            msgs = ['type', 'module', 'object', 'line', 'col_offset', 'message']
+            msgs = self.header
+            cols = len(self.header)
             msgs += self.msgs
             sect = Section('Messages')
             layout.append(sect)
-            sect.append(Table(cols=6, children=msgs, rheaders=1))
+            sect.append(Table(cols=cols, children=msgs, rheaders=1))
             self.msgs = []
         HTMLWriter().format(layout, self.out)
 

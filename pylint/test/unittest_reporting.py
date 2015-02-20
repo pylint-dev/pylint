@@ -75,6 +75,39 @@ class PyLinterTC(unittest.TestCase):
                                   '0123:1: [C0301(line-too-long), ] '
                                   'Line too long (1/2)\n')
 
+    def test_html_reporter_msg_template(self):
+        expected = '''
+<html>
+<body>
+<div>
+<div>
+<h2>Messages</h2>
+<table>
+<tr class="header">
+<th>category</th>
+<th>msg_id</th>
+</tr>
+<tr class="even">
+<td>warning</td>
+<td>W0332</td>
+</tr>
+</table>
+</div>
+</div>
+</body>
+</html>'''.strip().splitlines()
+        output = six.StringIO()
+        linter = PyLinter(reporter=HTMLReporter())
+        checkers.initialize(linter)
+        linter.config.persistent = 0
+        linter.reporter.set_output(output)
+        linter.set_option('msg-template', '{category}{msg_id}')
+        linter.open()
+        linter.set_current_module('0123')
+        linter.add_message('lowercase-l-suffix', line=1)
+        linter.reporter.display_results(Section())
+        self.assertEqual(output.getvalue().splitlines(), expected)
+
     @unittest.expectedFailure
     def test_html_reporter_type(self):
         # Integration test for issue #263

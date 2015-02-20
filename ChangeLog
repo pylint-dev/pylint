@@ -19,6 +19,17 @@ ChangeLog for Pylint
     * Use all the inferred statements for the super-init-not-called
       check. Closes issue #389.
 
+    * Add a new warning, 'unichr-builtin', emitted by the Python 3
+      porting checker, when the unichr builtin is found. Closes issue #472.
+
+    * Add a new warning, 'intern-builtin', emitted by the Python 3
+      porting checker, when the intern builtin is found. Closes issue #473.
+
+    * Add support for editable installations.
+
+    * The HTML output accepts the `--msg-template` option. Patch by
+      Dan Goldsmith.
+
 
 2015-01-16 -- 1.4.1
 
