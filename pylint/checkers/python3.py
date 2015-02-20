@@ -278,7 +278,7 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when a __cmp__ method is defined '
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
-        # 'W1631': 'implicit-map-evaluation' superceded by map-builtin-not-iterating.
+        # 'W1631': replaced by W1636
         'W1632': ('input built-in referenced',
                   'input-builtin',
                   'Used when the input built-in is referenced '
@@ -303,7 +303,8 @@ class Python3Checker(checkers.BaseChecker):
                   'map-builtin-not-iterating',
                   'Used when the map built-in is referenced in a non-iterating '
                   'context (returns an iterator in Python 3)',
-                  {'maxversion': (3, 0)}),
+                  {'maxversion': (3, 0),
+                   'old_names': [('W1631', 'implicit-map-evaluation')]}),
         'W1637': ('zip built-in referenced when not iterating',
                   'zip-builtin-not-iterating',
                   'Used when the zip built-in is referenced in a non-iterating '
