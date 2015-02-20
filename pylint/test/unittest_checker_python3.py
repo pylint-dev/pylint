@@ -98,13 +98,10 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         checker = '{}-builtin-not-iterating'.format(fxn)
         node = test_utils.extract_node("""
         list(
-            {}(x) #@
+            __({}(x))
             for x in [1]
         )
         """.format(fxn))
-        # For some reason extract_node won't grab the map() call.
-        assert isinstance(node, astroid.GenExpr)
-        node = node.elt
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_callfunc(node)
@@ -113,11 +110,9 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         checker = '{}-builtin-not-iterating'.format(fxn)
         node = test_utils.extract_node("""
         [
-            {}(None, x) #@
+            __({}(None, x))
         for x in [[1]]]
         """.format(fxn))
-        # For some reason extract_node won't grab the map() call.
-        node = node.elt
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_callfunc(node)
