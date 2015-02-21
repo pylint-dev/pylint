@@ -88,7 +88,7 @@ class StdlibChecker(BaseChecker):
                   'See http://docs.python.org/2/library/functions.html#open'),
         'W1502': ('Using datetime.time in a boolean context.',
                   'boolean-datetime',
-                  'Using datetetime.time in a boolean context can hide '
+                  'Using datetime.time in a boolean context can hide '
                   'subtle bugs when the time they represent matches '
                   'midnight UTC. This behaviour was fixed in Python 3.5. '
                   'See http://bugs.python.org/issue13936 for reference.',
