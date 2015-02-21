@@ -78,6 +78,12 @@ def _in_iterating_context(node):
         elif isinstance(parent.func, astroid.Getattr):
             if parent.func.attrname == 'join':
                 return True
+    # If the call is in an unpacking, there's no need to warn,
+    # since it can be considered iterating.
+    elif (isinstance(parent, astroid.Assign) and
+          isinstance(parent.targets[0], (astroid.List, astroid.Tuple))):
+        if len(parent.targets[0].elts) > 1:
+            return True
     return False
 
 

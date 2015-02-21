@@ -139,6 +139,22 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def as_iterable_in_unpacking(self, fxn):
+        node = test_utils.extract_node("""
+        a, b = __({}())
+        """.format(fxn))
+        with self.assertNoMessages():
+            self.checker.visit_callfunc(node)
+
+    def as_assignment(self, fxn):
+        checker = '{}-builtin-not-iterating'.format(fxn)
+        node = test_utils.extract_node("""
+        a = __({}())
+        """.format(fxn))
+        message = testutils.Message(checker, node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+
     def iterating_context_tests(self, fxn):
         """Helper for verifying a function isn't used as an iterator."""
         self.as_iterable_in_for_loop_test(fxn)
@@ -149,6 +165,8 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         self.as_used_in_variant_in_listcomp_test(fxn)
         self.as_argument_to_random_fxn_test(fxn)
         self.as_argument_to_str_join_test(fxn)
+        self.as_iterable_in_unpacking(fxn)
+        self.as_assignment(fxn)
 
         for func in ('iter', 'list', 'tuple', 'sorted',
                      'set', 'sum', 'any', 'all',
