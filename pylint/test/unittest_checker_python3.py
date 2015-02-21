@@ -18,6 +18,7 @@ import sys
 import unittest
 import textwrap
 
+import astroid
 from astroid import test_utils
 
 from pylint import testutils
@@ -63,7 +64,111 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         for builtin in builtins:
             self.check_bad_builtin(builtin)
 
-    def _test_defined_method(self, method, warning):
+    def as_iterable_in_for_loop_test(self, fxn):
+        code = "for x in {}(): pass".format(fxn)
+        module = test_utils.build_module(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def as_used_by_iterable_in_for_loop_test(self, fxn):
+        checker = '{}-builtin-not-iterating'.format(fxn)
+        node = test_utils.extract_node("""
+        for x in (whatever(
+            {}() #@
+        )):
+            pass
+        """.format(fxn))
+        message = testutils.Message(checker, node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+
+    def as_iterable_in_genexp_test(self, fxn):
+        code = "x = (x for x in {}())".format(fxn)
+        module = test_utils.build_module(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def as_iterable_in_listcomp_test(self, fxn):
+        code = "x = [x for x in {}(None, [1])]".format(fxn)
+        module = test_utils.build_module(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def as_used_in_variant_in_genexp_test(self, fxn):
+        checker = '{}-builtin-not-iterating'.format(fxn)
+        node = test_utils.extract_node("""
+        list(
+            __({}(x))
+            for x in [1]
+        )
+        """.format(fxn))
+        message = testutils.Message(checker, node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+
+    def as_used_in_variant_in_listcomp_test(self, fxn):
+        checker = '{}-builtin-not-iterating'.format(fxn)
+        node = test_utils.extract_node("""
+        [
+            __({}(None, x))
+        for x in [[1]]]
+        """.format(fxn))
+        message = testutils.Message(checker, node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+
+    def as_argument_to_list_constructor_test(self, fxn):
+        module = test_utils.build_module("x = list({}())".format(fxn))
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def as_argument_to_random_fxn_test(self, fxn):
+        checker = '{}-builtin-not-iterating'.format(fxn)
+        node = test_utils.extract_node("""
+        y(
+            {}() #@
+        )
+        """.format(fxn))
+        message = testutils.Message(checker, node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_callfunc(node)
+
+    def as_argument_to_str_join_test(self, fxn):
+        code = "x = ''.join({}())".format(fxn)
+        module = test_utils.build_module(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    def iterating_context_tests(self, fxn):
+        """Helper for verifying a function isn't used as an iterator."""
+        self.as_iterable_in_for_loop_test(fxn)
+        self.as_used_by_iterable_in_for_loop_test(fxn)
+        self.as_iterable_in_genexp_test(fxn)
+        self.as_iterable_in_listcomp_test(fxn)
+        self.as_used_in_variant_in_genexp_test(fxn)
+        self.as_used_in_variant_in_listcomp_test(fxn)
+        self.as_argument_to_list_constructor_test(fxn)
+        self.as_argument_to_random_fxn_test(fxn)
+        self.as_argument_to_str_join_test(fxn)
+
+    @python2_only
+    def test_map_in_iterating_context(self):
+        self.iterating_context_tests('map')
+
+    @python2_only
+    def test_zip_in_iterating_context(self):
+        self.iterating_context_tests('zip')
+
+    @python2_only
+    def test_range_in_iterating_context(self):
+        self.iterating_context_tests('range')
+
+    @python2_only
+    def test_filter_in_iterating_context(self):
+        self.iterating_context_tests('filter')
+
+    def defined_method_test(self, method, warning):
+        """Helper for verifying that a certain method is not defined."""
         node = test_utils.extract_node("""
             class Foo(object):
                 def __{0}__(self, other):  #@
@@ -73,28 +178,28 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_function(node)
 
     def test_delslice_method(self):
-        self._test_defined_method('delslice', 'delslice-method')
+        self.defined_method_test('delslice', 'delslice-method')
 
     def test_getslice_method(self):
-        self._test_defined_method('getslice', 'getslice-method')
+        self.defined_method_test('getslice', 'getslice-method')
 
     def test_setslice_method(self):
-        self._test_defined_method('setslice', 'setslice-method')
+        self.defined_method_test('setslice', 'setslice-method')
 
     def test_coerce_method(self):
-        self._test_defined_method('coerce', 'coerce-method')
+        self.defined_method_test('coerce', 'coerce-method')
 
     def test_oct_method(self):
-        self._test_defined_method('oct', 'oct-method')
+        self.defined_method_test('oct', 'oct-method')
 
     def test_hex_method(self):
-        self._test_defined_method('hex', 'hex-method')
+        self.defined_method_test('hex', 'hex-method')
 
     def test_nonzero_method(self):
-        self._test_defined_method('nonzero', 'nonzero-method')
+        self.defined_method_test('nonzero', 'nonzero-method')
 
     def test_cmp_method(self):
-        self._test_defined_method('cmp', 'cmp-method')
+        self.defined_method_test('cmp', 'cmp-method')
 
     @python2_only
     def test_print_statement(self):
@@ -208,7 +313,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
     def test_implicit_map_evaluation(self):
         node = test_utils.extract_node('map(str, [1, 2, 3])')
         discard = node.parent
-        message = testutils.Message('implicit-map-evaluation', node=discard)
+        message = testutils.Message('map-builtin-not-iterating', node=discard)
         with self.assertAddsMessages(message):
             # Use node.parent because extract_node returns the value
             # of a discard node, not the discard itself.

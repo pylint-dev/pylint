@@ -30,6 +30,12 @@ ChangeLog for Pylint
     * The HTML output accepts the `--msg-template` option. Patch by
       Dan Goldsmith.
 
+    * Add 'map-builtin-not-iterating' (replacing 'implicit-map-evaluation'),
+      'zip-builtin-not-iterating', 'range-builtin-not-iterating', and
+      'filter-builtin-not-iterating' which are emitted by `--py3k` when the
+      appropriate built-in is not used in an iterating context (semantics
+      taken from 2to3).
+
 
 2015-01-16 -- 1.4.1
 
