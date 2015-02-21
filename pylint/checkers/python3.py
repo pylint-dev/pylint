@@ -372,15 +372,6 @@ class Python3Checker(checkers.BaseChecker):
             if isinstance(arg, astroid.Tuple):
                 self.add_message('parameter-unpacking', node=arg)
 
-    @utils.check_messages('map-builtin-not-iterating')
-    def visit_discard(self, node):
-        if (isinstance(node.value, astroid.CallFunc) and
-                isinstance(node.value.func, astroid.Name) and
-                node.value.func.name == 'map'):
-            module = node.value.func.lookup('map')[0]
-            if _is_builtin(module):
-                self.add_message('map-builtin-not-iterating', node=node)
-
     def visit_name(self, node):
         """Detect when a "bad" built-in is referenced."""
         found_node = node.lookup(node.name)[0]
