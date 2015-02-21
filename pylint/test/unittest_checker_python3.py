@@ -117,8 +117,8 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_callfunc(node)
 
-    def as_argument_to_list_constructor_test(self, fxn):
-        module = test_utils.build_module("x = list({}())".format(fxn))
+    def as_argument_to_callable_constructor_test(self, fxn, callable_fn):
+        module = test_utils.build_module("x = {}({}())".format(callable_fn, fxn))
         with self.assertNoMessages():
             self.walk(module)
 
@@ -147,9 +147,13 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         self.as_iterable_in_listcomp_test(fxn)
         self.as_used_in_variant_in_genexp_test(fxn)
         self.as_used_in_variant_in_listcomp_test(fxn)
-        self.as_argument_to_list_constructor_test(fxn)
         self.as_argument_to_random_fxn_test(fxn)
         self.as_argument_to_str_join_test(fxn)
+
+        for func in ('iter', 'list', 'tuple', 'sorted',
+                     'set', 'sum', 'any', 'all',
+                     'enumerate', 'dict'):
+            self.as_argument_to_callable_constructor_test(fxn, func)
 
     @python2_only
     def test_map_in_iterating_context(self):
