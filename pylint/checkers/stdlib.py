@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Checkers for various standard library functions."""
 
-import re
 import six
 import sys
 
@@ -55,7 +54,6 @@ def _check_mode_str(mode):
     reading = "r" in modes
     writing = "w" in modes
     appending = "a" in modes
-    updating = "+" in modes
     text = "t" in modes
     binary = "b" in modes
     if "U" in modes:
@@ -86,8 +84,8 @@ def _is_one_arg_pos_call(call):
     where that argument is positional?
     """
     return (isinstance(call, astroid.CallFunc)
-        and len(call.args) == 1
-        and not isinstance(call.args[0], astroid.Keyword))
+            and len(call.args) == 1
+            and not isinstance(call.args[0], astroid.Keyword))
 
 
 class StdlibChecker(BaseChecker):
@@ -180,7 +178,6 @@ class StdlibChecker(BaseChecker):
                 infered.qname() == 'datetime.time'):
             self.add_message('boolean-datetime', node=node)
 
-
     def _check_open_mode(self, node):
         """Check that the mode argument of an open or file call is valid."""
         try:
@@ -195,20 +192,23 @@ class StdlibChecker(BaseChecker):
                 self.add_message('bad-open-mode', node=node,
                                  args=mode_arg.value)
 
-
     def _check_type_x_is_y(self, node, left, operator, right):
         """Check for expressions like type(x) == Y."""
         left_func = utils.safe_infer(left.func)
-        if isinstance(left_func, astroid.Class) and left_func.qname() == TYPE_QNAME:
-            if operator in ('is', 'is not') and _is_one_arg_pos_call(right):
-                right_func = utils.safe_infer(right.func)
-                if isinstance(right_func, astroid.Class) and right_func.qname() == TYPE_QNAME:
-                    # type(x) == type(a)
-                    right_arg = utils.safe_infer(right.args[0])
-                    if not isinstance(right_arg, LITERAL_NODE_TYPES):
-                        # not e.g. type(x) == type([])
-                        return
-            self.add_message('unidiomatic-typecheck', node=node)
+        if not (isinstance(left_func, astroid.Class)
+                and left_func.qname() == TYPE_QNAME):
+            return
+
+        if operator in ('is', 'is not') and _is_one_arg_pos_call(right):
+            right_func = utils.safe_infer(right.func)
+            if (isinstance(right_func, astroid.Class)
+                    and right_func.qname() == TYPE_QNAME):
+                # type(x) == type(a)
+                right_arg = utils.safe_infer(right.args[0])
+                if not isinstance(right_arg, LITERAL_NODE_TYPES):
+                    # not e.g. type(x) == type([])
+                    return
+        self.add_message('unidiomatic-typecheck', node=node)
 
 
 def register(linter):
