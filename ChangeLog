@@ -36,6 +36,11 @@ ChangeLog for Pylint
       appropriate built-in is not used in an iterating context (semantics
       taken from 2to3).
 
+    * Add a new warning, 'unidiomatic-typecheck', emitted when an explicit
+      typecheck uses type() instead of isinstance(). For example,
+      `type(x) == Y` instead of `isinstance(x, Y)`. Patch by Chris Rebert.
+      Closes issue #299.
+
 
 2015-01-16 -- 1.4.1
 
