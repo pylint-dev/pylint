@@ -105,6 +105,24 @@ def _merge_stats(stats):
     return merged
 
 
+@contextlib.contextmanager
+def _patch_sysmodules():
+    # Context manager that permits running pylint, on Windows, with -m switch
+    # and with --jobs, as in 'python -2 -m pylint .. --jobs'.
+    # For more details why this is needed,
+    # see Python issue http://bugs.python.org/issue10845.
+
+    mock_main = __name__ != '__main__' # -m switch
+    if mock_main:
+        sys.modules['__main__'] = sys.modules[__name__]
+
+    try:
+        yield
+    finally:
+        if mock_main:
+            sys.modules.pop('__main__')
+
+
 # Python Linter class #########################################################
 
 MSGS = {
@@ -673,19 +691,10 @@ class PyLinter(configuration.OptionsManagerMixIn,
         if self.config.jobs == 1:
             self._do_check(files_or_modules)
         else:
-            # Hack that permits running pylint, on Windows, with -m switch
-            # and with --jobs, as in 'python -2 -m pylint .. --jobs'.
-            # For more details why this is needed,
-            # see Python issue http://bugs.python.org/issue10845.
-
-            mock_main = __name__ != '__main__' # -m switch
-            if mock_main:
-                sys.modules['__main__'] = sys.modules[__name__]
-            try:
+            
+            with _patch_sysmodules():
                 self._parallel_check(files_or_modules)
-            finally:
-                if mock_main:
-                    sys.modules.pop('__main__')
+
 
     def _parallel_task(self, files_or_modules):
         # Prepare configuration for child linters.
