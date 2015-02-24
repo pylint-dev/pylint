@@ -147,6 +147,12 @@ class RunTC(unittest.TestCase):
                        '--py3k'],
                       code=rc_code)
 
+    def test_py3k_jobs_option(self):
+        rc_code = 2 if six.PY2 else 0
+        self._runtest([join(HERE, 'functional', 'unpacked_exceptions.py'),
+                       '--py3k', '-j 2'],
+                      code=rc_code) 
+
 
 if __name__ == '__main__':
     unittest.main()

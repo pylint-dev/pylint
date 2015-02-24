@@ -41,6 +41,9 @@ ChangeLog for Pylint
       `type(x) == Y` instead of `isinstance(x, Y)`. Patch by Chris Rebert.
       Closes issue #299.
 
+    * Add support for combining the Python 3 checker mode with the --jobs
+      flag (--py3k and --jobs). Closes issue #467.
+
 
 2015-01-16 -- 1.4.1
 

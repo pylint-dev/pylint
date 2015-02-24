@@ -208,6 +208,8 @@ if multiprocessing is not None:
             tasks_queue, results_queue, self._config = self._args # pylint: disable=no-member
 
             self._config["jobs"] = 1  # Child does not parallelize any further.
+            self._python3_porting_mode = self._config.pop(
+                'python3_porting_mode', None)
 
             # Run linter for received files/modules.
             for file_or_module in iter(tasks_queue.get, 'STOP'):
@@ -229,6 +231,13 @@ if multiprocessing is not None:
 
             linter.load_configuration(**self._config)
             linter.set_reporter(reporters.CollectingReporter())
+
+            # Enable the Python 3 checker mode. This option is
+            # passed down from the parent linter up to here, since
+            # the Python 3 porting flag belongs to the Run class,
+            # instead of the Linter class.
+            if self._python3_porting_mode:
+                linter.python3_porting_mode()
 
             # Run the checks.
             linter.check(file_or_module)
@@ -445,6 +454,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                        )
         self.register_checker(self)
         self._dynamic_plugins = set()
+        self._python3_porting_mode = False
         self.load_provider_defaults()
         if reporter:
             self.set_reporter(reporter)
@@ -578,6 +588,12 @@ class PyLinter(configuration.OptionsManagerMixIn,
         self.set_option('reports', False)
         self.set_option('persistent', False)
 
+    def python3_porting_mode(self):
+        """Disable all other checkers and enable Python 3 warnings."""
+        self.disable('all')
+        self.enable('python3')
+        self._python3_porting_mode = True
+
     # block level option handling #############################################
     #
     # see func_block_disable_msg.py test case for expected behaviour
@@ -705,6 +721,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
             for optname, optdict, val in opt_providers.options_and_values():
                 if optname not in filter_options:
                     config[optname] = configuration.format_option_value(optdict, val)
+        config['python3_porting_mode'] = self._python3_porting_mode
 
         childs = []
         manager = multiprocessing.Manager()  # pylint: disable=no-member
@@ -1323,8 +1340,7 @@ group are mutually exclusive.'),
 
     def cb_python3_porting_mode(self, *args, **kwargs):
         """Activate only the python3 porting checker."""
-        self.linter.disable('all')
-        self.linter.enable('python3')
+        self.linter.python3_porting_mode()
 
 
 def cb_list_confidence_levels(option, optname, value, parser):
