@@ -365,6 +365,11 @@ class Python3Checker(checkers.BaseChecker):
         self._future_absolute_import = False
         super(Python3Checker, self).__init__(*args, **kwargs)
 
+    def visit_module(self, node): # pylint: disable=unused-argument
+        """Clear checker state after previous module."""
+        self._future_division = False
+        self._future_absolute_import = False
+
     def visit_function(self, node):
         if node.is_method() and node.name in self._unused_magic_methods:
             method_name = node.name
