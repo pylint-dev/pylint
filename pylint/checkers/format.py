@@ -303,7 +303,7 @@ class ContinuedLineState(object):
         self.retained_warnings.append((token_position, state, valid_offsets))
 
     def get_valid_offsets(self, idx):
-        """"Returns the valid offsets for the token at the given position."""
+        """Returns the valid offsets for the token at the given position."""
         # The closing brace on a dict or the 'for' in a dict comprehension may
         # reset two indent levels because the dict value is ended implicitly
         stack_top = -1

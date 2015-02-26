@@ -66,7 +66,7 @@ LAMBDA = lambda arg: 1
 LAMBDA()  # [no-value-for-parameter]
 
 def method_tests():
-    """"Method invocations."""
+    """Method invocations."""
     demo = DemoClass()
     demo.static_method()  # [no-value-for-parameter]
     DemoClass.static_method()  # [no-value-for-parameter]
