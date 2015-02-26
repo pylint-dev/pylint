@@ -360,6 +360,11 @@ class Python3Checker(checkers.BaseChecker):
         '__cmp__',
     ])
 
+    def __init__(self, *args, **kwargs):
+        self._future_division = False
+        self._future_absolute_import = False
+        super(Python3Checker, self).__init__(*args, **kwargs)
+
     def visit_module(self, node): # pylint: disable=unused-argument
         """Clear checker state after previous module."""
         self._future_division = False
