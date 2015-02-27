@@ -25,6 +25,9 @@ https://bitbucket.org/logilab/pylint
    backlinks
    installation
 
+   changelog
+
+
 
 Content wanted
 --------------

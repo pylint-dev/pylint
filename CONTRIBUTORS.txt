@@ -36,8 +36,8 @@ Order doesn't matter (not that much, at least ;)
 
 * Carl Crowder: don't evaluate the value of arguments for 'dangerous-default-value'
 
-* Michal Nowikowski: wrong-spelling-in-comment, wrong-spelling-in-docstring and
-  other patches.
+* Michal Nowikowski: wrong-spelling-in-comment, wrong-spelling-in-docstring,
+  parallel execution on multiple CPUs and other patches.
 
 * David Lindquist: logging-format-interpolation warning.
 
