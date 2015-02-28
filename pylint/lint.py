@@ -710,7 +710,6 @@ class PyLinter(configuration.OptionsManagerMixIn,
         if self.config.jobs == 1:
             self._do_check(files_or_modules)
         else:
-            
             with _patch_sysmodules():
                 self._parallel_check(files_or_modules)
 
