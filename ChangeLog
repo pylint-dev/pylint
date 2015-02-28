@@ -1,7 +1,7 @@
 ChangeLog for Pylint
---------------------
+====================
 
-NOT RELEASED YET -- VERSION
+--
     * Don't require a docstring for empty modules. Closes issue #261.
 
     * Fix a false positive with `too-few-format-args` string warning,
@@ -477,7 +477,7 @@ NOT RELEASED YET -- VERSION
       Golemon
 
     * Add new warnings for checking proper class __slots__:
-     `invalid-slots-object` and `invalid-slots`.
+     'invalid-slots-object' and 'invalid-slots'.
 
     * Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
       doesn't exists (#121)
@@ -894,11 +894,11 @@ NOT RELEASED YET -- VERSION
     * new W0106 warning 'Expression "%s" is assigned to nothing'
 
     * drop E0501 and E0502 messages about wrong source encoding: not anymore
-      interesting since it's a syntax error for python >= 2.5 and we now only
-      support this python version and above.
+     interesting since it's a syntax error for python >= 2.5 and we now only
+     support this python version and above.
 
-    * don't emit W0221 or W0222 when methods as variable arguments (eg \*arg
-      and/or \*\*args). Patch submitted by Charles Duffy.
+    * don't emit W0221 or W0222 when methods as variable arguments (eg *arg
+     and/or **args). Patch submitted by Charles Duffy.
 
 
 
@@ -946,13 +946,13 @@ NOT RELEASED YET -- VERSION
     * all enable-* / disable-* options have been merged into --enable / --disable
 
     * BACKWARD INCOMPATIBLE CHANGE: short name of --errors-only becomes -E, -e being
-      affected to --enable
+       affected to --enable
 
     * pylint --help output much simplified, with --long-help available to get the
-      complete one
+       complete one
 
     * revisited gui, thanks to students from Toronto university (they are great
-      contributors to this release!)
+     contributors to this release!)
 
     * fix #21591: html reporter produces no output if reports is set to 'no'
 
@@ -963,7 +963,7 @@ NOT RELEASED YET -- VERSION
     * fix #9018: when using defining-attr-method, method order matters
 
     * fix #4595: Comma not followed by a space should not occurs on trailing comma
-      in list/tuple/dict definition
+     in list/tuple/dict definition
 
     * fix #22585: [Patch] fix man warnings for pyreverse.1 manpage
 
@@ -1093,7 +1093,7 @@ NOT RELEASED YET -- VERSION
     * patches by Mads Kiilerich:
 
     * implement #4691, make pylint exits with a non zero return
-      status if any messages other then Information are issued
+	  status if any messages other then Information are issued
 
     * fix #3711, #5626 (name resolution bug w/ decorator and class members)
 
@@ -1249,14 +1249,12 @@ NOT RELEASED YET -- VERSION
 2006-08-10  --  0.12.0
     * usability changes:
 
-        * parseable, html and color options are now handled by a single
-          output-format option
-
-        * enable-<checkerid> and disable-all options are now handled by
-          two (exclusive) enable-checker and disable-checker options
-          taking a comma separated list of checker names as value
-
-        * renamed debug-mode option to errors-only
+        - parseable, html and color options are now handled by a single
+	output-format option
+        - enable-<checkerid> and disable-all options are now handled by
+	two (exclusive) enable-checker and disable-checker options
+	taking a comma separated list of checker names as value
+        - renamed debug-mode option to errors-only
 
     * started a reference user manual
 
