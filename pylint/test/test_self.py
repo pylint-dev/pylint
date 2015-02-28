@@ -11,10 +11,12 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+import contextlib
 import sys
 import os
 from os.path import join, dirname, abspath
 import tempfile
+import textwrap
 import unittest
 
 import six
@@ -26,6 +28,17 @@ from pylint.reporters.html import HTMLReporter
 from pylint.reporters.json import JSONReporter
 
 HERE = abspath(dirname(__file__))
+
+
+
+@contextlib.contextmanager
+def _patch_streams(out):
+    sys.stderr = sys.stdout = out
+    try:
+        yield
+    finally:
+        sys.stderr = sys.__stderr__
+        sys.stdout = sys.__stdout__
 
 
 class MultiReporter(BaseReporter):
@@ -84,6 +97,15 @@ class RunTC(unittest.TestCase):
         finally:
             sys.stderr = sys.__stderr__
             sys.stdout = sys.__stdout__
+
+    def _test_output(self, args, expected_output):
+        out = six.StringIO()
+        with _patch_streams(out):
+            with self.assertRaises(SystemExit):
+                Run(args)
+
+            actual_output = out.getvalue()
+            self.assertEqual(expected_output.strip(), actual_output.strip())
 
     def test_pkginfo(self):
         """Make pylint check itself."""
@@ -151,7 +173,33 @@ class RunTC(unittest.TestCase):
         rc_code = 2 if six.PY2 else 0
         self._runtest([join(HERE, 'functional', 'unpacked_exceptions.py'),
                        '--py3k', '-j 2'],
-                      code=rc_code) 
+                      code=rc_code)
+
+    @unittest.skipIf(sys.version_info[0] > 2, "Requires the --py3k flag.")
+    def test_py3k_commutative_with_errors_only(self):
+
+        # Test what gets emitted with -E only
+        module = join(HERE, 'regrtest_data', 'py3k_error_flag.py')
+        expected = textwrap.dedent("""
+        No config file found, using default configuration
+        ************* Module py3k_error_flag
+        Explicit return in __init__
+        """)
+        self._test_output([module, "-E", "--msg-template='{msg}'"],
+                          expected_output=expected)
+
+        # Test what gets emitted with -E --py3k
+        expected = textwrap.dedent("""
+        No config file found, using default configuration
+        ************* Module py3k_error_flag
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        """)
+        self._test_output([module, "-E", "--py3k", "--msg-template='{msg}'"],
+                          expected_output=expected)
+
+        # Test what gets emitted with --py3k -E
+        self._test_output([module, "--py3k", "-E", "--msg-template='{msg}'"],
+                          expected_output=expected)
 
 
 if __name__ == '__main__':

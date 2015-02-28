@@ -455,6 +455,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         self.register_checker(self)
         self._dynamic_plugins = set()
         self._python3_porting_mode = False
+        self._error_mode = False
         self.load_provider_defaults()
         if reporter:
             self.set_reporter(reporter)
@@ -583,8 +584,16 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def error_mode(self):
         """error mode: enable only errors; no reports, no persistent"""
+        self._error_mode = True
         self.disable_noerror_messages()
         self.disable('miscellaneous')
+        if self._python3_porting_mode:
+            self.disable('all')
+            for msg_id in self._checker_messages('python3'):
+                if msg_id.startswith('E'):
+                    self.enable(msg_id)
+        else:
+            self.disable('python3')
         self.set_option('reports', False)
         self.set_option('persistent', False)
 
@@ -592,6 +601,15 @@ class PyLinter(configuration.OptionsManagerMixIn,
         """Disable all other checkers and enable Python 3 warnings."""
         self.disable('all')
         self.enable('python3')
+        if self._error_mode:
+            # The error mode was activated, using the -E flag.
+            # So we'll need to enable only the errors from the
+            # Python 3 porting checker.
+            for msg_id in self._checker_messages('python3'):
+                if msg_id.startswith('E'):
+                    self.enable(msg_id)
+                else:
+                    self.disable(msg_id)
         self._python3_porting_mode = True
 
     # block level option handling #############################################

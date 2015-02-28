@@ -48,6 +48,10 @@ RELEASE DATE -- VERSION
       emitted when the `cmp` argument for the `list.sort` or `sorted builtin`
       is encountered.
 
+    * Make the --py3k flag commutative with the -E flag. Also, this patch
+      fixes the leaks of error messages from the Python 3 checker when
+      the errors mode was activated. Closes issue #437.
+
 
 2015-01-16 -- 1.4.1
 

@@ -225,6 +225,11 @@ class MessagesHandlerMixIn(object):
         self._msgs_state = {}
         self.msg_status = 0
 
+    def _checker_messages(self, checker):
+        for checker in self._checkers[checker.lower()]:
+            for msgid in checker.msgs:
+                yield msgid
+
     def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """don't output message of the given id"""
         assert scope in ('package', 'module')
