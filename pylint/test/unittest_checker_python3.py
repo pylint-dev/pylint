@@ -384,6 +384,19 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node)
 
+    def test_using_cmp_argument(self):
+        nodes = test_utils.extract_node("""
+        [].sort(cmp=lambda x: x) #@
+        a = list(range(x))
+        a.sort(cmp=lambda x: x) #@
+
+        sorted([], cmp=lambda x: x) #@        
+        """)
+        for node in nodes:
+            message = testutils.Message('using-cmp-argument', node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_callfunc(node)
+
 
 @python2_only
 class Python3TokenCheckerTest(testutils.CheckerTestCase):

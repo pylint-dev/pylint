@@ -1,7 +1,7 @@
 ChangeLog for Pylint
 --------------------
 
-NOT RELEASED YET -- VERSION
+RELEASE DATE -- VERSION
     * Don't require a docstring for empty modules. Closes issue #261.
 
     * Fix a false positive with `too-few-format-args` string warning,
@@ -43,6 +43,10 @@ NOT RELEASED YET -- VERSION
 
     * Add support for combining the Python 3 checker mode with the --jobs
       flag (--py3k and --jobs). Closes issue #467.
+
+    * Add a new warning for the Python 3 porting checker, 'using-cmp-argument',
+      emitted when the `cmp` argument for the `list.sort` or `sorted builtin`
+      is encountered.
 
 
 2015-01-16 -- 1.4.1
