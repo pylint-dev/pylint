@@ -218,13 +218,13 @@ class Python3Checker(checkers.BaseChecker):
         'W1618': ('import missing `from __future__ import absolute_import`',
                   'no-absolute-import',
                   'Used when an import is not accompanied by '
-                  '`from __future__ import absolute_import`'
-                  ' (default behaviour in Python 3)',
+                  '``from __future__ import absolute_import`` '
+                  '(default behaviour in Python 3)',
                   {'maxversion': (3, 0)}),
         'W1619': ('division w/o __future__ statement',
                   'old-division',
                   'Used for non-floor division w/o a float literal or '
-                  '``from __future__ import division``'
+                  '``from __future__ import division`` '
                   '(Python 3 returns a float for int division unconditionally)',
                   {'maxversion': (3, 0)}),
         'W1620': ('Calling a dict.iter*() method',

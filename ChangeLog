@@ -323,9 +323,9 @@ RELEASE DATE -- VERSION
       the 'a' format on Python 3.
 
     * Add multiple checks for PEP 3101 advanced string formatting:
-     'bad-format-string', 'missing-format-argument-key',
-     'unused-format-string-argument', 'format-combined-specification',
-     'missing-format-attribute' and 'invalid-format-index'.
+      'bad-format-string', 'missing-format-argument-key',
+      'unused-format-string-argument', 'format-combined-specification',
+      'missing-format-attribute' and 'invalid-format-index'.
 
     * Issue broad-except and bare-except even if the number
       of except handlers is different than 1. Fixes issue #113.
@@ -485,7 +485,7 @@ RELEASE DATE -- VERSION
       Golemon
 
     * Add new warnings for checking proper class __slots__:
-     `invalid-slots-object` and `invalid-slots`.
+      `invalid-slots-object` and `invalid-slots`.
 
     * Search for rc file in `~/.config/pylintrc` if `~/.pylintrc`
       doesn't exists (#121)
@@ -807,10 +807,10 @@ RELEASE DATE -- VERSION
       (patch by tmarek@google.com)
 
     * #7394: W0212 (access to protected member) not emited on assigments
-    (patch by lothiraldan@gmail.com)
+      (patch by lothiraldan@gmail.com)
 
     * #18772; no prototype consistency check for mangled methods (patch by
-    lothiraldan@gmail.com)
+      lothiraldan@gmail.com)
 
     * #92911: emit W0102 when sets are used as default arguments in functions
       (patch by tmarek@google.com)
