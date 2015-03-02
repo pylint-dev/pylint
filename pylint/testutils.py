@@ -93,7 +93,7 @@ def get_tests_info(input_dir, msg_dir, prefix, suffix):
 class TestReporter(BaseReporter):
     """reporter storing plain text messages"""
 
-    __implements____ = IReporter
+    __implements__ = IReporter
 
     def __init__(self): # pylint: disable=super-init-not-called
 
