@@ -353,21 +353,22 @@ class ContinuedLineState(object):
     def _continuation_inside_bracket(self, bracket, pos):
         """Extracts indentation information for a continued indent."""
         indentation = _get_indent_length(self._tokens.line(pos))
-        if self._is_block_opener and self._tokens.start_col(pos+1) - indentation == self._block_indent_size:
+        token_start = self._tokens.start_col(pos)
+        next_token_start = self._tokens.start_col(pos + 1)
+        if self._is_block_opener and next_token_start - indentation == self._block_indent_size:
             return _ContinuedIndent(
                 CONTINUED_BLOCK,
                 bracket,
                 pos,
-                _Offsets(self._tokens.start_col(pos)),
-                _BeforeBlockOffsets(self._tokens.start_col(pos+1),
-                                    self._tokens.start_col(pos+1) + self._continuation_size))
+                _Offsets(token_start),
+                _BeforeBlockOffsets(next_token_start, next_token_start + self._continuation_size))
         else:
             return _ContinuedIndent(
                 CONTINUED,
                 bracket,
                 pos,
-                _Offsets(self._tokens.start_col(pos)),
-                _Offsets(self._tokens.start_col(pos+1)))
+                _Offsets(token_start),
+                _Offsets(next_token_start))
 
     def pop_token(self):
         self._cont_stack.pop()
@@ -442,7 +443,8 @@ class FormatChecker(BaseTokenChecker):
                ('expected-line-ending-format',
                 {'type': 'choice', 'metavar': '<empty or LF or CRLF>', 'default': '',
                  'choices': ['', 'LF', 'CRLF'],
-                 'help': 'Expected format of line ending, e.g. empty (any line ending), LF or CRLF.'}),
+                 'help': ('Expected format of line ending, '
+                          'e.g. empty (any line ending), LF or CRLF.')}),
               )
 
     def __init__(self, linter=None):
@@ -796,10 +798,12 @@ class FormatChecker(BaseTokenChecker):
         # check if line ending is as expected
         expected = self.config.expected_line_ending_format
         if expected:
-            line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")  # reduce multiple \n\n\n\n to one \n
+            # reduce multiple \n\n\n\n to one \n
+            line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")
             line_ending = 'LF' if line_ending == '\n' else 'CRLF'
             if line_ending != expected:
-                self.add_message('unexpected-line-ending-format', args=(line_ending, expected), line=line_num)
+                self.add_message('unexpected-line-ending-format', args=(line_ending, expected),
+                                 line=line_num)
 
 
     def _process_retained_warnings(self, tokens, current_pos):

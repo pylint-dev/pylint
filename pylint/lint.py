@@ -217,7 +217,8 @@ if multiprocessing is not None:
                 try:
                     results_queue.put(result)
                 except Exception as ex:
-                    print("internal error with sending report for module %s" % file_or_module, file=sys.stderr)
+                    print("internal error with sending report for module %s" %
+                          file_or_module, file=sys.stderr)
                     print(ex, file=sys.stderr)
                     results_queue.put({})
 
@@ -648,7 +649,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
                 except KeyError:
                     meth = self._bw_options_methods[opt]
                     # found a "(dis|en)able-msg" pragma deprecated suppresssion
-                    self.add_message('deprecated-pragma', line=start[0], args=(opt, opt.replace('-msg', '')))
+                    self.add_message('deprecated-pragma', line=start[0],
+                                     args=(opt, opt.replace('-msg', '')))
                 for msgid in textutils.splitstrip(value):
                     # Add the line where a control pragma was encountered.
                     if opt in control_pragmas:
@@ -656,7 +658,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
                     try:
                         if (opt, msgid) == ('disable', 'all'):
-                            self.add_message('deprecated-pragma', line=start[0], args=('disable=all', 'skip-file'))
+                            self.add_message('deprecated-pragma', line=start[0],
+                                             args=('disable=all', 'skip-file'))
                             self.add_message('file-ignored', line=start[0])
                             self._ignore_file = True
                             return
@@ -725,7 +728,6 @@ class PyLinter(configuration.OptionsManagerMixIn,
         if self.config.jobs == 1:
             self._do_check(files_or_modules)
         else:
-            
             with _patch_sysmodules():
                 self._parallel_check(files_or_modules)
 
@@ -848,7 +850,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
             self.current_file = ast_node.file # pylint: disable=maybe-no-member
             self.check_astroid_module(ast_node, walker, rawcheckers, tokencheckers)
             # warn about spurious inline messages handling
-            for msgid, line, args in self.file_state.iter_spurious_suppression_messages(self.msgs_store):
+            spurious_messages = self.file_state.iter_spurious_suppression_messages(self.msgs_store)
+            for msgid, line, args in spurious_messages:
                 self.add_message(msgid, line, None, args)
         # notify global end
         self.stats['statement'] = walker.nbstatements
