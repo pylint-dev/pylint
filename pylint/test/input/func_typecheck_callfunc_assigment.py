@@ -1,4 +1,4 @@
-# pylint: disable=R0921, print-statement
+# pylint: disable=print-statement
 """check assignment to function call where the function doesn't return
 
     'E1111': ('Assigning to function call which doesn\'t return',

@@ -18,7 +18,7 @@
 import re
 from collections import defaultdict
 
-from astroid import Function, If, InferenceError
+from astroid import If, InferenceError
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -26,17 +26,6 @@ from pylint.checkers.utils import check_messages
 
 # regexp for ignored argument name
 IGNORED_ARGUMENT_NAMES = re.compile('_.*')
-
-
-def class_is_abstract(klass):
-    """return true if the given class node should be considered as an abstract
-    class
-    """
-    for attr in klass.values():
-        if isinstance(attr, Function):
-            if attr.is_abstract(pass_is_abstract=False):
-                return True
-    return False
 
 
 MSGS = {
@@ -75,10 +64,6 @@ MSGS = {
               'too-many-statements',
               'Used when a function or method has too many statements. You \
               should then split it in smaller functions / methods.'),
-
-    'R0921': ('Abstract class not referenced',
-              'abstract-class-not-used',
-              'Used when an abstract class is not used as ancestor anywhere.'),
     'R0923': ('Interface not implemented',
               'interface-not-implemented',
               'Used when an interface class is not implemented anywhere.'),
@@ -161,9 +146,7 @@ class MisdesignChecker(BaseChecker):
         self.stats = None
         self._returns = None
         self._branches = None
-        self._used_abstracts = None
         self._used_ifaces = None
-        self._abstracts = None
         self._ifaces = None
         self._stmts = 0
 
@@ -172,23 +155,17 @@ class MisdesignChecker(BaseChecker):
         self.stats = self.linter.add_stats()
         self._returns = []
         self._branches = defaultdict(int)
-        self._used_abstracts = {}
         self._used_ifaces = {}
-        self._abstracts = []
         self._ifaces = []
 
     def close(self):
-        """check that abstract/interface classes are used"""
-        for abstract in self._abstracts:
-            if not abstract in self._used_abstracts:
-                self.add_message('abstract-class-not-used', node=abstract)
+        """check that interface classes are used"""
         for iface in self._ifaces:
             if not iface in self._used_ifaces:
                 self.add_message('interface-not-implemented', node=iface)
 
     @check_messages('too-many-ancestors', 'too-many-instance-attributes',
                     'too-few-public-methods', 'too-many-public-methods',
-                    'abstract-class-not-used',
                     'interface-not-implemented')
     def visit_class(self, node):
         """check size of inheritance hierarchy and number of instance attributes
@@ -205,10 +182,8 @@ class MisdesignChecker(BaseChecker):
             self.add_message('too-many-instance-attributes', node=node,
                              args=(len(node.instance_attrs),
                                    self.config.max_attributes))
-        # update abstract / interface classes structures
-        if class_is_abstract(node):
-            self._abstracts.append(node)
-        elif node.type == 'interface' and node.name != 'Interface':
+        # update interface classes structures
+        if node.type == 'interface' and node.name != 'Interface':
             self._ifaces.append(node)
             for parent in node.ancestors(False):
                 if parent.name == 'Interface':
@@ -220,11 +195,6 @@ class MisdesignChecker(BaseChecker):
         except InferenceError:
             # XXX log ?
             pass
-        for parent in node.ancestors():
-            try:
-                self._used_abstracts[parent] += 1
-            except KeyError:
-                self._used_abstracts[parent] = 1
 
     @check_messages('too-few-public-methods', 'too-many-public-methods')
     def leave_class(self, node):
@@ -355,7 +325,6 @@ class MisdesignChecker(BaseChecker):
         """increments the branches counter"""
         self._branches[node.scope()] += branchesnum
 
-    # FIXME: make a nice report...
 
 def register(linter):
     """required method to auto register this checker """

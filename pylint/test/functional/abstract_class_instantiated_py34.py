@@ -1,9 +1,9 @@
 """
-Check that instantiating a class with `abc.ABCM` as ancestor fails if it
+Check that instantiating a class with `abc.ABCMeta` as ancestor fails if it
 defines abstract methods.
 """
 
-# pylint: disable=too-few-public-methods, missing-docstring, abstract-class-not-used, no-init
+# pylint: disable=too-few-public-methods, missing-docstring, no-init
 
 __revision__ = 0
 

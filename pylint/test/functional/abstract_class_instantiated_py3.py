@@ -4,7 +4,6 @@ abstract methods.
 """
 
 # pylint: disable=too-few-public-methods, missing-docstring
-# pylint: disable=abstract-class-not-used
 # pylint: disable=abstract-method
 
 __revision__ = 0
