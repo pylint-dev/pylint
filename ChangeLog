@@ -1,6 +1,12 @@
 ChangeLog for Pylint
 --------------------
 
+--
+
+    * Remove three warnings: star-args, abstract-class-little-used,
+      abstract-class-not-used. These warnings don't add any real value
+      and they don't imply errors or problems in the code.
+
 2015-03-11 -- 1.4.2
 
     * Don't require a docstring for empty modules. Closes issue #261.
