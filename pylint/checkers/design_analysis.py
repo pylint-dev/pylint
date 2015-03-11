@@ -79,10 +79,6 @@ MSGS = {
     'R0921': ('Abstract class not referenced',
               'abstract-class-not-used',
               'Used when an abstract class is not used as ancestor anywhere.'),
-    'R0922': ('Abstract class is only referenced %s times',
-              'abstract-class-little-used',
-              'Used when an abstract class is used less than X times as \
-              ancestor.'),
     'R0923': ('Interface not implemented',
               'interface-not-implemented',
               'Used when an interface class is not implemented anywhere.'),
@@ -181,22 +177,18 @@ class MisdesignChecker(BaseChecker):
         self._abstracts = []
         self._ifaces = []
 
-    # Check 'R0921', 'R0922', 'R0923'
     def close(self):
         """check that abstract/interface classes are used"""
         for abstract in self._abstracts:
             if not abstract in self._used_abstracts:
                 self.add_message('abstract-class-not-used', node=abstract)
-            elif self._used_abstracts[abstract] < 2:
-                self.add_message('abstract-class-little-used', node=abstract,
-                                 args=self._used_abstracts[abstract])
         for iface in self._ifaces:
             if not iface in self._used_ifaces:
                 self.add_message('interface-not-implemented', node=iface)
 
     @check_messages('too-many-ancestors', 'too-many-instance-attributes',
                     'too-few-public-methods', 'too-many-public-methods',
-                    'abstract-class-not-used', 'abstract-class-little-used',
+                    'abstract-class-not-used',
                     'interface-not-implemented')
     def visit_class(self, node):
         """check size of inheritance hierarchy and number of instance attributes

@@ -3,7 +3,7 @@ from __future__ import print_function
 
 # pylint: disable=missing-docstring, no-init, no-self-use
 # pylint: disable=too-few-public-methods
-# pylint: disable=abstract-class-little-used, abstract-class-not-used
+# pylint: disable=abstract-class-not-used
 import abc
 
 class Abstract(object):

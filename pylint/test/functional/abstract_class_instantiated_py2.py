@@ -4,7 +4,7 @@ abstract methods.
 """
 
 # pylint: disable=too-few-public-methods, missing-docstring, abstract-class-not-used
-# pylint: disable=no-absolute-import, metaclass-assignment, abstract-class-little-used
+# pylint: disable=no-absolute-import, metaclass-assignment
 # pylint: disable=abstract-method
 
 __revision__ = 0
