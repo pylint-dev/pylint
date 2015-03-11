@@ -1,7 +1,8 @@
 ChangeLog for Pylint
 --------------------
 
-RELEASE DATE -- VERSION
+2015-03-11 -- 1.4.2
+
     * Don't require a docstring for empty modules. Closes issue #261.
 
     * Fix a false positive with `too-few-format-args` string warning,
