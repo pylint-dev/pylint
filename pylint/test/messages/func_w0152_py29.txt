@@ -1,2 +1,0 @@
-W:  5: Used * or ** magic
-W: 14: Used * or ** magic

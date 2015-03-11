@@ -1,6 +1,6 @@
 """test for Python 3 string formatting error
 """
-# pylint: disable=too-few-public-methods, import-error, unused-argument, star-args, line-too-long, no-absolute-import
+# pylint: disable=too-few-public-methods, import-error, unused-argument, line-too-long, no-absolute-import
 import os
 from missing import Missing
 

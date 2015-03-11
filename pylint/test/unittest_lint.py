@@ -397,23 +397,21 @@ class PyLinterTC(unittest.TestCase):
 
     def test_set_option_1(self):
         linter = self.linter
-        linter.set_option('disable', 'C0111,W0142')
+        linter.set_option('disable', 'C0111,W0234')
         self.assertFalse(linter.is_message_enabled('C0111'))
-        self.assertFalse(linter.is_message_enabled('W0142'))
+        self.assertFalse(linter.is_message_enabled('W0234'))
         self.assertTrue(linter.is_message_enabled('W0113'))
         self.assertFalse(linter.is_message_enabled('missing-docstring'))
-        self.assertFalse(linter.is_message_enabled('star-args'))
-        # no name for W0113
+        self.assertFalse(linter.is_message_enabled('non-iterator-returned'))
 
     def test_set_option_2(self):
         linter = self.linter
-        linter.set_option('disable', ('C0111', 'W0142') )
+        linter.set_option('disable', ('C0111', 'W0234') )
         self.assertFalse(linter.is_message_enabled('C0111'))
-        self.assertFalse(linter.is_message_enabled('W0142'))
+        self.assertFalse(linter.is_message_enabled('W0234'))
         self.assertTrue(linter.is_message_enabled('W0113'))
         self.assertFalse(linter.is_message_enabled('missing-docstring'))
-        self.assertFalse(linter.is_message_enabled('star-args'))
-        # no name for W0113
+        self.assertFalse(linter.is_message_enabled('non-iterator-returned'))
 
     def test_enable_checkers(self):
         self.linter.disable('design')

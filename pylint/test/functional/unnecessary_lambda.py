@@ -1,4 +1,4 @@
-# pylint: disable=star-args, undefined-variable
+# pylint: disable=undefined-variable
 """test suspicious lambda expressions
 """
 

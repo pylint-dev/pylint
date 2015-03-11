@@ -497,11 +497,6 @@ functions, methods
                   'bad-function option). Usual black listed functions are the ones '
                   'like map, or filter , where Python offers now some cleaner '
                   'alternative like list comprehension.'),
-        'W0142': ('Used * or ** magic',
-                  'star-args',
-                  'Used when a function or method is called using `*args` or '
-                  '`**kwargs` to dispatch arguments. This doesn\'t improve '
-                  'readability and should be used with care.'),
         'W0150': ("%s statement in finally block may swallow exception",
                   'lost-exception',
                   'Used when a break or a return statement is found inside the '
@@ -753,7 +748,7 @@ functions, methods
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @check_messages('bad-builtin', 'star-args', 'eval-used',
+    @check_messages('bad-builtin', 'eval-used',
                     'exec-used', 'missing-reversed-argument',
                     'bad-reversed-sequence')
     def visit_callfunc(self, node):
@@ -774,18 +769,6 @@ functions, methods
                     self.add_message('eval-used', node=node)
                 if name in self.config.bad_functions:
                     self.add_message('bad-builtin', node=node, args=name)
-        if node.starargs or node.kwargs:
-            scope = node.scope()
-            if isinstance(scope, astroid.Function):
-                toprocess = [(n, vn) for (n, vn) in ((node.starargs, scope.args.vararg),
-                                                     (node.kwargs, scope.args.kwarg)) if n]
-                if toprocess:
-                    for cfnode, fargname in toprocess[:]:
-                        if getattr(cfnode, 'name', None) == fargname:
-                            toprocess.remove((cfnode, fargname))
-                    if not toprocess:
-                        return # star-args can be skipped
-            self.add_message('star-args', node=node.func)
 
     @check_messages('assert-on-tuple')
     def visit_assert(self, node):
