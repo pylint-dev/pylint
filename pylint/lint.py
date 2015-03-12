@@ -60,6 +60,10 @@ from pylint.__pkginfo__ import version
 
 
 MANAGER = astroid.MANAGER
+INCLUDE_IDS_HELP = ("Deprecated. It was used to include message\'s "
+                    "id in output. Use --msg-template instead.")
+SYMBOLS_HELP = ("Deprecated. It was used to include symbolic ids of "
+                "messages in output. Use --msg-template instead.")
 
 def _get_new_args(message):
     location = (
@@ -195,10 +199,10 @@ MSGS = {
     }
 
 
-def _deprecated_option(shortname, opt_type):
+def _deprecated_option(shortname, opt_type, help_msg):
     def _warn_deprecated(option, optname, *args): # pylint: disable=unused-argument
         sys.stderr.write('Warning: option %s is deprecated and ignored.\n' % (optname,))
-    return {'short': shortname, 'help': 'DEPRECATED', 'hide': True,
+    return {'short': shortname, 'help': help_msg, 'hide': True,
             'type': opt_type, 'action': 'callback', 'callback': _warn_deprecated}
 
 
@@ -378,8 +382,9 @@ class PyLinter(configuration.OptionsManagerMixIn,
                             'See doc for all details')
                  }),
 
-                ('include-ids', _deprecated_option('i', 'yn')),
-                ('symbols', _deprecated_option('s', 'yn')),
+                ('include-ids', _deprecated_option('i', 'yn',
+                                                   INCLUDE_IDS_HELP)),
+                ('symbols', _deprecated_option('s', 'yn', SYMBOLS_HELP)),
 
                 ('jobs',
                  {'type' : 'int', 'metavar': '<n-processes>',
