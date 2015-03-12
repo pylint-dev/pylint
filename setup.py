@@ -167,7 +167,7 @@ def install(**kwargs):
         cmdclass['easy_install'] = easy_install
     return setup(name=distname,
                  version=__pkginfo__['version'],
-                 license=license,
+                 license=__pkginfo__['license'],
                  description=__pkginfo__['description'],
                  long_description=long_description,
                  author=__pkginfo__['author'],
