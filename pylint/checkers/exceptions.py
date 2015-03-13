@@ -14,6 +14,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """exceptions handling (raising, catching, exceptions classes) checker
 """
+import collections
 import sys
 
 import astroid
@@ -95,6 +96,10 @@ MSGS = {
               'pointless-except',
               'Used when an except clause does nothing but "pass" and there is\
               no "else" clause.'),
+    'W0705': ('Catching previously caught exception type %s',
+              'duplicate-except',
+              'Used when an except catches a type that was already caught by '
+              'a previous handler.'),
     'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
               'nonstandard-exception',
               'Used when a custom exception class is raised but doesn\'t \
@@ -324,7 +329,12 @@ class ExceptionsChecker(BaseChecker):
                         self.add_message('broad-except',
                                          args=exc.name, node=handler.type)
 
-                exceptions_classes += [exc for _, exc in excs]
+                for (_, current_exc) in excs:
+                    if current_exc in exceptions_classes:
+                        self.add_message('duplicate-except',
+                                         args=exc.name, node=handler.type)
+
+                exceptions_classes += [exc_ for _, exc_ in excs]
 
 
 def register(linter):
