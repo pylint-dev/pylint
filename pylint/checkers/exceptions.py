@@ -14,7 +14,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """exceptions handling (raising, catching, exceptions classes) checker
 """
-import collections
 import sys
 
 import astroid
