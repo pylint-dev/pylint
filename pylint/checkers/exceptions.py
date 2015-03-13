@@ -328,8 +328,7 @@ class ExceptionsChecker(BaseChecker):
                         self.add_message('broad-except',
                                          args=exc.name, node=handler.type)
 
-                for (_, current_exc) in excs:
-                    if current_exc in exceptions_classes:
+                    if exc in exceptions_classes:
                         self.add_message('duplicate-except',
                                          args=exc.name, node=handler.type)
 
