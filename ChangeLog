@@ -7,6 +7,18 @@ ChangeLog for Pylint
       abstract-class-not-used. These warnings don't add any real value
       and they don't imply errors or problems in the code.
 
+    * Added a new option for controlling the peephole optimizer in astroid.
+      The option ``--optimize-ast`` will control the peephole optimizer,
+      which is used to optimize a couple of AST subtrees. The current problem
+      solved by the peephole optimizer is when multiple joined strings,
+      with the addition operator, are encountered. If the numbers of such
+      strings is high enough, Pylint will then fail with a maximum recursion
+      depth exceeded error, due to its visitor architecture. The peephole
+      just transforms such calls, if it can, into the final resulting string
+      and this exhibit a problem, because the visit_binop method stops being
+      called (in the optimized AST it will be a Const node).           
+
+
 2015-03-11 -- 1.4.2
 
     * Don't require a docstring for empty modules. Closes issue #261.

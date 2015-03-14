@@ -406,6 +406,19 @@ class PyLinter(configuration.OptionsManagerMixIn,
                             ' loading into the active Python interpreter and may run'
                             ' arbitrary code')}
                   ),
+
+                ('optimize-ast',
+                  {'type': 'yn', 'metavar': '<yn>', 'default': False,
+                   'help': ('Allow optimization of some AST trees. This will '
+                            'activate a peephole AST optimizer, which will '
+                            'apply various small optimizations. For instance, '
+                            'it can be used to obtain the result of joining '
+                            'multiple strings with the addition operator. '
+                            'Joining a lot of strings can lead to a maximum '
+                            'recursion error in Pylint and this flag can prevent '
+                            'that. It has one side effect, the resulting AST '
+                            'will be different than the one from reality.')}
+                ),
                )
 
     option_groups = (
@@ -940,6 +953,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         self.stats = {'by_module' : {},
                       'by_msg' : {},
                      }
+        MANAGER.optimize_ast = self.config.optimize_ast
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.extension_package_whitelist.update(
             self.config.extension_pkg_whitelist)

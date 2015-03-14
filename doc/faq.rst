@@ -261,12 +261,25 @@ mangled sys.path.  Pylint doesn't import any of the candidate modules and
 thus doesn't include any of import's side effects (good and bad).  It
 traverses an AST representation of the code.
 
-6.3 I think I found a bug in Pylint. What should I do?
+6.3 Pylint keeps crashing with `Maximum recursion depth exceeded`
+-----------------------------------------------------------------
+
+Pylint can crash with this error if you have a string in your analyzed
+program, created by joining a lot of strings with the addition operator.
+Due to how Pylint works, visiting nodes on a AST tree and due to how
+the BinOp node is represented (the node which represents the string '1+1'
+for instance), the same visit method will be called over and over again, leading
+to a maximum recursion error. You can alleviate this problem by passing
+the flag `--optimize-ast=y` to Pylint. This will activate an optimization
+which will transform such AST subtrees into the final resulting string.
+This flag is off by default. If this is not the case, please report a bug!
+
+6.4 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------
 
 Read http://docs.pylint.org/contribute#bug-reports-feedback
 
-6.4 I have a question about Pylint that isn't answered here.
+6.5 I have a question about Pylint that isn't answered here.
 ------------------------------------------------------------
 
 Read http://docs.pylint.org/contribute#mailing-lists
