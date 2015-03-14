@@ -1,7 +1,7 @@
 ChangeLog for Pylint
 --------------------
 
---
+2015-03-14 -- 1.4.3
 
     * Remove three warnings: star-args, abstract-class-little-used,
       abstract-class-not-used. These warnings don't add any real value
