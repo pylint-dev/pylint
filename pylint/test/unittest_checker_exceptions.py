@@ -60,22 +60,6 @@ class ExceptionsCheckerTest(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_raise(nodes[2])
 
-    def test_duplicate_except(self):
-        node = test_utils.extract_node('''
-        try:
-            raise ValueError('test')
-        except ValueError:
-            print(1)
-        except ValueError:
-            print(2)
-        except (OSError, TypeError):
-            print(3)
-        ''')
-        message = Message('duplicate-except', node=node.handlers[1].type,
-                          args='ValueError')
-        with self.assertAddsMessages(message):
-            self.checker.visit_tryexcept(node)
-
 
 if __name__ == '__main__':
     unittest.main()
