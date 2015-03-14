@@ -1,5 +1,5 @@
 """Test for W0623, overwriting names in exception handlers."""
-# pylint: disable=broad-except,bare-except,pointless-except,print-statement,no-absolute-import
+# pylint: disable=broad-except,bare-except,pointless-except,print-statement,no-absolute-import,duplicate-except
 __revision__ = ''
 
 import exceptions
