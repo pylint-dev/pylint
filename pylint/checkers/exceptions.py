@@ -332,7 +332,7 @@ class ExceptionsChecker(BaseChecker):
                         self.add_message('duplicate-except',
                                          args=exc.name, node=handler.type)
 
-                exceptions_classes += [exc_ for _, exc_ in excs]
+                exceptions_classes += [exc for _, exc in excs]
 
 
 def register(linter):
