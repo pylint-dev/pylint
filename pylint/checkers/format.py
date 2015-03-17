@@ -81,7 +81,7 @@ MSGS = {
               'bad-indentation',
               'Used when an unexpected number of indentation\'s tabulations or '
               'spaces has been found.'),
-    'C0330': ('Wrong %s indentation%s.\n%s%s',
+    'C0330': ('Wrong %s indentation%s%s.\n%s%s',
               'bad-continuation',
               'TODO'),
     'W0312': ('Found indentation with %ss instead of %ss',
@@ -165,14 +165,22 @@ def _get_indent_length(line):
 def _get_indent_hint_line(bar_positions, bad_position):
     """Return a line with |s for each of the positions in the given lists."""
     if not bar_positions:
-        return ''
+        return ('', '')
+    delta_message = ''
     markers = [(pos, '|') for pos in bar_positions]
+    if len(markers) == 1:
+        # if we have only one marker we'll provide an extra hint on how to fix
+        expected_position = markers[0][0]
+        delta = abs(expected_position - bad_position)
+        direction = 'add' if expected_position > bad_position else 'remove'
+        delta_message = _CONTINUATION_HINT_MESSAGE % (
+            direction, delta, 's' if delta > 1 else '')
     markers.append((bad_position, '^'))
     markers.sort()
     line = [' '] * (markers[-1][0] + 1)
     for position, marker in markers:
         line[position] = marker
-    return ''.join(line)
+    return (''.join(line), delta_message)
 
 
 class _ContinuedIndent(object):
@@ -218,6 +226,7 @@ _CONTINUATION_MSG_PARTS = {
     CONTINUED_BLOCK: ('continued', ' before block'),
 }
 
+_CONTINUATION_HINT_MESSAGE = ' (%s %d space%s)'  # Ex: (remove 2 spaces)
 
 def _Offsets(*args):
     """Valid indentation offsets for a continued line."""
@@ -846,11 +855,12 @@ class FormatChecker(BaseTokenChecker):
 
     def _add_continuation_message(self, state, offsets, tokens, position):
         readable_type, readable_position = _CONTINUATION_MSG_PARTS[state.context_type]
-        hint_line = _get_indent_hint_line(offsets, tokens.start_col(position))
+        hint_line, delta_message = _get_indent_hint_line(offsets, tokens.start_col(position))
         self.add_message(
             'bad-continuation',
             line=tokens.start_line(position),
-            args=(readable_type, readable_position, tokens.line(position), hint_line))
+            args=(readable_type, readable_position, delta_message,
+                  tokens.line(position), hint_line))
 
     @check_messages('multiple-statements')
     def visit_default(self, node):
