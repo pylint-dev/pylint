@@ -95,6 +95,10 @@ MSGS = {
               'pointless-except',
               'Used when an except clause does nothing but "pass" and there is\
               no "else" clause.'),
+    'W0705': ('Catching previously caught exception type %s',
+              'duplicate-except',
+              'Used when an except catches a type that was already caught by '
+              'a previous handler.'),
     'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
               'nonstandard-exception',
               'Used when a custom exception class is raised but doesn\'t \
@@ -322,6 +326,10 @@ class ExceptionsChecker(BaseChecker):
                             and exc.root().name == EXCEPTIONS_MODULE
                             and not is_raising(handler.body)):
                         self.add_message('broad-except',
+                                         args=exc.name, node=handler.type)
+
+                    if exc in exceptions_classes:
+                        self.add_message('duplicate-except',
                                          args=exc.name, node=handler.type)
 
                 exceptions_classes += [exc for _, exc in excs]
