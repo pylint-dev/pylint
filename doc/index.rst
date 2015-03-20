@@ -12,7 +12,7 @@ https://bitbucket.org/logilab/pylint
    run
    output
    message-control
-   features1
+   features
    options
    extend
    ide-integration
