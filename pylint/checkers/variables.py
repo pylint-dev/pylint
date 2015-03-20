@@ -255,16 +255,18 @@ MSGS = {
               a list comprehension or a generator expression) is used outside \
               the loop.'),
 
-    'W0632': ('Possible unbalanced tuple unpacking with '
+    'E0632': ('Possible unbalanced tuple unpacking with '
               'sequence%s: '
               'left side has %d label(s), right side has %d value(s)',
               'unbalanced-tuple-unpacking',
-              'Used when there is an unbalanced tuple unpacking in assignment'),
+              'Used when there is an unbalanced tuple unpacking in assignment',
+              {'old_names': [('W0632', 'unbalanced-tuple-unpacking')]}),
 
-    'W0633': ('Attempting to unpack a non-sequence%s',
+    'E0633': ('Attempting to unpack a non-sequence%s',
               'unpacking-non-sequence',
               'Used when something which is not '
-              'a sequence is used in an unpack assignment'),
+              'a sequence is used in an unpack assignment',
+              {'old_names': [('W0633', 'unpacking-non-sequence')]}),
 
     'W0640': ('Cell variable %s defined in loop',
               'cell-var-from-loop',

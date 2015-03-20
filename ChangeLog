@@ -6,6 +6,10 @@ ChangeLog for Pylint
       exception handler which handles an exception type that was handled
       before. Closes issue #485.
 
+    * A couple of warnings got promoted to errors, since they could uncover
+      potential bugs in the code. These warnings are: assignment-from-none,
+      unbalanced-tuple-unpacking, unpacking-non-sequence, non-iterator-returned.
+      Closes issue #388.
 
 2015-03-14 -- 1.4.3
 

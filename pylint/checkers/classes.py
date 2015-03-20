@@ -210,10 +210,11 @@ MSGS = {
               'non-parent-init-called',
               'Used when an __init__ method is called on a class which is not '
               'in the direct ancestors for the analysed class.'),
-    'W0234': ('__iter__ returns non-iterator',
+    'E0234': ('__iter__ returns non-iterator',
               'non-iterator-returned',
               'Used when an __iter__ method returns something which is not an '
-               'iterable (i.e. has no `%s` method)' % NEXT_METHOD),
+              'iterable (i.e. has no `%s` method)' % NEXT_METHOD,
+              {'old_names': [('W0234', 'non-iterator-returned')]}),
     'E0235': ('__exit__ must accept 3 arguments: type, value, traceback',
               'bad-context-manager',
               'Used when the __exit__ special method, belonging to a '

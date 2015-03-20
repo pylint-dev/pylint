@@ -42,11 +42,6 @@ MSGS = {
               'assignment-from-no-return',
               'Used when an assignment is done on a function call but the \
               inferred function doesn\'t return anything.'),
-    'W1111': ('Assigning to function call which only returns None',
-              'assignment-from-none',
-              'Used when an assignment is done on a function call but the \
-              inferred function returns nothing but None.'),
-
     'E1120': ('No value for argument %s in %s call',
               'no-value-for-parameter',
               'Used when a function call passes too few arguments.'),
@@ -77,6 +72,11 @@ MSGS = {
               'invalid-slice-index',
               'Used when a slice index is not an integer, None, or an object \
                with an __index__ method.'),
+    'E1128': ('Assigning to function call which only returns None',
+              'assignment-from-none',
+              'Used when an assignment is done on a function call but the '
+              'inferred function returns nothing but None.',
+              {'old_names': [('W1111', 'assignment-from-none')]}),
     }
 
 # builtin sequence types in Python 2 and 3.
