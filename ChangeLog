@@ -2,6 +2,10 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Add a new error, 'not-context-manager', emitted when something
+      that doesn't implement __enter__ and __exit__ is used in a with
+      statement.
+
     * Add a new warning, 'duplicate-except', emitted when there is an
       exception handler which handles an exception type that was handled
       before. Closes issue #485.
