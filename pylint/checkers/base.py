@@ -508,6 +508,13 @@ functions, methods
                   'A call of assert on a tuple will always evaluate to true if '
                   'the tuple is not empty, and will always evaluate to false if '
                   'it is.'),
+        'W0124': ('Following "as" with another context manager looks like a tuple.',
+                  'confusing-with-statement',
+                  'Emitted when a `with` statement component returns multiple values '
+                  'and uses name binding with `as` only for a part of those values, '
+                  'as in with ctx() as a, b. This can be misleading, since it\'s not '
+                  'clear if the context manager returns a tuple or if the node without '
+                  'a name binding is another context manager.'),
         'C0121': ('Missing required attribute "%s"', # W0103
                   'missing-module-attribute',
                   'Used when an attribute required for modules is missing.'),
@@ -871,6 +878,36 @@ functions, methods
             elif not isinstance(argument, (astroid.List, astroid.Tuple)):
                 # everything else is not a proper sequence for reversed()
                 self.add_message('bad-reversed-sequence', node=node)
+
+    @check_messages('confusing-with-statement')
+    def visit_with(self, node):
+        if not PY3K:
+            # in Python 2 a "with" statement with multiple managers coresponds
+            # to multiple nested AST "With" nodes
+            pairs = []
+            parent_node = node.parent
+            if isinstance(parent_node, astroid.With):
+                # we only care about the direct parent, since this method
+                # gets called for each with node anyway
+                pairs.extend(parent_node.items)
+            pairs.extend(node.items)
+        else:
+            # in PY3K a "with" statement with multiple managers coresponds
+            # to one AST "With" node with multiple items
+            pairs = node.items
+        prev_pair = None
+        for pair in pairs:
+            if prev_pair is not None:
+                if (isinstance(prev_pair[1], astroid.AssName) and
+                        (pair[1] is None and not isinstance(pair[0], astroid.CallFunc))):
+                    # don't emit a message if the second is a function call
+                    # there's no way that can be mistaken for a name assignment
+                    if PY3K or node.lineno == node.parent.lineno:
+                        # if the line number doesn't match
+                        # we assume it's a nested "with"
+                        self.add_message('confusing-with-statement', node=node)
+            prev_pair = pair
+
 
 _NAME_TYPES = {
     'module': (MOD_NAME_RGX, 'module'),
