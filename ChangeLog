@@ -20,6 +20,12 @@ ChangeLog for Pylint
       unbalanced-tuple-unpacking, unpacking-non-sequence, non-iterator-returned.
       Closes issue #388.
 
+    * Allow ending a pragma control with a semicolon. In this way, users
+      can continue a pragma control with a reason for why it is used,
+      as in `# pylint: disable=old-style-class;reason=...`.
+      Closes issue #449.
+
+
 2015-03-14 -- 1.4.3
 
     * Remove three warnings: star-args, abstract-class-little-used,
