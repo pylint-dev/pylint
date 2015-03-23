@@ -6,6 +6,11 @@ ChangeLog for Pylint
       that doesn't implement __enter__ and __exit__ is used in a with
       statement.
 
+    * Add a new warning, 'confusing-with-statement', emitted by the
+      base checker, when an ambiguous looking with statement is used.
+      For example `with open() as first, second` which looks like a
+      tuple assignment but is actually 2 context managers.
+
     * Add a new warning, 'duplicate-except', emitted when there is an
       exception handler which handles an exception type that was handled
       before. Closes issue #485.
