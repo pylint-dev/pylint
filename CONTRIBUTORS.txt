@@ -1,4 +1,4 @@
-Contributors
+﻿Contributors
 ------------
 
 Order doesn't matter (not that much, at least ;)
@@ -46,15 +46,17 @@ Order doesn't matter (not that much, at least ;)
 
 * Vlad Temian: redundant-unittest-assert and the JSON reporter.
 
-* Cosmin Poieana: unichr-builtin and improvements to bad-open-mode.
+* Cosmin Poieană: unichr-builtin and improvements to bad-open-mode.
 
-* Viorel Stirbu: intern-builtin warning.
+* Viorel Știrbu: intern-builtin warning.
 
 * Dan Goldsmith: support for msg-template in HTML reporter.
 
 * Chris Rebert: unidiomatic-typecheck.
 
 * Steven Myint: duplicate-except.
+
+* Radu Ciorbă: not-context-manager and confusing-with-statement warnings.
 
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
   Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others):
