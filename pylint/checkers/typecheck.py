@@ -27,7 +27,8 @@ from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     safe_infer, is_super,
-    check_messages, decorated_with_property)
+    check_messages, decorated_with_property,
+    decorated_with)
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -77,6 +78,10 @@ MSGS = {
               'Used when an assignment is done on a function call but the '
               'inferred function returns nothing but None.',
               {'old_names': [('W1111', 'assignment-from-none')]}),
+    'E1129': ("Context manager '%s' doesn't implement __enter__ and __exit__.",
+              'not-context-manager',
+              'Used when an instance in a with statement doesn\'t implement '
+              'the context manager protocol(__enter__/__exit__).'),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -621,6 +626,26 @@ accessed. Python regular expressions are accepted.'}
 
             # Anything else is an error
             self.add_message('invalid-slice-index', node=node)
+
+    @check_messages('not-context-manager')
+    def visit_with(self, node):
+        for ctx_mgr, _ in node.items:
+            infered = safe_infer(ctx_mgr)
+            if infered is None or infered is astroid.YES:
+                continue
+            if isinstance(infered, astroid.bases.Generator):
+                func = safe_infer(ctx_mgr.func)
+                if func is None and func is astroid.YES:
+                    continue
+                if not decorated_with(func, 'contextlib.contextmanager'):
+                    self.add_message('not-context-manager', node=node, args=(infered.name, ))
+            else:
+                try:
+                    infered.getattr('__enter__')
+                    infered.getattr('__exit__')
+                except astroid.NotFoundError:
+                    self.add_message('not-context-manager', node=node, args=(infered.name, ))
+
 
 def register(linter):
     """required method to auto register this checker """

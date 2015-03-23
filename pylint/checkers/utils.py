@@ -515,6 +515,15 @@ def decorated_with_abc(func):
                 return True
 
 
+def decorated_with(func, qname):
+    """Determine if the `func` node has a decorator with the qualified name `qname`."""
+    decorators = func.decorators.nodes if func.decorators else []
+    for decorator_node in decorators:
+        dec = safe_infer(decorator_node)
+        if dec and dec.qname() == qname:
+            return True
+
+
 def unimplemented_abstract_methods(node, is_abstract_cb=decorated_with_abc):
     """
     Get the unimplemented abstract methods for the given *node*.
