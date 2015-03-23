@@ -637,7 +637,7 @@ accessed. Python regular expressions are accepted.'}
                 func = safe_infer(ctx_mgr.func)
                 if func is None and func is astroid.YES:
                     continue
-                if not decorated_with(func, 'contextlib.contextmanager'):
+                if not decorated_with(func, ['contextlib.contextmanager']):
                     self.add_message('not-context-manager', node=node, args=(infered.name, ))
             else:
                 try:

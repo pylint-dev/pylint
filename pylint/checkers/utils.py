@@ -17,7 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """some functions that may be useful for various checkers
 """
-
+import functools
 import re
 import sys
 import string
@@ -503,28 +503,16 @@ def decorated_with_property(node):
             pass
 
 
-def decorated_with_abc(func):
-    """Determine if the `func` node is decorated with `abc` decorators."""
-    if func.decorators:
-        for node in func.decorators.nodes:
-            try:
-                infered = next(node.infer())
-            except astroid.InferenceError:
-                continue
-            if infered and infered.qname() in ABC_METHODS:
-                return True
-
-
-def decorated_with(func, qname):
+def decorated_with(func, qnames):
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
     decorators = func.decorators.nodes if func.decorators else []
     for decorator_node in decorators:
         dec = safe_infer(decorator_node)
-        if dec and dec.qname() == qname:
+        if dec and dec.qname() in qnames:
             return True
 
 
-def unimplemented_abstract_methods(node, is_abstract_cb=decorated_with_abc):
+def unimplemented_abstract_methods(node, is_abstract_cb=None):
     """
     Get the unimplemented abstract methods for the given *node*.
 
@@ -536,6 +524,9 @@ def unimplemented_abstract_methods(node, is_abstract_cb=decorated_with_abc):
     For the rest of them, it will return a dictionary of abstract method
     names and their inferred objects.
     """
+    if is_abstract_cb is None:
+        is_abstract_cb = functools.partial(
+            decorated_with, qnames=ABC_METHODS)
     visited = {}
     try:
         mro = reversed(node.mro())
