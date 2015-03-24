@@ -25,6 +25,8 @@ ChangeLog for Pylint
       as in `# pylint: disable=old-style-class;reason=...`.
       Closes issue #449.
 
+    * --jobs can be used with --load-plugins now. Closes issue #456.
+
 
 2015-03-14 -- 1.4.3
 

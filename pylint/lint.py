@@ -214,6 +214,7 @@ if multiprocessing is not None:
             self._config["jobs"] = 1  # Child does not parallelize any further.
             self._python3_porting_mode = self._config.pop(
                 'python3_porting_mode', None)
+            self._plugins = self._config.pop('plugins', None)
 
             # Run linter for received files/modules.
             for file_or_module in iter(tasks_queue.get, 'STOP'):
@@ -232,7 +233,8 @@ if multiprocessing is not None:
             # Register standard checkers.
             linter.load_default_plugins()
             # Load command line plugins.
-            # TODO linter.load_plugin_modules(self._plugins)
+            if self._plugins:
+                linter.load_plugin_modules(self._plugins)
 
             linter.load_configuration(**self._config)
             linter.set_reporter(reporters.CollectingReporter())
@@ -760,6 +762,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                 if optname not in filter_options:
                     config[optname] = configuration.format_option_value(optdict, val)
         config['python3_porting_mode'] = self._python3_porting_mode
+        config['plugins'] = self._dynamic_plugins
 
         childs = []
         manager = multiprocessing.Manager()  # pylint: disable=no-member
