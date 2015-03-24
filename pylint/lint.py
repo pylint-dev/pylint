@@ -774,13 +774,15 @@ class PyLinter(configuration.OptionsManagerMixIn,
             cl.start()  # pylint: disable=no-member
             childs.append(cl)
 
-        # send files to child linters
-        for files_or_module in files_or_modules:
-            tasks_queue.put([files_or_module])
+        # Send files to child linters.
+        expanded_files = self.expand_files(files_or_modules)
+        for files_or_module in expanded_files:
+            path = files_or_module['path']
+            tasks_queue.put([path])
 
         # collect results from child linters
         failed = False
-        for _ in files_or_modules:
+        for _ in expanded_files:
             try:
                 result = results_queue.get()
             except Exception as ex:
@@ -806,6 +808,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         self.open()
 
         all_stats = []
+        module = None
         for result in self._parallel_task(files_or_modules):
             (
                 file_or_module,
@@ -816,9 +819,6 @@ class PyLinter(configuration.OptionsManagerMixIn,
                 msg_status
             ) = result
 
-            if file_or_module == files_or_modules[-1]:
-                last_module = module
-
             for msg in messages:
                 msg = utils.Message(*msg)
                 self.set_current_module(module)
@@ -828,7 +828,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
             self.msg_status |= msg_status
 
         self.stats = _merge_stats(itertools.chain(all_stats, [self.stats]))
-        self.current_name = last_module
+        self.current_name = module
 
         # Insert stats data to local checkers.
         for checker in self.get_checkers():

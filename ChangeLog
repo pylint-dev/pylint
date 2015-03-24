@@ -27,6 +27,9 @@ ChangeLog for Pylint
 
     * --jobs can be used with --load-plugins now. Closes issue #456.
 
+    * Improve the performance of --jobs when dealing only with a package
+      name. Closes issue #479.
+
 
 2015-03-14 -- 1.4.3
 
