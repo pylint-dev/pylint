@@ -30,6 +30,9 @@ ChangeLog for Pylint
     * Improve the performance of --jobs when dealing only with a package
       name. Closes issue #479.
 
+    * Don't emit an unused-wildcard-import when the imported name comes
+      from another module and it is in fact a __future__ name.
+
 
 2015-03-14 -- 1.4.3
 

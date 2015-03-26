@@ -38,6 +38,20 @@ SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 
 PY3K = sys.version_info >= (3, 0)
 
+
+def _is_from_future_import(stmt, name):
+    """Check if the name is a future import from another module."""
+    try:
+        module = stmt.do_import_module(stmt.modname)
+    except InferenceError:
+        return
+
+    for local_node in module.locals.get(name, []):
+        if (isinstance(local_node, astroid.From)
+                and local_node.modname == '__future__'):
+            return True
+
+
 def in_for_else_branch(parent, stmt):
     """Returns True if stmt in inside the else branch for a parent For stmt."""
     return (isinstance(parent, astroid.For) and
@@ -410,11 +424,19 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     else:
                         msg = "%s imported as %s" % (imported_name, as_name)
                     self.add_message('unused-import', args=msg, node=stmt)
-                elif isinstance(stmt, astroid.From) and stmt.modname != '__future__':
+                elif (isinstance(stmt, astroid.From)
+                          and stmt.modname != '__future__'):
+
                     if SPECIAL_OBJ.search(imported_name):
                         # Filter special objects (__doc__, __all__) etc.,
                         # because they can be imported for exporting.
                         continue
+
+                    if _is_from_future_import(stmt, name):
+                        # Check if the name is in fact loaded from a
+                        # __future__ import in another module.
+                        continue
+
                     if imported_name == '*':
                         self.add_message('unused-wildcard-import',
                                          args=name, node=stmt)
