@@ -1,4 +1,4 @@
-from indirect1 import TotoInterface
+from .indirect1 import TotoInterface
 
 class AbstractToto:
     __implements__ = TotoInterface

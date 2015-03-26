@@ -18,7 +18,7 @@ class BBBBMixin(object):
         print('init', self)
 
 import nonexistant
-import func_w0233
+from . import func_w0233
 class CCC(BBBBMixin, func_w0233.AAAA, func_w0233.BBBB, nonexistant.AClass):
     """mix different things, some inferable some not"""
     def __init__(self):

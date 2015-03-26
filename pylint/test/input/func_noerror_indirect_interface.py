@@ -4,7 +4,7 @@ setup"""
 # pylint: disable=old-style-class, too-few-public-methods, no-absolute-import
 __revision__ = None
 
-from input.indirect2 import AbstractToto
+from .indirect2 import AbstractToto
 
 class ConcreteToto(AbstractToto):
     """abstract to implements an interface requiring machin to be defined"""
