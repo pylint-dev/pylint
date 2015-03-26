@@ -1,7 +1,7 @@
-# pylint: disable=R0903, print-statement
+# pylint: disable=R0903
 """crash test"""
 
-__revision__ = 1
+from __future__ import print_function
 
 class Temelekefe(object):
     """gloubliboulga"""
@@ -14,5 +14,5 @@ class Temelekefe(object):
                 self.attr = 2
             def toto_method(self):
                 """toto nested class method"""
-                print self
-        print 'error ?', self, Toto
+                print(self)
+        print('error ?', self, Toto)

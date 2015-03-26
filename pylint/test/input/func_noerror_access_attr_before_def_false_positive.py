@@ -1,4 +1,4 @@
-#pylint: disable=C0103,R0904,R0903,W0201,old-style-class,print-statement,no-absolute-import
+#pylint: disable=C0103,R0904,R0903,W0201,old-style-class,no-absolute-import
 """
 This module demonstrates a possible problem of pyLint with calling __init__ s
 from inherited classes.
@@ -6,7 +6,7 @@ Initializations done there are not considered, which results in Error E0203 for
 self.cookedq.
 """
 
-__revision__ = 'yo'
+from __future__ import print_function
 
 import telnetlib
 
@@ -52,18 +52,18 @@ class Derived(Base):
         """do something"""
         # E0203 - Access to member '_var' before its definition
         if self._var:
-            print "True"
+            print("True")
         else:
-            print "False"
+            print("False")
         self._var = True
 
         # E0203 - Access to member 'dougloup_papa' before its definition
         if self.dougloup_papa:
-            print 'dougloup !'
+            print('dougloup !')
         self.dougloup_papa = True
         # E0203 - Access to member 'dougloup_moi' before its definition
         if self.dougloup_moi:
-            print 'dougloup !'
+            print('dougloup !')
         self.dougloup_moi = True
 
 
@@ -90,7 +90,7 @@ class DefinedOutsideInit(object):
     def use_attr(self):
         """use and set members"""
         if self.attr:
-            print 'hop'
+            print('hop')
         self.attr = 10
 
     def reset(self):

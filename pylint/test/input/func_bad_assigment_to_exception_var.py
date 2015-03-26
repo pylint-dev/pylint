@@ -1,7 +1,7 @@
 # pylint:disable=C0103, print-statement, no-absolute-import
 """ho ho ho"""
+from __future__ import print_function
 __revision__ = 'toto'
-
 import sys
 
 e = 1
@@ -9,8 +9,8 @@ e2 = 'yo'
 e3 = None
 try:
     raise e
-except Exception, ex:
-    print ex
+except Exception as ex:
+    print(ex)
     _, _, tb = sys.exc_info()
 
 
@@ -23,8 +23,8 @@ def reraise():
     """reraise a catched exception instance"""
     try:
         raise Exception()
-    except Exception, exc:
-        print exc
+    except Exception as exc:
+        print(exc)
         raise exc
 
 raise e3

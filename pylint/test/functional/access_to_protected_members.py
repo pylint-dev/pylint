@@ -1,6 +1,6 @@
 # pylint: disable=too-few-public-methods, W0231, print-statement
 """Test external access to protected class members."""
-
+from __future__ import print_function
 
 class MyClass(object):
     """Class with protected members."""
@@ -15,12 +15,12 @@ class MyClass(object):
     def test(self):
         """Docstring."""
         self._protected += self._cls_protected
-        print self.public._haha  # [protected-access]
+        print(self.public._haha)  # [protected-access]
 
     def clsmeth(cls):
         """Docstring."""
         cls._cls_protected += 1
-        print cls._cls_protected
+        print(cls._cls_protected)
     clsmeth = classmethod(clsmeth)
 
 class Subclass(MyClass):
@@ -31,8 +31,8 @@ class Subclass(MyClass):
 
 INST = Subclass()
 INST.attr = 1
-print INST.attr
+print(INST.attr)
 INST._protected = 2  # [protected-access]
-print INST._protected  # [protected-access]
+print(INST._protected)  # [protected-access]
 INST._cls_protected = 3  # [protected-access]
-print INST._cls_protected  # [protected-access]
+print(INST._cls_protected)  # [protected-access]

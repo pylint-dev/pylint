@@ -1,6 +1,6 @@
 # pylint: disable=R0903, print-statement
 """yo"""
-
+from __future__ import print_function
 __revision__ = '$I$'
 
 class Aaaa(object):
@@ -8,7 +8,7 @@ class Aaaa(object):
     def __init__(self):
         var1 = self._var2
         self._var2 = 3
-        print var1
+        print(var1)
 
 class Bbbb(object):
     """hop"""

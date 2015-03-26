@@ -1,5 +1,7 @@
 """Test for catching non-exceptions."""
-# pylint: disable=too-many-ancestors, print-statement, no-absolute-import, import-error
+# pylint: disable=too-many-ancestors, no-absolute-import, import-error
+from __future__ import print_function
+
 import socket
 
 class MyException(object):
@@ -23,52 +25,52 @@ class SecondSkipException(SkipException):
 try:
     1 + 1
 except MyException:  # [catching-non-exception]
-    print "caught"
+    print("caught")
 
 try:
     1 + 2
 # +1:[catching-non-exception,catching-non-exception]
 except (MyException, MySecondException):
-    print "caught"
+    print("caught")
 
 try:
     1 + 3
 except MyGoodException:
-    print "caught"
+    print("caught")
 
 try:
     1 + 3
 except (MyGoodException, MySecondGoodException):
-    print "caught"
+    print("caught")
 
 try:
     1 + 3
 except (SkipException, SecondSkipException):
-    print "caught"
+    print("caught")
 
 try:
     1 + 42
 # +1:[catching-non-exception,catching-non-exception]
 except (None, list()):
-    print "caught"
+    print("caught")
 
 try:
     1 + 24
 except None: # [catching-non-exception]
-    print "caught"
+    print("caught")
 
 EXCEPTION = None
 EXCEPTION = ZeroDivisionError
 try:
     1 + 46
 except EXCEPTION:
-    print "caught"
+    print("caught")
 
 try:
     1 + 42
 # +1:[catching-non-exception,catching-non-exception,catching-non-exception]
 except (list([4, 5, 6]), None, ZeroDivisionError, 4):
-    print "caught"
+    print("caught")
 
 EXCEPTION_TUPLE = (ZeroDivisionError, OSError)
 NON_EXCEPTION_TUPLE = (ZeroDivisionError, OSError, 4)
@@ -76,12 +78,12 @@ NON_EXCEPTION_TUPLE = (ZeroDivisionError, OSError, 4)
 try:
     1 + 42
 except EXCEPTION_TUPLE:
-    print "caught"
+    print("caught")
 
 try:
     1 + 42
 except NON_EXCEPTION_TUPLE: # [catching-non-exception]
-    print "caught"
+    print("caught")
 
 from missing_import import UnknownError
 UNKNOWN_COMPONENTS = (ZeroDivisionError, UnknownError)
@@ -89,4 +91,4 @@ UNKNOWN_COMPONENTS = (ZeroDivisionError, UnknownError)
 try:
     1 + 42
 except UNKNOWN_COMPONENTS:
-    print "caught"
+    print("caught")

@@ -21,7 +21,7 @@ class XYZMixin(object):
     default
     """
     def __init__(self):
-        print self.nonexistent
+        print(self.nonexistent)
 
 
 class NewClass(object):

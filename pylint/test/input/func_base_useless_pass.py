@@ -1,9 +1,9 @@
 """W0107: unnecessary pass statement
 """
-__revision__ = None
+from __future__ import print_function
 
 try:
     A = 2
 except ValueError:
-    print A  # pylint: disable=print-statement
+    print(A)
     pass

@@ -1,6 +1,6 @@
 # pylint: disable=print-statement
 """check getattr if inference succeed"""
-
+from __future__ import print_function
 
 class Provider(object):
     """provide some attributes and method"""
@@ -12,7 +12,7 @@ class Provider(object):
         return self.attr * val
     def hophop(self):
         """hop method"""
-        print 'hop hop hop', self
+        print('hop hop hop', self)
 
 
 class Client(object):
@@ -35,15 +35,15 @@ class Client(object):
 
     def use_attr(self):
         """use provider's attr"""
-        print self._prov.attr
-        print self._prov.attribute  # [no-member]
+        print(self._prov.attr)
+        print(self._prov.attribute)  # [no-member]
 
     def debug(self):
         """print debug information"""
-        print self.__class__.__name__
-        print self.__doc__
-        print self.__dict__
-        print self.__module__
+        print(self.__class__.__name__)
+        print(self.__doc__)
+        print(self.__dict__)
+        print(self.__module__)
 
     def test_bt_types(self):
         """test access to unexistant member of builtin types"""
@@ -54,10 +54,10 @@ class Client(object):
         tup = ()
         tup.append(self)  # [no-member]
         string = 'toto'
-        print string.loower()  # [no-member]
+        print(string.loower())  # [no-member]
         integer = 1
-        print integer.whatever  # [no-member]
+        print(integer.whatever)  # [no-member]
 
-print object.__init__
-print property.__init__
-print Client().set_later.lower()  # [no-member]
+print(object.__init__)
+print(property.__init__)
+print(Client().set_later.lower())  # [no-member]

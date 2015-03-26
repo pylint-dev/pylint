@@ -1,6 +1,6 @@
 """Test warnings about access to undefined variables."""
-# pylint: disable=too-few-public-methods, no-init, no-self-use, old-style-class,print-statement
-
+# pylint: disable=too-few-public-methods, no-init, no-self-use, old-style-class
+from __future__ import print_function
 DEFINED = 1
 
 if DEFINED != 1:
@@ -21,8 +21,8 @@ OTHER += '$'
 
 def bad_default(var, default=unknown2):  # [undefined-variable]
     """function with defaut arg's value set to an unexistant name"""
-    print var, default
-    print xxxx  # [undefined-variable]
+    print(var, default)
+    print(xxxx)  # [undefined-variable]
     augvar += 1  # [undefined-variable,unused-variable]
     del vardel  # [undefined-variable]
 
@@ -44,7 +44,7 @@ try:
 except: # pylint:disable = bare-except
     POUETTT = 'something'
 
-print POUET, POUETT, POUETTT
+print(POUET, POUETT, POUETTT)
 
 
 try:
@@ -52,7 +52,7 @@ try:
 except ValueError:
     PLOUF = 'something'
 
-print PLOUF
+print(PLOUF)
 
 def if_branch_test(something):
     """hop"""
@@ -60,7 +60,7 @@ def if_branch_test(something):
         if xxx == 1:  # [used-before-assignment]
             pass
     else:
-        print xxx
+        print(xxx)
         xxx = 3
 
 

@@ -1,12 +1,12 @@
 """http://www.logilab.org/ticket/8771"""
-# pylint: disable=print-statement
-__revision__ = 2
+
+from __future__ import print_function
 
 def generator():
     """yield as assignment"""
     yield 45
     xxxx = yield 123
-    print xxxx
+    print(xxxx)
 
 def generator_fp1(seq):
     """W0631 false positive"""

@@ -8,5 +8,5 @@ except Exception and BaseException:  # [binary-op-exception]
     print("caught2")
 except Exception or BaseException:  # [binary-op-exception]
     print("caught3")
-except (Exception or BaseException), exc:  # [binary-op-exception]
+except (Exception or BaseException) as exc:  # [binary-op-exception]
     print("caught4")

@@ -1,8 +1,8 @@
 """Regression test for trailing-whitespace (C0303)."""
-# pylint: disable=mixed-line-endings, print-statement
-__revision__ = 0
+# pylint: disable=mixed-line-endings
+from __future__ import print_function
 
-print 'some trailing whitespace'   
-print 'trailing whitespace does not count towards the line length limit'                   
-print 'windows line ends are ok'
-print 'but trailing whitespace on win is not'   
+print('some trailing whitespace')   
+print('trailing whitespace does not count towards the line length limit')                   
+print('windows line ends are ok')
+print('but trailing whitespace on win is not')   

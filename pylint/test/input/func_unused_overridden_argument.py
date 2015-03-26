@@ -21,7 +21,7 @@ class Sub(Base):
 
     def newmethod(self, aax, aay):
         "another method, warning for aay desired"
-        print self, aax
+        return self, aax
 
 class Sub2(Base):
     "child 1"

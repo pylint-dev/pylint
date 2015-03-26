@@ -1,62 +1,62 @@
 """test max branch
 """
-# pylint: disable=print-statement
-__revision__ = ''
+
+from __future__ import print_function
 
 def stupid_function(arg):
     """reallly stupid function"""
     if arg == 1:
-        print 1
+        print(1)
     elif arg == 2:
-        print 2
+        print(1)
     elif arg == 3:
-        print 3
+        print(1)
     elif arg == 4:
-        print 4
+        print(1)
     elif arg == 5:
-        print 5
+        print(1)
     elif arg == 6:
-        print 6
+        print(1)
     elif arg == 7:
-        print 7
+        print(1)
     elif arg == 8:
-        print 8
+        print(1)
     elif arg == 9:
-        print 9
+        print(1)
     elif arg == 10:
-        print 10
+        print(1)
     elif arg < 1:
-        print 0
-        print 100
+        print(1)
+        print(1)
         arg = 0
-    for val in range(arg):
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
-        print val
+    for _ in range(arg):
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)
+        print(1)

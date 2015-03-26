@@ -1,4 +1,4 @@
-# pylint: disable=R0903, print-statement
+# pylint: disable=R0903
 """test staticmethod and classmethod as decorator"""
 
 __revision__ = None
@@ -15,7 +15,7 @@ class StaticMethod1(object):
     @staticmethod
     def do_work_with_arg(job):
         "Working on something"
-        print "Working on %s..." % job
+        return "Working on %s..." % job
 
 
 class ClassMethod2(object):
@@ -30,4 +30,4 @@ class ClassMethod2(object):
     @classmethod
     def do_work_with_arg(cls, job):
         "Working on something"
-        print "Working on %s..." % job
+        return "Working on %s..." % job

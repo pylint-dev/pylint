@@ -1,5 +1,6 @@
 """Test for the invalid-name warning."""
-# pylint: disable=print-statement, no-absolute-import
+# pylint: disable=no-absolute-import
+from __future__ import print_function
 import abc
 import collections
 
@@ -10,7 +11,7 @@ bad_const_name = 0  # [invalid-name]
 def BADFUNCTION_name():  # [invalid-name]
     """Bad function name."""
     BAD_LOCAL_VAR = 1  # [invalid-name]
-    print BAD_LOCAL_VAR
+    print(BAD_LOCAL_VAR)
 
 
 def func_bad_argname(NOT_GOOD):  # [invalid-name]
@@ -20,7 +21,7 @@ def func_bad_argname(NOT_GOOD):  # [invalid-name]
 
 def no_nested_args(arg1, arg21, arg22):
     """Well-formed function."""
-    print arg1, arg21, arg22
+    print(arg1, arg21, arg22)
 
 
 class bad_class_name(object):  # [invalid-name]

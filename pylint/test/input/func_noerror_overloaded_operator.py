@@ -1,6 +1,6 @@
-# pylint: disable=C0111,R0903,print-statement
+# pylint: disable=C0111,R0903
 """#3291"""
-__revision__ = 1
+from __future__ import print_function
 
 class Myarray(object):
     def __init__(self, array):
@@ -18,4 +18,4 @@ def randint(maximum):
     else:
         return int(5)
 
-print randint(1).astype() # we don't wan't an error for astype access
+print(randint(1).astype()) # we don't wan't an error for astype access

@@ -28,7 +28,7 @@ class MyClass(BaseClass):
         """
         self.var[1] = 'one'
         self.base_var[1] = 'one'
-        print self.base_var, self.var
+        return self.base_var, self.var
 
 if __name__ == '__main__':
     OBJ = MyClass()

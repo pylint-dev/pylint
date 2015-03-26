@@ -1,21 +1,21 @@
 """Accessing a protected method through super() is ok."""
 
-# pylint: disable=missing-docstring,too-few-public-methods, print-statement
+# pylint: disable=missing-docstring,too-few-public-methods
 
-__revision__ = None
+from __future__ import print_function
 
 class Alpha(object):
 
     _secret = 2
 
     def test(self):
-        print "test %s" % self
+        print("test %s" % self)
 
 
 class Beta(Alpha):
 
     def test(self):
-        print super(Beta, self)._secret
+        print(super(Beta, self)._secret)
         super(Beta, self).test()
 
 

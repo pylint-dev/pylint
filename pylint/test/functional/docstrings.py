@@ -1,6 +1,6 @@
-# pylint: disable=R0201,print-statement
+# pylint: disable=R0201
 # -1: [missing-docstring]
-__revision__ = ''
+from __future__ import print_function
 
 # +1: [empty-docstring]
 def function0():
@@ -9,15 +9,15 @@ def function0():
 # +1: [missing-docstring]
 def function1(value):
     # missing docstring
-    print value
+    print(value)
 
 def function2(value):
     """docstring"""
-    print value
+    print(value)
 
 def function3(value):
     """docstring"""
-    print value
+    print(value)
 
 # +1: [missing-docstring]
 class AAAA(object):

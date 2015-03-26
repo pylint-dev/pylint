@@ -57,7 +57,7 @@ class NonRegrTC(unittest.TestCase):
         for variation in ('package.__init__', join(REGR_DATA, 'package', '__init__.py')):
             linter.check(variation)
             got = linter.reporter.finalize().strip()
-            checked = linter.stats['by_module'].keys()
+            checked = list(linter.stats['by_module'].keys())
             self.assertEqual(checked, ['package.__init__'],
                              '%s: %s' % (variation, checked))
         cwd = os.getcwd()
@@ -67,7 +67,7 @@ class NonRegrTC(unittest.TestCase):
             for variation in ('__init__', '__init__.py'):
                 linter.check(variation)
                 got = linter.reporter.finalize().strip()
-                checked = linter.stats['by_module'].keys()
+                checked = list(linter.stats['by_module'].keys())
                 self.assertEqual(checked, ['__init__'],
                                  '%s: %s' % (variation, checked))
         finally:

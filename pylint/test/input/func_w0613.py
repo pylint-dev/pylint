@@ -1,8 +1,8 @@
 # pylint: disable=R0903, print-statement
 """test unused argument
 """
+from __future__ import print_function
 
-__revision__ = 1
 
 def function(arg=1):
     """ignore arg"""
@@ -13,7 +13,7 @@ class AAAA(object):
 
     def method(self, arg):
         """dummy method"""
-        print self
+        print(self)
     def __init__(self, *unused_args, **unused_kwargs):
         pass
 

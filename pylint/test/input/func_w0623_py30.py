@@ -12,5 +12,5 @@ def some_function():
 
     try:
         {}["a"]
-    except KeyError, some_function: # W0623
+    except KeyError as some_function: # W0623
         pass

@@ -1,6 +1,6 @@
-# pylint:disable=R0201, print-statement
+# pylint:disable=R0201
 """docstring"""
-__revision__ = ''
+from __future__ import print_function
 
 class Interface(object):
     """base class for interfaces"""
@@ -41,7 +41,7 @@ class Correct2(object):
 
     def troc(self, argument):
         """docstring"""
-        print argument
+        print(argument)
 
 class MissingMethod(object):
     """docstring"""
@@ -52,7 +52,7 @@ class MissingMethod(object):
 
     def troc(self, argument):
         """docstring"""
-        print argument
+        print(argument)
 
     def other(self):
         """docstring"""

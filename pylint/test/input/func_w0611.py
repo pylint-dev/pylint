@@ -1,8 +1,8 @@
 """check unused import
 """
-# pylint: disable=print-statement, no-absolute-import
+# pylint: disable=no-absolute-import
 
-__revision__ = 1
+from __future__ import print_function
 
 import os
 import sys
@@ -10,11 +10,11 @@ import sys
 class NonRegr(object):
     """???"""
     def __init__(self):
-        print 'initialized'
+        print('initialized')
 
     def sys(self):
         """should not get sys from there..."""
-        print self, sys
+        print(self, sys)
 
     def dummy(self, truc):
         """yo"""
@@ -22,4 +22,4 @@ class NonRegr(object):
 
     def blop(self):
         """yo"""
-        print self, 'blip'
+        print(self, 'blip')

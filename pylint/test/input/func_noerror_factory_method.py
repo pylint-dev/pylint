@@ -1,6 +1,6 @@
-# pylint: disable=R0903, print-statement
+# pylint: disable=R0903
 """use new astroid context sensitive inference"""
-__revision__ = 1
+
 
 class Super(object):
     """super class"""
@@ -16,7 +16,7 @@ class Sub(Super):
     """dub class"""
     def method(self):
         """specific method"""
-        print 'method called', self
+        return 'method called', self
 
 # should see the Sub.instance() is returning a Sub instance, not a Super
 # instance

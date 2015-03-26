@@ -1,4 +1,4 @@
-# pylint: disable=print-statement
+
 """check assignment to function call where the function doesn't return
 
     'E1111': ('Assigning to function call which doesn\'t return',
@@ -9,20 +9,20 @@
               infered function returns nothing but None.'),
 
 """
-from __future__ import generators
-__revision__ = None
+from __future__ import generators, print_function
+
 
 
 def func_no_return():
     """function without return"""
-    print 'dougloup'
+    print('dougloup')
 
 A = func_no_return()
 
 
 def func_return_none():
     """function returning none"""
-    print 'dougloup'
+    print('dougloup')
     return None
 
 A = func_return_none()
@@ -37,8 +37,8 @@ A = func_implicit_return_none()
 
 def func_return_none_and_smth():
     """function returning none and something else"""
-    print 'dougloup'
-    if __revision__:
+    print('dougloup')
+    if 2 or 3:
         return None
     return 3
 
@@ -46,7 +46,7 @@ A = func_return_none_and_smth()
 
 def generator():
     """no problemo"""
-    yield __revision__
+    yield 2
 
 A = generator()
 
@@ -60,4 +60,4 @@ class Abstract(object):
     def use_abstract(self):
         """should not issue E1111"""
         var = self.abstract_method()
-        print var
+        print(var)

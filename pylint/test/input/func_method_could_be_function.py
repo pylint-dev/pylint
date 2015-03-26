@@ -1,7 +1,7 @@
-# pylint: disable=R0903,W0232,print-statement
+# pylint: disable=R0903,W0232
 """test detection of method which could be a function"""
 
-__revision__ = None
+from __future__ import print_function
 
 class Toto(object):
     """bla bal abl"""
@@ -15,7 +15,7 @@ class Toto(object):
 
     def function_method(self):
         """this method isn' a real method since it doesn't need self"""
-        print 'hello'
+        print('hello')
 
 
 class Base(object):
@@ -43,18 +43,18 @@ class Super(object):
     attr = 1
     def method(self):
         """regular"""
-        print self.attr
+        print(self.attr)
 
 class Sub1(Super):
     """override method with need for self"""
     def method(self):
         """no i can not be a function"""
-        print 42
+        print(42)
 
     def __len__(self):
         """no i can not be a function"""
-        print 42
+        print(42)
 
     def __cmp__(self, other):
         """no i can not be a function"""
-        print 42
+        print(42)

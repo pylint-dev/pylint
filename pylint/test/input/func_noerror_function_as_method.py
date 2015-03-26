@@ -1,7 +1,7 @@
-# pylint: disable=R0903, print-statement
+# pylint: disable=R0903
 '''Test that a function is considered a method when looked up through a class.
 '''
-__revision__ = 1
+from __future__ import print_function
 
 class Clazz(object):
     'test class'
@@ -15,4 +15,4 @@ def func(arg1, arg2):
 
 Clazz.method = func
 
-print Clazz(1).method(2)
+print(Clazz(1).method(2))

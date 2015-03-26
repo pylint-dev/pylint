@@ -1,12 +1,12 @@
 """test deprecated module
 """
 
-__revision__ = 0
+from __future__ import print_function
 
 
-if __revision__:
+if True:
     import optparse
-    print optparse
+    print(optparse)
     # false positive (#10061)
     import stringfile
-    print stringfile
+    print(stringfile)

@@ -228,7 +228,6 @@ linter = PyLinter()
 linter.set_reporter(test_reporter)
 linter.config.persistent = 0
 checkers.initialize(linter)
-linter.global_set_option('required-attributes', ('__revision__',))
 
 if linesep != '\n':
     LINE_RGX = re.compile(linesep)

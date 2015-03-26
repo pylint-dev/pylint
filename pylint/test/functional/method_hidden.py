@@ -1,6 +1,7 @@
 # pylint: disable=too-few-public-methods,print-statement
 """check method hidding ancestor attribute
 """
+from __future__ import print_function
 
 class Abcd(object):
     """dummy"""
@@ -12,4 +13,4 @@ class Cdef(Abcd):
     def abcd(self): # [method-hidden]
         """test
         """
-        print self
+        print(self)

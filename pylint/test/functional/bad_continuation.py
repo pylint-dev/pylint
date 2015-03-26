@@ -1,6 +1,8 @@
 """Regression test case for bad-continuation."""
 # pylint: disable=print-statement
 # Various alignment for brackets
+from __future__ import print_function
+
 LIST0 = [
     1, 2, 3
 ]
@@ -91,29 +93,29 @@ W9 = {'key1':
 def continue1(some_arg,
               some_other_arg):
     """A function with well-aligned arguments."""
-    print some_arg, some_other_arg
+    print(some_arg, some_other_arg)
 
 
 def continue2(
         some_arg,
         some_other_arg):
     """A function with well-aligned arguments."""
-    print some_arg, some_other_arg
+    print(some_arg, some_other_arg)
 
 def continue3(
     some_arg,         # [bad-continuation]
     some_other_arg):  # [bad-continuation]
     """A function with misaligned arguments"""
-    print some_arg, some_other_arg
+    print(some_arg, some_other_arg)
 
 def continue4(  # pylint:disable=missing-docstring
     arg1,
-    arg2): print arg1, arg2
+    arg2): print(arg1, arg2)
 
 
 def callee(*args):
     """noop"""
-    print args
+    print(args)
 
 
 callee(
@@ -160,7 +162,7 @@ if (1 or
 
 if (1 or
      2 or  # [bad-continuation]
-    3): print 1, 2
+    3): print(1, 2)
 
 if (1 and
   2): pass  # [bad-continuation]
@@ -177,11 +179,11 @@ L1 = (lambda a,
 
 if not (1 and
         2):
-    print 3
+    print(3)
 
 if not (1 and
     2):  # [bad-continuation]
-    print 3
+    print(3)
 
 continue2("foo",
           some_other_arg="this "

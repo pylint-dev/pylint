@@ -1,7 +1,7 @@
 """test unused variable
 """
-# pylint: disable=invalid-name, redefined-outer-name, print-statement, no-absolute-import
-__revision__ = 0
+# pylint: disable=invalid-name, redefined-outer-name, no-absolute-import
+from __future__ import print_function
 PATH = OS = collections = deque = None
 
 def function(matches):
@@ -10,7 +10,7 @@ def function(matches):
     index = -1
     for match in matches:
         index += 1
-        print match
+        print(match)
 
 def visit_if(self, node):
     """increments the branches counter"""
