@@ -1,9 +1,9 @@
 """test cyclic import
 """
-# pylint: disable=print-statement, no-absolute-import
-__revision__ = 0
+# pylint: disable=no-absolute-import
+from __future__ import print_function
 
-from input import w0401_cycle
+from . import w0401_cycle
 
-if __revision__:
-    print w0401_cycle
+if w0401_cycle:
+    print(w0401_cycle)

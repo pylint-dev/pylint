@@ -1,9 +1,9 @@
 """w0401 dependency
 """
 # pylint: disable=print-statement, no-absolute-import
-__revision__ = 0
+from __future__ import print_function
 
-import input.func_w0401
+from . import func_w0401
 
-if __revision__:
-    print input
+if func_w0401:
+    print(input)

@@ -1,4 +1,3 @@
 C:  1: Missing module docstring
-C:  1: Missing required attribute "__revision__"
-E:  2: No name 'syntax_error' in module 'input'
+F:  2: Unable to import 'syntax_error' (expected an indented block (<string>, line 2))
 W:  2: Unused import syntax_error

@@ -11,4 +11,4 @@ class AudioTime(object):
 
     DECIMAL = 3
 
-import subpackage
+from . import subpackage
