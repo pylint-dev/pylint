@@ -19,13 +19,15 @@
 from __future__ import print_function
 
 import warnings
+import sys
 
+import six
 from logilab.common.ureports import TextWriter
 from logilab.common.textutils import colorize_ansi
 
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
-import six
+
 
 TITLE_UNDERLINES = ['', '=', '-', '.']
 
@@ -106,6 +108,9 @@ class ColorizedTextReporter(TextReporter):
         TextReporter.__init__(self, output)
         self.color_mapping = color_mapping or \
                              dict(ColorizedTextReporter.COLOR_MAPPING)
+        if sys.platform == 'win32':
+            import colorama
+            self.out = colorama.AnsiToWin32(self.out)
 
     def _get_decoration(self, msg_id):
         """Returns the tuple color, style associated with msg_id as defined

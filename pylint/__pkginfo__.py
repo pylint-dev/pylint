@@ -17,12 +17,23 @@
 """pylint packaging information"""
 from __future__ import absolute_import
 
+import sys
+
+
 modname = distname = 'pylint'
 
 numversion = (1, 4, 3)
 version = '.'.join([str(num) for num in numversion])
 
-install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.3.6', 'six']
+install_requires = [
+    'logilab-common >= 0.53.0',
+    'astroid >= 1.3.6',
+    'six',
+]
+
+if sys.platform == 'win32':
+    install_requires.append('colorama')
+
 
 license = 'GPL'
 description = "python code static checker"

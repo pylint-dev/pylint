@@ -33,6 +33,8 @@ ChangeLog for Pylint
     * Don't emit an unused-wildcard-import when the imported name comes
       from another module and it is in fact a __future__ name.
 
+    * The colorized reporter now works on Windows. Closes issue #96.
+
 
 2015-03-14 -- 1.4.3
 
