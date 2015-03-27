@@ -15,6 +15,7 @@
 """Checker for spelling errors in comments and docstrings.
 """
 
+import os
 import sys
 import tokenize
 import string
@@ -104,6 +105,11 @@ class SpellingChecker(BaseTokenChecker):
         # "param" appears in docstring in param description and
         # "pylint" appears in comments in pylint pragmas.
         self.ignore_list.extend(["param", "pylint"])
+
+        # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
+        if self.config.spelling_private_dict_file:
+            self.config.spelling_private_dict_file = os.path.expanduser(
+                self.config.spelling_private_dict_file)
 
         if self.config.spelling_private_dict_file:
             self.spelling_dict = enchant.DictWithPWL(
