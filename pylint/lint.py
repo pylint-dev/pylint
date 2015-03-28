@@ -832,7 +832,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
             all_stats.append(stats)
             self.msg_status |= msg_status
 
-        self.stats = _merge_stats(all_stats)       
+        self.stats = _merge_stats(all_stats)
         self.current_name = module
 
         # Insert stats data to local checkers.
