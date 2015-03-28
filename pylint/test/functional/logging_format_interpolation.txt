@@ -1,0 +1,4 @@
+logging-format-interpolation:15::Use % formatting in logging functions but pass the % parameters as arguments
+logging-format-interpolation:16::Use % formatting in logging functions but pass the % parameters as arguments
+logging-format-interpolation:17::Use % formatting in logging functions but pass the % parameters as arguments
+logging-format-interpolation:18::Use % formatting in logging functions but pass the % parameters as arguments

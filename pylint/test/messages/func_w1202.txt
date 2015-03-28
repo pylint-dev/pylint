@@ -1,4 +1,0 @@
-W: 17: Use % formatting in logging functions but pass the % parameters as arguments
-W: 18: Use % formatting in logging functions but pass the % parameters as arguments
-W: 19: Use % formatting in logging functions but pass the % parameters as arguments
-W: 20: Use % formatting in logging functions but pass the % parameters as arguments

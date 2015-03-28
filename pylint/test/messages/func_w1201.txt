@@ -1,3 +1,0 @@
-W: 12: Specify string format arguments as logging function parameters
-W: 13: Specify string format arguments as logging function parameters
-W: 14: Specify string format arguments as logging function parameters
