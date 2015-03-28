@@ -17,6 +17,7 @@ from __future__ import print_function
 import sys
 import locale
 import os
+import six
 
 
 from pylint import utils
@@ -78,7 +79,7 @@ class BaseReporter(object):
             return
 
         def encode(string):
-            if not isinstance(string, unicode):
+            if not isinstance(string, six.text_type):
                 return string
             encoding = (getattr(self.out, 'encoding', None) or
                         locale.getdefaultlocale()[1] or

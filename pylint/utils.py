@@ -133,7 +133,7 @@ def category_id(cid):
 
 def _decoding_readline(stream, module):
     return lambda: stream.readline().decode(module.file_encoding,
-                                           'replace')
+                                            'replace')
 
 
 def tokenize_module(module):

@@ -448,7 +448,7 @@ class Python3Checker(checkers.BaseChecker):
                 args = node.args
 
         elif (isinstance(node.func, astroid.Name)
-                and node.func.name == 'sorted'):
+              and node.func.name == 'sorted'):
             inferred = utils.safe_infer(node.func)
             if not inferred:
                 return
