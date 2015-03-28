@@ -26,3 +26,6 @@ def test():
     except ImportError:
         re = None
     return re
+
+def a(): # [invalid-name]
+    """yo"""

@@ -1,1 +1,0 @@
-W:  5:function1: Dangerous default value set() as argument

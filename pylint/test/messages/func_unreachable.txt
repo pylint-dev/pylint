@@ -1,3 +1,0 @@
-W:  8:func1: Unreachable code
-W: 14:func2: Unreachable code
-W: 21:func3: Unreachable code
