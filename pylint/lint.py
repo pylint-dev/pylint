@@ -29,7 +29,6 @@ from __future__ import print_function
 
 import collections
 import contextlib
-import itertools
 import operator
 import os
 try:
@@ -97,7 +96,11 @@ def _get_python_path(filepath):
 
 def _merge_stats(stats):
     merged = {}
+    by_msg = collections.Counter()
     for stat in stats:
+        message_stats = stat.pop('by_msg', {})
+        by_msg.update(message_stats)
+
         for key, item in six.iteritems(stat):
             if key not in merged:
                 merged[key] = item
@@ -106,6 +109,8 @@ def _merge_stats(stats):
                     merged[key].update(item)
                 else:
                     merged[key] = merged[key] + item
+
+    merged['by_msg'] = by_msg
     return merged
 
 
@@ -827,7 +832,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
             all_stats.append(stats)
             self.msg_status |= msg_status
 
-        self.stats = _merge_stats(itertools.chain(all_stats, [self.stats]))
+        self.stats = _merge_stats(all_stats)       
         self.current_name = module
 
         # Insert stats data to local checkers.
