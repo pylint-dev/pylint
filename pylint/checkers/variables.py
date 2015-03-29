@@ -43,7 +43,7 @@ def _is_from_future_import(stmt, name):
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
-    except InferenceError:
+    except astroid.InferenceError:
         return
 
     for local_node in module.locals.get(name, []):

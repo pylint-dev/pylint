@@ -9,8 +9,10 @@ from sys import flags  # [unused-import]
 from collections import deque, OrderedDict, Counter
 DATA = Counter()
 
-from fake import SomeName
+from fake import SomeName, SomeOtherName  # [unused-import]
 class SomeClass(object):
     SomeName = SomeName # https://bitbucket.org/logilab/pylint/issue/475
+    SomeOtherName = 1
+    SomeOtherName = SomeOtherName
 
 from never import __all__
