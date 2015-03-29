@@ -6,10 +6,11 @@ import os.path as test  # [unused-import]
 from sys import argv as test2  # [unused-import]
 from sys import flags  # [unused-import]
 # +1:[unused-import,unused-import]
-from collections import deque, OrderedDict, Counter, defaultdict
+from collections import deque, OrderedDict, Counter
 DATA = Counter()
 
+from fake import SomeName
 class SomeClass(object):
-    attr = defaultdict
+    SomeName = SomeName # https://bitbucket.org/logilab/pylint/issue/475
 
 from never import __all__
