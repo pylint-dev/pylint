@@ -795,7 +795,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 and isinstance(node.parent, astroid.Assign)
                 and node.parent == found_node[0].parent):
                 lhs = found_node[0].parent.targets[0]
-                if lhs.name == name: # this name is being in this very statement
+                if lhs.name == name: # this name is defined in this very statement
                     found_node = None
             if found_node:
                 consumed[name] = found_node
