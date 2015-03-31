@@ -35,6 +35,9 @@ ChangeLog for Pylint
 
     * The colorized reporter now works on Windows. Closes issue #96.
 
+    * Remove pointless-except warning. It was previously disabled by
+      default and it wasn't very useful. Closes issue #506.
+
 
 2015-03-14 -- 1.4.3
 

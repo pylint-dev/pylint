@@ -122,10 +122,6 @@ def is_raising(body):
             return True
     return False
 
-def is_empty(body):
-    """return true if the given node does nothing but 'pass'"""
-    return len(body) == 1 and isinstance(body[0], astroid.Pass)
-
 builtins = builtins.__dict__.copy()
 SPECIAL_BUILTINS = ('__builtins__',) # '__path__', '__file__')
 

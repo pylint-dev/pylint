@@ -684,8 +684,6 @@ a metaclass class method.'}
         """check that accessed members are defined"""
         # XXX refactor, probably much simpler now that E0201 is in type checker
         for attr, nodes in six.iteritems(accessed):
-            # deactivate "except doesn't do anything", that's expected
-            # pylint: disable=W0704
             try:
                 # is it a class attribute ?
                 node.local_attr(attr)
