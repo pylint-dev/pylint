@@ -792,8 +792,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # mark the name as consumed if it's defined in this scope
             found_node = to_consume.get(name)
             if (found_node
-                and isinstance(node.parent, astroid.Assign)
-                and node.parent == found_node[0].parent):
+                    and isinstance(node.parent, astroid.Assign)
+                    and node.parent == found_node[0].parent):
                 lhs = found_node[0].parent.targets[0]
                 if lhs.name == name: # this name is defined in this very statement
                     found_node = None

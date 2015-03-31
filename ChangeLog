@@ -2,6 +2,9 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Fix unused-import false positive when the import is used in a
+      class assignment. Closes issue #475
+
     * Add a new error, 'not-context-manager', emitted when something
       that doesn't implement __enter__ and __exit__ is used in a with
       statement.

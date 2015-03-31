@@ -56,7 +56,7 @@ Order doesn't matter (not that much, at least ;)
 
 * Steven Myint: duplicate-except.
 
-* Radu Ciorbă: not-context-manager and confusing-with-statement warnings.
+* Radu Ciorba: not-context-manager and confusing-with-statement warnings.
 
 * Wolfgang Grafen, Axel Muller, Fabio Zadrozny, Pierre Rouleau,
   Maarten ter Huurne, Mirko Friedenhagen and all the Logilab's team (among others):
