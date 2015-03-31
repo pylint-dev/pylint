@@ -1282,7 +1282,6 @@ group are mutually exclusive.'),
 'been issued by analysing pylint output status code\n',
                                 level=1)
         # read configuration
-        linter.disable('pointless-except')
         linter.disable('suppressed-message')
         linter.disable('useless-suppression')
         linter.read_config_file()

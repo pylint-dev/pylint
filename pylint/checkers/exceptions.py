@@ -22,7 +22,6 @@ from logilab.common.compat import builtins
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    is_empty,
     is_raising,
     check_messages,
     inherit_from_std_ex,
@@ -91,10 +90,6 @@ MSGS = {
               'broad-except',
               'Used when an except catches a too general exception, \
               possibly burying unrelated errors.'),
-    'W0704': ('Except doesn\'t do anything',
-              'pointless-except',
-              'Used when an except clause does nothing but "pass" and there is\
-              no "else" clause.'),
     'W0705': ('Catching previously caught exception type %s',
               'duplicate-except',
               'Used when an except catches a type that was already caught by '
@@ -272,7 +267,7 @@ class ExceptionsChecker(BaseChecker):
                                  node=handler.type,
                                  args=(exc.name, ))
 
-    @check_messages('bare-except', 'broad-except', 'pointless-except',
+    @check_messages('bare-except', 'broad-except',
                     'binary-op-exception', 'bad-except-order',
                     'catching-non-exception')
     def visit_tryexcept(self, node):
@@ -280,10 +275,6 @@ class ExceptionsChecker(BaseChecker):
         exceptions_classes = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
-            # single except doing nothing but "pass" without else clause
-            if is_empty(handler.body) and not node.orelse:
-                self.add_message('pointless-except',
-                                 node=handler.type or handler.body[0])
             if handler.type is None:
                 if not is_raising(handler.body):
                     self.add_message('bare-except', node=handler)

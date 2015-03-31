@@ -5,11 +5,7 @@ E: 24: Bad except clauses order (NameError is an ancestor class of UnboundLocalE
 E: 27: Bad except clauses order (empty except clause should always appear last)
 W:  8: Catching too general exception Exception
 W: 29: No exception type(s) specified
-W: 30: Except doesn't do anything
 W: 31: Catching too general exception Exception
-W: 31: Except doesn't do anything
 W: 38: No exception type(s) specified
 W: 43: Catching too general exception Exception
-W: 43: Except doesn't do anything
 W: 45: No exception type(s) specified
-W: 46: Except doesn't do anything
