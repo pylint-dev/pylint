@@ -920,7 +920,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
             if isinstance(ex.args[0], SyntaxError):
                 ex = ex.args[0]
                 self.add_message('syntax-error',
-                                 line=ex.lineno,
+                                 line=ex.lineno or 0,
                                  args=ex.msg)
             else:
                 self.add_message('parse-error', args=ex)
