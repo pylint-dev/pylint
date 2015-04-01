@@ -38,6 +38,10 @@ ChangeLog for Pylint
     * Remove pointless-except warning. It was previously disabled by
       default and it wasn't very useful. Closes issue #506.
 
+    * Fix a crash on Python 3 related to the string checker, which
+      crashed when it encountered a bytes string with a .format
+      method called.
+
 
 2015-03-14 -- 1.4.3
 

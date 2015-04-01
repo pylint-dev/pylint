@@ -361,6 +361,9 @@ class StringMethodsChecker(BaseChecker):
             return
         if not isinstance(strnode, astroid.Const):
             return
+        if not isinstance(strnode.value, six.string_types):
+            return
+
         if node.starargs or node.kwargs:
             # TODO: Don't complicate the logic, skip these for now.
             return
