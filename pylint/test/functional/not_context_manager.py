@@ -43,3 +43,15 @@ with dec:  # [not-context-manager]
 from missing import Missing
 with Missing():
     pass
+
+# Tests context managers as names.
+
+def penelopa():
+    return 42
+
+hopa = dec()
+tropa = penelopa()
+
+with tropa: # [not-context-manager]
+    pass
+   

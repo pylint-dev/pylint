@@ -633,18 +633,27 @@ accessed. Python regular expressions are accepted.'}
             infered = safe_infer(ctx_mgr)
             if infered is None or infered is astroid.YES:
                 continue
+
             if isinstance(infered, astroid.bases.Generator):
-                func = safe_infer(ctx_mgr.func)
+                if (isinstance(ctx_mgr, astroid.Name) and
+                        infered.parent and
+                        isinstance(infered.parent, astroid.Function)):
+                    func = infered.parent
+                else:
+                    func = safe_infer(ctx_mgr.func)
+
                 if func is None and func is astroid.YES:
                     continue
                 if not decorated_with(func, ['contextlib.contextmanager']):
-                    self.add_message('not-context-manager', node=node, args=(infered.name, ))
+                    self.add_message('not-context-manager',
+                                     node=node, args=(infered.name, ))
             else:
                 try:
                     infered.getattr('__enter__')
                     infered.getattr('__exit__')
                 except astroid.NotFoundError:
-                    self.add_message('not-context-manager', node=node, args=(infered.name, ))
+                    self.add_message('not-context-manager',
+                                     node=node, args=(infered.name, ))
 
 
 def register(linter):
