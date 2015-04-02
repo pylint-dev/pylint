@@ -54,4 +54,6 @@ tropa = penelopa()
 
 with tropa: # [not-context-manager]
     pass
-   
+
+with hopa:
+    pass
