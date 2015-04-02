@@ -329,7 +329,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
               )
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        self._to_consume = None
+        self._to_consume = None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
         self._checking_mod_attr = None
 
     def visit_module(self, node):
@@ -790,10 +790,16 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self._loopvar_name(node, name)
                 break
             # mark the name as consumed if it's defined in this scope
-            # (i.e. no KeyError is raised by "to_consume[name]")
-            try:
-                consumed[name] = to_consume[name]
-            except KeyError:
+            found_node = to_consume.get(name)
+            if (found_node
+                    and isinstance(node.parent, astroid.Assign)
+                    and node.parent == found_node[0].parent):
+                lhs = found_node[0].parent.targets[0]
+                if lhs.name == name: # this name is defined in this very statement
+                    found_node = None
+            if found_node:
+                consumed[name] = found_node
+            else:
                 continue
             # checks for use before assignment
             defnode = assign_parent(to_consume[name][0])
