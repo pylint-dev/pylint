@@ -45,6 +45,8 @@ ChangeLog for Pylint
       crashed when it encountered a bytes string with a .format
       method called.
 
+    * Don't warn about no-self-use for builtin properties.
+
 
 2015-03-14 -- 1.4.3
 

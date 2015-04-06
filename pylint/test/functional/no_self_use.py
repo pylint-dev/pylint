@@ -1,4 +1,4 @@
-# pylint: disable=R0903,W0232
+# pylint: disable=R0903,W0232,missing-docstring
 """test detection of method which could be a function"""
 
 from __future__ import print_function
@@ -58,3 +58,15 @@ class Sub1(Super):
     def __cmp__(self, other):
         """no i can not be a function"""
         print(42)
+
+
+class Prop(object):
+
+    @property
+    def count(self):
+        """Don't emit no-self-use for properties.
+
+        They can't be functions and they can be part of an
+        API specification.
+        """
+        return 42

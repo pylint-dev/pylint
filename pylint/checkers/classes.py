@@ -550,7 +550,8 @@ a metaclass class method.'}
             if (self._meth_could_be_func and node.type == 'method'
                     and not node.name in PYMETHODS
                     and not (node.is_abstract() or
-                             overrides_a_method(class_node, node.name))
+                             overrides_a_method(class_node, node.name) or
+                             decorated_with_property(node))
                     and class_node.type != 'interface'):
                 self.add_message('no-self-use', node=node)
 
