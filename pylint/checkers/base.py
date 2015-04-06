@@ -58,8 +58,10 @@ DEFAULT_NAME_RGX = re.compile('[a-z_][a-z0-9_]{2,30}$')
 CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
 # do not require a doc string on system methods
 NO_REQUIRED_DOC_RGX = re.compile('__.*__')
-REVERSED_METHODS = (('__getitem__', '__len__'),
-                    ('__reversed__', ))
+REVERSED_PROTOCOL_METHOD = '__reversed__'
+SEQUENCE_PROTOCOL_METHODS = ('__getitem__', '__len__')
+REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS,
+                    (REVERSED_PROTOCOL_METHOD, ))
 
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
@@ -856,8 +858,12 @@ functions, methods
                     return
                 elif any(ancestor.name == 'dict' and is_builtin_object(ancestor)
                          for ancestor in argument._proxied.ancestors()):
-                    # mappings aren't accepted by reversed()
-                    self.add_message('bad-reversed-sequence', node=node)
+                    # Mappings aren't accepted by reversed(), unless
+                    # they provide explicitly a __reversed__ method.
+                    try:
+                        argument.getattr(REVERSED_PROTOCOL_METHOD)
+                    except astroid.NotFoundError:
+                        self.add_message('bad-reversed-sequence', node=node)
                     return
 
                 for methods in REVERSED_METHODS:

@@ -47,6 +47,9 @@ ChangeLog for Pylint
 
     * Don't warn about no-self-use for builtin properties.
 
+    * Fix a false positive for bad-reversed-sequence, when a subclass
+      of a `dict` provides a __reversed__ method.
+
 
 2015-03-14 -- 1.4.3
 

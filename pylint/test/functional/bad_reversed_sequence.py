@@ -1,5 +1,5 @@
 """ Checks that reversed() receive proper argument """
-
+# pylint: disable=missing-docstring
 # pylint: disable=too-few-public-methods,no-self-use,no-absolute-import
 from collections import deque
 
@@ -58,3 +58,14 @@ def test(path):
     seq = uninferable([1, 2, 3])
     seq = reversed(path.split("/"))
     return seq
+
+def test_dict_ancestor_and_reversed():
+    """Don't emit for subclasses of dict, with __reversed__ implemented."""
+    from collections import OrderedDict
+
+    class Child(dict):
+        def __reversed__(self):
+            return reversed(range(10))
+
+    seq = reversed(OrderedDict())
+    return reversed(Child()), seq
