@@ -50,6 +50,8 @@ ChangeLog for Pylint
     * Fix a false positive for bad-reversed-sequence, when a subclass
       of a `dict` provides a __reversed__ method.
 
+    * Don't emit missing-docstring for private functions.
+
 
 2015-03-14 -- 1.4.3
 

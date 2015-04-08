@@ -1193,6 +1193,8 @@ class DocStringChecker(_BasicChecker):
         if docstring is None:
             if not report_missing:
                 return
+            if node.name.startswith("_"):
+                return
             if node.body:
                 lines = node.body[-1].lineno - node.body[0].lineno + 1
             else:
