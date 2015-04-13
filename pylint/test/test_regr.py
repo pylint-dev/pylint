@@ -137,6 +137,14 @@ class NonRegrTC(unittest.TestCase):
         got = linter.reporter.finalize().strip()
         self.assertEqual(got, "")
 
+    def test_no_context_file(self):
+        message = ("E:  2: invalid syntax\n"
+                   "E:  5: No name 'missing' in module ''\n"
+                   "W:  5: Unused import missing")
+        linter.check(join(REGR_DATA, 'bad_package'))
+        got = linter.reporter.finalize().strip()
+        self.assertEqual(got, message)
+
 
 if __name__ == '__main__':
     unittest.main()

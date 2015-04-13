@@ -316,7 +316,8 @@ given file (report RP0402 must not be disabled)'}
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
         try:
-            importedmodname = get_module_part(importedmodname)
+            importedmodname = get_module_part(importedmodname,
+                                              node.root().file)
         except ImportError:
             pass
         context_name = node.root().name
