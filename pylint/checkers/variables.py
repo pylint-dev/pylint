@@ -524,7 +524,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
                 line = definition.fromlineno
                 dummy_rgx = self.config.dummy_variables_rgx
-                if not dummy_rgx.match(name):                     
+                if not dummy_rgx.match(name):
                     self.add_message('redefined-outer-name',
                                      args=(name, line), node=stmt)
             elif is_builtin(name):
