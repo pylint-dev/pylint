@@ -57,3 +57,35 @@ with tropa: # [not-context-manager]
 
 with hopa:
     pass
+
+
+# Tests that no messages are emitted for function calls
+# which return managers
+
+def wrapper():
+    return dec()
+
+with wrapper():
+    pass
+
+# Tests for properties returning managers.
+
+class Property(object):
+
+    @property
+    def ctx(self):
+        return dec()
+
+    @property
+    def not_ctx(self):
+        return 42
+
+
+lala = Property()
+with lala.ctx:
+    # Don't emit when the context manager is the
+    # result of accessing a property.
+    pass
+
+with lala.not_ctx: # [not-context-manager]
+    pass

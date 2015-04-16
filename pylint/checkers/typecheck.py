@@ -634,16 +634,10 @@ accessed. Python regular expressions are accepted.'}
             if infered is None or infered is astroid.YES:
                 continue
 
+            # Check if we are dealing with a function decorated
+            # with contextlib.contextmanager.
             if isinstance(infered, astroid.bases.Generator):
-                if (isinstance(ctx_mgr, astroid.Name) and
-                        infered.parent and
-                        isinstance(infered.parent, astroid.Function)):
-                    func = infered.parent
-                else:
-                    func = safe_infer(ctx_mgr.func)
-
-                if func is None and func is astroid.YES:
-                    continue
+                func = infered.parent
                 if not decorated_with(func, ['contextlib.contextmanager']):
                     self.add_message('not-context-manager',
                                      node=node, args=(infered.name, ))
