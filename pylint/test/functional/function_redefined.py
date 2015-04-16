@@ -1,5 +1,5 @@
-# pylint: disable=R0201
-"""docstring"""
+# pylint: disable=R0201,missing-docstring
+from __future__ import division
 __revision__ = ''
 
 class AAAA(object):
@@ -65,3 +65,10 @@ def with_inner_function_2():
         """does not redefine callback returned by with_inner_function_1"""
         pass
     return callback
+
+def some_func():
+    """Don't emit if we defined a variable with the same name as a
+    __future__ directive.
+    """
+    division = 2
+    return division

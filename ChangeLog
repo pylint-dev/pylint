@@ -52,6 +52,9 @@ ChangeLog for Pylint
 
     * Don't emit missing-docstring for private functions.
 
+    * Don't emit redefined-outer-name for __future__ directives.
+      Closes issue #520.
+
 
 2015-03-14 -- 1.4.3
 

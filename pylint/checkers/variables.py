@@ -35,7 +35,7 @@ from pylint.checkers.utils import (
 import six
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
-
+FUTURE = '__future__'
 PY3K = sys.version_info >= (3, 0)
 
 
@@ -516,10 +516,17 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if is_inside_except(stmt):
                 continue
             if name in globs and not isinstance(stmt, astroid.Global):
-                line = globs[name][0].fromlineno
+                definition = globs[name][0]
+                if (isinstance(definition, astroid.From)
+                        and definition.modname == FUTURE):
+                    # It is a __future__ directive, not a symbol.
+                    continue
+
+                line = definition.fromlineno
                 dummy_rgx = self.config.dummy_variables_rgx
-                if not dummy_rgx.match(name):
-                    self.add_message('redefined-outer-name', args=(name, line), node=stmt)
+                if not dummy_rgx.match(name):                     
+                    self.add_message('redefined-outer-name',
+                                     args=(name, line), node=stmt)
             elif is_builtin(name):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
