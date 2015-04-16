@@ -48,7 +48,7 @@ def _is_from_future_import(stmt, name):
 
     for local_node in module.locals.get(name, []):
         if (isinstance(local_node, astroid.From)
-                and local_node.modname == '__future__'):
+                and local_node.modname == FUTURE):
             return True
 
 
@@ -425,7 +425,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         msg = "%s imported as %s" % (imported_name, as_name)
                     self.add_message('unused-import', args=msg, node=stmt)
                 elif (isinstance(stmt, astroid.From)
-                      and stmt.modname != '__future__'):
+                      and stmt.modname != FUTURE):
 
                     if SPECIAL_OBJ.search(imported_name):
                         # Filter special objects (__doc__, __all__) etc.,
