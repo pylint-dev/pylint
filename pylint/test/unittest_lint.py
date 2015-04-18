@@ -36,10 +36,16 @@ from pylint.reporters import text, html
 from pylint import checkers
 from pylint import interfaces
 
-if sys.platform == 'win32':
-    HOME = 'USERPROFILE'
+if os.name == 'java':
+    if os._name == 'nt':
+        HOME = 'USERPROFILE'
+    else:
+        HOME = 'HOME'
 else:
-    HOME = 'HOME'
+    if sys.platform == 'win32':
+        HOME = 'USERPROFILE'
+    else:
+        HOME = 'HOME'
 
 def remove(file):
     try:
