@@ -872,8 +872,8 @@ functions, methods
                     # Mappings aren't accepted by reversed(), unless
                     # they provide explicitly a __reversed__ method.
                     try:
-                        argument.getattr(REVERSED_PROTOCOL_METHOD)
-                    except astroid.NotFoundError:
+                        argument.locals[REVERSED_PROTOCOL_METHOD]
+                    except KeyError:
                         self.add_message('bad-reversed-sequence', node=node)
                     return
 
