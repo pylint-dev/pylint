@@ -55,6 +55,8 @@ ChangeLog for Pylint
     * Don't emit redefined-outer-name for __future__ directives.
       Closes issue #520.
 
+    * Provide some hints for the bad-builtin message. Closes issue #522.
+
 
 2015-03-14 -- 1.4.3
 

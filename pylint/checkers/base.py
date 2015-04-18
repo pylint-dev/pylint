@@ -69,6 +69,12 @@ BAD_FUNCTIONS = ['map', 'filter']
 if sys.version_info < (3, 0):
     BAD_FUNCTIONS.append('input')
 
+# Some hints regarding the use of bad builtins.
+BUILTIN_HINTS = {
+    'map': 'Using a list comprehension can be clearer.',
+}
+BUILTIN_HINTS['filter'] = BUILTIN_HINTS['map']
+
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = set(('exempt', 'ignore'))
 
@@ -493,7 +499,7 @@ functions, methods
                   'usage. Consider using `ast.literal_eval` for safely evaluating '
                   'strings containing Python expressions '
                   'from untrusted sources. '),
-        'W0141': ('Used builtin function %r',
+        'W0141': ('Used builtin function %s',
                   'bad-builtin',
                   'Used when a black listed builtin function is used (see the '
                   'bad-function option). Usual black listed functions are the ones '
@@ -777,7 +783,12 @@ functions, methods
                 elif name == 'eval':
                     self.add_message('eval-used', node=node)
                 if name in self.config.bad_functions:
-                    self.add_message('bad-builtin', node=node, args=name)
+                    hint = BUILTIN_HINTS.get(name)
+                    if hint:
+                        args = "%r. %s" % (name, hint)
+                    else:
+                        args = repr(name)
+                    self.add_message('bad-builtin', node=node, args=args)
 
     @check_messages('assert-on-tuple')
     def visit_assert(self, node):
