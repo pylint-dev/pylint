@@ -272,7 +272,7 @@ PYMETHODS = set(('__new__', '__init__', '__del__', '__hash__',
                  '__dir__', '__prepare__',
                  '__instancecheck__', '__subclasscheck__', '__length_hint__',
                  '__complex__', '__int__', '__float__', '__round__',
-                 '__index__', 
+                 '__index__',
                 ))
 
 def check_messages(*messages):
