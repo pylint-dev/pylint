@@ -57,6 +57,14 @@ ChangeLog for Pylint
 
     * Provide some hints for the bad-builtin message. Closes issue #522.
 
+    * When checking for invalid arguments to a callable, in typecheck.py,
+      look up for the __init__ in case the found __new__ comes from builtins.
+      
+      Since the __new__ comes from builtins, it will not have attached any
+      information regarding what parameters it expects, so the check
+      will be useless. Retrieving __init__ in that case will at least
+      detect a couple of false negatives. Closes issue #429. 
+
 
 2015-03-14 -- 1.4.3
 

@@ -103,14 +103,18 @@ def _determine_callable(callable_obj):
     elif isinstance(callable_obj, astroid.Class):
         # Class instantiation, lookup __new__ instead.
         # If we only find object.__new__, we can safely check __init__
-        # instead.
+        # instead. If __new__ belongs to builtins, then we look
+        # again for __init__ in the locals, since we won't have
+        # argument information for the builtin __new__ function.
         try:
             # Use the last definition of __new__.
             new = callable_obj.local_attr('__new__')[-1]
         except astroid.NotFoundError:
             new = None
 
-        if not new or new.parent.scope().name == 'object':
+        from_object = new and new.parent.scope().name == 'object'
+        from_builtins = new and new.root().name == BUILTINS
+        if not new or from_object or from_builtins:
             try:
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr('__init__')[-1]
@@ -122,7 +126,7 @@ def _determine_callable(callable_obj):
 
         if not isinstance(callable_obj, astroid.Function):
             raise ValueError
-        # both have an extra implicit 'cls'/'self' argument.
+        # both have an extra implicit 'cls'/'self' argument.        
         return callable_obj, 1, 'constructor'
     else:
         raise ValueError

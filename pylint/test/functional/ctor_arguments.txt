@@ -15,3 +15,5 @@ too-many-function-args:60::Too many positional arguments for constructor call
 too-many-function-args:63::Too many positional arguments for constructor call
 no-value-for-parameter:64::No value for argument 'first_argument' in constructor call
 unexpected-keyword-arg:64::Unexpected keyword argument 'one' in constructor call
+too-many-function-args:85::Too many positional arguments for constructor call
+unexpected-keyword-arg:85::Unexpected keyword argument 'badarg' in constructor call

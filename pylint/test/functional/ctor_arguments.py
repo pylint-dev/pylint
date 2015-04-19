@@ -76,3 +76,10 @@ class ClassWithMeta(with_metaclass(Metaclass)):
     pass
 
 ClassWithMeta()
+
+
+class BuiltinExc(Exception):
+    def __init__(self, val=True):
+        self.val = val
+
+BuiltinExc(42, 24, badarg=1) # [too-many-function-args,unexpected-keyword-arg]
