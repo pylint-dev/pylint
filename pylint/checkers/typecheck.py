@@ -114,7 +114,14 @@ def _determine_callable(callable_obj):
 
         from_object = new and new.parent.scope().name == 'object'
         from_builtins = new and new.root().name == BUILTINS
-        if not new or from_object or from_builtins:
+
+        # TODO(cpopa): In an ideal world, we shouldn't do this.
+        # In astroid, some builtins are considered to be imports from
+        # the builtin module. There's issue #96 which should fix this, then
+        # this check could be removed. This is temporary.
+        py2_from_builtins = isinstance(new, astroid.From) and new.modname == BUILTINS
+
+        if not new or from_object or from_builtins or py2_from_builtins:
             try:
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr('__init__')[-1]
