@@ -126,7 +126,7 @@ def _determine_callable(callable_obj):
 
         if not isinstance(callable_obj, astroid.Function):
             raise ValueError
-        # both have an extra implicit 'cls'/'self' argument.        
+        # both have an extra implicit 'cls'/'self' argument.
         return callable_obj, 1, 'constructor'
     else:
         raise ValueError
