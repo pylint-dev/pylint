@@ -56,8 +56,8 @@ CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
 COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9_]*$')
 DEFAULT_NAME_RGX = re.compile('[a-z_][a-z0-9_]{2,30}$')
 CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
-# do not require a doc string on system methods
-NO_REQUIRED_DOC_RGX = re.compile('__.*__')
+# do not require a doc string on private/system methods
+NO_REQUIRED_DOC_RGX = re.compile('_.*')
 REVERSED_PROTOCOL_METHOD = '__reversed__'
 SEQUENCE_PROTOCOL_METHODS = ('__getitem__', '__len__')
 REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS,
@@ -1203,8 +1203,6 @@ class DocStringChecker(_BasicChecker):
         docstring = node.doc
         if docstring is None:
             if not report_missing:
-                return
-            if node.name.startswith("_"):
                 return
             if node.body:
                 lines = node.body[-1].lineno - node.body[0].lineno + 1
