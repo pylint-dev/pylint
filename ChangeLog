@@ -63,7 +63,12 @@ ChangeLog for Pylint
       Since the __new__ comes from builtins, it will not have attached any
       information regarding what parameters it expects, so the check
       will be useless. Retrieving __init__ in that case will at least
-      detect a couple of false negatives. Closes issue #429. 
+      detect a couple of false negatives. Closes issue #429.
+
+    * Don't emit no-member for classes with unknown bases.
+
+      Since we don't know what those bases might add, we simply ignore
+      the error in this case. 
 
 
 2015-03-14 -- 1.4.3

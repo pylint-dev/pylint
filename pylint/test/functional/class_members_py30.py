@@ -1,6 +1,6 @@
 """ Various tests for class members access. """
-# pylint: disable=R0903
-
+# pylint: disable=R0903,import-error,no-init
+from missing import Missing
 class MyClass(object):
     """class docstring"""
 
@@ -47,3 +47,9 @@ TestMetaclass.register(int)
 UsingMetaclass.test()
 TestMetaclass().register(int) # [no-member]
 UsingMetaclass().test() # [no-member]
+
+
+class NoKnownBases(Missing):
+    """Don't emit no-member if we don't know the bases of a class."""
+
+NoKnownBases().lalala()

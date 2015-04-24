@@ -28,7 +28,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     safe_infer, is_super,
     check_messages, decorated_with_property,
-    decorated_with)
+    decorated_with, has_known_bases)
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -112,8 +112,9 @@ def _emit_no_member(owner, owner_name, attrname,
         return False
     if isinstance(owner, astroid.Function) and owner.decorators:
         return False
-    if isinstance(owner, Instance) and owner.has_dynamic_getattr():
-        return False
+    if isinstance(owner, Instance):
+        if owner.has_dynamic_getattr() or not has_known_bases(owner):
+            return False
     # explicit skipping of module member access
     if owner.root().name in ignored_modules:
         return False
