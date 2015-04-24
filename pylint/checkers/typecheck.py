@@ -88,6 +88,42 @@ MSGS = {
 SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
                       'xrange', 'range', 'bytes', 'memoryview'])
 
+
+def _emit_no_member(owner, name, ignored_modules):
+    """Try to see if no-member should be emitted for the given owner.
+
+    The following cases are ignored:
+
+        * the owner is a function and it has decorators.
+        * the owner is an instance and it has __getattr__, __getattribute__ implemented
+        * the module is explicitly ignored from no-member checks
+        * the owner is a class and the name can be found in its metaclass.
+    """
+ 
+    if isinstance(owner, astroid.Function) and owner.decorators:
+        return False
+    if isinstance(owner, Instance) and owner.has_dynamic_getattr():
+        return False
+    # explicit skipping of module member access
+    if owner.root().name in ignored_modules:
+        return False
+    if isinstance(owner, astroid.Class):
+        # Look up in the metaclass only if the owner is itself
+        # a class.
+        # TODO: getattr doesn't return by default members
+        # from the metaclass, because handling various cases
+        # of methods accessible from the metaclass itself
+        # and/or subclasses only is too complicated for little to
+        # no benefit.
+        metaclass = owner.metaclass()
+        try:
+            if metaclass and metaclass.getattr(name):
+                return False
+        except NotFoundError:
+            pass
+    return True
+
+
 def _determine_callable(callable_obj):
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
     # and Function inherits Lambda.
@@ -256,28 +292,9 @@ accessed. Python regular expressions are accepted.'}
                 # XXX method / function
                 continue
             except NotFoundError:
-                if isinstance(owner, astroid.Function) and owner.decorators:
-                    continue
-                if isinstance(owner, Instance) and owner.has_dynamic_getattr():
-                    continue
-                # explicit skipping of module member access
-                if owner.root().name in self.config.ignored_modules:
-                    continue
-                if isinstance(owner, astroid.Class):
-                    # Look up in the metaclass only if the owner is itself
-                    # a class.
-                    # TODO: getattr doesn't return by default members
-                    # from the metaclass, because handling various cases
-                    # of methods accessible from the metaclass itself
-                    # and/or subclasses only is too complicated for little to
-                    # no benefit.
-                    metaclass = owner.metaclass()
-                    try:
-                        if metaclass and metaclass.getattr(node.attrname):
-                            continue
-                    except NotFoundError:
-                        pass
-                missingattr.add((owner, name))
+                if _emit_no_member(owner, node.attrname,
+                                   self.config.ignored_modules):
+                    missingattr.add((owner, name))
                 continue
             # stop on the first found
             break
