@@ -89,7 +89,7 @@ SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
                       'xrange', 'range', 'bytes', 'memoryview'])
 
 
-def _emit_no_member(owner, name, ignored_modules):
+def _emit_no_member(owner, owner_name, attrname, ignored_modules, ignored_mixins):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -99,7 +99,8 @@ def _emit_no_member(owner, name, ignored_modules):
         * the module is explicitly ignored from no-member checks
         * the owner is a class and the name can be found in its metaclass.
     """
- 
+    if ignored_mixins and owner_name[-5:].lower() == 'mixin':
+        return False
     if isinstance(owner, astroid.Function) and owner.decorators:
         return False
     if isinstance(owner, Instance) and owner.has_dynamic_getattr():
@@ -117,7 +118,7 @@ def _emit_no_member(owner, name, ignored_modules):
         # no benefit.
         metaclass = owner.metaclass()
         try:
-            if metaclass and metaclass.getattr(name):
+            if metaclass and metaclass.getattr(attrname):
                 return False
         except NotFoundError:
             pass
@@ -264,8 +265,7 @@ accessed. Python regular expressions are accepted.'}
         except InferenceError:
             return
         # list of (node, nodename) which are missing the attribute
-        missingattr = set()
-        ignoremim = self.config.ignore_mixin_members
+        missingattr = set()        
         inference_failure = False
         for owner in infered:
             # skip yes object
@@ -281,8 +281,6 @@ accessed. Python regular expressions are accepted.'}
             name = getattr(owner, 'name', 'None')
             if name in self.config.ignored_classes:
                 continue
-            if ignoremim and name[-5:].lower() == 'mixin':
-                continue
             try:
                 if not [n for n in owner.getattr(node.attrname)
                         if not isinstance(n.statement(), astroid.AugAssign)]:
@@ -292,8 +290,9 @@ accessed. Python regular expressions are accepted.'}
                 # XXX method / function
                 continue
             except NotFoundError:
-                if _emit_no_member(owner, node.attrname,
-                                   self.config.ignored_modules):
+                if _emit_no_member(owner, name, node.attrname,
+                                   self.config.ignored_modules,
+                                   self.config.ignore_mixin_members):
                     missingattr.add((owner, name))
                 continue
             # stop on the first found
