@@ -1,4 +1,4 @@
-# pylint: disable=print-statement
+# pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods
 """check getattr if inference succeed"""
 from __future__ import print_function
 
@@ -58,6 +58,32 @@ class Client(object):
         integer = 1
         print(integer.whatever)  # [no-member]
 
+    def test_no_false_positives(self):
+        none = None
+        print(none.whatever)
+        # This will be handled when we'll understand super
+        super(Client, self).misssing()
+
+
+class Mixin(object):
+    """No no-member should be emitted for mixins."""
+
+class Getattr(object):
+    """no-member shouldn't be emitted for classes with dunder getattr."""
+
+    def __getattr__(self, attr):
+        return self.__dict__[attr]
+
+
+class Getattribute(object):
+    """no-member shouldn't be emitted for classes with dunder getattribute."""
+
+    def __getattribute__(self, attr):
+        return 42
+
 print(object.__init__)
 print(property.__init__)
 print(Client().set_later.lower())  # [no-member]
+print(Mixin().nanana())
+print(Getattr().nananan())
+print(Getattribute().batman())

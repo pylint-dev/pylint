@@ -89,7 +89,8 @@ SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
                       'xrange', 'range', 'bytes', 'memoryview'])
 
 
-def _emit_no_member(owner, owner_name, attrname, ignored_modules, ignored_mixins):
+def _emit_no_member(owner, owner_name, attrname,
+                    ignored_modules, ignored_mixins, ignored_classes):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -99,6 +100,14 @@ def _emit_no_member(owner, owner_name, attrname, ignored_modules, ignored_mixins
         * the module is explicitly ignored from no-member checks
         * the owner is a class and the name can be found in its metaclass.
     """
+    if owner_name in ignored_classes:
+        return False
+    # skip None anyway
+    if isinstance(owner, astroid.Const) and owner.value is None:
+        return False
+    # TODO(cpopa): This should be removed when we'll understand "super"
+    if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
+        return False
     if ignored_mixins and owner_name[-5:].lower() == 'mixin':
         return False
     if isinstance(owner, astroid.Function) and owner.decorators:
@@ -272,15 +281,7 @@ accessed. Python regular expressions are accepted.'}
             if owner is YES:
                 inference_failure = True
                 continue
-            # skip None anyway
-            if isinstance(owner, astroid.Const) and owner.value is None:
-                continue
-            # XXX "super" / metaclass call
-            if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
-                continue
             name = getattr(owner, 'name', 'None')
-            if name in self.config.ignored_classes:
-                continue
             try:
                 if not [n for n in owner.getattr(node.attrname)
                         if not isinstance(n.statement(), astroid.AugAssign)]:
@@ -290,10 +291,12 @@ accessed. Python regular expressions are accepted.'}
                 # XXX method / function
                 continue
             except NotFoundError:
-                if _emit_no_member(owner, name, node.attrname,
-                                   self.config.ignored_modules,
-                                   self.config.ignore_mixin_members):
-                    missingattr.add((owner, name))
+                if not _emit_no_member(owner, name, node.attrname,
+                                       self.config.ignored_modules,
+                                       self.config.ignore_mixin_members,
+                                       self.config.ignored_classes):
+                    continue
+                missingattr.add((owner, name))
                 continue
             # stop on the first found
             break
