@@ -275,7 +275,7 @@ accessed. Python regular expressions are accepted.'}
         except InferenceError:
             return
         # list of (node, nodename) which are missing the attribute
-        missingattr = set()        
+        missingattr = set()
         inference_failure = False
         for owner in infered:
             # skip yes object
