@@ -70,6 +70,10 @@ ChangeLog for Pylint
       Since we don't know what those bases might add, we simply ignore
       the error in this case. 
 
+    * Lookup in the implicit metaclass when checking for no-member,
+      if the class in question has an implicit metaclass, which is
+      True for new style classes. Closes issue #438.
+
 
 2015-03-14 -- 1.4.3
 

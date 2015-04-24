@@ -1,5 +1,5 @@
 """ Various tests for class members access. """
-# pylint: disable=R0903,import-error,no-init
+# pylint: disable=R0903,import-error,no-init,missing-docstring
 from missing import Missing
 class MyClass(object):
     """class docstring"""
@@ -53,3 +53,11 @@ class NoKnownBases(Missing):
     """Don't emit no-member if we don't know the bases of a class."""
 
 NoKnownBases().lalala()
+
+
+class MetaClass(object):
+    """Look some methods in the implicit metaclass."""
+
+    @classmethod
+    def whatever(cls):
+        return cls.mro() + cls.missing() # [no-member]

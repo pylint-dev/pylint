@@ -126,7 +126,7 @@ def _emit_no_member(owner, owner_name, attrname,
         # of methods accessible from the metaclass itself
         # and/or subclasses only is too complicated for little to
         # no benefit.
-        metaclass = owner.metaclass()
+        metaclass = owner.metaclass() or owner.implicit_metaclass()
         try:
             if metaclass and metaclass.getattr(attrname):
                 return False
