@@ -291,6 +291,13 @@ accessed. Python regular expressions are accepted.'}
                 # XXX method / function
                 continue
             except NotFoundError:
+                # This can't be moved before the actual .getattr call,
+                # because there can be more values inferred and we are
+                # stopping after the first one which has the attribute in question.
+                # The problem is that if the first one has the attribute,
+                # but we continue to the next values which doesn't have the
+                # attribute, then we'll have a false positive.
+                # So call this only after the call has been made.
                 if not _emit_no_member(owner, name, node.attrname,
                                        self.config.ignored_modules,
                                        self.config.ignore_mixin_members,
