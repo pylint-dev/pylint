@@ -29,7 +29,7 @@ from astroid import are_exclusive
 from astroid.modutils import get_module_part, is_standard_module
 
 from pylint.interfaces import IAstroidChecker
-from pylint.utils import EmptyReport
+from pylint.utils import EmptyReport, get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, is_import_error
 
@@ -291,7 +291,10 @@ given file (report RP0402 must not be disabled)'}
                 args = '%r (%s)' % (modname, ex)
             else:
                 args = repr(modname)
-            if not _except_import_error(importnode.parent):
+            ignored_modules = get_global_option(self, 'ignored-modules', default=[])
+            while modname and modname not in ignored_modules:
+                modname = modname.rpartition('.')[0]
+            if not modname and not _except_import_error(importnode.parent):
                 self.add_message("import-error", args=args, node=importnode)
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,
