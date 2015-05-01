@@ -2,6 +2,10 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Don't emit import-error for ignored modules. PyLint will not emit import
+      errors for any import which is, or is a subpackage of, a module in
+      the ignored-modules list. Closes issue #223.
+
     * Fix unused-import false positive when the import is used in a
       class assignment. Closes issue #475
 

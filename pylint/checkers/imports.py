@@ -291,11 +291,26 @@ given file (report RP0402 must not be disabled)'}
                 args = '%r (%s)' % (modname, ex)
             else:
                 args = repr(modname)
+
             ignored_modules = get_global_option(self, 'ignored-modules', default=[])
-            while modname and modname not in ignored_modules:
-                modname = modname.rpartition('.')[0]
-            if not modname and not _except_import_error(importnode.parent):
+            for submodule in self._module_hierarchy(modname):
+                if submodule in ignored_modules:
+                    return None
+
+            if not _except_import_error(importnode.parent):
                 self.add_message("import-error", args=args, node=importnode)
+
+    def _module_hierarchy(self, modname):
+        """Returns a list representing the module heirarchy, where each element
+        is the fullly qualified name of the parent of the next element.
+
+        For example,
+            _module_hierarchy('pylint.checkers.ImportsChecker')
+        returns
+            ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
+        """
+        names = modname.split('.')
+        return ['.'.join(names[0:i+1]) for i in range(len(names))]
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,
                                importedasname):
