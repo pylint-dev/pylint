@@ -9,18 +9,6 @@ class ImportsCheckerTC(CheckerTestCase):
 
     CHECKER_CLASS = imports.ImportsChecker
 
-    def test_bitbucket_issue_78(self):
-        """ Issue 78 report a false positive for unused-module """
-        module = test_utils.build_module("""
-        from sys import path
-        path += ['stuff']
-        def func():
-            other = 1
-            return len(other)
-        """)
-        with self.assertNoMessages():
-            self.walk(module)
-
     @set_config(ignored_modules=('external_module', 'fake_module.submodule'))
     def test_import_error_skipped(self):
         """Make sure that imports do not emit a 'import-error' when the
