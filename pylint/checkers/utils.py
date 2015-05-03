@@ -385,13 +385,6 @@ def node_frame_class(node):
 
     return klass
 
-def is_super_call(expr):
-    """return True if expression node is a function call and if function name
-    is super. Check before that you're in a method.
-    """
-    return (isinstance(expr, astroid.CallFunc) and
-            isinstance(expr.func, astroid.Name) and
-            expr.func.name == 'super')
 
 def is_attr_private(attrname):
     """Check that attribute name is private (at least two leading underscores,
