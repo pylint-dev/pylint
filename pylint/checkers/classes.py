@@ -23,6 +23,7 @@ from collections import defaultdict
 import astroid
 from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator, BUILTINS
+from astroid.exceptions import InconsistentMroError, DuplicateBasesError
 from astroid.inference import InferenceContext
 
 from pylint.interfaces import IAstroidChecker
@@ -236,7 +237,12 @@ MSGS = {
               'inherit-non-class',
               'Used when a class inherits from something which is not a '
               'class.'),
-
+    'E0240': ('Inconsistent method resolution order for class %r',
+              'inconsistent-mro',
+              'Used when a class has an inconsistent method resolutin order.'),
+    'E0241': ('Duplicate bases for class %r',
+              'duplicate-bases',
+              'Used when a class has duplicate bases.'),
 
     }
 
@@ -328,6 +334,20 @@ a metaclass class method.'}
                 self.add_message('no-init', args=node, node=node)
         self._check_slots(node)
         self._check_proper_bases(node)
+        self._check_consistent_mro(node)
+
+    @check_messages('inconsistent-mro', 'duplicate-bases')
+    def _check_consistent_mro(self, node):
+        """Detect that a class has a consistent mro or duplicate bases."""
+        try:
+            node.mro()
+        except InconsistentMroError:
+            self.add_message('inconsistent-mro', args=node.name, node=node)
+        except DuplicateBasesError:
+            self.add_message('duplicate-bases', args=node.name, node=node)
+        except NotImplementedError:
+            # Old style class, there's no mro so don't do anything.
+            pass
 
     @check_messages('inherit-non-class')
     def _check_proper_bases(self, node):

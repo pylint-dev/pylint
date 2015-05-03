@@ -78,6 +78,12 @@ ChangeLog for Pylint
       if the class in question has an implicit metaclass, which is
       True for new style classes. Closes issue #438.
 
+    * Add two new warnings, duplicate-bases and inconsistent-mro.
+
+      duplicate-bases is emitted when a class has the same bases
+      listed more than once in its bases definition, while inconsistent-mro
+      is emitted when no sane mro hierarchy can be determined. Closes issue #526.
+
 
 2015-03-14 -- 1.4.3
 
