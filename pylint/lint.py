@@ -382,8 +382,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                             'See doc for all details')
                  }),
 
-                ('include-ids', utils.deprecated_option(
-                                    'i', 'yn', INCLUDE_IDS_HELP)),
+                ('include-ids', utils.deprecated_option('i', 'yn', INCLUDE_IDS_HELP)),
                 ('symbols', utils.deprecated_option('s', 'yn', SYMBOLS_HELP)),
 
                 ('jobs',
