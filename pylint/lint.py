@@ -204,13 +204,6 @@ MSGS = {
     }
 
 
-def _deprecated_option(shortname, opt_type, help_msg):
-    def _warn_deprecated(option, optname, *args): # pylint: disable=unused-argument
-        sys.stderr.write('Warning: option %s is deprecated and ignored.\n' % (optname,))
-    return {'short': shortname, 'help': help_msg, 'hide': True,
-            'type': opt_type, 'action': 'callback', 'callback': _warn_deprecated}
-
-
 if multiprocessing is not None:
     class ChildLinter(multiprocessing.Process): # pylint: disable=no-member
         def run(self):
@@ -389,9 +382,9 @@ class PyLinter(configuration.OptionsManagerMixIn,
                             'See doc for all details')
                  }),
 
-                ('include-ids', _deprecated_option('i', 'yn',
-                                                   INCLUDE_IDS_HELP)),
-                ('symbols', _deprecated_option('s', 'yn', SYMBOLS_HELP)),
+                ('include-ids', utils.deprecated_option(
+                                    'i', 'yn', INCLUDE_IDS_HELP)),
+                ('symbols', utils.deprecated_option('s', 'yn', SYMBOLS_HELP)),
 
                 ('jobs',
                  {'type' : 'int', 'metavar': '<n-processes>',

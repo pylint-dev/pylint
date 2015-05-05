@@ -32,6 +32,7 @@ from pylint.checkers.utils import (
     PYMETHODS, overrides_a_method, check_messages, is_attr_private,
     is_attr_protected, node_frame_class, safe_infer, is_builtin_object,
     decorated_with_property, unimplemented_abstract_methods)
+from pylint.utils import deprecated_option
 import six
 
 if sys.version_info >= (3, 0):
@@ -250,21 +251,10 @@ class ClassChecker(BaseChecker):
     priority = -2
     # configuration options
     options = (('ignore-iface-methods',
-                {'default' : (#zope interface
-                    'isImplementedBy', 'deferred', 'extends', 'names',
-                    'namesAndDescriptions', 'queryDescriptionFor', 'getBases',
-                    'getDescriptionFor', 'getDoc', 'getName', 'getTaggedValue',
-                    'getTaggedValueTags', 'isEqualOrExtendedBy', 'setTaggedValue',
-                    'isImplementedByInstancesOf',
-                    # twisted
-                    'adaptWith',
-                    # logilab.common interface
-                    'is_implemented_by'),
-                 'type' : 'csv',
-                 'metavar' : '<method names>',
-                 'help' : 'List of interface methods to ignore, \
-separated by a comma. This is used for instance to not check methods defines \
-in Zope\'s Interface base class.'}
+                # TODO(cpopa): remove this in Pylint 1.7.
+                deprecated_option(opt_type="csv",
+                                  help_msg="This is deprecated, because "
+                                           "it is not used anymore.")
                ),
                ('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
