@@ -86,6 +86,11 @@ ChangeLog for Pylint
 
     * Remove interface-not-implemented warning. Closes issue #532.
 
+    * Remove the rest of interface checks: interface-is-not-class,
+      missing-interface-method, unresolved-interface. The reason is that
+      its better to start recommending ABCs instead of the old Zope era
+      of interfaces.
+
 
 2015-03-14 -- 1.4.3
 

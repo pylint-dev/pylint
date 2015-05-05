@@ -1,3 +1,0 @@
-E:  6:Abcd: Interface resolved to None is not a class
-E: 13:Cdef: Interface resolved to None is not a class
-
