@@ -64,9 +64,6 @@ MSGS = {
               'too-many-statements',
               'Used when a function or method has too many statements. You \
               should then split it in smaller functions / methods.'),
-    'R0923': ('Interface not implemented',
-              'interface-not-implemented',
-              'Used when an interface class is not implemented anywhere.'),
     }
 
 
@@ -146,8 +143,6 @@ class MisdesignChecker(BaseChecker):
         self.stats = None
         self._returns = None
         self._branches = None
-        self._used_ifaces = None
-        self._ifaces = None
         self._stmts = 0
 
     def open(self):
@@ -155,18 +150,9 @@ class MisdesignChecker(BaseChecker):
         self.stats = self.linter.add_stats()
         self._returns = []
         self._branches = defaultdict(int)
-        self._used_ifaces = {}
-        self._ifaces = []
-
-    def close(self):
-        """check that interface classes are used"""
-        for iface in self._ifaces:
-            if not iface in self._used_ifaces:
-                self.add_message('interface-not-implemented', node=iface)
 
     @check_messages('too-many-ancestors', 'too-many-instance-attributes',
-                    'too-few-public-methods', 'too-many-public-methods',
-                    'interface-not-implemented')
+                    'too-few-public-methods', 'too-many-public-methods')
     def visit_class(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
@@ -182,19 +168,6 @@ class MisdesignChecker(BaseChecker):
             self.add_message('too-many-instance-attributes', node=node,
                              args=(len(node.instance_attrs),
                                    self.config.max_attributes))
-        # update interface classes structures
-        if node.type == 'interface' and node.name != 'Interface':
-            self._ifaces.append(node)
-            for parent in node.ancestors(False):
-                if parent.name == 'Interface':
-                    continue
-                self._used_ifaces[parent] = 1
-        try:
-            for iface in node.interfaces():
-                self._used_ifaces[iface] = 1
-        except InferenceError:
-            # XXX log ?
-            pass
 
     @check_messages('too-few-public-methods', 'too-many-public-methods')
     def leave_class(self, node):

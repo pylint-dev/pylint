@@ -1,4 +1,4 @@
-# pylint:disable=R0201
+# pylint:disable=R0201,too-few-public-methods
 """docstring"""
 from __future__ import print_function
 

@@ -84,6 +84,8 @@ ChangeLog for Pylint
       listed more than once in its bases definition, while inconsistent-mro
       is emitted when no sane mro hierarchy can be determined. Closes issue #526.
 
+    * Remove interface-not-implemented warning. Closes issue #532.
+
 
 2015-03-14 -- 1.4.3
 

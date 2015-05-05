@@ -543,7 +543,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # don't check arguments of abstract methods or within an interface
         is_method = node.is_method()
         klass = node.parent.frame()
-        if is_method and (klass.type == 'interface' or node.is_abstract()):
+        if is_method and node.is_abstract():
             return
         if is_method and isinstance(klass, astroid.Class):
             confidence = INFERENCE if has_known_bases(klass) else INFERENCE_FAILURE
