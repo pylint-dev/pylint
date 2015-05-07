@@ -596,8 +596,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def disable_reporters(self):
         """disable all reporters"""
-        for reporters in six.itervalues(self._reports):
-            for report_id, _, _ in reporters:
+        for _reporters in six.itervalues(self._reports):
+            for report_id, _, _ in _reporters:
                 self.disable_report(report_id)
 
     def error_mode(self):
@@ -753,13 +753,14 @@ class PyLinter(configuration.OptionsManagerMixIn,
         # Prepare configuration for child linters.
         filter_options = {'symbols', 'include-ids', 'long-help'}
         filter_options.update([opt_name for opt_name, _ in self._external_opts])
-        config = {}
+        child_config = {}
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
                 if optname not in filter_options:
-                    config[optname] = configuration.format_option_value(optdict, val)
-        config['python3_porting_mode'] = self._python3_porting_mode
-        config['plugins'] = self._dynamic_plugins
+                    child_config[optname] = configuration.format_option_value(
+                        optdict, val)
+        child_config['python3_porting_mode'] = self._python3_porting_mode
+        child_config['plugins'] = self._dynamic_plugins
 
         childs = []
         manager = multiprocessing.Manager()  # pylint: disable=no-member
@@ -767,7 +768,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         results_queue = manager.Queue()  # pylint: disable=no-member
 
         for _ in range(self.config.jobs):
-            cl = ChildLinter(args=(tasks_queue, results_queue, config))
+            cl = ChildLinter(args=(tasks_queue, results_queue, child_config))
             cl.start()  # pylint: disable=no-member
             childs.append(cl)
 
@@ -834,14 +835,14 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def _do_check(self, files_or_modules):
         walker = utils.PyLintASTWalker(self)
-        checkers = self.prepare_checkers()
-        tokencheckers = [c for c in checkers
+        _checkers = self.prepare_checkers()
+        tokencheckers = [c for c in _checkers
                          if interface.implements(c, interfaces.ITokenChecker)
                          and c is not self]
-        rawcheckers = [c for c in checkers
+        rawcheckers = [c for c in _checkers
                        if interface.implements(c, interfaces.IRawChecker)]
         # notify global begin
-        for checker in checkers:
+        for checker in _checkers:
             checker.open()
             if interface.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
@@ -873,8 +874,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                 self.add_message(msgid, line, None, args)
         # notify global end
         self.stats['statement'] = walker.nbstatements
-        checkers.reverse()
-        for checker in checkers:
+        for checker in reversed(_checkers):
             checker.close()
 
     def expand_files(self, modules):
