@@ -24,7 +24,6 @@ import astroid
 from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator, BUILTINS
 from astroid.exceptions import InconsistentMroError, DuplicateBasesError
-from astroid.inference import InferenceContext
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker

@@ -18,7 +18,7 @@
 import re
 from collections import defaultdict
 
-from astroid import If, InferenceError
+from astroid import If
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
