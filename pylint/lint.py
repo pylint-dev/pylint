@@ -808,7 +808,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         module = None
         for result in self._parallel_task(files_or_modules):
             (
-                file_or_module,
+                _,
                 self.file_state.base_name,
                 module,
                 messages,
