@@ -92,6 +92,11 @@ ChangeLog for Pylint
       of interfaces. One side effect of this change is that ignore-iface-methods
       becomes a noop, it's deprecated and it will be removed at some time.
 
+    * Emit a proper deprecation warning for reporters.BaseReporter.add_message.
+
+      The alternative way is to use handle_message. add_message will be removed in
+      Pylint 1.6.
+
 
 2015-03-14 -- 1.4.3
 
