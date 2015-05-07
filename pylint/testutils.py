@@ -129,6 +129,8 @@ class TestReporter(BaseReporter):
     def display_results(self, layout):
         """ignore layouts"""
 
+    _display = None
+
 
 class Message(collections.namedtuple('Message',
                                      ['msg_id', 'line', 'node', 'args'])):

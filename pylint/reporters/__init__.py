@@ -133,6 +133,8 @@ class CollectingReporter(BaseReporter):
     def handle_message(self, msg):
         self.messages.append(msg)
 
+    _display = None
+
 
 def initialize(linter):
     """initialize linter with reporters in this package """
