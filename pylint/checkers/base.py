@@ -699,7 +699,7 @@ functions, methods
 
                 if value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif type(value) is astroid.Instance or is_iterable(value):
+                elif isinstance(value, astroid.Instance) or is_iterable(value):
                     # We are here in the following situation(s):
                     #   * a dict/set/list/tuple call which wasn't inferred
                     #     to a syntax node ({}, () etc.). This can happen
