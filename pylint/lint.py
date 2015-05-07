@@ -691,8 +691,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def get_checkers(self):
         """return all available checkers as a list"""
-        return [self] + [c for checkers in six.itervalues(self._checkers)
-                         for c in checkers if c is not self]
+        return [self] + [c for _checkers in six.itervalues(self._checkers)
+                         for c in _checkers if c is not self]
 
     def prepare_checkers(self):
         """return checkers needed for activated messages and reports"""
