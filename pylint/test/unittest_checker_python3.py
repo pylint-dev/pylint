@@ -390,7 +390,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         a = list(range(x))
         a.sort(cmp=lambda x: x) #@
 
-        sorted([], cmp=lambda x: x) #@        
+        sorted([], cmp=lambda x: x) #@
         """)
         for node in nodes:
             message = testutils.Message('using-cmp-argument', node=node)
