@@ -70,6 +70,7 @@ class BaseReporter(object):
 
     def add_message(self, msg_id, location, msg):
         """Deprecated, do not use."""
+        # pylint: disable=no-self-use,unused-argument
         msg = ("This method is deprecated, use handle_message instead. "
                "It will be removed in Pylint 1.6.")
         warnings.warn(msg, DeprecationWarning, stacklevel=2)
