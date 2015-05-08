@@ -204,13 +204,6 @@ MSGS = {
     }
 
 
-def _deprecated_option(shortname, opt_type, help_msg):
-    def _warn_deprecated(option, optname, *args): # pylint: disable=unused-argument
-        sys.stderr.write('Warning: option %s is deprecated and ignored.\n' % (optname,))
-    return {'short': shortname, 'help': help_msg, 'hide': True,
-            'type': opt_type, 'action': 'callback', 'callback': _warn_deprecated}
-
-
 if multiprocessing is not None:
     class ChildLinter(multiprocessing.Process): # pylint: disable=no-member
         def run(self):
@@ -389,9 +382,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
                             'See doc for all details')
                  }),
 
-                ('include-ids', _deprecated_option('i', 'yn',
-                                                   INCLUDE_IDS_HELP)),
-                ('symbols', _deprecated_option('s', 'yn', SYMBOLS_HELP)),
+                ('include-ids', utils.deprecated_option('i', 'yn', INCLUDE_IDS_HELP)),
+                ('symbols', utils.deprecated_option('s', 'yn', SYMBOLS_HELP)),
 
                 ('jobs',
                  {'type' : 'int', 'metavar': '<n-processes>',
@@ -604,8 +596,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def disable_reporters(self):
         """disable all reporters"""
-        for reporters in six.itervalues(self._reports):
-            for report_id, _, _ in reporters:
+        for _reporters in six.itervalues(self._reports):
+            for report_id, _, _ in _reporters:
                 self.disable_report(report_id)
 
     def error_mode(self):
@@ -699,8 +691,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def get_checkers(self):
         """return all available checkers as a list"""
-        return [self] + [c for checkers in six.itervalues(self._checkers)
-                         for c in checkers if c is not self]
+        return [self] + [c for _checkers in six.itervalues(self._checkers)
+                         for c in _checkers if c is not self]
 
     def prepare_checkers(self):
         """return checkers needed for activated messages and reports"""
@@ -761,13 +753,14 @@ class PyLinter(configuration.OptionsManagerMixIn,
         # Prepare configuration for child linters.
         filter_options = {'symbols', 'include-ids', 'long-help'}
         filter_options.update([opt_name for opt_name, _ in self._external_opts])
-        config = {}
+        child_config = {}
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
                 if optname not in filter_options:
-                    config[optname] = configuration.format_option_value(optdict, val)
-        config['python3_porting_mode'] = self._python3_porting_mode
-        config['plugins'] = self._dynamic_plugins
+                    child_config[optname] = configuration.format_option_value(
+                        optdict, val)
+        child_config['python3_porting_mode'] = self._python3_porting_mode
+        child_config['plugins'] = self._dynamic_plugins
 
         childs = []
         manager = multiprocessing.Manager()  # pylint: disable=no-member
@@ -775,7 +768,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         results_queue = manager.Queue()  # pylint: disable=no-member
 
         for _ in range(self.config.jobs):
-            cl = ChildLinter(args=(tasks_queue, results_queue, config))
+            cl = ChildLinter(args=(tasks_queue, results_queue, child_config))
             cl.start()  # pylint: disable=no-member
             childs.append(cl)
 
@@ -816,7 +809,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         module = None
         for result in self._parallel_task(files_or_modules):
             (
-                file_or_module,
+                _,
                 self.file_state.base_name,
                 module,
                 messages,
@@ -842,14 +835,14 @@ class PyLinter(configuration.OptionsManagerMixIn,
 
     def _do_check(self, files_or_modules):
         walker = utils.PyLintASTWalker(self)
-        checkers = self.prepare_checkers()
-        tokencheckers = [c for c in checkers
+        _checkers = self.prepare_checkers()
+        tokencheckers = [c for c in _checkers
                          if interface.implements(c, interfaces.ITokenChecker)
                          and c is not self]
-        rawcheckers = [c for c in checkers
+        rawcheckers = [c for c in _checkers
                        if interface.implements(c, interfaces.IRawChecker)]
         # notify global begin
-        for checker in checkers:
+        for checker in _checkers:
             checker.open()
             if interface.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
@@ -881,8 +874,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                 self.add_message(msgid, line, None, args)
         # notify global end
         self.stats['statement'] = walker.nbstatements
-        checkers.reverse()
-        for checker in checkers:
+        for checker in reversed(_checkers):
             checker.close()
 
     def expand_files(self, modules):

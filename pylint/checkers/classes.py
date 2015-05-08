@@ -23,7 +23,7 @@ from collections import defaultdict
 import astroid
 from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator, BUILTINS
-from astroid.inference import InferenceContext
+from astroid.exceptions import InconsistentMroError, DuplicateBasesError
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -31,6 +31,7 @@ from pylint.checkers.utils import (
     PYMETHODS, overrides_a_method, check_messages, is_attr_private,
     is_attr_protected, node_frame_class, safe_infer, is_builtin_object,
     decorated_with_property, unimplemented_abstract_methods)
+from pylint.utils import deprecated_option
 import six
 
 if sys.version_info >= (3, 0):
@@ -170,15 +171,6 @@ MSGS = {
               'Used when a method doesn\'t use its bound instance, and so could '
               'be written as a function.'
              ),
-
-    'E0221': ('Interface resolved to %s is not a class',
-              'interface-is-not-class',
-              'Used when a class claims to implement an interface which is not '
-              'a class.'),
-    'E0222': ('Missing method %r from %s interface',
-              'missing-interface-method',
-              'Used when a method declared in an interface is missing from a '
-              'class implementing this interface'),
     'W0221': ('Arguments number differs from %s %r method',
               'arguments-differ',
               'Used when a method has a different number of arguments than in '
@@ -192,12 +184,6 @@ MSGS = {
               'Used when an abstract method (i.e. raise NotImplementedError) is '
               'not overridden in concrete class.'
              ),
-    'F0220': ('failed to resolve interfaces implemented by %s (%s)',
-              'unresolved-interface',
-              'Used when a Pylint as failed to find interfaces implemented by '
-              ' a class'),
-
-
     'W0231': ('__init__ method from base class %r is not called',
               'super-init-not-called',
               'Used when an ancestor class method has an __init__ method '
@@ -236,7 +222,12 @@ MSGS = {
               'inherit-non-class',
               'Used when a class inherits from something which is not a '
               'class.'),
-
+    'E0240': ('Inconsistent method resolution order for class %r',
+              'inconsistent-mro',
+              'Used when a class has an inconsistent method resolutin order.'),
+    'E0241': ('Duplicate bases for class %r',
+              'duplicate-bases',
+              'Used when a class has duplicate bases.'),
 
     }
 
@@ -247,7 +238,6 @@ class ClassChecker(BaseChecker):
     * overridden methods signature
     * access only to existent members via self
     * attributes not defined in the __init__ method
-    * supported interfaces implementation
     * unreachable code
     """
 
@@ -260,21 +250,10 @@ class ClassChecker(BaseChecker):
     priority = -2
     # configuration options
     options = (('ignore-iface-methods',
-                {'default' : (#zope interface
-                    'isImplementedBy', 'deferred', 'extends', 'names',
-                    'namesAndDescriptions', 'queryDescriptionFor', 'getBases',
-                    'getDescriptionFor', 'getDoc', 'getName', 'getTaggedValue',
-                    'getTaggedValueTags', 'isEqualOrExtendedBy', 'setTaggedValue',
-                    'isImplementedByInstancesOf',
-                    # twisted
-                    'adaptWith',
-                    # logilab.common interface
-                    'is_implemented_by'),
-                 'type' : 'csv',
-                 'metavar' : '<method names>',
-                 'help' : 'List of interface methods to ignore, \
-separated by a comma. This is used for instance to not check methods defines \
-in Zope\'s Interface base class.'}
+                # TODO(cpopa): remove this in Pylint 1.7.
+                deprecated_option(opt_type="csv",
+                                  help_msg="This is deprecated, because "
+                                           "it is not used anymore.")
                ),
                ('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
@@ -315,12 +294,11 @@ a metaclass class method.'}
         self._meth_could_be_func = None
 
     def visit_class(self, node):
-        """init visit variable _accessed and check interfaces
+        """init visit variable _accessed
         """
         self._accessed.append(defaultdict(list))
         self._check_bases_classes(node)
-        self._check_interfaces(node)
-        # if not an interface, exception, metaclass
+        # if not an exception or a metaclass
         if node.type == 'class':
             try:
                 node.local_attr('__init__')
@@ -328,6 +306,20 @@ a metaclass class method.'}
                 self.add_message('no-init', args=node, node=node)
         self._check_slots(node)
         self._check_proper_bases(node)
+        self._check_consistent_mro(node)
+
+    @check_messages('inconsistent-mro', 'duplicate-bases')
+    def _check_consistent_mro(self, node):
+        """Detect that a class has a consistent mro or duplicate bases."""
+        try:
+            node.mro()
+        except InconsistentMroError:
+            self.add_message('inconsistent-mro', args=node.name, node=node)
+        except DuplicateBasesError:
+            self.add_message('duplicate-bases', args=node.name, node=node)
+        except NotImplementedError:
+            # Old style class, there's no mro so don't do anything.
+            pass
 
     @check_messages('inherit-non-class')
     def _check_proper_bases(self, node):
@@ -538,8 +530,7 @@ a metaclass class method.'}
         """on method node, check if this method couldn't be a function
 
         ignore class, static and abstract methods, initializer,
-        methods overridden from a parent class and any
-        kind of method defined in an interface for this warning
+        methods overridden from a parent class.
         """
         if node.is_method():
             if node.args.args is not None:
@@ -551,8 +542,7 @@ a metaclass class method.'}
                     and not node.name in PYMETHODS
                     and not (node.is_abstract() or
                              overrides_a_method(class_node, node.name) or
-                             decorated_with_property(node))
-                    and class_node.type != 'interface'):
+                             decorated_with_property(node))):
                 self.add_message('no-self-use', node=node)
 
     def visit_getattr(self, node):
@@ -823,55 +813,6 @@ a metaclass class method.'}
             self.add_message('abstract-method', node=node,
                              args=(name, owner.name))
 
-    def _check_interfaces(self, node):
-        """check that the given class node really implements declared
-        interfaces
-        """
-        e0221_hack = [False]
-        def iface_handler(obj):
-            """filter interface objects, it should be classes"""
-            if not isinstance(obj, astroid.Class):
-                e0221_hack[0] = True
-                self.add_message('interface-is-not-class', node=node,
-                                 args=(obj.as_string(),))
-                return False
-            return True
-        ignore_iface_methods = self.config.ignore_iface_methods
-        try:
-            for iface in node.interfaces(handler_func=iface_handler):
-                for imethod in iface.methods():
-                    name = imethod.name
-                    if name.startswith('_') or name in ignore_iface_methods:
-                        # don't check method beginning with an underscore,
-                        # usually belonging to the interface implementation
-                        continue
-                    # get class method astroid
-                    try:
-                        method = node_method(node, name)
-                    except astroid.NotFoundError:
-                        self.add_message('missing-interface-method',
-                                         args=(name, iface.name),
-                                         node=node)
-                        continue
-                    # ignore inherited methods
-                    if method.parent.frame() is not node:
-                        continue
-                    # check signature
-                    self._check_signature(method, imethod,
-                                          '%s interface' % iface.name)
-        except astroid.InferenceError:
-            if e0221_hack[0]:
-                return
-            implements = Instance(node).getattr('__implements__')[0]
-            assignment = implements.parent
-            assert isinstance(assignment, astroid.Assign)
-            # assignment.expr can be a Name or a Tuple or whatever.
-            # Use as_string() for the message
-            # FIXME: in case of multiple interfaces, find which one could not
-            #        be resolved
-            self.add_message('unresolved-interface', node=implements,
-                             args=(node.name, assignment.value.as_string()))
-
     def _check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
         method
@@ -923,8 +864,6 @@ a metaclass class method.'}
 
     def _check_signature(self, method1, refmethod, class_type):
         """check that the signature of the two given methods match
-
-        class_type is in 'class', 'interface'
         """
         if not (isinstance(method1, astroid.Function)
                 and isinstance(refmethod, astroid.Function)):

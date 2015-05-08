@@ -28,7 +28,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     safe_infer, is_super,
     check_messages, decorated_with_property,
-    decorated_with)
+    decorated_with, has_known_bases)
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -87,6 +87,53 @@ MSGS = {
 # builtin sequence types in Python 2 and 3.
 SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
                       'xrange', 'range', 'bytes', 'memoryview'])
+
+
+def _emit_no_member(owner, owner_name, attrname,
+                    ignored_modules, ignored_mixins, ignored_classes):
+    """Try to see if no-member should be emitted for the given owner.
+
+    The following cases are ignored:
+
+        * the owner is a function and it has decorators.
+        * the owner is an instance and it has __getattr__, __getattribute__ implemented
+        * the module is explicitly ignored from no-member checks
+        * the owner is a class and the name can be found in its metaclass.
+    """
+    if owner_name in ignored_classes:
+        return False
+    # skip None anyway
+    if isinstance(owner, astroid.Const) and owner.value is None:
+        return False
+    # TODO(cpopa): This should be removed when we'll understand "super"
+    if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
+        return False
+    if ignored_mixins and owner_name[-5:].lower() == 'mixin':
+        return False
+    if isinstance(owner, astroid.Function) and owner.decorators:
+        return False
+    if isinstance(owner, Instance):
+        if owner.has_dynamic_getattr() or not has_known_bases(owner):
+            return False
+    # explicit skipping of module member access
+    if owner.root().name in ignored_modules:
+        return False
+    if isinstance(owner, astroid.Class):
+        # Look up in the metaclass only if the owner is itself
+        # a class.
+        # TODO: getattr doesn't return by default members
+        # from the metaclass, because handling various cases
+        # of methods accessible from the metaclass itself
+        # and/or subclasses only is too complicated for little to
+        # no benefit.
+        metaclass = owner.metaclass() or owner.implicit_metaclass()
+        try:
+            if metaclass and metaclass.getattr(attrname):
+                return False
+        except NotFoundError:
+            pass
+    return True
+
 
 def _determine_callable(callable_obj):
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
@@ -229,24 +276,13 @@ accessed. Python regular expressions are accepted.'}
             return
         # list of (node, nodename) which are missing the attribute
         missingattr = set()
-        ignoremim = self.config.ignore_mixin_members
         inference_failure = False
         for owner in infered:
             # skip yes object
             if owner is YES:
                 inference_failure = True
                 continue
-            # skip None anyway
-            if isinstance(owner, astroid.Const) and owner.value is None:
-                continue
-            # XXX "super" / metaclass call
-            if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
-                continue
             name = getattr(owner, 'name', 'None')
-            if name in self.config.ignored_classes:
-                continue
-            if ignoremim and name[-5:].lower() == 'mixin':
-                continue
             try:
                 if not [n for n in owner.getattr(node.attrname)
                         if not isinstance(n.statement(), astroid.AugAssign)]:
@@ -256,27 +292,18 @@ accessed. Python regular expressions are accepted.'}
                 # XXX method / function
                 continue
             except NotFoundError:
-                if isinstance(owner, astroid.Function) and owner.decorators:
+                # This can't be moved before the actual .getattr call,
+                # because there can be more values inferred and we are
+                # stopping after the first one which has the attribute in question.
+                # The problem is that if the first one has the attribute,
+                # but we continue to the next values which doesn't have the
+                # attribute, then we'll have a false positive.
+                # So call this only after the call has been made.
+                if not _emit_no_member(owner, name, node.attrname,
+                                       self.config.ignored_modules,
+                                       self.config.ignore_mixin_members,
+                                       self.config.ignored_classes):
                     continue
-                if isinstance(owner, Instance) and owner.has_dynamic_getattr():
-                    continue
-                # explicit skipping of module member access
-                if owner.root().name in self.config.ignored_modules:
-                    continue
-                if isinstance(owner, astroid.Class):
-                    # Look up in the metaclass only if the owner is itself
-                    # a class.
-                    # TODO: getattr doesn't return by default members
-                    # from the metaclass, because handling various cases
-                    # of methods accessible from the metaclass itself
-                    # and/or subclasses only is too complicated for little to
-                    # no benefit.
-                    metaclass = owner.metaclass()
-                    try:
-                        if metaclass and metaclass.getattr(node.attrname):
-                            continue
-                    except NotFoundError:
-                        pass
                 missingattr.add((owner, name))
                 continue
             # stop on the first found

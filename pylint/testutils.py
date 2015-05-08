@@ -129,6 +129,8 @@ class TestReporter(BaseReporter):
     def display_results(self, layout):
         """ignore layouts"""
 
+    _display = None
+
 
 class Message(collections.namedtuple('Message',
                                      ['msg_id', 'line', 'node', 'args'])):
@@ -316,7 +318,7 @@ class LintTestUsingFile(LintTestUsingModule):
             importable += '.py'
         tocheck = [importable]
         if self.depends:
-            tocheck += [join(self.INPUT_DIR, name) for name, _file in self.depends]
+            tocheck += [join(self.INPUT_DIR, name) for name, _ in self.depends]
         self._test(tocheck)
 
 class LintTestUpdate(LintTestUsingModule):

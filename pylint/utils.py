@@ -925,3 +925,19 @@ def get_global_option(checker, option, default=None):
             if options[0] == option:
                 return getattr(provider.config, option.replace("-", "_"))
     return default
+
+
+def deprecated_option(shortname=None, opt_type=None, help_msg=None):
+    def _warn_deprecated(option, optname, *args): # pylint: disable=unused-argument
+        sys.stderr.write('Warning: option %s is deprecated and ignored.\n' % (optname,))
+
+    option = {
+        'help': help_msg,
+        'hide': True,
+        'type': opt_type,
+        'action': 'callback',
+        'callback': _warn_deprecated
+    }
+    if shortname:
+        option['shortname'] = shortname
+    return option

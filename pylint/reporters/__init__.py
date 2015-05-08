@@ -17,6 +17,8 @@ from __future__ import print_function
 import sys
 import locale
 import os
+import warnings
+
 import six
 
 
@@ -68,7 +70,10 @@ class BaseReporter(object):
 
     def add_message(self, msg_id, location, msg):
         """Deprecated, do not use."""
-        raise NotImplementedError
+        # pylint: disable=no-self-use,unused-argument
+        msg = ("This method is deprecated, use handle_message instead. "
+               "It will be removed in Pylint 1.6.")
+        warnings.warn(msg, DeprecationWarning, stacklevel=2)
 
     def set_output(self, output=None):
         """set output stream"""
@@ -127,6 +132,8 @@ class CollectingReporter(BaseReporter):
 
     def handle_message(self, msg):
         self.messages.append(msg)
+
+    _display = None
 
 
 def initialize(linter):

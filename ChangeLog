@@ -2,6 +2,10 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Don't emit import-error for ignored modules. PyLint will not emit import
+      errors for any import which is, or is a subpackage of, a module in
+      the ignored-modules list. Closes issue #223.
+
     * Fix unused-import false positive when the import is used in a
       class assignment. Closes issue #475
 
@@ -63,7 +67,35 @@ ChangeLog for Pylint
       Since the __new__ comes from builtins, it will not have attached any
       information regarding what parameters it expects, so the check
       will be useless. Retrieving __init__ in that case will at least
-      detect a couple of false negatives. Closes issue #429. 
+      detect a couple of false negatives. Closes issue #429.
+
+    * Don't emit no-member for classes with unknown bases.
+
+      Since we don't know what those bases might add, we simply ignore
+      the error in this case. 
+
+    * Lookup in the implicit metaclass when checking for no-member,
+      if the class in question has an implicit metaclass, which is
+      True for new style classes. Closes issue #438.
+
+    * Add two new warnings, duplicate-bases and inconsistent-mro.
+
+      duplicate-bases is emitted when a class has the same bases
+      listed more than once in its bases definition, while inconsistent-mro
+      is emitted when no sane mro hierarchy can be determined. Closes issue #526.
+
+    * Remove interface-not-implemented warning. Closes issue #532.
+
+    * Remove the rest of interface checks: interface-is-not-class,
+      missing-interface-method, unresolved-interface. The reason is that
+      its better to start recommending ABCs instead of the old Zope era
+      of interfaces. One side effect of this change is that ignore-iface-methods
+      becomes a noop, it's deprecated and it will be removed at some time.
+
+    * Emit a proper deprecation warning for reporters.BaseReporter.add_message.
+
+      The alternative way is to use handle_message. add_message will be removed in
+      Pylint 1.6.
 
 
 2015-03-14 -- 1.4.3

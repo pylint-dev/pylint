@@ -208,27 +208,14 @@ tricks like: ::
 5. Classes and Inheritance
 ==========================
 
-5.1 When is Pylint considering a class as an interface?
--------------------------------------------------------
 
-A class is considered as an interface if there is a class named "Interface"
-somewhere in its inheritance tree.
-
-5.2 When is Pylint considering that a class is implementing a given interface?
---------------------------------------------------------------------------------
-
-Pylint is using the Zope 2 interfaces conventions, and so is
-considering that a class is implementing interfaces listed in its
-__implements__ attribute.
-
-
-5.3 When is Pylint considering a class as an abstract class?
+5.1 When is Pylint considering a class as an abstract class?
 -------------------------------------------------------------
 
 A class is considered as an abstract class if at least one of its
 methods is doing nothing but raising NotImplementedError.
 
-5.4 How do I avoid "access to undefined member" messages in my mixin classes?
+5.2 How do I avoid "access to undefined member" messages in my mixin classes?
 -------------------------------------------------------------------------------
 
 To do so you have to set the ignore-mixin-members option to
