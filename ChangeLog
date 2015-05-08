@@ -275,6 +275,12 @@ ChangeLog for Pylint
     * Properly handle unicode format strings for Python 2.
       Closes issue #296.
 
+    * Added new module 'extensions' for optional checkers with the test
+      directory 'test/extensions' and documentation file 'doc/extensions.rst'.
+
+    * Added new checker 'extensions.check_docs' that verifies Sphinx parameter
+      documention
+
     * Don't emit 'import-error' if an import was protected by a try-except,
       which excepted ImportError.
 
