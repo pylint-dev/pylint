@@ -1,2 +1,0 @@
-F: 11: Unable to import 'stringfile'
-W:  8: Uses of a deprecated module 'Bastion' 

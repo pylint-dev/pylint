@@ -185,7 +185,7 @@ class ImportsChecker(BaseChecker):
     if sys.version_info < (3,):
         deprecated_modules = ('regsub', 'TERMIOS', 'Bastion', 'rexec')
     else:
-        deprecated_modules = ('stringprep', 'optparse')
+        deprecated_modules = ('optparse', )
     options = (('deprecated-modules',
                 {'default' : deprecated_modules,
                  'type' : 'csv',
