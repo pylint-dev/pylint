@@ -23,6 +23,8 @@ class SpinxDocCheckerTest(CheckerTestCase):
         def function_foo(x, y):
             '''docstring ...
 
+            :param x: bla
+            
             missing parameter documentation'''
             pass
         """)
@@ -30,12 +32,25 @@ class SpinxDocCheckerTest(CheckerTestCase):
             Message(
                 msg_id='missing-sphinx-param',
                 node=node,
-                args=('x, y',)),
+                args=('y',)),
             Message(
                 msg_id='missing-sphinx-type',
                 node=node,
                 args=('x, y',))
         ):
+            self.checker.visit_function(node)
+
+    def test_tolerate_no_sphinx_param_documentation_at_all(self):
+        """Example of a function with no Sphinx parameter documentation at all
+        """
+        node = test_utils.extract_node("""
+        def function_foo(x, y):
+            '''docstring ...
+
+            missing parameter documentation'''
+            pass
+        """)
+        with self.assertNoMessages():
             self.checker.visit_function(node)
 
     def test_missing_method_params_in_docstring(self):
@@ -47,7 +62,10 @@ class SpinxDocCheckerTest(CheckerTestCase):
             def method_foo(self, x, y):
                 '''docstring ...
 
-                missing parameter documentation'''
+                missing parameter documentation
+
+                :param x: bla
+                '''
                 pass
         """)
         method_node = node.body[0]
@@ -55,7 +73,7 @@ class SpinxDocCheckerTest(CheckerTestCase):
             Message(
                 msg_id='missing-sphinx-param',
                 node=method_node,
-                args=('x, y',)),
+                args=('y',)),
             Message(
                 msg_id='missing-sphinx-type',
                 node=method_node,
@@ -168,7 +186,10 @@ class SpinxDocCheckerTest(CheckerTestCase):
         class ClassFoo(object):
             '''docstring foo
 
-            missing constructor parameter documentation'''
+            :param y: bla
+            
+            missing constructor parameter documentation
+            '''
 
             def __init__(self, x, y):
                 pass
@@ -178,7 +199,7 @@ class SpinxDocCheckerTest(CheckerTestCase):
             Message(
                 msg_id='missing-sphinx-param',
                 node=node,
-                args=('x, y',)),
+                args=('x',)),
             Message(
                 msg_id='missing-sphinx-type',
                 node=node,
