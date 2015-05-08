@@ -1,3 +1,0 @@
-E:  1: invalid syntax
-E:  2: expected an indented block
-
