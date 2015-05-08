@@ -65,6 +65,10 @@ class SphinxDocChecker(BaseChecker):
         \.                      # final dot
         """, re.X | re.S)
 
+    re_param = re.compile(r"""
+        :\s*param\b
+        """, re.X | re.S)
+
     re_sphinx_param_in_docstring = re.compile(r"""
         :param                  # Sphinx keyword
         \s+                     # whitespace
@@ -103,6 +107,10 @@ class SphinxDocChecker(BaseChecker):
           function carrying the same name as the current function, missing
           parameter documentations are tolerated, but the existing parameters
           mentioned in the documentation are checked.
+        * If there's no Sphinx parameter documentation at all, i.e. ``:param``
+          is never mentioned, the checker assumes that the parameters are
+          documented in some format other than Sphinx and the absence is
+          tolerated.
 
         :param node: Node for a function, method or class definition in the AST.
         :type node: :class:`astroid.scoped_nodes.Function` or
@@ -121,7 +129,8 @@ class SphinxDocChecker(BaseChecker):
             return
 
         tolerate_missing_params = False
-        if self.re_for_parameters_see.search(doc) is not None:
+        if (self.re_for_parameters_see.search(doc) is not None
+                or self.re_param.search(doc) is None):
             tolerate_missing_params = True
 
         # Collect the function arguments.
