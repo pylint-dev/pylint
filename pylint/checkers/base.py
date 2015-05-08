@@ -57,7 +57,7 @@ COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9_]*$')
 DEFAULT_NAME_RGX = re.compile('[a-z_][a-z0-9_]{2,30}$')
 CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
 # do not require a doc string on private/system methods
-NO_REQUIRED_DOC_RGX = re.compile('^(__\w+__|_\w+)$')
+NO_REQUIRED_DOC_RGX = re.compile('^_')
 REVERSED_PROTOCOL_METHOD = '__reversed__'
 SEQUENCE_PROTOCOL_METHODS = ('__getitem__', '__len__')
 REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS,
