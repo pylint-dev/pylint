@@ -42,6 +42,8 @@ class SpinxDocCheckerTest(CheckerTestCase):
 
     def test_tolerate_no_sphinx_param_documentation_at_all(self):
         """Example of a function with no Sphinx parameter documentation at all
+
+        No error message is emitted.
         """
         node = test_utils.extract_node("""
         def function_foo(x, y):
