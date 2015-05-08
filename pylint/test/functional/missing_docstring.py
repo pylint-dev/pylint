@@ -24,3 +24,12 @@ class ClassUndocumented(object): # [missing-docstring]
 
 def public_undocumented(): # [missing-docstring]
     pass
+
+
+def __sizeof__():
+    # Special
+    pass
+
+
+def __mangled():
+    pass
