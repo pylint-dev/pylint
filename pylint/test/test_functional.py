@@ -246,11 +246,11 @@ class LintModuleTest(unittest.TestCase):
             self.skipTest('Requires %s to be present.' % (','.join(missing),))
         if self._test_file.options['except_implementations']:
             implementations = [
-                item.strip for item in
+                item.strip() for item in
                 self._test_file.options['except_implementations'].split(",")
             ]
             implementation = platform.python_implementation()
-            if implementation not in implementations:
+            if implementation in implementations:
                 self.skipTest(
                     'Test cannot run with Python implementation %r'
                      % (implementation, ))
