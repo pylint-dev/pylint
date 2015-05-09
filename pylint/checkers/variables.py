@@ -898,10 +898,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                 self.add_message('undefined-variable',
                                                  args=name, node=node)
 
-            if isinstance(node, astroid.AssName): # Aug AssName
-                del consumed[name]
-            else:
-                del to_consume[name]
+            del to_consume[name]
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
             break
