@@ -1,3 +1,0 @@
-C:  1: Missing module docstring
-F:  2: Unable to import 'syntax_error'
-W:  2: Unused import syntax_error
