@@ -284,9 +284,9 @@ class SpinxDocCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_function(node)
 
-    def test_wrong_name_of_func_params_in_docstring(self):
+    def test_wrong_name_of_func_params_in_sphinx_docstring(self):
         """Example of functions with inconsistent parameter names in the
-        signature and in the documentation
+        signature and in the Sphinx style documentation
         """
         node = test_utils.extract_node("""
         def function_foo(xarg, yarg, zarg):
@@ -320,6 +320,114 @@ class SpinxDocCheckerTest(CheckerTestCase):
 
             :param yarg1: bla yarg
             :type yarg1: float
+
+            For the other parameters, see bla.
+            '''
+            return xarg + yarg
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('yarg1',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('yarg1',))
+        ):
+            self.checker.visit_function(node)
+
+    def test_wrong_name_of_func_params_in_google_docstring(self):
+        """Example of functions with inconsistent parameter names in the
+        signature and in the Google style documentation
+        """
+        node = test_utils.extract_node("""
+        def function_foo(xarg, yarg, zarg):
+            '''function foo ...
+
+            Args:
+                xarg1 (int): bla xarg
+                yarg (float): bla yarg
+
+                zarg1 (str): bla zarg
+            '''
+            return xarg + yarg
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('xarg, xarg1, zarg, zarg1',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('xarg, xarg1, zarg, zarg1',)),
+        ):
+            self.checker.visit_function(node)
+
+        node = test_utils.extract_node("""
+        def function_foo(xarg, yarg):
+            '''function foo ...
+
+            Args:
+                yarg1 (float): bla yarg
+
+            For the other parameters, see bla.
+            '''
+            return xarg + yarg
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('yarg1',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('yarg1',))
+        ):
+            self.checker.visit_function(node)
+
+    def test_wrong_name_of_func_params_in_numpy_docstring(self):
+        """Example of functions with inconsistent parameter names in the
+        signature and in the Numpy style documentation
+        """
+        node = test_utils.extract_node("""
+        def function_foo(xarg, yarg, zarg):
+            '''function foo ...
+
+            Parameters
+            ----------
+            xarg1: int
+                bla xarg
+            yarg: float
+                bla yarg
+
+            zarg1: str
+                bla zarg
+            '''
+            return xarg + yarg
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('xarg, xarg1, zarg, zarg1',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('xarg, xarg1, zarg, zarg1',)),
+        ):
+            self.checker.visit_function(node)
+
+        node = test_utils.extract_node("""
+        def function_foo(xarg, yarg):
+            '''function foo ...
+
+            Parameters
+            ----------
+            yarg1: float
+                bla yarg
 
             For the other parameters, see bla.
             '''
