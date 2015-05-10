@@ -59,6 +59,12 @@ class Sub1(Super):
         """no i can not be a function"""
         print(42)
 
+    def __copy__(self, other):
+        return 24
+
+    def __getstate__(self):
+        return 42
+
 
 class Prop(object):
 
