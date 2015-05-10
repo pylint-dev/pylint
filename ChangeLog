@@ -100,6 +100,12 @@ ChangeLog for Pylint
       The alternative way is to use handle_message. add_message will be removed in
       Pylint 1.6.
 
+    * Added new module 'extensions' for optional checkers with the test
+      directory 'test/extensions' and documentation file 'doc/extensions.rst'.
+
+    * Added new checker 'extensions.check_docs' that verifies parameter
+      documention in Sphinx, Google, and Numpy style.
+
 
 2015-03-14 -- 1.4.3
 
