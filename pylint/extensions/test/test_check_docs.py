@@ -445,10 +445,10 @@ class SpinxDocCheckerTest(CheckerTestCase):
         ):
             self.checker.visit_function(node)
 
-    def test_see_sentence_for_func_params_in_docstring(self):
+    def test_see_sentence_for_func_params_in_sphinx_docstring(self):
         """Example for the usage of "For the other parameters, see" to avoid
         too many repetitions, e.g. in functions or methods adhering to a
-        given interface
+        given interface (Sphinx style)
         """
         node = test_utils.extract_node("""
         def function_foo(xarg, yarg):
@@ -456,6 +456,46 @@ class SpinxDocCheckerTest(CheckerTestCase):
 
             :param yarg: bla yarg
             :type yarg: float
+
+            For the other parameters, see :func:`bla`
+            '''
+            return xarg + yarg
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
+
+    def test_see_sentence_for_func_params_in_google_docstring(self):
+        """Example for the usage of "For the other parameters, see" to avoid
+        too many repetitions, e.g. in functions or methods adhering to a
+        given interface (Google style)
+        """
+        node = test_utils.extract_node("""
+        def function_foo(xarg, yarg):
+            '''function foo ...
+
+            Args:
+                yarg (float): bla yarg
+
+            For the other parameters, see :func:`bla`
+            '''
+            return xarg + yarg
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
+
+    def test_see_sentence_for_func_params_in_numpy_docstring(self):
+        """Example for the usage of "For the other parameters, see" to avoid
+        too many repetitions, e.g. in functions or methods adhering to a
+        given interface (Numpy style)
+        """
+        node = test_utils.extract_node("""
+        def function_foo(xarg, yarg):
+            '''function foo ...
+
+            Parameters
+            ----------
+            yarg: float
+                bla yarg
 
             For the other parameters, see :func:`bla`
             '''
