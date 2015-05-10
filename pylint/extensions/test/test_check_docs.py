@@ -121,9 +121,9 @@ class SpinxDocCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_function(node)
 
-    def test_missing_method_params_in_docstring(self):
+    def test_missing_method_params_in_sphinx_docstring(self):
         """Example of a class method with missing parameter documentation in
-        the docstring
+        the Sphinx style docstring
         """
         node = test_utils.extract_node("""
         class Foo(object):
@@ -133,6 +133,66 @@ class SpinxDocCheckerTest(CheckerTestCase):
                 missing parameter documentation
 
                 :param x: bla
+                '''
+                pass
+        """)
+        method_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=method_node,
+                args=('y',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=method_node,
+                args=('x, y',))
+        ):
+            self.checker.visit_class(node)
+
+    def test_missing_method_params_in_google_docstring(self):
+        """Example of a class method with missing parameter documentation in
+        the Google style docstring
+        """
+        node = test_utils.extract_node("""
+        class Foo(object):
+            def method_foo(self, x, y):
+                '''docstring ...
+
+                missing parameter documentation
+
+                Args:
+                    x: bla
+                '''
+                pass
+        """)
+        method_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=method_node,
+                args=('y',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=method_node,
+                args=('x, y',))
+        ):
+            self.checker.visit_class(node)
+
+    def test_missing_method_params_in_numpy_docstring(self):
+        """Example of a class method with missing parameter documentation in
+        the Numpy style docstring
+        """
+        node = test_utils.extract_node("""
+        class Foo(object):
+            def method_foo(self, x, y):
+                '''docstring ...
+
+                missing parameter documentation
+
+                Parameters
+                ----------
+                x:
+                    bla
                 '''
                 pass
         """)
