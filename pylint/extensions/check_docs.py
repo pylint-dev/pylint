@@ -9,6 +9,17 @@ from pylint.checkers import BaseChecker
 import astroid.scoped_nodes
 
 
+def space_indentation(s):
+    """The number of leading spaces in a string
+
+    :param str s: input string
+
+    :rtype: int
+    :return: number of leading spaces
+    """
+    return len(s) - len(s.lstrip(' '))
+
+
 class SphinxDocChecker(BaseChecker):
     """Checker for Sphinx documentation parameters
 
@@ -60,15 +71,6 @@ class SphinxDocChecker(BaseChecker):
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """, re.X | re.S)
 
-    re_prefix_of_func_name = re.compile(r"""
-        .*                      # part before final dot
-        \.                      # final dot
-        """, re.X | re.S)
-
-    re_param = re.compile(r"""
-        :\s*param\b
-        """, re.X | re.S)
-
     re_sphinx_param_in_docstring = re.compile(r"""
         :param                  # Sphinx keyword
         \s+                     # whitespace
@@ -91,6 +93,29 @@ class SphinxDocChecker(BaseChecker):
         :                       # final colon
         """, re.X | re.S)
 
+    re_google_param_section = re.compile(r"""
+        ^([ ]*)   Args \s*:   \s*?$   # Google parameter header
+        (  .* )                       # section
+        """, re.X | re.S | re.M)
+
+    re_google_param_line = re.compile(r"""
+        \s*  (\w+)                    # identifier
+        \s*  ( [(] .*? [)] )? \s* :   # optional type declaration
+        \s*  ( \w+ )?                 # beginning of optional description
+    """, re.X)
+    
+    re_numpy_param_section = re.compile(r"""
+        ^([ ]*)   Parameters   \s*?$   # Numpy parameters header
+        \s*     [-=]+   \s*?$          # underline
+        (  .* )                        # section
+    """, re.X | re.S | re.M)
+
+    re_numpy_param_line = re.compile(r"""
+        \s*  (\w+)                    # identifier
+        \s*  :                        
+        \s*  ( \w+ )?                 # optional type declaration
+    """, re.X)
+
     not_needed_param_in_docstring = set(['self', 'cls'])
 
     def check_arguments_in_docstring(self, node, doc, arguments_node):
@@ -107,10 +132,13 @@ class SphinxDocChecker(BaseChecker):
           function carrying the same name as the current function, missing
           parameter documentations are tolerated, but the existing parameters
           mentioned in the documentation are checked.
-        * If there's no Sphinx parameter documentation at all, i.e. ``:param``
-          is never mentioned, the checker assumes that the parameters are
-          documented in some format other than Sphinx and the absence is
-          tolerated.
+        * If the text "For the parameters, see" or "For the other parameters,
+          see" (ignoring additional whitespace) is mentioned in the docstring,
+          missing parameter documentation is tolerated.
+        * If there's no Sphinx style, Google style or NumPy style parameter
+          documentation at all, i.e. ``:param`` is never mentioned etc., the
+          checker assumes that the parameters are documented in another format
+          and the absence is tolerated.
 
         :param node: Node for a function, method or class definition in the AST.
         :type node: :class:`astroid.scoped_nodes.Function` or
@@ -125,12 +153,13 @@ class SphinxDocChecker(BaseChecker):
         """
         # Tolerate missing param or type declarations if there is a link to
         # another method carrying the same name.
-        if node.doc is None:
+        if doc is None:
             return
 
+        doc = doc.expandtabs()
+
         tolerate_missing_params = False
-        if (self.re_for_parameters_see.search(doc) is not None
-                or self.re_param.search(doc) is None):
+        if self.re_for_parameters_see.search(doc) is not None:
             tolerate_missing_params = True
 
         # Collect the function arguments.
@@ -173,20 +202,93 @@ class SphinxDocChecker(BaseChecker):
                         sorted(missing_or_differing_argument_names)),),
                     node=node)
 
-        # Sphinx param declarations
-        found_argument_names = []
-        for match in re.finditer(self.re_sphinx_param_in_docstring, doc):
-            name = match.group(2)
-            found_argument_names.append(name)
-            if match.group(1) is not None:
-                not_needed_type_in_docstring.add(name)
-        compare_args(found_argument_names, 'missing-sphinx-param',
-                     self.not_needed_param_in_docstring)
+        params_with_doc, params_with_type = self.match_param_docs(doc)
 
-        # Sphinx type declarations
-        found_argument_names = re.findall(self.re_sphinx_type_in_docstring, doc)
-        compare_args(found_argument_names, 'missing-sphinx-type',
+        # Tolerate no parameter documentation at all.
+        if not params_with_doc:
+            tolerate_missing_params = True
+        
+        compare_args(params_with_doc, 'missing-sphinx-param',
+                     self.not_needed_param_in_docstring)
+        compare_args(params_with_type, 'missing-sphinx-type',
                      not_needed_type_in_docstring)
+        
+    def match_param_docs(self, doc):
+        """Match parameter documentation in docstrings written in Sphinx, Google
+        or NumPy style
+
+        :param str doc: docstring
+
+        :return: tuple of lists of str: params_with_doc, params_with_type
+        """
+        params_with_doc = []
+        params_with_type = []
+        
+        if self.re_sphinx_param_in_docstring.search(doc) is not None:
+            # Sphinx param declarations
+            for match in re.finditer(self.re_sphinx_param_in_docstring, doc):
+                name = match.group(2)
+                params_with_doc.append(name)
+                if match.group(1) is not None:
+                    params_with_type.append(name)
+
+            # Sphinx type declarations
+            params_with_type += re.findall(
+                self.re_sphinx_type_in_docstring, doc)
+        else:
+            match = self.re_google_param_section.search(doc)
+            if match is not None:
+                is_google = True
+                re_line = self.re_google_param_line
+            else:
+                match = self.re_numpy_param_section.search(doc)
+                if match is not None:
+                    is_google = False
+                    re_line = self.re_numpy_param_line
+                else:
+                    # some other documentation style
+                    return [], []
+                
+            min_indentation = len(match.group(1))
+            if is_google:
+                min_indentation += 1
+
+            prev_param_name = None
+            is_first = True
+            for line in match.group(2).splitlines():
+                if not line.strip():
+                    continue
+                indentation = space_indentation(line)
+                if indentation < min_indentation:
+                    break
+                
+                # The first line after the header defines the minimum
+                # indentation.
+                if is_first:
+                    min_indentation = indentation
+                    is_first = False
+                    
+                if indentation > min_indentation:
+                    # Lines with more than minimum indentation must contain a
+                    # description.
+                    if (not params_with_doc
+                        or params_with_doc[-1] != prev_param_name):
+                        assert prev_param_name is not None
+                        params_with_doc.append(prev_param_name)
+                else:
+                    # Lines with minimum indentation must contain the beginning
+                    # of a new parameter documentation.
+                    match = re_line.match(line)
+                    if match is None:
+                        break
+                    prev_param_name = match.group(1)
+                    if match.group(2) is not None:
+                        params_with_type.append(prev_param_name)
+                    
+                    if is_google and match.group(3) is not None:
+                        params_with_doc.append(prev_param_name)
+
+        return params_with_doc, params_with_type
 
     constructor_names = set(["__init__", "__new__"])
 

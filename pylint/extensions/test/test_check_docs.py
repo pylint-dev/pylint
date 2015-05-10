@@ -8,22 +8,57 @@ import unittest
 from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message
 
-from pylint.extensions.check_docs import SphinxDocChecker
+from pylint.extensions.check_docs import SphinxDocChecker, space_indentation
 
 
 class SpinxDocCheckerTest(CheckerTestCase):
     """Tests for pylint_plugin.SphinxDocChecker"""
     CHECKER_CLASS = SphinxDocChecker
 
-    def test_missing_func_params_in_docstring(self):
-        """Example of a function with missing parameter documentation in the
-        docstring
+    def test_space_indentation(self):
+        self.assertEqual(space_indentation('abc'), 0)
+        self.assertEqual(space_indentation('  abc'), 2)
+        self.assertEqual(space_indentation('\n  abc'), 0)
+        self.assertEqual(space_indentation('   \n  abc'), 3)
+
+    def test_missing_func_params_in_docstring_sphinx(self):
+        """Example of a function with missing Sphinx parameter documentation in
+        the docstring
         """
         node = test_utils.extract_node("""
-        def function_foo(x, y):
+        def function_foo(x, y, z):
             '''docstring ...
 
             :param x: bla
+
+            :param int z: bar
+            
+            missing parameter documentation'''
+            pass
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('y',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('x, y',))
+        ):
+            self.checker.visit_function(node)
+
+    def test_missing_func_params_in_docstring_google(self):
+        """Example of a function with missing Google style parameter
+        documentation in the docstring
+        """
+        node = test_utils.extract_node("""
+        def function_foo(x, y, z):
+            '''docstring ...
+
+            Args:
+                x: bla
+                z (int): bar
             
             missing parameter documentation'''
             pass
