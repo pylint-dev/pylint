@@ -196,11 +196,6 @@ MSGS = {
               'non-parent-init-called',
               'Used when an __init__ method is called on a class which is not '
               'in the direct ancestors for the analysed class.'),
-    'E0234': ('__iter__ returns non-iterator',
-              'non-iterator-returned',
-              'Used when an __iter__ method returns something which is not an '
-              'iterable (i.e. has no `%s` method)' % NEXT_METHOD,
-              {'old_names': [('W0234', 'non-iterator-returned')]}),
     'E0235': ('__exit__ must accept 3 arguments: type, value, traceback',
               'bad-context-manager',
               'Used when the __exit__ special method, belonging to a '
@@ -443,10 +438,7 @@ a metaclass class method.'}
         except astroid.NotFoundError:
             pass
 
-        # check non-iterators in __iter__
-        if node.name == '__iter__':
-            self._check_iter(node)
-        elif node.name == '__exit__':
+        if node.name == '__exit__':
             self._check_exit(node)
 
     def _check_slots(self, node):
@@ -499,23 +491,6 @@ a metaclass class method.'}
                                  args=infered.as_string(),
                                  node=elt)
 
-    def _check_iter(self, node):
-        try:
-            infered = node.infer_call_result(node)
-        except astroid.InferenceError:
-            return
-
-        for infered_node in infered:
-            if (infered_node is YES
-                    or isinstance(infered_node, Generator)):
-                continue
-            if isinstance(infered_node, astroid.Instance):
-                try:
-                    infered_node.local_attr(NEXT_METHOD)
-                except astroid.NotFoundError:
-                    self.add_message('non-iterator-returned',
-                                     node=node)
-                    break
 
     def _check_exit(self, node):
         positional = sum(1 for arg in node.args.args if arg.name != 'self')
@@ -894,6 +869,49 @@ a metaclass class method.'}
         return self._first_attrs and isinstance(node.expr, astroid.Name) and \
                    node.expr.name == self._first_attrs[-1]
 
+
+class SpecialMethodsChecker(BaseChecker):
+    """Checker which verifies that special methods
+    are implemented correctly.
+    """
+    __implements__ = (IAstroidChecker, )
+    name = 'classes'
+    msgs = {
+    'E0301': ('__iter__ returns non-iterator',
+              'non-iterator-returned',
+              'Used when an __iter__ method returns something which is not an '
+              'iterable (i.e. has no `%s` method)' % NEXT_METHOD,
+              {'old_names': [('W0234', 'non-iterator-returned'),
+                              ('E0234', 'non-iterator-returned')]}),
+    }
+    priority = -2
+
+    @check_messages('non-iterator-returned')
+    def visit_function(self, node):
+        if not node.is_method():
+            return
+        if node.name == '__iter__':
+            self._check_iter(node)
+
+    def _check_iter(self, node):
+        try:
+            infered = node.infer_call_result(node)
+        except astroid.InferenceError:
+            return
+
+        for infered_node in infered:
+            if (infered_node is YES
+                    or isinstance(infered_node, Generator)):
+                continue
+            if isinstance(infered_node, astroid.Instance):
+                try:
+                    infered_node.local_attr(NEXT_METHOD)
+                except astroid.NotFoundError:
+                    self.add_message('non-iterator-returned',
+                                     node=node)
+                    break
+
+
 def _ancestors_to_call(klass_node, method='__init__'):
     """return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node
@@ -919,3 +937,5 @@ def node_method(node, method_name):
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(ClassChecker(linter))
+    linter.register_checker(SpecialMethodsChecker(linter))
+
