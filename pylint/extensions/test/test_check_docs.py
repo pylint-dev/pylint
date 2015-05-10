@@ -209,9 +209,9 @@ class SpinxDocCheckerTest(CheckerTestCase):
         ):
             self.checker.visit_class(node)
 
-    def test_existing_func_params_in_docstring(self):
+    def test_existing_func_params_in_sphinx_docstring(self):
         """Example of a function with correctly documented parameters and
-        return values
+        return values (Sphinx style)
         """
         node = test_utils.extract_node("""
         def function_foo(xarg, yarg, zarg):
@@ -227,6 +227,57 @@ class SpinxDocCheckerTest(CheckerTestCase):
 
             :return: sum
             :rtype: float
+            '''
+            return xarg + yarg
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
+
+    def test_existing_func_params_in_google_docstring(self):
+        """Example of a function with correctly documented parameters and
+        return values (Google style)
+        """
+        node = test_utils.extract_node("""
+        def function_foo(xarg, yarg, zarg):
+            '''function foo ...
+
+            Args:
+                xarg (int): bla xarg
+                yarg (float): bla
+                    bla yarg
+        
+                zarg (int): bla zarg
+
+            Returns:
+                sum (float)
+            '''
+            return xarg + yarg
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_function(node)
+
+    def test_existing_func_params_in_numpy_docstring(self):
+        """Example of a function with correctly documented parameters and
+        return values (Numpy style)
+        """
+        node = test_utils.extract_node("""
+        def function_foo(xarg, yarg, zarg):
+            '''function foo ...
+
+            Parameters
+            ----------
+            xarg: int
+                bla xarg
+            yarg: float
+                bla yarg
+
+            zarg: int
+                bla zarg
+
+            Returns
+            -------
+            float
+                sum
             '''
             return xarg + yarg
         """)
