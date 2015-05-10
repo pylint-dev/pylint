@@ -18,6 +18,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
     def test_space_indentation(self):
         self.assertEqual(space_indentation('abc'), 0)
+        self.assertEqual(space_indentation(''), 0)
         self.assertEqual(space_indentation('  abc'), 2)
         self.assertEqual(space_indentation('\n  abc'), 0)
         self.assertEqual(space_indentation('   \n  abc'), 3)
