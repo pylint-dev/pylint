@@ -249,7 +249,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 zarg (int): bla zarg
 
             Returns:
-                sum (float)
+                float: sum
             '''
             return xarg + yarg
         """)
