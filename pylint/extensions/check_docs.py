@@ -54,7 +54,14 @@ class ParamDocChecker(BaseChecker):
                   'Please add parameter type declarations for all parameters.'),
     }
 
-    options = ()
+    options = (('accept-no-param-doc',
+                {'default': True,
+                 'type': 'bool',
+                 'help': 'Whether to accept totally missing parameter '
+                 'documentation in a docstring of a function that has '
+                 'parameters'
+                 }),
+               )
 
     priority = -2
 
@@ -204,7 +211,8 @@ class ParamDocChecker(BaseChecker):
         params_with_doc, params_with_type = self.match_param_docs(doc)
 
         # Tolerate no parameter documentation at all.
-        if not params_with_doc:
+        if (not params_with_doc and not params_with_type
+                and self.config.accept_no_param_doc):
             tolerate_missing_params = True
         
         compare_args(params_with_doc, 'missing-param-doc',
