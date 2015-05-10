@@ -504,8 +504,9 @@ class SpinxDocCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_function(node)
 
-    def test_constr_params_in_class(self):
+    def test_constr_params_in_class_sphinx(self):
         """Example of a class with missing constructor parameter documentation
+        (Sphinx style)
 
         Everything is completely analogous to functions.
         """
@@ -514,6 +515,72 @@ class SpinxDocCheckerTest(CheckerTestCase):
             '''docstring foo
 
             :param y: bla
+            
+            missing constructor parameter documentation
+            '''
+
+            def __init__(self, x, y):
+                pass
+
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('x',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('x, y',))
+        ):
+            self.checker.visit_class(node)
+
+    def test_constr_params_in_class_google(self):
+        """Example of a class with missing constructor parameter documentation
+        (Google style)
+
+        Everything is completely analogous to functions.
+        """
+        node = test_utils.extract_node("""
+        class ClassFoo(object):
+            '''docstring foo
+
+            Args:
+                y: bla
+            
+            missing constructor parameter documentation
+            '''
+
+            def __init__(self, x, y):
+                pass
+
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('x',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('x, y',))
+        ):
+            self.checker.visit_class(node)
+
+    def test_constr_params_in_class_numpy(self):
+        """Example of a class with missing constructor parameter documentation
+        (Sphinx style)
+
+        Everything is completely analogous to functions.
+        """
+        node = test_utils.extract_node("""
+        class ClassFoo(object):
+            '''docstring foo
+
+            Parameters
+            ----------
+            y:
+                bla
             
             missing constructor parameter documentation
             '''
