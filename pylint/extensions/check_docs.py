@@ -8,7 +8,6 @@ import re
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import node_frame_class
-import astroid.scoped_nodes
 
 
 def space_indentation(s):
@@ -58,10 +57,10 @@ class ParamDocChecker(BaseChecker):
     options = (('accept-no-param-doc',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Whether to accept totally missing parameter '
-                 'documentation in a docstring of a function that has '
-                 'parameters'
-                 }),
-               )
+                         'documentation in a docstring of a function that has '
+                         'parameters'
+                }),
+              )
 
     priority = -2
 
@@ -80,9 +79,9 @@ class ParamDocChecker(BaseChecker):
             class_node = node_frame_class(node)
             if class_node is not None:
                 self.check_arguments_in_docstring(
-                    node, class_node.doc, node.args, class_node)
+                    class_node.doc, node.args, class_node)
                 return
-        self.check_arguments_in_docstring(node, node.doc, node.args, node)
+        self.check_arguments_in_docstring(node.doc, node.args, node)
 
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
@@ -120,7 +119,7 @@ class ParamDocChecker(BaseChecker):
         \s*  ( [(] .*? [)] )? \s* :   # optional type declaration
         \s*  ( \w+ )?                 # beginning of optional description
     """, re.X)
-    
+
     re_numpy_param_section = re.compile(r"""
         ^([ ]*)   Parameters   \s*?$   # Numpy parameters header
         \s*     [-=]+   \s*?$          # underline
@@ -135,8 +134,7 @@ class ParamDocChecker(BaseChecker):
 
     not_needed_param_in_docstring = set(['self', 'cls'])
 
-    def check_arguments_in_docstring(self, node, doc, arguments_node,
-                                     warning_node):
+    def check_arguments_in_docstring(self, doc, arguments_node, warning_node):
         """Check that all parameters in a function, method or class constructor
         on the one hand and the parameters mentioned in the parameter
         documentation (e.g. the Sphinx tags 'param' and 'type') on the other
@@ -155,10 +153,6 @@ class ParamDocChecker(BaseChecker):
           checker assumes that the parameters are documented in another format
           and the absence is tolerated.
 
-        :param node: Node for a function, method or class definition in the AST.
-        :type node: :class:`astroid.scoped_nodes.Function` or
-            :class:`astroid.scoped_nodes.Class`
-
         :param doc: Docstring for the function, method or class.
         :type doc: str
 
@@ -176,9 +170,7 @@ class ParamDocChecker(BaseChecker):
 
         doc = doc.expandtabs()
 
-        tolerate_missing_params = False
-        if self.re_for_parameters_see.search(doc) is not None:
-            tolerate_missing_params = True
+        tolerate_missing_params = self.re_for_parameters_see.search(doc) is not None
 
         # Collect the function arguments.
         expected_argument_names = [arg.name for arg in arguments_node.args]
@@ -192,7 +184,14 @@ class ParamDocChecker(BaseChecker):
             expected_argument_names.append(arguments_node.kwarg)
             not_needed_type_in_docstring.add(arguments_node.kwarg)
 
-        def compare_args(found_argument_names, message_id, not_needed_names):
+        params_with_doc, params_with_type = self.match_param_docs(doc)
+
+        # Tolerate no parameter documentation at all.
+        if (not params_with_doc and not params_with_type
+                and self.config.accept_no_param_doc):
+            tolerate_missing_params = True
+
+        def _compare_args(found_argument_names, message_id, not_needed_names):
             """Compare the found argument names with the expected ones and
             generate a message if there are inconsistencies.
 
@@ -220,18 +219,11 @@ class ParamDocChecker(BaseChecker):
                         sorted(missing_or_differing_argument_names)),),
                     node=warning_node)
 
-        params_with_doc, params_with_type = self.match_param_docs(doc)
+        _compare_args(params_with_doc, 'missing-param-doc',
+                      self.not_needed_param_in_docstring)
+        _compare_args(params_with_type, 'missing-type-doc',
+                      not_needed_type_in_docstring)
 
-        # Tolerate no parameter documentation at all.
-        if (not params_with_doc and not params_with_type
-                and self.config.accept_no_param_doc):
-            tolerate_missing_params = True
-        
-        compare_args(params_with_doc, 'missing-param-doc',
-                     self.not_needed_param_in_docstring)
-        compare_args(params_with_type, 'missing-type-doc',
-                     not_needed_type_in_docstring)
-        
     def match_param_docs(self, doc):
         """Match parameter documentation in docstrings written in Sphinx, Google
         or NumPy style
@@ -242,7 +234,7 @@ class ParamDocChecker(BaseChecker):
         """
         params_with_doc = []
         params_with_type = []
-        
+
         if self.re_sphinx_param_in_docstring.search(doc) is not None:
             # Sphinx param declarations
             for match in re.finditer(self.re_sphinx_param_in_docstring, doc):
@@ -267,7 +259,7 @@ class ParamDocChecker(BaseChecker):
                 else:
                     # some other documentation style
                     return [], []
-                
+
             min_indentation = len(match.group(1))
             if is_google:
                 min_indentation += 1
@@ -280,18 +272,18 @@ class ParamDocChecker(BaseChecker):
                 indentation = space_indentation(line)
                 if indentation < min_indentation:
                     break
-                
+
                 # The first line after the header defines the minimum
                 # indentation.
                 if is_first:
                     min_indentation = indentation
                     is_first = False
-                    
+
                 if indentation > min_indentation:
                     # Lines with more than minimum indentation must contain a
                     # description.
                     if (not params_with_doc
-                        or params_with_doc[-1] != prev_param_name):
+                            or params_with_doc[-1] != prev_param_name):
                         assert prev_param_name is not None
                         params_with_doc.append(prev_param_name)
                 else:
@@ -303,7 +295,7 @@ class ParamDocChecker(BaseChecker):
                     prev_param_name = match.group(1)
                     if match.group(2) is not None:
                         params_with_type.append(prev_param_name)
-                    
+
                     if is_google and match.group(3) is not None:
                         params_with_doc.append(prev_param_name)
 

@@ -877,12 +877,12 @@ class SpecialMethodsChecker(BaseChecker):
     __implements__ = (IAstroidChecker, )
     name = 'classes'
     msgs = {
-    'E0301': ('__iter__ returns non-iterator',
-              'non-iterator-returned',
-              'Used when an __iter__ method returns something which is not an '
-              'iterable (i.e. has no `%s` method)' % NEXT_METHOD,
-              {'old_names': [('W0234', 'non-iterator-returned'),
-                              ('E0234', 'non-iterator-returned')]}),
+        'E0301': ('__iter__ returns non-iterator',
+                  'non-iterator-returned',
+                  'Used when an __iter__ method returns something which is not an '
+                  'iterable (i.e. has no `%s` method)' % NEXT_METHOD,
+                  {'old_names': [('W0234', 'non-iterator-returned'),
+                                 ('E0234', 'non-iterator-returned')]}),
     }
     priority = -2
 
