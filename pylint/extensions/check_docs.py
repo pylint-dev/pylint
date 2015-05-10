@@ -45,7 +45,7 @@ class ParamDocChecker(BaseChecker):
     """
     __implements__ = IAstroidChecker
 
-    name = 'parameter doc checks'
+    name = 'param_checks'
     msgs = {
         'W9003': ('"%s" missing or differing in parameter documentation',
                   'missing-param-doc',
