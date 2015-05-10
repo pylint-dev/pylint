@@ -21,7 +21,7 @@ class SpinxDocCheckerTest(CheckerTestCase):
         self.assertEqual(space_indentation('\n  abc'), 0)
         self.assertEqual(space_indentation('   \n  abc'), 3)
 
-    def test_missing_func_params_in_docstring_sphinx(self):
+    def test_missing_func_params_in_sphinx_docstring(self):
         """Example of a function with missing Sphinx parameter documentation in
         the docstring
         """
@@ -32,8 +32,7 @@ class SpinxDocCheckerTest(CheckerTestCase):
             :param x: bla
 
             :param int z: bar
-            
-            missing parameter documentation'''
+            '''
             pass
         """)
         with self.assertAddsMessages(
@@ -48,7 +47,7 @@ class SpinxDocCheckerTest(CheckerTestCase):
         ):
             self.checker.visit_function(node)
 
-    def test_missing_func_params_in_docstring_google(self):
+    def test_missing_func_params_in_google_docstring(self):
         """Example of a function with missing Google style parameter
         documentation in the docstring
         """
@@ -59,8 +58,9 @@ class SpinxDocCheckerTest(CheckerTestCase):
             Args:
                 x: bla
                 z (int): bar
-            
-            missing parameter documentation'''
+
+            some other stuff
+            '''
             pass
         """)
         with self.assertAddsMessages(
@@ -75,8 +75,39 @@ class SpinxDocCheckerTest(CheckerTestCase):
         ):
             self.checker.visit_function(node)
 
-    def test_tolerate_no_sphinx_param_documentation_at_all(self):
-        """Example of a function with no Sphinx parameter documentation at all
+    def test_missing_func_params_in_numpy_docstring(self):
+        """Example of a function with missing NumPy style parameter
+        documentation in the docstring
+        """
+        node = test_utils.extract_node("""
+        def function_foo(x, y, z):
+            '''docstring ...
+
+            Parameters
+            ----------
+            x:
+                bla
+            z: int
+                bar
+
+            some other stuff
+            '''
+            pass
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-sphinx-param',
+                node=node,
+                args=('y',)),
+            Message(
+                msg_id='missing-sphinx-type',
+                node=node,
+                args=('x, y',))
+        ):
+            self.checker.visit_function(node)
+
+    def test_tolerate_no_param_documentation_at_all(self):
+        """Example of a function with no parameter documentation at all
 
         No error message is emitted.
         """
@@ -168,7 +199,7 @@ class SpinxDocCheckerTest(CheckerTestCase):
             Message(
                 msg_id='missing-sphinx-type',
                 node=node,
-                args=('yarg, yarg1, zarg',)),
+                args=('yarg, yarg1, zarg, zarg1',)),
         ):
             self.checker.visit_function(node)
 
