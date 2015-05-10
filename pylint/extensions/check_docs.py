@@ -55,8 +55,7 @@ class ParamDocChecker(BaseChecker):
     }
 
     options = (('accept-no-param-doc',
-                {'default': True,
-                 'type': 'bool',
+                {'default': True, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Whether to accept totally missing parameter '
                  'documentation in a docstring of a function that has '
                  'parameters'
