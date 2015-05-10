@@ -309,17 +309,6 @@ class ParamDocChecker(BaseChecker):
 
         return params_with_doc, params_with_type
 
-    def visit_class(self, node):
-        """Called for class definitions.
-
-        :param node: Node for a class definition in the AST
-        :type node: :class:`astroid.scoped_nodes.Class`
-        """
-        for body_item in node.body:
-            if (isinstance(body_item, astroid.scoped_nodes.Function)
-                    and hasattr(body_item, 'name')):
-                self.visit_function(body_item)
-
 
 def register(linter):
     """Required method to auto register this checker.

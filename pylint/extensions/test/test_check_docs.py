@@ -6,6 +6,7 @@ from __future__ import division, print_function, absolute_import
 import unittest
 
 from astroid import test_utils
+import astroid.scoped_nodes
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.check_docs import ParamDocChecker, space_indentation
@@ -146,6 +147,17 @@ class ParamDocCheckerTest(CheckerTestCase):
         ):
             self.checker.visit_function(node)
 
+    def _visit_methods_of_class(self, node):
+        """Visit all methods of a class node
+
+        :param node: class node
+        :type node: :class:`astroid.scoped_nodes.Class`
+        """
+        for body_item in node.body:
+            if (isinstance(body_item, astroid.scoped_nodes.Function)
+                    and hasattr(body_item, 'name')):
+                self.checker.visit_function(body_item)
+
     def test_missing_method_params_in_sphinx_docstring(self):
         """Example of a class method with missing parameter documentation in
         the Sphinx style docstring
@@ -172,7 +184,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=method_node,
                 args=('x, y',))
         ):
-            self.checker.visit_class(node)
+            self._visit_methods_of_class(node)
 
     def test_missing_method_params_in_google_docstring(self):
         """Example of a class method with missing parameter documentation in
@@ -201,7 +213,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=method_node,
                 args=('x, y',))
         ):
-            self.checker.visit_class(node)
+            self._visit_methods_of_class(node)
 
     def test_missing_method_params_in_numpy_docstring(self):
         """Example of a class method with missing parameter documentation in
@@ -232,7 +244,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=method_node,
                 args=('x, y',))
         ):
-            self.checker.visit_class(node)
+            self._visit_methods_of_class(node)
 
     def test_existing_func_params_in_sphinx_docstring(self):
         """Example of a function with correctly documented parameters and
@@ -558,7 +570,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('x, y',))
         ):
-            self.checker.visit_class(node)
+            self._visit_methods_of_class(node)
 
     def test_constr_params_in_class_google(self):
         """Example of a class with missing constructor parameter documentation
@@ -590,7 +602,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('x, y',))
         ):
-            self.checker.visit_class(node)
+            self._visit_methods_of_class(node)
 
     def test_constr_params_in_class_numpy(self):
         """Example of a class with missing constructor parameter documentation
@@ -624,7 +636,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('x, y',))
         ):
-            self.checker.visit_class(node)
+            self._visit_methods_of_class(node)
 
 
 if __name__ == '__main__':
