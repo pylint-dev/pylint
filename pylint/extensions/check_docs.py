@@ -7,6 +7,7 @@ import re
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
+from pylint.checkers.utils import node_frame_class
 import astroid.scoped_nodes
 
 
@@ -67,13 +68,21 @@ class ParamDocChecker(BaseChecker):
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
 
+    constructor_names = set(["__init__", "__new__"])
+
     def visit_function(self, node):
         """Called for function and method definitions (def).
 
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
-        self.check_arguments_in_docstring(node, node.doc, node.args)
+        if node.name in self.constructor_names:
+            class_node = node_frame_class(node)
+            if class_node is not None:
+                self.check_arguments_in_docstring(
+                    node, class_node.doc, node.args, class_node)
+                return
+        self.check_arguments_in_docstring(node, node.doc, node.args, node)
 
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
@@ -126,7 +135,8 @@ class ParamDocChecker(BaseChecker):
 
     not_needed_param_in_docstring = set(['self', 'cls'])
 
-    def check_arguments_in_docstring(self, node, doc, arguments_node):
+    def check_arguments_in_docstring(self, node, doc, arguments_node,
+                                     warning_node):
         """Check that all parameters in a function, method or class constructor
         on the one hand and the parameters mentioned in the parameter
         documentation (e.g. the Sphinx tags 'param' and 'type') on the other
@@ -155,6 +165,9 @@ class ParamDocChecker(BaseChecker):
         :param arguments_node: Arguments node for the function, method or
             class constructor.
         :type arguments_node: :class:`astroid.scoped_nodes.Arguments`
+
+        :param warning_node: The node to assign the warnings to
+        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
         # Tolerate missing param or type declarations if there is a link to
         # another method carrying the same name.
@@ -205,7 +218,7 @@ class ParamDocChecker(BaseChecker):
                     message_id,
                     args=(', '.join(
                         sorted(missing_or_differing_argument_names)),),
-                    node=node)
+                    node=warning_node)
 
         params_with_doc, params_with_type = self.match_param_docs(doc)
 
@@ -296,8 +309,6 @@ class ParamDocChecker(BaseChecker):
 
         return params_with_doc, params_with_type
 
-    constructor_names = set(["__init__", "__new__"])
-
     def visit_class(self, node):
         """Called for class definitions.
 
@@ -307,11 +318,7 @@ class ParamDocChecker(BaseChecker):
         for body_item in node.body:
             if (isinstance(body_item, astroid.scoped_nodes.Function)
                     and hasattr(body_item, 'name')):
-                if body_item.name in self.constructor_names:
-                    self.check_arguments_in_docstring(
-                        node, node.doc, body_item.args)
-                else:
-                    self.visit_function(body_item)
+                self.visit_function(body_item)
 
 
 def register(linter):
