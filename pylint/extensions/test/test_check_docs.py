@@ -6,7 +6,7 @@ from __future__ import division, print_function, absolute_import
 import unittest
 
 from astroid import test_utils
-from pylint.testutils import CheckerTestCase, Message
+from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.check_docs import ParamDocChecker, space_indentation
 
@@ -119,6 +119,31 @@ class ParamDocCheckerTest(CheckerTestCase):
             pass
         """)
         with self.assertNoMessages():
+            self.checker.visit_function(node)
+
+    @set_config(accept_no_param_doc=False)
+    def test_don_t_tolerate_no_param_documentation_at_all(self):
+        """Example of a function with no parameter documentation at all
+
+        No error message is emitted.
+        """
+        node = test_utils.extract_node("""
+        def function_foo(x, y):
+            '''docstring ...
+
+            missing parameter documentation'''
+            pass
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('x, y',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=node,
+                args=('x, y',))
+        ):
             self.checker.visit_function(node)
 
     def test_missing_method_params_in_sphinx_docstring(self):
