@@ -1,4 +1,5 @@
-"""Pylint plugin for Sphinx parameter documentation checking
+"""Pylint plugin for parameter documentation checking in Sphinx, Google or
+Numpy style docstrings
 """
 from __future__ import print_function, division, absolute_import
 
@@ -20,11 +21,12 @@ def space_indentation(s):
     return len(s) - len(s.lstrip(' '))
 
 
-class SphinxDocChecker(BaseChecker):
-    """Checker for Sphinx documentation parameters
+class ParamDocChecker(BaseChecker):
+    """Checker for parameter documentation in Sphinx, Google or Numpy style
+    docstrings
 
     * Check that all function, method and constructor parameters are mentioned
-      in the Sphinx params and types part of the docstring. By convention,
+      in the params and types part of the docstring. By convention,
       constructor parameters are documented in the class docstring.
     * Check that there are no naming inconsistencies between the signature and
       the documentation, i.e. also report documented parameters that are missing
@@ -42,14 +44,14 @@ class SphinxDocChecker(BaseChecker):
     """
     __implements__ = IAstroidChecker
 
-    name = 'Sphinx doc checks'
+    name = 'parameter doc checks'
     msgs = {
-        'W9003': ('"%s" missing or differing in Sphinx params',
-                  'missing-sphinx-param',
-                  'Please add Sphinx param declarations for all arguments.'),
-        'W9004': ('"%s" missing or differing in Sphinx types',
-                  'missing-sphinx-type',
-                  'Please add Sphinx type declarations for all arguments.'),
+        'W9003': ('"%s" missing or differing in parameter documentation',
+                  'missing-param-doc',
+                  'Please add parameter declarations for all parameters.'),
+        'W9004': ('"%s" missing or differing in parameter type documentation',
+                  'missing-type-doc',
+                  'Please add parameter type declarations for all parameters.'),
     }
 
     options = ()
@@ -119,19 +121,16 @@ class SphinxDocChecker(BaseChecker):
     not_needed_param_in_docstring = set(['self', 'cls'])
 
     def check_arguments_in_docstring(self, node, doc, arguments_node):
-        """Check that all arguments in a function, method or class constructor
-        on the one hand and the arguments mentioned in the Sphinx tags 'param'
-        and 'type' on the other hand are consistent with each other.
+        """Check that all parameters in a function, method or class constructor
+        on the one hand and the parameters mentioned in the parameter
+        documentation (e.g. the Sphinx tags 'param' and 'type') on the other
+        hand are consistent with each other.
 
         * Undocumented parameters except 'self' are noticed.
         * Undocumented parameter types except for 'self' and the ``*<args>``
           and ``**<kwargs>`` parameters are noticed.
-        * Parameters mentioned in the Sphinx documentation that don't or no
+        * Parameters mentioned in the parameter documentation that don't or no
           longer exist in the function parameter list are noticed.
-        * If there is a Sphinx link like ``:meth:...`` or ``:func:...`` to a
-          function carrying the same name as the current function, missing
-          parameter documentations are tolerated, but the existing parameters
-          mentioned in the documentation are checked.
         * If the text "For the parameters, see" or "For the other parameters,
           see" (ignoring additional whitespace) is mentioned in the docstring,
           missing parameter documentation is tolerated.
@@ -208,9 +207,9 @@ class SphinxDocChecker(BaseChecker):
         if not params_with_doc:
             tolerate_missing_params = True
         
-        compare_args(params_with_doc, 'missing-sphinx-param',
+        compare_args(params_with_doc, 'missing-param-doc',
                      self.not_needed_param_in_docstring)
-        compare_args(params_with_type, 'missing-sphinx-type',
+        compare_args(params_with_type, 'missing-type-doc',
                      not_needed_type_in_docstring)
         
     def match_param_docs(self, doc):
@@ -314,4 +313,4 @@ def register(linter):
     :param linter: Main interface object for Pylint plugins
     :type linter: Pylint object
     """
-    linter.register_checker(SphinxDocChecker(linter))
+    linter.register_checker(ParamDocChecker(linter))
