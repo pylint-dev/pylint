@@ -278,8 +278,8 @@ ChangeLog for Pylint
     * Added new module 'extensions' for optional checkers with the test
       directory 'test/extensions' and documentation file 'doc/extensions.rst'.
 
-    * Added new checker 'extensions.check_docs' that verifies Sphinx parameter
-      documention
+    * Added new checker 'extensions.check_docs' that verifies parameter
+      documention in Sphinx, Google, and Numpy style.
 
     * Don't emit 'import-error' if an import was protected by a try-except,
       which excepted ImportError.
