@@ -31,7 +31,7 @@ from pylint.checkers.utils import (
     PYMETHODS, overrides_a_method, check_messages, is_attr_private,
     is_attr_protected, node_frame_class, safe_infer, is_builtin_object,
     decorated_with_property, unimplemented_abstract_methods)
-from pylint.utils import deprecated_option
+from pylint.utils import deprecated_option, get_global_option
 import six
 
 if sys.version_info >= (3, 0):
@@ -341,6 +341,14 @@ a metaclass class method.'}
         access to existent members
         """
         # check access to existent members on non metaclass classes
+        ignore_mixins = get_global_option(self, 'ignore-mixin-members',
+                                          default=True)
+        if ignore_mixins and cnode.name[-5:].lower() == 'mixin':
+            # We are in a mixin class. No need to try to figure out if
+            # something is missing, since it is most likely that it will
+            # miss.
+            return
+
         accessed = self._accessed.pop()
         if cnode.type != 'metaclass':
             self._check_accessed_members(cnode, accessed)

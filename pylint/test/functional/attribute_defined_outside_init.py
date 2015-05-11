@@ -52,3 +52,11 @@ class E(object):
 
     def _init(self):
         self.z = 44
+
+
+class Mixin(object):
+
+    def test_mixin(self):
+        """Don't emit attribute-defined-outside-init for mixin classes."""
+        if self.defined_already: # pylint: disable=access-member-before-definition
+            self.defined_already = None

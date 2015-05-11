@@ -29,3 +29,12 @@ class Bbbb(object):
         except ValueError:
             self._repo = attr
             return attr
+
+
+class Mixin(object):
+
+    def test_mixin(self):
+        """Don't emit access-member-before-definition for mixin classes."""
+        if self.already_defined:
+            # pylint: disable=attribute-defined-outside-init
+            self.already_defined = None

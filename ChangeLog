@@ -111,6 +111,10 @@ ChangeLog for Pylint
       which is totally misleading, it now emits undefined-variable.
       Closes issue #528.
 
+    * Don't emit attribute-defined-outside-init and access-member-before-definition
+      for mixin classes. Actual errors can occur in mixin classes, but this is
+      controlled by the ignore-mixin-members option. Closes issue #412.
+
 
 2015-03-14 -- 1.4.3
 
