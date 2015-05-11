@@ -1,3 +1,0 @@
-W: 28:A.set_z: Attribute 'z' defined outside __init__
-W: 29:A.set_z: Attribute 'z' defined outside __init__
-W: 41:B.test: Attribute 'z' defined outside __init__
