@@ -1,21 +1,20 @@
-# pylint: disable=R0903, print-statement
-"""yo"""
-from __future__ import print_function
-__revision__ = '$I$'
+# pylint: disable=missing-docstring,too-few-public-methods,invalid-name
+# pylint: disable=attribute-defined-outside-init
 
 class Aaaa(object):
     """class with attributes defined in wrong order"""
+
     def __init__(self):
-        var1 = self._var2
+        var1 = self._var2 # [access-member-before-definition]
         self._var2 = 3
-        print(var1)
+        self._var3 = var1
+
 
 class Bbbb(object):
-    """hop"""
-    __revision__ = __revision__ # no problemo marge
+    A = 23
+    B = A
 
     def __getattr__(self, attr):
-        # pylint: disable=W0201
         try:
             return self.__repo
         except AttributeError:
@@ -25,9 +24,8 @@ class Bbbb(object):
 
     def catchme(self, attr):
         """no AttributeError catched"""
-        # pylint: disable=W0201
         try:
-            return self._repo
+            return self._repo # [access-member-before-definition]
         except ValueError:
             self._repo = attr
             return attr

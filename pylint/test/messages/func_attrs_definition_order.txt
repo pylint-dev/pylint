@@ -1,2 +1,0 @@
-E:  9:Aaaa.__init__: Access to member '_var2' before its definition line 10
-E: 30:Bbbb.catchme: Access to member '_repo' before its definition line 32
