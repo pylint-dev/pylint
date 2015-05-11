@@ -126,3 +126,6 @@ class Ancestor(object):
 
 class Ancestor1(object):
     """ No op """
+
+NANA = BAT # [undefined-variable]
+del BAT

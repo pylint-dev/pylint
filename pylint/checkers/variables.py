@@ -870,11 +870,16 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         and not are_exclusive(stmt, defstmt, ('NameError',
                                                               'Exception',
                                                               'BaseException'))):
-                    if recursive_klass or (defstmt is stmt and
-                                           isinstance(node, (astroid.DelName,
-                                                             astroid.AssName))):
-                        self.add_message('undefined-variable', args=name, node=node)
-                    elif annotation_return:
+
+                    # Used and defined in the same place, e.g `x += 1` and `del x`
+                    defined_by_stmt = (
+                        defstmt is stmt
+                        and isinstance(node, (astroid.DelName, astroid.AssName))
+                    )
+                    if (recursive_klass
+                            or defined_by_stmt
+                            or annotation_return
+                            or isinstance(defstmt, astroid.Delete)):
                         self.add_message('undefined-variable', args=name, node=node)
                     elif self._to_consume[-1][-1] != 'lambda':
                         # E0601 may *not* occurs in lambda scope.
