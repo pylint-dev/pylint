@@ -160,6 +160,16 @@ def is_defined_before(var_node):
                     return True
         elif isinstance(_node, (astroid.Lambda, astroid.Function)):
             if _node.args.is_argument(varname):
+                # If the name is found inside a default value
+                # of a function, then let the search continue
+                # in the parent's tree.
+                if _node.args.parent_of(var_node):
+                    try:
+                        _node.args.default_value(varname)
+                        _node = _node.parent
+                        continue
+                    except astroid.NoDefault:
+                        pass
                 return True
             if getattr(_node, 'name', None) == varname:
                 return True

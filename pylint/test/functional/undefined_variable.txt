@@ -18,3 +18,4 @@ undefined-variable:114:Self:Undefined variable 'Self'
 undefined-variable:130::Undefined variable 'BAT'
 used-before-assignment:141:KeywordArgument.test1:Using variable 'enabled' before assignment
 undefined-variable:144:KeywordArgument.test2:Undefined variable 'disabled'
+undefined-variable:149:KeywordArgument.<lambda>:Undefined variable 'arg'

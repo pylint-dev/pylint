@@ -855,7 +855,21 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if (base_scope_type == 'lambda' and
                         isinstance(frame, astroid.Class)
                         and name in frame.locals):
-                    maybee0601 = True
+
+                    # This rule verifies that if the definition node of the
+                    # checked name is an Arguments node and if the name
+                    # is used a default value in the arguments defaults
+                    # and the actual definition of the variable label
+                    # is happening before the Arguments definition.
+                    #
+                    # bar = None
+                    # foo = lambda bar=bar: bar
+                    #
+                    # In this case, maybee0601 should be False, otherwise
+                    # it should be True.
+                    maybee0601 = not (isinstance(defnode, astroid.Arguments) and
+                                      node in defnode.defaults and
+                                      frame.locals[name][0].fromlineno < defstmt.fromlineno)
                 elif (isinstance(defframe, astroid.Class) and
                       isinstance(frame, astroid.Function)):
                     # Special rule for function return annotations,
@@ -889,6 +903,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         defstmt is stmt
                         and isinstance(node, (astroid.DelName, astroid.AssName))
                     )
+
                     if (recursive_klass
                             or defined_by_stmt
                             or annotation_return
@@ -915,6 +930,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             else:
                                 self.add_message('undefined-variable',
                                                  args=name, node=node)
+                        elif scope_type == 'lambda':
+                            self.add_message('undefined-variable',
+                                             node=node, args=name)
 
             del to_consume[name]
             # check it's not a loop variable used outside the loop
