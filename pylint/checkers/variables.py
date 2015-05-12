@@ -733,6 +733,127 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     def visit_delname(self, node):
         self.visit_name(node)
 
+    @staticmethod
+    def _defined_in_function_definition(node, frame):
+        in_annotation_or_default = False
+        if (isinstance(frame, astroid.Function) and
+                node.statement() is frame):
+            in_annotation_or_default = (
+                (
+                    PY3K and (node in frame.args.annotations
+                              or node is frame.args.varargannotation
+                              or node is frame.args.kwargannotation)
+                )
+                or
+                frame.args.parent_of(node)
+            )
+        return in_annotation_or_default
+
+    @staticmethod
+    def _next_to_consume(node, name, to_consume):
+        # mark the name as consumed if it's defined in this scope
+        found_node = to_consume.get(name)
+        if (found_node
+                and isinstance(node.parent, astroid.Assign)
+                and node.parent == found_node[0].parent):
+            lhs = found_node[0].parent.targets[0]
+            if lhs.name == name: # this name is defined in this very statement
+                found_node = None
+        return found_node
+
+    @staticmethod
+    def _is_variable_violation(node, name, defnode, stmt, defstmt,
+                               frame, defframe, base_scope_type,
+                               recursive_klass):
+        maybee0601 = True
+        annotation_return = False
+        if frame is not defframe:
+            maybee0601 = _detect_global_scope(node, frame, defframe)
+        elif defframe.parent is None:
+            # we are at the module level, check the name is not
+            # defined in builtins
+            if name in defframe.scope_attrs or builtin_lookup(name)[1]:
+                maybee0601 = False
+        else:
+            # we are in a local scope, check the name is not
+            # defined in global or builtin scope
+            if defframe.root().lookup(name)[1]:
+                maybee0601 = False
+            else:
+                # check if we have a nonlocal
+                if name in defframe.locals:
+                    maybee0601 = not any(isinstance(child, astroid.Nonlocal)
+                                         and name in child.names
+                                         for child in defframe.get_children())
+
+        if (base_scope_type == 'lambda' and
+                isinstance(frame, astroid.Class)
+                and name in frame.locals):
+
+            # This rule verifies that if the definition node of the
+            # checked name is an Arguments node and if the name
+            # is used a default value in the arguments defaults
+            # and the actual definition of the variable label
+            # is happening before the Arguments definition.
+            #
+            # bar = None
+            # foo = lambda bar=bar: bar
+            #
+            # In this case, maybee0601 should be False, otherwise
+            # it should be True.
+            maybee0601 = not (isinstance(defnode, astroid.Arguments) and
+                              node in defnode.defaults and
+                              frame.locals[name][0].fromlineno < defstmt.fromlineno)
+        elif (isinstance(defframe, astroid.Class) and
+              isinstance(frame, astroid.Function)):
+            # Special rule for function return annotations,
+            # which uses the same name as the class where
+            # the function lives.
+            if (PY3K and node is frame.returns and
+                    defframe.parent_of(frame.returns)):
+                maybee0601 = annotation_return = True
+
+            if (maybee0601 and defframe.name in defframe.locals and
+                    defframe.locals[name][0].lineno < frame.lineno):
+                # Detect class assignments with the same
+                # name as the class. In this case, no warning
+                # should be raised.
+                maybee0601 = False
+            if isinstance(node.parent, astroid.Arguments):
+                maybee0601 = stmt.fromlineno <= defstmt.fromlineno
+        elif recursive_klass:
+            maybee0601 = True
+        else:
+            maybee0601 = maybee0601 and stmt.fromlineno <= defstmt.fromlineno
+        return maybee0601, annotation_return
+
+    def _ignore_class_scope(self, node, name, frame):
+        # Detect if we are in a local class scope, as an assignment.
+        # For example, the following is fair game.
+        #
+        # class A:
+        #    b = 1
+        #    c = lambda b=b: b * b
+        #
+        # class B:
+        #    tp = 1
+        #    def func(self, arg: tp):
+        #        ...
+        # class C:
+        #    tp = 2
+        #    def func(self, arg=tp):
+        #        ...
+
+        in_annotation_or_default = self._defined_in_function_definition(
+            node, frame)
+        if in_annotation_or_default:
+            frame_locals = frame.parent.scope().locals
+        else:
+            frame_locals = frame.locals
+        return not ((isinstance(frame, astroid.Class) or
+                     in_annotation_or_default) and
+                    name in frame_locals)
+
     @check_messages(*(MSGS.keys()))
     def visit_name(self, node):
         """check that a name is defined if the current scope and doesn't
@@ -764,42 +885,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # comprehension and its direct outer scope is a class
             if scope_type == 'class' and i != start_index and not (
                     base_scope_type == 'comprehension' and i == start_index-1):
-                # Detect if we are in a local class scope, as an assignment.
-                # For example, the following is fair game.
-                #
-                # class A:
-                #    b = 1
-                #    c = lambda b=b: b * b
-                #
-                # class B:
-                #    tp = 1
-                #    def func(self, arg: tp):
-                #        ...
-                # class C:
-                #    tp = 2
-                #    def func(self, arg=tp):
-                #        ...
-
-                in_annotation_or_default = False
-                if (isinstance(frame, astroid.Function) and
-                        node.statement() is frame):
-                    in_annotation_or_default = (
-                        (
-                            PY3K and (node in frame.args.annotations
-                                      or node is frame.args.varargannotation
-                                      or node is frame.args.kwargannotation)
-                        )
-                        or
-                        frame.args.parent_of(node)
-                    )
-                if in_annotation_or_default:
-                    frame_locals = frame.parent.scope().locals
-                else:
-                    frame_locals = frame.locals
-                if not ((isinstance(frame, astroid.Class) or
-                         in_annotation_or_default) and
-                        name in frame_locals):
+                if self._ignore_class_scope(node, name, frame):
                     continue
+
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
             if name in consumed:
@@ -807,14 +895,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
                 break
-            # mark the name as consumed if it's defined in this scope
-            found_node = to_consume.get(name)
-            if (found_node
-                    and isinstance(node.parent, astroid.Assign)
-                    and node.parent == found_node[0].parent):
-                lhs = found_node[0].parent.targets[0]
-                if lhs.name == name: # this name is defined in this very statement
-                    found_node = None
+            found_node = self._next_to_consume(node, name, to_consume)
             if found_node:
                 consumed[name] = found_node
             else:
@@ -825,72 +906,16 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self._check_late_binding_closure(node, defnode)
                 defstmt = defnode.statement()
                 defframe = defstmt.frame()
-                maybee0601 = True
-                if not frame is defframe:
-                    maybee0601 = _detect_global_scope(node, frame, defframe)
-                elif defframe.parent is None:
-                    # we are at the module level, check the name is not
-                    # defined in builtins
-                    if name in defframe.scope_attrs or builtin_lookup(name)[1]:
-                        maybee0601 = False
-                else:
-                    # we are in a local scope, check the name is not
-                    # defined in global or builtin scope
-                    if defframe.root().lookup(name)[1]:
-                        maybee0601 = False
-                    else:
-                        # check if we have a nonlocal
-                        if name in defframe.locals:
-                            maybee0601 = not any(isinstance(child, astroid.Nonlocal)
-                                                 and name in child.names
-                                                 for child in defframe.get_children())
-
-                # Handle a couple of class scoping issues.
-                annotation_return = False
                 # The class reuses itself in the class scope.
                 recursive_klass = (frame is defframe and
                                    defframe.parent_of(node) and
                                    isinstance(defframe, astroid.Class) and
                                    node.name == defframe.name)
-                if (base_scope_type == 'lambda' and
-                        isinstance(frame, astroid.Class)
-                        and name in frame.locals):
 
-                    # This rule verifies that if the definition node of the
-                    # checked name is an Arguments node and if the name
-                    # is used a default value in the arguments defaults
-                    # and the actual definition of the variable label
-                    # is happening before the Arguments definition.
-                    #
-                    # bar = None
-                    # foo = lambda bar=bar: bar
-                    #
-                    # In this case, maybee0601 should be False, otherwise
-                    # it should be True.
-                    maybee0601 = not (isinstance(defnode, astroid.Arguments) and
-                                      node in defnode.defaults and
-                                      frame.locals[name][0].fromlineno < defstmt.fromlineno)
-                elif (isinstance(defframe, astroid.Class) and
-                      isinstance(frame, astroid.Function)):
-                    # Special rule for function return annotations,
-                    # which uses the same name as the class where
-                    # the function lives.
-                    if (PY3K and node is frame.returns and
-                            defframe.parent_of(frame.returns)):
-                        maybee0601 = annotation_return = True
-
-                    if (maybee0601 and defframe.name in defframe.locals and
-                            defframe.locals[name][0].lineno < frame.lineno):
-                        # Detect class assignments with the same
-                        # name as the class. In this case, no warning
-                        # should be raised.
-                        maybee0601 = False
-                    if isinstance(node.parent, astroid.Arguments):
-                        maybee0601 = stmt.fromlineno <= defstmt.fromlineno
-                elif recursive_klass:
-                    maybee0601 = True
-                else:
-                    maybee0601 = maybee0601 and stmt.fromlineno <= defstmt.fromlineno
+                maybee0601, annotation_return = self._is_variable_violation(
+                    node, name, defnode, stmt, defstmt,
+                    frame, defframe,
+                    base_scope_type, recursive_klass)
 
                 if (maybee0601
                         and not is_defined_before(node)
@@ -963,7 +988,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         level = getattr(node, 'level', None)
         try:
             module = node.root().import_module(name_parts[0], level=level)
-        except Exception: # pylint: disable=broad-except
+        except Exception:
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:
