@@ -129,14 +129,10 @@ def is_builtin_object(node):
     """Returns True if the given node is an object from the __builtin__ module."""
     return node and node.root().name == BUILTINS_NAME
 
-def is_builtin(name): # was is_native_builtin
+def is_builtin(name):
     """return true if <name> could be considered as a builtin defined by python
     """
-    if name in builtins:
-        return True
-    if name in SPECIAL_BUILTINS:
-        return True
-    return False
+    return name in builtins or name in SPECIAL_BUILTINS
 
 def is_defined_before(var_node):
     """return True if the variable node is defined by a parent node (list,
