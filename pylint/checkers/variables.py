@@ -871,7 +871,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         # name as the class. In this case, no warning
                         # should be raised.
                         maybee0601 = False
-                    if isinstance(node.parent, astroid.Arguments): 
+                    if isinstance(node.parent, astroid.Arguments):
                         maybee0601 = stmt.fromlineno <= defstmt.fromlineno
                 elif recursive_klass:
                     maybee0601 = True
