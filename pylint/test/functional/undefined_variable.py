@@ -129,3 +129,19 @@ class Ancestor1(object):
 
 NANA = BAT # [undefined-variable]
 del BAT
+
+
+class KeywordArgument(object):
+    """Test keyword arguments."""
+
+    enable = True
+    def test(self, is_enabled=enable):
+        """do nothing."""
+
+    def test1(self, is_enabled=enabled): # [used-before-assignment]
+        """enabled is undefined at this point, but it is used before assignment."""
+
+    def test2(self, is_disabled=disabled): # [undefined-variable]
+        """disabled is undefined"""
+
+    enabled = True

@@ -115,6 +115,11 @@ ChangeLog for Pylint
       for mixin classes. Actual errors can occur in mixin classes, but this is
       controlled by the ignore-mixin-members option. Closes issue #412.
 
+    * Improve the detection of undefined variables and variables used before
+      assignment for variables used as default arguments to function,
+      where the variable was first defined in the class scope.
+      Closes issue #342.
+
 
 2015-03-14 -- 1.4.3
 

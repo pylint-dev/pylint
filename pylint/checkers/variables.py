@@ -775,19 +775,30 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 #    tp = 1
                 #    def func(self, arg: tp):
                 #        ...
+                # class C:
+                #    tp = 2
+                #    def func(self, arg=tp):
+                #        ...
 
-                in_annotation = (
-                    PY3K and isinstance(frame, astroid.Function)
-                    and node.statement() is frame and
-                    (node in frame.args.annotations
-                     or node is frame.args.varargannotation
-                     or node is frame.args.kwargannotation))
-                if in_annotation:
+                in_annotation_or_default = False
+                if (isinstance(frame, astroid.Function) and
+                        node.statement() is frame):
+                    in_annotation_or_default = (
+                        (
+                            PY3K and (node in frame.args.annotations
+                                      or node is frame.args.varargannotation
+                                      or node is frame.args.kwargannotation)
+                        )
+                        or
+                        frame.args.parent_of(node)
+                    )
+                if in_annotation_or_default:
                     frame_locals = frame.parent.scope().locals
                 else:
                     frame_locals = frame.locals
-                if not ((isinstance(frame, astroid.Class) or in_annotation)
-                        and name in frame_locals):
+                if not ((isinstance(frame, astroid.Class) or
+                         in_annotation_or_default) and
+                        name in frame_locals):
                     continue
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
@@ -860,6 +871,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         # name as the class. In this case, no warning
                         # should be raised.
                         maybee0601 = False
+                    if isinstance(node.parent, astroid.Arguments): 
+                        maybee0601 = stmt.fromlineno <= defstmt.fromlineno
                 elif recursive_klass:
                     maybee0601 = True
                 else:
