@@ -852,7 +852,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                    defframe.parent_of(node) and
                                    isinstance(defframe, astroid.Class) and
                                    node.name == defframe.name)
-                if (self._to_consume[-1][-1] == 'lambda' and
+                if (base_scope_type == 'lambda' and
                         isinstance(frame, astroid.Class)
                         and name in frame.locals):
                     maybee0601 = True
@@ -894,10 +894,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             or annotation_return
                             or isinstance(defstmt, astroid.Delete)):
                         self.add_message('undefined-variable', args=name, node=node)
-                    elif self._to_consume[-1][-1] != 'lambda':
+                    elif base_scope_type != 'lambda':
                         # E0601 may *not* occurs in lambda scope.
                         self.add_message('used-before-assignment', args=name, node=node)
-                    elif self._to_consume[-1][-1] == 'lambda':
+                    elif base_scope_type == 'lambda':
                         # E0601 can occur in class-level scope in lambdas, as in
                         # the following example:
                         #   class A:
