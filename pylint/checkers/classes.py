@@ -904,7 +904,7 @@ class SpecialMethodsChecker(BaseChecker):
             # Method has no parameter, will be catched
             # by no-method-argument.
             return
-        
+
         if decorated_with(node, [BUILTINS + ".staticmethod"]):
             # We expect to not take in consideration self.
             all_args = node.args.args
@@ -919,7 +919,7 @@ class SpecialMethodsChecker(BaseChecker):
             # tuple, although the user should implement the method
             # to take all of them in consideration.
             emit = mandatory not in expected_params
-            expected_params = "between %d or %d" % expected_params            
+            expected_params = "between %d or %d" % expected_params
         else:
             # If the number of mandatory parameters doesn't
             # suffice, the expected parameters for this
@@ -931,7 +931,7 @@ class SpecialMethodsChecker(BaseChecker):
             elif rest < 0:
                 emit = True
             elif rest > 0:
-                emit  = not ((optional - rest) >= 0 or node.args.vararg)
+                emit = not ((optional - rest) >= 0 or node.args.vararg)
 
         if emit:
             verb = "was" if current_params <= 1 else "were"

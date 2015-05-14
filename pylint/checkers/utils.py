@@ -46,7 +46,7 @@ ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
 # * tuple: this are the odd ones. Basically it means that the function
 #          can work with any number of arguments from that tuple,
 #          although it's best to implement it in order to accept
-#          all of them.           
+#          all of them.
 _SPECIAL_METHODS_PARAMS = {
     None: ('__new__', '__init__', '__call__'),
 
@@ -78,7 +78,7 @@ _SPECIAL_METHODS_PARAMS = {
     (0, 1): ('__round__', ),
 }
 
-SPECIAL_METHODS_PARAMS =  {
+SPECIAL_METHODS_PARAMS = {
     name: params
     for params, methods in _SPECIAL_METHODS_PARAMS.items()
     for name in methods
