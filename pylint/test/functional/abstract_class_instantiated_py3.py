@@ -46,14 +46,14 @@ class Structure(object, metaclass=abc.ABCMeta):
     def __len__(self):
         pass
     @abc.abstractmethod
-    def __contains__(self):
+    def __contains__(self, _):
         pass
     @abc.abstractmethod
     def __hash__(self):
         pass
 
 class Container(Structure):
-    def __contains__(self):
+    def __contains__(self, _):
         pass
 
 class Sizable(Structure):

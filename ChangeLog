@@ -120,6 +120,11 @@ ChangeLog for Pylint
       where the variable was first defined in the class scope.
       Closes issue #342 and issue #404.
 
+    * Add a new warning, 'unexpected-special-method-signature', which is emitted
+      when a special method (dunder method) doesn't have the expected signature,
+      which can lead to actual errors in the application code.
+      Closes issue #253.
+
 
 2015-03-14 -- 1.4.3
 

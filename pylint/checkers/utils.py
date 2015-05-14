@@ -37,6 +37,54 @@ else:
 ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
                    'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
 
+# Dictionary which maps the number of expected parameters a
+# special method can have to a set of special methods.
+# The following keys are used to denote the parameters restrictions:
+#
+# * None: variable number of parameters
+# * number: exactly that number of parameters
+# * tuple: this are the odd ones. Basically it means that the function
+#          can work with any number of arguments from that tuple,
+#          although it's best to implement it in order to accept
+#          all of them.           
+_SPECIAL_METHODS_PARAMS = {
+    None: ('__new__', '__init__', '__call__'),
+
+    0: ('__del__', '__repr__', '__str__', '__bytes__', '__hash__', '__bool__',
+        '__dir__', '__len__', '__length_hint__', '__iter__', '__reversed__',
+        '__neg__', '__pos__', '__abs__', '__invert__', '__complex__', '__int__',
+        '__float__', '__neg__', '__pos__', '__abs__', '__complex__', '__int__',
+        '__float__', '__index__', '__enter__', '__getnewargs_ex__',
+        '__getnewargs__', '__getstate__', '__reduce__', '__copy__',
+        '__unicode__', '__nonzero__'),
+
+    1: ('__format__', '__lt__', '__le__', '__eq__', '__ne__', '__gt__',
+        '__ge__', '__getattr__', '__getattribute__', '__delattr__',
+        '__delete__', '__instancecheck__', '__subclasscheck__',
+        '__getitem__', '__missing__', '__delitem__', '__contains__',
+        '__add__', '__sub__', '__mul__', '__truediv__', '__floordiv__',
+        '__mod__', '__divmod__', '__lshift__', '__rshift__', '__and__',
+        '__xor__', '__or__', '__radd__', '__rsub__', '__rmul__', '__rtruediv__',
+        '__rmod__', '__rdivmod__', '__rpow__', '__rlshift__', '__rrshift__',
+        '__rand__', '__rxor__', '__ror__', '__iadd__', '__isub__', '__imul__',
+        '__itruediv__', '__ifloordiv__', '__imod__', '__ilshift__',
+        '__irshift__', '__iand__', '__ixor__', '__ior__', '__ipow__',
+        '__setstate__', '__reduce_ex__', '__deepcopy__', '__cmp__'),
+
+    2: ('__setattr__', '__get__', '__set__', '__setitem__'),
+
+    3: ('__exit__', ),
+
+    (0, 1): ('__round__', ),
+}
+
+SPECIAL_METHODS_PARAMS =  {
+    name: params
+    for params, methods in _SPECIAL_METHODS_PARAMS.items()
+    for name in methods
+}
+PYMETHODS = set(SPECIAL_METHODS_PARAMS)
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -249,39 +297,6 @@ def overrides_a_method(class_node, name):
         if name in ancestor and isinstance(ancestor[name], astroid.Function):
             return True
     return False
-
-PYMETHODS = set(('__new__', '__init__', '__del__', '__hash__',
-                 '__str__', '__repr__',
-                 '__len__', '__iter__', '__reversed__', '__missing__',
-                 '__delete__', '__get__', '__set__',
-                 '__getitem__', '__setitem__', '__delitem__', '__contains__',
-                 '__getattribute__', '__getattr__', '__setattr__', '__delattr__',
-                 '__call__',
-                 '__enter__', '__exit__',
-                 '__cmp__', '__ge__', '__gt__', '__le__', '__lt__', '__eq__', '__ne__',
-                 '__nonzero__', '__neg__', '__invert__', '__pos__', '__abs__',
-                 '__mul__', '__imul__', '__rmul__',
-                 '__div__', '__idiv__', '__rdiv__',
-                 '__add__', '__iadd__', '__radd__',
-                 '__sub__', '__isub__', '__rsub__',
-                 '__pow__', '__ipow__', '__rpow__',
-                 '__mod__', '__imod__', '__rmod__',
-                 '__divmod__', '__rdivmod__',
-                 '__and__', '__iand__', '__rand__',
-                 '__truediv__', '__rtruediv__', '__itruediv__',
-                 '__floordiv__', '__rfloordiv__', '__ifloordiv__',
-                 '__lshift__', '__rlshift__', '__ilshift__',
-                 '__rshift__', '__rrshift__', '__irshift__',
-                 '__or__', '__ior__', '__ror__',
-                 '__xor__', '__ixor__', '__rxor__',
-                 '__bytes__', '__bool__', '__format__',
-                 '__dir__', '__prepare__',
-                 '__instancecheck__', '__subclasscheck__', '__length_hint__',
-                 '__complex__', '__int__', '__float__', '__round__',
-                 '__index__', '__getnewargs_ex__', '__getnewargs__',
-                 '__getstate__', '__setstate__', '__reduce__', '__reduce_ex__',
-                 '__copy__', '__deepcopy__',
-                ))
 
 def check_messages(*messages):
     """decorator to store messages that are handled by a checker method"""

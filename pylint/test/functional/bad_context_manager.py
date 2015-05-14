@@ -1,6 +1,6 @@
 """Check that __exit__ special method accepts 3 arguments """
 
-# pylint: disable=too-few-public-methods, invalid-name
+# pylint: disable=too-few-public-methods, invalid-name,unexpected-special-method-signature
 
 __revision__ = 0
 

@@ -8,7 +8,7 @@ __revision__ = 1
 
 class Custom(object):
     """ Has a __getattr__ """
-    def __getattr__(self):
+    def __getattr__(self, _):
         return self
 
 class Test(object):

@@ -28,9 +28,11 @@ from astroid.exceptions import InconsistentMroError, DuplicateBasesError
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    PYMETHODS, overrides_a_method, check_messages, is_attr_private,
+    PYMETHODS, SPECIAL_METHODS_PARAMS,
+    overrides_a_method, check_messages, is_attr_private,
     is_attr_protected, node_frame_class, safe_infer, is_builtin_object,
-    decorated_with_property, unimplemented_abstract_methods)
+    decorated_with_property, unimplemented_abstract_methods,
+    decorated_with)
 from pylint.utils import deprecated_option, get_global_option
 import six
 
@@ -891,15 +893,68 @@ class SpecialMethodsChecker(BaseChecker):
                   'iterable (i.e. has no `%s` method)' % NEXT_METHOD,
                   {'old_names': [('W0234', 'non-iterator-returned'),
                                  ('E0234', 'non-iterator-returned')]}),
+        'E0302': ('The special method %r expects %s param(s), %d %s given',
+                  'unexpected-special-method-signature',
+                  'Emitted when a special method was defined with an '
+                  'invalid number of parameters. If it has too few or '
+                  'too many, it might not work at all.'),
     }
     priority = -2
 
-    @check_messages('non-iterator-returned')
+    @check_messages('unexpected-special-method-signature',
+                    'non-iterator-returned')
     def visit_function(self, node):
         if not node.is_method():
             return
         if node.name == '__iter__':
             self._check_iter(node)
+        if node.name in PYMETHODS:
+            self._check_unexpected_method_signature(node)
+
+    def _check_unexpected_method_signature(self, node):
+        expected_params = SPECIAL_METHODS_PARAMS[node.name]
+
+        if expected_params is None:
+            # This can support a variable number of parameters.
+            return
+        if not len(node.args.args) and not node.args.vararg:
+            # Method has no parameter, will be catched
+            # by no-method-argument.
+            return
+        
+        if decorated_with(node, [BUILTINS + ".staticmethod"]):
+            # We expect to not take in consideration self.
+            all_args = node.args.args
+        else:
+            all_args = node.args.args[1:]
+        mandatory = len(all_args) - len(node.args.defaults)
+        optional = len(node.args.defaults)
+        current_params = mandatory + optional
+
+        if isinstance(expected_params, tuple):
+            # The expected number of parameters can be any value from this
+            # tuple, although the user should implement the method
+            # to take all of them in consideration.
+            emit = mandatory not in expected_params
+            expected_params = "between %d or %d" % expected_params            
+        else:
+            # If the number of mandatory parameters doesn't
+            # suffice, the expected parameters for this
+            # function will be deduced from the optional
+            # parameters.
+            rest = expected_params - mandatory
+            if rest == 0:
+                emit = False
+            elif rest < 0:
+                emit = True
+            elif rest > 0:
+                emit  = not ((optional - rest) >= 0 or node.args.vararg)
+
+        if emit:
+            verb = "was" if current_params <= 1 else "were"
+            self.add_message('unexpected-special-method-signature',
+                             args=(node.name, expected_params, current_params, verb),
+                             node=node)
 
     def _check_iter(self, node):
         try:

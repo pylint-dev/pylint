@@ -40,7 +40,7 @@ class Structure(object, metaclass=abc.ABCMeta):
     def __len__(self):
         pass
     @abc.abstractmethod
-    def __contains__(self):
+    def __contains__(self, _):
         pass
     @abc.abstractmethod
     def __hash__(self):
@@ -49,7 +49,7 @@ class Structure(object, metaclass=abc.ABCMeta):
 
 # +1: [abstract-method, abstract-method, abstract-method]
 class Container(Structure):
-    def __contains__(self):
+    def __contains__(self, _):
         pass
 
 
