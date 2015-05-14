@@ -198,11 +198,6 @@ MSGS = {
               'non-parent-init-called',
               'Used when an __init__ method is called on a class which is not '
               'in the direct ancestors for the analysed class.'),
-    'E0235': ('__exit__ must accept 3 arguments: type, value, traceback',
-              'bad-context-manager',
-              'Used when the __exit__ special method, belonging to a '
-              'context manager, does not accept 3 arguments '
-              '(type, value, traceback).'),
     'E0236': ('Invalid object %r in __slots__, must contain '
               'only non empty strings',
               'invalid-slots-object',
@@ -448,9 +443,6 @@ a metaclass class method.'}
         except astroid.NotFoundError:
             pass
 
-        if node.name == '__exit__':
-            self._check_exit(node)
-
     def _check_slots(self, node):
         if '__slots__' not in node.locals:
             return
@@ -500,16 +492,6 @@ a metaclass class method.'}
                 self.add_message('invalid-slots-object',
                                  args=infered.as_string(),
                                  node=elt)
-
-
-    def _check_exit(self, node):
-        positional = sum(1 for arg in node.args.args if arg.name != 'self')
-        if positional < 3 and not node.args.vararg:
-            self.add_message('bad-context-manager',
-                             node=node)
-        elif positional > 3:
-            self.add_message('bad-context-manager',
-                             node=node)
 
     def leave_function(self, node):
         """on method node, check if this method couldn't be a function
@@ -897,7 +879,8 @@ class SpecialMethodsChecker(BaseChecker):
                   'unexpected-special-method-signature',
                   'Emitted when a special method was defined with an '
                   'invalid number of parameters. If it has too few or '
-                  'too many, it might not work at all.'),
+                  'too many, it might not work at all.',
+                  {'old_names': [('E0235', 'bad-context-manager')]}),
     }
     priority = -2
 

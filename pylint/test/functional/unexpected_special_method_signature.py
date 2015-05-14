@@ -31,6 +31,27 @@ class Invalid(object):
         pass
 
 
+class FirstBadContextManager(object):
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type): # [unexpected-special-method-signature]
+        pass
+
+class SecondBadContextManager(object):
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, value, tb, stack): # [unexpected-special-method-signature]
+        pass
+
+class ThirdBadContextManager(object):
+    def __enter__(self):
+        return self
+
+    # +1: [unexpected-special-method-signature]
+    def __exit__(self, exc_type, value, tb, stack, *args):
+        pass
+
+
 class Valid(object):
 
     def __new__(cls, test, multiple, args):
@@ -63,4 +84,23 @@ class Valid(object):
 
     @staticmethod
     def __getitem__(index):
+        pass
+
+
+class FirstGoodContextManager(object):
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, value, tb):
+        pass
+
+class SecondGoodContextManager(object):
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type=None, value=None, tb=None):
+        pass
+
+class ThirdGoodContextManager(object):
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, *args):
         pass

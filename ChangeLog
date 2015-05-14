@@ -125,6 +125,8 @@ ChangeLog for Pylint
       which can lead to actual errors in the application code.
       Closes issue #253.
 
+    * Remove 'bad-context-manager' due to the inclusion of 'unexpected-special-method-signature'.
+
 
 2015-03-14 -- 1.4.3
 
