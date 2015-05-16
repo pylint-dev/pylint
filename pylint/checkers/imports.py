@@ -31,16 +31,8 @@ from astroid.modutils import get_module_part, is_standard_module
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport, get_global_option
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, is_import_error
+from pylint.checkers.utils import check_messages, excepts_import_error
 
-def _except_import_error(node):
-    """
-    Check if the try-except node has an ImportError handler.
-    Return True if an ImportError handler was infered, False otherwise.
-    """
-    if not isinstance(node, astroid.TryExcept):
-        return
-    return any(map(is_import_error, node.handlers))
 
 def get_first_import(node, context, name, base, level):
     """return the node where [base.]<name> is imported or None if not found
@@ -297,7 +289,7 @@ given file (report RP0402 must not be disabled)'}
                 if submodule in ignored_modules:
                     return None
 
-            if not _except_import_error(importnode.parent):
+            if not excepts_import_error(importnode.parent):
                 self.add_message("import-error", args=args, node=importnode)
 
     @staticmethod

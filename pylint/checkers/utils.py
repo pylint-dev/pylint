@@ -576,3 +576,12 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
                 elif not abstract and obj.name in visited:
                     del visited[obj.name]
     return visited
+
+def excepts_import_error(node):
+    """
+    Check if the try-except node has an ImportError handler.
+    Return True if an ImportError handler was infered, False otherwise.
+    """
+    if not isinstance(node, astroid.TryExcept):
+        return
+    return any(map(is_import_error, node.handlers))

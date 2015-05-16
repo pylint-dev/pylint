@@ -127,6 +127,8 @@ ChangeLog for Pylint
 
     * Remove 'bad-context-manager' due to the inclusion of 'unexpected-special-method-signature'.
 
+    * Don't emit no-name-in-module if the import is guarded by an ImportError handler.
+
 
 2015-03-14 -- 1.4.3
 

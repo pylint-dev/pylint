@@ -31,7 +31,7 @@ from pylint.checkers.utils import (
     PYMETHODS, is_ancestor_name, is_builtin,
     is_defined_before, is_error, is_func_default, is_func_decorator,
     assign_parent, check_messages, is_inside_except, clobber_in_except,
-    get_all_elements, has_known_bases)
+    get_all_elements, has_known_bases, excepts_import_error)
 import six
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
@@ -973,6 +973,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     @check_messages('no-name-in-module')
     def visit_import(self, node):
         """check modules attribute accesses"""
+        if excepts_import_error(node.parent):
+            # No need to verify this, since ImportError is already
+            # handled by the client code.
+           return
+
         for name, _ in node.names:
             parts = name.split('.')
             try:
@@ -984,6 +989,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     @check_messages('no-name-in-module')
     def visit_from(self, node):
         """check modules attribute accesses"""
+        if excepts_import_error(node.parent):
+            # No need to verify this, since ImportError is already
+            # handled by the client code.
+            return
+
         name_parts = node.modname.split('.')
         level = getattr(node, 'level', None)
         try:
