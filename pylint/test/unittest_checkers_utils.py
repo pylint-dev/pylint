@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Tests for the pylint.checkers.utils module."""
 
-import sys
 import unittest
 import warnings
 
@@ -29,7 +28,7 @@ except AttributeError:
     __builtins__['mybuiltin'] = 2
 
 class UtilsTC(unittest.TestCase):
-    
+
 ##     def test_is_native_builtin(self):
 ##         self.assertEqual(utils.is_native_builtin('min'), True)
 ##         self.assertEqual(utils.is_native_builtin('__path__'), True)
@@ -64,7 +63,7 @@ class UtilsTC(unittest.TestCase):
             utils.get_argument_from_call(node, position=1)
         with self.assertRaises(ValueError):
             utils.get_argument_from_call(node, None, None)
-                
+
         name = utils.get_argument_from_call(node, position=0)
         self.assertEqual(name.name, 'a')
 
@@ -87,7 +86,7 @@ class UtilsTC(unittest.TestCase):
 
         with warnings.catch_warnings(record=True) as cm:
             warnings.simplefilter("always")
-            
+
             self.assertTrue(utils.is_import_error(import_error))
             self.assertFalse(utils.is_import_error(not_import_error))
 
@@ -97,4 +96,3 @@ class UtilsTC(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-        
