@@ -22,19 +22,8 @@ from astroid import test_utils
 
 from pylint.checkers import utils
 from pylint import __pkginfo__
-try:
-    __builtins__.mybuiltin = 2
-except AttributeError:
-    __builtins__['mybuiltin'] = 2
 
 class UtilsTC(unittest.TestCase):
-
-##     def test_is_native_builtin(self):
-##         self.assertEqual(utils.is_native_builtin('min'), True)
-##         self.assertEqual(utils.is_native_builtin('__path__'), True)
-##         self.assertEqual(utils.is_native_builtin('__file__'), True)
-##         self.assertEqual(utils.is_native_builtin('whatever'), False)
-##         self.assertEqual(utils.is_native_builtin('mybuiltin'), False)
 
     def test_is_builtin(self):
         self.assertEqual(utils.is_builtin('min'), True)
