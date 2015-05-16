@@ -40,7 +40,7 @@ class PyLinterTC(unittest.TestCase):
         os.environ.pop('PYLINTRC', None)
 
     def test_add_message_is_deprecated(self):
-        if __pkginfo__.numversion > (1, 6, 0):
+        if __pkginfo__.numversion >= (1, 6, 0):
             with self.assertRaises(AttributeError):
                 BaseReporter().add_message
 
