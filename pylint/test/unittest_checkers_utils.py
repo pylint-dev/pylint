@@ -17,10 +17,12 @@
 
 import sys
 import unittest
+import warnings
 
 from astroid import test_utils
 
 from pylint.checkers import utils
+from pylint import __pkginfo__
 try:
     __builtins__.mybuiltin = 2
 except AttributeError:
@@ -65,6 +67,33 @@ class UtilsTC(unittest.TestCase):
                 
         name = utils.get_argument_from_call(node, position=0)
         self.assertEqual(name.name, 'a')
+
+    def test_is_import_error(self):
+        import_error, not_import_error = test_utils.extract_node("""
+        try:
+            pass
+        except ImportError: #@
+            pass
+
+        try:
+            pass
+        except AttributeError: #@
+            pass
+        """)
+
+        if __pkginfo__.numversion >= (1, 6, 0):
+            with self.assertRaises(AttributeError):
+                utils.is_import_error
+
+        with warnings.catch_warnings(record=True) as cm:
+            warnings.simplefilter("always")
+            
+            self.assertTrue(utils.is_import_error(import_error))
+            self.assertFalse(utils.is_import_error(not_import_error))
+
+        self.assertEqual(len(cm), 2)
+        self.assertIsInstance(cm[0].message, DeprecationWarning)
+
 
 if __name__ == '__main__':
     unittest.main()

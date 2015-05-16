@@ -21,6 +21,7 @@ import functools
 import re
 import sys
 import string
+import warnings
 
 import astroid
 from astroid import scoped_nodes
@@ -453,13 +454,13 @@ def inherit_from_std_ex(node):
     return any(inherit_from_std_ex(parent)
                for parent in node.ancestors(recurs=False))
 
-def is_import_error(handler):
+def error_of_type(handler, error_type):
     """
     Check if the given exception handler catches
-    ImportError.
+    the given error_type.
 
     :param handler: A node, representing an ExceptHandler node.
-    :returns: True if the handler catches ImportError, False otherwise.
+    :returns: True if the handler catches the given error type, False otherwise.
     """
     names = None
     if isinstance(handler.type, astroid.Tuple):
@@ -475,10 +476,17 @@ def is_import_error(handler):
             for infered in name.infer():
                 if (isinstance(infered, astroid.Class) and
                         inherit_from_std_ex(infered) and
-                        infered.name == 'ImportError'):
+                        infered.name == error_type.__name__):
                     return True
         except astroid.InferenceError:
             continue
+
+def is_import_error(handler):
+    warnings.warn("This function is deprecated in the favour of "
+                  "error_of_type. It will be removed in Pylint 1.6.",
+                  DeprecationWarning, stacklevel=2)
+    return error_of_type(handler, ImportError)
+
 
 def has_known_bases(klass):
     """Returns true if all base classes of a class could be inferred."""
@@ -586,4 +594,5 @@ def excepts_import_error(node):
     if not isinstance(node, astroid.TryExcept):
         return
     # pylint: disable=bad-builtin
-    return any(map(is_import_error, node.handlers))
+    func = functools.partial(error_of_type, error_type=ImportError)
+    return any(map(func, node.handlers))

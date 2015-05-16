@@ -44,7 +44,7 @@ from pylint.checkers.utils import (
     get_argument_from_call,
     has_known_bases,
     NoSuchArgumentError,
-    is_import_error,
+    error_of_type,
     unimplemented_abstract_methods,
     )
 
@@ -95,7 +95,7 @@ def _redefines_import(node):
     current = node
     while current and not isinstance(current.parent, astroid.ExceptHandler):
         current = current.parent
-    if not current or not is_import_error(current.parent):
+    if not current or not error_of_type(current.parent, ImportError):
         return False
     try_block = current.parent.parent
     for import_node in try_block.nodes_of_class((astroid.From, astroid.Import)):
