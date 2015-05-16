@@ -50,7 +50,7 @@ def _check_dict_node(node):
 def _is_builtin(node):
     return getattr(node, 'name', None) in ('__builtin__', 'builtins')
 
-_accepts_iterator = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
+_ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
                      'all', 'enumerate', 'dict'}
 
 def _in_iterating_context(node):
@@ -74,7 +74,7 @@ def _in_iterating_context(node):
     elif isinstance(parent, astroid.CallFunc):
         if isinstance(parent.func, astroid.Name):
             parent_scope = parent.func.lookup(parent.func.name)[0]
-            if _is_builtin(parent_scope) and parent.func.name in _accepts_iterator:
+            if _is_builtin(parent_scope) and parent.func.name in _ACCEPTS_ITERATOR:
                 return True
         elif isinstance(parent.func, astroid.Getattr):
             if parent.func.attrname == 'join':

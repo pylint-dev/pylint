@@ -154,12 +154,12 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
         else:
             stderr = sys.stderr
     # Call pylint in a subprocess
-    p = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
-              env=_get_env(), universal_newlines=True)
-    p.wait()
+    process = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
+                    env=_get_env(), universal_newlines=True)
+    process.wait()
     # Return standard output and error
     if return_std:
-        return (p.stdout, p.stderr)
+        return (process.stdout, process.stderr)
 
 
 def Run():

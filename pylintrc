@@ -67,7 +67,7 @@ disable=invalid-name,protected-access,fixme,too-many-branches,
         too-many-return-statements,too-few-public-methods,
         import-error,too-many-lines,too-many-instance-attributes,
         too-many-public-methods,duplicate-code,broad-except,
-        unbalanced-tuple-unpacking,redefined-builtin,anomalous-backslash-in-string,
+        redefined-builtin,anomalous-backslash-in-string,
         missing-docstring,no-member
 
 
@@ -280,7 +280,7 @@ ignored-modules=
 
 # List of classes names for which member attributes should not be checked
 # (useful for classes with attributes dynamically set).
-ignored-classes=SQLObject
+ignored-classes=SQLObject, Values
 
 # When zope mode is activated, add a predefined set of Zope acquired attributes
 # to generated-members.

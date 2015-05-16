@@ -170,9 +170,9 @@ class UnittestLinter(object):
 
 def set_config(**kwargs):
     """Decorator for setting config values on a checker."""
-    def _Wrapper(fun):
+    def _wrapper(fun):
         @functools.wraps(fun)
-        def _Forward(self):
+        def _forward(self):
             for key, value in six.iteritems(kwargs):
                 setattr(self.checker.config, key, value)
             if isinstance(self, CheckerTestCase):
@@ -180,8 +180,8 @@ def set_config(**kwargs):
                 self.checker.open()
             fun(self)
 
-        return _Forward
-    return _Wrapper
+        return _forward
+    return _wrapper
 
 
 class CheckerTestCase(unittest.TestCase):
@@ -391,17 +391,17 @@ def create_tempfile(content=None):
     # Can't use tempfile.NamedTemporaryFile here
     # because on Windows the file must be closed before writing to it,
     # see http://bugs.python.org/issue14243
-    fd, tmp = tempfile.mkstemp()
+    file_handle, tmp = tempfile.mkstemp()
     if content:
         if sys.version_info >= (3, 0):
             # erff
-            os.write(fd, bytes(content, 'ascii'))
+            os.write(file_handle, bytes(content, 'ascii'))
         else:
-            os.write(fd, content)
+            os.write(file_handle, content)
     try:
         yield tmp
     finally:
-        os.close(fd)
+        os.close(file_handle)
         os.remove(tmp)
 
 @contextlib.contextmanager

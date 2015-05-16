@@ -975,9 +975,9 @@ def node_method(node, method_name):
     """get astroid for <method_name> on the given class node, ensuring it
     is a Function node
     """
-    for n in node.local_attr(method_name):
-        if isinstance(n, astroid.Function):
-            return n
+    for node_attr in node.local_attr(method_name):
+        if isinstance(node_attr, astroid.Function):
+            return node_attr
     raise astroid.NotFoundError(method_name)
 
 def register(linter):

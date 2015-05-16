@@ -205,9 +205,10 @@ MSGS = {
 
 
 if multiprocessing is not None:
-    class ChildLinter(multiprocessing.Process): # pylint: disable=no-member
+    class ChildLinter(multiprocessing.Process):
         def run(self):
-            tasks_queue, results_queue, self._config = self._args # pylint: disable=no-member
+            # pylint: disable=no-member, unbalanced-tuple-unpacking
+            tasks_queue, results_queue, self._config = self._args
 
             self._config["jobs"] = 1  # Child does not parallelize any further.
             self._python3_porting_mode = self._config.pop(
@@ -762,15 +763,16 @@ class PyLinter(configuration.OptionsManagerMixIn,
         child_config['python3_porting_mode'] = self._python3_porting_mode
         child_config['plugins'] = self._dynamic_plugins
 
-        childs = []
-        manager = multiprocessing.Manager()  # pylint: disable=no-member
-        tasks_queue = manager.Queue()  # pylint: disable=no-member
-        results_queue = manager.Queue()  # pylint: disable=no-member
+        children = []
+        manager = multiprocessing.Manager()
+        tasks_queue = manager.Queue()
+        results_queue = manager.Queue()
 
         for _ in range(self.config.jobs):
-            cl = ChildLinter(args=(tasks_queue, results_queue, child_config))
-            cl.start()  # pylint: disable=no-member
-            childs.append(cl)
+            child_linter = ChildLinter(args=(tasks_queue, results_queue,
+                                             child_config))
+            child_linter.start()
+            children.append(child_linter)
 
         # Send files to child linters.
         expanded_files = self.expand_files(files_or_modules)
@@ -794,8 +796,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
         # Stop child linters and wait for their completion.
         for _ in range(self.config.jobs):
             tasks_queue.put('STOP')
-        for cl in childs:
-            cl.join()
+        for child in children:
+            child.join()
 
         if failed:
             print("Error occured, stopping the linter.", file=sys.stderr)
