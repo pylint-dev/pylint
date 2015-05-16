@@ -19,7 +19,6 @@ import sys
 from collections import defaultdict
 
 import six
-from six.moves import map # pylint: disable=redefined-builtin
 
 from logilab.common.graph import get_cycles, DotBackend
 from logilab.common.ureports import VerbatimText, Paragraph

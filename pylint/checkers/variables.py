@@ -976,7 +976,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if excepts_import_error(node.parent):
             # No need to verify this, since ImportError is already
             # handled by the client code.
-           return
+            return
 
         for name, _ in node.names:
             parts = name.split('.')
