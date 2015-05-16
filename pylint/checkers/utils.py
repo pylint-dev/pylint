@@ -584,4 +584,5 @@ def excepts_import_error(node):
     """
     if not isinstance(node, astroid.TryExcept):
         return
+    # pylint: disable=bad-builtin
     return any(map(is_import_error, node.handlers))
