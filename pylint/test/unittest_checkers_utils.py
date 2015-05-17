@@ -82,6 +82,20 @@ class UtilsTC(unittest.TestCase):
         self.assertEqual(len(cm), 2)
         self.assertIsInstance(cm[0].message, DeprecationWarning)
 
+    def test_error_of_type(self):
+        nodes = test_utils.extract_node("""
+        try: pass
+        except AttributeError: #@
+             pass
+        try: pass
+        except Exception: #@
+             pass
+        """)
+        self.assertTrue(utils.error_of_type(nodes[0], AttributeError))
+        self.assertTrue(utils.error_of_type(nodes[0], (AttributeError, )))
+        self.assertFalse(utils.error_of_type(nodes[0], Exception))
+        self.assertTrue(utils.error_of_type(nodes[1], Exception))
+
 
 if __name__ == '__main__':
     unittest.main()

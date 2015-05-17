@@ -459,9 +459,16 @@ def error_of_type(handler, error_type):
     Check if the given exception handler catches
     the given error_type.
 
-    :param handler: A node, representing an ExceptHandler node.
-    :returns: True if the handler catches the given error type, False otherwise.
+    The *handler* parameter is a node, representing an ExceptHandler node.
+    The *error_type* can be an exception, such as AttributeError, or it
+    can be a tuple of errors.
+    The function will return True if the handler catches any of the
+    given errors.
     """
+    if not isinstance(error_type, tuple):
+        error_type = (error_type, )
+    expected_errors = {error.__name__ for error in error_type}
+
     names = None
     if isinstance(handler.type, astroid.Tuple):
         names = [name for name in handler.type.elts
@@ -476,7 +483,7 @@ def error_of_type(handler, error_type):
             for infered in name.infer():
                 if (isinstance(infered, astroid.Class) and
                         inherit_from_std_ex(infered) and
-                        infered.name == error_type.__name__):
+                        infered.name in expected_errors):
                     return True
         except astroid.InferenceError:
             continue
