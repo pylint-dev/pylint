@@ -30,7 +30,7 @@ from astroid.modutils import get_module_part, is_standard_module
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport, get_global_option
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, excepts_import_error
+from pylint.checkers.utils import check_messages, node_ignores_exception
 
 
 def get_first_import(node, context, name, base, level):
@@ -288,7 +288,7 @@ given file (report RP0402 must not be disabled)'}
                 if submodule in ignored_modules:
                     return None
 
-            if not excepts_import_error(importnode.parent):
+            if not node_ignores_exception(importnode, ImportError):
                 self.add_message("import-error", args=args, node=importnode)
 
     @staticmethod
