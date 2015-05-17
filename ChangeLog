@@ -127,11 +127,15 @@ ChangeLog for Pylint
 
     * Remove 'bad-context-manager' due to the inclusion of 'unexpected-special-method-signature'.
 
-    * Don't emit no-name-in-module if the import is guarded by an ImportError handler.
+    * Don't emit no-name-in-module if the import is guarded by an ImportError, Exception or
+      a bare except clause.
 
     * Don't emit no-member if the attribute access node is protected by an
       except handler, which handles AttributeError, Exception or it is a
       bare except.
+
+    * Don't emit import-error if the import is guarded by an ImportError, Exception or a
+      bare except clause.
 
 
 2015-03-14 -- 1.4.3
