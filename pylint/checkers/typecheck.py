@@ -31,7 +31,7 @@ from pylint.checkers.utils import (
     safe_infer, is_super,
     check_messages, decorated_with_property,
     decorated_with, has_known_bases,
-    error_of_type)
+    node_ignores_exception)
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -105,18 +105,8 @@ def _emit_no_member(node, owner, owner_name, attrname,
         * The access node is protected by an except handler, which handles
           AttributeError, Exception or bare except.
     """
-    current = node
-    while current and not isinstance(current.parent, astroid.TryExcept):
-        current = current.parent
-    func = functools.partial(error_of_type,
-                             error_type=(Exception, AttributeError))
-    if current and isinstance(current.parent, astroid.TryExcept):
-        handles_errors = any(map(func, current.parent.handlers))
-        empty_handlers = any(handler.type is None
-                             for handler in current.parent.handlers)
-        if handles_errors or empty_handlers:
-            return False
-
+    if node_ignores_exception(node, AttributeError):
+        return False
     if owner_name in ignored_classes:
         return False
     # skip None anyway

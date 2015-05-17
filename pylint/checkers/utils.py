@@ -603,3 +603,24 @@ def excepts_import_error(node):
     # pylint: disable=bad-builtin
     func = functools.partial(error_of_type, error_type=ImportError)
     return any(map(func, node.handlers))
+
+
+def node_ignores_exception(node, exception):
+    """Check if the node is in a TryExcept which handles the given exception.
+
+    This will also return ``True`` if the node is protected by an `except Exception`
+    or by a bare except clause.
+    """
+    current = node
+    while current and not isinstance(current.parent, astroid.TryExcept):
+        current = current.parent
+
+    func = functools.partial(error_of_type,
+                             error_type=(Exception, exception))
+    if current and isinstance(current.parent, astroid.TryExcept):
+        handles_errors = any(map(func, current.parent.handlers))
+        empty_handlers = any(handler.type is None
+                             for handler in current.parent.handlers)
+        if handles_errors or empty_handlers:
+            return True
+    return False
