@@ -107,3 +107,9 @@ try:
     Client().indeed() # [no-member]
 except ImportError:
     pass
+
+try:
+    if Client:
+        Client().missing()
+except AttributeError:
+    pass

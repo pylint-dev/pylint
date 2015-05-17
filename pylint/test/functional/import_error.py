@@ -26,3 +26,9 @@ try:
     import please_dont_emit
 except:
     pass
+
+try:
+    if maybe_missing:
+        import really_missing
+except ImportError:
+    pass

@@ -54,3 +54,9 @@ try:
     import collections.please_dont_emit
 except:
     pass
+
+try:
+    if something:
+        import collections.please_dont_emit
+except Exception:
+    pass
