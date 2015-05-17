@@ -1,4 +1,4 @@
-#pylint: disable=W0401,W0611,no-absolute-import,invalid-name,import-error
+#pylint: disable=W0401,W0611,no-absolute-import,invalid-name,import-error,bare-except,broad-except
 """check unexistant names imported are reported"""
 from __future__ import print_function
 
@@ -43,4 +43,14 @@ except ImportError:
 try:
     import collections.indeed_missing # [no-name-in-module]
 except ValueError:
+    pass
+
+try:
+    import collections.dont_emit
+except Exception:
+    pass
+
+try:
+    import collections.please_dont_emit
+except:
     pass
