@@ -16,7 +16,6 @@
 """try to find more bugs in the code using astroid inference capabilities
 """
 
-import functools
 import re
 import shlex
 import sys
