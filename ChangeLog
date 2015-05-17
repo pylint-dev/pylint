@@ -129,6 +129,10 @@ ChangeLog for Pylint
 
     * Don't emit no-name-in-module if the import is guarded by an ImportError handler.
 
+    * Don't emit no-member if the attribute access node is protected by an
+      except handler, which handles AttributeError, Exception or it is a
+      bare except.
+
 
 2015-03-14 -- 1.4.3
 

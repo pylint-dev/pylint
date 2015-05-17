@@ -1,4 +1,4 @@
-# pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods
+# pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except
 """check getattr if inference succeed"""
 from __future__ import print_function
 
@@ -87,3 +87,23 @@ print(Client().set_later.lower())  # [no-member]
 print(Mixin().nanana())
 print(Getattr().nananan())
 print(Getattribute().batman())
+
+try:
+    Client().missing_method()
+except AttributeError:
+    pass
+
+try:
+    Client().indeed()
+except Exception:
+    pass
+
+try:
+    Client().indeed()
+except:
+    pass
+
+try:
+    Client().indeed() # [no-member]
+except ImportError:
+    pass

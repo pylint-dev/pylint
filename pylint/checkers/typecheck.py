@@ -16,6 +16,7 @@
 """try to find more bugs in the code using astroid inference capabilities
 """
 
+import functools
 import re
 import shlex
 import sys
@@ -29,7 +30,8 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     safe_infer, is_super,
     check_messages, decorated_with_property,
-    decorated_with, has_known_bases)
+    decorated_with, has_known_bases,
+    error_of_type)
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -90,7 +92,7 @@ SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
                       'xrange', 'range', 'bytes', 'memoryview'])
 
 
-def _emit_no_member(owner, owner_name, attrname,
+def _emit_no_member(node, owner, owner_name, attrname,
                     ignored_modules, ignored_mixins, ignored_classes):
     """Try to see if no-member should be emitted for the given owner.
 
@@ -100,7 +102,21 @@ def _emit_no_member(owner, owner_name, attrname,
         * the owner is an instance and it has __getattr__, __getattribute__ implemented
         * the module is explicitly ignored from no-member checks
         * the owner is a class and the name can be found in its metaclass.
+        * The access node is protected by an except handler, which handles
+          AttributeError, Exception or bare except.
     """
+    current = node
+    while current and not isinstance(current.parent, astroid.TryExcept):
+        current = current.parent
+    func = functools.partial(error_of_type,
+                             error_type=(Exception, AttributeError))
+    if current and isinstance(current.parent, astroid.TryExcept):
+        handles_errors = any(map(func, current.parent.handlers))
+        empty_handlers = any(handler.type is None
+                             for handler in current.parent.handlers)
+        if handles_errors or empty_handlers:
+            return False
+
     if owner_name in ignored_classes:
         return False
     # skip None anyway
@@ -294,7 +310,7 @@ accessed. Python regular expressions are accepted.'}
                 # but we continue to the next values which doesn't have the
                 # attribute, then we'll have a false positive.
                 # So call this only after the call has been made.
-                if not _emit_no_member(owner, name, node.attrname,
+                if not _emit_no_member(node, owner, name, node.attrname,
                                        self.config.ignored_modules,
                                        self.config.ignore_mixin_members,
                                        self.config.ignored_classes):
