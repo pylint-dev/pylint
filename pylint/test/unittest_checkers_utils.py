@@ -96,6 +96,30 @@ class UtilsTC(unittest.TestCase):
         self.assertFalse(utils.error_of_type(nodes[0], Exception))
         self.assertTrue(utils.error_of_type(nodes[1], Exception))
 
+    def test_node_ignores_exception(self):
+        nodes = test_utils.extract_node("""
+        try:
+            1/0 #@
+        except ZeroDivisionError:
+            pass
+        try:
+            1/0 #@
+        except Exception:
+            pass
+        try:
+            1/0 #@
+        except:
+            pass
+        try:
+            1/0 #@
+        except ValueError:
+            pass
+        """)
+        self.assertTrue(utils.node_ignores_exception(nodes[0], ZeroDivisionError))
+        self.assertTrue(utils.node_ignores_exception(nodes[1], ZeroDivisionError))
+        self.assertTrue(utils.node_ignores_exception(nodes[2], ZeroDivisionError))
+        self.assertFalse(utils.node_ignores_exception(nodes[3], ZeroDivisionError))
+
 
 if __name__ == '__main__':
     unittest.main()
