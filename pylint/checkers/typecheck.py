@@ -252,12 +252,12 @@ accessed. Python regular expressions are accepted.'}
     def visit_getattr(self, node):
         """check that the accessed attribute exists
 
-        to avoid to much false positives for now, we'll consider the code as
+        to avoid too much false positives for now, we'll consider the code as
         correct if a single of the inferred nodes has the accessed attribute.
 
         function/method, super call and metaclasses are ignored
         """
-        # generated_members may containt regular expressions
+        # generated_members may contain regular expressions
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
