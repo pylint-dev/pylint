@@ -226,7 +226,7 @@ should not be checked (useful for classes with attributes dynamically set).'}
 of Zope acquired attributes to generated-members.'}
                ),
                ('generated-members',
-                {'default' : ('REQUEST', 'acl_users', 'aq_parent'),
+                {'default' : (),
                  'type' : 'string',
                  'metavar' : '<members names>',
                  'help' : 'List of members which are set dynamically and \
