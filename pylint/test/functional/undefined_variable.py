@@ -1,5 +1,5 @@
 """Test warnings about access to undefined variables."""
-# pylint: disable=too-few-public-methods, no-init, no-self-use, old-style-class
+# pylint: disable=too-few-public-methods, no-init, no-self-use, old-style-class,bare-except,broad-except
 from __future__ import print_function
 DEFINED = 1
 
@@ -150,3 +150,24 @@ class KeywordArgument(object):
 
     arg2 = 0
     func2 = lambda arg2=arg2: arg2 * arg2
+
+# Don't emit if the code is protected by NameError
+try:
+    unicode_1
+except NameError:
+    pass
+
+try:
+    unicode_2
+except Exception:
+    pass
+
+try:
+    unicode_3
+except:
+    pass
+
+try:
+    unicode_4 # [undefined-variable]
+except ValueError:
+    pass

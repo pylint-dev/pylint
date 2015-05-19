@@ -933,7 +933,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             or defined_by_stmt
                             or annotation_return
                             or isinstance(defstmt, astroid.Delete)):
-                        self.add_message('undefined-variable', args=name, node=node)
+                        if not node_ignores_exception(node, NameError):
+                            self.add_message('undefined-variable', args=name,
+                                             node=node)
                     elif base_scope_type != 'lambda':
                         # E0601 may *not* occurs in lambda scope.
                         self.add_message('used-before-assignment', args=name, node=node)
@@ -968,7 +970,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # undefined name !
             if not (name in astroid.Module.scope_attrs or is_builtin(name)
                     or name in self.config.additional_builtins):
-                self.add_message('undefined-variable', args=name, node=node)
+                if not node_ignores_exception(node, NameError):
+                    self.add_message('undefined-variable', args=name, node=node)
 
     @check_messages('no-name-in-module')
     def visit_import(self, node):

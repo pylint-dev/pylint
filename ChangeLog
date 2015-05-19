@@ -137,6 +137,9 @@ ChangeLog for Pylint
     * Don't emit import-error if the import is guarded by an ImportError, Exception or a
       bare except clause.
 
+    * Don't emit undefined-variable if the node is guarded by a NameError, Exception
+      or bare except clause.
+
 
 2015-03-14 -- 1.4.3
 
