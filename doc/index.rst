@@ -22,7 +22,6 @@ https://bitbucket.org/logilab/pylint
 
    tutorial
    faq
-   wiki
    backlinks
    installation
 
