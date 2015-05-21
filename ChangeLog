@@ -57,7 +57,8 @@ ChangeLog for Pylint
     * Fix a false positive for bad-reversed-sequence, when a subclass
       of a `dict` provides a __reversed__ method.
 
-    * Don't emit missing-docstring for private functions.
+    * Change the default no-docstring-rgx so missing-docstring isn't
+      emitted for private functions.
 
     * Don't emit redefined-outer-name for __future__ directives.
       Closes issue #520.
