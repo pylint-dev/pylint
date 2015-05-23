@@ -14,7 +14,7 @@ class Well(object):
 
     class Data(object):
         """base hidden class"""
-    class Sub(Data): # [undefined-variable
+    class Sub(Data):
         """whaou, is Data found???"""
         attr = Data() # [undefined-variable]
     def func(self):
