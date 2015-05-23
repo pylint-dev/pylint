@@ -140,6 +140,11 @@ ChangeLog for Pylint
 
     * Don't emit undefined-variable if the node is guarded by a NameError, Exception
       or bare except clause.
+ 
+    * Add a new warning, 'using-constant-test', which is emitted when a conditional
+      statement (If, IfExp) uses a test which is always constant, such as numbers,
+      classes, functions etc. This is most likely an error from the user's part.
+      Closes issue #524.
 
 
 2015-03-14 -- 1.4.3

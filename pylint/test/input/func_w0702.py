@@ -2,7 +2,7 @@
 """
 from __future__ import print_function
 __revision__ = 0
-
+# pylint: disable=using-constant-test
 if __revision__:
     try:
         print(__revision__)

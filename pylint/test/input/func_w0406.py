@@ -1,5 +1,5 @@
 """test module importing itself"""
-# pylint: disable=no-absolute-import
+# pylint: disable=no-absolute-import,using-constant-test
 from __future__ import print_function
 __revision__ = 0
 

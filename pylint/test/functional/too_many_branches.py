@@ -1,5 +1,5 @@
 """ Test for too many branches. """
-
+# pylint: disable=using-constant-test
 def wrong(): # [too-many-branches]
     """ Has too many branches. """
     if 1:

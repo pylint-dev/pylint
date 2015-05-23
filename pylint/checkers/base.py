@@ -28,6 +28,7 @@ from logilab.common.ureports import Table
 
 import astroid
 import astroid.bases
+import astroid.scoped_nodes
 from astroid import are_exclusive, InferenceError
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
@@ -523,6 +524,11 @@ functions, methods
                   'as in with ctx() as a, b. This can be misleading, since it\'s not '
                   'clear if the context manager returns a tuple or if the node without '
                   'a name binding is another context manager.'),
+        'W0125': ('Using a conditional statement with a constant value',
+                  'using-constant-test',
+                  'Emitted when a conditional statement (If or ternary if) '
+                  'uses a constant value for its test. This might not be what '
+                  'the user intended to do.'),
         'C0121': ('Missing required attribute "%s"', # W0103
                   'missing-module-attribute',
                   'Used when an attribute required for modules is missing.'),
@@ -564,6 +570,40 @@ functions, methods
         self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0,
                                            method=0, class_=0)
+
+    @check_messages('using-constant-test')
+    def visit_if(self, node):
+        self._check_using_constant_test(node, node.test)
+
+    @check_messages('using-constant-test')
+    def visit_ifexp(self, node):
+        self._check_using_constant_test(node, node.test)
+
+    def _check_using_constant_test(self, node, test):
+        const_nodes = (
+            astroid.Module,
+            astroid.scoped_nodes.GenExpr,
+            astroid.Lambda, astroid.Function, astroid.Class,
+            astroid.bases.Generator, astroid.UnboundMethod,
+            astroid.BoundMethod, astroid.Module)
+        structs = (astroid.Dict, astroid.Tuple, astroid.Set)
+
+        # These nodes are excepted, since they are not constant
+        # values, requiring a computation to happen. The only type
+        # of node in this list which doesn't have this property is
+        # Getattr, which is excepted because the conditional statement
+        # can be used to verify that the attribute was set inside a class,
+        # which is definitely a valid use case.
+        except_nodes = (astroid.Getattr, astroid.CallFunc,
+                        astroid.BinOp, astroid.BoolOp, astroid.UnaryOp,
+                        astroid.Subscript)
+        inferred = None
+        emit = isinstance(test, (astroid.Const, ) + structs + const_nodes)
+        if not isinstance(test, except_nodes):
+            inferred = safe_infer(test)
+
+        if emit or isinstance(inferred, const_nodes):
+            self.add_message('using-constant-test', node=node)
 
     @check_messages('missing-module-attribute')
     def visit_module(self, node):

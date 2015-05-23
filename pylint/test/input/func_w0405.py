@@ -2,7 +2,7 @@
 """
 from __future__ import absolute_import, print_function
 __revision__ = 0
-
+# pylint: disable=using-constant-test
 import os
 from os.path import join, exists
 
@@ -23,7 +23,7 @@ def func(yooo):
     import re
     re.compile('.*')
 
-if 1:
+if 1: # pylint: disable=using-constant-test
     import sys
     print(sys.modules)
 else:

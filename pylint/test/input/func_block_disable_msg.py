@@ -90,7 +90,7 @@ class Foo(object):
         """test re-enabling right after a block with whitespace"""
         eris = 5
 
-        if eris:
+        if eris: # pylint: disable=using-constant-test
             print("In block")
 
         # pylint: disable=E1101

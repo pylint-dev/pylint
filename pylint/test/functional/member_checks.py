@@ -1,5 +1,5 @@
 # pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except
-"""check getattr if inference succeed"""
+# pylint: disable=using-constant-test
 from __future__ import print_function
 
 class Provider(object):

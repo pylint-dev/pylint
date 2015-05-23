@@ -1,5 +1,5 @@
 """pylint should detect yield and return mix inside genrators"""
-__revision__ = None
+# pylint: disable=using-constant-test
 def somegen():
     """this is a bad generator"""
     if True:

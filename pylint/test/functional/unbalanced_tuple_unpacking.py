@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 from functional.unpacking import unpack
 
-__revision__ = 0
+# pylint: disable=using-constant-test
 
 def do_stuff():
     """This is not right."""

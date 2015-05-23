@@ -1,7 +1,7 @@
 ''' Test for inheritence '''
 from __future__ import print_function
 __revision__ = 1
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods, using-constant-test
 class AAAA(object):
     ''' class AAAA '''
 
