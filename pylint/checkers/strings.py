@@ -168,7 +168,7 @@ def collect_string_fields(format_string):
             # to trigger the format-combined-specification check.
             yield ""
             yield "1"
-            return        
+            return
         raise utils.IncompleteFormatString(format_string)
 
 def parse_format_method_string(format_string):
