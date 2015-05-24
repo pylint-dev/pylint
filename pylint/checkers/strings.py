@@ -157,9 +157,18 @@ def collect_string_fields(format_string):
             if nested:
                 for field in collect_string_fields(nested):
                     yield field
-    except ValueError:
-        # probably the format string is invalid
-        # should we check the argument of the ValueError?
+    except ValueError as exc:
+        # Probably the format string is invalid.
+        if exc.args[0].startswith("cannot switch from manual"):
+            # On Jython, parsing a string with both manual
+            # and automatic positions will fail with a ValueError,
+            # while on CPython it will simply return the fields,
+            # the validation being done in the interpreter (?).
+            # We're just returning two mixed fields in order
+            # to trigger the format-combined-specification check.
+            yield ""
+            yield "1"
+            return        
         raise utils.IncompleteFormatString(format_string)
 
 def parse_format_method_string(format_string):
