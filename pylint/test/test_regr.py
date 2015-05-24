@@ -18,6 +18,7 @@ to be incorporated in the automatic functional test framework
 """
 
 import sys
+import platform
 import os
 from os.path import abspath, dirname, join
 import unittest
@@ -138,9 +139,12 @@ class NonRegrTC(unittest.TestCase):
         self.assertEqual(got, "")
 
     def test_no_context_file(self):
-        message = ("E:  2: invalid syntax\n"
-                   "E:  5: No name 'missing' in module ''\n"
-                   "W:  5: Unused import missing")
+        if platform.system() == 'Java':
+            message = "E:  2: mismatched input '.' expecting set null\n"
+        else:
+            message = "E:  2: invalid syntax\n"
+        message = message + ("E:  5: No name 'missing' in module ''\n"
+                             "W:  5: Unused import missing")
         linter.check(join(REGR_DATA, 'bad_package'))
         got = linter.reporter.finalize().strip()
         self.assertEqual(got, message)
