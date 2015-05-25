@@ -14,6 +14,7 @@ from collections import deque
 
 __all__ = [
     'Dummy',
+    '', # [undefined-all-variable]
     'NonExistant',  # [undefined-all-variable]
     'path',
     'func',  # [undefined-all-variable]

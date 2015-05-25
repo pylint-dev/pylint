@@ -373,7 +373,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     if elt_name not in node.locals:
                         if not node.package:
                             self.add_message('undefined-all-variable',
-                                             args=elt_name,
+                                             args=(elt_name, ),
                                              node=elt)
                         else:
                             basename = os.path.splitext(node.file)[0]
@@ -383,7 +383,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                     modutils.file_from_modpath(name.split("."))
                                 except ImportError:
                                     self.add_message('undefined-all-variable',
-                                                     args=elt_name,
+                                                     args=(elt_name, ),
                                                      node=elt)
                                 except SyntaxError:
                                     # don't yield an syntax-error warning,
