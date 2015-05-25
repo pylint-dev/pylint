@@ -35,7 +35,7 @@ MSGS = {
               'interpolation in those cases in which no message will be '
               'logged. For more, see '
               'http://www.python.org/dev/peps/pep-0282/.'),
-    'W1202': ('Use % formatting in logging functions but pass the % '
+    'W1202': ('Use % formatting in logging functions and pass the % '
               'parameters as arguments',
               'logging-format-interpolation',
               'Used when a logging statement has a call form of '
