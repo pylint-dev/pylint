@@ -211,17 +211,12 @@ class ExceptionsChecker(BaseChecker):
                 # pylint: disable=protected-access
                 expr = expr._proxied
             if (isinstance(expr, astroid.Class) and
-                    not inherit_from_std_ex(expr)):
+                    not inherit_from_std_ex(expr) and
+                    has_known_bases(expr)):
                 if expr.newstyle:
                     self.add_message('raising-non-exception', node=node)
                 else:
-                    if has_known_bases(expr):
-                        confidence = INFERENCE
-                    else:
-                        confidence = INFERENCE_FAILURE
-                    self.add_message(
-                        'nonstandard-exception', node=node,
-                        confidence=confidence)
+                    self.add_message('nonstandard-exception', node=node)
             else:
                 value_found = False
         else:

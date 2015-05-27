@@ -146,6 +146,11 @@ ChangeLog for Pylint
       classes, functions etc. This is most likely an error from the user's part.
       Closes issue #524.
 
+    * Don't emit 'raising-non-exception' when the exception has unknown
+      bases. We don't know what those bases actually are and it's better
+      to assume that the user knows what he is doing rather than emitting
+      a message which can be considered a false positive.
+
 
 2015-03-14 -- 1.4.3
 

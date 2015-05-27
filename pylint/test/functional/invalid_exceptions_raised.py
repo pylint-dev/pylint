@@ -1,4 +1,4 @@
-# pylint:disable=too-few-public-methods,old-style-class,no-init
+# pylint:disable=too-few-public-methods,old-style-class,no-init,import-error,missing-docstring
 """test pb with exceptions and old/new style classes"""
 
 
@@ -74,3 +74,10 @@ def bad_case8():
 def bad_case9():
     """raise dict"""
     raise dict # [raising-non-exception]
+
+def unknown_bases():
+    """Don't emit when we don't know the bases."""
+    from lala import bala
+    class MyException(bala):
+        pass
+    raise MyException
