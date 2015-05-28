@@ -28,7 +28,7 @@ from pylint.checkers.utils import (
     EXCEPTIONS_MODULE,
     has_known_bases,
     safe_infer)
-from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
+from pylint.interfaces import IAstroidChecker
 
 
 def _annotated_unpack_infer(stmt, context=None):
