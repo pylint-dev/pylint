@@ -61,8 +61,8 @@ class Client(object):
     def test_no_false_positives(self):
         none = None
         print(none.whatever)
-        # This will be handled when we'll understand super
-        super(Client, self).misssing()
+        # No misssing in the parents.
+        super(Client, self).misssing() # [no-member]
 
 
 class Mixin(object):

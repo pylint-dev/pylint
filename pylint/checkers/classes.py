@@ -24,6 +24,7 @@ import astroid
 from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator, BUILTINS
 from astroid.exceptions import InconsistentMroError, DuplicateBasesError
+from astroid import objects
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -815,6 +816,8 @@ a metaclass class method.'}
                             isinstance(klass._proxied, astroid.Class) and
                             is_builtin_object(klass._proxied) and
                             klass._proxied.name == 'super'):
+                        return
+                    elif isinstance(klass, objects.Super):
                         return
                     try:
                         del not_called_yet[klass]
