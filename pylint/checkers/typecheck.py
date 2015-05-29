@@ -21,8 +21,9 @@ import shlex
 import sys
 
 import astroid
-from astroid import InferenceError, NotFoundError, YES, Instance
+from astroid import InferenceError, NotFoundError, SuperError, YES, Instance
 from astroid.bases import BUILTINS
+from astroid import objects
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
@@ -111,7 +112,6 @@ def _emit_no_member(node, owner, owner_name, attrname,
     # skip None anyway
     if isinstance(owner, astroid.Const) and owner.value is None:
         return False
-    # TODO(cpopa): This should be removed when we'll understand "super"
     if is_super(owner) or getattr(owner, 'type', None) == 'metaclass':
         return False
     if ignored_mixins and owner_name[-5:].lower() == 'mixin':
@@ -120,6 +120,16 @@ def _emit_no_member(node, owner, owner_name, attrname,
         return False
     if isinstance(owner, Instance):
         if owner.has_dynamic_getattr() or not has_known_bases(owner):
+            return False
+    if isinstance(owner, objects.Super):
+        # Verify if we are dealing with an invalid Super object.
+        # If it is invalid, then there's no point in checking that
+        # it has the required attribute.                
+        try:
+            owner.super_mro()
+        except SuperError:
+            return False
+        if not all(map(has_known_bases, owner.type.mro())):
             return False
     # explicit skipping of module member access
     if owner.root().name in ignored_modules:
@@ -282,6 +292,7 @@ accessed. Python regular expressions are accepted.'}
             if owner is YES:
                 inference_failure = True
                 continue
+
             name = getattr(owner, 'name', 'None')
             try:
                 if not [n for n in owner.getattr(node.attrname)

@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, no-absolute-import,no-member
+# pylint: disable=too-few-public-methods,import-error, no-absolute-import
 """check use of super"""
 
 from unknown import Missing
@@ -7,7 +7,7 @@ class Aaaa:  # <3.0:[old-style-class]
     """old style"""
     def hop(self):  # <3.0:[super-on-old-class]
         """hop"""
-        super(Aaaa, self).hop()
+        super(Aaaa, self).hop() # >=3.0:[no-member]
 
     def __init__(self):  # <3.0:[super-on-old-class]
         super(Aaaa, self).__init__()
@@ -16,10 +16,10 @@ class NewAaaa(object):
     """old style"""
     def hop(self):
         """hop"""
-        super(NewAaaa, self).hop()
+        super(NewAaaa, self).hop() # [no-member]
 
     def __init__(self):
-        super(object, self).__init__()  # [bad-super-call]
+        super(Aaaa, self).__init__()  # [bad-super-call]
 
 class Py3kAaaa(NewAaaa):
     """new style"""
@@ -60,3 +60,11 @@ class SuperDifferentScope(object):
             def __init__(self, arg):
                 super(FalsePositive, self).__init__(arg)
         super(object, 1).__init__() # [bad-super-call]
+
+
+class UnknownBases(Missing):
+    """Don't emit if we don't know all the bases."""
+    def __init__(self):
+        # pylint: disable=super-on-old-class
+        super(UnknownBases, self).__init__()
+        super(UnknownBases, self).test()
