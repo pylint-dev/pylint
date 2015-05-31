@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, no-absolute-import
+# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring
 """check use of super"""
 
 from unknown import Missing
@@ -68,3 +68,31 @@ class UnknownBases(Missing):
         # pylint: disable=super-on-old-class
         super(UnknownBases, self).__init__()
         super(UnknownBases, self).test()
+
+
+# Test that we are detecting proper super errors.
+
+class BaseClass(object):
+
+    not_a_method = 42
+
+    def function(self, param):
+        return param + self.not_a_method
+
+    def __getattr__(self, attr):
+        return attr
+
+
+class InvalidSuperChecks(BaseClass):
+
+    def __init__(self):
+        super(InvalidSuperChecks, self).not_a_method() # [not-callable]
+        super(InvalidSuperChecks, self).attribute_error() # [no-member]
+        super(InvalidSuperChecks, self).function(42)
+        super(InvalidSuperChecks, self).function() # [no-value-for-parameter]
+        super(InvalidSuperChecks, self).function(42, 24, 24) # [too-many-function-args]
+        # +1: [unexpected-keyword-arg,no-value-for-parameter]
+        super(InvalidSuperChecks, self).function(lala=42)
+        # Even though BaseClass has a __getattr__, that won't
+        # be called.
+        super(InvalidSuperChecks, self).attribute_error() # [no-member]

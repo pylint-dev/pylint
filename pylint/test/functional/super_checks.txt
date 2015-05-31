@@ -9,3 +9,10 @@ bad-super-call:32:Py3kWrongSuper.__init__:Bad first argument 'NewAaaa' given to 
 bad-super-call:37:WrongNameRegression.__init__:Bad first argument 'Missing' given to super():INFERENCE
 bad-super-call:46:CrashSuper.__init__:Bad first argument 'NewAaaa' given to super():INFERENCE
 bad-super-call:62:SuperDifferentScope.test:Bad first argument 'object' given to super():INFERENCE
+not-callable:89:InvalidSuperChecks.__init__:super(InvalidSuperChecks, self).not_a_method is not callable:HIGH
+no-member:90:InvalidSuperChecks.__init__:Super of 'InvalidSuperChecks' has no 'attribute_error' member:INFERENCE
+no-value-for-parameter:92:InvalidSuperChecks.__init__:No value for argument 'param' in method call:HIGH
+too-many-function-args:93:InvalidSuperChecks.__init__:Too many positional arguments for method call:HIGH
+no-value-for-parameter:95:InvalidSuperChecks.__init__:No value for argument 'param' in method call:HIGH
+unexpected-keyword-arg:95:InvalidSuperChecks.__init__:Unexpected keyword argument 'lala' in method call:HIGH
+no-member:98:InvalidSuperChecks.__init__:Super of 'InvalidSuperChecks' has no 'attribute_error' member:INFERENCE
