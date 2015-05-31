@@ -113,3 +113,10 @@ try:
         Client().missing()
 except AttributeError:
     pass
+
+
+class SuperChecks(str, str): # pylint: disable=duplicate-bases
+    """Don't fail when the MRO is invalid."""
+    def test(self):
+        super(SuperChecks, self).lalala()
+         

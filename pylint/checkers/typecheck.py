@@ -21,7 +21,10 @@ import shlex
 import sys
 
 import astroid
-from astroid import InferenceError, NotFoundError, SuperError, YES, Instance
+from astroid import (
+    InferenceError, NotFoundError,
+    MroError, SuperError, YES, Instance
+)
 from astroid.bases import BUILTINS
 from astroid import objects
 
@@ -124,10 +127,11 @@ def _emit_no_member(node, owner, owner_name, attrname,
     if isinstance(owner, objects.Super):
         # Verify if we are dealing with an invalid Super object.
         # If it is invalid, then there's no point in checking that
-        # it has the required attribute.                
+        # it has the required attribute. Also, don't fail if the
+        # MRO is invalid.
         try:
             owner.super_mro()
-        except SuperError:
+        except (MroError, SuperError):
             return False
         if not all(map(has_known_bases, owner.type.mro())):
             return False
