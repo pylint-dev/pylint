@@ -84,6 +84,8 @@ def find_pylintrc():
     # is there a pylint rc file in the current directory ?
     if exists('pylintrc'):
         return abspath('pylintrc')
+    if exists('.pylintrc'):
+        return abspath('.pylintrc')
     if isfile('__init__.py'):
         curdir = abspath(os.getcwd())
         while isfile(join(curdir, '__init__.py')):
