@@ -538,7 +538,8 @@ class ConfigTC(unittest.TestCase):
         with tempdir() as chroot:
 
             create_files(['a/pylintrc', 'a/b/__init__.py', 'a/b/pylintrc',
-                          'a/b/c/__init__.py', 'a/b/c/d/__init__.py'])
+                          'a/b/c/__init__.py', 'a/b/c/d/__init__.py',
+                          'a/b/c/d/e/.pylintrc'])
             fake_home = tempfile.mkdtemp('fake-home')
             home = os.environ[HOME]
             try:
@@ -551,6 +552,7 @@ class ConfigTC(unittest.TestCase):
                        'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
                        'a/b/c'   : join(chroot, 'a', 'b', 'pylintrc'),
                        'a/b/c/d' : join(chroot, 'a', 'b', 'pylintrc'),
+                       'a/b/c/d/e' : join(chroot, 'a', 'b', 'c', 'd', 'e', '.pylintrc'),
                        }
             for basedir, expected in results.items():
                 os.chdir(join(chroot, basedir))

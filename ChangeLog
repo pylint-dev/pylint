@@ -151,6 +151,10 @@ ChangeLog for Pylint
       to assume that the user knows what he is doing rather than emitting
       a message which can be considered a false positive.
 
+    * Look for a .pylintrc configuration file in the current folder,
+      if pylintrc is not found. Dotted pylintrc files will not be searched
+      in the parents of the current folder, as it is done for pylintrc.
+
 
 2015-03-14 -- 1.4.3
 
