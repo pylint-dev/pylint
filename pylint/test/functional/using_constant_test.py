@@ -1,6 +1,6 @@
 """Verify if constant tests are used inside if statements."""
 # pylint: disable=invalid-name, missing-docstring,too-few-public-methods
-# pylint: disable=no-init
+# pylint: disable=no-init,expression-not-assigned
 
 
 import collections
@@ -69,6 +69,15 @@ if generator: # [using-constant-test]
 if 1 if 2 else 3: # [using-constant-test]
     pass
 
+def test_comprehensions():
+    [data for data in range(100) if len] # [using-constant-test]
+    [data for data in range(100) if 1] # [using-constant-test]
+    (data for data in range(100) if len) # [using-constant-test]
+    (data for data in range(100) if 1) # [using-constant-test]
+    {data for data in range(100) if len} # [using-constant-test]
+    {data: 1 for data in range(100) if len} # [using-constant-test]
+
+
 
 # For these, we require to do inference, even though the result can be a
 # constant value. For some of them, we could determine that the test
@@ -117,3 +126,14 @@ if [1, 2, 3][:1]:
 def test(*args):
     if args:
         return 42
+
+def test_good_comprehension_checks():
+    [data for data in range(100)]
+    [data for data in range(100) if data]
+    [data for data in range(100) if len(data)]
+    (data for data in range(100) if data)
+    (data for data in range(100) if len(data))
+    {data for data in range(100) if data}
+    {data for data in range(100) if len(data)}
+    {data: 1 for data in range(100) if data}
+    {data: 1 for data in range(100)}

@@ -579,6 +579,12 @@ functions, methods
     def visit_ifexp(self, node):
         self._check_using_constant_test(node, node.test)
 
+    @check_messages('using-constant-test')
+    def visit_comprehension(self, node):        
+        if node.ifs:
+            for if_test in node.ifs:
+                self._check_using_constant_test(node, if_test)
+
     def _check_using_constant_test(self, node, test):
         const_nodes = (
             astroid.Module,

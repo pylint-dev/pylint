@@ -14,4 +14,9 @@ using-constant-test:58::Using a conditional statement with a constant value
 using-constant-test:61::Using a conditional statement with a constant value
 using-constant-test:66::Using a conditional statement with a constant value
 using-constant-test:69::Using a conditional statement with a constant value
-using-constant-test:73::Using a conditional statement with a constant value
+using-constant-test:73:test_comprehensions:Using a conditional statement with a constant value
+using-constant-test:74:test_comprehensions:Using a conditional statement with a constant value
+using-constant-test:75:test_comprehensions:Using a conditional statement with a constant value
+using-constant-test:76:test_comprehensions:Using a conditional statement with a constant value
+using-constant-test:77:test_comprehensions:Using a conditional statement with a constant value
+using-constant-test:78:test_comprehensions:Using a conditional statement with a constant value
