@@ -580,7 +580,7 @@ functions, methods
         self._check_using_constant_test(node, node.test)
 
     @check_messages('using-constant-test')
-    def visit_comprehension(self, node):        
+    def visit_comprehension(self, node):
         if node.ifs:
             for if_test in node.ifs:
                 self._check_using_constant_test(node, if_test)
