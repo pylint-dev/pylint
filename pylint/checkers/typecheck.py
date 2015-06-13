@@ -88,6 +88,10 @@ MSGS = {
               'not-context-manager',
               'Used when an instance in a with statement doesn\'t implement '
               'the context manager protocol(__enter__/__exit__).'),
+    'E1130': ('%s',
+              'invalid-unary-operand-type',
+              'Emitted when an unary operand is used on an object which does not '
+              'support this type of operation'),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -701,6 +705,15 @@ accessed. Python regular expressions are accepted.'}
                 except astroid.NotFoundError:
                     self.add_message('not-context-manager',
                                      node=node, args=(infered.name, ))
+
+    @check_messages('invalid-unary-operand-type')
+    def visit_unaryop(self, node):
+        """Detect TypeErrors for unary operands."""
+
+        for error in node.type_errors():
+            # Let the error customize its output.
+            self.add_message('invalid-unary-operand-type',
+                             args=str(error), node=node)
 
 
 def register(linter):

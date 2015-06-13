@@ -155,6 +155,12 @@ ChangeLog for Pylint
       if pylintrc is not found. Dotted pylintrc files will not be searched
       in the parents of the current folder, as it is done for pylintrc.
 
+    * Add a new error, 'invalid-unary-type-operand', emitted when
+      an unary operand is used on something which doesn't support that
+      operation (for instance, using the unary bitwise inversion operator
+      on an instance which doesn't implement __invert__).
+      
+
 
 2015-03-14 -- 1.4.3
 
