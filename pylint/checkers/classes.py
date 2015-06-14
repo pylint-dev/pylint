@@ -50,7 +50,7 @@ def _get_method_args(method):
     if method.type == 'classmethod':
         return len(args) - 1
     return len(args)
-    
+
 
 def _called_in_methods(func, klass, methods):
     """ Check if the func was called in any of the given methods,
@@ -843,7 +843,7 @@ a metaclass class method.'}
 
     def _check_signature(self, method1, refmethod, class_type, cls):
         """check that the signature of the two given methods match
-        """        
+        """
         if not (isinstance(method1, astroid.Function)
                 and isinstance(refmethod, astroid.Function)):
             self.add_message('method-check-failed',
@@ -870,7 +870,7 @@ a metaclass class method.'}
                 if (isinstance(decorator, astroid.Getattr) and
                         decorator.attrname == 'setter'):
                     return
-        
+
         method1_args = _get_method_args(method1)
         refmethod_args = _get_method_args(refmethod)
 
