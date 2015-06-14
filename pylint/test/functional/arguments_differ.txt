@@ -1,0 +1,3 @@
+arguments-differ:12:Child.test:Arguments number differs from overridden 'test' method
+arguments-differ:23:ChildDefaults.test:Arguments number differs from overridden 'test' method
+arguments-differ:41:ClassmethodChild.func:Arguments number differs from overridden 'func' method

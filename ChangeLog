@@ -159,6 +159,10 @@ ChangeLog for Pylint
       an unary operand is used on something which doesn't support that
       operation (for instance, using the unary bitwise inversion operator
       on an instance which doesn't implement __invert__).
+
+    * Take in consideration differences between arguments of various
+      type of functions (classmethods, staticmethods, properties)
+      when checking for `arguments-differ`. Closes issue #548.
       
 
 

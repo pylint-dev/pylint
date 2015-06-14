@@ -25,6 +25,7 @@ from astroid import YES, Instance, are_exclusive, AssAttr, Class
 from astroid.bases import Generator, BUILTINS
 from astroid.exceptions import InconsistentMroError, DuplicateBasesError
 from astroid import objects
+from astroid.scoped_nodes import function_to_method
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -42,6 +43,14 @@ if sys.version_info >= (3, 0):
 else:
     NEXT_METHOD = 'next'
 ITER_METHODS = ('__iter__', '__getitem__')
+
+
+def _get_method_args(method):
+    args = method.args.args
+    if method.type == 'classmethod':
+        return len(args) - 1
+    return len(args)
+    
 
 def _called_in_methods(func, klass, methods):
     """ Check if the func was called in any of the given methods,
@@ -418,7 +427,7 @@ a metaclass class method.'}
                 continue
             if not isinstance(meth_node, astroid.Function):
                 continue
-            self._check_signature(node, meth_node, 'overridden')
+            self._check_signature(node, meth_node, 'overridden', klass)
             break
         if node.decorators:
             for decorator in node.decorators.nodes:
@@ -832,23 +841,40 @@ a metaclass class method.'}
                 continue
             self.add_message('super-init-not-called', args=klass.name, node=node)
 
-    def _check_signature(self, method1, refmethod, class_type):
+    def _check_signature(self, method1, refmethod, class_type, cls):
         """check that the signature of the two given methods match
-        """
+        """        
         if not (isinstance(method1, astroid.Function)
                 and isinstance(refmethod, astroid.Function)):
             self.add_message('method-check-failed',
                              args=(method1, refmethod), node=method1)
             return
-        # don't care about functions with unknown argument (builtins)
+
+        instance = cls.instanciate_class()
+        method1 = function_to_method(method1, instance)
+        refmethod = function_to_method(refmethod, instance)
+
+        # Don't care about functions with unknown argument (builtins).
         if method1.args.args is None or refmethod.args.args is None:
             return
-        # if we use *args, **kwargs, skip the below checks
+        # If we use *args, **kwargs, skip the below checks.
         if method1.args.vararg or method1.args.kwarg:
             return
+        # Ignore private to class methods.
         if is_attr_private(method1.name):
             return
-        if len(method1.args.args) != len(refmethod.args.args):
+        # Ignore setters, they have an implicit extra argument,
+        # which shouldn't be taken in consideration.
+        if method1.decorators:
+            for decorator in method1.decorators.nodes:
+                if (isinstance(decorator, astroid.Getattr) and
+                        decorator.attrname == 'setter'):
+                    return
+        
+        method1_args = _get_method_args(method1)
+        refmethod_args = _get_method_args(refmethod)
+
+        if method1_args != refmethod_args:
             self.add_message('arguments-differ',
                              args=(class_type, method1.name),
                              node=method1)
