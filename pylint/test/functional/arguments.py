@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, no-absolute-import
+# pylint: disable=too-few-public-methods, no-absolute-import,missing-docstring
 """Test function argument checker"""
 
 def decorator(fun):
@@ -96,3 +96,16 @@ class Text(object):
             return object.__new__(cls)
 
 Text()
+
+class TestStaticMethod(object):
+
+    @staticmethod
+    def test(first, second=None, **kwargs):
+        return first, second, kwargs
+
+    def func(self):
+        self.test(42)
+        self.test(42, second=34)
+        self.test(42, 42)
+        self.test() # [no-value-for-parameter]
+        self.test(42, 42, 42) # [too-many-function-args]

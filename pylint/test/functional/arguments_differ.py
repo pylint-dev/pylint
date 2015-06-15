@@ -130,3 +130,9 @@ class PropertySetter(Property):
     @close.setter
     def close(self, attr):
         return attr
+
+
+class StaticmethodChild2(Staticmethod):
+
+    def func(self, arg):
+        super(StaticmethodChild2, self).func(arg)

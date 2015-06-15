@@ -47,7 +47,7 @@ ITER_METHODS = ('__iter__', '__getitem__')
 
 def _get_method_args(method):
     args = method.args.args
-    if method.type == 'classmethod':
+    if method.type in ('classmethod', 'method'):
         return len(args) - 1
     return len(args)
 
@@ -873,7 +873,6 @@ a metaclass class method.'}
 
         method1_args = _get_method_args(method1)
         refmethod_args = _get_method_args(refmethod)
-
         if method1_args != refmethod_args:
             self.add_message('arguments-differ',
                              args=(class_type, method1.name),
