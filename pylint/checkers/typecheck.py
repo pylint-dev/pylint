@@ -164,13 +164,7 @@ def _determine_callable(callable_obj):
     # and Function inherits Lambda.
     if isinstance(callable_obj, astroid.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
-        extra_args = 1
-        if callable_obj.type == 'staticmethod':
-            # Static methods are bounded when they're called from
-            # a super call. In this case, they don't have an
-            # implicit argument (self).
-            extra_args = 0
-        return callable_obj, extra_args, callable_obj.type
+        return callable_obj, 1, callable_obj.type
     elif isinstance(callable_obj, astroid.UnboundMethod):
         return callable_obj, 0, 'unbound method'
     elif isinstance(callable_obj, astroid.Function):
