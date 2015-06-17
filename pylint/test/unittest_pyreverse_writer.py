@@ -26,8 +26,8 @@ from difflib import unified_diff
 import unittest
 
 from astroid import MANAGER
-from astroid.inspector import Linker
 
+from pylint.pyreverse.inspector import Linker
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.writer import DotWriter
 from pylint.pyreverse.utils import get_visibility

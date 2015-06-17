@@ -23,8 +23,8 @@ from __future__ import print_function
 import sys, os
 from logilab.common.configuration import ConfigurationMixIn
 from astroid.manager import AstroidManager
-from astroid.inspector import Linker
 
+from pylint.pyreverse.inspector import Linker
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse import writer
 from pylint.pyreverse.utils import insert_default_options

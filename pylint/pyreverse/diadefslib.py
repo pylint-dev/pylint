@@ -217,7 +217,7 @@ class DiadefsHandler(object):
 
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data
-        :param linker: astroid.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
+        :param linker: pyreverse.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
         :param project: astroid.manager.Project
         """
 

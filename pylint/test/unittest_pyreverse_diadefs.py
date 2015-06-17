@@ -24,8 +24,8 @@ import six
 
 import astroid
 from astroid import MANAGER
-from astroid.inspector import Linker
 
+from pylint.pyreverse.inspector import Linker
 from pylint.pyreverse.diadefslib import *
 
 from unittest_pyreverse_writer import Config, get_project

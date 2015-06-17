@@ -163,6 +163,9 @@ ChangeLog for Pylint
     * Take in consideration differences between arguments of various
       type of functions (classmethods, staticmethods, properties)
       when checking for `arguments-differ`. Closes issue #548.
+
+    * astroid.inspector was moved to pylint.pyreverse, since it belongs
+      there and it doesn't need to be in astroid.
       
 
 
