@@ -19,9 +19,9 @@
 from logilab.common.compat import builtins
 
 import astroid
-from astroid.utils import LocalsVisitor
 
 from pylint.pyreverse.diagrams import PackageDiagram, ClassDiagram
+from pylint.pyreverse.utils import LocalsVisitor
 
 BUILTINS_NAME = builtins.__name__
 

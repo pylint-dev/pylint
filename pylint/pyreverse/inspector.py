@@ -23,8 +23,9 @@ Try to resolve definitions (namespace) dictionary, relationship...
 import os
 
 import astroid
-from astroid import utils
 from astroid import modutils
+
+from pylint.pyreverse import utils
 
 
 class IdGeneratorMixIn(object):
@@ -70,7 +71,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
     def __init__(self, project, inherited_interfaces=0, tag=False):
         IdGeneratorMixIn.__init__(self)
-        astroid.utils.LocalsVisitor.__init__(self)
+        utils.LocalsVisitor.__init__(self)
         # take inherited interface in consideration or not
         self.inherited_interfaces = inherited_interfaces
         # tag nodes or not

@@ -166,6 +166,8 @@ ChangeLog for Pylint
 
     * astroid.inspector was moved to pylint.pyreverse, since it belongs
       there and it doesn't need to be in astroid.
+
+    * astroid.utils.LocalsVisitor was moved to pylint.pyreverse.LocalsVisitor.
       
 
 

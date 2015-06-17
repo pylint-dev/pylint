@@ -130,3 +130,80 @@ class FilterMixIn(object):
         visibility = get_visibility(getattr(node, 'name', node))
         return not self.__mode & VIS_MOD[visibility]
 
+
+class ASTWalker(object):
+    """a walker visiting a tree in preorder, calling on the handler:
+
+    * visit_<class name> on entering a node, where class name is the class of
+    the node in lower case
+
+    * leave_<class name> on leaving a node, where class name is the class of
+    the node in lower case
+    """
+
+    def __init__(self, handler):
+        self.handler = handler
+        self._cache = {}
+
+    def walk(self, node, _done=None):
+        """walk on the tree from <node>, getting callbacks from handler"""
+        if _done is None:
+            _done = set()
+        if node in _done:
+            raise AssertionError((id(node), node, node.parent))
+        _done.add(node)
+        self.visit(node)
+        for child_node in node.get_children():
+            assert child_node is not node
+            self.walk(child_node, _done)
+        self.leave(node)
+        assert node.parent is not node
+
+    def get_callbacks(self, node):
+        """get callbacks from handler for the visited node"""
+        klass = node.__class__
+        methods = self._cache.get(klass)
+        if methods is None:
+            handler = self.handler
+            kid = klass.__name__.lower()
+            e_method = getattr(handler, 'visit_%s' % kid,
+                               getattr(handler, 'visit_default', None))
+            l_method = getattr(handler, 'leave_%s' % kid,
+                               getattr(handler, 'leave_default', None))
+            self._cache[klass] = (e_method, l_method)
+        else:
+            e_method, l_method = methods
+        return e_method, l_method
+
+    def visit(self, node):
+        """walk on the tree from <node>, getting callbacks from handler"""
+        method = self.get_callbacks(node)[0]
+        if method is not None:
+            method(node)
+
+    def leave(self, node):
+        """walk on the tree from <node>, getting callbacks from handler"""
+        method = self.get_callbacks(node)[1]
+        if method is not None:
+            method(node)
+
+
+class LocalsVisitor(ASTWalker):
+    """visit a project by traversing the locals dictionary"""
+    def __init__(self):
+        ASTWalker.__init__(self, self)
+        self._visited = {}
+
+    def visit(self, node):
+        """launch the visit starting from the given node"""
+        if node in self._visited:
+            return
+        self._visited[node] = 1 # FIXME: use set ?
+        methods = self.get_callbacks(node)
+        if methods[0] is not None:
+            methods[0](node)
+        if 'locals' in node.__dict__: # skip Instance and other proxy
+            for local_node in node.values():
+                self.visit(local_node)
+        if methods[1] is not None:
+            return methods[1](node)
