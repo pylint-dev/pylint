@@ -109,10 +109,31 @@ except ImportError:
     pass
 
 try:
+    Client.missing()
+except AttributeError:
+    Client.missing() # [no-member]
+
+try:
+    Client.missing()
+except AttributeError:
+    try:
+        Client.missing() # [no-member]
+    except ValueError:
+        pass
+
+try:
     if Client:
         Client().missing()
 except AttributeError:
     pass
+
+try:
+    Client().indeed()
+except AttributeError:
+    try:
+        Client.missing()
+    except Exception:
+        pass
 
 
 class SuperChecks(str, str): # pylint: disable=duplicate-bases

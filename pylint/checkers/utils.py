@@ -612,7 +612,8 @@ def node_ignores_exception(node, exception):
     or by a bare except clause.
     """
     current = node
-    while current and not isinstance(current.parent, astroid.TryExcept):
+    ignores = (astroid.ExceptHandler, astroid.TryExcept)
+    while current and not isinstance(current.parent, ignores):
         current = current.parent
 
     func = functools.partial(error_of_type,
