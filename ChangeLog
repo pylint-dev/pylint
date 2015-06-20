@@ -168,6 +168,9 @@ ChangeLog for Pylint
       there and it doesn't need to be in astroid.
 
     * astroid.utils.LocalsVisitor was moved to pylint.pyreverse.LocalsVisitor.
+
+    * pylint.checkers.utils.excepts_import_error was removed.
+      Use pylint.chekcers.utils.error_of_type instead.
       
 
 

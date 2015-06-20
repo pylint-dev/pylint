@@ -593,17 +593,6 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
                     del visited[obj.name]
     return visited
 
-def excepts_import_error(node):
-    """
-    Check if the try-except node has an ImportError handler.
-    Return True if an ImportError handler was infered, False otherwise.
-    """
-    if not isinstance(node, astroid.TryExcept):
-        return
-    # pylint: disable=bad-builtin
-    func = functools.partial(error_of_type, error_type=ImportError)
-    return any(map(func, node.handlers))
-
 
 def node_ignores_exception(node, exception):
     """Check if the node is in a TryExcept which handles the given exception.
