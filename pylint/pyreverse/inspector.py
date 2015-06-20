@@ -108,7 +108,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         if hasattr(node, 'locals_type'):
             return
-        node.locals_type = collections.defaultdict(set)
+        node.locals_type = collections.defaultdict(list)
         node.depends = []
         if self.tag:
             node.uid = self.generate_id()
@@ -122,7 +122,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         if hasattr(node, 'locals_type'):
             return
-        node.locals_type = collections.defaultdict(set)
+        node.locals_type = collections.defaultdict(list)
         if self.tag:
             node.uid = self.generate_id()
         # resolve ancestors
@@ -131,7 +131,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             specializations.append(node)
             baseobj.specializations = specializations
         # resolve instance attributes
-        node.instance_attrs_type = collections.defaultdict(set)
+        node.instance_attrs_type = collections.defaultdict(list)
         for assattrs in node.instance_attrs.values():
             for assattr in assattrs:
                 self.handle_assattr_type(assattr, node)
@@ -149,7 +149,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         if hasattr(node, 'locals_type'):
             return
-        node.locals_type = collections.defaultdict(set)
+        node.locals_type = collections.defaultdict(list)
         if self.tag:
             node.uid = self.generate_id()
 
@@ -186,8 +186,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 else:
                     self.visit_module(frame)
 
+            current = frame.locals_type[node.name]
             values = set(node.infer())
-            frame.locals_type[node.name].update(values)
+            frame.locals_type[node.name] = list(set(current) | values)
         except astroid.InferenceError:
             pass
 
@@ -199,7 +200,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         try:
             values = set(node.infer())
-            parent.instance_attrs_type[node.attrname].update(values)
+            current = set(parent.instance_attrs_type[node.attrname])
+            parent.instance_attrs_type[node.attrname] = list(current | values)
         except astroid.InferenceError:
             pass
 
