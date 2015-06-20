@@ -108,7 +108,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         if hasattr(node, 'locals_type'):
             return
-        node.locals_type = {}
+        node.locals_type = collections.defaultdict(set)
         node.depends = []
         if self.tag:
             node.uid = self.generate_id()
@@ -122,7 +122,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         if hasattr(node, 'locals_type'):
             return
-        node.locals_type = {}
+        node.locals_type = collections.defaultdict(set)
         if self.tag:
             node.uid = self.generate_id()
         # resolve ancestors
@@ -149,7 +149,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         if hasattr(node, 'locals_type'):
             return
-        node.locals_type = {}
+        node.locals_type = collections.defaultdict(set)
         if self.tag:
             node.uid = self.generate_id()
 
@@ -158,8 +158,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     link_class = visit_class
     link_function = visit_function
 
-    @staticmethod
-    def visit_assname(node):
+    def visit_assname(self, node):
         """visit an astroid.AssName node
 
         handle locals_type
@@ -173,18 +172,22 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             frame = node.frame()
         else:
             # the name has been defined as 'global' in the frame and belongs
-            # there. Btw the frame is not yet visited as the name is in the
-            # root locals; the frame hence has no locals_type attribute
+            # there.
             frame = node.root()
         try:
-            values = node.infered()
-            try:
-                already_infered = frame.locals_type[node.name]
-                for valnode in values:
-                    if valnode not in already_infered:
-                        already_infered.append(valnode)
-            except KeyError:
-                frame.locals_type[node.name] = values
+            if not hasattr(frame, 'locals_type'):
+                # If the frame doesn't have a locals_type yet,
+                # it means it wasn't yet visited. Visit it now
+                # to add what's missing from it.
+                if isinstance(frame, astroid.Class):
+                    self.visit_class(frame)
+                elif isinstance(frame, astroid.Function):
+                    self.visit_function(frame)
+                else:
+                    self.visit_module(frame)
+
+            values = set(node.infer())
+            frame.locals_type[node.name].update(values)
         except astroid.InferenceError:
             pass
 
