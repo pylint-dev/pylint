@@ -352,51 +352,58 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         not_consumed = self._to_consume.pop()[0]
         # attempt to check for __all__ if defined
         if '__all__' in node.locals:
-            assigned = next(node.igetattr('__all__'))
-            if assigned is not astroid.YES:
-                for elt in getattr(assigned, 'elts', ()):
-                    try:
-                        elt_name = next(elt.infer())
-                    except astroid.InferenceError:
-                        continue
-                    if elt_name is astroid.YES:
-                        continue
-
-                    if not isinstance(elt_name, astroid.Const) \
-                             or not isinstance(elt_name.value, six.string_types):
-                        self.add_message('invalid-all-object',
-                                         args=elt.as_string(), node=elt)
-                        continue
-                    elt_name = elt_name.value
-                    # If elt is in not_consumed, remove it from not_consumed
-                    if elt_name in not_consumed:
-                        del not_consumed[elt_name]
-                        continue
-                    if elt_name not in node.locals:
-                        if not node.package:
-                            self.add_message('undefined-all-variable',
-                                             args=(elt_name, ),
-                                             node=elt)
-                        else:
-                            basename = os.path.splitext(node.file)[0]
-                            if os.path.basename(basename) == '__init__':
-                                name = node.name + "." + elt_name
-                                try:
-                                    modutils.file_from_modpath(name.split("."))
-                                except ImportError:
-                                    self.add_message('undefined-all-variable',
-                                                     args=(elt_name, ),
-                                                     node=elt)
-                                except SyntaxError:
-                                    # don't yield an syntax-error warning,
-                                    # because it will be later yielded
-                                    # when the file will be checked
-                                    pass
+            self._check_all(node, not_consumed)
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
 
         self._check_imports(not_consumed)
+
+    def _check_all(self, node, not_consumed):
+        assigned = next(node.igetattr('__all__'))
+        if assigned is astroid.YES:
+            return
+
+        for elt in getattr(assigned, 'elts', ()):
+            try:
+                elt_name = next(elt.infer())
+            except astroid.InferenceError:
+                continue
+            if elt_name is astroid.YES:
+                continue
+
+            if (not isinstance(elt_name, astroid.Const)
+                    or not isinstance(elt_name.value, six.string_types)):
+                self.add_message('invalid-all-object',
+                                 args=elt.as_string(), node=elt)
+                continue
+
+            elt_name = elt_name.value
+            # If elt is in not_consumed, remove it from not_consumed
+            if elt_name in not_consumed:
+                del not_consumed[elt_name]
+                continue
+
+            if elt_name not in node.locals:
+                if not node.package:
+                    self.add_message('undefined-all-variable',
+                                     args=(elt_name, ),
+                                     node=elt)
+                else:
+                    basename = os.path.splitext(node.file)[0]
+                    if os.path.basename(basename) == '__init__':
+                        name = node.name + "." + elt_name
+                        try:
+                            modutils.file_from_modpath(name.split("."))
+                        except ImportError:
+                            self.add_message('undefined-all-variable',
+                                             args=(elt_name, ),
+                                             node=elt)
+                        except SyntaxError:
+                            # don't yield an syntax-error warning,
+                            # because it will be later yielded
+                            # when the file will be checked
+                            pass
 
     def _check_imports(self, not_consumed):
         local_names = _fix_dot_imports(not_consumed)
