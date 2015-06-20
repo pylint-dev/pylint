@@ -19,7 +19,7 @@
 Visitor doing some postprocessing on the astroid tree.
 Try to resolve definitions (namespace) dictionary, relationship...
 """
-
+import collections
 import os
 
 import astroid
@@ -131,7 +131,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             specializations.append(node)
             baseobj.specializations = specializations
         # resolve instance attributes
-        node.instance_attrs_type = {}
+        node.instance_attrs_type = collections.defaultdict(set)
         for assattrs in node.instance_attrs.values():
             for assattr in assattrs:
                 self.handle_assattr_type(assattr, node)
@@ -195,14 +195,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         handle instance_attrs_type
         """
         try:
-            values = list(node.infer())
-            try:
-                already_infered = parent.instance_attrs_type[node.attrname]
-                for valnode in values:
-                    if valnode not in already_infered:
-                        already_infered.append(valnode)
-            except KeyError:
-                parent.instance_attrs_type[node.attrname] = values
+            values = set(node.infer())
+            parent.instance_attrs_type[node.attrname].update(values)
         except astroid.InferenceError:
             pass
 
