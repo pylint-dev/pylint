@@ -171,6 +171,9 @@ ChangeLog for Pylint
 
     * pylint.checkers.utils.excepts_import_error was removed.
       Use pylint.chekcers.utils.error_of_type instead.
+
+    * Don't emit undefined-all-variables for nodes which can't be
+      inferred (YES nodes).
       
 
 
