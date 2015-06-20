@@ -1,7 +1,7 @@
 """Tests that onjects used in a with statement implement context manager protocol"""
 
 # pylint: disable=too-few-public-methods, invalid-name, import-error, missing-docstring
-
+# pylint: disable=no-init
 # Tests no messages for objects that implement the protocol
 class Manager(object):
     def __enter__(self):
@@ -88,4 +88,11 @@ with lala.ctx:
     pass
 
 with lala.not_ctx: # [not-context-manager]
+    pass
+
+
+class TestKnownBases(Missing):
+    pass
+
+with TestKnownBases():
     pass

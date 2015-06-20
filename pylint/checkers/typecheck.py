@@ -703,6 +703,11 @@ accessed. Python regular expressions are accepted.'}
                     infered.getattr('__enter__')
                     infered.getattr('__exit__')
                 except astroid.NotFoundError:
+                    if isinstance(infered, astroid.Instance):
+                        # If we do not know the bases of this class,
+                        # just skip it.
+                        if not has_known_bases(infered):
+                            continue
                     self.add_message('not-context-manager',
                                      node=node, args=(infered.name, ))
 
