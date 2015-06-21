@@ -71,7 +71,8 @@ _SPECIAL_METHODS_PARAMS = {
         '__rand__', '__rxor__', '__ror__', '__iadd__', '__isub__', '__imul__',
         '__itruediv__', '__ifloordiv__', '__imod__', '__ilshift__',
         '__irshift__', '__iand__', '__ixor__', '__ior__', '__ipow__',
-        '__setstate__', '__reduce_ex__', '__deepcopy__', '__cmp__'),
+        '__setstate__', '__reduce_ex__', '__deepcopy__', '__cmp__',
+        '__matmul__', '__rmatmul__'),
 
     2: ('__setattr__', '__get__', '__set__', '__setitem__'),
 
