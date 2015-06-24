@@ -12,3 +12,6 @@ no-member:97::Instance of 'Client' has no 'indeed' member:INFERENCE
 no-member:107::Instance of 'Client' has no 'indeed' member:INFERENCE
 no-member:114::Class 'Client' has no 'missing' member:INFERENCE
 no-member:120::Class 'Client' has no 'missing' member:INFERENCE
+no-member:144::Class 'Client' has no 'ala' member:INFERENCE
+no-member:145::Class 'dict' has no 'bala' member:INFERENCE
+no-member:146::Class 'str' has no 'portocala' member:INFERENCE

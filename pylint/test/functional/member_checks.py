@@ -1,5 +1,5 @@
 # pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except
-# pylint: disable=using-constant-test
+# pylint: disable=using-constant-test,expression-not-assigned
 from __future__ import print_function
 
 class Provider(object):
@@ -140,4 +140,7 @@ class SuperChecks(str, str): # pylint: disable=duplicate-bases
     """Don't fail when the MRO is invalid."""
     def test(self):
         super(SuperChecks, self).lalala()
-         
+
+type(Client()).ala # [no-member]
+type({}).bala # [no-member]
+type('').portocala # [no-member]
