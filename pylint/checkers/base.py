@@ -307,11 +307,22 @@ class BasicErrorChecker(_BasicChecker):
                   'Loops should only have an else clause if they can exit early '
                   'with a break statement, otherwise the statements under else '
                   'should be on the same scope as the loop itself.'),
+        'E0112': ('More than one starred expression in assignment',
+                  'too-many-star-expressions',
+                  'Emitted when there are more than one starred '
+                  'expressions (*x) in an assignment. This is a SyntaxError.',
+                  {'minversion': (3, 0)}),
         }
 
     @check_messages('function-redefined')
     def visit_class(self, node):
         self._check_redefinition('class', node)
+
+    @check_messages('too-many-star-expressions')
+    def visit_assign(self, node):
+        starred = node.targets[0].nodes_of_class(astroid.Starred)
+        if len(list(starred)) > 1:
+            self.add_message('too-many-star-expressions', node=node)
 
     @check_messages('init-is-generator', 'return-in-init',
                     'function-redefined', 'return-arg-in-generator',

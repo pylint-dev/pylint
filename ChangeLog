@@ -176,6 +176,10 @@ ChangeLog for Pylint
       inferred (YES nodes).
 
     * yield-outside-func is also emitted for `yield from`.
+
+    * Add a new error, 'too-many-star-expressions', emitted when
+      there are more than one starred expression (*x) in an assignment.
+      The warning is emitted only on Python 3.
       
 
 
