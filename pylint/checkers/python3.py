@@ -130,6 +130,11 @@ class Python3Checker(checkers.BaseChecker):
                   {'scope': WarningScope.NODE,
                    'maxversion': (3, 0),
                    'old_names': [('W0333', 'backtick')]}),
+        'E1609': ('Import * only allowed at module level',
+                  'import-star-module-level',
+                  'Used when the import star syntax is used somewhere '
+                  'else than the module level.',
+                  {'maxversion': (3, 0)}),
         'W1601': ('apply built-in referenced',
                   'apply-builtin',
                   'Used when the apply built-in function is referenced '
@@ -403,7 +408,7 @@ class Python3Checker(checkers.BaseChecker):
     def visit_print(self, node):
         self.add_message('print-statement', node=node)
 
-    @utils.check_messages('no-absolute-import')
+    @utils.check_messages('no-absolute-import', 'import-star-module-level')
     def visit_from(self, node):
         if node.modname == '__future__':
             for name, _ in node.names:
@@ -413,6 +418,9 @@ class Python3Checker(checkers.BaseChecker):
                     self._future_absolute_import = True
         elif not self._future_absolute_import:
             self.add_message('no-absolute-import', node=node)
+        if node.names[0][0] == '*':
+            if not isinstance(node.scope(), astroid.Module):
+                self.add_message('import-star-module-level', node=node)
 
     @utils.check_messages('no-absolute-import')
     def visit_import(self, node):

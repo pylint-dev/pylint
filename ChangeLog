@@ -187,6 +187,11 @@ ChangeLog for Pylint
 
     * Detect a couple of objects which can't be base classes (bool,
       slice, range and memoryview, which weren't detected until now).
+
+    * Add a new error for the Python 3 porting checker, `import-star-module-level`,
+      which is used when a star import is detected in another scope than the
+      module level, which is an error on Python 3. Using this will emit a
+      SyntaxWarning on Python 2.
       
 
 

@@ -258,6 +258,16 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             for module in (module_import, module_from):
                 self.walk(module)
 
+    def test_import_star_module_level(self):
+        node = test_utils.extract_node('''
+        def test():
+            from lala import * #@
+        ''')
+        absolute = testutils.Message('no-absolute-import', node=node)
+        star = testutils.Message('import-star-module-level', node=node)
+        with self.assertAddsMessages(absolute, star):
+            self.checker.visit_from(node)
+
     def test_division(self):
         node = test_utils.extract_node('3 / 2  #@')
         message = testutils.Message('old-division', node=node)
