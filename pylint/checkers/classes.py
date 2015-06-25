@@ -43,6 +43,7 @@ if sys.version_info >= (3, 0):
 else:
     NEXT_METHOD = 'next'
 ITER_METHODS = ('__iter__', '__getitem__')
+INVALID_BASE_CLASSES = {'bool', 'range', 'slice', 'memoryview'}
 
 
 def _get_method_args(method):
@@ -50,6 +51,10 @@ def _get_method_args(method):
     if method.type in ('classmethod', 'method'):
         return len(args) - 1
     return len(args)
+
+
+def _is_invalid_base_class(cls):
+    return cls.name in INVALID_BASE_CLASSES and is_builtin_object(cls)
 
 
 def _called_in_methods(func, klass, methods):
@@ -336,7 +341,9 @@ a metaclass class method.'}
             if (isinstance(ancestor, astroid.Instance) and
                     ancestor.is_subtype_of('%s.type' % (BUILTINS,))):
                 continue
-            if not isinstance(ancestor, astroid.Class):
+
+            if (not isinstance(ancestor, astroid.Class) or
+                    _is_invalid_base_class(ancestor)):
                 self.add_message('inherit-non-class',
                                  args=base.as_string(), node=node)
 

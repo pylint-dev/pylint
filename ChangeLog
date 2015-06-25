@@ -184,6 +184,9 @@ ChangeLog for Pylint
     * Add a new error, 'invalid-star-assignment-target', emitted when
       a starred expression (*x) is used as the lhs side of an assignment,
       as in `*x = [1, 2]`. This is not a SyntaxError on Python 3 though.
+
+    * Detect a couple of objects which can't be base classes (bool,
+      slice, range and memoryview, which weren't detected until now).
       
 
 

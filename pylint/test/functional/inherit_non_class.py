@@ -63,3 +63,19 @@ class Unknown(Missing):
 
 class Unknown1(Good5 if True else Bad1):
     pass
+
+
+class NotInheritableBool(bool): # [inherit-non-class]
+    pass
+
+
+class NotInheritableRange(range): # [inherit-non-class]
+    pass
+
+
+class NotInheritableSlice(slice): # [inherit-non-class]
+    pass
+
+
+class NotInheritableMemoryView(memoryview): # [inherit-non-class]
+    pass
