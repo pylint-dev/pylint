@@ -312,17 +312,27 @@ class BasicErrorChecker(_BasicChecker):
                   'Emitted when there are more than one starred '
                   'expressions (*x) in an assignment. This is a SyntaxError.',
                   {'minversion': (3, 0)}),
+        'E0113': ('Starred assignment target must be in a list or tuple',
+                  'invalid-star-assignment-target',
+                  'Emitted when a star expression is used as a starred '
+                  'assignment target.',
+                  {'minversion': (3, 0)}),
         }
 
     @check_messages('function-redefined')
     def visit_class(self, node):
         self._check_redefinition('class', node)
 
-    @check_messages('too-many-star-expressions')
+    @check_messages('too-many-star-expressions',
+                    'invalid-star-assignment-target')
     def visit_assign(self, node):
         starred = node.targets[0].nodes_of_class(astroid.Starred)
         if len(list(starred)) > 1:
             self.add_message('too-many-star-expressions', node=node)
+
+        # Check *a = b
+        if isinstance(node.targets[0], astroid.Starred):
+            self.add_message('invalid-star-assignment-target', node=node)
 
     @check_messages('init-is-generator', 'return-in-init',
                     'function-redefined', 'return-arg-in-generator',
