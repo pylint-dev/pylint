@@ -358,8 +358,11 @@ class BasicErrorChecker(_BasicChecker):
 
     @check_messages('yield-outside-function')
     def visit_yield(self, node):
-        if not isinstance(node.frame(), (astroid.Function, astroid.Lambda)):
-            self.add_message('yield-outside-function', node=node)
+        self._check_yield_outside_func(node)
+
+    @check_messages('yield-outside-function')
+    def visit_yieldfrom(self, node):
+        self._check_yield_outside_func(node)
 
     @check_messages('not-in-loop')
     def visit_continue(self, node):
@@ -413,6 +416,10 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message('abstract-class-instantiated',
                              args=(infered.name, ),
                              node=node)
+
+    def _check_yield_outside_func(self, node):
+        if not isinstance(node.frame(), (astroid.Function, astroid.Lambda)):
+            self.add_message('yield-outside-function', node=node)
 
     def _check_else_on_loop(self, node):
         """Check that any loop with an else clause has a break statement."""
