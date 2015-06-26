@@ -83,3 +83,22 @@ class BuiltinExc(Exception):
         self.val = val
 
 BuiltinExc(42, 24, badarg=1) # [too-many-function-args,unexpected-keyword-arg]
+
+
+class Clsmethod(object):
+    def __init__(self, first, second):
+        self.first = first
+        self.second = second
+
+    @classmethod
+    def from_nothing(cls):
+        return cls(1, 2, 3, 4) # [too-many-function-args]
+
+    @classmethod
+    def from_nothing1(cls):
+        return cls() # [no-value-for-parameter,no-value-for-parameter]
+
+    @classmethod
+    def from_nothing2(cls):
+        # +1: [no-value-for-parameter,unexpected-keyword-arg]
+        return cls(1, not_argument=2)
