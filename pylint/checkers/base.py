@@ -975,11 +975,6 @@ functions, methods
                     else:
                         break
                 else:
-                    # Check if it is a .deque. It doesn't seem that
-                    # we can retrieve special methods
-                    # from C implemented constructs.
-                    if argument._proxied.qname().endswith(".deque"):
-                        return
                     self.add_message('bad-reversed-sequence', node=node)
             elif not isinstance(argument, (astroid.List, astroid.Tuple)):
                 # everything else is not a proper sequence for reversed()
