@@ -20,7 +20,6 @@ import sys
 import astroid
 from astroid import YES, Instance, unpack_infer, List, Tuple
 from logilab.common.compat import builtins
-from logilab.common import decorators
 import six
 
 from pylint.checkers import BaseChecker
@@ -32,6 +31,14 @@ from pylint.checkers.utils import (
     has_known_bases,
     safe_infer)
 from pylint.interfaces import IAstroidChecker
+
+
+def _builtin_exceptions():
+    def predicate(obj):
+        return isinstance(obj, type) and issubclass(obj, BaseException)
+
+    members = inspect.getmembers(six.moves.builtins, predicate)
+    return {exc.__name__ for (_, exc) in members}
 
 
 def _annotated_unpack_infer(stmt, context=None):
@@ -50,7 +57,7 @@ def _annotated_unpack_infer(stmt, context=None):
     for infered in stmt.infer(context):
         if infered is YES:
             continue
-        yield stmt, infered   
+        yield stmt, infered
 
 
 PY3K = sys.version_info >= (3, 0)
@@ -131,14 +138,9 @@ class ExceptionsChecker(BaseChecker):
                ),
               )
 
-    @decorators.cachedproperty
-    def builtin_exceptions(self):
-        """Get a list of the builtins exceptions."""
-        def predicate(obj):
-            return isinstance(obj, type) and issubclass(obj, BaseException)
-
-        members = inspect.getmembers(six.moves.builtins, predicate)
-        return {exc.__name__ for (_, exc) in members}
+    def open(self):
+        self.builtin_exceptions = _builtin_exceptions()
+        super(ExceptionsChecker, self).open()
 
     @check_messages('nonstandard-exception',
                     'raising-bad-type', 'raising-non-exception',
