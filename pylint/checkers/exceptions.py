@@ -14,11 +14,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """exceptions handling (raising, catching, exceptions classes) checker
 """
+import inspect
 import sys
 
 import astroid
 from astroid import YES, Instance, unpack_infer, List, Tuple
 from logilab.common.compat import builtins
+from logilab.common import decorators
+import six
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -47,12 +50,13 @@ def _annotated_unpack_infer(stmt, context=None):
     for infered in stmt.infer(context):
         if infered is YES:
             continue
-        yield stmt, infered
+        yield stmt, infered   
 
 
 PY3K = sys.version_info >= (3, 0)
 OVERGENERAL_EXCEPTIONS = ('Exception',)
 BUILTINS_NAME = builtins.__name__
+
 MSGS = {
     'E0701': ('Bad except clauses order (%s)',
               'bad-except-order',
@@ -126,6 +130,15 @@ class ExceptionsChecker(BaseChecker):
                               ', '.join(OVERGENERAL_EXCEPTIONS),)}
                ),
               )
+
+    @decorators.cachedproperty
+    def builtin_exceptions(self):
+        """Get a list of the builtins exceptions."""
+        def predicate(obj):
+            return isinstance(obj, type) and issubclass(obj, BaseException)
+
+        members = inspect.getmembers(six.moves.builtins, predicate)
+        return {exc.__name__ for (_, exc) in members}
 
     @check_messages('nonstandard-exception',
                     'raising-bad-type', 'raising-non-exception',
@@ -255,8 +268,9 @@ class ExceptionsChecker(BaseChecker):
                                  node=handler.type,
                                  args=(part.as_string(), ))
             return
+
         if (not inherit_from_std_ex(exc) and
-                exc.root().name != BUILTINS_NAME):
+                exc.name not in self.builtin_exceptions):
             if has_known_bases(exc):
                 self.add_message('catching-non-exception',
                                  node=handler.type,

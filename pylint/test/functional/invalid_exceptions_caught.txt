@@ -8,3 +8,5 @@ catching-non-exception:72::"Catching an exception which doesn't inherit from Bas
 catching-non-exception:72::"Catching an exception which doesn't inherit from BaseException: None"
 catching-non-exception:72::"Catching an exception which doesn't inherit from BaseException: list([4, 5, 6])"
 catching-non-exception:85::"Catching an exception which doesn't inherit from BaseException: NON_EXCEPTION_TUPLE"
+catching-non-exception:103::"Catching an exception which doesn't inherit from BaseException: object"
+catching-non-exception:108::"Catching an exception which doesn't inherit from BaseException: range"

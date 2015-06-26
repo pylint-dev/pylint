@@ -2,7 +2,7 @@
 # pylint: disable=too-many-ancestors, no-absolute-import, import-error
 from __future__ import print_function
 
-import socket
+import socket, binascii
 
 class MyException(object):
     """Custom 'exception'."""
@@ -92,3 +92,18 @@ try:
     1 + 42
 except UNKNOWN_COMPONENTS:
     print("caught")
+
+try:
+    1 + 42
+except binascii.Error:
+    print('builtin and detected')
+
+try:
+    1 + 45
+except object: # [catching-non-exception]
+    print('caught')
+
+try:
+    1 + 42
+except range: # [catching-non-exception]
+    print('caught')
