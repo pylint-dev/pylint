@@ -192,6 +192,10 @@ ChangeLog for Pylint
       which is used when a star import is detected in another scope than the
       module level, which is an error on Python 3. Using this will emit a
       SyntaxWarning on Python 2.
+
+    * Add a new error, 'star-needs-assignment-target', emitted on Python 3 when
+      a Starred expression (*x) is not used in an assignment target. This is not
+      caught when parsing the AST on Python 3, so it needs to be a separate check.      
       
 
 

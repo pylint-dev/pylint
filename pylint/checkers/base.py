@@ -317,6 +317,11 @@ class BasicErrorChecker(_BasicChecker):
                   'Emitted when a star expression is used as a starred '
                   'assignment target.',
                   {'minversion': (3, 0)}),
+        'E0114': ('Can use starred expression only in assignment target',
+                  'star-needs-assignment-target',
+                  'Emitted when a star expression is not used in an '
+                  'assignment target.',
+                  {'minversion': (3, 0)}),
         }
 
     @check_messages('function-redefined')
@@ -326,13 +331,23 @@ class BasicErrorChecker(_BasicChecker):
     @check_messages('too-many-star-expressions',
                     'invalid-star-assignment-target')
     def visit_assign(self, node):
-        starred = node.targets[0].nodes_of_class(astroid.Starred)
-        if len(list(starred)) > 1:
+        starred = list(node.targets[0].nodes_of_class(astroid.Starred))
+        if len(starred) > 1:
             self.add_message('too-many-star-expressions', node=node)
 
         # Check *a = b
         if isinstance(node.targets[0], astroid.Starred):
             self.add_message('invalid-star-assignment-target', node=node)
+
+    @check_messages('star-needs-assignment-target')
+    def visit_starred(self, node):
+        """Check that a Starred expression is used in an assignment target."""
+        stmt = node.statement()
+        if not isinstance(stmt, astroid.Assign):
+            return
+
+        if stmt.value is node or stmt.value.parent_of(node):
+            self.add_message('star-needs-assignment-target', node=node)
 
     @check_messages('init-is-generator', 'return-in-init',
                     'function-redefined', 'return-arg-in-generator',
