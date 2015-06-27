@@ -20,3 +20,8 @@ no-value-for-parameter:80:method_tests:No value for argument 'arg' in method cal
 no-value-for-parameter:81:method_tests:No value for argument 'arg' in unbound method call
 no-value-for-parameter:110:TestStaticMethod.func:No value for argument 'first' in staticmethod call
 too-many-function-args:111:TestStaticMethod.func:Too many positional arguments for staticmethod call
+too-many-function-args:119:TypeCheckConstructor.test:Too many positional arguments for constructor call
+no-value-for-parameter:121:TypeCheckConstructor.test:No value for argument 'first' in constructor call
+no-value-for-parameter:121:TypeCheckConstructor.test:No value for argument 'second' in constructor call
+no-value-for-parameter:122:TypeCheckConstructor.test:No value for argument 'second' in constructor call
+unexpected-keyword-arg:122:TypeCheckConstructor.test:Unexpected keyword argument 'lala' in constructor call

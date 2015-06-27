@@ -109,3 +109,16 @@ class TestStaticMethod(object):
         self.test(42, 42)
         self.test() # [no-value-for-parameter]
         self.test(42, 42, 42) # [too-many-function-args]
+
+
+class TypeCheckConstructor(object):
+    def __init__(self, first, second):
+        self.first = first
+        self.second = second
+    def test(self):
+        type(self)(1, 2, 3) # [too-many-function-args]
+        # +1: [no-value-for-parameter,no-value-for-parameter]
+        type(self)()
+        type(self)(1, lala=2) # [no-value-for-parameter,unexpected-keyword-arg]
+        type(self)(1, 2)
+        type(self)(first=1, second=2)
