@@ -126,9 +126,10 @@ def make_graph(filename, dep_info, sect, gtype):
 # the import checker itself ###################################################
 
 MSGS = {
-    'F0401': ('Unable to import %s',
+    'E0401': ('Unable to import %s',
               'import-error',
-              'Used when pylint has been unable to import a module.'),
+              'Used when pylint has been unable to import a module.',
+              {'old_names': [('F0401', 'import-error')]}),
     'R0401': ('Cyclic import (%s)',
               'cyclic-import',
               'Used when a cyclic import between two or more modules is \
@@ -246,7 +247,7 @@ given file (report RP0402 must not be disabled)'}
             self._check_reimport(node, name)
 
     # TODO This appears to be the list of all messages of the checker...
-    # @check_messages('W0410', 'W0401', 'W0403', 'W0402', 'W0404', 'W0406', 'F0401')
+    # @check_messages('W0410', 'W0401', 'W0403', 'W0402', 'W0404', 'W0406', 'E0401')
     @check_messages(*(MSGS.keys()))
     def visit_from(self, node):
         """triggered when a from statement is seen"""
