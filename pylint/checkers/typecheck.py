@@ -92,6 +92,10 @@ MSGS = {
               'invalid-unary-operand-type',
               'Emitted when an unary operand is used on an object which does not '
               'support this type of operation'),
+    'E1131': ('%s',
+              'unsupported-binary-operation',
+              'Emitted when a binary arithmetic operation between two '
+              'operands is not supported.'),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -718,6 +722,22 @@ accessed. Python regular expressions are accepted.'}
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message('invalid-unary-operand-type',
+                             args=str(error), node=node)
+
+    @check_messages('unsupported-binary-operation')
+    def visit_binop(self, node):
+        """Detect TypeErrors for binary arithmetic operands."""
+        self._check_binop_errors(node)
+
+    @check_messages('unsupported-binary-operation')
+    def visit_augassign(self, node):
+        """Detect TypeErrors for augmented binary arithmetic operands."""
+        self._check_binop_errors(node)
+
+    def _check_binop_errors(self, node):
+        for error in node.type_errors():
+            # Let the error customize its output.
+            self.add_message('unsupported-binary-operation',
                              args=str(error), node=node)
 
 

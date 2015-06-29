@@ -195,7 +195,11 @@ ChangeLog for Pylint
 
     * Add a new error, 'star-needs-assignment-target', emitted on Python 3 when
       a Starred expression (*x) is not used in an assignment target. This is not
-      caught when parsing the AST on Python 3, so it needs to be a separate check.      
+      caught when parsing the AST on Python 3, so it needs to be a separate check.
+
+    * Add a new error, 'unsupported-binary-operation', emitted when
+      two a binary arithmetic operation is executed between two objects
+      which don't support it (a number plus a string for instance).
       
 
 

@@ -6,7 +6,7 @@ class Foo(object):
     """block-disable test"""
 
     def __init__(self):
-        pass
+        self._test = "42"
 
     def meth1(self, arg):
         """this issues a message"""
@@ -15,7 +15,7 @@ class Foo(object):
     def meth2(self, arg):
         """and this one not"""
         # pylint: disable=W0613
-        print(self\
+        print(self._test\
               + "foo")
 
     def meth3(self):

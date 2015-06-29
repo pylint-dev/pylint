@@ -6,23 +6,23 @@ __revision__ = 1
 try:
     __revision__ += 1
 except Exception:
-    __revision__ = None
+    __revision__ = 0
 except TypeError:
-    __revision__ = None
+    __revision__ = 0
 
 try:
     __revision__ += 1
 except LookupError:
-    __revision__ = None
+    __revision__ = 0
 except IndexError:
-    __revision__ = None
+    __revision__ = 0
 
 try:
     __revision__ += 1
 except (LookupError, NameError):
-    __revision__ = None
+    __revision__ = 0
 except (IndexError, UnboundLocalError):
-    __revision__ = None
+    __revision__ = 0
 
 try:
     __revision__ += 1
@@ -34,9 +34,9 @@ except Exception:
 try:
     __revision__ += 1
 except TypeError:
-    __revision__ = None
+    __revision__ = 0
 except:
-    __revision__ = None
+    __revision__ = 0
 
 try:
     __revision__ += 1

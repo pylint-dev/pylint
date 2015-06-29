@@ -1,6 +1,6 @@
 """test string format error
 """
-# pylint: disable=print-statement
+# pylint: disable=print-statement,unsupported-binary-operation
 from __future__ import print_function
 
 PARG_1 = PARG_2 = PARG_3 = 1
