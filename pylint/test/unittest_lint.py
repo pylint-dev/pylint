@@ -430,7 +430,7 @@ class PyLinterTC(unittest.TestCase):
         self.linter.error_mode()
         checkers = self.linter.prepare_checkers()
         checker_names = set(c.name for c in checkers)
-        should_not = set(('design', 'format', 'imports', 'metrics',
+        should_not = set(('design', 'format', 'metrics',
                       'miscellaneous', 'similarities'))
         self.assertSetEqual(set(), should_not & checker_names)
 
@@ -444,8 +444,7 @@ class PyLinterTC(unittest.TestCase):
         self.linter.set_option('reports', False)
         self.linter.set_option('disable', 'R,C,W')
         checker_names = [c.name for c in self.linter.prepare_checkers()]
-        for cname in  ('design', 'metrics', 'similarities',
-                       'imports'): # as a Fatal message that should be ignored
+        for cname in  ('design', 'metrics', 'similarities'):
             self.assertFalse(cname in checker_names, cname)
 
     def test_addmessage(self):
