@@ -122,3 +122,15 @@ class TypeCheckConstructor(object):
         type(self)(1, lala=2) # [no-value-for-parameter,unexpected-keyword-arg]
         type(self)(1, 2)
         type(self)(first=1, second=2)
+
+
+class Test(object):
+    """ lambda needs Test instance as first argument """
+    lam = lambda self, icon: (self, icon)
+
+    def test(self):
+        self.lam(42)
+        self.lam() # [no-value-for-parameter]
+        self.lam(1, 2, 3) # [too-many-function-args]
+
+Test().lam() # [no-value-for-parameter]

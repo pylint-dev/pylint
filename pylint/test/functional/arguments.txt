@@ -25,3 +25,6 @@ no-value-for-parameter:121:TypeCheckConstructor.test:No value for argument 'firs
 no-value-for-parameter:121:TypeCheckConstructor.test:No value for argument 'second' in constructor call
 no-value-for-parameter:122:TypeCheckConstructor.test:No value for argument 'second' in constructor call
 unexpected-keyword-arg:122:TypeCheckConstructor.test:Unexpected keyword argument 'lala' in constructor call
+no-value-for-parameter:133:Test.test:No value for argument 'icon' in function call
+too-many-function-args:134:Test.test:Too many positional arguments for function call
+no-value-for-parameter:136::No value for argument 'icon' in function call
