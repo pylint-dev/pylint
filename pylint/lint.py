@@ -48,7 +48,7 @@ from logilab.common import optik_ext
 from logilab.common import interface
 from logilab.common import textutils
 from logilab.common import ureports
-from logilab.common.__pkginfo__ import version as common_version
+from logilab.common import __version__ as common_version
 import six
 
 from pylint import checkers
