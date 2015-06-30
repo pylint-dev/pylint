@@ -1,6 +1,10 @@
 ChangeLog for Pylint
 --------------------
 
+2015-06-30 -- 1.4.4
+
+    * Avoid breaking pylint when using logilab.common >= 1.0.
+
 2015-03-14 -- 1.4.3
 
     * Remove three warnings: star-args, abstract-class-little-used,
