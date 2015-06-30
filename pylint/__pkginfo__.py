@@ -19,7 +19,7 @@ from __future__ import absolute_import
 
 modname = distname = 'pylint'
 
-numversion = (1, 4, 3)
+numversion = (1, 4, 4)
 version = '.'.join([str(num) for num in numversion])
 
 install_requires = ['logilab-common >= 0.53.0', 'astroid >= 1.3.6', 'six']
