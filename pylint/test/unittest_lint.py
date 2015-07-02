@@ -370,16 +370,6 @@ class PyLinterTC(unittest.TestCase):
         for f in files:
             self.assertTrue(os.path.exists(f))
 
-    def test_lint_should_analyze_file(self):
-        self.linter.set_reporter(text.TextReporter())
-        self.linter.config.files_output = True
-        self.linter.should_analyze_file = lambda *args: False
-        self.addCleanup(remove, 'pylint_logilab.txt')
-
-        self.linter.check('logilab')
-        self.assertTrue(os.path.exists('pylint_logilab.txt'))
-        self.assertFalse(os.path.exists('pylint_logilab_common.txt'))
-
     def test_enable_report(self):
         self.assertEqual(self.linter.report_is_enabled('RP0001'), True)
         self.linter.disable('RP0001')
