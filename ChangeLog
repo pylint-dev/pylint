@@ -200,6 +200,8 @@ ChangeLog for Pylint
     * Add a new error, 'unsupported-binary-operation', emitted when
       two a binary arithmetic operation is executed between two objects
       which don't support it (a number plus a string for instance).
+      This is currently disabled, since the it exhibits way too many false
+      positives, but it will be reenabled as soon as possible.
       
 
 

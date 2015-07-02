@@ -725,12 +725,12 @@ accessed. Python regular expressions are accepted.'}
                              args=str(error), node=node)
 
     @check_messages('unsupported-binary-operation')
-    def visit_binop(self, node):
+    def _visit_binop(self, node):
         """Detect TypeErrors for binary arithmetic operands."""
         self._check_binop_errors(node)
 
     @check_messages('unsupported-binary-operation')
-    def visit_augassign(self, node):
+    def _visit_augassign(self, node):
         """Detect TypeErrors for augmented binary arithmetic operands."""
         self._check_binop_errors(node)
 
