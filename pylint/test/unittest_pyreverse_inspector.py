@@ -23,7 +23,6 @@ from astroid import nodes
 from astroid import bases
 from astroid import manager
 from astroid import test_utils
-import pkg_resources
 
 from pylint.pyreverse import inspector
 from unittest_pyreverse_writer import get_project
@@ -32,11 +31,6 @@ MANAGER = manager.AstroidManager()
 
 def astroid_wrapper(func, modname):
     return func(modname)
-
-
-def find_resources(name):   
-    return pkg_resources.resource_filename(
-        'pylint', os.path.join('test', 'data', name))
 
 
 class LinkerTest(unittest.TestCase):
@@ -124,11 +118,9 @@ class LinkerTest(unittest.TestCase):
 
 
     def test_from_directory(self):
-        p = pkg_resources
-        resources_location = find_resources('__init__.py')
-        expected = os.path.normcase(os.path.abspath(resources_location))
+        expected = os.path.join('pylint', 'test', 'data', '__init__.py')
         self.assertEqual(self.project.name, 'data')
-        self.assertEqual(os.path.normcase(self.project.path), expected)
+        self.assertTrue(self.project.path.endswith(expected), self.project.path)
 
     def test_project_node(self):
         expected = [
