@@ -84,7 +84,7 @@ this disables -f values")),
                          "It should be a base name, not a path. You may set "
                          "this option multiple times."}),
     ("project", {'default': "No Name", 'type' : 'string', 'short': 'p',
-                 'metavar': '<project name>',  'help' : 'set the project name.'}),
+                 'metavar': '<project name>', 'help': 'set the project name.'}),
 )
 # FIXME : quiet mode
 #( ('quiet',
