@@ -202,6 +202,11 @@ ChangeLog for Pylint
       which don't support it (a number plus a string for instance).
       This is currently disabled, since the it exhibits way too many false
       positives, but it will be reenabled as soon as possible.
+
+    * New imported features from astroid into pyreverse: pyreverse.inspector.Project,
+      pyreverse.inspector.project_from_files and pyreverse.inspector.interfaces.
+
+      These were moved since they didn't belong in astroid.
       
 
 

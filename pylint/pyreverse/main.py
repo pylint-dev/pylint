@@ -22,9 +22,8 @@ from __future__ import print_function
 
 import sys, os
 from logilab.common.configuration import ConfigurationMixIn
-from astroid.manager import AstroidManager
 
-from pylint.pyreverse.inspector import Linker
+from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse import writer
 from pylint.pyreverse.utils import insert_default_options
@@ -79,6 +78,13 @@ this disables -f values")),
     ("output", dict(short="o", dest="output_format", action="store",
                     default="dot", metavar="<format>",
                     help="create a *.<format> output file if format available.")),
+    ("ignore", {'type' : "csv", 'metavar' : "<file>",
+                'dest' : "black_list", "default" : ('CVS',),
+                'help' : "add <file> (may be a directory) to the black list. "
+                         "It should be a base name, not a path. You may set "
+                         "this option multiple times."}),
+    ("project", {'default': "No Name", 'type' : 'string', 'short': 'p',
+                 'metavar': '<project name>',  'help' : 'set the project name.'}),
 )
 # FIXME : quiet mode
 #( ('quiet',
@@ -92,8 +98,6 @@ class Run(ConfigurationMixIn):
     def __init__(self, args):
         ConfigurationMixIn.__init__(self, usage=__doc__)
         insert_default_options()
-        self.manager = AstroidManager()
-        self.register_options_provider(self.manager)
         args = self.load_command_line_configuration()
         sys.exit(self.run(args))
 
@@ -106,7 +110,8 @@ class Run(ConfigurationMixIn):
         # dependencies to local modules even if cwd is not in the PYTHONPATH
         sys.path.insert(0, os.getcwd())
         try:
-            project = self.manager.project_from_files(args)
+            project = project_from_files(args, project_name=self.config.project,
+                                         black_list=self.config.black_list)
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config)
             diadefs = handler.get_diadefs(project, linker)

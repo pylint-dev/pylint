@@ -27,7 +27,7 @@ import unittest
 
 from astroid import MANAGER
 
-from pylint.pyreverse.inspector import Linker
+from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.writer import DotWriter
 from pylint.pyreverse.utils import get_visibility
@@ -56,14 +56,12 @@ def _file_lines(path):
                      not line.startswith('__revision__ = "$Id:'))]
     return [line for line in lines if line]
 
-def get_project(module, name=None):
+def get_project(module, name="No Name"):
     """return a astroid project representation"""
-    # flush cache
-    MANAGER._modules_by_name = {}
     def _astroid_wrapper(func, modname):
         return func(modname)
-    return MANAGER.project_from_files([module], _astroid_wrapper,
-                                      project_name=name)
+    return project_from_files([module], _astroid_wrapper,
+                              project_name=name)
 
 CONFIG = Config()
 

@@ -134,7 +134,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         LocalsVisitor.__init__(self)
 
     def visit_project(self, node):
-        """visit an astroid.Project node
+        """visit an pyreverse.utils.Project node
 
         create a diagram definition for packages
         """
@@ -146,7 +146,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         self.classdiagram = ClassDiagram('classes %s' % node.name, mode)
 
     def leave_project(self, node): # pylint: disable=unused-argument
-        """leave the astroid.Project node
+        """leave the pyreverse.utils.Project node
 
         return the generated diagram definition
         """
@@ -218,7 +218,7 @@ class DiadefsHandler(object):
     def get_diadefs(self, project, linker):
         """get the diagrams configuration data
         :param linker: pyreverse.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
-        :param project: astroid.manager.Project
+        :param project: pyreverse.utils.Project
         """
 
         #  read and interpret diagram definitions (Diadefs)

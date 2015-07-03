@@ -16,12 +16,14 @@
 """
  for the visitors.diadefs module
 """
-
+import os
 import unittest
 
 from astroid import nodes
 from astroid import bases
 from astroid import manager
+from astroid import test_utils
+import pkg_resources
 
 from pylint.pyreverse import inspector
 from unittest_pyreverse_writer import get_project
@@ -32,11 +34,16 @@ def astroid_wrapper(func, modname):
     return func(modname)
 
 
+def find_resources(name):   
+    return pkg_resources.resource_filename(
+        'pylint', os.path.join('test', 'data', name))
+
+
 class LinkerTest(unittest.TestCase):
 
     def setUp(self):
         super(LinkerTest, self).setUp()
-        self.project = get_project('data')
+        self.project = get_project('data', 'data')
         self.linker = inspector.Linker(self.project)
         self.linker.visit(self.project)
 
@@ -73,6 +80,63 @@ class LinkerTest(unittest.TestCase):
                         type_dict['relation'])
         self.assertEqual(type_dict['relation'][0].name, 'DoNothing')
         self.assertIs(type_dict['_id'][0], bases.YES)
+
+    def test_concat_interfaces(self):
+        cls = test_utils.extract_node('''
+            class IMachin: pass
+
+            class Correct2:
+                """docstring"""
+                __implements__ = (IMachin,)
+
+            class BadArgument:
+                """docstring"""
+                __implements__ = (IMachin,)
+
+            class InterfaceCanNowBeFound: #@
+                """docstring"""
+                __implements__ = BadArgument.__implements__ + Correct2.__implements__
+        ''')
+        interfaces = inspector.interfaces(cls)
+        self.assertEqual([i.name for i in interfaces], ['IMachin'])
+
+    def test_interfaces(self):
+        module = test_utils.build_module('''
+        class Interface(object): pass
+        class MyIFace(Interface): pass
+        class AnotherIFace(Interface): pass
+        class Concrete0(object):
+            __implements__ = MyIFace
+        class Concrete1:                     
+            __implements__ = (MyIFace, AnotherIFace)
+        class Concrete2:
+            __implements__ = (MyIFace, AnotherIFace)
+        class Concrete23(Concrete1): pass
+        ''')
+
+        for klass, interfaces in (('Concrete0', ['MyIFace']),
+                                  ('Concrete1', ['MyIFace', 'AnotherIFace']),
+                                  ('Concrete2', ['MyIFace', 'AnotherIFace']),
+                                  ('Concrete23', ['MyIFace', 'AnotherIFace'])):
+            klass = module[klass]
+            self.assertEqual([i.name for i in inspector.interfaces(klass)],
+                             interfaces)
+
+
+    def test_from_directory(self):
+        p = pkg_resources
+        resources_location = find_resources('__init__.py')
+        expected = os.path.normcase(os.path.abspath(resources_location))
+        self.assertEqual(self.project.name, 'data')
+        self.assertEqual(os.path.normcase(self.project.path), expected)
+
+    def test_project_node(self):
+        expected = [
+            'data', 'data.clientmodule_test',
+            'data.suppliermodule_test',
+        ]
+        self.assertListEqual(sorted(self.project.keys()), expected)
+
 
 
 if __name__ == '__main__':

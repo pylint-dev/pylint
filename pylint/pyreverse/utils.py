@@ -18,9 +18,9 @@ generic classes/functions for pyreverse core/extensions
 """
 from __future__ import print_function
 
-import sys
-import re
 import os
+import re
+import sys
 
 ########### pyreverse option utils ##############################
 
@@ -109,6 +109,7 @@ MODES = {
 }
 VIS_MOD = {'special': _SPECIAL, 'protected': _PROTECTED,
            'private': _PRIVATE, 'public': 0}
+
 
 class FilterMixIn(object):
     """filter nodes according to a mode and nodes' visibility

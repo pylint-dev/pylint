@@ -14,18 +14,62 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-
 """
 Visitor doing some postprocessing on the astroid tree.
 Try to resolve definitions (namespace) dictionary, relationship...
 """
+from __future__ import print_function
+
 import collections
 import os
+import traceback
 
 import astroid
+from astroid import bases
+from astroid import exceptions
+from astroid import manager
 from astroid import modutils
+from astroid import node_classes
+
 
 from pylint.pyreverse import utils
+
+
+def _iface_hdlr(_):
+    """Handler used by interfaces to handle suspicious interface nodes."""
+    return True
+
+
+def _astroid_wrapper(func, modname):
+    print('parsing %s...' % modname)
+    try:
+        return func(modname)
+    except exceptions.AstroidBuildingException as exc:
+        print(exc)
+    except Exception as exc: # pylint: disable=broad-except
+        traceback.print_exc()
+
+
+def interfaces(node, herited=True, handler_func=_iface_hdlr):
+    """Return an iterator on interfaces implemented by the given class node."""
+    # FIXME: what if __implements__ = (MyIFace, MyParent.__implements__)...
+    try:
+        implements = bases.Instance(node).getattr('__implements__')[0]
+    except exceptions.NotFoundError:
+        return
+    if not herited and not implements.frame() is node:
+        return
+    found = set()
+    missing = False
+    for iface in node_classes.unpack_infer(implements):
+        if iface is bases.YES:
+            missing = True
+            continue
+        if iface not in found and handler_func(iface):
+            found.add(iface)
+            yield iface
+    if missing:
+        raise exceptions.InferenceError()
 
 
 class IdGeneratorMixIn(object):
@@ -80,7 +124,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         self.project = project
 
     def visit_project(self, node):
-        """visit an astroid.Project node
+        """visit an pyreverse.utils.Project node
 
          * optionally tag the node with a unique id
         """
@@ -137,7 +181,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 self.handle_assattr_type(assattr, node)
         # resolve implemented interface
         try:
-            node.implements = list(node.interfaces(self.inherited_interfaces))
+            node.implements = list(interfaces(node, self.inherited_interfaces))
         except astroid.InferenceError:
             node.implements = ()
 
@@ -265,3 +309,64 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             mod_paths = module.depends
             if mod_path not in mod_paths:
                 mod_paths.append(mod_path)
+
+
+class Project(object):
+    """a project handle a set of modules / packages"""
+    def __init__(self, name=''):
+        self.name = name
+        self.path = None
+        self.modules = []
+        self.locals = {}
+        self.__getitem__ = self.locals.__getitem__
+        self.__iter__ = self.locals.__iter__
+        self.values = self.locals.values
+        self.keys = self.locals.keys
+        self.items = self.locals.items
+
+    def add_module(self, node):
+        self.locals[node.name] = node
+        self.modules.append(node)
+
+    def get_module(self, name):
+        return self.locals[name]
+
+    def get_children(self):
+        return self.modules
+
+    def __repr__(self):
+        return '<Project %r at %s (%s modules)>' % (self.name, id(self),
+                                                    len(self.modules))
+
+
+def project_from_files(files, func_wrapper=_astroid_wrapper,
+                       project_name="no name",
+                       black_list=('CVS',)):
+    """return a Project from a list of files or modules"""
+    # build the project representation
+    astroid_manager = manager.AstroidManager()
+    project = Project(project_name)
+    for something in files:
+        if not os.path.exists(something):
+            fpath = modutils.file_from_modpath(something.split('.'))
+        elif os.path.isdir(something):
+            fpath = os.path.join(something, '__init__.py')
+        else:
+            fpath = something
+        ast = func_wrapper(astroid_manager.ast_from_file, fpath)
+        if ast is None:
+            continue
+        # XXX why is first file defining the project.path ?
+        project.path = project.path or ast.file
+        project.add_module(ast)
+        base_name = ast.name
+        # recurse in package except if __init__ was explicitly given
+        if ast.package and something.find('__init__') == -1:
+            # recurse on others packages / modules if this is a package
+            for fpath in modutils.get_module_files(os.path.dirname(ast.file),
+                                                   black_list):
+                ast = func_wrapper(astroid_manager.ast_from_file, fpath)
+                if ast is None or ast.name == base_name:
+                    continue
+                project.add_module(ast)
+    return project
