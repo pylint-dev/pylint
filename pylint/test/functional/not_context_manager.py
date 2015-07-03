@@ -96,3 +96,15 @@ class TestKnownBases(Missing):
 
 with TestKnownBases():
     pass
+
+# Ignore mixins.
+class ManagerMixin(object):
+    def test(self):
+        with self:
+            pass
+
+class FullContextManager(ManagerMixin):
+    def __enter__(self):
+        return self
+    def __exit__(self, *args):
+        pass

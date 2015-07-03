@@ -712,6 +712,11 @@ accessed. Python regular expressions are accepted.'}
                         # just skip it.
                         if not has_known_bases(infered):
                             continue
+                        # Just ignore mixin classes.
+                        if self.config.ignore_mixin_members:
+                            if infered.name[-5:].lower() == 'mixin':
+                                continue
+
                     self.add_message('not-context-manager',
                                      node=node, args=(infered.name, ))
 
