@@ -207,6 +207,8 @@ ChangeLog for Pylint
       pyreverse.inspector.project_from_files and pyreverse.inspector.interfaces.
 
       These were moved since they didn't belong in astroid.
+
+    * Enable misplaced-future for Python 3. Closes issue #580.
       
 
 

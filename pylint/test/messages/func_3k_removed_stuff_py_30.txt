@@ -1,5 +1,4 @@
 E: 12:function: Instance of 'unicode' has no 'looower' member
-W:  3: Used builtin function 'filter'. Using a list comprehension can be clearer.
-W:  3: Used builtin function 'map'. Using a list comprehension can be clearer.
-W:  4: __future__ import is not the first non docstring statement
+W:  4: Used builtin function 'filter'. Using a list comprehension can be clearer.
+W:  4: Used builtin function 'map'. Using a list comprehension can be clearer.
 W:  6: Relative import 'func_w0302', should be 'input.func_w0302'
