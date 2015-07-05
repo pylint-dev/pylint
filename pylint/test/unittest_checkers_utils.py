@@ -90,11 +90,14 @@ class UtilsTC(unittest.TestCase):
         try: pass
         except Exception: #@
              pass
+        except: #@
+             pass
         """)
         self.assertTrue(utils.error_of_type(nodes[0], AttributeError))
         self.assertTrue(utils.error_of_type(nodes[0], (AttributeError, )))
         self.assertFalse(utils.error_of_type(nodes[0], Exception))
         self.assertTrue(utils.error_of_type(nodes[1], Exception))
+        self.assertTrue(utils.error_of_type(nodes[2], ImportError))
 
     def test_node_ignores_exception(self):
         nodes = test_utils.extract_node("""

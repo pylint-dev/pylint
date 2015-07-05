@@ -469,25 +469,8 @@ def error_of_type(handler, error_type):
     if not isinstance(error_type, tuple):
         error_type = (error_type, )
     expected_errors = {error.__name__ for error in error_type}
+    return handler.catch(expected_errors)
 
-    names = None
-    if isinstance(handler.type, astroid.Tuple):
-        names = [name for name in handler.type.elts
-                 if isinstance(name, astroid.Name)]
-    elif isinstance(handler.type, astroid.Name):
-        names = [handler.type]
-    else:
-        # Don't try to infer that.
-        return
-    for name in names:
-        try:
-            for infered in name.infer():
-                if (isinstance(infered, astroid.Class) and
-                        inherit_from_std_ex(infered) and
-                        infered.name in expected_errors):
-                    return True
-        except astroid.InferenceError:
-            continue
 
 def is_import_error(handler):
     warnings.warn("This function is deprecated in the favour of "
