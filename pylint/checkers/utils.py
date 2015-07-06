@@ -24,6 +24,7 @@ import string
 import warnings
 
 import astroid
+from astroid import helpers
 from astroid import scoped_nodes
 from logilab.common.compat import builtins
 from six.moves import map # pylint: disable=redefined-builtin
@@ -132,24 +133,6 @@ def clobber_in_except(node):
                 return (True, (name, 'outer scope (line %s)' % stmts[0].fromlineno))
     return (False, None)
 
-
-def safe_infer(node):
-    """return the inferred value for the given node.
-    Return None if inference failed or if there is some ambiguity (more than
-    one node has been inferred)
-    """
-    try:
-        inferit = node.infer()
-        value = next(inferit)
-    except astroid.InferenceError:
-        return
-    try:
-        next(inferit)
-        return # None if there is ambiguity on the inferred node
-    except astroid.InferenceError:
-        return # there is some kind of ambiguity
-    except StopIteration:
-        return value
 
 def is_super(node):
     """return True if the node is referencing the "super" builtin function
@@ -479,23 +462,6 @@ def is_import_error(handler):
     return error_of_type(handler, ImportError)
 
 
-def has_known_bases(klass):
-    """Returns true if all base classes of a class could be inferred."""
-    try:
-        return klass._all_bases_known
-    except AttributeError:
-        pass
-    for base in klass.bases:
-        result = safe_infer(base)
-        # TODO: check for A->B->A->B pattern in class structure too?
-        if (not isinstance(result, astroid.Class) or
-                result is klass or
-                not has_known_bases(result)):
-            klass._all_bases_known = False
-            return False
-    klass._all_bases_known = True
-    return True
-
 def decorated_with_property(node):
     """ Detect if the given function node is decorated with a property. """
     if not node.decorators:
@@ -598,3 +564,8 @@ def node_ignores_exception(node, exception):
         if handles_errors or empty_handlers:
             return True
     return False
+
+
+# TODO(cpopa): deprecate these or leave them as aliases?
+safe_infer = astroid.helpers.safe_infer
+has_known_bases = astroid.helpers.has_known_bases

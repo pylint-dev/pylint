@@ -20,6 +20,7 @@ import sys
 
 import astroid
 from astroid.bases import Instance
+from astroid import helpers
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -124,7 +125,7 @@ class StdlibChecker(BaseChecker):
     def visit_callfunc(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
-            infer = utils.safe_infer(node.func)
+            infer = helpers.safe_infer(node.func)
             if infer:
                 if infer.root().name == OPEN_MODULE:
                     if getattr(node.func, 'name', None) in ('open', 'file'):
@@ -186,7 +187,7 @@ class StdlibChecker(BaseChecker):
         except utils.NoSuchArgumentError:
             return
         if mode_arg:
-            mode_arg = utils.safe_infer(mode_arg)
+            mode_arg = helpers.safe_infer(mode_arg)
             if (isinstance(mode_arg, astroid.Const)
                     and not _check_mode_str(mode_arg.value)):
                 self.add_message('bad-open-mode', node=node,
@@ -194,17 +195,17 @@ class StdlibChecker(BaseChecker):
 
     def _check_type_x_is_y(self, node, left, operator, right):
         """Check for expressions like type(x) == Y."""
-        left_func = utils.safe_infer(left.func)
+        left_func = helpers.safe_infer(left.func)
         if not (isinstance(left_func, astroid.Class)
                 and left_func.qname() == TYPE_QNAME):
             return
 
         if operator in ('is', 'is not') and _is_one_arg_pos_call(right):
-            right_func = utils.safe_infer(right.func)
+            right_func = helpers.safe_infer(right.func)
             if (isinstance(right_func, astroid.Class)
                     and right_func.qname() == TYPE_QNAME):
                 # type(x) == type(a)
-                right_arg = utils.safe_infer(right.args[0])
+                right_arg = helpers.safe_infer(right.args[0])
                 if not isinstance(right_arg, LITERAL_NODE_TYPES):
                     # not e.g. type(x) == type([])
                     return

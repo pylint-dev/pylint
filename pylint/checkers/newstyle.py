@@ -18,12 +18,12 @@
 import sys
 
 import astroid
+from astroid import helpers
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
-    has_known_bases,
     node_frame_class,
 )
 
@@ -82,7 +82,7 @@ class NewStyleConflictChecker(BaseChecker):
         style class definition.
         """
         if '__slots__' in node and not node.newstyle:
-            confidence = (INFERENCE if has_known_bases(node)
+            confidence = (INFERENCE if helpers.has_known_bases(node)
                           else INFERENCE_FAILURE)
             self.add_message('slots-on-old-class', node=node,
                              confidence=confidence)
@@ -101,7 +101,7 @@ class NewStyleConflictChecker(BaseChecker):
         if (isinstance(parent, astroid.Class) and
                 not parent.newstyle and
                 isinstance(node.func, astroid.Name)):
-            confidence = (INFERENCE if has_known_bases(parent)
+            confidence = (INFERENCE if helpers.has_known_bases(parent)
                           else INFERENCE_FAILURE)
             name = node.func.name
             if name == 'property':
@@ -127,7 +127,7 @@ class NewStyleConflictChecker(BaseChecker):
             if isinstance(call, astroid.CallFunc) and \
                isinstance(call.func, astroid.Name) and \
                call.func.name == 'super':
-                confidence = (INFERENCE if has_known_bases(klass)
+                confidence = (INFERENCE if helpers.has_known_bases(klass)
                               else INFERENCE_FAILURE)
                 if not klass.newstyle:
                     # super should not be used on an old style class

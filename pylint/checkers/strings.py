@@ -24,6 +24,7 @@ import string
 import numbers
 
 import astroid
+from astroid import helpers
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
@@ -208,7 +209,7 @@ def get_args(callfunc):
 
     for arg in callfunc.args:
         if isinstance(arg, astroid.Keyword):
-            named[arg.arg] = utils.safe_infer(arg.value)
+            named[arg.arg] = helpers.safe_infer(arg.value)
         else:
             positional += 1
     return positional, named
@@ -333,12 +334,12 @@ class StringMethodsChecker(BaseChecker):
 
     @check_messages(*(MSGS.keys()))
     def visit_callfunc(self, node):
-        func = utils.safe_infer(node.func)
+        func = helpers.safe_infer(node.func)
         if (isinstance(func, astroid.BoundMethod)
                 and isinstance(func.bound, astroid.Instance)
                 and func.bound.name in ('str', 'unicode', 'bytes')):
             if func.name in ('strip', 'lstrip', 'rstrip') and node.args:
-                arg = utils.safe_infer(node.args[0])
+                arg = helpers.safe_infer(node.args[0])
                 if not isinstance(arg, astroid.Const):
                     return
                 if len(arg.value) != len(set(arg.value)):

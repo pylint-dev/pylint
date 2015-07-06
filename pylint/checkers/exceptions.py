@@ -19,6 +19,7 @@ import sys
 
 import astroid
 from astroid import YES, Instance, unpack_infer, List, Tuple
+from astroid import helpers
 from logilab.common.compat import builtins
 import six
 
@@ -27,9 +28,7 @@ from pylint.checkers.utils import (
     is_raising,
     check_messages,
     inherit_from_std_ex,
-    EXCEPTIONS_MODULE,
-    has_known_bases,
-    safe_infer)
+    EXCEPTIONS_MODULE)
 from pylint.interfaces import IAstroidChecker
 
 
@@ -50,7 +49,7 @@ def _annotated_unpack_infer(stmt, context=None):
     """
     if isinstance(stmt, (List, Tuple)):
         for elt in stmt.elts:
-            inferred = safe_infer(elt)
+            inferred = helpers.safe_infer(elt)
             if inferred and inferred is not YES:
                 yield elt, inferred
         return
@@ -168,7 +167,7 @@ class ExceptionsChecker(BaseChecker):
 
         An exception context can be only `None` or an exception.
         """
-        cause = safe_infer(node.cause)
+        cause = helpers.safe_infer(node.cause)
         if cause in (YES, None):
             return
         if isinstance(cause, astroid.Const):
@@ -204,7 +203,7 @@ class ExceptionsChecker(BaseChecker):
                 # Verifying the other arguments is not
                 # the scope of this check.
                 first = expr.elts[0]
-                inferred = safe_infer(first)
+                inferred = helpers.safe_infer(first)
                 if isinstance(inferred, Instance):
                     # pylint: disable=protected-access
                     inferred = inferred._proxied
@@ -227,7 +226,7 @@ class ExceptionsChecker(BaseChecker):
                 expr = expr._proxied
             if (isinstance(expr, astroid.Class) and
                     not inherit_from_std_ex(expr) and
-                    has_known_bases(expr)):
+                    helpers.has_known_bases(expr)):
                 if expr.newstyle:
                     self.add_message('raising-non-exception', node=node)
                 else:
@@ -241,7 +240,7 @@ class ExceptionsChecker(BaseChecker):
     def _check_catching_non_exception(self, handler, exc, part):
         if isinstance(exc, astroid.Tuple):
             # Check if it is a tuple of exceptions.
-            inferred = [safe_infer(elt) for elt in exc.elts]
+            inferred = [helpers.safe_infer(elt) for elt in exc.elts]
             if any(node is astroid.YES for node in inferred):
                 # Don't emit if we don't know every component.
                 return
@@ -273,7 +272,7 @@ class ExceptionsChecker(BaseChecker):
 
         if (not inherit_from_std_ex(exc) and
                 exc.name not in self.builtin_exceptions):
-            if has_known_bases(exc):
+            if helpers.has_known_bases(exc):
                 self.add_message('catching-non-exception',
                                  node=handler.type,
                                  args=(exc.name, ))

@@ -15,6 +15,8 @@
 """
 
 import astroid
+from astroid import helpers
+
 from pylint import checkers
 from pylint import interfaces
 from pylint.checkers import utils
@@ -78,7 +80,7 @@ def is_method_call(callfunc_node, types=(), methods=()):
     """
     if not isinstance(callfunc_node, astroid.CallFunc):
         return False
-    func = utils.safe_infer(callfunc_node.func)
+    func = helpers.safe_infer(callfunc_node.func)
     return (isinstance(func, astroid.BoundMethod)
             and isinstance(func.bound, astroid.Instance)
             and (func.bound.name in types if types else True)
