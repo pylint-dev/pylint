@@ -322,6 +322,10 @@ class BasicErrorChecker(_BasicChecker):
                   'Emitted when a star expression is not used in an '
                   'assignment target.',
                   {'minversion': (3, 0)}),
+        'E0115': ('Name %r is nonlocal and global',
+                  'nonlocal-and-global',
+                  'Emitted when a name is both nonlocal and global.',
+                  {'minversion': (3, 0)}),
         }
 
     @check_messages('function-redefined')
@@ -351,8 +355,9 @@ class BasicErrorChecker(_BasicChecker):
 
     @check_messages('init-is-generator', 'return-in-init',
                     'function-redefined', 'return-arg-in-generator',
-                    'duplicate-argument-name')
+                    'duplicate-argument-name', 'nonlocal-and-global')
     def visit_function(self, node):
+        self._check_nonlocal_and_global(node)
         if not redefined_by_decorator(node):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
         # checks for max returns, branch, return in __init__
@@ -386,6 +391,21 @@ class BasicErrorChecker(_BasicChecker):
             else:
                 args.add(name)
 
+    def _check_nonlocal_and_global(self, node):
+        """Check that a name is both nonlocal and global."""
+        def same_scope(current):
+            return current.scope() is node
+
+        from_iter = itertools.chain.from_iterable
+        nonlocals = set(from_iter(
+            child.names for child in node.nodes_of_class(astroid.Nonlocal)
+            if same_scope(child)))
+        global_vars = set(from_iter(
+            child.names for child in node.nodes_of_class(astroid.Global)
+            if same_scope(child)))
+        for name in nonlocals.intersection(global_vars):
+            self.add_message('nonlocal-and-global',
+                             args=(name, ), node=node)
 
     @check_messages('return-outside-function')
     def visit_return(self, node):

@@ -209,6 +209,10 @@ ChangeLog for Pylint
       These were moved since they didn't belong in astroid.
 
     * Enable misplaced-future for Python 3. Closes issue #580.
+
+    * Add a new error, 'nonlocal-and-global', which is emitted when a
+      name is found to be both nonlocal and global in the same scope.
+      Closes issue #581.
       
 
 
