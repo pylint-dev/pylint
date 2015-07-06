@@ -108,3 +108,28 @@ class FullContextManager(ManagerMixin):
         return self
     def __exit__(self, *args):
         pass
+
+# Test a false positive with returning a generator
+# from a context manager.
+def generator():
+    yield 42
+
+@contextmanager
+def context_manager_returning_generator():
+    return generator()
+
+with context_manager_returning_generator():
+    pass
+
+FIRST = [context_manager_returning_generator()]
+with FIRST[0]:
+    pass
+
+def other_indirect_func():
+    return generator()
+
+def not_context_manager():
+    return other_indirect_func()
+
+with not_context_manager(): # [not-context-manager]
+    pass

@@ -16,6 +16,7 @@
 """try to find more bugs in the code using astroid inference capabilities
 """
 
+import collections
 import re
 import shlex
 import sys
@@ -28,12 +29,23 @@ from astroid import (
 from astroid.bases import BUILTINS
 from astroid import objects
 from astroid import helpers
+import six
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
     decorated_with, node_ignores_exception)
+
+def _unflatten(iterable):
+    for elem in iterable:
+        elem = elem[0]
+        if isinstance(elem, collections.Sequence):
+            for subelem in _unflatten(elem):
+                yield subelem
+        else:
+            yield elem
+
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -687,18 +699,37 @@ accessed. Python regular expressions are accepted.'}
             # Anything else is an error
             self.add_message('invalid-slice-index', node=node)
 
+
     @check_messages('not-context-manager')
     def visit_with(self, node):
         for ctx_mgr, _ in node.items:
-            infered = helpers.safe_infer(ctx_mgr)
+            context = astroid.bases.InferenceContext()
+            infered = helpers.safe_infer(ctx_mgr, context=context)
             if infered is None or infered is astroid.YES:
                 continue
 
-            # Check if we are dealing with a function decorated
-            # with contextlib.contextmanager.
             if isinstance(infered, astroid.bases.Generator):
-                func = infered.parent
-                if not decorated_with(func, ['contextlib.contextmanager']):
+                # Check if we are dealing with a function decorated
+                # with contextlib.contextmanager.
+                if decorated_with(infered.parent, ['contextlib.contextmanager']):
+                    continue
+                # If the parent of the generator is not the context manager itself,
+                # that means that it could have been returned from another
+                # function which was the real context manager.
+                # The following approach is more of a hack rather than a real
+                # solution: walk all the inferred statements for the
+                # given *ctx_mgr* and if you find one function scope
+                # which is decorated, consider it to be the real
+                # manager and give up, otherwise emit not-context-manager.
+                # See the test file for not_context_manager for a couple
+                # of self explaining tests.
+                for path in six.moves.filter(None, _unflatten(context.path)):
+                    scope = path.scope()
+                    if not isinstance(scope, astroid.Function):
+                        continue 
+                    if decorated_with(scope, ['contextlib.contextmanager']):
+                        break
+                else:
                     self.add_message('not-context-manager',
                                      node=node, args=(infered.name, ))
             else:
