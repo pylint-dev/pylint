@@ -726,7 +726,7 @@ accessed. Python regular expressions are accepted.'}
                 for path in six.moves.filter(None, _unflatten(context.path)):
                     scope = path.scope()
                     if not isinstance(scope, astroid.Function):
-                        continue 
+                        continue
                     if decorated_with(scope, ['contextlib.contextmanager']):
                         break
                 else:
