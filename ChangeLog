@@ -213,6 +213,10 @@ ChangeLog for Pylint
     * Add a new error, 'nonlocal-and-global', which is emitted when a
       name is found to be both nonlocal and global in the same scope.
       Closes issue #581.
+
+    * ignored-classes option can work with qualified names (ignored-classes=optparse.Values)
+      as well as with Unix pattern matching for ignoring recursively:
+      ignored-classes=optparse.*. Closes issues #244 and #297.
       
 
 

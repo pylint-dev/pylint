@@ -37,6 +37,47 @@ class TypeCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_getattr(node)
 
+    @set_config(ignored_classes=('xml.*', ))
+    def test_ignored_classes_recursive_pattern(self):
+        """Test that ignored-classes supports patterns for ignoring."""
+        node = test_utils.extract_node('''
+        import xml.etree
+        xml.etree.Ala.Bala.Portocala
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_getattr(node)
+
+    @set_config(ignored_classes=('optparse.Values', ))
+    def test_ignored_classes_qualified_name(self):
+        """Test that ignored-classes supports qualified name for ignoring."""
+        node = test_utils.extract_node('''
+        import optparse
+        optparse.Values.lala
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_getattr(node)
+
+    @set_config(ignored_classes=('Values', ))
+    def test_ignored_classes_only_name(self):
+        """Test that ignored_classes works with the name only."""
+        node = test_utils.extract_node('''
+        import optparse
+        optparse.Values.lala
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_getattr(node)
+
+    @set_config(ignored_classes=('xml.etree.', ))
+    def test_ignored_classes_invalid_pattern(self):
+        node = test_utils.extract_node('''
+        import xml
+        xml.etree.Lala
+        ''')
+        message = Message('no-member', node=node,
+                          args=('Module', 'xml.etree', 'Lala'))
+        with self.assertAddsMessages(message):
+            self.checker.visit_getattr(node)
+
 
 if __name__ == '__main__':
     unittest.main()

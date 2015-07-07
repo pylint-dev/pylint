@@ -17,6 +17,7 @@
 """
 
 import collections
+import fnmatch
 import re
 import shlex
 import sys
@@ -45,6 +46,17 @@ def _unflatten(iterable):
                 yield subelem
         else:
             yield elem
+
+
+def _is_ignored_class(owner, name, ignores):
+    if hasattr(owner, 'qname'):
+        qname = owner.qname()
+    else:
+        qname = ''
+    ignores = set(ignores)
+    return any(name == ignore or
+               qname == ignore or
+               fnmatch.fnmatch(qname, ignore) for ignore in ignores)
 
 
 MSGS = {
@@ -115,7 +127,7 @@ SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
 
 
 def _emit_no_member(node, owner, owner_name, attrname,
-                    ignored_modules, ignored_mixins, ignored_classes):
+                    ignored_modules, ignored_mixins):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -128,8 +140,6 @@ def _emit_no_member(node, owner, owner_name, attrname,
           AttributeError, Exception or bare except.
     """
     if node_ignores_exception(node, AttributeError):
-        return False
-    if owner_name in ignored_classes:
         return False
     # skip None anyway
     if isinstance(owner, astroid.Const) and owner.value is None:
@@ -246,11 +256,15 @@ manipulated during runtime and thus existing member attributes cannot be \
 deduced by static analysis'},
                ),
                ('ignored-classes',
-                {'default' : ('SQLObject',),
+                {'default' : (),
                  'type' : 'csv',
                  'metavar' : '<members names>',
-                 'help' : 'List of classes names for which member attributes \
-should not be checked (useful for classes with attributes dynamically set).'}
+                 'help' : 'List of classes names for which member attributes '
+                          'should not be checked (useful for classes with '
+                          'attributes dynamically set). This supports '
+                          'three types of names: class names, qualified names, '
+                          'and names with Unix pattern matching '
+                          '(https://docs.python.org/3.5/library/fnmatch.html)'}
                ),
 
                ('zope',
@@ -316,7 +330,10 @@ accessed. Python regular expressions are accepted.'}
                 inference_failure = True
                 continue
 
-            name = getattr(owner, 'name', 'None')
+            name = getattr(owner, 'name', None)
+            if _is_ignored_class(owner, name, self.config.ignored_classes):
+                continue
+
             try:
                 if not [n for n in owner.getattr(node.attrname)
                         if not isinstance(n.statement(), astroid.AugAssign)]:
@@ -335,8 +352,7 @@ accessed. Python regular expressions are accepted.'}
                 # So call this only after the call has been made.
                 if not _emit_no_member(node, owner, name, node.attrname,
                                        self.config.ignored_modules,
-                                       self.config.ignore_mixin_members,
-                                       self.config.ignored_classes):
+                                       self.config.ignore_mixin_members):
                     continue
                 missingattr.add((owner, name))
                 continue
