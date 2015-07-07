@@ -48,15 +48,32 @@ def _unflatten(iterable):
             yield elem
 
 
-def _is_ignored_class(owner, name, ignores):
+def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
+    """Check if the given owner should be ignored
+
+    This will verify if the owner's module is in *ignored_modules*
+    or the owner's module fully qualified name is in *ignored_modules*
+    or if the *ignored_modules* contains a pattern which catches
+    the fully qualified name of the module.
+
+    Also, similar checks are done for the owner itself, if its name
+    matches any name from the *ignored_classes* or if its qualified
+    name can be found in *ignored_classes*.
+    """
+    ignored_modules = set(ignored_modules)
+    module_name = owner.root().name
+    module_qname = owner.root().qname()
+    if any(module_name in ignored_modules or
+           module_qname in ignored_modules or
+           fnmatch.fnmatch(module_qname, ignore) for ignore in ignored_modules):
+        return True
+
+    ignored_classes = set(ignored_classes)
     if hasattr(owner, 'qname'):
         qname = owner.qname()
     else:
         qname = ''
-    ignores = set(ignores)
-    return any(name == ignore or
-               qname == ignore or
-               fnmatch.fnmatch(qname, ignore) for ignore in ignores)
+    return any(name == ignore or qname == ignore for ignore in ignored_classes)
 
 
 MSGS = {
@@ -126,8 +143,7 @@ SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
                       'xrange', 'range', 'bytes', 'memoryview'])
 
 
-def _emit_no_member(node, owner, owner_name, attrname,
-                    ignored_modules, ignored_mixins):
+def _emit_no_member(node, owner, owner_name, attrname, ignored_mixins):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -164,9 +180,6 @@ def _emit_no_member(node, owner, owner_name, attrname,
             return False
         if not all(map(helpers.has_known_bases, owner.type.mro())):
             return False
-    # explicit skipping of module member access
-    if owner.root().name in ignored_modules:
-        return False
     if isinstance(owner, astroid.Class):
         # Look up in the metaclass only if the owner is itself
         # a class.
@@ -250,10 +263,12 @@ class should be ignored. A mixin class is detected if its name ends with \
                 {'default': (),
                  'type': 'csv',
                  'metavar': '<module names>',
-                 'help': 'List of module names for which member attributes \
-should not be checked (useful for modules/projects where namespaces are \
-manipulated during runtime and thus existing member attributes cannot be \
-deduced by static analysis'},
+                 'help': 'List of module names for which member attributes '
+                         'should not be checked (useful for modules/projects '
+                         'where namespaces are manipulated during runtime and '
+                         'thus existing member attributes cannot be '
+                         'deduced by static analysis. It supports qualified '
+                         'module names, as well as Unix pattern matching.'}
                ),
                ('ignored-classes',
                 {'default' : (),
@@ -262,9 +277,7 @@ deduced by static analysis'},
                  'help' : 'List of classes names for which member attributes '
                           'should not be checked (useful for classes with '
                           'attributes dynamically set). This supports '
-                          'three types of names: class names, qualified names, '
-                          'and names with Unix pattern matching '
-                          '(https://docs.python.org/3.5/library/fnmatch.html)'}
+                          'can work with qualified names.'}
                ),
 
                ('zope',
@@ -331,7 +344,8 @@ accessed. Python regular expressions are accepted.'}
                 continue
 
             name = getattr(owner, 'name', None)
-            if _is_ignored_class(owner, name, self.config.ignored_classes):
+            if _is_owner_ignored(owner, name, self.config.ignored_classes,
+                                 self.config.ignored_modules):
                 continue
 
             try:
@@ -351,7 +365,6 @@ accessed. Python regular expressions are accepted.'}
                 # attribute, then we'll have a false positive.
                 # So call this only after the call has been made.
                 if not _emit_no_member(node, owner, name, node.attrname,
-                                       self.config.ignored_modules,
                                        self.config.ignore_mixin_members):
                     continue
                 missingattr.add((owner, name))

@@ -215,8 +215,10 @@ ChangeLog for Pylint
       Closes issue #581.
 
     * ignored-classes option can work with qualified names (ignored-classes=optparse.Values)
-      as well as with Unix pattern matching for ignoring recursively:
-      ignored-classes=optparse.*. Closes issues #244 and #297.
+      Closes issue #297.
+
+    * ignored-modules can work with qualified names as well as with Unix pattern
+      matching for recursive ignoring. Closes issues #244.
       
 
 

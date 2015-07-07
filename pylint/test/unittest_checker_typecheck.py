@@ -37,14 +37,35 @@ class TypeCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_getattr(node)
 
-    @set_config(ignored_classes=('xml.*', ))
-    def test_ignored_classes_recursive_pattern(self):
-        """Test that ignored-classes supports patterns for ignoring."""
+    @set_config(ignored_classes=('xml.etree.', ))
+    def test_ignored_modules_invalid_pattern(self):
         node = test_utils.extract_node('''
-        import xml.etree
-        xml.etree.Ala.Bala.Portocala
+        import xml
+        xml.etree.Lala
+        ''')
+        message = Message('no-member', node=node,
+                          args=('Module', 'xml.etree', 'Lala'))
+        with self.assertAddsMessages(message):
+            self.checker.visit_getattr(node)
+
+    @set_config(ignored_modules=('xml.etree*', ))
+    def test_ignored_modules_patterns(self):
+        node = test_utils.extract_node('''
+        import xml
+        xml.etree.portocola #@
         ''')
         with self.assertNoMessages():
+            self.checker.visit_getattr(node)
+
+    @set_config(ignored_classes=('xml.*', ))
+    def test_ignored_classes_no_recursive_pattern(self):
+        node = test_utils.extract_node('''
+        import xml
+        xml.etree.ElementTree.Test
+        ''')
+        message = Message('no-member', node=node,
+                          args=('Module', 'xml.etree.ElementTree', 'Test'))
+        with self.assertAddsMessages(message):
             self.checker.visit_getattr(node)
 
     @set_config(ignored_classes=('optparse.Values', ))
@@ -65,17 +86,6 @@ class TypeCheckerTest(CheckerTestCase):
         optparse.Values.lala
         ''')
         with self.assertNoMessages():
-            self.checker.visit_getattr(node)
-
-    @set_config(ignored_classes=('xml.etree.', ))
-    def test_ignored_classes_invalid_pattern(self):
-        node = test_utils.extract_node('''
-        import xml
-        xml.etree.Lala
-        ''')
-        message = Message('no-member', node=node,
-                          args=('Module', 'xml.etree', 'Lala'))
-        with self.assertAddsMessages(message):
             self.checker.visit_getattr(node)
 
 
