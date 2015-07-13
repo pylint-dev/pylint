@@ -19,8 +19,9 @@ class VariablesCheckerTC(CheckerTestCase):
             self.first += 5 #@
             self.first = 0  #@
         """)
-        with self.assertAddsMessages(Message('access-member-before-definition',
-                                             node=n1.target, args=('first', n2.lineno))):
+        message = Message('access-member-before-definition',
+                          node=n1.target, args=('first', n2.lineno))
+        with self.assertAddsMessages(message):
             self.walk(n1.root())
 
     @set_config(exclude_protected=('_meta', '_manager'))

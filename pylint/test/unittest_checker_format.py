@@ -15,6 +15,7 @@
 
 Check format checker helper functions
 """
+
 from __future__ import unicode_literals
 from os import linesep
 import re

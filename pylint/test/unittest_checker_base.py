@@ -15,7 +15,8 @@ class DocstringTest(CheckerTestCase):
 
     def test_missing_docstring_module(self):
         module = astroid.parse("something")
-        with self.assertAddsMessages(Message('missing-docstring', node=module, args=('module',))):
+        message = Message('missing-docstring', node=module, args=('module',))
+        with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
     def test_missing_docstring_emtpy_module(self):
@@ -25,14 +26,16 @@ class DocstringTest(CheckerTestCase):
 
     def test_empty_docstring_module(self):
         module = astroid.parse("''''''")
-        with self.assertAddsMessages(Message('empty-docstring', node=module, args=('module',))):
+        message = Message('empty-docstring', node=module, args=('module',))
+        with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
     def test_empty_docstring_function(self):
         func = test_utils.extract_node("""
         def func(tion):
            pass""")
-        with self.assertAddsMessages(Message('missing-docstring', node=func, args=('function',))):
+        message = Message('missing-docstring', node=func, args=('function',))
+        with self.assertAddsMessages(message):
             self.checker.visit_function(func)
 
     @set_config(docstring_min_length=2)
@@ -55,7 +58,8 @@ class DocstringTest(CheckerTestCase):
         klass = test_utils.extract_node("""
         class Klass(object):
            pass""")
-        with self.assertAddsMessages(Message('missing-docstring', node=klass, args=('class',))):
+        message = Message('missing-docstring', node=klass, args=('class',))
+        with self.assertAddsMessages(message):
             self.checker.visit_class(klass)
 
 
@@ -70,13 +74,14 @@ class NameCheckerTest(CheckerTestCase):
         const = test_utils.extract_node("""
         const = "CONSTANT" #@
         """)
-        with self.assertAddsMessages(
-            Message('invalid-name', node=const.targets[0],
-                    args=('constant', 'const', ' (hint: (([A-Z_][A-Z0-9_]*)|(__.*__))$)'))):
+        message = Message(
+           'invalid-name', node=const.targets[0],
+           args=('constant', 'const',
+                 ' (hint: (([A-Z_][A-Z0-9_]*)|(__.*__))$)'))
+        with self.assertAddsMessages(message):
             self.checker.visit_assname(const.targets[0])
 
-    @set_config(include_naming_hint=True,
-            const_name_hint='CONSTANT')
+    @set_config(include_naming_hint=True, const_name_hint='CONSTANT')
     def test_naming_hint_configured_hint(self):
         const = test_utils.extract_node("""
         const = "CONSTANT" #@
@@ -174,7 +179,10 @@ class MultiNamingStyleTest(CheckerTestCase):
         class CLASSC(object): #@
             pass
         """)
-        with self.assertAddsMessages(Message('invalid-name', node=classes[0], args=('class', 'classb', ''))):
+        message = Message('invalid-name',
+                          node=classes[0],
+                          args=('class', 'classb', ''))
+        with self.assertAddsMessages(message):
             for cls in classes:
                 self.checker.visit_class(cls)
             self.checker.leave_module(cls.root)
@@ -189,8 +197,13 @@ class MultiNamingStyleTest(CheckerTestCase):
         class CLASSC(object): #@
             pass
         """)
-        with self.assertAddsMessages(Message('invalid-name', node=classes[0], args=('class', 'class_a', '')),
-                                     Message('invalid-name', node=classes[2], args=('class', 'CLASSC', ''))):
+        messages = [
+            Message('invalid-name', node=classes[0],
+                    args=('class', 'class_a', '')),
+            Message('invalid-name', node=classes[2],
+                    args=('class', 'CLASSC', ''))
+        ]
+        with self.assertAddsMessages(*messages):
             for cls in classes:
                 self.checker.visit_class(cls)
             self.checker.leave_module(cls.root)
@@ -207,7 +220,9 @@ class MultiNamingStyleTest(CheckerTestCase):
         def FUNC(): #@
             pass
         """, module_name='test')
-        with self.assertAddsMessages(Message('invalid-name', node=function_defs[1], args=('function', 'FUNC', ''))):
+        message = Message('invalid-name', node=function_defs[1],
+                          args=('function', 'FUNC', ''))
+        with self.assertAddsMessages(message):
             for func in function_defs:
                 self.checker.visit_function(func)
             self.checker.leave_module(func.root)
@@ -224,7 +239,9 @@ class MultiNamingStyleTest(CheckerTestCase):
         def UPPER(): #@
             pass
         """)
-        with self.assertAddsMessages(Message('invalid-name', node=function_defs[3], args=('function', 'UPPER', ''))):
+        message = Message('invalid-name', node=function_defs[3],
+                          args=('function', 'UPPER', ''))
+        with self.assertAddsMessages(message):
             for func in function_defs:
                 self.checker.visit_function(func)
             self.checker.leave_module(func.root)
