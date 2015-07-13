@@ -224,6 +224,8 @@ given file (report RP0402 must not be disabled)'}
         self.linter.add_stats(cycles=[])
         self.stats = self.linter.stats
         self.import_graph = defaultdict(set)
+        self._ignored_modules = get_global_option(
+            self, 'ignored-modules', default=[])
 
     def close(self):
         """called before visiting project (i.e set of modules)"""
@@ -282,10 +284,9 @@ given file (report RP0402 must not be disabled)'}
                 args = '%r (%s)' % (modname, ex)
             else:
                 args = repr(modname)
-
-            ignored_modules = get_global_option(self, 'ignored-modules', default=[])
+            
             for submodule in self._qualified_names(modname):
-                if submodule in ignored_modules:
+                if submodule in self._ignored_modules:
                     return None
 
             if not node_ignores_exception(importnode, ImportError):
