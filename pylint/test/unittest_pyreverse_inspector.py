@@ -19,6 +19,7 @@
 import os
 import unittest
 
+import astroid
 from astroid import nodes
 from astroid import bases
 from astroid import manager
@@ -95,7 +96,7 @@ class LinkerTest(unittest.TestCase):
         self.assertEqual([i.name for i in interfaces], ['IMachin'])
 
     def test_interfaces(self):
-        module = test_utils.build_module('''
+        module = astroid.parse('''
         class Interface(object): pass
         class MyIFace(Interface): pass
         class AnotherIFace(Interface): pass

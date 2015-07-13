@@ -4,6 +4,7 @@ import re
 import sys
 import unittest
 
+import astroid
 from astroid import test_utils
 from pylint.checkers import base
 from pylint.testutils import CheckerTestCase, Message, set_config
@@ -13,17 +14,17 @@ class DocstringTest(CheckerTestCase):
     CHECKER_CLASS = base.DocStringChecker
 
     def test_missing_docstring_module(self):
-        module = test_utils.build_module("something")
+        module = astroid.parse("something")
         with self.assertAddsMessages(Message('missing-docstring', node=module, args=('module',))):
             self.checker.visit_module(module)
 
     def test_missing_docstring_emtpy_module(self):
-        module = test_utils.build_module("")
+        module = astroid.parse("")
         with self.assertNoMessages():
             self.checker.visit_module(module)
 
     def test_empty_docstring_module(self):
-        module = test_utils.build_module("''''''")
+        module = astroid.parse("''''''")
         with self.assertAddsMessages(Message('empty-docstring', node=module, args=('module',))):
             self.checker.visit_module(module)
 
@@ -143,7 +144,7 @@ class NameCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_assname(assign.targets[0])
 
-        module = test_utils.build_module("""
+        module = astroid.parse("""
         def A():
           return 1, 2, 3
         CONSTA, CONSTB, CONSTC = A()

@@ -13,7 +13,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 import unittest
 
-from astroid import test_utils
+import astroid
+
 from pylint import utils
 from pylint import interfaces
 from pylint.checkers.utils import check_messages
@@ -54,7 +55,7 @@ class PyLintASTWalkerTest(unittest.TestCase):
         walker = utils.PyLintASTWalker(linter)
         checker = self.Checker()
         walker.add_checker(checker)
-        walker.walk(test_utils.build_module("x = func()"))
+        walker.walk(astroid.parse("x = func()"))
         self.assertEqual(set(['module', 'assname']), checker.called)
 
 

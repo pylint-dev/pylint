@@ -30,7 +30,7 @@ from glob import glob
 from os import linesep, getcwd, sep
 from os.path import abspath, basename, dirname, isdir, join, splitext
 
-from astroid import test_utils
+import astroid
 
 from pylint import checkers
 from pylint.utils import PyLintASTWalker
@@ -408,6 +408,6 @@ def create_tempfile(content=None):
 def create_file_backed_module(code):
     """Create an astroid module for the given code, backed by a real file."""
     with create_tempfile() as temp:
-        module = test_utils.build_module(code)
+        module = astroid.parse(code)
         module.file = temp
         yield module

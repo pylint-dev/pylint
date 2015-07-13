@@ -2,6 +2,7 @@
 import unittest
 import sys
 
+import astroid
 from astroid import test_utils
 from pylint.checkers import classes
 from pylint.testutils import CheckerTestCase, Message, set_config
@@ -28,7 +29,7 @@ class VariablesCheckerTC(CheckerTestCase):
         exclude names from protected-access warning.
         """
 
-        node = test_utils.build_module("""
+        node = astroid.parse("""
         class Protected(object):
             '''empty'''
             def __init__(self):

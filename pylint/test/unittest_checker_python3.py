@@ -66,7 +66,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def as_iterable_in_for_loop_test(self, fxn):
         code = "for x in {}(): pass".format(fxn)
-        module = test_utils.build_module(code)
+        module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
@@ -84,13 +84,13 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def as_iterable_in_genexp_test(self, fxn):
         code = "x = (x for x in {}())".format(fxn)
-        module = test_utils.build_module(code)
+        module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
     def as_iterable_in_listcomp_test(self, fxn):
         code = "x = [x for x in {}(None, [1])]".format(fxn)
-        module = test_utils.build_module(code)
+        module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
@@ -118,7 +118,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_callfunc(node)
 
     def as_argument_to_callable_constructor_test(self, fxn, callable_fn):
-        module = test_utils.build_module("x = {}({}())".format(callable_fn, fxn))
+        module = astroid.parse("x = {}({}())".format(callable_fn, fxn))
         with self.assertNoMessages():
             self.walk(module)
 
@@ -135,7 +135,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def as_argument_to_str_join_test(self, fxn):
         code = "x = ''.join({}())".format(fxn)
-        module = test_utils.build_module(code)
+        module = astroid.parse(code)
         with self.assertNoMessages():
             self.walk(module)
 
@@ -250,9 +250,9 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_import(node)
 
     def test_absolute_import(self):
-        module_import = test_utils.build_module(
+        module_import = astroid.parse(
                 'from __future__ import absolute_import; import os')
-        module_from = test_utils.build_module(
+        module_from = astroid.parse(
                 'from __future__ import absolute_import; from os import path')
         with self.assertNoMessages():
             for module in (module_import, module_from):
@@ -275,7 +275,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_binop(node)
 
     def test_division_with_future_statement(self):
-        module = test_utils.build_module('from __future__ import division; 3 / 2')
+        module = astroid.parse('from __future__ import division; 3 / 2')
         with self.assertNoMessages():
             self.walk(module)
 
@@ -358,7 +358,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_class(node)
 
     def test_metaclass_global_assignment(self):
-        module = test_utils.build_module('__metaclass__ = type')
+        module = astroid.parse('__metaclass__ = type')
         with self.assertNoMessages():
             self.walk(module)
 
@@ -385,7 +385,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     @python2_only
     def test_checker_disabled_by_default(self):
-        node = test_utils.build_module(textwrap.dedent("""
+        node = astroid.parse(textwrap.dedent("""
         abc = 1l
         raise Exception, "test"
         raise "test"

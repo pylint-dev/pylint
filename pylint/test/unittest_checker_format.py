@@ -20,6 +20,7 @@ from os import linesep
 import re
 import sys
 
+import astroid
 from astroid import test_utils
 
 from pylint.checkers.format import *
@@ -117,7 +118,7 @@ class SuperfluousParenthesesTest(CheckerTestCase):
         code = """from __future__ import print_function
 print('Hello world!')
 """
-        tree = test_utils.build_module(code)
+        tree = astroid.parse(code)
         with self.assertNoMessages():
             self.checker.process_module(tree)
             self.checker.process_tokens(tokenize_str(code))

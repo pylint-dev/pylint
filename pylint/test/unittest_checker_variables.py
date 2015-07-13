@@ -3,7 +3,9 @@ import sys
 import os
 import unittest
 
+import astroid
 from astroid import test_utils
+
 from pylint.checkers import variables
 from pylint.testutils import CheckerTestCase, linter, set_config, Message
 
@@ -13,7 +15,7 @@ class VariablesCheckerTC(CheckerTestCase):
 
     def test_bitbucket_issue_78(self):
         """ Issue 78 report a false positive for unused-module """
-        module = test_utils.build_module("""
+        module = astroid.parse("""
         from sys import path
         path += ['stuff']
         def func():
