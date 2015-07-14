@@ -32,3 +32,5 @@ try:
         import really_missing
 except ImportError:
     pass
+
+from .collections import missing # [import-error]

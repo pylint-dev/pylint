@@ -219,6 +219,10 @@ ChangeLog for Pylint
 
     * ignored-modules can work with qualified names as well as with Unix pattern
       matching for recursive ignoring. Closes issues #244.
+
+    * Improve detection of relative imports in non-packages, as well as importing
+      missing modules with a relative import from a package.
+      
       
 
 

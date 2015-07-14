@@ -60,3 +60,7 @@ try:
         import collections.please_dont_emit
 except Exception:
     pass
+
+from .no_self_use import Super
+from .no_self_use import lala  # [no-name-in-module]
+from .no_self_use.bla import lala1 # [no-name-in-module]

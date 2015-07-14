@@ -1,5 +1,4 @@
 """Functional full-module tests for PyLint."""
-from __future__ import unicode_literals
 import csv
 import collections
 import io

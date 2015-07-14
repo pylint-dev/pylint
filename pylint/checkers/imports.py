@@ -33,6 +33,23 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, node_ignores_exception
 
 
+def _get_import_name(importnode, modname):
+    """Get a prepared module name from the given import node
+
+    In the case of relative imports, this will return the
+    absolute qualified module name, which might be useful
+    for debugging. Otherwise, the initial module name
+    is returned unchanged.
+    """
+    if isinstance(importnode, astroid.From):
+        if importnode.level:
+            root = importnode.root()
+            if isinstance(root, astroid.Module):
+                modname = root.relative_to_absolute_name(
+                    modname, level=importnode.level)
+    return modname
+
+
 def get_first_import(node, context, name, base, level):
     """return the node where [base.]<name> is imported or None if not found
     """
@@ -280,11 +297,12 @@ given file (report RP0402 must not be disabled)'}
         try:
             return importnode.do_import_module(modname)
         except astroid.InferenceError as ex:
+            dotted_modname = _get_import_name(importnode, modname)
             if str(ex) != modname:
-                args = '%r (%s)' % (modname, ex)
+                args = '%r (%s)' % (dotted_modname, ex)
             else:
-                args = repr(modname)
-            
+                args = repr(dotted_modname)
+
             for submodule in self._qualified_names(modname):
                 if submodule in self._ignored_modules:
                     return None

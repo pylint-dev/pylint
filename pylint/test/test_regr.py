@@ -139,7 +139,7 @@ class NonRegrTC(unittest.TestCase):
         self.assertEqual(got, "")
 
     def test_no_context_file(self):
-        expected = "E:  5: No name 'missing' in module ''\n"
+        expected = "Unused import missing"
         linter.check(join(REGR_DATA, 'bad_package'))
         got = linter.reporter.finalize().strip()
         self.assertIn(expected, got)
