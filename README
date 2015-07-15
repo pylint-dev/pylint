@@ -30,7 +30,7 @@ Pylint requires the astroid (the later the better; formerly known as
 logilab-astng) and logilab-common (version >= 0.53) packages.
 
 * https://bitbucket.org/logilab/astroid
-* http://www.logilab.org/projects/common
+* https://www.logilab.org/project/logilab-common
 
 From the source distribution, extract the tarball and run ::
 
