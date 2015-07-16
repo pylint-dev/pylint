@@ -1007,7 +1007,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             return
 
         name_parts = node.modname.split('.')
-        level = getattr(node, 'level', None)
         try:
             module = node.do_import_module(name_parts[0])
         except Exception:
