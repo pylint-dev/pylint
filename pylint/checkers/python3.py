@@ -249,7 +249,7 @@ class Python3Checker(checkers.BaseChecker):
                   "Used when an object's next() method is called "
                   '(Python 3 uses the next() built-in function)',
                   {'maxversion': (3, 0)}),
-        'W1623': ("Assigning to a class' __metaclass__ attribute",
+        'W1623': ("Assigning to a class's __metaclass__ attribute",
                   'metaclass-assignment',
                   "Used when a metaclass is specified by assigning to __metaclass__ "
                   '(Python 3 specifies the metaclass as a class statement argument)',
