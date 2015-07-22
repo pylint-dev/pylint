@@ -222,7 +222,9 @@ ChangeLog for Pylint
 
     * Improve detection of relative imports in non-packages, as well as importing
       missing modules with a relative import from a package.
-      
+
+    * Don't emit no-init if not all the bases from a class are known.
+      Closes issue #604.      
       
 
 

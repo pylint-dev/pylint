@@ -307,7 +307,7 @@ a metaclass class method.'}
         self._accessed.append(defaultdict(list))
         self._check_bases_classes(node)
         # if not an exception or a metaclass
-        if node.type == 'class':
+        if node.type == 'class' and helpers.has_known_bases(node):
             try:
                 node.local_attr('__init__')
             except astroid.NotFoundError:

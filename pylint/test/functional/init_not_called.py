@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903,import-error, missing-docstring
 """test for __init__ not called
 """
 from __future__ import print_function
@@ -57,3 +57,8 @@ class AssignedInit(NewStyleC):
     """No init called."""
     def __init__(self):  # [super-init-not-called]
         self.arg = 0
+
+from missing import Missing
+
+class UnknownBases(Missing):
+    """Don't emit no-init if the bases aren't known."""
