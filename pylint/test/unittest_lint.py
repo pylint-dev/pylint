@@ -509,7 +509,7 @@ class ConfigTC(unittest.TestCase):
 
     def test_pylintrc(self):
         fake_home = tempfile.mkdtemp('fake-home')
-        home = os.environ[HOME]
+        home = os.environ.get(HOME, None)
         try:
             os.environ[HOME] = fake_home
             self.assertEqual(config.find_pylintrc(), None)
@@ -519,7 +519,10 @@ class ConfigTC(unittest.TestCase):
             self.assertEqual(config.find_pylintrc(), None)
         finally:
             os.environ.pop('PYLINTRC', '')
-            os.environ[HOME] = home
+            if home is None:
+                del os.environ[HOME]
+            else:
+                os.environ[HOME] = home
             rmtree(fake_home, ignore_errors=True)
             reload(config)
 
@@ -530,12 +533,15 @@ class ConfigTC(unittest.TestCase):
                           'a/b/c/__init__.py', 'a/b/c/d/__init__.py',
                           'a/b/c/d/e/.pylintrc'])
             fake_home = tempfile.mkdtemp('fake-home')
-            home = os.environ[HOME]
+            home = os.environ.get(HOME, None)
             try:
                 os.environ[HOME] = fake_home
                 self.assertEqual(config.find_pylintrc(), None)
             finally:
-                os.environ[HOME] = home
+                if home is None:
+                    del os.environ[HOME]
+                else:
+                    os.environ[HOME] = home
                 os.rmdir(fake_home)
             results = {'a'       : join(chroot, 'a', 'pylintrc'),
                        'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
@@ -550,7 +556,7 @@ class ConfigTC(unittest.TestCase):
     def test_pylintrc_parentdir_no_package(self):
         with tempdir() as chroot:
             fake_home = tempfile.mkdtemp('fake-home')
-            home = os.environ[HOME]
+            home = os.environ.get(HOME, None)
             os.environ[HOME] = fake_home
             try:
                 create_files(['a/pylintrc', 'a/b/pylintrc', 'a/b/c/d/__init__.py'])
@@ -564,7 +570,10 @@ class ConfigTC(unittest.TestCase):
                     os.chdir(join(chroot, basedir))
                     self.assertEqual(config.find_pylintrc(), expected)
             finally:
-                os.environ[HOME] = home
+                if home is None:
+                    del os.environ[HOME]
+                else:
+                    os.environ[HOME] = home
                 rmtree(fake_home, ignore_errors=True)
 
 
