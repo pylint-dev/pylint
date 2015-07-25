@@ -47,7 +47,6 @@ from logilab.common import optik_ext
 from logilab.common import interface
 from logilab.common import textutils
 from logilab.common import ureports
-from logilab.common import __version__ as common_version
 import six
 
 from pylint import checkers
@@ -452,8 +451,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
             'disable': self.disable}
         self._bw_options_methods = {'disable-msg': self.disable,
                                     'enable-msg': self.enable}
-        full_version = '%%prog %s, \nastroid %s, common %s\nPython %s' % (
-            version, astroid_version, common_version, sys.version)
+        full_version = '%%prog %s, \nastroid %s\nPython %s' % (
+            version, astroid_version, sys.version)
         configuration.OptionsManagerMixIn.__init__(
             self, usage=__doc__,
             version=full_version,
