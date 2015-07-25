@@ -60,7 +60,9 @@ _IGNORE = 2
 # Whitespace checking config constants
 _DICT_SEPARATOR = 'dict-separator'
 _TRAILING_COMMA = 'trailing-comma'
-_NO_SPACE_CHECK_CHOICES = [_TRAILING_COMMA, _DICT_SEPARATOR]
+_EMPTY_LINE = 'empty-line'
+_NO_SPACE_CHECK_CHOICES = [_TRAILING_COMMA, _DICT_SEPARATOR, _EMPTY_LINE]
+_DEFAULT_NO_SPACE_CHECK_CHOICES = [_TRAILING_COMMA, _DICT_SEPARATOR]
 
 MSGS = {
     'C0301': ('Line too long (%s/%s)',
@@ -432,13 +434,17 @@ class FormatChecker(BaseTokenChecker):
                  'help' : ('Allow the body of an if to be on the same '
                            'line as the test if there is no else.')}),
                ('no-space-check',
-                {'default': ','.join(_NO_SPACE_CHECK_CHOICES),
+                {'default': ','.join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
                  'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
                  'type': 'multiple_choice',
                  'choices': _NO_SPACE_CHECK_CHOICES,
                  'help': ('List of optional constructs for which whitespace '
-                          'checking is disabled. Used to allow tabulation '
-                          'in dicts, etc.: {1  : 1,\\n222: 2}')}),
+                          'checking is disabled. '
+                          '`'+ _DICT_SEPARATOR + '` is used to allow tabulation '
+                          'in dicts, etc.: {1  : 1,\\n222: 2}. '
+                          '`'+ _TRAILING_COMMA + '` allows a space between comma '
+                          'and closing bracket: (a, ). '
+                          '`'+ _EMPTY_LINE + '` allows space-only lines.')}),
                ('max-module-lines',
                 {'default' : 1000, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of lines in a module'}
@@ -932,7 +938,10 @@ class FormatChecker(BaseTokenChecker):
                 self.add_message('missing-final-newline', line=i)
             else:
                 stripped_line = line.rstrip()
-                if line[len(stripped_line):] not in ('\n', '\r\n'):
+                if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
+                    # allow empty lines
+                    pass
+                elif line[len(stripped_line):] not in ('\n', '\r\n'):
                     self.add_message('trailing-whitespace', line=i)
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
