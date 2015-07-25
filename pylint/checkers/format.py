@@ -433,10 +433,12 @@ class FormatChecker(BaseTokenChecker):
                            'line as the test if there is no else.')}),
                ('no-space-check',
                 {'default': ','.join(_NO_SPACE_CHECK_CHOICES),
+                 'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
                  'type': 'multiple_choice',
                  'choices': _NO_SPACE_CHECK_CHOICES,
                  'help': ('List of optional constructs for which whitespace '
-                          'checking is disabled')}),
+                          'checking is disabled. Used to allow tabulation '
+                          'in dicts, etc.: {1  : 1,\\n222: 2}')}),
                ('max-module-lines',
                 {'default' : 1000, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of lines in a module'}
