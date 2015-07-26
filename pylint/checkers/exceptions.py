@@ -20,7 +20,7 @@ import sys
 import astroid
 from astroid import YES, Instance, unpack_infer, List, Tuple
 from astroid import helpers
-from logilab.common.compat import builtins
+from six.moves import builtins
 import six
 
 from pylint.checkers import BaseChecker

@@ -16,7 +16,7 @@
 """handle diagram generation options for class diagram or default diagrams
 """
 
-from logilab.common.compat import builtins
+from six.moves import builtins
 
 import astroid
 

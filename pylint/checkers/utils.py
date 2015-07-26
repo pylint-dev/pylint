@@ -26,8 +26,7 @@ import warnings
 import astroid
 from astroid import helpers
 from astroid import scoped_nodes
-from logilab.common.compat import builtins
-from six.moves import map # pylint: disable=redefined-builtin
+from six.moves import map, builtins # pylint: disable=redefined-builtin
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = astroid.ListComp, astroid.SetComp, astroid.DictComp, astroid.GenExpr
