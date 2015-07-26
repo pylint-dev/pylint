@@ -24,13 +24,13 @@ import re
 import sys
 import tokenize
 import warnings
+import textwrap
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 import six
 from six.moves import zip  # pylint: disable=redefined-builtin
 
 from logilab.common.interface import implements
-from logilab.common.textutils import normalize_text
 from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
 
@@ -941,3 +941,62 @@ def deprecated_option(shortname=None, opt_type=None, help_msg=None):
     if shortname:
         option['shortname'] = shortname
     return option
+
+
+def splitstrip(string, sep=','):
+    """return a list of stripped string by splitting the string given as
+    argument on `sep` (',' by default). Empty string are discarded.
+
+    >>> splitstrip('a, b, c   ,  4,,')
+    ['a', 'b', 'c', '4']
+    >>> splitstrip('a')
+    ['a']
+    >>>
+
+    :type string: str or unicode
+    :param string: a csv line
+
+    :type sep: str or unicode
+    :param sep: field separator, default to the comma (',')
+
+    :rtype: str or unicode
+    :return: the unquoted string (or the input string if it wasn't quoted)
+    """
+    return [word.strip() for word in string.split(sep) if word.strip()]
+
+
+def unquote(string):
+    """remove optional quotes (simple or double) from the string
+
+    :type string: str or unicode
+    :param string: an optionally quoted string
+
+    :rtype: str or unicode
+    :return: the unquoted string (or the input string if it wasn't quoted)
+    """
+    if not string:
+        return string
+    if string[0] in '"\'':
+        string = string[1:]
+    if string[-1] in '"\'':
+        string = string[:-1]
+    return string
+
+
+def normalize_text(text, line_len=80, indent=''):
+    """Wrap the text on the given line length."""
+    return '\n'.join(textwrap.wrap(text, width=line_len, initial_indent=indent,
+                                   subsequent_indent=indent))
+
+
+def check_csv(option, opt, value):
+    """check a csv value by trying to split it
+    return the list of separated values
+    """
+    if isinstance(value, (list, tuple)):
+        return value
+    try:
+        return splitstrip(value)
+    except ValueError:
+        raise OptionValueError(
+            "option %s: invalid csv value: %r" % (opt, value))

@@ -622,14 +622,7 @@ class MessagesStoreTC(unittest.TestCase):
         self.store.register_messages(Checker())
 
     def _compare_messages(self, desc, msg, checkerref=False):
-        # replace \r\n with \n, because
-        # logilab.common.textutils.normalize_text
-        # uses os.linesep, which will
-        # not properly compare with triple
-        # quoted multilines used in these tests
-        self.assertMultiLineEqual(
-            desc,
-            msg.format_help(checkerref=checkerref).replace('\r\n', '\n'))
+        self.assertMultiLineEqual(desc, msg.format_help(checkerref=checkerref))
 
     def test_check_message_id(self):
         self.assertIsInstance(self.store.check_message_id('W1234'),
