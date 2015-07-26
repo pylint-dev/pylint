@@ -143,7 +143,7 @@ SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
                       'xrange', 'range', 'bytes', 'memoryview'])
 
 
-def _emit_no_member(node, owner, owner_name, attrname, ignored_mixins):
+def _emit_no_member(node, owner, owner_name, ignored_mixins):
     """Try to see if no-member should be emitted for the given owner.
 
     The following cases are ignored:
@@ -350,7 +350,7 @@ accessed. Python regular expressions are accepted.'}
                 # but we continue to the next values which doesn't have the
                 # attribute, then we'll have a false positive.
                 # So call this only after the call has been made.
-                if not _emit_no_member(node, owner, name, node.attrname,
+                if not _emit_no_member(node, owner, name,
                                        self.config.ignore_mixin_members):
                     continue
                 missingattr.add((owner, name))
