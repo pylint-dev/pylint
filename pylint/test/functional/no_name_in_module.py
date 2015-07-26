@@ -6,9 +6,9 @@ import collections.tutu  # [no-name-in-module]
 from collections import toto  # [no-name-in-module]
 toto.yo()
 
-from logilab.common import modutils
-modutils.nonexistant_function()  # [no-member]
-modutils.another.nonexistant.function()  # [no-member]
+from xml.etree import ElementTree
+ElementTree.nonexistant_function()  # [no-member]
+ElementTree.another.nonexistant.function()  # [no-member]
 print(collections.yo)  # [no-member]
 
 import sys
