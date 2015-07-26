@@ -180,20 +180,6 @@ def _emit_no_member(node, owner, owner_name, attrname, ignored_mixins):
             return False
         if not all(map(helpers.has_known_bases, owner.type.mro())):
             return False
-    if isinstance(owner, astroid.Class):
-        # Look up in the metaclass only if the owner is itself
-        # a class.
-        # TODO: getattr doesn't return by default members
-        # from the metaclass, because handling various cases
-        # of methods accessible from the metaclass itself
-        # and/or subclasses only is too complicated for little to
-        # no benefit.
-        metaclass = owner.metaclass() or owner.implicit_metaclass()
-        try:
-            if metaclass and metaclass.getattr(attrname):
-                return False
-        except NotFoundError:
-            pass
     return True
 
 
