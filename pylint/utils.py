@@ -30,7 +30,6 @@ from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 import six
 from six.moves import zip  # pylint: disable=redefined-builtin
 
-from logilab.common.interface import implements
 from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
 
@@ -38,7 +37,7 @@ from astroid import nodes, Module
 from astroid.modutils import modpath_from_file, get_module_files, \
     file_from_modpath, load_module_from_file
 
-from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED
+from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
 
 
 class UnknownMessage(Exception):

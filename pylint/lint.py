@@ -43,7 +43,6 @@ import astroid
 from astroid.__pkginfo__ import version as astroid_version
 from astroid import modutils
 from logilab.common import configuration
-from logilab.common import interface
 from logilab.common import ureports
 import six
 
@@ -836,14 +835,14 @@ class PyLinter(configuration.OptionsManagerMixIn,
         walker = utils.PyLintASTWalker(self)
         _checkers = self.prepare_checkers()
         tokencheckers = [c for c in _checkers
-                         if interface.implements(c, interfaces.ITokenChecker)
+                         if interfaces.implements(c, interfaces.ITokenChecker)
                          and c is not self]
         rawcheckers = [c for c in _checkers
-                       if interface.implements(c, interfaces.IRawChecker)]
+                       if interfaces.implements(c, interfaces.IRawChecker)]
         # notify global begin
         for checker in _checkers:
             checker.open()
-            if interface.implements(checker, interfaces.IAstroidChecker):
+            if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
