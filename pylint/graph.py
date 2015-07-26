@@ -1,0 +1,178 @@
+# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+# This file was copied from logilab-common with the same license:
+# copyright 2003-2011 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
+"""Graph manipulation utilities.
+
+(dot generation adapted from pypy/translator/tool/make_dot.py)
+"""
+
+import os.path as osp
+import os
+import sys
+import tempfile
+import codecs
+
+def target_info_from_filename(filename):
+    """Transforms /some/path/foo.png into ('/some/path', 'foo.png', 'png')."""
+    basename = osp.basename(filename)
+    storedir = osp.dirname(osp.abspath(filename))
+    target = filename.split('.')[-1]
+    return storedir, basename, target
+
+
+class DotBackend(object):
+    """Dot File backend."""
+    def __init__(self, graphname, rankdir=None, size=None, ratio=None,
+            charset='utf-8', renderer='dot', additionnal_param={}):
+        self.graphname = graphname
+        self.renderer = renderer
+        self.lines = []
+        self._source = None
+        self.emit("digraph %s {" % normalize_node_id(graphname))
+        if rankdir:
+            self.emit('rankdir=%s' % rankdir)
+        if ratio:
+            self.emit('ratio=%s' % ratio)
+        if size:
+            self.emit('size="%s"' % size)
+        if charset:
+            assert charset.lower() in ('utf-8', 'iso-8859-1', 'latin1'), \
+                   'unsupported charset %s' % charset
+            self.emit('charset="%s"' % charset)
+        for param in additionnal_param.items():
+            self.emit('='.join(param))
+
+    def get_source(self):
+        """returns self._source"""
+        if self._source is None:
+            self.emit("}\n")
+            self._source = '\n'.join(self.lines)
+            del self.lines
+        return self._source
+
+    source = property(get_source)
+
+    def generate(self, outputfile=None, dotfile=None, mapfile=None):
+        """Generates a graph file.
+
+        :param outputfile: filename and path [defaults to graphname.png]
+        :param dotfile: filename and path [defaults to graphname.dot]
+
+        :rtype: str
+        :return: a path to the generated file
+        """
+        import subprocess # introduced in py 2.4
+        name = self.graphname
+        if not dotfile:
+            # if 'outputfile' is a dot file use it as 'dotfile'
+            if outputfile and outputfile.endswith(".dot"):
+                dotfile = outputfile
+            else:
+                dotfile = '%s.dot' % name
+        if outputfile is not None:
+            storedir, basename, target = target_info_from_filename(outputfile)
+            if target != "dot":
+                pdot, dot_sourcepath = tempfile.mkstemp(".dot", name)
+                os.close(pdot)
+            else:
+                dot_sourcepath = osp.join(storedir, dotfile)
+        else:
+            target = 'png'
+            pdot, dot_sourcepath = tempfile.mkstemp(".dot", name)
+            ppng, outputfile = tempfile.mkstemp(".png", name)
+            os.close(pdot)
+            os.close(ppng)
+        pdot = codecs.open(dot_sourcepath, 'w', encoding='utf8')
+        pdot.write(self.source)
+        pdot.close()
+        if target != 'dot':
+            if sys.platform == 'win32':
+                use_shell = True
+            else:
+                use_shell = False
+            if mapfile:
+                subprocess.call([self.renderer,  '-Tcmapx', '-o', mapfile, '-T', target, dot_sourcepath, '-o', outputfile],
+                                shell=use_shell)
+            else:
+                subprocess.call([self.renderer, '-T',  target,
+                                 dot_sourcepath, '-o',  outputfile],
+                                shell=use_shell)
+            os.unlink(dot_sourcepath)
+        return outputfile
+
+    def emit(self, line):
+        """Adds <line> to final output."""
+        self.lines.append(line)
+
+    def emit_edge(self, name1, name2, **props):
+        """emit an edge from <name1> to <name2>.
+        edge properties: see http://www.graphviz.org/doc/info/attrs.html
+        """
+        attrs = ['%s="%s"' % (prop, value) for prop, value in props.items()]
+        n_from, n_to = normalize_node_id(name1), normalize_node_id(name2)
+        self.emit('%s -> %s [%s];' % (n_from, n_to, ', '.join(sorted(attrs))) )
+
+    def emit_node(self, name, **props):
+        """emit a node with given properties.
+        node properties: see http://www.graphviz.org/doc/info/attrs.html
+        """
+        attrs = ['%s="%s"' % (prop, value) for prop, value in props.items()]
+        self.emit('%s [%s];' % (normalize_node_id(name), ', '.join(sorted(attrs))))
+
+def normalize_node_id(nid):
+    """Returns a suitable DOT node id for `nid`."""
+    return '"%s"' % nid
+
+def get_cycles(graph_dict, vertices=None):
+    '''given a dictionary representing an ordered graph (i.e. key are vertices
+    and values is a list of destination vertices representing edges), return a
+    list of detected cycles
+    '''
+    if not graph_dict:
+        return ()
+    result = []
+    if vertices is None:
+        vertices = graph_dict.keys()
+    for vertice in vertices:
+        _get_cycles(graph_dict, [], set(), result, vertice)
+    return result
+
+def _get_cycles(graph_dict, path, visited, result, vertice):
+    """recursive function doing the real work for get_cycles"""
+    if vertice in path:
+        cycle = [vertice]
+        for node in path[::-1]:
+            if node == vertice:
+                break
+            cycle.insert(0, node)
+        # make a canonical representation
+        start_from = min(cycle)
+        index = cycle.index(start_from)
+        cycle = cycle[index:] + cycle[0:index]
+        # append it to result if not already in
+        if not cycle in result:
+            result.append(cycle)
+        return
+    path.append(vertice)
+    try:
+        for node in graph_dict[vertice]:
+            # don't check already visited nodes again
+            if node not in visited:
+                _get_cycles(graph_dict, path, visited, result, node)
+                visited.add(node)
+    except KeyError:
+        pass
+    path.pop()

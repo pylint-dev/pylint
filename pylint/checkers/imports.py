@@ -20,7 +20,6 @@ from collections import defaultdict
 
 import six
 
-from logilab.common.graph import get_cycles, DotBackend
 from logilab.common.ureports import VerbatimText, Paragraph
 
 import astroid
@@ -31,6 +30,7 @@ from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport, get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, node_ignores_exception
+from pylint.graph import get_cycles, DotBackend
 
 
 def _get_import_name(importnode, modname):
