@@ -224,7 +224,10 @@ ChangeLog for Pylint
       missing modules with a relative import from a package.
 
     * Don't emit no-init if not all the bases from a class are known.
-      Closes issue #604.      
+      Closes issue #604.
+
+    * --no-space-check option accepts `empty-line` as a possible option.
+      Closes issue #541.
       
 
 
