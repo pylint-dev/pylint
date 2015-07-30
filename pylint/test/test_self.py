@@ -79,21 +79,20 @@ class RunTC(unittest.TestCase):
             out = six.StringIO()
         try:
             sys.stderr = sys.stdout = out
-            try:
+            with self.assertRaises(SystemExit) as cm:
                 Run(args, reporter=reporter)
-            except SystemExit as ex:
-                if reporter:
-                    output = reporter.out.getvalue()
-                elif hasattr(out, 'getvalue'):
-                    output = out.getvalue()
-                else:
-                    output = None
-                msg = 'expected output status %s, got %s' % (code, ex.code)
-                if output is not None:
-                    msg = '%s. Below pylint output: \n%s' % (msg, output)
-                self.assertEqual(ex.code, code, msg)
+
+            ex = cm.exception
+            if reporter:
+                output = reporter.out.getvalue()
+            elif hasattr(out, 'getvalue'):
+                output = out.getvalue()
             else:
-                self.fail('expected system exit')
+                output = None
+            msg = 'expected output status %s, got %s' % (code, ex.code)
+            if output is not None:
+                msg = '%s. Below pylint output: \n%s' % (msg, output)
+            self.assertEqual(ex.code, code, msg)
         finally:
             sys.stderr = sys.__stderr__
             sys.stdout = sys.__stdout__
