@@ -277,9 +277,21 @@ class MessagesHandlerMixIn(object):
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = False
-            # sync configuration object
-            self.config.disable = [mid for mid, val in six.iteritems(msgs)
+            # sync configuration object            
+            self.config.disable = [self._message_symbol(mid)
+                                   for mid, val in six.iteritems(msgs)
                                    if not val]
+
+    def _message_symbol(self, msgid):
+        """Get the message symbol of the given message id
+
+        Return the original message id if the message does not
+        exist.
+        """
+        try:
+            return self.msgs_store.check_message_id(msgid).symbol
+        except UnknownMessage:
+            return msgid
 
     def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """reenable message of the given id"""

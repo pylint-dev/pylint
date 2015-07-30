@@ -228,6 +228,9 @@ ChangeLog for Pylint
 
     * --no-space-check option accepts `empty-line` as a possible option.
       Closes issue #541.
+
+    * --generate-rcfile generates by default human readable symbols
+      for the --disable option. Closes issue #608.
       
 
 

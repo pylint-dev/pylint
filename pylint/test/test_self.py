@@ -12,6 +12,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import contextlib
+import re
 import sys
 import os
 from os.path import join, dirname, abspath
@@ -125,6 +126,23 @@ class RunTC(unittest.TestCase):
 
     def test_generate_config_option(self):
         self._runtest(['--generate-rcfile'], code=0)
+
+    def test_generate_config_disable_symbolic_names(self):
+        # Test that --generate-rcfile puts symbolic names in the --disable
+        # option.
+
+        out = six.StringIO()
+        self._run_pylint(["--generate-rcfile", "--rcfile="], out=out)
+
+        output = out.getvalue()
+        # Get rid of the pesky messages that pylint emits if the
+        # configuration file is not found.
+        master = re.search("\[MASTER", output)        
+        out = six.StringIO(output[master.start():])
+        parser = six.moves.configparser.RawConfigParser()
+        parser.readfp(out)
+        messages = parser.get('MESSAGES CONTROL', 'disable').split(",")
+        self.assertIn('suppressed-message', messages)
 
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
