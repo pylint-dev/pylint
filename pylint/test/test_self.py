@@ -77,34 +77,29 @@ class RunTC(unittest.TestCase):
     def _runtest(self, args, reporter=None, out=None, code=28):
         if out is None:
             out = six.StringIO()
-        try:
-            sys.stderr = sys.stdout = out
+        pylint_code = self._run_pylint(args, reporter=reporter, out=out)
+        if reporter:
+            output = reporter.out.getvalue()
+        elif hasattr(out, 'getvalue'):
+            output = out.getvalue()
+        else:
+            output = None
+        msg = 'expected output status %s, got %s' % (code, pylint_code)
+        if output is not None:
+            msg = '%s. Below pylint output: \n%s' % (msg, output)
+        self.assertEqual(pylint_code, code, msg)
+
+    def _run_pylint(self, args, out, reporter=None):
+        with _patch_streams(out):
             with self.assertRaises(SystemExit) as cm:
                 Run(args, reporter=reporter)
-
-            ex = cm.exception
-            if reporter:
-                output = reporter.out.getvalue()
-            elif hasattr(out, 'getvalue'):
-                output = out.getvalue()
-            else:
-                output = None
-            msg = 'expected output status %s, got %s' % (code, ex.code)
-            if output is not None:
-                msg = '%s. Below pylint output: \n%s' % (msg, output)
-            self.assertEqual(ex.code, code, msg)
-        finally:
-            sys.stderr = sys.__stderr__
-            sys.stdout = sys.__stdout__
+            return cm.exception.code
 
     def _test_output(self, args, expected_output):
         out = six.StringIO()
-        with _patch_streams(out):
-            with self.assertRaises(SystemExit):
-                Run(args)
-
-            actual_output = out.getvalue()
-            self.assertEqual(expected_output.strip(), actual_output.strip())
+        self._run_pylint(args, out=out)
+        actual_output = out.getvalue()
+        self.assertEqual(expected_output.strip(), actual_output.strip())
 
     def test_pkginfo(self):
         """Make pylint check itself."""
