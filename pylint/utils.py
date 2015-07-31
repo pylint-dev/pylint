@@ -277,7 +277,7 @@ class MessagesHandlerMixIn(object):
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = False
-            # sync configuration object            
+            # sync configuration object
             self.config.disable = [self._message_symbol(mid)
                                    for mid, val in six.iteritems(msgs)
                                    if not val]
