@@ -231,6 +231,8 @@ ChangeLog for Pylint
 
     * --generate-rcfile generates by default human readable symbols
       for the --disable option. Closes issue #608.
+
+    * Improved the not-in-loop checker to properly detect more cases.
       
 
 

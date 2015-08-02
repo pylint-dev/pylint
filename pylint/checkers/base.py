@@ -490,10 +490,15 @@ class BasicErrorChecker(_BasicChecker):
         _node = node.parent
         while _node:
             if isinstance(_node, (astroid.For, astroid.While)):
+                if node not in _node.orelse:
+                    return
+
+            if isinstance(_node, (astroid.Class, astroid.Function)):
                 break
+
             _node = _node.parent
-        else:
-            self.add_message('not-in-loop', node=node, args=node_name)
+
+        self.add_message('not-in-loop', node=node, args=node_name)
 
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
