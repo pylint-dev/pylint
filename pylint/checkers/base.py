@@ -503,7 +503,7 @@ class BasicErrorChecker(_BasicChecker):
                     and node in _node.finalbody
                     and isinstance(node, astroid.Continue)):
                 self.add_message('continue-in-finally', node=node)
-            
+
             _node = _node.parent
 
         self.add_message('not-in-loop', node=node, args=node_name)
