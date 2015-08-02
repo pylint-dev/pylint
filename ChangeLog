@@ -233,6 +233,10 @@ ChangeLog for Pylint
       for the --disable option. Closes issue #608.
 
     * Improved the not-in-loop checker to properly detect more cases.
+
+    * Add a new error, 'continue-in-finally', which is emitted when
+      the `continue` keyword is found inside a `finally` clause, which
+      is a SyntaxError.
       
 
 

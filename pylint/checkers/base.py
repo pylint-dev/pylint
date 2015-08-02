@@ -325,6 +325,10 @@ class BasicErrorChecker(_BasicChecker):
                   'nonlocal-and-global',
                   'Emitted when a name is both nonlocal and global.',
                   {'minversion': (3, 0)}),
+        'E0116': ("'continue' not supported inside 'finally' clause",
+                  'continue-in-finally',
+                  'Emitted when the `continue` keyword is found '
+                  'inside a finally clause, which is a SyntaxError.'),
         }
 
     @check_messages('function-redefined')
@@ -419,7 +423,7 @@ class BasicErrorChecker(_BasicChecker):
     def visit_yieldfrom(self, node):
         self._check_yield_outside_func(node)
 
-    @check_messages('not-in-loop')
+    @check_messages('not-in-loop', 'continue-in-finally')
     def visit_continue(self, node):
         self._check_in_loop(node, 'continue')
 
@@ -495,7 +499,11 @@ class BasicErrorChecker(_BasicChecker):
 
             if isinstance(_node, (astroid.Class, astroid.Function)):
                 break
-
+            if (isinstance(_node, astroid.TryFinally)
+                    and node in _node.finalbody
+                    and isinstance(node, astroid.Continue)):
+                self.add_message('continue-in-finally', node=node)
+            
             _node = _node.parent
 
         self.add_message('not-in-loop', node=node, args=node_name)

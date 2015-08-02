@@ -1,8 +1,8 @@
 not-in-loop:7:ala:'continue' not properly in loop
 not-in-loop:12::'continue' not properly in loop
-not-in-loop:21:lala:'continue' not properly in loop
-not-in-loop:25:A:'continue' not properly in loop
-not-in-loop:30::'continue' not properly in loop
-not-in-loop:35::'break' not properly in loop
-not-in-loop:38::'continue' not properly in loop
-not-in-loop:40::'break' not properly in loop
+not-in-loop:15:lala:'continue' not properly in loop
+not-in-loop:19:A:'continue' not properly in loop
+not-in-loop:24::'continue' not properly in loop
+not-in-loop:29::'break' not properly in loop
+not-in-loop:32::'continue' not properly in loop
+not-in-loop:34::'break' not properly in loop

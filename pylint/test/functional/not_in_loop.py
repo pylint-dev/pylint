@@ -11,12 +11,6 @@ while True:
 else:
     continue # [not-in-loop]
 
-while True:
-    try:
-        pass
-    finally:
-        continue
-
 def lala():
     continue # [not-in-loop]
 
