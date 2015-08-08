@@ -45,6 +45,7 @@ _ = lambda list_arg, *args: _ANYARGS(args, *list_arg)
 _ = lambda: _ANYARGS(*[3])
 _ = lambda: _ANYARGS(**{'three': 3})
 _ = lambda: _ANYARGS(*[3], **{'three': 3})
+_ = lambda: _ANYARGS(func=42)
 
 # Don't warn about this.
 _ = lambda: code().analysis()

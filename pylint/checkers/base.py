@@ -784,6 +784,13 @@ functions, methods
         # ordinary_args[i].name == call.args[i].name.
         if len(ordinary_args) != len(call.args):
             return
+        # Verify that the call uses keyword values that aren't
+        # defined by the lambda arguments.
+        for kwarg in call.keywords or []:
+            if (not node.args.parent_of(kwarg.value)
+                    and not isinstance(kwarg.value, astroid.Const)):
+                return
+
         for i in range(len(ordinary_args)):
             if not isinstance(call.args[i], astroid.Name):
                 return

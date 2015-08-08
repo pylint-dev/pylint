@@ -416,10 +416,10 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     """
     if position is None and keyword is None:
         raise ValueError('Must specify at least one of: position or keyword.')
-    if position is not None:        
+    if position is not None:
         try:
             return callfunc_node.args[position]
-        except IndexError as error:
+        except IndexError:
             pass
     if keyword and callfunc_node.keywords:
         for arg in callfunc_node.keywords:
