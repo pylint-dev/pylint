@@ -85,8 +85,7 @@ def _is_one_arg_pos_call(call):
     where that argument is positional?
     """
     return (isinstance(call, astroid.CallFunc)
-            and len(call.args) == 1
-            and not isinstance(call.args[0], astroid.Keyword))
+            and len(call.args) == 1 and not call.keywords)
 
 
 class StdlibChecker(BaseChecker):

@@ -199,19 +199,18 @@ def parse_format_method_string(format_string):
     return keys, num_args, len(manual_pos_arg)
 
 def get_args(callfunc):
-    """ Get the arguments from the given `CallFunc` node.
+    """Get the arguments from the given `CallFunc` node.
+
     Return a tuple, where the first element is the
     number of positional arguments and the second element
     is the keyword arguments in a dict.
     """
-    positional = 0
-    named = {}
-
-    for arg in callfunc.args:
-        if isinstance(arg, astroid.Keyword):
-            named[arg.arg] = helpers.safe_infer(arg.value)
-        else:
-            positional += 1
+    if callfunc.keywords:
+        named = {arg.arg: helpers.safe_infer(arg.value)
+                 for arg in callfunc.keywords}
+    else:
+        named = {}
+    positional = len(callfunc.args)
     return positional, named
 
 def get_access_path(key, parts):

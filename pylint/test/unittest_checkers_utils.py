@@ -45,7 +45,7 @@ class UtilsTC(unittest.TestCase):
         node = test_utils.extract_node('foo(a, b, c)')
         self.assertIsNotNone(utils.get_argument_from_call(node, position=1))
         node = test_utils.extract_node('foo(a, not_this_one=1, this_one=2)')
-        arg = utils.get_argument_from_call(node, position=1, keyword='this_one')
+        arg = utils.get_argument_from_call(node, position=2, keyword='this_one')
         self.assertEqual(2, arg.value)
         node = test_utils.extract_node('foo(a)')
         with self.assertRaises(utils.NoSuchArgumentError):

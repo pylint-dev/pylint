@@ -445,7 +445,7 @@ class Python3Checker(checkers.BaseChecker):
 
     def _check_cmp_argument(self, node):
         # Check that the `cmp` argument is used
-        args = []
+        kwargs = []
         if (isinstance(node.func, astroid.Getattr)
                 and node.func.attrname == 'sort'):
             inferred = helpers.safe_infer(node.func.expr)
@@ -455,7 +455,7 @@ class Python3Checker(checkers.BaseChecker):
             builtins_list = "{}.list".format(bases.BUILTINS)
             if (isinstance(inferred, astroid.List)
                     or inferred.qname() == builtins_list):
-                args = node.args
+                kwargs = node.keywords
 
         elif (isinstance(node.func, astroid.Name)
               and node.func.name == 'sorted'):
@@ -465,10 +465,10 @@ class Python3Checker(checkers.BaseChecker):
 
             builtins_sorted = "{}.sorted".format(bases.BUILTINS)
             if inferred.qname() == builtins_sorted:
-                args = node.args
+                kwargs = node.keywords
 
-        for arg in args:
-            if isinstance(arg, astroid.Keyword) and arg.arg == 'cmp':
+        for kwarg in kwargs or []:
+            if kwarg.arg == 'cmp':
                 self.add_message('using-cmp-argument', node=node)
                 return
 
@@ -476,7 +476,7 @@ class Python3Checker(checkers.BaseChecker):
         self._check_cmp_argument(node)
 
         if isinstance(node.func, astroid.Getattr):
-            if any([node.args, node.starargs, node.kwargs]):
+            if any([node.args, node.starargs, node.kwargs, node.keywords]):
                 return
             if node.func.attrname == 'next':
                 self.add_message('next-method-called', node=node)

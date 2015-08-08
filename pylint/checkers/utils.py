@@ -416,15 +416,16 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     """
     if position is None and keyword is None:
         raise ValueError('Must specify at least one of: position or keyword.')
-    try:
-        if position is not None and not isinstance(callfunc_node.args[position], astroid.Keyword):
+    if position is not None:        
+        try:
             return callfunc_node.args[position]
-    except IndexError as error:
-        raise NoSuchArgumentError(error)
-    if keyword:
-        for arg in callfunc_node.args:
-            if isinstance(arg, astroid.Keyword) and arg.arg == keyword:
+        except IndexError as error:
+            pass
+    if keyword and callfunc_node.keywords:
+        for arg in callfunc_node.keywords:
+            if arg.arg == keyword:
                 return arg.value
+
     raise NoSuchArgumentError
 
 def inherit_from_std_ex(node):

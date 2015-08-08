@@ -455,13 +455,8 @@ accessed. Python regular expressions are accepted.'}
         """
         # Build the set of keyword arguments, checking for duplicate keywords,
         # and count the positional arguments.
-        keyword_args = set()
-        num_positional_args = 0
-        for arg in node.args:
-            if isinstance(arg, astroid.Keyword):
-                keyword_args.add(arg.arg)
-            else:
-                num_positional_args += 1
+        keyword_args = {keyword.arg for keyword in node.keywords or []}
+        num_positional_args = len(node.args)
 
         called = helpers.safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
@@ -497,13 +492,10 @@ accessed. Python regular expressions are accepted.'}
                 # Don't store any parameter names within the tuple, since those
                 # are not assignable from keyword arguments.
             else:
-                if isinstance(arg, astroid.Keyword):
-                    name = arg.arg
-                else:
-                    assert isinstance(arg, astroid.AssName)
-                    # This occurs with:
-                    #    def f( (a), (b) ): pass
-                    name = arg.name
+                assert isinstance(arg, astroid.AssName)
+                # This occurs with:
+                #    def f( (a), (b) ): pass
+                name = arg.name
                 parameter_name_to_index[name] = i
             if i >= num_mandatory_parameters:
                 defval = called.args.defaults[i - num_mandatory_parameters]
