@@ -74,7 +74,7 @@ class LinkerTest(unittest.TestCase):
         self.assertTrue(isinstance(type_dict['relation'][0], bases.Instance),
                         type_dict['relation'])
         self.assertEqual(type_dict['relation'][0].name, 'DoNothing')
-        self.assertIs(type_dict['_id'][0], bases.YES)
+        self.assertIs(type_dict['_id'][0], astroid.YES)
 
     def test_concat_interfaces(self):
         cls = test_utils.extract_node('''

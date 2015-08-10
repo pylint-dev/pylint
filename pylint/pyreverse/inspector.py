@@ -62,7 +62,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
     found = set()
     missing = False
     for iface in node_classes.unpack_infer(implements):
-        if iface is bases.YES:
+        if iface is astroid.YES:
             missing = True
             continue
         if iface not in found and handler_func(iface):
