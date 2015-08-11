@@ -237,6 +237,18 @@ ChangeLog for Pylint
     * Add a new error, 'continue-in-finally', which is emitted when
       the `continue` keyword is found inside a `finally` clause, which
       is a SyntaxError.
+
+    * The --zope flag is deprecated and it is slated for removal
+      in Pylint 1.6.
+
+      The reason behind this removal is the fact that it's a specialized
+      flag and there are solutions for the original problem:
+      use --generated-members with the members that causes problems
+      when using Zope or add AST transforms tailored to the zope
+      project.
+
+      At the same time, --include-ids and --symbols will also be removed
+      in Pylint 1.6. Closes issue #570.
       
 
 

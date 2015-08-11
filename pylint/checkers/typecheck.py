@@ -37,6 +37,13 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
     decorated_with, node_ignores_exception)
+from pylint import utils
+
+
+_ZOPE_DEPRECATED = (
+    "This option is deprecated. Use generated-members instead."
+)
+
 
 def _unflatten(iterable):
     for elem in iterable:
@@ -266,11 +273,9 @@ class should be ignored. A mixin class is detected if its name ends with \
                           'can work with qualified names.'}
                ),
 
-               ('zope',
-                {'default' : False, 'type' : 'yn', 'metavar': '<y_or_n>',
-                 'help' : 'When zope mode is activated, add a predefined set \
-of Zope acquired attributes to generated-members.'}
-               ),
+               ('zope', utils.deprecated_option(opt_type='yn',
+                                                help_msg=_ZOPE_DEPRECATED)),
+
                ('generated-members',
                 {'default' : (),
                  'type' : 'string',
@@ -284,8 +289,6 @@ accessed. Python regular expressions are accepted.'}
     def open(self):
         # do this in open since config not fully initialized in __init__
         self.generated_members = list(self.config.generated_members)
-        if self.config.zope:
-            self.generated_members.extend(('REQUEST', 'acl_users', 'aq_parent'))
 
     def visit_assattr(self, node):
         if isinstance(node.ass_type(), astroid.AugAssign):

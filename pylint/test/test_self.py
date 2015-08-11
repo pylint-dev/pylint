@@ -23,6 +23,7 @@ import unittest
 import six
 
 from pylint.lint import Run
+from pylint import __pkginfo__
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.html import HTMLReporter
@@ -143,6 +144,30 @@ class RunTC(unittest.TestCase):
         parser.readfp(out)
         messages = parser.get('MESSAGES CONTROL', 'disable').split(",")
         self.assertIn('suppressed-message', messages)
+
+    def _test_deprecated_options(self, option, expected):
+        out = six.StringIO()
+        self._run_pylint([option, "--rcfile=", "pylint.config"], out=out)
+        output = out.getvalue()
+        if __pkginfo__.numversion >= (1, 6, 0):
+            self.assertIn("no such option", output)
+        else:
+            self.assertIn(expected, output)
+
+    def test_deprecated_options_zope(self):
+        expected = ("option --zope is deprecated and ignored. "
+                    "It will be removed in Pylint 1.6")
+        self._test_deprecated_options("--zope=y", expected)
+
+    def test_deprecated_options_symbols(self):
+        expected = ("option --symbols is deprecated and ignored. "
+                    "It will be removed in Pylint 1.6")
+        self._test_deprecated_options("--symbols=y", expected)
+
+    def test_deprecated_options_include_ids(self):
+        expected = ("option --include-ids is deprecated and ignored. "
+                    "It will be removed in Pylint 1.6")
+        self._test_deprecated_options("--include-ids=y", expected)
 
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
