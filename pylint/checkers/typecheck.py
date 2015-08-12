@@ -23,6 +23,7 @@ import shlex
 import sys
 
 import astroid
+import astroid.context
 from astroid import (
     InferenceError, NotFoundError,
     MroError, SuperError, YES, Instance
@@ -713,7 +714,7 @@ accessed. Python regular expressions are accepted.'}
     @check_messages('not-context-manager')
     def visit_with(self, node):
         for ctx_mgr, _ in node.items:
-            context = astroid.bases.InferenceContext()
+            context = astroid.context.InferenceContext()
             infered = helpers.safe_infer(ctx_mgr, context=context)
             if infered is None or infered is astroid.YES:
                 continue
