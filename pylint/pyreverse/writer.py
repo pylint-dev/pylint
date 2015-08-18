@@ -16,10 +16,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Utilities for creating VCG and Dot diagrams"""
 
-from logilab.common.vcgutils import VCGPrinter
-from logilab.common.graph import DotBackend
-
 from pylint.pyreverse.utils import is_exception
+from pylint.pyreverse.vcgutils import VCGPrinter
+from pylint.graph import DotBackend
 
 class DiagramWriter(object):
     """base class for writing project diagrams

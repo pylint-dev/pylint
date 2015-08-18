@@ -23,13 +23,99 @@ import sys
 
 import six
 from logilab.common.ureports import TextWriter
-from logilab.common.textutils import colorize_ansi
 
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
+from pylint import utils
 
 
 TITLE_UNDERLINES = ['', '=', '-', '.']
+
+ANSI_PREFIX = '\033['
+ANSI_END = 'm'
+ANSI_RESET = '\033[0m'
+ANSI_STYLES = {
+    'reset': "0",
+    'bold': "1",
+    'italic': "3",
+    'underline': "4",
+    'blink': "5",
+    'inverse': "7",
+    'strike': "9",
+}
+ANSI_COLORS = {
+    'reset': "0",
+    'black': "30",
+    'red': "31",
+    'green': "32",
+    'yellow': "33",
+    'blue': "34",
+    'magenta': "35",
+    'cyan': "36",
+    'white': "37",
+}
+
+def _get_ansi_code(color=None, style=None):
+    """return ansi escape code corresponding to color and style
+
+    :type color: str or None
+    :param color:
+      the color name (see `ANSI_COLORS` for available values)
+      or the color number when 256 colors are available
+
+    :type style: str or None
+    :param style:
+      style string (see `ANSI_COLORS` for available values). To get
+      several style effects at the same time, use a coma as separator.
+
+    :raise KeyError: if an unexistent color or style identifier is given
+
+    :rtype: str
+    :return: the built escape code
+    """
+    ansi_code = []
+    if style:
+        style_attrs = utils.splitstrip(style)
+        for effect in style_attrs:
+            ansi_code.append(ANSI_STYLES[effect])
+    if color:
+        if color.isdigit():
+            ansi_code.extend(['38', '5'])
+            ansi_code.append(color)
+        else:
+            ansi_code.append(ANSI_COLORS[color])
+    if ansi_code:
+        return ANSI_PREFIX + ';'.join(ansi_code) + ANSI_END
+    return ''
+
+def colorize_ansi(msg, color=None, style=None):
+    """colorize message by wrapping it with ansi escape codes
+
+    :type msg: str or unicode
+    :param msg: the message string to colorize
+
+    :type color: str or None
+    :param color:
+      the color identifier (see `ANSI_COLORS` for available values)
+
+    :type style: str or None
+    :param style:
+      style string (see `ANSI_COLORS` for available values). To get
+      several style effects at the same time, use a coma as separator.
+
+    :raise KeyError: if an unexistent color or style identifier is given
+
+    :rtype: str or unicode
+    :return: the ansi escaped string
+    """
+    # If both color and style are not defined, then leave the text as is
+    if color is None and style is None:
+        return msg
+    escape_code = _get_ansi_code(color, style)
+    # If invalid (or unknown) color, don't wrap msg with ansi codes
+    if escape_code:
+        return '%s%s%s' % (escape_code, msg, ANSI_RESET)
+    return msg
 
 
 class TextReporter(BaseReporter):

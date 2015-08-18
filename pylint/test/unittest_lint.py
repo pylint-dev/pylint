@@ -22,8 +22,7 @@ from os.path import join, basename, dirname, isdir, abspath, sep
 import unittest
 
 import six
-
-from logilab.common.compat import reload
+from six.moves import reload_module
 
 from pylint import config, lint
 from pylint.lint import PyLinter, Run, preprocess_options, \
@@ -512,7 +511,7 @@ class ConfigTC(unittest.TestCase):
             pylintd = join(tempfile.gettempdir(), '.pylint.d')
             os.environ['PYLINTHOME'] = pylintd
             try:
-                reload(config)
+                reload_module(config)
                 self.assertEqual(config.PYLINT_HOME, pylintd)
             finally:
                 try:
@@ -532,7 +531,7 @@ class ConfigTC(unittest.TestCase):
                 os.environ['PYLINTRC'] = '.'
                 self.assertEqual(config.find_pylintrc(), None)
             finally:
-                reload(config)
+                reload_module(config)
 
     def test_pylintrc_parentdir(self):
         with tempdir() as chroot:
@@ -622,14 +621,7 @@ class MessagesStoreTC(unittest.TestCase):
         self.store.register_messages(Checker())
 
     def _compare_messages(self, desc, msg, checkerref=False):
-        # replace \r\n with \n, because
-        # logilab.common.textutils.normalize_text
-        # uses os.linesep, which will
-        # not properly compare with triple
-        # quoted multilines used in these tests
-        self.assertMultiLineEqual(
-            desc,
-            msg.format_help(checkerref=checkerref).replace('\r\n', '\n'))
+        self.assertMultiLineEqual(desc, msg.format_help(checkerref=checkerref))
 
     def test_check_message_id(self):
         self.assertIsInstance(self.store.check_message_id('W1234'),

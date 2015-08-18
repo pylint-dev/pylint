@@ -43,11 +43,7 @@ import astroid
 from astroid.__pkginfo__ import version as astroid_version
 from astroid import modutils
 from logilab.common import configuration
-from logilab.common import optik_ext
-from logilab.common import interface
-from logilab.common import textutils
 from logilab.common import ureports
-from logilab.common import __version__ as common_version
 import six
 
 from pylint import checkers
@@ -452,8 +448,8 @@ class PyLinter(configuration.OptionsManagerMixIn,
             'disable': self.disable}
         self._bw_options_methods = {'disable-msg': self.disable,
                                     'enable-msg': self.enable}
-        full_version = '%%prog %s, \nastroid %s, common %s\nPython %s' % (
-            version, astroid_version, common_version, sys.version)
+        full_version = '%%prog %s, \nastroid %s\nPython %s' % (
+            version, astroid_version, sys.version)
         configuration.OptionsManagerMixIn.__init__(
             self, usage=__doc__,
             version=full_version,
@@ -529,7 +525,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                     warnings.warn('%s is deprecated, replace it by %s' % (optname,
                                                                           optname.split('-')[0]),
                                   DeprecationWarning)
-                value = optik_ext.check_csv(None, optname, value)
+                value = utils.check_csv(None, optname, value)
                 if isinstance(value, (list, tuple)):
                     for _id in value:
                         meth(_id, ignore_unknown=True)
@@ -669,7 +665,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                     # found a "(dis|en)able-msg" pragma deprecated suppresssion
                     self.add_message('deprecated-pragma', line=start[0],
                                      args=(opt, opt.replace('-msg', '')))
-                for msgid in textutils.splitstrip(value):
+                for msgid in utils.splitstrip(value):
                     # Add the line where a control pragma was encountered.
                     if opt in control_pragmas:
                         self._pragma_lineno[msgid] = start[0]
@@ -839,14 +835,14 @@ class PyLinter(configuration.OptionsManagerMixIn,
         walker = utils.PyLintASTWalker(self)
         _checkers = self.prepare_checkers()
         tokencheckers = [c for c in _checkers
-                         if interface.implements(c, interfaces.ITokenChecker)
+                         if interfaces.implements(c, interfaces.ITokenChecker)
                          and c is not self]
         rawcheckers = [c for c in _checkers
-                       if interface.implements(c, interfaces.IRawChecker)]
+                       if interfaces.implements(c, interfaces.IRawChecker)]
         # notify global begin
         for checker in _checkers:
             checker.open()
-            if interface.implements(checker, interfaces.IAstroidChecker):
+            if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
@@ -1283,11 +1279,11 @@ group are mutually exclusive.'),
         # run init hook, if present, before loading plugins
         if config_parser.has_option('MASTER', 'init-hook'):
             cb_init_hook('init-hook',
-                         textutils.unquote(config_parser.get('MASTER',
-                                                             'init-hook')))
+                         utils.unquote(config_parser.get('MASTER',
+                                                         'init-hook')))
         # is there some additional plugins in the file configuration, in
         if config_parser.has_option('MASTER', 'load-plugins'):
-            plugins = textutils.splitstrip(
+            plugins = utils.splitstrip(
                 config_parser.get('MASTER', 'load-plugins'))
             linter.load_plugin_modules(plugins)
         # now we can load file config and command line, plugins (which can
@@ -1345,7 +1341,7 @@ group are mutually exclusive.'),
 
     def cb_add_plugins(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
-        self._plugins.extend(textutils.splitstrip(value))
+        self._plugins.extend(utils.splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):
         """error mode:
@@ -1370,7 +1366,7 @@ group are mutually exclusive.'),
 
     def cb_help_message(self, option, optname, value, parser):
         """optik callback for printing some help about a particular message"""
-        self.linter.msgs_store.help_message(textutils.splitstrip(value))
+        self.linter.msgs_store.help_message(utils.splitstrip(value))
         sys.exit(0)
 
     def cb_full_documentation(self, option, optname, value, parser):
