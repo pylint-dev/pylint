@@ -75,7 +75,7 @@ def _get_ansi_code(color=None, style=None):
     """
     ansi_code = []
     if style:
-        style_attrs = utils.splitstrip(style)
+        style_attrs = utils._splitstrip(style)
         for effect in style_attrs:
             ansi_code.append(ANSI_STYLES[effect])
     if color:

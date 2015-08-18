@@ -36,7 +36,9 @@ def target_info_from_filename(filename):
 class DotBackend(object):
     """Dot File backend."""
     def __init__(self, graphname, rankdir=None, size=None, ratio=None,
-            charset='utf-8', renderer='dot', additionnal_param={}):
+                 charset='utf-8', renderer='dot', additional_param=None):
+        if additional_param is None:
+            additional_param = {}
         self.graphname = graphname
         self.renderer = renderer
         self.lines = []
@@ -52,7 +54,7 @@ class DotBackend(object):
             assert charset.lower() in ('utf-8', 'iso-8859-1', 'latin1'), \
                    'unsupported charset %s' % charset
             self.emit('charset="%s"' % charset)
-        for param in additionnal_param.items():
+        for param in additional_param.items():
             self.emit('='.join(param))
 
     def get_source(self):
@@ -83,7 +85,7 @@ class DotBackend(object):
             else:
                 dotfile = '%s.dot' % name
         if outputfile is not None:
-            storedir, basename, target = target_info_from_filename(outputfile)
+            storedir, _, target = target_info_from_filename(outputfile)
             if target != "dot":
                 pdot, dot_sourcepath = tempfile.mkstemp(".dot", name)
                 os.close(pdot)
@@ -104,11 +106,13 @@ class DotBackend(object):
             else:
                 use_shell = False
             if mapfile:
-                subprocess.call([self.renderer,  '-Tcmapx', '-o', mapfile, '-T', target, dot_sourcepath, '-o', outputfile],
+                subprocess.call([self.renderer, '-Tcmapx', '-o',
+                                 mapfile, '-T', target, dot_sourcepath,
+                                 '-o', outputfile],
                                 shell=use_shell)
             else:
-                subprocess.call([self.renderer, '-T',  target,
-                                 dot_sourcepath, '-o',  outputfile],
+                subprocess.call([self.renderer, '-T', target,
+                                 dot_sourcepath, '-o', outputfile],
                                 shell=use_shell)
             os.unlink(dot_sourcepath)
         return outputfile
@@ -123,7 +127,7 @@ class DotBackend(object):
         """
         attrs = ['%s="%s"' % (prop, value) for prop, value in props.items()]
         n_from, n_to = normalize_node_id(name1), normalize_node_id(name2)
-        self.emit('%s -> %s [%s];' % (n_from, n_to, ', '.join(sorted(attrs))) )
+        self.emit('%s -> %s [%s];' % (n_from, n_to, ', '.join(sorted(attrs))))
 
     def emit_node(self, name, **props):
         """emit a node with given properties.

@@ -28,8 +28,6 @@ See vcg's documentation for explanation about the different values that
 maybe used for the functions parameters.
 """
 
-import string
-
 ATTRS_VAL = {
     'algos':       ('dfs', 'tree', 'minbackward',
                     'left_to_right', 'right_to_left',
@@ -161,7 +159,7 @@ class VCGPrinter:
         """
         self._stream.write(
             '%s%sedge: {sourcename:"%s" targetname:"%s"' % (
-            self._indent, edge_type, from_node, to_node))
+                self._indent, edge_type, from_node, to_node))
         self._write_attributes(EDGE_ATTRS, **args)
         self._stream.write('}\n')
 
@@ -173,7 +171,7 @@ class VCGPrinter:
         """
         for key, value in args.items():
             try:
-                _type =  attributes_dict[key]
+                _type = attributes_dict[key]
             except KeyError:
                 raise Exception('''no such attribute %s
 possible attributes are %s''' % (key, attributes_dict.keys()))

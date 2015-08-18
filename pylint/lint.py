@@ -525,7 +525,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                     warnings.warn('%s is deprecated, replace it by %s' % (optname,
                                                                           optname.split('-')[0]),
                                   DeprecationWarning)
-                value = utils.check_csv(None, optname, value)
+                value = utils._check_csv(value)
                 if isinstance(value, (list, tuple)):
                     for _id in value:
                         meth(_id, ignore_unknown=True)
@@ -665,7 +665,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                     # found a "(dis|en)able-msg" pragma deprecated suppresssion
                     self.add_message('deprecated-pragma', line=start[0],
                                      args=(opt, opt.replace('-msg', '')))
-                for msgid in utils.splitstrip(value):
+                for msgid in utils._splitstrip(value):
                     # Add the line where a control pragma was encountered.
                     if opt in control_pragmas:
                         self._pragma_lineno[msgid] = start[0]
@@ -1279,11 +1279,11 @@ group are mutually exclusive.'),
         # run init hook, if present, before loading plugins
         if config_parser.has_option('MASTER', 'init-hook'):
             cb_init_hook('init-hook',
-                         utils.unquote(config_parser.get('MASTER',
-                                                         'init-hook')))
+                         utils._unquote(config_parser.get('MASTER',
+                                                          'init-hook')))
         # is there some additional plugins in the file configuration, in
         if config_parser.has_option('MASTER', 'load-plugins'):
-            plugins = utils.splitstrip(
+            plugins = utils._splitstrip(
                 config_parser.get('MASTER', 'load-plugins'))
             linter.load_plugin_modules(plugins)
         # now we can load file config and command line, plugins (which can
@@ -1341,7 +1341,7 @@ group are mutually exclusive.'),
 
     def cb_add_plugins(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
-        self._plugins.extend(utils.splitstrip(value))
+        self._plugins.extend(utils._splitstrip(value))
 
     def cb_error_mode(self, *args, **kwargs):
         """error mode:
@@ -1366,7 +1366,7 @@ group are mutually exclusive.'),
 
     def cb_help_message(self, option, optname, value, parser):
         """optik callback for printing some help about a particular message"""
-        self.linter.msgs_store.help_message(utils.splitstrip(value))
+        self.linter.msgs_store.help_message(utils._splitstrip(value))
         sys.exit(0)
 
     def cb_full_documentation(self, option, optname, value, parser):
