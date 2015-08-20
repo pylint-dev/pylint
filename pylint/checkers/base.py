@@ -614,7 +614,8 @@ functions, methods
 
     options = (('required-attributes',
                 deprecated_option(opt_type='csv',
-                                  help_msg="Required attributes for module")),
+                                  help_msg="Required attributes for module. "
+                                           "This option is obsoleted.")),
 
                ('bad-functions',
                 {'default' : BAD_FUNCTIONS,
