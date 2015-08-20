@@ -155,18 +155,18 @@ class RunTC(unittest.TestCase):
             self.assertIn(expected, output)
 
     def test_deprecated_options_zope(self):
-        expected = ("option --zope is deprecated and ignored. "
-                    "It will be removed in Pylint 1.6")
+        expected = ("option --zope is obsoleted and it is "
+                    "slated for removal in Pylint 1.6")
         self._test_deprecated_options("--zope=y", expected)
 
     def test_deprecated_options_symbols(self):
-        expected = ("option --symbols is deprecated and ignored. "
-                    "It will be removed in Pylint 1.6")
+        expected = ("option --symbols is obsoleted and it is "
+                    "slated for removal in Pylint 1.6")
         self._test_deprecated_options("--symbols=y", expected)
 
     def test_deprecated_options_include_ids(self):
-        expected = ("option --include-ids is deprecated and ignored. "
-                    "It will be removed in Pylint 1.6")
+        expected = ("option --include-ids is obsoleted and it is "
+                    "slated for removal in Pylint 1.6")
         self._test_deprecated_options("--include-ids=y", expected)
 
     def test_help_message_option(self):
