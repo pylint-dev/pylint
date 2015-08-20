@@ -260,6 +260,8 @@ ChangeLog for Pylint
       detected by the type checker for *all* the builtins and not
       as a special case for the reversed builtin. This will happen
       shortly in the future.
+
+    * --comment flag was obsoleted and it will be removed in Pylint 1.6.
       
 
 

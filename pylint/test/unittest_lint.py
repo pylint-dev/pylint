@@ -67,15 +67,6 @@ def remove(file):
     except OSError:
         pass
 
-class GetNoteMessageTC(unittest.TestCase):
-    def test(self):
-        msg = None
-        for note in range(-1, 11):
-            note_msg = config.get_note_message(note)
-            self.assertNotEqual(msg, note_msg)
-            msg = note_msg
-
-
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')
 

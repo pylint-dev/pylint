@@ -325,11 +325,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
                            'statements analyzed. This is used by the global '
                            'evaluation report (RP0004).'}),
 
-                ('comment',
-                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                  'group': 'Reports', 'level': 1,
-                  'help' : 'Add a comment according to your evaluation note. '
-                           'This is used by the global evaluation report (RP0004).'}),
+                ('comment', utils.deprecated_option(opt_type='yn')),
 
                 ('confidence',
                  {'type' : 'multiple_choice', 'metavar': '<levels>',
@@ -1008,8 +1004,6 @@ class PyLinter(configuration.OptionsManagerMixIn,
             pnote = previous_stats.get('global_note')
             if pnote is not None:
                 msg += ' (previous run: %.2f/10, %+.2f)' % (pnote, note - pnote)
-            if self.config.comment:
-                msg = '%s\n%s' % (msg, config.get_note_message(note))
         sect.append(ureports.Text(msg))
 
 # some reporting functions ####################################################

@@ -121,39 +121,3 @@ directory).
     Path to the configuration file. See the documentation for the method used
 to search for configuration file.
 ''' % globals()
-
-# evaluation messages #########################################################
-
-def get_note_message(note):
-    """return a message according to note
-    note is a float < 10  (10 is the highest note)
-    """
-    assert note <= 10, "Note is %.2f. Either you cheated, or pylint's \
-broken!" % note
-    if note < 0:
-        msg = 'You have to do something quick !'
-    elif note < 1:
-        msg = 'Hey! This is really dreadful. Or maybe pylint is buggy?'
-    elif note < 2:
-        msg = "Come on! You can't be proud of this code"
-    elif note < 3:
-        msg = 'Hum... Needs work.'
-    elif note < 4:
-        msg = 'Wouldn\'t you be a bit lazy?'
-    elif note < 5:
-        msg = 'A little more work would make it acceptable.'
-    elif note < 6:
-        msg = 'Just the bare minimum. Give it a bit more polish. '
-    elif note < 7:
-        msg = 'This is okay-ish, but I\'m sure you can do better.'
-    elif note < 8:
-        msg = 'If you commit now, people should not be making nasty \
-comments about you on c.l.py'
-    elif note < 9:
-        msg = 'That\'s pretty good. Good work mate.'
-    elif note < 10:
-        msg = 'So close to being perfect...'
-    else:
-        msg = 'Wow ! Now this deserves our uttermost respect.\nPlease send \
-your code to python-projects@logilab.org'
-    return msg
