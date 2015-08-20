@@ -40,14 +40,6 @@ class LintTestNonExistentModuleTC(LintTestUsingModule):
     _get_expected = lambda self: 'F:  1: No module named %snonexistent%s\n' % (quote, quote)
 
 
-
-class LintBuiltinModuleTest(LintTestUsingModule):
-    output = join(MSG_DIR, 'builtin_module.txt')
-    module = 'sys'
-    def test_functionality(self):
-        self._test(['sys'])
-
-
 def gen_tests(filter_rgx):
     if UPDATE:
         callbacks = [cb_test_gen(LintTestUpdate)]
@@ -64,8 +56,6 @@ def gen_tests(filter_rgx):
 
     if is_to_run('nonexistent'):
         tests.append(LintTestNonExistentModuleTC)
-
-    tests.append(LintBuiltinModuleTest)
 
     assert len(tests) < 196, "Please do not add new test cases here."
     return tests

@@ -140,10 +140,6 @@ MSGS = {
               'Used when an unexpected error occurred while building the '
               'Astroid  representation. This is usually accompanied by a '
               'traceback. Please report such errors !'),
-    'F0003': ('ignored builtin module %s',
-              'ignored-builtin-module',
-              'Used to indicate that the user asked to analyze a builtin '
-              'module which has been skipped.'),
     'F0010': ('error while code parsing: %s',
               'parse-error',
               'Used when an exception occured while building the Astroid '

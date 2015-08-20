@@ -803,7 +803,6 @@ def expand_modules(files_or_modules, black_list):
             try:
                 filepath = file_from_modpath(modname.split('.'))
                 if filepath is None:
-                    errors.append({'key' : 'ignored-builtin-module', 'mod': modname})
                     continue
             except (ImportError, SyntaxError) as ex:
                 # FIXME p3k : the SyntaxError is a Python bug and should be
