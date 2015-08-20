@@ -249,6 +249,10 @@ ChangeLog for Pylint
 
       At the same time, --include-ids and --symbols will also be removed
       in Pylint 1.6. Closes issue #570.
+
+    * missing-module-attribute was removed and the corresponding
+      CLI option, required-attributes, which is slated for removal
+      in Pylint 1.6.
       
 
 

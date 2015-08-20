@@ -1,4 +1,4 @@
-# pylint: disable = line-too-long, multiple-statements, missing-module-attribute
+# pylint: disable = line-too-long, multiple-statements
 """https://bitbucket.org/logilab/pylint/issue/111/false-positive-used-before-assignment-with"""
 from __future__ import print_function
 try: raise IOError(1, "a")

@@ -245,32 +245,32 @@ class PyLinterTC(unittest.TestCase):
     def test_enable_message_category(self):
         linter = self.init_linter()
         self.assertTrue(linter.is_message_enabled('W0101'))
-        self.assertTrue(linter.is_message_enabled('C0121'))
+        self.assertTrue(linter.is_message_enabled('C0202'))
         linter.disable('W', scope='package')
         linter.disable('C', scope='module', line=1)
         self.assertFalse(linter.is_message_enabled('W0101'))
-        self.assertTrue(linter.is_message_enabled('C0121'))
-        self.assertFalse(linter.is_message_enabled('C0121', line=1))
+        self.assertTrue(linter.is_message_enabled('C0202'))
+        self.assertFalse(linter.is_message_enabled('C0202', line=1))
         linter.set_current_module('tutu')
         self.assertFalse(linter.is_message_enabled('W0101'))
-        self.assertTrue(linter.is_message_enabled('C0121'))
+        self.assertTrue(linter.is_message_enabled('C0202'))
         linter.enable('W', scope='package')
         linter.enable('C', scope='module', line=1)
         self.assertTrue(linter.is_message_enabled('W0101'))
-        self.assertTrue(linter.is_message_enabled('C0121'))
-        self.assertTrue(linter.is_message_enabled('C0121', line=1))
+        self.assertTrue(linter.is_message_enabled('C0202'))
+        self.assertTrue(linter.is_message_enabled('C0202', line=1))
 
     def test_message_state_scope(self):
         class FakeConfig(object):
             confidence = ['HIGH']
 
         linter = self.init_linter()
-        linter.disable('C0121')
+        linter.disable('C0202')
         self.assertEqual(MSG_STATE_SCOPE_CONFIG,
-                         linter.get_message_state_scope('C0121'))
+                         linter.get_message_state_scope('C0202'))
         linter.disable('W0101', scope='module', line=3)
         self.assertEqual(MSG_STATE_SCOPE_CONFIG,
-                         linter.get_message_state_scope('C0121'))
+                         linter.get_message_state_scope('C0202'))
         self.assertEqual(MSG_STATE_SCOPE_MODULE,
                          linter.get_message_state_scope('W0101', 3))
         linter.enable('W0102', scope='module', line=3)

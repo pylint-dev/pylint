@@ -1,4 +1,4 @@
-# pylint: disable=C0121, C0102
+# pylint: disable=C0102
 '''A little testscript for PEP 3102 and pylint'''
 def function(*, foo):
     '''A function for testing'''

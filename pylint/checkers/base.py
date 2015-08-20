@@ -33,7 +33,7 @@ from astroid import are_exclusive, InferenceError
 from astroid import helpers
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
-from pylint.utils import EmptyReport
+from pylint.utils import EmptyReport, deprecated_option
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -604,10 +604,6 @@ functions, methods
                   'Emitted when a conditional statement (If or ternary if) '
                   'uses a constant value for its test. This might not be what '
                   'the user intended to do.'),
-        'C0121': ('Missing required attribute "%s"', # W0103
-                  'missing-module-attribute',
-                  'Used when an attribute required for modules is missing.'),
-
         'E0109': ('Missing argument to reversed()',
                   'missing-reversed-argument',
                   'Used when reversed() builtin didn\'t receive an argument.'),
@@ -620,11 +616,9 @@ functions, methods
     }
 
     options = (('required-attributes',
-                {'default' : (), 'type' : 'csv',
-                 'metavar' : '<attributes>',
-                 'help' : 'Required attributes for module, separated by a '
-                          'comma'}
-               ),
+                deprecated_option(opt_type='csv',
+                                  help_msg="Required attributes for module")),
+
                ('bad-functions',
                 {'default' : BAD_FUNCTIONS,
                  'type' :'csv', 'metavar' : '<builtin function names>',
@@ -686,14 +680,10 @@ functions, methods
         if emit or isinstance(inferred, const_nodes):
             self.add_message('using-constant-test', node=node)
 
-    @check_messages('missing-module-attribute')
     def visit_module(self, node):
         """check module name, docstring and required arguments
         """
         self.stats['module'] += 1
-        for attr in self.config.required_attributes:
-            if attr not in node:
-                self.add_message('missing-module-attribute', node=node, args=attr)
 
     def visit_class(self, node): # pylint: disable=unused-argument
         """check module name, docstring and redefinition
