@@ -21,12 +21,6 @@ persistent=yes
 # usually to register additional checkers.
 load-plugins=
 
-# DEPRECATED
-include-ids=no
-
-# DEPRECATED
-symbols=no
-
 # Use multiple processes to speed up Pylint.
 jobs=1
 
@@ -179,9 +173,6 @@ expected-line-ending-format=
 
 [BASIC]
 
-# Required attributes for module, separated by a comma
-required-attributes=
-
 # List of builtins function names that should not be used, separated by a comma
 bad-functions=map,filter,input
 
@@ -282,10 +273,6 @@ ignored-modules=
 # (useful for classes with attributes dynamically set).
 ignored-classes=SQLObject, optparse.Values
 
-# When zope mode is activated, add a predefined set of Zope acquired attributes
-# to generated-members.
-zope=no
-
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E0201 when accessed. Python regular
 # expressions are accepted.
@@ -344,10 +331,6 @@ max-public-methods=20
 
 
 [CLASSES]
-
-# List of interface methods to ignore, separated by a comma. This is used for
-# instance to not check methods defines in Zope's Interface base class.
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
 
 # List of method names used to declare (i.e. assign) instance attributes.
 defining-attr-methods=__init__,__new__,setUp
