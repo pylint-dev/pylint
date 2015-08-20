@@ -39,7 +39,7 @@ def uninferable(seq):
 
 def test(path):
     """ test function """
-    seq = reversed() # [missing-reversed-argument]
+    seq = reversed() # No argument given
     seq = reversed(None) # [bad-reversed-sequence]
     seq = reversed([1, 2, 3])
     seq = reversed((1, 2, 3))

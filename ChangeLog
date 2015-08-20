@@ -253,6 +253,13 @@ ChangeLog for Pylint
     * missing-module-attribute was removed and the corresponding
       CLI option, required-attributes, which is slated for removal
       in Pylint 1.6.
+
+    * missing-reversed-argument was removed.
+
+      The reason behind this is that this kind of errors should be
+      detected by the type checker for *all* the builtins and not
+      as a special case for the reversed builtin. This will happen
+      shortly in the future.
       
 
 

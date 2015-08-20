@@ -604,9 +604,6 @@ functions, methods
                   'Emitted when a conditional statement (If or ternary if) '
                   'uses a constant value for its test. This might not be what '
                   'the user intended to do.'),
-        'E0109': ('Missing argument to reversed()',
-                  'missing-reversed-argument',
-                  'Used when reversed() builtin didn\'t receive an argument.'),
         'E0111': ('The first reversed() argument is not a sequence',
                   'bad-reversed-sequence',
                   'Used when the first argument to reversed() builtin '
@@ -882,8 +879,7 @@ functions, methods
         self.add_message('exec-used', node=node)
 
     @check_messages('bad-builtin', 'eval-used',
-                    'exec-used', 'missing-reversed-argument',
-                    'bad-reversed-sequence')
+                    'exec-used', 'bad-reversed-sequence')
     def visit_callfunc(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -963,7 +959,7 @@ functions, methods
         try:
             argument = helpers.safe_infer(get_argument_from_call(node, position=0))
         except NoSuchArgumentError:
-            self.add_message('missing-reversed-argument', node=node)
+            pass
         else:
             if argument is astroid.YES:
                 return
