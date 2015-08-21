@@ -29,6 +29,7 @@ from astroid import (
     MroError, SuperError, YES, Instance
 )
 from astroid.bases import BUILTINS
+from astroid.bases import NodeNG
 from astroid import objects
 from astroid import helpers
 import six
@@ -48,11 +49,11 @@ _ZOPE_DEPRECATED = (
 
 def _unflatten(iterable):
     for elem in iterable:
-        elem = elem[0]
-        if isinstance(elem, collections.Sequence):
+        if (isinstance(elem, collections.Sequence) and
+            not isinstance(elem, basestring)):
             for subelem in _unflatten(elem):
                 yield subelem
-        else:
+        elif isinstance(elem, NodeNG):
             yield elem
 
 
