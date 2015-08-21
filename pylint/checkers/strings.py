@@ -494,6 +494,8 @@ class StringMethodsChecker(BaseChecker):
                             previous = previous.getitem(specifier)
                         except (IndexError, TypeError):
                             warn_error = True
+                        except astroid.InferenceError:
+                            break
                     else:
                         try:
                             # Lookup __getitem__ in the current node,
