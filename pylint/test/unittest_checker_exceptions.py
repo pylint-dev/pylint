@@ -50,6 +50,7 @@ class ExceptionsCheckerTest(CheckerTestCase):
         raise (something, None) #@
 
         raise (4, None) #@
+        raise () #@
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(nodes[0])
@@ -59,6 +60,9 @@ class ExceptionsCheckerTest(CheckerTestCase):
         message = Message('raising-bad-type', node=nodes[2], args='tuple')
         with self.assertAddsMessages(message):
             self.checker.visit_raise(nodes[2])
+        message = Message('raising-bad-type', node=nodes[3], args='tuple')
+        with self.assertAddsMessages(message):
+            self.checker.visit_raise(nodes[3])
 
 
 if __name__ == '__main__':
