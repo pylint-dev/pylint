@@ -194,8 +194,7 @@ class ExceptionsChecker(BaseChecker):
               isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
                                 astroid.Module, astroid.Function))):
             emit = True
-            if (not PY3K and isinstance(expr, astroid.Tuple) and
-                len(expr.elts) > 0):
+            if not PY3K and isinstance(expr, astroid.Tuple) and expr.elts:
                 # On Python 2, using the following is not an error:
                 #    raise (ZeroDivisionError, None)
                 #    raise (ZeroDivisionError, )
