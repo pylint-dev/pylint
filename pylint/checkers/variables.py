@@ -21,7 +21,6 @@ import re
 from copy import copy
 
 import astroid
-from astroid import are_exclusive, builtin_lookup
 from astroid import modutils
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
@@ -47,7 +46,7 @@ def _is_from_future_import(stmt, name):
         return
 
     for local_node in module.locals.get(name, []):
-        if (isinstance(local_node, astroid.From)
+        if (isinstance(local_node, astroid.ImportFrom)
                 and local_node.modname == FUTURE):
             return True
 
@@ -69,7 +68,7 @@ def overridden_method(klass, name):
         # We have found an ancestor defining <name> but it's not in the local
         # dictionary. This may happen with astroid built from living objects.
         return None
-    if isinstance(meth_node, astroid.Function):
+    if isinstance(meth_node, astroid.FunctionDef):
         return meth_node
     return None
 
@@ -110,7 +109,7 @@ def _detect_global_scope(node, frame, defframe):
         scope = frame.parent.scope()
     if defframe and defframe.parent:
         def_scope = defframe.parent.scope()
-    if isinstance(frame, astroid.Function):
+    if isinstance(frame, astroid.FunctionDef):
         # If the parent of the current node is a
         # function, then it can be under its scope
         # (defined in, which doesn't concern us) or
@@ -118,9 +117,9 @@ def _detect_global_scope(node, frame, defframe):
         # for annotations of function arguments, they'll have
         # their parent the Arguments node.
         if not isinstance(node.parent,
-                          (astroid.Function, astroid.Arguments)):
+                          (astroid.FunctionDef, astroid.Arguments)):
             return False
-    elif any(not isinstance(f, (astroid.Class, astroid.Module))
+    elif any(not isinstance(f, (astroid.ClassDef, astroid.Module))
              for f in (frame, defframe)):
         # Not interested in other frames, since they are already
         # not in a global scope.
@@ -133,7 +132,7 @@ def _detect_global_scope(node, frame, defframe):
         # share a global scope.
         parent_scope = s
         while parent_scope:
-            if not isinstance(parent_scope, (astroid.Class, astroid.Module)):
+            if not isinstance(parent_scope, (astroid.ClassDef, astroid.Module)):
                 break_scopes.append(parent_scope)
                 break
             if parent_scope.parent:
@@ -161,12 +160,12 @@ def _fix_dot_imports(not_consumed):
     # TODO: this should be improved in issue astroid #46
     names = {}
     for name, stmts in six.iteritems(not_consumed):
-        if any(isinstance(stmt, astroid.AssName)
-               and isinstance(stmt.ass_type(), astroid.AugAssign)
+        if any(isinstance(stmt, astroid.AssignName)
+               and isinstance(stmt.assign_type(), astroid.AugAssign)
                for stmt in stmts):
             continue
         for stmt in stmts:
-            if not isinstance(stmt, (astroid.From, astroid.Import)):
+            if not isinstance(stmt, (astroid.ImportFrom, astroid.Import)):
                 continue
             for imports in stmt.names:
                 second_name = None
@@ -190,7 +189,7 @@ def _find_frame_imports(name, frame):
     *name*. Such imports can be considered assignments.
     Returns True if an import for the given name was found.
     """
-    imports = frame.nodes_of_class((astroid.Import, astroid.From))
+    imports = frame.nodes_of_class((astroid.Import, astroid.ImportFrom))
     for import_node in imports:
         for import_name, import_alias in import_node.names:
             # If the import uses an alias, check only that.
@@ -421,9 +420,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 checked.add(real_name)
 
                 if (isinstance(stmt, astroid.Import) or
-                        (isinstance(stmt, astroid.From) and
+                        (isinstance(stmt, astroid.ImportFrom) and
                          not stmt.modname)):
-                    if (isinstance(stmt, astroid.From) and
+                    if (isinstance(stmt, astroid.ImportFrom) and
                             SPECIAL_OBJ.search(imported_name)):
                         # Filter special objects (__doc__, __all__) etc.,
                         # because they can be imported for exporting.
@@ -433,7 +432,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     else:
                         msg = "%s imported as %s" % (imported_name, as_name)
                     self.add_message('unused-import', args=msg, node=stmt)
-                elif (isinstance(stmt, astroid.From)
+                elif (isinstance(stmt, astroid.ImportFrom)
                       and stmt.modname != FUTURE):
 
                     if SPECIAL_OBJ.search(imported_name):
@@ -526,7 +525,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             if name in globs and not isinstance(stmt, astroid.Global):
                 definition = globs[name][0]
-                if (isinstance(definition, astroid.From)
+                if (isinstance(definition, astroid.ImportFrom)
                         and definition.modname == FUTURE):
                     # It is a __future__ directive, not a symbol.
                     continue
@@ -554,7 +553,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         klass = node.parent.frame()
         if is_method and node.is_abstract():
             return
-        if is_method and isinstance(klass, astroid.Class):
+        if is_method and isinstance(klass, astroid.ClassDef):
             confidence = INFERENCE if has_known_bases(klass) else INFERENCE_FAILURE
         else:
             confidence = HIGH
@@ -577,7 +576,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             stmt = stmts[0]
             if isinstance(stmt, astroid.Global):
                 continue
-            if isinstance(stmt, (astroid.Import, astroid.From)):
+            if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
                 # Detect imports, assigned to global statements.
                 if global_names:
                     skip = False
@@ -620,8 +619,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         continue
                 self.add_message('unused-variable', args=name, node=stmt)
 
-    @check_messages('global-variable-undefined', 'global-variable-not-assigned', 'global-statement',
-                    'global-at-module-level', 'redefined-builtin')
+    @check_messages('global-variable-undefined', 'global-variable-not-assigned',
+                    'global-statement', 'global-at-module-level',
+                    'redefined-builtin')
     def visit_global(self, node):
         """check names imported exists in the global scope"""
         frame = node.frame()
@@ -667,11 +667,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
     def _check_late_binding_closure(self, node, assignment_node):
         def _is_direct_lambda_call():
-            return (isinstance(node_scope.parent, astroid.CallFunc)
+            return (isinstance(node_scope.parent, astroid.Call)
                     and node_scope.parent.func is node_scope)
 
         node_scope = node.scope()
-        if not isinstance(node_scope, (astroid.Lambda, astroid.Function)):
+        if not isinstance(node_scope, (astroid.Lambda, astroid.FunctionDef)):
             return
         if isinstance(node.parent, astroid.Arguments):
             return
@@ -723,9 +723,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             _astmts.append(stmt)
         astmts = _astmts
         if len(astmts) == 1:
-            ass = astmts[0].ass_type()
-            if isinstance(ass, (astroid.For, astroid.Comprehension, astroid.GenExpr)) \
-                   and not ass.statement() is node.statement():
+            ass = astmts[0].assign_type()
+            if (isinstance(ass, (astroid.For, astroid.Comprehension,
+                                 astroid.GeneratorExp))
+                   and not ass.statement() is node.statement()):
                 self.add_message('undefined-loop-variable', args=name, node=node)
 
     @check_messages('redefine-in-handler')
@@ -736,7 +737,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 self.add_message('redefine-in-handler', args=args, node=name)
 
     def visit_assname(self, node):
-        if isinstance(node.ass_type(), astroid.AugAssign):
+        if isinstance(node.assign_type(), astroid.AugAssign):
             self.visit_name(node)
 
     def visit_delname(self, node):
@@ -745,7 +746,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     @staticmethod
     def _defined_in_function_definition(node, frame):
         in_annotation_or_default = False
-        if (isinstance(frame, astroid.Function) and
+        if (isinstance(frame, astroid.FunctionDef) and
                 node.statement() is frame):
             in_annotation_or_default = (
                 (
@@ -781,7 +782,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         elif defframe.parent is None:
             # we are at the module level, check the name is not
             # defined in builtins
-            if name in defframe.scope_attrs or builtin_lookup(name)[1]:
+            if name in defframe.scope_attrs or astroid.builtin_lookup(name)[1]:
                 maybee0601 = False
         else:
             # we are in a local scope, check the name is not
@@ -796,7 +797,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                          for child in defframe.get_children())
 
         if (base_scope_type == 'lambda' and
-                isinstance(frame, astroid.Class)
+                isinstance(frame, astroid.ClassDef)
                 and name in frame.locals):
 
             # This rule verifies that if the definition node of the
@@ -813,8 +814,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             maybee0601 = not (isinstance(defnode, astroid.Arguments) and
                               node in defnode.defaults and
                               frame.locals[name][0].fromlineno < defstmt.fromlineno)
-        elif (isinstance(defframe, astroid.Class) and
-              isinstance(frame, astroid.Function)):
+        elif (isinstance(defframe, astroid.ClassDef) and
+              isinstance(frame, astroid.FunctionDef)):
             # Special rule for function return annotations,
             # which uses the same name as the class where
             # the function lives.
@@ -859,7 +860,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             frame_locals = frame.parent.scope().locals
         else:
             frame_locals = frame.locals
-        return not ((isinstance(frame, astroid.Class) or
+        return not ((isinstance(frame, astroid.ClassDef) or
                      in_annotation_or_default) and
                     name in frame_locals)
 
@@ -918,7 +919,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # The class reuses itself in the class scope.
                 recursive_klass = (frame is defframe and
                                    defframe.parent_of(node) and
-                                   isinstance(defframe, astroid.Class) and
+                                   isinstance(defframe, astroid.ClassDef) and
                                    node.name == defframe.name)
 
                 maybee0601, annotation_return = self._is_variable_violation(
@@ -928,14 +929,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
                 if (maybee0601
                         and not is_defined_before(node)
-                        and not are_exclusive(stmt, defstmt, ('NameError',
-                                                              'Exception',
-                                                              'BaseException'))):
-
+                        and not astroid.are_exclusive(stmt, defstmt, ('NameError',
+                                                                      'Exception',
+                                                                      'BaseException'))):
+                                                                 
                     # Used and defined in the same place, e.g `x += 1` and `del x`
                     defined_by_stmt = (
                         defstmt is stmt
-                        and isinstance(node, (astroid.DelName, astroid.AssName))
+                        and isinstance(node, (astroid.DelName, astroid.AssignName))
                     )
 
                     if (recursive_klass
@@ -954,7 +955,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         #   class A:
                         #      x = lambda attr: f + attr
                         #      f = 42
-                        if isinstance(frame, astroid.Class) and name in frame.locals:
+                        if isinstance(frame, astroid.ClassDef) and name in frame.locals:
                             if isinstance(node.parent, astroid.Arguments):
                                 # Doing the following is fine:
                                 #   class A:
@@ -1133,7 +1134,7 @@ class VariablesChecker3k(VariablesChecker):
         module_imports = self._to_consume[0][1]
         consumed = {}
 
-        for klass in node.nodes_of_class(astroid.Class):
+        for klass in node.nodes_of_class(astroid.ClassDef):
             found = metaclass = name = None
             if not klass._metaclass:
                 # Skip if this class doesn't use
@@ -1159,7 +1160,7 @@ class VariablesChecker3k(VariablesChecker):
                 name = None
                 if isinstance(klass._metaclass, astroid.Name):
                     name = klass._metaclass.name
-                elif isinstance(klass._metaclass, astroid.Getattr):
+                elif isinstance(klass._metaclass, astroid.Attribute):
                     name = klass._metaclass.as_string()
 
                 if name is not None:

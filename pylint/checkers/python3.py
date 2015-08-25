@@ -73,12 +73,12 @@ def _in_iterating_context(node):
             return True
     # Various built-ins can take in an iterable or list and lead to the same
     # value.
-    elif isinstance(parent, astroid.CallFunc):
+    elif isinstance(parent, astroid.Call):
         if isinstance(parent.func, astroid.Name):
             parent_scope = parent.func.lookup(parent.func.name)[0]
             if _is_builtin(parent_scope) and parent.func.name in _ACCEPTS_ITERATOR:
                 return True
-        elif isinstance(parent.func, astroid.Getattr):
+        elif isinstance(parent.func, astroid.Attribute):
             if parent.func.attrname == 'join':
                 return True
     # If the call is in an unpacking, there's no need to warn,
@@ -446,7 +446,7 @@ class Python3Checker(checkers.BaseChecker):
     def _check_cmp_argument(self, node):
         # Check that the `cmp` argument is used
         kwargs = []
-        if (isinstance(node.func, astroid.Getattr)
+        if (isinstance(node.func, astroid.Attribute)
                 and node.func.attrname == 'sort'):
             inferred = helpers.safe_infer(node.func.expr)
             if not inferred:
@@ -475,7 +475,7 @@ class Python3Checker(checkers.BaseChecker):
     def visit_callfunc(self, node):
         self._check_cmp_argument(node)
 
-        if isinstance(node.func, astroid.Getattr):
+        if isinstance(node.func, astroid.Attribute):
             if any([node.args, node.starargs, node.kwargs, node.keywords]):
                 return
             if node.func.attrname == 'next':

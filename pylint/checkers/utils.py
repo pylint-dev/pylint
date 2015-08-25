@@ -29,7 +29,8 @@ from astroid import scoped_nodes
 from six.moves import map, builtins # pylint: disable=redefined-builtin
 
 BUILTINS_NAME = builtins.__name__
-COMP_NODE_TYPES = astroid.ListComp, astroid.SetComp, astroid.DictComp, astroid.GenExpr
+COMP_NODE_TYPES = (astroid.ListComp, astroid.SetComp,
+                   astroid.DictComp, astroid.GeneratorExp)
 PY3K = sys.version_info[0] == 3
 
 if not PY3K:
@@ -118,15 +119,15 @@ def clobber_in_except(node):
     Returns (True, args for W0623) if assignment clobbers an existing variable,
     (False, None) otherwise.
     """
-    if isinstance(node, astroid.AssAttr):
+    if isinstance(node, astroid.AssignAttr):
         return (True, (node.attrname, 'object %r' % (node.expr.as_string(),)))
-    elif isinstance(node, astroid.AssName):
+    elif isinstance(node, astroid.AssignName):
         name = node.name
         if is_builtin(name):
             return (True, (name, 'builtins'))
         else:
             stmts = node.lookup(name)[1]
-            if (stmts and not isinstance(stmts[0].ass_type(),
+            if (stmts and not isinstance(stmts[0].assign_type(),
                                          (astroid.Assign, astroid.AugAssign,
                                           astroid.ExceptHandler))):
                 return (True, (name, 'outer scope (line %s)' % stmts[0].fromlineno))
@@ -176,11 +177,11 @@ def is_defined_before(var_node):
     _node = var_node.parent
     while _node:
         if isinstance(_node, COMP_NODE_TYPES):
-            for ass_node in _node.nodes_of_class(astroid.AssName):
+            for ass_node in _node.nodes_of_class(astroid.AssignName):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astroid.For):
-            for ass_node in _node.target.nodes_of_class(astroid.AssName):
+            for ass_node in _node.target.nodes_of_class(astroid.AssignName):
                 if ass_node.name == varname:
                     return True
         elif isinstance(_node, astroid.With):
@@ -188,10 +189,10 @@ def is_defined_before(var_node):
                 if expr.parent_of(var_node):
                     break
                 if (ids and
-                        isinstance(ids, astroid.AssName) and
+                        isinstance(ids, astroid.AssignName) and
                         ids.name == varname):
                     return True
-        elif isinstance(_node, (astroid.Lambda, astroid.Function)):
+        elif isinstance(_node, (astroid.Lambda, astroid.FunctionDef)):
             if _node.args.is_argument(varname):
                 # If the name is found inside a default value
                 # of a function, then let the search continue
@@ -208,7 +209,7 @@ def is_defined_before(var_node):
                 return True
             break
         elif isinstance(_node, astroid.ExceptHandler):
-            if isinstance(_node.name, astroid.AssName):
+            if isinstance(_node.name, astroid.AssignName):
                 ass_node = _node.name
                 if ass_node.name == varname:
                     return True
@@ -218,10 +219,10 @@ def is_defined_before(var_node):
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
-        for ass_node in _node.nodes_of_class(astroid.AssName):
+        for ass_node in _node.nodes_of_class(astroid.AssignName):
             if ass_node.name == varname:
                 return True
-        for imp_node in _node.nodes_of_class((astroid.From, astroid.Import)):
+        for imp_node in _node.nodes_of_class((astroid.ImportFrom, astroid.Import)):
             if varname in [name[1] or name[0] for name in imp_node.names]:
                 return True
         _node = _node.previous_sibling()
@@ -232,7 +233,7 @@ def is_func_default(node):
     value
     """
     parent = node.scope()
-    if isinstance(parent, astroid.Function):
+    if isinstance(parent, astroid.FunctionDef):
         for default_node in parent.args.defaults:
             for default_name_node in default_node.nodes_of_class(astroid.Name):
                 if default_name_node is node:
@@ -269,7 +270,7 @@ def is_ancestor_name(frame, node):
 def assign_parent(node):
     """return the higher parent which is not an AssName, Tuple or List node
     """
-    while node and isinstance(node, (astroid.AssName,
+    while node and isinstance(node, (astroid.AssignName,
                                      astroid.Tuple,
                                      astroid.List)):
         node = node.parent
@@ -279,7 +280,7 @@ def assign_parent(node):
 def overrides_a_method(class_node, name):
     """return True if <name> is a method overridden from an ancestor"""
     for ancestor in class_node.ancestors():
-        if name in ancestor and isinstance(ancestor[name], astroid.Function):
+        if name in ancestor and isinstance(ancestor[name], astroid.FunctionDef):
             return True
     return False
 
@@ -385,7 +386,7 @@ def node_frame_class(node):
     """
     klass = node.frame()
 
-    while klass is not None and not isinstance(klass, astroid.Class):
+    while klass is not None and not isinstance(klass, astroid.ClassDef):
         if klass.parent is None:
             klass = None
         else:
@@ -471,7 +472,7 @@ def decorated_with_property(node):
             continue
         try:
             for infered in decorator.infer():
-                if isinstance(infered, astroid.Class):
+                if isinstance(infered, astroid.ClassDef):
                     if (infered.root().name == BUILTINS_NAME and
                             infered.name == 'property'):
                         return True
@@ -520,14 +521,14 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     for ancestor in mro:
         for obj in ancestor.values():
             infered = obj
-            if isinstance(obj, astroid.AssName):
+            if isinstance(obj, astroid.AssignName):
                 infered = safe_infer(obj)
                 if not infered:
                     continue
-                if not isinstance(infered, astroid.Function):
+                if not isinstance(infered, astroid.FunctionDef):
                     if obj.name in visited:
                         del visited[obj.name]
-            if isinstance(infered, astroid.Function):
+            if isinstance(infered, astroid.FunctionDef):
                 # It's critical to use the original name,
                 # since after inferring, an object can be something
                 # else than expected, as in the case of the

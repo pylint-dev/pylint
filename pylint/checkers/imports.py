@@ -41,7 +41,7 @@ def _get_import_name(importnode, modname):
     for debugging. Otherwise, the initial module name
     is returned unchanged.
     """
-    if isinstance(importnode, astroid.From):
+    if isinstance(importnode, astroid.ImportFrom):
         if importnode.level:
             root = importnode.root()
             if isinstance(root, astroid.Module):
@@ -66,7 +66,7 @@ def get_first_import(node, context, name, base, level):
             if any(fullname == iname[0] for iname in first.names):
                 found = True
                 break
-        elif isinstance(first, astroid.From):
+        elif isinstance(first, astroid.ImportFrom):
             if level == first.level and any(
                     fullname == '%s.%s' % (first.modname, iname[0])
                     for iname in first.names):
@@ -275,7 +275,7 @@ given file (report RP0402 must not be disabled)'}
             prev = node.previous_sibling()
             if prev:
                 # consecutive future statements are possible
-                if not (isinstance(prev, astroid.From)
+                if not (isinstance(prev, astroid.ImportFrom)
                         and prev.modname == '__future__'):
                     self.add_message('misplaced-future', node=node)
             return

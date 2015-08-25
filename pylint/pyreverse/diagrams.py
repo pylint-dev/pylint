@@ -91,7 +91,7 @@ class ClassDiagram(Figure, FilterMixIn):
         """return visible methods"""
         methods = [
             m for m in node.values()
-            if isinstance(m, astroid.Function) and self.show_attr(m.name)
+            if isinstance(m, astroid.FunctionDef) and self.show_attr(m.name)
         ]
         return sorted(methods, key=lambda n: n.name)
 
@@ -109,7 +109,7 @@ class ClassDiagram(Figure, FilterMixIn):
         for ass_node in nodes:
             if isinstance(ass_node, astroid.Instance):
                 ass_node = ass_node._proxied
-            if isinstance(ass_node, astroid.Class) \
+            if isinstance(ass_node, astroid.ClassDef) \
                 and hasattr(ass_node, "name") and not self.has_node(ass_node):
                 if ass_node.name not in names:
                     ass_name = ass_node.name
@@ -133,7 +133,7 @@ class ClassDiagram(Figure, FilterMixIn):
 
     def classes(self):
         """return all class nodes in the diagram"""
-        return [o for o in self.objects if isinstance(o.node, astroid.Class)]
+        return [o for o in self.objects if isinstance(o.node, astroid.ClassDef)]
 
     def classe(self, name):
         """return a class by its name, raise KeyError if not found

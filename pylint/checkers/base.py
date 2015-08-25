@@ -98,7 +98,7 @@ def _redefines_import(node):
     if not current or not error_of_type(current.parent, ImportError):
         return False
     try_block = current.parent.parent
-    for import_node in try_block.nodes_of_class((astroid.From, astroid.Import)):
+    for import_node in try_block.nodes_of_class((astroid.ImportFrom, astroid.Import)):
         for name, alias in import_node.names:
             if alias:
                 if alias == node.name:
@@ -112,7 +112,7 @@ def in_loop(node):
     parent = node.parent
     while parent is not None:
         if isinstance(parent, (astroid.For, astroid.ListComp, astroid.SetComp,
-                               astroid.DictComp, astroid.GenExpr)):
+                               astroid.DictComp, astroid.GeneratorExp)):
             return True
         parent = parent.parent
     return False
@@ -175,14 +175,14 @@ def _determine_function_name_type(node):
         # If the function is a property (decorated with @property
         # or @abc.abstractproperty), the name type is 'attr'.
         if (isinstance(decorator, astroid.Name) or
-                (isinstance(decorator, astroid.Getattr) and
+                (isinstance(decorator, astroid.Attribute) and
                  decorator.attrname == 'abstractproperty')):
             infered = helpers.safe_infer(decorator)
             if infered and infered.qname() in PROPERTY_CLASSES:
                 return 'attr'
         # If the function is decorated using the prop_method.{setter,getter}
         # form, treat it like an attribute as well.
-        elif (isinstance(decorator, astroid.Getattr) and
+        elif (isinstance(decorator, astroid.Attribute) and
               decorator.attrname in ('setter', 'deleter')):
             return 'attr'
     return 'method'
@@ -250,7 +250,7 @@ def redefined_by_decorator(node):
     """
     if node.decorators:
         for decorator in node.decorators.nodes:
-            if (isinstance(decorator, astroid.Getattr) and
+            if (isinstance(decorator, astroid.Attribute) and
                     getattr(decorator.expr, 'name', None) == node.name):
                 return True
     return False
@@ -365,7 +365,8 @@ class BasicErrorChecker(_BasicChecker):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
         # checks for max returns, branch, return in __init__
         returns = node.nodes_of_class(astroid.Return,
-                                      skip_klass=(astroid.Function, astroid.Class))
+                                      skip_klass=(astroid.FunctionDef,
+                                                  astroid.ClassDef))
         if node.is_method() and node.name == '__init__':
             if node.is_generator():
                 self.add_message('init-is-generator', node=node)
@@ -412,7 +413,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @check_messages('return-outside-function')
     def visit_return(self, node):
-        if not isinstance(node.frame(), astroid.Function):
+        if not isinstance(node.frame(), astroid.FunctionDef):
             self.add_message('return-outside-function', node=node)
 
     @check_messages('yield-outside-function')
@@ -456,7 +457,7 @@ class BasicErrorChecker(_BasicChecker):
             infered = next(node.func.infer())
         except astroid.InferenceError:
             return
-        if not isinstance(infered, astroid.Class):
+        if not isinstance(infered, astroid.ClassDef):
             return
         # __init__ was called
         metaclass = infered.metaclass()
@@ -477,7 +478,7 @@ class BasicErrorChecker(_BasicChecker):
                              node=node)
 
     def _check_yield_outside_func(self, node):
-        if not isinstance(node.frame(), (astroid.Function, astroid.Lambda)):
+        if not isinstance(node.frame(), (astroid.FunctionDef, astroid.Lambda)):
             self.add_message('yield-outside-function', node=node)
 
     def _check_else_on_loop(self, node):
@@ -497,7 +498,7 @@ class BasicErrorChecker(_BasicChecker):
                 if node not in _node.orelse:
                     return
 
-            if isinstance(_node, (astroid.Class, astroid.Function)):
+            if isinstance(_node, (astroid.ClassDef, astroid.FunctionDef)):
                 break
             if (isinstance(_node, astroid.TryFinally)
                     and node in _node.finalbody
@@ -655,8 +656,8 @@ functions, methods
     def _check_using_constant_test(self, node, test):
         const_nodes = (
             astroid.Module,
-            astroid.scoped_nodes.GenExpr,
-            astroid.Lambda, astroid.Function, astroid.Class,
+            astroid.scoped_nodes.GeneratorExp,
+            astroid.Lambda, astroid.FunctionDef, astroid.ClassDef,
             astroid.bases.Generator, astroid.UnboundMethod,
             astroid.BoundMethod, astroid.Module)
         structs = (astroid.Dict, astroid.Tuple, astroid.Set)
@@ -667,7 +668,7 @@ functions, methods
         # Getattr, which is excepted because the conditional statement
         # can be used to verify that the attribute was set inside a class,
         # which is definitely a valid use case.
-        except_nodes = (astroid.Getattr, astroid.CallFunc,
+        except_nodes = (astroid.Attribute, astroid.Call,
                         astroid.BinOp, astroid.BoolOp, astroid.UnaryOp,
                         astroid.Subscript)
         inferred = None
@@ -691,7 +692,7 @@ functions, methods
 
     @check_messages('pointless-statement', 'pointless-string-statement',
                     'expression-not-assigned')
-    def visit_discard(self, node):
+    def visit_expr(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
         if isinstance(expr, astroid.Const) and isinstance(expr.value,
@@ -701,8 +702,8 @@ functions, methods
             # An attribute docstring is defined as being a string right after
             # an assignment at the module level, class level or __init__ level.
             scope = expr.scope()
-            if isinstance(scope, (astroid.Class, astroid.Module, astroid.Function)):
-                if isinstance(scope, astroid.Function) and scope.name != '__init__':
+            if isinstance(scope, (astroid.ClassDef, astroid.Module, astroid.FunctionDef)):
+                if isinstance(scope, astroid.FunctionDef) and scope.name != '__init__':
                     pass
                 else:
                     sibling = expr.previous_sibling()
@@ -717,11 +718,11 @@ functions, methods
         # * a yield (which are wrapped by a discard node in _ast XXX)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
-        if (isinstance(expr, (astroid.Yield, astroid.CallFunc)) or
+        if (isinstance(expr, (astroid.Yield, astroid.Call)) or
                 (isinstance(node.parent, astroid.TryExcept) and
                  node.parent.body == [node])):
             return
-        if any(expr.nodes_of_class(astroid.CallFunc)):
+        if any(expr.nodes_of_class(astroid.Call)):
             self.add_message('expression-not-assigned', node=node,
                              args=expr.as_string())
         else:
@@ -742,7 +743,7 @@ functions, methods
             # of the lambda.
             return
         call = node.body
-        if not isinstance(call, astroid.CallFunc):
+        if not isinstance(call, astroid.Call):
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
@@ -784,8 +785,8 @@ functions, methods
                 return
             if node.args.args[i].name != call.args[i].name:
                 return
-        if (isinstance(node.body.func, astroid.Getattr) and
-                isinstance(node.body.func.expr, astroid.CallFunc)):
+        if (isinstance(node.body.func, astroid.Attribute) and
+                isinstance(node.body.func.expr, astroid.Call)):
             # Chained call, the intermediate call might
             # return something else (but we don't check that, yet).
             return
@@ -825,7 +826,7 @@ functions, methods
                     #     or a dict.
                     if is_iterable(default):
                         msg = value.pytype()
-                    elif isinstance(default, astroid.CallFunc):
+                    elif isinstance(default, astroid.Call):
                         msg = '%s() (%s)' % (value.name, value.qname())
                     else:
                         msg = '%s (%s)' % (default.as_string(), value.qname())
@@ -846,7 +847,7 @@ functions, methods
         """
         self._check_unreachable(node)
         # Is it inside final body of a try...finally bloc ?
-        self._check_not_in_finally(node, 'return', (astroid.Function,))
+        self._check_not_in_finally(node, 'return', (astroid.FunctionDef,))
 
     @check_messages('unreachable')
     def visit_continue(self, node):
@@ -967,7 +968,7 @@ functions, methods
             if argument is None:
                 # Nothing was infered.
                 # Try to see if we have iter().
-                if isinstance(node.args[0], astroid.CallFunc):
+                if isinstance(node.args[0], astroid.Call):
                     try:
                         func = next(node.args[0].func.infer())
                     except InferenceError:
@@ -1025,8 +1026,8 @@ functions, methods
         prev_pair = None
         for pair in pairs:
             if prev_pair is not None:
-                if (isinstance(prev_pair[1], astroid.AssName) and
-                        (pair[1] is None and not isinstance(pair[0], astroid.CallFunc))):
+                if (isinstance(prev_pair[1], astroid.AssignName) and
+                        (pair[1] is None and not isinstance(pair[0], astroid.Call))):
                     # don't emit a message if the second is a function call
                     # there's no way that can be mistaken for a name assignment
                     if PY3K or node.lineno == node.parent.lineno:
@@ -1177,12 +1178,12 @@ class NameChecker(_BasicChecker):
     def visit_assname(self, node):
         """check module level assigned names"""
         frame = node.frame()
-        ass_type = node.ass_type()
+        ass_type = node.assign_type()
         if isinstance(ass_type, astroid.Comprehension):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astroid.Module):
             if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
-                if isinstance(helpers.safe_infer(ass_type.value), astroid.Class):
+                if isinstance(helpers.safe_infer(ass_type.value), astroid.ClassDef):
                     self._check_name('class', node.name, node)
                 else:
                     if not _redefines_import(node):
@@ -1191,19 +1192,19 @@ class NameChecker(_BasicChecker):
                         self._check_name('const', node.name, node)
             elif isinstance(ass_type, astroid.ExceptHandler):
                 self._check_name('variable', node.name, node)
-        elif isinstance(frame, astroid.Function):
+        elif isinstance(frame, astroid.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
                 if not _redefines_import(node):
                     self._check_name('variable', node.name, node)
-        elif isinstance(frame, astroid.Class):
+        elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 self._check_name('class_attribute', node.name, node)
 
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
         for arg in args:
-            if isinstance(arg, astroid.AssName):
+            if isinstance(arg, astroid.AssignName):
                 self._check_name('argument', arg.name, node)
             else:
                 self._recursive_check_names(arg.elts, node)
@@ -1291,14 +1292,14 @@ class DocStringChecker(_BasicChecker):
     def visit_function(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = node.is_method() and 'method' or 'function'
-            if isinstance(node.parent.frame(), astroid.Class):
+            if isinstance(node.parent.frame(), astroid.ClassDef):
                 overridden = False
                 confidence = (INFERENCE if helpers.has_known_bases(node.parent.frame())
                               else INFERENCE_FAILURE)
                 # check if node is from a method overridden by its ancestor
                 for ancestor in node.parent.frame().ancestors():
                     if node.name in ancestor and \
-                       isinstance(ancestor[node.name], astroid.Function):
+                       isinstance(ancestor[node.name], astroid.FunctionDef):
                         overridden = True
                         break
                 self._check_docstring(ftype, node,
@@ -1328,8 +1329,8 @@ class DocStringChecker(_BasicChecker):
             if node_type != 'module' and max_lines > -1 and lines < max_lines:
                 return
             self.stats['undocumented_'+node_type] += 1
-            if (node.body and isinstance(node.body[0], astroid.Discard) and
-                    isinstance(node.body[0].value, astroid.CallFunc)):
+            if (node.body and isinstance(node.body[0], astroid.Expr) and
+                    isinstance(node.body[0].value, astroid.Call)):
                 # Most likely a string with a format call. Let's see.
                 func = helpers.safe_infer(node.body[0].value.func)
                 if (isinstance(func, astroid.BoundMethod)

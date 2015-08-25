@@ -18,7 +18,6 @@ import inspect
 import sys
 
 import astroid
-from astroid import YES, Instance, unpack_infer, List, Tuple
 from astroid import helpers
 from six.moves import builtins
 import six
@@ -47,14 +46,14 @@ def _annotated_unpack_infer(stmt, context=None):
     Returns an iterator which yields tuples in the format
     ('original node', 'infered node').
     """
-    if isinstance(stmt, (List, Tuple)):
+    if isinstance(stmt, (astroid.List, astroid.Tuple)):
         for elt in stmt.elts:
             inferred = helpers.safe_infer(elt)
-            if inferred and inferred is not YES:
+            if inferred and inferred is not astroid.YES:
                 yield elt, inferred
         return
     for infered in stmt.infer(context):
-        if infered is YES:
+        if infered is astroid.YES:
             continue
         yield stmt, infered
 
@@ -157,7 +156,7 @@ class ExceptionsChecker(BaseChecker):
             return
         else:
             try:
-                value = next(unpack_infer(expr))
+                value = next(astroid.unpack_infer(expr))
             except astroid.InferenceError:
                 return
             self._check_raise_value(node, value)
@@ -168,13 +167,13 @@ class ExceptionsChecker(BaseChecker):
         An exception context can be only `None` or an exception.
         """
         cause = helpers.safe_infer(node.cause)
-        if cause in (YES, None):
+        if cause in (astroid.YES, None):
             return
         if isinstance(cause, astroid.Const):
             if cause.value is not None:
                 self.add_message('bad-exception-context',
                                  node=node)
-        elif (not isinstance(cause, astroid.Class) and
+        elif (not isinstance(cause, astroid.ClassDef) and
               not inherit_from_std_ex(cause)):
             self.add_message('bad-exception-context',
                              node=node)
@@ -192,7 +191,7 @@ class ExceptionsChecker(BaseChecker):
         elif ((isinstance(expr, astroid.Name) and
                expr.name in ('None', 'True', 'False')) or
               isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
-                                astroid.Module, astroid.Function))):
+                                astroid.Module, astroid.FunctionDef))):
             emit = True
             if not PY3K and isinstance(expr, astroid.Tuple) and expr.elts:
                 # On Python 2, using the following is not an error:
@@ -204,11 +203,11 @@ class ExceptionsChecker(BaseChecker):
                 # the scope of this check.
                 first = expr.elts[0]
                 inferred = helpers.safe_infer(first)
-                if isinstance(inferred, Instance):
+                if isinstance(inferred, astroid.Instance):
                     # pylint: disable=protected-access
                     inferred = inferred._proxied
-                if (inferred is YES or
-                        isinstance(inferred, astroid.Class)
+                if (inferred is astroid.YES or
+                        isinstance(inferred, astroid.ClassDef)
                         and inherit_from_std_ex(inferred)):
                     emit = False
             if emit:
@@ -216,15 +215,15 @@ class ExceptionsChecker(BaseChecker):
                                  node=node,
                                  args=expr.name)
         elif ((isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
-              or (isinstance(expr, astroid.CallFunc) and
+              or (isinstance(expr, astroid.Call) and
                   isinstance(expr.func, astroid.Name) and
                   expr.func.name == 'NotImplemented')):
             self.add_message('notimplemented-raised', node=node)
-        elif isinstance(expr, (Instance, astroid.Class)):
-            if isinstance(expr, Instance):
+        elif isinstance(expr, (astroid.Instance, astroid.ClassDef)):
+            if isinstance(expr, astroid.Instance):
                 # pylint: disable=protected-access
                 expr = expr._proxied
-            if (isinstance(expr, astroid.Class) and
+            if (isinstance(expr, astroid.ClassDef) and
                     not inherit_from_std_ex(expr) and
                     helpers.has_known_bases(expr)):
                 if expr.newstyle:
@@ -248,7 +247,7 @@ class ExceptionsChecker(BaseChecker):
                    for node in inferred):
                 return
 
-        if not isinstance(exc, astroid.Class):
+        if not isinstance(exc, astroid.ClassDef):
             # Don't emit the warning if the infered stmt
             # is None, but the exception handler is something else,
             # maybe it was redefined.
@@ -303,7 +302,7 @@ class ExceptionsChecker(BaseChecker):
                 except astroid.InferenceError:
                     continue
                 for part, exc in excs:
-                    if exc is YES:
+                    if exc is astroid.YES:
                         continue
                     if (isinstance(exc, astroid.Instance)
                             and inherit_from_std_ex(exc)):
@@ -312,11 +311,11 @@ class ExceptionsChecker(BaseChecker):
 
                     self._check_catching_non_exception(handler, exc, part)
 
-                    if not isinstance(exc, astroid.Class):
+                    if not isinstance(exc, astroid.ClassDef):
                         continue
 
                     exc_ancestors = [anc for anc in exc.ancestors()
-                                     if isinstance(anc, astroid.Class)]
+                                     if isinstance(anc, astroid.ClassDef)]
                     for previous_exc in exceptions_classes:
                         if previous_exc in exc_ancestors:
                             msg = '%s is an ancestor class of %s' % (

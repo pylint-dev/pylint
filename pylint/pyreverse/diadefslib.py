@@ -104,7 +104,7 @@ class DiaDefGenerator(object):
             for ass_node in ass_nodes:
                 if isinstance(ass_node, astroid.Instance):
                     ass_node = ass_node._proxied
-                if not (isinstance(ass_node, astroid.Class)
+                if not (isinstance(ass_node, astroid.ClassDef)
                         and self.show_node(ass_node)):
                     continue
                 yield ass_node
@@ -163,7 +163,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
             self.linker.visit(node)
             self.pkgdiagram.add_object(node.name, node)
 
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         """visit an astroid.Class node
 
         add this class to the class diagram definition
@@ -171,7 +171,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         anc_level, ass_level = self._get_levels()
         self.extract_classes(node, anc_level, ass_level)
 
-    def visit_from(self, node):
+    def visit_importfrom(self, node):
         """visit astroid.From  and catch modules for package diagram
         """
         if self.pkgdiagram:

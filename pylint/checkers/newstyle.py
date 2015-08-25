@@ -98,7 +98,7 @@ class NewStyleConflictChecker(BaseChecker):
     def visit_callfunc(self, node):
         """check property usage"""
         parent = node.parent.frame()
-        if (isinstance(parent, astroid.Class) and
+        if (isinstance(parent, astroid.ClassDef) and
                 not parent.newstyle and
                 isinstance(node.func, astroid.Name)):
             confidence = (INFERENCE if helpers.has_known_bases(parent)
@@ -115,16 +115,16 @@ class NewStyleConflictChecker(BaseChecker):
         if not node.is_method():
             return
         klass = node.parent.frame()
-        for stmt in node.nodes_of_class(astroid.CallFunc):
+        for stmt in node.nodes_of_class(astroid.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.
                 continue
             expr = stmt.func
-            if not isinstance(expr, astroid.Getattr):
+            if not isinstance(expr, astroid.Attribute):
                 continue
             call = expr.expr
             # skip the test if using super
-            if isinstance(call, astroid.CallFunc) and \
+            if isinstance(call, astroid.Call) and \
                isinstance(call.func, astroid.Name) and \
                call.func.name == 'super':
                 confidence = (INFERENCE if helpers.has_known_bases(klass)

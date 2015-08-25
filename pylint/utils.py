@@ -66,6 +66,20 @@ MSG_TYPES_STATUS = {
     'F' : 1
     }
 
+DEPRECATED_ALIASES = {
+    # New name, deprecated name.
+    'repr': 'backquote',
+    'expr': 'discard',
+    'assignname': 'assname',
+    'assignattr': 'assattr',
+    'attribute': 'getattr',
+    'call': 'callfunc',
+    'importfrom': 'from',
+    'classdef': 'class',
+    'functiondef': 'function',
+    'generatorexp': 'genexpr',
+}
+
 _MSG_ORDER = 'EWRCIF'
 MSG_STATE_SCOPE_CONFIG = 0
 MSG_STATE_SCOPE_MODULE = 1
@@ -540,7 +554,8 @@ class FileState(object):
         #
         # this is necessary to disable locally messages applying to class /
         # function using their fromlineno
-        if isinstance(node, (nodes.Module, nodes.Class, nodes.Function)) and node.body:
+        if (isinstance(node, (nodes.Module, nodes.ClassDef, nodes.FunctionDef))
+                and node.body):
             firstchildlineno = node.body[0].fromlineno
         else:
             firstchildlineno = last
@@ -877,15 +892,33 @@ class PyLintASTWalker(object):
         its children, then leave events.
         """
         cid = astroid.__class__.__name__.lower()
+        
+        # Detect if the node is a new name for a deprecated alias.
+        # In this case, favour the methods for the deprecated
+        # alias if any,  in order to maintain backwards
+        # compatibility. If both of them are present,
+        # only the old ones will be called.
+        old_cid = DEPRECATED_ALIASES.get(cid)
+        visit_events = ()
+        leave_events = ()        
+
+        if old_cid:
+            visit_events = self.visit_events.get(old_cid)
+            leave_events = self.leave_events.get(old_cid)
+        if not visit_events:
+            visit_events = self.visit_events.get(cid)
+        if not leave_events:
+            leave_events = self.leave_events.get(cid)
+
         if astroid.is_statement:
             self.nbstatements += 1
         # generate events for this node on each checker
-        for cb in self.visit_events.get(cid, ()):
+        for cb in visit_events or ():
             cb(astroid)
         # recurse on children
-        for child in astroid.get_children():
+        for child in astroid.get_children():            
             self.walk(child)
-        for cb in self.leave_events.get(cid, ()):
+        for cb in leave_events or ():
             cb(astroid)
 
 

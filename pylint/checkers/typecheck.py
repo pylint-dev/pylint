@@ -24,11 +24,7 @@ import sys
 
 import astroid
 import astroid.context
-from astroid import (
-    InferenceError, NotFoundError,
-    MroError, SuperError, YES, Instance
-)
-from astroid.bases import BUILTINS
+from astroid import exceptions
 from astroid import objects
 from astroid import helpers
 import six
@@ -44,6 +40,7 @@ from pylint import utils
 _ZOPE_DEPRECATED = (
     "This option is deprecated. Use generated-members instead."
 )
+BUILTINS = six.moves.builtins.__name__
 
 
 def _unflatten(iterable):
@@ -172,9 +169,9 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
         return False
     if ignored_mixins and owner_name[-5:].lower() == 'mixin':
         return False
-    if isinstance(owner, astroid.Function) and owner.decorators:
+    if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
-    if isinstance(owner, Instance):
+    if isinstance(owner, astroid.Instance):
         if owner.has_dynamic_getattr() or not helpers.has_known_bases(owner):
             return False
     if isinstance(owner, objects.Super):
@@ -184,7 +181,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
         # MRO is invalid.
         try:
             owner.super_mro()
-        except (MroError, SuperError):
+        except (exceptions.MroError, exceptions.SuperError):
             return False
         if not all(map(helpers.has_known_bases, owner.type.mro())):
             return False
@@ -199,11 +196,11 @@ def _determine_callable(callable_obj):
         return callable_obj, 1, callable_obj.type
     elif isinstance(callable_obj, astroid.UnboundMethod):
         return callable_obj, 0, 'unbound method'
-    elif isinstance(callable_obj, astroid.Function):
+    elif isinstance(callable_obj, astroid.FunctionDef):
         return callable_obj, 0, callable_obj.type
     elif isinstance(callable_obj, astroid.Lambda):
         return callable_obj, 0, 'lambda'
-    elif isinstance(callable_obj, astroid.Class):
+    elif isinstance(callable_obj, astroid.ClassDef):
         # Class instantiation, lookup __new__ instead.
         # If we only find object.__new__, we can safely check __init__
         # instead. If __new__ belongs to builtins, then we look
@@ -212,7 +209,7 @@ def _determine_callable(callable_obj):
         try:
             # Use the last definition of __new__.
             new = callable_obj.local_attr('__new__')[-1]
-        except astroid.NotFoundError:
+        except exceptions.NotFoundError:
             new = None
 
         from_object = new and new.parent.scope().name == 'object'
@@ -222,13 +219,13 @@ def _determine_callable(callable_obj):
             try:
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr('__init__')[-1]
-            except astroid.NotFoundError:
+            except exceptions.NotFoundError:
                 # do nothing, covered by no-init.
                 raise ValueError
         else:
             callable_obj = new
 
-        if not isinstance(callable_obj, astroid.Function):
+        if not isinstance(callable_obj, astroid.FunctionDef):
             raise ValueError
         # both have an extra implicit 'cls'/'self' argument.
         return callable_obj, 1, 'constructor'
@@ -292,7 +289,7 @@ accessed. Python regular expressions are accepted.'}
         self.generated_members = list(self.config.generated_members)
 
     def visit_assattr(self, node):
-        if isinstance(node.ass_type(), astroid.AugAssign):
+        if isinstance(node.assign_type(), astroid.AugAssign):
             self.visit_getattr(node)
 
     def visit_delattr(self, node):
@@ -322,14 +319,14 @@ accessed. Python regular expressions are accepted.'}
                 return
         try:
             infered = list(node.expr.infer())
-        except InferenceError:
+        except exceptions.InferenceError:
             return
         # list of (node, nodename) which are missing the attribute
         missingattr = set()
         inference_failure = False
         for owner in infered:
             # skip yes object
-            if owner is YES:
+            if owner is astroid.YES:
                 inference_failure = True
                 continue
 
@@ -346,7 +343,7 @@ accessed. Python regular expressions are accepted.'}
             except AttributeError:
                 # XXX method / function
                 continue
-            except NotFoundError:
+            except exceptions.NotFoundError:
                 # This can't be moved before the actual .getattr call,
                 # because there can be more values inferred and we are
                 # stopping after the first one which has the attribute in question.
@@ -366,7 +363,7 @@ accessed. Python regular expressions are accepted.'}
             # message for infered nodes
             done = set()
             for owner, name in missingattr:
-                if isinstance(owner, Instance):
+                if isinstance(owner, astroid.Instance):
                     actual = owner._proxied
                 else:
                     actual = owner
@@ -384,18 +381,18 @@ accessed. Python regular expressions are accepted.'}
         """check that if assigning to a function call, the function is
         possibly returning something valuable
         """
-        if not isinstance(node.value, astroid.CallFunc):
+        if not isinstance(node.value, astroid.Call):
             return
         function_node = helpers.safe_infer(node.value.func)
         # skip class, generator and incomplete function definition
-        if not (isinstance(function_node, astroid.Function) and
+        if not (isinstance(function_node, astroid.FunctionDef) and
                 function_node.root().fully_defined()):
             return
         if function_node.is_generator() \
                or function_node.is_abstract(pass_is_abstract=False):
             return
         returns = list(function_node.nodes_of_class(astroid.Return,
-                                                    skip_klass=astroid.Function))
+                                                    skip_klass=astroid.FunctionDef))
         if len(returns) == 0:
             self.add_message('assignment-from-no-return', node=node)
         else:
@@ -412,7 +409,7 @@ accessed. Python regular expressions are accepted.'}
         Check that the given uninferable CallFunc node does not
         call an actual function.
         """
-        if not isinstance(node.func, astroid.Getattr):
+        if not isinstance(node.func, astroid.Attribute):
             return
 
         # Look for properties. First, obtain
@@ -431,13 +428,13 @@ accessed. Python regular expressions are accepted.'}
 
         try:
             attrs = klass._proxied.getattr(node.func.attrname)
-        except astroid.NotFoundError:
+        except exceptions.NotFoundError:
             return
 
         for attr in attrs:
             if attr is astroid.YES:
                 continue
-            if not isinstance(attr, astroid.Function):
+            if not isinstance(attr, astroid.FunctionDef):
                 continue
 
             # Decorated, see if it is decorated with a property.
@@ -496,7 +493,7 @@ accessed. Python regular expressions are accepted.'}
                 # Don't store any parameter names within the tuple, since those
                 # are not assignable from keyword arguments.
             else:
-                assert isinstance(arg, astroid.AssName)
+                assert isinstance(arg, astroid.AssignName)
                 # This occurs with:
                 #    def f( (a), (b) ): pass
                 name = arg.name
@@ -512,7 +509,7 @@ accessed. Python regular expressions are accepted.'}
             if isinstance(arg, astroid.Keyword):
                 name = arg.arg
             else:
-                assert isinstance(arg, astroid.AssName)
+                assert isinstance(arg, astroid.AssignName)
                 name = arg.name
             kwparams[name] = [called.args.kw_defaults[i], False]
 
@@ -617,7 +614,7 @@ accessed. Python regular expressions are accepted.'}
         # slice or instances with __index__.
 
         parent_type = helpers.safe_infer(node.parent.value)
-        if not isinstance(parent_type, (astroid.Class, astroid.Instance)):
+        if not isinstance(parent_type, (astroid.ClassDef, astroid.Instance)):
             return
 
         # Determine what method on the parent this index will use
@@ -640,10 +637,10 @@ accessed. Python regular expressions are accepted.'}
             if methods is astroid.YES:
                 return
             itemmethod = methods[0]
-        except (astroid.NotFoundError, IndexError):
+        except (exceptions.NotFoundError, IndexError):
             return
 
-        if not isinstance(itemmethod, astroid.Function):
+        if not isinstance(itemmethod, astroid.FunctionDef):
             return
         if itemmethod.root().name != BUILTINS:
             return
@@ -673,7 +670,7 @@ accessed. Python regular expressions are accepted.'}
             try:
                 index_type.getattr('__index__')
                 return
-            except astroid.NotFoundError:
+            except exceptions.NotFoundError:
                 pass
 
         # Anything else is an error
@@ -704,12 +701,11 @@ accessed. Python regular expressions are accepted.'}
                 try:
                     index_type.getattr('__index__')
                     return
-                except astroid.NotFoundError:
+                except exceptions.NotFoundError:
                     pass
 
             # Anything else is an error
             self.add_message('invalid-slice-index', node=node)
-
 
     @check_messages('not-context-manager')
     def visit_with(self, node):
@@ -736,7 +732,7 @@ accessed. Python regular expressions are accepted.'}
                 # of self explaining tests.
                 for path in six.moves.filter(None, _unflatten(context.path)):
                     scope = path.scope()
-                    if not isinstance(scope, astroid.Function):
+                    if not isinstance(scope, astroid.FunctionDef):
                         continue
                     if decorated_with(scope, ['contextlib.contextmanager']):
                         break
@@ -747,7 +743,7 @@ accessed. Python regular expressions are accepted.'}
                 try:
                     infered.getattr('__enter__')
                     infered.getattr('__exit__')
-                except astroid.NotFoundError:
+                except exceptions.NotFoundError:
                     if isinstance(infered, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.

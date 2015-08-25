@@ -5,8 +5,8 @@ from __future__ import division, print_function, absolute_import
 
 import unittest
 
+import astroid
 from astroid import test_utils
-import astroid.scoped_nodes
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.check_docs import ParamDocChecker, space_indentation
@@ -155,7 +155,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         :type node: :class:`astroid.scoped_nodes.Class`
         """
         for body_item in node.body:
-            if (isinstance(body_item, astroid.scoped_nodes.Function)
+            if (isinstance(body_item, astroid.FunctionDef)
                     and hasattr(body_item, 'name')):
                 self.checker.visit_function(body_item)
 

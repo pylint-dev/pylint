@@ -35,7 +35,7 @@ HANDLER = DiadefsHandler(Config())
 
 def _process_classes(classes):
     """extract class names of a list"""
-    return sorted([(isinstance(c.node, astroid.Class), c.title) for c in classes])
+    return sorted([(isinstance(c.node, astroid.ClassDef), c.title) for c in classes])
 
 def _process_relations(relations):
     """extract relation indices from a relation list"""
