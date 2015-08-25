@@ -892,7 +892,7 @@ class PyLintASTWalker(object):
         its children, then leave events.
         """
         cid = astroid.__class__.__name__.lower()
-        
+
         # Detect if the node is a new name for a deprecated alias.
         # In this case, favour the methods for the deprecated
         # alias if any,  in order to maintain backwards
@@ -900,7 +900,7 @@ class PyLintASTWalker(object):
         # only the old ones will be called.
         old_cid = DEPRECATED_ALIASES.get(cid)
         visit_events = ()
-        leave_events = ()        
+        leave_events = ()
 
         if old_cid:
             visit_events = self.visit_events.get(old_cid)
@@ -916,7 +916,7 @@ class PyLintASTWalker(object):
         for cb in visit_events or ():
             cb(astroid)
         # recurse on children
-        for child in astroid.get_children():            
+        for child in astroid.get_children():
             self.walk(child)
         for cb in leave_events or ():
             cb(astroid)

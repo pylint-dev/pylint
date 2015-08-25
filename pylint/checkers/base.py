@@ -679,7 +679,7 @@ functions, methods
         if emit or isinstance(inferred, const_nodes):
             self.add_message('using-constant-test', node=node)
 
-    def visit_module(self, node):
+    def visit_module(self, _):
         """check module name, docstring and required arguments
         """
         self.stats['module'] += 1

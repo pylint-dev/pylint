@@ -723,10 +723,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             _astmts.append(stmt)
         astmts = _astmts
         if len(astmts) == 1:
-            ass = astmts[0].assign_type()
-            if (isinstance(ass, (astroid.For, astroid.Comprehension,
-                                 astroid.GeneratorExp))
-                   and not ass.statement() is node.statement()):
+            assign = astmts[0].assign_type()
+            if (isinstance(assign, (astroid.For, astroid.Comprehension,
+                                    astroid.GeneratorExp))
+                    and not assign.statement() is node.statement()):
                 self.add_message('undefined-loop-variable', args=name, node=node)
 
     @check_messages('redefine-in-handler')
@@ -932,7 +932,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         and not astroid.are_exclusive(stmt, defstmt, ('NameError',
                                                                       'Exception',
                                                                       'BaseException'))):
-                                                                 
+
                     # Used and defined in the same place, e.g `x += 1` and `del x`
                     defined_by_stmt = (
                         defstmt is stmt
