@@ -288,15 +288,15 @@ accessed. Python regular expressions are accepted.'}
         # do this in open since config not fully initialized in __init__
         self.generated_members = list(self.config.generated_members)
 
-    def visit_assattr(self, node):
+    def visit_assignattr(self, node):
         if isinstance(node.assign_type(), astroid.AugAssign):
-            self.visit_getattr(node)
+            self.visit_attribute(node)
 
     def visit_delattr(self, node):
-        self.visit_getattr(node)
+        self.visit_attribute(node)
 
     @check_messages('no-member')
-    def visit_getattr(self, node):
+    def visit_attribute(self, node):
         """check that the accessed attribute exists
 
         to avoid too much false positives for now, we'll consider the code as
@@ -449,7 +449,7 @@ accessed. Python regular expressions are accepted.'}
                     break
 
     @check_messages(*(list(MSGS.keys())))
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """check that called functions/methods are inferred to callable objects,
         and that the arguments passed to the function match the parameters in
         the inferred function's definition

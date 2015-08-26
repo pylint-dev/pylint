@@ -121,7 +121,7 @@ class StdlibChecker(BaseChecker):
     }
 
     @utils.check_messages('bad-open-mode', 'redundant-unittest-assert')
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
             infer = helpers.safe_infer(node.func)

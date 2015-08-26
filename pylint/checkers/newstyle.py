@@ -77,7 +77,7 @@ class NewStyleConflictChecker(BaseChecker):
     options = ()
 
     @check_messages('slots-on-old-class', 'old-style-class')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         """ Check __slots__ in old style classes and old
         style class definition.
         """
@@ -95,7 +95,7 @@ class NewStyleConflictChecker(BaseChecker):
             self.add_message('old-style-class', node=node, confidence=HIGH)
 
     @check_messages('property-on-old-class')
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """check property usage"""
         parent = node.parent.frame()
         if (isinstance(parent, astroid.ClassDef) and
@@ -109,7 +109,7 @@ class NewStyleConflictChecker(BaseChecker):
                                  confidence=confidence)
 
     @check_messages('super-on-old-class', 'bad-super-call', 'missing-super-argument')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
         if not node.is_method():

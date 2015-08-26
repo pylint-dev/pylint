@@ -332,7 +332,7 @@ class StringMethodsChecker(BaseChecker):
         }
 
     @check_messages(*(MSGS.keys()))
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         func = helpers.safe_infer(node.func)
         if (isinstance(func, astroid.BoundMethod)
                 and isinstance(func.bound, astroid.Instance)

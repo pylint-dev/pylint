@@ -69,7 +69,7 @@ class ParamDocChecker(BaseChecker):
 
     constructor_names = set(["__init__", "__new__"])
 
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """Called for function and method definitions (def).
 
         :param node: Node for a function or method definition in the AST

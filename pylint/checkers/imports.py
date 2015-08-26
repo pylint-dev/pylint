@@ -267,7 +267,7 @@ given file (report RP0402 must not be disabled)'}
     # TODO This appears to be the list of all messages of the checker...
     # @check_messages('W0410', 'W0401', 'W0403', 'W0402', 'W0404', 'W0406', 'E0401')
     @check_messages(*(MSGS.keys()))
-    def visit_from(self, node):
+    def visit_importfrom(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
         if basename == '__future__':

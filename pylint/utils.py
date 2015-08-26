@@ -905,6 +905,16 @@ class PyLintASTWalker(object):
         if old_cid:
             visit_events = self.visit_events.get(old_cid)
             leave_events = self.leave_events.get(old_cid)
+            if visit_events or leave_events:
+                msg = ("Implemented method {meth}_{old} instead of {meth}_{new}. "
+                       "This will be supported until Pylint 2.0.")
+                if visit_events:
+                    warnings.warn(msg.format(meth="visit", old=old_cid, new=cid),
+                                  PendingDeprecationWarning)
+                if leave_events:
+                    warnings.warn(msg.format(meth="leave", old=old_cid, new=cid),
+                                  PendingDeprecationWarning)
+
         if not visit_events:
             visit_events = self.visit_events.get(cid)
         if not leave_events:

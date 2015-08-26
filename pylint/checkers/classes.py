@@ -300,7 +300,7 @@ a metaclass class method.'}
         self._first_attrs = []
         self._meth_could_be_func = None
 
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         """init visit variable _accessed
         """
         self._accessed.append(defaultdict(list))
@@ -349,7 +349,7 @@ a metaclass class method.'}
 
     @check_messages('access-member-before-definition',
                     'attribute-defined-outside-init')
-    def leave_class(self, cnode):
+    def leave_classdef(self, cnode):
         """close a class node:
         check that instance attributes are defined in __init__ and check
         access to existent members
@@ -410,7 +410,7 @@ a metaclass class method.'}
                             self.add_message('attribute-defined-outside-init',
                                              args=attr, node=node)
 
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """check method arguments, overriding"""
         # ignore actual functions
         if not node.is_method():
@@ -510,7 +510,7 @@ a metaclass class method.'}
                                  args=infered.as_string(),
                                  node=elt)
 
-    def leave_function(self, node):
+    def leave_functiondef(self, node):
         """on method node, check if this method couldn't be a function
 
         ignore class, static and abstract methods, initializer,
@@ -529,7 +529,7 @@ a metaclass class method.'}
                              decorated_with_property(node))):
                 self.add_message('no-self-use', node=node)
 
-    def visit_getattr(self, node):
+    def visit_attribute(self, node):
         """check if the getattr is an access to a class member
         if so, register it. Also check for access to protected
         class member from outside its class (but ignore __special__
@@ -545,7 +545,7 @@ a metaclass class method.'}
 
         self._check_protected_attribute_access(node)
 
-    def visit_assattr(self, node):
+    def visit_assignattr(self, node):
         if isinstance(node.assign_type(), astroid.AugAssign) and self.is_first_attr(node):
             self._accessed[-1][node.attrname].append(node)
         self._check_in_slots(node)
@@ -921,7 +921,7 @@ class SpecialMethodsChecker(BaseChecker):
 
     @check_messages('unexpected-special-method-signature',
                     'non-iterator-returned')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         if not node.is_method():
             return
         if node.name == '__iter__':

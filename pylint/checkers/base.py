@@ -332,7 +332,7 @@ class BasicErrorChecker(_BasicChecker):
         }
 
     @check_messages('function-redefined')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         self._check_redefinition('class', node)
 
     @check_messages('too-many-star-expressions',
@@ -359,7 +359,7 @@ class BasicErrorChecker(_BasicChecker):
     @check_messages('init-is-generator', 'return-in-init',
                     'function-redefined', 'return-arg-in-generator',
                     'duplicate-argument-name', 'nonlocal-and-global')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         self._check_nonlocal_and_global(node)
         if not redefined_by_decorator(node):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
@@ -449,7 +449,7 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message('nonexistent-operator', node=node, args=node.op*2)
 
     @check_messages('abstract-class-instantiated')
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """ Check instantiating abstract class with
         abc.ABCMeta as metaclass.
         """
@@ -684,7 +684,7 @@ functions, methods
         """
         self.stats['module'] += 1
 
-    def visit_class(self, node): # pylint: disable=unused-argument
+    def visit_classdef(self, node): # pylint: disable=unused-argument
         """check module name, docstring and redefinition
         increment branch counter
         """
@@ -793,7 +793,7 @@ functions, methods
         self.add_message('unnecessary-lambda', line=node.fromlineno, node=node)
 
     @check_messages('dangerous-default-value')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
@@ -882,7 +882,7 @@ functions, methods
 
     @check_messages('bad-builtin', 'eval-used',
                     'exec-used', 'bad-reversed-sequence')
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
@@ -1145,14 +1145,14 @@ class NameChecker(_BasicChecker):
                 self._raise_name_warning(*args)
 
     @check_messages('blacklisted-name', 'invalid-name')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         self._check_name('class', node.name, node)
         for attr, anodes in six.iteritems(node.instance_attrs):
             if not list(node.instance_attr_ancestors(attr)):
                 self._check_name('attr', attr, anodes[0])
 
     @check_messages('blacklisted-name', 'invalid-name')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
         confidence = HIGH
@@ -1175,7 +1175,7 @@ class NameChecker(_BasicChecker):
             self._check_name('const', name, node)
 
     @check_messages('blacklisted-name', 'invalid-name')
-    def visit_assname(self, node):
+    def visit_assignname(self, node):
         """check module level assigned names"""
         frame = node.frame()
         ass_type = node.assign_type()
@@ -1284,12 +1284,12 @@ class DocStringChecker(_BasicChecker):
         self._check_docstring('module', node)
 
     @check_messages('missing-docstring', 'empty-docstring')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring('class', node)
 
     @check_messages('missing-docstring', 'empty-docstring')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = node.is_method() and 'method' or 'function'
             if isinstance(node.parent.frame(), astroid.ClassDef):
@@ -1377,7 +1377,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
            }
 
     @check_messages('deprecated-lambda')
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """visit a CallFunc node, check if map or filter are called with a
         lambda
         """

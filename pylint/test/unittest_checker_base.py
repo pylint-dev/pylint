@@ -36,7 +36,7 @@ class DocstringTest(CheckerTestCase):
            pass""")
         message = Message('missing-docstring', node=func, args=('function',))
         with self.assertAddsMessages(message):
-            self.checker.visit_function(func)
+            self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
     def test_short_function_no_docstring(self):
@@ -44,7 +44,7 @@ class DocstringTest(CheckerTestCase):
         def func(tion):
            pass""")
         with self.assertNoMessages():
-            self.checker.visit_function(func)
+            self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
     def test_function_no_docstring_by_name(self):
@@ -52,7 +52,7 @@ class DocstringTest(CheckerTestCase):
         def __fun__(tion):
            pass""")
         with self.assertNoMessages():
-            self.checker.visit_function(func)
+            self.checker.visit_functiondef(func)
 
     def test_class_no_docstring(self):
         klass = test_utils.extract_node("""
@@ -60,7 +60,7 @@ class DocstringTest(CheckerTestCase):
            pass""")
         message = Message('missing-docstring', node=klass, args=('class',))
         with self.assertAddsMessages(message):
-            self.checker.visit_class(klass)
+            self.checker.visit_classdef(klass)
 
 
 class NameCheckerTest(CheckerTestCase):
@@ -79,7 +79,7 @@ class NameCheckerTest(CheckerTestCase):
            args=('constant', 'const',
                  ' (hint: (([A-Z_][A-Z0-9_]*)|(__.*__))$)'))
         with self.assertAddsMessages(message):
-            self.checker.visit_assname(const.targets[0])
+            self.checker.visit_assignname(const.targets[0])
 
     @set_config(include_naming_hint=True, const_name_hint='CONSTANT')
     def test_naming_hint_configured_hint(self):
@@ -89,7 +89,7 @@ class NameCheckerTest(CheckerTestCase):
         with self.assertAddsMessages(
             Message('invalid-name', node=const.targets[0],
                     args=('constant', 'const', ' (hint: CONSTANT)'))):
-            self.checker.visit_assname(const.targets[0])
+            self.checker.visit_assignname(const.targets[0])
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
     def test_property_names(self):
@@ -113,11 +113,11 @@ class NameCheckerTest(CheckerTestCase):
             pass
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(methods[0])
-            self.checker.visit_function(methods[2])
+            self.checker.visit_functiondef(methods[0])
+            self.checker.visit_functiondef(methods[2])
         with self.assertAddsMessages(Message('invalid-name', node=methods[1],
                                              args=('attribute', 'bar', ''))):
-            self.checker.visit_function(methods[1])
+            self.checker.visit_functiondef(methods[1])
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
     def test_property_setters(self):
@@ -131,7 +131,7 @@ class NameCheckerTest(CheckerTestCase):
              pass
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(method)
+            self.checker.visit_functiondef(method)
 
     def test_module_level_names(self):
         assign = test_utils.extract_node("""
@@ -139,7 +139,7 @@ class NameCheckerTest(CheckerTestCase):
         Class = collections.namedtuple("a", ("b", "c")) #@
         """)
         with self.assertNoMessages():
-            self.checker.visit_assname(assign.targets[0])
+            self.checker.visit_assignname(assign.targets[0])
 
         assign = test_utils.extract_node("""
         class ClassA(object):
@@ -147,7 +147,7 @@ class NameCheckerTest(CheckerTestCase):
         ClassB = ClassA
         """)
         with self.assertNoMessages():
-            self.checker.visit_assname(assign.targets[0])
+            self.checker.visit_assignname(assign.targets[0])
 
         module = astroid.parse("""
         def A():
@@ -155,13 +155,13 @@ class NameCheckerTest(CheckerTestCase):
         CONSTA, CONSTB, CONSTC = A()
         CONSTD = A()""")
         with self.assertNoMessages():
-            self.checker.visit_assname(module.body[1].targets[0].elts[0])
-            self.checker.visit_assname(module.body[2].targets[0])
+            self.checker.visit_assignname(module.body[1].targets[0].elts[0])
+            self.checker.visit_assignname(module.body[2].targets[0])
 
         assign = test_utils.extract_node("""
         CONST = "12 34 ".rstrip().split()""")
         with self.assertNoMessages():
-            self.checker.visit_assname(assign.targets[0])
+            self.checker.visit_assignname(assign.targets[0])
 
 
 class MultiNamingStyleTest(CheckerTestCase):
@@ -184,7 +184,7 @@ class MultiNamingStyleTest(CheckerTestCase):
                           args=('class', 'classb', ''))
         with self.assertAddsMessages(message):
             for cls in classes:
-                self.checker.visit_class(cls)
+                self.checker.visit_classdef(cls)
             self.checker.leave_module(cls.root)
 
     @set_config(class_rgx=MULTI_STYLE_RE)
@@ -205,7 +205,7 @@ class MultiNamingStyleTest(CheckerTestCase):
         ]
         with self.assertAddsMessages(*messages):
             for cls in classes:
-                self.checker.visit_class(cls)
+                self.checker.visit_classdef(cls)
             self.checker.leave_module(cls.root)
 
     @set_config(method_rgx=MULTI_STYLE_RE,
@@ -224,7 +224,7 @@ class MultiNamingStyleTest(CheckerTestCase):
                           args=('function', 'FUNC', ''))
         with self.assertAddsMessages(message):
             for func in function_defs:
-                self.checker.visit_function(func)
+                self.checker.visit_functiondef(func)
             self.checker.leave_module(func.root)
 
     @set_config(function_rgx=re.compile('(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$'))
@@ -243,7 +243,7 @@ class MultiNamingStyleTest(CheckerTestCase):
                           args=('function', 'UPPER', ''))
         with self.assertAddsMessages(message):
             for func in function_defs:
-                self.checker.visit_function(func)
+                self.checker.visit_functiondef(func)
             self.checker.leave_module(func.root)
 
 

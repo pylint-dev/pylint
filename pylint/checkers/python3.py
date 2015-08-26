@@ -385,7 +385,7 @@ class Python3Checker(checkers.BaseChecker):
         self._future_division = False
         self._future_absolute_import = False
 
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         if node.is_method() and node.name in self._unused_magic_methods:
             method_name = node.name
             if node.name.startswith('__'):
@@ -411,7 +411,7 @@ class Python3Checker(checkers.BaseChecker):
         self.add_message('print-statement', node=node)
 
     @utils.check_messages('no-absolute-import', 'import-star-module-level')
-    def visit_from(self, node):
+    def visit_importfrom(self, node):
         if node.modname == '__future__':
             for name, _ in node.names:
                 if name == 'division':
@@ -430,7 +430,7 @@ class Python3Checker(checkers.BaseChecker):
             self.add_message('no-absolute-import', node=node)
 
     @utils.check_messages('metaclass-assignment')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         if '__metaclass__' in node.locals:
             self.add_message('metaclass-assignment', node=node)
 
@@ -472,7 +472,7 @@ class Python3Checker(checkers.BaseChecker):
                 self.add_message('using-cmp-argument', node=node)
                 return
 
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         self._check_cmp_argument(node)
 
         if isinstance(node.func, astroid.Attribute):
@@ -514,7 +514,7 @@ class Python3Checker(checkers.BaseChecker):
             self.add_message('unpacking-in-except', node=node)
 
     @utils.check_messages('backtick')
-    def visit_backquote(self, node):
+    def visit_repr(self, node):
         self.add_message('backtick', node=node)
 
     @utils.check_messages('raising-string', 'old-raise-syntax')

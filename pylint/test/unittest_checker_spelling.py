@@ -65,7 +65,7 @@ class SpellingCheckerTest(CheckerTestCase):
                     args=('coment', 'bad coment',
                           '    ^^^^^^',
                           "comet' or 'comment' or 'moment' or 'foment"))):
-            self.checker.visit_function(stmt)
+            self.checker.visit_functiondef(stmt)
 
         stmt = test_utils.extract_node(
             'class Abc(object):\n   """bad coment"""\n   pass')
@@ -74,7 +74,7 @@ class SpellingCheckerTest(CheckerTestCase):
                     args=('coment', 'bad coment',
                           '    ^^^^^^',
                           "comet' or 'comment' or 'moment' or 'foment"))):
-            self.checker.visit_class(stmt)
+            self.checker.visit_classdef(stmt)
 
     @unittest.skipIf(spell_dict is None,
                      "missing python-enchant package or missing "
@@ -86,7 +86,7 @@ class SpellingCheckerTest(CheckerTestCase):
         with self.assertAddsMessages(
             Message('invalid-characters-in-docstring', line=2,
                     args=('test\x00',))):
-            self.checker.visit_function(stmt)
+            self.checker.visit_functiondef(stmt)
 
 
 if __name__ == '__main__':

@@ -18,13 +18,13 @@ class ImportsCheckerTC(CheckerTestCase):
         from external_module import anything
         """)
         with self.assertNoMessages():
-            self.checker.visit_from(node)
+            self.checker.visit_importfrom(node)
 
         node = test_utils.extract_node("""
         from external_module.another_module import anything
         """)
         with self.assertNoMessages():
-            self.checker.visit_from(node)
+            self.checker.visit_importfrom(node)
 
         node = test_utils.extract_node("""
         import external_module
@@ -36,13 +36,13 @@ class ImportsCheckerTC(CheckerTestCase):
         from fake_module.submodule import anything
         """)
         with self.assertNoMessages():
-            self.checker.visit_from(node)
+            self.checker.visit_importfrom(node)
 
         node = test_utils.extract_node("""
         from fake_module.submodule.deeper import anything
         """)
         with self.assertNoMessages():
-            self.checker.visit_from(node)
+            self.checker.visit_importfrom(node)
 
 if __name__ == '__main__':
     unittest.main()

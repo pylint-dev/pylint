@@ -36,7 +36,7 @@ class VariablesCheckerTC(CheckerTestCase):
         from argparse import THIS_does_not_EXIST
         """)
         with self.assertNoMessages():
-            self.checker.visit_from(node)
+            self.checker.visit_importfrom(node)
 
     @set_config(callbacks=('callback_', '_callback'))
     def test_custom_callback_string(self):
@@ -52,16 +52,16 @@ class VariablesCheckerTC(CheckerTestCase):
              ''' should not emit unused-argument. '''
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
-            self.checker.leave_function(node)
+            self.checker.visit_functiondef(node)
+            self.checker.leave_functiondef(node)
 
         node = test_utils.extract_node("""
         def two_callback(abc, defg):
              ''' should not emit unused-argument. '''
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
-            self.checker.leave_function(node)
+            self.checker.visit_functiondef(node)
+            self.checker.leave_functiondef(node)
 
         node = test_utils.extract_node("""
         def normal_func(abc):
@@ -69,8 +69,8 @@ class VariablesCheckerTC(CheckerTestCase):
         """)
         with self.assertAddsMessages(
                 Message('unused-argument', node=node['abc'], args='abc')):
-            self.checker.visit_function(node)
-            self.checker.leave_function(node)
+            self.checker.visit_functiondef(node)
+            self.checker.leave_functiondef(node)
 
         node = test_utils.extract_node("""
         def cb_func(abc):
@@ -78,8 +78,8 @@ class VariablesCheckerTC(CheckerTestCase):
         """)
         with self.assertAddsMessages(
                 Message('unused-argument', node=node['abc'], args='abc')):
-            self.checker.visit_function(node)
-            self.checker.leave_function(node)
+            self.checker.visit_functiondef(node)
+            self.checker.leave_functiondef(node)
 
 
 class MissingSubmoduleTest(CheckerTestCase):

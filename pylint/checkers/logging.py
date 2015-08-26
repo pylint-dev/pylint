@@ -119,7 +119,7 @@ class LoggingChecker(checkers.BaseChecker):
             if len(parts) > 1:
                 self._from_imports[parts[0]] = parts[1]
 
-    def visit_from(self, node):
+    def visit_importfrom(self, node):
         """Checks to see if a module uses a non-Python logging module."""
         try:
             logging_name = self._from_imports[node.modname]
@@ -136,7 +136,7 @@ class LoggingChecker(checkers.BaseChecker):
                 self._logging_names.add(as_name or module)
 
     @check_messages(*(MSGS.keys()))
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """Checks calls to logging methods."""
         def is_logging_name():
             return (isinstance(node.func, astroid.Attribute) and

@@ -226,13 +226,13 @@ class SpellingChecker(BaseTokenChecker):
         self._check_docstring(node)
 
     @check_messages('wrong-spelling-in-docstring')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         if not self.initialized:
             return
         self._check_docstring(node)
 
     @check_messages('wrong-spelling-in-docstring')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         if not self.initialized:
             return
         self._check_docstring(node)

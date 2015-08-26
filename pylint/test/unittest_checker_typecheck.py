@@ -22,7 +22,7 @@ class TypeCheckerTest(CheckerTestCase):
                     'no-member',
                     node=node,
                     args=('Module', 'optparse', 'THIS_does_not_EXIST'))):
-            self.checker.visit_getattr(node)
+            self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=('argparse',))
     def test_no_member_in_getattr_ignored(self):
@@ -35,7 +35,7 @@ class TypeCheckerTest(CheckerTestCase):
         argparse.THIS_does_not_EXIST
         """)
         with self.assertNoMessages():
-            self.checker.visit_getattr(node)
+            self.checker.visit_attribute(node)
 
     @set_config(ignored_classes=('xml.etree.', ))
     def test_ignored_modules_invalid_pattern(self):
@@ -46,7 +46,7 @@ class TypeCheckerTest(CheckerTestCase):
         message = Message('no-member', node=node,
                           args=('Module', 'xml.etree', 'Lala'))
         with self.assertAddsMessages(message):
-            self.checker.visit_getattr(node)
+            self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=('xml.etree*', ))
     def test_ignored_modules_patterns(self):
@@ -55,7 +55,7 @@ class TypeCheckerTest(CheckerTestCase):
         xml.etree.portocola #@
         ''')
         with self.assertNoMessages():
-            self.checker.visit_getattr(node)
+            self.checker.visit_attribute(node)
 
     @set_config(ignored_classes=('xml.*', ))
     def test_ignored_classes_no_recursive_pattern(self):
@@ -66,7 +66,7 @@ class TypeCheckerTest(CheckerTestCase):
         message = Message('no-member', node=node,
                           args=('Module', 'xml.etree.ElementTree', 'Test'))
         with self.assertAddsMessages(message):
-            self.checker.visit_getattr(node)
+            self.checker.visit_attribute(node)
 
     @set_config(ignored_classes=('optparse.Values', ))
     def test_ignored_classes_qualified_name(self):
@@ -76,7 +76,7 @@ class TypeCheckerTest(CheckerTestCase):
         optparse.Values.lala
         ''')
         with self.assertNoMessages():
-            self.checker.visit_getattr(node)
+            self.checker.visit_attribute(node)
 
     @set_config(ignored_classes=('Values', ))
     def test_ignored_classes_only_name(self):
@@ -86,7 +86,7 @@ class TypeCheckerTest(CheckerTestCase):
         optparse.Values.lala
         ''')
         with self.assertNoMessages():
-            self.checker.visit_getattr(node)
+            self.checker.visit_attribute(node)
 
 
 if __name__ == '__main__':

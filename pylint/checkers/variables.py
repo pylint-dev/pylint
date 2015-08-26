@@ -457,12 +457,12 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         self.add_message('unused-import', args=msg, node=stmt)
         del self._to_consume
 
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         """visit class: update consumption analysis variable
         """
         self._to_consume.append((copy(node.locals), {}, 'class'))
 
-    def leave_class(self, _):
+    def leave_classdef(self, _):
         """leave class: update consumption analysis variable
         """
         # do not check for not used locals here (no sense)
@@ -479,12 +479,12 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # do not check for not used locals here
         self._to_consume.pop()
 
-    def visit_genexpr(self, node):
+    def visit_generatorexp(self, node):
         """visit genexpr: update consumption analysis variable
         """
         self._to_consume.append((copy(node.locals), {}, 'comprehension'))
 
-    def leave_genexpr(self, _):
+    def leave_generatorexp(self, _):
         """leave genexpr: update consumption analysis variable
         """
         # do not check for not used locals here
@@ -512,7 +512,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         # do not check for not used locals here
         self._to_consume.pop()
 
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """visit function: update consumption analysis variable and check locals
         """
         self._to_consume.append((copy(node.locals), {}, 'function'))
@@ -539,7 +539,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
 
-    def leave_function(self, node):
+    def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
         if not (self.linter.is_message_enabled('unused-variable') or
@@ -736,7 +736,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if clobbering:
                 self.add_message('redefine-in-handler', args=args, node=name)
 
-    def visit_assname(self, node):
+    def visit_assignname(self, node):
         if isinstance(node.assign_type(), astroid.AugAssign):
             self.visit_name(node)
 
@@ -1000,7 +1000,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             self._check_module_attrs(node, module, parts[1:])
 
     @check_messages('no-name-in-module')
-    def visit_from(self, node):
+    def visit_importfrom(self, node):
         """check modules attribute accesses"""
         if node_ignores_exception(node, ImportError):
             # No need to verify this, since ImportError is already

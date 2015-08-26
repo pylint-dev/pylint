@@ -153,7 +153,7 @@ class MisdesignChecker(BaseChecker):
 
     @check_messages('too-many-ancestors', 'too-many-instance-attributes',
                     'too-few-public-methods', 'too-many-public-methods')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
         # Is the total inheritance hierarchy is 7 or less?
@@ -170,7 +170,7 @@ class MisdesignChecker(BaseChecker):
                                    self.config.max_attributes))
 
     @check_messages('too-few-public-methods', 'too-many-public-methods')
-    def leave_class(self, node):
+    def leave_classdef(self, node):
         """check number of public methods"""
         my_methods = sum(1 for method in node.mymethods()
                          if not method.name.startswith('_'))
@@ -203,7 +203,7 @@ class MisdesignChecker(BaseChecker):
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
                     'too-many-statements')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
@@ -232,7 +232,7 @@ class MisdesignChecker(BaseChecker):
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
                     'too-many-statements')
-    def leave_function(self, node):
+    def leave_functiondef(self, node):
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
