@@ -20,9 +20,10 @@
 """
 from __future__ import print_function
 
-import sys, os
-from logilab.common.configuration import ConfigurationMixIn
+import os
+import sys
 
+from pylint.config import ConfigurationMixIn
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse import writer

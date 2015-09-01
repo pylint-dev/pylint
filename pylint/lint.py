@@ -42,7 +42,6 @@ import warnings
 import astroid
 from astroid.__pkginfo__ import version as astroid_version
 from astroid import modutils
-from logilab.common import configuration
 from logilab.common import ureports
 import six
 
@@ -245,7 +244,7 @@ if multiprocessing is not None:
                     msgs, linter.stats, linter.msg_status)
 
 
-class PyLinter(configuration.OptionsManagerMixIn,
+class PyLinter(config.OptionsManagerMixIn,
                utils.MessagesHandlerMixIn,
                utils.ReportsHandlerMixIn,
                checkers.BaseTokenChecker):
@@ -442,12 +441,12 @@ class PyLinter(configuration.OptionsManagerMixIn,
                                     'enable-msg': self.enable}
         full_version = '%%prog %s, \nastroid %s\nPython %s' % (
             version, astroid_version, sys.version)
-        configuration.OptionsManagerMixIn.__init__(
-            self, usage=__doc__,
-            version=full_version,
-            config_file=pylintrc or config.PYLINTRC)
         utils.MessagesHandlerMixIn.__init__(self)
         utils.ReportsHandlerMixIn.__init__(self)
+        super(PyLinter, self).__init__(
+            usage=__doc__,
+            version=full_version,
+            config_file=pylintrc or config.PYLINTRC)
         checkers.BaseTokenChecker.__init__(self)
         # provided reports
         self.reports = (('RP0001', 'Messages by category',
@@ -504,7 +503,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         reporter.linter = self
 
     def set_option(self, optname, value, action=None, optdict=None):
-        """overridden from configuration.OptionsProviderMixin to handle some
+        """overridden from config.OptionsProviderMixin to handle some
         special options
         """
         if optname in self._options_methods or \
@@ -534,7 +533,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         try:
             checkers.BaseTokenChecker.set_option(self, optname,
                                                  value, action, optdict)
-        except configuration.UnsupportedAction:
+        except config.UnsupportedAction:
             print('option %s can\'t be read from config file' % \
                   optname, file=sys.stderr)
 
@@ -746,7 +745,7 @@ class PyLinter(configuration.OptionsManagerMixIn,
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
                 if optname not in filter_options:
-                    child_config[optname] = configuration.format_option_value(
+                    child_config[optname] = utils._format_option_value(
                         optdict, val)
         child_config['python3_porting_mode'] = self._python3_porting_mode
         child_config['plugins'] = self._dynamic_plugins
