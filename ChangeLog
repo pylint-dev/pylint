@@ -261,7 +261,9 @@ ChangeLog for Pylint
       as a special case for the reversed builtin. This will happen
       shortly in the future.
 
-    * --comment flag was obsoleted and it will be removed in Pylint 1.6.
+    * --comment flag is obsoleted and it will be removed in Pylint 1.6.
+
+    * --profile flag is obsoleted and it will be removed in Pylint 1.6.
       
 
 

@@ -1221,10 +1221,7 @@ group are mutually exclusive.'),
                        'disabled and only messages emitted by the porting '
                        'checker will be displayed'}),
 
-            ('profile',
-             {'type' : 'yn', 'metavar' : '<y_or_n>',
-              'default': False, 'hide': True,
-              'help' : 'Profiled execution.'}),
+            ('profile', utils.deprecated_option(opt_type='yn')),
 
             ), option_groups=self.option_groups, pylintrc=self._rcfile)
         # register standard checkers
@@ -1309,17 +1306,7 @@ group are mutually exclusive.'),
         # insert current working directory to the python path to have a correct
         # behaviour
         with fix_import_path(args):
-            if self.linter.config.profile:
-                print('** profiled run', file=sys.stderr)
-                import cProfile, pstats
-                cProfile.runctx('linter.check(%r)' % args, globals(), locals(),
-                                'stones.prof')
-                data = pstats.Stats('stones.prof')
-                data.strip_dirs()
-                data.sort_stats('time', 'calls')
-                data.print_stats(30)
-            else:
-                linter.check(args)
+            linter.check(args)
             linter.generate_reports()
         if exit:
             sys.exit(self.linter.msg_status)
