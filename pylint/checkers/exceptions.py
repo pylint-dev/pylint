@@ -79,6 +79,14 @@ MSGS = {
               'where the exception context is not an exception, '
               'nor None.',
               {'minversion': (3, 0)}),
+    'E0704': ('The raise statement is not inside a try suite',
+              'misplaced-bare-raise',
+              'Used when a bare raise is not used inside a try suite. '
+              'This generates an error, since there are no active exceptions '
+              'to be reraised. An exception to this rule is represented by '
+              'a bare raise inside a finally clause, which might work, as long '
+              'as an exception is raised inside the try block, but it is '
+              'nevertheless a code smell that must not be relied upon.'),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
               'Used when a new style class which doesn\'t inherit from \
@@ -140,13 +148,13 @@ class ExceptionsChecker(BaseChecker):
         self.builtin_exceptions = _builtin_exceptions()
         super(ExceptionsChecker, self).open()
 
-    @check_messages('nonstandard-exception',
+    @check_messages('nonstandard-exception', 'misplaced-bare-raise',
                     'raising-bad-type', 'raising-non-exception',
                     'notimplemented-raised', 'bad-exception-context')
     def visit_raise(self, node):
-        """visit raise possibly inferring value"""
-        # ignore empty raise
+        """visit raise possibly inferring value"""        
         if node.exc is None:
+            self._check_misplaced_bare_raise(node)
             return
         if PY3K and node.cause:
             self._check_bad_exception_context(node)
@@ -160,6 +168,27 @@ class ExceptionsChecker(BaseChecker):
             except astroid.InferenceError:
                 return
             self._check_raise_value(node, value)
+
+    def _check_misplaced_bare_raise(self, node):
+        # Filter out if it's present in __exit__.
+        scope = node.scope()
+        if (isinstance(scope, astroid.FunctionDef)
+                and scope.is_method()
+                and scope.name == '__exit__'):
+            return
+
+        current = node
+        # Stop when a new scope is generated or when the raise
+        # statement is found inside a TryFinally.
+        ignores = (astroid.ExceptHandler, astroid.TryExcept,
+                   astroid.FunctionDef, astroid.TryFinally)
+        while current and not isinstance(current.parent, ignores):
+            current = current.parent
+
+        expected = (astroid.ExceptHandler, astroid.TryExcept)
+        if (not current
+                or not isinstance(current.parent, expected)):
+            self.add_message('misplaced-bare-raise', node=node)            
 
     def _check_bad_exception_context(self, node):
         """Verify that the exception context is properly set.

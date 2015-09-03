@@ -264,7 +264,17 @@ ChangeLog for Pylint
     * --comment flag is obsoleted and it will be removed in Pylint 1.6.
 
     * --profile flag is obsoleted and it will be removed in Pylint 1.6.
-      
+
+    * Add a new error, 'misplaced-bare-raise'.
+
+      The error is used when a bare raise is not used inside a try suite.
+      This can generate a RuntimeError in Python, if there are no active exceptions
+      to be reraised. While it works in Python 2 due to the fact that the exception
+      leaks outside of the except block, it's nevertheless a behaviour that
+      an user shouldn't depend upon, since it's not obvious to the reader of the code
+      what exception will be raised and it will not be compatible with Python 3 anyhow.
+      Closes issue #633.
+
 
 
 2015-03-14 -- 1.4.3
