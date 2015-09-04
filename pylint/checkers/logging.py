@@ -78,7 +78,7 @@ def is_method_call(callfunc_node, types=(), methods=()):
       True, if the node represents a method call for the given type and
       method names, False otherwise.
     """
-    if not isinstance(callfunc_node, astroid.CallFunc):
+    if not isinstance(callfunc_node, astroid.Call):
         return False
     func = helpers.safe_infer(callfunc_node.func)
     return (isinstance(func, astroid.BoundMethod)
@@ -119,7 +119,7 @@ class LoggingChecker(checkers.BaseChecker):
             if len(parts) > 1:
                 self._from_imports[parts[0]] = parts[1]
 
-    def visit_from(self, node):
+    def visit_importfrom(self, node):
         """Checks to see if a module uses a non-Python logging module."""
         try:
             logging_name = self._from_imports[node.modname]
@@ -136,10 +136,10 @@ class LoggingChecker(checkers.BaseChecker):
                 self._logging_names.add(as_name or module)
 
     @check_messages(*(MSGS.keys()))
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """Checks calls to logging methods."""
         def is_logging_name():
-            return (isinstance(node.func, astroid.Getattr) and
+            return (isinstance(node.func, astroid.Attribute) and
                     isinstance(node.func.expr, astroid.Name) and
                     node.func.expr.name in self._logging_names)
 
@@ -148,7 +148,7 @@ class LoggingChecker(checkers.BaseChecker):
                 for inferred in node.func.infer():
                     if isinstance(inferred, astroid.BoundMethod):
                         parent = inferred._proxied.parent
-                        if (isinstance(parent, astroid.Class) and
+                        if (isinstance(parent, astroid.ClassDef) and
                                 (parent.qname() == 'logging.Logger' or
                                  any(ancestor.qname() == 'logging.Logger'
                                      for ancestor in parent.ancestors()))):
@@ -184,7 +184,7 @@ class LoggingChecker(checkers.BaseChecker):
 
         if isinstance(node.args[format_pos], astroid.BinOp) and node.args[format_pos].op == '%':
             self.add_message('logging-not-lazy', node=node)
-        elif isinstance(node.args[format_pos], astroid.CallFunc):
+        elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)

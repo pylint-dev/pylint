@@ -46,7 +46,7 @@ class LinkerTest(unittest.TestCase):
         klass = self.project.get_module('data.clientmodule_test')['Ancestor']
         self.assertTrue(hasattr(klass, 'implements'))
         self.assertEqual(len(klass.implements), 1)
-        self.assertTrue(isinstance(klass.implements[0], nodes.Class))
+        self.assertTrue(isinstance(klass.implements[0], nodes.ClassDef))
         self.assertEqual(klass.implements[0].name, "Interface")
         klass = self.project.get_module('data.clientmodule_test')['Specialization']
         self.assertTrue(hasattr(klass, 'implements'))

@@ -115,9 +115,9 @@ MSGS = {
               {'minversion': (2, 7)})
     }
 
-OTHER_NODES = (astroid.Const, astroid.List, astroid.Backquote,
-               astroid.Lambda, astroid.Function,
-               astroid.ListComp, astroid.SetComp, astroid.GenExpr)
+OTHER_NODES = (astroid.Const, astroid.List, astroid.Repr,
+               astroid.Lambda, astroid.FunctionDef,
+               astroid.ListComp, astroid.SetComp, astroid.GeneratorExp)
 
 if _PY3K:
     import _string
@@ -332,7 +332,7 @@ class StringMethodsChecker(BaseChecker):
         }
 
     @check_messages(*(MSGS.keys()))
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         func = helpers.safe_infer(node.func)
         if (isinstance(func, astroid.BoundMethod)
                 and isinstance(func.bound, astroid.Instance)
@@ -361,7 +361,7 @@ class StringMethodsChecker(BaseChecker):
         #
         #    fmt = 'some string {}'.format
         #    fmt('arg')
-        if (isinstance(node.func, astroid.Getattr)
+        if (isinstance(node.func, astroid.Attribute)
                 and not isinstance(node.func.expr, astroid.Const)):
             return
         try:
@@ -494,6 +494,8 @@ class StringMethodsChecker(BaseChecker):
                             previous = previous.getitem(specifier)
                         except (IndexError, TypeError):
                             warn_error = True
+                        except astroid.InferenceError:
+                            break
                     else:
                         try:
                             # Lookup __getitem__ in the current node,

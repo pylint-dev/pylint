@@ -84,7 +84,7 @@ def _is_one_arg_pos_call(call):
     """Is this a call with exactly 1 argument,
     where that argument is positional?
     """
-    return (isinstance(call, astroid.CallFunc)
+    return (isinstance(call, astroid.Call)
             and len(call.args) == 1 and not call.keywords)
 
 
@@ -121,7 +121,7 @@ class StdlibChecker(BaseChecker):
     }
 
     @utils.check_messages('bad-open-mode', 'redundant-unittest-assert')
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
             infer = helpers.safe_infer(node.func)
@@ -195,13 +195,13 @@ class StdlibChecker(BaseChecker):
     def _check_type_x_is_y(self, node, left, operator, right):
         """Check for expressions like type(x) == Y."""
         left_func = helpers.safe_infer(left.func)
-        if not (isinstance(left_func, astroid.Class)
+        if not (isinstance(left_func, astroid.ClassDef)
                 and left_func.qname() == TYPE_QNAME):
             return
 
         if operator in ('is', 'is not') and _is_one_arg_pos_call(right):
             right_func = helpers.safe_infer(right.func)
-            if (isinstance(right_func, astroid.Class)
+            if (isinstance(right_func, astroid.ClassDef)
                     and right_func.qname() == TYPE_QNAME):
                 # type(x) == type(a)
                 right_arg = helpers.safe_infer(right.args[0])

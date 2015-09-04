@@ -30,7 +30,6 @@ from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 import six
 from six.moves import zip  # pylint: disable=redefined-builtin
 
-from logilab.common.configuration import rest_format_section
 from logilab.common.ureports import Section
 
 from astroid import nodes, Module
@@ -65,6 +64,20 @@ MSG_TYPES_STATUS = {
     'E' : 2,
     'F' : 1
     }
+
+DEPRECATED_ALIASES = {
+    # New name, deprecated name.
+    'repr': 'backquote',
+    'expr': 'discard',
+    'assignname': 'assname',
+    'assignattr': 'assattr',
+    'attribute': 'getattr',
+    'call': 'callfunc',
+    'importfrom': 'from',
+    'classdef': 'class',
+    'functiondef': 'function',
+    'generatorexp': 'genexpr',
+}
 
 _MSG_ORDER = 'EWRCIF'
 MSG_STATE_SCOPE_CONFIG = 0
@@ -442,7 +455,7 @@ class MessagesHandlerMixIn(object):
                             title = '%s options' % section.capitalize()
                         print(title)
                         print('~' * len(title))
-                        rest_format_section(sys.stdout, None, options)
+                        _rest_format_section(sys.stdout, None, options)
                         print("")
             else:
                 try:
@@ -477,7 +490,7 @@ class MessagesHandlerMixIn(object):
                 title = 'Options'
                 print(title)
                 print('^' * len(title))
-                rest_format_section(sys.stdout, None, options)
+                _rest_format_section(sys.stdout, None, options)
                 print("")
             if msgs:
                 title = 'Messages'
@@ -540,7 +553,8 @@ class FileState(object):
         #
         # this is necessary to disable locally messages applying to class /
         # function using their fromlineno
-        if isinstance(node, (nodes.Module, nodes.Class, nodes.Function)) and node.body:
+        if (isinstance(node, (nodes.Module, nodes.ClassDef, nodes.FunctionDef))
+                and node.body):
             firstchildlineno = node.body[0].fromlineno
         else:
             firstchildlineno = last
@@ -877,15 +891,43 @@ class PyLintASTWalker(object):
         its children, then leave events.
         """
         cid = astroid.__class__.__name__.lower()
+
+        # Detect if the node is a new name for a deprecated alias.
+        # In this case, favour the methods for the deprecated
+        # alias if any,  in order to maintain backwards
+        # compatibility. If both of them are present,
+        # only the old ones will be called.
+        old_cid = DEPRECATED_ALIASES.get(cid)
+        visit_events = ()
+        leave_events = ()
+
+        if old_cid:
+            visit_events = self.visit_events.get(old_cid)
+            leave_events = self.leave_events.get(old_cid)
+            if visit_events or leave_events:
+                msg = ("Implemented method {meth}_{old} instead of {meth}_{new}. "
+                       "This will be supported until Pylint 2.0.")
+                if visit_events:
+                    warnings.warn(msg.format(meth="visit", old=old_cid, new=cid),
+                                  PendingDeprecationWarning)
+                if leave_events:
+                    warnings.warn(msg.format(meth="leave", old=old_cid, new=cid),
+                                  PendingDeprecationWarning)
+
+        if not visit_events:
+            visit_events = self.visit_events.get(cid)
+        if not leave_events:
+            leave_events = self.leave_events.get(cid)
+
         if astroid.is_statement:
             self.nbstatements += 1
         # generate events for this node on each checker
-        for cb in self.visit_events.get(cid, ()):
+        for cb in visit_events or ():
             cb(astroid)
         # recurse on children
         for child in astroid.get_children():
             self.walk(child)
-        for cb in self.leave_events.get(cid, ()):
+        for cb in leave_events or ():
             cb(astroid)
 
 
@@ -1005,3 +1047,92 @@ def _check_csv(value):
     if isinstance(value, (list, tuple)):
         return value
     return _splitstrip(value)
+
+
+if six.PY2:
+    def _encode(string, encoding):
+        # pylint: disable=undefined-variable
+        if isinstance(string, unicode):
+            return string.encode(encoding)
+        return str(string)
+else:
+    def _encode(string, _):
+        return str(string)
+
+def _get_encoding(encoding, stream):
+    encoding = encoding or getattr(stream, 'encoding', None)
+    if not encoding:
+        import locale
+        encoding = locale.getpreferredencoding()
+    return encoding
+
+
+def _comment(string):
+    """return string as a comment"""
+    lines = [line.strip() for line in string.splitlines()]
+    return '# ' + ('%s# ' % os.linesep).join(lines)
+
+
+def _format_option_value(optdict, value):
+    """return the user input's value from a 'compiled' value"""
+    if isinstance(value, (list, tuple)):
+        value = ','.join(value)
+    elif isinstance(value, dict):
+        value = ','.join('%s:%s' % (k, v) for k, v in value.items())
+    elif hasattr(value, 'match'): # optdict.get('type') == 'regexp'
+        # compiled regexp
+        value = value.pattern
+    elif optdict.get('type') == 'yn':
+        value = value and 'yes' or 'no'
+    elif isinstance(value, six.string_types) and value.isspace():
+        value = "'%s'" % value
+    return value
+
+
+def _ini_format_section(stream, section, options, encoding=None, doc=None):
+    """format an options section using the INI format"""
+    encoding = _get_encoding(encoding, stream)
+    if doc:
+        print(_encode(_comment(doc), encoding), file=stream)
+    print('[%s]' % section, file=stream)
+    _ini_format(stream, options, encoding)
+
+
+def _ini_format(stream, options, encoding):
+    """format options using the INI format"""
+    for optname, optdict, value in options:
+        value = _format_option_value(optdict, value)
+        help = optdict.get('help')
+        if help:
+            help = _normalize_text(help, line_len=79, indent='# ')
+            print(file=stream)
+            print(_encode(help, encoding), file=stream)
+        else:
+            print(file=stream)
+        if value is None:
+            print('#%s=' % optname, file=stream)
+        else:
+            value = _encode(value, encoding).strip()
+            print('%s=%s' % (optname, value), file=stream)
+
+format_section = _ini_format_section
+
+
+def _rest_format_section(stream, section, options, encoding=None, doc=None):
+    """format an options section using as ReST formatted output"""
+    encoding = _get_encoding(encoding, stream)
+    if section:
+        print('%s\n%s' % (section, "'"*len(section)), file=stream)
+    if doc:
+        print(_encode(_normalize_text(doc, line_len=79, indent=''), encoding), file=stream)
+        print(file=stream)
+    for optname, optdict, value in options:
+        help = optdict.get('help')
+        print(':%s:' % optname, file=stream)
+        if help:
+            help = _normalize_text(help, line_len=79, indent='  ')
+            print(_encode(help, encoding), file=stream)
+        if value:
+            value = _encode(_format_option_value(optdict, value), encoding)
+            print(file=stream)
+            print('  Default: ``%s``' % value.replace("`` ", "```` ``"), file=stream)

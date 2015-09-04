@@ -5,8 +5,8 @@ from __future__ import division, print_function, absolute_import
 
 import unittest
 
+import astroid
 from astroid import test_utils
-import astroid.scoped_nodes
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.check_docs import ParamDocChecker, space_indentation
@@ -47,7 +47,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('x, y',))
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_missing_func_params_in_google_docstring(self):
         """Example of a function with missing Google style parameter
@@ -75,7 +75,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('x, y',))
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_missing_func_params_in_numpy_docstring(self):
         """Example of a function with missing NumPy style parameter
@@ -106,7 +106,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('x, y',))
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_tolerate_no_param_documentation_at_all(self):
         """Example of a function with no parameter documentation at all
@@ -121,7 +121,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             pass
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     @set_config(accept_no_param_doc=False)
     def test_don_t_tolerate_no_param_documentation_at_all(self):
@@ -146,7 +146,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('x, y',))
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def _visit_methods_of_class(self, node):
         """Visit all methods of a class node
@@ -155,9 +155,9 @@ class ParamDocCheckerTest(CheckerTestCase):
         :type node: :class:`astroid.scoped_nodes.Class`
         """
         for body_item in node.body:
-            if (isinstance(body_item, astroid.scoped_nodes.Function)
+            if (isinstance(body_item, astroid.FunctionDef)
                     and hasattr(body_item, 'name')):
-                self.checker.visit_function(body_item)
+                self.checker.visit_functiondef(body_item)
 
     def test_missing_method_params_in_sphinx_docstring(self):
         """Example of a class method with missing parameter documentation in
@@ -269,7 +269,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             return xarg + yarg
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_existing_func_params_in_google_docstring(self):
         """Example of a function with correctly documented parameters and
@@ -292,7 +292,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             return xarg + yarg
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_existing_func_params_in_numpy_docstring(self):
         """Example of a function with correctly documented parameters and
@@ -320,7 +320,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             return xarg + yarg
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_wrong_name_of_func_params_in_sphinx_docstring(self):
         """Example of functions with inconsistent parameter names in the
@@ -350,7 +350,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('yarg, yarg1, zarg, zarg1',)),
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
         node = test_utils.extract_node("""
         def function_foo(xarg, yarg):
@@ -373,7 +373,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('yarg1',))
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_wrong_name_of_func_params_in_google_docstring(self):
         """Example of functions with inconsistent parameter names in the
@@ -401,7 +401,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('xarg, xarg1, zarg, zarg1',)),
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
         node = test_utils.extract_node("""
         def function_foo(xarg, yarg):
@@ -424,7 +424,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('yarg1',))
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_wrong_name_of_func_params_in_numpy_docstring(self):
         """Example of functions with inconsistent parameter names in the
@@ -456,7 +456,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('xarg, xarg1, zarg, zarg1',)),
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
         node = test_utils.extract_node("""
         def function_foo(xarg, yarg):
@@ -481,7 +481,7 @@ class ParamDocCheckerTest(CheckerTestCase):
                 node=node,
                 args=('yarg1',))
         ):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_see_sentence_for_func_params_in_sphinx_docstring(self):
         """Example for the usage of "For the other parameters, see" to avoid
@@ -500,7 +500,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             return xarg + yarg
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_see_sentence_for_func_params_in_google_docstring(self):
         """Example for the usage of "For the other parameters, see" to avoid
@@ -519,7 +519,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             return xarg + yarg
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_see_sentence_for_func_params_in_numpy_docstring(self):
         """Example for the usage of "For the other parameters, see" to avoid
@@ -540,7 +540,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             return xarg + yarg
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_constr_params_in_class_sphinx(self):
         """Example of a class with missing constructor parameter documentation

@@ -80,7 +80,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         """.format(fxn))
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def as_iterable_in_genexp_test(self, fxn):
         code = "x = (x for x in {}())".format(fxn)
@@ -104,7 +104,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         """.format(fxn))
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def as_used_in_variant_in_listcomp_test(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
@@ -115,7 +115,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         """.format(fxn))
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def as_argument_to_callable_constructor_test(self, fxn, callable_fn):
         module = astroid.parse("x = {}({}())".format(callable_fn, fxn))
@@ -131,7 +131,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         """.format(fxn))
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def as_argument_to_str_join_test(self, fxn):
         code = "x = ''.join({}())".format(fxn)
@@ -144,7 +144,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         a, b = __({}())
         """.format(fxn))
         with self.assertNoMessages():
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def as_assignment(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
@@ -153,7 +153,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         """.format(fxn))
         message = testutils.Message(checker, node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def iterating_context_tests(self, fxn):
         """Helper for verifying a function isn't used as an iterator."""
@@ -197,7 +197,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
                     pass""".format(method))
         message = testutils.Message(warning, node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_delslice_method(self):
         self.defined_method_test('delslice', 'delslice-method')
@@ -235,7 +235,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         node = test_utils.extract_node('`test`')
         message = testutils.Message('backtick', node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_backquote(node)
+            self.checker.visit_repr(node)
 
     def test_relative_import(self):
         node = test_utils.extract_node('import string  #@')
@@ -266,7 +266,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         absolute = testutils.Message('no-absolute-import', node=node)
         star = testutils.Message('import-star-module-level', node=node)
         with self.assertAddsMessages(absolute, star):
-            self.checker.visit_from(node)
+            self.checker.visit_importfrom(node)
 
     def test_division(self):
         node = test_utils.extract_node('3 / 2  #@')
@@ -296,13 +296,13 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             node = test_utils.extract_node('x.iter%s()  #@' % meth)
             message = testutils.Message('dict-iter-method', node=node)
             with self.assertAddsMessages(message):
-                self.checker.visit_callfunc(node)
+                self.checker.visit_call(node)
 
     def test_dict_iter_method_on_dict(self):
         node = test_utils.extract_node('{}.iterkeys()')
         message = testutils.Message('dict-iter-method', node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def test_dict_not_iter_method(self):
         arg_node = test_utils.extract_node('x.iterkeys(x)  #@')
@@ -311,20 +311,20 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         non_dict_node = test_utils.extract_node('x=[]\nx.iterkeys() #@')
         with self.assertNoMessages():
             for node in (arg_node, stararg_node, kwarg_node, non_dict_node):
-                self.checker.visit_callfunc(node)
+                self.checker.visit_call(node)
 
     def test_dict_view_method(self):
         for meth in ('keys', 'values', 'items'):
             node = test_utils.extract_node('x.view%s()  #@' % meth)
             message = testutils.Message('dict-view-method', node=node)
             with self.assertAddsMessages(message):
-                self.checker.visit_callfunc(node)
+                self.checker.visit_call(node)
 
     def test_dict_view_method_on_dict(self):
         node = test_utils.extract_node('{}.viewkeys()')
         message = testutils.Message('dict-view-method', node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def test_dict_not_view_method(self):
         arg_node = test_utils.extract_node('x.viewkeys(x)  #@')
@@ -333,13 +333,13 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         non_dict_node = test_utils.extract_node('x=[]\nx.viewkeys() #@')
         with self.assertNoMessages():
             for node in (arg_node, stararg_node, kwarg_node, non_dict_node):
-                self.checker.visit_callfunc(node)
+                self.checker.visit_call(node)
 
     def test_next_method(self):
         node = test_utils.extract_node('x.next()  #@')
         message = testutils.Message('next-method-called', node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
     def test_not_next_method(self):
         arg_node = test_utils.extract_node('x.next(x)  #@')
@@ -347,7 +347,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         kwarg_node = test_utils.extract_node('x.next(y=x)  #@')
         with self.assertNoMessages():
             for node in (arg_node, stararg_node, kwarg_node):
-                self.checker.visit_callfunc(node)
+                self.checker.visit_call(node)
 
     def test_metaclass_assignment(self):
         node = test_utils.extract_node("""
@@ -355,7 +355,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
                 __metaclass__ = type""")
         message = testutils.Message('metaclass-assignment', node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_class(node)
+            self.checker.visit_classdef(node)
 
     def test_metaclass_global_assignment(self):
         module = astroid.parse('__metaclass__ = type')
@@ -405,7 +405,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         for node in nodes:
             message = testutils.Message('using-cmp-argument', node=node)
             with self.assertAddsMessages(message):
-                self.checker.visit_callfunc(node)
+                self.checker.visit_call(node)
 
 
 @python2_only

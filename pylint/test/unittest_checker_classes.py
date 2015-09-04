@@ -61,7 +61,7 @@ class VariablesCheckerTC(CheckerTestCase):
                 Sequence.__init__(self)
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
     def test_super_init_not_called_regression(self):
         # This should not emit a super-init-not-called
@@ -77,7 +77,7 @@ class VariablesCheckerTC(CheckerTestCase):
                 ctypes.BigEndianStructure.__init__(self)
         """)
         with self.assertNoMessages():
-            self.checker.visit_function(node)
+            self.checker.visit_functiondef(node)
 
 
 if __name__ == '__main__':

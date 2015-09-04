@@ -41,7 +41,7 @@ def _get_import_name(importnode, modname):
     for debugging. Otherwise, the initial module name
     is returned unchanged.
     """
-    if isinstance(importnode, astroid.From):
+    if isinstance(importnode, astroid.ImportFrom):
         if importnode.level:
             root = importnode.root()
             if isinstance(root, astroid.Module):
@@ -66,7 +66,7 @@ def get_first_import(node, context, name, base, level):
             if any(fullname == iname[0] for iname in first.names):
                 found = True
                 break
-        elif isinstance(first, astroid.From):
+        elif isinstance(first, astroid.ImportFrom):
             if level == first.level and any(
                     fullname == '%s.%s' % (first.modname, iname[0])
                     for iname in first.names):
@@ -267,7 +267,7 @@ given file (report RP0402 must not be disabled)'}
     # TODO This appears to be the list of all messages of the checker...
     # @check_messages('W0410', 'W0401', 'W0403', 'W0402', 'W0404', 'W0406', 'E0401')
     @check_messages(*(MSGS.keys()))
-    def visit_from(self, node):
+    def visit_importfrom(self, node):
         """triggered when a from statement is seen"""
         basename = node.modname
         if basename == '__future__':
@@ -275,7 +275,7 @@ given file (report RP0402 must not be disabled)'}
             prev = node.previous_sibling()
             if prev:
                 # consecutive future statements are possible
-                if not (isinstance(prev, astroid.From)
+                if not (isinstance(prev, astroid.ImportFrom)
                         and prev.modname == '__future__'):
                     self.add_message('misplaced-future', node=node)
             return

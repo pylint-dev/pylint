@@ -169,6 +169,11 @@ class RunTC(unittest.TestCase):
                     "slated for removal in Pylint 1.6")
         self._test_deprecated_options("--include-ids=y", expected)
 
+    def test_deprecated_options_profile(self):
+        expected = ("option --profile is obsoleted and it is "
+                    "slated for removal in Pylint 1.6")
+        self._test_deprecated_options("--profile=y", expected)
+
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
 

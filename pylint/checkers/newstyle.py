@@ -77,7 +77,7 @@ class NewStyleConflictChecker(BaseChecker):
     options = ()
 
     @check_messages('slots-on-old-class', 'old-style-class')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         """ Check __slots__ in old style classes and old
         style class definition.
         """
@@ -95,10 +95,10 @@ class NewStyleConflictChecker(BaseChecker):
             self.add_message('old-style-class', node=node, confidence=HIGH)
 
     @check_messages('property-on-old-class')
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """check property usage"""
         parent = node.parent.frame()
-        if (isinstance(parent, astroid.Class) and
+        if (isinstance(parent, astroid.ClassDef) and
                 not parent.newstyle and
                 isinstance(node.func, astroid.Name)):
             confidence = (INFERENCE if helpers.has_known_bases(parent)
@@ -109,22 +109,22 @@ class NewStyleConflictChecker(BaseChecker):
                                  confidence=confidence)
 
     @check_messages('super-on-old-class', 'bad-super-call', 'missing-super-argument')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
         if not node.is_method():
             return
         klass = node.parent.frame()
-        for stmt in node.nodes_of_class(astroid.CallFunc):
+        for stmt in node.nodes_of_class(astroid.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.
                 continue
             expr = stmt.func
-            if not isinstance(expr, astroid.Getattr):
+            if not isinstance(expr, astroid.Attribute):
                 continue
             call = expr.expr
             # skip the test if using super
-            if isinstance(call, astroid.CallFunc) and \
+            if isinstance(call, astroid.Call) and \
                isinstance(call.func, astroid.Name) and \
                call.func.name == 'super':
                 confidence = (INFERENCE if helpers.has_known_bases(klass)

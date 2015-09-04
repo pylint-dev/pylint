@@ -225,7 +225,8 @@ class LintModuleTest(unittest.TestCase):
         checkers.initialize(self._linter)
         self._linter.disable('I')
         try:
-            self._linter.load_file_configuration(test_file.option_file)
+            self._linter.read_config_file(test_file.option_file)
+            self._linter.load_config_file()
         except NoFileError:
             pass
         self._test_file = test_file

@@ -34,7 +34,7 @@ class StringCheckerTest(CheckerTestCase):
         code = "b'test'.format(1, 2)"
         node = test_utils.extract_node(code)
         with self.assertNoMessages():
-            self.checker.visit_callfunc(node)
+            self.checker.visit_call(node)
 
 
 if __name__ == '__main__':

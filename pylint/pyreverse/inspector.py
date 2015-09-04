@@ -157,7 +157,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         if self.tag:
             node.uid = self.generate_id()
 
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         """visit an astroid.Class node
 
          * set the locals_type and instance_attrs_type mappings
@@ -185,7 +185,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         except astroid.InferenceError:
             node.implements = ()
 
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """visit an astroid.Function node
 
          * set the locals_type mapping
@@ -199,10 +199,10 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
     link_project = visit_project
     link_module = visit_module
-    link_class = visit_class
-    link_function = visit_function
+    link_class = visit_classdef
+    link_function = visit_functiondef
 
-    def visit_assname(self, node):
+    def visit_assignname(self, node):
         """visit an astroid.AssName node
 
         handle locals_type
@@ -223,10 +223,10 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 # If the frame doesn't have a locals_type yet,
                 # it means it wasn't yet visited. Visit it now
                 # to add what's missing from it.
-                if isinstance(frame, astroid.Class):
-                    self.visit_class(frame)
-                elif isinstance(frame, astroid.Function):
-                    self.visit_function(frame)
+                if isinstance(frame, astroid.ClassDef):
+                    self.visit_classdef(frame)
+                elif isinstance(frame, astroid.FunctionDef):
+                    self.visit_functiondef(frame)
                 else:
                     self.visit_module(frame)
 
@@ -259,7 +259,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             relative = modutils.is_relative(name[0], context_file)
             self._imported_module(node, name[0], relative)
 
-    def visit_from(self, node):
+    def visit_importfrom(self, node):
         """visit an astroid.From node
 
         resolve module dependencies

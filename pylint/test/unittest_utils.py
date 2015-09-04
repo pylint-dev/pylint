@@ -12,9 +12,11 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 import unittest
+import warnings
 
 import astroid
 
+from pylint import __pkginfo__
 from pylint import utils
 from pylint import interfaces
 from pylint.checkers.utils import check_messages
@@ -37,18 +39,18 @@ class PyLintASTWalkerTest(unittest.TestCase):
             self.called.add('module')
 
         @check_messages('second-message')
-        def visit_callfunc(self, module):
+        def visit_call(self, module):
             raise NotImplementedError
 
         @check_messages('second-message', 'third-message')
-        def visit_assname(self, module):
+        def visit_assignname(self, module):
             self.called.add('assname')
 
         @check_messages('second-message')
-        def leave_assname(self, module):
+        def leave_assignname(self, module):
             raise NotImplementedError
 
-    def testCheckMessages(self):
+    def test_check_messages(self):
         linter = self.MockLinter({'first-message': True,
                                   'second-message': False,
                                   'third-message': True})
@@ -57,6 +59,35 @@ class PyLintASTWalkerTest(unittest.TestCase):
         walker.add_checker(checker)
         walker.walk(astroid.parse("x = func()"))
         self.assertEqual(set(['module', 'assname']), checker.called)
+
+    def test_deprecated_methods(self):
+        class Checker(object):
+            def __init__(self):
+                self.called = False
+
+            @check_messages('first-message')
+            def visit_assname(self, node):
+                self.called = True
+
+        linter = self.MockLinter({'first-message': True})
+        walker = utils.PyLintASTWalker(linter)
+        checker = Checker()
+        walker.add_checker(checker)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            walker.walk(astroid.parse("x = 1"))
+
+        if __pkginfo__.numversion < (2, 0):
+            expected = ('Implemented method visit_assname instead of '
+                        'visit_assignname. This will be supported until '
+                        'Pylint 2.0.')
+            self.assertEqual(len(w), 1)
+            self.assertIsInstance(w[0].message, PendingDeprecationWarning)
+            self.assertEqual(str(w[0].message), expected)
+            self.assertTrue(checker.called)
+        else:
+            self.assertNotEqual(len(w), 1)
+            self.assertFalse(checker.called)
 
 
 if __name__ == '__main__':
