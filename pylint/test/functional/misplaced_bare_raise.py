@@ -2,7 +2,7 @@
 # pylint: disable=unused-variable, too-few-public-methods, invalid-name
 
 try:
-    raise
+    raise # [misplaced-bare-raise]
 except Exception:
     pass
 
@@ -12,18 +12,18 @@ except Exception:
     raise
 
 try:
+    pass
+except Exception:
     if 1 == 2:
         raise
-except Exception:
-    raise
 
 def test():
     try:
-        raise
+        pass
     except Exception:
         def chest():
             try:
-                raise
+                pass
             except Exception:
                 raise
         raise
@@ -50,7 +50,7 @@ finally:
 
 class A(object):
     try:
-        raise
+        pass
     except Exception:
         raise
     raise # [misplaced-bare-raise]

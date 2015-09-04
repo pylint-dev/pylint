@@ -1,6 +1,7 @@
-misplaced-bare-raise:35:test1.best:The raise statement is not inside a try suite
-misplaced-bare-raise:38:test1:The raise statement is not inside a try suite
-misplaced-bare-raise:39::The raise statement is not inside a try suite
-misplaced-bare-raise:48::The raise statement is not inside a try suite
-misplaced-bare-raise:56:A:The raise statement is not inside a try suite
-misplaced-bare-raise:67::The raise statement is not inside a try suite
+misplaced-bare-raise:5::The raise statement is not inside an except clause
+misplaced-bare-raise:35:test1.best:The raise statement is not inside an except clause
+misplaced-bare-raise:38:test1:The raise statement is not inside an except clause
+misplaced-bare-raise:39::The raise statement is not inside an except clause
+misplaced-bare-raise:48::The raise statement is not inside an except clause
+misplaced-bare-raise:56:A:The raise statement is not inside an except clause
+misplaced-bare-raise:67::The raise statement is not inside an except clause

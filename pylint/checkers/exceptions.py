@@ -79,9 +79,9 @@ MSGS = {
               'where the exception context is not an exception, '
               'nor None.',
               {'minversion': (3, 0)}),
-    'E0704': ('The raise statement is not inside a try suite',
+    'E0704': ('The raise statement is not inside an except clause',
               'misplaced-bare-raise',
-              'Used when a bare raise is not used inside a try suite. '
+              'Used when a bare raise is not used inside an except clause. '
               'This generates an error, since there are no active exceptions '
               'to be reraised. An exception to this rule is represented by '
               'a bare raise inside a finally clause, which might work, as long '
@@ -180,12 +180,11 @@ class ExceptionsChecker(BaseChecker):
         current = node
         # Stop when a new scope is generated or when the raise
         # statement is found inside a TryFinally.
-        ignores = (astroid.ExceptHandler, astroid.TryExcept,
-                   astroid.FunctionDef, astroid.TryFinally)
+        ignores = (astroid.ExceptHandler, astroid.FunctionDef, astroid.TryFinally)
         while current and not isinstance(current.parent, ignores):
             current = current.parent
 
-        expected = (astroid.ExceptHandler, astroid.TryExcept)
+        expected = (astroid.ExceptHandler,)
         if (not current
                 or not isinstance(current.parent, expected)):
             self.add_message('misplaced-bare-raise', node=node)            
