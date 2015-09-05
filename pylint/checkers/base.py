@@ -746,20 +746,14 @@ functions, methods
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-        # XXX are lambda still different with astroid >= 0.18 ?
-        # *args and **kwargs need to be treated specially, since they
-        # are structured differently between the lambda and the function
-        # call (in the lambda they appear in the args.args list and are
-        # indicated as * and ** by two bits in the lambda's flags, but
-        # in the function call they are omitted from the args list and
-        # are indicated by separate attributes on the function call node).
+
         ordinary_args = list(node.args.args)
         if node.args.kwarg:
             if (not call.kwargs
                     or not isinstance(call.kwargs, astroid.Name)
                     or node.args.kwarg != call.kwargs.name):
                 return
-        elif call.kwargs:
+        elif call.kwargs or call.keywords:
             return
         if node.args.vararg:
             if (not call.starargs
@@ -772,12 +766,6 @@ functions, methods
         # ordinary_args[i].name == call.args[i].name.
         if len(ordinary_args) != len(call.args):
             return
-        # Verify that the call uses keyword values that aren't
-        # defined by the lambda arguments.
-        for kwarg in call.keywords or []:
-            if (not node.args.parent_of(kwarg.value)
-                    and not isinstance(kwarg.value, astroid.Const)):
-                return
 
         for i in range(len(ordinary_args)):
             if not isinstance(call.args[i], astroid.Name):
