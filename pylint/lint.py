@@ -42,7 +42,6 @@ import warnings
 import astroid
 from astroid.__pkginfo__ import version as astroid_version
 from astroid import modutils
-from logilab.common import ureports
 import six
 
 from pylint import checkers
@@ -51,6 +50,7 @@ from pylint import reporters
 from pylint import utils
 from pylint import config
 from pylint.__pkginfo__ import version
+from pylint.reporters.ureports import nodes as report_nodes
 
 
 MANAGER = astroid.MANAGER
@@ -969,7 +969,7 @@ class PyLinter(config.OptionsManagerMixIn,
                     filename = 'pylint_global.' + self.reporter.extension
                     self.reporter.set_output(open(filename, 'w'))
             else:
-                sect = ureports.Section()
+                sect = report_nodes.Section()
             if self.config.reports or self.config.output_format == 'html':
                 self.reporter.display_results(sect)
             # save results if persistent run
@@ -980,7 +980,7 @@ class PyLinter(config.OptionsManagerMixIn,
                 # No output will be emitted for the html
                 # reporter if the file doesn't exist, so emit
                 # the results here.
-                self.reporter.display_results(ureports.Section())
+                self.reporter.display_results(report_nodes.Section())
             self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
@@ -1003,7 +1003,7 @@ class PyLinter(config.OptionsManagerMixIn,
             pnote = previous_stats.get('global_note')
             if pnote is not None:
                 msg += ' (previous run: %.2f/10, %+.2f)' % (pnote, note - pnote)
-        sect.append(ureports.Text(msg))
+        sect.append(report_nodes.Text(msg))
 
 # some reporting functions ####################################################
 
@@ -1013,7 +1013,7 @@ def report_total_messages_stats(sect, stats, previous_stats):
     lines += checkers.table_lines_from_stats(stats, previous_stats,
                                              ('convention', 'refactor',
                                               'warning', 'error'))
-    sect.append(ureports.Table(children=lines, cols=4, rheaders=1))
+    sect.append(report_nodes.Table(children=lines, cols=4, rheaders=1))
 
 def report_messages_stats(sect, stats, _):
     """make messages type report"""
@@ -1027,7 +1027,7 @@ def report_messages_stats(sect, stats, _):
     lines = ('message id', 'occurrences')
     for value, msg_id in in_order:
         lines += (msg_id, str(value))
-    sect.append(ureports.Table(children=lines, cols=2, rheaders=1))
+    sect.append(report_nodes.Table(children=lines, cols=2, rheaders=1))
 
 def report_messages_by_module_stats(sect, stats, _):
     """make errors / warnings by modules report"""
@@ -1063,7 +1063,7 @@ def report_messages_by_module_stats(sect, stats, _):
             lines.append('%.2f' % val)
     if len(lines) == 5:
         raise utils.EmptyReport()
-    sect.append(ureports.Table(children=lines, cols=5, rheaders=1))
+    sect.append(report_nodes.Table(children=lines, cols=5, rheaders=1))
 
 
 # utilities ###################################################################

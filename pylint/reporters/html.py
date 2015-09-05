@@ -17,10 +17,10 @@ import itertools
 import string
 import sys
 
-from logilab.common.ureports import HTMLWriter, Section, Table
-
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
+from pylint.reporters.ureports.html_writer import HTMLWriter
+from pylint.reporters.ureports.nodes import Section, Table
 
 
 class HTMLReporter(BaseReporter):

@@ -17,7 +17,6 @@ import unittest
 import warnings
 
 import six
-from logilab.common.ureports import Section
 
 from pylint import __pkginfo__
 from pylint.lint import PyLinter
@@ -25,6 +24,8 @@ from pylint import checkers
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import TextReporter, ParseableTextReporter
 from pylint.reporters.html import HTMLReporter
+from pylint.reporters.ureports.nodes import Section
+
 
 HERE = abspath(dirname(__file__))
 INPUTDIR = join(HERE, 'input')

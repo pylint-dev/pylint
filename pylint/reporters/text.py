@@ -22,11 +22,11 @@ import warnings
 import sys
 
 import six
-from logilab.common.ureports import TextWriter
 
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
 from pylint import utils
+from pylint.reporters.ureports.text_writer import TextWriter
 
 
 TITLE_UNDERLINES = ['', '=', '-', '.']

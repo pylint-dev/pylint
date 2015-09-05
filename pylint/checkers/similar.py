@@ -20,10 +20,9 @@ from __future__ import print_function
 import sys
 from collections import defaultdict
 
-from logilab.common.ureports import Table
-
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
+from pylint.reporters.ureports.nodes import Table
 
 import six
 from six.moves import zip

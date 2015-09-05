@@ -24,8 +24,6 @@ import re
 import six
 from six.moves import zip  # pylint: disable=redefined-builtin
 
-from logilab.common.ureports import Table
-
 import astroid
 import astroid.bases
 import astroid.scoped_nodes
@@ -47,6 +45,7 @@ from pylint.checkers.utils import (
     error_of_type,
     unimplemented_abstract_methods,
     )
+from pylint.reporters.ureports.nodes import Table
 
 
 # regex for class/function/variable/constant name

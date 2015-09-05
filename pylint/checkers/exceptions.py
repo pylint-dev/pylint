@@ -152,7 +152,7 @@ class ExceptionsChecker(BaseChecker):
                     'raising-bad-type', 'raising-non-exception',
                     'notimplemented-raised', 'bad-exception-context')
     def visit_raise(self, node):
-        """visit raise possibly inferring value"""        
+        """visit raise possibly inferring value"""
         if node.exc is None:
             self._check_misplaced_bare_raise(node)
             return
@@ -187,7 +187,7 @@ class ExceptionsChecker(BaseChecker):
         expected = (astroid.ExceptHandler,)
         if (not current
                 or not isinstance(current.parent, expected)):
-            self.add_message('misplaced-bare-raise', node=node)            
+            self.add_message('misplaced-bare-raise', node=node)
 
     def _check_bad_exception_context(self, node):
         """Verify that the exception context is properly set.

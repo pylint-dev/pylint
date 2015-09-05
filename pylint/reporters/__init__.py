@@ -21,9 +21,6 @@ import warnings
 
 import six
 
-
-from pylint import utils
-
 CMPS = ['=', '-', '+']
 
 # py3k has no more cmp builtin
@@ -138,4 +135,5 @@ class CollectingReporter(BaseReporter):
 
 def initialize(linter):
     """initialize linter with reporters in this package """
+    from pylint import utils
     utils.register_plugins(linter, __path__[0])

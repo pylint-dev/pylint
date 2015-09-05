@@ -20,8 +20,6 @@ from collections import defaultdict
 
 import six
 
-from logilab.common.ureports import VerbatimText, Paragraph
-
 import astroid
 from astroid import are_exclusive
 from astroid.modutils import get_module_part, is_standard_module
@@ -31,6 +29,7 @@ from pylint.utils import EmptyReport, get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages, node_ignores_exception
 from pylint.graph import get_cycles, DotBackend
+from pylint.reporters.ureports.nodes import VerbatimText, Paragraph
 
 
 def _get_import_name(importnode, modname):

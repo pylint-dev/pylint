@@ -275,6 +275,14 @@ ChangeLog for Pylint
       what exception will be raised and it will not be compatible with Python 3 anyhow.
       Closes issue #633.
 
+    * Bring logilab-common's ureports into pylint.reporters.
+
+      With this change, we moved away from depending on logilab-common,
+      having in Pylint all the components that were used from logilab-common.
+      The API should be considered an implementation detail and can change at
+      some point in the future.
+      Closes issue #621.
+
 
 
 2015-03-14 -- 1.4.3
