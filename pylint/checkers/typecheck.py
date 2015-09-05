@@ -47,7 +47,7 @@ BUILTINS = six.moves.builtins.__name__
 def _unflatten(iterable):
     for elem in iterable:
         if (isinstance(elem, collections.Sequence) and
-            not isinstance(elem, six.stringtypes)):
+                not isinstance(elem, six.string_types)):
             for subelem in _unflatten(elem):
                 yield subelem
         elif isinstance(elem, bases.NodeNG):
