@@ -756,7 +756,7 @@ class OptionsProviderMixIn(object):
                 (optname, optdict, self.option_value(optname)))
         if None in sections:
             yield None, sections.pop(None)
-        for section, options in sections.items():
+        for section, options in sorted(sections.items()):
             yield section.upper(), options
 
     def options_and_values(self, options=None):
