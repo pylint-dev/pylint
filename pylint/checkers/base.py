@@ -348,6 +348,11 @@ class BasicErrorChecker(_BasicChecker):
     @check_messages('star-needs-assignment-target')
     def visit_starred(self, node):
         """Check that a Starred expression is used in an assignment target."""
+        if isinstance(node.parent, astroid.Call):
+            # f(*args) is converted to Call(args=[Starred]), so ignore
+            # them for this check.
+            return
+
         stmt = node.statement()
         if not isinstance(stmt, astroid.Assign):
             return
@@ -727,6 +732,30 @@ functions, methods
         else:
             self.add_message('pointless-statement', node=node)
 
+    @staticmethod
+    def _filter_vararg(node, call_args):
+        # Return the arguments for the given call which are
+        # not passed as vararg.
+        for arg in call_args:
+            if isinstance(arg, astroid.Starred):
+                if (isinstance(arg.value, astroid.Name)
+                        and arg.value.name != node.args.vararg):
+                    yield arg
+            else:
+                yield arg
+
+    @staticmethod
+    def _has_variadic_argument(args, variadic_name):
+        if not args:
+            return True
+        for arg in args:
+            if isinstance(arg.value, astroid.Name):
+                if arg.value.name != variadic_name:
+                    return True
+            else:
+                return True
+        return False
+
     @check_messages('unnecessary-lambda')
     def visit_lambda(self, node):
         """check whether or not the lambda is suspicious
@@ -746,38 +775,38 @@ functions, methods
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-
-        ordinary_args = list(node.args.args)
-        if node.args.kwarg:
-            if (not call.kwargs
-                    or not isinstance(call.kwargs, astroid.Name)
-                    or node.args.kwarg != call.kwargs.name):
-                return
-        elif call.kwargs or call.keywords:
-            return
-        if node.args.vararg:
-            if (not call.starargs
-                    or not isinstance(call.starargs, astroid.Name)
-                    or node.args.vararg != call.starargs.name):
-                return
-        elif call.starargs:
-            return
-        # The "ordinary" arguments must be in a correspondence such that:
-        # ordinary_args[i].name == call.args[i].name.
-        if len(ordinary_args) != len(call.args):
-            return
-
-        for i in range(len(ordinary_args)):
-            if not isinstance(call.args[i], astroid.Name):
-                return
-            if node.args.args[i].name != call.args[i].name:
-                return
         if (isinstance(node.body.func, astroid.Attribute) and
                 isinstance(node.body.func.expr, astroid.Call)):
             # Chained call, the intermediate call might
             # return something else (but we don't check that, yet).
             return
-        self.add_message('unnecessary-lambda', line=node.fromlineno, node=node)
+
+        ordinary_args = list(node.args.args)
+        new_call_args = list(self._filter_vararg(node, call.args))
+        if node.args.kwarg:
+            if self._has_variadic_argument(call.kwargs, node.args.kwarg):
+                return
+        elif call.kwargs or call.keywords:
+            return
+
+        if node.args.vararg:
+            if self._has_variadic_argument(call.starargs, node.args.vararg):
+                return
+        elif call.starargs:
+            return
+
+        # The "ordinary" arguments must be in a correspondence such that:
+        # ordinary_args[i].name == call.args[i].name.
+        if len(ordinary_args) != len(new_call_args):
+            return
+        for arg, passed_arg in zip(ordinary_args, new_call_args):
+            if not isinstance(passed_arg, astroid.Name):
+                return
+            if arg.name != passed_arg.name:
+                return
+
+        self.add_message('unnecessary-lambda', line=node.fromlineno,
+                         node=node)
 
     @check_messages('dangerous-default-value')
     def visit_functiondef(self, node):

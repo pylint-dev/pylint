@@ -86,3 +86,14 @@ def issue329(*args):
     """
     first, second, third = args
     return first, second, third
+
+
+def test_decimal():
+    """Test a false positive with decimal.Decimal.as_tuple
+
+    See astroid https://bitbucket.org/logilab/astroid/issues/92/
+    """
+    from decimal import Decimal
+    dec = Decimal(2)
+    first, second, third = dec.as_tuple()
+    return first, second, third

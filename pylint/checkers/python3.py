@@ -476,7 +476,7 @@ class Python3Checker(checkers.BaseChecker):
         self._check_cmp_argument(node)
 
         if isinstance(node.func, astroid.Attribute):
-            if any([node.args, node.starargs, node.kwargs, node.keywords]):
+            if any([node.args, node.keywords]):
                 return
             if node.func.attrname == 'next':
                 self.add_message('next-method-called', node=node)

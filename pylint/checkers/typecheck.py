@@ -457,7 +457,8 @@ accessed. Python regular expressions are accepted.'}
         """
         # Build the set of keyword arguments, checking for duplicate keywords,
         # and count the positional arguments.
-        keyword_args = {keyword.arg for keyword in node.keywords or []}
+        keyword_args = {keyword.arg for keyword in node.keywords or []
+                        if keyword.arg is not None}
         num_positional_args = len(node.args)
 
         called = helpers.safe_infer(node.func)
@@ -559,7 +560,7 @@ accessed. Python regular expressions are accepted.'}
         #    *args _before_ any keyword arguments, but we wait until after
         #    looking at the keyword arguments so as to make a more conservative
         #    guess at how many values are in the *args sequence.
-        if node.starargs is not None:
+        if node.starargs:
             for i in range(num_positional_args, len(parameters)):
                 [(name, defval), assigned] = parameters[i]
                 # Assume that *args provides just enough values for all
@@ -572,7 +573,7 @@ accessed. Python regular expressions are accepted.'}
                 parameters[i][1] = True
 
         # 4. Match the **kwargs, if any.
-        if node.kwargs is not None:
+        if node.kwargs:
             for i, [(name, defval), assigned] in enumerate(parameters):
                 # Assume that *kwargs provides values for all remaining
                 # unassigned named parameters.
@@ -609,11 +610,9 @@ accessed. Python regular expressions are accepted.'}
     def visit_index(self, node):
         if not node.parent or not hasattr(node.parent, "value"):
             return
-
         # Look for index operations where the parent is a sequence type.
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
-
         parent_type = helpers.safe_infer(node.parent.value)
         if not isinstance(parent_type, (astroid.ClassDef, astroid.Instance)):
             return
@@ -640,7 +639,6 @@ accessed. Python regular expressions are accepted.'}
             itemmethod = methods[0]
         except (exceptions.NotFoundError, IndexError):
             return
-
         if not isinstance(itemmethod, astroid.FunctionDef):
             return
         if itemmethod.root().name != BUILTINS:
@@ -659,7 +657,6 @@ accessed. Python regular expressions are accepted.'}
             index_type = helpers.safe_infer(node)
         if index_type is None or index_type is astroid.YES:
             return
-
         # Constants must be of type int
         if isinstance(index_type, astroid.Const):
             if isinstance(index_type.value, int):
@@ -673,6 +670,11 @@ accessed. Python regular expressions are accepted.'}
                 return
             except exceptions.NotFoundError:
                 pass
+        elif isinstance(index_type, astroid.Slice):
+            # Delegate to visit_slice. A slice can be present
+            # here after inferring the index node, which could
+            # be a `slice(...)` call for instance.
+            return self.visit_slice(index_type)
 
         # Anything else is an error
         self.add_message('invalid-sequence-index', node=node)

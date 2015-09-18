@@ -374,7 +374,6 @@ class StringMethodsChecker(BaseChecker):
             return
 
         if node.starargs or node.kwargs:
-            # TODO: Don't complicate the logic, skip these for now.
             return
         try:
             positional, named = get_args(node)
