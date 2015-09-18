@@ -42,6 +42,7 @@ _ZOPE_DEPRECATED = (
     "This option is deprecated. Use generated-members instead."
 )
 BUILTINS = six.moves.builtins.__name__
+STR_FORMAT = "%s.str.format" % BUILTINS
 
 
 def _unflatten(iterable):
@@ -537,8 +538,15 @@ accessed. Python regular expressions are accepted.'}
                 i = parameter_name_to_index[keyword]
                 if parameters[i][1]:
                     # Duplicate definition of function parameter.
-                    self.add_message('redundant-keyword-arg',
-                                     node=node, args=(keyword, callable_name))
+                   
+                    # Might be too hardcoded, but this can actually
+                    # happen when using str.format and `self` is passed
+                    # by keyword argument, as in `.format(self=self)`.
+                    # It's perfectly valid to so, so we're just skipping
+                    # it if that's the case.
+                    if not (keyword == 'self' and called.qname() == STR_FORMAT):
+                        self.add_message('redundant-keyword-arg',
+                                         node=node, args=(keyword, callable_name))
                 else:
                     parameters[i][1] = True
             elif keyword in kwparams:

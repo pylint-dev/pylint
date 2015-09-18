@@ -134,3 +134,11 @@ class Test(object):
         self.lam(1, 2, 3) # [too-many-function-args]
 
 Test().lam() # [no-value-for-parameter]
+
+# Don't emit a redundant-keyword-arg for this example,
+# it's perfectly valid
+
+class Issue642(object):
+    attr = 0
+    def __str__(self):
+        return "{self.attr}".format(self=self)
