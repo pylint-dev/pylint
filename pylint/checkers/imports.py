@@ -16,7 +16,7 @@
 """imports checkers for Python code"""
 
 import sys
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import six
 
@@ -288,10 +288,13 @@ given file (report RP0402 must not be disabled)'}
         self._check_relative_import(modnode, node, importedmodnode, basename)
         self._check_deprecated_module(node, basename)
 
-        for i, name in enumerate(node.names):
-            if name in node.names[i + 1:]:
-                self.add_message('reimported', node=node,
-                                 args=(name[0], node.fromlineno))
+        # Detect duplicate imports on the same line.
+        names = (name for name, _ in node.names)
+        counter = Counter(names)
+        for name, count in counter.items():
+            if count > 1:
+               self.add_message('reimported', node=node,
+                                args=(name, node.fromlineno))
 
         for name, _ in node.names:
             if name != '*':
