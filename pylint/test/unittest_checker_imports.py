@@ -3,7 +3,8 @@ import unittest
 
 from astroid import test_utils
 from pylint.checkers import imports
-from pylint.testutils import CheckerTestCase, set_config
+from pylint.testutils import CheckerTestCase, Message, set_config
+
 
 class ImportsCheckerTC(CheckerTestCase):
 
@@ -42,6 +43,15 @@ class ImportsCheckerTC(CheckerTestCase):
         from fake_module.submodule.deeper import anything
         """)
         with self.assertNoMessages():
+            self.checker.visit_importfrom(node)
+
+    def test_visit_importfrom(self):
+        """
+        Test that duplicate imports on single line raise 'reimported'.
+        """
+        node = test_utils.extract_node('from time import sleep, sleep, time')
+        msg = Message(msg_id='reimported', node=node, args=('sleep', 1))
+        with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(node)
 
 if __name__ == '__main__':
