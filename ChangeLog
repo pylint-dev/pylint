@@ -283,6 +283,10 @@ ChangeLog for Pylint
       some point in the future.
       Closes issue #621.
 
+    * `reimported` is emitted for reimported objects on the same line.
+
+      Closes issue #639.
+
 
 
 2015-03-14 -- 1.4.3
