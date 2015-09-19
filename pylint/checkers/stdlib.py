@@ -117,10 +117,63 @@ class StdlibChecker(BaseChecker):
                   'The idiomatic way to perform an explicit typecheck in '
                   'Python is to use isinstance(x, Y) rather than '
                   'type(x) == Y, type(x) is Y. Though there are unusual '
-                  'situations where these give different results.')
+                  'situations where these give different results.'),
+        'W1505': ('Using deprecated method %s()',
+                  'deprecated-method',
+                  'The method is marked as deprecated and will be removed in '
+                  'a future version of Python. Consider looking for an '
+                  'alternative in the documentation.'),
     }
 
-    @utils.check_messages('bad-open-mode', 'redundant-unittest-assert')
+    options = (('deprecated-methods',
+                {'default': (
+                    'asyncio.tasks.async',
+                    'base64.encodestring', 'base64.decodestring',
+                    'cgi.parse_qs', 'cgi.parse_qsl', 'cgi.escape',
+                    'configparser.RawConfigParser.readfp',
+                    'ctypes.c_buffer',
+                    'distutils.command.register.register.check_metadata',
+                    'distutils.command.sdist.sdist.check_metadata',
+                    'fractions.gcd',
+                    'html.unescape',
+                    'importlib.find_loader',
+                    'inspect.getmoduleinfo', 'inspect.getargspec',
+                    'inspect.Signature.from_function',
+                    'inspect.Signature.from_builtin',
+                    'logging.warn', 'logging.Logger.warn',
+                    'logging.LoggerAdapter.warn',
+                    'nntplib._NNTPBase.xgtitle', 'nntplib._NNTPBase.xpath',
+                    'ntpath.splitunc',
+                    'platform.linux_distribution', 'platform.dist',
+                    'platform.popen',
+                    'plistlib.readPlist', 'plistlib.writePlist',
+                    'plistlib.readPlistFromBytes',
+                    'plistlib.writePlistToBytes',
+                    'sre_parse.isident', 'sre_parse.isdigit',
+                    'sre_parse.isname',
+                    'tarfile.filemode',
+                    'tkinter.Misc.tk_menuBar',
+                    'tkinter.Menu.tk_bindForTraversal',
+                    'trace.usage', 'trace.modname', 'trace.fullmodname',
+                    'trace.find_lines_from_code', 'trace.find_lines',
+                    'trace.find_strings', 'trace.find_executable_linenos',
+                    'unittest.case.TestCase._deprecate.deprecated_func',
+                    'unittest.case.TestCase.assertEquals',
+                    'unittest.case.TestCase.assertNotEquals',
+                    'unittest.case.TestCase.assertAlmostEquals',
+                    'unittest.case.TestCase.assertNotAlmostEquals',
+                    'unittest.case.TestCase.assert_',
+                    'xml.etree.Element.getchildren',
+                    'xml.etree.Element.getiterator',
+                    'xml.etree.XMLParser.getiterator',
+                    'xml.etree.XMLParser.doctype',
+                ), 'type': 'csv', 'metavar': '<names>',
+                   'help': 'Methods considered deprecated'}
+                ),
+               )
+
+    @utils.check_messages('bad-open-mode', 'redundant-unittest-assert',
+                          'deprecated-method')
     def visit_call(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
@@ -131,6 +184,7 @@ class StdlibChecker(BaseChecker):
                         self._check_open_mode(node)
                 if infer.root().name == 'unittest.case':
                     self._check_redundant_assert(node, infer)
+                self._check_deprecated_method(node, infer)
 
     @utils.check_messages('boolean-datetime')
     def visit_unaryop(self, node):
@@ -157,6 +211,11 @@ class StdlibChecker(BaseChecker):
             left = node.left
             if _is_one_arg_pos_call(left):
                 self._check_type_x_is_y(node, left, operator, right)
+
+    def _check_deprecated_method(self, node, infer):
+        if infer.qname() in self.config.deprecated_methods:
+            self.add_message('deprecated-method', node=node,
+                             args=(infer.name, ))
 
     def _check_redundant_assert(self, node, infer):
         if (isinstance(infer, astroid.BoundMethod) and
