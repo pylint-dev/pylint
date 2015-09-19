@@ -288,10 +288,10 @@ given file (report RP0402 must not be disabled)'}
         self._check_relative_import(modnode, node, importedmodnode, basename)
         self._check_deprecated_module(node, basename)
 
-        for i in range(len(node.names)):
-            if node.names[i] in node.names[i + 1:]:
+        for i, name in enumerate(node.names):
+            if name in node.names[i + 1:]:
                 self.add_message('reimported', node=node,
-                                 args=(node.names[i][0], node.fromlineno))
+                                 args=(name[0], node.fromlineno))
 
         for name, _ in node.names:
             if name != '*':
