@@ -316,6 +316,12 @@ class OptionParser(optparse.OptionParser):
         # Drop the last "\n", or the header if no options or option groups:
         return "".join(result[:-1])
 
+    def _match_long_opt(self, opt):
+        """Disable abbreviations."""
+        if opt not in self._long_opt:
+            raise optparse.BadOptionError(opt)
+        return opt
+
 
 # pylint: disable=abstract-method; by design?
 class _ManHelpFormatter(optparse.HelpFormatter):

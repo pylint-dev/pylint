@@ -287,6 +287,14 @@ ChangeLog for Pylint
 
       Closes issue #639.
 
+    * Abbreviations of command line options are not supported anymore.
+
+      Using abbreviations for CLI options was never considered to be
+      a feature of pylint, this fact being only a side effect of using optparse.
+      As this was the case, using --load-plugin or other abbreviation
+      for --load-plugins never actually worked, while it also didn't raise
+      an error. Closes issue #424.
+
 
 
 2015-03-14 -- 1.4.3
