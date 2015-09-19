@@ -117,10 +117,16 @@ class StdlibChecker(BaseChecker):
                   'The idiomatic way to perform an explicit typecheck in '
                   'Python is to use isinstance(x, Y) rather than '
                   'type(x) == Y, type(x) is Y. Though there are unusual '
-                  'situations where these give different results.')
+                  'situations where these give different results.'),
+        'W1505': ('Using deprecated alias %s',
+                  'deprecated-unittest-alias',
+                  'Since Python 3.2 and 2.7, the aliases of some TestCase '
+                  'methods are deprecated. Refer to the table here '
+                  'https://docs.python.org/3.5/library/unittest.html#deprecated-aliases'),
     }
 
-    @utils.check_messages('bad-open-mode', 'redundant-unittest-assert')
+    @utils.check_messages('bad-open-mode', 'redundant-unittest-assert',
+                          'deprecated-unitteset-alias')
     def visit_call(self, node):
         """Visit a CallFunc node."""
         if hasattr(node, 'func'):
@@ -131,6 +137,7 @@ class StdlibChecker(BaseChecker):
                         self._check_open_mode(node)
                 if infer.root().name == 'unittest.case':
                     self._check_redundant_assert(node, infer)
+                self._check_unittest_alias(node, infer)
 
     @utils.check_messages('boolean-datetime')
     def visit_unaryop(self, node):
@@ -165,6 +172,22 @@ class StdlibChecker(BaseChecker):
             self.add_message('redundant-unittest-assert',
                              args=(infer.name, node.args[0].value, ),
                              node=node)
+
+    def _check_unittest_alias(self, node, infer):
+        self.config = {
+            'deprecated_functions': [
+                'unittest.case.TestCase._deprecate.deprecated_func',
+                'unittest.case.TestCase.assertEquals',
+                'unittest.case.TestCase.assertNotEquals',
+                'unittest.case.TestCase.assertAlmostEquals',
+                'unittest.case.TestCase.assertNotAlmostEquals',
+                'unittest.case.TestCase.assert_',
+            ]
+        }
+
+        if infer.qname() in self.config['deprecated_functions']:
+            self.add_message('deprecated-unittest-alias', node=node,
+                             args=(node.func.attrname, ))
 
     def _check_datetime(self, node):
         """ Check that a datetime was infered.
