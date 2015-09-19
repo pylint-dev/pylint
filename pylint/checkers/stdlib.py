@@ -174,6 +174,10 @@ class StdlibChecker(BaseChecker):
                              node=node)
 
     def _check_unittest_alias(self, node, infer):
+        """
+        Check if a deprecated alias is used with unittest.TestCase
+        https://docs.python.org/3.5/library/unittest.html#deprecated-aliases
+        """
         self.config = {
             'deprecated_functions': [
                 'unittest.case.TestCase._deprecate.deprecated_func',
