@@ -298,8 +298,8 @@ given file (report RP0402 must not be disabled)'}
         counter = Counter(names)
         for name, count in counter.items():
             if count > 1:
-               self.add_message('reimported', node=node,
-                                args=(name, node.fromlineno))
+                self.add_message('reimported', node=node,
+                                 args=(name, node.fromlineno))
 
     def get_imported_module(self, importnode, modname):
         try:
