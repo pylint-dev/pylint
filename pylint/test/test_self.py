@@ -101,7 +101,7 @@ class RunTC(unittest.TestCase):
         out = six.StringIO()
         self._run_pylint(args, out=out)
         actual_output = out.getvalue()
-        self.assertEqual(expected_output.strip(), actual_output.strip())
+        self.assertIn(expected_output.strip(), actual_output.strip())
 
     def test_pkginfo(self):
         """Make pylint check itself."""
@@ -242,6 +242,10 @@ class RunTC(unittest.TestCase):
         # Test what gets emitted with --py3k -E
         self._test_output([module, "--py3k", "-E", "--msg-template='{msg}'"],
                           expected_output=expected)
+
+    def test_abbreviations_are_not_supported(self):
+        expected = "no such option: --load-plugin"
+        self._test_output([".", "--load-plugin"], expected_output=expected)
 
 
 if __name__ == '__main__':
