@@ -1,4 +1,0 @@
-deprecated-method:8::Using deprecated method unescape()
-deprecated-method:13:MyTest.test:Using deprecated method assert_()
-deprecated-method:16::Using deprecated method check_metadata()
-deprecated-method:18::Using deprecated method getchildren()

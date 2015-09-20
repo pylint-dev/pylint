@@ -1,0 +1,3 @@
+deprecated-method:10:MyTest.test:Using deprecated method assert_()
+deprecated-method:13::Using deprecated method check_metadata()
+deprecated-method:15::Using deprecated method getchildren()

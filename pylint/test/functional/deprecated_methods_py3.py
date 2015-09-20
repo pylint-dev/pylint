@@ -1,11 +1,8 @@
 """ Functional tests for method deprecation. """
 # pylint: disable=missing-docstring
-import html.parser
 import unittest
 import distutils
 import xml.etree.ElementTree
-
-html.parser.unescape('a')   # [deprecated-method]
 
 
 class MyTest(unittest.TestCase):
