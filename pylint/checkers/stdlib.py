@@ -27,7 +27,8 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
 
-TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==', '!=', 'in', 'not in'))
+TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
+                                            '!=', 'in', 'not in'))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 
 if sys.version_info >= (3, 0):
@@ -125,53 +126,6 @@ class StdlibChecker(BaseChecker):
                   'alternative in the documentation.'),
     }
 
-    options = (('deprecated-methods',
-                {'default': (
-                    'asyncio.tasks.async',
-                    'base64.encodestring', 'base64.decodestring',
-                    'cgi.parse_qs', 'cgi.parse_qsl', 'cgi.escape',
-                    'configparser.RawConfigParser.readfp',
-                    'ctypes.c_buffer',
-                    'distutils.command.register.register.check_metadata',
-                    'distutils.command.sdist.sdist.check_metadata',
-                    'fractions.gcd',
-                    'html.unescape',
-                    'importlib.find_loader',
-                    'inspect.getmoduleinfo', 'inspect.getargspec',
-                    'inspect.Signature.from_function',
-                    'inspect.Signature.from_builtin',
-                    'logging.warn', 'logging.Logger.warn',
-                    'logging.LoggerAdapter.warn',
-                    'nntplib._NNTPBase.xgtitle', 'nntplib._NNTPBase.xpath',
-                    'ntpath.splitunc',
-                    'platform.linux_distribution', 'platform.dist',
-                    'platform.popen',
-                    'plistlib.readPlist', 'plistlib.writePlist',
-                    'plistlib.readPlistFromBytes',
-                    'plistlib.writePlistToBytes',
-                    'sre_parse.isident', 'sre_parse.isdigit',
-                    'sre_parse.isname',
-                    'tarfile.filemode',
-                    'tkinter.Misc.tk_menuBar',
-                    'tkinter.Menu.tk_bindForTraversal',
-                    'trace.usage', 'trace.modname', 'trace.fullmodname',
-                    'trace.find_lines_from_code', 'trace.find_lines',
-                    'trace.find_strings', 'trace.find_executable_linenos',
-                    'unittest.case.TestCase._deprecate.deprecated_func',
-                    'unittest.case.TestCase.assertEquals',
-                    'unittest.case.TestCase.assertNotEquals',
-                    'unittest.case.TestCase.assertAlmostEquals',
-                    'unittest.case.TestCase.assertNotAlmostEquals',
-                    'unittest.case.TestCase.assert_',
-                    'xml.etree.Element.getchildren',
-                    'xml.etree.Element.getiterator',
-                    'xml.etree.XMLParser.getiterator',
-                    'xml.etree.XMLParser.doctype',
-                ), 'type': 'csv', 'metavar': '<names>',
-                   'help': 'Methods considered deprecated'}
-                ),
-               )
-
     @utils.check_messages('bad-open-mode', 'redundant-unittest-assert',
                           'deprecated-method')
     def visit_call(self, node):
@@ -213,9 +167,72 @@ class StdlibChecker(BaseChecker):
                 self._check_type_x_is_y(node, left, operator, right)
 
     def _check_deprecated_method(self, node, infer):
-        if infer.qname() in self.config.deprecated_methods:
+        common = (0, 0)
+        deprecated = {
+            common: [
+                'cgi.parse_qs', 'cgi.parse_qsl',
+                'ctypes.c_buffer',
+                'distutils.command.register.register.check_metadata',
+                'distutils.command.sdist.sdist.check_metadata',
+                'tkinter.Misc.tk_menuBar',
+                'tkinter.Menu.tk_bindForTraversal',
+                'unittest.case.TestCase._deprecate.deprecated_func',
+                'xml.etree.ElementTree.Element.getchildren',
+                'xml.etree.ElementTree.Element.getiterator',
+                'xml.etree.ElementTree.XMLParser.getiterator',
+                'xml.etree.ElementTree.XMLParser.doctype',
+            ],
+            (2, 7): [
+                'argparse.ArgumentParser.format_version',
+                'argparse.ArgumentParser.print_version',
+                'commands.getstatus',
+                'os.popen2',
+                'os.popen3',
+                'os.popen4',
+                'macostools.touched',
+                'socket.ssl',
+                'unittest.case.TestCase.assertEquals',
+                'unittest.case.TestCase.assertNotEquals',
+                'unittest.case.TestCase.assertAlmostEquals',
+                'unittest.case.TestCase.assertNotAlmostEquals',
+                'unittest.case.TestCase.assert_',
+            ],
+            (3, 5): [
+                'asyncio.tasks.async',
+                'base64.encodestring', 'base64.decodestring',
+                'cgi.escape',
+                'configparser.RawConfigParser.readfp',
+                'fractions.gcd',
+                'html.unescape',
+                'importlib.find_loader',
+                'inspect.getmoduleinfo', 'inspect.getargspec',
+                'inspect.getfullargspec',
+                'inspect.Signature.from_function',
+                'inspect.Signature.from_builtin',
+                'logging.warn', 'logging.Logger.warn',
+                'logging.LoggerAdapter.warn',
+                'nntplib._NNTPBase.xgtitle', 'nntplib._NNTPBase.xpath',
+                'ntpath.splitunc',
+                'platform.linux_distribution', 'platform.dist',
+                'platform.popen',
+                'plistlib.readPlist', 'plistlib.writePlist',
+                'plistlib.readPlistFromBytes',
+                'plistlib.writePlistToBytes',
+                'sre_parse.isident', 'sre_parse.isdigit',
+                'sre_parse.isname',
+                'tarfile.filemode',
+                'trace.usage', 'trace.modname', 'trace.fullmodname',
+                'trace.find_lines_from_code', 'trace.find_lines',
+                'trace.find_strings', 'trace.find_executable_linenos',
+            ],
+        }
+
+        py_version = sys.version_info[:2]
+        if (infer.qname() in deprecated[common] or
+                py_version in deprecated and
+                infer.qname() in deprecated[py_version]):
             self.add_message('deprecated-method', node=node,
-                             args=(infer.name, ))
+                             args=(node.func.attrname, ))
 
     def _check_redundant_assert(self, node, infer):
         if (isinstance(infer, astroid.BoundMethod) and
