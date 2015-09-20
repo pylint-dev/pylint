@@ -6,8 +6,8 @@ correct_dict = {
     'two': 'for tea',
 }
 
-wrong_dict = {
-    'tea': 'for two',   # [duplicate-key]
+wrong_dict = {  # [duplicate-key]
+    'tea': 'for two',
     'two': 'for tea',
     'tea': 'time',
 

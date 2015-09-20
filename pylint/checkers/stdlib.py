@@ -228,9 +228,9 @@ class StdlibChecker(BaseChecker):
         }
 
         py_version = sys.version_info[:2]
-        if (infer.qname() in deprecated[common] or
-                py_version in deprecated and
-                infer.qname() in deprecated[py_version]):
+        qname = infer.qname()
+        if (qname in deprecated[common] or
+                py_version in deprecated and qname in deprecated[py_version]):
             self.add_message('deprecated-method', node=node,
                              args=(node.func.attrname, ))
 
