@@ -330,7 +330,8 @@ class BasicErrorChecker(_BasicChecker):
                   'inside a finally clause, which is a SyntaxError.'),
         'E0117': ("nonlocal variable without binding",
                   'nonlocal-without-binding',
-                  'Emitted when a nonlocal variable is not bound',
+                  'Emitted when a nonlocal variable does not have an attached '
+                  'name somewhere in the parent scopes',
                   {'minversion': (3, 0)}),
         }
 
@@ -464,12 +465,13 @@ class BasicErrorChecker(_BasicChecker):
 
             if not isinstance(current_scope, astroid.FunctionDef):
                 self.add_message('nonlocal-without-binding', node=node)
-                break
+                return
             else:
                 if name not in current_scope.locals:
                     current_scope = current_scope.parent.scope()
                     continue
                 else:
+                    # Okay, found it.
                     return
 
         self.add_message('nonlocal-without-binding', node=node)

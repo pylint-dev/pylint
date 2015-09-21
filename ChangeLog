@@ -295,6 +295,11 @@ ChangeLog for Pylint
       for --load-plugins never actually worked, while it also didn't raise
       an error. Closes issue #424.
 
+    * Add a new error, 'nonlocal-without-binding'
+
+      The error is emitted on Python 3 when a nonlocal name is not bound
+      to any variable in the parents scopes. Closes issue #582.
+
 
 
 2015-03-14 -- 1.4.3
