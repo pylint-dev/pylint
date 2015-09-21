@@ -241,7 +241,6 @@ class StdlibChecker(BaseChecker):
 
     def _check_deprecated_method(self, node, infer):
         py_vers = sys.version_info[0]
-        qname = infer.qname()
 
         if isinstance(node.func, astroid.Attribute):
             func_name = node.func.attrname
@@ -251,6 +250,7 @@ class StdlibChecker(BaseChecker):
             # Not interested in other nodes.
             return
 
+        qname = infer.qname()
         if qname in self.deprecated[0]:
             self.add_message('deprecated-method', node=node,
                              args=(func_name, ))

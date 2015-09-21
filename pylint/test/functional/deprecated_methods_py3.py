@@ -1,5 +1,5 @@
 """ Functional tests for method deprecation. """
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, super-init-not-called, not-callable
 import base64
 import cgi
 import inspect
@@ -26,3 +26,10 @@ platform.popen([]) # [deprecated-method]
 base64.encodestring("42") # [deprecated-method]
 base64.decodestring("42") # [deprecated-method]
 cgi.escape("a") # [deprecated-method]
+
+
+class SuperCrash(unittest.TestCase):
+
+    def __init__(self):
+        # should not crash.
+        super(SuperCrash, self)()
