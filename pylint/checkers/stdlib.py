@@ -30,7 +30,8 @@ from pylint.checkers import utils
 TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
                                             '!=', 'in', 'not in'))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
-
+OPEN_FILES = {'open', 'file'}
+UNITTEST_CASE = 'unittest.case'
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
     TYPE_QNAME = 'builtins.type'
@@ -201,15 +202,16 @@ class StdlibChecker(BaseChecker):
                           'deprecated-method')
     def visit_call(self, node):
         """Visit a CallFunc node."""
-        if hasattr(node, 'func'):
-            infer = helpers.safe_infer(node.func)
-            if infer:
-                if infer.root().name == OPEN_MODULE:
-                    if getattr(node.func, 'name', None) in ('open', 'file'):
+        try:
+            for inferred in node.func.infer():
+                if inferred.root().name == OPEN_MODULE:
+                    if getattr(node.func, 'name', None) in OPEN_FILES:
                         self._check_open_mode(node)
-                if infer.root().name == 'unittest.case':
-                    self._check_redundant_assert(node, infer)
-                self._check_deprecated_method(node, infer)
+                if inferred.root().name == UNITTEST_CASE:
+                    self._check_redundant_assert(node, inferred)
+                self._check_deprecated_method(node, inferred)
+        except astroid.InferenceError:
+            return
 
     @utils.check_messages('boolean-datetime')
     def visit_unaryop(self, node):
@@ -246,7 +248,7 @@ class StdlibChecker(BaseChecker):
                              args=(node.func.attrname, ))
         else:
             for since_vers, func_list in self.deprecated[py_vers].items():
-                if since_vers < sys.version_info and qname in func_list:
+                if since_vers <= sys.version_info and qname in func_list:
                     self.add_message('deprecated-method', node=node,
                                      args=(node.func.attrname, ))
                     break

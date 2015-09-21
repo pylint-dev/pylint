@@ -17,8 +17,8 @@ logger = renamed_logging.getLogger(__name__)
 fake_logger = Logger()
 
 # Statements that should be flagged:
-renamed_logging.warn('%s, %s' % (4, 5))
-logger.warn('%s' % 5)
+renamed_logging.warning('%s, %s' % (4, 5))
+logger.warning('%s' % 5)
 
 # Statements that should not be flagged:
 fake_logger.warn('%s' % 5)
