@@ -245,12 +245,12 @@ class StdlibChecker(BaseChecker):
 
         if qname in self.deprecated[0]:
             self.add_message('deprecated-method', node=node,
-                             args=(node.func.attrname, ))
+                             args=(qname, ))
         else:
             for since_vers, func_list in self.deprecated[py_vers].items():
                 if since_vers <= sys.version_info and qname in func_list:
                     self.add_message('deprecated-method', node=node,
-                                     args=(node.func.attrname, ))
+                                     args=(qname, ))
                     break
 
     def _check_redundant_assert(self, node, infer):
