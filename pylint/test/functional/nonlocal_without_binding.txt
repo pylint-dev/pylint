@@ -1,0 +1,1 @@
+nonlocal-without-binding:20:func.other_func:nonlocal variable without binding

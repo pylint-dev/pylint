@@ -328,6 +328,10 @@ class BasicErrorChecker(_BasicChecker):
                   'continue-in-finally',
                   'Emitted when the `continue` keyword is found '
                   'inside a finally clause, which is a SyntaxError.'),
+        'E0117': ("nonlocal variable without binding",
+                  'nonlocal-without-binding',
+                  'Emitted when a nonlocal variable is not bound',
+                  {'minversion': (3, 0)}),
         }
 
     @check_messages('function-redefined')
@@ -451,6 +455,29 @@ class BasicErrorChecker(_BasicChecker):
                 isinstance(node.operand, astroid.UnaryOp) and
                 (node.operand.op == node.op)):
             self.add_message('nonexistent-operator', node=node, args=node.op*2)
+
+    def _check_nonlocal_without_binding(self, node, name):
+        current_scope = node.scope()
+        while True:
+            if current_scope.parent is None:
+                break
+
+            if not isinstance(current_scope, astroid.FunctionDef):
+                self.add_message('nonlocal-without-binding', node=node)
+                break
+            else:
+                if name not in current_scope.locals:
+                    current_scope = current_scope.parent.scope()
+                    continue
+                else:
+                    return
+
+        self.add_message('nonlocal-without-binding', node=node)
+
+    @check_messages('nonlocal-without-binding')
+    def visit_nonlocal(self, node):
+        for name in node.names:
+            self._check_nonlocal_without_binding(node, name)
 
     @check_messages('abstract-class-instantiated')
     def visit_call(self, node):
