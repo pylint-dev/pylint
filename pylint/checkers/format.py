@@ -126,8 +126,11 @@ MSGS = {
 def _underline_token(token):
     length = token[3][1] - token[2][1]
     offset = token[2][1]
-    return token[4] + (' ' * offset) + ('^' * length)
-
+    referenced_line = token[4]
+    # If the referenced line does not end with a newline char, fix it
+    if referenced_line[-1] != '\n':
+        referenced_line += '\n'
+    return referenced_line + (' ' * offset) + ('^' * length)
 
 def _column_distance(token1, token2):
     if token1 == token2:
