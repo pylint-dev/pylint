@@ -177,7 +177,7 @@ class StdlibChecker(BaseChecker):
                 'inspect.getmoduleinfo', 'inspect.getmodulename',
                 'logging.warn', 'logging.Logger.warn',
                 'logging.LoggerAdapter.warn',
-                'nntplib.NNTPBase.xpath',
+                'nntplib._NNTPBase.xpath',
                 'platform.popen',
             ],
             (3, 4): [

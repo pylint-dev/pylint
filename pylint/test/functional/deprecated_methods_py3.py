@@ -1,7 +1,12 @@
 """ Functional tests for method deprecation. """
 # pylint: disable=missing-docstring
+import base64
+import cgi
+import inspect
+import logging
+import nntplib
+import platform
 import unittest
-import distutils
 import xml.etree.ElementTree
 
 
@@ -9,7 +14,15 @@ class MyTest(unittest.TestCase):
     def test(self):
         self.assert_(True)  # [deprecated-method]
 
-REG = distutils.command.register.register('a')
-REG.check_metadata()        # [deprecated-method]
-
 xml.etree.ElementTree.Element('tag').getchildren()  # [deprecated-method]
+xml.etree.ElementTree.Element('tag').getiterator()  # [deprecated-method]
+xml.etree.ElementTree.XMLParser('tag', None, None).doctype(None, None, None)  # [deprecated-method]
+nntplib.NNTP(None).xpath(None) # [deprecated-method]
+inspect.getmoduleinfo(inspect) # [deprecated-method]
+inspect.getmodulename(inspect) # [deprecated-method]
+inspect.getargspec(None) # [deprecated-method]
+logging.warn("a") # [deprecated-method]
+platform.popen([]) # [deprecated-method]
+base64.encodestring("42") # [deprecated-method]
+base64.decodestring("42") # [deprecated-method]
+cgi.escape("a") # [deprecated-method]

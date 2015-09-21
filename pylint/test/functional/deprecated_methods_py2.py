@@ -3,7 +3,7 @@
 import os
 import xml.etree.ElementTree
 
-os.popen2()     # [deprecated-method]
-os.popen3()     # [deprecated-method]
-os.popen4()     # [deprecated-method]
+os.popen2('')     # [deprecated-method]
+os.popen3('')     # [deprecated-method]
+os.popen4('')     # [deprecated-method]
 xml.etree.ElementTree.Element('elem').getchildren()     # [deprecated-method]
