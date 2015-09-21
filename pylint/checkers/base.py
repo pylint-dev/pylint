@@ -328,7 +328,7 @@ class BasicErrorChecker(_BasicChecker):
                   'continue-in-finally',
                   'Emitted when the `continue` keyword is found '
                   'inside a finally clause, which is a SyntaxError.'),
-        'E0117': ("nonlocal variable without binding",
+        'E0117': ("nonlocal name %s found without binding",
                   'nonlocal-without-binding',
                   'Emitted when a nonlocal variable does not have an attached '
                   'name somewhere in the parent scopes',
@@ -464,7 +464,8 @@ class BasicErrorChecker(_BasicChecker):
                 break
 
             if not isinstance(current_scope, astroid.FunctionDef):
-                self.add_message('nonlocal-without-binding', node=node)
+                self.add_message('nonlocal-without-binding', args=(name, ),
+                                 node=node)
                 return
             else:
                 if name not in current_scope.locals:
@@ -474,7 +475,7 @@ class BasicErrorChecker(_BasicChecker):
                     # Okay, found it.
                     return
 
-        self.add_message('nonlocal-without-binding', node=node)
+        self.add_message('nonlocal-without-binding', args=(name, ), node=node)
 
     @check_messages('nonlocal-without-binding')
     def visit_nonlocal(self, node):
