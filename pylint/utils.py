@@ -980,7 +980,7 @@ def get_global_option(checker, option, default=None):
 
 def deprecated_option(shortname=None, opt_type=None, help_msg=None):
     def _warn_deprecated(option, optname, *args): # pylint: disable=unused-argument
-        msg = ("Warning: option %s is obsoleted and "
+        msg = ("Warning: option %s is obsolete and "
                "it is slated for removal in Pylint 1.6.\n")
         sys.stderr.write(msg % (optname,))
 
