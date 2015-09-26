@@ -278,6 +278,7 @@ given file (report RP0402 must not be disabled)'}
                         and prev.modname == '__future__'):
                     self.add_message('misplaced-future', node=node)
             return
+        self._check_deprecated_module(node, basename)
         for name, _ in node.names:
             if name == '*':
                 self.add_message('wildcard-import', args=basename, node=node)
@@ -286,7 +287,6 @@ given file (report RP0402 must not be disabled)'}
         if importedmodnode is None:
             return
         self._check_relative_import(modnode, node, importedmodnode, basename)
-        self._check_deprecated_module(node, basename)
 
         for name, _ in node.names:
             if name != '*':
