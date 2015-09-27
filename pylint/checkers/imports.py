@@ -255,12 +255,12 @@ given file (report RP0402 must not be disabled)'}
         """triggered when an import statement is seen"""
         modnode = node.root()
         for name, _ in node.names:
+            self._check_deprecated_module(node, name)
             importedmodnode = self.get_imported_module(node, name)
             if importedmodnode is None:
                 continue
             self._check_relative_import(modnode, node, importedmodnode, name)
             self._add_imported_module(node, importedmodnode.name)
-            self._check_deprecated_module(node, name)
             self._check_reimport(node, name)
 
     # TODO This appears to be the list of all messages of the checker...
