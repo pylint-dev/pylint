@@ -300,6 +300,9 @@ ChangeLog for Pylint
       The error is emitted on Python 3 when a nonlocal name is not bound
       to any variable in the parents scopes. Closes issue #582.
 
+    * 'deprecated-module' can be shown for modules which aren't
+       available. Closes issue #362.
+
 
 
 2015-03-14 -- 1.4.3
