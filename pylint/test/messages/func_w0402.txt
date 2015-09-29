@@ -1,3 +1,0 @@
-E:  8: Unable to import 'unknown.package'
-W:  5: Wildcard import input.indirect1
-W:  8: Wildcard import unknown.package

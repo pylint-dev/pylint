@@ -1,6 +1,5 @@
-"""test too much line in modules
-"""
-
+# pylint: disable=missing-docstring
+# -1: [too-many-lines]
 __revision__ = 0
 
 

@@ -1,2 +1,0 @@
-W:  9: No exception type(s) specified
-W: 16: Catching too general exception Exception
