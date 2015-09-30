@@ -4,12 +4,12 @@ abstract methods.
 """
 
 # pylint: disable=too-few-public-methods, missing-docstring
-# pylint: disable=abstract-method
-
-__revision__ = 0
+# pylint: disable=abstract-method, import-error
 
 import abc
 import weakref
+from lala import Bala
+
 
 class GoodClass(object, metaclass=abc.ABCMeta):
     pass
@@ -82,11 +82,25 @@ class NoMroAbstractMethods(Container, Iterator, Sizable, Hashable):
 class BadMroAbstractMethods(Container, Iterator, AbstractSizable):
     pass
 
+class SomeMetaclass(metaclass=abc.ABCMeta):
+
+    @abc.abstractmethod
+    def prop(self):
+        pass
+
+class FourthGoodClass(SomeMetaclass):
+    """Don't consider this abstract if some attributes are
+    there, but can't be inferred.
+    """
+    prop = Bala # missing
+
+
 def main():
     """ do nothing """
     GoodClass()
     SecondGoodClass()
     ThirdGoodClass()
+    FourthGoodClass()
     weakref.WeakKeyDictionary()
     weakref.WeakValueDictionary()
     NoMroAbstractMethods()

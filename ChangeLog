@@ -303,6 +303,12 @@ ChangeLog for Pylint
     * 'deprecated-module' can be shown for modules which aren't
        available. Closes issue #362.
 
+    * Don't consider a class abstract if its members can't
+      be properly inferred.
+
+      This fixes a false positive related to abstract-class-instantiated.
+      Closes issue #648.
+
 
 
 2015-03-14 -- 1.4.3

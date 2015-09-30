@@ -524,6 +524,12 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
             if isinstance(obj, astroid.AssignName):
                 infered = safe_infer(obj)
                 if not infered:
+                    # Might be an abstract function,
+                    # but since we don't have enough information
+                    # in order to take this decision, we're taking
+                    # the *safe* decision instead.
+                    if obj.name in visited:
+                        del visited[obj.name]
                     continue
                 if not isinstance(infered, astroid.FunctionDef):
                     if obj.name in visited:
