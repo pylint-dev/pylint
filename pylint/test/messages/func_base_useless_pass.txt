@@ -1,1 +1,0 @@
-W:  9: Unnecessary pass statement

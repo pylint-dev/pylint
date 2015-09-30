@@ -1,2 +1,0 @@
-W:  7: map/filter on lambda could be replaced by comprehension
-W:  9: map/filter on lambda could be replaced by comprehension
