@@ -1,6 +1,5 @@
 # Copyright (c) 2003-2015 LOGILAB S.A. (Paris, FRANCE).
 # http://www.logilab.fr/ -- mailto:contact@logilab.fr
-# Copyright (c) 2009-2010 Arista Networks, Inc.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
