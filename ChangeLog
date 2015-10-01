@@ -2,9 +2,12 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Add checker to identify multiple imports on one line.
+      Closes issue #598.
+
     * Fix unused-argument false positive when the "+=" operator is used.
       Closes issue #518.
-	
+
     * Don't emit import-error for ignored modules. PyLint will not emit import
       errors for any import which is, or is a subpackage of, a module in
       the ignored-modules list. Closes issue #223.

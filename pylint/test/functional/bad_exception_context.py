@@ -1,6 +1,6 @@
 """Check that raise ... from .. uses a proper exception context """
 
-# pylint: disable=unreachable, import-error
+# pylint: disable=unreachable, import-error, multiple-imports
 
 import socket, unknown
 

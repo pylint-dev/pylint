@@ -173,6 +173,11 @@ MSGS = {
               'misplaced-future',
               'Python 2.5 and greater require __future__ import to be the \
               first non docstring statement in the module.'),
+
+    'W0411': ('Multiple imports on one line (%s)',
+              'multiple-imports',
+              'Used when import statement importing multiple modules is '
+              'detected.'),
     }
 
 class ImportsChecker(BaseChecker):
@@ -254,7 +259,10 @@ given file (report RP0402 must not be disabled)'}
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         modnode = node.root()
-        for name, _ in node.names:
+        names = [name for name, _ in node.names]
+        if len(names) >= 2:
+            self.add_message('multiple-imports', args=', '.join(names), node=node)
+        for name in names:
             self._check_deprecated_module(node, name)
             importedmodnode = self.get_imported_module(node, name)
             if importedmodnode is None:
