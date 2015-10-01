@@ -309,6 +309,16 @@ ChangeLog for Pylint
       This fixes a false positive related to abstract-class-instantiated.
       Closes issue #648.
 
+    * Add a new checker for the async features added by PEP 492.
+
+    * Add a new error, 'yield-inside-async-function', emitted on
+      Python 3.5 and upwards when the `yield` statement is found inside
+      a new coroutine function (PEP 492).
+
+    * Add a new error, 'not-async-context-manager', emitted when
+      an async context manager block is used with an object which doesn't
+      support this protocol (PEP 492).
+
 
 
 2015-03-14 -- 1.4.3
