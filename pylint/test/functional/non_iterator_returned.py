@@ -21,6 +21,10 @@ class SecondGoodIterator(object):
         """ Infinite iterator, but still an iterator """
         return 1
 
+    def next(self): # pylint: disable=no-self-use
+        """Same as __next__, but for Python 2."""
+        return 1
+
 class ThirdGoodIterator(object):
     """ Returns other iterator, not the current instance """
 
@@ -36,17 +40,17 @@ class FourthGoodIterator(object):
 class FirstBadIterator(object):
     """ __iter__ returns a list """
 
-    def __iter__(self):
+    def __iter__(self): # [non-iterator-returned]
         return []
 
 class SecondBadIterator(object):
     """ __iter__ without next """
 
-    def __iter__(self):
+    def __iter__(self): # [non-iterator-returned]
         return self
 
 class ThirdBadIterator(object):
     """ __iter__ returns an instance of another non-iterator """
 
-    def __iter__(self):
+    def __iter__(self): # [non-iterator-returned]
         return SecondBadIterator()

@@ -1,3 +1,0 @@
-E: 39:FirstBadIterator.__iter__: __iter__ returns non-iterator
-E: 45:SecondBadIterator.__iter__: __iter__ returns non-iterator
-E: 51:ThirdBadIterator.__iter__: __iter__ returns non-iterator
