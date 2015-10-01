@@ -52,6 +52,20 @@ class ThirdBadContextManager(object):
         pass
 
 
+class Async(object):
+
+    def __aiter__(self, extra): # [unexpected-special-method-signature]
+        pass
+    def __anext__(self, extra, argument): # [unexpected-special-method-signature]
+        pass
+    def __await__(self, param): # [unexpected-special-method-signature]
+        pass
+    def __aenter__(self, first): # [unexpected-special-method-signature]
+        pass
+    def __aexit__(self): # [unexpected-special-method-signature]
+        pass
+
+
 class Valid(object):
 
     def __new__(cls, test, multiple, args):
