@@ -174,7 +174,7 @@ MSGS = {
               'Python 2.5 and greater require __future__ import to be the \
               first non docstring statement in the module.'),
 
-    'W0411': ('Multiple imports on one line (%s)',
+    'C0410': ('Multiple imports on one line (%s)',
               'multiple-imports',
               'Used when import statement importing multiple modules is '
               'detected.'),
