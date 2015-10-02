@@ -1,5 +1,5 @@
 """Test for catching non-exceptions."""
-# pylint: disable=too-many-ancestors, no-absolute-import, import-error
+# pylint: disable=too-many-ancestors, no-absolute-import, import-error, multiple-imports
 from __future__ import print_function
 
 import socket, binascii

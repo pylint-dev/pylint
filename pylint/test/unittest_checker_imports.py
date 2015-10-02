@@ -10,7 +10,10 @@ class ImportsCheckerTC(CheckerTestCase):
 
     CHECKER_CLASS = imports.ImportsChecker
 
-    @set_config(ignored_modules=('external_module', 'fake_module.submodule'))
+    @set_config(ignored_modules=('external_module',
+                                 'fake_module.submodule',
+                                 'foo',
+                                 'bar'))
     def test_import_error_skipped(self):
         """Make sure that imports do not emit a 'import-error' when the
         module is configured to be ignored."""
@@ -44,6 +47,20 @@ class ImportsCheckerTC(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.checker.visit_importfrom(node)
+
+        node = test_utils.extract_node("""
+        import foo, bar
+        """)
+        msg = Message('multiple-imports', node=node, args='foo, bar')
+        with self.assertAddsMessages(msg):
+            self.checker.visit_import(node)
+
+        node = test_utils.extract_node("""
+        import foo
+        import bar
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_import(node)
 
     def test_visit_importfrom(self):
         """
