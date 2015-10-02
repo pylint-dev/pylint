@@ -48,7 +48,8 @@ its output.
 """
 from __future__ import print_function
 
-import sys, os
+import os
+import sys
 import os.path as osp
 from subprocess import Popen, PIPE
 
