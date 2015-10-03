@@ -1436,6 +1436,44 @@ class LambdaForComprehensionChecker(_BasicChecker):
                 and infered.name in ['map', 'filter']):
             self.add_message('deprecated-lambda', node=node)
 
+class ComparisonChecker(_BasicChecker):
+    """checks for 'expr == True', 'expr == False' and 'expr == None'"""
+    msgs = {'C0121': ('Comparison to %s should be %s',
+                      'singleton-comparison',
+                      'Used when an expression is compared to singleton '
+                      'values like True, False or None.'),
+           }
+
+    def check_singleton_comparison(self, singleton, expr, root_node):
+        if singleton.value is True:
+            suggestion = "just 'expr' or 'expr is True'"
+            self.add_message('singleton-comparison',
+                             node=root_node,
+                             args=(True, suggestion))
+        elif singleton.value is False:
+            suggestion = "'not expr' or 'expr is False'"
+            self.add_message('singleton-comparison',
+                             node=root_node,
+                             args=(False, suggestion))
+        elif singleton.value is None:
+            self.add_message('singleton-comparison',
+                             node=root_node,
+                             args=(None, "'expr is None'"))
+
+    @check_messages('singleton-comparison')
+    def visit_compare(self, node):
+        # NOTE: this checker only works with binary comparisons like 'x == 42'
+        # but not 'x == y == 42'
+        if len(node.ops) != 1:
+            return
+
+        left = node.left
+        operator, right = node.ops[0]
+        if operator == '==' and isinstance(left, astroid.Const):
+            self.check_singleton_comparison(left, right, node)
+        elif operator == '==' and isinstance(right, astroid.Const):
+            self.check_singleton_comparison(right, left, node)
+
 
 def register(linter):
     """required method to auto register this checker"""
@@ -1445,3 +1483,4 @@ def register(linter):
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
     linter.register_checker(LambdaForComprehensionChecker(linter))
+    linter.register_checker(ComparisonChecker(linter))
