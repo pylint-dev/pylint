@@ -1,4 +1,4 @@
-"""Test warnings about access to undefined variables."""
+# pylint: disable=missing-docstring, multiple-statements
 # pylint: disable=too-few-public-methods, no-init, no-self-use, old-style-class,bare-except,broad-except
 from __future__ import print_function
 DEFINED = 1
@@ -171,3 +171,7 @@ try:
     unicode_4 # [undefined-variable]
 except ValueError:
     pass
+
+# See https://bitbucket.org/logilab/pylint/issue/111/
+try: raise IOError(1, "a")
+except IOError as err: print(err)

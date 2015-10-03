@@ -144,3 +144,32 @@ class SuperChecks(str, str): # pylint: disable=duplicate-bases
 type(Client()).ala # [no-member]
 type({}).bala # [no-member]
 type('').portocala # [no-member]
+
+
+def socket_false_positive():
+    """Test a regression
+    Version used:
+
+    - Pylint 0.10.0
+    - Logilab common 0.15.0
+    - Logilab astroid 0.15.1
+
+    False E1101 positive, line 23:
+    Instance of '_socketobject' has no 'connect' member
+    """
+
+    import socket
+    sckt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sckt.connect(('127.0.0.1', 80))
+    sckt.close()
+
+
+def no_conjugate_member(magic_flag):
+    """should not raise E1101 on something.conjugate"""
+    if magic_flag:
+        something = 1.0
+    else:
+        something = 1.0j
+    if isinstance(something, float):
+        return something
+    return something.conjugate()

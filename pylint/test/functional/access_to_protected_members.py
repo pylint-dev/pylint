@@ -23,11 +23,16 @@ class MyClass(object):
         print(cls._cls_protected)
     clsmeth = classmethod(clsmeth)
 
+    def _private_method(self):
+        """Doing nothing."""
+
+
 class Subclass(MyClass):
     """Subclass with protected members."""
 
     def __init__(self):
         MyClass._protected = 5
+        super(Subclass, self)._private_method()
 
 INST = Subclass()
 INST.attr = 1

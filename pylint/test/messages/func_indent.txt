@@ -1,5 +1,0 @@
-W:  6: Bad indentation. Found 1 spaces, expected 4
-W:  7: Bad indentation. Found 1 spaces, expected 4
-W: 14: Bad indentation. Found 5 spaces, expected 4
-W: 15: Bad indentation. Found 5 spaces, expected 4
-W: 15:titii: Statement seems to have no effect
