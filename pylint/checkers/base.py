@@ -1469,10 +1469,11 @@ class ComparisonChecker(_BasicChecker):
 
         left = node.left
         operator, right = node.ops[0]
-        if operator == '==' and isinstance(left, astroid.Const):
-            self.check_singleton_comparison(left, node)
-        elif operator == '==' and isinstance(right, astroid.Const):
-            self.check_singleton_comparison(right, node)
+        if operator == '==':
+            if isinstance(left, astroid.Const):
+                self.check_singleton_comparison(left, node)
+            elif isinstance(right, astroid.Const):
+                self.check_singleton_comparison(right, node)
 
 
 def register(linter):
