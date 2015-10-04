@@ -325,6 +325,8 @@ ChangeLog for Pylint
     * Add a new convention warning, 'singleton-comparison', emitted when 
       comparison to True, False or None is found.
 
+    * Don't emit 'assigning-non-slot' for descriptors. Closes issue #652.
+
 
 
 2015-03-14 -- 1.4.3

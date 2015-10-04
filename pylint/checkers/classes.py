@@ -57,6 +57,25 @@ def _is_invalid_base_class(cls):
     return cls.name in INVALID_BASE_CLASSES and is_builtin_object(cls)
 
 
+def _has_data_descriptor(cls, attr):
+    attributes = cls.getattr(attr)
+    for attribute in attributes:
+        try:
+            for inferred in attribute.infer():
+                if isinstance(inferred, astroid.Instance):
+                    try:
+                        inferred.getattr('__get__')
+                        inferred.getattr('__set__')
+                    except astroid.NotFoundError:
+                        continue
+                    else:
+                        return True
+        except astroid.InferenceError:
+            # Can't infer, avoid emitting a false positive in this case.
+            return True
+    return False
+
+
 def _called_in_methods(func, klass, methods):
     """ Check if the func was called in any of the given methods,
     belonging to the *klass*. Returns True if so, False otherwise.
@@ -577,6 +596,10 @@ a metaclass class method.'}
                     if _is_attribute_property(node.attrname, klass):
                         # Properties circumvent the slots mechanism,
                         # so we should not emit a warning for them.
+                        return
+                    if (node.attrname in klass.locals
+                            and _has_data_descriptor(klass, node.attrname)):
+                        # Descriptors circumvent the slots mechanism as well.
                         return
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
