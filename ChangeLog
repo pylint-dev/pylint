@@ -322,6 +322,9 @@ ChangeLog for Pylint
       an async context manager block is used with an object which doesn't
       support this protocol (PEP 492).
 
+    * Add a new convention warning, 'singleton-comparison', emitted when 
+      comparison to True, False or None is found.
+
 
 
 2015-03-14 -- 1.4.3
