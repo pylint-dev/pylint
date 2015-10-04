@@ -1444,7 +1444,7 @@ class ComparisonChecker(_BasicChecker):
                       'values like True, False or None.'),
            }
 
-    def check_singleton_comparison(self, singleton, expr, root_node):
+    def check_singleton_comparison(self, singleton, root_node):
         if singleton.value is True:
             suggestion = "just 'expr' or 'expr is True'"
             self.add_message('singleton-comparison',
@@ -1470,9 +1470,9 @@ class ComparisonChecker(_BasicChecker):
         left = node.left
         operator, right = node.ops[0]
         if operator == '==' and isinstance(left, astroid.Const):
-            self.check_singleton_comparison(left, right, node)
+            self.check_singleton_comparison(left, node)
         elif operator == '==' and isinstance(right, astroid.Const):
-            self.check_singleton_comparison(right, left, node)
+            self.check_singleton_comparison(right, node)
 
 
 def register(linter):
