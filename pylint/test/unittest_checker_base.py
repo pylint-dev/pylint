@@ -398,6 +398,21 @@ class IterableTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
+    def test_non_iterable_in_listcomp(self):
+        node = test_utils.extract_node("""
+        [x for x in 123]
+        """)
+        message = Message('not-an-iterable', node=node, args='123')
+        with self.assertAddsMessages(message):
+            self.checker.visit_listcomp(node)
+        # TODO: more tests
+
+    def test_non_iterable_in_generator(self):
+        node = test_utils.extract_node("__(x for x in 123)")
+        message = Message('not-an-iterable', node=node, args='123')
+        with self.assertAddsMessages(message):
+            self.walk(node.root())
+        # TODO: more tests
 
 
 if __name__ == '__main__':

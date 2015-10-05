@@ -1533,6 +1533,27 @@ class IterableChecker(_BasicChecker):
         for kwarg in node.kwargs:
             self._check_mapping(kwarg.value, node)
 
+    @check_messages('not-an-iterable')
+    def visit_listcomp(self, node):
+        for gen in node.generators:
+            self._check_iterable(gen.iter, node)
+
+    @check_messages('not-an-iterable')
+    def visit_dictcomp(self, node):
+        for gen in node.generators:
+            self._check_iterable(gen.iter, node)
+
+    @check_messages('not-an-iterable')
+    def visit_setcomp(self, node):
+        for gen in node.generators:
+            self._check_iterable(gen.iter, node)
+
+    @check_messages('not-an-iterable')
+    def visit_generatorexp(self, node):
+        import code; code.interact(local=locals())
+        for gen in node.generators:
+            self._check_iterable(gen.iter, node)
+
 
 def register(linter):
     """required method to auto register this checker"""
