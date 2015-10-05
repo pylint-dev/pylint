@@ -1476,6 +1476,64 @@ class ComparisonChecker(_BasicChecker):
                 self.check_singleton_comparison(right, node)
 
 
+class IterableChecker(_BasicChecker):
+    """
+    TODO:
+    """
+    msgs = {'E0121': ('Non-iterable value %s is used in an iterating context',
+                      'not-an-iterable',
+                      'YOLO'),
+            'E0122': ('Non-mapping value %s is used in an mapping context',
+                      'not-a-mapping',
+                      'YOLO'),
+           }
+
+    def _is_string(self, node):
+        return isinstance(node, astroid.Const) and \
+            isinstance(node.value, six.string_types)
+
+    def _is_iterable(self, value):
+        is_iterable_value = isinstance(value, (astroid.List, astroid.Tuple,
+                                               astroid.Set, astroid.Dict,
+                                               astroid.bases.Generator))
+        is_string = self._is_string(value)
+        return is_iterable_value or is_string
+
+    def _is_mapping(self, value):
+        return isinstance(value, astroid.Dict)
+
+    def _check_iterable(self, element, root_node):
+        infered = helpers.safe_infer(element)
+        if infered is not None:
+            if not self._is_iterable(infered):
+                self.add_message('not-an-iterable',
+                                 args=infered.as_string(),
+                                 node=root_node)
+
+    def _check_mapping(self, element, root_node):
+        infered = helpers.safe_infer(element)
+        if infered is not None:
+            if not self._is_mapping(infered):
+                self.add_message('not-a-mapping',
+                                 args=infered.as_string(),
+                                 node=root_node)
+
+    @check_messages('not-an-iterable')
+    def visit_for(self, node):
+        self._check_iterable(node.iter, node)
+
+    @check_messages('not-an-iterable')
+    def visit_yieldfrom(self, node):
+        self._check_iterable(node.value, node)
+
+    @check_messages('not-an-iterable', 'not-a-mapping')
+    def visit_call(self, node):
+        for stararg in node.starargs:
+            self._check_iterable(stararg.value, node)
+        for kwarg in node.kwargs:
+            self._check_mapping(kwarg.value, node)
+
+
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(BasicErrorChecker(linter))

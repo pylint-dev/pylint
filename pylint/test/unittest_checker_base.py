@@ -10,6 +10,13 @@ from pylint.checkers import base
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
+def python33_and_newer(test):
+    """
+    Decorator for any tests that will fail if launched not with Python 3.3+.
+    """
+    return unittest.skipIf(sys.version_info < (3, 3),
+                           'Python 3.2 and older')(test)
+
 class DocstringTest(CheckerTestCase):
     CHECKER_CLASS = base.DocStringChecker
 
@@ -291,6 +298,106 @@ class ComparisonTest(CheckerTestCase):
                           args=(None, "'expr is None'"))
         with self.assertAddsMessages(message):
             self.checker.visit_compare(node)
+
+
+class IterableTest(CheckerTestCase):
+    CHECKER_CLASS = base.IterableChecker
+
+    def test_non_iterable_in_for(self):
+        node = test_utils.extract_node("""
+        for i in 42:
+            print(i)
+        """)
+        message = Message('not-an-iterable', node=node, args='42')
+        with self.assertAddsMessages(message):
+            self.checker.visit_for(node)
+
+        node = test_utils.extract_node("""
+        for i in [1,2,3]:
+            print(i)
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_for(node)
+
+        node = test_utils.extract_node("""
+        def count():
+            i = 0
+            while True:
+                yield i
+                i += 1
+
+        for i in count():
+            print(i)
+        """)
+        with self.assertNoMessages():
+            self.walk(node.root())
+
+        node = test_utils.extract_node("""
+        for i in "aeiou":
+            print(i)
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_for(node)
+
+    @python33_and_newer
+    def test_non_iterable_in_yield_from(self):
+        node = test_utils.extract_node("""
+        yield from 42
+        """)
+        message = Message('not-an-iterable', node=node, args='42')
+        with self.assertAddsMessages(message):
+            self.checker.visit_yieldfrom(node)
+
+        node = test_utils.extract_node("""
+        yield from [1,2,3]
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_yieldfrom(node)
+
+    def test_non_iterable_in_starargs(self):
+        node = test_utils.extract_node("""
+        foo(*123)
+        """)
+        message = Message('not-an-iterable', node=node, args='123')
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+        node = test_utils.extract_node("""
+        stuff = [1,2,3]
+        foo(*stuff)
+        """)
+        with self.assertNoMessages():
+            self.walk(node.root())
+
+    def test_non_mapping_in_kwargs(self):
+        node = test_utils.extract_node("""
+        foo(**123)
+        """)
+        message = Message('not-a-mapping', node=node, args='123')
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+        node = test_utils.extract_node("""
+        args = [1, 2, 3]
+        foo(**args)
+        """)
+        message = Message('not-a-mapping', node=node, args='[1, 2, 3]')
+        with self.assertAddsMessages(message):
+            self.walk(node.root())
+
+        node = test_utils.extract_node("""
+        kwargs = {'answer': 42}
+        foo(**kwargs)
+        """)
+        with self.assertNoMessages():
+            self.walk(node.root())
+
+        node = test_utils.extract_node("""
+        foo(**dict(a=1, b=2))
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
 
 
 if __name__ == '__main__':
