@@ -1,0 +1,10 @@
+not-an-iterable:9::Non-iterable value 42 is used in an iterating context
+not-an-iterable:12::Non-iterable value True is used in an iterating context
+not-an-iterable:19::Non-iterable value 1 is used in an iterating context
+not-an-iterable:20::Non-iterable value False is used in an iterating context
+not-a-mapping:23::Non-mapping value 1 is used in a mapping context
+not-a-mapping:24::Non-mapping value None is used in a mapping context
+not-an-iterable:27::Non-iterable value 10 is used in an iterating context
+not-an-iterable:30::Non-iterable value 128 is used in an iterating context
+not-an-iterable:33::Non-iterable value 32 is used in an iterating context
+not-an-iterable:36::Non-iterable value 10 is used in an iterating context
