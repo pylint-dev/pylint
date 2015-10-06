@@ -354,7 +354,7 @@ class IterableTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_yieldfrom(node)
 
-    def test_non_iterable_in_starargs(self):
+    def test_non_iterable_in_funcall_starargs(self):
         node = test_utils.extract_node("""
         foo(*123)
         """)
@@ -378,31 +378,10 @@ class IterableTest(CheckerTestCase):
             self.checker.visit_call(node)
 
         node = test_utils.extract_node("""
-        args = [1, 2, 3]
-        foo(**args)
-        """)
-        message = Message('not-a-mapping', node=node, args='args')
-        with self.assertAddsMessages(message):
-            self.walk(node.root())
-
-        node = test_utils.extract_node("""
-        kwargs = {'answer': 42}
-        foo(**kwargs)
+        foo(**retdict())
         """)
         with self.assertNoMessages():
             self.walk(node.root())
-
-        node = test_utils.extract_node("""
-        foo(**dict(a=1, b=2))
-        """)
-        with self.assertNoMessages():
-            self.checker.visit_call(node)
-
-        node = test_utils.extract_node("""
-        foo(**{str(x): x for x in range(5)})
-        """)
-        with self.assertNoMessages():
-            self.checker.visit_call(node)
 
     def test_non_iterable_in_listcomp(self):
         node = test_utils.extract_node("""

@@ -1478,39 +1478,29 @@ class ComparisonChecker(_BasicChecker):
 
 class IterableChecker(_BasicChecker):
     """
-    TODO:
+    Checks for non-iterables used in an iterable context.
+    Contexts include:
+    - for-statement
+    - starargs in function call
+    - `yield from`-statement
+    - list, dict and set comprehensions
+    - generator expressions
+    Also checks for non-mappings in function call kwargs.
     """
-    msgs = {'E0121': ('Non-iterable value %s is used in an iterating context',
+    msgs = {'E0118': ('Non-iterable value %s is used in an iterating context',
                       'not-an-iterable',
-                      'YOLO'),
-            'E0122': ('Non-mapping value %s is used in an mapping context',
+                      'Used when a non-iterable value is used in place where'
+                      'iterable is expected'),
+            'E0119': ('Non-mapping value %s is used in a mapping context',
                       'not-a-mapping',
-                      'YOLO'),
+                      'Used when a non-mapping value is used in place where'
+                      'mapping is expected'),
            }
 
-    def _is_string(self, node):
-        return isinstance(node, astroid.Const) and \
-            isinstance(node.value, six.string_types)
-
-    def _is_iterable(self, value):
-        is_iterable_value = isinstance(value, (astroid.List, astroid.Tuple,
-                                               astroid.Set, astroid.Dict,
-                                               astroid.bases.Generator))
-        is_string = self._is_string(value)
-        return is_iterable_value or is_string
-
-    def _not_an_iterable(self, value):
-        is_iterable = self._is_iterable(value)
-        is_const = isinstance(value, astroid.Const)
-        return not is_iterable and is_const
-
-    def _is_mapping(self, value):
-        return isinstance(value, (astroid.Dict, astroid.DictComp))
-
-    def _not_a_mapping(self, value):
-        is_mapping = self._is_mapping(value)
-        is_const = isinstance(value, astroid.Const)
-        return not is_mapping and is_const
+    def _not_an_iterable(self, node):
+        is_const = isinstance(node, astroid.Const)
+        is_string = is_const and isinstance(node.value, six.string_types)
+        return is_const and not is_string
 
     def _check_iterable(self, element, root_node):
         infered = helpers.safe_infer(element)
@@ -1523,7 +1513,7 @@ class IterableChecker(_BasicChecker):
     def _check_mapping(self, element, root_node):
         infered = helpers.safe_infer(element)
         if infered is not None:
-            if not self._is_mapping(infered):
+            if isinstance(infered, astroid.Const):
                 self.add_message('not-a-mapping',
                                  args=element.as_string(),
                                  node=root_node)
@@ -1573,3 +1563,4 @@ def register(linter):
     linter.register_checker(PassChecker(linter))
     linter.register_checker(LambdaForComprehensionChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
+    linter.register_checker(IterableChecker(linter))
