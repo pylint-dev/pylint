@@ -1499,15 +1499,25 @@ class IterableChecker(_BasicChecker):
         is_string = self._is_string(value)
         return is_iterable_value or is_string
 
+    def _not_an_iterable(self, value):
+        is_iterable = self._is_iterable(value)
+        is_const = isinstance(value, astroid.Const)
+        return not is_iterable and is_const
+
     def _is_mapping(self, value):
-        return isinstance(value, astroid.Dict)
+        return isinstance(value, (astroid.Dict, astroid.DictComp))
+
+    def _not_a_mapping(self, value):
+        is_mapping = self._is_mapping(value)
+        is_const = isinstance(value, astroid.Const)
+        return not is_mapping and is_const
 
     def _check_iterable(self, element, root_node):
         infered = helpers.safe_infer(element)
         if infered is not None:
-            if not self._is_iterable(infered):
+            if self._not_an_iterable(infered):
                 self.add_message('not-an-iterable',
-                                 args=infered.as_string(),
+                                 args=element.as_string(),
                                  node=root_node)
 
     def _check_mapping(self, element, root_node):
@@ -1515,7 +1525,7 @@ class IterableChecker(_BasicChecker):
         if infered is not None:
             if not self._is_mapping(infered):
                 self.add_message('not-a-mapping',
-                                 args=infered.as_string(),
+                                 args=element.as_string(),
                                  node=root_node)
 
     @check_messages('not-an-iterable')
@@ -1550,7 +1560,6 @@ class IterableChecker(_BasicChecker):
 
     @check_messages('not-an-iterable')
     def visit_generatorexp(self, node):
-        import code; code.interact(local=locals())
         for gen in node.generators:
             self._check_iterable(gen.iter, node)
 

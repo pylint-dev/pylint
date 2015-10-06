@@ -369,7 +369,7 @@ class IterableTest(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node.root())
 
-    def test_non_mapping_in_kwargs(self):
+    def test_non_mapping_in_funcall_kwargs(self):
         node = test_utils.extract_node("""
         foo(**123)
         """)
@@ -381,7 +381,7 @@ class IterableTest(CheckerTestCase):
         args = [1, 2, 3]
         foo(**args)
         """)
-        message = Message('not-a-mapping', node=node, args='[1, 2, 3]')
+        message = Message('not-a-mapping', node=node, args='args')
         with self.assertAddsMessages(message):
             self.walk(node.root())
 
@@ -398,21 +398,63 @@ class IterableTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
+        node = test_utils.extract_node("""
+        foo(**{str(x): x for x in range(5)})
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
     def test_non_iterable_in_listcomp(self):
         node = test_utils.extract_node("""
-        [x for x in 123]
+        [x ** 2 for x in 10]
         """)
-        message = Message('not-an-iterable', node=node, args='123')
+        message = Message('not-an-iterable', node=node, args='10')
         with self.assertAddsMessages(message):
             self.checker.visit_listcomp(node)
-        # TODO: more tests
+
+        node = test_utils.extract_node("""
+        [x ** 2 for x in range(10)]
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_listcomp(node)
+
+    def test_non_iterable_in_dictcomp(self):
+        node = test_utils.extract_node("""
+        {x: chr(x) for x in 256}
+        """)
+        message = Message('not-an-iterable', node=node, args='256')
+        with self.assertAddsMessages(message):
+            self.checker.visit_dictcomp(node)
+
+        node = test_utils.extract_node("""
+        {ord(x): x for x in "aoeui"}
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_dictcomp(node)
+
+    def test_non_iterable_in_setcomp(self):
+        node = test_utils.extract_node("""
+        {2 ** x for x in 10}
+        """)
+        message = Message('not-an-iterable', node=node, args='10')
+        with self.assertAddsMessages(message):
+            self.checker.visit_setcomp(node)
+
+        node = test_utils.extract_node("""
+        {2 ** x for x in range(10)}
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_setcomp(node)
 
     def test_non_iterable_in_generator(self):
         node = test_utils.extract_node("__(x for x in 123)")
         message = Message('not-an-iterable', node=node, args='123')
         with self.assertAddsMessages(message):
             self.walk(node.root())
-        # TODO: more tests
+
+        node = test_utils.extract_node("__(chr(x) for x in range(25))")
+        with self.assertNoMessages():
+            self.walk(node.root())
 
 
 if __name__ == '__main__':
