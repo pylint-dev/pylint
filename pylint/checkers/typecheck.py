@@ -83,6 +83,58 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
     return any(name == ignore or qname == ignore for ignore in ignored_classes)
 
 
+def _is_comprehension(node):
+    comprehensions = (astroid.ListComp,
+                      astroid.SetComp,
+                      astroid.DictComp)
+    return isinstance(node, comprehensions)
+
+
+def _is_iterable(value):
+    try:
+        value.getattr('__iter__')
+        return True
+    except astroid.NotFoundError:
+        pass
+    try:
+        # this checks works for string types
+        value.getattr('__getitem__')
+        return True
+    except astroid.NotFoundError:
+        pass
+    return False
+
+
+def _is_iterator(value):
+    try:
+        value.getattr('__iter__')
+        if six.PY2:
+            value.getattr('next')
+        elif six.PY3:
+            value.getattr('__next__')
+        return True
+    except astroid.NotFoundError:
+        return False
+
+
+def _is_old_style_iterator(value):
+    try:
+        value.getattr('__getitem__')
+        value.getattr('__len__')
+        return True
+    except astroid.NotFoundError:
+        return False
+
+
+def _is_mapping(value):
+    try:
+        value.getattr('__getitem__')
+        value.getattr('__iter__')
+        value.getattr('__len__')
+        return True
+    except astroid.NotFoundError:
+        return False
+
 MSGS = {
     'E1101': ('%s %r has no %r member',
               'no-member',
@@ -819,45 +871,21 @@ class IterableChecker(BaseChecker):
                       'mapping is expected'),
            }
 
-    def _is_comprehension(self, node):
-        comprehensions = (astroid.ListComp,
-                          astroid.SetComp,
-                          astroid.DictComp)
-        return isinstance(node, comprehensions)
-
-    def _is_string_value(self, node):
-        return isinstance(node, astroid.Const) and isinstance(node.value, six.string_types)
-
-    def _is_iterable_value(self, value):
-        try:
-            value.getattr('__iter__')
-            return True
-        except astroid.NotFoundError:
-            return False
-
-    def _is_old_style_iterator(self, value):
-        try:
-            value.getattr('__next__')
-            value.getattr('__len__')
-            return True
-        except astroid.NotFoundError:
-            return False
-
     def _check_iterable(self, node, root_node):
         # for/set/dict-comprehensions can't be infered with astroid,
         # so we check for them before the inference
-        if self._is_comprehension(node):
+        if _is_comprehension(node):
             return
         infered = helpers.safe_infer(node)
         if infered is None:
             return
         if infered is astroid.YES:
             return
-        if self._is_iterable_value(infered):
+        if _is_iterable(infered):
             return
-        if self._is_old_style_iterator(infered):
+        if _is_iterator(infered):
             return
-        if self._is_string_value(infered):
+        if _is_old_style_iterator(infered):
             return
         self.add_message('not-an-iterable',
                          args=node.as_string(),
@@ -871,7 +899,7 @@ class IterableChecker(BaseChecker):
             return
         if infered is astroid.YES:
             return
-        if isinstance(infered, astroid.Dict):
+        if _is_mapping(infered):
             return
         self.add_message('not-a-mapping',
                          args=node.as_string(),
