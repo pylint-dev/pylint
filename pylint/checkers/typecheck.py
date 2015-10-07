@@ -564,23 +564,7 @@ accessed. Python regular expressions are accepted.'}
                 self.add_message('unexpected-keyword-arg', node=node,
                                  args=(keyword, callable_name))
 
-        # 3. Match the *args, if any.  Note that Python actually processes
-        #    *args _before_ any keyword arguments, but we wait until after
-        #    looking at the keyword arguments so as to make a more conservative
-        #    guess at how many values are in the *args sequence.
-        if node.starargs:
-            for i in range(num_positional_args, len(parameters)):
-                [(name, defval), assigned] = parameters[i]
-                # Assume that *args provides just enough values for all
-                # non-default parameters after the last parameter assigned by
-                # the positional arguments but before the first parameter
-                # assigned by the keyword arguments.  This is the best we can
-                # get without generating any false positives.
-                if (defval is not None) or assigned:
-                    break
-                parameters[i][1] = True
-
-        # 4. Match the **kwargs, if any.
+        # 3. Match the **kwargs, if any.
         if node.kwargs:
             for i, [(name, defval), assigned] in enumerate(parameters):
                 # Assume that *kwargs provides values for all remaining
