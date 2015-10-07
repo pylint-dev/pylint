@@ -794,6 +794,126 @@ accessed. Python regular expressions are accepted.'}
                              args=str(error), node=node)
 
 
+class IterableChecker(BaseChecker):
+    """
+    Checks for non-iterables used in an iterable context.
+    Contexts include:
+    - for-statement
+    - starargs in function call
+    - `yield from`-statement
+    - list, dict and set comprehensions
+    - generator expressions
+    Also checks for non-mappings in function call kwargs.
+    """
+
+    __implements__ = (IAstroidChecker,)
+    name = 'iterable_check'
+
+    msgs = {'E1132': ('Non-iterable value %s is used in an iterating context',
+                      'not-an-iterable',
+                      'Used when a non-iterable value is used in place where'
+                      'iterable is expected'),
+            'E1133': ('Non-mapping value %s is used in a mapping context',
+                      'not-a-mapping',
+                      'Used when a non-mapping value is used in place where'
+                      'mapping is expected'),
+           }
+
+    def _is_comprehension(self, node):
+        comprehensions = (astroid.ListComp,
+                          astroid.SetComp,
+                          astroid.DictComp)
+        return isinstance(node, comprehensions)
+
+    def _is_string_value(self, node):
+        return isinstance(node, astroid.Const) and isinstance(node.value, six.string_types)
+
+    def _is_iterable_value(self, value):
+        try:
+            value.getattr('__iter__')
+            return True
+        except astroid.NotFoundError:
+            return False
+
+    def _is_old_style_iterator(self, value):
+        try:
+            value.getattr('__next__')
+            value.getattr('__len__')
+            return True
+        except astroid.NotFoundError:
+            return False
+
+    def _check_iterable(self, node, root_node):
+        # for/set/dict-comprehensions can't be infered with astroid,
+        # so we check for them before the inference
+        if self._is_comprehension(node):
+            return
+        infered = helpers.safe_infer(node)
+        if infered is None:
+            return
+        if infered is astroid.YES:
+            return
+        if self._is_iterable_value(infered):
+            return
+        if self._is_old_style_iterator(infered):
+            return
+        if self._is_string_value(infered):
+            return
+        self.add_message('not-an-iterable',
+                         args=node.as_string(),
+                         node=root_node)
+
+    def _check_mapping(self, node, root_node):
+        if isinstance(node, astroid.DictComp):
+            return
+        infered = helpers.safe_infer(node)
+        if infered is None:
+            return
+        if infered is astroid.YES:
+            return
+        if isinstance(infered, astroid.Dict):
+            return
+        self.add_message('not-a-mapping',
+                         args=node.as_string(),
+                         node=root_node)
+
+    @check_messages('not-an-iterable')
+    def visit_for(self, node):
+        self._check_iterable(node.iter, node)
+
+    @check_messages('not-an-iterable')
+    def visit_yieldfrom(self, node):
+        self._check_iterable(node.value, node)
+
+    @check_messages('not-an-iterable', 'not-a-mapping')
+    def visit_call(self, node):
+        for stararg in node.starargs:
+            self._check_iterable(stararg.value, node)
+        for kwarg in node.kwargs:
+            self._check_mapping(kwarg.value, node)
+
+    @check_messages('not-an-iterable')
+    def visit_listcomp(self, node):
+        for gen in node.generators:
+            self._check_iterable(gen.iter, node)
+
+    @check_messages('not-an-iterable')
+    def visit_dictcomp(self, node):
+        for gen in node.generators:
+            self._check_iterable(gen.iter, node)
+
+    @check_messages('not-an-iterable')
+    def visit_setcomp(self, node):
+        for gen in node.generators:
+            self._check_iterable(gen.iter, node)
+
+    @check_messages('not-an-iterable')
+    def visit_generatorexp(self, node):
+        for gen in node.generators:
+            self._check_iterable(gen.iter, node)
+
+
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(TypeChecker(linter))
+    linter.register_checker(IterableChecker(linter))
