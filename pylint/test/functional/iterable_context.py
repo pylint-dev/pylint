@@ -2,7 +2,7 @@
 Checks that primitive values are not used in an
 iterating/mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-init
 from __future__ import print_function
 
 # for-statement
@@ -12,25 +12,87 @@ for i in 42:  # [not-an-iterable]
 for i in True:  # [not-an-iterable]
     pass
 
-# funcall-starargs
-def test(*args, **kwargs):
-    print(args, kwargs)
+for i in range(10):
+    pass
 
-test(*1)  # [not-an-iterable]
-test(*False)  # [not-an-iterable]
+for i in ''.join(x ** 2 for x in range(10)):
+    pass
 
-# funcall-kwargs
-test(**1)  # [not-a-mapping]
-test(**None)  # [not-a-mapping]
+numbers = [1, 2, 3]
+inumbers = iter(numbers)
 
-# list-comprehension
-test([3 ** x for x in 10])  # [not-an-iterable]
+for i in inumbers:
+    pass
 
-# dict-comprehension
-test({k: chr(k) for k in 128})  # [not-an-iterable]
+for i in "123":
+    pass
 
-# set-comprehension
-test({x for x in 32})  # [not-an-iterable]
+for i in u"123":
+    pass
 
-# generator-expression
-test(str(x) for x in 10)  # [not-an-iterable]
+for i in set(numbers):
+    pass
+
+for i in frozenset(numbers):
+    pass
+
+for i in dict(a=1, b=2):
+    pass
+
+for i in [x for x in range(10)]:
+    pass
+
+for i in {x for x in range(1, 100, 2)}:
+    pass
+
+for i in {x: 10 - x for x in range(10)}:
+    pass
+
+def powers_of_two():
+    k = 0
+    while k < 10:
+        yield 2 ** k
+        k += 1
+
+for i in powers_of_two():
+    pass
+
+
+# check for old-style iterator
+class C(object):
+    def __getitem__(self, k):
+        if k > 10:
+            raise IndexError
+        return k + 1
+
+    def __len__(self):
+        return 10
+
+for i in C():
+    print(i)
+
+
+# check for custom iterators
+class A:
+    pass
+
+
+class B:
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return 1
+
+    def next(self):
+        return 1
+
+
+def test(*args):
+    pass
+
+
+test(*A())  # [not-an-iterable]
+test(*B())
+for i in A():  # [not-an-iterable]
+    pass
