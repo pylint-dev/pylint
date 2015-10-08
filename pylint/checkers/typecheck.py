@@ -90,7 +90,13 @@ def _is_comprehension(node):
     return isinstance(node, comprehensions)
 
 
+def _is_class_def(node):
+    return isinstance(node, astroid.ClassDef)
+
+
 def _is_iterable(value):
+    if _is_class_def(value):
+        return False
     try:
         value.getattr('__iter__')
         return True
@@ -106,6 +112,8 @@ def _is_iterable(value):
 
 
 def _is_iterator(value):
+    if _is_class_def(value):
+        return False
     try:
         value.getattr('__iter__')
         if six.PY2:
@@ -118,6 +126,8 @@ def _is_iterator(value):
 
 
 def _is_old_style_iterator(value):
+    if _is_class_def(value):
+        return False
     try:
         value.getattr('__getitem__')
         value.getattr('__len__')
@@ -127,10 +137,12 @@ def _is_old_style_iterator(value):
 
 
 def _is_mapping(value):
+    if _is_class_def(value):
+        return False
     try:
         value.getattr('__getitem__')
         value.getattr('__iter__')
-        value.getattr('__len__')
+        value.getattr('keys')
         return True
     except astroid.NotFoundError:
         return False
@@ -873,7 +885,7 @@ class IterableChecker(BaseChecker):
 
     def _check_iterable(self, node, root_node):
         # for/set/dict-comprehensions can't be infered with astroid,
-        # so we check for them before the inference
+        # so we check for them before checking infered value
         if _is_comprehension(node):
             return
         infered = helpers.safe_infer(node)
