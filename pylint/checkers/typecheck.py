@@ -24,6 +24,7 @@ import sys
 
 import astroid
 import astroid.context
+import astroid.arguments
 from astroid import bases
 from astroid import exceptions
 from astroid import objects
@@ -143,6 +144,9 @@ MSGS = {
               'unsupported-binary-operation',
               'Emitted when a binary arithmetic operation between two '
               'operands is not supported.'),
+    'E1132': ('Got multiple values for keyword argument %r in function call',
+              'repeated-keyword',
+              'Emitted when a function call got multiple values for a keyword.'),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -458,9 +462,9 @@ accessed. Python regular expressions are accepted.'}
         """
         # Build the set of keyword arguments, checking for duplicate keywords,
         # and count the positional arguments.
-        keyword_args = {keyword.arg for keyword in node.keywords or []
-                        if keyword.arg is not None}
-        num_positional_args = len(node.args)
+        call_site = astroid.arguments.CallSite.from_call(node)
+        num_positional_args = len(call_site.positional_arguments)
+        keyword_args = list(call_site.keyword_arguments.keys())
 
         called = helpers.safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
@@ -482,8 +486,17 @@ accessed. Python regular expressions are accepted.'}
             return
 
         if len(called.argnames()) != len(set(called.argnames())):
-            # Duplicate parameter name (see E9801).  We can't really make sense
-            # of the function call in this case, so just return.
+            # Duplicate parameter name (see duplicate-argument).  We can't really
+            # make sense of the function call in this case, so just return.
+            return
+
+        # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
+        for keyword in call_site.duplicated_keywords:
+            self.add_message('repeated-keyword',
+                             node=node, args=(keyword, ))
+
+        if call_site.has_invalid_arguments() or call_site.has_invalid_keywords():
+            # Can't make sense of this.
             return
 
         # Analyze the list of formal parameters.

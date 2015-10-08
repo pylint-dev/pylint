@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, no-absolute-import,missing-docstring
+# pylint: disable=too-few-public-methods, no-absolute-import,missing-docstring,import-error
 """Test function argument checker"""
 
 def decorator(fun):
@@ -142,3 +142,15 @@ class Issue642(object):
     attr = 0
     def __str__(self):
         return "{self.attr}".format(self=self)
+
+# These should not emit anything regarding the number of arguments,
+# since they have something invalid.
+from ala_bala_portocola import unknown
+
+function_1_arg(*unknown)
+function_1_arg(1, *2)
+function_1_arg(1, 2, 3, **unknown)
+function_1_arg(4, 5, **1)
+function_1_arg(5, 6, **{unknown: 1})
+function_1_arg(**{object: 1})
+function_1_arg(**{1: 2})

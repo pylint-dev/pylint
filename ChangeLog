@@ -327,6 +327,12 @@ ChangeLog for Pylint
 
     * Don't emit 'assigning-non-slot' for descriptors. Closes issue #652.
 
+    * Add a new error, 'repeated-keyword', when a keyword argument is passed
+      multiple times into a function call.
+
+      This is similar with redundant-keyword-arg, but it's mildly different
+      that it needs to be a separate error.
+
 
 
 2015-03-14 -- 1.4.3
