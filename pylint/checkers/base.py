@@ -1194,7 +1194,7 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node):
         self._check_name('class', node.name, node)
         for attr, anodes in six.iteritems(node.instance_attrs):
-            if not list(node.instance_attr_ancestors(attr)):
+            if not any(node.instance_attr_ancestors(attr)):
                 self._check_name('attr', attr, anodes[0])
 
     @check_messages('blacklisted-name', 'invalid-name')
