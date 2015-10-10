@@ -247,6 +247,18 @@ class RunTC(unittest.TestCase):
         expected = "no such option: --load-plugin"
         self._test_output([".", "--load-plugin"], expected_output=expected)
 
+    def test_enable_all_works(self):
+        module = join(HERE, 'data', 'clientmodule_test.py')
+        expected = textwrap.dedent("""
+        No config file found, using default configuration
+        ************* Module data.clientmodule_test
+        W: 10, 8: Unused variable 'local_variable' (unused-variable)
+        C: 18, 4: Missing method docstring (missing-docstring)
+        C: 22, 0: Missing class docstring (missing-docstring)
+        """)
+        self._test_output([module, "--disable=all", "--enable=all", "-rn"],
+                          expected_output=expected)
+
 
 if __name__ == '__main__':
     unittest.main()

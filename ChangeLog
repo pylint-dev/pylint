@@ -333,6 +333,8 @@ ChangeLog for Pylint
       This is similar with redundant-keyword-arg, but it's mildly different
       that it needs to be a separate error.
 
+    * --enable=all can now be used. Closes issue #142.
+
 
 
 2015-03-14 -- 1.4.3

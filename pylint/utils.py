@@ -307,6 +307,14 @@ class MessagesHandlerMixIn(object):
     def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """reenable message of the given id"""
         assert scope in ('package', 'module')
+        if msgid == 'all':
+            for msgid in MSG_TYPES:
+                self.enable(msgid, scope=scope, line=line)
+            if not self._python3_porting_mode:
+                # Don't activate the python 3 porting checker if it
+                # wasn't activated explicitly.
+                self.disable('python3')
+            return
         catid = category_id(msgid)
         # msgid is a category?
         if catid is not None:
