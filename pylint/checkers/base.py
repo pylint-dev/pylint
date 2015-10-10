@@ -64,6 +64,7 @@ REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS,
 
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
+PY35 = sys.version_info >= (3, 5)
 BAD_FUNCTIONS = ['map', 'filter']
 if sys.version_info < (3, 0):
     BAD_FUNCTIONS.append('input')
@@ -356,6 +357,11 @@ class BasicErrorChecker(_BasicChecker):
         if isinstance(node.parent, astroid.Call):
             # f(*args) is converted to Call(args=[Starred]), so ignore
             # them for this check.
+            return
+        if PY35 and isinstance(node.parent,
+                               (astroid.List, astroid.Tuple,
+                                astroid.Set, astroid.Dict)):
+            # PEP 448 unpacking.
             return
 
         stmt = node.statement()
