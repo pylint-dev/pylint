@@ -25,10 +25,10 @@ import sys
 import astroid
 import astroid.context
 import astroid.arguments
-from astroid import bases
 from astroid import exceptions
 from astroid import objects
 from astroid import helpers
+from astroid import node_classes
 import six
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
@@ -52,7 +52,7 @@ def _unflatten(iterable):
                 not isinstance(elem, six.string_types)):
             for subelem in _unflatten(elem):
                 yield subelem
-        elif isinstance(elem, bases.NodeNG):
+        elif isinstance(elem, node_classes.NodeNG):
             yield elem
 
 
