@@ -2,6 +2,9 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Property methods are shown as attributes instead of functions in
+      pyreverse class diagrams. Closes Issue #284
+
     * Add checker to identify multiple imports on one line.
       Closes issue #598.
 
