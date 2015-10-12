@@ -1,2 +1,0 @@
-E: 12: invalid syntax
-
