@@ -89,13 +89,12 @@ class TextWriter(BaseWriter):
         headsep = u'\n+' + u'+'.join([u'='*w for w in cols_width]) + u'+\n'
         # FIXME: layout.cheaders
         self.write(table_linesep)
-        for i in range(len(table_content)):
+        for index, line in enumerate(table_content):
             self.write(u'|')
-            line = table_content[i]
-            for j in range(len(line)):
-                self.write(format_strings[j] % line[j])
+            for line_index, at_index in enumerate(line):
+                self.write(format_strings[line_index] % at_index)
                 self.write(u'|')
-            if i == 0 and layout.rheaders:
+            if index == 0 and layout.rheaders:
                 self.write(headsep)
             else:
                 self.write(table_linesep)
