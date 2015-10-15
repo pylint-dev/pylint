@@ -65,10 +65,6 @@ class TextWriter(BaseWriter):
         self.format_children(layout)
         self.writeln()
 
-    def visit_span(self, layout):
-        """enter a span"""
-        self.format_children(layout)
-
     def visit_table(self, layout):
         """display a table as text"""
         table_content = self.get_table_content(layout)
@@ -111,24 +107,6 @@ class TextWriter(BaseWriter):
         format_string = u'%s%%-%ss: %%s' % (os.linesep, cols_width[0])
         for field, value in table_content:
             self.write(format_string % (field, value))
-
-    def visit_list(self, layout):
-        """display a list layout as text"""
-        bullet = BULLETS[self.list_level % len(BULLETS)]
-        indent = '  ' * self.list_level
-        self.list_level += 1
-        for child in layout.children:
-            self.write(u'%s%s%s ' % (os.linesep, indent, bullet))
-            child.accept(self)
-        self.list_level -= 1
-
-    def visit_link(self, layout):
-        """add a hyperlink"""
-        if layout.label != layout.url:
-            self.write(u'`%s`_' % layout.label)
-            self.pending_urls.append((layout.label, layout.url))
-        else:
-            self.write(layout.url)
 
     def visit_verbatimtext(self, layout):
         """display a verbatim layout as text (so difficult ;)

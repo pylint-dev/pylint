@@ -89,30 +89,12 @@ class HTMLWriter(BaseWriter):
             self.writeln(u'</tr>')
         self.writeln(u'</table>')
 
-    def visit_list(self, layout):
-        """display a list as html"""
-        self.writeln(u'<ul%s>' % self.handle_attrs(layout))
-        for row in list(self.compute_content(layout)):
-            self.writeln(u'<li>%s</li>' % row)
-        self.writeln(u'</ul>')
-
     def visit_paragraph(self, layout):
         """display links (using <p>)"""
         self.write(u'<p>')
         self.format_children(layout)
         self.write(u'</p>')
 
-    def visit_span(self, layout):
-        """display links (using <p>)"""
-        self.write(u'<span%s>' % self.handle_attrs(layout))
-        self.format_children(layout)
-        self.write(u'</span>')
-
-    def visit_link(self, layout):
-        """display links (using <a>)"""
-        self.write(u' <a href="%s"%s>%s</a>' % (layout.url,
-                                                self.handle_attrs(layout),
-                                                layout.label))
     def visit_verbatimtext(self, layout):
         """display verbatim text (using <pre>)"""
         self.write(u'<pre>')

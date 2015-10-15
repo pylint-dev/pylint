@@ -95,22 +95,6 @@ class VerbatimText(Text):
     * data : the text value as an encoded or unicode string
     """
 
-
-class Link(BaseComponent):
-    """a labelled link
-
-    attributes :
-    * BaseComponent attributes
-    * url : the link's target (REQUIRED)
-    * label : the link's label as a string (use the url by default)
-    """
-    def __init__(self, url, label=None, **kwargs):
-        super(Link, self).__init__(**kwargs)
-        assert url
-        self.url = url
-        self.label = label or url
-
-
 # container nodes #############################################################
 
 class Section(BaseLayout):
@@ -173,11 +157,3 @@ class Table(BaseLayout):
         self.cheaders = cheaders
         self.rrheaders = rrheaders
         self.rcheaders = rcheaders
-
-
-class List(BaseLayout):
-    """some list data
-
-    attributes :
-    * BaseLayout attributes
-    """
