@@ -71,8 +71,7 @@ class TextWriter(BaseWriter):
         # get columns width
         cols_width = [0]*len(table_content[0])
         for row in table_content:
-            for index in range(len(row)):
-                col = row[index]
+            for index, col in enumerate(row):
                 cols_width[index] = max(cols_width[index], len(col))
         if layout.klass == 'field':
             self.field_table(layout, table_content, cols_width)
