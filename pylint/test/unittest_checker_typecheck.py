@@ -1,18 +1,10 @@
 """Unittest for the type checker."""
 import unittest
-import sys
 
 from astroid import test_utils
 from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
-
-def python33_and_newer(test):
-    """
-    Decorator for any tests that will fail if launched not with Python 3.3+.
-    """
-    return unittest.skipIf(sys.version_info < (3, 3),
-                           'Python 3.2 and older')(test)
 
 class TypeCheckerTest(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"

@@ -43,6 +43,10 @@ _ZOPE_DEPRECATED = (
 )
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
+ITER_METHOD = '__iter__'
+NEXT_METHOD = 'next' if six.PY2 else '__next__'
+GETITEM_METHOD = '__getitem__'
+KEYS_METHOD = 'keys'
 
 
 def _unflatten(iterable):
@@ -83,6 +87,13 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
     return any(name == ignore or qname == ignore for ignore in ignored_classes)
 
 
+def _hasattr(value, attr):
+    try:
+        value.getattr(attr)
+        return True
+    except astroid.NotFoundError:
+        return False
+
 def _is_comprehension(node):
     comprehensions = (astroid.ListComp,
                       astroid.SetComp,
@@ -90,62 +101,29 @@ def _is_comprehension(node):
     return isinstance(node, comprehensions)
 
 
-def _is_class_def(node):
-    return isinstance(node, astroid.ClassDef)
-
-
 def _is_iterable(value):
-    if _is_class_def(value):
-        return False
-    try:
-        value.getattr('__iter__')
-        return True
-    except astroid.NotFoundError:
-        pass
-    try:
-        # this checks works for string types
-        value.getattr('__getitem__')
-        return True
-    except astroid.NotFoundError:
-        pass
-    return False
+    # '__iter__' is for standard iterables
+    # '__getitem__' is for strings and other old-style iterables
+    return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
 
 
 def _is_iterator(value):
-    if _is_class_def(value):
-        return False
-    try:
-        value.getattr('__iter__')
-        if six.PY2:
-            value.getattr('next')
-        elif six.PY3:
-            value.getattr('__next__')
-        return True
-    except astroid.NotFoundError:
-        return False
-
-
-def _is_old_style_iterator(value):
-    if _is_class_def(value):
-        return False
-    try:
-        value.getattr('__getitem__')
-        value.getattr('__len__')
-        return True
-    except astroid.NotFoundError:
-        return False
+    return _hasattr(value, NEXT_METHOD) and _hasattr(value, ITER_METHOD)
 
 
 def _is_mapping(value):
-    if _is_class_def(value):
-        return False
-    try:
-        value.getattr('__getitem__')
-        value.getattr('__iter__')
-        value.getattr('keys')
-        return True
-    except astroid.NotFoundError:
-        return False
+    return _hasattr(value, GETITEM_METHOD) and _hasattr(value, KEYS_METHOD)
+
+
+def _is_inside_mixin_declaration(node):
+    while node is not None:
+        if isinstance(node, astroid.ClassDef):
+            name = getattr(node, 'name', None)
+            if name is not None and name.lower().endswith("mixin"):
+                return True
+        node = node.parent
+    return False
+
 
 MSGS = {
     'E1101': ('%s %r has no %r member',
@@ -884,35 +862,57 @@ class IterableChecker(BaseChecker):
            }
 
     def _check_iterable(self, node, root_node):
-        # for/set/dict-comprehensions can't be infered with astroid,
-        # so we check for them before checking infered value
-        if _is_comprehension(node):
+        # for/set/dict-comprehensions can't be infered with astroid
+        # so we have to check for them explicitly
+        if _is_comprehension(node) or _is_inside_mixin_declaration(node):
             return
+
         infered = helpers.safe_infer(node)
-        if infered is None:
+        if infered is None or infered is astroid.YES:
             return
-        if infered is astroid.YES:
-            return
-        if _is_iterable(infered):
-            return
-        if _is_iterator(infered):
-            return
-        if _is_old_style_iterator(infered):
-            return
+
+        if isinstance(infered, astroid.ClassDef):
+            if not helpers.has_known_bases(infered):
+                return
+            # classobj can only be iterable if it has an iterable metaclass
+            meta = infered.metaclass()
+            if meta is not None:
+                if _is_iterable(meta):
+                    return
+                if _is_iterator(meta):
+                    return
+
+        if isinstance(infered, astroid.Instance):
+            if not helpers.has_known_bases(infered):
+                return
+            if _is_iterable(infered) or _is_iterator(infered):
+                return
+
         self.add_message('not-an-iterable',
                          args=node.as_string(),
                          node=root_node)
 
     def _check_mapping(self, node, root_node):
-        if isinstance(node, astroid.DictComp):
+        if isinstance(node, astroid.DictComp) or _is_inside_mixin_declaration(node):
             return
+
         infered = helpers.safe_infer(node)
-        if infered is None:
+        if infered is None or infered is astroid.YES:
             return
-        if infered is astroid.YES:
-            return
-        if _is_mapping(infered):
-            return
+
+        if isinstance(infered, astroid.ClassDef):
+            if not helpers.has_known_bases(infered):
+                return
+            meta = infered.metaclass()
+            if meta is not None and _is_mapping(meta):
+                return
+
+        if isinstance(infered, astroid.Instance):
+            if not helpers.has_known_bases(infered):
+                return
+            if _is_mapping(infered):
+                return
+
         self.add_message('not-a-mapping',
                          args=node.as_string(),
                          node=root_node)

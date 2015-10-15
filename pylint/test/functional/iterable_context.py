@@ -2,7 +2,7 @@
 Checks that primitive values are not used in an
 iterating/mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-init,no-self-use
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-init,no-self-use,import-error,unused-argument,bad-mcs-method-argument
 from __future__ import print_function
 
 # primitives
@@ -115,3 +115,27 @@ for i in 8.5:  # [not-an-iterable]
 
 for i in 10:  # [not-an-iterable]
     pass
+
+
+# skip uninferable instances
+from some_missing_module import Iterable
+
+class MyClass(Iterable):
+    pass
+
+m = MyClass()
+for i in m:
+    print(i)
+
+# skip checks if statement is inside mixin class
+class ManagedAccessViewMixin(object):
+    access_requirements = None
+
+    def get_access_requirements(self):
+        return self.access_requirements
+
+    def dispatch(self, *_args, **_kwargs):
+        klasses = self.get_access_requirements()
+
+        for requirement in klasses:
+            print(requirement)

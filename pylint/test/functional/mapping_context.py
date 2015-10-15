@@ -1,7 +1,7 @@
 """
 Checks that only valid values are used in a mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-self-use,import-error
 from __future__ import print_function
 
 
@@ -22,9 +22,6 @@ class CustomMapping(object):
     def __init__(self):
         self.data = dict(a=1, b=2, c=3, d=4, e=5)
 
-    def __iter__(self):
-        return iter(self.data)
-
     def __getitem__(self, key):
         return self.data[key]
 
@@ -32,5 +29,31 @@ class CustomMapping(object):
         return self.data.keys()
 
 test(**CustomMapping())
-
 test(**CustomMapping)  # [not-a-mapping]
+
+class NotMapping(object):
+    pass
+
+test(**NotMapping())  # [not-a-mapping]
+
+# skip checks if statement is inside mixin class
+class SomeMixin(object):
+    kwargs = None
+
+    def get_kwargs(self):
+        return self.kwargs
+
+    def run(self, **kwargs):
+        print(kwargs)
+
+    def dispatch(self):
+        kws = self.get_kwargs()
+        self.run(**kws)
+
+# skip uninferable instances
+from some_missing_module import Mapping
+
+class MyClass(Mapping):
+    pass
+
+test(**MyClass())
