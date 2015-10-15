@@ -84,7 +84,7 @@ class TextWriter(BaseWriter):
         cols_width = [size+1 for size in cols_width]
         format_strings = u' '.join([u'%%-%ss'] * len(cols_width))
         format_strings = format_strings % tuple(cols_width)
-        format_strings = format_strings.split(' ')
+        format_strings = format_strings.split(u' ')
         table_linesep = u'\n+' + u'+'.join([u'-'*w for w in cols_width]) + u'+\n'
         headsep = u'\n+' + u'+'.join([u'='*w for w in cols_width]) + u'+\n'
         # FIXME: layout.cheaders
