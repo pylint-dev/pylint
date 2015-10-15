@@ -1,0 +1,4 @@
+misplaced-comparison-constant:7:bad_comparisons:Comparison should be i >= 5
+misplaced-comparison-constant:9:bad_comparisons:Comparison should be between a variable and a constant
+misplaced-comparison-constant:11:bad_comparisons:Comparison should be between a variable and a constant
+misplaced-comparison-constant:13:bad_comparisons:Comparison should be i == 1

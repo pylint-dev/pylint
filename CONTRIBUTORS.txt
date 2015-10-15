@@ -72,3 +72,5 @@ Order doesn't matter (not that much, at least ;)
 * Stéphane Wirtel: nonlocal-without-binding
 
 * Dmitry Pribysh: multiple-imports.
+
+* Laura Medioni (Logilab): misplaced-comparison-constant
