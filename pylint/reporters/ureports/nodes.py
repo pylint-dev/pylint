@@ -22,7 +22,46 @@ A micro report is a tree of layout and content objects.
 
 from six import string_types
 
-from pylint.reporters.ureports.tree import VNode
+
+class VNode(object):
+
+    def __init__(self, nid=None):
+        self.id = nid
+        # navigation
+        self.parent = None
+        self.children = []
+
+    def __iter__(self):
+        return iter(self.children)
+
+    def append(self, child):
+        """add a node to children"""
+        self.children.append(child)
+        child.parent = self
+
+    def insert(self, index, child):
+        """insert a child node"""
+        self.children.insert(index, child)
+        child.parent = self
+
+    def _get_visit_name(self):
+        """
+        return the visit name for the mixed class. When calling 'accept', the
+        method <'visit_' + name returned by this method> will be called on the
+        visitor
+        """
+        try:
+            return self.TYPE.replace('-', '_')
+        except Exception:
+            return self.__class__.__name__.lower()
+
+    def accept(self, visitor, *args, **kwargs):
+        func = getattr(visitor, 'visit_%s' % self._get_visit_name())
+        return func(self, *args, **kwargs)
+
+    def leave(self, visitor, *args, **kwargs):
+        func = getattr(visitor, 'leave_%s' % self._get_visit_name())
+        return func(self, *args, **kwargs)
 
 
 class BaseComponent(VNode):
