@@ -105,12 +105,10 @@ class BaseReporter(object):
     # Event callbacks
 
     def on_set_current_module(self, module, filepath):
-        """starting analyzis of a module"""
-        pass
+        """Hook called when a module starts to be analysed."""
 
     def on_close(self, stats, previous_stats):
-        """global end of analyzis"""
-        pass
+        """Hook called when a module finished analyzing."""
 
 
 class CollectingReporter(BaseReporter):
