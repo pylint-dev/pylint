@@ -36,7 +36,6 @@ class TextWriter(BaseWriter):
     def begin_format(self):
         super(TextWriter, self).begin_format()
         self.list_level = 0
-        self.pending_urls = []
 
     def visit_section(self, layout):
         """display a section as text
@@ -44,11 +43,6 @@ class TextWriter(BaseWriter):
         self.section += 1
         self.writeln()
         self.format_children(layout)
-        if self.pending_urls:
-            self.writeln()
-            for label, url in self.pending_urls:
-                self.writeln(u'.. _`%s`: %s' % (label, url))
-            self.pending_urls = []
         self.section -= 1
         self.writeln()
 
