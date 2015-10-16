@@ -47,8 +47,6 @@ class BaseReporter(object):
 
     def __init__(self, output=None):
         self.linter = None
-        # self.include_ids = None # Deprecated
-        # self.symbols = None # Deprecated
         self.section = 0
         self.out = None
         self.out_encoding = None
