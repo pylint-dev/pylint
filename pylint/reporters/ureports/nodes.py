@@ -64,29 +64,16 @@ class VNode(object):
         return func(self, *args, **kwargs)
 
 
-class BaseComponent(VNode):
-    """base report component
-
-    attributes
-    * id : the component's optional id
-    * klass : the component's optional klass
-    """
-    def __init__(self, id=None, klass=None):
-        super(BaseComponent, self).__init__(id)
-        self.klass = klass
-
-
-class BaseLayout(BaseComponent):
+class BaseLayout(VNode):
     """base container node
 
     attributes
-    * BaseComponent attributes
     * children : components in this table (i.e. the table's cells)
     """
     def __init__(self, children=(), **kwargs):
         super(BaseLayout, self).__init__(**kwargs)
         for child in children:
-            if isinstance(child, BaseComponent):
+            if isinstance(child, VNode):
                 self.append(child)
             else:
                 self.add_text(child)
@@ -110,11 +97,10 @@ class BaseLayout(BaseComponent):
 
 # non container nodes #########################################################
 
-class Text(BaseComponent):
+class Text(VNode):
     """a text portion
 
     attributes :
-    * BaseComponent attributes
     * data : the text value as an encoded or unicode string
     """
     def __init__(self, data, escaped=True, **kwargs):
@@ -130,7 +116,6 @@ class VerbatimText(Text):
     """a verbatim text, display the raw data
 
     attributes :
-    * BaseComponent attributes
     * data : the text value as an encoded or unicode string
     """
 

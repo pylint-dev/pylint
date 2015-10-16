@@ -73,10 +73,7 @@ class TextWriter(BaseWriter):
         for row in table_content:
             for index, col in enumerate(row):
                 cols_width[index] = max(cols_width[index], len(col))
-        if layout.klass == 'field':
-            self.field_table(layout, table_content, cols_width)
-        else:
-            self.default_table(layout, table_content, cols_width)
+        self.default_table(layout, table_content, cols_width)
         self.writeln()
 
     def default_table(self, layout, table_content, cols_width):
@@ -98,13 +95,6 @@ class TextWriter(BaseWriter):
                 self.write(headsep)
             else:
                 self.write(table_linesep)
-
-    def field_table(self, layout, table_content, cols_width):
-        """special case for field table"""
-        assert layout.cols == 2
-        format_string = u'%s%%-%ss: %%s' % (os.linesep, cols_width[0])
-        for field, value in table_content:
-            self.write(format_string % (field, value))
 
     def visit_verbatimtext(self, layout):
         """display a verbatim layout as text (so difficult ;)

@@ -27,18 +27,6 @@ class HTMLWriter(BaseWriter):
         super(HTMLWriter, self).__init__()
         self.snippet = snippet
 
-    @staticmethod
-    def handle_attrs(layout):
-        """get an attribute string from layout member attributes"""
-        attrs = u''
-        klass = getattr(layout, 'klass', None)
-        if klass:
-            attrs += u' class="%s"' % klass
-        nid = getattr(layout, 'id', None)
-        if nid:
-            attrs += u' id="%s"' % nid
-        return attrs
-
     def begin_format(self):
         """begin to format a layout"""
         super(HTMLWriter, self).begin_format()
@@ -55,20 +43,20 @@ class HTMLWriter(BaseWriter):
     def visit_section(self, layout):
         """display a section as html, using div + h[section level]"""
         self.section += 1
-        self.writeln(u'<div%s>' % self.handle_attrs(layout))
+        self.writeln(u'<div>')
         self.format_children(layout)
         self.writeln(u'</div>')
         self.section -= 1
 
     def visit_title(self, layout):
         """display a title using <hX>"""
-        self.write(u'<h%s%s>' % (self.section, self.handle_attrs(layout)))
+        self.write(u'<h%s>' % self.section)
         self.format_children(layout)
         self.writeln(u'</h%s>' % self.section)
 
     def visit_table(self, layout):
         """display a table as html"""
-        self.writeln(u'<table%s>' % self.handle_attrs(layout))
+        self.writeln(u'<table>')
         table_content = self.get_table_content(layout)
         for i, row in enumerate(table_content):
             if i == 0 and layout.rheaders:
