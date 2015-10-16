@@ -26,8 +26,6 @@ import sys
 import six
 
 
-# pylint: disable=method-hidden; Weird API in compute_content.
-
 class BaseWriter(object):
     """base class for ureport writers"""
 
@@ -43,7 +41,6 @@ class BaseWriter(object):
         if not encoding:
             encoding = getattr(stream, 'encoding', 'UTF-8')
         self.encoding = encoding or 'UTF-8'
-        self.__compute_funcs = []
         self.out = stream
         self.begin_format()
         layout.accept(self)
@@ -98,27 +95,15 @@ class BaseWriter(object):
 
         return an iterator on strings (one for each child element)
         """
-        # use cells !
-        def write(data):
-            try:
-                stream.write(data)
-            except UnicodeEncodeError:
-                stream.write(data.encode(self.encoding))
-        def writeln(data=u''):
-            try:
-                stream.write(data + os.linesep)
-            except UnicodeEncodeError:
-                stream.write(data.encode(self.encoding) + os.linesep)
-        self.write = write
-        self.writeln = writeln
-        self.__compute_funcs.append((write, writeln))
-        for child in layout.children:
-            stream = six.StringIO()
-            child.accept(self)
-            yield stream.getvalue()
-        self.__compute_funcs.pop()
+        # Patch the underlying output stream with a fresh-generated stream,
+        # which is used to store a temporary representation of a child
+        # node.
+        out = self.out
         try:
-            self.write, self.writeln = self.__compute_funcs[-1]
-        except IndexError:
-            del self.write
-            del self.writeln
+            for child in layout.children:
+                stream = six.StringIO()
+                self.out = stream
+                child.accept(self)
+                yield stream.getvalue()
+        finally:
+            self.out = out
