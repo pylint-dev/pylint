@@ -52,7 +52,6 @@ class BaseReporter(object):
         self.section = 0
         self.out = None
         self.out_encoding = None
-        self.encode = None
         self.set_output(output)
         # Build the path prefix to strip to get relative paths
         self.path_strip_prefix = os.getcwd() + os.sep
@@ -75,12 +74,11 @@ class BaseReporter(object):
     def set_output(self, output=None):
         """set output stream"""
         self.out = output or sys.stdout
-        # py3k streams handle their encoding :
-        if sys.version_info >= (3, 0):
-            self.encode = lambda x: x
-            return
 
-        def encode(string):
+    if six.PY3:
+        encode = lambda self, string: string
+    else:
+        def encode(self, string):
             if not isinstance(string, six.text_type):
                 return string
             encoding = (getattr(self.out, 'encoding', None) or
@@ -90,7 +88,6 @@ class BaseReporter(object):
             # source code line that can't be encoded with the current locale
             # settings
             return string.encode(encoding, 'replace')
-        self.encode = encode
 
     def writeln(self, string=''):
         """write a line in the output buffer"""
