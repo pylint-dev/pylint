@@ -76,7 +76,7 @@ class HTMLWriter(BaseWriter):
             elif i+1 == len(table_content) and layout.rrheaders:
                 self.writeln(u'<tr class="header">')
             else:
-                self.writeln(u'<tr class="%s">' % ('even' if i % 2 else u'odd'))
+                self.writeln(u'<tr class="%s">' % (u'even' if i % 2 else u'odd'))
             for j, cell in enumerate(row):
                 cell = cell or u'&#160;'
                 if (layout.rheaders and i == 0) or \
