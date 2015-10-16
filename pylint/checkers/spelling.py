@@ -21,6 +21,8 @@ import tokenize
 import string
 import re
 
+import six
+
 if sys.version_info[0] >= 3:
     maketrans = str.maketrans
 else:
@@ -244,6 +246,10 @@ class SpellingChecker(BaseTokenChecker):
             return
 
         start_line = node.lineno + 1
+        if six.PY2:
+            encoding = node.root().file_encoding
+            docstring = docstring.decode(encoding or sys.getdefaultencoding(),
+                                         'replace')
 
         # Go through lines of docstring
         for idx, line in enumerate(docstring.splitlines()):

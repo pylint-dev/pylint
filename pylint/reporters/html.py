@@ -17,6 +17,8 @@ import itertools
 import string
 import sys
 
+import six
+
 from pylint.interfaces import IReporter
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.html_writer import HTMLWriter
@@ -67,7 +69,9 @@ class HTMLReporter(BaseReporter):
             self._parse_template()
 
         # We want to add the lines given by the template
-        self.msgs += [str(getattr(msg, field)) for field in self.msgargs]
+        values = [getattr(msg, field) for field in self.msgargs]
+        self.msgs += [value if isinstance(value, six.text_type) else str(value)
+                      for value in values]
 
     def set_output(self, output=None):
         """set output stream

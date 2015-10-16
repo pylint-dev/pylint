@@ -259,6 +259,11 @@ class RunTC(unittest.TestCase):
         self._test_output([module, "--disable=all", "--enable=all", "-rn"],
                           expected_output=expected)
 
+    def test_html_crash_report(self):
+        out = six.StringIO()
+        module = join(HERE, 'regrtest_data', 'html_crash_420.py')
+        self._runtest([module], code=16, reporter=HTMLReporter(out))
+
 
 if __name__ == '__main__':
     unittest.main()

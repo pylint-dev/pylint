@@ -142,9 +142,8 @@ def category_id(cid):
     return MSG_TYPES_LONG.get(cid)
 
 
-def _decoding_readline(stream, module):
-    return lambda: stream.readline().decode(module.file_encoding,
-                                            'replace')
+def _decoding_readline(stream, encoding):
+    return lambda: stream.readline().decode(encoding, 'replace')
 
 
 def tokenize_module(module):
@@ -152,7 +151,8 @@ def tokenize_module(module):
         readline = stream.readline
         if sys.version_info < (3, 0):
             if module.file_encoding is not None:
-                readline = _decoding_readline(stream, module)
+                readline = _decoding_readline(stream, module.file_encoding)
+
             return list(tokenize.generate_tokens(readline))
         return list(tokenize.tokenize(readline))
 

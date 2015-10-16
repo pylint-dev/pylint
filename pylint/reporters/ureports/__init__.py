@@ -59,10 +59,7 @@ class BaseWriter(object):
 
     def write(self, string):
         """write a string in the output buffer"""
-        try:
-            self.out.write(string)
-        except UnicodeEncodeError:
-            self.out.write(string.encode(self.encoding))
+        self.out.write(string)
 
     def begin_format(self):
         """begin to format a layout"""
