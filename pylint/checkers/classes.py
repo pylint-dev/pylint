@@ -140,6 +140,14 @@ def _is_attribute_property(name, klass):
             return True
     return False
 
+def _has_super_call(fundef_node):
+    for call in fundef_node.nodes_of_class(astroid.Call):
+        func = call.func
+        if (isinstance(func, astroid.Name) and
+                func.name == 'super' and
+                not call.args):
+            return True
+    return False
 
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
@@ -545,7 +553,8 @@ a metaclass class method.'}
                     and not node.name in PYMETHODS
                     and not (node.is_abstract() or
                              overrides_a_method(class_node, node.name) or
-                             decorated_with_property(node))):
+                             decorated_with_property(node) or
+                             (six.PY3 and _has_super_call(node)))):
                 self.add_message('no-self-use', node=node)
 
     def visit_attribute(self, node):
