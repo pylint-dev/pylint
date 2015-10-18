@@ -71,4 +71,4 @@ Order doesn't matter (not that much, at least ;)
 
 * Stéphane Wirtel: nonlocal-without-binding
 
-* Dmitry Pribysh: multiple-imports.
+* Dmitry Pribysh: multiple-imports, not-iterable, not-a-mapping, various patches.
