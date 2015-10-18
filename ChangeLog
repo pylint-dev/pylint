@@ -2,6 +2,11 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Add new errors, 'not-an-iterable', emitted when non-iterable value
+      is used in an iterating context (starargs, for-statement,
+      comprehensions, etc), and 'not-a-mapping', emitted when non-mapping
+      value is used in a mapping context. Closes issue #563.
+
     * Make 'no-self-use' checker not emit a warning if there is a 'super()'
       call inside the method.
       Closes issue #667.

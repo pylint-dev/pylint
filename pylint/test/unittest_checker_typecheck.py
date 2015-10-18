@@ -5,6 +5,7 @@ from astroid import test_utils
 from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
+
 class TypeCheckerTest(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker

@@ -1,7 +1,6 @@
 """Unittest for the base checker."""
 
 import re
-import sys
 import unittest
 
 import astroid
