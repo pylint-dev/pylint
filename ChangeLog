@@ -2,6 +2,10 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Make 'no-self-use' checker not emit a warning if there is a 'super()'
+      call inside the method.
+      Closes issue #667.
+
     * Add checker to identify multiple imports on one line.
       Closes issue #598.
 
