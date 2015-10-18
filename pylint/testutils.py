@@ -272,6 +272,7 @@ class LintTestUsingModule(unittest.TestCase):
 
     def test_functionality(self):
         tocheck = [self.package+'.'+self.module]
+        # pylint: disable=not-iterable-context; can't handle boolean checks for now
         if self.depends:
             tocheck += [self.package+'.%s' % name.replace('.py', '')
                         for name, _ in self.depends]
@@ -317,6 +318,7 @@ class LintTestUsingFile(LintTestUsingModule):
         if not isdir(importable):
             importable += '.py'
         tocheck = [importable]
+        # pylint: disable=not-iterable-context; can't handle boolean checks for now
         if self.depends:
             tocheck += [join(self.INPUT_DIR, name) for name, _ in self.depends]
         self._test(tocheck)
