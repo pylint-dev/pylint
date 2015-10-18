@@ -19,10 +19,6 @@
 
 from __future__ import print_function
 
-import os
-
-from six.moves import range
-
 from pylint.reporters.ureports import BaseWriter
 
 
@@ -36,7 +32,6 @@ class TextWriter(BaseWriter):
     def begin_format(self):
         super(TextWriter, self).begin_format()
         self.list_level = 0
-        self.pending_urls = []
 
     def visit_section(self, layout):
         """display a section as text
@@ -44,11 +39,6 @@ class TextWriter(BaseWriter):
         self.section += 1
         self.writeln()
         self.format_children(layout)
-        if self.pending_urls:
-            self.writeln()
-            for label, url in self.pending_urls:
-                self.writeln(u'.. _`%s`: %s' % (label, url))
-            self.pending_urls = []
         self.section -= 1
         self.writeln()
 
@@ -65,23 +55,15 @@ class TextWriter(BaseWriter):
         self.format_children(layout)
         self.writeln()
 
-    def visit_span(self, layout):
-        """enter a span"""
-        self.format_children(layout)
-
     def visit_table(self, layout):
         """display a table as text"""
         table_content = self.get_table_content(layout)
         # get columns width
         cols_width = [0]*len(table_content[0])
         for row in table_content:
-            for index in range(len(row)):
-                col = row[index]
+            for index, col in enumerate(row):
                 cols_width[index] = max(cols_width[index], len(col))
-        if layout.klass == 'field':
-            self.field_table(layout, table_content, cols_width)
-        else:
-            self.default_table(layout, table_content, cols_width)
+        self.default_table(layout, table_content, cols_width)
         self.writeln()
 
     def default_table(self, layout, table_content, cols_width):
@@ -89,46 +71,20 @@ class TextWriter(BaseWriter):
         cols_width = [size+1 for size in cols_width]
         format_strings = u' '.join([u'%%-%ss'] * len(cols_width))
         format_strings = format_strings % tuple(cols_width)
-        format_strings = format_strings.split(' ')
+        format_strings = format_strings.split(u' ')
         table_linesep = u'\n+' + u'+'.join([u'-'*w for w in cols_width]) + u'+\n'
         headsep = u'\n+' + u'+'.join([u'='*w for w in cols_width]) + u'+\n'
         # FIXME: layout.cheaders
         self.write(table_linesep)
-        for i in range(len(table_content)):
+        for index, line in enumerate(table_content):
             self.write(u'|')
-            line = table_content[i]
-            for j in range(len(line)):
-                self.write(format_strings[j] % line[j])
+            for line_index, at_index in enumerate(line):
+                self.write(format_strings[line_index] % at_index)
                 self.write(u'|')
-            if i == 0 and layout.rheaders:
+            if index == 0 and layout.rheaders:
                 self.write(headsep)
             else:
                 self.write(table_linesep)
-
-    def field_table(self, layout, table_content, cols_width):
-        """special case for field table"""
-        assert layout.cols == 2
-        format_string = u'%s%%-%ss: %%s' % (os.linesep, cols_width[0])
-        for field, value in table_content:
-            self.write(format_string % (field, value))
-
-    def visit_list(self, layout):
-        """display a list layout as text"""
-        bullet = BULLETS[self.list_level % len(BULLETS)]
-        indent = '  ' * self.list_level
-        self.list_level += 1
-        for child in layout.children:
-            self.write(u'%s%s%s ' % (os.linesep, indent, bullet))
-            child.accept(self)
-        self.list_level -= 1
-
-    def visit_link(self, layout):
-        """add a hyperlink"""
-        if layout.label != layout.url:
-            self.write(u'`%s`_' % layout.label)
-            self.pending_urls.append((layout.label, layout.url))
-        else:
-            self.write(layout.url)
 
     def visit_verbatimtext(self, layout):
         """display a verbatim layout as text (so difficult ;)

@@ -1,19 +1,13 @@
-# pylint: disable=R0903,missing-docstring,no-self-use
-"""
-    'E1102': ('%s is not callable',
-              'Used when an object being called has been infered to a non \
-              callable object'),
-"""
+# pylint: disable=missing-docstring,no-self-use,too-few-public-methods
 
-__revision__ = None
+REVISION = None
 
-__revision__()
+REVISION() # [not-callable]
 
 def correct():
-    """callable object"""
     return 1
 
-__revision__ = correct()
+REVISION = correct()
 
 class Correct(object):
     """callable object"""
@@ -26,15 +20,15 @@ class MetaCorrect(object):
 INSTANCE = Correct()
 CALLABLE_INSTANCE = MetaCorrect()
 CORRECT = CALLABLE_INSTANCE()
-INCORRECT = INSTANCE()
+INCORRECT = INSTANCE() # [not-callable]
 LIST = []
-INCORRECT = LIST()
+INCORRECT = LIST() # [not-callable]
 DICT = {}
-INCORRECT = DICT()
+INCORRECT = DICT() # [not-callable]
 TUPLE = ()
-INCORRECT = TUPLE()
+INCORRECT = TUPLE() # [not-callable]
 INT = 1
-INCORRECT = INT()
+INCORRECT = INT() # [not-callable]
 
 # Test calling properties. Pylint can detect when using only the
 # getter, but it doesn't infer properly when having a getter
@@ -69,8 +63,8 @@ class PropertyTest(object):
         self.attr = value
 
 PROP = PropertyTest()
-PROP.test(40)
-PROP.custom()
+PROP.test(40) # [not-callable]
+PROP.custom() # [not-callable]
 
 # Safe from not-callable when using properties.
 

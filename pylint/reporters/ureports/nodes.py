@@ -22,32 +22,58 @@ A micro report is a tree of layout and content objects.
 
 from six import string_types
 
-from pylint.reporters.ureports.tree import VNode
+
+class VNode(object):
+
+    def __init__(self, nid=None):
+        self.id = nid
+        # navigation
+        self.parent = None
+        self.children = []
+
+    def __iter__(self):
+        return iter(self.children)
+
+    def append(self, child):
+        """add a node to children"""
+        self.children.append(child)
+        child.parent = self
+
+    def insert(self, index, child):
+        """insert a child node"""
+        self.children.insert(index, child)
+        child.parent = self
+
+    def _get_visit_name(self):
+        """
+        return the visit name for the mixed class. When calling 'accept', the
+        method <'visit_' + name returned by this method> will be called on the
+        visitor
+        """
+        try:
+            return self.TYPE.replace('-', '_')
+        except Exception:
+            return self.__class__.__name__.lower()
+
+    def accept(self, visitor, *args, **kwargs):
+        func = getattr(visitor, 'visit_%s' % self._get_visit_name())
+        return func(self, *args, **kwargs)
+
+    def leave(self, visitor, *args, **kwargs):
+        func = getattr(visitor, 'leave_%s' % self._get_visit_name())
+        return func(self, *args, **kwargs)
 
 
-class BaseComponent(VNode):
-    """base report component
-
-    attributes
-    * id : the component's optional id
-    * klass : the component's optional klass
-    """
-    def __init__(self, id=None, klass=None):
-        super(BaseComponent, self).__init__(id)
-        self.klass = klass
-
-
-class BaseLayout(BaseComponent):
+class BaseLayout(VNode):
     """base container node
 
     attributes
-    * BaseComponent attributes
     * children : components in this table (i.e. the table's cells)
     """
     def __init__(self, children=(), **kwargs):
         super(BaseLayout, self).__init__(**kwargs)
         for child in children:
-            if isinstance(child, BaseComponent):
+            if isinstance(child, VNode):
                 self.append(child)
             else:
                 self.add_text(child)
@@ -71,11 +97,10 @@ class BaseLayout(BaseComponent):
 
 # non container nodes #########################################################
 
-class Text(BaseComponent):
+class Text(VNode):
     """a text portion
 
     attributes :
-    * BaseComponent attributes
     * data : the text value as an encoded or unicode string
     """
     def __init__(self, data, escaped=True, **kwargs):
@@ -91,25 +116,8 @@ class VerbatimText(Text):
     """a verbatim text, display the raw data
 
     attributes :
-    * BaseComponent attributes
     * data : the text value as an encoded or unicode string
     """
-
-
-class Link(BaseComponent):
-    """a labelled link
-
-    attributes :
-    * BaseComponent attributes
-    * url : the link's target (REQUIRED)
-    * label : the link's label as a string (use the url by default)
-    """
-    def __init__(self, url, label=None, **kwargs):
-        super(Link, self).__init__(**kwargs)
-        assert url
-        self.url = url
-        self.label = label or url
-
 
 # container nodes #############################################################
 
@@ -173,11 +181,3 @@ class Table(BaseLayout):
         self.cheaders = cheaders
         self.rrheaders = rrheaders
         self.rcheaders = rcheaders
-
-
-class List(BaseLayout):
-    """some list data
-
-    attributes :
-    * BaseLayout attributes
-    """

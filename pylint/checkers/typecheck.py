@@ -24,10 +24,11 @@ import sys
 
 import astroid
 import astroid.context
-from astroid import bases
+import astroid.arguments
 from astroid import exceptions
 from astroid import objects
 from astroid import helpers
+from astroid import node_classes
 import six
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
@@ -55,7 +56,7 @@ def _unflatten(iterable):
                 not isinstance(elem, six.string_types)):
             for subelem in _unflatten(elem):
                 yield subelem
-        elif isinstance(elem, bases.NodeNG):
+        elif isinstance(elem, node_classes.NodeNG):
             yield elem
 
 
@@ -185,6 +186,9 @@ MSGS = {
               'unsupported-binary-operation',
               'Emitted when a binary arithmetic operation between two '
               'operands is not supported.'),
+    'E1132': ('Got multiple values for keyword argument %r in function call',
+              'repeated-keyword',
+              'Emitted when a function call got multiple values for a keyword.'),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -500,9 +504,9 @@ accessed. Python regular expressions are accepted.'}
         """
         # Build the set of keyword arguments, checking for duplicate keywords,
         # and count the positional arguments.
-        keyword_args = {keyword.arg for keyword in node.keywords or []
-                        if keyword.arg is not None}
-        num_positional_args = len(node.args)
+        call_site = astroid.arguments.CallSite.from_call(node)
+        num_positional_args = len(call_site.positional_arguments)
+        keyword_args = list(call_site.keyword_arguments.keys())
 
         called = helpers.safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
@@ -524,8 +528,17 @@ accessed. Python regular expressions are accepted.'}
             return
 
         if len(called.argnames()) != len(set(called.argnames())):
-            # Duplicate parameter name (see E9801).  We can't really make sense
-            # of the function call in this case, so just return.
+            # Duplicate parameter name (see duplicate-argument).  We can't really
+            # make sense of the function call in this case, so just return.
+            return
+
+        # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
+        for keyword in call_site.duplicated_keywords:
+            self.add_message('repeated-keyword',
+                             node=node, args=(keyword, ))
+
+        if call_site.has_invalid_arguments() or call_site.has_invalid_keywords():
+            # Can't make sense of this.
             return
 
         # Analyze the list of formal parameters.
@@ -606,23 +619,7 @@ accessed. Python regular expressions are accepted.'}
                 self.add_message('unexpected-keyword-arg', node=node,
                                  args=(keyword, callable_name))
 
-        # 3. Match the *args, if any.  Note that Python actually processes
-        #    *args _before_ any keyword arguments, but we wait until after
-        #    looking at the keyword arguments so as to make a more conservative
-        #    guess at how many values are in the *args sequence.
-        if node.starargs:
-            for i in range(num_positional_args, len(parameters)):
-                [(name, defval), assigned] = parameters[i]
-                # Assume that *args provides just enough values for all
-                # non-default parameters after the last parameter assigned by
-                # the positional arguments but before the first parameter
-                # assigned by the keyword arguments.  This is the best we can
-                # get without generating any false positives.
-                if (defval is not None) or assigned:
-                    break
-                parameters[i][1] = True
-
-        # 4. Match the **kwargs, if any.
+        # 3. Match the **kwargs, if any.
         if node.kwargs:
             for i, [(name, defval), assigned] in enumerate(parameters):
                 # Assume that *kwargs provides values for all remaining
