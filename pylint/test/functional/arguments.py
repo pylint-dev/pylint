@@ -147,6 +147,8 @@ class Issue642(object):
 # since they have something invalid.
 from ala_bala_portocola import unknown
 
+# pylint: disable=not-a-mapping,not-an-iterable
+
 function_1_arg(*unknown)
 function_1_arg(1, *2)
 function_1_arg(1, 2, 3, **unknown)

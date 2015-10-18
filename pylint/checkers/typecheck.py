@@ -848,11 +848,11 @@ class IterableChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = 'iterable_check'
 
-    msgs = {'E1132': ('Non-iterable value %s is used in an iterating context',
+    msgs = {'E1133': ('Non-iterable value %s is used in an iterating context',
                       'not-an-iterable',
                       'Used when a non-iterable value is used in place where'
                       'iterable is expected'),
-            'E1133': ('Non-mapping value %s is used in a mapping context',
+            'E1134': ('Non-mapping value %s is used in a mapping context',
                       'not-a-mapping',
                       'Used when a non-mapping value is used in place where'
                       'mapping is expected'),
