@@ -47,6 +47,7 @@ STR_FORMAT = "%s.str.format" % BUILTINS
 ITER_METHOD = '__iter__'
 NEXT_METHOD = 'next' if six.PY2 else '__next__'
 GETITEM_METHOD = '__getitem__'
+CONTAINS_METHOD = '__contains__'
 KEYS_METHOD = 'keys'
 
 
@@ -114,6 +115,9 @@ def _is_iterator(value):
 
 def _is_mapping(value):
     return _hasattr(value, GETITEM_METHOD) and _hasattr(value, KEYS_METHOD)
+
+def _supports_membership_test(value):
+    return _hasattr(value, CONTAINS_METHOD)
 
 
 def _is_inside_mixin_declaration(node):
@@ -189,6 +193,10 @@ MSGS = {
     'E1132': ('Got multiple values for keyword argument %r in function call',
               'repeated-keyword',
               'Emitted when a function call got multiple values for a keyword.'),
+    'E1135': ("Value '%s' doesn't support membership test",
+              'unsupported-membership-test',
+              'Emitted when an instance in membership test expression doesn\'t'
+              'implement membership protocol (__contains__/__iter__/__getitem__)'),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -831,6 +839,46 @@ accessed. Python regular expressions are accepted.'}
             # Let the error customize its output.
             self.add_message('unsupported-binary-operation',
                              args=str(error), node=node)
+
+    def _check_membership_test(self, node):
+        # instance supports membership test in either of those cases:
+        # 1. instance defines __contains__ method
+        # 2. instance is iterable (defines __iter__ or __getitem__)
+        if _is_comprehension(node) or _is_inside_mixin_declaration(node):
+            return
+
+        infered = helpers.safe_infer(node)
+        if infered is None or infered is astroid.YES:
+            return
+
+        # classes can be iterables/containers too
+        if isinstance(infered, astroid.ClassDef):
+            if not helpers.has_known_bases(infered):
+                return
+            meta = infered.metaclass()
+            if meta is not None:
+                if _supports_membership_test(meta):
+                    return
+                if _is_iterable(meta):
+                    return
+
+        if isinstance(infered, astroid.Instance):
+            if not helpers.has_known_bases(infered):
+                return
+            if _supports_membership_test(infered) or _is_iterable(infered):
+                return
+
+        self.add_message('unsupported-membership-test',
+                         args=node.as_string(),
+                         node=node)
+
+    @check_messages('unsupported-membership-test')
+    def visit_compare(self, node):
+        if len(node.ops) != 1:
+            return
+        operator, right = node.ops[0]
+        if operator in ['in', 'not in']:
+            self._check_membership_test(right)
 
 
 class IterableChecker(BaseChecker):
