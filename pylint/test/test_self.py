@@ -145,6 +145,12 @@ class RunTC(unittest.TestCase):
         messages = parser.get('MESSAGES CONTROL', 'disable').split(",")
         self.assertIn('suppressed-message', messages)
 
+    def test_generate_rcfile_no_obsolete_methods(self):
+        out = six.StringIO()
+        self._run_pylint(["--generate-rcfile"], out=out)
+        output = out.getvalue()
+        self.assertNotIn("profile", output)
+
     def _test_deprecated_options(self, option, expected):
         out = six.StringIO()
         self._run_pylint([option, "--rcfile=", "pylint.config"], out=out)

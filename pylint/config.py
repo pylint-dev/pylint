@@ -554,7 +554,8 @@ class OptionsManagerMixIn(object):
                 if section in skipsections:
                     continue
                 options = [(n, d, v) for (n, d, v) in options
-                           if d.get('type') is not None]
+                           if d.get('type') is not None
+                           and not d.get('deprecated')]
                 if not options:
                     continue
                 if section not in sections:

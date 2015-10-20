@@ -3,6 +3,9 @@ ChangeLog for Pylint
 
 --
 
+    * Obsolete options are not present by default in the generated
+      configuration file. Closes issue #632.
+
     * non-iterator-returned can detect classes with iterator-metaclasses.
       Closes issue #679.
 

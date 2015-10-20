@@ -997,7 +997,8 @@ def deprecated_option(shortname=None, opt_type=None, help_msg=None):
         'hide': True,
         'type': opt_type,
         'action': 'callback',
-        'callback': _warn_deprecated
+        'callback': _warn_deprecated,
+        'deprecated': True
     }
     if shortname:
         option['shortname'] = shortname

@@ -736,7 +736,6 @@ class PyLinter(config.OptionsManagerMixIn,
             with _patch_sysmodules():
                 self._parallel_check(files_or_modules)
 
-
     def _parallel_task(self, files_or_modules):
         # Prepare configuration for child linters.
         filter_options = {'symbols', 'include-ids', 'long-help'}
@@ -744,6 +743,9 @@ class PyLinter(config.OptionsManagerMixIn,
         child_config = {}
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
+                if optdict.get('deprecated'):                    
+                    continue
+
                 if optname not in filter_options:
                     child_config[optname] = utils._format_option_value(
                         optdict, val)
