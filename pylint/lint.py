@@ -743,7 +743,7 @@ class PyLinter(config.OptionsManagerMixIn,
         child_config = {}
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
-                if optdict.get('deprecated'):                    
+                if optdict.get('deprecated'):
                     continue
 
                 if optname not in filter_options:
