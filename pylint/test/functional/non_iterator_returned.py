@@ -1,8 +1,8 @@
 """Check non-iterators returned by __iter__ """
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods, missing-docstring, no-self-use
 
-__revision__ = 0
+import six
 
 class FirstGoodIterator(object):
     """ yields in iterator. """
@@ -17,11 +17,11 @@ class SecondGoodIterator(object):
     def __iter__(self):
         return self
 
-    def __next__(self): # pylint: disable=no-self-use
+    def __next__(self):
         """ Infinite iterator, but still an iterator """
         return 1
 
-    def next(self): # pylint: disable=no-self-use
+    def next(self):
         """Same as __next__, but for Python 2."""
         return 1
 
@@ -36,6 +36,26 @@ class FourthGoodIterator(object):
 
     def __iter__(self):
         return iter(range(10))
+
+
+class IteratorMetaclass(type):
+    def __next__(cls):
+        return 1
+
+    def next(cls):
+        return 2
+
+
+@six.add_metaclass(IteratorMetaclass)
+class IteratorClass(object):
+    """Iterable through the metaclass."""
+
+
+class FifthGoodIterator(object):
+    """__iter__ returns a class which uses an iterator-metaclass."""
+    def __iter__(self):
+        return IteratorClass
+
 
 class FirstBadIterator(object):
     """ __iter__ returns a list """
@@ -54,3 +74,17 @@ class ThirdBadIterator(object):
 
     def __iter__(self): # [non-iterator-returned]
         return SecondBadIterator()
+
+class FourthBadIterator(object):
+    """__iter__ returns a class."""
+
+    def __iter__(self): # [non-iterator-returned]
+        return ThirdBadIterator
+
+class FifthBadIterator(object):
+    """All branches should return an iterator."""
+
+    def __iter__(self): # [non-iterator-returned]
+        if self:
+            return 1
+        return SecondGoodIterator()

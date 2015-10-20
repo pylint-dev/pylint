@@ -2,6 +2,10 @@ ChangeLog for Pylint
 --------------------
 
 --
+
+    * non-iterator-returned can detect classes with iterator-metaclasses.
+      Closes issue #679.
+
     * Add a new error, 'unsupported-membership-test', emitted when value
       to the right of the 'in' operator doesn't support membership test
       protocol (i.e. doesn't define __contains__/__iter__/__getitem__)

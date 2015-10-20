@@ -1006,23 +1006,39 @@ class SpecialMethodsChecker(BaseChecker):
                              args=(node.name, expected_params, current_params, verb),
                              node=node)
 
+    @staticmethod
+    def _is_iterator(node):
+        if node is astroid.YES:
+            # Just ignore YES objects.
+            return True
+        if isinstance(node, Generator):
+            # Generators can be itered.
+            return True
+
+        if isinstance(node, astroid.Instance):
+            try:
+                node.local_attr(NEXT_METHOD)
+                return True
+            except astroid.NotFoundError:
+                pass
+        elif isinstance(node, astroid.ClassDef):
+            metaclass = node.metaclass()
+            if metaclass and isinstance(metaclass, astroid.ClassDef):
+                try:
+                    metaclass.local_attr(NEXT_METHOD)
+                    return True
+                except astroid.NotFoundError:
+                    pass
+        return False
+
     def _check_iter(self, node):
         try:
             infered = node.infer_call_result(node)
         except astroid.InferenceError:
             return
 
-        for infered_node in infered:
-            if (infered_node is astroid.YES
-                    or isinstance(infered_node, Generator)):
-                continue
-            if isinstance(infered_node, astroid.Instance):
-                try:
-                    infered_node.local_attr(NEXT_METHOD)
-                except astroid.NotFoundError:
-                    self.add_message('non-iterator-returned',
-                                     node=node)
-                    break
+        if not all(map(self._is_iterator, infered)):
+            self.add_message('non-iterator-returned', node=node)
 
 
 def _ancestors_to_call(klass_node, method='__init__'):
