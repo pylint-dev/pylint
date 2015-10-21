@@ -3,6 +3,9 @@ ChangeLog for Pylint
 
 --
 
+    * Don't warn about abstract classes instantiated in their own
+      body. Closes issue #627.
+
     * Obsolete options are not present by default in the generated
       configuration file. Closes issue #632.
 

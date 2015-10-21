@@ -41,6 +41,7 @@ from pylint.checkers.utils import (
     is_inside_except,
     overrides_a_method,
     get_argument_from_call,
+    node_frame_class,
     NoSuchArgumentError,
     error_of_type,
     unimplemented_abstract_methods,
@@ -497,8 +498,18 @@ class BasicErrorChecker(_BasicChecker):
             infered = next(node.func.infer())
         except astroid.InferenceError:
             return
+
         if not isinstance(infered, astroid.ClassDef):
             return
+
+        klass = node_frame_class(node)
+        if klass is infered:
+            # Don't emit the warning if the class is instantiated
+            # in its own body or if the call is not an instance
+            # creation. If the class is instantiated into its own
+            # body, we're expecting that it knows what it is doing.
+            return        
+
         # __init__ was called
         metaclass = infered.metaclass()
         abstract_methods = _has_abstract_methods(infered)
