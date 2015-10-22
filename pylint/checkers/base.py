@@ -310,7 +310,7 @@ class BasicErrorChecker(_BasicChecker):
         'E0112': ('More than one starred expression in assignment',
                   'too-many-star-expressions',
                   'Emitted when there are more than one starred '
-                  'expressions (*x) in an assignment. This is a SyntaxError.',
+                  'expressions (`*x`) in an assignment. This is a SyntaxError.',
                   {'minversion': (3, 0)}),
         'E0113': ('Starred assignment target must be in a list or tuple',
                   'invalid-star-assignment-target',
