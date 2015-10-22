@@ -93,7 +93,7 @@ ChangeLog for Pylint
 
     * When checking for invalid arguments to a callable, in typecheck.py,
       look up for the __init__ in case the found __new__ comes from builtins.
-      
+
       Since the __new__ comes from builtins, it will not have attached any
       information regarding what parameters it expects, so the check
       will be useless. Retrieving __init__ in that case will at least
@@ -102,7 +102,7 @@ ChangeLog for Pylint
     * Don't emit no-member for classes with unknown bases.
 
       Since we don't know what those bases might add, we simply ignore
-      the error in this case. 
+      the error in this case.
 
     * Lookup in the implicit metaclass when checking for no-member,
       if the class in question has an implicit metaclass, which is
@@ -166,7 +166,7 @@ ChangeLog for Pylint
 
     * Don't emit undefined-variable if the node is guarded by a NameError, Exception
       or bare except clause.
- 
+
     * Add a new warning, 'using-constant-test', which is emitted when a conditional
       statement (If, IfExp) uses a test which is always constant, such as numbers,
       classes, functions etc. This is most likely an error from the user's part.
@@ -204,11 +204,11 @@ ChangeLog for Pylint
     * yield-outside-func is also emitted for `yield from`.
 
     * Add a new error, 'too-many-star-expressions', emitted when
-      there are more than one starred expression (*x) in an assignment.
+      there are more than one starred expression (`*x`) in an assignment.
       The warning is emitted only on Python 3.
 
     * Add a new error, 'invalid-star-assignment-target', emitted when
-      a starred expression (*x) is used as the lhs side of an assignment,
+      a starred expression (`*x`) is used as the lhs side of an assignment,
       as in `*x = [1, 2]`. This is not a SyntaxError on Python 3 though.
 
     * Detect a couple of objects which can't be base classes (bool,
@@ -220,7 +220,7 @@ ChangeLog for Pylint
       SyntaxWarning on Python 2.
 
     * Add a new error, 'star-needs-assignment-target', emitted on Python 3 when
-      a Starred expression (*x) is not used in an assignment target. This is not
+      a Starred expression (`*x`) is not used in an assignment target. This is not
       caught when parsing the AST on Python 3, so it needs to be a separate check.
 
     * Add a new error, 'unsupported-binary-operation', emitted when
@@ -345,7 +345,7 @@ ChangeLog for Pylint
       an async context manager block is used with an object which doesn't
       support this protocol (PEP 492).
 
-    * Add a new convention warning, 'singleton-comparison', emitted when 
+    * Add a new convention warning, 'singleton-comparison', emitted when
       comparison to True, False or None is found.
 
     * Don't emit 'assigning-non-slot' for descriptors. Closes issue #652.
@@ -375,7 +375,7 @@ ChangeLog for Pylint
       depth exceeded error, due to its visitor architecture. The peephole
       just transforms such calls, if it can, into the final resulting string
       and this exhibit a problem, because the visit_binop method stops being
-      called (in the optimized AST it will be a Const node).           
+      called (in the optimized AST it will be a Const node).
 
 
 2015-03-11 -- 1.4.2

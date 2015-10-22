@@ -248,7 +248,7 @@ MSGS = {
     'W0614': ('Unused import %s from wildcard import',
               'unused-wildcard-import',
               'Used when an imported module or variable is not used from a \
-              \'from X import *\' style import.'),
+              `\'from X import *\'` style import.'),
 
     'W0621': ('Redefining name %r from outer scope (line %s)',
               'redefined-outer-name',
