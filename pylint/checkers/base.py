@@ -508,7 +508,7 @@ class BasicErrorChecker(_BasicChecker):
             # in its own body or if the call is not an instance
             # creation. If the class is instantiated into its own
             # body, we're expecting that it knows what it is doing.
-            return        
+            return
 
         # __init__ was called
         metaclass = infered.metaclass()
