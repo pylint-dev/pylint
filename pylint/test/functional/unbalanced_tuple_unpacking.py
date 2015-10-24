@@ -97,3 +97,10 @@ def test_decimal():
     dec = Decimal(2)
     first, second, third = dec.as_tuple()
     return first, second, third
+
+
+def test_issue_559():
+    """Test that we don't have a false positive wrt to issue #559."""
+    from ctypes import c_int
+    root_x, root_y, win_x, win_y = [c_int()] * 4
+    return root_x, root_y, win_x, win_y
