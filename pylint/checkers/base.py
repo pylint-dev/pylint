@@ -1473,7 +1473,7 @@ class ComparisonChecker(_BasicChecker):
                       'place it in the right hand side of the comparison.'),
            }
 
-    def check_singleton_comparison(self, singleton, root_node):
+    def _check_singleton_comparison(self, singleton, root_node):
         if singleton.value is True:
             suggestion = "just 'expr' or 'expr is True'"
             self.add_message('singleton-comparison',
@@ -1514,9 +1514,9 @@ class ComparisonChecker(_BasicChecker):
         if operator == '==':
             if isinstance(left, astroid.Const):
                 self._check_misplaced_constant(node, left, right, operator)
-                self.check_singleton_comparison(left, node)
+                self._check_singleton_comparison(left, node)
             elif isinstance(right, astroid.Const):
-                self.check_singleton_comparison(right, node)
+                self._check_singleton_comparison(right, node)
         elif (operator in ('<', '<=', '>', '>=', '!=')
               and isinstance(left, astroid.Const)):
             self._check_misplaced_constant(node, left, right, operator)
