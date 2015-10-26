@@ -1506,15 +1506,15 @@ class ComparisonChecker(_BasicChecker):
             return
         left = node.left
         operator, right = node.ops[0]
+        if (operator in ('<', '<=', '>', '>=', '!=', '==')
+                and isinstance(left, astroid.Const)):
+            self._check_misplaced_constant(node, left, right, operator)
+
         if operator == '==':
             if isinstance(left, astroid.Const):
-                self._check_misplaced_constant(node, left, right, operator)
                 self._check_singleton_comparison(left, node)
             elif isinstance(right, astroid.Const):
                 self._check_singleton_comparison(right, node)
-        elif (operator in ('<', '<=', '>', '>=', '!=')
-              and isinstance(left, astroid.Const)):
-            self._check_misplaced_constant(node, left, right, operator)
 
 
 def register(linter):
