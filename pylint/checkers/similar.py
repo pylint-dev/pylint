@@ -305,7 +305,7 @@ class SimilarChecker(BaseChecker, Similar):
 
     def close(self):
         """compute and display similarities on closing (i.e. end of parsing)"""
-        total = sum([len(lineset) for lineset in self.linesets])
+        total = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
         stats = self.stats
         for num, couples in self._compute_sims():
