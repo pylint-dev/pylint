@@ -15,3 +15,4 @@ no-member:120::Class 'Client' has no 'missing' member:INFERENCE
 no-member:144::Class 'Client' has no 'ala' member:INFERENCE
 no-member:145::Class 'dict' has no 'bala' member:INFERENCE
 no-member:146::Class 'str' has no 'portocala' member:INFERENCE
+no-member:181:NoDunderNameInInstance.__init__:Instance of 'NoDunderNameInInstance' has no '__name__' member:INFERENCE

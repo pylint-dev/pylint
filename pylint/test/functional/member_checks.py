@@ -173,3 +173,9 @@ def no_conjugate_member(magic_flag):
     if isinstance(something, float):
         return something
     return something.conjugate()
+
+
+class NoDunderNameInInstance(object):
+    """Emit a warning when accessing __name__ from an instance."""
+    def __init__(self):
+        self.var = self.__name__ # [no-member]
