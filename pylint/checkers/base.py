@@ -1453,6 +1453,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
                 and infered.name in ['map', 'filter']):
             self.add_message('deprecated-lambda', node=node)
 
+
 class ComparisonChecker(_BasicChecker):
     """checks for singleton comparison and for yoda condition
 
