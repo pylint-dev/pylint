@@ -739,7 +739,7 @@ class PyLinter(config.OptionsManagerMixIn,
     def _get_jobs_config(self):
         child_config = {}
         filter_options = {'symbols', 'include-ids', 'long-help'}
-        filter_options.update([opt_name for opt_name, _ in self._external_opts])
+        filter_options.update((opt_name for opt_name, _ in self._external_opts))
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
                 if optdict.get('deprecated'):
