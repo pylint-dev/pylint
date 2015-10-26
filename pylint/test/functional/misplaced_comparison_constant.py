@@ -18,10 +18,6 @@ def bad_comparisons():
     for i in range(10):
         if 5 <= i:  # [misplaced-comparison-constant]
             pass
-        if True == True:  # [misplaced-comparison-constant]
-            pass
-        if 'bar' != 'foo':  # [misplaced-comparison-constant]
-            pass
         if 1 == i:  # [misplaced-comparison-constant]
             pass
         if 3 < dummy_return():  # [misplaced-comparison-constant]
