@@ -358,6 +358,13 @@ ChangeLog for Pylint
 
     * --enable=all can now be used. Closes issue #142.
 
+    * Add a new convention message, 'misplaced-comparison-constant',
+      emitted when a constant is placed in the left hand side of a comparison,
+      as in '5 == func()'. This is also called Yoda condition, since the
+      flow of code reminds of the Star Wars green character, conditions usually
+      encountered in languages with variabile assignments in conditional
+      statements.
+
 
 
 2015-03-14 -- 1.4.3
