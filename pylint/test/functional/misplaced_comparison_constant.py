@@ -17,13 +17,13 @@ def bad_comparisons():
     instance = MyClass()
     for i in range(10):
         if 5 <= i:  # [misplaced-comparison-constant]
-            print "foo"
+            pass
         if True == True:  # [misplaced-comparison-constant]
             pass
         if 'bar' != 'foo':  # [misplaced-comparison-constant]
             pass
         if 1 == i:  # [misplaced-comparison-constant]
-            print "bar"
+            pass
         if 3 < dummy_return():  # [misplaced-comparison-constant]
             pass
         if 4 != instance.dummy_return():  # [misplaced-comparison-constant]
@@ -35,4 +35,4 @@ def good_comparison():
     """this is ok"""
     for i in range(10):
         if i == 5:
-            print "foo"
+            pass

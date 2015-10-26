@@ -1,4 +1,4 @@
-# pylint:disable=W0105, W0511, W0151
+# pylint:disable=W0105, W0511, misplaced-comparison-constant
 """Stray backslash escapes may be missing a raw-string prefix."""
 
 __revision__ = '$Id$'

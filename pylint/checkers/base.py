@@ -1465,7 +1465,7 @@ class ComparisonChecker(_BasicChecker):
                       'singleton-comparison',
                       'Used when an expression is compared to singleton '
                       'values like True, False or None.'),
-            'W0151': ('Comparison should be %s',
+            'C0151': ('Comparison should be %s',
                       'misplaced-comparison-constant',
                       'Used when the constant is placed on the left side'
                       'of a comparison'),
