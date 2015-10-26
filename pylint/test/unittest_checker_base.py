@@ -248,7 +248,7 @@ class MultiNamingStyleTest(CheckerTestCase):
 class ComparisonTest(CheckerTestCase):
     CHECKER_CLASS = base.ComparisonChecker
 
-    def test_singleton_comparison(self):
+    def test_comparison(self):
         node = test_utils.extract_node("foo == True")
         message = Message('singleton-comparison',
                           node=node,
@@ -271,24 +271,33 @@ class ComparisonTest(CheckerTestCase):
             self.checker.visit_compare(node)
 
         node = test_utils.extract_node("True == foo")
-        message = Message('singleton-comparison',
-                          node=node,
-                          args=(True, "just 'expr' or 'expr is True'"))
-        with self.assertAddsMessages(message):
+        messages = (Message('misplaced-comparison-constant',
+                            node=node,
+                            args=('foo == True',)),
+                    Message('singleton-comparison',
+                            node=node,
+                            args=(True, "just 'expr' or 'expr is True'")))
+        with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
 
         node = test_utils.extract_node("False == foo")
-        message = Message('singleton-comparison',
-                          node=node,
-                          args=(False, "'not expr' or 'expr is False'"))
-        with self.assertAddsMessages(message):
+        messages = (Message('misplaced-comparison-constant',
+                            node=node,
+                            args=('foo == False',)),
+                    Message('singleton-comparison',
+                            node=node,
+                            args=(False, "'not expr' or 'expr is False'")))
+        with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
 
         node = test_utils.extract_node("None == foo")
-        message = Message('singleton-comparison',
-                          node=node,
-                          args=(None, "'expr is None'"))
-        with self.assertAddsMessages(message):
+        messages = (Message('misplaced-comparison-constant',
+                            node=node,
+                            args=('foo == None',)),
+                    Message('singleton-comparison',
+                            node=node,
+                            args=(None, "'expr is None'")))
+        with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
 
 

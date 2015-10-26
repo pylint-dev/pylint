@@ -1,9 +1,10 @@
 """Test the superfluous-parens warning."""
 from __future__ import print_function
 
-if (3 == 5):  # [superfluous-parens]
+i = 3
+if (i == 5):  # [superfluous-parens]
     pass
-if not (3 == 5):  # [superfluous-parens]
+if not (i == 5):  # [superfluous-parens]
     pass
 if not (3 or 5):
     pass

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name
+# pylint: disable=missing-docstring, invalid-name, misplaced-comparison-constant
 x = 42
 a = x is None
 b = x == None  # [singleton-comparison]

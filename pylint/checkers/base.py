@@ -1454,11 +1454,21 @@ class LambdaForComprehensionChecker(_BasicChecker):
             self.add_message('deprecated-lambda', node=node)
 
 class ComparisonChecker(_BasicChecker):
-    """checks for 'expr == True', 'expr == False' and 'expr == None'"""
+    """checks for singleton comparison and for yoda condition
+
+    - singleton comparison: 'expr == True', 'expr == False' and 'expr == None'
+    - yoda condition: 'const "comp" right' where comp can be '==', '!=', '<',
+      '<=', '>' or '>=', and right can be a variable, an attribute, a method or
+      a function
+    """
     msgs = {'C0121': ('Comparison to %s should be %s',
                       'singleton-comparison',
                       'Used when an expression is compared to singleton '
                       'values like True, False or None.'),
+            'W0151': ('Comparison should be %s',
+                      'misplaced-comparison-constant',
+                      'Used when the constant is placed on the left side'
+                      'of a comparison'),
            }
 
     def check_singleton_comparison(self, singleton, root_node):
@@ -1477,7 +1487,20 @@ class ComparisonChecker(_BasicChecker):
                              node=root_node,
                              args=(None, "'expr is None'"))
 
-    @check_messages('singleton-comparison')
+    def _check_misplaced_constant(self, node, left, right, operator):
+        suggestion = None
+        if isinstance(right, (astroid.Name, astroid.Attribute, astroid.Call)):
+            reverse_op = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
+            if operator in reverse_op:
+                operator = reverse_op[operator]
+            suggestion = '%s %s %s' % (right.as_string(), operator, left.value)
+        elif isinstance(right, astroid.Const):
+            suggestion = 'between a variable and a constant'
+        if suggestion:
+            self.add_message('misplaced-comparison-constant', node=node,
+                             args=(suggestion,))
+
+    @check_messages('singleton-comparison', 'misplaced-comparison-constant')
     def visit_compare(self, node):
         # NOTE: this checker only works with binary comparisons like 'x == 42'
         # but not 'x == y == 42'
@@ -1488,9 +1511,13 @@ class ComparisonChecker(_BasicChecker):
         operator, right = node.ops[0]
         if operator == '==':
             if isinstance(left, astroid.Const):
+                self._check_misplaced_constant(node, left, right, operator)
                 self.check_singleton_comparison(left, node)
             elif isinstance(right, astroid.Const):
                 self.check_singleton_comparison(right, node)
+        elif (operator in ('<', '<=', '>', '>=', '!=')
+              and isinstance(left, astroid.Const)):
+            self._check_misplaced_constant(node, left, right, operator)
 
 
 def register(linter):
