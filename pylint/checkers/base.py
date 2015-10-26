@@ -85,6 +85,7 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
     zip(['.'.join([astroid.bases.BUILTINS, x]) for x in ('set', 'dict', 'list')],
         ['set()', '{}', '[]'])
 )
+REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
 
 del re
 
@@ -1490,14 +1491,12 @@ class ComparisonChecker(_BasicChecker):
                              args=(None, "'expr is None'"))
 
     def _check_misplaced_constant(self, node, left, right, operator):
-        if not isinstance(right, astroid.Const):
-            reverse_op = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
-            if operator in reverse_op:
-                operator = reverse_op[operator]
-
-            suggestion = '%s %s %s' % (right.as_string(), operator, left.value)
-            self.add_message('misplaced-comparison-constant', node=node,
-                             args=(suggestion,))
+        if isinstance(right, astroid.Const):
+            return
+        operator = REVERSED_COMPS.get(operator, operator)
+        suggestion = '%s %s %s' % (right.as_string(), operator, left.value)
+        self.add_message('misplaced-comparison-constant', node=node,
+                         args=(suggestion,))
 
     @check_messages('singleton-comparison', 'misplaced-comparison-constant')
     def visit_compare(self, node):
