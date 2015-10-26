@@ -736,11 +736,10 @@ class PyLinter(config.OptionsManagerMixIn,
             with _patch_sysmodules():
                 self._parallel_check(files_or_modules)
 
-    def _parallel_task(self, files_or_modules):
-        # Prepare configuration for child linters.
+    def _get_jobs_config(self):
+        child_config = {}
         filter_options = {'symbols', 'include-ids', 'long-help'}
         filter_options.update([opt_name for opt_name, _ in self._external_opts])
-        child_config = {}
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
                 if optdict.get('deprecated'):
@@ -751,6 +750,11 @@ class PyLinter(config.OptionsManagerMixIn,
                         optdict, val)
         child_config['python3_porting_mode'] = self._python3_porting_mode
         child_config['plugins'] = self._dynamic_plugins
+        return child_config
+
+    def _parallel_task(self, files_or_modules):
+        # Prepare configuration for child linters.
+        child_config = self._get_jobs_config()
 
         children = []
         manager = multiprocessing.Manager()
