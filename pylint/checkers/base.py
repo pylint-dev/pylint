@@ -1455,7 +1455,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
 
 
 class ComparisonChecker(_BasicChecker):
-    """checks for singleton comparison and for yoda condition
+    """Checks for comparisons
 
     - singleton comparison: 'expr == True', 'expr == False' and 'expr == None'
     - yoda condition: 'const "comp" right' where comp can be '==', '!=', '<',
@@ -1469,7 +1469,8 @@ class ComparisonChecker(_BasicChecker):
             'C0151': ('Comparison should be %s',
                       'misplaced-comparison-constant',
                       'Used when the constant is placed on the left side'
-                      'of a comparison'),
+                      'of a comparison. It is usually clearer in intent to '
+                      'place it in the right hand side of the comparison.'),
            }
 
     def check_singleton_comparison(self, singleton, root_node):
