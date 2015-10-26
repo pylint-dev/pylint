@@ -1843,6 +1843,36 @@ class ElifChecker(BaseTokenChecker):
                                            (len(self._nested_blocks),
                                             self.config.max_nested_blocks))
 
+class NotChecker(_BasicChecker):
+    """checks for nots too many in comparison expressions
+
+    - "not not" should trigger a warning
+    - "not" followed by a comparison should trigger a warning
+    """
+    msgs = {'W0126': ('One not too many in "%s", should be "%s"',
+                      'unneeded-not',
+                      'Used when a boolean expression contains an unneeded '
+                      'negation.'),
+           }
+
+    @check_messages('unneeded-not')
+    def visit_unaryop(self, node):
+        if node.op != 'not':
+            return
+        operand = node.operand
+        if isinstance(operand, astroid.UnaryOp) and operand.op == 'not':
+            self.add_message('unneeded-not', node=node,
+                             args=(node.as_string(),
+                                   operand.operand.as_string()))
+        elif isinstance(operand, astroid.Compare):
+            operator, _ = operand.ops[0]
+            reverse_op = {'<': '>=', '<=': '>', '>': '<=', '>=': '<',
+                          '==': '!=', '!=': '=='}
+            suggestion = node.as_string().replace('not ', '').replace(
+                operator, reverse_op[operator])
+            self.add_message('unneeded-not', node=node,
+                             args=(node.as_string(), suggestion))
+
 
 def register(linter):
     """required method to auto register this checker"""
@@ -1853,5 +1883,6 @@ def register(linter):
     linter.register_checker(PassChecker(linter))
     linter.register_checker(LambdaForComprehensionChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
+    linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommandationChecker(linter))
     linter.register_checker(ElifChecker(linter))
