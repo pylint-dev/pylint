@@ -62,6 +62,14 @@ REVERSED_PROTOCOL_METHOD = '__reversed__'
 SEQUENCE_PROTOCOL_METHODS = ('__getitem__', '__len__')
 REVERSED_METHODS = (SEQUENCE_PROTOCOL_METHODS,
                     (REVERSED_PROTOCOL_METHOD, ))
+TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
+                                            '!=', 'in', 'not in'))
+LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
+UNITTEST_CASE = 'unittest.case'
+if sys.version_info >= (3, 0):
+    TYPE_QNAME = 'builtins.type'
+else:
+    TYPE_QNAME = '__builtin__.type'
 
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
@@ -1455,6 +1463,14 @@ class LambdaForComprehensionChecker(_BasicChecker):
             self.add_message('deprecated-lambda', node=node)
 
 
+def _is_one_arg_pos_call(call):
+    """Is this a call with exactly 1 argument,
+    where that argument is positional?
+    """
+    return (isinstance(call, astroid.Call)
+            and len(call.args) == 1 and not call.keywords)
+
+
 class ComparisonChecker(_BasicChecker):
     """Checks for comparisons
 
@@ -1472,6 +1488,13 @@ class ComparisonChecker(_BasicChecker):
                       'Used when the constant is placed on the left side'
                       'of a comparison. It is usually clearer in intent to '
                       'place it in the right hand side of the comparison.'),
+            'C0123': ('Using type() instead of isinstance() for a typecheck.',
+                      'unidiomatic-typecheck',
+                      'The idiomatic way to perform an explicit typecheck in '
+                      'Python is to use isinstance(x, Y) rather than '
+                      'type(x) == Y, type(x) is Y. Though there are unusual '
+                      'situations where these give different results.',
+                      {'old_names': [('W0154', 'unidiomatic-typecheck')]}),
            }
 
     def _check_singleton_comparison(self, singleton, root_node):
@@ -1498,8 +1521,10 @@ class ComparisonChecker(_BasicChecker):
         self.add_message('misplaced-comparison-constant', node=node,
                          args=(suggestion,))
 
-    @check_messages('singleton-comparison', 'misplaced-comparison-constant')
+    @check_messages('singleton-comparison', 'misplaced-comparison-constant',
+                    'unidiomatic-typecheck')
     def visit_compare(self, node):
+        self._check_unidiomatic_typecheck(node)
         # NOTE: this checker only works with binary comparisons like 'x == 42'
         # but not 'x == y == 42'
         if len(node.ops) != 1:
@@ -1515,6 +1540,31 @@ class ComparisonChecker(_BasicChecker):
                 self._check_singleton_comparison(left, node)
             elif isinstance(right, astroid.Const):
                 self._check_singleton_comparison(right, node)
+
+    def _check_unidiomatic_typecheck(self, node):
+        operator, right = node.ops[0]
+        if operator in TYPECHECK_COMPARISON_OPERATORS:
+            left = node.left
+            if _is_one_arg_pos_call(left):
+                self._check_type_x_is_y(node, left, operator, right)
+
+    def _check_type_x_is_y(self, node, left, operator, right):
+        """Check for expressions like type(x) == Y."""
+        left_func = helpers.safe_infer(left.func)
+        if not (isinstance(left_func, astroid.ClassDef)
+                and left_func.qname() == TYPE_QNAME):
+            return
+
+        if operator in ('is', 'is not') and _is_one_arg_pos_call(right):
+            right_func = helpers.safe_infer(right.func)
+            if (isinstance(right_func, astroid.ClassDef)
+                    and right_func.qname() == TYPE_QNAME):
+                # type(x) == type(a)
+                right_arg = helpers.safe_infer(right.args[0])
+                if not isinstance(right_arg, LITERAL_NODE_TYPES):
+                    # not e.g. type(x) == type([])
+                    return
+        self.add_message('unidiomatic-typecheck', node=node)
 
 
 def register(linter):
