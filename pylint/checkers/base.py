@@ -1494,7 +1494,7 @@ class ComparisonChecker(_BasicChecker):
         if isinstance(right, astroid.Const):
             return
         operator = REVERSED_COMPS.get(operator, operator)
-        suggestion = '%s %s %s' % (right.as_string(), operator, left.value)
+        suggestion = '%s %s %r' % (right.as_string(), operator, left.value)
         self.add_message('misplaced-comparison-constant', node=node,
                          args=(suggestion,))
 
@@ -1504,7 +1504,6 @@ class ComparisonChecker(_BasicChecker):
         # but not 'x == y == 42'
         if len(node.ops) != 1:
             return
-
         left = node.left
         operator, right = node.ops[0]
         if operator == '==':

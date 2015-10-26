@@ -26,6 +26,8 @@ def bad_comparisons():
             pass
         if 1 == instance.attr:  # [misplaced-comparison-constant]
             pass
+        if "aaa" == instance.attr: # [misplaced-comparison-constant]
+            pass
 
 def good_comparison():
     """this is ok"""
