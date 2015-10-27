@@ -27,17 +27,12 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
 
-TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
-                                            '!=', 'in', 'not in'))
-LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 OPEN_FILES = {'open', 'file'}
 UNITTEST_CASE = 'unittest.case'
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
-    TYPE_QNAME = 'builtins.type'
 else:
     OPEN_MODULE = '__builtin__'
-    TYPE_QNAME = '__builtin__.type'
 
 
 def _check_mode_str(mode):
@@ -82,14 +77,6 @@ def _check_mode_str(mode):
     return True
 
 
-def _is_one_arg_pos_call(call):
-    """Is this a call with exactly 1 argument,
-    where that argument is positional?
-    """
-    return (isinstance(call, astroid.Call)
-            and len(call.args) == 1 and not call.keywords)
-
-
 class StdlibChecker(BaseChecker):
     __implements__ = (IAstroidChecker,)
     name = 'stdlib'
@@ -114,12 +101,6 @@ class StdlibChecker(BaseChecker):
                   'a condition. If a constant is passed as parameter, that '
                   'condition will be always true. In this case a warning '
                   'should be emitted.'),
-        'W1504': ('Using type() instead of isinstance() for a typecheck.',
-                  'unidiomatic-typecheck',
-                  'The idiomatic way to perform an explicit typecheck in '
-                  'Python is to use isinstance(x, Y) rather than '
-                  'type(x) == Y, type(x) is Y. Though there are unusual '
-                  'situations where these give different results.'),
         'W1505': ('Using deprecated method %s()',
                   'deprecated-method',
                   'The method is marked as deprecated and will be removed in '
@@ -231,14 +212,6 @@ class StdlibChecker(BaseChecker):
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.check_messages('unidiomatic-typecheck')
-    def visit_compare(self, node):
-        operator, right = node.ops[0]
-        if operator in TYPECHECK_COMPARISON_OPERATORS:
-            left = node.left
-            if _is_one_arg_pos_call(left):
-                self._check_type_x_is_y(node, left, operator, right)
-
     def _check_deprecated_method(self, node, infer):
         py_vers = sys.version_info[0]
 
@@ -295,24 +268,6 @@ class StdlibChecker(BaseChecker):
                     and not _check_mode_str(mode_arg.value)):
                 self.add_message('bad-open-mode', node=node,
                                  args=mode_arg.value)
-
-    def _check_type_x_is_y(self, node, left, operator, right):
-        """Check for expressions like type(x) == Y."""
-        left_func = helpers.safe_infer(left.func)
-        if not (isinstance(left_func, astroid.ClassDef)
-                and left_func.qname() == TYPE_QNAME):
-            return
-
-        if operator in ('is', 'is not') and _is_one_arg_pos_call(right):
-            right_func = helpers.safe_infer(right.func)
-            if (isinstance(right_func, astroid.ClassDef)
-                    and right_func.qname() == TYPE_QNAME):
-                # type(x) == type(a)
-                right_arg = helpers.safe_infer(right.args[0])
-                if not isinstance(right_arg, LITERAL_NODE_TYPES):
-                    # not e.g. type(x) == type([])
-                    return
-        self.add_message('unidiomatic-typecheck', node=node)
 
 
 def register(linter):
