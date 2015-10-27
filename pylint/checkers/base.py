@@ -1844,12 +1844,12 @@ class ElifChecker(BaseTokenChecker):
                                             self.config.max_nested_blocks))
 
 class NotChecker(_BasicChecker):
-    """checks for nots too many in comparison expressions
+    """checks for too many not in comparison expressions
 
     - "not not" should trigger a warning
     - "not" followed by a comparison should trigger a warning
     """
-    msgs = {'W0126': ('One not too many in "%s", should be "%s"',
+    msgs = {'C0113': ('Consider changing "%s" to "%s"',
                       'unneeded-not',
                       'Used when a boolean expression contains an unneeded '
                       'negation.'),
