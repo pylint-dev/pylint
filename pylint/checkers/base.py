@@ -1475,7 +1475,7 @@ class RecommandationChecker(_BasicChecker):
     def _is_builtin(node, function):
         inferred = helpers.safe_infer(node)
         if not inferred:
-             return False
+            return False
         return is_builtin_object(inferred) and inferred.name == function
 
     @check_messages('consider-using-enumerate')
@@ -1520,15 +1520,15 @@ class RecommandationChecker(_BasicChecker):
                 if subscript.slice.value.name != node.target.name:
                     continue
                 if iterating_object.name != subscript.value.name:
-                    continue                
+                    continue
                 if subscript.value.scope() != node.scope():
                     # Ignore this subscript if it's not in the same
                     # scope. This means that in the body of the for
                     # loop, another scope was created, where the same
                     # name for the iterating object was used.
-                    continue    
+                    continue
                 self.add_message('consider-using-enumerate', node=node)
-                return            
+                return
 
 
 def _is_one_arg_pos_call(call):
