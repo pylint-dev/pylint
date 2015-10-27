@@ -35,7 +35,7 @@ from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
-    decorated_with, node_ignores_exception)
+    decorated_with, node_ignores_exception, class_is_abstract)
 from pylint import utils
 
 
@@ -116,12 +116,14 @@ def _is_abstract_class_name(name):
     lname = name.lower()
     is_mixin = lname.endswith('mixin')
     is_abstract = lname.startswith('abstract')
-    is_base = lname.startswith('base')
+    is_base = lname.startswith('base') or lname.endswith('base')
     return is_mixin or is_abstract or is_base
 
 def _is_inside_abstract_class(node):
     while node is not None:
         if isinstance(node, astroid.ClassDef):
+            if class_is_abstract(node):
+                return True
             name = getattr(node, 'name', None)
             if name is not None and _is_abstract_class_name(name):
                 return True

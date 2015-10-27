@@ -5,9 +5,9 @@
 1 in {'a': 1, 'b': 2}
 1 in {1, 2, 3}
 1 in (1, 2, 3)
-1 in "123"
-1 in u"123"
-1 in bytearray(b"123")
+'1' in "123"
+'1' in u"123"
+'1' in bytearray(b"123")
 1 in frozenset([1, 2, 3])
 
 # comprehensions
@@ -59,7 +59,7 @@ class MaybeIterable(ImportedClass):
 
 10 in MaybeIterable()
 
-# do not emit warning inside mixins
+# do not emit warning inside mixins/abstract/base classes
 class UsefulMixin(object):
     stuff = None
 
@@ -70,6 +70,44 @@ class UsefulMixin(object):
         stuff = self.get_stuff()
         if thing in stuff:
             pass
+
+class BaseThing(object):
+    valid_values = None
+
+    def validate(self, value):
+        if self.valid_values is None:
+            return True
+        else:
+            # error should not be emitted here
+            return value in self.valid_values
+
+class AbstractThing(object):
+    valid_values = None
+
+    def validate(self, value):
+        if self.valid_values is None:
+            return True
+        else:
+            # error should not be emitted here
+            return value in self.valid_values
+
+# class is not named as abstract
+# but still is deduceably abstract
+class Thing(object):
+    valid_values = None
+
+    def __init__(self):
+        self._init_values()
+
+    def validate(self, value):
+        if self.valid_values is None:
+            return True
+        else:
+            # error should not be emitted here
+            return value in self.valid_values
+
+    def _init_values(self):
+        raise NotImplementedError
 
 # error cases
 42 in 42  # [unsupported-membership-test]

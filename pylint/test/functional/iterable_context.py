@@ -149,9 +149,25 @@ class BaseType(object):
             return True
         else:
             # error should not be emitted here
-            return value in self.valid_values
+            for v in self.valid_values:
+                if value == v:
+                    return True
+            return False
 
 class AbstractUrlMarkManager(object):
+    def __init__(self):
+        self._lineparser = None
+        self._init_lineparser()
+        # error should not be emitted here
+        for line in self._lineparser:
+            print(line)
+
+    def _init_lineparser(self):
+        raise NotImplementedError
+
+# class is not named as abstract
+# but still is deduceably abstract
+class UrlMarkManager(object):
     def __init__(self):
         self._lineparser = None
         self._init_lineparser()

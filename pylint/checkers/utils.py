@@ -573,6 +573,17 @@ def node_ignores_exception(node, exception):
     return False
 
 
+def class_is_abstract(node):
+    """return true if the given class node should be considered as an abstract
+    class
+    """
+    for method in node.methods():
+        if method.parent.frame() is node:
+            if method.is_abstract(pass_is_abstract=False):
+                return True
+    return False
+
+
 # TODO(cpopa): deprecate these or leave them as aliases?
 safe_infer = astroid.helpers.safe_infer
 has_known_bases = astroid.helpers.has_known_bases
