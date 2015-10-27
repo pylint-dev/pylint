@@ -34,7 +34,7 @@ from pylint.checkers.utils import (
     overrides_a_method, check_messages, is_attr_private,
     is_attr_protected, node_frame_class, is_builtin_object,
     decorated_with_property, unimplemented_abstract_methods,
-    decorated_with)
+    decorated_with, class_is_abstract)
 from pylint.utils import deprecated_option, get_global_option
 import six
 
@@ -102,15 +102,6 @@ def _called_in_methods(func, klass, methods):
                     return True
     return False
 
-def class_is_abstract(node):
-    """return true if the given class node should be considered as an abstract
-    class
-    """
-    for method in node.methods():
-        if method.parent.frame() is node:
-            if method.is_abstract(pass_is_abstract=False):
-                return True
-    return False
 
 def _is_attribute_property(name, klass):
     """ Check if the given attribute *name* is a property

@@ -35,7 +35,7 @@ from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
-    decorated_with, node_ignores_exception)
+    decorated_with, node_ignores_exception, class_is_abstract)
 from pylint import utils
 
 
@@ -99,35 +99,90 @@ def _hasattr(value, attr):
 def _is_comprehension(node):
     comprehensions = (astroid.ListComp,
                       astroid.SetComp,
-                      astroid.DictComp)
+                      astroid.DictComp,
+                      astroid.GeneratorExp)
     return isinstance(node, comprehensions)
 
-
-def _is_iterable(value):
-    # '__iter__' is for standard iterables
-    # '__getitem__' is for strings and other old-style iterables
-    return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
-
-
-def _is_iterator(value):
-    return _hasattr(value, NEXT_METHOD) and _hasattr(value, ITER_METHOD)
-
-
-def _is_mapping(value):
+def _supports_mapping_protocol(value):
     return _hasattr(value, GETITEM_METHOD) and _hasattr(value, KEYS_METHOD)
 
-def _supports_membership_test(value):
+def _supports_membership_test_protocol(value):
     return _hasattr(value, CONTAINS_METHOD)
 
+def _supports_iteration_protocol(value):
+    return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
 
-def _is_inside_mixin_declaration(node):
+def _is_abstract_class_name(name):
+    lname = name.lower()
+    is_mixin = lname.endswith('mixin')
+    is_abstract = lname.startswith('abstract')
+    is_base = lname.startswith('base') or lname.endswith('base')
+    return is_mixin or is_abstract or is_base
+
+def _is_inside_abstract_class(node):
     while node is not None:
         if isinstance(node, astroid.ClassDef):
+            if class_is_abstract(node):
+                return True
             name = getattr(node, 'name', None)
-            if name is not None and name.lower().endswith("mixin"):
+            if name is not None and _is_abstract_class_name(name):
                 return True
         node = node.parent
     return False
+
+def _should_skip_iterable_check(node):
+    if _is_inside_abstract_class(node):
+        return True
+    infered = helpers.safe_infer(node)
+    if infered is None or infered is astroid.YES:
+        return True
+    if isinstance(infered, (astroid.ClassDef, astroid.Instance)):
+        if not helpers.has_known_bases(infered):
+            return True
+    return False
+
+def _is_iterable(node):
+    # for/set/dict-comprehensions can't be infered with astroid
+    # so we have to check for them explicitly
+    if _is_comprehension(node):
+        return True
+    infered = helpers.safe_infer(node)
+    if isinstance(infered, astroid.ClassDef):
+        # classobj can only be iterable if it has an iterable metaclass
+        meta = infered.metaclass()
+        if meta is not None:
+            if _supports_iteration_protocol(meta):
+                return True
+    if isinstance(infered, astroid.Instance):
+        if _supports_iteration_protocol(infered):
+            return True
+    return False
+
+def _is_mapping(node):
+    if isinstance(node, astroid.DictComp):
+        return True
+    infered = helpers.safe_infer(node)
+    if isinstance(infered, astroid.ClassDef):
+        # classobj can only be iterable if it has an iterable metaclass
+        meta = infered.metaclass()
+        if meta is not None:
+            if _supports_mapping_protocol(meta):
+                return True
+    if isinstance(infered, astroid.Instance):
+        if _supports_mapping_protocol(infered):
+            return True
+    return False
+
+def _supports_membership_test(node):
+    infered = helpers.safe_infer(node)
+    if isinstance(infered, astroid.ClassDef):
+        meta = infered.metaclass()
+        if meta is not None and _supports_membership_test_protocol(meta):
+            return True
+    if isinstance(infered, astroid.Instance):
+        if _supports_membership_test_protocol(infered):
+            return True
+    return _is_iterable(node)
 
 
 MSGS = {
@@ -841,33 +896,13 @@ accessed. Python regular expressions are accepted.'}
                              args=str(error), node=node)
 
     def _check_membership_test(self, node):
-        # instance supports membership test in either of those cases:
-        # 1. instance defines __contains__ method
-        # 2. instance is iterable (defines __iter__ or __getitem__)
-        if _is_comprehension(node) or _is_inside_mixin_declaration(node):
+        # value supports membership test in either of those cases:
+        # 1. value defines __contains__ method
+        # 2. value is iterable (defines __iter__ or __getitem__)
+        if _should_skip_iterable_check(node):
             return
-
-        infered = helpers.safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if _supports_membership_test(node):
             return
-
-        # classes can be iterables/containers too
-        if isinstance(infered, astroid.ClassDef):
-            if not helpers.has_known_bases(infered):
-                return
-            meta = infered.metaclass()
-            if meta is not None:
-                if _supports_membership_test(meta):
-                    return
-                if _is_iterable(meta):
-                    return
-
-        if isinstance(infered, astroid.Instance):
-            if not helpers.has_known_bases(infered):
-                return
-            if _supports_membership_test(infered) or _is_iterable(infered):
-                return
-
         self.add_message('unsupported-membership-test',
                          args=node.as_string(),
                          node=node)
@@ -907,57 +942,19 @@ class IterableChecker(BaseChecker):
            }
 
     def _check_iterable(self, node, root_node):
-        # for/set/dict-comprehensions can't be infered with astroid
-        # so we have to check for them explicitly
-        if _is_comprehension(node) or _is_inside_mixin_declaration(node):
+        if _should_skip_iterable_check(node):
             return
-
-        infered = helpers.safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if _is_iterable(node):
             return
-
-        if isinstance(infered, astroid.ClassDef):
-            if not helpers.has_known_bases(infered):
-                return
-            # classobj can only be iterable if it has an iterable metaclass
-            meta = infered.metaclass()
-            if meta is not None:
-                if _is_iterable(meta):
-                    return
-                if _is_iterator(meta):
-                    return
-
-        if isinstance(infered, astroid.Instance):
-            if not helpers.has_known_bases(infered):
-                return
-            if _is_iterable(infered) or _is_iterator(infered):
-                return
-
         self.add_message('not-an-iterable',
                          args=node.as_string(),
                          node=root_node)
 
     def _check_mapping(self, node, root_node):
-        if isinstance(node, astroid.DictComp) or _is_inside_mixin_declaration(node):
+        if _should_skip_iterable_check(node):
             return
-
-        infered = helpers.safe_infer(node)
-        if infered is None or infered is astroid.YES:
+        if _is_mapping(node):
             return
-
-        if isinstance(infered, astroid.ClassDef):
-            if not helpers.has_known_bases(infered):
-                return
-            meta = infered.metaclass()
-            if meta is not None and _is_mapping(meta):
-                return
-
-        if isinstance(infered, astroid.Instance):
-            if not helpers.has_known_bases(infered):
-                return
-            if _is_mapping(infered):
-                return
-
         self.add_message('not-a-mapping',
                          args=node.as_string(),
                          node=root_node)
