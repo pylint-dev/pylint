@@ -365,6 +365,10 @@ ChangeLog for Pylint
       encountered in languages with variabile assignments in conditional
       statements.
 
+    * Add a new convention message, 'consider-using-enumerate', which is
+      emitted when code that uses `range` and `len` for iterating is encountered.
+      Closes issue #684.
+
 
 
 2015-03-14 -- 1.4.3
