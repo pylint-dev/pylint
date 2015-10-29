@@ -1,9 +1,10 @@
 """Check unpacking non-sequences in assignments. """
 
 # pylint: disable=too-few-public-methods, invalid-name, attribute-defined-outside-init, unused-variable, no-absolute-import
-# pylint: disable=using-constant-test
+# pylint: disable=using-constant-test, no-init
 from os import rename as nonseq_func
 from functional.unpacking import nonseq
+from six import with_metaclass
 
 __revision__ = 0
 
@@ -37,6 +38,27 @@ def good_unpacking2():
     """ returns should be unpackable """
     return good_unpacking()
 
+class MetaIter(type):
+    "metaclass that makes classes that use it iterables"
+    def __iter__(cls):
+        return iter((1, 2))
+
+class IterClass(with_metaclass(MetaIter)):
+    "class that is iterable (and unpackable)"
+
+class AbstrClass(object):
+    "abstract class"
+    pair = None
+
+    def setup_pair(self):
+        "abstract method"
+        raise NotImplementedError
+
+    def __init__(self):
+        "error should not be emitted because setup_pair is abstract"
+        self.setup_pair()
+        x, y = self.pair
+
 a, b = [1, 2]
 a, b = (1, 2)
 a, b = set([1, 2])
@@ -47,6 +69,7 @@ a, b = Iter()
 a, b = (number for number in range(2))
 a, b = good_unpacking()
 a, b = good_unpacking2()
+a, b = IterClass
 
 # Not working
 class NonSeq(object):
