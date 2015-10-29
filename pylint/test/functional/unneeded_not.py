@@ -1,6 +1,6 @@
 """Check exceeding negations in boolean expressions trigger warnings"""
 
-# pylint: disable=singleton-comparison
+# pylint: disable=singleton-comparison, too-many-branches
 
 def unneeded_not():
     """This is not ok
@@ -31,6 +31,8 @@ def unneeded_not():
         pass
     if not True == True:  # [unneeded-not]
         pass
+    if not 2 in [3, 4]:  # [unneeded-not]
+        pass
 
 
 def not_checked():
@@ -38,4 +40,6 @@ def not_checked():
     bool_var = True
     someint = 2
     if not(bool_var == False and someint == 1):
+        pass
+    if 2 not in [3, 4]:
         pass
