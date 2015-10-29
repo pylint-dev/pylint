@@ -633,8 +633,9 @@ a metaclass class method.'}
         self._check_protected_attribute_access(node)
 
     def _check_classmethod_declaration(self, node):
-        """checks for uses of classmethod() instead of @classmethod decorator
+        """Checks for uses of classmethod() or staticmethod()
 
+        When a @classmethod or @staticmethod decorator should be used instead.
         A message will be emitted only if the assignment is at a class scope
         and only if the classmethod's argument belongs to the class where it
         is defined.
@@ -645,7 +646,7 @@ a metaclass class method.'}
         # check the function called is "classmethod" or "staticmethod"
         func = node.value.func
         if (not isinstance(func, astroid.Name) or
-                func.name not in('classmethod', 'staticmethod')):
+                func.name not in ('classmethod', 'staticmethod')):
             return
         msg = ('no-classmethod-decorator' if func.name == 'classmethod' else
                'no-staticmethod-decorator')

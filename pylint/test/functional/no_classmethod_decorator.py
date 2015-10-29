@@ -1,4 +1,4 @@
-"""Checks classes methods are declared with a decorator if whithin the class
+"""Checks class methods are declared with a decorator if within the class
 scope and if classmethod's argument is a member of the class
 """
 

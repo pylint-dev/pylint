@@ -1,4 +1,4 @@
-"""Checks static methods are declared with a decorator if whithin the class
+"""Checks static methods are declared with a decorator if within the class
 scope and if static method's argument is a member of the class
 """
 
