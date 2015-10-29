@@ -651,7 +651,7 @@ a metaclass class method.'}
         msg = ('no-classmethod-decorator' if func.name == 'classmethod' else
                'no-staticmethod-decorator')
         # assignment must be at a class scope
-        parent_class = node.parent
+        parent_class = node.scope()
         if not isinstance(parent_class, astroid.ClassDef):
             return
         # Check if the arg passed to classmethod is a class member
@@ -659,9 +659,8 @@ a metaclass class method.'}
         if not isinstance(classmeth_arg, astroid.Name):
             return
         method_name = classmeth_arg.name
-        for member in parent_class.get_children():
-            if (isinstance(member, astroid.FunctionDef) and
-                    method_name == member.name):
+        for member in parent_class.mymethods():
+            if method_name == member.name:
                 self.add_message(msg, node=node.targets[0])
                 break
 
