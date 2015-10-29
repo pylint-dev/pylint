@@ -35,7 +35,9 @@ from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
-    decorated_with, node_ignores_exception, class_is_abstract)
+    decorated_with, node_ignores_exception, class_is_abstract,
+    is_iterable, is_mapping, supports_membership_test,
+    is_comprehension, is_inside_abstract_class)
 from pylint import utils
 
 
@@ -44,11 +46,6 @@ _ZOPE_DEPRECATED = (
 )
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
-ITER_METHOD = '__iter__'
-NEXT_METHOD = 'next' if six.PY2 else '__next__'
-GETITEM_METHOD = '__getitem__'
-CONTAINS_METHOD = '__contains__'
-KEYS_METHOD = 'keys'
 
 
 def _unflatten(iterable):
@@ -87,102 +84,6 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
     else:
         qname = ''
     return any(name == ignore or qname == ignore for ignore in ignored_classes)
-
-
-def _hasattr(value, attr):
-    try:
-        value.getattr(attr)
-        return True
-    except astroid.NotFoundError:
-        return False
-
-def _is_comprehension(node):
-    comprehensions = (astroid.ListComp,
-                      astroid.SetComp,
-                      astroid.DictComp,
-                      astroid.GeneratorExp)
-    return isinstance(node, comprehensions)
-
-def _supports_mapping_protocol(value):
-    return _hasattr(value, GETITEM_METHOD) and _hasattr(value, KEYS_METHOD)
-
-def _supports_membership_test_protocol(value):
-    return _hasattr(value, CONTAINS_METHOD)
-
-def _supports_iteration_protocol(value):
-    return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
-
-def _is_abstract_class_name(name):
-    lname = name.lower()
-    is_mixin = lname.endswith('mixin')
-    is_abstract = lname.startswith('abstract')
-    is_base = lname.startswith('base') or lname.endswith('base')
-    return is_mixin or is_abstract or is_base
-
-def _is_inside_abstract_class(node):
-    while node is not None:
-        if isinstance(node, astroid.ClassDef):
-            if class_is_abstract(node):
-                return True
-            name = getattr(node, 'name', None)
-            if name is not None and _is_abstract_class_name(name):
-                return True
-        node = node.parent
-    return False
-
-def _should_skip_iterable_check(node):
-    if _is_inside_abstract_class(node):
-        return True
-    infered = helpers.safe_infer(node)
-    if infered is None or infered is astroid.YES:
-        return True
-    if isinstance(infered, (astroid.ClassDef, astroid.Instance)):
-        if not helpers.has_known_bases(infered):
-            return True
-    return False
-
-def _is_iterable(node):
-    # for/set/dict-comprehensions can't be infered with astroid
-    # so we have to check for them explicitly
-    if _is_comprehension(node):
-        return True
-    infered = helpers.safe_infer(node)
-    if isinstance(infered, astroid.ClassDef):
-        # classobj can only be iterable if it has an iterable metaclass
-        meta = infered.metaclass()
-        if meta is not None:
-            if _supports_iteration_protocol(meta):
-                return True
-    if isinstance(infered, astroid.Instance):
-        if _supports_iteration_protocol(infered):
-            return True
-    return False
-
-def _is_mapping(node):
-    if isinstance(node, astroid.DictComp):
-        return True
-    infered = helpers.safe_infer(node)
-    if isinstance(infered, astroid.ClassDef):
-        # classobj can only be iterable if it has an iterable metaclass
-        meta = infered.metaclass()
-        if meta is not None:
-            if _supports_mapping_protocol(meta):
-                return True
-    if isinstance(infered, astroid.Instance):
-        if _supports_mapping_protocol(infered):
-            return True
-    return False
-
-def _supports_membership_test(node):
-    infered = helpers.safe_infer(node)
-    if isinstance(infered, astroid.ClassDef):
-        meta = infered.metaclass()
-        if meta is not None and _supports_membership_test_protocol(meta):
-            return True
-    if isinstance(infered, astroid.Instance):
-        if _supports_membership_test_protocol(infered):
-            return True
-    return _is_iterable(node)
 
 
 MSGS = {
@@ -896,16 +797,17 @@ accessed. Python regular expressions are accepted.'}
                              args=str(error), node=node)
 
     def _check_membership_test(self, node):
-        # value supports membership test in either of those cases:
-        # 1. value defines __contains__ method
-        # 2. value is iterable (defines __iter__ or __getitem__)
-        if _should_skip_iterable_check(node):
+        if is_inside_abstract_class(node):
             return
-        if _supports_membership_test(node):
+        if is_comprehension(node):
             return
-        self.add_message('unsupported-membership-test',
-                         args=node.as_string(),
-                         node=node)
+        infered = helpers.safe_infer(node)
+        if infered is None or infered is astroid.YES:
+            return
+        if not supports_membership_test(infered):
+            self.add_message('unsupported-membership-test',
+                             args=node.as_string(),
+                             node=node)
 
     @check_messages('unsupported-membership-test')
     def visit_compare(self, node):
@@ -941,58 +843,66 @@ class IterableChecker(BaseChecker):
                       'mapping is expected'),
            }
 
-    def _check_iterable(self, node, root_node):
-        if _should_skip_iterable_check(node):
+    def _check_iterable(self, node):
+        if is_inside_abstract_class(node):
             return
-        if _is_iterable(node):
+        if is_comprehension(node):
             return
-        self.add_message('not-an-iterable',
-                         args=node.as_string(),
-                         node=root_node)
+        infered = helpers.safe_infer(node)
+        if infered is None or infered is astroid.YES:
+            return
+        if not is_iterable(infered):
+            self.add_message('not-an-iterable',
+                             args=node.as_string(),
+                             node=node)
 
-    def _check_mapping(self, node, root_node):
-        if _should_skip_iterable_check(node):
+    def _check_mapping(self, node):
+        if is_inside_abstract_class(node):
             return
-        if _is_mapping(node):
+        if isinstance(node, astroid.DictComp):
             return
-        self.add_message('not-a-mapping',
-                         args=node.as_string(),
-                         node=root_node)
+        infered = helpers.safe_infer(node)
+        if infered is None or infered is astroid.YES:
+            return
+        if not is_mapping(infered):
+            self.add_message('not-a-mapping',
+                             args=node.as_string(),
+                             node=node)
 
     @check_messages('not-an-iterable')
     def visit_for(self, node):
-        self._check_iterable(node.iter, node)
+        self._check_iterable(node.iter)
 
     @check_messages('not-an-iterable')
     def visit_yieldfrom(self, node):
-        self._check_iterable(node.value, node)
+        self._check_iterable(node.value)
 
     @check_messages('not-an-iterable', 'not-a-mapping')
     def visit_call(self, node):
         for stararg in node.starargs:
-            self._check_iterable(stararg.value, node)
+            self._check_iterable(stararg.value)
         for kwarg in node.kwargs:
-            self._check_mapping(kwarg.value, node)
+            self._check_mapping(kwarg.value)
 
     @check_messages('not-an-iterable')
     def visit_listcomp(self, node):
         for gen in node.generators:
-            self._check_iterable(gen.iter, node)
+            self._check_iterable(gen.iter)
 
     @check_messages('not-an-iterable')
     def visit_dictcomp(self, node):
         for gen in node.generators:
-            self._check_iterable(gen.iter, node)
+            self._check_iterable(gen.iter)
 
     @check_messages('not-an-iterable')
     def visit_setcomp(self, node):
         for gen in node.generators:
-            self._check_iterable(gen.iter, node)
+            self._check_iterable(gen.iter)
 
     @check_messages('not-an-iterable')
     def visit_generatorexp(self, node):
         for gen in node.generators:
-            self._check_iterable(gen.iter, node)
+            self._check_iterable(gen.iter)
 
 
 def register(linter):

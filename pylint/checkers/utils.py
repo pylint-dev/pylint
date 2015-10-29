@@ -26,6 +26,7 @@ import warnings
 import astroid
 from astroid import helpers
 from astroid import scoped_nodes
+import six
 from six.moves import map, builtins # pylint: disable=redefined-builtin
 
 BUILTINS_NAME = builtins.__name__
@@ -39,6 +40,11 @@ else:
     EXCEPTIONS_MODULE = "builtins"
 ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
                    'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
+ITER_METHOD = '__iter__'
+NEXT_METHOD = 'next' if six.PY2 else '__next__'
+GETITEM_METHOD = '__getitem__'
+CONTAINS_METHOD = '__contains__'
+KEYS_METHOD = 'keys'
 
 # Dictionary which maps the number of expected parameters a
 # special method can have to a set of special methods.
@@ -582,6 +588,103 @@ def class_is_abstract(node):
             if method.is_abstract(pass_is_abstract=False):
                 return True
     return False
+
+
+def _hasattr(value, attr):
+    try:
+        value.getattr(attr)
+        return True
+    except astroid.NotFoundError:
+        return False
+
+
+def is_comprehension(node):
+    comprehensions = (astroid.ListComp,
+                      astroid.SetComp,
+                      astroid.DictComp,
+                      astroid.GeneratorExp)
+    return isinstance(node, comprehensions)
+
+
+def _supports_mapping_protocol(value):
+    return _hasattr(value, GETITEM_METHOD) and _hasattr(value, KEYS_METHOD)
+
+
+def _supports_membership_test_protocol(value):
+    return _hasattr(value, CONTAINS_METHOD)
+
+
+def _supports_iteration_protocol(value):
+    return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
+
+
+def _is_abstract_class_name(name):
+    lname = name.lower()
+    is_mixin = lname.endswith('mixin')
+    is_abstract = lname.startswith('abstract')
+    is_base = lname.startswith('base') or lname.endswith('base')
+    return is_mixin or is_abstract or is_base
+
+
+def is_inside_abstract_class(node):
+    while node is not None:
+        if isinstance(node, astroid.ClassDef):
+            if class_is_abstract(node):
+                return True
+            name = getattr(node, 'name', None)
+            if name is not None and _is_abstract_class_name(name):
+                return True
+        node = node.parent
+    return False
+
+
+def is_iterable(value):
+    if isinstance(value, astroid.ClassDef):
+        if not helpers.has_known_bases(value):
+            return True
+        # classobj can only be iterable if it has an iterable metaclass
+        meta = value.metaclass()
+        if meta is not None:
+            if _supports_iteration_protocol(meta):
+                return True
+    if isinstance(value, astroid.Instance):
+        if not helpers.has_known_bases(value):
+            return True
+        if _supports_iteration_protocol(value):
+            return True
+    return False
+
+
+def is_mapping(value):
+    if isinstance(value, astroid.ClassDef):
+        if not helpers.has_known_bases(value):
+            return True
+        # classobj can only be a mapping if it has a metaclass is mapping
+        meta = value.metaclass()
+        if meta is not None:
+            if _supports_mapping_protocol(meta):
+                return True
+    if isinstance(value, astroid.Instance):
+        if not helpers.has_known_bases(value):
+            return True
+        if _supports_mapping_protocol(value):
+            return True
+    return False
+
+
+def supports_membership_test(value):
+    if isinstance(value, astroid.ClassDef):
+        if not helpers.has_known_bases(value):
+            return True
+        meta = value.metaclass()
+        if meta is not None and _supports_membership_test_protocol(meta):
+            return True
+    if isinstance(value, astroid.Instance):
+        if not helpers.has_known_bases(value):
+            return True
+        if _supports_membership_test_protocol(value):
+            return True
+    return is_iterable(value)
 
 
 # TODO(cpopa): deprecate these or leave them as aliases?
