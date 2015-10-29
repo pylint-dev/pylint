@@ -3,6 +3,7 @@
 from __future__ import print_function
 __revision__ = ''
 
+#pylint: disable=no-classmethod-decorator
 class MyClass(object):
     """doc
     """

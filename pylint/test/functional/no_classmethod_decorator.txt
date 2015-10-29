@@ -1,0 +1,1 @@
+no-classmethod-decorator:14:MyClass:Consider using a decorator instead of calling classmethod
