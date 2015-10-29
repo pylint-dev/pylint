@@ -18,7 +18,7 @@
 import re
 from collections import defaultdict
 
-from astroid import If
+from astroid import If, BoolOp
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -64,7 +64,25 @@ MSGS = {
               'too-many-statements',
               'Used when a function or method has too many statements. You \
               should then split it in smaller functions / methods.'),
+    'R0916': ('Too many boolean expressions in if statement (%s/%s)',
+              'too-many-boolean-expressions',
+              'Used when a if statement contains too many boolean '
+              'expressions'),
     }
+
+
+def _count_boolean_expressions(bool_op):
+    """Counts the number of boolean expressions in BoolOp `bool_op` (recursive)
+
+    example: a and (b or c or (d and e)) ==> 5 boolean expressions
+    """
+    nb_bool_expr = 0
+    for bool_expr in bool_op.get_children():
+        if isinstance(bool_expr, BoolOp):
+            nb_bool_expr += _count_boolean_expressions(bool_expr)
+        else:
+            nb_bool_expr += 1
+    return nb_bool_expr
 
 
 class MisdesignChecker(BaseChecker):
@@ -136,6 +154,13 @@ class MisdesignChecker(BaseChecker):
                  'help' : 'Maximum number of public methods for a class \
 (see R0904).'}
                ),
+              ('max-bool-expr',
+               {'default': 5,
+                'type': 'int',
+                'metavar': '<num>',
+                'help': 'Maximum number of boolean expressions in a if '
+                        'statement'}
+              ),
               )
 
     def __init__(self, linter=None):
@@ -275,8 +300,10 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, 2)
         self._stmts += 2
 
+    @check_messages('too-many-boolean-expressions')
     def visit_if(self, node):
-        """increments the branches counter"""
+        """increments the branches counter and checks boolean expressions"""
+        self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
         if node.orelse and (len(node.orelse) > 1 or
@@ -284,6 +311,19 @@ class MisdesignChecker(BaseChecker):
             branches += 1
         self._inc_branch(node, branches)
         self._stmts += branches
+
+    def _check_boolean_expressions(self, node):
+        """Go through "if" node `node` and counts its boolean expressions
+
+        if the "if" node test is a BoolOp node
+        """
+        condition = node.test
+        if not isinstance(condition, BoolOp):
+            return
+        nb_bool_expr = _count_boolean_expressions(condition)
+        if nb_bool_expr > self.config.max_bool_expr:
+             self.add_message('too-many-boolean-expressions', node=condition,
+                              args=(nb_bool_expr, self.config.max_bool_expr))
 
     def visit_while(self, node):
         """increments the branches counter"""

@@ -3,6 +3,11 @@ ChangeLog for Pylint
 
 --
 
+    * Added a new refactoring warning, 'too-many-boolean-expressions',
+      used when a if statement contains too many boolean expressions,
+      which makes the code less maintainable and harder to understand.
+      Closes issue #677.
+
     * Property methods are shown as attributes instead of functions in
       pyreverse class diagrams. Closes Issue #284
 
