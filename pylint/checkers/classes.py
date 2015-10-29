@@ -266,6 +266,10 @@ MSGS = {
               'no-classmethod-decorator',
               'Used when a class method is defined without using the decorator '
               'syntax.'),
+    'R0203': ('Consider using a decorator instead of calling staticmethod',
+              'no-staticmethod-decorator',
+              'Used when a static method is defined without using the decorator '
+              'syntax.'),
     }
 
 
@@ -616,7 +620,8 @@ a metaclass class method.'}
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
 
-    @check_messages('protected-access', 'no-classmethod-decorator')
+    @check_messages('protected-access', 'no-classmethod-decorator',
+                    'no-staticmethod-decorator')
     def visit_assign(self, assign_node):
         self._check_classmethod_declaration(assign_node)
         node = assign_node.targets[0]
@@ -637,10 +642,13 @@ a metaclass class method.'}
         """
         if not isinstance(node.value, astroid.Call):
             return
-        # check the function called is "classmethod"
+        # check the function called is "classmethod" or "staticmethod"
         func = node.value.func
-        if not isinstance(func, astroid.Name) or not func.name == 'classmethod':
+        if (not isinstance(func, astroid.Name) or
+                func.name not in('classmethod', 'staticmethod')):
             return
+        msg = ('no-classmethod-decorator' if func.name == 'classmethod' else
+               'no-staticmethod-decorator')
         # assignment must be at a class scope
         parent_class = node.parent
         if not isinstance(parent_class, astroid.ClassDef):
@@ -653,8 +661,7 @@ a metaclass class method.'}
         for member in parent_class.get_children():
             if (isinstance(member, astroid.FunctionDef) and
                     method_name == member.name):
-                self.add_message('no-classmethod-decorator',
-                                 node=node.targets[0])
+                self.add_message(msg, node=node.targets[0])
                 break
 
     def _check_protected_attribute_access(self, node):
