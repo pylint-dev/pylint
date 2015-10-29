@@ -1856,7 +1856,7 @@ class NotChecker(_BasicChecker):
            }
 
     reverse_op = {'<': '>=', '<=': '>', '>': '<=', '>=': '<', '==': '!=',
-                  '!=': '=='}
+                  '!=': '==', 'in': 'not in'}
 
     @check_messages('unneeded-not')
     def visit_unaryop(self, node):
@@ -1870,6 +1870,8 @@ class NotChecker(_BasicChecker):
         elif isinstance(operand, astroid.Compare):
             left = operand.left
             operator, right = operand.ops[0]
+            if operator not in self.reverse_op:
+                return
             suggestion = '%s %s %s' % (left.as_string(),
                                        self.reverse_op[operator],
                                        right.as_string())

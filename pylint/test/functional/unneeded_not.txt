@@ -10,3 +10,4 @@ unneeded-not:26:unneeded_not:Consider changing "not bool_var == True" to "bool_v
 unneeded-not:28:unneeded_not:Consider changing "not bool_var == False" to "bool_var != False"
 unneeded-not:30:unneeded_not:Consider changing "not bool_var != True" to "bool_var == True"
 unneeded-not:32:unneeded_not:Consider changing "not True == True" to "True != True"
+unneeded-not:34:unneeded_not:Consider changing "not 2 in [3, 4]" to "2 not in [3, 4]"
