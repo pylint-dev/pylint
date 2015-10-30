@@ -1882,6 +1882,93 @@ class NotChecker(_BasicChecker):
                              args=(node.as_string(), suggestion))
 
 
+class MultipleTypesChecker(BaseChecker):
+    """Checks for variable type redefinitions (NoneType excepted)
+
+    At a function, method, class or module scope
+    """
+    __implements__ = IAstroidChecker
+
+    name = 'multiple_types'
+    msgs = {'R0204': ('Redefinition of %s type from %s to %s',
+                      'redefined-variable-type',
+                      'Used when the type of a variable changes inside a '
+                      'method or a function.'
+                     ),
+           }
+
+    def visit_classdef(self, _):
+        self._class_assigns = {}
+
+    @check_messages('redefined-variable-type')
+    def leave_classdef(self, _):
+        self._check_and_add_messages(self._class_assigns)
+
+    def visit_functiondef(self, _):
+        self._func_assigns = {}
+
+    @check_messages('redefined-variable-type')
+    def leave_functiondef(self, _):
+        self._check_and_add_messages(self._func_assigns)
+
+    def visit_module(self, _):
+        self._module_assigns = {}
+
+    @check_messages('redefined-variable-type')
+    def leave_module(self, _):
+        self._check_and_add_messages(self._module_assigns)
+
+    def _check_and_add_messages(self, assigns):
+        for name, args in assigns.iteritems():
+            if len(args) <= 1:
+                continue
+            orig_node, orig_type = args[0]
+            # check if there is a type in the following nodes that would be
+            # different from orig_type
+            for redef_node, redef_type in args[1:]:
+                if redef_type != orig_type:
+                    orig_type = orig_type.replace('__builtin__.', '')
+                    redef_type = redef_type.replace('__builtin__.', '')
+                    self.add_message('redefined-variable-type', node=redef_node,
+                                     args=(name, orig_type, redef_type))
+                    break
+
+    def visit_assign(self, node):
+        scope = node.scope()
+        if isinstance(scope, astroid.FunctionDef):
+            msgs = self._func_assigns
+        elif isinstance(scope, astroid.Module):
+            msgs = self._module_assigns
+        elif isinstance(scope, astroid.ClassDef):
+            msgs = self._class_assigns
+        else:
+            return
+        # we don't handle multiple assignment nor slice assignment
+        target = node.targets[0]
+        if isinstance(target, (astroid.Tuple, astroid.Subscript)):
+            return
+        # ignore NoneType
+        if node.value.as_string() == 'None':
+            return
+        # check there is only one possible type for the assign node. Else we
+        # don't handle it for now
+        types = set()
+        try:
+            for var_type in node.value.infer():
+                if var_type == astroid.YES or var_type.as_string() == 'None':
+                    continue
+                var_type = var_type.pytype()
+                types.add(var_type)
+                if len(types) > 1:
+                    print ('more than one possible type for node %s (%s, %s)'
+                           % (node.as_string(), types.pop(), types.pop()))
+                    return
+        except InferenceError:
+            return
+        if types:
+            msgs.setdefault(target.as_string(), []).append((node, types.pop()))
+
+
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(BasicErrorChecker(linter))
@@ -1894,3 +1981,4 @@ def register(linter):
     linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommandationChecker(linter))
     linter.register_checker(ElifChecker(linter))
+    linter.register_checker(MultipleTypesChecker(linter))
