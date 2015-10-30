@@ -27,9 +27,9 @@ CONFIDENCE_LEVELS = [HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 
 class Interface(object):
     """Base class for interfaces."""
+    @classmethod
     def is_implemented_by(cls, instance):
         return implements(instance, cls)
-    is_implemented_by = classmethod(is_implemented_by)
 
 
 def implements(obj, interface):
