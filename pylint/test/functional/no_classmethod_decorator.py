@@ -26,7 +26,7 @@ class MyClass(object):
 
 def helloworld():
     """says hello"""
-    print 'hello world'
+
 
 MyClass.new_class_method = classmethod(helloworld)
 
