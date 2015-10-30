@@ -30,10 +30,11 @@ import astroid.scoped_nodes
 from astroid import are_exclusive, InferenceError
 from astroid import helpers
 
-from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
+from pylint.interfaces import (IAstroidChecker, ITokenChecker, INFERENCE,
+                               INFERENCE_FAILURE, HIGH)
 from pylint.utils import EmptyReport, deprecated_option
 from pylint.reporters import diff_string
-from pylint.checkers import BaseChecker
+from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers.utils import (
     check_messages,
     clobber_in_except,
@@ -1635,6 +1636,107 @@ class ComparisonChecker(_BasicChecker):
         self.add_message('unidiomatic-typecheck', node=node)
 
 
+class ElifChecker(BaseTokenChecker):
+    """Checks needing to distinguish "else if" from "elif"
+
+    This checker mixes the astroid and the token approaches in order to create
+    knowledge about whether a "else if" node is a true "else if" node, or a
+    "elif" node.
+
+    The following checks depend on this implementation:
+        - check for too many nested blocks (if/elif structures aren't considered
+          as nested)
+        - to be continued
+    """
+    __implements__ = (ITokenChecker, IAstroidChecker)
+    name = 'elif'
+    msgs = {'R0101': ('Too many nested blocks (%s/%s)',
+                      'too-many-nested-blocks',
+                      'Used when a function or a method has too many nested '
+                      'blocks.'),
+           }
+    options = (('max-nested-blocks',
+               {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
+                'help': 'Maximum number of nested blocks for function / '
+                'method body'}
+              ),)
+
+    def __init__(self, linter=None):
+        BaseTokenChecker.__init__(self, linter)
+        self._init()
+
+    def _init(self):
+        self._nested_blocks = []
+        self._elifs = []
+        self._if_counter = 0
+        self._nested_blocks_msg = None
+
+    def process_tokens(self, tokens):
+        # Process tokens and look for 'if' or 'elif'
+        for _, token, _, _, _ in tokens:
+            if token == 'elif':
+                self._elifs.append(True)
+            elif token == 'if':
+                self._elifs.append(False)
+
+    def leave_module(self, node):
+        self._init()
+
+    @check_messages('too-many-nested-blocks')
+    def visit_tryexcept(self, node):
+        self._check_nested_blocks(node)
+
+    visit_tryfinally = visit_tryexcept
+    visit_while = visit_tryexcept
+    visit_for = visit_while
+
+    @check_messages('too-many-nested-blocks')
+    def visit_if(self, node):
+        self._check_nested_blocks(node)
+        self._if_counter += 1
+
+    @check_messages('too-many-nested-blocks')
+    def leave_functiondef(self, node):
+        self._nested_blocks = []
+        if self._nested_blocks_msg:
+            self.add_message('too-many-nested-blocks',
+                             node=self._nested_blocks_msg[0],
+                             args=self._nested_blocks_msg[1])
+            self._nested_blocks_msg = None
+
+    def _check_nested_blocks(self, node):
+        """Update and check the number of nested blocks
+        """
+        # only check block levels inside functions or methods
+        if not isinstance(node.scope(), astroid.FunctionDef):
+            return
+        nested_blocks = self._nested_blocks[:]
+        if node.parent == node.scope():
+            self._nested_blocks = [node]
+        else:
+            # go through ancestors from the most nested to the less
+            for ancestor_node in reversed(self._nested_blocks):
+                if ancestor_node == node.parent:
+                    break
+                self._nested_blocks.pop()
+            # if the node is a elif, this should not be another nesting level
+            if isinstance(node, astroid.If) and self._elifs[self._if_counter]:
+                if self._nested_blocks:
+                    self._nested_blocks.pop()
+            self._nested_blocks.append(node)
+        # send message only once per group of nested blocks
+        if len(nested_blocks) > self.config.max_nested_blocks:
+            if len(nested_blocks) > len(self._nested_blocks):
+                self.add_message('too-many-nested-blocks', node=nested_blocks[0],
+                                 args=(len(nested_blocks),
+                                       self.config.max_nested_blocks))
+                self._nested_blocks_msg = None
+            else:
+                self._nested_blocks_msg = (self._nested_blocks[0],
+                                           (len(self._nested_blocks),
+                                            self.config.max_nested_blocks))
+
+
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(BasicErrorChecker(linter))
@@ -1645,3 +1747,4 @@ def register(linter):
     linter.register_checker(LambdaForComprehensionChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
     linter.register_checker(RecommandationChecker(linter))
+    linter.register_checker(ElifChecker(linter))
