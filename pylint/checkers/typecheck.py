@@ -35,7 +35,7 @@ from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
-    decorated_with, node_ignores_exception, class_is_abstract,
+    decorated_with, node_ignores_exception,
     is_iterable, is_mapping, supports_membership_test,
     is_comprehension, is_inside_abstract_class)
 from pylint import utils
