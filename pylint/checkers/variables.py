@@ -30,7 +30,8 @@ from pylint.checkers.utils import (
     PYMETHODS, is_ancestor_name, is_builtin,
     is_defined_before, is_error, is_func_default, is_func_decorator,
     assign_parent, check_messages, is_inside_except, clobber_in_except,
-    get_all_elements, has_known_bases, node_ignores_exception)
+    get_all_elements, has_known_bases, node_ignores_exception,
+    is_inside_abstract_class, is_comprehension, is_iterable)
 import six
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
@@ -1039,6 +1040,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """ Check for unbalanced tuple unpacking
         and unpacking non sequences.
         """
+        if is_inside_abstract_class(node):
+            return
+        if is_comprehension(node):
+            return
         if infered is astroid.YES:
             return
         if (isinstance(infered.parent, astroid.Arguments) and
@@ -1059,19 +1064,10 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                        len(targets),
                                        len(values)))
         # attempt to check unpacking may be possible (ie RHS is iterable)
-        elif isinstance(infered, astroid.Instance):
-            for meth in ('__iter__', '__getitem__'):
-                try:
-                    infered.getattr(meth)
-                    break
-                except astroid.NotFoundError:
-                    continue
-            else:
+        else:
+            if not is_iterable(infered):
                 self.add_message('unpacking-non-sequence', node=node,
                                  args=(_get_unpacking_extra_info(node, infered),))
-        else:
-            self.add_message('unpacking-non-sequence', node=node,
-                             args=(_get_unpacking_extra_info(node, infered),))
 
 
     def _check_module_attrs(self, node, module, module_names):
