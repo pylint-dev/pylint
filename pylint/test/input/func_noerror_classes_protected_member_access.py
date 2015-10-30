@@ -3,6 +3,7 @@
 """
 __revision__ = 1
 
+# pylint: disable=no-classmethod-decorator, no-staticmethod-decorator
 class A3123(object):
     """oypuee"""
     _protected = 1

@@ -253,7 +253,14 @@ MSGS = {
     'E0241': ('Duplicate bases for class %r',
               'duplicate-bases',
               'Used when a class has duplicate bases.'),
-
+    'R0202': ('Consider using a decorator instead of calling classmethod',
+              'no-classmethod-decorator',
+              'Used when a class method is defined without using the decorator '
+              'syntax.'),
+    'R0203': ('Consider using a decorator instead of calling staticmethod',
+              'no-staticmethod-decorator',
+              'Used when a static method is defined without using the decorator '
+              'syntax.'),
     }
 
 
@@ -604,16 +611,49 @@ a metaclass class method.'}
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
 
-    @check_messages('protected-access')
+    @check_messages('protected-access', 'no-classmethod-decorator',
+                    'no-staticmethod-decorator')
     def visit_assign(self, assign_node):
+        self._check_classmethod_declaration(assign_node)
         node = assign_node.targets[0]
         if not isinstance(node, astroid.AssignAttr):
             return
 
         if self.is_first_attr(node):
             return
-
         self._check_protected_attribute_access(node)
+
+    def _check_classmethod_declaration(self, node):
+        """Checks for uses of classmethod() or staticmethod()
+
+        When a @classmethod or @staticmethod decorator should be used instead.
+        A message will be emitted only if the assignment is at a class scope
+        and only if the classmethod's argument belongs to the class where it
+        is defined.
+        `node` is an assign node.
+        """
+        if not isinstance(node.value, astroid.Call):
+            return
+        # check the function called is "classmethod" or "staticmethod"
+        func = node.value.func
+        if (not isinstance(func, astroid.Name) or
+                func.name not in ('classmethod', 'staticmethod')):
+            return
+        msg = ('no-classmethod-decorator' if func.name == 'classmethod' else
+               'no-staticmethod-decorator')
+        # assignment must be at a class scope
+        parent_class = node.scope()
+        if not isinstance(parent_class, astroid.ClassDef):
+            return
+        # Check if the arg passed to classmethod is a class member
+        classmeth_arg = node.value.args[0]
+        if not isinstance(classmeth_arg, astroid.Name):
+            return
+        method_name = classmeth_arg.name
+        for member in parent_class.mymethods():
+            if method_name == member.name:
+                self.add_message(msg, node=node.targets[0])
+                break
 
     def _check_protected_attribute_access(self, node):
         '''Given an attribute access node (set or get), check if attribute
