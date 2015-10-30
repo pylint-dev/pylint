@@ -369,6 +369,12 @@ ChangeLog for Pylint
       emitted when code that uses `range` and `len` for iterating is encountered.
       Closes issue #684.
 
+    * Added two new refactoring messages, 'no-classmethod-decorator' and
+      'no-staticmethod-decorator', which are emitted when a static method or a class
+      method is declared without using decorators syntax.
+
+      Closes issue #675.
+
 
 
 2015-03-14 -- 1.4.3
