@@ -1,5 +1,5 @@
 """Regression test case for bad-continuation."""
-# pylint: disable=print-statement,using-constant-test
+# pylint: disable=print-statement,using-constant-test, redefined-variable-type
 # Various alignment for brackets
 from __future__ import print_function
 

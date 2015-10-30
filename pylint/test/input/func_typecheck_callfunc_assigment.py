@@ -11,7 +11,7 @@
 """
 from __future__ import generators, print_function
 
-
+#pylint: disable=redefined-variable-type
 
 def func_no_return():
     """function without return"""
