@@ -650,10 +650,9 @@ a metaclass class method.'}
         if not isinstance(classmeth_arg, astroid.Name):
             return
         method_name = classmeth_arg.name
-        for member in parent_class.mymethods():
-            if method_name == member.name:
-                self.add_message(msg, node=node.targets[0])
-                break
+        if any(method_name == member.name
+               for member in parent_class.mymethods()):
+            self.add_message(msg, node=node.targets[0])
 
     def _check_protected_attribute_access(self, node):
         '''Given an attribute access node (set or get), check if attribute
