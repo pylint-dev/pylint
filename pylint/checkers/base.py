@@ -1690,6 +1690,13 @@ class ElifChecker(BaseTokenChecker):
     visit_while = visit_tryexcept
     visit_for = visit_while
 
+    def visit_ifexp(self, node):
+        self._if_counter += 1
+
+    def visit_comprehension(self, node):
+        for if_test in node.ifs:
+            self._if_counter += 1
+
     @check_messages('too-many-nested-blocks')
     def visit_if(self, node):
         self._check_nested_blocks(node)
