@@ -1095,9 +1095,8 @@ functions, methods
             # in PY3K a "with" statement with multiple managers coresponds
             # to one AST "With" node with multiple items
             pairs = node.items
-        prev_pair = None
-        for pair in pairs:
-            if prev_pair is not None:
+        if pairs:
+            for prev_pair, pair in zip(pairs, pairs[1:]):
                 if (isinstance(prev_pair[1], astroid.AssignName) and
                         (pair[1] is None and not isinstance(pair[0], astroid.Call))):
                     # don't emit a message if the second is a function call
@@ -1106,7 +1105,6 @@ functions, methods
                         # if the line number doesn't match
                         # we assume it's a nested "with"
                         self.add_message('confusing-with-statement', node=node)
-            prev_pair = pair
 
 
 _NAME_TYPES = {
