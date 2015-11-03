@@ -1705,7 +1705,9 @@ class ElifChecker(BaseTokenChecker):
 
     @check_messages('too-many-nested-blocks')
     def leave_functiondef(self, node):
+        # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
+        # if there is a waiting message left, send it
         if self._nested_blocks_msg:
             self.add_message('too-many-nested-blocks',
                              node=self._nested_blocks_msg[0],
@@ -1718,6 +1720,8 @@ class ElifChecker(BaseTokenChecker):
         # only check block levels inside functions or methods
         if not isinstance(node.scope(), astroid.FunctionDef):
             return
+        # messages are triggered on leaving the nested block. Here we save the
+        # stack in case the current node isn't nested in the previous one
         nested_blocks = self._nested_blocks[:]
         if node.parent == node.scope():
             self._nested_blocks = [node]
@@ -1740,6 +1744,9 @@ class ElifChecker(BaseTokenChecker):
                                        self.config.max_nested_blocks))
                 self._nested_blocks_msg = None
             else:
+                # if time has not come yet to send the message (ie the stack of
+                # nested nodes is still increasing), save it in case the
+                # current node is the last one of the function
                 self._nested_blocks_msg = (self._nested_blocks[0],
                                            (len(self._nested_blocks),
                                             self.config.max_nested_blocks))
