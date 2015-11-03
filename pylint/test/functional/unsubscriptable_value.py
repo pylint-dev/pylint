@@ -29,10 +29,10 @@ class Subscriptable(object):
     def __getitem__(self, key):
         return key + key
 
-NonSubscriptable()[0]  # [unsubscriptable-value]
-NonSubscriptable[0]  # [unsubscriptable-value]
+NonSubscriptable()[0]  # [unsubscriptable-object]
+NonSubscriptable[0]  # [unsubscriptable-object]
 Subscriptable()[0]
-Subscriptable[0]  # [unsubscriptable-value]
+Subscriptable[0]  # [unsubscriptable-object]
 
 # generators are not subscriptable
 def powers_of_two():
@@ -41,20 +41,20 @@ def powers_of_two():
         yield 2 ** k
         k += 1
 
-powers_of_two()[0]  # [unsubscriptable-value]
-powers_of_two[0]  # [unsubscriptable-value]
+powers_of_two()[0]  # [unsubscriptable-object]
+powers_of_two[0]  # [unsubscriptable-object]
 
 
 # check that primitive non subscriptable types are catched
-True[0]  # [unsubscriptable-value]
-None[0]  # [unsubscriptable-value]
-8.5[0]  # [unsubscriptable-value]
-10[0]  # [unsubscriptable-value]
+True[0]  # [unsubscriptable-object]
+None[0]  # [unsubscriptable-object]
+8.5[0]  # [unsubscriptable-object]
+10[0]  # [unsubscriptable-object]
 
 # sets are not subscriptable
-{x ** 2 for x in range(10)}[0]  # [unsubscriptable-value]
-set(numbers)[0]  # [unsubscriptable-value]
-frozenset(numbers)[0]  # [unsubscriptable-value]
+{x ** 2 for x in range(10)}[0]  # [unsubscriptable-object]
+set(numbers)[0]  # [unsubscriptable-object]
+frozenset(numbers)[0]  # [unsubscriptable-object]
 
 # skip instances with unknown base classes
 from some_missing_module import LibSubscriptable
@@ -74,11 +74,11 @@ class SubscriptableClass(six.with_metaclass(MetaSubscriptable, object)):
     pass
 
 SubscriptableClass[0]
-SubscriptableClass()[0]  # [unsubscriptable-value]
+SubscriptableClass()[0]  # [unsubscriptable-object]
 
 # functions are not subscriptable
 def test(*args, **kwargs):
     return args, kwargs
 
 test()[0]
-test[0]  # [unsubscriptable-value]
+test[0]  # [unsubscriptable-object]

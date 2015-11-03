@@ -155,7 +155,7 @@ MSGS = {
               'Emitted when an instance in membership test expression doesn\'t'
               'implement membership protocol (__contains__/__iter__/__getitem__)'),
     'E1136': ("Value '%s' is unsubscriptable",
-              'unsubscriptable-value',
+              'unsubscriptable-object',
               "Emitted when a subscripted value doesn't support subscription"
               "(i.e. doesn't define __getitem__ method)"),
     }
@@ -822,19 +822,19 @@ accessed. Python regular expressions are accepted.'}
         if operator in ['in', 'not in']:
             self._check_membership_test(right)
 
-    @check_messages('unsubscriptable-value')
+    @check_messages('unsubscriptable-object')
     def visit_subscript(self, node):
         if isinstance(node.value, (astroid.ListComp, astroid.DictComp)):
             return
         if isinstance(node.value, astroid.SetComp):
-            self.add_message('unsubscriptable-value',
+            self.add_message('unsubscriptable-object',
                              args=node.value.as_string(),
                              node=node.value)
         infered = helpers.safe_infer(node.value)
         if infered is None or infered is astroid.YES:
             return
         if not supports_subscript(infered):
-            self.add_message('unsubscriptable-value',
+            self.add_message('unsubscriptable-object',
                              args=node.value.as_string(),
                              node=node.value)
 

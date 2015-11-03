@@ -3,7 +3,7 @@ ChangeLog for Pylint
 
 --
 
-    * Add new message, 'unsubscriptable-value', that is emitted when
+    * Add new message, 'unsubscriptable-object', that is emitted when
       value used in subscription expression doesn't support subscription
       (i.e. doesn't define __getitem__ method).
 
