@@ -213,4 +213,4 @@ def function26():
         """Permit extslice syntax by implementing __getitem__"""
         def __getitem__(self, index):
             return 0
-    return ExtSliceTest[..., 0] # no error
+    return ExtSliceTest()[..., 0] # no error

@@ -618,6 +618,10 @@ def _supports_iteration_protocol(value):
     return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
 
 
+def _supports_subscript_protocol(value):
+    return _hasattr(value, GETITEM_METHOD)
+
+
 def _is_abstract_class_name(name):
     lname = name.lower()
     is_mixin = lname.endswith('mixin')
@@ -686,6 +690,20 @@ def supports_membership_test(value):
             return True
     return is_iterable(value)
 
+
+def supports_subscript(value):
+    if isinstance(value, astroid.ClassDef):
+        if not helpers.has_known_bases(value):
+            return False
+        meta = value.metaclass()
+        if meta is not None and _supports_subscript_protocol(meta):
+            return True
+    if isinstance(value, astroid.Instance):
+        if not helpers.has_known_bases(value):
+            return True
+        if _supports_subscript_protocol(value):
+            return True
+    return False
 
 # TODO(cpopa): deprecate these or leave them as aliases?
 safe_infer = astroid.helpers.safe_infer

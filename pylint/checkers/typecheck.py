@@ -37,7 +37,8 @@ from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
     decorated_with, node_ignores_exception,
     is_iterable, is_mapping, supports_membership_test,
-    is_comprehension, is_inside_abstract_class)
+    is_comprehension, is_inside_abstract_class,
+    supports_subscript)
 from pylint import utils
 
 
@@ -153,6 +154,10 @@ MSGS = {
               'unsupported-membership-test',
               'Emitted when an instance in membership test expression doesn\'t'
               'implement membership protocol (__contains__/__iter__/__getitem__)'),
+    'E1136': ("Value '%s' is unsubscriptable",
+              'unsubscriptable-value',
+              "Emitted when a subscripted value doesn't support subscription"
+              "(i.e. doesn't define __getitem__ method)"),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -816,6 +821,23 @@ accessed. Python regular expressions are accepted.'}
         operator, right = node.ops[0]
         if operator in ['in', 'not in']:
             self._check_membership_test(right)
+
+    @check_messages('unsubscriptable-value')
+    def visit_subscript(self, node):
+        if isinstance(node.value, (astroid.ListComp, astroid.DictComp)):
+            return
+        if isinstance(node.value, astroid.SetComp):
+            self.add_message('unsubscriptable-value',
+                             args=node.value.as_string(),
+                             node=node.value)
+        infered = helpers.safe_infer(node.value)
+        if infered is None or infered is astroid.YES:
+            return
+        if not supports_subscript(infered):
+            self.add_message('unsubscriptable-value',
+                             args=node.value.as_string(),
+                             node=node.value)
+
 
 
 class IterableChecker(BaseChecker):

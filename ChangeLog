@@ -3,6 +3,10 @@ ChangeLog for Pylint
 
 --
 
+    * Add new message, 'unsubscriptable-value', that is emitted when
+      value used in subscription expression doesn't support subscription
+      (i.e. doesn't define __getitem__ method).
+
     * Don't warn about abstract classes instantiated in their own
       body. Closes issue #627.
 
