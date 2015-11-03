@@ -1653,7 +1653,8 @@ class ElifChecker(BaseTokenChecker):
     msgs = {'R0101': ('Too many nested blocks (%s/%s)',
                       'too-many-nested-blocks',
                       'Used when a function or a method has too many nested '
-                      'blocks.'),
+                      'blocks. This makes the code less understandable and '
+                      'maintainable.'),
            }
     options = (('max-nested-blocks',
                {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
