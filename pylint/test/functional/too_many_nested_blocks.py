@@ -28,7 +28,7 @@ def my_function():
                 while True:
                     if True:
                         if True:
-                            print i
+                            yield i
 
     nested_func()
 
