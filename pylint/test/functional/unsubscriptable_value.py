@@ -82,3 +82,9 @@ def test(*args, **kwargs):
 
 test()[0]
 test[0]  # [unsubscriptable-object]
+
+# deque
+from collections import deque
+deq = deque(maxlen=10)
+deq.append(42)
+deq[0]
