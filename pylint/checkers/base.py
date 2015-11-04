@@ -1655,10 +1655,10 @@ class ElifChecker(BaseTokenChecker):
                       'maintainable.'),
            }
     options = (('max-nested-blocks',
-               {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
-                'help': 'Maximum number of nested blocks for function / '
-                'method body'}
-              ),)
+                {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
+                 'help': 'Maximum number of nested blocks for function / '
+                         'method body'}
+               ),)
 
     def __init__(self, linter=None):
         BaseTokenChecker.__init__(self, linter)
@@ -1678,7 +1678,7 @@ class ElifChecker(BaseTokenChecker):
             elif token == 'if':
                 self._elifs.append(False)
 
-    def leave_module(self, node):
+    def leave_module(self, _):
         self._init()
 
     @check_messages('too-many-nested-blocks')
@@ -1689,12 +1689,11 @@ class ElifChecker(BaseTokenChecker):
     visit_while = visit_tryexcept
     visit_for = visit_while
 
-    def visit_ifexp(self, node):
+    def visit_ifexp(self, _):
         self._if_counter += 1
 
     def visit_comprehension(self, node):
-        for if_test in node.ifs:
-            self._if_counter += 1
+        self._if_counter += len(node.ifs)
 
     @check_messages('too-many-nested-blocks')
     def visit_if(self, node):
@@ -1702,7 +1701,7 @@ class ElifChecker(BaseTokenChecker):
         self._if_counter += 1
 
     @check_messages('too-many-nested-blocks')
-    def leave_functiondef(self, node):
+    def leave_functiondef(self, _):
         # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
         # if there is a waiting message left, send it

@@ -124,47 +124,46 @@ class NewStyleConflictChecker(BaseChecker):
                 continue
             call = expr.expr
             # skip the test if using super
-            if isinstance(call, astroid.Call) and \
-               isinstance(call.func, astroid.Name) and \
-               call.func.name == 'super':
-                confidence = (INFERENCE if helpers.has_known_bases(klass)
-                              else INFERENCE_FAILURE)
-                if not klass.newstyle:
-                    # super should not be used on an old style class
-                    self.add_message('super-on-old-class', node=node,
+            if not (isinstance(call, astroid.Call) and
+                    isinstance(call.func, astroid.Name) and
+                    call.func.name == 'super'):
+                continue
+            confidence = (INFERENCE if helpers.has_known_bases(klass)
+                          else INFERENCE_FAILURE)
+            if not klass.newstyle:
+                # super should not be used on an old style class
+                self.add_message('super-on-old-class', node=node,
+                                 confidence=confidence)
+            else:
+                # super first arg should be the class
+                if not call.args and sys.version_info[0] == 3:
+                    # unless Python 3
+                    continue
+
+                try:
+                    supcls = (call.args and next(call.args[0].infer())
+                              or None)
+                except astroid.InferenceError:
+                    continue
+
+                if supcls is None:
+                    self.add_message('missing-super-argument', node=call,
                                      confidence=confidence)
-                else:
-                    # super first arg should be the class
-                    if not call.args and sys.version_info[0] == 3:
-                        # unless Python 3
-                        continue
+                    continue
 
-                    try:
-                        supcls = (call.args and next(call.args[0].infer())
-                                  or None)
-                    except astroid.InferenceError:
-                        continue
-
-                    if supcls is None:
-                        self.add_message('missing-super-argument', node=call,
+                if klass is not supcls:
+                    name = None
+                    # if supcls is not YES, then supcls was infered
+                    # and use its name. Otherwise, try to look
+                    # for call.args[0].name
+                    if supcls is not astroid.YES:
+                        name = supcls.name
+                    else:
+                        if hasattr(call.args[0], 'name'):
+                            name = call.args[0].name
+                    if name is not None:
+                        self.add_message('bad-super-call', node=call, args=(name, ),
                                          confidence=confidence)
-                        continue
-
-                    if klass is not supcls:
-                        name = None
-                        # if supcls is not YES, then supcls was infered
-                        # and use its name. Otherwise, try to look
-                        # for call.args[0].name
-                        if supcls is not astroid.YES:
-                            name = supcls.name
-                        else:
-                            if hasattr(call.args[0], 'name'):
-                                name = call.args[0].name
-                        if name is not None:
-                            self.add_message('bad-super-call',
-                                             node=call,
-                                             args=(name, ),
-                                             confidence=confidence)
 
 
 def register(linter):

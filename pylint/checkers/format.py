@@ -530,27 +530,28 @@ class FormatChecker(BaseTokenChecker):
                 depth += 1
             elif token[1] == ')':
                 depth -= 1
-                if not depth:
-                    # ')' can't happen after if (foo), since it would be a syntax error.
-                    if (tokens[i+1][1] in (':', ')', ']', '}', 'in') or
-                            tokens[i+1][0] in (tokenize.NEWLINE,
-                                               tokenize.ENDMARKER,
-                                               tokenize.COMMENT)):
-                        # The empty tuple () is always accepted.
-                        if i == start + 2:
-                            return
-                        if keyword_token == 'not':
-                            if not found_and_or:
-                                self.add_message('superfluous-parens', line=line_num,
-                                                 args=keyword_token)
-                        elif keyword_token in ('return', 'yield'):
+                if depth:
+                    continue
+                # ')' can't happen after if (foo), since it would be a syntax error.
+                if (tokens[i+1][1] in (':', ')', ']', '}', 'in') or
+                        tokens[i+1][0] in (tokenize.NEWLINE,
+                                           tokenize.ENDMARKER,
+                                           tokenize.COMMENT)):
+                    # The empty tuple () is always accepted.
+                    if i == start + 2:
+                        return
+                    if keyword_token == 'not':
+                        if not found_and_or:
                             self.add_message('superfluous-parens', line=line_num,
                                              args=keyword_token)
-                        elif keyword_token not in self._keywords_with_parens:
-                            if not (tokens[i+1][1] == 'in' and found_and_or):
-                                self.add_message('superfluous-parens', line=line_num,
-                                                 args=keyword_token)
-                    return
+                    elif keyword_token in ('return', 'yield'):
+                        self.add_message('superfluous-parens', line=line_num,
+                                         args=keyword_token)
+                    elif keyword_token not in self._keywords_with_parens:
+                        if not (tokens[i+1][1] == 'in' and found_and_or):
+                            self.add_message('superfluous-parens', line=line_num,
+                                             args=keyword_token)
+                return
             elif depth == 1:
                 # This is a tuple, which is always acceptable.
                 if token[1] == ',':

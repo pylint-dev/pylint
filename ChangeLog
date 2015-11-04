@@ -2,8 +2,11 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Add a new refactoring error, 'too-many-nested-blocks', which is emitted
+      when a function or a method has too many nested blocks, which makes the
+      code less readable and harder to understand. Closes issue #668.
 
-    * Add new message, 'unsubscriptable-object', that is emitted when
+    * Add a new error, 'unsubscriptable-object', that is emitted when
       value used in subscription expression doesn't support subscription
       (i.e. doesn't define __getitem__ method).
 

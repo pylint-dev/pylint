@@ -579,20 +579,21 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
                 # Detect imports, assigned to global statements.
-                if global_names:
-                    skip = False
-                    for import_name, import_alias in stmt.names:
-                        # If the import uses an alias, check only that.
-                        # Otherwise, check only the import name.
-                        if import_alias:
-                            if import_alias in global_names:
-                                skip = True
-                                break
-                        elif import_name in global_names:
+                if not global_names:
+                    continue
+                skip = False
+                for import_name, import_alias in stmt.names:
+                    # If the import uses an alias, check only that.
+                    # Otherwise, check only the import name.
+                    if import_alias:
+                        if import_alias in global_names:
                             skip = True
                             break
-                    if skip:
-                        continue
+                    elif import_name in global_names:
+                        skip = True
+                        break
+                if skip:
+                    continue
 
             # care about functions with unknown argument (builtins)
             if name in argnames:
@@ -887,6 +888,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             start_index = len(self._to_consume) - 1
         # iterates through parent scopes, from the inner to the outer
         base_scope_type = self._to_consume[start_index][-1]
+        # pylint: disable=too-many-nested-blocks; refactoring this block is a pain.
         for i in range(start_index, -1, -1):
             to_consume, consumed, scope_type = self._to_consume[i]
             # if the current scope is a class scope but it's not the inner
@@ -958,11 +960,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         #      f = 42
                         if isinstance(frame, astroid.ClassDef) and name in frame.locals:
                             if isinstance(node.parent, astroid.Arguments):
-                                # Doing the following is fine:
-                                #   class A:
-                                #      x = 42
-                                #      y = lambda attr=x: attr
                                 if stmt.fromlineno <= defstmt.fromlineno:
+                                    # Doing the following is fine:
+                                    #   class A:
+                                    #      x = 42
+                                    #      y = lambda attr=x: attr
                                     self.add_message('used-before-assignment',
                                                      args=name, node=node)
                             else:

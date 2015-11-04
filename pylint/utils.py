@@ -568,29 +568,32 @@ class FileState(object):
         for msgid, lines in six.iteritems(msg_state):
             for lineno, state in list(lines.items()):
                 original_lineno = lineno
-                if first <= lineno <= last:
-                    # Set state for all lines for this block, if the
-                    # warning is applied to nodes.
-                    if  msgs_store.check_message_id(msgid).scope == WarningScope.NODE:
-                        if lineno > firstchildlineno:
-                            state = True
-                        first_, last_ = node.block_range(lineno)
-                    else:
-                        first_ = lineno
-                        last_ = last
-                    for line in range(first_, last_+1):
-                        # do not override existing entries
-                        if not line in self._module_msgs_state.get(msgid, ()):
-                            if line in lines: # state change in the same block
-                                state = lines[line]
-                                original_lineno = line
-                            if not state:
-                                self._suppression_mapping[(msgid, line)] = original_lineno
-                            try:
-                                self._module_msgs_state[msgid][line] = state
-                            except KeyError:
-                                self._module_msgs_state[msgid] = {line: state}
-                    del lines[lineno]
+                # pylint: disable=superfluous-parens
+                if not (first <= lineno <= last):
+                    continue
+                # Set state for all lines for this block, if the
+                # warning is applied to nodes.
+                if  msgs_store.check_message_id(msgid).scope == WarningScope.NODE:
+                    if lineno > firstchildlineno:
+                        state = True
+                    first_, last_ = node.block_range(lineno)
+                else:
+                    first_ = lineno
+                    last_ = last
+                for line in range(first_, last_+1):
+                    # do not override existing entries
+                    if line in self._module_msgs_state.get(msgid, ()):
+                        continue
+                    if line in lines: # state change in the same block
+                        state = lines[line]
+                        original_lineno = line
+                    if not state:
+                        self._suppression_mapping[(msgid, line)] = original_lineno
+                    try:
+                        self._module_msgs_state[msgid][line] = state
+                    except KeyError:
+                        self._module_msgs_state[msgid] = {line: state}
+                del lines[lineno]
 
     def set_msg_status(self, msg, line, status):
         """Set status (enabled/disable) for a given message at a given line"""
