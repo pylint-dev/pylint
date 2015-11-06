@@ -118,7 +118,7 @@ def get_type(tokens, start_index):
         i += 1
     if line_type is None:
         line_type = 'empty_lines'
-    elif i < len(tokens) and tok_type == tokenize.NEWLINE:
+    elif i < len(tokens) and tokens[i][0] == tokenize.NEWLINE:
         i += 1
     return i, pos[0] - start[0] + 1, line_type
 
