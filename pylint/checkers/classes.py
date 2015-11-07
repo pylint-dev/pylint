@@ -1067,12 +1067,15 @@ class SpecialMethodsChecker(BaseChecker):
 
     def _check_iter(self, node):
         try:
-            infered = node.infer_call_result(node)
+            infered_values = list(node.infer_call_result(node))
         except astroid.InferenceError:
             return
-
-        if not all(map(self._is_iterator, infered)):
-            self.add_message('non-iterator-returned', node=node)
+        # cases when there're multiple values infered
+        # are skipped to reduce the number of false positives
+        if len(infered_values) == 1:
+            infered = infered_values[0]
+            if not self._is_iterator(infered):
+                self.add_message('non-iterator-returned', node=node)
 
 
 def _ancestors_to_call(klass_node, method='__init__'):

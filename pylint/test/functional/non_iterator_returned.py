@@ -56,6 +56,19 @@ class FifthGoodIterator(object):
     def __iter__(self):
         return IteratorClass
 
+class FileBasedIterator(object):
+    def __init__(self, path):
+        self.path = path
+        self.file = None
+
+    def __iter__(self):
+        if self.file is not None:
+            self.file.close()
+        self.file = open(self.path)
+        # self file has two infered values: None and <instance of 'file'>
+        # we don't want to emit error in this case
+        return self.file
+
 
 class FirstBadIterator(object):
     """ __iter__ returns a list """
@@ -80,11 +93,3 @@ class FourthBadIterator(object):
 
     def __iter__(self): # [non-iterator-returned]
         return ThirdBadIterator
-
-class FifthBadIterator(object):
-    """All branches should return an iterator."""
-
-    def __iter__(self): # [non-iterator-returned]
-        if self:
-            return 1
-        return SecondGoodIterator()
