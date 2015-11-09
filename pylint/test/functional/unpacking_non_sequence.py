@@ -3,8 +3,8 @@
 # pylint: disable=too-few-public-methods, invalid-name, attribute-defined-outside-init, unused-variable, no-absolute-import
 # pylint: disable=using-constant-test, no-init
 from os import rename as nonseq_func
-from functional.unpacking import nonseq
 from six import with_metaclass
+from functional.unpacking import nonseq
 
 __revision__ = 0
 

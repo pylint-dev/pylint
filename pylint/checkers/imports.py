@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """imports checkers for Python code"""
 
+import os
 import sys
 from collections import defaultdict, Counter
 
@@ -22,7 +23,8 @@ import six
 
 import astroid
 from astroid import are_exclusive
-from astroid.modutils import get_module_part, is_standard_module
+from astroid.modutils import (EXT_LIB_DIR, get_module_part, is_standard_module,
+                              file_from_modpath)
 
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport, get_global_option
@@ -178,6 +180,13 @@ MSGS = {
               'multiple-imports',
               'Used when import statement importing multiple modules is '
               'detected.'),
+    'C0411': ('%s comes before %s',
+              'wrong-import-order',
+              'Used when PEP8 import order is not observed (standard imports '
+              'first, then third-party libraries, then local imports)'),
+    'C0412': ('Imports from package %s are not grouped',
+              'ungrouped-imports',
+              'Used when imports are not grouped by packages'),
     }
 
 class ImportsChecker(BaseChecker):
@@ -227,11 +236,13 @@ given file (report RP0402 must not be disabled)'}
 given file (report RP0402 must not be disabled)'}
                ),
               )
+    ext_lib_dir = os.path.normcase(os.path.abspath(EXT_LIB_DIR))
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self.stats = None
         self.import_graph = None
+        self._imports_stack = []
         self.__int_dep_info = self.__ext_dep_info = None
         self.reports = (('RP0401', 'External dependencies',
                          self.report_external_dependencies),
@@ -265,6 +276,11 @@ given file (report RP0402 must not be disabled)'}
         for name in names:
             self._check_deprecated_module(node, name)
             importedmodnode = self.get_imported_module(node, name)
+            if isinstance(node.scope(), astroid.Module):
+                importedname = importedmodnode.name if importedmodnode else None
+                if not importedname:
+                    importedname = node.names[0][0].split('.')[0]
+                self._imports_stack.append((node, importedname))
             if importedmodnode is None:
                 continue
             self._check_relative_import(modnode, node, importedmodnode, name)
@@ -292,6 +308,11 @@ given file (report RP0402 must not be disabled)'}
                 self.add_message('wildcard-import', args=basename, node=node)
         modnode = node.root()
         importedmodnode = self.get_imported_module(node, basename)
+        if isinstance(node.scope(), astroid.Module):
+            importedname = importedmodnode.name if importedmodnode else None
+            if not importedname:
+                importedname = node.names[0][0].split('.')[0]
+            self._imports_stack.append((node, importedname))
         if importedmodnode is None:
             return
         self._check_relative_import(modnode, node, importedmodnode, basename)
@@ -308,6 +329,67 @@ given file (report RP0402 must not be disabled)'}
             if count > 1:
                 self.add_message('reimported', node=node,
                                  args=(name, node.fromlineno))
+
+    @check_messages('wrong-import-order', 'ungrouped-imports')
+    def leave_module(self, node):
+        # check imports are grouped by category (standard, 3rd party, local)
+        std_imports, ext_imports, loc_imports = self._check_imports_order(node)
+        # check imports are grouped by package within a given category
+        for imports in (std_imports, ext_imports, loc_imports):
+            packages = []
+            for imp in imports:
+                if packages and packages[-1] == imp[1]:
+                    continue
+                # check if an import from the same package has already been made
+                for package in packages:
+                    if imp[1] == package:
+                        self.add_message('ungrouped-imports', node=imp[0],
+                                         args=package)
+                        break
+                packages.append(imp[1])
+        self._imports_stack = []
+
+    def _check_imports_order(self, node):
+        """Checks imports of module `node` are grouped by category
+
+        Imports must follow this order: standard, 3rd party, local
+        """
+        extern_imports = []
+        local_imports = []
+        std_imports = []
+        for node, modname in self._imports_stack:
+            if not modname:
+                local_imports.append((node, modname))
+                continue
+            package = modname.split('.')[0]
+            if is_standard_module(modname):
+                std_imports.append((node, package))
+                wrong_import = extern_imports or local_imports
+                if not wrong_import:
+                    continue
+                self.add_message('wrong-import-order', node=node,
+                                 args=('standard import "%s"' % node.as_string(),
+                                       '"%s"' % wrong_import[0][0].as_string()))
+            else:
+                try:
+                    filename = file_from_modpath([package])
+                except ImportError:
+                    local_imports.append((node, package))
+                    continue
+                if not filename:
+                    local_imports.append((node, package))
+                    continue
+                filename = os.path.normcase(os.path.abspath(filename))
+                if not filename.startswith(self.ext_lib_dir):
+                    local_imports.append((node, package))
+                    continue
+                extern_imports.append((node, package))
+                if not local_imports:
+                    continue
+                self.add_message('wrong-import-order', node=node,
+                                 args=('external import "%s"' % node.as_string(),
+                                       '"%s"' % local_imports[0][0].as_string()))
+        return std_imports, extern_imports, local_imports
 
     def get_imported_module(self, importnode, modname):
         try:

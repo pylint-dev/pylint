@@ -1,4 +1,4 @@
-# pylint: disable=E1101, no-absolute-import, import-error,line-too-long, missing-docstring
+# pylint: disable=E1101, no-absolute-import, import-error,line-too-long, missing-docstring,wrong-import-order
 
 try:
     import __builtin__ as builtins

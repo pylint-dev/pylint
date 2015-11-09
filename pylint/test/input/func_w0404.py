@@ -10,7 +10,7 @@ from xml.etree import ElementTree
 from email import encoders
 import email.encoders
 
-import sys
+import sys  #pylint: disable=ungrouped-imports
 
 def no_reimport():
     """docstring"""

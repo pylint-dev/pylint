@@ -1,5 +1,5 @@
 """Test deprecated modules."""
-# pylint: disable=unused-import,no-name-in-module,import-error
+# pylint: disable=unused-import,no-name-in-module,import-error,ungrouped-imports
 
 import Bastion # [deprecated-module]
 import rexec # [deprecated-module]
