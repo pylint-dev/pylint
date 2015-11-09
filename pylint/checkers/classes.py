@@ -140,6 +140,28 @@ def _has_bare_super_call(fundef_node):
             return True
     return False
 
+def _safe_infer_call_result(node, caller, context=None):
+    """
+    Safely infer the return value of a function.
+
+    Returns None if inference failed or if there is some ambiguity (more than
+    one node has been inferred). Otherwise returns infered value.
+    """
+    try:
+        inferit = node.infer_call_result(caller, context=context)
+        value = next(inferit)
+    except astroid.InferenceError:
+        return  # inference failed
+    except StopIteration:
+        return  # no values infered
+    try:
+        next(inferit)
+        return  # there is ambiguity on the inferred node
+    except astroid.InferenceError:
+        return  # there is some kind of ambiguity
+    except StopIteration:
+        return value
+
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
               'method-check-failed',
@@ -1066,14 +1088,8 @@ class SpecialMethodsChecker(BaseChecker):
         return False
 
     def _check_iter(self, node):
-        try:
-            infered_values = list(node.infer_call_result(node))
-        except astroid.InferenceError:
-            return
-        # cases when there're multiple values infered
-        # are skipped to reduce the number of false positives
-        if len(infered_values) == 1:
-            infered = infered_values[0]
+        infered = _safe_infer_call_result(node, node)
+        if infered is not None:
             if not self._is_iterator(infered):
                 self.add_message('non-iterator-returned', node=node)
 
