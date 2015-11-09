@@ -2,7 +2,7 @@
 """
 from __future__ import absolute_import, print_function
 __revision__ = 0
-# pylint: disable=using-constant-test
+# pylint: disable=using-constant-test,ungrouped-imports
 import os
 from os.path import join, exists
 
