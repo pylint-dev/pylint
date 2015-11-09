@@ -75,19 +75,12 @@ a, b = IterClass
 class NonSeq(object):
     """ does nothing """
 
-def bad_unpacking():
-    """ one return isn't unpackable """
-    if True:
-        return None
-    return [1, 2]
-
 a, b = NonSeq() # [unpacking-non-sequence]
 a, b = ValueError # [unpacking-non-sequence]
 a, b = None # [unpacking-non-sequence]
 a, b = 1 # [unpacking-non-sequence]
 a, b = nonseq # [unpacking-non-sequence]
 a, b = nonseq() # [unpacking-non-sequence]
-a, b = bad_unpacking() # [unpacking-non-sequence]
 a, b = nonseq_func # [unpacking-non-sequence]
 
 class ClassUnpacking(object):
@@ -105,5 +98,22 @@ class ClassUnpacking(object):
 
         self.a, self.b = NonSeq() # [unpacking-non-sequence]
         self.a, self.b = ValueError # [unpacking-non-sequence]
-        self.a, self.b = bad_unpacking() # [unpacking-non-sequence]
         self.a, c = nonseq_func # [unpacking-non-sequence]
+
+class TestBase(object):
+    'base class with `test` method implementation'
+    @staticmethod
+    def test(data):
+        'default implementation'
+        return data
+
+class Test(TestBase):
+    'child class that overrides `test` method'
+    def __init__(self):
+        # no error should be emitted here as `test` is overriden in this class
+        (self.aaa, self.bbb, self.ccc) = self.test(None)
+
+    @staticmethod
+    def test(data):
+        'overridden implementation'
+        return (1, 2, 3)

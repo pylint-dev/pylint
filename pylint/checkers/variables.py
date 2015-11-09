@@ -21,6 +21,7 @@ import re
 from copy import copy
 
 import astroid
+from astroid import helpers
 from astroid import modutils
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
@@ -1033,7 +1034,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
         targets = node.targets[0].itered()
         try:
-            for infered in node.value.infer():
+            infered = helpers.safe_infer(node.value)
+            if infered is not None:
                 self._check_unpacking(infered, node, targets)
         except astroid.InferenceError:
             return

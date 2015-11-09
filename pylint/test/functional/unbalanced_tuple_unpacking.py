@@ -46,8 +46,8 @@ def temp():
     return [2, 3, 4]
 
 def do_stuff7():
-    """ This is not right """
-    first, second = temp() # [unbalanced-tuple-unpacking]
+    """ This is not right, but we're not sure """
+    first, second = temp()
     return first + second
 
 def temp2():
@@ -74,7 +74,9 @@ class UnbalancedUnpacking(object):
     # pylint: disable=attribute-defined-outside-init, invalid-name, too-few-public-methods
     def test(self):
         """ unpacking in instance attributes """
-        self.a, self.b = temp() # [unbalanced-tuple-unpacking]
+        # we're not sure if temp() returns two or three values
+        # so we shouldn't emit an error
+        self.a, self.b = temp()
         self.a, self.b = temp2()
         self.a, self.b = unpack() # [unbalanced-tuple-unpacking]
 
