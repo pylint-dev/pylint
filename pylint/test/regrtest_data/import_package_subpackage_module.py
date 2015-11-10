@@ -45,5 +45,5 @@ import subpackage
 
 (3) run pylint with a script importing package.subpackage.module.
 """
-__revision__ = '$Id: import_package_subpackage_module.py,v 1.1 2005-11-10 16:08:54 syt Exp $'
 import package.subpackage.module
+__revision__ = '$Id: import_package_subpackage_module.py,v 1.1 2005-11-10 16:08:54 syt Exp $'

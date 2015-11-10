@@ -1,8 +1,8 @@
 """Test for W0623, overwriting names in exception handlers."""
 # pylint: disable=broad-except,bare-except,print-statement,no-absolute-import,duplicate-except
-__revision__ = ''
-
 import exceptions
+
+__revision__ = ''
 
 class MyError(Exception):
     """Special exception class."""

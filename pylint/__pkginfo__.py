@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 
 import sys
+from os.path import join
 
 
 modname = distname = 'pylint'
@@ -72,7 +73,6 @@ long_desc = """\
  Pylint is shipped with "pylint-gui", "pyreverse" (UML diagram generator)
  and "symilar" (an independent similarities checker)."""
 
-from os.path import join
 scripts = [join('bin', filename)
            for filename in ('pylint', 'pylint-gui', "symilar", "epylint",
                             "pyreverse")]
