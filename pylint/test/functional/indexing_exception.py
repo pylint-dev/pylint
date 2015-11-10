@@ -2,9 +2,9 @@
 Check for indexing exceptions.
 """
 # pylint: disable=import-error, no-absolute-import
-__revision__ = 0
 
 from unknown import ExtensionException
+__revision__ = 0
 
 class SubException(IndexError):
     """ empty """

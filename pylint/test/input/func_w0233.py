@@ -2,6 +2,8 @@
 """test for call to __init__ from a non ancestor class
 """
 from __future__ import print_function
+from . import func_w0233
+import nonexistant
 __revision__ = '$Id: func_w0233.py,v 1.2 2004-09-29 08:35:13 syt Exp $'
 
 class AAAA(object):
@@ -17,8 +19,6 @@ class BBBBMixin(object):
     def __init__(self):
         print('init', self)
 
-import nonexistant
-from . import func_w0233
 class CCC(BBBBMixin, func_w0233.AAAA, func_w0233.BBBB, nonexistant.AClass):
     """mix different things, some inferable some not"""
     def __init__(self):

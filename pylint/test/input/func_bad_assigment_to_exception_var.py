@@ -1,8 +1,8 @@
 # pylint:disable=C0103, print-statement, no-absolute-import
 """ho ho ho"""
 from __future__ import print_function
-__revision__ = 'toto'
 import sys
+__revision__ = 'toto'
 
 e = 1
 e2 = 'yo'

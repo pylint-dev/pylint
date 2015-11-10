@@ -1,14 +1,14 @@
 """check reimport
 """
 from __future__ import absolute_import, print_function
-__revision__ = 0
-# pylint: disable=using-constant-test,ungrouped-imports
+
+# pylint: disable=using-constant-test,ungrouped-imports,wrong-import-position
 import os
 from os.path import join, exists
-
 import os
 import re as _re
 
+__revision__ = 0
 _re.match('yo', '.*')
 
 if __revision__:

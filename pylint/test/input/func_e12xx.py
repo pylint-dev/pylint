@@ -2,9 +2,10 @@
 """Test checking of log format strings
 """
 
+import logging
+
 __revision__ = ''
 
-import logging
 
 def pprint():
     """Test string format in logging statements.

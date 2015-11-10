@@ -187,6 +187,10 @@ MSGS = {
     'C0412': ('Imports from package %s are not grouped',
               'ungrouped-imports',
               'Used when imports are not grouped by packages'),
+    'C0413': ('Wrong import position: %s should be placed at the top of the '
+              'module',
+              'wrong-import-position',
+              'Used when code and imports are mixed'),
     }
 
 class ImportsChecker(BaseChecker):
@@ -243,6 +247,7 @@ given file (report RP0402 must not be disabled)'}
         self.stats = None
         self.import_graph = None
         self._imports_stack = []
+        self._first_non_import_node = None
         self.__int_dep_info = self.__ext_dep_info = None
         self.reports = (('RP0401', 'External dependencies',
                          self.report_external_dependencies),
@@ -267,6 +272,7 @@ given file (report RP0402 must not be disabled)'}
             for cycle in get_cycles(self.import_graph, vertices=vertices):
                 self.add_message('cyclic-import', args=' -> '.join(cycle))
 
+    @check_messages('wrong-import-position')
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         modnode = node.root()
@@ -280,6 +286,7 @@ given file (report RP0402 must not be disabled)'}
                 importedname = importedmodnode.name if importedmodnode else None
                 if not importedname:
                     importedname = node.names[0][0].split('.')[0]
+                self._check_position(node)
                 self._imports_stack.append((node, importedname))
             if importedmodnode is None:
                 continue
@@ -313,6 +320,7 @@ given file (report RP0402 must not be disabled)'}
             if not importedname:
                 importedname = node.names[0][0].split('.')[0]
             self._imports_stack.append((node, importedname))
+            self._check_position(node)
         if importedmodnode is None:
             return
         self._check_relative_import(modnode, node, importedmodnode, basename)
@@ -348,6 +356,34 @@ given file (report RP0402 must not be disabled)'}
                         break
                 packages.append(imp[1])
         self._imports_stack = []
+        self._first_non_import_node = None
+
+    def visit_if(self, node):
+        # if the node does not contain an import instruction, and if it is the
+        # first node of the module different from an import instruction, keep a
+        # track of it
+        if self._first_non_import_node:
+            return
+        for _ in node.nodes_of_class(astroid.Import):
+            return
+        for _ in node.nodes_of_class(astroid.ImportFrom):
+            return
+        if isinstance(node.parent, astroid.Module):
+            self._first_non_import_node = node
+
+    visit_tryfinally = visit_tryexcept = visit_assign = visit_ifexp = visit_comprehension = visit_if
+
+    def visit_functiondef(self, node):
+        if not self._first_non_import_node:
+            self._first_non_import_node = node
+
+    visit_classdef = visit_for = visit_while = visit_functiondef
+
+    def _check_position(self, node):
+        """Sends a message if import `node` comes after another piece of code"""
+        if self._first_non_import_node:
+            self.add_message('wrong-import-position', node=node,
+                             args='"%s"' % node.as_string())
 
     def _check_imports_order(self, node):
         """Checks imports of module `node` are grouped by category
