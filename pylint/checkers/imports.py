@@ -187,7 +187,7 @@ MSGS = {
     'C0412': ('Imports from package %s are not grouped',
               'ungrouped-imports',
               'Used when imports are not grouped by packages'),
-    'C0413': ('Wrong import position: %s should be placed at the top of the '
+    'C0413': ('Import "%s" should be placed at the top of the '
               'module',
               'wrong-import-position',
               'Used when code and imports are mixed'),
@@ -383,7 +383,7 @@ given file (report RP0402 must not be disabled)'}
         """Sends a message if import `node` comes after another piece of code"""
         if self._first_non_import_node:
             self.add_message('wrong-import-position', node=node,
-                             args='"%s"' % node.as_string())
+                             args=node.as_string())
 
     def _check_imports_order(self, node):
         """Checks imports of module `node` are grouped by category
