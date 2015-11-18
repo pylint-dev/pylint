@@ -296,7 +296,7 @@ class should be ignored. A mixin class is detected if its name ends with \
                  'type' : 'string',
                  'metavar' : '<members names>',
                  'help' : 'List of members which are set dynamically and \
-missed by pylint inference system, and so shouldn\'t trigger E0201 when \
+missed by pylint inference system, and so shouldn\'t trigger E1101 when \
 accessed. Python regular expressions are accepted.'}
                ),
               )
