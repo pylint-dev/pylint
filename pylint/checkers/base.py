@@ -1360,10 +1360,22 @@ class DocStringChecker(_BasicChecker):
         if self.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring('class', node)
 
+    @staticmethod
+    def _is_setter_or_deleter(node):
+        names = {'setter', 'deleter'}
+        for decorator in node.decorators.nodes:
+            if (isinstance(decorator, astroid.Attribute)
+                    and decorator.attrname in names):
+                return True
+        return False
+
     @check_messages('missing-docstring', 'empty-docstring')
     def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
             ftype = node.is_method() and 'method' or 'function'
+            if node.decorators and self._is_setter_or_deleter(node):
+                return
+
             if isinstance(node.parent.frame(), astroid.ClassDef):
                 overridden = False
                 confidence = (INFERENCE if has_known_bases(node.parent.frame())
