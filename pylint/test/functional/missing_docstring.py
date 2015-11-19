@@ -33,3 +33,22 @@ def __sizeof__():
 
 def __mangled():
     pass
+
+
+class Property(object):
+    """Don't warn about setters and deleters."""
+
+    def __init__(self):
+        self._value = None
+
+    @property
+    def test(self):
+        """Default docstring for setters and deleters."""
+
+    @test.setter
+    def test(self, value):
+        self._value = value
+
+    @test.deleter
+    def test(self):
+        pass
