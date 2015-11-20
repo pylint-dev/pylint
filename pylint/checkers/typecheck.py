@@ -28,6 +28,7 @@ import astroid.arguments
 from astroid import exceptions
 from astroid import objects
 from astroid import node_classes
+from astroid import bases
 import six
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
@@ -51,12 +52,13 @@ STR_FORMAT = "%s.str.format" % BUILTINS
 
 
 def _unflatten(iterable):
-    for elem in iterable:
+    for index, elem in enumerate(iterable):
         if (isinstance(elem, collections.Sequence) and
                 not isinstance(elem, six.string_types)):
-            for subelem in _unflatten(elem):
-                yield subelem
-        elif isinstance(elem, node_classes.NodeNG):
+            for elem in _unflatten(elem):
+                 yield elem
+        elif elem and not index:
+            # We're interested only in the first element.
             yield elem
 
 
@@ -735,7 +737,7 @@ accessed. Python regular expressions are accepted.'}
             if infered is None or infered is astroid.YES:
                 continue
 
-            if isinstance(infered, astroid.bases.Generator):
+            if isinstance(infered, bases.Generator):
                 # Check if we are dealing with a function decorated
                 # with contextlib.contextmanager.
                 if decorated_with(infered.parent, ['contextlib.contextmanager']):
