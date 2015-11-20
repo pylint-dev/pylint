@@ -52,7 +52,7 @@ class AsyncChecker(checkers.BaseChecker):
     @checker_utils.check_messages('not-async-context-manager')
     def visit_asyncwith(self, node):
         for ctx_mgr, _ in node.items:
-            infered = utils.safe_infer(ctx_mgr)
+            infered = checker_utils.safe_infer(ctx_mgr)
             if infered is None or infered is astroid.YES:
                 continue
 
@@ -64,7 +64,7 @@ class AsyncChecker(checkers.BaseChecker):
                     if isinstance(infered, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.
-                        if not utils.has_known_bases(infered):
+                        if not checker_utils.has_known_bases(infered):
                             continue
                         # Just ignore mixin classes.
                         if self._ignore_mixin_members:
