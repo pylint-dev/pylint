@@ -27,7 +27,6 @@ import astroid.context
 import astroid.arguments
 from astroid import exceptions
 from astroid import objects
-from astroid import helpers
 from astroid import node_classes
 import six
 
@@ -38,7 +37,9 @@ from pylint.checkers.utils import (
     decorated_with, node_ignores_exception,
     is_iterable, is_mapping, supports_membership_test,
     is_comprehension, is_inside_abstract_class,
-    supports_subscript)
+    supports_subscript,
+    safe_infer,
+    has_known_bases)
 from pylint import utils
 
 
@@ -189,7 +190,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
     if isinstance(owner, astroid.Instance):
-        if owner.has_dynamic_getattr() or not helpers.has_known_bases(owner):
+        if owner.has_dynamic_getattr() or not has_known_bases(owner):
             return False
     if isinstance(owner, objects.Super):
         # Verify if we are dealing with an invalid Super object.
@@ -200,7 +201,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
             owner.super_mro()
         except (exceptions.MroError, exceptions.SuperError):
             return False
-        if not all(map(helpers.has_known_bases, owner.type.mro())):
+        if not all(map(has_known_bases, owner.type.mro())):
             return False
     return True
 
@@ -400,7 +401,7 @@ accessed. Python regular expressions are accepted.'}
         """
         if not isinstance(node.value, astroid.Call):
             return
-        function_node = helpers.safe_infer(node.value.func)
+        function_node = safe_infer(node.value.func)
         # skip class, generator and incomplete function definition
         if not (isinstance(function_node, astroid.FunctionDef) and
                 function_node.root().fully_defined()):
@@ -438,7 +439,7 @@ accessed. Python regular expressions are accepted.'}
         # we will not handle them here, right now.
 
         expr = node.func.expr
-        klass = helpers.safe_infer(expr)
+        klass = safe_infer(expr)
         if (klass is None or klass is astroid.YES or
                 not isinstance(klass, astroid.Instance)):
             return
@@ -477,7 +478,7 @@ accessed. Python regular expressions are accepted.'}
         num_positional_args = len(call_site.positional_arguments)
         keyword_args = list(call_site.keyword_arguments.keys())
 
-        called = helpers.safe_infer(node.func)
+        called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
             self.add_message('not-callable', node=node,
@@ -629,7 +630,7 @@ accessed. Python regular expressions are accepted.'}
         # Look for index operations where the parent is a sequence type.
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
-        parent_type = helpers.safe_infer(node.parent.value)
+        parent_type = safe_infer(node.parent.value)
         if not isinstance(parent_type, (astroid.ClassDef, astroid.Instance)):
             return
 
@@ -670,7 +671,7 @@ accessed. Python regular expressions are accepted.'}
         if isinstance(node, astroid.ExtSlice):
             index_type = node
         else:
-            index_type = helpers.safe_infer(node)
+            index_type = safe_infer(node)
         if index_type is None or index_type is astroid.YES:
             return
         # Constants must be of type int
@@ -702,7 +703,7 @@ accessed. Python regular expressions are accepted.'}
             if index is None:
                 continue
 
-            index_type = helpers.safe_infer(index)
+            index_type = safe_infer(index)
             if index_type is None or index_type is astroid.YES:
                 continue
 
@@ -730,7 +731,7 @@ accessed. Python regular expressions are accepted.'}
     def visit_with(self, node):
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
-            infered = helpers.safe_infer(ctx_mgr, context=context)
+            infered = safe_infer(ctx_mgr, context=context)
             if infered is None or infered is astroid.YES:
                 continue
 
@@ -766,7 +767,7 @@ accessed. Python regular expressions are accepted.'}
                     if isinstance(infered, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.
-                        if not helpers.has_known_bases(infered):
+                        if not has_known_bases(infered):
                             continue
                         # Just ignore mixin classes.
                         if self.config.ignore_mixin_members:
@@ -806,7 +807,7 @@ accessed. Python regular expressions are accepted.'}
             return
         if is_comprehension(node):
             return
-        infered = helpers.safe_infer(node)
+        infered = safe_infer(node)
         if infered is None or infered is astroid.YES:
             return
         if not supports_membership_test(infered):
@@ -830,7 +831,7 @@ accessed. Python regular expressions are accepted.'}
             self.add_message('unsubscriptable-object',
                              args=node.value.as_string(),
                              node=node.value)
-        infered = helpers.safe_infer(node.value)
+        infered = safe_infer(node.value)
         if infered is None or infered is astroid.YES:
             return
         if not supports_subscript(infered):
@@ -870,7 +871,7 @@ class IterableChecker(BaseChecker):
             return
         if is_comprehension(node):
             return
-        infered = helpers.safe_infer(node)
+        infered = safe_infer(node)
         if infered is None or infered is astroid.YES:
             return
         if not is_iterable(infered):
@@ -883,7 +884,7 @@ class IterableChecker(BaseChecker):
             return
         if isinstance(node, astroid.DictComp):
             return
-        infered = helpers.safe_infer(node)
+        infered = safe_infer(node)
         if infered is None or infered is astroid.YES:
             return
         if not is_mapping(infered):

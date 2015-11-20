@@ -20,7 +20,6 @@ import sys
 
 import astroid
 from astroid.bases import Instance
-from astroid import helpers
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -263,7 +262,7 @@ class StdlibChecker(BaseChecker):
         except utils.NoSuchArgumentError:
             return
         if mode_arg:
-            mode_arg = helpers.safe_infer(mode_arg)
+            mode_arg = utils.safe_infer(mode_arg)
             if (isinstance(mode_arg, astroid.Const)
                     and not _check_mode_str(mode_arg.value)):
                 self.add_message('bad-open-mode', node=node,

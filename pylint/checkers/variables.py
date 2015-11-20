@@ -21,7 +21,6 @@ import re
 from copy import copy
 
 import astroid
-from astroid import helpers
 from astroid import modutils
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
@@ -32,7 +31,8 @@ from pylint.checkers.utils import (
     is_defined_before, is_error, is_func_default, is_func_decorator,
     assign_parent, check_messages, is_inside_except, clobber_in_except,
     get_all_elements, has_known_bases, node_ignores_exception,
-    is_inside_abstract_class, is_comprehension, is_iterable)
+    is_inside_abstract_class, is_comprehension, is_iterable,
+    safe_infer, has_known_bases)
 import six
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
@@ -1034,7 +1034,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
         targets = node.targets[0].itered()
         try:
-            infered = helpers.safe_infer(node.value)
+            infered = safe_infer(node.value)
             if infered is not None:
                 self._check_unpacking(infered, node, targets)
         except astroid.InferenceError:

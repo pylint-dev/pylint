@@ -19,7 +19,6 @@ import tokenize
 
 import astroid
 from astroid import bases
-from astroid import helpers
 
 from pylint import checkers, interfaces
 from pylint.utils import WarningScope
@@ -448,7 +447,7 @@ class Python3Checker(checkers.BaseChecker):
         kwargs = []
         if (isinstance(node.func, astroid.Attribute)
                 and node.func.attrname == 'sort'):
-            inferred = helpers.safe_infer(node.func.expr)
+            inferred = utils.safe_infer(node.func.expr)
             if not inferred:
                 return
 
@@ -459,7 +458,7 @@ class Python3Checker(checkers.BaseChecker):
 
         elif (isinstance(node.func, astroid.Name)
               and node.func.name == 'sorted'):
-            inferred = helpers.safe_infer(node.func)
+            inferred = utils.safe_infer(node.func)
             if not inferred:
                 return
 

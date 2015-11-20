@@ -28,7 +28,6 @@ import astroid
 import astroid.bases
 import astroid.scoped_nodes
 from astroid import are_exclusive, InferenceError
-from astroid import helpers
 
 from pylint.interfaces import (IAstroidChecker, ITokenChecker, INFERENCE,
                                INFERENCE_FAILURE, HIGH)
@@ -46,6 +45,8 @@ from pylint.checkers.utils import (
     NoSuchArgumentError,
     error_of_type,
     unimplemented_abstract_methods,
+    has_known_bases,
+    safe_infer
     )
 from pylint.reporters.ureports.nodes import Table
 
@@ -188,7 +189,7 @@ def _determine_function_name_type(node):
         if (isinstance(decorator, astroid.Name) or
                 (isinstance(decorator, astroid.Attribute) and
                  decorator.attrname == 'abstractproperty')):
-            infered = helpers.safe_infer(decorator)
+            infered = safe_infer(decorator)
             if infered and infered.qname() in PROPERTY_CLASSES:
                 return 'attr'
         # If the function is decorated using the prop_method.{setter,getter}
@@ -735,7 +736,7 @@ functions, methods
         inferred = None
         emit = isinstance(test, (astroid.Const, ) + structs + const_nodes)
         if not isinstance(test, except_nodes):
-            inferred = helpers.safe_infer(test)
+            inferred = safe_infer(test)
 
         if emit or isinstance(inferred, const_nodes):
             self.add_message('using-constant-test', node=node)
@@ -1032,7 +1033,7 @@ functions, methods
     def _check_reversed(self, node):
         """ check that the argument to `reversed` is a sequence """
         try:
-            argument = helpers.safe_infer(get_argument_from_call(node, position=0))
+            argument = safe_infer(get_argument_from_call(node, position=0))
         except NoSuchArgumentError:
             pass
         else:
@@ -1230,7 +1231,7 @@ class NameChecker(_BasicChecker):
         if node.is_method():
             if overrides_a_method(node.parent.frame(), node.name):
                 return
-            confidence = (INFERENCE if helpers.has_known_bases(node.parent.frame())
+            confidence = (INFERENCE if has_known_bases(node.parent.frame())
                           else INFERENCE_FAILURE)
 
         self._check_name(_determine_function_name_type(node),
@@ -1254,7 +1255,7 @@ class NameChecker(_BasicChecker):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astroid.Module):
             if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
-                if isinstance(helpers.safe_infer(ass_type.value), astroid.ClassDef):
+                if isinstance(safe_infer(ass_type.value), astroid.ClassDef):
                     self._check_name('class', node.name, node)
                 else:
                     if not _redefines_import(node):
@@ -1365,7 +1366,7 @@ class DocStringChecker(_BasicChecker):
             ftype = node.is_method() and 'method' or 'function'
             if isinstance(node.parent.frame(), astroid.ClassDef):
                 overridden = False
-                confidence = (INFERENCE if helpers.has_known_bases(node.parent.frame())
+                confidence = (INFERENCE if has_known_bases(node.parent.frame())
                               else INFERENCE_FAILURE)
                 # check if node is from a method overridden by its ancestor
                 for ancestor in node.parent.frame().ancestors():
@@ -1403,7 +1404,7 @@ class DocStringChecker(_BasicChecker):
             if (node.body and isinstance(node.body[0], astroid.Expr) and
                     isinstance(node.body[0].value, astroid.Call)):
                 # Most likely a string with a format call. Let's see.
-                func = helpers.safe_infer(node.body[0].value.func)
+                func = safe_infer(node.body[0].value.func)
                 if (isinstance(func, astroid.BoundMethod)
                         and isinstance(func.bound, astroid.Instance)):
                     # Strings in Python 3, others in Python 2.
@@ -1456,7 +1457,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
             return
         if not isinstance(node.args[0], astroid.Lambda):
             return
-        infered = helpers.safe_infer(node.func)
+        infered = safe_infer(node.func)
         if (is_builtin_object(infered)
                 and infered.name in ['map', 'filter']):
             self.add_message('deprecated-lambda', node=node)
@@ -1472,7 +1473,7 @@ class RecommandationChecker(_BasicChecker):
 
     @staticmethod
     def _is_builtin(node, function):
-        inferred = helpers.safe_infer(node)
+        inferred = safe_infer(node)
         if not inferred:
             return False
         return is_builtin_object(inferred) and inferred.name == function
@@ -1617,17 +1618,17 @@ class ComparisonChecker(_BasicChecker):
 
     def _check_type_x_is_y(self, node, left, operator, right):
         """Check for expressions like type(x) == Y."""
-        left_func = helpers.safe_infer(left.func)
+        left_func = safe_infer(left.func)
         if not (isinstance(left_func, astroid.ClassDef)
                 and left_func.qname() == TYPE_QNAME):
             return
 
         if operator in ('is', 'is not') and _is_one_arg_pos_call(right):
-            right_func = helpers.safe_infer(right.func)
+            right_func = safe_infer(right.func)
             if (isinstance(right_func, astroid.ClassDef)
                     and right_func.qname() == TYPE_QNAME):
                 # type(x) == type(a)
-                right_arg = helpers.safe_infer(right.args[0])
+                right_arg = safe_infer(right.args[0])
                 if not isinstance(right_arg, LITERAL_NODE_TYPES):
                     # not e.g. type(x) == type([])
                     return

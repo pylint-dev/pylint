@@ -24,7 +24,6 @@ import string
 import warnings
 
 import astroid
-from astroid import helpers
 from astroid import scoped_nodes
 import six
 from six.moves import map, builtins # pylint: disable=redefined-builtin
@@ -644,7 +643,7 @@ def is_inside_abstract_class(node):
 
 def is_iterable(value):
     if isinstance(value, astroid.ClassDef):
-        if not helpers.has_known_bases(value):
+        if not has_known_bases(value):
             return True
         # classobj can only be iterable if it has an iterable metaclass
         meta = value.metaclass()
@@ -652,7 +651,7 @@ def is_iterable(value):
             if _supports_iteration_protocol(meta):
                 return True
     if isinstance(value, astroid.Instance):
-        if not helpers.has_known_bases(value):
+        if not has_known_bases(value):
             return True
         if _supports_iteration_protocol(value):
             return True
@@ -661,7 +660,7 @@ def is_iterable(value):
 
 def is_mapping(value):
     if isinstance(value, astroid.ClassDef):
-        if not helpers.has_known_bases(value):
+        if not has_known_bases(value):
             return True
         # classobj can only be a mapping if it has a metaclass is mapping
         meta = value.metaclass()
@@ -669,7 +668,7 @@ def is_mapping(value):
             if _supports_mapping_protocol(meta):
                 return True
     if isinstance(value, astroid.Instance):
-        if not helpers.has_known_bases(value):
+        if not has_known_bases(value):
             return True
         if _supports_mapping_protocol(value):
             return True
@@ -678,13 +677,13 @@ def is_mapping(value):
 
 def supports_membership_test(value):
     if isinstance(value, astroid.ClassDef):
-        if not helpers.has_known_bases(value):
+        if not has_known_bases(value):
             return True
         meta = value.metaclass()
         if meta is not None and _supports_membership_test_protocol(meta):
             return True
     if isinstance(value, astroid.Instance):
-        if not helpers.has_known_bases(value):
+        if not has_known_bases(value):
             return True
         if _supports_membership_test_protocol(value):
             return True
@@ -693,18 +692,52 @@ def supports_membership_test(value):
 
 def supports_subscript(value):
     if isinstance(value, astroid.ClassDef):
-        if not helpers.has_known_bases(value):
+        if not has_known_bases(value):
             return False
         meta = value.metaclass()
         if meta is not None and _supports_subscript_protocol(meta):
             return True
     if isinstance(value, astroid.Instance):
-        if not helpers.has_known_bases(value):
+        if not has_known_bases(value):
             return True
         if _supports_subscript_protocol(value):
             return True
     return False
 
 # TODO(cpopa): deprecate these or leave them as aliases?
-safe_infer = astroid.helpers.safe_infer
-has_known_bases = astroid.helpers.has_known_bases
+def safe_infer(node, context=None):
+    """Return the inferred value for the given node.
+
+    Return None if inference failed or if there is some ambiguity (more than
+    one node has been inferred).
+    """
+    try:
+        inferit = node.infer(context=context)
+        value = next(inferit)
+    except astroid.InferenceError:
+        return
+    try:
+        next(inferit)
+        return # None if there is ambiguity on the inferred node
+    except astroid.InferenceError:
+        return # there is some kind of ambiguity
+    except StopIteration:
+        return value
+
+
+def has_known_bases(klass, context=None):
+    """Return true if all base classes of a class could be inferred."""
+    try:
+        return klass._all_bases_known
+    except AttributeError:
+        pass
+    for base in klass.bases:
+        result = safe_infer(base, context=context)
+        # TODO: check for A->B->A->B pattern in class structure too?
+        if (not isinstance(result, astroid.ClassDef) or
+                result is klass or
+                not has_known_bases(result, context=context)):
+            klass._all_bases_known = False
+            return False
+    klass._all_bases_known = True
+    return True

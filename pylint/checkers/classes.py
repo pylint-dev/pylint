@@ -25,7 +25,6 @@ from astroid.bases import Generator, BUILTINS
 from astroid.exceptions import InconsistentMroError, DuplicateBasesError
 from astroid import objects
 from astroid.scoped_nodes import function_to_method
-from astroid import helpers
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -34,7 +33,8 @@ from pylint.checkers.utils import (
     overrides_a_method, check_messages, is_attr_private,
     is_attr_protected, node_frame_class, is_builtin_object,
     decorated_with_property, unimplemented_abstract_methods,
-    decorated_with, class_is_abstract)
+    decorated_with, class_is_abstract,
+    safe_infer, has_known_bases)
 from pylint.utils import deprecated_option, get_global_option
 import six
 
@@ -353,7 +353,7 @@ a metaclass class method.'}
         self._accessed.append(defaultdict(list))
         self._check_bases_classes(node)
         # if not an exception or a metaclass
-        if node.type == 'class' and helpers.has_known_bases(node):
+        if node.type == 'class' and has_known_bases(node):
             try:
                 node.local_attr('__init__')
             except astroid.NotFoundError:
@@ -382,7 +382,7 @@ a metaclass class method.'}
         a class or a type.
         """
         for base in node.bases:
-            ancestor = helpers.safe_infer(base)
+            ancestor = safe_infer(base)
             if ancestor in (astroid.YES, None):
                 continue
             if (isinstance(ancestor, astroid.Instance) and
@@ -602,7 +602,7 @@ a metaclass class method.'}
         """ Check that the given assattr node
         is defined in the class slots.
         """
-        infered = helpers.safe_infer(node.expr)
+        infered = safe_infer(node.expr)
         if infered and isinstance(infered, astroid.Instance):
             klass = infered._proxied
             if '__slots__' not in klass.locals or not klass.newstyle:
