@@ -110,18 +110,18 @@ class TestStaticMethod(object):
         self.test() # [no-value-for-parameter]
         self.test(42, 42, 42) # [too-many-function-args]
 
-
-class TypeCheckConstructor(object):
-    def __init__(self, first, second):
-        self.first = first
-        self.second = second
-    def test(self):
-        type(self)(1, 2, 3) # [too-many-function-args]
-        # +1: [no-value-for-parameter,no-value-for-parameter]
-        type(self)()
-        type(self)(1, lala=2) # [no-value-for-parameter,unexpected-keyword-arg]
-        type(self)(1, 2)
-        type(self)(first=1, second=2)
+# Should be enabled on a more capable astroid (> 1.4.0)
+# class TypeCheckConstructor(object):
+#    def __init__(self, first, second):
+#        self.first = first
+#        self.second = second
+#    def test(self):
+#        type(self)(1, 2, 3)
+#        #
+#        type(self)()
+#        type(self)(1, lala=2)
+#        type(self)(1, 2)
+#        type(self)(first=1, second=2)
 
 
 class Test(object):

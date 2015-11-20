@@ -141,9 +141,9 @@ class SuperChecks(str, str): # pylint: disable=duplicate-bases
     def test(self):
         super(SuperChecks, self).lalala()
 
-type(Client()).ala # [no-member]
-type({}).bala # [no-member]
-type('').portocala # [no-member]
+type(Client()).ala
+type({}).bala
+type('').portocala
 
 
 def socket_false_positive():

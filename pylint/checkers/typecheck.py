@@ -779,8 +779,9 @@ accessed. Python regular expressions are accepted.'}
                     self.add_message('not-context-manager',
                                      node=node, args=(infered.name, ))
 
+    # Disabled until we'll have a more capable astroid.
     @check_messages('invalid-unary-operand-type')
-    def visit_unaryop(self, node):
+    def _visit_unaryop(self, node):
         """Detect TypeErrors for unary operands."""
 
         for error in node.type_errors():

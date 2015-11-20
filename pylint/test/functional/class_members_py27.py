@@ -45,8 +45,8 @@ class UsingMetaclass(object):
     """ empty """
     __metaclass__ = Metaclass
 
-TestMetaclass.register(int)
-UsingMetaclass.test()
+#TestMetaclass.register(int)
+#UsingMetaclass.test()
 TestMetaclass().register(int) # [no-member]
 UsingMetaclass().test() # [no-member]
 
@@ -56,10 +56,10 @@ class NoKnownBases(Missing):
 
 NoKnownBases().lalala()
 
-
-class MetaClass(object):
-    """Look some methods in the implicit metaclass."""
-
-    @classmethod
-    def whatever(cls):
-        return cls.mro() + cls.missing() # [no-member]
+# Should be enabled on astroid > 1.4.0
+#class MetaClass(object):
+#    """Look some methods in the implicit metaclass."""
+#
+#    @classmethod
+#    def whatever(cls):
+#        return cls.mro() + cls.missing()
