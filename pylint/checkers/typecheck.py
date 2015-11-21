@@ -27,7 +27,6 @@ import astroid.context
 import astroid.arguments
 from astroid import exceptions
 from astroid import objects
-from astroid import node_classes
 from astroid import bases
 import six
 
@@ -56,7 +55,7 @@ def _unflatten(iterable):
         if (isinstance(elem, collections.Sequence) and
                 not isinstance(elem, six.string_types)):
             for elem in _unflatten(elem):
-                 yield elem
+                yield elem
         elif elem and not index:
             # We're interested only in the first element.
             yield elem

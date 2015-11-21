@@ -49,10 +49,7 @@ class DiaDefGenerator(object):
         # if we have a class diagram, we want more information by default;
         # so if the option is None, we return True
         if option is None:
-            if self.config.classes:
-                return True
-            else:
-                return False
+            return bool(self.config.classes)
         return option
 
     def _set_default_options(self):

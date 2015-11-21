@@ -32,7 +32,7 @@ from pylint.checkers.utils import (
     assign_parent, check_messages, is_inside_except, clobber_in_except,
     get_all_elements, has_known_bases, node_ignores_exception,
     is_inside_abstract_class, is_comprehension, is_iterable,
-    safe_infer, has_known_bases)
+    safe_infer)
 import six
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")

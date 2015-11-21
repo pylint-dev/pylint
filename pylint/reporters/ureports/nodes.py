@@ -171,7 +171,7 @@ class Table(BaseLayout):
     * title : the table's optional title
     """
     def __init__(self, cols, title=None,
-                 rheaders=0, cheaders=0, rrheaders=0, rcheaders=0,
+                 rheaders=0, cheaders=0,
                  **kwargs):
         super(Table, self).__init__(**kwargs)
         assert isinstance(cols, int)
@@ -179,5 +179,3 @@ class Table(BaseLayout):
         self.title = title
         self.rheaders = rheaders
         self.cheaders = cheaders
-        self.rrheaders = rrheaders
-        self.rcheaders = rcheaders
