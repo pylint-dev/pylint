@@ -154,13 +154,13 @@ class MisdesignChecker(BaseChecker):
                  'help' : 'Maximum number of public methods for a class \
 (see R0904).'}
                ),
-              ('max-bool-expr',
-               {'default': 5,
-                'type': 'int',
-                'metavar': '<num>',
-                'help': 'Maximum number of boolean expressions in a if '
-                        'statement'}
-              ),
+               ('max-bool-expr',
+                {'default': 5,
+                 'type': 'int',
+                 'metavar': '<num>',
+                 'help': 'Maximum number of boolean expressions in a if '
+                         'statement'}
+               ),
               )
 
     def __init__(self, linter=None):
@@ -322,8 +322,8 @@ class MisdesignChecker(BaseChecker):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.config.max_bool_expr:
-             self.add_message('too-many-boolean-expressions', node=condition,
-                              args=(nb_bool_expr, self.config.max_bool_expr))
+            self.add_message('too-many-boolean-expressions', node=condition,
+                             args=(nb_bool_expr, self.config.max_bool_expr))
 
     def visit_while(self, node):
         """increments the branches counter"""

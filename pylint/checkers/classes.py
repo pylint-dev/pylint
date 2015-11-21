@@ -723,16 +723,13 @@ a metaclass class method.'}
                 #     b = property(lambda: self._b)
 
                 stmt = node.parent.statement()
-                try:
-                    if (isinstance(stmt, astroid.Assign) and
-                            (stmt in klass.body or klass.parent_of(stmt)) and
-                            isinstance(stmt.value, astroid.Call) and
-                            isinstance(stmt.value.func, astroid.Name) and
-                            stmt.value.func.name == 'property' and
-                            is_builtin_object(next(stmt.value.func.infer(), None))):
+                if (isinstance(stmt, astroid.Assign)
+                        and len(stmt.targets) == 1
+                        and isinstance(stmt.targets[0], astroid.AssignName)):
+                    name = stmt.targets[0].name
+                    if _is_attribute_property(name, klass):
                         return
-                except astroid.InferenceError:
-                    pass
+
                 self.add_message('protected-access', node=node, args=attrname)
 
     def visit_name(self, node):

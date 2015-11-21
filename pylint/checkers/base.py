@@ -1678,7 +1678,7 @@ class ElifChecker(BaseTokenChecker):
     @staticmethod
     def _is_bool_const(node):
         return (isinstance(node.value, astroid.Const)
-                    and isinstance(node.value.value, bool))
+                and isinstance(node.value.value, bool))
 
     def _is_actual_elif(self, node):
         """Check if the given node is an actual elif

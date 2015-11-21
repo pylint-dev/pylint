@@ -24,7 +24,6 @@ from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
     node_frame_class,
-    safe_infer,
     has_known_bases
 )
 
