@@ -3,6 +3,10 @@ ChangeLog for Pylint
 
 --
 
+    * Added a new refactoring warning, 'simplifiable-if-statement',
+      used when an if statement could be reduced to a boolean evaluation
+      of its test. Closes issue #698.
+         
     * Added a new refactoring warning, 'too-many-boolean-expressions',
       used when a if statement contains too many boolean expressions,
       which makes the code less maintainable and harder to understand.
