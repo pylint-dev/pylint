@@ -1468,7 +1468,7 @@ class RecommandationChecker(_BasicChecker):
                       'consider-using-enumerate',
                       'Emitted when code that iterates with range and len is '
                       'encountered. Such code can be simplified by using the '
-                      'enumerate builtin.')
+                      'enumerate builtin.'),
            }
 
     @staticmethod
@@ -1654,6 +1654,10 @@ class ElifChecker(BaseTokenChecker):
                       'Used when a function or a method has too many nested '
                       'blocks. This makes the code less understandable and '
                       'maintainable.'),
+            'R0102': ('The if statement can be reduced by %s',
+                      'simplifiable-if-statement',
+                      'Used when an if statement can be reduced to a boolean '
+                      'conversion of the statement\'s test. '),
            }
     options = (('max-nested-blocks',
                 {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
@@ -1670,6 +1674,83 @@ class ElifChecker(BaseTokenChecker):
         self._elifs = []
         self._if_counter = 0
         self._nested_blocks_msg = None
+
+    @staticmethod
+    def _is_bool_const(node):
+        return (isinstance(node.value, astroid.Const)
+                    and isinstance(node.value.value, bool))
+
+    def _is_actual_elif(self, node):
+        """Check if the given node is an actual elif
+
+        This is a problem we're having with the builtin ast module,
+        which splits `elif` branches into a separate if statement.
+        Unfortunately we need to know the exact type in certain
+        cases.
+        """
+
+        if isinstance(node.parent, astroid.If):
+            orelse = node.parent.orelse
+            # current if node must directly follow a "else"
+            if orelse and orelse == [node]:
+                if self._elifs[self._if_counter]:
+                    return True
+        return False
+
+    def _check_simplifiable_if(self, node):
+        """Check if the given if node can be simplified.
+
+        The if statement can be reduced to a boolean expression
+        in some cases. For instance, if there are two branches
+        and both of them return a boolean value that depends on
+        the result of the statement's test, then this can be reduced
+        to `bool(test)` without losing any functionality.
+        """
+
+        if self._is_actual_elif(node):
+            # Not interested in if statements with multiple branches.
+            return
+        if len(node.orelse) != 1 or len(node.body) != 1:
+            return
+
+        # Check if both branches can be reduced.
+        first_branch = node.body[0]
+        else_branch = node.orelse[0]
+        if isinstance(first_branch, astroid.Return):
+            if not isinstance(else_branch, astroid.Return):
+                return
+            first_branch_is_bool = self._is_bool_const(first_branch)
+            else_branch_is_bool = self._is_bool_const(else_branch)
+            reduced_to = "returning bool of test"
+        elif isinstance(first_branch, astroid.Assign):
+            if not isinstance(else_branch, astroid.Assign):
+                return
+            first_branch_is_bool = self._is_bool_const(first_branch)
+            else_branch_is_bool = self._is_bool_const(else_branch)
+            reduced_to = "assigning bool of test"
+        else:
+            return
+
+        if not first_branch_is_bool or not else_branch_is_bool:
+            return
+        if not first_branch.value.value:
+            # This is a case that can't be easily simplified and
+            # if it can be simplified, it will usually result in a
+            # code that's harder to understand and comprehend.
+            # Let's take for instance `arg and arg <= 3`. This could theoretically be
+            # reduced to `not arg or arg > 3`, but the net result is that now the
+            # condition is harder to understand, because it requires understanding of
+            # an extra clause:
+            #   * first, there is the negation of truthness with `not arg`
+            #   * the second clause is `arg > 3`, which occurs when arg has a
+            #     a truth value, but it implies that `arg > 3` is equivalent
+            #     with `arg and arg > 3`, which means that the user must
+            #     think about this assumption when evaluating `arg > 3`.
+            #     The original form is easier to grasp.
+            return
+
+        self.add_message('simplifiable-if-statement', node=node,
+                         args=(reduced_to, ))
 
     def process_tokens(self, tokens):
         # Process tokens and look for 'if' or 'elif'
@@ -1698,6 +1779,7 @@ class ElifChecker(BaseTokenChecker):
 
     @check_messages('too-many-nested-blocks')
     def visit_if(self, node):
+        self._check_simplifiable_if(node)
         self._check_nested_blocks(node)
         self._if_counter += 1
 
