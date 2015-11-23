@@ -203,7 +203,7 @@ class LocalsVisitor(ASTWalker):
         methods = self.get_callbacks(node)
         if methods[0] is not None:
             methods[0](node)
-        if 'locals' in node.__dict__: # skip Instance and other proxy
+        if hasattr(node, 'locals'): # skip Instance and other proxy
             for local_node in node.values():
                 self.visit(local_node)
         if methods[1] is not None:
