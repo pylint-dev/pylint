@@ -283,11 +283,8 @@ given file (report RP0402 must not be disabled)'}
             self._check_deprecated_module(node, name)
             importedmodnode = self.get_imported_module(node, name)
             if isinstance(node.scope(), astroid.Module):
-                importedname = importedmodnode.name if importedmodnode else None
-                if not importedname:
-                    importedname = node.names[0][0].split('.')[0]
                 self._check_position(node)
-                self._imports_stack.append((node, importedname))
+                self._record_import(node, importedmodnode)
             if importedmodnode is None:
                 continue
             self._check_relative_import(modnode, node, importedmodnode, name)
@@ -316,11 +313,8 @@ given file (report RP0402 must not be disabled)'}
         modnode = node.root()
         importedmodnode = self.get_imported_module(node, basename)
         if isinstance(node.scope(), astroid.Module):
-            importedname = importedmodnode.name if importedmodnode else None
-            if not importedname:
-                importedname = node.names[0][0].split('.')[0]
-            self._imports_stack.append((node, importedname))
             self._check_position(node)
+            self._record_import(node, importedmodnode)
         if importedmodnode is None:
             return
         self._check_relative_import(modnode, node, importedmodnode, basename)
@@ -380,10 +374,20 @@ given file (report RP0402 must not be disabled)'}
     visit_classdef = visit_for = visit_while = visit_functiondef
 
     def _check_position(self, node):
-        """Sends a message if import `node` comes after another piece of code"""
+        """Check `node` import or importfrom node position is correct
+
+        Send a message  if `node` comes before another instruction
+        """
         if self._first_non_import_node:
             self.add_message('wrong-import-position', node=node,
                              args=node.as_string())
+
+    def _record_import(self, node, importedmodnode):
+        """Record the package `node` imports from"""
+        importedname = importedmodnode.name if importedmodnode else None
+        if not importedname:
+            importedname = node.names[0][0].split('.')[0]
+        self._imports_stack.append((node, importedname))
 
     def _check_imports_order(self, node):
         """Checks imports of module `node` are grouped by category
