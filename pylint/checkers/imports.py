@@ -398,9 +398,6 @@ given file (report RP0402 must not be disabled)'}
         local_imports = []
         std_imports = []
         for node, modname in self._imports_stack:
-            if not modname:
-                local_imports.append((node, modname))
-                continue
             package = modname.split('.')[0]
             if is_standard_module(modname):
                 std_imports.append((node, package))
