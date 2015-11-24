@@ -5,6 +5,11 @@
 _OK = True
 
 class MyClass(object):
+
+    class Klass(object):
+        def __init__(self):
+            self.var2 = 'var'
+
     def __init__(self):
         self.var = True
         self.var1 = 2
@@ -22,6 +27,10 @@ class MyClass(object):
     var2 = property(_getter, _setter)
 
     def some_method(self):
+        def func():
+            var = 1
+            test = 'bar'
+            var = 'baz'  # [redefined-variable-type]
         self.var = 1
         test = 'foo'
         myint = 2
@@ -29,7 +38,8 @@ class MyClass(object):
 
 _OK = "This is OK"  # [redefined-variable-type]
 
-SOME_FLOAT = 1.
+if _OK:
+    SOME_FLOAT = 1.
 
 def dummy_function():
     return 2
