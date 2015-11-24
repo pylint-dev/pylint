@@ -4,11 +4,6 @@
 
 _OK = True
 
-def my_func():
-    var = 'foo'
-    var = 'bar'
-    var = var.split()  # [redefined-variable-type]
-
 class MyClass(object):
     def __init__(self):
         self.var = True
