@@ -1898,27 +1898,20 @@ class MultipleTypesChecker(BaseChecker):
            }
 
     def visit_classdef(self, _):
-        self._class_assigns = {}
+        self._assigns.append({})
 
     @check_messages('redefined-variable-type')
     def leave_classdef(self, _):
-        self._check_and_add_messages(self._class_assigns)
+        self._check_and_add_messages()
 
-    def visit_functiondef(self, _):
-        self._func_assigns = {}
-
-    @check_messages('redefined-variable-type')
-    def leave_functiondef(self, _):
-        self._check_and_add_messages(self._func_assigns)
+    visit_functiondef = visit_classdef
+    leave_functiondef = leave_module = leave_classdef
 
     def visit_module(self, _):
-        self._module_assigns = {}
+        self._assigns = [{}]
 
-    @check_messages('redefined-variable-type')
-    def leave_module(self, _):
-        self._check_and_add_messages(self._module_assigns)
-
-    def _check_and_add_messages(self, assigns):
+    def _check_and_add_messages(self):
+        assigns = self._assigns.pop()
         for name, args in assigns.iteritems():
             if len(args) <= 1:
                 continue
@@ -1934,15 +1927,6 @@ class MultipleTypesChecker(BaseChecker):
                     break
 
     def visit_assign(self, node):
-        scope = node.scope()
-        if isinstance(scope, astroid.FunctionDef):
-            msgs = self._func_assigns
-        elif isinstance(scope, astroid.Module):
-            msgs = self._module_assigns
-        elif isinstance(scope, astroid.ClassDef):
-            msgs = self._class_assigns
-        else:
-            return
         # we don't handle multiple assignment nor slice assignment
         target = node.targets[0]
         if isinstance(target, (astroid.Tuple, astroid.Subscript)):
@@ -1966,7 +1950,7 @@ class MultipleTypesChecker(BaseChecker):
         except InferenceError:
             return
         if types:
-            msgs.setdefault(target.as_string(), []).append((node, types.pop()))
+            self._assigns[-1].setdefault(target.as_string(), []).append((node, types.pop()))
 
 
 def register(linter):
