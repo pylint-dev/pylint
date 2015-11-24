@@ -350,20 +350,22 @@ given file (report RP0402 must not be disabled)'}
 
     def visit_if(self, node):
         # if the node does not contain an import instruction, and if it is the
-        # first node of the module different from an import instruction, keep a
-        # track of it
+        # first node of the module, keep a track of it (all the import positions
+        # of the module will be compared to the position of this first
+        # instruction)
         if self._first_non_import_node:
             return
-        for _ in node.nodes_of_class(astroid.Import):
+        if not isinstance(node.parent, astroid.Module):
             return
-        for _ in node.nodes_of_class(astroid.ImportFrom):
+        for _ in node.nodes_of_class((astroid.Import, astroid.ImportFrom)):
             return
-        if isinstance(node.parent, astroid.Module):
-            self._first_non_import_node = node
+        self._first_non_import_node = node
 
-    visit_tryfinally = visit_tryexcept = visit_assign = visit_ifexp = visit_comprehension = visit_if
+    visit_tryfinally = visit_tryexcept = visit_assignattr = visit_assign \
+            = visit_ifexp = visit_comprehension = visit_if
 
     def visit_functiondef(self, node):
+        # if it is the first non import instruction of the module, record it
         if not self._first_non_import_node:
             self._first_non_import_node = node
 
@@ -374,6 +376,8 @@ given file (report RP0402 must not be disabled)'}
 
         Send a message  if `node` comes before another instruction
         """
+        # if a first non-import instruction has already been encountered,
+        # it means the import comes after it and therefore is not well placed
         if self._first_non_import_node:
             self.add_message('wrong-import-position', node=node,
                              args=node.as_string())
