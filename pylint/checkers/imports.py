@@ -337,18 +337,14 @@ given file (report RP0402 must not be disabled)'}
         # check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
         # check imports are grouped by package within a given category
-        for imports in (std_imports, ext_imports, loc_imports):
-            packages = []
-            for imp in imports:
-                if packages and packages[-1] == imp[1]:
-                    continue
-                # check if an import from the same package has already been made
-                for package in packages:
-                    if imp[1] == package:
-                        self.add_message('ungrouped-imports', node=imp[0],
-                                         args=package)
-                        break
-                packages.append(imp[1])
+        met = set()
+        curr_package = None
+        for imp in std_imports + ext_imports + loc_imports:
+            package, _, _ = imp[1].partition('.')
+            if curr_package and curr_package != package and package in met:
+                self.add_message('ungrouped-imports', node=imp[0], args=package)
+            curr_package = package
+            met.add(package)
         self._imports_stack = []
         self._first_non_import_node = None
 
