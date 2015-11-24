@@ -33,6 +33,8 @@ def unneeded_not():
         pass
     if not 2 in [3, 4]:  # [unneeded-not]
         pass
+    if not someint is 'test':  # [unneeded-not]
+        pass
 
 
 def not_checked():

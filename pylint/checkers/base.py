@@ -1856,7 +1856,7 @@ class NotChecker(_BasicChecker):
            }
 
     reverse_op = {'<': '>=', '<=': '>', '>': '<=', '>=': '<', '==': '!=',
-                  '!=': '==', 'in': 'not in'}
+                  '!=': '==', 'in': 'not in', 'is': 'is not'}
 
     @check_messages('unneeded-not')
     def visit_unaryop(self, node):
