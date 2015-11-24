@@ -17,8 +17,8 @@ class MyClass(object):
         self.var1 = 2.  # [redefined-variable-type]
         self.a_str = "hello"
         a_str = False
-        (a_str, b_str) = (1, 2)
-        a_str = 2.0 if self.var else 1.0
+        (a_str, b_str) = (1, 2)  # no support for inference on tuple assignment
+        a_str = 2.0 if self.var else 1.0  # no support for inference on ifexpr
 
     def _getter(self):
         return self.a_str
@@ -31,7 +31,7 @@ class MyClass(object):
             var = 1
             test = 'bar'
             var = 'baz'  # [redefined-variable-type]
-        self.var = 1
+        self.var = 1  # the rule checks for redefinitions in the scope of a function or method
         test = 'foo'
         myint = 2
         myint = False  # [redefined-variable-type]
