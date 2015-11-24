@@ -1944,8 +1944,6 @@ class MultipleTypesChecker(BaseChecker):
                 var_type = var_type.pytype()
                 types.add(var_type)
                 if len(types) > 1:
-                    print ('more than one possible type for node %s (%s, %s)'
-                           % (node.as_string(), types.pop(), types.pop()))
                     return
         except InferenceError:
             return
