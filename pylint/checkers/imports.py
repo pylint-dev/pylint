@@ -339,12 +339,13 @@ given file (report RP0402 must not be disabled)'}
 
         # Check imports are grouped by package within a given category
         met = set()
-        curr_package = None
-        for imp in std_imports + ext_imports + loc_imports:
-            package, _, _ = imp[1].partition('.')
-            if curr_package and curr_package != package and package in met:
-                self.add_message('ungrouped-imports', node=imp[0], args=package)
-            curr_package = package
+        current_package = None
+        for import_node, import_name in std_imports + ext_imports + loc_imports:
+            package, _, _ = import_name.partition('.')
+            if current_package and current_package != package and package in met:
+                self.add_message('ungrouped-imports', node=import_node,
+                                 args=package)
+            current_package = package
             met.add(package)
 
         self._imports_stack = []
