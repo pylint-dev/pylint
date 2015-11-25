@@ -397,6 +397,11 @@ given file (report RP0402 must not be disabled)'}
         extern_imports = []
         local_imports = []
         std_imports = []
+        stdlib_paths = [sys.prefix, self.ext_lib_dir]
+        real_prefix = getattr(sys, 'real_prefix', None)
+        if real_prefix is not None:
+            stdlib_paths.append(real_prefix)
+
         for node, modname in self._imports_stack:
             package = modname.split('.')[0]
             if is_standard_module(modname):
@@ -417,7 +422,7 @@ given file (report RP0402 must not be disabled)'}
                     local_imports.append((node, package))
                     continue
                 filename = os.path.normcase(os.path.abspath(filename))
-                if not filename.startswith(self.ext_lib_dir):
+                if not any(filename.startswith(path) for path in stdlib_paths):
                     local_imports.append((node, package))
                     continue
                 extern_imports.append((node, package))

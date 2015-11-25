@@ -21,21 +21,20 @@ import tokenize
 import string
 import re
 
+try:
+    import enchant
+except ImportError:
+    enchant = None
 import six
-
-if sys.version_info[0] >= 3:
-    maketrans = str.maketrans
-else:
-    maketrans = string.maketrans
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 
-try:
-    import enchant
-except ImportError:
-    enchant = None
+if sys.version_info[0] >= 3:
+    maketrans = str.maketrans
+else:
+    maketrans = string.maketrans
 
 if enchant is not None:
     br = enchant.Broker()
@@ -50,6 +49,7 @@ else:
     instr = " To make it working install python-enchant package."
 
 table = maketrans("", "")
+
 
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings"""

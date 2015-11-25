@@ -1,6 +1,6 @@
 """Checks import order rule"""
 # pylint: disable=unused-import,relative-import,ungrouped-imports,wrong-import-order,using-constant-test
-
+# pylint: disable=import-error
 import os.path
 if True:
     from astroid import are_exclusive

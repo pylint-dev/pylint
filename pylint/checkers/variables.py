@@ -20,9 +20,10 @@ import sys
 import re
 from copy import copy
 
+import six
+
 import astroid
 from astroid import modutils
-
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
@@ -33,7 +34,6 @@ from pylint.checkers.utils import (
     get_all_elements, has_known_bases, node_ignores_exception,
     is_inside_abstract_class, is_comprehension, is_iterable,
     safe_infer)
-import six
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = '__future__'

@@ -23,10 +23,11 @@ import sys
 import string
 import warnings
 
-import astroid
-from astroid import scoped_nodes
 import six
 from six.moves import map, builtins # pylint: disable=redefined-builtin
+
+import astroid
+from astroid import scoped_nodes
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (astroid.ListComp, astroid.SetComp,

@@ -20,12 +20,12 @@ from __future__ import print_function
 
 import collections
 import os
+from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 import re
 import sys
 import tokenize
 import warnings
 import textwrap
-from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 
 import six
 from six.moves import zip  # pylint: disable=redefined-builtin

@@ -17,10 +17,10 @@
 import inspect
 import sys
 
-import astroid
-from six.moves import builtins
 import six
+from six.moves import builtins
 
+import astroid
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_raising,

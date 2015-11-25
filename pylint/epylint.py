@@ -49,8 +49,8 @@ its output.
 from __future__ import print_function
 
 import os
-import sys
 import os.path as osp
+import sys
 from subprocess import Popen, PIPE
 
 def _get_env():

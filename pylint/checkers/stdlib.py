@@ -15,12 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """Checkers for various standard library functions."""
 
-import six
 import sys
+
+import six
 
 import astroid
 from astroid.bases import Instance
-
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
