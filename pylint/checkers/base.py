@@ -1869,6 +1869,9 @@ class NotChecker(_BasicChecker):
                                    operand.operand.as_string()))
         elif isinstance(operand, astroid.Compare):
             left = operand.left
+            # ignore multiple comparisons
+            if len(operand.ops) > 1:
+                return
             operator, right = operand.ops[0]
             if operator not in self.reverse_op:
                 return
