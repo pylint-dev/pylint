@@ -360,7 +360,7 @@ given file (report RP0402 must not be disabled)'}
             return
         if not isinstance(node.parent, astroid.Module):
             return
-        for _ in node.nodes_of_class((astroid.Import, astroid.ImportFrom)):
+        if any(node.nodes_of_class((astroid.Import, astroid.ImportFrom))):
             return
         self._first_non_import_node = node
 
@@ -419,10 +419,10 @@ given file (report RP0402 must not be disabled)'}
                 try:
                     filename = file_from_modpath([package])
                 except ImportError:
-                    local_imports.append((node, package))
+                    extern_imports.append((node, package))
                     continue
                 if not filename:
-                    local_imports.append((node, package))
+                    extern_imports.append((node, package))
                     continue
                 filename = os.path.normcase(os.path.abspath(filename))
                 if not any(filename.startswith(path) for path in stdlib_paths):
