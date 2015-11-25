@@ -182,7 +182,7 @@ MSGS = {
               'detected.'),
     'C0411': ('%s comes before %s',
               'wrong-import-order',
-              'Used when PEP8 import order is not observed (standard imports '
+              'Used when PEP8 import order is not respected (standard imports '
               'first, then third-party libraries, then local imports)'),
     'C0412': ('Imports from package %s are not grouped',
               'ungrouped-imports',
@@ -334,9 +334,10 @@ given file (report RP0402 must not be disabled)'}
 
     @check_messages('wrong-import-order', 'ungrouped-imports')
     def leave_module(self, node):
-        # check imports are grouped by category (standard, 3rd party, local)
+        # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
-        # check imports are grouped by package within a given category
+
+        # Check imports are grouped by package within a given category
         met = set()
         curr_package = None
         for imp in std_imports + ext_imports + loc_imports:
@@ -345,6 +346,7 @@ given file (report RP0402 must not be disabled)'}
                 self.add_message('ungrouped-imports', node=imp[0], args=package)
             curr_package = package
             met.add(package)
+
         self._imports_stack = []
         self._first_non_import_node = None
 
