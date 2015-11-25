@@ -729,7 +729,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             assign = astmts[0].assign_type()
             if (isinstance(assign, (astroid.For, astroid.Comprehension,
                                     astroid.GeneratorExp))
-                    and not assign.statement() is node.statement()):
+                    and assign.statement() is not node.statement()):
                 self.add_message('undefined-loop-variable', args=name, node=node)
 
     @check_messages('redefine-in-handler')

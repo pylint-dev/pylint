@@ -164,7 +164,7 @@ def _get_cycles(graph_dict, path, visited, result, vertice):
         index = cycle.index(start_from)
         cycle = cycle[index:] + cycle[0:index]
         # append it to result if not already in
-        if not cycle in result:
+        if cycle not in result:
             result.append(cycle)
         return
     path.append(vertice)

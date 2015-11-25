@@ -382,7 +382,7 @@ def is_attr_protected(attrname):
     """return True if attribute name is protected (start with _ and some other
     details), False otherwise.
     """
-    return attrname[0] == '_' and not attrname == '_' and not (
+    return attrname[0] == '_' and attrname != '_' and not (
         attrname.startswith('__') and attrname.endswith('__'))
 
 def node_frame_class(node):

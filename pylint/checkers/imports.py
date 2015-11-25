@@ -372,7 +372,7 @@ given file (report RP0402 must not be disabled)'}
             # handle dependencies
             importedmodnames = self.stats['dependencies'].setdefault(
                 importedmodname, set())
-            if not context_name in importedmodnames:
+            if context_name not in importedmodnames:
                 importedmodnames.add(context_name)
             # update import graph
             mgraph = self.import_graph[context_name]

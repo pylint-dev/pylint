@@ -570,7 +570,7 @@ a metaclass class method.'}
                 return
             class_node = node.parent.frame()
             if (self._meth_could_be_func and node.type == 'method'
-                    and not node.name in PYMETHODS
+                    and node.name not in PYMETHODS
                     and not (node.is_abstract() or
                              overrides_a_method(class_node, node.name) or
                              decorated_with_property(node) or
