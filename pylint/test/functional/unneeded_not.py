@@ -45,3 +45,7 @@ def not_checked():
         pass
     if 2 not in [3, 4]:
         pass
+    if not someint == bool_var == 2:
+        pass
+    if not 2 <= someint < 3 < 4:
+        pass
