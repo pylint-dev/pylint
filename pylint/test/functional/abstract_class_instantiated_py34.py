@@ -5,9 +5,9 @@ defines abstract methods.
 
 # pylint: disable=too-few-public-methods, missing-docstring, no-init
 
-__revision__ = 0
-
 import abc
+
+
 
 class BadClass(abc.ABC):
     @abc.abstractmethod
