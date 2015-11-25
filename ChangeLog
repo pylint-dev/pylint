@@ -3,6 +3,10 @@ ChangeLog for Pylint
 
 --
 
+    * Added a new refactoring warning, 'unneeded-not', emitted
+      when an expression with the not operator could be simplified.
+      Closes issue #670.
+
     * Added a new refactoring warning, 'simplifiable-if-statement',
       used when an if statement could be reduced to a boolean evaluation
       of its test. Closes issue #698.
