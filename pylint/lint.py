@@ -39,11 +39,11 @@ import sys
 import tokenize
 import warnings
 
+import six
+
 import astroid
 from astroid.__pkginfo__ import version as astroid_version
 from astroid import modutils
-import six
-
 from pylint import checkers
 from pylint import interfaces
 from pylint import reporters

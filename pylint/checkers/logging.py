@@ -14,6 +14,8 @@
 """checker for use of Python logging
 """
 
+import six
+
 import astroid
 
 from pylint import checkers
@@ -21,7 +23,6 @@ from pylint import interfaces
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
 
-import six
 
 
 MSGS = {

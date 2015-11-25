@@ -22,13 +22,14 @@ import re
 import shlex
 import sys
 
+import six
+
 import astroid
 import astroid.context
 import astroid.arguments
 from astroid import exceptions
 from astroid import objects
 from astroid import bases
-import six
 
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
 from pylint.checkers import BaseChecker

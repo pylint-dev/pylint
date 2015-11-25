@@ -23,14 +23,13 @@ import tokenize
 import string
 import numbers
 
-import astroid
+import six
 
+import astroid
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers import utils
 from pylint.checkers.utils import check_messages
-
-import six
 
 
 _PY3K = sys.version_info[:2] >= (3, 0)
@@ -119,7 +118,7 @@ OTHER_NODES = (astroid.Const, astroid.List, astroid.Repr,
                astroid.ListComp, astroid.SetComp, astroid.GeneratorExp)
 
 if _PY3K:
-    import _string
+    import _string # pylint: disable=wrong-import-position, wrong-import-order
 
     def split_format_field_names(format_string):
         return _string.formatter_field_name_split(format_string)

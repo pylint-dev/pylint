@@ -1,4 +1,3 @@
 wrong-import-order:5::standard import "import os.path" comes before "import six"
 wrong-import-order:7::standard import "import sys" comes before "import six"
 wrong-import-order:8::standard import "import datetime" comes before "import six"
-wrong-import-order:10::external import "import scipy" comes before "from astroid import are_exclusive"

@@ -20,12 +20,13 @@ from __future__ import generators
 import sys
 from collections import defaultdict
 
+import six
+
 import astroid
 from astroid.bases import Generator, BUILTINS
 from astroid.exceptions import InconsistentMroError, DuplicateBasesError
 from astroid import objects
 from astroid.scoped_nodes import function_to_method
-
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -36,7 +37,7 @@ from pylint.checkers.utils import (
     decorated_with, class_is_abstract,
     safe_infer, has_known_bases)
 from pylint.utils import deprecated_option, get_global_option
-import six
+
 
 if sys.version_info >= (3, 0):
     NEXT_METHOD = '__next__'
