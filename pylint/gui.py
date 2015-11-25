@@ -455,7 +455,7 @@ class LintGui(object):
         try:
             view_history = open(HOME+HISTORY, 'r')
             for hist in view_history.readlines():
-                if not hist in self.filenames:
+                if hist not in self.filenames:
                     self.filenames.append(hist)
                 self.showhistory.insert(END, hist.split('\n')[0])
             view_history.close()

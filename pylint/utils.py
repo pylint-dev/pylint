@@ -568,8 +568,7 @@ class FileState(object):
         for msgid, lines in six.iteritems(msg_state):
             for lineno, state in list(lines.items()):
                 original_lineno = lineno
-                # pylint: disable=superfluous-parens
-                if not (first <= lineno <= last):
+                if first > lineno or last < lineno:
                     continue
                 # Set state for all lines for this block, if the
                 # warning is applied to nodes.

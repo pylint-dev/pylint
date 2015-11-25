@@ -57,7 +57,7 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
         implements = bases.Instance(node).getattr('__implements__')[0]
     except exceptions.NotFoundError:
         return
-    if not herited and not implements.frame() is node:
+    if not herited and implements.frame() is not node:
         return
     found = set()
     missing = False
