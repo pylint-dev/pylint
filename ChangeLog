@@ -2,7 +2,17 @@ ChangeLog for Pylint
 --------------------
 
 --
-
+    * Added multiple warnings related to imports. 'wrong-import-order'
+      is emitted when PEP 8 recommendations regarding imports are not
+      respected (that is, standard imports should be followed by third-party
+      imports and then by local imports). 'ungrouped-imports' is emitted
+      when imports from the same package or module are not placed
+      together, but scattered around in the code. 'wrong-import-position'
+      is emitted when code is mixed with imports, being recommended for the
+      latter to be at the top of the file, in order to figure out easier by
+      a human reader what dependencies a module has.
+      Closes issue #692.
+      
     * Added a new refactoring warning, 'unneeded-not', emitted
       when an expression with the not operator could be simplified.
       Closes issue #670.
