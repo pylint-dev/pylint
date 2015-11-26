@@ -2,6 +2,10 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Added a new warning, 'unsupported-assignment-operation', which is
+      emitted when item assignment is tried on an object which doesn't
+      have this ability. Closes issue #591.
+
     * Added multiple warnings related to imports. 'wrong-import-order'
       is emitted when PEP 8 recommendations regarding imports are not
       respected (that is, standard imports should be followed by third-party

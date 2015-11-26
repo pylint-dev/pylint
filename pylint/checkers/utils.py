@@ -43,6 +43,7 @@ ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
 ITER_METHOD = '__iter__'
 NEXT_METHOD = 'next' if six.PY2 else '__next__'
 GETITEM_METHOD = '__getitem__'
+SETITEM_METHOD = '__setitem__'
 CONTAINS_METHOD = '__contains__'
 KEYS_METHOD = 'keys'
 
@@ -618,8 +619,12 @@ def _supports_iteration_protocol(value):
     return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
 
 
-def _supports_subscript_protocol(value):
+def _supports_getitem_protocol(value):
     return _hasattr(value, GETITEM_METHOD)
+
+
+def _supports_setitem_protocol(value):
+    return _hasattr(value, SETITEM_METHOD)
 
 
 def _is_abstract_class_name(name):
@@ -672,8 +677,12 @@ def supports_membership_test(value):
     return supported or is_iterable(value)
 
 
-def supports_subscript(value):
-    return _supports_protocol(value, _supports_subscript_protocol)
+def supports_getitem(value):
+    return _supports_protocol(value, _supports_getitem_protocol)
+
+
+def supports_setitem(value):
+    return _supports_protocol(value, _supports_setitem_protocol)
 
 
 # TODO(cpopa): deprecate these or leave them as aliases?
