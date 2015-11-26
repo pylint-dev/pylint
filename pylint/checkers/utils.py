@@ -642,68 +642,39 @@ def is_inside_abstract_class(node):
     return False
 
 
-def is_iterable(value):
+def _supports_protocol(value, protocol_callback):
     if isinstance(value, astroid.ClassDef):
         if not has_known_bases(value):
             return True
         # classobj can only be iterable if it has an iterable metaclass
         meta = value.metaclass()
         if meta is not None:
-            if _supports_iteration_protocol(meta):
+            if protocol_callback(meta):
                 return True
     if isinstance(value, astroid.Instance):
         if not has_known_bases(value):
             return True
-        if _supports_iteration_protocol(value):
+        if protocol_callback(value):
             return True
     return False
+
+
+def is_iterable(value):
+    return _supports_protocol(value, _supports_iteration_protocol)
 
 
 def is_mapping(value):
-    if isinstance(value, astroid.ClassDef):
-        if not has_known_bases(value):
-            return True
-        # classobj can only be a mapping if it has a metaclass is mapping
-        meta = value.metaclass()
-        if meta is not None:
-            if _supports_mapping_protocol(meta):
-                return True
-    if isinstance(value, astroid.Instance):
-        if not has_known_bases(value):
-            return True
-        if _supports_mapping_protocol(value):
-            return True
-    return False
+    return _supports_protocol(value, _supports_mapping_protocol)
 
 
 def supports_membership_test(value):
-    if isinstance(value, astroid.ClassDef):
-        if not has_known_bases(value):
-            return True
-        meta = value.metaclass()
-        if meta is not None and _supports_membership_test_protocol(meta):
-            return True
-    if isinstance(value, astroid.Instance):
-        if not has_known_bases(value):
-            return True
-        if _supports_membership_test_protocol(value):
-            return True
-    return is_iterable(value)
+    supported = _supports_protocol(value, _supports_membership_test_protocol)
+    return supported or is_iterable(value)
 
 
 def supports_subscript(value):
-    if isinstance(value, astroid.ClassDef):
-        if not has_known_bases(value):
-            return False
-        meta = value.metaclass()
-        if meta is not None and _supports_subscript_protocol(meta):
-            return True
-    if isinstance(value, astroid.Instance):
-        if not has_known_bases(value):
-            return True
-        if _supports_subscript_protocol(value):
-            return True
-    return False
+    return _supports_protocol(value, _supports_subscript_protocol)
+
 
 # TODO(cpopa): deprecate these or leave them as aliases?
 def safe_infer(node, context=None):
