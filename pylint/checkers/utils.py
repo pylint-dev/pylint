@@ -44,6 +44,7 @@ ITER_METHOD = '__iter__'
 NEXT_METHOD = 'next' if six.PY2 else '__next__'
 GETITEM_METHOD = '__getitem__'
 SETITEM_METHOD = '__setitem__'
+DELITEM_METHOD = '__delitem__'
 CONTAINS_METHOD = '__contains__'
 KEYS_METHOD = 'keys'
 
@@ -627,6 +628,10 @@ def _supports_setitem_protocol(value):
     return _hasattr(value, SETITEM_METHOD)
 
 
+def _supports_delitem_protocol(value):
+    return _hasattr(value, DELITEM_METHOD)
+
+
 def _is_abstract_class_name(name):
     lname = name.lower()
     is_mixin = lname.endswith('mixin')
@@ -683,6 +688,10 @@ def supports_getitem(value):
 
 def supports_setitem(value):
     return _supports_protocol(value, _supports_setitem_protocol)
+
+
+def supports_delitem(value):
+    return _supports_protocol(value, _supports_delitem_protocol)
 
 
 # TODO(cpopa): deprecate these or leave them as aliases?

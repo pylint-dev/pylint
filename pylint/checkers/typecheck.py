@@ -40,6 +40,7 @@ from pylint.checkers.utils import (
     is_comprehension, is_inside_abstract_class,
     supports_getitem,
     supports_setitem,
+    supports_delitem,
     safe_infer,
     has_known_bases)
 from pylint import utils
@@ -50,6 +51,7 @@ _ZOPE_DEPRECATED = (
 )
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
+STORE_CONTEXT, LOAD_CONTEXT, DELETE_CONTEXT = range(3)
 
 
 def _unflatten(iterable):
@@ -166,6 +168,10 @@ MSGS = {
               'unsupported-assignment-operation',
               "Emitted when an object does not support item assignment "
               "(i.e. doesn't define __setitem__ method)"),
+    'E1138': ("%r does not support item deletion",
+              'unsupported-delete-operation',
+              "Emitted when an object does not support item deletion "
+              "(i.e. doesn't define __delitem__ method)"),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -831,25 +837,31 @@ accessed. Python regular expressions are accepted.'}
             self._check_membership_test(right)
 
     @staticmethod
-    def _is_subscript_store_context(node):
+    def _subscript_context(node):
         statement = node.statement()
         if isinstance(statement, astroid.Assign):
             for target in statement.targets:
                 if target is node or target.parent_of(node):
-                    return False
-        return True
+                    return STORE_CONTEXT
+        elif isinstance(statement, astroid.Delete):
+            return DELETE_CONTEXT
+        return LOAD_CONTEXT
 
-    @check_messages('unsubscriptable-object')
+    @check_messages('unsubscriptable-object', 'unsupported-assignment-operation',
+                    'unsupported-delete-operation')
     def visit_subscript(self, node):
         if isinstance(node.value, (astroid.ListComp, astroid.DictComp)):
             return
 
-        store_context = self._is_subscript_store_context(node)
+        context = self._subscript_context(node)
+        if context == LOAD_CONTEXT:
+            msg = 'unsubscriptable-object'
+        elif context == STORE_CONTEXT:
+            msg = 'unsupported-assignment-operation'
+        elif context == DELETE_CONTEXT:
+            msg = 'unsupported-delete-operation'
+
         if isinstance(node.value, astroid.SetComp):
-            if store_context:
-                msg = 'unsubscriptable-object'
-            else:
-                msg = 'unsupported-assignment-operation'
             self.add_message(msg, args=node.value.as_string(),
                              node=node.value)
             return
@@ -858,18 +870,15 @@ accessed. Python regular expressions are accepted.'}
         if inferred is None or inferred is astroid.YES:
             return
 
-        if not store_context:
-            if not supports_setitem(inferred):
-                self.add_message('unsupported-assignment-operation',
-                                 args=node.value.as_string(),
-                                 node=node.value)
-            return
-
-        if not supports_getitem(inferred):
-            self.add_message('unsubscriptable-object',
-                             args=node.value.as_string(),
-                             node=node.value)
-
+        supported_protocol = None
+        if context == STORE_CONTEXT:
+            supported_protocol = supports_setitem
+        elif context == LOAD_CONTEXT:
+            supported_protocol = supports_getitem
+        elif context == DELETE_CONTEXT:
+            supported_protocol = supports_delitem
+        if not supported_protocol(inferred):
+            self.add_message(msg, args=node.value.as_string(), node=node.value)
 
 
 class IterableChecker(BaseChecker):
