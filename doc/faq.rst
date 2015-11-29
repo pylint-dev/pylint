@@ -66,11 +66,10 @@ Pylint from the repository, simply invoke ::
 2.3 What are Pylint's dependencies?
 -----------------------------------
 
-Pylint requires the latest `astroid`_ and `logilab-common`_ packages. It should be
+Pylint requires the latest `astroid`_. It should be
 compatible with any Python version greater than 2.7.0.
 
 .. _`astroid`: https://bitbucket.org/logilab/astroid
-.. _`logilab-common`: http://www.logilab.org/project/logilab-common
 
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------

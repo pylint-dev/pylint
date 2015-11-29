@@ -22,10 +22,9 @@ python code.
 
 Note that if you don't find something you have expected in Pylint's
 issue tracker, it may be because it is an issue with one of its dependencies, namely
-astroid and logilab-common:
+astroid.
 
 * https://bitbucket.org/logilab/astroid
-* http://www.logilab.org/project/logilab-common
 
 Mailing lists
 -------------
@@ -89,32 +88,13 @@ your patch gets accepted.
 Unit test setup
 ---------------
 
-To run the pylint unit tests within your checkout (without having to install
-anything), you need to set PYTHONPATH so that pylint, astroid and the
-logilab-common are available.  Assume you have those packages in ~/src.  If
-you have a normal clone of logilab-common, it will not be properly
-structured to allow import of logilab.common.  To remedy this, create the
-necessary structure::
+If you have tox installed, running ``tox`` command should be
+enough to get you started. Otherwise, you can follow this recipe
+for running the tests for pylint::
 
-  cd ~/src
-  mkdir logilab
-  mv logilab-common logilab/common
-  touch logilab/__init__.py
-
-Now, set PYTHONPATH to your src directory::
-
-  export PYTHONPATH=~/src
-
-You now have access to the astroid, logilab.common and pylint packages
-without installing them.  You can run all the unit tests like so::
-
-  cd ~/src/pylint/test
-  for f in *.py ; do
-    echo $f
-    python -S $f
-  done
-
-The -S flag keeps distutils from interfering with sys.path.  YMMV.
+   python setup.py develop # or ``pip install -e .``
+   cd pylint/test
+   python -m unittest discover -p "*test*"
 
 
 Adding new functional tests
