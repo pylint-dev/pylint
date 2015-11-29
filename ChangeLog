@@ -1,7 +1,8 @@
 ChangeLog for Pylint
 --------------------
 
---
+2015-11-29 -- 1.5.0
+
     * Added multiple warnings related to imports. 'wrong-import-order'
       is emitted when PEP 8 recommendations regarding imports are not
       respected (that is, standard imports should be followed by third-party
