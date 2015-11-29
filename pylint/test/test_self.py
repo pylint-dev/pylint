@@ -94,7 +94,9 @@ class RunTC(unittest.TestCase):
     def _run_pylint(self, args, out, reporter=None):
         with _patch_streams(out):
             with self.assertRaises(SystemExit) as cm:
-                Run(args, reporter=reporter)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    Run(args, reporter=reporter)
             return cm.exception.code
 
     def _test_output(self, args, expected_output):
@@ -269,6 +271,24 @@ class RunTC(unittest.TestCase):
         out = six.StringIO()
         module = join(HERE, 'regrtest_data', 'html_crash_420.py')
         self._runtest([module], code=16, reporter=HTMLReporter(out))
+
+    def test_wrong_import_position_when_others_disabled(self):
+        expected_output = textwrap.dedent('''
+        No config file found, using default configuration
+        ************* Module wrong_import_position
+        C: 11, 0: Import "import os" should be placed at the top of the module (wrong-import-position)
+        ''')
+        module1 = join(HERE, 'regrtest_data', 'import_something.py')
+        module2 = join(HERE, 'regrtest_data', 'wrong_import_position.py')
+        args = [module2, module1,
+                "--disable=all", "--enable=wrong-import-position",
+                "-rn"]
+        out = six.StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = out.getvalue()
+        self.assertEqual(expected_output.strip(), actual_output.strip())
+
+                      
 
 
 if __name__ == '__main__':
