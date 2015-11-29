@@ -332,7 +332,8 @@ given file (report RP0402 must not be disabled)'}
                 self.add_message('reimported', node=node,
                                  args=(name, node.fromlineno))
 
-    @check_messages('wrong-import-order', 'ungrouped-imports')
+    @check_messages('wrong-import-order', 'ungrouped-imports',
+                    'wrong-import-position')
     def leave_module(self, node):
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
