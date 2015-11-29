@@ -59,7 +59,8 @@ disable=invalid-name,protected-access,fixme,too-many-branches,
         import-error,too-many-lines,too-many-instance-attributes,
         too-many-public-methods,duplicate-code,broad-except,
         redefined-builtin,anomalous-backslash-in-string,
-        missing-docstring,no-member,bad-builtin
+        missing-docstring,no-member,bad-builtin,
+        redefined-variable-type
 
 
 [REPORTS]
