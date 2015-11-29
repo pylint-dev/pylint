@@ -68,11 +68,8 @@ TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
                                             '!=', 'in', 'not in'))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 UNITTEST_CASE = 'unittest.case'
-if sys.version_info >= (3, 0):
-    TYPE_QNAME = 'builtins.type'
-else:
-    TYPE_QNAME = '__builtin__.type'
-
+BUILTINS = six.moves.builtins.__name__
+TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
@@ -92,7 +89,7 @@ EXEMPT_NAME_CATEGORIES = set(('exempt', 'ignore'))
 # A mapping from builtin-qname -> symbol, to be used when generating messages
 # about dangerous default values as arguments
 DEFAULT_ARGUMENT_SYMBOLS = dict(
-    zip(['.'.join([astroid.bases.BUILTINS, x]) for x in ('set', 'dict', 'list')],
+    zip(['.'.join([BUILTINS, x]) for x in ('set', 'dict', 'list')],
         ['set()', '{}', '[]'])
 )
 REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
@@ -1919,16 +1916,16 @@ class MultipleTypesChecker(BaseChecker):
 
     def _check_and_add_messages(self):
         assigns = self._assigns.pop()
-        for name, args in assigns.iteritems():
+        for name, args in assigns.items():
             if len(args) <= 1:
                 continue
             orig_node, orig_type = args[0]
-            # check if there is a type in the following nodes that would be
-            # different from orig_type
+            # Check if there is a type in the following nodes that would be
+            # different from orig_type.
             for redef_node, redef_type in args[1:]:
                 if redef_type != orig_type:
-                    orig_type = orig_type.replace('__builtin__.', '')
-                    redef_type = redef_type.replace('__builtin__.', '')
+                    orig_type = orig_type.replace(BUILTINS + ".", '')
+                    redef_type = redef_type.replace(BUILTINS + ".", '')
                     self.add_message('redefined-variable-type', node=redef_node,
                                      args=(name, orig_type, redef_type))
                     break
