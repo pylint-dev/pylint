@@ -33,6 +33,7 @@ from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STA
 from pylint.testutils import TestReporter
 from pylint.reporters import text, html
 from pylint import checkers
+from pylint.checkers.utils import check_messages
 from pylint import interfaces
 
 if os.name == 'java':
@@ -216,6 +217,22 @@ class PyLinterTC(unittest.TestCase):
         linter.set_current_module('toto')
         linter.file_state = FileState('toto')
         return linter
+
+    def test_pylint_visit_method_taken_in_account(self):
+        class CustomChecker(checkers.BaseChecker):
+            __implements__ = interfaces.IAstroidChecker
+            name = 'custom'
+            msgs = {'W9999': ('', 'custom', '')}
+
+            @check_messages('custom')
+            def visit_class(self, _):
+               pass
+
+        self.linter.register_checker(CustomChecker(self.linter))
+        self.linter.open()
+        out = six.moves.StringIO()
+        self.linter.set_reporter(text.TextReporter(out))
+        self.linter.check('abc')
 
     def test_enable_message(self):
         linter = self.init_linter()
@@ -669,6 +686,6 @@ class MessagesStoreTC(unittest.TestCase):
         self.assertEqual('msg-symbol',
                          self.store.check_message_id('old-symbol').symbol)
 
-
+   
 if __name__ == '__main__':
     unittest.main()

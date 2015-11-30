@@ -15,6 +15,9 @@ ChangeLog for Pylint
       from other files might leak into the current file,
       leading to wrong-import-position being emitted by pylint.
 
+    * Fix a crash which occurred when old visit methods are encountered
+      in plugin modules. Closes issue #711.
+
 
 2015-11-29 -- 1.5.0
 
