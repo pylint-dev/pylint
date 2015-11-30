@@ -88,3 +88,28 @@ from collections import deque
 deq = deque(maxlen=10)
 deq.append(42)
 deq[0]
+
+
+class AbstractClass(object):
+
+    def __init__(self):
+        self.ala = {i for i in range(10)}
+        self.bala = [i for i in range(10)]
+        self.portocala = None
+
+    def test_unsubscriptable(self):
+        self.bala[0]
+        self.portocala[0]
+
+
+class ClassMixin(object):
+
+    def __init__(self):
+        self.ala = {i for i in range(10)}
+        self.bala = [i for i in range(10)]
+        self.portocala = None
+
+    def test_unsubscriptable(self):
+        self.bala[0]
+        self.portocala[0]
+    

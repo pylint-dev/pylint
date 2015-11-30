@@ -866,6 +866,9 @@ accessed. Python regular expressions are accepted.'}
                              node=node.value)
             return
 
+        if is_inside_abstract_class(node):
+            return
+
         inferred = safe_infer(node.value)
         if inferred is None or inferred is astroid.YES:
             return
