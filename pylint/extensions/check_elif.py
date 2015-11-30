@@ -25,27 +25,13 @@ class ElseifUsedChecker(BaseTokenChecker):
         self._elifs = []
         self._if_counter = 0
 
-    def _is_actual_elif(self, node):
-        """Check if the given node is an actual elif
-
-        This is a problem we're having with the builtin ast module,
-        which splits `elif` branches into a separate if statement.
-        Unfortunately we need to know the exact type in certain
-        cases.
-        """
-
-        if isinstance(node.parent, astroid.If):
-            orelse = node.parent.orelse
-            # current if node must directly follow a "else"
-            if orelse and orelse == [node]:
-                if self._elifs[self._if_counter]:
-                    return True
-        return False
-
     def process_tokens(self, tokens):
         # Process tokens and look for 'if' or 'elif'
         for _, token, _, _, _ in tokens:
-            self._elifs.append(True if token == 'elif' else False)
+            if token == 'elif':
+                self._elifs.append(True)
+            elif token == 'if':
+                self._elifs.append(False)
 
     def leave_module(self, _):
         self._init()
