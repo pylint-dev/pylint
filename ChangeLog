@@ -1,6 +1,21 @@
 ChangeLog for Pylint
 --------------------
 
+--
+    * Don't emit unsubscriptable-object if the node is found
+      inside an abstract class. Closes issue #685.
+
+    * Add wrong-import-position to check_messages's decorator arguments
+      for ImportChecker.leave_module
+
+      This fixes an esoteric bug which occurs when ungrouped-imports and
+      wrong-import-order are disabled and pylint is executed on multiple files.
+      What happens is that without wrong-import-position in check_messages,
+      leave_module will never be called, which means that the first non-import node
+      from other files might leak into the current file,
+      leading to wrong-import-position being emitted by pylint.
+
+
 2015-11-29 -- 1.5.0
 
     * Added multiple warnings related to imports. 'wrong-import-order'
