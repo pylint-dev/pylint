@@ -13,6 +13,15 @@ ChangeLog for Pylint
     * Fix a crash which occurred when old visit methods are encountered
       in plugin modules. Closes issue #711.
 
+    * Add wrong-import-position to check_messages's decorator arguments
+      for ImportChecker.leave_module
+      This fixes an esoteric bug which occurs when ungrouped-imports and
+      wrong-import-order are disabled and pylint is executed on multiple files.
+      What happens is that without wrong-import-position in check_messages,
+      leave_module will never be called, which means that the first non-import node
+      from other files might leak into the current file,
+      leading to wrong-import-position being emitted by pylint.
+
     * Added multiple warnings related to imports. 'wrong-import-order'
       is emitted when PEP 8 recommendations regarding imports are not
       respected (that is, standard imports should be followed by third-party
