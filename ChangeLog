@@ -10,6 +10,9 @@ ChangeLog for Pylint
       emitted when item deletion is tried on an object which doesn't
       have this ability. Closes issue #592.
 
+    * Fix a crash which occurred when old visit methods are encountered
+      in plugin modules. Closes issue #711.
+
     * Added multiple warnings related to imports. 'wrong-import-order'
       is emitted when PEP 8 recommendations regarding imports are not
       respected (that is, standard imports should be followed by third-party

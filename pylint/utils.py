@@ -19,6 +19,7 @@ main pylint class
 from __future__ import print_function
 
 import collections
+import itertools
 import os
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 import re
@@ -904,15 +905,14 @@ class PyLintASTWalker(object):
         # Detect if the node is a new name for a deprecated alias.
         # In this case, favour the methods for the deprecated
         # alias if any,  in order to maintain backwards
-        # compatibility. If both of them are present,
-        # only the old ones will be called.
+        # compatibility.
         old_cid = DEPRECATED_ALIASES.get(cid)
         visit_events = ()
         leave_events = ()
 
         if old_cid:
-            visit_events = self.visit_events.get(old_cid)
-            leave_events = self.leave_events.get(old_cid)
+            visit_events = self.visit_events.get(old_cid, ())
+            leave_events = self.leave_events.get(old_cid, ())
             if visit_events or leave_events:
                 msg = ("Implemented method {meth}_{old} instead of {meth}_{new}. "
                        "This will be supported until Pylint 2.0.")
@@ -923,10 +923,10 @@ class PyLintASTWalker(object):
                     warnings.warn(msg.format(meth="leave", old=old_cid, new=cid),
                                   PendingDeprecationWarning)
 
-        if not visit_events:
-            visit_events = self.visit_events.get(cid)
-        if not leave_events:
-            leave_events = self.leave_events.get(cid)
+        visit_events = itertools.chain(visit_events,
+                                       self.visit_events.get(cid, ()))
+        leave_events = itertools.chain(leave_events,
+                                       self.leave_events.get(cid, ()))
 
         if astroid.is_statement:
             self.nbstatements += 1
