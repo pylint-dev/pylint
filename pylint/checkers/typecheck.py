@@ -834,9 +834,15 @@ accessed. Python regular expressions are accepted.'}
             self.add_message('unsubscriptable-object',
                              args=node.value.as_string(),
                              node=node.value)
+            return
+
         infered = safe_infer(node.value)
         if infered is None or infered is astroid.YES:
             return
+
+        if is_inside_abstract_class(node):
+            return
+
         if not supports_subscript(infered):
             self.add_message('unsubscriptable-object',
                              args=node.value.as_string(),
