@@ -288,7 +288,12 @@ class RunTC(unittest.TestCase):
         actual_output = out.getvalue()
         self.assertEqual(expected_output.strip(), actual_output.strip())
 
-                      
+    def test_import_itself_not_accounted_for_relative_imports(self):
+        expected = 'No config file found, using default configuration'
+        package = join(HERE, 'regrtest_data', 'dummy')
+        self._test_output([package, '--disable=locally-disabled', '-rn'],
+                          expected_output=expected)
+                           
 
 
 if __name__ == '__main__':

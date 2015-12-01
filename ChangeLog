@@ -22,6 +22,16 @@ ChangeLog for Pylint
       from other files might leak into the current file,
       leading to wrong-import-position being emitted by pylint.
 
+    * Fix a crash which occurred when old visit methods are encountered
+      in plugin modules. Closes issue #711.
+
+    * Don't emit import-self and cyclic-import for relative imports
+      of modules with the same name as the package itself.
+      Closes issues #708 and #706.
+
+
+2015-11-29 -- 1.5.0
+
     * Added multiple warnings related to imports. 'wrong-import-order'
       is emitted when PEP 8 recommendations regarding imports are not
       respected (that is, standard imports should be followed by third-party
