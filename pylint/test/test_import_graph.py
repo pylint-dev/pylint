@@ -18,8 +18,8 @@ class DependenciesGraphTC(unittest.TestCase):
         os.remove(self.dest)
 
     def test_dependencies_graph(self):
-        imports.dependencies_graph(self.dest, {'labas': ['hoho', 'yep'],
-                                               'hoho': ['yep']})
+        imports._dependencies_graph(self.dest, {'labas': ['hoho', 'yep'],
+                                                'hoho': ['yep']})
         with open(self.dest) as stream:
             self.assertEqual(stream.read().strip(),
                           '''
