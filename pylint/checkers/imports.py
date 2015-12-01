@@ -496,14 +496,26 @@ given file (report RP0402 must not be disabled)'}
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
+        module_file = node.root().file
+        context_name = node.root().name
+        base = os.path.splitext(os.path.basename(module_file))[0]
+
+        # Determine if we have a `from .something import` in a package's
+        # __init__. This means the module will never be able to import
+        # itself using this condition (the level will be bigger or
+        # if the same module is named as the package, it will be different
+        # anyway).
+        if isinstance(node, astroid.ImportFrom):
+            if node.level and node.level > 0 and base == '__init__':
+                return
+
         try:
             importedmodname = get_module_part(importedmodname,
-                                              node.root().file)
+                                              module_file)
         except ImportError:
             pass
-        context_name = node.root().name
+
         if context_name == importedmodname:
-            # module importing itself !
             self.add_message('import-self', node=node)
         elif not is_standard_module(importedmodname):
             # handle dependencies

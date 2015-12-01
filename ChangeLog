@@ -18,6 +18,10 @@ ChangeLog for Pylint
     * Fix a crash which occurred when old visit methods are encountered
       in plugin modules. Closes issue #711.
 
+    * Don't emit import-self and cyclic-import for relative imports
+      of modules with the same name as the package itself.
+      Closes issues #708 and #706.
+
 
 2015-11-29 -- 1.5.0
 
