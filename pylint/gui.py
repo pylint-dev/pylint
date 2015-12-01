@@ -27,7 +27,7 @@ from six.moves.tkinter import (
     Tk, Frame, Listbox, Entry, Label, Button, Scrollbar,
     Checkbutton, Radiobutton, IntVar, StringVar, PanedWindow,
     TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH, SUNKEN, W,
-    HORIZONTAL, DISABLED, NORMAL, W,
+    HORIZONTAL, DISABLED, NORMAL,
 )
 from six.moves.tkinter_tkfiledialog import (
     askopenfilename, askdirectory,
