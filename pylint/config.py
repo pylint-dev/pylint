@@ -97,6 +97,8 @@ def find_pylintrc():
             curdir = os.path.abspath(os.path.join(curdir, '..'))
             if os.path.isfile(os.path.join(curdir, 'pylintrc')):
                 return os.path.join(curdir, 'pylintrc')
+            if os.path.isfile(os.path.join(curdir, '.pylintrc')):
+                return os.path.join(curdir, '.pylintrc')
     if 'PYLINTRC' in os.environ and os.path.exists(os.environ['PYLINTRC']):
         pylintrc = os.environ['PYLINTRC']
     else:
