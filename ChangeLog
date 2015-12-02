@@ -1,7 +1,8 @@
 ChangeLog for Pylint
 --------------------
 
---
+2015-12-02 -- 1.5.1
+
     * Don't emit unsubscriptable-object if the node is found
       inside an abstract class. Closes issue #685.
 
