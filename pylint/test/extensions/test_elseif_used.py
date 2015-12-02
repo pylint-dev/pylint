@@ -6,9 +6,9 @@ import os.path as osp
 import unittest
 
 from pylint import checkers
+from pylint.extensions.check_elif import ElseifUsedChecker
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
-from pylint.utils import register_plugins
 
 
 class TestReporter(BaseReporter):
@@ -27,9 +27,7 @@ class CheckElseIfUsedTC(unittest.TestCase):
         cls._linter = PyLinter()
         cls._linter.set_reporter(TestReporter())
         checkers.initialize(cls._linter)
-        plugins_path = osp.join(osp.dirname(osp.abspath(__file__)), os.pardir,
-                                os.pardir, 'extensions')
-        register_plugins(cls._linter, plugins_path)
+        cls._linter.register_checker(ElseifUsedChecker(cls._linter))
 
     def test_elseif_message(self):
         elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
