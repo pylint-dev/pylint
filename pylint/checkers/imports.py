@@ -381,9 +381,24 @@ given file (report RP0402 must not be disabled)'}
             = visit_ifexp = visit_comprehension = visit_if
 
     def visit_functiondef(self, node):
-        # if it is the first non import instruction of the module, record it
-        if not self._first_non_import_node:
-            self._first_non_import_node = node
+        # If it is the first non import instruction of the module, record it.
+        if self._first_non_import_node:
+            return
+
+        # Check if the node belongs to an `If` or a `Try` block. If they
+        # contain imports, skip recording this node.
+        if not isinstance(node.parent.scope(), astroid.Module):
+            return
+
+        root = node
+        while not isinstance(root.parent, astroid.Module):
+            root = root.parent
+
+        if isinstance(root, (astroid.If, astroid.TryFinally, astroid.TryExcept)):
+            if any(root.nodes_of_class((astroid.Import, astroid.ImportFrom))):
+                return
+
+        self._first_non_import_node = node
 
     visit_classdef = visit_for = visit_while = visit_functiondef
 

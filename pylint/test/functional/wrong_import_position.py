@@ -1,13 +1,25 @@
 """Checks import order rule"""
 # pylint: disable=unused-import,relative-import,ungrouped-imports,wrong-import-order,using-constant-test
-# pylint: disable=import-error
+# pylint: disable=import-error, too-few-public-methods, missing-docstring
 import os.path
+
 if True:
     from astroid import are_exclusive
 try:
     import sys
 except ImportError:
-    import datetime
+    class Myclass(object):
+        """docstring"""
+
+if sys.version_info[0] == 3:
+    from collections import OrderedDict
+else:
+    class OrderedDict(object):
+        """Nothing to see here."""
+        def some_func(self):
+            pass
+
+import six
 
 CONSTANT = True
 

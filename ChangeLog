@@ -16,6 +16,10 @@ ChangeLog for Pylint
     * Don't emit super-on-old-class on classes with unknown bases.
       Closes issue #721.
 
+    * Allow statements in `if` or `try` blocks containing imports.
+
+      Closes issue #714. 
+
     * Added a new warning, 'unsupported-assignment-operation', which is
       emitted when item assignment is tried on an object which doesn't
       have this ability. Closes issue #591.
