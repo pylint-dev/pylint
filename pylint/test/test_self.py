@@ -92,6 +92,7 @@ class RunTC(unittest.TestCase):
         self.assertEqual(pylint_code, code, msg)
 
     def _run_pylint(self, args, out, reporter=None):
+        args = args + ['--persistent=no']
         with _patch_streams(out):
             with self.assertRaises(SystemExit) as cm:
                 with warnings.catch_warnings():
