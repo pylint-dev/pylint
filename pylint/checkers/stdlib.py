@@ -211,7 +211,7 @@ class StdlibChecker(BaseChecker):
         for value in node.values:
             self._check_datetime(value)
 
-    def _check_deprecated_method(self, node, infer):
+    def _check_deprecated_method(self, node, inferred):
         py_vers = sys.version_info[0]
 
         if isinstance(node.func, astroid.Attribute):
@@ -222,7 +222,14 @@ class StdlibChecker(BaseChecker):
             # Not interested in other nodes.
             return
 
-        qname = infer.qname()
+        # Reject nodes which aren't of interest to us.
+        acceptable_nodes = (astroid.BoundMethod,
+                            astroid.UnboundMethod,
+                            astroid.FunctionDef)
+        if not isinstance(inferred, acceptable_nodes):
+            return
+
+        qname = inferred.qname()
         if qname in self.deprecated[0]:
             self.add_message('deprecated-method', node=node,
                              args=(func_name, ))
@@ -232,7 +239,6 @@ class StdlibChecker(BaseChecker):
                     self.add_message('deprecated-method', node=node,
                                      args=(func_name, ))
                     break
-
 
     def _check_redundant_assert(self, node, infer):
         if (isinstance(infer, astroid.BoundMethod) and

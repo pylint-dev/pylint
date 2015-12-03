@@ -1,6 +1,13 @@
 ChangeLog for Pylint
 --------------------
 
+--
+    * Accept only functions and methods for the deprecated-method checker.
+
+      This prevents a crash which can occur when an object doesn't have
+      .qname() method after the inference.
+
+
 2015-12-02 -- 1.5.1
 
     * Don't emit unsubscriptable-object if the node is found
