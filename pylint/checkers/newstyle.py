@@ -128,12 +128,10 @@ class NewStyleConflictChecker(BaseChecker):
                     isinstance(call.func, astroid.Name) and
                     call.func.name == 'super'):
                 continue
-            confidence = (INFERENCE if has_known_bases(klass)
-                          else INFERENCE_FAILURE)
-            if not klass.newstyle:
+
+            if not klass.newstyle and has_known_bases(klass):                
                 # super should not be used on an old style class
-                self.add_message('super-on-old-class', node=node,
-                                 confidence=confidence)
+                self.add_message('super-on-old-class', node=node)
             else:
                 # super first arg should be the class
                 if not call.args and sys.version_info[0] == 3:
@@ -147,8 +145,7 @@ class NewStyleConflictChecker(BaseChecker):
                     continue
 
                 if supcls is None:
-                    self.add_message('missing-super-argument', node=call,
-                                     confidence=confidence)
+                    self.add_message('missing-super-argument', node=call)
                     continue
 
                 if klass is not supcls:
@@ -162,8 +159,7 @@ class NewStyleConflictChecker(BaseChecker):
                         if hasattr(call.args[0], 'name'):
                             name = call.args[0].name
                     if name is not None:
-                        self.add_message('bad-super-call', node=call, args=(name, ),
-                                         confidence=confidence)
+                        self.add_message('bad-super-call', node=call, args=(name, ))
 
 
 def register(linter):
