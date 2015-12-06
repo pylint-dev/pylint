@@ -88,6 +88,14 @@ def _get_first_import(node, context, name, base, level):
     if found and not are_exclusive(first, node):
         return first
 
+
+def _ignore_import_failure(node, modname, ignored_modules):
+    for submodule in _qualified_names(modname):
+        if submodule in ignored_modules:
+            return True
+
+    return node_ignores_exception(node, ImportError)
+
 # utilities to represents import dependencies as tree and dot graph ###########
 
 def _make_tree_defs(mod_files_list):
@@ -161,6 +169,10 @@ MSGS = {
               'import-error',
               'Used when pylint has been unable to import a module.',
               {'old_names': [('F0401', 'import-error')]}),
+    'E0402': ('Attempted relative import beyond top-level package',
+              'relative-beyond-top-level',
+              'Used when a relative import tries to access too many levels '
+              'in the current package.'),
     'R0401': ('Cyclic import (%s)',
               'cyclic-import',
               'Used when a cyclic import between two or more modules is \
@@ -461,16 +473,18 @@ given file (report RP0402 must not be disabled)'}
     def _get_imported_module(self, importnode, modname):
         try:
             return importnode.do_import_module(modname)
-        except astroid.AstroidBuildingException as exc:
-            for submodule in _qualified_names(modname):
-                if submodule in self._ignored_modules:
-                    return None
+        except astroid.TooManyLevelsError:
+            if _ignore_import_failure(importnode, modname, self._ignored_modules):
+                return None
 
-            if node_ignores_exception(importnode, ImportError):
+            self.add_message('relative-beyond-top-level', node=importnode)            
+
+        except astroid.AstroidBuildingException as exc:
+            if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
 
             dotted_modname = _get_import_name(importnode, modname)
-            self.add_message("import-error", args=repr(dotted_modname),
+            self.add_message('import-error', args=repr(dotted_modname),
                              node=importnode)
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,

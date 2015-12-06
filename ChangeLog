@@ -2,10 +2,16 @@ ChangeLog for Pylint
 --------------------
 
 --
-     * Accept only functions and methods for the deprecated-method checker.
+    
+    * Added a new error, 'relative-beyond-top-level', which is emitted
+      when a relative import was attempted beyond the top level package.
 
-      This prevents a crash which can occur when an object doesn't have
-      .qname() method after the inference.
+      Closes issue #588.
+
+    * Accept only functions and methods for the deprecated-method checker.
+
+     This prevents a crash which can occur when an object doesn't have
+     .qname() method after the inference.
 
     * Don't emit super-on-old-class on classes with unknown bases.
       Closes issue #721.

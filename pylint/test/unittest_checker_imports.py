@@ -1,6 +1,8 @@
 """Unit tests for the imports checker."""
+import os
 import unittest
 
+import astroid
 from astroid import test_utils
 from pylint.checkers import imports
 from pylint.testutils import CheckerTestCase, Message, set_config
@@ -62,7 +64,7 @@ class ImportsCheckerTC(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_import(node)
 
-    def test_visit_importfrom(self):
+    def test_reimported_same_line(self):
         """
         Test that duplicate imports on single line raise 'reimported'.
         """
@@ -70,6 +72,24 @@ class ImportsCheckerTC(CheckerTestCase):
         msg = Message(msg_id='reimported', node=node, args=('sleep', 1))
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(node)
+
+    def test_relative_beyond_top_level(self):
+        here = os.path.abspath(os.path.dirname(__file__))
+        path = os.path.join(here, 'regrtest_data', 'beyond_top', '__init__.py')
+        with open(path) as stream:
+            data = stream.read()
+        module = astroid.parse(data, module_name='beyond_top', path=path)
+        import_from = module.body[0]
+
+        msg = Message(msg_id='relative-beyond-top-level',
+                      node=import_from)
+        with self.assertAddsMessages(msg):
+            self.checker.visit_importfrom(import_from)    
+        with self.assertNoMessages():
+            self.checker.visit_importfrom(module.body[1])
+        with self.assertNoMessages():
+            self.checker.visit_importfrom(module.body[2].body[0])
+
 
 if __name__ == '__main__':
     unittest.main()
