@@ -7,6 +7,9 @@ ChangeLog for Pylint
       This prevents a crash which can occur when an object doesn't have
       .qname() method after the inference.
 
+    * Don't emit super-on-old-class on classes with unknown bases.
+      Closes issue #721.
+
 
 2015-12-02 -- 1.5.1
 

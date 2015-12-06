@@ -65,9 +65,9 @@ class SuperDifferentScope(object):
 class UnknownBases(Missing):
     """Don't emit if we don't know all the bases."""
     def __init__(self):
-        # pylint: disable=super-on-old-class
         super(UnknownBases, self).__init__()
         super(UnknownBases, self).test()
+        super(Missing, self).test() # [bad-super-call]
 
 
 # Test that we are detecting proper super errors.
