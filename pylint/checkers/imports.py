@@ -298,7 +298,7 @@ given file (report RP0402 must not be disabled)'}
 
         for name in names:
             self._check_deprecated_module(node, name)
-            importedmodnode = self.get_imported_module(node, name)
+            importedmodnode = self._get_imported_module(node, name)
             if isinstance(node.scope(), astroid.Module):
                 self._check_position(node)
                 self._record_import(node, importedmodnode)
@@ -320,7 +320,7 @@ given file (report RP0402 must not be disabled)'}
         self._check_reimport(node, basename=basename, level=node.level)
 
         modnode = node.root()
-        importedmodnode = self.get_imported_module(node, basename)
+        importedmodnode = self._get_imported_module(node, basename)
         if isinstance(node.scope(), astroid.Module):
             self._check_position(node)
             self._record_import(node, importedmodnode)
@@ -458,22 +458,20 @@ given file (report RP0402 must not be disabled)'}
                                        '"%s"' % local_imports[0][0].as_string()))
         return std_imports, extern_imports, local_imports
 
-    def get_imported_module(self, importnode, modname):
+    def _get_imported_module(self, importnode, modname):
         try:
             return importnode.do_import_module(modname)
-        except astroid.InferenceError as ex:
-            dotted_modname = _get_import_name(importnode, modname)
-            if str(ex) != modname:
-                args = '%r (%s)' % (dotted_modname, ex)
-            else:
-                args = repr(dotted_modname)
-
+        except astroid.AstroidBuildingException as exc:
             for submodule in _qualified_names(modname):
                 if submodule in self._ignored_modules:
                     return None
 
-            if not node_ignores_exception(importnode, ImportError):
-                self.add_message("import-error", args=args, node=importnode)
+            if node_ignores_exception(importnode, ImportError):
+                return None
+
+            dotted_modname = _get_import_name(importnode, modname)
+            self.add_message("import-error", args=repr(dotted_modname),
+                             node=importnode)
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,
                                importedasname):

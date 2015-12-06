@@ -903,14 +903,12 @@ class PyLinter(config.OptionsManagerMixIn,
         """return a ast(roid) representation for a module"""
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
+        except astroid.AstroidSyntaxError as ex:
+            self.add_message('syntax-error',
+                             line=getattr(ex.error, 'lineno', 0),
+                             args=str(ex.error))
         except astroid.AstroidBuildingException as ex:
-            if isinstance(ex.args[0], SyntaxError):
-                ex = ex.args[0]
-                self.add_message('syntax-error',
-                                 line=ex.lineno or 0,
-                                 args=ex.msg)
-            else:
-                self.add_message('parse-error', args=ex)
+            self.add_message('parse-error', args=ex)
         except Exception as ex: # pylint: disable=broad-except
             import traceback
             traceback.print_exc()
