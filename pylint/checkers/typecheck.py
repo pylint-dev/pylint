@@ -306,7 +306,15 @@ accessed. Python regular expressions are accepted.'}
 
     def open(self):
         # do this in open since config not fully initialized in __init__
-        self.generated_members = list(self.config.generated_members)
+        # generated_members may contain regular expressions
+        # (surrounded by quote `"` and followed by a comma `,`)
+        # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
+        # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
+        if isinstance(self.config.generated_members, str):
+            gen = shlex.shlex(self.config.generated_members)
+            gen.whitespace += ','
+            gen.wordchars += '[]-+'
+            self.config.generated_members = tuple(tok.strip('"') for tok in gen)
 
     def visit_assignattr(self, node):
         if isinstance(node.assign_type(), astroid.AugAssign):
@@ -324,19 +332,11 @@ accessed. Python regular expressions are accepted.'}
 
         function/method, super call and metaclasses are ignored
         """
-        # generated_members may contain regular expressions
-        # (surrounded by quote `"` and followed by a comma `,`)
-        # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
-        # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
-        if isinstance(self.config.generated_members, str):
-            gen = shlex.shlex(self.config.generated_members)
-            gen.whitespace += ','
-            gen.wordchars += '[]-+'
-            self.config.generated_members = tuple(tok.strip('"') for tok in gen)
         for pattern in self.config.generated_members:
             # attribute is marked as generated, stop here
             if re.match(pattern, node.attrname):
                 return
+
         try:
             infered = list(node.expr.infer())
         except exceptions.InferenceError:
