@@ -51,7 +51,6 @@ _ZOPE_DEPRECATED = (
 )
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
-STORE_CONTEXT, LOAD_CONTEXT, DELETE_CONTEXT = range(3)
 
 
 def _unflatten(iterable):
@@ -651,9 +650,9 @@ accessed. Python regular expressions are accepted.'}
         # The parent of this node will be a Subscript, and the parent of that
         # node determines if the Subscript is a get, set, or delete operation.
         operation = node.parent.parent
-        if isinstance(operation, astroid.Assign):
+        if node.parent.ctx is astroid.Store:
             methodname = '__setitem__'
-        elif isinstance(operation, astroid.Delete):
+        elif node.parent.ctx is astroid.Del:
             methodname = '__delitem__'
         else:
             methodname = '__getitem__'
@@ -836,29 +835,21 @@ accessed. Python regular expressions are accepted.'}
         if operator in ['in', 'not in']:
             self._check_membership_test(right)
 
-    @staticmethod
-    def _subscript_context(node):
-        statement = node.statement()
-        if isinstance(statement, astroid.Assign):
-            for target in statement.targets:
-                if target is node or target.parent_of(node):
-                    return STORE_CONTEXT
-        elif isinstance(statement, astroid.Delete):
-            return DELETE_CONTEXT
-        return LOAD_CONTEXT
-
     @check_messages('unsubscriptable-object', 'unsupported-assignment-operation',
                     'unsupported-delete-operation')
     def visit_subscript(self, node):
+        supported_protocol = None
         if isinstance(node.value, (astroid.ListComp, astroid.DictComp)):
             return
 
-        context = self._subscript_context(node)
-        if context == LOAD_CONTEXT:
+        if node.ctx == astroid.Load:
+            supported_protocol = supports_getitem
             msg = 'unsubscriptable-object'
-        elif context == STORE_CONTEXT:
+        elif node.ctx == astroid.Store:
+            supported_protocol = supports_setitem
             msg = 'unsupported-assignment-operation'
-        elif context == DELETE_CONTEXT:
+        elif node.ctx == astroid.Del:
+            supported_protocol = supports_delitem
             msg = 'unsupported-delete-operation'
 
         if isinstance(node.value, astroid.SetComp):
@@ -873,13 +864,6 @@ accessed. Python regular expressions are accepted.'}
         if inferred is None or inferred is astroid.YES:
             return
 
-        supported_protocol = None
-        if context == STORE_CONTEXT:
-            supported_protocol = supports_setitem
-        elif context == LOAD_CONTEXT:
-            supported_protocol = supports_getitem
-        elif context == DELETE_CONTEXT:
-            supported_protocol = supports_delitem
         if not supported_protocol(inferred):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
