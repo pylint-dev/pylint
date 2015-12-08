@@ -2,6 +2,11 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Don't crash if graphviz is not installed, instead emit a
+      warning letting the user to know.
+
+      Closes issue #168.
+
     * Accept only functions and methods for the deprecated-method checker.
 
       This prevents a crash which can occur when an object doesn't have

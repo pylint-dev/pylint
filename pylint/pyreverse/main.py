@@ -21,6 +21,7 @@
 from __future__ import print_function
 
 import os
+import subprocess
 import sys
 
 from pylint.config import ConfigurationMixIn
@@ -91,6 +92,19 @@ this disables -f values")),
 #( ('quiet',
                 #dict(help='run quietly', action='store_true', short='q')), )
 
+def _check_graphviz_available(output_format):
+    """check if we need graphviz for different output format"""
+    try:
+        subprocess.call(['dot', '-V'], stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
+    except OSError:
+        print("The output format '%s' is currently not available.\n"
+              "Please install 'Graphviz' to have other output formats "
+              "than 'dot' or 'vcg'." % output_format)
+        sys.exit(32)
+
+
+
 class Run(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
@@ -100,6 +114,9 @@ class Run(ConfigurationMixIn):
         ConfigurationMixIn.__init__(self, usage=__doc__)
         insert_default_options()
         args = self.load_command_line_configuration()
+        if self.config.output_format not in ('dot', 'vcg'):
+            _check_graphviz_available(self.config.output_format)
+
         sys.exit(self.run(args))
 
     def run(self, args):
