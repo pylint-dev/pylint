@@ -13,6 +13,9 @@ ChangeLog for Pylint
      This prevents a crash which can occur when an object doesn't have
      .qname() method after the inference.
 
+    * Don't crash if graphviz is not installed, instead emit a
+      warning letting the user to know.
+
     * Don't emit super-on-old-class on classes with unknown bases.
       Closes issue #721.
 
