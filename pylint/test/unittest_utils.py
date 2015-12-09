@@ -11,6 +11,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+import re
 import unittest
 import warnings
 
@@ -89,6 +90,17 @@ class PyLintASTWalkerTest(unittest.TestCase):
             self.assertNotEqual(len(w), 1)
             self.assertFalse(checker.called)
 
+
+class RegexBlacklistTest(unittest.TestCase):
+    def test__basename_in_blacklist_re_match(self):
+        patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
+        self.assertTrue(utils._basename_in_blacklist_re("unittest_utils.py", patterns))
+        self.assertTrue(utils._basename_in_blacklist_re("cheese_enchiladas.xml", patterns))
+
+    def test__basename_in_blacklist_re_nomatch(self):
+        patterns = [re.compile(".*enchilada.*"), re.compile("unittest_.*")]
+        self.assertFalse(utils._basename_in_blacklist_re("test_utils.py", patterns))
+        self.assertFalse(utils._basename_in_blacklist_re("enchilad.py", patterns))
 
 if __name__ == '__main__':
     unittest.main()

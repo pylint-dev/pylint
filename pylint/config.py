@@ -162,6 +162,9 @@ def _regexp_validator(_, name, value):
         return value
     return re.compile(value)
 
+# pylint: disable=unused-argument
+def _regexp_csv_validator(_, name, value):
+    return [_regexp_validator(_, name, val) for val in _csv_validator(_, name, value)]
 
 def _yn_validator(opt, _, value):
     if isinstance(value, int):
@@ -185,6 +188,7 @@ VALIDATORS = {
     'string': utils._unquote,
     'int': int,
     'regexp': re.compile,
+    'regexp_csv': _regexp_csv_validator,
     'csv': _csv_validator,
     'yn': _yn_validator,
     'choice': _choice_validator,
@@ -258,12 +262,13 @@ def _patch_optparse():
 
 
 class Option(optparse.Option):
-    TYPES = optparse.Option.TYPES + ('regexp', 'csv', 'yn',
+    TYPES = optparse.Option.TYPES + ('regexp', 'regexp_csv', 'csv', 'yn',
                                      'multiple_choice',
                                      'non_empty_string')
     ATTRS = optparse.Option.ATTRS + ['hide', 'level']
     TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
     TYPE_CHECKER['regexp'] = _regexp_validator
+    TYPE_CHECKER['regexp_csv'] = _regexp_csv_validator
     TYPE_CHECKER['csv'] = _csv_validator
     TYPE_CHECKER['yn'] = _yn_validator
     TYPE_CHECKER['multiple_choice'] = _multiple_choice_validator
