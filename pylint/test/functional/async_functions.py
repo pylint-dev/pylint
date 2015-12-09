@@ -61,5 +61,4 @@ async def func(a, a, b=[]):
 # +1: [empty-docstring, blacklisted-name]
 async def foo():
     ""
-
     

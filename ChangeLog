@@ -10,6 +10,11 @@ ChangeLog for Pylint
       to be specified. Rather than clobber the existing ignore option, we
       introduced a new one called ignore-patterns.
 
+    * Added a new error, 'trailing-newlines', which is emitted when a file
+      has trailing new lines.
+
+      Closes issue #682.
+
 
 2016-06-06 -- 1.5.6
 

@@ -61,4 +61,3 @@ class Klass(object):
     """This is also ok"""
     def __ne__(self, other):
         return not self == other
-

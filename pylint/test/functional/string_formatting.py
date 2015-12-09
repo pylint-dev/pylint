@@ -180,4 +180,3 @@ def issue_463():
     data = "{0.__class__.__name__}: {0}".format(42)
     data2 = "{0[0]}: {0}".format([1])
     return (data, data2)
-

@@ -79,3 +79,5 @@ Order doesn't matter (not that much, at least ;)
   wrong-import-position, redefined-variable-type
 
 * Aru Sahni: Git ignoring, regex-based ignores
+
+* Mike Frysinger: contributor.

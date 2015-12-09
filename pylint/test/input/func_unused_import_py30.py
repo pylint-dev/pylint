@@ -18,4 +18,3 @@ class Meta2(metaclass=ABCMeta):
 
 class Meta3(metaclass=SomethingElse):
     """ test """
-
