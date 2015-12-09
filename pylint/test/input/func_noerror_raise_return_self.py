@@ -12,4 +12,3 @@ class MultiException(Exception):
 # raise Exception
 if 1:
     raise MultiException().return_self()
-

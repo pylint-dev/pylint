@@ -26,5 +26,3 @@ class SomeClass(object):
 
     def func(self):
         nonlocal some_attr # [nonlocal-without-binding]
-
-   

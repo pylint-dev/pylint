@@ -80,4 +80,3 @@ def main():
     SecondBadClass() # [abstract-class-instantiated]
     ThirdBadClass() # [abstract-class-instantiated]
     FourthBadClass() # [abstract-class-instantiated]
-

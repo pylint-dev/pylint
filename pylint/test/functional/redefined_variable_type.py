@@ -52,4 +52,3 @@ SOME_FLOAT = dummy_function()  # [redefined-variable-type]
 
 A_GLOB = None
 A_GLOB = [1, 2, 3]
-

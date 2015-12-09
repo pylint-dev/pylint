@@ -2,4 +2,3 @@
 class test:
     def __init__ (self, dir):
         testString = u"répertoire :\n%s !"%dir
-

@@ -22,4 +22,3 @@ class Iiii(Aaaa, Bbbb, Cccc, Dddd, Eeee, Ffff, Gggg, Hhhh): # [too-many-ancestor
 
 class Jjjj(Iiii): # [too-many-ancestors]
     pass
-

@@ -12,4 +12,3 @@ class AudioTime(object):
     """test precedence over the AudioTime submodule"""
 
     DECIMAL = 3
-

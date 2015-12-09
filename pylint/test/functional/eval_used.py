@@ -8,4 +8,3 @@ eval('os.listdir(".")', globals=globals())  # [eval-used]
 def func():
     """ eval in local scope"""
     eval('b = 1')  # [eval-used]
-

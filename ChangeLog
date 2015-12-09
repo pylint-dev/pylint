@@ -2,6 +2,11 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Added a new error, 'trailing-newlines', which is emitted when a file
+      has trailing new lines.
+
+      Closes issue #682.
+
     * Decouple the displaying of reports from the displaying of messages
 
       Some reporters are aggregating the messages instead of displaying

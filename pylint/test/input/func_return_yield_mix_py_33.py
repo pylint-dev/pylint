@@ -13,4 +13,3 @@ def moregen():
         yield 1
     else:
         return 2
-
