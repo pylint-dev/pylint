@@ -803,8 +803,22 @@ class ReportsHandlerMixIn(object):
             self.stats[key] = value
         return self.stats
 
+def _basename_in_blacklist_re(base_name, black_list_re):
+    """Determines if the basename is matched in a regex blacklist
 
-def expand_modules(files_or_modules, black_list):
+    :param base_name: The basename of the file
+    :param black_list_re: A collection of regex patterns to match against. Successful matches are
+                          blacklisted.
+    :returns: `True` if the basename is blacklisted, `False` otherwise.
+
+    """
+
+    for file_pattern in black_list_re:
+        if file_pattern.match(base_name):
+            return True
+    return False
+
+def expand_modules(files_or_modules, black_list, black_list_re):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
     """
@@ -840,6 +854,8 @@ def expand_modules(files_or_modules, black_list):
                 and '__init__.py' in filepath:
             for subfilepath in get_module_files(dirname(filepath), black_list):
                 if filepath == subfilepath:
+                    continue
+                if _basename_in_blacklist_re(basename(subfilepath), black_list_re):
                     continue
                 submodname = '.'.join(modpath_from_file(subfilepath))
                 result.append({'path': subfilepath, 'name': submodname,

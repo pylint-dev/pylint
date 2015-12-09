@@ -275,6 +275,13 @@ class PyLinter(config.OptionsManagerMixIn,
                   'dest' : 'black_list', 'default' : ('CVS',),
                   'help' : 'Add files or directories to the blacklist. '
                            'They should be base names, not paths.'}),
+
+                ('ignore-patterns',
+                 {'type' : 'regexp_csv', 'metavar' : '<pattern>[,<pattern>...]',
+                  'dest' : 'black_list_re', 'default' : (),
+                  'help' : 'Add files or directories matching the regex patterns to the'
+                           ' blacklist. The regex matches against base names, not paths.'}),
+
                 ('persistent',
                  {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'level': 1,
@@ -875,7 +882,8 @@ class PyLinter(config.OptionsManagerMixIn,
     def expand_files(self, modules):
         """get modules and errors from a list of modules and handle errors
         """
-        result, errors = utils.expand_modules(modules, self.config.black_list)
+        result, errors = utils.expand_modules(modules, self.config.black_list,
+                                              self.config.black_list_re)
         for error in errors:
             message = modname = error["mod"]
             key = error["key"]
