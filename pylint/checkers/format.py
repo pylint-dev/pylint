@@ -79,6 +79,9 @@ MSGS = {
     'C0304': ('Final newline missing',
               'missing-final-newline',
               'Used when the last line in a file is missing a newline.'),
+    'C0305': ('Trailing newlines',
+              'trailing-newlines',
+              'Used when there are trailing blank lines in a file.'),
     'W0311': ('Bad indentation. Found %s %s, expected %s',
               'bad-indentation',
               'Used when an unexpected number of indentation\'s tabulations or '
@@ -736,6 +739,7 @@ class FormatChecker(BaseTokenChecker):
         self._visited_lines = {}
         token_handlers = self._prepare_token_dispatcher()
         self._last_line_ending = None
+        last_blank_line_num = 0
 
         self._current_line = ContinuedLineState(tokens, self.config)
         for idx, (tok_type, token, start, _, line) in enumerate(tokens):
@@ -772,6 +776,8 @@ class FormatChecker(BaseTokenChecker):
                 if len(indents) > 1:
                     del indents[-1]
             elif tok_type == tokenize.NL:
+                if not line.strip('\r\n'):
+                    last_blank_line_num = line_num
                 self._check_continued_indentation(TokenWrapper(tokens), idx+1)
                 self._current_line.next_physical_line()
             elif tok_type != tokenize.COMMENT:
@@ -807,6 +813,11 @@ class FormatChecker(BaseTokenChecker):
             self.add_message('too-many-lines',
                              args=(line_num, self.config.max_module_lines),
                              line=line)
+
+        # See if there are any trailing lines.  Do not complain about empty
+        # files like __init__.py markers.
+        if line_num == last_blank_line_num and line_num > 0:
+            self.add_message('trailing-newlines', line=line_num)
 
     def _check_line_ending(self, line_ending, line_num):
         # check if line endings are mixed

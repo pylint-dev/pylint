@@ -14,4 +14,3 @@ class SomeClass(object):
 
     def besilent(self):
         """public method 2/2"""
-

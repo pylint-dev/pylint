@@ -2,7 +2,12 @@ ChangeLog for Pylint
 --------------------
 
 --
-    
+
+    * Added a new error, 'trailing-newlines', which is emitted when a file
+      has trailing new lines.
+
+      Closes issue #682.
+
     * Added a new error, 'relative-beyond-top-level', which is emitted
       when a relative import was attempted beyond the top level package.
 

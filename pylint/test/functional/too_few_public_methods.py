@@ -26,4 +26,3 @@ class Klass(object):
 
 class EnoughPublicMethods(Klass):
     """We shouldn't emit too-few-public-methods for this."""
-

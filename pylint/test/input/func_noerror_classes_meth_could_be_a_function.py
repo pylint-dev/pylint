@@ -31,4 +31,3 @@ class Cimpl(Aimpl):
 
     def makex(self):
         return XCsub()
-
