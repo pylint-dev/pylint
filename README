@@ -17,7 +17,7 @@ your own checks.
 
 It's a free software distributed under the GNU Public Licence.
 
-Development is hosted on bitbucket: https://bitbucket.org/logilab/pylint/
+Development is hosted on GitHub: https://github.com/PyCQA/pylint/
 
 You can use the code-quality@python.org mailing list to discuss about
 Pylint. Subscribe at https://mail.python.org/mailman/listinfo/code-quality/
@@ -28,7 +28,7 @@ Install
 
 Pylint requires astroid package (the later the better).
 
-* https://bitbucket.org/logilab/astroid
+* https://github.com/PyCQA/astroid
 
 Installation should be as simple as ::
 
