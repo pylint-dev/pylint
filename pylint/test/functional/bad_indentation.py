@@ -17,4 +17,3 @@ def tataa(kdict):
 
         if key in kdict:
             del kdict[key]
-

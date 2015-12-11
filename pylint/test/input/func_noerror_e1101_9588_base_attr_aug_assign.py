@@ -36,4 +36,3 @@ class NegativeClass(BaseClass):
     def countup(self):
         "No problem."
         self.e1101 += 1
-

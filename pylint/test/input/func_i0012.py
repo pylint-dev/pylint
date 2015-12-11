@@ -2,4 +2,3 @@
 """check warning on local enabling
 """
 __revision__ = 1
-

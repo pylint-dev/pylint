@@ -20,4 +20,3 @@ def pprint_bad():
     "{} {}".format(a=1, b=2) # [too-few-format-args]
     # +1: [missing-format-argument-key, missing-format-argument-key]
     "{a} {b}".format(1, 2)
-

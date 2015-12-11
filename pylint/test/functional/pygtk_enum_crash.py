@@ -8,4 +8,3 @@ def print_some_constant(arg=gtk.BUTTONS_OK):
     astroid as a constant
     """
     print arg
-
