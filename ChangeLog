@@ -8,6 +8,8 @@ ChangeLog for Pylint
       messages from the StringFormatChecker would have resulted in no
       messages at all.
 
+    * Don't apply unneeded-not over sets.
+
 
 2016-01-11 -- 1.5.3
 
