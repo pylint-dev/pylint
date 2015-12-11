@@ -270,6 +270,28 @@ def redefined_by_decorator(node):
                 return True
     return False
 
+
+def _node_type(node):
+    """Return the inferred type for `node`
+
+    If there is more than one possible type, or if inferred type is YES or None,
+    return None
+    """
+    # check there is only one possible type for the assign node. Else we
+    # don't handle it for now
+    types = set()
+    try:
+        for var_type in node.infer():
+            if var_type == astroid.YES or _is_none(var_type):
+                continue
+            types.add(var_type)
+            if len(types) > 1:
+                return
+    except InferenceError:
+        return
+    return types.pop() if types else None
+
+
 class _BasicChecker(BaseChecker):
     __implements__ = IAstroidChecker
     name = 'basic'
@@ -1864,6 +1886,12 @@ class NotChecker(_BasicChecker):
 
     reverse_op = {'<': '>=', '<=': '>', '>': '<=', '>=': '<', '==': '!=',
                   '!=': '==', 'in': 'not in', 'is': 'is not'}
+    # sets are not ordered, so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is
+    # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
+    skipped_nodes = (astroid.Set, )
+    # 'builtins' py3, '__builtin__' py2
+    skipped_classnames = ['%s.%s' % (six.moves.builtins.__name__, qname)
+                          for qname in ('set', 'frozenset')]
 
     @check_messages('unneeded-not')
     def visit_unaryop(self, node):
@@ -1883,12 +1911,18 @@ class NotChecker(_BasicChecker):
             operator, right = operand.ops[0]
             if operator not in self.reverse_op:
                 return
-
             # Ignore __ne__ as function of __eq__
             frame = node.frame()
             if frame.name == '__ne__' and operator == '==':
                 return
-
+            for _type in (_node_type(left), _node_type(right)):
+                if not _type:
+                    return
+                if isinstance(_type, self.skipped_nodes):
+                    return
+                if (isinstance(_type, astroid.Instance) and
+                        _type.qname() in self.skipped_classnames):
+                    return
             suggestion = '%s %s %s' % (left.as_string(),
                                        self.reverse_op[operator],
                                        right.as_string())
@@ -1955,21 +1989,10 @@ class MultipleTypesChecker(BaseChecker):
         # ignore NoneType
         if _is_none(node):
             return
-        # check there is only one possible type for the assign node. Else we
-        # don't handle it for now
-        types = set()
-        try:
-            for var_type in node.value.infer():
-                if var_type == astroid.YES or _is_none(var_type):
-                    continue
-                var_type = var_type.pytype()
-                types.add(var_type)
-                if len(types) > 1:
-                    return
-        except InferenceError:
-            return
-        if types:
-            self._assigns[-1].setdefault(target.as_string(), []).append((node, types.pop()))
+        _type = _node_type(node.value)
+        if _type:
+            self._assigns[-1].setdefault(target.as_string(), []).append(
+                (node, _type.pytype()))
 
 
 def register(linter):
