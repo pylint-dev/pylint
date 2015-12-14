@@ -13,11 +13,11 @@ else:
     print("datetime.time(0,0,1) is a bug!")
 
 DATA = not datetime.time(0, 0, 0) # [boolean-datetime]
-DATA = True if datetime.time(0, 0, 0) else False # [boolean-datetime]
-DATA = datetime.time(0, 0, 0) or True # [boolean-datetime]
-DATA = datetime.time(0, 0, 0) and True # [boolean-datetime]
-DATA = False or True or datetime.time(0, 0, 0) # [boolean-datetime]
-DATA = False and datetime.time(0, 0, 0) or True # [boolean-datetime]
+DATA1 = True if datetime.time(0, 0, 0) else False # [boolean-datetime]
+DATA2 = datetime.time(0, 0, 0) or True # [boolean-datetime]
+DATA3 = datetime.time(0, 0, 0) and True # [boolean-datetime]
+DATA4 = False or True or datetime.time(0, 0, 0) # [boolean-datetime]
+DATA5 = False and datetime.time(0, 0, 0) or True # [boolean-datetime]
 
 
 def cant_infer(data):

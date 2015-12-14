@@ -129,7 +129,7 @@ class NewStyleConflictChecker(BaseChecker):
                     call.func.name == 'super'):
                 continue
 
-            if not klass.newstyle and has_known_bases(klass):                
+            if not klass.newstyle and has_known_bases(klass):
                 # super should not be used on an old style class
                 self.add_message('super-on-old-class', node=node)
             else:

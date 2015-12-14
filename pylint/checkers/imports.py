@@ -492,9 +492,9 @@ given file (report RP0402 must not be disabled)'}
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
 
-            self.add_message('relative-beyond-top-level', node=importnode)            
+            self.add_message('relative-beyond-top-level', node=importnode)
 
-        except astroid.AstroidBuildingException as exc:
+        except astroid.AstroidBuildingException:
             if _ignore_import_failure(importnode, modname, self._ignored_modules):
                 return None
 

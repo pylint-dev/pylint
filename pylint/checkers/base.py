@@ -1919,7 +1919,7 @@ class MultipleTypesChecker(BaseChecker):
         for name, args in assigns.items():
             if len(args) <= 1:
                 continue
-            orig_node, orig_type = args[0]
+            _, orig_type = args[0]
             # Check if there is a type in the following nodes that would be
             # different from orig_type.
             for redef_node, redef_type in args[1:]:
