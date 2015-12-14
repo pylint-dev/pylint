@@ -60,6 +60,7 @@ disable=invalid-name,protected-access,fixme,too-many-branches,
         too-many-public-methods,duplicate-code,broad-except,
         redefined-builtin,anomalous-backslash-in-string,
         missing-docstring,no-member,bad-builtin,
+        # Crashes, see #743.
         redefined-variable-type
 
 
