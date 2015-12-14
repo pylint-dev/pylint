@@ -649,7 +649,6 @@ accessed. Python regular expressions are accepted.'}
         # Determine what method on the parent this index will use
         # The parent of this node will be a Subscript, and the parent of that
         # node determines if the Subscript is a get, set, or delete operation.
-        operation = node.parent.parent
         if node.parent.ctx is astroid.Store:
             methodname = '__setitem__'
         elif node.parent.ctx is astroid.Del:
