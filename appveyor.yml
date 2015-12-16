@@ -1,3 +1,7 @@
+version: '{branch}-{build}'
+build: off
+cache:
+  - 'C:\\tmp'
 environment:
   matrix:
     - PYTHON: "C:\\Python27"
@@ -9,36 +13,23 @@ environment:
     - PYTHON: "C:\\Python34"
       TOXENV: "py34"
 
+    - PYTHON: "C:\\Python35"
+      TOXENV: "py35"
+
+init:
+  - ps: echo $env:TOXENV
+  - ps: ls C:\Python*
+  - ps: mkdir C:\tmp
 install:
-  - ECHO "Filesystem root:"
-  - ps: "ls \"C:/\""
-
-  # Install  pip when not already installed.
-  - "powershell ./appveyor/install.ps1"
-
-  # Prepend newly installed Python to the PATH of this build (this cannot be
-  # done from inside the powershell script as it would require to restart
-  # the parent CMD process).
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
-
-  # Check that we have the expected version and architecture for Python
-  - "python --version"
-  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
-
-  # Install the build dependencies of the project.
-  - "pip install tox==1.7.2"
-  - "pip install wheel"
-
-build: false
+  - 'powershell ./appveyor/install.ps1'
+  - "python -m pip install tox"
+  - 'python -m pip install wheel'
+  - 'python -m pip --version'
+  - 'python -m tox --version'
 
 test_script:
-  - "tox"
+  - 'python -m tox'
 
-after_test:
-  # If tests are successful, create a whl package for the project.
-  - "python setup.py bdist_wheel bdist_wininst"
-  - ps: "ls dist"
-
-artifacts:
-  # Archive the generated wheel package in the ci.appveyor.com build report.
-  - path: dist\*
+on_failure:
+  - ps: dir "env:"
+  - ps: get-content .tox\*\log\*
