@@ -1,6 +1,6 @@
 """Checks variable types aren't redefined within a method or a function"""
 
-# pylint: disable=too-few-public-methods, missing-docstring, unused-variable
+# pylint: disable=too-few-public-methods,missing-docstring,unused-variable,invalid-name
 
 _OK = True
 
@@ -52,3 +52,34 @@ SOME_FLOAT = dummy_function()  # [redefined-variable-type]
 
 A_GLOB = None
 A_GLOB = [1, 2, 3]
+
+def func2(x):
+    if x:
+        var = 'foo'
+    else:
+        var = True
+
+    if x:
+        var2 = 'foo'
+    elif not x:
+        var2 = 2
+    else:
+        pass
+
+    if x:
+        var3 = 'foo'
+        var3 = 2  # [redefined-variable-type]
+    else:
+        pass
+
+    var = 2  # [redefined-variable-type]
+
+    if x:
+        pass
+    elif not x:
+        var4 = True
+    elif _OK:
+        pass
+    else:
+        var4 = 2.
+        var4 = 'baz'  # [redefined-variable-type]
