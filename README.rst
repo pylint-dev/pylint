@@ -5,7 +5,7 @@ README for Pylint - http://www.pylint.org/
 .. image:: https://travis-ci.org/PyCQA/pylint.svg?branch=master
     :target: https://travis-ci.org/PyCQA/pylint
 
-.. image:: https://ci.appveyor.com/api/projects/status/j95s5k68jv2rloxh/branch/master?svg=true
+.. image:: https://ci.appveyor.com/api/projects/status/rbvwhakyj1y09atb/branch/master?svg=true
     :alt: AppVeyor Build Status
     :target: https://ci.appveyor.com/project/PCManticore/pylint
 
