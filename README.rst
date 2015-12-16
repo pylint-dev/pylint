@@ -1,10 +1,9 @@
 
-.. image:: https://drone.io/bitbucket.org/logilab/pylint/status.png
-    :alt: drone.io Build Status
-    :target: https://drone.io/bitbucket.org/logilab/pylint
-
 README for Pylint - http://www.pylint.org/
 ==========================================
+
+.. image:: https://travis-ci.org/PyCQA/pylint.svg?branch=master
+    :target: https://travis-ci.org/PyCQA/pylint
 
 Pylint is a Python source code analyzer which looks for programming errors,
 helps enforcing a coding standard and sniffs for some code smells (as defined in
