@@ -1,12 +1,12 @@
 .svn/
 .hg/
 .hgtags/
-log
+/log
 *.py[cod]
-build
-doc/_build
-dist/
-pylint.egg-info/
+/build
+/doc/_build
+/dist/
+/pylint.egg-info/
 .tox
 *.sw[a-z]
 doc/features.rst
