@@ -43,7 +43,6 @@ from pylint.checkers.utils import (
     supports_delitem,
     safe_infer,
     has_known_bases)
-from pylint import utils
 
 
 BUILTINS = six.moves.builtins.__name__
