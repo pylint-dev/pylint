@@ -40,21 +40,6 @@ class PyLinterTC(unittest.TestCase):
         checkers.initialize(self.linter)
         os.environ.pop('PYLINTRC', None)
 
-    def test_add_message_is_deprecated(self):
-        if __pkginfo__.numversion >= (1, 6, 0):
-            with self.assertRaises(AttributeError):
-                BaseReporter().add_message
-
-        with warnings.catch_warnings(record=True) as cm:
-            warnings.simplefilter("always")
-            BaseReporter().add_message(None, None, None)
-        
-        self.assertEqual(len(cm), 1)
-        self.assertIsInstance(cm[0].message, DeprecationWarning)
-        msg = ('This method is deprecated, use handle_message '
-               'instead. It will be removed in Pylint 1.6.')
-        self.assertEqual(str(cm[0].message), msg)
-
     def test_template_option(self):
         output = six.StringIO()
         self.linter.reporter.set_output(output)
