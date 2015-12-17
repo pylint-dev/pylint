@@ -92,9 +92,12 @@ class TestReporter(BaseReporter):
         self.out = StringIO()
         self.messages = []
 
-    def add_message(self, msg_id, location, msg):
+    def handle_message(self, msg):
         """manage message of different type and in the context of path """
-        _, _, obj, line, _ = location
+        obj = msg.obj
+        line = msg.line
+        msg_id = msg.msg_id
+        msg = msg.msg
         self.message_ids[msg_id] = 1
         if obj:
             obj = ':%s' % obj

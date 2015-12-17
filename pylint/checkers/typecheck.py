@@ -32,9 +32,6 @@ from pylint.checkers.utils import (
 from pylint import utils
 
 
-_ZOPE_DEPRECATED = (
-    "This option is deprecated. Use generated-members instead."
-)
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
 
@@ -278,9 +275,6 @@ class should be ignored. A mixin class is detected if its name ends with \
                           'attributes dynamically set). This supports '
                           'can work with qualified names.'}
                ),
-
-               ('zope', utils.deprecated_option(opt_type='yn',
-                                                help_msg=_ZOPE_DEPRECATED)),
 
                ('generated-members',
                 {'default' : (),
