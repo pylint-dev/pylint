@@ -580,21 +580,20 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
                 # Detect imports, assigned to global statements.
-                if not global_names:
-                    continue
-                skip = False
-                for import_name, import_alias in stmt.names:
-                    # If the import uses an alias, check only that.
-                    # Otherwise, check only the import name.
-                    if import_alias:
-                        if import_alias in global_names:
+                if global_names:
+                    skip = False
+                    for import_name, import_alias in stmt.names:
+                        # If the import uses an alias, check only that.
+                        # Otherwise, check only the import name.
+                        if import_alias:
+                            if import_alias in global_names:
+                                skip = True
+                                break
+                        elif import_name in global_names:
                             skip = True
                             break
-                    elif import_name in global_names:
-                        skip = True
-                        break
-                if skip:
-                    continue
+                    if skip:
+                        continue
 
             # care about functions with unknown argument (builtins)
             if name in argnames:
