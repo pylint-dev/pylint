@@ -49,3 +49,9 @@ def not_checked():
         pass
     if not 2 <= someint < 3 < 4:
         pass
+
+class Klass(object):
+    """This is also ok"""
+    def __ne__(self, other):
+        return not self == other
+
