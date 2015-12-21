@@ -1,6 +1,6 @@
 """Check exceeding negations in boolean expressions trigger warnings"""
 
-# pylint: disable=singleton-comparison, too-many-branches
+# pylint: disable=singleton-comparison, too-many-branches, too-few-public-methods
 
 def unneeded_not():
     """This is not ok
