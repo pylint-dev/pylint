@@ -3,6 +3,10 @@ ChangeLog for Pylint
 
 --
     
+    * Suppress reporting 'unneeded-not' inside `__ne__` methods
+
+      Closes issue #749.
+
     * Added a new error, 'relative-beyond-top-level', which is emitted
       when a relative import was attempted beyond the top level package.
 

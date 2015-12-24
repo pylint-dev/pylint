@@ -1860,6 +1860,7 @@ class NotChecker(_BasicChecker):
         if node.op != 'not':
             return
         operand = node.operand
+
         if isinstance(operand, astroid.UnaryOp) and operand.op == 'not':
             self.add_message('unneeded-not', node=node,
                              args=(node.as_string(),
@@ -1872,6 +1873,12 @@ class NotChecker(_BasicChecker):
             operator, right = operand.ops[0]
             if operator not in self.reverse_op:
                 return
+
+            # Ignore __ne__ as function of __eq__
+            frame = node.frame()
+            if frame.name == '__ne__' and operator == '==':
+                return
+
             suggestion = '%s %s %s' % (left.as_string(),
                                        self.reverse_op[operator],
                                        right.as_string())
