@@ -377,9 +377,6 @@ class PyLinter(config.OptionsManagerMixIn,
                             'See doc for all details')
                  }),
 
-                ('include-ids', utils.deprecated_option('i', 'yn', INCLUDE_IDS_HELP)),
-                ('symbols', utils.deprecated_option('s', 'yn', SYMBOLS_HELP)),
-
                 ('jobs',
                  {'type' : 'int', 'metavar': '<n-processes>',
                   'short': 'j',
@@ -745,7 +742,7 @@ class PyLinter(config.OptionsManagerMixIn,
 
     def _get_jobs_config(self):
         child_config = {}
-        filter_options = {'symbols', 'include-ids', 'long-help'}
+        filter_options = {'long-help'}
         filter_options.update((opt_name for opt_name, _ in self._external_opts))
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():
@@ -1232,8 +1229,6 @@ group are mutually exclusive.'),
               'help' : 'In Python 3 porting mode, all checkers will be '
                        'disabled and only messages emitted by the porting '
                        'checker will be displayed'}),
-
-            ('profile', utils.deprecated_option(opt_type='yn')),
 
             ), option_groups=self.option_groups, pylintrc=self._rcfile)
         # register standard checkers

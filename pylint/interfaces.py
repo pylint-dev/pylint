@@ -86,13 +86,9 @@ class IAstroidChecker(IChecker):
 class IReporter(Interface):
     """ reporter collect messages and display results encapsulated in a layout
     """
-    def add_message(self, msg_id, location, msg):
-        """add a message of a given type
 
-        msg_id is a message identifier
-        location is a 3-uple (module, object, line)
-        msg is the actual message
-        """
+    def handle_message(self, msg):
+        """Handle the given message object."""
 
     def display_results(self, layout):
         """display results encapsulated in the layout tree

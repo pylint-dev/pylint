@@ -464,13 +464,6 @@ def error_of_type(handler, error_type):
     return handler.catch(expected_errors)
 
 
-def is_import_error(handler):
-    warnings.warn("This function is deprecated in the favour of "
-                  "error_of_type. It will be removed in Pylint 1.6.",
-                  DeprecationWarning, stacklevel=2)
-    return error_of_type(handler, ImportError)
-
-
 def decorated_with_property(node):
     """ Detect if the given function node is decorated with a property. """
     if not node.decorators:

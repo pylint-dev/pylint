@@ -43,12 +43,8 @@ from pylint.checkers.utils import (
     supports_delitem,
     safe_infer,
     has_known_bases)
-from pylint import utils
 
 
-_ZOPE_DEPRECATED = (
-    "This option is deprecated. Use generated-members instead."
-)
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
 
@@ -300,9 +296,6 @@ class should be ignored. A mixin class is detected if its name ends with \
                           'attributes dynamically set). This supports '
                           'can work with qualified names.'}
                ),
-
-               ('zope', utils.deprecated_option(opt_type='yn',
-                                                help_msg=_ZOPE_DEPRECATED)),
 
                ('generated-members',
                 {'default' : (),
@@ -649,7 +642,6 @@ accessed. Python regular expressions are accepted.'}
         # Determine what method on the parent this index will use
         # The parent of this node will be a Subscript, and the parent of that
         # node determines if the Subscript is a get, set, or delete operation.
-        operation = node.parent.parent
         if node.parent.ctx is astroid.Store:
             methodname = '__setitem__'
         elif node.parent.ctx is astroid.Del:
