@@ -3,6 +3,8 @@ ChangeLog for Pylint
 
 --
     
+    * Treat properties as attributes for the purposes of missing-docstring
+
     * Suppress reporting 'unneeded-not' inside `__ne__` methods
 
       Closes issue #749.
