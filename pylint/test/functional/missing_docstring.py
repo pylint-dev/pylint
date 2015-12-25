@@ -36,14 +36,14 @@ def __mangled():
 
 
 class Property(object):
-    """Don't warn about setters and deleters."""
+    """Treat properties as attributes."""
 
     def __init__(self):
         self._value = None
 
     @property
     def test(self):
-        """Default docstring for setters and deleters."""
+        return self._value
 
     @test.setter
     def test(self, value):
