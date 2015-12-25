@@ -1369,10 +1369,13 @@ class DocStringChecker(_BasicChecker):
     @check_messages('missing-docstring', 'empty-docstring')
     def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
-            ftype = node.is_method() and 'method' or 'function'
+            if _determine_function_name_type(node) == "attr":
+                return
+
             if node.decorators and self._is_setter_or_deleter(node):
                 return
 
+            ftype = node.is_method() and 'method' or 'function'
             if isinstance(node.parent.frame(), astroid.ClassDef):
                 overridden = False
                 confidence = (INFERENCE if has_known_bases(node.parent.frame())
