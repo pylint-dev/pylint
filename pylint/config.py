@@ -162,7 +162,6 @@ def _regexp_validator(_, name, value):
         return value
     return re.compile(value)
 
-# pylint: disable=unused-argument
 def _regexp_csv_validator(_, name, value):
     return [_regexp_validator(_, name, val) for val in _csv_validator(_, name, value)]
 
