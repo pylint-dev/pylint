@@ -54,10 +54,7 @@ from pylint.reporters.ureports import nodes as report_nodes
 
 
 MANAGER = astroid.MANAGER
-INCLUDE_IDS_HELP = ("Deprecated. It was used to include message\'s "
-                    "id in output. Use --msg-template instead.")
-SYMBOLS_HELP = ("Deprecated. It was used to include symbolic ids of "
-                "messages in output. Use --msg-template instead.")
+
 
 def _get_new_args(message):
     location = (
