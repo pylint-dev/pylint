@@ -1,7 +1,14 @@
 ChangeLog for Pylint
 --------------------
 
+
+
 --
+
+    * Disable the information category messages by default.
+
+      This is a step towards making pylint more sane, as
+      per the discussion from issue #746.
     
     * Suppress reporting 'unneeded-not' inside `__ne__` methods
 

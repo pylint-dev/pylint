@@ -1257,8 +1257,7 @@ group are mutually exclusive.'),
 'been issued by analysing pylint output status code\n',
                                 level=1)
         # read configuration
-        linter.disable('suppressed-message')
-        linter.disable('useless-suppression')
+        linter.disable('I')
         linter.read_config_file()
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins

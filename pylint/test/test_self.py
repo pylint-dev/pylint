@@ -290,7 +290,11 @@ class RunTC(unittest.TestCase):
         package = join(HERE, 'regrtest_data', 'dummy')
         self._test_output([package, '--disable=locally-disabled', '-rn'],
                           expected_output=expected)
-                           
+
+    def test_information_category_disabled_by_default(self):
+        expected = 'No config file found, using default configuration'
+        path = join(HERE, 'regrtest_data', 'meta.py')
+        self._test_output([path], expected_output=expected)
 
 
 if __name__ == '__main__':
