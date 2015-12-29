@@ -289,8 +289,8 @@ class PyLinter(config.OptionsManagerMixIn,
                   'short': 'f',
                   'group': 'Reports',
                   'help' : 'Set the output format. Available formats are text,'
-                           ' parseable, colorized, msvs (visual studio) and html. You '
-                           'can also give a reporter class, eg mypackage.mymodule.'
+                           ' parseable, colorized, json, msvs (visual studio) and html. '
+                           'You can also give a reporter class, eg mypackage.mymodule.'
                            'MyReporterClass.'}),
 
                 ('files-output',
