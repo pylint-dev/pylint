@@ -48,6 +48,8 @@ class HTMLWriter(BaseWriter):
         self.writeln(u'</div>')
         self.section -= 1
 
+    visit_evaluationsection = visit_section
+
     def visit_title(self, layout):
         """display a title using <hX>"""
         self.write(u'<h%s>' % self.section)

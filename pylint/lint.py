@@ -302,7 +302,7 @@ class PyLinter(config.OptionsManagerMixIn,
                            'name "pylint_global.[txt|html]".'}),
 
                 ('reports',
-                 {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'short': 'r',
                   'group': 'Reports',
                   'help' : 'Tells whether to display a full report or only the '
@@ -320,6 +320,11 @@ class PyLinter(config.OptionsManagerMixIn,
                            'warnings messages and the total number of '
                            'statements analyzed. This is used by the global '
                            'evaluation report (RP0004).'}),
+                ('score',
+                 {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+                  'short': 's',
+                  'group': 'Reports',
+                  'help': 'Activate the evaluation score.'}),
 
                 ('comment', utils.deprecated_option(opt_type='yn')),
 
@@ -449,8 +454,6 @@ class PyLinter(config.OptionsManagerMixIn,
                          report_messages_by_module_stats),
                         ('RP0003', 'Messages',
                          report_messages_stats),
-                        ('RP0004', 'Global evaluation',
-                         self.report_evaluation),
                        )
         self.register_checker(self)
         self._dynamic_plugins = set()
@@ -596,6 +599,7 @@ class PyLinter(config.OptionsManagerMixIn,
             self.disable('python3')
         self.set_option('reports', False)
         self.set_option('persistent', False)
+        self.set_option('score', False)
 
     def python3_porting_mode(self):
         """Disable all other checkers and enable Python 3 warnings."""
@@ -970,6 +974,7 @@ class PyLinter(config.OptionsManagerMixIn,
                 sect = report_nodes.Section()
             if self.config.reports or self.config.output_format == 'html':
                 self.reporter.display_results(sect)
+            self._report_evaluation()
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
@@ -981,14 +986,14 @@ class PyLinter(config.OptionsManagerMixIn,
                 self.reporter.display_results(report_nodes.Section())
             self.reporter.on_close(self.stats, {})
 
-    # specific reports ########################################################
-
-    def report_evaluation(self, sect, stats, previous_stats):
+    def _report_evaluation(self):
         """make the global evaluation report"""
         # check with at least check 1 statements (usually 0 when there is a
         # syntax error preventing pylint from further processing)
-        if stats['statement'] == 0:
-            raise utils.EmptyReport()
+        previous_stats = config.load_results(self.file_state.base_name)
+        if self.stats['statement'] == 0:
+            return
+
         # get a global note for the code
         evaluation = self.config.evaluation
         try:
@@ -996,12 +1001,15 @@ class PyLinter(config.OptionsManagerMixIn,
         except Exception as ex: # pylint: disable=broad-except
             msg = 'An exception occurred while rating: %s' % ex
         else:
-            stats['global_note'] = note
+            self.stats['global_note'] = note
             msg = 'Your code has been rated at %.2f/10' % note
             pnote = previous_stats.get('global_note')
             if pnote is not None:
                 msg += ' (previous run: %.2f/10, %+.2f)' % (pnote, note - pnote)
-        sect.append(report_nodes.Text(msg))
+
+        if self.config.score:
+            sect = report_nodes.EvaluationSection(msg)
+            self.reporter.display_results(sect)
 
 # some reporting functions ####################################################
 

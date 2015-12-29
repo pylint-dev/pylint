@@ -4,6 +4,13 @@ ChangeLog for Pylint
 
 
 --
+    * Disable reports by default and show the evaluation score by default
+
+      As per discussion from issue #746, the reports were disabled by
+      default in order to simplify the interaction between the tool 
+      and the users. The score is still shown by default, as a way of
+      closely measuring when it increases or decreases due to changes
+      brought to the code.
 
     * Disable the information category messages by default.
 
