@@ -78,4 +78,4 @@ Order doesn't matter (not that much, at least ;)
   too-many-boolean-expressions, unneeded-not, wrong-import-order, ungrouped-imports,
   wrong-import-position, redefined-variable-type
 
-* Aru Sahni: Git ignoring
+* Aru Sahni: regex-based ignores, git migration ignores
