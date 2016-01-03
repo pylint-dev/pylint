@@ -1,8 +1,6 @@
 
-Changes & Contributors
-======================
+Change log
+==========
 
 .. include:: ../ChangeLog
 
-
-.. include:: ../CONTRIBUTORS.txt
