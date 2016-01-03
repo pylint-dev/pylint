@@ -174,6 +174,13 @@ def _yn_validator(opt, _, value):
     raise optparse.OptionValueError(msg % (opt, value))
 
 
+def _non_empty_string_validator(opt, _, value):
+    if not len(value):
+        msg = "indent string can't be empty."
+        raise optparse.OptionValueError(msg)
+    return value
+
+
 VALIDATORS = {
     'string': utils._unquote,
     'int': int,
@@ -182,6 +189,7 @@ VALIDATORS = {
     'yn': _yn_validator,
     'choice': _choice_validator,
     'multiple_choice': _multiple_choice_validator,
+    'non_empty_string': _non_empty_string_validator,
 }
 
 def _call_validator(opttype, optdict, option, value):
@@ -250,13 +258,16 @@ def _patch_optparse():
 
 
 class Option(optparse.Option):
-    TYPES = optparse.Option.TYPES + ('regexp', 'csv', 'yn', 'multiple_choice')
+    TYPES = optparse.Option.TYPES + ('regexp', 'csv', 'yn',
+                                     'multiple_choice',
+                                     'non_empty_string')
     ATTRS = optparse.Option.ATTRS + ['hide', 'level']
     TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
     TYPE_CHECKER['regexp'] = _regexp_validator
     TYPE_CHECKER['csv'] = _csv_validator
     TYPE_CHECKER['yn'] = _yn_validator
     TYPE_CHECKER['multiple_choice'] = _multiple_choice_validator
+    TYPE_CHECKER['non_empty_string'] = _non_empty_string_validator
 
     def __init__(self, *opts, **attrs):
         optparse.Option.__init__(self, *opts, **attrs)

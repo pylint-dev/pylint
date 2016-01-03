@@ -453,7 +453,7 @@ class FormatChecker(BaseTokenChecker):
                  'help': 'Maximum number of lines in a module'}
                ),
                ('indent-string',
-                {'default' : '    ', 'type' : "string", 'metavar' : '<string>',
+                {'default' : '    ', 'type' : "non_empty_string", 'metavar' : '<string>',
                  'help' : 'String used as indentation unit. This is usually '
                           '"    " (4 spaces) or "\\t" (1 tab).'}),
                ('indent-after-paren',

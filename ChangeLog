@@ -2,7 +2,9 @@ ChangeLog for Pylint
 --------------------
 
 --
-    
+   
+    * empty indent strings are rejected.
+ 
     * Suppress reporting 'unneeded-not' inside `__ne__` methods
 
       Closes issue #749.

@@ -290,7 +290,12 @@ class RunTC(unittest.TestCase):
         package = join(HERE, 'regrtest_data', 'dummy')
         self._test_output([package, '--disable=locally-disabled', '-rn'],
                           expected_output=expected)
-                           
+
+    def test_reject_empty_indent_strings(self):
+        expected = "indent string can't be empty"
+        module = join(HERE, 'data', 'clientmodule_test.py')
+        self._test_output([module, '--indent-string='],
+                          expected_output=expected)
 
 
 if __name__ == '__main__':
