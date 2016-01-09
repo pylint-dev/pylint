@@ -174,6 +174,7 @@ class ParamDocChecker(BaseChecker):
 
         # Collect the function arguments.
         expected_argument_names = [arg.name for arg in arguments_node.args]
+        expected_argument_names += [arg.name for arg in arguments_node.kwonlyargs]
         not_needed_type_in_docstring = (
             self.not_needed_param_in_docstring.copy())
 
@@ -183,7 +184,6 @@ class ParamDocChecker(BaseChecker):
         if arguments_node.kwarg is not None:
             expected_argument_names.append(arguments_node.kwarg)
             not_needed_type_in_docstring.add(arguments_node.kwarg)
-
         params_with_doc, params_with_type = self.match_param_docs(doc)
 
         # Tolerate no parameter documentation at all.
