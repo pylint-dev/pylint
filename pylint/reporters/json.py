@@ -55,6 +55,9 @@ class JSONReporter(BaseReporter):
     def display_reports(self, _):
         """Don't do nothing in this reporter."""
 
+    def _display(self, layout):
+        """Don't do nothing."""
+
 
 def register(linter):
     """Register the reporter classes with the linter."""
