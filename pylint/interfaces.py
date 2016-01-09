@@ -94,7 +94,7 @@ class IReporter(Interface):
         msg is the actual message
         """
 
-    def display_results(self, layout):
+    def display_reports(self, layout):
         """display results encapsulated in the layout tree
         """
 

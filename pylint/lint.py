@@ -977,7 +977,7 @@ class PyLinter(config.OptionsManagerMixIn,
             else:
                 sect = report_nodes.Section()
             if self.config.reports or self.config.output_format == 'html':
-                self.reporter.display_results(sect)
+                self.reporter.display_reports(sect)
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
@@ -986,7 +986,7 @@ class PyLinter(config.OptionsManagerMixIn,
                 # No output will be emitted for the html
                 # reporter if the file doesn't exist, so emit
                 # the results here.
-                self.reporter.display_results(report_nodes.Section())
+                self.reporter.display_reports(report_nodes.Section())
             self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################
