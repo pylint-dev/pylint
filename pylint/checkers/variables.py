@@ -552,7 +552,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             elif is_builtin(name):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
-    
+
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
