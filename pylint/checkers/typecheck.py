@@ -471,6 +471,33 @@ accessed. Python regular expressions are accepted.'}
                                      args=node.func.as_string())
                     break
 
+    @staticmethod
+    def _no_context_variadic(node):
+        """Verify if the given call node has variadic nodes without context
+
+        This is a workaround for handling cases of nested call functions
+        which don't have the specific call context at hand.
+        Variadic arguments (variable positional arguments and variable
+        keyword arguments) are inferred, inherently wrong, by astroid
+        as a Tuple, respectively a Dict with empty elements.
+        This can lead pylint to believe that a function call receives
+        too few arguments.
+        """
+        for arg in node.args:
+            if not isinstance(arg, astroid.Starred):
+                continue
+
+            inferred = next(arg.value.infer())
+            if isinstance(inferred, astroid.Tuple):
+                length = len(inferred.elts)
+            elif isinstance(inferred, astroid.Dict):
+                length = len(inferred.items)
+            else:
+                return False
+            if not length and isinstance(inferred.statement(), astroid.FunctionDef):
+                return True
+        return False
+
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node):
         """check that called functions/methods are inferred to callable objects,
@@ -482,6 +509,7 @@ accessed. Python regular expressions are accepted.'}
         call_site = astroid.arguments.CallSite.from_call(node)
         num_positional_args = len(call_site.positional_arguments)
         keyword_args = list(call_site.keyword_arguments.keys())
+        no_context_variadic = self._no_context_variadic(node)
 
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
@@ -497,6 +525,7 @@ accessed. Python regular expressions are accepted.'}
             # Any error occurred during determining the function type, most of
             # those errors are handled by different warnings.
             return
+
         num_positional_args += implicit_args
         if called.args.args is None:
             # Built-in functions have no argument information.
@@ -613,8 +642,10 @@ accessed. Python regular expressions are accepted.'}
                     display_name = '<tuple>'
                 else:
                     display_name = repr(name)
-                self.add_message('no-value-for-parameter', node=node,
-                                 args=(display_name, callable_name))
+                # TODO(cpopa): this should be removed after PyCQA/astroid/issues/177
+                if not no_context_variadic:
+                    self.add_message('no-value-for-parameter', node=node,
+                                     args=(display_name, callable_name))
 
         for name in kwparams:
             defval, assigned = kwparams[name]
