@@ -3,6 +3,12 @@ ChangeLog for Pylint
 
 --
    
+    * Treat AsyncFunctionDef just like FunctionDef nodes,
+      by implementing visit_asyncfunctiondef in terms of
+      visit_functiondef.
+
+      Closes issue #767.
+
     * Take in account kwonlyargs when verifying that arguments
       are defined with the check_docs extension.
 

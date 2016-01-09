@@ -508,6 +508,8 @@ a metaclass class method.'}
         except astroid.NotFoundError:
             pass
 
+    visit_asyncfunctiondef = visit_functiondef
+
     def _check_slots(self, node):
         if '__slots__' not in node.locals:
             return
@@ -1014,6 +1016,8 @@ class SpecialMethodsChecker(BaseChecker):
             self._check_iter(node)
         if node.name in PYMETHODS:
             self._check_unexpected_method_signature(node)
+
+    visit_asyncfunctiondef = visit_functiondef
 
     def _check_unexpected_method_signature(self, node):
         expected_params = SPECIAL_METHODS_PARAMS[node.name]

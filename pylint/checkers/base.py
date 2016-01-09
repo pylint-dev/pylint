@@ -419,6 +419,8 @@ class BasicErrorChecker(_BasicChecker):
             else:
                 args.add(name)
 
+    visit_asyncfunctiondef = visit_functiondef
+
     def _check_nonlocal_and_global(self, node):
         """Check that a name is both nonlocal and global."""
         def same_scope(current):
@@ -777,7 +779,7 @@ functions, methods
         # * a yield (which are wrapped by a discard node in _ast XXX)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
-        if (isinstance(expr, (astroid.Yield, astroid.Call)) or
+        if (isinstance(expr, (astroid.Yield, astroid.Await, astroid.Call)) or
                 (isinstance(node.parent, astroid.TryExcept) and
                  node.parent.body == [node])):
             return
@@ -870,6 +872,8 @@ functions, methods
         """
         self.stats[node.is_method() and 'method' or 'function'] += 1
         self._check_dangerous_default(node)
+
+    visit_asyncfunctiondef = visit_functiondef
 
     def _check_dangerous_default(self, node):
         # check for dangerous default values as arguments
@@ -1238,6 +1242,8 @@ class NameChecker(_BasicChecker):
         if args is not None:
             self._recursive_check_names(args, node)
 
+    visit_asyncfunctiondef = visit_functiondef
+
     @check_messages('blacklisted-name', 'invalid-name')
     def visit_global(self, node):
         for name in node.names:
@@ -1388,6 +1394,8 @@ class DocStringChecker(_BasicChecker):
                                       confidence=confidence)
             else:
                 self._check_docstring(ftype, node)
+
+    visit_asyncfunctiondef = visit_functiondef
 
     def _check_docstring(self, node_type, node, report_missing=True,
                          confidence=HIGH):
