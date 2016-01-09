@@ -4,6 +4,7 @@ in particular the parameter documentation checker `ParamDocChecker`
 from __future__ import division, print_function, absolute_import
 
 import unittest
+import sys
 
 import astroid
 from astroid import test_utils
@@ -638,6 +639,27 @@ class ParamDocCheckerTest(CheckerTestCase):
                 args=('x, y',))
         ):
             self._visit_methods_of_class(node)
+
+    @unittest.skipIf(sys.version_info[0] != 3, "Enabled on Python 3")
+    def test_kwonlyargs_are_taken_in_account(self):
+        node = test_utils.extract_node('''
+        def my_func(arg, *, kwonly, missing_kwonly):
+            """The docstring
+
+            :param int arg: The argument.
+            :param bool kwonly: A keyword-arg.
+            """
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('missing_kwonly', )),
+            Message(
+                msg_id='missing-type-doc',
+                node=node,
+                args=('missing_kwonly', ))):
+            self.checker.visit_functiondef(node)
 
 
 if __name__ == '__main__':
