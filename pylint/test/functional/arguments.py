@@ -156,3 +156,12 @@ function_1_arg(4, 5, **1)
 function_1_arg(5, 6, **{unknown: 1})
 function_1_arg(**{object: 1})
 function_1_arg(**{1: 2})
+
+# Don't emit no-value-for-parameter for this, since we
+# don't have the context at our disposal.
+def expect_three(one, two, three):
+    return one + two + three
+
+
+def no_context(*args):
+    expect_three(*args)

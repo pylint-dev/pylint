@@ -2,7 +2,15 @@ ChangeLog for Pylint
 --------------------
 
 --
-   
+    * Ignore function calls with variadic arguments without a context.
+
+      Inferring variadic positional arguments and keyword arguments
+      will result into empty Tuples and Dicts, which can lead in
+      some cases to false positives with regard to no-value-for-parameter.
+      In order to avoid this, until we'll have support for call context
+      propagation, we're ignoring such cases if detected.
+      Closes issue #722.
+
     * Treat AsyncFunctionDef just like FunctionDef nodes,
       by implementing visit_asyncfunctiondef in terms of
       visit_functiondef.
