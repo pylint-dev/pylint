@@ -123,7 +123,7 @@ class PyLinterTC(unittest.TestCase):
         linter.open()
         linter.set_current_module('0123')
         linter.add_message('lowercase-l-suffix', line=1)
-        linter.reporter.display_reports(Section())
+        linter.reporter.display_messages(Section())
         self.assertEqual(output.getvalue().splitlines(), expected)
 
     @unittest.expectedFailure

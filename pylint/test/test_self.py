@@ -12,6 +12,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import contextlib
+import json
 import re
 import sys
 import os
@@ -295,6 +296,51 @@ class RunTC(unittest.TestCase):
         self._test_output([package, '--disable=locally-disabled', '-rn'],
                           expected_output=expected)
                            
+
+    def test_json_report_when_file_has_syntax_error(self):
+        out = six.StringIO()
+        module = join(HERE, 'regrtest_data', 'syntax_error.py')
+        self._runtest([module], code=2, reporter=JSONReporter(out))
+        output = json.loads(out.getvalue())
+        self.assertIsInstance(output, list)
+        self.assertEqual(len(output), 1)
+        self.assertIsInstance(output[0], dict)
+        expected = {
+            "obj": "",
+            "column": 0,
+            "line": 1,
+            "type": "error",
+            "symbol": "syntax-error",
+            "module": "syntax_error"
+        }
+        message = output[0]
+        for key, value in expected.items():
+            self.assertIn(key, message)
+            self.assertEqual(message[key], value)
+        self.assertIn("invalid syntax", message["message"].lower())
+
+    def test_json_report_when_file_is_missing(self):
+        out = six.StringIO()
+        module = join(HERE, 'regrtest_data', 'totally_missing.py')
+        self._runtest([module], code=1, reporter=JSONReporter(out))
+        output = json.loads(out.getvalue())
+        self.assertIsInstance(output, list)
+        self.assertEqual(len(output), 1)
+        self.assertIsInstance(output[0], dict)
+        expected = {
+            "obj": "",
+            "column": 0,
+            "line": 1,
+            "type": "fatal",
+            "symbol": "fatal",
+            "module": module
+        }
+        message = output[0]
+        for key, value in expected.items():
+            self.assertIn(key, message)
+            self.assertEqual(message[key], value)
+        self.assertTrue(message['message'].startswith("No module named"))
+
 
 
 if __name__ == '__main__':

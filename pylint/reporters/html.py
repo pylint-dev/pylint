@@ -88,6 +88,9 @@ class HTMLReporter(BaseReporter):
         (in add_message, message is not displayed, just collected so it
         can be displayed in an html table)
         """
+        HTMLWriter().format(layout, self.out)
+
+    def display_messages(self, layout):
         if self.msgs:
             # add stored messages to the layout
             msgs = self.header
@@ -97,7 +100,7 @@ class HTMLReporter(BaseReporter):
             layout.append(sect)
             sect.append(Table(cols=cols, children=msgs, rheaders=1))
             self.msgs = []
-        HTMLWriter().format(layout, self.out)
+            self._display(layout)
 
 
 def register(linter):
