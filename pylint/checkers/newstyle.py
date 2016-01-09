@@ -161,6 +161,8 @@ class NewStyleConflictChecker(BaseChecker):
                     if name is not None:
                         self.add_message('bad-super-call', node=call, args=(name, ))
 
+    visit_asyncfunctiondef = visit_functiondef
+
 
 def register(linter):
     """required method to auto register this checker """

@@ -254,6 +254,8 @@ class MisdesignChecker(BaseChecker):
         # init statements counter
         self._stmts = 1
 
+    visit_asyncfunctiondef = visit_functiondef
+
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
                     'too-many-statements')
@@ -273,6 +275,8 @@ class MisdesignChecker(BaseChecker):
         if self._stmts > self.config.max_statements:
             self.add_message('too-many-statements', node=node,
                              args=(self._stmts, self.config.max_statements))
+
+    leave_asyncfunctiondef = leave_functiondef
 
     def visit_return(self, _):
         """count number of returns"""

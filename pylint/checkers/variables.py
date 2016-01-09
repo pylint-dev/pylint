@@ -540,7 +540,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             elif is_builtin(name):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
-
+    
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
@@ -621,6 +621,9 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                     if name in nonlocal_names:
                         continue
                 self.add_message('unused-variable', args=name, node=stmt)
+
+    visit_asyncfunctiondef = visit_functiondef
+    leave_asyncfunctiondef = leave_functiondef
 
     @check_messages('global-variable-undefined', 'global-variable-not-assigned',
                     'global-statement', 'global-at-module-level',
