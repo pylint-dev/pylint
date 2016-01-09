@@ -959,6 +959,9 @@ class PyLinter(config.OptionsManagerMixIn,
 
         if persistent run, pickle results for later comparison
         """
+        # Display whatever messages are left on the reporter.
+        self.reporter.display_messages(report_nodes.Section())
+
         if self.file_state.base_name is not None:
             # load previous results if any
             previous_stats = config.load_results(self.file_state.base_name)
@@ -971,17 +974,12 @@ class PyLinter(config.OptionsManagerMixIn,
                     self.reporter.set_output(open(filename, 'w'))
             else:
                 sect = report_nodes.Section()
-            if self.config.reports or self.config.output_format == 'html':
+            if self.config.reports:
                 self.reporter.display_reports(sect)
             # save results if persistent run
             if self.config.persistent:
                 config.save_results(self.stats, self.file_state.base_name)
         else:
-            if self.config.output_format == 'html':
-                # No output will be emitted for the html
-                # reporter if the file doesn't exist, so emit
-                # the results here.
-                self.reporter.display_reports(report_nodes.Section())
             self.reporter.on_close(self.stats, {})
 
     # specific reports ########################################################

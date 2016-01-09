@@ -2,6 +2,19 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Decouple the displaying of reports from the displaying of messages
+
+      Some reporters are aggregating the messages instead of displaying
+      them when they are available. The actual displaying was conflatted
+      in the generate_reports. Unfortunately this behaviour was flaky
+      and in the case of the JSON reporter, the messages weren't shown
+      at all if a file had syntax errors or if it was missing.
+      In order to fix this, the aggregated messages can now be
+      displayed with Reporter.display_message, while the reports are
+      displayed with display_reports.
+      
+      Closes issues #766 and #765.
+
     * Ignore function calls with variadic arguments without a context.
 
       Inferring variadic positional arguments and keyword arguments

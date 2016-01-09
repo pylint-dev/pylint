@@ -35,7 +35,6 @@ class JSONReporter(BaseReporter):
 
     def handle_message(self, message):
         """Manage message of different type and in the context of path."""
-
         self.messages.append({
             'type': message.category,
             'module': message.module,
@@ -48,10 +47,13 @@ class JSONReporter(BaseReporter):
             'message': cgi.escape(message.msg or ''),
         })
 
-    def _display(self, layout):
+    def display_messages(self, layout):
         """Launch layouts display"""
         if self.messages:
             print(json.dumps(self.messages, indent=4), file=self.out)
+
+    def display_reports(self, _):
+        """Don't do nothing in this reporter."""
 
 
 def register(linter):
