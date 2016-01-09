@@ -40,7 +40,7 @@ class TestJSONReporter(unittest.TestCase):
         linter.add_message('line-too-long', line=1, args=(1, 2))
 
         # we call this method because we didn't actually run the checkers
-        reporter.display_results(None)
+        reporter.display_reports(None)
         expected_result = [[
             ("column", 0),
             ("line", 1),

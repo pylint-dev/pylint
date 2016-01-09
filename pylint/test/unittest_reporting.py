@@ -108,7 +108,7 @@ class PyLinterTC(unittest.TestCase):
         linter.open()
         linter.set_current_module('0123')
         linter.add_message('lowercase-l-suffix', line=1)
-        linter.reporter.display_results(Section())
+        linter.reporter.display_reports(Section())
         self.assertEqual(output.getvalue().splitlines(), expected)
 
     @unittest.expectedFailure
@@ -154,8 +154,26 @@ a&lt; 5: print "zero"</td>
         linter.add_message('bad-whitespace', line=1,
                            args=('Exactly one', 'required', 'before',
                                  'comparison', 'a< 5: print "zero"'))
-        linter.reporter.display_results(Section())
+        linter.reporter.display_reports(Section())
         self.assertMultiLineEqual(output.getvalue(), expected)
+
+    def test_display_results_is_renamed(self):
+        class CustomReporter(TextReporter):
+            def _display(self, layout):
+                return None
+
+        reporter = CustomReporter()
+        if __pkginfo__.numversion >= (2, 0):
+            with self.assertRaises(AttributeError):
+                reporter.display_results
+        else:
+            with warnings.catch_warnings(record=True) as cm:
+                warnings.simplefilter("always")
+                reporter.display_results(Section())
+
+            self.assertEqual(len(cm), 1)
+            self.assertIsInstance(cm[0].message, DeprecationWarning)
+
 
 if __name__ == '__main__':
     unittest.main()

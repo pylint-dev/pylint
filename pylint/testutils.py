@@ -128,7 +128,7 @@ class TestReporter(BaseReporter):
         self.reset()
         return result
 
-    def display_results(self, layout):
+    def display_reports(self, layout):
         """ignore layouts"""
 
     _display = None

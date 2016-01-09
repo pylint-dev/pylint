@@ -90,7 +90,7 @@ class IReporter(Interface):
     def handle_message(self, msg):
         """Handle the given message object."""
 
-    def display_results(self, layout):
+    def display_reports(self, layout):
         """display results encapsulated in the layout tree
         """
 

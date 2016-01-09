@@ -79,12 +79,18 @@ class BaseReporter(object):
         """write a line in the output buffer"""
         print(self.encode(string), file=self.out)
 
-    def display_results(self, layout):
+    def display_reports(self, layout):
         """display results encapsulated in the layout tree"""
         self.section = 0
         if hasattr(layout, 'report_id'):
             layout.children[0].children[0].data += ' (%s)' % layout.report_id
         self._display(layout)
+
+    def display_results(self, layout):
+        warnings.warn("display_results is deprecated, use display_reports instead. "
+                      "The former will be removed in Pylint 2.0.",
+                      DeprecationWarning)
+        self.display_reports(layout)
 
     def _display(self, layout):
         """display the layout"""

@@ -88,7 +88,7 @@ class TestReporter(reporters.BaseReporter):
     def on_set_current_module(self, module, filepath):
         self.messages = []
 
-    def display_results(self, layout):
+    def display_reports(self, layout):
         """Ignore layouts."""
 
 
