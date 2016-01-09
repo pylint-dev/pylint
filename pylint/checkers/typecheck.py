@@ -487,7 +487,7 @@ accessed. Python regular expressions are accepted.'}
             if not isinstance(arg, astroid.Starred):
                 continue
 
-            inferred = next(arg.value.infer())
+            inferred = safe_infer(arg.value)
             if isinstance(inferred, astroid.Tuple):
                 length = len(inferred.elts)
             elif isinstance(inferred, astroid.Dict):
