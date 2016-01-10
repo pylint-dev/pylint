@@ -2,6 +2,11 @@ ChangeLog for Pylint
 --------------------
 
 --
+
+    * Handle the import fallback idiom with regard to wrong-import-order.
+
+      Closes issue #750.
+
     * Decouple the displaying of reports from the displaying of messages
 
       Some reporters are aggregating the messages instead of displaying
@@ -29,7 +34,7 @@ ChangeLog for Pylint
       visit_functiondef.
 
       Closes issue #767.
-
+      
     * Take in account kwonlyargs when verifying that arguments
       are defined with the check_docs extension.
 
