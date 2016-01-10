@@ -2,6 +2,10 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Handle the import fallback idiom with regard to wrong-import-order.
+
+      Closes issue #750.
+
     * Added a new error, 'trailing-newlines', which is emitted when a file
       has trailing new lines.
 
@@ -34,7 +38,7 @@ ChangeLog for Pylint
       visit_functiondef.
 
       Closes issue #767.
-
+      
     * Take in account kwonlyargs when verifying that arguments
       are defined with the check_docs extension.
 

@@ -464,6 +464,12 @@ given file (report RP0402 must not be disabled)'}
             importedname = node.names[0][0].split('.')[0]
         self._imports_stack.append((node, importedname))
 
+    @staticmethod
+    def _is_fallback_import(node, imports):
+        imports = [import_node for (import_node, _) in imports]
+        return any(astroid.are_exclusive(import_node, node)
+                   for import_node in imports)
+
     def _check_imports_order(self, node):
         """Checks imports of module `node` are grouped by category
 
@@ -472,13 +478,14 @@ given file (report RP0402 must not be disabled)'}
         extern_imports = []
         local_imports = []
         std_imports = []
-
         for node, modname in self._imports_stack:
             package = modname.split('.')[0]
             if is_standard_module(modname):
                 std_imports.append((node, package))
                 wrong_import = extern_imports or local_imports
                 if not wrong_import:
+                    continue
+                if self._is_fallback_import(node, wrong_import):
                     continue
                 self.add_message('wrong-import-order', node=node,
                                  args=('standard import "%s"' % node.as_string(),

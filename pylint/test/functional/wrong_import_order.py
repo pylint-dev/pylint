@@ -1,5 +1,9 @@
 """Checks import order rule"""
 # pylint: disable=unused-import,relative-import,ungrouped-imports,import-error
+try:
+    from six.moves import configparser
+except ImportError:
+    import configparser
 
 import six
 import os.path  # [wrong-import-order]
