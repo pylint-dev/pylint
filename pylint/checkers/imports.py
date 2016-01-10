@@ -18,7 +18,6 @@
 import collections
 from distutils import sysconfig
 import os
-import platform
 import sys
 
 import six
@@ -271,7 +270,8 @@ given file (report RP0402 must not be disabled)'}
 
         self._site_packages = self._compute_site_packages()
 
-    def _compute_site_packages(self):
+    @staticmethod
+    def _compute_site_packages():
         def _normalized_path(path):
             return os.path.normcase(os.path.abspath(path))
 
