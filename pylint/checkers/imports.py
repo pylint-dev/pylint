@@ -16,14 +16,16 @@
 """imports checkers for Python code"""
 
 import collections
+from distutils import sysconfig
 import os
+import platform
 import sys
 
 import six
 
 import astroid
 from astroid import are_exclusive
-from astroid.modutils import (EXT_LIB_DIR, get_module_part, is_standard_module,
+from astroid.modutils import (get_module_part, is_standard_module,
                               file_from_modpath)
 
 from pylint.interfaces import IAstroidChecker
@@ -265,7 +267,6 @@ given file (report RP0402 must not be disabled)'}
 given file (report RP0402 must not be disabled)'}
                ),
               )
-    ext_lib_dir = os.path.normcase(os.path.abspath(EXT_LIB_DIR))
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -279,6 +280,28 @@ given file (report RP0402 must not be disabled)'}
                         ('RP0402', 'Modules dependencies graph',
                          self._report_dependencies_graph),
                        )
+
+        self._site_packages = self._compute_site_packages()
+
+    def _compute_site_packages(self):
+        def _normalized_path(path):
+            return os.path.normcase(os.path.abspath(path))
+
+        paths = set()
+        real_prefix = getattr(sys, 'real_prefix', None)
+        for prefix in filter(None, (real_prefix, sys.prefix)):
+            path = sysconfig.get_python_lib(prefix=prefix)
+            path = _normalized_path(path)
+            paths.add(path)
+
+        # Handle Debian's derivatives /usr/local.
+        if os.path.isfile("/etc/debian_version"):
+            for prefix in filter(None, (real_prefix, sys.prefix)):
+                libpython = os.path.join(prefix, "local", "lib",
+                                         "python" + sysconfig.get_python_version(),
+                                         "dist-packages")
+                paths.add(libpython)
+        return paths
 
     def open(self):
         """called before visiting project (i.e set of modules)"""
@@ -449,10 +472,6 @@ given file (report RP0402 must not be disabled)'}
         extern_imports = []
         local_imports = []
         std_imports = []
-        stdlib_paths = [sys.prefix, self.ext_lib_dir]
-        real_prefix = getattr(sys, 'real_prefix', None)
-        if real_prefix is not None:
-            stdlib_paths.append(real_prefix)
 
         for node, modname in self._imports_stack:
             package = modname.split('.')[0]
@@ -468,13 +487,12 @@ given file (report RP0402 must not be disabled)'}
                 try:
                     filename = file_from_modpath([package])
                 except ImportError:
-                    extern_imports.append((node, package))
                     continue
                 if not filename:
-                    extern_imports.append((node, package))
                     continue
+
                 filename = os.path.normcase(os.path.abspath(filename))
-                if not any(filename.startswith(path) for path in stdlib_paths):
+                if not any(filename.startswith(path) for path in self._site_packages):
                     local_imports.append((node, package))
                     continue
                 extern_imports.append((node, package))

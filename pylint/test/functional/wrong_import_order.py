@@ -7,4 +7,5 @@ from astroid import are_exclusive
 import sys  # [wrong-import-order]
 import datetime  # [wrong-import-order]
 import unused_import
+import totally_missing
 import astroid
