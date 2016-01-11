@@ -1,7 +1,7 @@
 ChangeLog for Pylint
 --------------------
 
---
+2016-01-11 -- 1.5.3
 
     * Handle the import fallback idiom with regard to wrong-import-order.
 
@@ -45,7 +45,7 @@ ChangeLog for Pylint
       Closes issue #749.
 
 
-2015-12-21
+2015-12-21 -- 1.5.2
         
     * Don't crash if graphviz is not installed, instead emit a
       warning letting the user to know.
