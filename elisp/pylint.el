@@ -5,7 +5,7 @@
 ;; Author: Ian Eure <ian.eure@gmail.com>
 
 ;; Keywords: languages python
-;; Version: 1.01
+;; Version: 1.02
 
 ;; pylint.el is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by the Free
@@ -71,6 +71,81 @@ Otherwise, it saves all modified buffers without asking."
   :type 'boolean
   :group 'pylint)
 
+(defvar pylint--messages-list ()
+  "A list of strings of all pylint messages.")
+
+(defvar pylint--messages-list-hist ()
+  "Completion history for `pylint--messages-list'.")
+
+(defun pylint--sort-messages (a b)
+  "Compare function for sorting `pylint--messages-list'.
+
+Sorts most recently used elements first using `pylint--messages-list-hist'."
+  (let ((idx 0)
+        (a-idx most-positive-fixnum)
+        (b-idx most-positive-fixnum))
+    (dolist (e pylint--messages-list-hist)
+      (when (string= e a)
+        (setq a-idx idx))
+      (when (string= e b)
+        (setq b-idx idx))
+      (setq idx (1+ idx)))
+    (< a-idx b-idx)))
+
+(defun pylint--create-messages-list ()
+  "Use `pylint-command' to populate `pylint--messages-list'."
+  ;; example output:
+  ;;  |--we want this--|
+  ;;  v                v
+  ;; :using-cmp-argument (W1640): *Using the cmp argument for list.sort / sorted*
+  ;;   Using the cmp argument for list.sort or the sorted builtin should be avoided,
+  ;;   since it was removed in Python 3. Using either `key` or `functools.cmp_to_key`
+  ;;   should be preferred. This message can't be emitted when using Python >= 3.0.
+  (setq pylint--messages-list
+        (split-string
+         (with-temp-buffer
+           (shell-command (concat pylint-command " --list-msgs") (current-buffer))
+           (flush-lines "^[^:]")
+           (goto-char (point-min))
+           (while (not (eobp))
+             (delete-char 1) ;; delete ";"
+             (re-search-forward " ")
+             (delete-region (point) (line-end-position))
+             (forward-line 1))
+           (buffer-substring-no-properties (point-min) (point-max))))))
+
+;;;###autoload
+(defun pylint-insert-ignore-comment (&optional arg)
+  "Insert a comment like \"# pylint: disable=msg1,msg2,...\".
+
+This command repeatedly uses `completing-read' to match known
+messages, and ultimately inserts a comma-separated list of all
+the selected messages.
+
+With prefix argument, only insert a comma-separated list (for
+appending to an existing list)."
+  (interactive "*p")
+  (unless pylint--messages-list
+    (pylint--create-messages-list))
+  (setq pylint--messages-list
+        (sort pylint--messages-list #'pylint--sort-messages))
+  (let ((msgs ())
+        (msg "")
+        (prefix (if arg
+                    "# pylint: disable="
+                  ","))
+        (sentinel "[DONE]"))
+    (while (progn
+             (setq msg (completing-read
+                        "Message: "
+                        pylint--messages-list
+                        nil t nil 'pylint--messages-list-hist sentinel))
+             (unless (string= sentinel msg)
+               (add-to-list 'msgs msg 'append))))
+    (setq pylint--messages-list-hist
+          (delete sentinel pylint--messages-list-hist))
+    (insert prefix (mapconcat 'identity msgs ","))))
+
 (define-compilation-mode pylint-mode "PYLINT"
   (setq pylint-last-buffer (current-buffer))
   (set (make-local-variable 'compilation-error-regexp-alist)
@@ -129,6 +204,7 @@ output buffer, to go to the lines where pylint found matches.
     (define-key map (kbd "C-c m l") 'pylint)
     (define-key map (kbd "C-c m p") 'previous-error)
     (define-key map (kbd "C-c m n") 'next-error)
+    (define-key map (kbd "C-c m i") 'pylint-insert-ignore-comment)
     nil))
 
 ;;;###autoload
