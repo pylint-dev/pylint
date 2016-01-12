@@ -199,9 +199,9 @@ def _determine_function_name_type(node):
 
 def _is_none(node):
     return (node is None or
-        (isinstance(node, astroid.Const) and node.value is None) or
-        (isinstance(node, astroid.Name)  and node.name == 'None')
-       )
+            (isinstance(node, astroid.Const) and node.value is None) or
+            (isinstance(node, astroid.Name)  and node.name == 'None')
+           )
 
 
 def _has_abstract_methods(node):
