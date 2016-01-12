@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring
+# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring, wrong-import-position,invalid-name
 """check use of super"""
 
 from unknown import Missing
@@ -96,3 +96,19 @@ class InvalidSuperChecks(BaseClass):
         # Even though BaseClass has a __getattr__, that won't
         # be called.
         super(InvalidSuperChecks, self).attribute_error() # [no-member]
+
+
+
+# Regression for PyCQA/pylint/issues/773
+import subprocess
+
+# The problem was related to astroid not filtering statements
+# at scope level properly, basically not doing strong updates.
+try:
+    TimeoutExpired = subprocess.TimeoutExpired
+except AttributeError:
+    class TimeoutExpired(subprocess.CalledProcessError):
+        def __init__(self):
+            returncode = -1
+            self.timeout = -1
+            super(TimeoutExpired, self).__init__(returncode)
