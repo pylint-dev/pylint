@@ -2,6 +2,11 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Merge StringMethodChecker with StringFormatChecker. This fixes a
+      bug where disabling all the messages and enabling only a handful of
+      messages from the StringFormatChecker would have resulted in no
+      messages at all.
+
     * Handle the import fallback idiom with regard to wrong-import-order.
 
       Closes issue #750.
