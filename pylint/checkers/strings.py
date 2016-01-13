@@ -76,7 +76,10 @@ MSGS = {
               "too-few-format-args",
               "Used when a format string that uses unnamed conversion \
               specifiers is given too few arguments"),
-
+    'E1310': ("Suspicious argument in %s.%s call",
+              "bad-str-strip-call",
+              "The argument to a str.{l,r,}strip call contains a"
+              " duplicate character, "),
     'W1302': ("Invalid format string",
               "bad-format-string",
               "Used when a PEP 3101 format string is invalid.",
@@ -318,16 +321,6 @@ class StringFormatChecker(BaseChecker):
                 elif num_args < required_num_args:
                     self.add_message('too-few-format-args', node=node)
 
-
-class StringMethodsChecker(BaseChecker):
-    __implements__ = (IAstroidChecker,)
-    name = 'string'
-    msgs = {
-        'E1310': ("Suspicious argument in %s.%s call",
-                  "bad-str-strip-call",
-                  "The argument to a str.{l,r,}strip call contains a"
-                  " duplicate character, "),
-        }
 
     @check_messages(*(MSGS.keys()))
     def visit_call(self, node):
@@ -622,5 +615,4 @@ class StringConstantChecker(BaseTokenChecker):
 def register(linter):
     """required method to auto register this checker """
     linter.register_checker(StringFormatChecker(linter))
-    linter.register_checker(StringMethodsChecker(linter))
     linter.register_checker(StringConstantChecker(linter))

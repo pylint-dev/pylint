@@ -24,7 +24,7 @@ from pylint.testutils import CheckerTestCase
 
 
 class StringCheckerTest(CheckerTestCase):
-    CHECKER_CLASS = strings.StringMethodsChecker
+    CHECKER_CLASS = strings.StringFormatChecker
 
     @unittest.skipUnless(sys.version_info > (3, 0),
                          "Tests that the string formatting checker "
