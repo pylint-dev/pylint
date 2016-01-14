@@ -197,6 +197,12 @@ def _determine_function_name_type(node):
     return 'method'
 
 
+def _is_none(node):
+    return (node is None or
+            (isinstance(node, astroid.Const) and node.value is None) or
+            (isinstance(node, astroid.Name)  and node.name == 'None')
+           )
+
 
 def _has_abstract_methods(node):
     """
@@ -397,11 +403,7 @@ class BasicErrorChecker(_BasicChecker):
             else:
                 values = [r.value for r in returns]
                 # Are we returning anything but None from constructors
-                if [v for v in values
-                        if not (v is None or
-                                (isinstance(v, astroid.Const) and v.value is None) or
-                                (isinstance(v, astroid.Name)  and v.name == 'None')
-                               )]:
+                if [v for v in values if not _is_none(v)]:
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
@@ -1951,14 +1953,14 @@ class MultipleTypesChecker(BaseChecker):
         if isinstance(target, (astroid.Tuple, astroid.Subscript)):
             return
         # ignore NoneType
-        if node.value.as_string() == 'None':
+        if _is_none(node):
             return
         # check there is only one possible type for the assign node. Else we
         # don't handle it for now
         types = set()
         try:
             for var_type in node.value.infer():
-                if var_type == astroid.YES or var_type.as_string() == 'None':
+                if var_type == astroid.YES or _is_none(var_type):
                     continue
                 var_type = var_type.pytype()
                 types.add(var_type)
