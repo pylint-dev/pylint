@@ -407,6 +407,13 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)
 
+    def test_raise_empty_tuple(self):
+        node = test_utils.extract_node("""
+        raise()  #@
+        """)
+        with self.assertNoMessages():
+          self.checker.visit_raise(node)
+
 
 @python2_only
 class Python3TokenCheckerTest(testutils.CheckerTestCase):

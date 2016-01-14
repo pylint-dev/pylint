@@ -535,7 +535,7 @@ class Python3Checker(checkers.BaseChecker):
         else:
             try:
                 value = next(astroid.unpack_infer(expr))
-            except astroid.InferenceError:
+            except (astroid.InferenceError, StopIteration):
                 return
             self._check_raise_value(node, value)
 
