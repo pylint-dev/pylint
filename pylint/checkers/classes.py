@@ -348,6 +348,9 @@ a metaclass class method.'}
         self._first_attrs = []
         self._meth_could_be_func = None
 
+    @check_messages('no-init', 'invalid-slots', 'inherit-non-class',
+                    'inconsistent-mro', 'duplicate-bases',
+                    'invalid-slots', 'invalid-slots-object')
     def visit_classdef(self, node):
         """init visit variable _accessed
         """
@@ -363,7 +366,6 @@ a metaclass class method.'}
         self._check_proper_bases(node)
         self._check_consistent_mro(node)
 
-    @check_messages('inconsistent-mro', 'duplicate-bases')
     def _check_consistent_mro(self, node):
         """Detect that a class has a consistent mro or duplicate bases."""
         try:
@@ -376,7 +378,6 @@ a metaclass class method.'}
             # Old style class, there's no mro so don't do anything.
             pass
 
-    @check_messages('inherit-non-class')
     def _check_proper_bases(self, node):
         """
         Detect that a class inherits something which is not
