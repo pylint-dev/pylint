@@ -1,6 +1,6 @@
 """Check exceeding negations in boolean expressions trigger warnings"""
 
-# pylint: disable=singleton-comparison, too-many-branches, too-few-public-methods
+# pylint: disable=singleton-comparison,too-many-branches,too-few-public-methods,undefined-variable
 
 def unneeded_not():
     """This is not ok
@@ -37,7 +37,7 @@ def unneeded_not():
         pass
 
 
-def not_checked():
+def tolerated_statements():
     """This is ok"""
     bool_var = True
     someint = 2
@@ -49,6 +49,13 @@ def not_checked():
         pass
     if not 2 <= someint < 3 < 4:
         pass
+    if not set('bar') <= set('foobaz'):
+        pass
+    if not set(something) <= 3:
+        pass
+    if not frozenset(something) <= 3:
+        pass
+
 
 class Klass(object):
     """This is also ok"""
