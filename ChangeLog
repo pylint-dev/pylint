@@ -2,7 +2,8 @@ ChangeLog for Pylint
 --------------------
 
 
---
+2016-01-15 -- 1.5.4
+
     * Merge StringMethodChecker with StringFormatChecker. This fixes a
       bug where disabling all the messages and enabling only a handful of
       messages from the StringFormatChecker would have resulted in no
