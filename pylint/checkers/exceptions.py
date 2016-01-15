@@ -307,7 +307,7 @@ class ExceptionsChecker(BaseChecker):
 
     @check_messages('bare-except', 'broad-except',
                     'binary-op-exception', 'bad-except-order',
-                    'catching-non-exception')
+                    'catching-non-exception', 'duplicate-except')
     def visit_tryexcept(self, node):
         """check for empty except"""
         exceptions_classes = []

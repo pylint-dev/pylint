@@ -1818,7 +1818,7 @@ class ElifChecker(BaseTokenChecker):
     def visit_comprehension(self, node):
         self._if_counter += len(node.ifs)
 
-    @check_messages('too-many-nested-blocks')
+    @check_messages('too-many-nested-blocks', 'simplifiable-if-statement')
     def visit_if(self, node):
         self._check_simplifiable_if(node)
         self._check_nested_blocks(node)
