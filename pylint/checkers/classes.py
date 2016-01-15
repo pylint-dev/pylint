@@ -350,7 +350,9 @@ a metaclass class method.'}
 
     @check_messages('no-init', 'invalid-slots', 'inherit-non-class',
                     'inconsistent-mro', 'duplicate-bases',
-                    'invalid-slots', 'invalid-slots-object')
+                    'invalid-slots', 'invalid-slots-object', 'abstract-method',
+                    'access-member-before-definition',
+                    'attribute-defined-outside-init')
     def visit_classdef(self, node):
         """init visit variable _accessed
         """
