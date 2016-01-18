@@ -1,6 +1,11 @@
 ChangeLog for Pylint
 --------------------
 
+--
+    * Don't emit unsubscriptable-value for classes with unknown
+      base classes.
+
+      Close #776.
 
 2016-01-15 -- 1.5.4
 

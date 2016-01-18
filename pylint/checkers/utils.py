@@ -694,7 +694,7 @@ def supports_membership_test(value):
 def supports_subscript(value):
     if isinstance(value, astroid.ClassDef):
         if not has_known_bases(value):
-            return False
+            return True
         meta = value.metaclass()
         if meta is not None and _supports_subscript_protocol(meta):
             return True
