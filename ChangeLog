@@ -2,6 +2,9 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Catch more cases as not proper iterables for __slots__ with
+      regard to invalid-slots pattern. Closes issue #775.
+
     * Merge StringMethodChecker with StringFormatChecker. This fixes a
       bug where disabling all the messages and enabling only a handful of
       messages from the StringFormatChecker would have resulted in no

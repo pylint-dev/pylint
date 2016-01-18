@@ -1,7 +1,7 @@
 """ Checks that classes uses valid __slots__ """
 
 # pylint: disable=too-few-public-methods, missing-docstring, no-absolute-import
-# pylint: disable=using-constant-test
+# pylint: disable=using-constant-test, wrong-import-position
 from collections import deque
 
 def func():
@@ -36,7 +36,7 @@ class SixthGood(object):
 class SeventhGood(object):
     __slots__ = {"a": "b", "c": "d"}
 
-class Bad(object):
+class Bad(object): # [invalid-slots]
     __slots__ = list
 
 class SecondBad(object):  # [invalid-slots]
@@ -59,3 +59,21 @@ class PotentiallySecondGood(object):
 
 class PotentiallyThirdGood(object):
     __slots__ = deque.__name__
+
+
+import six
+
+
+class Metaclass(type):
+
+    def __iter__(cls):
+        for value in range(10):
+            yield str(value)
+
+
+@six.add_metaclass(Metaclass)
+class IterableClass(object):
+    pass
+
+class PotentiallyFourthGood(object):
+    __slots__ = IterableClass

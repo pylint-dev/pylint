@@ -35,7 +35,7 @@ from pylint.checkers.utils import (
     is_attr_protected, node_frame_class, is_builtin_object,
     decorated_with_property, unimplemented_abstract_methods,
     decorated_with, class_is_abstract,
-    safe_infer, has_known_bases)
+    safe_infer, has_known_bases, is_iterable, is_comprehension)
 from pylint.utils import deprecated_option, get_global_option
 
 
@@ -43,7 +43,6 @@ if sys.version_info >= (3, 0):
     NEXT_METHOD = '__next__'
 else:
     NEXT_METHOD = 'next'
-ITER_METHODS = ('__iter__', '__getitem__')
 INVALID_BASE_CLASSES = {'bool', 'range', 'slice', 'memoryview'}
 
 
@@ -518,13 +517,9 @@ a metaclass class method.'}
             return
         for slots in node.igetattr('__slots__'):
             # check if __slots__ is a valid type
-            for meth in ITER_METHODS:
-                try:
-                    slots.getattr(meth)
-                    break
-                except astroid.NotFoundError:
-                    continue
-            else:
+            if slots is astroid.YES:
+                continue
+            if not is_iterable(slots) and not is_comprehension(slots):
                 self.add_message('invalid-slots', node=node)
                 continue
 
