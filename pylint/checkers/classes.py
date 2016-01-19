@@ -348,11 +348,6 @@ a metaclass class method.'}
         self._first_attrs = []
         self._meth_could_be_func = None
 
-    @check_messages('no-init', 'invalid-slots', 'inherit-non-class',
-                    'inconsistent-mro', 'duplicate-bases',
-                    'invalid-slots', 'invalid-slots-object', 'abstract-method',
-                    'access-member-before-definition',
-                    'attribute-defined-outside-init')
     def visit_classdef(self, node):
         """init visit variable _accessed
         """
@@ -398,8 +393,6 @@ a metaclass class method.'}
                 self.add_message('inherit-non-class',
                                  args=base.as_string(), node=node)
 
-    @check_messages('access-member-before-definition',
-                    'attribute-defined-outside-init')
     def leave_classdef(self, cnode):
         """close a class node:
         check that instance attributes are defined in __init__ and check
