@@ -85,7 +85,7 @@ class EncodingChecker(BaseChecker):
         """
         if self.config.notes:
             notes = re.compile(
-                r'.*?#\s*(%s)(:*\s*.+)' % "|".join(self.config.notes))
+                r'.*?#\s*(%s)(:*\s*.*)' % "|".join(self.config.notes))
         else:
             notes = None
         if module.file_encoding:
