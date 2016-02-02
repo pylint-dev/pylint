@@ -166,7 +166,7 @@ def build_message_def(checker, msgid, msg_tuple):
     if len(msg_tuple) > 3:
         (msg, symbol, descr, options) = msg_tuple
     elif len(msg_tuple) > 2:
-        (msg, symbol, descr) = msg_tuple[:3]
+        (msg, symbol, descr) = msg_tuple
     else:
         # messages should have a symbol, but for backward compatibility
         # they may not.
