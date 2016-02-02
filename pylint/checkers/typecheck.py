@@ -302,6 +302,15 @@ class should be ignored. A mixin class is detected if its name ends with \
 missed by pylint inference system, and so shouldn\'t trigger E1101 when \
 accessed. Python regular expressions are accepted.'}
                ),
+               ('contextmanager-decorators',
+                {'default': ['contextlib.contextmanager'],
+                 'type': 'csv',
+                 'metavar': '<decorator names>',
+                 'help': 'List of decorators that produce context managers, '
+                         'such as contextlib.contextmanager. Add to this list '
+                         'to register other decorators that produce valid '
+                         'context managers.'}
+               ),
               )
 
     def open(self):
@@ -771,7 +780,8 @@ accessed. Python regular expressions are accepted.'}
             if isinstance(infered, bases.Generator):
                 # Check if we are dealing with a function decorated
                 # with contextlib.contextmanager.
-                if decorated_with(infered.parent, ['contextlib.contextmanager']):
+                if decorated_with(infered.parent,
+                                  self.config.contextmanager_decorators):
                     continue
                 # If the parent of the generator is not the context manager itself,
                 # that means that it could have been returned from another
@@ -787,7 +797,8 @@ accessed. Python regular expressions are accepted.'}
                     scope = path.scope()
                     if not isinstance(scope, astroid.FunctionDef):
                         continue
-                    if decorated_with(scope, ['contextlib.contextmanager']):
+                    if decorated_with(scope,
+                                      self.config.contextmanager_decorators):
                         break
                 else:
                     self.add_message('not-context-manager',
