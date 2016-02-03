@@ -89,6 +89,23 @@ class TypeCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
+    @set_config(contextmanager_decorators=('contextlib.contextmanager',
+                                           '.custom_contextmanager'))
+    def test_custom_context_manager(self):
+        """Test that @custom_contextmanager is recognized as configured."""
+        node = test_utils.extract_node('''
+        from contextlib import contextmanager
+        def custom_contextmanager(f):
+            return contextmanager(f)
+        @custom_contextmanager
+        def dec():
+            yield
+        with dec():
+            pass
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_with(node)
+
 
 if __name__ == '__main__':
     unittest.main()
