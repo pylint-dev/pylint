@@ -273,6 +273,10 @@ ignored-classes=SQLObject, optparse.Values
 # expressions are accepted.
 generated-members=REQUEST,acl_users,aq_parent
 
+# List of decorators that create context managers from functions, such as
+# contextlib.contextmanager.
+contextmanager-decorators=contextlib.contextmanager
+
 
 [SPELLING]
 
