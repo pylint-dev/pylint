@@ -158,7 +158,7 @@ class UnittestLinter(object):
                     confidence=None):
         self._messages.append(Message(msg_id, line, node, args))
 
-    def is_message_enabled(self, *unused_args):
+    def is_message_enabled(self, *unused_args, **unused_kwargs):
         return True
 
     def add_stats(self, **kwargs):
