@@ -11,7 +11,7 @@ You think you have found a bug in Pylint? Well, this may be the case
 since Pylint is under development.
 
 Please take the time to check if it is already in the issue tracker at
-https://bitbucket.org/logilab/pylint
+https://github.com/pycqa/pylint
 
 If you can not find it in the tracker, create a new issue there or discuss your
 problem on the code-quality@python.org mailing list.
@@ -24,7 +24,7 @@ Note that if you don't find something you have expected in Pylint's
 issue tracker, it may be because it is an issue with one of its dependencies, namely
 astroid and logilab-common:
 
-* https://bitbucket.org/logilab/astroid
+* https://github.com/pycqa/astroid
 * http://www.logilab.org/project/logilab-common
 
 Mailing lists
@@ -47,15 +47,17 @@ http://lists.logilab.org/pipermail/python-projects/
 Forge
 -----
 
-Pylint is developed using the mercurial_ distributed version control system.
+Pylint is developed using the git_ and mercurial_ distributed version control
+systems.
 
 You can clone Pylint and its dependencies from ::
 
-  hg clone https://bitbucket.org/logilab/pylint
-  hg clone https://bitbucket.org/logilab/astroid
+  git clone https://github.com/pycqa/pylint
+  git clone https://github.com/pycqa/astroid
   hg clone http://hg.logilab.org/logilab/common
 
 .. _mercurial: http://www.selenic.com/mercurial/
+.. _git: https://git-scm.com/
 
 Got a change for Pylint?  Below are a few steps you should take to make sure
 your patch gets accepted.
@@ -78,12 +80,12 @@ your patch gets accepted.
 - Write a comprehensive commit message
 
 - Relate your change to an issue in the tracker if such an issue exists (see
-  `this page`_ of Bitbucket documentation for more information on this)
+  `this page`_ of the GitHub documentation for more information on this)
 
-- Send a pull request from Bitbucket (more on this here_)
+- Send a pull request from GitHub (more on this here_)
 
-.. _`this page`: https://confluence.atlassian.com/display/BITBUCKET/Resolve+issues+automatically+when+users+push+code
-.. _here: https://confluence.atlassian.com/display/BITBUCKET/Work+with+pull+requests
+.. _`this page`: https://help.github.com/articles/closing-issues-via-commit-messages/
+.. _here: https://help.github.com/articles/using-pull-requests/
 
 
 Unit test setup

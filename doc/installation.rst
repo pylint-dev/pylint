@@ -7,7 +7,7 @@ Dependencies
 Pylint requires the latest `astroid`_ and `logilab-common`_
 packages. It should be compatible with any Python version >= 2.7.
 
-.. _`astroid`: https://bitbucket.org/logilab/astroid
+.. _`astroid`: https://github.com/pycqa/astroid
 .. _`logilab-common`: http://www.logilab.org/project/logilab-common
 
 
