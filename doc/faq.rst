@@ -55,13 +55,13 @@ Everything should be explained on http://docs.pylint.org/installation
 2.2 What kind of versioning system does Pylint use?
 ---------------------------------------------------
 
-Pylint uses the Mercurial_ distributed version control system. The URL of the
-repository is: https://bitbucket.org/logilab/pylint. To get the latest version of
+Pylint uses the git distributed version control system. The URL of the
+repository is: https://github.com/pycqa/pylint . To get the latest version of
 Pylint from the repository, simply invoke ::
 
-    hg clone https://bitbucket.org/logilab/pylint
+    git clone https://github.com/pycqa/pylint
 
-.. _Mercurial: http://mercurial.selenic.com/
+.. _git: http://git-scm.com/
 
 2.3 What are Pylint's dependencies?
 -----------------------------------
@@ -69,7 +69,7 @@ Pylint from the repository, simply invoke ::
 Pylint requires the latest `astroid`_ and `logilab-common`_ packages. It should be
 compatible with any Python version greater than 2.7.0.
 
-.. _`astroid`: https://bitbucket.org/logilab/astroid
+.. _`astroid`: https://github.com/pycqa/astroid
 .. _`logilab-common`: http://www.logilab.org/project/logilab-common
 
 2.4 What versions of Python is Pylint supporting?
