@@ -1,5 +1,5 @@
 # pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except
-# pylint: disable=using-constant-test,expression-not-assigned, redefined-variable-type
+# pylint: disable=using-constant-test,expression-not-assigned
 from __future__ import print_function
 
 class Provider(object):
