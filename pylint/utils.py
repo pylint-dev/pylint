@@ -19,7 +19,6 @@ main pylint class
 from __future__ import print_function
 
 import collections
-import itertools
 import os
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 import re
