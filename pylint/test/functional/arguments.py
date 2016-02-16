@@ -165,3 +165,11 @@ def expect_three(one, two, three):
 
 def no_context(*args):
     expect_three(*args)
+
+
+def compare_prices(arg):
+    return set((arg, ))
+
+def find_problems2(prob_dates):
+    for fff in range(10):
+        prob_dates |= compare_prices(fff)
