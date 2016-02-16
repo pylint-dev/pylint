@@ -140,6 +140,19 @@ class Section(BaseLayout):
             self.insert(0, Title(children=(title,)))
 
 
+class EvaluationSection(Section):
+
+    def __init__(self, message, **kwargs):
+        super(EvaluationSection, self).__init__(**kwargs)
+        title = Paragraph()
+        title.append(Text("-" * len(message)))
+        self.append(title)
+
+        message_body = Paragraph()
+        message_body.append(Text(message))
+        self.append(message_body)
+
+
 class Title(BaseLayout):
     """a title
 

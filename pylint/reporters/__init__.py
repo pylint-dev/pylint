@@ -86,12 +86,6 @@ class BaseReporter(object):
             layout.children[0].children[0].data += ' (%s)' % layout.report_id
         self._display(layout)
 
-    def display_results(self, layout):
-        warnings.warn("display_results is deprecated, use display_reports instead. "
-                      "The former will be removed in Pylint 2.0.",
-                      DeprecationWarning)
-        self.display_reports(layout)
-
     def _display(self, layout):
         """display the layout"""
         raise NotImplementedError()

@@ -65,20 +65,6 @@ MSG_TYPES_STATUS = {
     'F' : 1
     }
 
-DEPRECATED_ALIASES = {
-    # New name, deprecated name.
-    'repr': 'backquote',
-    'expr': 'discard',
-    'assignname': 'assname',
-    'assignattr': 'assattr',
-    'attribute': 'getattr',
-    'call': 'callfunc',
-    'importfrom': 'from',
-    'classdef': 'class',
-    'functiondef': 'function',
-    'generatorexp': 'genexpr',
-}
-
 _MSG_ORDER = 'EWRCIF'
 MSG_STATE_SCOPE_CONFIG = 0
 MSG_STATE_SCOPE_MODULE = 1
@@ -922,27 +908,11 @@ class PyLintASTWalker(object):
         # In this case, favour the methods for the deprecated
         # alias if any,  in order to maintain backwards
         # compatibility.
-        old_cid = DEPRECATED_ALIASES.get(cid)
         visit_events = ()
         leave_events = ()
 
-        if old_cid:
-            visit_events = self.visit_events.get(old_cid, ())
-            leave_events = self.leave_events.get(old_cid, ())
-            if visit_events or leave_events:
-                msg = ("Implemented method {meth}_{old} instead of {meth}_{new}. "
-                       "This will be supported until Pylint 2.0.")
-                if visit_events:
-                    warnings.warn(msg.format(meth="visit", old=old_cid, new=cid),
-                                  PendingDeprecationWarning)
-                if leave_events:
-                    warnings.warn(msg.format(meth="leave", old=old_cid, new=cid),
-                                  PendingDeprecationWarning)
-
-        visit_events = itertools.chain(visit_events,
-                                       self.visit_events.get(cid, ()))
-        leave_events = itertools.chain(leave_events,
-                                       self.leave_events.get(cid, ()))
+        visit_events = self.visit_events.get(cid, ())
+        leave_events = self.leave_events.get(cid, ())
 
         if astroid.is_statement:
             self.nbstatements += 1

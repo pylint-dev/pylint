@@ -42,6 +42,13 @@ class TextWriter(BaseWriter):
         self.section -= 1
         self.writeln()
 
+    def visit_evaluationsection(self, layout):
+        """Display an evaluation section as a text."""
+        self.section += 1
+        self.format_children(layout)
+        self.section -= 1
+        self.writeln()
+
     def visit_title(self, layout):
         title = u''.join(list(self.compute_content(layout)))
         self.writeln(title)

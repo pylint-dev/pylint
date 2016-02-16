@@ -163,16 +163,8 @@ a&lt; 5: print "zero"</td>
                 return None
 
         reporter = CustomReporter()
-        if __pkginfo__.numversion >= (2, 0):
-            with self.assertRaises(AttributeError):
-                reporter.display_results
-        else:
-            with warnings.catch_warnings(record=True) as cm:
-                warnings.simplefilter("always")
-                reporter.display_results(Section())
-
-            self.assertEqual(len(cm), 1)
-            self.assertIsInstance(cm[0].message, DeprecationWarning)
+        with self.assertRaises(AttributeError):
+            reporter.display_results
 
 
 if __name__ == '__main__':

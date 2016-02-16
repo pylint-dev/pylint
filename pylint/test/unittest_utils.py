@@ -74,20 +74,10 @@ class PyLintASTWalkerTest(unittest.TestCase):
         walker = utils.PyLintASTWalker(linter)
         checker = Checker()
         walker.add_checker(checker)
-        with warnings.catch_warnings(record=True) as w:
+        with warnings.catch_warnings(record=True):
             warnings.simplefilter('always')
             walker.walk(astroid.parse("x = 1"))
 
-        if __pkginfo__.numversion < (2, 0):
-            expected = ('Implemented method visit_assname instead of '
-                        'visit_assignname. This will be supported until '
-                        'Pylint 2.0.')
-            self.assertEqual(len(w), 1)
-            self.assertIsInstance(w[0].message, PendingDeprecationWarning)
-            self.assertEqual(str(w[0].message), expected)
-            self.assertTrue(checker.called)
-        else:
-            self.assertNotEqual(len(w), 1)
             self.assertFalse(checker.called)
 
 

@@ -280,7 +280,7 @@ class RunTC(unittest.TestCase):
         module2 = join(HERE, 'regrtest_data', 'wrong_import_position.py')
         args = [module2, module1,
                 "--disable=all", "--enable=wrong-import-position",
-                "-rn"]
+                "-rn", "-sn"]
         out = six.StringIO()
         self._run_pylint(args, out=out)
         actual_output = out.getvalue()
@@ -342,6 +342,24 @@ class RunTC(unittest.TestCase):
             self.assertEqual(message[key], value)
         self.assertTrue(message['message'].startswith("No module named"))
 
+    def test_information_category_disabled_by_default(self):
+        expected = 'No config file found, using default configuration'
+        path = join(HERE, 'regrtest_data', 'meta.py')
+        self._test_output([path], expected_output=expected)
+
+    def test_error_mode_shows_no_score(self):
+        expected_output = textwrap.dedent('''
+        No config file found, using default configuration
+        ************* Module application_crash
+        E:  1, 6: Undefined variable 'something_undefined' (undefined-variable)
+        ''')
+        module = join(HERE, 'regrtest_data', 'application_crash.py')
+        self._test_output([module, "-E"], expected_output=expected_output)
+
+    def test_evaluation_score_shown_by_default(self):
+        expected_output = 'Your code has been rated at -60.00/10'
+        module = join(HERE, 'regrtest_data', 'application_crash.py')
+        self._test_output([module], expected_output=expected_output) 
 
 
 if __name__ == '__main__':
