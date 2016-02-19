@@ -57,3 +57,10 @@ FFF = 1
 FFF += A() # [unsupported-binary-operation]
 TTT = 1
 TTT += [] # [unsupported-binary-operation]
+
+
+# Don't emit for this case since we don't know what unknown is.
+from unknown import Unknown
+class Base(Unknown):
+    pass
+Base() * 23

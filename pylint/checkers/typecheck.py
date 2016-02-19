@@ -845,6 +845,9 @@ accessed. Python regular expressions are accepted.'}
     def _check_binop_errors(self, node):
         for error in node.type_errors():
             # Let the error customize its output.
+            if any(isinstance(obj, astroid.ClassDef) and not has_known_bases(obj)
+                   for obj in (error.left_type, error.right_type)):
+                continue
             self.add_message('unsupported-binary-operation',
                              args=str(error), node=node)
 
