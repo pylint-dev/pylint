@@ -359,7 +359,13 @@ class RunTC(unittest.TestCase):
     def test_evaluation_score_shown_by_default(self):
         expected_output = 'Your code has been rated at -60.00/10'
         module = join(HERE, 'regrtest_data', 'application_crash.py')
-        self._test_output([module], expected_output=expected_output) 
+        self._test_output([module], expected_output=expected_output)
+
+    def test_confidence_levels(self):
+        expected = 'No config file found, using default configuration'
+        path = join(HERE, 'regrtest_data', 'meta.py')
+        self._test_output([path, "--confidence=HIGH,INFERENCE"],
+                          expected_output=expected)
 
 
 if __name__ == '__main__':
