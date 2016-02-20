@@ -341,6 +341,11 @@ class RunTC(unittest.TestCase):
             self.assertEqual(message[key], value)
         self.assertTrue(message['message'].startswith("No module named"))
 
+    def test_confidence_levels(self):
+        expected = 'No config file found, using default configuration'
+        path = join(HERE, 'regrtest_data', 'meta.py')
+        self._test_output([path, "--confidence=HIGH,INFERENCE"],
+                          expected_output=expected)
 
 
 if __name__ == '__main__':

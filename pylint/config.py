@@ -134,15 +134,7 @@ class UnsupportedAction(Exception):
     """raised by set_option when it doesn't know what to do for an action"""
 
 
-def _choice_validator(optdict, name, value):
-    if value not in optdict['choices']:
-        msg = "option %s: invalid value: %r, should be in %s"
-        raise optparse.OptionValueError(msg % (name, value, optdict['choices']))
-    return value
-
-
-def _multiple_choice_validator(optdict, name, value):
-    choices = optdict['choices']
+def _multiple_choice_validator(choices, name, value):
     values = utils._check_csv(value)
     for value in values:
         if value not in choices:
@@ -150,6 +142,12 @@ def _multiple_choice_validator(optdict, name, value):
             raise optparse.OptionValueError(msg % (name, value, choices))
     return values
 
+
+def _choice_validator(choices, name, value):
+    if value not in choices:
+        msg = "option %s: invalid value: %r, should be in %s"
+        raise optparse.OptionValueError(msg % (name, value, choices))
+    return value
 
 # pylint: disable=unused-argument
 def _csv_validator(_, name, value):
@@ -180,8 +178,9 @@ VALIDATORS = {
     'regexp': re.compile,
     'csv': _csv_validator,
     'yn': _yn_validator,
-    'choice': _choice_validator,
-    'multiple_choice': _multiple_choice_validator,
+    'choice': lambda opt, name, value: _choice_validator(opt['choices'], name, value),
+    'multiple_choice': lambda opt, name, value: _multiple_choice_validator(opt['choices'],
+                                                                           name, value),
 }
 
 def _call_validator(opttype, optdict, option, value):
@@ -249,6 +248,10 @@ def _patch_optparse():
         optparse.HelpFormatter.expand_default = orig_default
 
 
+def _multiple_choices_validating_option(opt, name, value):
+    return _multiple_choice_validator(opt.choices, name, value)
+
+
 class Option(optparse.Option):
     TYPES = optparse.Option.TYPES + ('regexp', 'csv', 'yn', 'multiple_choice')
     ATTRS = optparse.Option.ATTRS + ['hide', 'level']
@@ -256,7 +259,7 @@ class Option(optparse.Option):
     TYPE_CHECKER['regexp'] = _regexp_validator
     TYPE_CHECKER['csv'] = _csv_validator
     TYPE_CHECKER['yn'] = _yn_validator
-    TYPE_CHECKER['multiple_choice'] = _multiple_choice_validator
+    TYPE_CHECKER['multiple_choice'] = _multiple_choices_validating_option
 
     def __init__(self, *opts, **attrs):
         optparse.Option.__init__(self, *opts, **attrs)
