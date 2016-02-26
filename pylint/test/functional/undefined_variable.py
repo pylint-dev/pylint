@@ -158,12 +158,12 @@ except NameError:
     pass
 
 try:
-    unicode_2
+    unicode_2 # [undefined-variable]
 except Exception:
     pass
 
 try:
-    unicode_3
+    unicode_3 # [undefined-variable]
 except:
     pass
 

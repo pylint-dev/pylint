@@ -19,4 +19,6 @@ undefined-variable:130::Undefined variable 'BAT'
 used-before-assignment:141:KeywordArgument.test1:Using variable 'enabled' before assignment
 undefined-variable:144:KeywordArgument.test2:Undefined variable 'disabled'
 undefined-variable:149:KeywordArgument.<lambda>:Undefined variable 'arg'
+undefined-variable:161::Undefined variable 'unicode_2'
+undefined-variable:166::Undefined variable 'unicode_3'
 undefined-variable:171::Undefined variable 'unicode_4'

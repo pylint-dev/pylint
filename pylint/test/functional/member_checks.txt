@@ -9,7 +9,7 @@ no-member:59:Client.test_bt_types:Instance of 'int' has no 'whatever' member:INF
 no-member:65:Client.test_no_false_positives:Super of 'Client' has no 'misssing' member:INFERENCE
 no-member:86::Instance of 'int' has no 'lower' member:INFERENCE_FAILURE
 no-member:97::Instance of 'Client' has no 'indeed' member:INFERENCE
-no-member:107::Instance of 'Client' has no 'indeed' member:INFERENCE
-no-member:114::Class 'Client' has no 'missing' member:INFERENCE
-no-member:120::Class 'Client' has no 'missing' member:INFERENCE
-no-member:181:NoDunderNameInInstance.__init__:Instance of 'NoDunderNameInInstance' has no '__name__' member:INFERENCE
+no-member:104::Class 'Client' has no 'missing' member:INFERENCE
+no-member:110::Class 'Client' has no 'missing' member:INFERENCE
+no-member:124::Class 'Client' has no 'missing' member:INFERENCE
+no-member:171:NoDunderNameInInstance.__init__:Instance of 'NoDunderNameInInstance' has no '__name__' member:INFERENCE

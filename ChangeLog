@@ -7,7 +7,15 @@ ChangeLog for Pylint
 
       Close #776.
 
+    * Don't consider bare and broad except handlers as ignoring NameError,
+      AttributeError and similar exceptions, in the context of checkers for
+      these issues.
+
+      Closes issue #826
+
+
 2016-01-15 -- 1.5.4
+
 
     * Merge StringMethodChecker with StringFormatChecker. This fixes a
       bug where disabling all the messages and enabling only a handful of

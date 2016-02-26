@@ -17,15 +17,6 @@ try:
 except ValueError:
     maybe_missing_2 = None
 
-try:
-    import dont_emit
-except Exception:
-    pass
-
-try:
-    import please_dont_emit
-except:
-    pass
 
 try:
     if maybe_missing:
