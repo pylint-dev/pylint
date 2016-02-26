@@ -94,16 +94,6 @@ except AttributeError:
     pass
 
 try:
-    Client().indeed()
-except Exception:
-    pass
-
-try:
-    Client().indeed()
-except:
-    pass
-
-try:
     Client().indeed() # [no-member]
 except ImportError:
     pass
@@ -131,7 +121,7 @@ try:
     Client().indeed()
 except AttributeError:
     try:
-        Client.missing()
+        Client.missing() # [no-member]
     except Exception:
         pass
 

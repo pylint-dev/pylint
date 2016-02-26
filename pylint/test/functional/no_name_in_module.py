@@ -46,18 +46,18 @@ except ValueError:
     pass
 
 try:
-    import collections.dont_emit
+    import collections.emit # [no-name-in-module]
 except Exception:
     pass
 
 try:
-    import collections.please_dont_emit
+    import collections.emit1 # [no-name-in-module]
 except:
     pass
 
 try:
     if something:
-        import collections.please_dont_emit
+        import collections.emit2 # [no-name-in-module]
 except Exception:
     pass
 

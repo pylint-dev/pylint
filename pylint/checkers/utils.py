@@ -461,6 +461,10 @@ def error_of_type(handler, error_type):
     if not isinstance(error_type, tuple):
         error_type = (error_type, )
     expected_errors = {error.__name__ for error in error_type}
+    if not handler.type:
+        # bare except. While this indeed catches anything, if the desired errors
+        # aren't specified directly, then we just ignore it.
+        return False
     return handler.catch(expected_errors)
 
 
@@ -553,23 +557,16 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
 
 
 def node_ignores_exception(node, exception):
-    """Check if the node is in a TryExcept which handles the given exception.
-
-    This will also return ``True`` if the node is protected by an `except Exception`
-    or by a bare except clause.
-    """
+    """Check if the node is in a TryExcept which handles the given exception."""
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)
     while current and not isinstance(current.parent, ignores):
         current = current.parent
 
     func = functools.partial(error_of_type,
-                             error_type=(Exception, exception))
+                             error_type=(exception, ))
     if current and isinstance(current.parent, astroid.TryExcept):
-        handles_errors = any(map(func, current.parent.handlers))
-        empty_handlers = any(handler.type is None
-                             for handler in current.parent.handlers)
-        if handles_errors or empty_handlers:
+        if any(map(func, current.parent.handlers)):
             return True
     return False
 

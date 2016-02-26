@@ -71,7 +71,7 @@ class UtilsTC(unittest.TestCase):
         self.assertTrue(utils.error_of_type(nodes[0], (AttributeError, )))
         self.assertFalse(utils.error_of_type(nodes[0], Exception))
         self.assertTrue(utils.error_of_type(nodes[1], Exception))
-        self.assertTrue(utils.error_of_type(nodes[2], ImportError))
+        self.assertFalse(utils.error_of_type(nodes[2], ImportError))
 
     def test_node_ignores_exception(self):
         nodes = test_utils.extract_node("""
@@ -84,7 +84,7 @@ class UtilsTC(unittest.TestCase):
         except Exception:
             pass
         try:
-            1/0 #@
+            2/0 #@
         except:
             pass
         try:
@@ -93,8 +93,8 @@ class UtilsTC(unittest.TestCase):
             pass
         """)
         self.assertTrue(utils.node_ignores_exception(nodes[0], ZeroDivisionError))
-        self.assertTrue(utils.node_ignores_exception(nodes[1], ZeroDivisionError))
-        self.assertTrue(utils.node_ignores_exception(nodes[2], ZeroDivisionError))
+        self.assertFalse(utils.node_ignores_exception(nodes[1], ZeroDivisionError))
+        self.assertFalse(utils.node_ignores_exception(nodes[2], ZeroDivisionError))
         self.assertFalse(utils.node_ignores_exception(nodes[3], ZeroDivisionError))
 
 

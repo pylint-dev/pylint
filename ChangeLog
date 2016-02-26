@@ -14,8 +14,12 @@ ChangeLog for Pylint
 
       This is a step towards making pylint more sane, as
       per the discussion from issue #746.
- 
 
+    * Don't consider bare and broad except handlers as ignoring NameError,
+      AttributeError and similar exceptions, in the context of checkers for
+      these issues.
+
+      Closes issue #826
 
     * Catch more cases as not proper iterables for __slots__ with
       regard to invalid-slots pattern. Closes issue #775.
