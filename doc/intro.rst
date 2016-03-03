@@ -21,7 +21,7 @@ warnings (more below). If you run Pylint twice, it will display the statistics
 from the previous run together with the ones from the current run, so that you
 can see if the code has improved or not.
 
-Last but not least, the code is given an overall mark, based on the number an
+Last but not least, the code is given an overall mark, based on the number and
 severity of the warnings and errors. This has proven to be very motivating for
 some programmers.
 
