@@ -223,7 +223,7 @@ if multiprocessing is not None:
             if self._plugins:
                 linter.load_plugin_modules(self._plugins)
 
-            linter.load_configuration(**self._config)
+            linter.load_configuration_from_config(self._config)
             linter.set_reporter(reporters.CollectingReporter())
 
             # Enable the Python 3 checker mode. This option is
@@ -742,7 +742,7 @@ class PyLinter(config.OptionsManagerMixIn,
                 self._parallel_check(files_or_modules)
 
     def _get_jobs_config(self):
-        child_config = {}
+        child_config = collections.OrderedDict()
         filter_options = {'long-help'}
         filter_options.update((opt_name for opt_name, _ in self._external_opts))
         for opt_providers in six.itervalues(self._all_options):

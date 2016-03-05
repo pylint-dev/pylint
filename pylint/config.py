@@ -26,6 +26,7 @@ from __future__ import print_function
 # need a cleanup. It could be completely reengineered as well.
 
 import contextlib
+import collections
 import copy
 import optparse
 import os
@@ -453,7 +454,7 @@ class OptionsManagerMixIn(object):
         # list of registered options providers
         self.options_providers = []
         # dictionary associating option name to checker
-        self._all_options = {}
+        self._all_options = collections.OrderedDict()
         self._short_options = {}
         self._nocallback_options = {}
         self._mygroups = {}
@@ -656,7 +657,10 @@ class OptionsManagerMixIn(object):
 
     def load_configuration(self, **kwargs):
         """override configuration according to given parameters"""
-        for opt, opt_value in kwargs.items():
+        return self.load_configuration_from_config(kwargs)
+
+    def load_configuration_from_config(self, config):
+        for opt, opt_value in config.items():
             opt = opt.replace('_', '-')
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
