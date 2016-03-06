@@ -341,7 +341,9 @@ class PyLinter(config.OptionsManagerMixIn,
                   'group': 'Messages control',
                   'help' : 'Enable the message, report, category or checker with the '
                            'given id(s). You can either give multiple identifier '
-                           'separated by comma (,) or put this option multiple time. '
+                           'separated by comma (,) or put this option multiple time '
+                           '(only on the command line, not in the configuration file '
+                           'where it should appear only once). '
                            'See also the "--disable" option for examples. '}),
 
                 ('disable',
