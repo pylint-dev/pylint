@@ -1695,10 +1695,10 @@ class ElifChecker(BaseTokenChecker):
                       'Used when a function or a method has too many nested '
                       'blocks. This makes the code less understandable and '
                       'maintainable.'),
-            'R0102': ('The if statement can be reduced by %s',
+            'R0102': ('The if statement can be replaced with %s',
                       'simplifiable-if-statement',
-                      'Used when an if statement can be reduced to a boolean '
-                      'conversion of the statement\'s test. '),
+                      'Used when an if statement can be replaced with '
+                      '\'bool(test)\'. '),
            }
     options = (('max-nested-blocks',
                 {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
@@ -1762,13 +1762,13 @@ class ElifChecker(BaseTokenChecker):
                 return
             first_branch_is_bool = self._is_bool_const(first_branch)
             else_branch_is_bool = self._is_bool_const(else_branch)
-            reduced_to = "returning bool of test"
+            reduced_to = "'return bool(test)'"
         elif isinstance(first_branch, astroid.Assign):
             if not isinstance(else_branch, astroid.Assign):
                 return
             first_branch_is_bool = self._is_bool_const(first_branch)
             else_branch_is_bool = self._is_bool_const(else_branch)
-            reduced_to = "assigning bool of test"
+            reduced_to = "'var = bool(test)'"
         else:
             return
 
