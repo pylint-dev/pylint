@@ -384,6 +384,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 continue
             if elt_name is astroid.YES:
                 continue
+            if not elt_name.parent:
+                continue
 
             if (not isinstance(elt_name, astroid.Const)
                     or not isinstance(elt_name.value, six.string_types)):
