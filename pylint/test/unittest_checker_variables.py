@@ -38,6 +38,14 @@ class VariablesCheckerTC(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_importfrom(node)
 
+    def test_all_elements_without_parent(self):
+        node = test_utils.extract_node('__all__ = []')
+        node.value.elts.append(astroid.Const('test'))
+        root = node.root()
+        with self.assertNoMessages():
+            self.checker.visit_module(root)
+            self.checker.leave_module(root)
+
     @set_config(callbacks=('callback_', '_callback'))
     def test_custom_callback_string(self):
         """ Test the --calbacks option works. """
