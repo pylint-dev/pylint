@@ -2,6 +2,11 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * A new error was added, 'invalid-length-returned', when the `__len__`
+      special method returned something else than a non-negative number.
+
+      Close issue #557
+
     * Disable reports by default and show the evaluation score by default
 
       As per discussion from issue #746, the reports were disabled by
