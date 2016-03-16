@@ -995,16 +995,22 @@ class SpecialMethodsChecker(BaseChecker):
                   'invalid number of parameters. If it has too few or '
                   'too many, it might not work at all.',
                   {'old_names': [('E0235', 'bad-context-manager')]}),
+        'E0303': ('__len__ does not return non-negative integer',
+                  'invalid-length-returned',
+                  'Used when an __len__ method returns something which is not a '
+                  'non-negative integer', {}),
     }
     priority = -2
 
     @check_messages('unexpected-special-method-signature',
-                    'non-iterator-returned')
+                    'non-iterator-returned', 'invalid-length-returned')
     def visit_functiondef(self, node):
         if not node.is_method():
             return
         if node.name == '__iter__':
             self._check_iter(node)
+        if node.name == '__len__':
+            self._check_len(node)
         if node.name in PYMETHODS:
             self._check_unexpected_method_signature(node)
 
@@ -1085,6 +1091,17 @@ class SpecialMethodsChecker(BaseChecker):
         if infered is not None:
             if not self._is_iterator(infered):
                 self.add_message('non-iterator-returned', node=node)
+
+    def _check_len(self, node):
+        infered = _safe_infer_call_result(node, node)
+        if infered is None or infered is astroid.util.Uninferable:
+            return
+        try:
+            value = infered.value
+        except AttributeError:
+            value = None
+        if not isinstance(value, six.integer_types) or value < 0:
+            self.add_message('invalid-length-returned', node=node)
 
 
 def _ancestors_to_call(klass_node, method='__init__'):
