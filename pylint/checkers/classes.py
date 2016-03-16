@@ -1093,13 +1093,15 @@ class SpecialMethodsChecker(BaseChecker):
                 self.add_message('non-iterator-returned', node=node)
 
     def _check_len(self, node):
-        infered = _safe_infer_call_result(node, node)
-        if infered is None or infered is astroid.util.Uninferable:
+        inferred = _safe_infer_call_result(node, node)
+        if inferred is None or inferred is astroid.util.Uninferable:
             return
-        try:
-            value = infered.value
-        except AttributeError:
-            value = None
+
+        if not isinstance(inferred, astroid.Const):
+            self.add_message('invalid-length-returned', node=node)
+            return
+
+        value = inferred.value
         if not isinstance(value, six.integer_types) or value < 0:
             self.add_message('invalid-length-returned', node=node)
 
