@@ -15,6 +15,11 @@ ChangeLog for Pylint
 
       Closes issue #682.
 
+    * A new error was added, 'invalid-length-returned', when the `__len__`
+      special method returned something else than a non-negative number.
+
+      Close issue #557
+
 
 2016-06-06 -- 1.5.6
 
