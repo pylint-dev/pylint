@@ -409,7 +409,6 @@ class Python3Checker(checkers.BaseChecker):
     def visit_print(self, node):
         self.add_message('print-statement', node=node)
 
-    @utils.check_messages('no-absolute-import', 'import-star-module-level')
     def visit_importfrom(self, node):
         if node.modname == '__future__':
             for name, _ in node.names:
@@ -418,10 +417,12 @@ class Python3Checker(checkers.BaseChecker):
                 elif name == 'absolute_import':
                     self._future_absolute_import = True
         elif not self._future_absolute_import:
-            self.add_message('no-absolute-import', node=node)
+            if self.linter.is_message_enabled('no-absolute-import'):
+                self.add_message('no-absolute-import', node=node)
         if node.names[0][0] == '*':
-            if not isinstance(node.scope(), astroid.Module):
-                self.add_message('import-star-module-level', node=node)
+            if self.linter.is_message_enabled('import-star-module-level'):
+                if not isinstance(node.scope(), astroid.Module):
+                    self.add_message('import-star-module-level', node=node)
 
     @utils.check_messages('no-absolute-import')
     def visit_import(self, node):
