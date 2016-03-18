@@ -2,6 +2,14 @@ ChangeLog for Pylint
 --------------------
 
 --
+    * Let visit_importfrom from Python 3 porting checker be called when everything is disabled
+
+      Because the visit method was filtering the patterns it was expecting to be activated,
+      it didn't run when everything but one pattern was disabled, leading to spurious false 
+      positives
+
+      Close #852
+
     * Don't emit unsubscriptable-value for classes with unknown
       base classes.
 
