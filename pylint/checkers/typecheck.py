@@ -322,7 +322,7 @@ accessed. Python regular expressions are accepted.'}
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
-        if isinstance(self.config.generated_members, str):
+        if isinstance(self.config.generated_members, six.string_types):
             gen = shlex.shlex(self.config.generated_members)
             gen.whitespace += ','
             gen.wordchars += '[]-+'

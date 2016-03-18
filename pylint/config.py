@@ -35,7 +35,10 @@ import re
 import sys
 import time
 
-from six.moves import configparser
+try:
+    import configparser
+except ImportError:
+    from six.moves import configparser
 from six.moves import range
 
 from pylint import utils
