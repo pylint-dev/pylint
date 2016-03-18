@@ -15,6 +15,12 @@ ChangeLog for Pylint
 
       Closes issue #682.
 
+    * Use the configparser backport for Python 2
+
+      This fixes a problem we were having with comments inside values, which is fixed
+      in Python 3's configparser.
+      Close #828
+
     * A new error was added, 'invalid-length-returned', when the `__len__`
       special method returned something else than a non-negative number.
 

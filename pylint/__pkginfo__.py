@@ -33,6 +33,8 @@ install_requires = [
 
 if sys.platform == 'win32':
     install_requires.append('colorama')
+if sys.version_info[0] == 2:
+    install_requires.append('configparser')
 
 
 license = 'GPL'
