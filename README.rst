@@ -18,7 +18,7 @@ minimally sized program. It's highly configurable and handle pragmas to control
 it from within your code. Additionally, it is possible to write plugins to add
 your own checks.
 
-It's a free software distributed under the GNU Public Licence.
+It's a free software distributed under the GNU General Public Licence.
 
 Development is hosted on GitHub: https://github.com/PyCQA/pylint/
 
