@@ -568,7 +568,7 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                    'old_names': [('W0331', 'old-ne-operator')]}),
         'E1608': ('Use of old octal literal',
                   'old-octal-literal',
-                  'Usen when encountering the old octal syntax, '
+                  'Used when encountering the old octal syntax, '
                   'removed in Python 3. To use the new syntax, '
                   'prepend 0o on the number.',
                   {'maxversion': (3, 0)}),

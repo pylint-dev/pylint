@@ -142,7 +142,7 @@ MSGS = {
               'the context manager protocol(__enter__/__exit__).'),
     'E1130': ('%s',
               'invalid-unary-operand-type',
-              'Emitted when an unary operand is used on an object which does not '
+              'Emitted when a unary operand is used on an object which does not '
               'support this type of operation'),
     'E1131': ('%s',
               'unsupported-binary-operation',
