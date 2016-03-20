@@ -13,7 +13,7 @@ since Pylint is under development.
 Please take the time to check if it is already in the issue tracker at
 https://github.com/pycqa/pylint
 
-If you can not find it in the tracker, create a new issue there or discuss your
+If you cannot find it in the tracker, create a new issue there or discuss your
 problem on the code-quality@python.org mailing list.
 
 The code-quality mailing list is also a nice place to provide feedback about
