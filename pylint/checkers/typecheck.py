@@ -153,7 +153,7 @@ MSGS = {
               'Emitted when a function call got multiple values for a keyword.'),
     'E1135': ("Value '%s' doesn't support membership test",
               'unsupported-membership-test',
-              'Emitted when an instance in membership test expression doesn\'t'
+              'Emitted when an instance in membership test expression doesn\'t '
               'implement membership protocol (__contains__/__iter__/__getitem__)'),
     'E1136': ("Value '%s' is unsubscriptable",
               'unsubscriptable-object',
@@ -957,11 +957,11 @@ class IterableChecker(BaseChecker):
 
     msgs = {'E1133': ('Non-iterable value %s is used in an iterating context',
                       'not-an-iterable',
-                      'Used when a non-iterable value is used in place where'
+                      'Used when a non-iterable value is used in place where '
                       'iterable is expected'),
             'E1134': ('Non-mapping value %s is used in a mapping context',
                       'not-a-mapping',
-                      'Used when a non-mapping value is used in place where'
+                      'Used when a non-mapping value is used in place where '
                       'mapping is expected'),
            }
 
