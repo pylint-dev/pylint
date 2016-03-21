@@ -41,7 +41,6 @@ Installation should be as simple as ::
 If you want to install from a source distribution, extract the tarball and run
 the following commands ::
 
-    hg update master
     python setup.py install
 
 You'll have to install dependencies in a similar way. For debian and
