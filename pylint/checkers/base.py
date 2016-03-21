@@ -46,7 +46,8 @@ from pylint.checkers.utils import (
     error_of_type,
     unimplemented_abstract_methods,
     has_known_bases,
-    safe_infer
+    safe_infer,
+    is_comprehension
     )
 from pylint.reporters.ureports.nodes import Table
 
@@ -1510,6 +1511,11 @@ class RecommandationChecker(_BasicChecker):
                       'Emitted when code that iterates with range and len is '
                       'encountered. Such code can be simplified by using the '
                       'enumerate builtin.'),
+            'C0201': ('Consider iterating the dictionary directly instead of calling .keys()',
+                      'consider-iterating-dictionary',
+                      'Emitted when the keys of a dictionary are iterated through the .keys() '
+                      'method. It is enough to just iterate through the dictionary itself, as '
+                      'in "for key in dictionary".'),
            }
 
     @staticmethod
@@ -1518,6 +1524,25 @@ class RecommandationChecker(_BasicChecker):
         if not inferred:
             return False
         return is_builtin_object(inferred) and inferred.name == function
+
+    @check_messages('consider-iterating-dictionary')
+    def visit_call(self, node):
+        inferred = safe_infer(node.func)
+        if inferred in (astroid.Uninferable, None):
+            return
+
+        if not isinstance(inferred, astroid.BoundMethod):
+            return
+        if not isinstance(inferred.bound, astroid.Dict) or inferred.name != 'keys':
+            return
+
+        # Check if the statement is what we're expecting to have.
+        statement = node.statement()
+        if isinstance(statement, astroid.Expr):
+            statement = statement.value
+
+        if isinstance(statement, astroid.For) or is_comprehension(statement):
+            self.add_message('consider-iterating-dictionary', node=node)
 
     @check_messages('consider-using-enumerate')
     def visit_for(self, node):
