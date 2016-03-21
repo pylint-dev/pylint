@@ -1,2 +1,2 @@
-python-astroid (>= 1.4.0)
+python-astroid (>= 1.4.5)
 python-tk
