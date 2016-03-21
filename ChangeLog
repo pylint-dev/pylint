@@ -1,14 +1,8 @@
 ChangeLog for Pylint
 --------------------
 
+
 --
-    * Let visit_importfrom from Python 3 porting checker be called when everything is disabled
-
-      Because the visit method was filtering the patterns it was expecting to be activated,
-      it didn't run when everything but one pattern was disabled, leading to spurious false 
-      positives
-
-      Close #852
 
     * Use the configparser backport for Python 2
 
@@ -29,26 +23,10 @@ ChangeLog for Pylint
       closely measuring when it increases or decreases due to changes
       brought to the code.
 
-    * Use an OrderedDict for storing the configuration elements
-
-      This fixes an issue related to impredictible order of the disable / enable
-      elements from a config file. In certain cases, the disable was coming before
-      the enable which resulted in classes of errors to be enabled, even though the intention
-      was to disable them. The best example for this was in the context of running multiple
-      processes, each one of it having different enables / disables that affected the output.
-
-      Close #815
-
     * Disable the information category messages by default.
 
       This is a step towards making pylint more sane, as
       per the discussion from issue #746.
-
-    * Don't consider bare and broad except handlers as ignoring NameError,
-      AttributeError and similar exceptions, in the context of checkers for
-      these issues.
-
-      Closes issue #826
 
     * Catch more cases as not proper iterables for __slots__ with
       regard to invalid-slots pattern. Closes issue #775.
@@ -133,6 +111,37 @@ ChangeLog for Pylint
     * Added a new warning, 'unsupported-delete-operation', which is
       emitted when item deletion is tried on an object which doesn't
       have this ability. Closes issue #592.
+
+2016-03-21 -- 1.5.5
+
+    * Let visit_importfrom from Python 3 porting checker be called when everything is disabled
+
+      Because the visit method was filtering the patterns it was expecting to be activated,
+      it didn't run when everything but one pattern was disabled, leading to spurious false 
+      positives
+
+      Close #852
+
+    * Don't emit unsubscriptable-value for classes with unknown
+      base classes.
+
+      Close #776.
+
+    * Use an OrderedDict for storing the configuration elements
+
+      This fixes an issue related to impredictible order of the disable / enable
+      elements from a config file. In certain cases, the disable was coming before
+      the enable which resulted in classes of errors to be enabled, even though the intention
+      was to disable them. The best example for this was in the context of running multiple
+      processes, each one of it having different enables / disables that affected the output.
+
+      Close #815
+
+    * Don't consider bare and broad except handlers as ignoring NameError,
+      AttributeError and similar exceptions, in the context of checkers for
+      these issues.
+
+      Closes issue #826
 
 
 2015-12-02 -- 1.5.1
