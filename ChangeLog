@@ -15,6 +15,11 @@ ChangeLog for Pylint
 
       Closes issue #682.
 
+    * Add a new recommendation checker, 'consider-iterating-dictionary', which is emitted
+      which is emitted when a dictionary is iterated through .keys().
+
+      Close #699
+
     * Use the configparser backport for Python 2
 
       This fixes a problem we were having with comments inside values, which is fixed
