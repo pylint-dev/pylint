@@ -679,7 +679,7 @@ class OptionsManagerMixIn(object):
             else:
                 args = list(args)
             (options, args) = self.cmdline_parser.parse_args(args=args)
-            for provider in self._nocallback_options.keys():
+            for provider in self._nocallback_options:
                 config = provider.config
                 for attr in config.__dict__.keys():
                     value = getattr(options, attr, None)
