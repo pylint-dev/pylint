@@ -81,9 +81,9 @@ def _get_first_import(node, context, name, base, level):
                 found = True
                 break
         elif isinstance(first, astroid.ImportFrom):
-            if level == first.level and any(
-                    fullname == '%s.%s' % (first.modname, iname[0])
-                    for iname in first.names):
+            if level == first.level and any(fullname == '%s.%s' % (first.modname, iname[0])
+                                            or name == iname[0]
+                                            for iname in first.names if name != '*'):
                 found = True
                 break
     if found and not are_exclusive(first, node):
