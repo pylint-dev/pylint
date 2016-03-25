@@ -64,7 +64,7 @@ def _get_import_name(importnode, modname):
     return modname
 
 
-def _get_first_import(node, context, name, base, level):
+def _get_first_import(node, context, name, base, level, alias):
     """return the node where [base.]<name> is imported or None if not found
     """
     fullname = '%s.%s' % (base, name) if base else name
@@ -81,11 +81,18 @@ def _get_first_import(node, context, name, base, level):
                 found = True
                 break
         elif isinstance(first, astroid.ImportFrom):
-            if level == first.level and any(fullname == '%s.%s' % (first.modname, iname[0])
-                                            or name == iname[0]
-                                            for iname in first.names if name != '*'):
-                found = True
-                break
+            if level == first.level:
+                for imported_name, imported_alias in first.names:
+                    if fullname == '%s.%s' % (first.modname, imported_name):
+                         found = True
+                         break
+                    if name != '*' and name == imported_name:
+                         if alias or imported_alias:
+                             continue
+                         found = True
+                         break
+                if found:
+                    break
     if found and not are_exclusive(first, node):
         return first
 
@@ -598,8 +605,8 @@ given file (report RP0402 must not be disabled)'}
             contexts.append((root, None))
 
         for context, level in contexts:
-            for name, _ in node.names:
-                first = _get_first_import(node, context, name, basename, level)
+            for name, alias in node.names:
+                first = _get_first_import(node, context, name, basename, level, alias)
                 if first is not None:
                     self.add_message('reimported', node=node,
                                      args=(name, first.fromlineno))
