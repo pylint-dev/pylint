@@ -83,8 +83,7 @@ this disables -f values")),
     ("ignore", {'type' : "csv", 'metavar' : "<file>",
                 'dest' : "black_list", "default" : ('CVS',),
                 'help' : "add <file> (may be a directory) to the black list. "
-                         "It should be a base name, not a path. You may set "
-                         "this option multiple times."}),
+                         "It should be a base name, not a path."}),
     ("project", {'default': "No Name", 'type' : 'string', 'short': 'p',
                  'metavar': '<project name>', 'help': 'set the project name.'}),
 )
