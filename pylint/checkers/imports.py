@@ -86,9 +86,7 @@ def _get_first_import(node, context, name, base, level, alias):
                     if fullname == '%s.%s' % (first.modname, imported_name):
                         found = True
                         break
-                    if name != '*' and name == imported_name:
-                        if alias or imported_alias:
-                            continue
+                    if name != '*' and name == imported_name and not (alias or imported_alias):
                         found = True
                         break
                 if found:
