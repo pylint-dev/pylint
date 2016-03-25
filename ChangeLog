@@ -4,6 +4,11 @@ ChangeLog for Pylint
 
 --
 
+    * Add a new option, 'redefining-builtins-modules', for controlling the modules
+      which can redefine builtins, such as six.moves and future.builtins.
+
+      Close #464.
+
     * 'reimported' is emitted when the same name is imported from different module.
 
       Close #162.

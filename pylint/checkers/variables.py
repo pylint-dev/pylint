@@ -339,7 +339,13 @@ class VariablesChecker(BaseChecker):
                  'help' : 'List of strings which can identify a callback '
                           'function by name. A callback name must start or '
                           'end with one of those strings.'}
-               )
+               ),
+               ("redefining-builtins-modules",
+                {'default': ('six.moves', 'future.builtins'), 'type': 'csv',
+                 'metavar': '<comma separated list>',
+                 'help': 'List of qualified module names which can have objects '
+                         'that can redefine builtins.'}
+               ),
               )
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -353,7 +359,8 @@ class VariablesChecker(BaseChecker):
         self._to_consume = [(copy(node.locals), {}, 'module')]
         for name, stmts in six.iteritems(node.locals):
             if is_builtin(name) and not is_inside_except(stmts[0]):
-                # do not print Redefining builtin for additional builtins
+                if self._should_ignore_redefined_builtin(stmts[0]):
+                    continue
                 self.add_message('redefined-builtin', args=name, node=stmts[0])
 
     @check_messages('unused-import', 'unused-wildcard-import',
@@ -552,7 +559,8 @@ class VariablesChecker(BaseChecker):
                 if not dummy_rgx.match(name):
                     self.add_message('redefined-outer-name',
                                      args=(name, line), node=stmt)
-            elif is_builtin(name):
+
+            elif is_builtin(name) and not self._should_ignore_redefined_builtin(stmt):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
 
@@ -736,6 +744,11 @@ class VariablesChecker(BaseChecker):
                                     astroid.GeneratorExp))
                     and assign.statement() is not node.statement()):
                 self.add_message('undefined-loop-variable', args=name, node=node)
+
+    def _should_ignore_redefined_builtin(self, stmt):
+        if not isinstance(stmt, astroid.ImportFrom):
+            return False
+        return stmt.modname in self.config.redefining_builtins_modules
 
     @check_messages('redefine-in-handler')
     def visit_excepthandler(self, node):

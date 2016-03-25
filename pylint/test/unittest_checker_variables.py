@@ -89,6 +89,40 @@ class VariablesCheckerTC(CheckerTestCase):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
 
+    def test_redefined_builtin_ignored(self):
+        node = astroid.parse('''
+        from future.builtins import open
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_module(node)
+
+    @set_config(redefining_builtins_modules=('os',))
+    def test_redefined_builtin_custom_modules(self):
+        node = astroid.parse('''
+        from os import open
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_module(node)
+
+    @set_config(redefining_builtins_modules=('os',))
+    def test_redefined_builtin_modname_not_ignored(self):
+        node = astroid.parse('''
+        from future.builtins import open
+        ''')
+        with self.assertAddsMessages(
+                Message('redefined-builtin', node=node.body[0], args='open')):
+            self.checker.visit_module(node)
+
+    @set_config(redefining_builtins_modules=('os',))
+    def test_redefined_builtin_in_function(self):
+        node = test_utils.extract_node('''
+        def test():
+            from os import open
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_module(node.root())
+            self.checker.visit_functiondef(node)
+
 
 class MissingSubmoduleTest(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
