@@ -15,6 +15,10 @@ ChangeLog for Pylint
 
       Closes issue #682.
 
+    * 'reimported' is emitted when the same name is imported from different module.
+
+      Close #162.
+
     * Add a new recommendation checker, 'consider-iterating-dictionary', which is emitted
       which is emitted when a dictionary is iterated through .keys().
 
