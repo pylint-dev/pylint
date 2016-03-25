@@ -319,18 +319,19 @@ class VariablesChecker(BaseChecker):
     priority = -1
     options = (("init-import",
                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'help' : 'Tells whether we should check for unused import in \
-__init__ files.'}),
+                 'help' : 'Tells whether we should check for unused import in '
+                          '__init__ files.'}),
                ("dummy-variables-rgx",
                 {'default': ('_$|dummy'),
                  'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'A regular expression matching the name of dummy \
-variables (i.e. expectedly not used).'}),
+                 'help' : 'A regular expression matching the name of dummy '
+                          'variables (i.e. expectedly not used).'}),
                ("additional-builtins",
                 {'default': (), 'type' : 'csv',
                  'metavar' : '<comma separated list>',
-                 'help' : 'List of additional names supposed to be defined in \
-builtins. Remember that you should avoid to define new builtins when possible.'
+                 'help' : 'List of additional names supposed to be defined in '
+                          'builtins. Remember that you should avoid to define new builtins '
+                          'when possible.'
                 }),
                ("callbacks",
                 {'default' : ('cb_', '_cb'), 'type' : 'csv',
