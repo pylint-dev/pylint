@@ -1,6 +1,12 @@
 ChangeLog for Pylint
 --------------------
 
+--
+    * epylint.py_run does not crash on big files, using .communicate() instead of .wait()
+
+      Close #599
+
+
 2016-03-21 -- 1.5.5
 
     * Let visit_importfrom from Python 3 porting checker be called when everything is disabled
