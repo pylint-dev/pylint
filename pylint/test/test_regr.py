@@ -26,6 +26,7 @@ import unittest
 from pylint.testutils import TestReporter
 from pylint.lint import PyLinter
 from pylint import checkers
+from pylint import epylint
 
 test_reporter = TestReporter()
 linter = PyLinter()
@@ -143,6 +144,14 @@ class NonRegrTC(unittest.TestCase):
         linter.check(join(REGR_DATA, 'bad_package'))
         got = linter.reporter.finalize().strip()
         self.assertIn(expected, got)
+
+    def test_epylint_does_not_block_on_huge_files(self):
+        path = join(REGR_DATA, 'huge.py')
+        out, err = epylint.py_run(path, return_std=True)
+        self.assertTrue(hasattr(out, 'read'))
+        self.assertTrue(hasattr(err, 'read'))
+        output = out.read(10)
+        self.assertIsInstance(output, str)
 
 
 if __name__ == '__main__':

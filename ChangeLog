@@ -3,6 +3,9 @@ ChangeLog for Pylint
 
 
 --
+    * epylint.py_run does not crash on big files, using .communicate() instead of .wait()
+
+      Close #599
 
     * Add a new option, 'redefining-builtins-modules', for controlling the modules
       which can redefine builtins, such as six.moves and future.builtins.

@@ -53,6 +53,9 @@ import os.path as osp
 import sys
 from subprocess import Popen, PIPE
 
+import six
+
+
 def _get_env():
     '''Extracts the environment PYTHONPATH and appends the current sys.path to
     those.'''
@@ -157,10 +160,10 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
     # Call pylint in a subprocess
     process = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
                     env=_get_env(), universal_newlines=True)
-    process.wait()
+    proc_stdout, proc_stderr = process.communicate()
     # Return standard output and error
     if return_std:
-        return (process.stdout, process.stderr)
+        return six.moves.StringIO(proc_stdout), six.moves.StringIO(proc_stderr)
 
 
 def Run():
