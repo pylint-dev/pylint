@@ -28,6 +28,7 @@ from __future__ import print_function
 import contextlib
 import collections
 import copy
+import io
 import optparse
 import os
 import pickle
@@ -616,7 +617,11 @@ class OptionsManagerMixIn(object):
             config_file = os.path.expanduser(config_file)
         if config_file and os.path.exists(config_file):
             parser = self.cfgfile_parser
-            parser.read([config_file])
+
+            # Use this encoding in order to strip the BOM marker, if any.
+            with io.open(config_file, 'r', encoding='utf_8_sig') as fp:
+                parser.readfp(fp)
+
             # normalize sections'title
             for sect, values in list(parser._sections.items()):
                 if not sect.isupper() and values:

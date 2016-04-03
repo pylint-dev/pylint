@@ -347,6 +347,13 @@ class RunTC(unittest.TestCase):
         self._test_output([path, "--confidence=HIGH,INFERENCE"],
                           expected_output=expected)
 
+    def test_bom_marker(self):
+        path = join(HERE, 'regrtest_data', 'meta.py')
+        config_path = join(HERE, 'regrtest_data', '.pylintrc')
+        expected = 'Your code has been rated at 10.00/10'
+        self._test_output([path, "--rcfile=%s" % config_path],
+                          expected_output=expected)
+
 
 if __name__ == '__main__':
     unittest.main()
