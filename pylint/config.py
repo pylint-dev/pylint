@@ -639,6 +639,7 @@ class OptionsManagerMixIn(object):
 
             # Use this encoding in order to strip the BOM marker, if any.
             with io.open(config_file, 'r', encoding='utf_8_sig') as fp:
+                # pylint: disable=deprecated-method
                 parser.readfp(fp)
 
             # normalize sections'title
