@@ -3,6 +3,10 @@ ChangeLog for Pylint
 
 
 --
+    * config files with BOM markers can now be read.
+
+      Close #864.
+
     * epylint.py_run does not crash on big files, using .communicate() instead of .wait()
 
       Close #599
