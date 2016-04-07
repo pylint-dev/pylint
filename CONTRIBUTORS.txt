@@ -83,3 +83,5 @@ Order doesn't matter (not that much, at least ;)
 * Mike Frysinger: contributor.
 
 * Łukasz Rogalski: invalid-length-returned
+
+* Moisés López: Support for deprecated-modules in modules not installed.
