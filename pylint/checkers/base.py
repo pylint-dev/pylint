@@ -1528,7 +1528,7 @@ class RecommandationChecker(_BasicChecker):
     @check_messages('consider-iterating-dictionary')
     def visit_call(self, node):
         inferred = safe_infer(node.func)
-        if inferred in (astroid.Uninferable, None):
+        if inferred in (astroid.YES, None):
             return
 
         if not isinstance(inferred, astroid.BoundMethod):
