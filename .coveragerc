@@ -1,0 +1,6 @@
+[report]
+include =
+    */pylint/*/pylint/*
+
+omit =
+    */test/*
