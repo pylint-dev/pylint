@@ -3,14 +3,13 @@ from pylint.interfaces import IAstroidChecker, HIGH
 from pylint.checkers.utils import check_messages
 
 
-class _BasicChecker(BaseChecker):
-    __implements__ = IAstroidChecker
-    name = 'basic'
-
-
-class DocStringAddicChecker(_BasicChecker):
+class DocStringAddicChecker(BaseChecker):
     """Checks format of docstrings based on PEP 0257
     """
+    __implements__ = IAstroidChecker
+    name = 'docstringaddic'
+
+
     msgs = {
         'C0198': ('Bad docstring quotes in %s, expected """, given %s',
                   'bad-docstring-quotes',
