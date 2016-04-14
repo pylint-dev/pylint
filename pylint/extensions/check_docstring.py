@@ -9,7 +9,6 @@ class DocStringAddicChecker(BaseChecker):
     __implements__ = IAstroidChecker
     name = 'docstringaddic'
 
-
     msgs = {
         'C0198': ('Bad docstring quotes in %s, expected """, given %s',
                   'bad-docstring-quotes',
@@ -43,13 +42,18 @@ class DocStringAddicChecker(BaseChecker):
         # of the file and change triple single quotes by triple double quotes
         elif docstring:
             lineno = node.fromlineno
-            line = node.root().file_stream.readlines()[lineno].lstrip()
-            line = line.decode('utf-8')
+            with open(node.root().file) as stream:
+                line = stream.readlines()[lineno].lstrip()
             if line and line.find('"""') == 0:
                 return
-            quotes = line and '\'\'\'' in line and '\'\'\'' or line and \
-                line[0] == '"' and '"' or line and line[0] == '\'' and \
-                '\'' or False
+            if line and '\'\'\'' in line:
+                quotes = '\'\'\''
+            elif line and line[0] == '"':
+                quotes = '"'
+            elif line and line[0] == '\'':
+                quotes = '\''
+            else:
+                quotes = False
             if quotes:
                 self.add_message('bad-docstring-quotes', node=node,
                                  args=(node_type, quotes), confidence=HIGH)
