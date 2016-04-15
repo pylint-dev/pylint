@@ -44,7 +44,7 @@ class DocStringAddicChecker(BaseChecker):
         # of the file and change triple single quotes by triple double quotes
         elif docstring:
             lineno = node.fromlineno + 1
-            line = linecache.getline(node.root().file,lineno).lstrip()
+            line = linecache.getline(node.root().file, lineno).lstrip()
             if line and line.find('"""') == 0:
                 return
             if line and '\'\'\'' in line:
