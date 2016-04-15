@@ -2,9 +2,13 @@
 
 
 def check_messages(*messages):
-    """docstring"""
+    """
+    docstring"""
     return messages
 
+def function2():
+    """Test Ok"""
+    pass
 
 class FFFF(object):
     """

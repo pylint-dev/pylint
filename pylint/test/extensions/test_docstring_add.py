@@ -22,6 +22,7 @@ class TestReporter(BaseReporter):
 class CheckDocStringAddicTC(unittest.TestCase):
 
     expected_msg = [
+        'First line empty in function docstring',
         'First line empty in class docstring',
         'Bad docstring quotes in method, expected """, given \'\'\'',
         'Bad docstring quotes in method, expected """, given "',
@@ -29,6 +30,7 @@ class CheckDocStringAddicTC(unittest.TestCase):
         'Bad docstring quotes in method, expected """, given \'',
     ]
     expected_symbol = [
+        'docstring-first-line-empty',
         'docstring-first-line-empty',
         'bad-docstring-quotes',
         'bad-docstring-quotes',
@@ -48,7 +50,7 @@ class CheckDocStringAddicTC(unittest.TestCase):
                                   'docstring.py')
         self._linter.check([docstring_test])
         msgs = self._linter.reporter.messages
-        self.assertEqual(len(msgs), 5)
+        self.assertEqual(len(msgs), 6)
         for msg, expected_symbol, expected_msg in zip(msgs,
                                                       self.expected_symbol,
                                                       self.expected_msg):
