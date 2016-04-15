@@ -1,3 +1,5 @@
+import linecache
+
 from pylint.checkers.base import BaseChecker
 from pylint.interfaces import IAstroidChecker, HIGH
 from pylint.checkers.utils import check_messages
@@ -38,12 +40,11 @@ class DocStringAddicChecker(BaseChecker):
             self.add_message('docstring-first-line-empty', node=node,
                              args=(node_type,), confidence=HIGH)
         # Bad Docstring Quotes
-        # I had to use "file_stream" because node.as_string() renders contents
+        # I had to use "linecache" because node.as_string() renders contents
         # of the file and change triple single quotes by triple double quotes
         elif docstring:
-            lineno = node.fromlineno
-            with open(node.root().file) as stream:
-                line = stream.readlines()[lineno].lstrip()
+            lineno = node.fromlineno + 1
+            line = linecache.getline(node.root().file,lineno).lstrip()
             if line and line.find('"""') == 0:
                 return
             if line and '\'\'\'' in line:
