@@ -17,3 +17,5 @@ debian/pylint.*.log
 debian/pylint.*.debhelper
 debian/pylint.substvars
 debian/pylint
+.coverage
+.coverage.*

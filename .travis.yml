@@ -27,7 +27,7 @@ install:
   - tox --version
   - coverage --version
 script:
-  - tox -e $TOXENV
+  - tox -e coverage-erase,$TOXENV
 after_success:
   - tox -e coveralls
 after_failure:
