@@ -26,6 +26,7 @@ import astroid
 from astroid.bases import Generator, BUILTINS
 from astroid.exceptions import InconsistentMroError, DuplicateBasesError
 from astroid import objects
+from astroid.node_classes import Expr, Return
 from astroid.scoped_nodes import function_to_method
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
@@ -502,6 +503,27 @@ a metaclass class method.'}
                 self.add_message('method-hidden', args=args, node=node)
         except astroid.NotFoundError:
             pass
+
+        if len(node.body) == 1 and isinstance(node.body[0], (Expr, Return)):
+            value = node.body[0].value
+            super_func = value.parent.parent  # TODO: How do you get access to the method being overriden?
+            func = value
+            # If the args passed to this function is exactly the same, this is a normal override
+            # If they've changed the args, then the behaviour has changed.
+            # if name == "__init__" then it can be a Expr, otherwise we're changing the behaviour by not returning
+            # This only detects if the way super is called is exactly the same as the parent signature
+            # If it isn't - it's likely that changes are being made
+            value_args = [getattr(x, "name", None) for x in func.args]
+            parent_args = [getattr(x, "name", None) for x in super_func.args.args]
+            value_kwargs = [getattr(x, "name", None) for x in func.kwargs]
+            parent_kwargs = [getattr(x, "name", None) for x in super_func.args.kwargs]
+            print value
+            print value_args, parent_args
+            print value_kwargs, parent_kwargs
+            if value_args == parent_args and value_kwargs == parent_kwargs:
+                # Check other arg types
+                self.add_message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+
 
     visit_asyncfunctiondef = visit_functiondef
 
