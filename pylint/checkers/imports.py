@@ -24,8 +24,8 @@ import six
 
 import astroid
 from astroid import are_exclusive
-from astroid.modutils import (get_module_part, is_standard_module,
-                              file_from_modpath)
+from astroid.modutils import (get_module_part, is_standard_module)
+import isort
 
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport, get_global_option
@@ -483,36 +483,30 @@ given file (report RP0402 must not be disabled)'}
         extern_imports = []
         local_imports = []
         std_imports = []
+        # TODO: Add parameters to known libraries category
+        isort_obj = isort.SortImports(file_contents='')
         for node, modname in self._imports_stack:
             package = modname.split('.')[0]
-            if is_standard_module(modname):
+            import_category = isort_obj.place_module(package)
+            if import_category in ('FUTURE', 'STDLIB'):
                 std_imports.append((node, package))
                 wrong_import = extern_imports or local_imports
-                if not wrong_import:
-                    continue
-                if self._is_fallback_import(node, wrong_import):
-                    continue
-                self.add_message('wrong-import-order', node=node,
-                                 args=('standard import "%s"' % node.as_string(),
-                                       '"%s"' % wrong_import[0][0].as_string()))
-            else:
-                try:
-                    filename = file_from_modpath([package])
-                except ImportError:
-                    continue
-                if not filename:
-                    continue
-
-                filename = os.path.normcase(os.path.abspath(filename))
-                if not any(filename.startswith(path) for path in self._site_packages):
-                    local_imports.append((node, package))
-                    continue
+                if wrong_import:
+                    self.add_message('wrong-import-order', node=node,
+                                     args=('standard import "%s"' % node.as_string(),
+                                           '"%s"' % wrong_import[0][0].as_string()))
+            elif import_category == 'THIRDPARTY':
                 extern_imports.append((node, package))
-                if not local_imports:
-                    continue
-                self.add_message('wrong-import-order', node=node,
-                                 args=('external import "%s"' % node.as_string(),
-                                       '"%s"' % local_imports[0][0].as_string()))
+                wrong_import = local_imports
+                if wrong_import:
+                    self.add_message('wrong-import-order', node=node,
+                                     args=('external import "%s"' % node.as_string(),
+                                           '"%s"' % wrong_import[0][0].as_string()))
+            elif import_category in ('FIRSTPARTY', 'LOCALFOLDER'):
+                local_imports.append((node, package))
+            else:
+                raise BaseException('Bad import category %s', import_category)
+
         return std_imports, extern_imports, local_imports
 
     def _get_imported_module(self, importnode, modname):
