@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring, wrong-import-position,invalid-name
+# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring, wrong-import-position,invalid-name, wrong-import-order
 """check use of super"""
 
 from unknown import Missing

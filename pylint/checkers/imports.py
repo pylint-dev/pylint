@@ -516,21 +516,23 @@ given file (report RP0402 must not be disabled)'}
             if import_category in ('FUTURE', 'STDLIB'):
                 std_imports.append((node, package))
                 wrong_import = extern_imports or local_imports
+                if self._is_fallback_import(node, wrong_import):
+                    continue
                 if wrong_import:
                     self.add_message('wrong-import-order', node=node,
                                      args=('standard import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
-            elif import_category == 'THIRDPARTY':
+            elif import_category in ('FIRSTPARTY', 'THIRDPARTY'):
                 extern_imports.append((node, package))
                 wrong_import = local_imports
                 if wrong_import:
                     self.add_message('wrong-import-order', node=node,
                                      args=('external import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
-            elif import_category in ('FIRSTPARTY', 'LOCALFOLDER'):
+            elif import_category == 'LOCALFOLDER':
                 local_imports.append((node, package))
             else:
-                raise BaseException('Bad import category %s', import_category)
+                raise ValueError('Bad import category %s', import_category)
 
         return std_imports, extern_imports, local_imports
 
