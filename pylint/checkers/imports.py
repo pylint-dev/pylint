@@ -486,7 +486,10 @@ given file (report RP0402 must not be disabled)'}
         """Record the package `node` imports from"""
         importedname = importedmodnode.name if importedmodnode else None
         if not importedname:
-            importedname = node.names[0][0].split('.')[0]
+            if isinstance(node, astroid.ImportFrom):
+                importedname = node.modname
+            else:
+                importedname = node.names[0][0].split('.')[0]
         self._imports_stack.append((node, importedname))
 
     @staticmethod
