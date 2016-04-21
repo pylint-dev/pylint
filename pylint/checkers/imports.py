@@ -224,6 +224,11 @@ MSGS = {
               'Used when code and imports are mixed'),
     }
 
+
+DEFAULT_STANDARD_LIBRARY = ()
+DEFAULT_KNOWN_THIRD_PARTY = ('enchant',)
+
+
 class ImportsChecker(BaseChecker):
     """checks for
     * external modules dependencies
@@ -270,6 +275,21 @@ given file (report RP0402 must not be disabled)'}
                  'help' : 'Create a graph of internal dependencies in the \
 given file (report RP0402 must not be disabled)'}
                ),
+               ('known-standard-library',
+                {'default': DEFAULT_STANDARD_LIBRARY,
+                 'type': 'csv',
+                 'metavar': '<modules>',
+                 'help': 'Force import order to recognize a module as part of' \
+                         ' the standard compatibility libraries.'}
+               ),
+               ('known-third-party',
+                {'default': DEFAULT_KNOWN_THIRD_PARTY,
+                 'type': 'csv',
+                 'metavar': '<modules>',
+                 'help': 'Force import order to recognize a module as part of' \
+                         ' a third party library.'}
+               ),
+
               )
 
     def __init__(self, linter=None):
@@ -483,8 +503,10 @@ given file (report RP0402 must not be disabled)'}
         extern_imports = []
         local_imports = []
         std_imports = []
-        # TODO: Add parameters to known libraries category
-        isort_obj = isort.SortImports(file_contents='')
+        isort_obj = isort.SortImports(
+            file_contents='', known_third_party=self.config.known_third_party,
+            known_standard_library=self.config.known_standard_library,
+        )
         for node, modname in self._imports_stack:
             package = modname.split('.')[0]
             import_category = isort_obj.place_module(package)
