@@ -80,10 +80,10 @@ this disables -f values")),
     ("output", dict(short="o", dest="output_format", action="store",
                     default="dot", metavar="<format>",
                     help="create a *.<format> output file if format available.")),
-    ("ignore", {'type' : "csv", 'metavar' : "<file>",
+    ("ignore", {'type' : "csv", 'metavar' : "<file[,file...]>",
                 'dest' : "black_list", "default" : ('CVS',),
-                'help' : "add <file> (may be a directory) to the black list. "
-                         "It should be a base name, not a path."}),
+                'help' : "Add files or directories to the blacklist. They "
+                         "should be base names, not paths."}),
     ("project", {'default': "No Name", 'type' : 'string', 'short': 'p',
                  'metavar': '<project name>', 'help': 'set the project name.'}),
 )

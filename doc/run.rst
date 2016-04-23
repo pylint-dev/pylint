@@ -121,10 +121,8 @@ configuration.
 
 Other useful global options include:
 
---ignore=<file[,file]>       Add <file> (may be a directory) to the black
-                             list. It should be a base name, not a path.
-                             Multiple entries can be given, separated by
-                             comma.
+--ignore=<file[,file...]>  Add files or directories to the blacklist. They
+                           should be base names, not paths.
 --persistent=y_or_n        Pickle collected data for later comparisons.
 --output-format=<format>   Select output format (text, html, custom).
 --msg-template=<template>  Modifiy text output message template.
