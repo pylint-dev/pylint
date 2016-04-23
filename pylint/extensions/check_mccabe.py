@@ -19,7 +19,7 @@ class MethodMcCabeChecker(BaseChecker):
 
     msgs = {
         'R1260': (
-            '%s is too complex. The McCabe rating is greather than %d',
+            '%s is too complex. The McCabe rating is %d',
             'too-complex',
             'Used when a method or function is too complex based on '
             'McCabe Complexity Cyclomatic'),
@@ -35,24 +35,25 @@ class MethodMcCabeChecker(BaseChecker):
     )
 
     @staticmethod
-    def _get_ast_tree(code):
+    def _get_ast_tree(node):
         """Get a compile python tree of nodes from code"""
         # TODO: Check if astroid get build a similar tree
+        code = node.as_string()
         tree = compile(code, '', "exec", ast.PyCF_ONLY_AST)
         return tree
 
     def _check_too_complex(self, node):
         """Check too complex rating and
         add message if is greather than max_complexity stored from options"""
-        tree = self._get_ast_tree(node.as_string())
+        tree = self._get_ast_tree(node)
         max_complexity = self.config.max_complexity
         McCabeChecker.max_complexity = max_complexity
         results = McCabeChecker(tree, '').run()
-        if len(list(results)):
-            # TODO: Get mccabe rating
+        for _, _, msg, _ in results:
+            mccabe_rating = int(msg[msg.index('(') + 1:msg.index(')')])
             self.add_message(
                 'too-complex', node=node, confidence=HIGH,
-                args=(node.name, max_complexity - 1)
+                args=(node.name, mccabe_rating)
             )
 
     @check_messages('too-complex')
