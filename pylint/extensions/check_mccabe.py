@@ -9,13 +9,13 @@ from pylint.checkers.utils import check_messages
 from pylint.interfaces import HIGH, IAstroidChecker
 
 
-class MethodMcCabeChecker(BaseChecker):
+class McCabeMethodChecker(BaseChecker):
     """Checks McCabe complexity cyclomatic threshold in methods and functions
     to validate a too complex code.
     """
 
     __implements__ = IAstroidChecker
-    name = 'methodmccabechecker'
+    name = 'design'
 
     msgs = {
         'R1260': (
@@ -26,7 +26,6 @@ class MethodMcCabeChecker(BaseChecker):
     }
     options = (
         ('max-complexity', {
-            'group': 'design',
             'default': 10,
             'type': 'int',
             'metavar': '<int>',
@@ -37,7 +36,7 @@ class MethodMcCabeChecker(BaseChecker):
     @staticmethod
     def _get_ast_tree(node):
         """Get a compile python tree of nodes from code"""
-        # TODO: Check if astroid get build a similar tree
+        # TODO: Check if astroid build a similar tree
         code = node.as_string()
         tree = compile(code, '', "exec", ast.PyCF_ONLY_AST)
         return tree
@@ -69,4 +68,4 @@ def register(linter):
     :param linter: Main interface object for Pylint plugins
     :type linter: Pylint object
     """
-    linter.register_checker(MethodMcCabeChecker(linter))
+    linter.register_checker(McCabeMethodChecker(linter))
