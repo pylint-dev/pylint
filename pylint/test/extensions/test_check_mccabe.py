@@ -22,7 +22,7 @@ class TestReporter(BaseReporter):
 class TestMcCabeMethodChecker(unittest.TestCase):
     """Test McCabe Method Checker"""
 
-    expected_msg = [
+    expected_msgs = [
         'f1 is too complex. The McCabe rating is 1',
         'f2 is too complex. The McCabe rating is 1',
         'f3 is too complex. The McCabe rating is 3',
@@ -30,13 +30,10 @@ class TestMcCabeMethodChecker(unittest.TestCase):
         'f5 is too complex. The McCabe rating is 2',
         'f6 is too complex. The McCabe rating is 2',
         'f7 is too complex. The McCabe rating is 3',
-        'b is too complex. The McCabe rating is 2',
-        'c is too complex. The McCabe rating is 1',
         'f8 is too complex. The McCabe rating is 4',
         'f9 is too complex. The McCabe rating is 9',
         'f10 is too complex. The McCabe rating is 11',
     ]
-    expected_symbol = ['too-complex'] * len(expected_msg)
 
     @classmethod
     def setUpClass(cls):
@@ -52,13 +49,8 @@ class TestMcCabeMethodChecker(unittest.TestCase):
         mccabe_test = osp.join(
             osp.dirname(osp.abspath(__file__)), 'data', 'mccabe.py')
         self._linter.check([mccabe_test])
-        msgs = self._linter.reporter.messages
-        self.assertEqual(len(msgs), len(self.expected_msg))
-        for msg, expected_symbol, expected_msg in zip(msgs,
-                                                      self.expected_symbol,
-                                                      self.expected_msg):
-            self.assertEqual(msg.symbol, expected_symbol)
-            self.assertEqual(msg.msg, expected_msg)
+        real_msgs = [message.msg for message in self._linter.reporter.messages]
+        self.assertEqual(sorted(self.expected_msgs), sorted(real_msgs))
 
 
 if __name__ == '__main__':
