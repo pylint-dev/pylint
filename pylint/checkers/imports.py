@@ -531,9 +531,6 @@ given file (report RP0402 must not be disabled)'}
                                            '"%s"' % wrong_import[0][0].as_string()))
             elif import_category == 'LOCALFOLDER':
                 local_imports.append((node, package))
-            else:
-                raise ValueError('Bad import category %s', import_category)
-
         return std_imports, extern_imports, local_imports
 
     def _get_imported_module(self, importnode, modname):
