@@ -20,13 +20,16 @@ before_install:
   - uname -a
   - lsb_release -a
 install:
-  - pip install tox
+  - pip install tox coverage coveralls
   - virtualenv --version
   - easy_install --version
   - pip --version
   - tox --version
+  - coverage --version
 script:
-  - tox -e $TOXENV
+  - tox -e coverage-erase,$TOXENV
+after_success:
+  - tox -e coveralls
 after_failure:
   - more .tox/log/* | cat
   - more .tox/*/log/* | cat
