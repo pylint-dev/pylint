@@ -26,8 +26,9 @@ class ParamDocChecker(BaseChecker):
     docstrings
 
     * Check that all function, method and constructor parameters are mentioned
-      in the params and types part of the docstring. By convention,
-      constructor parameters are documented in the class docstring.
+      in the params and types part of the docstring.  Constructor parameters
+      can be documented in either the class docstring or ``__init__`` docstring,
+      but not both.
     * Check that there are no naming inconsistencies between the signature and
       the documentation, i.e. also report documented parameters that are missing
       in the signature. This is important to find cases where parameters are
@@ -52,6 +53,9 @@ class ParamDocChecker(BaseChecker):
         'W9004': ('"%s" missing or differing in parameter type documentation',
                   'missing-type-doc',
                   'Please add parameter type declarations for all parameters.'),
+        'W9005': ('"%s" has constructor parameters documented in class and __init__',
+                  'multiple-constructor-doc',
+                  'Please remove parameter declarations in the class or constructor.'),
     }
 
     options = (('accept-no-param-doc',
@@ -75,13 +79,23 @@ class ParamDocChecker(BaseChecker):
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
+        node_allow_no_param = None
+
         if node.name in self.constructor_names:
             class_node = node_frame_class(node)
             if class_node is not None:
+                self.check_single_constructor_params(class_node, node)
+
+                # __init__ or class docstrings can have no parameters documented
+                # as long as the other documents them.
+                node_allow_no_param = self.doc_has_params(class_node.doc) or None
+                class_allow_no_param = self.doc_has_params(node.doc) or None
+
                 self.check_arguments_in_docstring(
-                    class_node.doc, node.args, class_node)
-                return
-        self.check_arguments_in_docstring(node.doc, node.args, node)
+                    class_node.doc, node.args, class_node, class_allow_no_param)
+
+        self.check_arguments_in_docstring(
+            node.doc, node.args, node, node_allow_no_param)
 
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
@@ -134,7 +148,8 @@ class ParamDocChecker(BaseChecker):
 
     not_needed_param_in_docstring = set(['self', 'cls'])
 
-    def check_arguments_in_docstring(self, doc, arguments_node, warning_node):
+    def check_arguments_in_docstring(self, doc, arguments_node, warning_node,
+                                     accept_no_param_doc=None):
         """Check that all parameters in a function, method or class constructor
         on the one hand and the parameters mentioned in the parameter
         documentation (e.g. the Sphinx tags 'param' and 'type') on the other
@@ -162,6 +177,11 @@ class ParamDocChecker(BaseChecker):
 
         :param warning_node: The node to assign the warnings to
         :type warning_node: :class:`astroid.scoped_nodes.Node`
+
+        :param accept_no_param_doc: Whether or not to allow no parameters
+            to be documented.
+            If None then this value is read from the configuration.
+        :type accept_no_param_doc: bool or None
         """
         # Tolerate missing param or type declarations if there is a link to
         # another method carrying the same name.
@@ -170,6 +190,8 @@ class ParamDocChecker(BaseChecker):
 
         doc = doc.expandtabs()
 
+        if accept_no_param_doc is None:
+            accept_no_param_doc = self.config.accept_no_param_doc
         tolerate_missing_params = self.re_for_parameters_see.search(doc) is not None
 
         # Collect the function arguments.
@@ -188,7 +210,7 @@ class ParamDocChecker(BaseChecker):
 
         # Tolerate no parameter documentation at all.
         if (not params_with_doc and not params_with_type
-                and self.config.accept_no_param_doc):
+                and accept_no_param_doc):
             tolerate_missing_params = True
 
         def _compare_args(found_argument_names, message_id, not_needed_names):
@@ -301,6 +323,21 @@ class ParamDocChecker(BaseChecker):
 
         return params_with_doc, params_with_type
 
+    def check_single_constructor_params(self, class_node, init_node):
+        if (self.doc_has_params(class_node.doc)
+                and self.doc_has_params(init_node.doc)):
+            self.add_message(
+                'multiple-constructor-doc',
+                args=(class_node.name,),
+                node=class_node)
+
+    def doc_has_params(self, doc):
+        if doc is None:
+            return False
+
+        return (self.re_sphinx_param_in_docstring.search(doc) is not None
+                or self.re_google_param_section.search(doc) is not None
+                or self.re_numpy_param_section.search(doc) is not None)
 
 def register(linter):
     """Required method to auto register this checker.
