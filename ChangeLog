@@ -3,6 +3,18 @@ ChangeLog for Pylint
 
 
 --
+    * Added a new extension, check_docstring, for checking PEP 257 conventions.
+
+      Closes #868.
+
+    * Switch to using isort internally for wrong-import-order.
+
+      Closes #879.
+
+    * check_docs extension can find constructor parameters in __init__.
+
+      Closes #887.
+
     * config files with BOM markers can now be read.
 
       Close #864.
