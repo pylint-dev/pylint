@@ -640,6 +640,265 @@ class ParamDocCheckerTest(CheckerTestCase):
         ):
             self._visit_methods_of_class(node)
 
+    def test_constr_params_in_init_sphinx(self):
+        """Example of a class with missing constructor parameter documentation
+        (Sphinx style)
+
+        Everything is completely analogous to functions.
+        """
+        node = test_utils.extract_node("""
+        class ClassFoo(object):
+            def __init__(self, x, y):
+                '''docstring foo constructor
+
+                :param y: bla
+
+                missing constructor parameter documentation
+                '''
+
+                pass
+
+        """)
+        constructor_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=constructor_node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=constructor_node,
+                args=('x, y',))
+        ):
+            self._visit_methods_of_class(node)
+
+    def test_constr_params_in_init_google(self):
+        """Example of a class with missing constructor parameter documentation
+        (Google style)
+
+        Everything is completely analogous to functions.
+        """
+        node = test_utils.extract_node("""
+        class ClassFoo(object):
+            def __init__(self, x, y):
+                '''docstring foo constructor
+
+                Args:
+                    y: bla
+
+                missing constructor parameter documentation
+                '''
+                pass
+
+        """)
+        constructor_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=constructor_node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=constructor_node,
+                args=('x, y',))
+        ):
+            self._visit_methods_of_class(node)
+
+    def test_constr_params_in_init_numpy(self):
+        """Example of a class with missing constructor parameter documentation
+        (Numpy style)
+
+        Everything is completely analogous to functions.
+        """
+        node = test_utils.extract_node("""
+        class ClassFoo(object):
+            def __init__(self, x, y):
+                '''docstring foo constructor
+
+                Parameters
+                ----------
+                y:
+                    bla
+
+                missing constructor parameter documentation
+                '''
+                pass
+
+        """)
+        constructor_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=constructor_node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=constructor_node,
+                args=('x, y',))
+        ):
+            self._visit_methods_of_class(node)
+
+    def test_constr_params_in_class_and_init_sphinx(self):
+        """Example of a class with missing constructor parameter documentation
+        in both the init docstring and the class docstring
+        (Sphinx style)
+
+        Everything is completely analogous to functions.
+        """
+        node = test_utils.extract_node("""
+        class ClassFoo(object):
+            '''docstring foo
+
+            :param y: None
+
+            missing constructor parameter documentation
+            '''
+
+            def __init__(self, x, y):
+                '''docstring foo
+
+                :param y: bla
+
+                missing constructor parameter documentation
+                '''
+                pass
+
+        """)
+        constructor_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='multiple-constructor-doc',
+                node=node,
+                args=(node.name,)),
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=node,
+                args=('x, y',)),
+            Message(
+                msg_id='missing-param-doc',
+                node=constructor_node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=constructor_node,
+                args=('x, y',)),
+        ):
+            self._visit_methods_of_class(node)
+
+    def test_constr_params_in_class_and_init_google(self):
+        """Example of a class with missing constructor parameter documentation
+        in both the init docstring and the class docstring
+        (Google style)
+
+        Everything is completely analogous to functions.
+        """
+        node = test_utils.extract_node("""
+        class ClassFoo(object):
+            '''docstring foo
+
+            Args:
+                y: bla
+
+            missing constructor parameter documentation
+            '''
+
+            def __init__(self, x, y):
+                '''docstring foo
+
+                Args:
+                    y: bla
+
+                missing constructor parameter documentation
+                '''
+                pass
+
+        """)
+        constructor_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='multiple-constructor-doc',
+                node=node,
+                args=(node.name,)),
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=node,
+                args=('x, y',)),
+            Message(
+                msg_id='missing-param-doc',
+                node=constructor_node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=constructor_node,
+                args=('x, y',)),
+        ):
+            self._visit_methods_of_class(node)
+
+    def test_constr_params_in_class_and_init_numpy(self):
+        """Example of a class with missing constructor parameter documentation
+        in both the init docstring and the class docstring
+        (Numpy style)
+
+        Everything is completely analogous to functions.
+        """
+        node = test_utils.extract_node("""
+        class ClassFoo(object):
+            '''docstring foo
+
+            Parameters
+            ----------
+            y:
+                bla
+
+            missing constructor parameter documentation
+            '''
+
+            def __init__(self, x, y):
+                '''docstring foo
+
+                Parameters
+                ----------
+                y:
+                    bla
+
+                missing constructor parameter documentation
+                '''
+                pass
+
+        """)
+        constructor_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='multiple-constructor-doc',
+                node=node,
+                args=(node.name,)),
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=node,
+                args=('x, y',)),
+            Message(
+                msg_id='missing-param-doc',
+                node=constructor_node,
+                args=('x',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=constructor_node,
+                args=('x, y',)),
+        ):
+            self._visit_methods_of_class(node)
+
     @unittest.skipIf(sys.version_info[0] != 3, "Enabled on Python 3")
     def test_kwonlyargs_are_taken_in_account(self):
         node = test_utils.extract_node('''
