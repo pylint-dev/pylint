@@ -6,6 +6,7 @@ ChangeLog for Pylint
     * Add the ability to ignore files based on regex matching, with the new ``--ignore-patterns``
       option.
 
+
       This addresses issue #156 by allowing for multiple ignore patterns
       to be specified. Rather than clobber the existing ignore option, we
       introduced a new one called ignore-patterns.
@@ -39,6 +40,14 @@ ChangeLog for Pylint
       special method returned something else than a non-negative number.
 
       Close issue #557
+
+    * Switch to using isort internally for wrong-import-order.
+
+      Closes #879.
+
+    * check_docs extension can find constructor parameters in __init__.
+
+      Closes #887.
 
 
 2016-06-06 -- 1.5.6
