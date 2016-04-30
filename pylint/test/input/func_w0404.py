@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 from email import encoders
 import email.encoders
 
-import sys  #pylint: disable=ungrouped-imports
+import sys  #pylint: disable=ungrouped-imports,wrong-import-order
 __revision__ = 0
 
 def no_reimport():
