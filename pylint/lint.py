@@ -13,17 +13,9 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-""" %prog [options] module_or_package
+"""%prog [options] path
 
-  Check that a module satisfies a coding standard (and more !).
-
-    %prog --help
-
-  Display this help message and exit.
-
-    %prog --help-msg <msg-id>[,<msg-id>]
-
-  Display help messages about given message identifiers and exit.
+Check python code for coding standard, static error, and coding style.
 """
 from __future__ import print_function
 
@@ -54,6 +46,12 @@ from pylint.reporters.ureports import nodes as report_nodes
 
 
 MANAGER = astroid.MANAGER
+USAGE = __doc__ + """
+Argument:
+  path                  Package name, full module name, file path, or full
+                        module name alongside with the file path separated
+                        by the system-specific search path delimiter (e.g.
+                        module.name{0}/path/to/file.py.)""".format(os.pathsep)
 
 
 def _get_new_args(message):
@@ -452,7 +450,7 @@ class PyLinter(config.OptionsManagerMixIn,
         utils.MessagesHandlerMixIn.__init__(self)
         utils.ReportsHandlerMixIn.__init__(self)
         super(PyLinter, self).__init__(
-            usage=__doc__,
+            usage=USAGE,
             version=full_version,
             config_file=pylintrc or config.PYLINTRC)
         checkers.BaseTokenChecker.__init__(self)

@@ -718,7 +718,6 @@ class MessagesStore(object):
             print(msg.format_help(checkerref=False))
         print("")
 
-
 class ReportsHandlerMixIn(object):
     """a mix-in class containing all the reports and stats manipulation
     related methods for the main lint class
@@ -805,7 +804,11 @@ def _basename_in_blacklist_re(base_name, black_list_re):
 
 def expand_modules(files_or_modules, black_list, black_list_re):
     """take a list of files/modules/packages and return the list of tuple
-    (file, module name) which have to be actually checked
+    (file, module name) which have to be actually checked.
+
+    You might also provide the full module name alongside with the
+    file to be checked. Ex.: package.module.name:/path/to/file.py.
+    This prevent us from guessing the module name from the file path.
     """
     result = []
     errors = []
@@ -820,6 +823,8 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                 filepath = join(something, '__init__.py')
             else:
                 filepath = something
+        elif os.pathsep in something:
+            modname, filepath = something.split(os.pathsep)
         else:
             # suppose it's a module or package
             modname = something
