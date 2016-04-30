@@ -34,6 +34,14 @@ Installation should be as simple as ::
 
     python -m pip install astroid
 
+Pylint requires isort package (the later the better).
+
+* https://github.com/timothycrosley/isort
+
+Installation should be as simple as ::
+
+    python -m pip install isort
+
 
 If you want to install from a source distribution, extract the tarball and run
 the following commands ::
