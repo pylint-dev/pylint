@@ -16,7 +16,8 @@ class FFFF(object):
     """
 
     def method1(self):
-        '''Test Triple Single Quotes docstring
+        '''
+        Test Triple Single Quotes docstring
         '''
         pass
 

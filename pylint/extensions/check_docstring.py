@@ -42,7 +42,7 @@ class DocStringAddicChecker(BaseChecker):
         # Bad Docstring Quotes
         # I had to use "linecache" because node.as_string() renders contents
         # of the file and change triple single quotes by triple double quotes
-        elif docstring:
+        if docstring:
             lineno = node.fromlineno + 1
             line = linecache.getline(node.root().file, lineno).lstrip()
             if line and line.find('"""') == 0:
