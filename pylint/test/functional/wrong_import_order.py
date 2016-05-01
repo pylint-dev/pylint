@@ -1,5 +1,5 @@
 """Checks import order rule"""
-# pylint: disable=unused-import,relative-import,ungrouped-imports,import-error
+# pylint: disable=unused-import,relative-import,ungrouped-imports,import-error,no-name-in-module
 try:
     from six.moves import configparser
 except ImportError:
@@ -11,5 +11,9 @@ from astroid import are_exclusive
 import sys  # [wrong-import-order]
 import datetime  # [wrong-import-order]
 import unused_import
-import totally_missing
-import astroid
+from .package import Class
+import totally_missing  # [wrong-import-order]
+from . import package
+import astroid  # [wrong-import-order]
+from . import package2
+from .package2 import Class2
