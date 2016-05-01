@@ -490,6 +490,8 @@ given file (report RP0402 must not be disabled)'}
                 importedname = node.modname
             else:
                 importedname = node.names[0][0].split('.')[0]
+        if node.as_string().startswith('from .'):
+            importedname = '.' + importedname
         self._imports_stack.append((node, importedname))
 
     @staticmethod
@@ -511,7 +513,11 @@ given file (report RP0402 must not be disabled)'}
             known_standard_library=self.config.known_standard_library,
         )
         for node, modname in self._imports_stack:
-            package = modname.split('.')[0]
+            if modname.startswith('.'):
+                package = '.' + modname.split('.')[1]
+            else:
+                package = modname.split('.')[0]
+
             import_category = isort_obj.place_module(package)
             if import_category in ('FUTURE', 'STDLIB'):
                 std_imports.append((node, package))
