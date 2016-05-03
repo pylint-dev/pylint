@@ -1,31 +1,26 @@
 # -*- coding: utf-8 -*-
 """Module to add McCabe checker class for pylint. """
 
-import ast
-
-from mccabe import McCabeChecker, PathGraph as PathGraphAstroid, PathGraphingAstVisitor
+from mccabe import PathGraph as Mccabe_PathGraph, \
+        PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 from pylint.checkers.base import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import HIGH, IAstroidChecker
 
 
-class PathGraph(PathGraphAstroid):
+class PathGraph(Mccabe_PathGraph):
     def __init__(self, node):
         super(PathGraph, self).__init__(name='', entity='', lineno=1)
         self.root = node
 
 
-class McCabeASTVisitor(PathGraphingAstVisitor):
+class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
     def __init__(self):
-        super(McCabeASTVisitor, self).__init__()
-        self.node = None
-        self._cache = {}
-        self.classname = ""
-        self.graphs = {}
-        self.reset()
+        super(PathGraphingAstVisitor, self).__init__()
         self._bottom_counter = 0
 
     def default(self, node, *args):
+        # We don't need original 'iter_child_nodes(node)' here
         pass
 
     def dispatch(self, node, *args):
@@ -58,19 +53,13 @@ class McCabeASTVisitor(PathGraphingAstVisitor):
 
     visitAsyncFunctionDef = visitFunctionDef
 
-    def preorder(self, tree, visitor, *args):
-        """Do preorder walk of tree using visitor"""
-        self.visitor = visitor
-        visitor.visit = self.dispatch
-        self.dispatch(tree, *args)
-
     def visitSimpleStatement(self, node):
         self._append_node(node)
 
     visitAssert = visitAssign = visitAugAssign = visitDelete = visitPrint = \
-            visitRaise = visitYield = visitImport = visitCall = visitSubscript = \
-            visitPass = visitContinue = visitBreak = visitGlobal = visitReturn = \
-            visitExpr = visitAwait = visitSimpleStatement
+        visitRaise = visitYield = visitImport = visitCall = visitSubscript = \
+        visitPass = visitContinue = visitBreak = visitGlobal = visitReturn = \
+        visitExpr = visitAwait = visitSimpleStatement
 
     def visitIf(self, node):
         name = "If %d" % node.lineno
@@ -98,14 +87,14 @@ class McCabeASTVisitor(PathGraphingAstVisitor):
         if self.graph is None:
             # global loop
             self.graph = PathGraph(node)
-            self._subgraph_parse(node, extra_blocks)
+            self._subgraph_parse(node, node, extra_blocks)
             self.graphs["%s%s" % (self.classname, name)] = self.graph
             self.reset()
         else:
             self._append_node(node)
-            self._subgraph_parse(node, extra_blocks)
+            self._subgraph_parse(node, node, extra_blocks)
 
-    def _subgraph_parse(self, node, extra_blocks):  # pylint: disable=arguments-differ
+    def _subgraph_parse(self, node, pathnode, extra_blocks):  # pylint: disable=unused-argument
         """parse the body and any `else` block of `if` and `for` statements"""
         loose_ends = []
         self.tail = node
@@ -153,32 +142,10 @@ class McCabeMethodChecker(BaseChecker):
         }),
     )
 
-    @staticmethod
-    def _get_ast_tree(node):
-        """Get a compile python tree of nodes from code"""
-        # TODO: Check if astroid build a similar tree
-        code = node.as_string()
-        tree = compile(code, '', "exec", ast.PyCF_ONLY_AST)
-        return tree
-
-    def _check_too_complex_deprecated(self, node):
-        """Check too complex rating and
-        add message if is greather than max_complexity stored from options"""
-        tree = self._get_ast_tree(node)
-        max_complexity = self.config.max_complexity
-        McCabeChecker.max_complexity = max_complexity
-        results = McCabeChecker(tree, '').run()
-        for _, _, msg, _ in results:
-            mccabe_rating = int(msg[msg.index('(') + 1:msg.index(')')])
-            self.add_message(
-                'too-complex', node=node, confidence=HIGH,
-                args=(node.name, mccabe_rating)
-            )
-
     def _check_too_complex(self, node):
         """Check too complex rating and
         add message if is greather than max_complexity stored from options"""
-        visitor = McCabeASTVisitor()
+        visitor = PathGraphingAstVisitor()
         for child in node.body:
             visitor.preorder(child, visitor)
         for graph in visitor.graphs.values():
@@ -186,19 +153,13 @@ class McCabeMethodChecker(BaseChecker):
             if complexity >= self.config.max_complexity:
                 node = graph.root
                 self.add_message(
-                    'too-complex', node=node,
+                    'too-complex', node=node, confidence=HIGH,
                     args=(node.name, complexity))
 
     @check_messages('too-complex')
     def visit_module(self, node):
         """visit an astroid.Module node"""
         self._check_too_complex(node)
-
-    # @check_messages('too-complex')
-    # def visit_functiondef(self, node):
-    #     """visit an astroid.Function node"""
-    #     self._check_too_complex(node)
-    # visit_asyncfunctiondef = visit_functiondef
 
 
 def register(linter):
