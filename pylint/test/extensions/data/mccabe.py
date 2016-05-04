@@ -123,9 +123,66 @@ def f10():
 
 class MyClass1(object):
     """Class of example to test mccabe"""
+
     def method1():
         """McCabe rating: 1"""
         pass
+
+    def method2(self, param1):
+        """McCabe rating: 18"""
+        # FIXME: Should be the rate of 18 but is 12
+        if not param1:
+            pass
+        pass
+        if param1:
+            pass
+        else:
+            pass
+
+        pass
+
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            for value in range(5):
+                pass
+
+        pass
+        for count in range(6):
+            with open('myfile') as fp:
+                count += 1
+            pass
+        pass
+        try:
+            pass
+            if not param1:
+                pass
+            else:
+                pass
+            if param1:
+                raise BaseException('Error')
+            with open('myfile2') as fp2:
+                pass
+            pass
+        finally:
+            if param1 is not None:
+                pass
+            for count2 in range(8):
+                try:
+                    pass
+                except (OSError, IOError), exc:
+                    pass
+        return param1
 
 
 for count in range(10):
@@ -135,3 +192,15 @@ for count in range(10):
         exit(1)
     else:
         exit(2)
+
+
+def method3(self):
+    try:
+        if True:
+            pass
+        else:
+            pass
+    finally:
+        pass
+    # FIXME: If you delete the `return` the mccabe increase of 1 to 2 in pylint? (flake8 even is 2)
+    return True

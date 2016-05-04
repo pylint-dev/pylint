@@ -23,18 +23,20 @@ class TestMcCabeMethodChecker(unittest.TestCase):
     """Test McCabe Method Checker"""
 
     expected_msgs = [
-        'f1 is too complex. The McCabe rating is 1',
-        'f2 is too complex. The McCabe rating is 1',
-        'f3 is too complex. The McCabe rating is 3',
-        'f4 is too complex. The McCabe rating is 2',
-        'f5 is too complex. The McCabe rating is 2',
-        'f6 is too complex. The McCabe rating is 2',
-        'f7 is too complex. The McCabe rating is 3',
-        'f8 is too complex. The McCabe rating is 4',
-        'f9 is too complex. The McCabe rating is 9',
-        'f10 is too complex. The McCabe rating is 11',
-        'method1 is too complex. The McCabe rating is 1',
-        "'For 131' is too complex. The McCabe rating is 4",
+        "'f1' is too complex. The McCabe rating is 1",
+        "'f2' is too complex. The McCabe rating is 1",
+        "'f3' is too complex. The McCabe rating is 3",
+        "'f4' is too complex. The McCabe rating is 2",
+        "'f5' is too complex. The McCabe rating is 2",
+        "'f6' is too complex. The McCabe rating is 2",
+        "'f7' is too complex. The McCabe rating is 3",
+        "'f8' is too complex. The McCabe rating is 4",
+        "'f9' is too complex. The McCabe rating is 9",
+        "'f10' is too complex. The McCabe rating is 11",
+        "'method1' is too complex. The McCabe rating is 1",
+        "'method2' is too complex. The McCabe rating is 18",
+        "'For 187' is too complex. The McCabe rating is 4",
+        "'method3' is too complex. The McCabe rating is 2",
     ]
 
     @classmethod

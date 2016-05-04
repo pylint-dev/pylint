@@ -128,7 +128,7 @@ class McCabeMethodChecker(BaseChecker):
 
     msgs = {
         'R1260': (
-            '%s is too complex. The McCabe rating is %d',
+            "'%s' is too complex. The McCabe rating is %d",
             'too-complex',
             'Used when a method or function is too complex based on '
             'McCabe Complexity Cyclomatic'),
@@ -154,7 +154,7 @@ class McCabeMethodChecker(BaseChecker):
             if node.is_function:
                 node_name = node.name
             else:
-                node_name = "'%s %d'" % (node.__class__.__name__, node.lineno)
+                node_name = "%s %d" % (node.__class__.__name__, node.lineno)
             if complexity <= self.config.max_complexity:
                 continue
             self.add_message(
