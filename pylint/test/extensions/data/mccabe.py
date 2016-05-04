@@ -119,3 +119,19 @@ def f10():
             return myint
         return myint
     return myint
+
+
+class MyClass1(object):
+    """Class of example to test mccabe"""
+    def method1():
+        """McCabe rating: 1"""
+        pass
+
+
+for count in range(10):
+    if count == 1:
+        exit(0)
+    elif count == 2:
+        exit(1)
+    else:
+        exit(2)

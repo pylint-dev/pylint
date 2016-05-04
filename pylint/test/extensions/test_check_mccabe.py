@@ -33,6 +33,8 @@ class TestMcCabeMethodChecker(unittest.TestCase):
         'f8 is too complex. The McCabe rating is 4',
         'f9 is too complex. The McCabe rating is 9',
         'f10 is too complex. The McCabe rating is 11',
+        'method1 is too complex. The McCabe rating is 1',
+        "'For 131' is too complex. The McCabe rating is 4",
     ]
 
     @classmethod

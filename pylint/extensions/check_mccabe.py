@@ -150,11 +150,16 @@ class McCabeMethodChecker(BaseChecker):
             visitor.preorder(child, visitor)
         for graph in visitor.graphs.values():
             complexity = graph.complexity()
-            if complexity >= self.config.max_complexity:
-                node = graph.root
-                self.add_message(
-                    'too-complex', node=node, confidence=HIGH,
-                    args=(node.name, complexity))
+            node = graph.root
+            if node.is_function:
+                node_name = node.name
+            else:
+                node_name = "'%s %d'" % (node.__class__.__name__, node.lineno)
+            if complexity <= self.config.max_complexity:
+                continue
+            self.add_message(
+                'too-complex', node=node, confidence=HIGH,
+                args=(node_name, complexity))
 
     @check_messages('too-complex')
     def visit_module(self, node):
