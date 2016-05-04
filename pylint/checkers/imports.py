@@ -490,8 +490,7 @@ given file (report RP0402 must not be disabled)'}
                 importedname = node.modname
             else:
                 importedname = node.names[0][0].split('.')[0]
-        if isinstance(node, astroid.ImportFrom) and \
-                node.as_string().startswith('from .'):
+        if isinstance(node, astroid.ImportFrom) and (node.level or 0) >= 1:
             # We need the impotedname with first point to detect local package
             # Example of node:
             #  'from .my_package1 import MyClass1'
