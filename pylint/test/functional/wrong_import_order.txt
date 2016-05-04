@@ -1,3 +1,5 @@
 wrong-import-order:9::standard import "import os.path" comes before "from six.moves import configparser"
 wrong-import-order:11::standard import "import sys" comes before "from six.moves import configparser"
 wrong-import-order:12::standard import "import datetime" comes before "from six.moves import configparser"
+wrong-import-order:15::external import "import totally_missing" comes before "from .package import Class"
+wrong-import-order:17::external import "import astroid" comes before "from .package import Class"
