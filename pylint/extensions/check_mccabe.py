@@ -20,8 +20,8 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         self._bottom_counter = 0
 
     def default(self, node, *args):
-        # We don't need original 'iter_child_nodes(node)' here
-        pass
+        for child in node.get_children():
+            self.dispatch(child, *args)
 
     def dispatch(self, node, *args):
         self.node = node

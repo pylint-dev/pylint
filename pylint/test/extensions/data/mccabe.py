@@ -130,7 +130,6 @@ class MyClass1(object):
 
     def method2(self, param1):
         """McCabe rating: 18"""
-        # FIXME: Should be the rate of 18 but is 12
         if not param1:
             pass
         pass
@@ -202,5 +201,4 @@ def method3(self):
             pass
     finally:
         pass
-    # FIXME: If you delete the `return` the mccabe increase of 1 to 2 in pylint? (flake8 even is 2)
     return True
