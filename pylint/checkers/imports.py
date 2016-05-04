@@ -480,6 +480,15 @@ given file (report RP0402 must not be disabled)'}
                 importedname = node.modname
             else:
                 importedname = node.names[0][0].split('.')[0]
+        if isinstance(node, astroid.ImportFrom) and (node.level or 0) >= 1:
+            # We need the impotedname with first point to detect local package
+            # Example of node:
+            #  'from .my_package1 import MyClass1'
+            #  the output should be '.my_package1' instead of 'my_package1'
+            # Example of node:
+            #  'from . import my_package2'
+            #  the output should be '.my_package2' instead of '{pyfile}'
+            importedname = '.' + importedname
         self._imports_stack.append((node, importedname))
 
     @staticmethod
@@ -501,7 +510,11 @@ given file (report RP0402 must not be disabled)'}
             known_standard_library=self.config.known_standard_library,
         )
         for node, modname in self._imports_stack:
-            package = modname.split('.')[0]
+            if modname.startswith('.'):
+                package = '.' + modname.split('.')[1]
+            else:
+                package = modname.split('.')[0]
+
             import_category = isort_obj.place_module(package)
             if import_category in ('FUTURE', 'STDLIB'):
                 std_imports.append((node, package))
