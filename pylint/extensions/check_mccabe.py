@@ -60,19 +60,11 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         visitPass = visitContinue = visitBreak = visitGlobal = visitReturn = \
         visitExpr = visitAwait = visitSimpleStatement
 
-    def visitIf(self, node):
-        name = "If %d" % node.lineno
-        self._subgraph(node, name)
-
-    def visitTryExcept(self, node):
-        name = "TryExcept %d" % node.lineno
-        self._subgraph(node, name, extra_blocks=node.handlers)
-
-    visitTry = visitTryExcept
-
     def visitWith(self, node):
         self._append_node(node)
         self.dispatch_list(node.body)
+
+    visitAsyncWith = visitWith
 
     def _append_node(self, node):
         if not self.tail:
