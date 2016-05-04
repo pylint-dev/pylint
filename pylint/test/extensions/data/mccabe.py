@@ -179,7 +179,7 @@ class MyClass1(object):
             for count2 in range(8):
                 try:
                     pass
-                except (OSError, IOError), exc:
+                except BaseException('Error2'):
                     pass
         return param1
 
