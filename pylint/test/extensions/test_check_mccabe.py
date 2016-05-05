@@ -32,11 +32,11 @@ class TestMcCabeMethodChecker(unittest.TestCase):
         "'f7' is too complex. The McCabe rating is 3",
         "'f8' is too complex. The McCabe rating is 4",
         "'f9' is too complex. The McCabe rating is 9",
-        "'f10' is too complex. The McCabe rating is 11",
         "'method1' is too complex. The McCabe rating is 1",
-        "'method2' is too complex. The McCabe rating is 18",
         "This 'for' is too complex. The McCabe rating is 4",
         "'method3' is too complex. The McCabe rating is 2",
+        "'f10' is too complex. The McCabe rating is 11",
+        "'method2' is too complex. The McCabe rating is 18",
     ]
 
     @classmethod
@@ -47,14 +47,22 @@ class TestMcCabeMethodChecker(unittest.TestCase):
         cls._linter.register_checker(McCabeMethodChecker(cls._linter))
         cls._linter.disable('all')
         cls._linter.enable('too-complex')
-        cls._linter.global_set_option('max-complexity', 0)
+
+    def setUp(self):
+        self.fname_mccabe_example = osp.join(
+            osp.dirname(osp.abspath(__file__)), 'data', 'mccabe.py')
 
     def test_too_complex_message(self):
-        mccabe_test = osp.join(
-            osp.dirname(osp.abspath(__file__)), 'data', 'mccabe.py')
-        self._linter.check([mccabe_test])
+        self._linter.global_set_option('max-complexity', 0)
+        self._linter.check([self.fname_mccabe_example])
         real_msgs = [message.msg for message in self._linter.reporter.messages]
         self.assertEqual(sorted(self.expected_msgs), sorted(real_msgs))
+
+    def test_max_mccabe_rate(self):
+        self._linter.global_set_option('max-complexity', 9)
+        self._linter.check([self.fname_mccabe_example])
+        real_msgs = [message.msg for message in self._linter.reporter.messages]
+        self.assertEqual(sorted(self.expected_msgs[-2:]), sorted(real_msgs))
 
 
 if __name__ == '__main__':
