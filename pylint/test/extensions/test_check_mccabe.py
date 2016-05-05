@@ -5,7 +5,7 @@ import os.path as osp
 import unittest
 
 from pylint import checkers
-from pylint.extensions.check_mccabe import McCabeMethodChecker
+from pylint.extensions.check_mccabe import register
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 
@@ -44,7 +44,7 @@ class TestMcCabeMethodChecker(unittest.TestCase):
         cls._linter = PyLinter()
         cls._linter.set_reporter(TestReporter())
         checkers.initialize(cls._linter)
-        cls._linter.register_checker(McCabeMethodChecker(cls._linter))
+        register(cls._linter)
         cls._linter.disable('all')
         cls._linter.enable('too-complex')
 
