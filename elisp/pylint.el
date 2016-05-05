@@ -1,8 +1,8 @@
 ;;; pylint.el --- minor mode for running `pylint'
 
 ;; Copyright (c) 2009, 2010 Ian Eure <ian.eure@gmail.com>
-
 ;; Author: Ian Eure <ian.eure@gmail.com>
+;; Maintainer: Jonathan Kotta <jpkotta@gmail.com>
 
 ;; Keywords: languages python
 ;; Version: 1.02
@@ -30,6 +30,10 @@
 ;;   (autoload 'pylint "pylint")
 ;;   (add-hook 'python-mode-hook 'pylint-add-menu-items)
 ;;   (add-hook 'python-mode-hook 'pylint-add-key-bindings)
+;;
+;; There is also a handy command `pylint-insert-ignore-comment' that
+;; makes it easy to insert comments of the form `# pylint:
+;; ignore=msg1,msg2,...'.
 
 ;;; Code:
 
@@ -124,7 +128,7 @@ the selected messages.
 
 With prefix argument, only insert a comma-separated list (for
 appending to an existing list)."
-  (interactive "*p")
+  (interactive "*P")
   (unless pylint--messages-list
     (pylint--create-messages-list))
   (setq pylint--messages-list
@@ -132,8 +136,8 @@ appending to an existing list)."
   (let ((msgs ())
         (msg "")
         (prefix (if arg
-                    "# pylint: disable="
-                  ","))
+                    ","
+                  "# pylint: disable="))
         (sentinel "[DONE]"))
     (while (progn
              (setq msg (completing-read
