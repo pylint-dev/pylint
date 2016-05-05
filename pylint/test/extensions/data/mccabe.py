@@ -123,6 +123,7 @@ def f10():
 
 class MyClass1(object):
     """Class of example to test mccabe"""
+    _name = 'MyClass'  # To force a tail.node=None
 
     def method1():
         """McCabe rating: 1"""
