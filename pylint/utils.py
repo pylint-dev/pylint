@@ -32,7 +32,7 @@ from six.moves import zip  # pylint: disable=redefined-builtin
 
 from astroid import nodes, Module
 from astroid.modutils import modpath_from_file, get_module_files, \
-    file_from_modpath, load_module_from_file
+    file_from_modpath, load_module_from_file, ModuleType, file_info_from_modpath, get_module_part
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
 from pylint.reporters.ureports.nodes import Section
@@ -832,12 +832,30 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                 # removed as soon as possible http://bugs.python.org/issue10588
                 errors.append({'key': 'fatal', 'mod': modname, 'ex': ex})
                 continue
+
         filepath = normpath(filepath)
-        result.append({'path': filepath, 'name': modname, 'isarg': True,
-                       'basepath': filepath, 'basename': modname})
-        if not (modname.endswith('.__init__') or modname == '__init__') \
-                and '__init__.py' in filepath:
-            for subfilepath in get_module_files(dirname(filepath), black_list):
+        modparts = (modname or something).split('.')
+
+        try:
+            spec = file_info_from_modpath(modparts, path=sys.path + ["."])
+        except ImportError:
+            # Might not be acceptable, don't crash.
+            is_namespace = False
+            is_directory = isdir(something)
+        else:
+            is_namespace = spec.type == ModuleType.PY_NAMESPACE
+            is_directory = spec.type == ModuleType.PKG_DIRECTORY
+
+        if not is_namespace:
+            result.append({'path': filepath, 'name': modname, 'isarg': True,
+                           'basepath': filepath, 'basename': modname})
+
+        has_init = (not (modname.endswith('.__init__') or modname == '__init__')
+                      and '__init__.py' in filepath)
+
+        if has_init or is_namespace or is_directory:
+            for subfilepath in get_module_files(dirname(filepath), black_list,
+                                                list_all=is_namespace):
                 if filepath == subfilepath:
                     continue
                 if _basename_in_blacklist_re(basename(subfilepath), black_list_re):

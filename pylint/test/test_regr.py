@@ -56,22 +56,19 @@ class NonRegrTC(unittest.TestCase):
         self.assertEqual(got, '')
 
     def test_check_package___init__(self):
-        for variation in ('package.__init__', join(REGR_DATA, 'package', '__init__.py')):
-            linter.check(variation)
-            got = linter.reporter.finalize().strip()
-            checked = list(linter.stats['by_module'].keys())
-            self.assertEqual(checked, ['package.__init__'],
-                             '%s: %s' % (variation, checked))
+        filename = 'package.__init__'
+        linter.check(filename)
+        checked = list(linter.stats['by_module'].keys())
+        self.assertEqual(checked, ['package.__init__'],
+                         '%s: %s' % (filename, checked))
+
         cwd = os.getcwd()
         os.chdir(join(REGR_DATA, 'package'))
         sys.path.insert(0, '')
         try:
-            for variation in ('__init__', '__init__.py'):
-                linter.check(variation)
-                got = linter.reporter.finalize().strip()
-                checked = list(linter.stats['by_module'].keys())
-                self.assertEqual(checked, ['__init__'],
-                                 '%s: %s' % (variation, checked))
+            linter.check('__init__')
+            checked = list(linter.stats['by_module'].keys())
+            self.assertEqual(checked, ['__init__'], checked)
         finally:
             sys.path.pop(0)
             os.chdir(cwd)

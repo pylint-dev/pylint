@@ -7,7 +7,7 @@ import unittest
 
 from pylint import checkers
 from pylint.extensions.check_reassign import MultipleTypesChecker
-from pylint.lint import PyLinter
+from pylint.lint import PyLinter, fix_import_path
 from pylint.reporters import BaseReporter
 
 
@@ -46,7 +46,8 @@ class CheckElseIfUsedTC(unittest.TestCase):
     def test_types_redefined(self):
         elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
                              'redefined.py')
-        self._linter.check([elif_test])
+        with fix_import_path([elif_test]):
+            self._linter.check([elif_test])
         msgs = sorted(self._linter.reporter.messages, key=lambda item: item.line)
         self.assertEqual(len(msgs), 9)
         for msg, expected in zip(msgs, self.expected):

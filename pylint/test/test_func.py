@@ -35,11 +35,6 @@ MSG_DIR = join(dirname(abspath(__file__)), 'messages')
 
 quote = "'" if sys.version_info >= (3, 3) else ''
 
-class LintTestNonExistentModuleTC(LintTestUsingModule):
-    module = 'nonexistent'
-    _get_expected = lambda self: 'F:  1: No module named %snonexistent%s\n' % (quote, quote)
-
-
 def gen_tests(filter_rgx):
     if UPDATE:
         callbacks = [cb_test_gen(LintTestUpdate)]
@@ -53,9 +48,6 @@ def gen_tests(filter_rgx):
         is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = lambda x: 1
-
-    if is_to_run('nonexistent'):
-        tests.append(LintTestNonExistentModuleTC)
 
     assert len(tests) < 196, "Please do not add new test cases here."
     return tests
