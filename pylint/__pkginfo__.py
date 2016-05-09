@@ -30,6 +30,7 @@ install_requires = [
     'astroid>=1.4.5,<1.5.0',
     'six',
     'isort >= 4.2.5',
+    'mccabe ==  0.4.0',
 ]
 
 if sys.platform == 'win32':
