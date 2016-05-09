@@ -43,15 +43,15 @@ expression will lead to an instance of ``invalid-name``.
 
 .. option:: --module-rgx=<regex>
 
-   Default value: ``[a-z_][a-z0-9_]{2,30}$``
+   Default value: ``(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$``
 
 .. option:: --const-rgx=<regex>
 
-   Default value: ``[a-z_][a-z0-9_]{2,30}$``
+   Default value: ``(([A-Z_][A-Z0-9_]*)|(__.*__))$``
 
 .. option:: --class-rgx=<regex>
 
-   Default value: ``'[A-Z_][a-zA-Z0-9]+$``
+   Default value: ``[A-Z_][a-zA-Z0-9]+$``
 
 .. option:: --function-rgx=<regex>
 
