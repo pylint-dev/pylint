@@ -31,8 +31,7 @@ import six
 from six.moves import zip  # pylint: disable=redefined-builtin
 
 from astroid import nodes, Module
-from astroid.modutils import modpath_from_file, get_module_files, \
-    file_from_modpath, load_module_from_file, ModuleType, file_info_from_modpath, get_module_part
+from astroid import modutils
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
 from pylint.reporters.ureports.nodes import Section
@@ -813,7 +812,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         if exists(something):
             # this is a file or a directory
             try:
-                modname = '.'.join(modpath_from_file(something))
+                modname = '.'.join(modutils.modpath_from_file(something))
             except ImportError:
                 modname = splitext(basename(something))[0]
             if isdir(something):
@@ -824,7 +823,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             # suppose it's a module or package
             modname = something
             try:
-                filepath = file_from_modpath(modname.split('.'))
+                filepath = modutils.file_from_modpath(modname.split('.'))
                 if filepath is None:
                     continue
             except (ImportError, SyntaxError) as ex:
@@ -837,14 +836,14 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         modparts = (modname or something).split('.')
 
         try:
-            spec = file_info_from_modpath(modparts, path=sys.path + ["."])
+            spec = modutils.file_info_from_modpath(modparts, path=sys.path + ["."])
         except ImportError:
             # Might not be acceptable, don't crash.
             is_namespace = False
             is_directory = isdir(something)
         else:
-            is_namespace = spec.type == ModuleType.PY_NAMESPACE
-            is_directory = spec.type == ModuleType.PKG_DIRECTORY
+            is_namespace = spec.type == modutils.ModuleType.PY_NAMESPACE
+            is_directory = spec.type == modutils.ModuleType.PKG_DIRECTORY
 
         if not is_namespace:
             result.append({'path': filepath, 'name': modname, 'isarg': True,
@@ -854,13 +853,13 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                       and '__init__.py' in filepath)
 
         if has_init or is_namespace or is_directory:
-            for subfilepath in get_module_files(dirname(filepath), black_list,
-                                                list_all=is_namespace):
+            for subfilepath in modutils.get_module_files(dirname(filepath), black_list,
+                                                         list_all=is_namespace):
                 if filepath == subfilepath:
                     continue
                 if _basename_in_blacklist_re(basename(subfilepath), black_list_re):
                     continue
-                submodname = '.'.join(modpath_from_file(subfilepath))
+                submodname = '.'.join(modutils.modpath_from_file(subfilepath))
                 result.append({'path': subfilepath, 'name': submodname,
                                'isarg': False,
                                'basepath': filepath, 'basename': modname})
@@ -957,7 +956,7 @@ def register_plugins(linter, directory):
         if extension in PY_EXTS and base != '__init__' or (
                 not extension and isdir(join(directory, base))):
             try:
-                module = load_module_from_file(join(directory, filename))
+                module = modutils.load_module_from_file(join(directory, filename))
             except ValueError:
                 # empty module name (usually emacs auto-save files)
                 continue
