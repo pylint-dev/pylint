@@ -3,6 +3,11 @@ ChangeLog for Pylint
 
 
 --
+    * Don't warn about invalid-sequence-index if the indexed object has unknown base
+      classes.
+
+      Closes #867
+
     * Added a new extension, check_docstring, for checking PEP 257 conventions.
 
       Closes #868.

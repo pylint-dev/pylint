@@ -678,6 +678,8 @@ accessed. Python regular expressions are accepted.'}
         parent_type = safe_infer(node.parent.value)
         if not isinstance(parent_type, (astroid.ClassDef, astroid.Instance)):
             return
+        if not has_known_bases(parent_type):
+            return
 
         # Determine what method on the parent this index will use
         # The parent of this node will be a Subscript, and the parent of that
