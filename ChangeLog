@@ -3,7 +3,7 @@ ChangeLog for Pylint
 
 
 --
-    * Removed the bad-builtin check.
+    * bad-builtin is now an extension check.
 
     * Don't crash when checking, for super-init-not-called, a method defined in an if block.
 
