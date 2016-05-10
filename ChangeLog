@@ -3,6 +3,8 @@ ChangeLog for Pylint
 
 
 --
+    * Don't crash when checking, for super-init-not-called, a method defined in an if block.
+
     * Don't warn about invalid-sequence-index if the indexed object has unknown base
       classes.
 
