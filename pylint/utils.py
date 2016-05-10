@@ -802,6 +802,13 @@ def _basename_in_blacklist_re(base_name, black_list_re):
             return True
     return False
 
+def _modpath_from_file(filename, is_namespace):
+    def _is_package_cb(path, parts):
+        return modutils.check_modpath_has_init(path, parts) or is_namespace
+
+    return modutils.modpath_from_file_with_callback(filename, is_package_cb=_is_package_cb)
+
+
 def expand_modules(files_or_modules, black_list, black_list_re):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
@@ -859,7 +866,9 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                     continue
                 if _basename_in_blacklist_re(basename(subfilepath), black_list_re):
                     continue
-                submodname = '.'.join(modutils.modpath_from_file(subfilepath))
+
+                modpath = _modpath_from_file(subfilepath, is_namespace)
+                submodname = '.'.join(modpath)
                 result.append({'path': subfilepath, 'name': submodname,
                                'isarg': False,
                                'basepath': filepath, 'basename': modname})
