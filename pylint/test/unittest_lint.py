@@ -140,13 +140,13 @@ class SysPathFixupTC(unittest.TestCase):
 
     def test_no_args(self):
         with lint.fix_import_path([]):
-            self.assertEqual(sys.path, self.fake)
+            self.assertEqual(sys.path, ["."] + self.fake)
         self.assertEqual(sys.path, self.fake)
 
     def test_one_arg(self):
         with tempdir() as chroot:
             create_files(['a/b/__init__.py'])
-            expected = [join(chroot, 'a')] + self.fake
+            expected = [join(chroot, 'a')] + ["."] + self.fake
 
             cases = (
                 ['a/b/'],
@@ -165,7 +165,7 @@ class SysPathFixupTC(unittest.TestCase):
     def test_two_similar_args(self):
         with tempdir() as chroot:
             create_files(['a/b/__init__.py', 'a/c/__init__.py'])
-            expected = [join(chroot, 'a')] + self.fake
+            expected = [join(chroot, 'a')] + ["."] + self.fake
 
             cases = (
                 ['a/b', 'a/c'],
@@ -186,7 +186,7 @@ class SysPathFixupTC(unittest.TestCase):
             expected = [
                 join(chroot, suffix)
                 for suffix in [sep.join(('a', 'b')), 'a', sep.join(('a', 'e'))]
-            ] + self.fake
+            ] + ["."] + self.fake
 
             cases = (
                 ['a/b/c/__init__.py', 'a/d/__init__.py', 'a/e/f.py'],

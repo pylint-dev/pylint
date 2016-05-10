@@ -1140,7 +1140,7 @@ def fix_import_path(args):
             continue
         else:
             changes.append(path)
-    sys.path[:] = changes + sys.path
+    sys.path[:] = changes + ["."] + sys.path
     try:
         yield
     finally:

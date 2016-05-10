@@ -843,7 +843,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
         modparts = (modname or something).split('.')
 
         try:
-            spec = modutils.file_info_from_modpath(modparts, path=sys.path + ["."])
+            spec = modutils.file_info_from_modpath(modparts, path=sys.path)
         except ImportError:
             # Might not be acceptable, don't crash.
             is_namespace = False
