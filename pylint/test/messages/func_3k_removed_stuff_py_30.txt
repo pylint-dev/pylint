@@ -1,4 +1,2 @@
 E: 12:function: Instance of 'unicode' has no 'looower' member
 W:  4: Relative import 'func_w0401', should be 'input.func_w0401'
-W:  5: Used builtin function 'filter'. Using a list comprehension can be clearer.
-W:  5: Used builtin function 'map'. Using a list comprehension can be clearer.

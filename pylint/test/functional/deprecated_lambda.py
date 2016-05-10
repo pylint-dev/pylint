@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,bad-builtin,invalid-name,no-absolute-import
+# pylint: disable=missing-docstring,invalid-name,no-absolute-import
 
 import functools
 
