@@ -53,6 +53,8 @@ ChangeLog for Pylint
 
       Closes #867
 
+    * Don't crash when checking, for super-init-not-called, a method defined in an if block.
+
 
 2016-06-06 -- 1.5.6
 

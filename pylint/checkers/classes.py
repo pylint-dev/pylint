@@ -928,7 +928,8 @@ a metaclass class method.'}
             except astroid.InferenceError:
                 continue
         for klass, method in six.iteritems(not_called_yet):
-            if klass.name == 'object' or method.parent.name == 'object':
+            cls = node_frame_class(method)
+            if klass.name == 'object' or (cls and cls.name == 'object'):
                 continue
             self.add_message('super-init-not-called', args=klass.name, node=node)
 
