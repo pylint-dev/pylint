@@ -1,7 +1,7 @@
 """Errors for invalid sequence indices"""
-# pylint: disable=too-few-public-methods, no-self-use
+# pylint: disable=too-few-public-methods, no-self-use, import-error, missing-docstring
 
-__revision__ = 0
+from unknown import Unknown
 
 TESTLIST = [1, 2, 3]
 TESTTUPLE = (1, 2, 3)
@@ -214,3 +214,11 @@ def function26():
         def __getitem__(self, index):
             return 0
     return ExtSliceTest()[..., 0] # no error
+
+def function27():
+    """Don't warn in the case where the indexed object has unknown base classes."""
+    class UnknownBase(Unknown):
+        pass
+    slices = UnknownBase["aaaa"] + UnknownBase()[object]
+    ext_slices = UnknownBase[..., 0] + UnknownBase()[..., 0]
+    return slices, ext_slices
