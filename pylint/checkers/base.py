@@ -74,9 +74,6 @@ TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
-BAD_FUNCTIONS = ['map', 'filter']
-if sys.version_info < (3, 0):
-    BAD_FUNCTIONS.append('input')
 
 # Some hints regarding the use of bad builtins.
 BUILTIN_HINTS = {
@@ -662,12 +659,6 @@ functions, methods
                   'usage. Consider using `ast.literal_eval` for safely evaluating '
                   'strings containing Python expressions '
                   'from untrusted sources. '),
-        'W0141': ('Used builtin function %s',
-                  'bad-builtin',
-                  'Used when a black listed builtin function is used (see the '
-                  'bad-function option). Usual black listed functions are the ones '
-                  'like map, or filter , where Python offers now some cleaner '
-                  'alternative like list comprehension.'),
         'W0150': ("%s statement in finally block may swallow exception",
                   'lost-exception',
                   'Used when a break or a return statement is found inside the '
@@ -704,12 +695,6 @@ functions, methods
                                   help_msg="Required attributes for module. "
                                            "This option is obsolete.")),
 
-               ('bad-functions',
-                {'default' : BAD_FUNCTIONS,
-                 'type' :'csv', 'metavar' : '<builtin function names>',
-                 'help' : 'List of builtins function names that should not be '
-                          'used, separated by a comma'}
-               ),
               )
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 
@@ -980,8 +965,7 @@ functions, methods
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @check_messages('bad-builtin', 'eval-used',
-                    'exec-used', 'bad-reversed-sequence')
+    @check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
     def visit_call(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -998,13 +982,6 @@ functions, methods
                     self._check_reversed(node)
                 elif name == 'eval':
                     self.add_message('eval-used', node=node)
-                if name in self.config.bad_functions:
-                    hint = BUILTIN_HINTS.get(name)
-                    if hint:
-                        args = "%r. %s" % (name, hint)
-                    else:
-                        args = repr(name)
-                    self.add_message('bad-builtin', node=node, args=args)
 
     @check_messages('assert-on-tuple')
     def visit_assert(self, node):

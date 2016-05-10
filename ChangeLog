@@ -3,6 +3,8 @@ ChangeLog for Pylint
 
 - -- 1.6.0
 
+    * Removed the bad-builtin check.
+
     * Add the ability to ignore files based on regex matching, with the new ``--ignore-patterns``
       option.
 
