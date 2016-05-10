@@ -75,12 +75,6 @@ PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
 
-# Some hints regarding the use of bad builtins.
-BUILTIN_HINTS = {
-    'map': 'Using a list comprehension can be clearer.',
-}
-BUILTIN_HINTS['filter'] = BUILTIN_HINTS['map']
-
 # Name categories that are always consistent with all naming conventions.
 EXEMPT_NAME_CATEGORIES = set(('exempt', 'ignore'))
 
@@ -694,7 +688,6 @@ functions, methods
                 deprecated_option(opt_type='csv',
                                   help_msg="Required attributes for module. "
                                            "This option is obsolete.")),
-
               )
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 
