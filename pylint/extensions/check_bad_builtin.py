@@ -4,7 +4,7 @@ import sys
 import astroid
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-from pylint.interfaces import ITokenChecker, IAstroidChecker
+from pylint.interfaces import IAstroidChecker
 
 
 BAD_FUNCTIONS = ['map', 'filter']
@@ -29,8 +29,7 @@ class BadBuiltinChecker(BaseChecker):
                       'alternative like list comprehension.'),
            }
 
-    options = (
-               ('bad-functions',
+    options = (('bad-functions',
                 {'default' : BAD_FUNCTIONS,
                  'type' :'csv', 'metavar' : '<builtin function names>',
                  'help' : 'List of builtins function names that should not be '
