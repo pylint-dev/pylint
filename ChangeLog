@@ -5,6 +5,12 @@ ChangeLog for Pylint
 --
     * bad-builtin is now an extension check.
 
+    * generated-members support qualified name through regular expressions.
+
+      For instance, one can specify a regular expression as --generated-members=astroid.node_classes.*
+      for ignoring every no-member error that is accessed as in `astroid.node_classes.missing.object`.
+      Close #723.
+
     * Don't crash when checking, for super-init-not-called, a method defined in an if block.
 
     * Don't warn about invalid-sequence-index if the indexed object has unknown base
