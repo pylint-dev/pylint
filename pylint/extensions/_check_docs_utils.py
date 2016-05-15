@@ -39,7 +39,7 @@ def possible_exc_types(node):
     elif (isinstance(node.exc, astroid.Call) and
           isinstance(node.exc.func, astroid.Name)):
         excs = [node.exc.func.name]
-    elif (node.exc is None):
+    elif node.exc is None:
         handler = node.parent
         while handler and not isinstance(handler, astroid.ExceptHandler):
             handler = handler.parent
@@ -63,6 +63,8 @@ class Docstring(object):
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """, re.X | re.S)
 
+    # These methods are designed to be overridden
+    # pylint: disable=no-self-use
     def __init__(self, doc):
         doc = doc or ""
         self.doc = doc.expandtabs()
@@ -73,7 +75,7 @@ class Docstring(object):
     def exceptions(self):
         return set()
 
-    def has_params(self): 
+    def has_params(self):
         return False
 
     def match_param_docs(self):
@@ -121,7 +123,7 @@ class SphinxDocstring(Docstring):
 
     def is_valid(self):
         return bool(self.re_param_in_docstring.search(self.doc) or
-                self.re_raise_in_docstring.search(self.doc))
+                    self.re_raise_in_docstring.search(self.doc))
 
     def exceptions(self):
         types = set()
@@ -273,8 +275,8 @@ class GoogleDocstring(Docstring):
 
         return set(params_with_doc), set(params_with_type)
 
-
-    def min_section_indent(self, section_match):
+    @staticmethod
+    def min_section_indent(section_match):
         return len(section_match.group(1)) + 1
 
 class NumpyDocstring(GoogleDocstring):
@@ -306,5 +308,6 @@ class NumpyDocstring(GoogleDocstring):
         ()                            # null group for exceptions
     """, re.X)
 
-    def min_section_indent(self, section_match):
+    @staticmethod
+    def min_section_indent(section_match):
         return len(section_match.group(1))
