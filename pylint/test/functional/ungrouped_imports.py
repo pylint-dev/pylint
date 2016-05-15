@@ -1,5 +1,5 @@
 """Checks import order rule"""
-# pylint: disable=unused-import,relative-import,wrong-import-order,using-constant-test
+# pylint: disable=unused-import,relative-import,wrong-import-position,wrong-import-order,using-constant-test
 # pylint: disable=import-error
 import six
 import logging.config

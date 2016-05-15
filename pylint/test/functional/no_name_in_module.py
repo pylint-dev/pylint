@@ -1,4 +1,4 @@
-#pylint: disable=W0401,W0611,no-absolute-import,invalid-name,import-error,bare-except,broad-except,wrong-import-order,ungrouped-imports
+#pylint: disable=W0401,W0611,no-absolute-import,invalid-name,import-error,bare-except,broad-except,wrong-import-order,ungrouped-imports,wrong-import-position
 """check unexistant names imported are reported"""
 from __future__ import print_function
 

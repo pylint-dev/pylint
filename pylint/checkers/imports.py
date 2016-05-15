@@ -359,8 +359,10 @@ given file (report RP0402 must not be disabled)'}
         for name in names:
             self._check_deprecated_module(node, name)
             importedmodnode = self._get_imported_module(node, name)
-            if isinstance(node.scope(), astroid.Module):
+            if isinstance(node.parent, astroid.Module):
+                # Allow imports nested
                 self._check_position(node)
+            if isinstance(node.scope(), astroid.Module):
                 self._record_import(node, importedmodnode)
 
             if importedmodnode is None:
@@ -381,8 +383,10 @@ given file (report RP0402 must not be disabled)'}
 
         modnode = node.root()
         importedmodnode = self._get_imported_module(node, basename)
-        if isinstance(node.scope(), astroid.Module):
+        if isinstance(node.parent, astroid.Module):
+            # Allow imports nested
             self._check_position(node)
+        if isinstance(node.scope(), astroid.Module):
             self._record_import(node, importedmodnode)
         if importedmodnode is None:
             return
@@ -421,12 +425,16 @@ given file (report RP0402 must not be disabled)'}
             return
         if not isinstance(node.parent, astroid.Module):
             return
-        if any(node.nodes_of_class((astroid.Import, astroid.ImportFrom))):
+        nested_allowed = [astroid.TryExcept, astroid.TryFinally]
+        is_nested_allowed = [
+            allowed for allowed in nested_allowed if isinstance(node, allowed)]
+        if is_nested_allowed and \
+                any(node.nodes_of_class((astroid.Import, astroid.ImportFrom))):
             return
         self._first_non_import_node = node
 
     visit_tryfinally = visit_tryexcept = visit_assignattr = visit_assign \
-            = visit_ifexp = visit_comprehension = visit_if
+            = visit_ifexp = visit_comprehension = visit_expr = visit_if
 
     def visit_functiondef(self, node):
         # If it is the first non import instruction of the module, record it.
@@ -515,6 +523,8 @@ given file (report RP0402 must not be disabled)'}
         extern_imports = []
         local_imports = []
         std_imports = []
+        extern_not_nested = []
+        local_not_nested = []
         isort_obj = isort.SortImports(
             file_contents='', known_third_party=self.config.known_third_party,
             known_standard_library=self.config.known_standard_library,
@@ -524,26 +534,30 @@ given file (report RP0402 must not be disabled)'}
                 package = '.' + modname.split('.')[1]
             else:
                 package = modname.split('.')[0]
-
+            nested = not isinstance(node.parent, astroid.Module)
             import_category = isort_obj.place_module(package)
             if import_category in ('FUTURE', 'STDLIB'):
                 std_imports.append((node, package))
-                wrong_import = extern_imports or local_imports
+                wrong_import = extern_not_nested or local_not_nested
                 if self._is_fallback_import(node, wrong_import):
                     continue
-                if wrong_import:
+                if wrong_import and not nested:
                     self.add_message('wrong-import-order', node=node,
                                      args=('standard import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
             elif import_category in ('FIRSTPARTY', 'THIRDPARTY'):
                 extern_imports.append((node, package))
-                wrong_import = local_imports
-                if wrong_import:
+                if not nested:
+                    extern_not_nested.append((node, package))
+                wrong_import = local_not_nested
+                if wrong_import and not nested:
                     self.add_message('wrong-import-order', node=node,
                                      args=('external import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
             elif import_category == 'LOCALFOLDER':
                 local_imports.append((node, package))
+                if not nested:
+                    local_not_nested.append((node, package))
         return std_imports, extern_imports, local_imports
 
     def _get_imported_module(self, importnode, modname):
