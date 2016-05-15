@@ -322,7 +322,7 @@ accessed. Python regular expressions are accepted.'}
         if isinstance(self.config.generated_members, six.string_types):
             gen = shlex.shlex(self.config.generated_members)
             gen.whitespace += ','
-            gen.wordchars += '[]-+'
+            gen.wordchars += '[]-+\.*?'
             self.config.generated_members = tuple(tok.strip('"') for tok in gen)
 
     def visit_assignattr(self, node):
@@ -344,6 +344,8 @@ accessed. Python regular expressions are accepted.'}
         for pattern in self.config.generated_members:
             # attribute is marked as generated, stop here
             if re.match(pattern, node.attrname):
+                return
+            if re.match(pattern, node.as_string()):
                 return
 
         try:

@@ -5,6 +5,11 @@ ChangeLog for Pylint
 
     * bad-builtin is now an extension check.
 
+    * generated-members support qualified name through regular expressions.
+
+      For instance, one can specify a regular expression as --generated-members=astroid.node_classes.*
+      for ignoring every no-member error that is accessed as in `astroid.node_classes.missing.object`.
+
     * Add the ability to ignore files based on regex matching, with the new ``--ignore-patterns``
       option.
 
