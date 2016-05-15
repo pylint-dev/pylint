@@ -1,22 +1,20 @@
-"""Unit tests for the pylint checkers in
-:mod:`pylint.extensions.check_raise_docs`, in particular the raised exception
-documentation checker `ParamDocChecker`
+"""Unit tests for the raised exception documentation checking in the
+`DocstringChecker` in :mod:`pylint.extensions.check_docs`
 """
 from __future__ import division, print_function, absolute_import
 
 import unittest
-import sys
 
 import astroid
 from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message, set_config
 
-from pylint.extensions.check_raise_docs import RaiseDocChecker
+from pylint.extensions.check_docs import DocstringChecker
 
 
-class RaiseDocCheckerTest(CheckerTestCase):
+class DocstringCheckerRaiseTest(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
-    CHECKER_CLASS = RaiseDocChecker
+    CHECKER_CLASS = DocstringChecker
 
     def test_ignores_no_docstring(self):
         raise_node = test_utils.extract_node('''
@@ -24,20 +22,6 @@ class RaiseDocCheckerTest(CheckerTestCase):
             raise RuntimeError('hi') #@
         ''')
         with self.assertNoMessages():
-            self.checker.visit_raise(raise_node)
-
-    @set_config(accept_no_raise_doc=False)
-    def test_warns_for_no_docstring(self):
-        node = test_utils.extract_node('''
-        def my_func(self):
-            raise RuntimeError('hi')
-        ''')
-        raise_node = node.body[0]
-        with self.assertAddsMessages(
-            Message(
-                msg_id='missing-raises-doc',
-                node=node,
-                args=('RuntimeError', ))):
             self.checker.visit_raise(raise_node)
 
     def test_ignores_unknown_style(self):
@@ -48,6 +32,21 @@ class RaiseDocCheckerTest(CheckerTestCase):
         ''')
         raise_node = node.body[0]
         with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    @set_config(accept_no_raise_doc=False)
+    def test_warns_unknown_style(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring."""
+            raise RuntimeError('hi')
+        ''')
+        raise_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=node,
+                args=('RuntimeError', ))):
             self.checker.visit_raise(raise_node)
 
     def test_find_missing_sphinx_raises(self):
