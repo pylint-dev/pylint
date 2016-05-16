@@ -45,8 +45,7 @@ def possible_exc_types(node):
             handler = handler.parent
 
         if handler and handler.type:
-            inferred = next(handler.type.infer())
-            excs = (exc.name for exc in astroid.unpack_infer(inferred))
+            excs = (exc.name for exc in astroid.unpack_infer(handler.type))
 
     excs = set(exc for exc in excs if not node_ignores_exception(node, exc))
     return excs
