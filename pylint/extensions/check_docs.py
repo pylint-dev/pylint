@@ -70,9 +70,6 @@ class DocstringChecker(BaseChecker):
     constructor_names = {"__init__", "__new__"}
     not_needed_param_in_docstring = {'self', 'cls'}
 
-    def __init__(self, linter=None):
-        BaseChecker.__init__(self, linter)
-
     def visit_functiondef(self, node):
         """Called for function and method definitions (def).
 
