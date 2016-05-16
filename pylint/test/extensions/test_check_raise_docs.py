@@ -243,11 +243,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             Message(
                 msg_id='missing-raises-doc',
                 node=node,
-                args=('ValueError', )),
-            Message(
-                msg_id='missing-raises-doc',
-                node=node,
-                args=('RuntimeError', ))):
+                args=('RuntimeError, ValueError', ))):
             self.checker.visit_raise(raise_node)
 
     def test_find_rethrown_google_multiple_raises(self):
@@ -270,11 +266,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             Message(
                 msg_id='missing-raises-doc',
                 node=node,
-                args=('ValueError', )),
-            Message(
-                msg_id='missing-raises-doc',
-                node=node,
-                args=('RuntimeError', ))):
+                args=('RuntimeError, ValueError', ))):
             self.checker.visit_raise(raise_node)
 
     def test_find_rethrown_numpy_multiple_raises(self):
@@ -299,11 +291,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             Message(
                 msg_id='missing-raises-doc',
                 node=node,
-                args=('ValueError', )),
-            Message(
-                msg_id='missing-raises-doc',
-                node=node,
-                args=('RuntimeError', ))):
+                args=('RuntimeError, ValueError', ))):
             self.checker.visit_raise(raise_node)
 
     def test_ignores_caught_sphinx_raises(self):

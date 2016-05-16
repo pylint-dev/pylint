@@ -46,9 +46,9 @@ class DocstringChecker(BaseChecker):
         'W9005': ('"%s" has constructor parameters documented in class and __init__',
                   'multiple-constructor-doc',
                   'Please remove parameter declarations in the class or constructor.'),
-        'W9006': ('Raising a "%s" is not documented',
+        'W9006': ('"%s" not documented as being raised',
                   'missing-raise-doc',
-                  'Please document that this exception type is raised.'),
+                  'Please document exceptions for all raised exception types.'),
     }
 
     options = (('accept-no-param-doc',
@@ -113,7 +113,7 @@ class DocstringChecker(BaseChecker):
 
         found_excs = doc.exceptions()
         missing_excs = expected_excs - found_excs
-        self._add_all_raise_messages(missing_excs, func_node)
+        self._add_raise_message(missing_excs, func_node)
 
     def check_arguments_in_docstring(self, doc, arguments_node, warning_node,
                                      accept_no_param_doc=None):
@@ -222,22 +222,24 @@ class DocstringChecker(BaseChecker):
         if self.config.accept_no_raise_doc:
             return
 
-        self._add_all_raise_messages(excs, node)
+        self._add_raise_message(excs, node)
 
-    def _add_all_raise_messages(self, missing_excs, node):
+    def _add_raise_message(self, missing_excs, node):
         """
-        Adds a message on :param:`node` for each exception type.
+        Adds a message on :param:`node` for the missing exception type.
 
         :param missing_excs: A list of missing exception types.
         :type missing_excs: list
 
-        :param node: The node show the messages on.
+        :param node: The node show the message on.
         """
-        for missing_exc in missing_excs:
-            self.add_message(
-                'missing-raises-doc',
-                args=(missing_exc,),
-                node=node)
+        if not missing_excs:
+            return
+
+        self.add_message(
+            'missing-raises-doc',
+            args=(', '.join(sorted(missing_excs)),),
+            node=node)
 
 def register(linter):
     """Required method to auto register this checker.
