@@ -67,8 +67,8 @@ class DocstringChecker(BaseChecker):
 
     priority = -2
 
-    constructor_names = set(["__init__", "__new__"])
-    not_needed_param_in_docstring = set(['self', 'cls'])
+    constructor_names = {"__init__", "__new__"}
+    not_needed_param_in_docstring = {'self', 'cls'}
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)

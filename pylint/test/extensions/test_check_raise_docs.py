@@ -270,11 +270,11 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             Message(
                 msg_id='missing-raises-doc',
                 node=node,
-                args=('RuntimeError', )),
+                args=('ValueError', )),
             Message(
                 msg_id='missing-raises-doc',
                 node=node,
-                args=('ValueError', ))):
+                args=('RuntimeError', ))):
             self.checker.visit_raise(raise_node)
 
     def test_find_rethrown_numpy_multiple_raises(self):
