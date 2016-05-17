@@ -494,19 +494,50 @@ accessed. Python regular expressions are accepted.'}
         This can lead pylint to believe that a function call receives
         too few arguments.
         """
-        for arg in node.args:
-            if not isinstance(arg, astroid.Starred):
+        scope = node.scope()
+        if isinstance(scope, astroid.FunctionDef):
+            variadics = (scope.args.vararg, scope.args.kwarg)
+        else:
+            variadics = ()
+
+        statement = node.statement()
+        for name in statement.nodes_of_class(astroid.Name):
+            if name.name not in variadics:
                 continue
 
-            inferred = safe_infer(arg.value)
-            if isinstance(inferred, astroid.Tuple):
+            inferred = safe_infer(name)
+            if isinstance(inferred, (astroid.List, astroid.Tuple)):
                 length = len(inferred.elts)
             elif isinstance(inferred, astroid.Dict):
                 length = len(inferred.items)
             else:
-                return False
-            if not length and isinstance(inferred.statement(), astroid.FunctionDef):
-                return True
+                continue
+
+            inferred_statement = inferred.statement()
+            if not length and isinstance(inferred_statement, astroid.FunctionDef):
+                # Check that we are in a Starred context, since we don't know
+                # the possible length of the list we're unpacking.
+
+                # It can work only on Python 3, since we have pure Starred nodes inside
+                # the AST.
+                parent = name.parent
+                while not isinstance(parent, astroid.Starred) and statement.parent_of(parent):
+                    parent = parent.parent
+                is_in_starred_context = isinstance(parent, astroid.Starred)
+
+                # This is a workaround for Python 2, because we don't have pure
+                # Starred nodes in the AST.
+                used_as_starred_argument = False
+                if isinstance(statement, astroid.Expr):
+                    value = statement.value
+                    used_as_starred_argument = (
+                        isinstance(value, astroid.Call)
+                        and any(starred.value == name or starred.value.parent_of(name)
+                                for starred in value.starargs))
+
+                if is_in_starred_context or used_as_starred_argument:
+                    return True
+
         return False
 
     @check_messages(*(list(MSGS.keys())))

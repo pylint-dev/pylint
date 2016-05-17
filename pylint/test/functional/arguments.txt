@@ -28,3 +28,7 @@ unexpected-keyword-arg:122:TypeCheckConstructor.test:Unexpected keyword argument
 no-value-for-parameter:133:Test.test:No value for argument 'icon' in method call
 too-many-function-args:134:Test.test:Too many positional arguments for method call
 no-value-for-parameter:136::No value for argument 'icon' in method call
+no-value-for-parameter:163:no_context_but_redefined:No value for argument 'three' in function call
+no-value-for-parameter:163:no_context_but_redefined:No value for argument 'two' in function call
+no-value-for-parameter:166:no_context_one_elem:No value for argument 'three' in function call
+no-value-for-parameter:166:no_context_one_elem:No value for argument 'two' in function call

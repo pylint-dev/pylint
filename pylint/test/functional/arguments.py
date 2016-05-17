@@ -157,6 +157,14 @@ function_1_arg(5, 6, **{unknown: 1})
 function_1_arg(**{object: 1})
 function_1_arg(**{1: 2})
 
+def no_context_but_redefined(*args):
+    args = [1]
+    #+1: [no-value-for-parameter, no-value-for-parameter]
+    expect_three(*list(args))
+
+def no_context_one_elem(*args):
+    expect_three(args) # [no-value-for-parameter, no-value-for-parameter]
+
 # Don't emit no-value-for-parameter for this, since we
 # don't have the context at our disposal.
 def expect_three(one, two, three):
@@ -166,6 +174,11 @@ def expect_three(one, two, three):
 def no_context(*args):
     expect_three(*args)
 
+def no_context_two(*args):
+    expect_three(*list(args))
+
+def no_context_three(*args):
+    expect_three(*set(args))
 
 def compare_prices(arg):
     return set((arg, ))

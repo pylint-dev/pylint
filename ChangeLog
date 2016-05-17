@@ -3,6 +3,10 @@ ChangeLog for Pylint
 
 
 --
+    * Fix some false positives with unknown sized variadics.
+
+      Close #878
+
     * bad-builtin is now an extension check.
 
     * generated-members support qualified name through regular expressions.
