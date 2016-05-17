@@ -12,6 +12,10 @@ README for Pylint - http://www.pylint.org/
 .. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=master
     :target: https://coveralls.io/github/PyCQA/pylint?branch=master
 
+.. image:: https://img.shields.io/pypi/v/pylint.svg
+    :alt: Pypi Package version
+    :target: https://pypi.python.org/pypi/pylint
+
 Pylint is a Python source code analyzer which looks for programming errors,
 helps enforcing a coding standard and sniffs for some code smells (as defined in
 Martin Fowler's Refactoring book).
