@@ -453,14 +453,19 @@ def error_of_type(handler, error_type):
     the given error_type.
 
     The *handler* parameter is a node, representing an ExceptHandler node.
-    The *error_type* can be an exception, such as AttributeError, or it
-    can be a tuple of errors.
+    The *error_type* can be an exception, such as AttributeError,
+    the name of an exception, or it can be a tuple of errors.
     The function will return True if the handler catches any of the
     given errors.
     """
+    def stringify_error(error):
+        if not isinstance(error, six.string_types):
+            return error.__name__
+        return error
+
     if not isinstance(error_type, tuple):
         error_type = (error_type, )
-    expected_errors = {error.__name__ for error in error_type}
+    expected_errors = {stringify_error(error) for error in error_type}
     if not handler.type:
         # bare except. While this indeed catches anything, if the desired errors
         # aren't specified directly, then we just ignore it.
