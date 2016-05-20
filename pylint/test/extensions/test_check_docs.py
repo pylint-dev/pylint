@@ -1,5 +1,5 @@
 """Unit tests for the pylint checkers in :mod:`pylint.extensions.check_docs`,
-in particular the parameter documentation checker `ParamDocChecker`
+in particular the parameter documentation checker `DocstringChecker`
 """
 from __future__ import division, print_function, absolute_import
 
@@ -10,19 +10,12 @@ import astroid
 from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message, set_config
 
-from pylint.extensions.check_docs import ParamDocChecker, space_indentation
+from pylint.extensions.check_docs import DocstringChecker
 
 
 class ParamDocCheckerTest(CheckerTestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
-    CHECKER_CLASS = ParamDocChecker
-
-    def test_space_indentation(self):
-        self.assertEqual(space_indentation('abc'), 0)
-        self.assertEqual(space_indentation(''), 0)
-        self.assertEqual(space_indentation('  abc'), 2)
-        self.assertEqual(space_indentation('\n  abc'), 0)
-        self.assertEqual(space_indentation('   \n  abc'), 3)
+    CHECKER_CLASS = DocstringChecker
 
     def test_missing_func_params_in_sphinx_docstring(self):
         """Example of a function with missing Sphinx parameter documentation in
