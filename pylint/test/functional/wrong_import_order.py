@@ -5,6 +5,8 @@ try:
 except ImportError:
     import configparser
 
+import logging
+
 import six
 import os.path  # [wrong-import-order]
 from astroid import are_exclusive
@@ -18,3 +20,22 @@ import astroid  # [wrong-import-order]
 from . import package2
 from .package2 import Class2
 from ..package3 import Class3
+
+
+LOGGER = logging.getLogger(__name__)
+
+
+if LOGGER:
+    # imports nested skipped
+    from . import package4
+    import pprint
+    from pprint import PrettyPrinter
+
+
+try:
+    # imports nested skipped
+    from . import package4
+    import random
+    from random import division
+except ImportError:
+    LOGGER.info('A useful message here')
