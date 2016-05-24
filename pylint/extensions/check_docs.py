@@ -47,7 +47,7 @@ class DocstringChecker(BaseChecker):
                   'multiple-constructor-doc',
                   'Please remove parameter declarations in the class or constructor.'),
         'W9006': ('"%s" not documented as being raised',
-                  'missing-raise-doc',
+                  'missing-raises-doc',
                   'Please document exceptions for all raised exception types.'),
     }
 
