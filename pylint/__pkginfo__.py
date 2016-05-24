@@ -42,7 +42,7 @@ if sys.version_info[0] == 2:
 license = 'GPL'
 description = "python code static checker"
 web = 'http://www.pylint.org'
-mailinglist = "mailto://code-quality@python.org"
+mailinglist = "mailto:code-quality@python.org"
 author = 'Logilab'
 author_email = 'python-projects@lists.logilab.org'
 
