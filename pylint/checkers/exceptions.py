@@ -68,7 +68,7 @@ MSGS = {
               'bad-except-order',
               'Used when except clauses are not in the correct order (from the '
               'more specific to the more generic). If you don\'t fix the order, '
-              'some exceptions may not be catched by the most specific handler.'),
+              'some exceptions may not be caught by the most specific handler.'),
     'E0702': ('Raising %s while only classes or instances are allowed',
               'raising-bad-type',
               'Used when something which is neither a class, an instance or a \

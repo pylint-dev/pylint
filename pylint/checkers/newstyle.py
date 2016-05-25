@@ -53,7 +53,7 @@ MSGS = {
               {'maxversion': (3, 0)}),
     'C1001': ('Old-style class defined.',
               'old-style-class',
-              'Used when a class is defined that does not inherit from another'
+              'Used when a class is defined that does not inherit from another '
               'class and does not inherit explicitly from "object".',
               {'maxversion': (3, 0)})
     }

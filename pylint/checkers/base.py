@@ -646,7 +646,7 @@ functions, methods
                   'exec-used',
                   'Used when you use the "exec" statement (function for Python '
                   '3), to discourage its usage. That doesn\'t '
-                  'mean you can not use it !'),
+                  'mean you cannot use it !'),
         'W0123': ('Use of eval',
                   'eval-used',
                   'Used when you use the "eval" function, to discourage its '
@@ -1589,7 +1589,7 @@ class ComparisonChecker(_BasicChecker):
                       'values like True, False or None.'),
             'C0122': ('Comparison should be %s',
                       'misplaced-comparison-constant',
-                      'Used when the constant is placed on the left side'
+                      'Used when the constant is placed on the left side '
                       'of a comparison. It is usually clearer in intent to '
                       'place it in the right hand side of the comparison.'),
             'C0123': ('Using type() instead of isinstance() for a typecheck.',

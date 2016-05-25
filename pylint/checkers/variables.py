@@ -245,7 +245,7 @@ MSGS = {
               'global-statement',
               'Used when you use the "global" statement to update a global \
               variable. Pylint just try to discourage this \
-              usage. That doesn\'t mean you can not use it !'),
+              usage. That doesn\'t mean you cannot use it !'),
     'W0604': ('Using the global statement at the module level', # W0103
               'global-at-module-level',
               'Used when you use the "global" statement at the module level \

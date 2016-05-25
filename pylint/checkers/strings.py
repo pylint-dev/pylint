@@ -61,7 +61,7 @@ MSGS = {
     'W1301': ("Unused key %r in format string dictionary",
               "unused-format-string-key",
               "Used when a format string that uses named conversion specifiers \
-              is used with a dictionary that conWtains keys not required by the \
+              is used with a dictionary that contains keys not required by the \
               format string."),
     'E1304': ("Missing key %r in format string dictionary",
               "missing-format-string-key",
@@ -98,7 +98,7 @@ MSGS = {
     'W1305': ("Format string contains both automatic field numbering "
               "and manual field specification",
               "format-combined-specification",
-              "Usen when a PEP 3101 format string contains both automatic "
+              "Used when a PEP 3101 format string contains both automatic "
               "field numbering (e.g. '{}') and manual field "
               "specification (e.g. '{0}').",
               {'minversion': (2, 7)}),

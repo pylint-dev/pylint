@@ -206,7 +206,7 @@ MSGS = {
               'from regular instance methods.'),
     'C0203': ('Metaclass method %s should have %s as first argument',
               'bad-mcs-method-argument',
-              'Used when a metaclass method has a first agument named '
+              'Used when a metaclass method has a first argument named '
               'differently than the value specified in valid-classmethod-first'
               '-arg option (default to "cls"), recommended to easily '
               'differentiate them from regular instance methods.'),
@@ -271,7 +271,7 @@ MSGS = {
               'class.'),
     'E0240': ('Inconsistent method resolution order for class %r',
               'inconsistent-mro',
-              'Used when a class has an inconsistent method resolutin order.'),
+              'Used when a class has an inconsistent method resolution order.'),
     'E0241': ('Duplicate bases for class %r',
               'duplicate-bases',
               'Used when a class has duplicate bases.'),

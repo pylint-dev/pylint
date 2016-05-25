@@ -173,8 +173,8 @@ module. Pylint 0.26.1 and up have renamed that directive to
 compatibility).
 
 In order to ease finding which modules are ignored a Information-level message
-`file-ignored` is emited. With recent versions of Pylint, if you use the old
-syntax, an additional `deprecated-disable-all` message is emited.
+`file-ignored` is emitted. With recent versions of Pylint, if you use the old
+syntax, an additional `deprecated-disable-all` message is emitted.
 
 4.4 Do I have to remember all these numbers?
 --------------------------------------------
