@@ -78,6 +78,9 @@ class Docstring(object):
     def has_params(self):
         return False
 
+    def has_returns(self):
+        return False
+
     def match_param_docs(self):
         return set(), set()
 
@@ -121,9 +124,15 @@ class SphinxDocstring(Docstring):
         :                       # final colon
         """, re.X | re.S)
 
+    re_rtype_in_docstring = re.compile(r":rtype:")
+
+    re_returns_in_docstring = re.compile(r":returns?:")
+
     def is_valid(self):
         return bool(self.re_param_in_docstring.search(self.doc) or
-                    self.re_raise_in_docstring.search(self.doc))
+                    self.re_raise_in_docstring.search(self.doc) or
+                    self.re_rtype_in_docstring.search(self.doc) or
+                    self.re_returns_in_docstring.search(self.doc))
 
     def exceptions(self):
         types = set()
@@ -139,6 +148,13 @@ class SphinxDocstring(Docstring):
             return False
 
         return self.re_param_in_docstring.search(self.doc) is not None
+
+    def has_returns(self):
+        if not self.doc:
+            return False
+
+        return (self.re_rtype_in_docstring.search(self.doc) and
+                self.re_returns_in_docstring.search(self.doc))
 
     def match_param_docs(self):
         params_with_doc = set()
@@ -182,15 +198,57 @@ class GoogleDocstring(Docstring):
         \s*  ( \w+ )?                 # beginning of optional description
     """, re.X)
 
+    re_returns_section = re.compile(
+        _re_section_template.format(r"Returns?"),
+        re.X | re.S | re.M
+    )
+
+    re_returns_line = re.compile(r"""
+        (?:\s*  (\w+) \s* :)?         # optional identifier
+        \s*  (\w+)                    # beginning of description
+    """, re.X)
+
     def is_valid(self):
         return bool(self.re_param_section.search(self.doc) or
-                    self.re_raise_section.search(self.doc))
+                    self.re_raise_section.search(self.doc) or
+                    self.re_returns_section.search(self.doc))
 
     def has_params(self):
         if not self.doc:
             return False
 
         return self.re_param_section.search(self.doc) is not None
+
+    def has_returns(self):
+        if not self.doc:
+            return False
+
+        section_match = self.re_returns_section.search(self.doc)
+        if section_match is None:
+            return False
+
+        min_indentation = self.min_section_indent(section_match)
+
+        is_first = True
+        for line in section_match.group(2).splitlines():
+            if not line.strip():
+                continue
+            indentation = space_indentation(line)
+            if indentation < min_indentation:
+                break
+
+            # The first line after the header defines the minimum
+            # indentation.
+            if is_first:
+                min_indentation = indentation
+                is_first = False
+
+            if indentation == min_indentation:
+                match = self.re_returns_line.match(line)
+                if match is not None and match.group(1) is not None:
+                    return True
+
+        return False
 
     def exceptions(self):
         types = set()
@@ -306,6 +364,16 @@ class NumpyDocstring(GoogleDocstring):
     re_raise_line = re.compile(r"""
         \s*  (\w+)                    # type declaration
         ()                            # null group for exceptions
+    """, re.X)
+
+    re_returns_section = re.compile(
+        _re_section_template.format(r"Returns?"),
+        re.X | re.S | re.M
+    )
+
+    re_returns_line = re.compile(r"""
+        \s*  (\w+)                    # identifier
+        \s*  (\w+)                    # beginning of description
     """, re.X)
 
     @staticmethod

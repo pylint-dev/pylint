@@ -47,8 +47,11 @@ class DocstringChecker(BaseChecker):
                   'multiple-constructor-doc',
                   'Please remove parameter declarations in the class or constructor.'),
         'W9006': ('"%s" not documented as being raised',
-                  'missing-raise-doc',
+                  'missing-raises-doc',
                   'Please document exceptions for all raised exception types.'),
+        'W9007': ('Missing return type documentation',
+                  'missing-returns-doc',
+                  'Please add documentation about what this method returns.'),
     }
 
     options = (('accept-no-param-doc',
@@ -62,6 +65,12 @@ class DocstringChecker(BaseChecker):
                  'help': 'Whether to accept totally missing raises'
                          'documentation in a docstring of a function that'
                          'raises an exception.'
+                }),
+               ('accept-no-return-doc',
+                {'default': True, 'type' : 'yn', 'metavar' : '<y or n>',
+                 'help': 'Whether to accept totally missing return'
+                         'documentation in a docstring of a function that'
+                         'returns a statement.'
                 }),
               )
 
@@ -114,6 +123,24 @@ class DocstringChecker(BaseChecker):
         found_excs = doc.exceptions()
         missing_excs = expected_excs - found_excs
         self._add_raise_message(missing_excs, func_node)
+
+    def visit_return(self, node):
+        if node.value is None:
+            return
+
+        func_node = node.frame()
+        if not isinstance(func_node, astroid.FunctionDef):
+            return
+
+        doc = utils.docstringify(func_node.doc)
+        if not doc.is_valid() and self.config.accept_no_return_doc:
+            return
+
+        if not doc.has_returns():
+            self.add_message(
+                'missing-returns-doc',
+                node=func_node
+            )
 
     def check_arguments_in_docstring(self, doc, arguments_node, warning_node,
                                      accept_no_param_doc=None):
