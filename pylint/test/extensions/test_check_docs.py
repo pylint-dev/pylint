@@ -913,6 +913,46 @@ class ParamDocCheckerTest(CheckerTestCase):
                 args=('missing_kwonly', ))):
             self.checker.visit_functiondef(node)
 
+    def test_warns_missing_args(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, *args):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: object
+            :returns: Maybe named_arg
+            :rtype: object or None
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('args',))):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_missing_kwargs(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, **kwargs):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: object
+            :returns: Maybe named_arg
+            :rtype: object or None
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('kwargs',))):
+            self.checker.visit_functiondef(node)
+
 
 if __name__ == '__main__':
     unittest.main()
