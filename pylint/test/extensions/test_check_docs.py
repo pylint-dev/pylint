@@ -913,6 +913,254 @@ class ParamDocCheckerTest(CheckerTestCase):
                 args=('missing_kwonly', ))):
             self.checker.visit_functiondef(node)
 
+    def test_warns_missing_args_sphinx(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, *args):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: object
+            :returns: Maybe named_arg
+            :rtype: object or None
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('args',))):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_missing_kwargs_sphinx(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, **kwargs):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: object
+            :returns: Maybe named_arg
+            :rtype: object or None
+            """
+            if kwargs:
+                return named_arg
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('kwargs',))):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_missing_args_google(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, *args):
+            """The docstring
+
+            Args:
+                named_arg (object): Returned
+
+            Returns:
+                object or None: Maybe named_arg
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('args',))):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_missing_kwargs_google(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, **kwargs):
+            """The docstring
+
+            Args:
+                named_arg (object): Returned
+
+            Returns:
+                object or None: Maybe named_arg
+            """
+            if kwargs:
+                return named_arg
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('kwargs',))):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_missing_args_numpy(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, *args):
+            """The docstring
+
+            Args
+            ----
+            named_arg : object
+                Returned
+
+            Returns
+            -------
+                object or None
+                    Maybe named_arg
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('args',))):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_missing_kwargs_numpy(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, **kwargs):
+            """The docstring
+
+            Args
+            ----
+            named_arg : object
+                Returned
+
+            Returns
+            -------
+                object or None
+                    Maybe named_arg
+            """
+            if kwargs:
+                return named_arg
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('kwargs',))):
+            self.checker.visit_functiondef(node)
+
+    def test_finds_args_without_type_sphinx(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, *args):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: object
+            :param args: Optional arguments
+            :returns: Maybe named_arg
+            :rtype: object or None
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_kwargs_without_type_sphinx(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, **kwargs):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: object
+            :param kwargs: Keyword arguments
+            :returns: Maybe named_arg
+            :rtype: object or None
+            """
+            if kwargs:
+                return named_arg
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_args_without_type_google(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, *args):
+            """The docstring
+
+            Args:
+                named_arg (object): Returned
+                *args: Optional arguments
+
+            Returns:
+                object or None: Maybe named_arg
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_kwargs_without_type_google(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, **kwargs):
+            """The docstring
+
+            Args:
+                named_arg (object): Returned
+                **kwargs: Keyword arguments
+
+            Returns:
+                object or None: Maybe named_arg
+            """
+            if kwargs:
+                return named_arg
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_args_without_type_numpy(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, *args):
+            """The docstring
+
+            Args
+            ----
+            named_arg : object
+                Returned
+            args :
+                Optional Arguments
+
+            Returns
+            -------
+                object or None
+                    Maybe named_arg
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_kwargs_without_type_numpy(self):
+        node = test_utils.extract_node('''
+        def my_func(named_arg, **kwargs):
+            """The docstring
+
+            Args
+            ----
+            named_arg : object
+                Returned
+            kwargs :
+                Keyword arguments
+
+            Returns
+            -------
+                object or None
+                    Maybe named_arg
+            """
+            if kwargs:
+                return named_arg
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
 
 if __name__ == '__main__':
     unittest.main()
