@@ -193,10 +193,10 @@ class DocstringChecker(BaseChecker):
             self.not_needed_param_in_docstring.copy())
 
         if arguments_node.vararg is not None:
-            expected_argument_names.append(arguments_node.vararg)
+            expected_argument_names.add(arguments_node.vararg)
             not_needed_type_in_docstring.add(arguments_node.vararg)
         if arguments_node.kwarg is not None:
-            expected_argument_names.append(arguments_node.kwarg)
+            expected_argument_names.add(arguments_node.kwarg)
             not_needed_type_in_docstring.add(arguments_node.kwarg)
         params_with_doc, params_with_type = doc.match_param_docs()
 

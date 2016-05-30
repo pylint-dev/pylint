@@ -183,7 +183,7 @@ class GoogleDocstring(Docstring):
     )
 
     re_param_line = re.compile(r"""
-        \s*  (\w+)                    # identifier
+        \s*  \*{0,2}(\w+)             # identifier potentially with asterisks
         \s*  ( [(] .*? [)] )? \s* :   # optional type declaration
         \s*  ( \w+ )?                 # beginning of optional description
     """, re.X)
