@@ -30,7 +30,11 @@ import isort
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import EmptyReport, get_global_option
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages, node_ignores_exception
+from pylint.checkers.utils import (
+    check_messages,
+    node_ignores_exception,
+    is_from_fallback_block
+)
 from pylint.graph import get_cycles, DotBackend
 from pylint.reporters.ureports.nodes import VerbatimText, Paragraph
 
@@ -279,6 +283,14 @@ given file (report RP0402 must not be disabled)'}
                  'help': 'Force import order to recognize a module as part of' \
                          ' a third party library.'}
                ),
+               ('analyse-fallback-blocks',
+                {'default': False,
+                 'type': 'yn',
+                 'metavar': '<y_or_n>',
+                 'help': 'Analyse import fallback blocks. This can be used to '
+                         'support both Python 2 and 3 compatible code, which means that '
+                         'the block might have code that exists only in one or another '
+                         'interpreter, leading to false positives when analysed.'}),
 
               )
 
@@ -563,6 +575,9 @@ given file (report RP0402 must not be disabled)'}
             for submodule in _qualified_names(modname):
                 if submodule in self._ignored_modules:
                     return None
+
+            if not self.config.analyse_fallback_blocks and is_from_fallback_block(importnode):
+                return None
 
             if not node_ignores_exception(importnode, ImportError):
                 self.add_message("import-error", args=args, node=importnode)

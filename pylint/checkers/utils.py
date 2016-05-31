@@ -18,6 +18,7 @@
 """some functions that may be useful for various checkers
 """
 import functools
+import itertools
 import re
 import sys
 import string
@@ -566,6 +567,43 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     return visited
 
 
+def _import_node_context(node):
+    current = node
+    ignores = (astroid.ExceptHandler, astroid.TryExcept)
+    while current and not isinstance(current.parent, ignores):
+        current = current.parent
+
+    if current and isinstance(current.parent, ignores):
+        return current.parent
+    return None
+
+
+def is_from_fallback_block(node):
+    """Check if the given node is from a fallback import block."""
+    context = _import_node_context(node)
+    if not context:
+        return False
+
+    if isinstance(context, astroid.ExceptHandler):
+        other_body = context.parent.body
+        handlers = context.parent.handlers
+    else:
+        other_body = itertools.chain.from_iterable(
+            handler.body for handler in context.handlers)
+        handlers = context.handlers
+
+    has_fallback_imports = any(isinstance(import_node, (astroid.ImportFrom, astroid.Import))
+                               for import_node in other_body)
+    ignores_import_error = _except_handlers_ignores_exception(handlers, ImportError)
+    return ignores_import_error or has_fallback_imports
+
+
+def _except_handlers_ignores_exception(handlers, exception):
+    func = functools.partial(error_of_type,
+                             error_type=(exception, ))
+    return any(map(func, handlers))
+
+
 def node_ignores_exception(node, exception):
     """Check if the node is in a TryExcept which handles the given exception."""
     current = node
@@ -573,11 +611,8 @@ def node_ignores_exception(node, exception):
     while current and not isinstance(current.parent, ignores):
         current = current.parent
 
-    func = functools.partial(error_of_type,
-                             error_type=(exception, ))
     if current and isinstance(current.parent, astroid.TryExcept):
-        if any(map(func, current.parent.handlers)):
-            return True
+        return _except_handlers_ignores_exception(current.parent.handlers, exception)
     return False
 
 

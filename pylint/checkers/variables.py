@@ -23,6 +23,7 @@ from copy import copy
 import six
 
 import astroid
+from astroid import decorators
 from astroid import modutils
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import get_global_option
@@ -33,7 +34,7 @@ from pylint.checkers.utils import (
     assign_parent, check_messages, is_inside_except, clobber_in_except,
     get_all_elements, has_known_bases, node_ignores_exception,
     is_inside_abstract_class, is_comprehension, is_iterable,
-    safe_infer)
+    safe_infer, is_from_fallback_block)
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = '__future__'
@@ -338,6 +339,16 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         BaseChecker.__init__(self, linter)
         self._to_consume = None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
         self._checking_mod_attr = None
+
+    # Relying on other checker's options, which might not have been initialized yet.
+    @decorators.cachedproperty
+    def _analyse_fallback_blocks(self):
+        return get_global_option(self, 'analyse-fallback-blocks', default=False)
+
+    @decorators.cachedproperty
+    def _ignored_modules(self):
+        return get_global_option(self, 'ignored-modules', default=[])
+
 
     def visit_module(self, node):
         """visit module : update consumption analysis variable
@@ -1008,7 +1019,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     @check_messages('no-name-in-module')
     def visit_import(self, node):
         """check modules attribute accesses"""
-        if node_ignores_exception(node, ImportError):
+        if not self._analyse_fallback_blocks and is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
             return
@@ -1024,7 +1035,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     @check_messages('no-name-in-module')
     def visit_importfrom(self, node):
         """check modules attribute accesses"""
-        if node_ignores_exception(node, ImportError):
+        if not self._analyse_fallback_blocks and is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
             return
@@ -1098,8 +1109,6 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         if the latest access name corresponds to a module, return it
         """
         assert isinstance(module, astroid.Module), module
-        ignored_modules = get_global_option(self, 'ignored-modules',
-                                            default=[])
         while module_names:
             name = module_names.pop(0)
             if name == '__dict__':
@@ -1110,7 +1119,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if module is astroid.YES:
                     return None
             except astroid.NotFoundError:
-                if module.name in ignored_modules:
+                if module.name in self._ignored_modules:
                     return None
                 self.add_message('no-name-in-module',
                                  args=(name, module.name), node=node)
