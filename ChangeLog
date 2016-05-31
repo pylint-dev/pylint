@@ -3,6 +3,15 @@ ChangeLog for Pylint
 
 
 --
+    * Do not emit import-error or no-name-in-module for fallback import blocks by default.
+
+      Until now, we warned with these errors when a fallback import block (a TryExcept block
+      that contained imports for Python 2 and 3) was found, but this gets cumbersome when
+      trying to write compatible code. As such, we don't check these blocks by default,
+      but the analysis can be enforced by using the new ``--analyse-fallback-block`` flag.
+
+      Close #769.
+
     * Fix some false positives with unknown sized variadics.
 
       Close #878
