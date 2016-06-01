@@ -1,19 +1,6 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-# This file was copied from logilab-common with the same license:
-# copyright 2003-2011 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
 """Graph manipulation utilities.
 
 (dot generation adapted from pypy/translator/tool/make_dot.py)

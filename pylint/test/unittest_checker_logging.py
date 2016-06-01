@@ -1,4 +1,6 @@
-# Copyright 2014 Google Inc. All Rights Reserved.
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+
 """Unittest for the logging checker."""
 import unittest
 from astroid import test_utils
