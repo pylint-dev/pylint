@@ -9,6 +9,14 @@ Order doesn't matter (not that much, at least ;)
 
 * Claudiu Popa: maintainer, contributor
 
+* ceridwen: astroid committer.
+
+* Dmitry Pribysh: committer, multiple-imports, not-iterable, not-a-mapping, various patches.
+
+* Ashley Whetter: committer, check_docs extension can find constructor parameters in __init__,
+	          added check_raise_docs extension.
+
+
 * Daniel Balparda (Google): GPyLint maintainer (Google's pylint variant),
   various patches
 
@@ -71,8 +79,6 @@ Order doesn't matter (not that much, at least ;)
 
 * Stéphane Wirtel: nonlocal-without-binding
 
-* Dmitry Pribysh: multiple-imports, not-iterable, not-a-mapping, various patches.
-
 * Laura Medioni (Logilab, on behalf of the CNES): misplaced-comparison-constant,
   no-classmethod-decorator, no-staticmethod-decorator, too-many-nested-blocks,
   too-many-boolean-expressions, unneeded-not, wrong-import-order, ungrouped-imports,
@@ -90,6 +96,3 @@ Order doesn't matter (not that much, at least ;)
   Refactory wrong-import-position to skip try-import and nested cases.
 
 * Luis Escobar (Vauxoo), Moisés López (Vauxoo): Add bad-docstring-quotes and docstring-first-line-empty
-
-* Ashley Whetter: check_docs extension can find constructor parameters in __init__
-	Added check_raise_docs extension.
