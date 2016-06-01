@@ -490,6 +490,8 @@ def decorated_with(func, qnames):
         if dec and dec.qname() in qnames:
             return True
 
+_ABSTRACT_METHOD_CACHE = {
+}
 
 def unimplemented_abstract_methods(node, is_abstract_cb=None):
     """
@@ -503,6 +505,10 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     For the rest of them, it will return a dictionary of abstract method
     names and their inferred objects.
     """
+    node_key = id(node)
+    if node_key in _ABSTRACT_METHOD_CACHE:
+        return _ABSTRACT_METHOD_CACHE[node_key]
+
     if is_abstract_cb is None:
         is_abstract_cb = functools.partial(
             decorated_with, qnames=ABC_METHODS)
@@ -546,6 +552,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
                     visited[obj.name] = infered
                 elif not abstract and obj.name in visited:
                     del visited[obj.name]
+    _ABSTRACT_METHOD_CACHE[node_key] = visited
     return visited
 
 
