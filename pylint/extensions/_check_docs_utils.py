@@ -203,7 +203,7 @@ class GoogleDocstring(Docstring):
 
     re_container_type = r"""
         (?:{type}|{xref})             # a container type
-        [\(\[] [^\n]+ [\)\]]          # with the contents of the container
+        [\(\[] [^\n]+ [\)\]]              # with the contents of the container
     """.format(type=re_type, xref=re_xref)
 
     _re_section_template = r"""
@@ -220,8 +220,8 @@ class GoogleDocstring(Docstring):
         \s*  \*{{0,2}}(\w+)             # identifier potentially with asterisks
         \s*  ( [(]
             (?:{container_type}|{type})
-            [)] )? \s* :                # optional type declaration
-        \s*  (.*)                       # beginning of optional description
+            [)] )? \s* :   # optional type declaration
+        \s*  (.*)                 # beginning of optional description
     """.format(
         type=re_type,
         container_type=re_container_type
@@ -234,7 +234,7 @@ class GoogleDocstring(Docstring):
 
     re_raise_line = re.compile(r"""
         \s*  ({type}) \s* :              # identifier
-        \s*  (.*)                        # beginning of optional description
+        \s*  (.*)                       # beginning of optional description
     """.format(type=re_type), re.X | re.S | re.M)
 
     re_returns_section = re.compile(
@@ -244,7 +244,7 @@ class GoogleDocstring(Docstring):
 
     re_returns_line = re.compile(r"""
         \s* ({container_type}:|{type}:)?  # identifier
-        \s* (.*)                          # beginning of description
+        \s* (.*)                         # beginning of description
     """.format(
         type=re_type,
         container_type=re_container_type
@@ -372,7 +372,7 @@ class NumpyDocstring(GoogleDocstring):
         \s*  (\w+)                      # identifier
         \s*  :
         \s*  ({container_type}|{type})? # optional type declaration
-        \n                              # description starts on a new line
+        \n                               # description starts on a new line
         \s* (.*)                        # description
     """.format(
         type=GoogleDocstring.re_type,
