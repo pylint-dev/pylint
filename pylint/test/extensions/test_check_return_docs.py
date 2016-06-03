@@ -233,5 +233,138 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_return(return_node)
 
+    def test_finds_sphinx_return_custom_class(self):
+        return_node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :returns: An object
+            :rtype: :class:`mymodule.Class`
+            """
+            return mymodule.Class() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
+    def test_finds_google_return_custom_class(self):
+        return_node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns:
+                mymodule.Class: An object
+            """
+            return mymodule.Class() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
+    def test_finds_numpy_return_custom_class(self):
+        return_node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns
+            -------
+                mymodule.Class
+                    An object
+            """
+            return mymodule.Class() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
+    def test_finds_sphinx_return_list_of_custom_class(self):
+        return_node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :returns: An object
+            :rtype: list(:class:`mymodule.Class`)
+            """
+            return [mymodule.Class()] #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
+    def test_finds_google_return_list_of_custom_class(self):
+        return_node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns:
+                list(:class:`mymodule.Class`): An object
+            """
+            return [mymodule.Class()] #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
+    def test_finds_numpy_return_list_of_custom_class(self):
+        return_node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns
+            -------
+                list(:class:`mymodule.Class`)
+                    An object
+            """
+            return [mymodule.Class()] #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_return(return_node)
+
+    def test_warns_sphinx_return_list_of_custom_class_without_description(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :rtype: list(:class:`mymodule.Class`)
+            """
+            return [mymodule.Class()]
+        ''')
+        return_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-returns-doc',
+                node=node)):
+            self.checker.visit_return(return_node)
+
+    def test_warns_google_return_list_of_custom_class_without_description(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns:
+                list(:class:`mymodule.Class`)
+            """
+            return [mymodule.Class()]
+        ''')
+        return_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-returns-doc',
+                node=node)):
+            self.checker.visit_return(return_node)
+
+    def test_warns_numpy_return_list_of_custom_class_without_description(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns
+            -------
+                list(:class:`mymodule.Class`)
+            """
+            return [mymodule.Class()]
+        ''')
+        return_node = node.body[0]
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-returns-doc',
+                node=node)):
+            self.checker.visit_return(return_node)
+
 if __name__ == '__main__':
     unittest.main()
