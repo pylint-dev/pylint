@@ -175,8 +175,20 @@ class SphinxDocstring(Docstring):
 
 
 class GoogleDocstring(Docstring):
+    re_type = r"[\w_\.]+"
+
+    re_xref = r"""
+        (?::\w+:)?                    # optional tag
+        `{0}`                         # what to reference
+        """.format(re_type)
+
+    re_container_type = r"""
+        (?:{type}|{xref})             # a container type
+        [\(\[] [^\n]+ [\)\]]              # with the contents of the container
+    """.format(type=re_type, xref=re_xref)
+
     _re_section_template = r"""
-        ^([ ]*)   {0} \s*:   \s*?$   # Google parameter header
+        ^([ ]*)   {0} \s*:   \s*$     # Google parameter header
         (  .* )                       # section
         """
 
@@ -186,10 +198,15 @@ class GoogleDocstring(Docstring):
     )
 
     re_param_line = re.compile(r"""
-        \s*  \*{0,2}(\w+)             # identifier potentially with asterisks
-        \s*  ( [(] .*? [)] )? \s* :   # optional type declaration
-        \s*  ( \w+ )?                 # beginning of optional description
-    """, re.X)
+        \s*  \*{{0,2}}(\w+)             # identifier potentially with asterisks
+        \s*  ( [(]
+            (?:{container_type}|{type})
+            [)] )? \s* :   # optional type declaration
+        \s*  (.*)                 # beginning of optional description
+    """.format(
+        type=re_type,
+        container_type=re_container_type
+    ), re.X | re.S | re.M)
 
     re_raise_section = re.compile(
         _re_section_template.format(r"Raises"),
@@ -197,9 +214,9 @@ class GoogleDocstring(Docstring):
     )
 
     re_raise_line = re.compile(r"""
-        \s*  (\w+) \s* :              # identifier
-        \s*  ( \w+ )?                 # beginning of optional description
-    """, re.X)
+        \s*  ({type}) \s* :              # identifier
+        \s*  (.*)                       # beginning of optional description
+    """.format(type=re_type), re.X | re.S | re.M)
 
     re_returns_section = re.compile(
         _re_section_template.format(r"Returns?"),
@@ -207,9 +224,12 @@ class GoogleDocstring(Docstring):
     )
 
     re_returns_line = re.compile(r"""
-        (?:\s*  (\w+) \s* :)?         # optional identifier
-        \s*  (\w+)                    # beginning of description
-    """, re.X)
+        \s* ({container_type}:|{type}:)?  # identifier
+        \s* (.*)                         # beginning of description
+    """.format(
+        type=re_type,
+        container_type=re_container_type
+    ), re.X | re.S | re.M)
 
     def is_valid(self):
         return bool(self.re_param_section.search(self.doc) or
@@ -226,42 +246,69 @@ class GoogleDocstring(Docstring):
         if not self.doc:
             return False
 
-        section_match = self.re_returns_section.search(self.doc)
-        if section_match is None:
-            return False
-
-        min_indentation = self.min_section_indent(section_match)
-
-        is_first = True
-        for line in section_match.group(2).splitlines():
-            if not line.strip():
+        entries = self._parse_section(self.re_returns_section)
+        for entry in entries:
+            match = self.re_returns_line.match(entry)
+            if not match:
                 continue
-            indentation = space_indentation(line)
-            if indentation < min_indentation:
-                break
 
-            # The first line after the header defines the minimum
-            # indentation.
-            if is_first:
-                min_indentation = indentation
-                is_first = False
-
-            if indentation == min_indentation:
-                match = self.re_returns_line.match(line)
-                if match is not None and match.group(1) is not None:
-                    return True
+            return_type = match.group(1)
+            return_desc = match.group(2)
+            if return_type and return_desc:
+                return True
 
         return False
 
     def exceptions(self):
         types = set()
 
-        section_match = self.re_raise_section.search(self.doc)
+        entries = self._parse_section(self.re_raise_section)
+        for entry in entries:
+            match = self.re_raise_line.match(entry)
+            if not match:
+                continue
+
+            exc_type = match.group(1)
+            exc_desc = match.group(2)
+            if exc_desc:
+                types.add(exc_type)
+
+        return types
+
+    def match_param_docs(self):
+        params_with_doc = set()
+        params_with_type = set()
+
+        entries = self._parse_section(self.re_param_section)
+        for entry in entries:
+            match = self.re_param_line.match(entry)
+            if not match:
+                continue
+
+            param_name = match.group(1)
+            param_type = match.group(2)
+            param_desc = match.group(3)
+            if param_type:
+                params_with_type.add(param_name)
+
+            if param_desc:
+                params_with_doc.add(param_name)
+
+        return params_with_doc, params_with_type
+
+    @staticmethod
+    def min_section_indent(section_match):
+        return len(section_match.group(1)) + 1
+
+    def _parse_section(self, section_re):
+        section_match = section_re.search(self.doc)
         if section_match is None:
-            return types
+            return []
 
         min_indentation = self.min_section_indent(section_match)
 
+        entries = []
+        entry = []
         is_first = True
         for line in section_match.group(2).splitlines():
             if not line.strip():
@@ -279,66 +326,16 @@ class GoogleDocstring(Docstring):
             if indentation == min_indentation:
                 # Lines with minimum indentation must contain the beginning
                 # of a new parameter documentation.
-                match = self.re_raise_line.match(line)
-                if match is None:
-                    break
+                if entry:
+                    entries.append("\n".join(entry))
+                    entry = []
 
-                raise_type = match.group(1)
-                if match.group(2) is not None:
-                    types.add(raise_type)
+            entry.append(line)
 
-        return types
+        if entry:
+            entries.append("\n".join(entry))
 
-    def match_param_docs(self):
-        params_with_doc = []
-        params_with_type = []
-
-        section_match = self.re_param_section.search(self.doc)
-        if section_match is None:
-            return set(), set()
-
-        min_indentation = self.min_section_indent(section_match)
-
-        prev_param_name = None
-        is_first = True
-        for line in section_match.group(2).splitlines():
-            if not line.strip():
-                continue
-            indentation = space_indentation(line)
-            if indentation < min_indentation:
-                break
-
-            # The first line after the header defines the minimum
-            # indentation.
-            if is_first:
-                min_indentation = indentation
-                is_first = False
-
-            if indentation > min_indentation:
-                # Lines with more than minimum indentation must contain a
-                # description.
-                if (not params_with_doc
-                        or params_with_doc[-1] != prev_param_name):
-                    assert prev_param_name is not None
-                    params_with_doc.append(prev_param_name)
-            else:
-                # Lines with minimum indentation must contain the beginning
-                # of a new parameter documentation.
-                match = self.re_param_line.match(line)
-                if match is None:
-                    break
-                prev_param_name = match.group(1)
-                if match.group(2) is not None:
-                    params_with_type.append(prev_param_name)
-
-                if match.group(3) is not None:
-                    params_with_doc.append(prev_param_name)
-
-        return set(params_with_doc), set(params_with_type)
-
-    @staticmethod
-    def min_section_indent(section_match):
-        return len(section_match.group(1)) + 1
+        return entries
 
 class NumpyDocstring(GoogleDocstring):
     _re_section_template = r"""
@@ -353,11 +350,15 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_param_line = re.compile(r"""
-        \s*  (\w+)                    # identifier
-        \s*  :                        
-        \s*  ( \w+ )?                 # optional type declaration
-        ()                            # null group for match_param_docs
-    """, re.X)
+        \s*  (\w+)                      # identifier
+        \s*  :
+        \s*  ({container_type}|{type})? # optional type declaration
+        \n                               # description starts on a new line
+        \s* (.*)                        # description
+    """.format(
+        type=GoogleDocstring.re_type,
+        container_type=GoogleDocstring.re_container_type
+    ), re.X | re.S)
 
     re_raise_section = re.compile(
         _re_section_template.format(r"Raises"),
@@ -365,9 +366,9 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_raise_line = re.compile(r"""
-        \s*  (\w+)                    # type declaration
-        ()                            # null group for exceptions
-    """, re.X)
+        \s* ({type})$   # type declaration
+        \s* (.*)        # optional description
+    """.format(type=GoogleDocstring.re_type), re.X | re.S | re.M)
 
     re_returns_section = re.compile(
         _re_section_template.format(r"Returns?"),
@@ -375,9 +376,12 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_returns_line = re.compile(r"""
-        \s*  (\w+)                    # identifier
-        \s*  (\w+)                    # beginning of description
-    """, re.X)
+        \s* ({container_type}|{type})$ # type declaration
+        \s* (.*)                       # optional description
+    """.format(
+        type=GoogleDocstring.re_type,
+        container_type=GoogleDocstring.re_container_type
+    ), re.X | re.S | re.M)
 
     @staticmethod
     def min_section_indent(section_match):
