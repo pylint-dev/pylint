@@ -643,6 +643,7 @@ class VariablesChecker(BaseChecker):
         if isinstance(frame, astroid.Module):
             self.add_message('global-at-module-level', node=node)
             return
+
         module = frame.root()
         default_message = True
         for name in node.names:
@@ -651,23 +652,16 @@ class VariablesChecker(BaseChecker):
             except astroid.NotFoundError:
                 # unassigned global, skip
                 assign_nodes = []
-            for anode in assign_nodes:
-                if anode.parent is None:
-                    # node returned for builtin attribute such as __file__,
-                    # __doc__, etc...
-                    continue
-                if anode.frame() is frame:
-                    # same scope level assignment
-                    break
-            else:
-                if not _find_frame_imports(name, frame):
-                    self.add_message('global-variable-not-assigned',
-                                     args=name, node=node)
-                default_message = False
+
             if not assign_nodes:
+                self.add_message('global-variable-not-assigned',
+                                 args=name, node=node)
+                default_message = False
                 continue
+
             for anode in assign_nodes:
-                if anode.parent is None:
+                if (isinstance(anode, astroid.AssignName)
+                        and anode.name in module.special_attributes):
                     self.add_message('redefined-builtin', args=name, node=node)
                     break
                 if anode.frame() is module:
@@ -677,6 +671,7 @@ class VariablesChecker(BaseChecker):
                 # global undefined at the module scope
                 self.add_message('global-variable-undefined', args=name, node=node)
                 default_message = False
+
         if default_message:
             self.add_message('global-statement', node=node)
 

@@ -678,7 +678,7 @@ def _supports_protocol(value, protocol_callback):
         if meta is not None:
             if protocol_callback(meta):
                 return True
-    if isinstance(value, astroid.Instance):
+    if isinstance(value, astroid.BaseInstance):
         if not has_known_bases(value):
             return True
         if protocol_callback(value):
