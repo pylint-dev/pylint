@@ -11,6 +11,7 @@ import astroid
 
 from pylint.checkers.utils import node_ignores_exception
 
+
 def space_indentation(s):
     """The number of leading spaces in a string
 
@@ -20,6 +21,24 @@ def space_indentation(s):
     :return: number of leading spaces
     """
     return len(s) - len(s.lstrip(' '))
+
+
+def returns_something(return_node):
+    """Check if a return node returns a value other than None.
+
+    :param return_node: The return node to check.
+    :type return_node: astroid.Return
+
+    :rtype: bool
+    :return: True if the return node returns a value other than None,
+        False otherise.
+    """
+    returns = return_node.value
+
+    if returns is None:
+        return False
+
+    return not (isinstance(returns, astroid.Const) and returns.value is None)
 
 
 def possible_exc_types(node):
