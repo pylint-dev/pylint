@@ -55,6 +55,9 @@ class DocstringChecker(BaseChecker):
         'W9007': ('Missing return type documentation',
                   'missing-returns-doc',
                   'Please add documentation about what this method returns.'),
+        'W9008': ('Redundant returns documentation',
+                  'redundant-returns-doc',
+                  'Please remove the return documentation from this method.'),
     }
 
     options = (('accept-no-param-doc',
@@ -79,7 +82,7 @@ class DocstringChecker(BaseChecker):
 
     priority = -2
 
-    constructor_names = {"__init__", "__new__"}
+    constructor_names = {'__init__', '__new__'}
     not_needed_param_in_docstring = {'self', 'cls'}
 
     def visit_functiondef(self, node):
@@ -88,9 +91,12 @@ class DocstringChecker(BaseChecker):
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
-        node_allow_no_param = None
         node_doc = utils.docstringify(node.doc)
+        self.check_functiondef_params(node, node_doc)
+        self.check_functiondef_returns(node, node_doc)
 
+    def check_functiondef_params(self, node, node_doc):
+        node_allow_no_param = None
         if node.name in self.constructor_names:
             class_node = node_frame_class(node)
             if class_node is not None:
@@ -107,6 +113,14 @@ class DocstringChecker(BaseChecker):
 
         self.check_arguments_in_docstring(
             node_doc, node.args, node, node_allow_no_param)
+
+    def check_functiondef_returns(self, node, node_doc):
+        return_nodes = node.nodes_of_class(astroid.Return)
+        if (node_doc.has_returns() and
+                not any(utils.returns_something(ret_node) for ret_node in return_nodes)):
+            self.add_message(
+                'redundant-returns-doc',
+                node=node)
 
     def visit_raise(self, node):
         func_node = node.frame()
@@ -128,7 +142,7 @@ class DocstringChecker(BaseChecker):
         self._add_raise_message(missing_excs, func_node)
 
     def visit_return(self, node):
-        if node.value is None:
+        if not utils.returns_something(node):
             return
 
         func_node = node.frame()

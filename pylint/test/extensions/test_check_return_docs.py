@@ -366,5 +366,107 @@ class DocstringCheckerReturnTest(CheckerTestCase):
                 node=node)):
             self.checker.visit_return(return_node)
 
+    def test_warns_sphinx_redundant_return_doc(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :returns: One
+            :rtype: int
+            """
+            return None
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='redundant-returns-doc',
+                node=node)):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_google_redundant_return_doc(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns:
+                int: One
+            """
+            return None
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='redundant-returns-doc',
+                node=node)):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_numpy_redundant_return_doc(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns
+            -------
+                int
+                    One
+            """
+            return None
+        ''')
+        with self.assertAddsMessages(
+            Message(
+                msg_id='redundant-returns-doc',
+                node=node)):
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_sphinx_redundant_return_doc_multiple_returns(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :returns: One
+            :rtype: int
+
+            :returns: None sometimes
+            :rtype: None
+            """
+            if a_func():
+                return None
+            return 1
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_google_redundant_return_doc_multiple_returns(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns:
+            int or None: One, or sometimes None.
+            """
+            if a_func():
+                return None
+            return 1
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_ignores_numpy_redundant_return_doc_multiple_returns(self):
+        node = test_utils.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns
+            -------
+                int
+                    One
+                None
+                    Sometimes
+            """
+            if a_func():
+                return None
+            return 1
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
 if __name__ == '__main__':
     unittest.main()
