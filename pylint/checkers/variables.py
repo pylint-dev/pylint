@@ -3,6 +3,7 @@
 
 """variables checkers for Python code
 """
+import itertools
 import os
 import sys
 import re
@@ -563,73 +564,79 @@ class VariablesChecker(BaseChecker):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
 
+    @staticmethod
+    def _flattened_scope_names(iterator):
+        values = (set(stmt.names) for stmt in iterator)
+        return set(itertools.chain.from_iterable(values))
+
+    def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
+        # ignore some special names specified by user configuration
+        authorized_rgx = self.config.dummy_variables_rgx
+        if authorized_rgx.match(name):
+            return
+
+        # ignore names imported by the global statement
+        # FIXME: should only ignore them if it's assigned latter
+        if isinstance(stmt, astroid.Global):
+            return
+        if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
+            # Detect imports, assigned to global statements.
+            if global_names and _import_name_is_global(stmt, global_names):
+                return
+
+        argnames = node.argnames()
+        is_method = node.is_method()
+        klass = node.parent.frame()
+        if is_method and isinstance(klass, astroid.ClassDef):
+            confidence = INFERENCE if has_known_bases(klass) else INFERENCE_FAILURE
+        else:
+            confidence = HIGH
+
+        # care about functions with unknown argument (builtins)
+        if name in argnames:
+            if is_method:
+                # don't warn for the first argument of a (non static) method
+                if node.type != 'staticmethod' and name == argnames[0]:
+                    return
+                # don't warn for argument of an overridden method
+                overridden = overridden_method(klass, node.name)
+                if overridden is not None and name in overridden.argnames():
+                    return
+                if node.name in PYMETHODS and node.name not in ('__init__', '__new__'):
+                    return
+            # don't check callback arguments
+            if any(node.name.startswith(cb) or node.name.endswith(cb)
+                   for cb in self.config.callbacks):
+                return
+            self.add_message('unused-argument', args=name, node=stmt,
+                             confidence=confidence)
+        else:
+            if stmt.parent and isinstance(stmt.parent, astroid.Assign):
+                if name in nonlocal_names:
+                    return
+            self.add_message('unused-variable', args=name, node=stmt)
+
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop()[0]
         if not (self.linter.is_message_enabled('unused-variable') or
                 self.linter.is_message_enabled('unused-argument')):
             return
-        # don't check arguments of function which are only raising an exception
+
+        # Don't check arguments of function which are only raising an exception.
         if is_error(node):
             return
-        # don't check arguments of abstract methods or within an interface
+
+        # Don't check arguments of abstract methods or within an interface.
         is_method = node.is_method()
-        klass = node.parent.frame()
         if is_method and node.is_abstract():
             return
-        if is_method and isinstance(klass, astroid.ClassDef):
-            confidence = INFERENCE if has_known_bases(klass) else INFERENCE_FAILURE
-        else:
-            confidence = HIGH
-        authorized_rgx = self.config.dummy_variables_rgx
-        called_overridden = False
-        argnames = node.argnames()
-        global_names = set()
-        nonlocal_names = set()
-        for global_stmt in node.nodes_of_class(astroid.Global):
-            global_names.update(set(global_stmt.names))
-        for nonlocal_stmt in node.nodes_of_class(astroid.Nonlocal):
-            nonlocal_names.update(set(nonlocal_stmt.names))
+
+        global_names = self._flattened_scope_names(node.nodes_of_class(astroid.Global))
+        nonlocal_names = self._flattened_scope_names(node.nodes_of_class(astroid.Nonlocal))
 
         for name, stmts in six.iteritems(not_consumed):
-            # ignore some special names specified by user configuration
-            if authorized_rgx.match(name):
-                continue
-            # ignore names imported by the global statement
-            # FIXME: should only ignore them if it's assigned latter
-            stmt = stmts[0]
-            if isinstance(stmt, astroid.Global):
-                continue
-            if isinstance(stmt, (astroid.Import, astroid.ImportFrom)):
-                # Detect imports, assigned to global statements.
-                if global_names and _import_name_is_global(stmt, global_names):
-                    continue
-
-            # care about functions with unknown argument (builtins)
-            if name in argnames:
-                if is_method:
-                    # don't warn for the first argument of a (non static) method
-                    if node.type != 'staticmethod' and name == argnames[0]:
-                        continue
-                    # don't warn for argument of an overridden method
-                    if not called_overridden:
-                        overridden = overridden_method(klass, node.name)
-                        called_overridden = True
-                    if overridden is not None and name in overridden.argnames():
-                        continue
-                    if node.name in PYMETHODS and node.name not in ('__init__', '__new__'):
-                        continue
-                # don't check callback arguments
-                if any(node.name.startswith(cb) or node.name.endswith(cb)
-                       for cb in self.config.callbacks):
-                    continue
-                self.add_message('unused-argument', args=name, node=stmt,
-                                 confidence=confidence)
-            else:
-                if stmt.parent and isinstance(stmt.parent, astroid.Assign):
-                    if name in nonlocal_names:
-                        continue
-                self.add_message('unused-variable', args=name, node=stmt)
+            self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
 
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
