@@ -8,6 +8,10 @@ import os
 import sys
 import re
 from copy import copy
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 
 import six
 
@@ -48,6 +52,7 @@ def in_for_else_branch(parent, stmt):
     return (isinstance(parent, astroid.For) and
             any(else_stmt.parent_of(stmt) for else_stmt in parent.orelse))
 
+@lru_cache(maxsize=1000)
 def overridden_method(klass, name):
     """get overridden method if any"""
     try:
