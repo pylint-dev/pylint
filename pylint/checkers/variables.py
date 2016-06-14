@@ -620,6 +620,11 @@ class VariablesChecker(BaseChecker):
                 if name in nonlocal_names:
                     return
 
+            if isinstance(stmt, astroid.Import):
+                # Need the complete name, which we don't have in .locals.
+                qname, asname = stmt.names[0]
+                name = asname or qname
+
             self.add_message('unused-variable', args=name, node=stmt)
 
     def leave_functiondef(self, node):

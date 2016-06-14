@@ -3,6 +3,10 @@ ChangeLog for Pylint
 
 
 --
+    * Fix a bug where the top name of a qualified import was detected as unused variable.
+
+      Close #923.
+
     * Do not emit import-error or no-name-in-module for fallback import blocks by default.
 
       Until now, we warned with these errors when a fallback import block (a TryExcept block
