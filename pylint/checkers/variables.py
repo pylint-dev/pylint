@@ -570,12 +570,12 @@ class VariablesChecker(BaseChecker):
         return set(itertools.chain.from_iterable(values))
 
     def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
-        # ignore some special names specified by user configuration
+        # Ignore some special names specified by user configuration.
         authorized_rgx = self.config.dummy_variables_rgx
         if authorized_rgx.match(name):
             return
 
-        # ignore names imported by the global statement
+        # Ignore names imported by the global statement.
         # FIXME: should only ignore them if it's assigned latter
         if isinstance(stmt, astroid.Global):
             return
@@ -592,19 +592,19 @@ class VariablesChecker(BaseChecker):
         else:
             confidence = HIGH
 
-        # care about functions with unknown argument (builtins)
+        # Care about functions with unknown argument (builtins)
         if name in argnames:
             if is_method:
-                # don't warn for the first argument of a (non static) method
+                # Don't warn for the first argument of a (non static) method
                 if node.type != 'staticmethod' and name == argnames[0]:
                     return
-                # don't warn for argument of an overridden method
+                # Don't warn for argument of an overridden method
                 overridden = overridden_method(klass, node.name)
                 if overridden is not None and name in overridden.argnames():
                     return
                 if node.name in PYMETHODS and node.name not in ('__init__', '__new__'):
                     return
-            # don't check callback arguments
+            # Don't check callback arguments
             if any(node.name.startswith(cb) or node.name.endswith(cb)
                    for cb in self.config.callbacks):
                 return
@@ -614,6 +614,7 @@ class VariablesChecker(BaseChecker):
             if stmt.parent and isinstance(stmt.parent, astroid.Assign):
                 if name in nonlocal_names:
                     return
+
             self.add_message('unused-variable', args=name, node=stmt)
 
     def leave_functiondef(self, node):
