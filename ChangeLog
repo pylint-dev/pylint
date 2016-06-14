@@ -3,6 +3,10 @@ ChangeLog for Pylint
 
 - -- 1.6.0
 
+    * Fix a bug where the top name of a qualified import was detected as unused variable.
+
+      Close #923.
+
     * bad-builtin is now an extension check.
 
     * generated-members support qualified name through regular expressions.

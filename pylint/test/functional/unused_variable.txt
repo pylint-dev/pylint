@@ -1,0 +1,3 @@
+unused-variable:4:test_regression_737:Unused variable 'xml'
+unused-variable:7:test_regression_923:Unused variable 'unittest.case'
+unused-variable:8:test_regression_923:Unused variable 'sql'
