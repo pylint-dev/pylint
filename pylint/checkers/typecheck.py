@@ -261,6 +261,69 @@ def _is_name_used_as_variadic(name, variadics):
                 for variadic in variadics)
 
 
+def _no_context_variadic_keywords(node):
+    statement = node.statement()
+    scope = node.scope()
+    variadics = ()
+
+    if not isinstance(scope, astroid.FunctionDef):
+        return False
+
+    if isinstance(statement, astroid.Expr) and isinstance(statement.value, astroid.Call):
+        call = statement.value
+        variadics = call.keywords or ()
+
+    return _no_context_variadic(node, scope.args.kwarg, astroid.Keyword, variadics)
+
+
+def _no_context_variadic_positional(node):
+    statement = node.statement()
+    scope = node.scope()
+    variadics = ()
+
+    if not isinstance(scope, astroid.FunctionDef):
+        return False
+
+    if isinstance(statement, astroid.Expr) and isinstance(statement.value, astroid.Call):
+        call = statement.value
+        variadics = call.starargs
+
+    return _no_context_variadic(node, scope.args.vararg, astroid.Starred, variadics)
+
+
+def _no_context_variadic(node, variadic_name, variadic_type, variadics):
+    """Verify if the given call node has variadic nodes without context
+
+    This is a workaround for handling cases of nested call functions
+    which don't have the specific call context at hand.
+    Variadic arguments (variable positional arguments and variable
+    keyword arguments) are inferred, inherently wrong, by astroid
+    as a Tuple, respectively a Dict with empty elements.
+    This can lead pylint to believe that a function call receives
+    too few arguments.
+    """
+    statement = node.statement()
+    for name in statement.nodes_of_class(astroid.Name):
+        if name.name != variadic_name:
+            continue
+
+        inferred = safe_infer(name)
+        if isinstance(inferred, (astroid.List, astroid.Tuple)):
+            length = len(inferred.elts)
+        elif isinstance(inferred, astroid.Dict):
+            length = len(inferred.items)
+        else:
+            continue
+
+        inferred_statement = inferred.statement()
+        if not length and isinstance(inferred_statement, astroid.FunctionDef):
+            is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
+            used_as_starred_argument = _is_name_used_as_variadic(name, variadics)
+            if is_in_starred_context or used_as_starred_argument:
+                return True
+    return False
+
+
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
@@ -485,67 +548,6 @@ accessed. Python regular expressions are accepted.'}
                                      args=node.func.as_string())
                     break
 
-    def _no_context_variadic_keywords(self, node):
-        statement = node.statement()
-        scope = node.scope()
-        variadics = ()
-
-        if not isinstance(scope, astroid.FunctionDef):
-            return False
-
-        if isinstance(statement, astroid.Expr) and isinstance(statement.value, astroid.Call):
-            call = statement.value
-            variadics = call.keywords or ()
-
-        return self._no_context_variadic(node, scope.args.kwarg, astroid.Keyword, variadics)
-
-    def _no_context_variadic_positional(self, node):
-        statement = node.statement()
-        scope = node.scope()
-        variadics = ()
-
-        if not isinstance(scope, astroid.FunctionDef):
-            return False
-
-        if isinstance(statement, astroid.Expr) and isinstance(statement.value, astroid.Call):
-            call = statement.value
-            variadics = call.starargs
-
-        return self._no_context_variadic(node, scope.args.vararg, astroid.Starred, variadics)
-
-    @staticmethod
-    def _no_context_variadic(node, variadic_name, variadic_type, variadics):
-        """Verify if the given call node has variadic nodes without context
-
-        This is a workaround for handling cases of nested call functions
-        which don't have the specific call context at hand.
-        Variadic arguments (variable positional arguments and variable
-        keyword arguments) are inferred, inherently wrong, by astroid
-        as a Tuple, respectively a Dict with empty elements.
-        This can lead pylint to believe that a function call receives
-        too few arguments.
-        """
-        statement = node.statement()
-        for name in statement.nodes_of_class(astroid.Name):
-            if name.name != variadic_name:
-                continue
-
-            inferred = safe_infer(name)
-            if isinstance(inferred, (astroid.List, astroid.Tuple)):
-                length = len(inferred.elts)
-            elif isinstance(inferred, astroid.Dict):
-                length = len(inferred.items)
-            else:
-                continue
-
-            inferred_statement = inferred.statement()
-            if not length and isinstance(inferred_statement, astroid.FunctionDef):
-                is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
-                used_as_starred_argument = _is_name_used_as_variadic(name, variadics)
-                if is_in_starred_context or used_as_starred_argument:
-                    return True
-        return False
-
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node):
         """check that called functions/methods are inferred to callable objects,
@@ -560,8 +562,8 @@ accessed. Python regular expressions are accepted.'}
 
         # Determine if we don't have a context for our call and we use variadics.
         if isinstance(node.scope(), astroid.FunctionDef):
-            has_no_context_positional_variadic = self._no_context_variadic_positional(node)
-            has_no_context_keywords_variadic = self._no_context_variadic_keywords(node)
+            has_no_context_positional_variadic = _no_context_variadic_positional(node)
+            has_no_context_keywords_variadic = _no_context_variadic_keywords(node)
         else:
             has_no_context_positional_variadic = has_no_context_keywords_variadic = False
 
