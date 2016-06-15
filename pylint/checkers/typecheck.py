@@ -246,6 +246,21 @@ def _determine_callable(callable_obj):
     else:
         raise ValueError
 
+
+def _has_parent_of_type(node, node_type, statement):
+     """Check if the given node has a parent of the given type."""
+     parent = node.parent
+     while not isinstance(parent, node_type) and statement.parent_of(parent):
+         parent = parent.parent
+     return isinstance(parent, node_type)
+
+
+def _is_name_used_as_variadic(name, variadics):
+     """Check if the given name is used as a variadic argument."""
+     return any(variadic.value == name or variadic.value.parent_of(name)
+                for variadic in variadics)
+
+
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
@@ -470,8 +485,36 @@ accessed. Python regular expressions are accepted.'}
                                      args=node.func.as_string())
                     break
 
+    def _no_context_variadic_keywords(self, node):
+        statement = node.statement()
+        scope = node.scope()
+        variadics = ()
+
+        if not isinstance(scope, astroid.FunctionDef):
+            return False
+
+        if isinstance(statement, astroid.Expr) and isinstance(statement.value, astroid.Call):
+            call = statement.value
+            variadics = call.keywords or ()
+
+        return self._no_context_variadic(node, scope.args.kwarg, astroid.Keyword, variadics)
+
+    def _no_context_variadic_positional(self, node):
+        statement = node.statement()
+        scope = node.scope()
+        variadics = ()
+
+        if not isinstance(scope, astroid.FunctionDef):
+            return False
+
+        if isinstance(statement, astroid.Expr) and isinstance(statement.value, astroid.Call):
+            call = statement.value
+            variadics = call.starargs
+
+        return self._no_context_variadic(node, scope.args.vararg, astroid.Starred, variadics)
+
     @staticmethod
-    def _no_context_variadic(node):
+    def _no_context_variadic(node, variadic_name, variadic_type, variadics):
         """Verify if the given call node has variadic nodes without context
 
         This is a workaround for handling cases of nested call functions
@@ -482,15 +525,9 @@ accessed. Python regular expressions are accepted.'}
         This can lead pylint to believe that a function call receives
         too few arguments.
         """
-        scope = node.scope()
-        if isinstance(scope, astroid.FunctionDef):
-            variadics = (scope.args.vararg, scope.args.kwarg)
-        else:
-            variadics = ()
-
         statement = node.statement()
         for name in statement.nodes_of_class(astroid.Name):
-            if name.name not in variadics:
+            if name.name != variadic_name:
                 continue
 
             inferred = safe_infer(name)
@@ -503,29 +540,10 @@ accessed. Python regular expressions are accepted.'}
 
             inferred_statement = inferred.statement()
             if not length and isinstance(inferred_statement, astroid.FunctionDef):
-                # Check that we are in a Starred context, since we don't know
-                # the possible length of the list we're unpacking.
-
-                # It can work only on Python 3, since we have pure Starred nodes inside
-                # the AST.
-                parent = name.parent
-                while not isinstance(parent, astroid.Starred) and statement.parent_of(parent):
-                    parent = parent.parent
-                is_in_starred_context = isinstance(parent, astroid.Starred)
-
-                # This is a workaround for Python 2, because we don't have pure
-                # Starred nodes in the AST.
-                used_as_starred_argument = False
-                if isinstance(statement, astroid.Expr):
-                    value = statement.value
-                    used_as_starred_argument = (
-                        isinstance(value, astroid.Call)
-                        and any(starred.value == name or starred.value.parent_of(name)
-                                for starred in value.starargs))
-
+                is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
+                used_as_starred_argument = _is_name_used_as_variadic(name, variadics)
                 if is_in_starred_context or used_as_starred_argument:
                     return True
-
         return False
 
     @check_messages(*(list(MSGS.keys())))
@@ -539,7 +557,13 @@ accessed. Python regular expressions are accepted.'}
         call_site = astroid.arguments.CallSite.from_call(node)
         num_positional_args = len(call_site.positional_arguments)
         keyword_args = list(call_site.keyword_arguments.keys())
-        no_context_variadic = self._no_context_variadic(node)
+
+        # Determine if we don't have a context for our call and we use variadics.
+        if isinstance(node.scope(), astroid.FunctionDef):
+            has_no_context_positional_variadic = self._no_context_variadic_positional(node)
+            has_no_context_keywords_variadic = self._no_context_variadic_keywords(node)
+        else:
+            has_no_context_positional_variadic = has_no_context_keywords_variadic = False
 
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
@@ -673,13 +697,13 @@ accessed. Python regular expressions are accepted.'}
                 else:
                     display_name = repr(name)
                 # TODO(cpopa): this should be removed after PyCQA/astroid/issues/177
-                if not no_context_variadic:
+                if not has_no_context_positional_variadic:
                     self.add_message('no-value-for-parameter', node=node,
                                      args=(display_name, callable_name))
 
         for name in kwparams:
             defval, assigned = kwparams[name]
-            if defval is None and not assigned:
+            if defval is None and not assigned and not has_no_context_keywords_variadic:
                 self.add_message('missing-kwoa', node=node,
                                  args=(name, callable_name))
 

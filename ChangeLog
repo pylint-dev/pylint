@@ -3,6 +3,14 @@ ChangeLog for Pylint
 
 
 --
+    * Fix a false positive for keyword variadics with regard to keyword only arguments.
+
+      If a keyword only argument was necessary for a function, but that function was called
+      with keyword variadics (**kwargs), then we were emitting a missing-kwoa false positive,
+      which is now fixed.
+
+      Close #934.
+
     * Fix a bug where the top name of a qualified import was detected as unused variable.
 
       Close #923.
