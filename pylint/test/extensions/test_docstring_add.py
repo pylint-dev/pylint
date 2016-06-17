@@ -53,7 +53,7 @@ class CheckDocStringAddicTC(unittest.TestCase):
     def test_docstring_message(self):
         docstring_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
                                   'docstring.py')
-        self._linter.check([docstring_test])
+        self._linter.check(docstring_test)
         msgs = self._linter.reporter.messages
         self.assertEqual(len(msgs), 7)
         for msg, expected_symbol, expected_msg in zip(msgs,

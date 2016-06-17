@@ -35,7 +35,7 @@ class CheckElseIfUsedTC(unittest.TestCase):
     def test_elseif_message(self):
         elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
                              'elif.py')
-        self._linter.check([elif_test])
+        self._linter.check(elif_test)
         msgs = self._linter.reporter.messages
         self.assertEqual(len(msgs), 2)
         for msg in msgs:

@@ -57,13 +57,13 @@ class TestMcCabeMethodChecker(unittest.TestCase):
 
     def test_too_complex_message(self):
         self._linter.global_set_option('max-complexity', 0)
-        self._linter.check([self.fname_mccabe_example])
+        self._linter.check(self.fname_mccabe_example)
         real_msgs = [message.msg for message in self._linter.reporter.messages]
         self.assertEqual(sorted(self.expected_msgs), sorted(real_msgs))
 
     def test_max_mccabe_rate(self):
         self._linter.global_set_option('max-complexity', 9)
-        self._linter.check([self.fname_mccabe_example])
+        self._linter.check(self.fname_mccabe_example)
         real_msgs = [message.msg for message in self._linter.reporter.messages]
         self.assertEqual(sorted(self.expected_msgs[-2:]), sorted(real_msgs))
 

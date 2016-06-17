@@ -278,7 +278,8 @@ class LintTestUsingModule(unittest.TestCase):
         else:
             self.linter.disable('I')
         try:
-            self.linter.check(tocheck)
+            for item in tocheck:
+                self.linter.check(item)
         except Exception as ex:
             # need finalization to restore a correct state
             self.linter.reporter.finalize()
