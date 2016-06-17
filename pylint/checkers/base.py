@@ -147,6 +147,21 @@ else:
     BUILTIN_PROPERTY = 'builtins.property'
 
 
+def _get_properties(config):
+    """Returns a tuple of property classes and names.
+
+    Property classes are fully qualified, such as 'abc.abstractproperty' and
+    property names are the actual names, such as 'abstract_property'.
+    """
+    property_classes = set((BUILTIN_PROPERTY,))
+    property_names = set()  # Not returning 'property', it has its own check.
+    if config is not None:
+        property_classes.update(config.property_classes)
+        property_names.update((prop.rsplit('.', 1)[-1]
+                               for prop in config.property_classes))
+    return property_classes, property_names
+
+
 def _determine_function_name_type(node, config=None):
     """Determine the name type whose regex the a function's name should match.
 
@@ -154,12 +169,7 @@ def _determine_function_name_type(node, config=None):
     :param config: Configuration from which to pull additional property classes.
     :returns: One of ('function', 'method', 'attr')
     """
-    property_classes = set((BUILTIN_PROPERTY,))
-    property_names = set()
-    if config is not None:
-      property_classes.update(config.property_classes)
-      property_names.update((prop.rsplit('.', 1)[-1]
-                             for prop in config.property_classes))
+    property_classes, property_names = _get_properties(config)
     if not node.is_method():
         return 'function'
     if node.decorators:
@@ -1161,7 +1171,7 @@ class NameChecker(_BasicChecker):
                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help': 'Include a hint for the correct naming format with invalid-name'}
                ),
-               ('property_classes',
+               ('property-classes',
                 {'default': ('abc.abstractproperty',),
                  'type': 'csv',
                  'metavar': '<decorator names>',
