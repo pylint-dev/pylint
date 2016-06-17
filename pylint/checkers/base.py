@@ -142,17 +142,24 @@ def _is_multi_naming_match(match, node_type, confidence):
 
 
 if sys.version_info < (3, 0):
-    PROPERTY_CLASSES = set(('__builtin__.property', 'abc.abstractproperty'))
+    BUILTIN_PROPERTY = '__builtin__.property'
 else:
-    PROPERTY_CLASSES = set(('builtins.property', 'abc.abstractproperty'))
+    BUILTIN_PROPERTY = 'builtins.property'
 
 
-def _determine_function_name_type(node):
+def _determine_function_name_type(node, config=None):
     """Determine the name type whose regex the a function's name should match.
 
     :param node: A function node.
+    :param config: Configuration from which to pull additional property classes.
     :returns: One of ('function', 'method', 'attr')
     """
+    property_classes = set((BUILTIN_PROPERTY,))
+    property_names = set()
+    if config is not None:
+      property_classes.update(config.property_classes)
+      property_names.update((prop.rsplit('.', 1)[-1]
+                             for prop in config.property_classes))
     if not node.is_method():
         return 'function'
     if node.decorators:
@@ -164,9 +171,9 @@ def _determine_function_name_type(node):
         # or @abc.abstractproperty), the name type is 'attr'.
         if (isinstance(decorator, astroid.Name) or
                 (isinstance(decorator, astroid.Attribute) and
-                 decorator.attrname == 'abstractproperty')):
+                 decorator.attrname in property_names)):
             infered = safe_infer(decorator)
-            if infered and infered.qname() in PROPERTY_CLASSES:
+            if infered and infered.qname() in property_classes:
                 return 'attr'
         # If the function is decorated using the prop_method.{setter,getter}
         # form, treat it like an attribute as well.
@@ -1154,6 +1161,14 @@ class NameChecker(_BasicChecker):
                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help': 'Include a hint for the correct naming format with invalid-name'}
                ),
+               ('property_classes',
+                {'default': ('abc.abstractproperty',),
+                 'type': 'csv',
+                 'metavar': '<decorator names>',
+                 'help': 'List of decorators that produce properties, such as '
+                         'abc.abstractproperty. Add to this list to register '
+                         'other decorators that produce valid properties.'}
+               ),
               ) + _create_naming_options()
 
 
@@ -1217,7 +1232,8 @@ class NameChecker(_BasicChecker):
             confidence = (INFERENCE if has_known_bases(node.parent.frame())
                           else INFERENCE_FAILURE)
 
-        self._check_name(_determine_function_name_type(node),
+        self._check_name(_determine_function_name_type(node,
+                                                       config=self.config),
                          node.name, node, confidence)
         # Check argument names
         args = node.args.args

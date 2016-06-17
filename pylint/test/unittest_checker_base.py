@@ -93,13 +93,17 @@ class NameCheckerTest(CheckerTestCase):
                     args=('constant', 'const', ' (hint: CONSTANT)'))):
             self.checker.visit_assignname(const.targets[0])
 
-    @set_config(attr_rgx=re.compile('[A-Z]+'))
+    @set_config(attr_rgx=re.compile('[A-Z]+'),
+                property_classes=('abc.abstractproperty', '.custom_prop'))
     def test_property_names(self):
         # If a method is annotated with @property, it's name should
         # match the attr regex. Since by default the attribute regex is the same
         # as the method regex, we override it here.
         methods = test_utils.extract_node("""
         import abc
+
+        def custom_prop(f):
+          return property(f)
 
         class FooClass(object):
           @property
@@ -113,10 +117,15 @@ class NameCheckerTest(CheckerTestCase):
           @abc.abstractproperty
           def BAZ(self): #@
             pass
+
+          @custom_prop
+          def QUX(self): #@
+            pass
         """)
         with self.assertNoMessages():
             self.checker.visit_functiondef(methods[0])
             self.checker.visit_functiondef(methods[2])
+            self.checker.visit_functiondef(methods[3])
         with self.assertAddsMessages(Message('invalid-name', node=methods[1],
                                              args=('attribute', 'bar', ''))):
             self.checker.visit_functiondef(methods[1])
