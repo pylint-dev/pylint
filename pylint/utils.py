@@ -797,6 +797,52 @@ def _modpath_from_file(filename, is_namespace):
     return modutils.modpath_from_file_with_callback(filename, is_package_cb=_is_package_cb)
 
 
+class FileDescriptor(object):
+    def __init__(self, path, name, isarg, basepath, basename):
+        self.path = path
+        self.name = name
+        self.isarg = isarg
+        self.basepath = basepath
+        self.basename = basename
+
+
+# TODO: Replace linter with a message store as part of #938
+def expand_files(files_or_modules, linter, black_list, black_list_re):
+    """
+    Run :func:`expand_modules` and turn errors into messages.
+
+    :param files_or_modules: A list of files, directories, modules, or packages
+        to turn into :class:`FileDescriptor`s.
+    :type files_or_modules: list(str)
+
+    :param linter: A linter to store messages onto.
+    :type linter: :class:`pylint.PyLinter`
+
+    :param black_list: A list of files or directories to ignore.
+    :type black_list: list or tuple
+
+    :param black_list_re: A list of regex patterns. Any files, directories,
+        modules, or packages matching against any of these patterns will be
+        ignored.
+    :type black_list_re: list(re.RegexObject)
+
+    :returns: The :class:`FileDescriptor`s for each found file, directory,
+        module, or package.
+    :rtype: list(:class:`FileDescriptor`)
+    """
+    result, errors = expand_modules(files_or_modules, black_list, black_list_re)
+
+    for error in errors:
+        message = modname = error["mod"]
+        key = error["key"]
+        linter.set_current_module(modname)
+        if key == "fatal":
+            message = str(error["ex"]).replace(os.getcwd() + os.sep, '')
+        linter.add_message(key, args=message)
+
+    return result
+
+
 def expand_modules(files_or_modules, black_list, black_list_re):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
@@ -841,8 +887,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             is_directory = spec.type == modutils.ModuleType.PKG_DIRECTORY
 
         if not is_namespace:
-            result.append({'path': filepath, 'name': modname, 'isarg': True,
-                           'basepath': filepath, 'basename': modname})
+            result.append(FileDescriptor(filepath, modname, True, filepath, modname))
 
         has_init = (not (modname.endswith('.__init__') or modname == '__init__')
                     and '__init__.py' in filepath)
@@ -857,9 +902,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
 
                 modpath = _modpath_from_file(subfilepath, is_namespace)
                 submodname = '.'.join(modpath)
-                result.append({'path': subfilepath, 'name': submodname,
-                               'isarg': False,
-                               'basepath': filepath, 'basename': modname})
+                result.append(FileDescriptor(subfilepath, submodname, False, filepath, modname))
     return result, errors
 
 
