@@ -1,3 +1,25 @@
+Release Management
+==================
+
+After pylint 2.0, which is scheduled to be released somewhere around in
+July, we are planning to do releases more often. The intentional plan is
+to have a minor release for each two or three weeks, having also the next
+major bump planned in advance.
+
+In order for these short minor releases to be manageable, the plan is to
+have at most ten issues assigned per minor release. We can try, though,
+to assign few than ten issues per release, so we could schedule a fix
+really quickly, if the need arises, thus giving ourselves time for the
+unplanned.
+
+Although, to advance the capabilities of the inference engine
+and of Pylint in general, we cannot focus ourselves completely on working
+only for minor releases and as such, the release schedule will have gaps
+for working for the next major release of astroid, indifferent on the
+corresponding version.
+
+
+
 Release Process
 ===============
 
@@ -7,13 +29,13 @@ Release Process
    3. Put the version number and the release date into the changelog
    4. Submit your changes.
 
-2. Make sure the tests are passing on drone.io:
-   https://drone.io/bitbucket.org/logilab/pylint
+2. Make sure the tests are passing on Travis:
+   https://travis-ci.org/PyCQA/pylint/
 
 3. Add a new tag 'pylint-$VERSION'
 
 5. Publish all remaining changes to the Bitbucket repository:
-   https://bitbucket.org/logilab/pylint
+   https://github.com/PyCQA/pylint
 
 4. Run
    
