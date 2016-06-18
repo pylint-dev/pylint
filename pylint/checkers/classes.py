@@ -517,9 +517,6 @@ a metaclass class method.'}
             parent_args = [getattr(x, "name", None) for x in super_func.args.args]
             value_kwargs = [getattr(x, "name", None) for x in func.kwargs]
             parent_kwargs = [getattr(x, "name", None) for x in super_func.args.kwargs]
-            print value
-            print value_args, parent_args
-            print value_kwargs, parent_kwargs
             if value_args == parent_args and value_kwargs == parent_kwargs:
                 # Check other arg types
                 self.add_message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
