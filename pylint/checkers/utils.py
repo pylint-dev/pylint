@@ -15,6 +15,7 @@ import six
 from six.moves import map, builtins # pylint: disable=redefined-builtin
 
 import astroid
+from astroid import bases as _bases
 from astroid import scoped_nodes
 
 BUILTINS_NAME = builtins.__name__
@@ -683,6 +684,16 @@ def _supports_protocol(value, protocol_callback):
             return True
         if protocol_callback(value):
             return True
+
+
+    # TODO: this is not needed in astroid 2.0, where we can
+    # check the type using a virtual base class instead.
+    if (isinstance(value, _bases.Proxy)
+            and isinstance(value._proxied, astroid.BaseInstance)
+            and has_known_bases(value._proxied)):
+        value = value._proxied
+        return protocol_callback(value)
+
     return False
 
 
