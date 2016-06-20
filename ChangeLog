@@ -3,6 +3,8 @@ ChangeLog for Pylint
 
 - -- 1.6.0
 
+    * Made the list of property-defining decorators configurable.
+
     * Fix a bug where the top name of a qualified import was detected as unused variable.
 
       Close #923.

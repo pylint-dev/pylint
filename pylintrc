@@ -252,6 +252,9 @@ no-docstring-rgx=__.*__
 # ones are exempt.
 docstring-min-length=-1
 
+# List of decorators that define properties, such as abc.abstractproperty.
+property-classes=abc.abstractproperty
+
 
 [TYPECHECK]
 
