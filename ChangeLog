@@ -3,6 +3,8 @@ ChangeLog for Pylint
 
 
 --
+    * Made the list of property-defining decorators configurable.
+
     * Fix a false positive for keyword variadics with regard to keyword only arguments.
 
       If a keyword only argument was necessary for a function, but that function was called
