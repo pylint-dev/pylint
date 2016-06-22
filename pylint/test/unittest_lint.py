@@ -25,6 +25,7 @@ from pylint._internal.message.consts import (
 )
 from pylint._internal.message import (
      FileState,
+     list_messages,
      MessageDefinition,
      MessagesStore
 )
@@ -665,7 +666,7 @@ class MessagesStoreTC(unittest.TestCase):
     def test_list_messages(self):
         sys.stdout = six.StringIO()
         try:
-            self.store.list_messages()
+            list_messages(self.store)
             output = sys.stdout.getvalue()
         finally:
             sys.stdout = sys.__stdout__

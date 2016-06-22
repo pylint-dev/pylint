@@ -9,6 +9,14 @@ import six
 from .consts import WarningScope, MSG_STATE_SCOPE_MODULE
 
 
+def _msg_display_string(message_store, msgid):
+    """Generates a user-consumable representation of a message.
+
+    Can be just the message ID or the ID and the symbol.
+    """
+    return repr(message_store.check_message_id(msgid).symbol)
+
+
 class FileState(object):
     """Hold internal state specific to the currently analyzed file"""
 
@@ -113,9 +121,9 @@ class FileState(object):
             for line, enable in six.iteritems(lines):
                 if not enable and (warning, line) not in self._ignored_msgs:
                     yield 'useless-suppression', line, \
-                        (msgs_store.get_msg_display_string(warning),)
+                        (_msg_display_string(msgs_store, warning),)
         # don't use iteritems here, _ignored_msgs may be modified by add_message
         for (warning, from_), lines in list(self._ignored_msgs.items()):
             for line in lines:
                 yield 'suppressed-message', line, \
-                    (msgs_store.get_msg_display_string(warning), from_)
+                    (_msg_display_string(msgs_store, warning), from_)

@@ -4,4 +4,10 @@
 from .consts import WarningScope
 from .filestate import FileState
 from .handler_mixin import MessagesHandlerMixin
-from .message import Message, MessagesStore, MessageDefinition
+from .message import (
+    Message,
+    MessagesStore,
+    MessageDefinition,
+    messages_help,
+    list_messages,
+)

@@ -37,9 +37,11 @@ from pylint.exceptions import UnknownMessageError
 from pylint import interfaces
 from pylint._internal.message.consts import MSG_TYPES
 from pylint._internal.message import FileState
+from pylint._internal.message import list_messages
 from pylint._internal.message import Message
 from pylint._internal.message import MessagesHandlerMixin
 from pylint._internal.message import MessagesStore
+from pylint._internal.message import messages_help
 from pylint._internal.tree.walker import ASTWalker
 from pylint import reporters
 from pylint import utils
@@ -1349,7 +1351,7 @@ group are mutually exclusive.'),
 
     def cb_help_message(self, option, optname, value, parser):
         """optik callback for printing some help about a particular message"""
-        self.linter.msgs_store.help_message(utils._splitstrip(value))
+        messages_help(self.linter.msgs_store, utils._splitstrip(value))
         sys.exit(0)
 
     def cb_full_documentation(self, option, optname, value, parser):
@@ -1357,9 +1359,9 @@ group are mutually exclusive.'),
         utils.print_full_documentation(self.linter)
         sys.exit(0)
 
-    def cb_list_messages(self, option, optname, value, parser): # FIXME
+    def cb_list_messages(self, option, optname, value, parser):
         """optik callback for printing available messages"""
-        self.linter.msgs_store.list_messages()
+        list_messages(self.linter.msgs_store)
         sys.exit(0)
 
     def cb_python3_porting_mode(self, *args, **kwargs):

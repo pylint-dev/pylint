@@ -194,29 +194,24 @@ class MessagesStore(object):
                 pass
         raise UnknownMessageError('No such message id %s' % msgid)
 
-    def get_msg_display_string(self, msgid):
-        """Generates a user-consumable representation of a message.
 
-        Can be just the message ID or the ID and the symbol.
-        """
-        return repr(self.check_message_id(msgid).symbol)
+def messages_help(message_store, msgids):
+    """Display help messages for the given message identifiers"""
+    for msgid in msgids:
+        try:
+            print(message_store.check_message_id(msgid).format_help(checkerref=True))
+            print("")
+        except UnknownMessageError as ex:
+            print(ex)
+            print("")
+            continue
 
-    def help_message(self, msgids):
-        """display help messages for the given message identifiers"""
-        for msgid in msgids:
-            try:
-                print(self.check_message_id(msgid).format_help(checkerref=True))
-                print("")
-            except UnknownMessageError as ex:
-                print(ex)
-                print("")
-                continue
 
-    def list_messages(self):
-        """output full messages list documentation in ReST format"""
-        msgs = sorted(six.itervalues(self._messages), key=lambda msg: msg.msgid)
-        for msg in msgs:
-            if not msg.may_be_emitted():
-                continue
-            print(msg.format_help(checkerref=False))
-        print("")
+def list_messages(message_store):
+    """output full messages list documentation in ReST format"""
+    msgs = sorted(six.itervalues(message_store._messages), key=lambda msg: msg.msgid)
+    for msg in msgs:
+        if not msg.may_be_emitted():
+            continue
+        print(msg.format_help(checkerref=False))
+    print("")
