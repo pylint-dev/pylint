@@ -36,10 +36,7 @@ class VNode(object):
         method <'visit_' + name returned by this method> will be called on the
         visitor
         """
-        try:
-            return self.TYPE.replace('-', '_')
-        except Exception:
-            return self.__class__.__name__.lower()
+        return self.__class__.__name__.lower()
 
     def accept(self, visitor, *args, **kwargs):
         func = getattr(visitor, 'visit_%s' % self._get_visit_name())

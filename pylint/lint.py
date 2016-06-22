@@ -1354,7 +1354,7 @@ group are mutually exclusive.'),
 
     def cb_full_documentation(self, option, optname, value, parser):
         """optik callback for printing full documentation"""
-        self.linter.print_full_documentation()
+        utils.print_full_documentation(self.linter)
         sys.exit(0)
 
     def cb_list_messages(self, option, optname, value, parser): # FIXME

@@ -247,7 +247,7 @@ def _expand_default(self, option):
 
 @contextlib.contextmanager
 def _patch_optparse():
-    orig_default = optparse.HelpFormatter
+    orig_default = optparse.HelpFormatter.expand_default
     try:
         optparse.HelpFormatter.expand_default = _expand_default
         yield
