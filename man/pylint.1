@@ -211,7 +211,7 @@ Tells whether missing members accessed in mixin class should be ignored. A mixin
 .IP "--ignored-modules=<module names>"
 List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis [current: none]
 .IP "--ignored-classes=<members names>"
-List of classes names for which member attributes should not be checked (useful for classes with attributes dynamically set). [current: SQLObject]
+List of classes names for which member attributes should not be checked (useful for classes with attributes dynamically set). [current: SQLObject, optparse.Values, thread._local, _thread._local]
 .IP "--zope=<y_or_n>"
 When zope mode is activated, add a predefined set of Zope acquired attributes to generated-members. [current: no]
 .IP "--generated-members=<members names>"
