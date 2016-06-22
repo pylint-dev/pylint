@@ -10,8 +10,9 @@ import tokenize
 import astroid
 from astroid import bases
 
-from pylint import checkers, interfaces
-from pylint.utils import WarningScope
+from pylint import checkers
+from pylint import interfaces
+from pylint._internal.message import WarningScope
 from pylint.checkers import utils
 
 

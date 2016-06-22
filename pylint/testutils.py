@@ -22,7 +22,7 @@ from six.moves import StringIO
 
 import astroid
 from pylint import checkers
-from pylint.utils import PyLintASTWalker
+from pylint._internal.tree.walker import ASTWalker
 from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
@@ -209,7 +209,7 @@ class CheckerTestCase(unittest.TestCase):
 
     def walk(self, node):
         """recursive walk on the given node"""
-        walker = PyLintASTWalker(linter)
+        walker = ASTWalker(linter)
         walker.add_checker(self.checker)
         walker.walk(node)
 

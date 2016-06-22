@@ -10,6 +10,7 @@ import astroid
 from pylint import __pkginfo__
 from pylint import utils
 from pylint import interfaces
+from pylint._internal.tree.walker import ASTWalker
 from pylint.checkers.utils import check_messages
 
 
@@ -45,7 +46,7 @@ class PyLintASTWalkerTest(unittest.TestCase):
         linter = self.MockLinter({'first-message': True,
                                   'second-message': False,
                                   'third-message': True})
-        walker = utils.PyLintASTWalker(linter)
+        walker = ASTWalker(linter)
         checker = self.Checker()
         walker.add_checker(checker)
         walker.walk(astroid.parse("x = func()"))
@@ -61,7 +62,7 @@ class PyLintASTWalkerTest(unittest.TestCase):
                 self.called = True
 
         linter = self.MockLinter({'first-message': True})
-        walker = utils.PyLintASTWalker(linter)
+        walker = ASTWalker(linter)
         checker = Checker()
         walker.add_checker(checker)
         with warnings.catch_warnings(record=True):

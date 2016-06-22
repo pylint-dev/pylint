@@ -33,7 +33,14 @@ import astroid
 from astroid.__pkginfo__ import version as astroid_version
 from astroid import modutils
 from pylint import checkers
+from pylint.exceptions import UnknownMessageError
 from pylint import interfaces
+from pylint._internal.message.consts import MSG_TYPES
+from pylint._internal.message import FileState
+from pylint._internal.message import Message
+from pylint._internal.message import MessagesHandlerMixin
+from pylint._internal.message import MessagesStore
+from pylint._internal.tree.walker import ASTWalker
 from pylint import reporters
 from pylint import utils
 from pylint import config
@@ -230,7 +237,7 @@ if multiprocessing is not None:
 
 
 class PyLinter(config.OptionsManagerMixIn,
-               utils.MessagesHandlerMixIn,
+               MessagesHandlerMixin,
                utils.ReportsHandlerMixIn,
                checkers.BaseTokenChecker):
     """lint Python modules using external checkers.
@@ -414,7 +421,7 @@ class PyLinter(config.OptionsManagerMixIn,
         # some stuff has to be done before ancestors initialization...
         #
         # messages store / checkers / reporter / astroid manager
-        self.msgs_store = utils.MessagesStore()
+        self.msgs_store = MessagesStore()
         self.reporter = None
         self._reporter_name = None
         self._reporters = {}
@@ -422,7 +429,7 @@ class PyLinter(config.OptionsManagerMixIn,
         self._pragma_lineno = {}
         self._ignore_file = False
         # visit variables
-        self.file_state = utils.FileState()
+        self.file_state = FileState()
         self.current_name = None
         self.current_file = None
         self.stats = None
@@ -437,7 +444,7 @@ class PyLinter(config.OptionsManagerMixIn,
                                     'enable-msg': self.enable}
         full_version = '%%prog %s, \nastroid %s\nPython %s' % (
             version, astroid_version, sys.version)
-        utils.MessagesHandlerMixIn.__init__(self)
+        MessagesHandlerMixin.__init__(self)
         utils.ReportsHandlerMixIn.__init__(self)
         super(PyLinter, self).__init__(
             usage=__doc__,
@@ -665,7 +672,7 @@ class PyLinter(config.OptionsManagerMixIn,
                             self._ignore_file = True
                             return
                         meth(msgid, 'module', start[0])
-                    except utils.UnknownMessage:
+                    except UnknownMessageError:
                         self.add_message('bad-option-value', args=msgid, line=start[0])
             else:
                 self.add_message('unrecognized-inline-option', args=opt, line=start[0])
@@ -808,7 +815,7 @@ class PyLinter(config.OptionsManagerMixIn,
             ) = result
 
             for msg in messages:
-                msg = utils.Message(*msg)
+                msg = Message(*msg)
                 self.set_current_module(module)
                 self.reporter.handle_message(msg)
 
@@ -824,7 +831,7 @@ class PyLinter(config.OptionsManagerMixIn,
                 checker.stats = self.stats
 
     def _do_check(self, files_or_modules):
-        walker = utils.PyLintASTWalker(self)
+        walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
         tokencheckers = [c for c in _checkers
                          if interfaces.implements(c, interfaces.ITokenChecker)
@@ -852,7 +859,7 @@ class PyLinter(config.OptionsManagerMixIn,
             # XXX to be correct we need to keep module_msgs_state for every
             # analyzed module (the problem stands with localized messages which
             # are only detected in the .close step)
-            self.file_state = utils.FileState(descr['basename'])
+            self.file_state = FileState(descr['basename'])
             self._ignore_file = False
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
@@ -892,7 +899,7 @@ class PyLinter(config.OptionsManagerMixIn,
         self.current_file = filepath or modname
         self.stats['by_module'][modname] = {}
         self.stats['by_module'][modname]['statement'] = 0
-        for msg_cat in six.itervalues(utils.MSG_TYPES):
+        for msg_cat in six.itervalues(MSG_TYPES):
             self.stats['by_module'][modname][msg_cat] = 0
 
     def get_ast(self, filepath, modname):
@@ -950,7 +957,7 @@ class PyLinter(config.OptionsManagerMixIn,
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.extension_package_whitelist.update(
             self.config.extension_pkg_whitelist)
-        for msg_cat in six.itervalues(utils.MSG_TYPES):
+        for msg_cat in six.itervalues(MSG_TYPES):
             self.stats[msg_cat] = 0
 
     def generate_reports(self):

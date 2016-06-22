@@ -13,12 +13,22 @@ import unittest
 import six
 from six.moves import reload_module
 
-from pylint import config, lint
+from pylint import config
+from pylint.exceptions import UnknownMessageError
+from pylint import lint
 from pylint.lint import PyLinter, Run, preprocess_options, \
      ArgumentPreprocessingError
-from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
-    MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
-    build_message_def, tokenize_module, UnknownMessage
+from pylint._internal.message.consts import (
+     MSG_STATE_SCOPE_CONFIG,
+     MSG_STATE_SCOPE_MODULE,
+     MSG_STATE_CONFIDENCE
+)
+from pylint._internal.message import (
+     FileState,
+     MessageDefinition,
+     MessagesStore
+)
+from pylint.utils import tokenize_module
 from pylint.testutils import TestReporter
 from pylint.reporters import text, html
 from pylint import checkers
@@ -428,7 +438,6 @@ class PyLinterTC(unittest.TestCase):
         self.assertTrue('design' in [c.name for c in self.linter.prepare_checkers()])
 
     def test_errors_only(self):
-        linter = self.linter
         self.linter.error_mode()
         checkers = self.linter.prepare_checkers()
         checker_names = set(c.name for c in checkers)
@@ -624,7 +633,7 @@ class MessagesStoreTC(unittest.TestCase):
     def test_check_message_id(self):
         self.assertIsInstance(self.store.check_message_id('W1234'),
                               MessageDefinition)
-        self.assertRaises(UnknownMessage,
+        self.assertRaises(UnknownMessageError,
                           self.store.check_message_id, 'YB12')
 
     def test_message_help(self):

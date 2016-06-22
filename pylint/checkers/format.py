@@ -20,10 +20,11 @@ from six.moves import zip, map, filter # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
+from pylint._internal.message import WarningScope
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
-from pylint.utils import WarningScope, OPTION_RGX
+from pylint.utils import OPTION_RGX
 
 _CONTINUATION_BLOCK_OPENERS = ['elif', 'except', 'for', 'if', 'while', 'def', 'class']
 _KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
