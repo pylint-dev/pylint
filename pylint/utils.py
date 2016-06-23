@@ -797,6 +797,15 @@ def _modpath_from_file(filename, is_namespace):
     return modutils.modpath_from_file_with_callback(filename, is_package_cb=_is_package_cb)
 
 
+ModuleDescription = collections.namedtuple('ModuleDescription', [
+    'path',
+    'name',
+    'basepath',
+    'basename',
+    'isarg',
+])
+
+
 def expand_modules(files_or_modules, black_list, black_list_re):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked
@@ -841,8 +850,14 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             is_directory = spec.type == modutils.ModuleType.PKG_DIRECTORY
 
         if not is_namespace:
-            result.append({'path': filepath, 'name': modname, 'isarg': True,
-                           'basepath': filepath, 'basename': modname})
+            mod_desc = ModuleDescription(
+                filepath,
+                modname,
+                filepath,
+                modname,
+                isarg=True
+            )
+            result.append(mod_desc)
 
         has_init = (not (modname.endswith('.__init__') or modname == '__init__')
                     and '__init__.py' in filepath)
@@ -857,9 +872,14 @@ def expand_modules(files_or_modules, black_list, black_list_re):
 
                 modpath = _modpath_from_file(subfilepath, is_namespace)
                 submodname = '.'.join(modpath)
-                result.append({'path': subfilepath, 'name': submodname,
-                               'isarg': False,
-                               'basepath': filepath, 'basename': modname})
+                mod_desc = ModuleDescription(
+                    subfilepath,
+                    submodname,
+                    filepath,
+                    modname,
+                    isarg=False
+                )
+                result.append(mod_desc)
     return result, errors
 
 

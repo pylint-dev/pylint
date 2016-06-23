@@ -764,9 +764,8 @@ class PyLinter(config.OptionsManagerMixIn,
 
         # Send files to child linters.
         expanded_files = self.expand_files(files_or_modules)
-        for files_or_module in expanded_files:
-            path = files_or_module['path']
-            tasks_queue.put([path])
+        for module_desc in expanded_files:
+            tasks_queue.put([module_desc.path])
 
         # collect results from child linters
         failed = False
@@ -837,9 +836,10 @@ class PyLinter(config.OptionsManagerMixIn,
             if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
         # build ast and check modules or packages
-        for descr in self.expand_files(files_or_modules):
-            modname, filepath = descr['name'], descr['path']
-            if not descr['isarg'] and not self.should_analyze_file(modname, filepath):
+        for module_desc in self.expand_files(files_or_modules):
+            modname = module_desc.name
+            filepath = module_desc.path
+            if not module_desc.isarg and not self.should_analyze_file(modname, filepath):
                 continue
             if self.config.files_output:
                 reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
@@ -852,7 +852,7 @@ class PyLinter(config.OptionsManagerMixIn,
             # XXX to be correct we need to keep module_msgs_state for every
             # analyzed module (the problem stands with localized messages which
             # are only detected in the .close step)
-            self.file_state = utils.FileState(descr['basename'])
+            self.file_state = utils.FileState(module_desc.basename)
             self._ignore_file = False
             # fix the current file (if the source file was not available or
             # if it's actually a c extension)
