@@ -248,17 +248,17 @@ def _determine_callable(callable_obj):
 
 
 def _has_parent_of_type(node, node_type, statement):
-     """Check if the given node has a parent of the given type."""
-     parent = node.parent
-     while not isinstance(parent, node_type) and statement.parent_of(parent):
-         parent = parent.parent
-     return isinstance(parent, node_type)
+    """Check if the given node has a parent of the given type."""
+    parent = node.parent
+    while not isinstance(parent, node_type) and statement.parent_of(parent):
+        parent = parent.parent
+    return isinstance(parent, node_type)
 
 
 def _is_name_used_as_variadic(name, variadics):
-     """Check if the given name is used as a variadic argument."""
-     return any(variadic.value == name or variadic.value.parent_of(name)
-                for variadic in variadics)
+    """Check if the given name is used as a variadic argument."""
+    return any(variadic.value == name or variadic.value.parent_of(name)
+               for variadic in variadics)
 
 
 def _no_context_variadic_keywords(node):

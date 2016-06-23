@@ -402,11 +402,11 @@ def is_attr_private(attrname):
 def get_argument_from_call(callfunc_node, position=None, keyword=None):
     """Returns the specified argument from a function call.
 
-    :param callfunc_node: Node representing a function call to check.
+    :param astroid.Call callfunc_node: Node representing a function call to check.
     :param int position: position of the argument.
     :param str keyword: the keyword of the argument.
 
-    :returns: The node representing the argument, None if the argument is not found.
+    :returns astroid.Name: The node representing the argument, None if the argument is not found.
     :raises ValueError: if both position and keyword are None.
     :raises NoSuchArgumentError: if no argument at the provided position or with
     the provided keyword.
