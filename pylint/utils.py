@@ -806,6 +806,43 @@ ModuleDescription = collections.namedtuple('ModuleDescription', [
 ])
 
 
+# TODO: Replace linter with a message store as part of #938
+def expand_files(files_or_modules, linter, black_list, black_list_re):
+    """
+    Run :func:`expand_modules` and turn errors into messages.
+
+    :param files_or_modules: A list of files, directories, modules, or packages
+        to turn into :class:`ModuleDescription`s.
+    :type files_or_modules: :obj:`list` of :obj:`str`
+
+    :param linter: A linter to store messages onto.
+    :type linter: :class:`pylint.PyLinter`
+
+    :param black_list: A list of files or directories to ignore.
+    :type black_list: :obj:`list` or :obj:`tuple`
+
+    :param black_list_re: A list of regex patterns. Any files, directories,
+        modules, or packages matching against any of these patterns will be
+        ignored.
+    :type black_list_re: :obj:`list`: of :obj:`re.RegexObject`
+
+    :returns: The :class:`ModuleDescription`s for each found file, directory,
+        module, or package.
+    :rtype: :obj:`list` of :class:`ModuleDescription`
+    """
+    result, errors = expand_modules(files_or_modules, black_list, black_list_re)
+
+    for error in errors:
+        message = modname = error["mod"]
+        key = error["key"]
+        linter.set_current_module(modname)
+        if key == "fatal":
+            message = str(error["ex"]).replace(os.getcwd() + os.sep, '')
+        linter.add_message(key, args=message)
+
+    return result
+
+
 def expand_modules(files_or_modules, black_list, black_list_re):
     """take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked

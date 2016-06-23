@@ -763,7 +763,7 @@ class PyLinter(config.OptionsManagerMixIn,
             children.append(child_linter)
 
         # Send files to child linters.
-        expanded_files = self.expand_files(files_or_modules)
+        expanded_files = utils.expand_files(files_or_modules, self, self.config.black_list, self.config.black_list_re)
         for module_desc in expanded_files:
             tasks_queue.put([module_desc.path])
 
@@ -836,7 +836,13 @@ class PyLinter(config.OptionsManagerMixIn,
             if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
         # build ast and check modules or packages
-        for module_desc in self.expand_files(files_or_modules):
+        expanded_files = utils.expand_files(
+            files_or_modules,
+            self,
+            self.config.black_list,
+            self.config.black_list_re
+        )
+        for module_desc in expanded_files:
             modname = module_desc.name
             filepath = module_desc.path
             if not module_desc.isarg and not self.should_analyze_file(modname, filepath):
@@ -866,20 +872,6 @@ class PyLinter(config.OptionsManagerMixIn,
         self.stats['statement'] = walker.nbstatements
         for checker in reversed(_checkers):
             checker.close()
-
-    def expand_files(self, modules):
-        """get modules and errors from a list of modules and handle errors
-        """
-        result, errors = utils.expand_modules(modules, self.config.black_list,
-                                              self.config.black_list_re)
-        for error in errors:
-            message = modname = error["mod"]
-            key = error["key"]
-            self.set_current_module(modname)
-            if key == "fatal":
-                message = str(error["ex"]).replace(os.getcwd() + os.sep, '')
-            self.add_message(key, args=message)
-        return result
 
     def set_current_module(self, modname, filepath=None):
         """set the name of the currently analyzed module and
