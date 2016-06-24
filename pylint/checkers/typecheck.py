@@ -353,14 +353,17 @@ class should be ignored. A mixin class is detected if its name ends with \
                          'deduced by static analysis. It supports qualified '
                          'module names, as well as Unix pattern matching.'}
                ),
+               # the defaults here are *stdlib* names that (almost) always
+               # lead to false positives, since their idiomatic use is
+               # 'too dynamic' for pylint to grok.
                ('ignored-classes',
-                {'default' : (),
+                {'default' : ('optparse.Values', 'thread._local', '_thread._local'),
                  'type' : 'csv',
                  'metavar' : '<members names>',
-                 'help' : 'List of classes names for which member attributes '
+                 'help' : 'List of class names for which member attributes '
                           'should not be checked (useful for classes with '
-                          'attributes dynamically set). This supports '
-                          'can work with qualified names.'}
+                          'dynamically set attributes). This supports '
+                          'the use of qualified names.'}
                ),
 
                ('generated-members',
