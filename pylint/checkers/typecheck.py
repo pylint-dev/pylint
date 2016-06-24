@@ -360,10 +360,10 @@ class should be ignored. A mixin class is detected if its name ends with \
                 {'default' : ('optparse.Values', 'thread._local', '_thread._local'),
                  'type' : 'csv',
                  'metavar' : '<members names>',
-                 'help' : 'List of classes names for which member attributes '
+                 'help' : 'List of class names for which member attributes '
                           'should not be checked (useful for classes with '
-                          'attributes dynamically set). This supports '
-                          'can work with qualified names.'}
+                          'dynamically set attributes). This supports '
+                          'the use of qualified names.'}
                ),
 
                ('generated-members',
