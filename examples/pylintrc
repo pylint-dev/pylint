@@ -228,7 +228,7 @@ ignored-modules=
 
 # List of classes names for which member attributes should not be checked
 # (useful for classes with attributes dynamically set).
-ignored-classes=SQLObject
+ignored-classes=SQLObject, optparse.Values, thread._local, _thread._local
 
 # When zope mode is activated, add a predefined set of Zope acquired attributes
 # to generated-members.
