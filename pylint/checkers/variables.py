@@ -210,6 +210,11 @@ def _import_name_is_global(stmt, global_names):
     return False
 
 
+def _flattened_scope_names(iterator):
+    values = (set(stmt.names) for stmt in iterator)
+    return set(itertools.chain.from_iterable(values))
+
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
@@ -569,11 +574,6 @@ class VariablesChecker(BaseChecker):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
 
-    @staticmethod
-    def _flattened_scope_names(iterator):
-        values = (set(stmt.names) for stmt in iterator)
-        return set(itertools.chain.from_iterable(values))
-
     def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
         # Ignore some special names specified by user configuration.
         authorized_rgx = self.config.dummy_variables_rgx
@@ -643,8 +643,8 @@ class VariablesChecker(BaseChecker):
         if is_method and node.is_abstract():
             return
 
-        global_names = self._flattened_scope_names(node.nodes_of_class(astroid.Global))
-        nonlocal_names = self._flattened_scope_names(node.nodes_of_class(astroid.Nonlocal))
+        global_names = _flattened_scope_names(node.nodes_of_class(astroid.Global))
+        nonlocal_names = _flattened_scope_names(node.nodes_of_class(astroid.Nonlocal))
 
         for name, stmts in six.iteritems(not_consumed):
             self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
