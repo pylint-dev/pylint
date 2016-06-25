@@ -249,16 +249,18 @@ class ParamDocCheckerTest(CheckerTestCase):
         return values (Sphinx style)
         """
         node = test_utils.extract_node("""
-        def function_foo(xarg, yarg, zarg):
+        def function_foo(xarg, yarg, zarg, warg):
             '''function foo ...
 
             :param xarg: bla xarg
             :type xarg: int
 
             :param yarg: bla yarg
-            :type yarg: float
+            :type yarg: my.qualified.type
 
             :param int zarg: bla zarg
+
+            :param my.qualified.type warg: bla warg
 
             :return: sum
             :rtype: float
@@ -273,15 +275,16 @@ class ParamDocCheckerTest(CheckerTestCase):
         return values (Google style)
         """
         node = test_utils.extract_node("""
-        def function_foo(xarg, yarg, zarg):
+        def function_foo(xarg, yarg, zarg, warg):
             '''function foo ...
 
             Args:
                 xarg (int): bla xarg
-                yarg (float): bla
+                yarg (my.qualified.type): bla
                     bla yarg
-        
+
                 zarg (int): bla zarg
+                warg (my.qualified.type): bla warg
 
             Returns:
                 float: sum
@@ -296,18 +299,20 @@ class ParamDocCheckerTest(CheckerTestCase):
         return values (Numpy style)
         """
         node = test_utils.extract_node("""
-        def function_foo(xarg, yarg, zarg):
+        def function_foo(xarg, yarg, zarg, warg):
             '''function foo ...
 
             Parameters
             ----------
             xarg: int
                 bla xarg
-            yarg: float
+            yarg: my.qualified.type
                 bla yarg
 
             zarg: int
                 bla zarg
+            warg: my.qualified.type
+                bla warg
 
             Returns
             -------
