@@ -57,8 +57,9 @@ class DotBackend(object):
     def generate(self, outputfile=None, dotfile=None, mapfile=None):
         """Generates a graph file.
 
-        :param outputfile: filename and path [defaults to graphname.png]
-        :param dotfile: filename and path [defaults to graphname.dot]
+        :param str outputfile: filename and path [defaults to graphname.png]
+        :param str dotfile: filename and path [defaults to graphname.dot]
+        :param str mapfile: filename and path
 
         :rtype: str
         :return: a path to the generated file

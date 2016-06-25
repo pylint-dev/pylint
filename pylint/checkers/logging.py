@@ -183,7 +183,8 @@ class LoggingChecker(checkers.BaseChecker):
         """Checks that function call is not format_string.format().
 
         Args:
-          callfunc_node: CallFunc AST node to be checked.
+          callfunc_node (astroid.node_classes.NodeNG):
+            CallFunc AST node to be checked.
         """
         if is_method_call(callfunc_node, ('str', 'unicode'), ('format',)):
             self.add_message('logging-format-interpolation', node=callfunc_node)
@@ -192,8 +193,8 @@ class LoggingChecker(checkers.BaseChecker):
         """Checks that format string tokens match the supplied arguments.
 
         Args:
-          node: AST node to be checked.
-          format_arg: Index of the format string in the node arguments.
+          node (astroid.node_classes.NodeNG): AST node to be checked.
+          format_arg (int): Index of the format string in the node arguments.
         """
         num_args = _count_supplied_tokens(node.args[format_arg + 1:])
         if not num_args:
@@ -235,10 +236,10 @@ def _count_supplied_tokens(args):
     arguments that aren't keywords.
 
     Args:
-      args: List of AST nodes that are arguments for a log format string.
+      args (list): AST nodes that are arguments for a log format string.
 
     Returns:
-      Number of AST nodes that aren't keywords.
+      int: Number of AST nodes that aren't keywords.
     """
     return sum(1 for arg in args if not isinstance(arg, astroid.Keyword))
 

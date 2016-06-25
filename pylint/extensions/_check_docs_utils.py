@@ -51,6 +51,7 @@ def possible_exc_types(node):
 
 
     :param node: The raise node to find exception types for.
+    :type node: astroid.node_classes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
     :rtype: list(str)
@@ -129,7 +130,7 @@ class SphinxDocstring(Docstring):
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type, xref=re_xref), re.X | re.S)
+        """.format(type=re_type), re.X | re.S)
 
     re_type_in_docstring = re.compile(r"""
         :type                   # Sphinx keyword
@@ -137,7 +138,7 @@ class SphinxDocstring(Docstring):
         ({type})                # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type, xref=re_xref), re.X | re.S)
+        """.format(type=re_type), re.X | re.S)
 
     re_raise_in_docstring = re.compile(r"""
         :raises                 # Sphinx keyword
@@ -151,7 +152,7 @@ class SphinxDocstring(Docstring):
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type, xref=re_xref), re.X | re.S)
+        """.format(type=re_type), re.X | re.S)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
 

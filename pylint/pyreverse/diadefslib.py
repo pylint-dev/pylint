@@ -201,9 +201,15 @@ class DiadefsHandler(object):
         self.config = config
 
     def get_diadefs(self, project, linker):
-        """get the diagrams configuration data
-        :param linker: pyreverse.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
-        :param project: pyreverse.utils.Project
+        """Get the diagrams configuration data
+
+        :param project:The pyreverse project
+        :type project: pyreverse.utils.Project
+        :param linker: The linker
+        :type linker: pyreverse.inspector.Linker(IdGeneratorMixIn, LocalsVisitor)
+
+        :returns: The list of diagram definitions
+        :rtype: list(:class:`pylint.pyreverse.diagrams.ClassDiagram`)
         """
 
         #  read and interpret diagram definitions (Diadefs)
