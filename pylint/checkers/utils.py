@@ -404,6 +404,7 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
     :param str keyword: the keyword of the argument.
 
     :returns: The node representing the argument, None if the argument is not found.
+    :rtype: astroid.Name
     :raises ValueError: if both position and keyword are None.
     :raises NoSuchArgumentError: if no argument at the provided position or with
     the provided keyword.

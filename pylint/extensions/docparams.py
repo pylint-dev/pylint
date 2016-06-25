@@ -276,6 +276,7 @@ class DocstringParameterChecker(BaseChecker):
         :type missing_excs: list
 
         :param node: The node show the message on.
+        :type node: astroid.node_classes.NodeNG
         """
         if not missing_excs:
             return

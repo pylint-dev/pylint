@@ -166,8 +166,12 @@ def _determine_function_name_type(node, config=None):
     """Determine the name type whose regex the a function's name should match.
 
     :param node: A function node.
+    :type node: astroid.node_classes.NodeNG
     :param config: Configuration from which to pull additional property classes.
+    :type config: :class:`optparse.Values`
+
     :returns: One of ('function', 'method', 'attr')
+    :rtype: str
     """
     property_classes, property_names = _get_properties(config)
     if not node.is_method():
