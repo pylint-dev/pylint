@@ -3,6 +3,19 @@ ChangeLog for Pylint
 
 
 --
+    * ignored-argument-names is now used for ignoring arguments for unused-variable check.
+
+      This option was used for ignoring arguments when computing the correct number of arguments
+      a function should have, but for handling the arguments with regard
+      to unused-variable check, dummy-variables-rgx was used instead. Now, ignored-argument-names
+      is used for its original purpose and also for ignoring the matched arguments for
+      the unused-variable check. This offers a better control of what should be ignored
+      and how.
+      Also, the same option was moved from the design checker to the variables checker,
+      which means that the option now appears under the ``[VARIABLES]`` section inside
+      the configuration file.
+      Close #862.
+
     * Made the list of property-defining decorators configurable.
 
     * Fix a false positive for keyword variadics with regard to keyword only arguments.

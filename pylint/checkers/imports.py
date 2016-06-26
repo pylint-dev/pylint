@@ -656,7 +656,7 @@ given file (report RP0402 must not be disabled)'}
                     self.add_message('reimported', node=node,
                                      args=(name, first.fromlineno))
 
-    def _report_external_dependencies(self, sect, _, dummy):
+    def _report_external_dependencies(self, sect, _, _dummy):
         """return a verbatim layout for displaying dependencies"""
         dep_info = _make_tree_defs(six.iteritems(self._external_dependencies_info()))
         if not dep_info:
@@ -664,7 +664,7 @@ given file (report RP0402 must not be disabled)'}
         tree_str = _repr_tree_defs(dep_info)
         sect.append(VerbatimText(tree_str))
 
-    def _report_dependencies_graph(self, sect, _, dummy):
+    def _report_dependencies_graph(self, sect, _, _dummy):
         """write dependencies as a dot (graphviz) file"""
         dep_info = self.stats['dependencies']
         if not dep_info or not (self.config.import_graph

@@ -31,6 +31,8 @@ from pylint.checkers.utils import (
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = '__future__'
+# regexp for ignored argument name
+IGNORED_ARGUMENT_NAMES = re.compile('_.*')
 PY3K = sys.version_info >= (3, 0)
 
 
@@ -346,6 +348,12 @@ class VariablesChecker(BaseChecker):
                  'help': 'List of qualified module names which can have objects '
                          'that can redefine builtins.'}
                ),
+               ('ignored-argument-names',
+                {'default' : IGNORED_ARGUMENT_NAMES,
+                 'type' :'regexp', 'metavar' : '<regexp>',
+                 'help' : 'Argument names that match this expression will be '
+                          'ignored. Default to name with leading underscore'}
+               ),
               )
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -574,10 +582,18 @@ class VariablesChecker(BaseChecker):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
 
+    def _is_name_ignored(self, stmt, name):
+        authorized_rgx = self.config.dummy_variables_rgx
+        if (isinstance(stmt, astroid.AssignName)
+                and isinstance(stmt.parent, astroid.Arguments)):
+            regex = self.config.ignored_argument_names
+        else:
+            regex = authorized_rgx
+        return regex and regex.match(name)
+
     def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
         # Ignore some special names specified by user configuration.
-        authorized_rgx = self.config.dummy_variables_rgx
-        if authorized_rgx.match(name):
+        if self._is_name_ignored(stmt, name):
             return
 
         # Ignore names imported by the global statement.

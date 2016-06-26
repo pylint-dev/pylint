@@ -3,17 +3,15 @@
 
 """check for signs of poor design"""
 
-import re
 from collections import defaultdict
 
 from astroid import If, BoolOp
+from astroid import decorators
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-
-# regexp for ignored argument name
-IGNORED_ARGUMENT_NAMES = re.compile('_.*')
+from pylint import utils
 
 
 MSGS = {
@@ -91,12 +89,6 @@ class MisdesignChecker(BaseChecker):
                 {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of arguments for function / method'}
                ),
-               ('ignored-argument-names',
-                {'default' : IGNORED_ARGUMENT_NAMES,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Argument names that match this expression will be '
-                          'ignored. Default to name with leading underscore'}
-               ),
                ('max-locals',
                 {'default' : 15, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of locals for function / method body'}
@@ -164,6 +156,10 @@ class MisdesignChecker(BaseChecker):
         self._returns = []
         self._branches = defaultdict(int)
 
+    @decorators.cachedproperty
+    def _ignored_argument_names(self):
+        return utils.get_global_option(self, 'ignored-argument-names', default=None)
+
     @check_messages('too-many-ancestors', 'too-many-instance-attributes',
                     'too-few-public-methods', 'too-many-public-methods')
     def visit_classdef(self, node):
@@ -224,10 +220,11 @@ class MisdesignChecker(BaseChecker):
         self._returns.append(0)
         # check number of arguments
         args = node.args.args
+        ignored_argument_names = self._ignored_argument_names
         if args is not None:
             ignored_args_num = len(
                 [arg for arg in args
-                 if self.config.ignored_argument_names.match(arg.name)])
+                 if ignored_argument_names and ignored_argument_names.match(arg.name)])
             argnum = len(args) - ignored_args_num
             if  argnum > self.config.max_args:
                 self.add_message('too-many-arguments', node=node,
