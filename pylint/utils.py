@@ -778,13 +778,13 @@ class ReportsHandlerMixIn(object):
 def _basename_in_blacklist_re(base_name, black_list_re):
     """Determines if the basename is matched in a regex blacklist
 
-    :param base_name: The basename of the file
-    :param black_list_re: A collection of regex patterns to match against. Successful matches are
-                          blacklisted.
+    :param str base_name: The basename of the file
+    :param list black_list_re: A collection of regex patterns to match against.
+        Successful matches are blacklisted.
+
     :returns: `True` if the basename is blacklisted, `False` otherwise.
-
+    :rtype: bool
     """
-
     for file_pattern in black_list_re:
         if file_pattern.match(base_name):
             return True

@@ -233,8 +233,12 @@ def _Offsets(*args):
 def _BeforeBlockOffsets(single, with_body):
     """Valid alternative indent offsets for continued lines before blocks.
 
-    :param single: Valid offset for statements on a single logical line.
-    :param with_body: Valid offset for statements on several lines.
+    :param int single: Valid offset for statements on a single logical line.
+    :param int with_body: Valid offset for statements on several lines.
+
+    :returns: A dictionary mapping indent offsets to a string representing
+        whether the indent if for a line or block.
+    :rtype: dict
     """
     return {single: SINGLE_LINE, with_body: WITH_BODY}
 
@@ -390,8 +394,8 @@ class ContinuedLineState(object):
         push_token relies on the caller to filter out those
         interesting tokens.
 
-        :param token: The concrete token
-        :param position: The position of the token in the stream.
+        :param int token: The concrete token
+        :param int position: The position of the token in the stream.
         """
         if _token_followed_by_eol(self._tokens, position):
             self._cont_stack.append(

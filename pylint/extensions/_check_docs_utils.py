@@ -51,6 +51,7 @@ def possible_exc_types(node):
 
 
     :param node: The raise node to find exception types for.
+    :type node: astroid.node_classes.NodeNG
 
     :returns: A list of exception types possibly raised by :param:`node`.
     :rtype: list(str)
@@ -110,41 +111,48 @@ class Docstring(object):
         return self.re_for_parameters_see.search(self.doc) is not None
 
 class SphinxDocstring(Docstring):
+    re_type = r"[\w\.]+"
+
+    re_xref = r"""
+        (?::\w+:)?                    # optional tag
+        `{0}`                         # what to reference
+        """.format(re_type)
+
     re_param_in_docstring = re.compile(r"""
         :param                  # Sphinx keyword
         \s+                     # whitespace
 
         (?:                     # optional type declaration
-        (\w+)
+        ({type})
         \s+
         )?
 
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """, re.X | re.S)
+        """.format(type=re_type), re.X | re.S)
 
     re_type_in_docstring = re.compile(r"""
         :type                   # Sphinx keyword
         \s+                     # whitespace
-        (\w+)                   # Parameter name
+        ({type})                # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """, re.X | re.S)
+        """.format(type=re_type), re.X | re.S)
 
     re_raise_in_docstring = re.compile(r"""
         :raises                 # Sphinx keyword
         \s+                     # whitespace
 
         (?:                     # type declaration
-        (\w+)
+        ({type})
         \s+
         )?
 
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """, re.X | re.S)
+        """.format(type=re_type), re.X | re.S)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
 
@@ -194,12 +202,9 @@ class SphinxDocstring(Docstring):
 
 
 class GoogleDocstring(Docstring):
-    re_type = r"[\w_\.]+"
+    re_type = SphinxDocstring.re_type
 
-    re_xref = r"""
-        (?::\w+:)?                    # optional tag
-        `{0}`                         # what to reference
-        """.format(re_type)
+    re_xref = SphinxDocstring.re_xref
 
     re_container_type = r"""
         (?:{type}|{xref})             # a container type
