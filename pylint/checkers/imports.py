@@ -346,7 +346,7 @@ given file (report RP0402 must not be disabled)'}
                 self.add_message('cyclic-import', args=' -> '.join(cycle))
 
     @check_messages('wrong-import-position', 'multiple-imports',
-                    'relative-import', 'reimported')
+                    'relative-import', 'reimported', 'deprecated-module')
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
