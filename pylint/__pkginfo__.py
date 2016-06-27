@@ -30,10 +30,10 @@ if sys.version_info[0] == 2:
 
 license = 'GPL'
 description = "python code static checker"
-web = 'http://www.pylint.org'
+web = 'https://github.com/PyCQA/pylint'
 mailinglist = "mailto:code-quality@python.org"
-author = 'Logilab'
-author_email = 'python-projects@lists.logilab.org'
+author = 'Python Code Quality Authority'
+author_email = 'code-quality@python.org'
 
 classifiers = ['Development Status :: 4 - Beta',
                'Environment :: Console',
