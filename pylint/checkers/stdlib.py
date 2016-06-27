@@ -154,7 +154,6 @@ class StdlibChecker(BaseChecker):
                 'plistlib.readPlist', 'plistlib.writePlist',
                 'plistlib.readPlistFromBytes',
                 'plistlib.writePlistToBytes',
-                'xml.etree.ElementTree.iterparse',
             ],
             (3, 5): [
                 'fractions.gcd',
