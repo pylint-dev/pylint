@@ -1,7 +1,7 @@
 """Check unpacking non-sequences in assignments. """
 
 # pylint: disable=too-few-public-methods, invalid-name, attribute-defined-outside-init, unused-variable, no-absolute-import
-# pylint: disable=using-constant-test, no-init
+# pylint: disable=using-constant-test, no-init, missing-docstring, wrong-import-order,wrong-import-position
 from os import rename as nonseq_func
 from six import with_metaclass
 from functional.unpacking import nonseq
@@ -117,3 +117,23 @@ class Test(TestBase):
     def test(data):
         'overridden implementation'
         return (1, 2, 3)
+
+
+import platform
+
+
+def flow_control_false_positive():
+    # This used to trigger an unpacking-non-sequence error. The problem was
+    # partially related to the fact that pylint does not understand flow control,
+    # but now it does not emit anymore, for this example, due to skipping it when
+    # determining an inference of multiple potential values.
+    # In any case, it is good having this repro as a test.
+    system, node, release, version, machine, processor = platform.uname()
+    # The previous line raises W0633
+    return system, node, release, version, machine, processor
+
+
+def flow_control_unpacking(var=None):
+    if var is not None:
+        var0, var1 = var
+        return var0, var1
