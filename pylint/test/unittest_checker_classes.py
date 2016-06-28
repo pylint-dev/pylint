@@ -7,8 +7,10 @@ import sys
 
 import astroid
 from astroid import test_utils
+
 from pylint.checkers import classes
 from pylint.testutils import CheckerTestCase, Message, set_config
+
 
 class VariablesCheckerTC(CheckerTestCase):
 
@@ -81,6 +83,122 @@ class VariablesCheckerTC(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_unhelpful_override_basic(self):
+        node = test_utils.extract_node("""
+        class SuperClass(object):
+            def override(self):
+                pass
+
+        class SubClass(object):
+            def override(self): #@
+                super(SubClass, self).__init__()
+        """)
+        message = Message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+    def test_unhelpful_override_args(self):
+        node = test_utils.extract_node("""
+        class SuperClass(object):
+            def override(self, orange):
+                pass
+
+        class SubClass(object):
+            def override(self, orange): #@
+                return super(SubClass, self).__init__(orange)
+        """)
+        # self.checker.visit_functiondef(node)
+        message = Message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+
+        with self.assertAddsMessages(message):
+            self.walk(node.root())
+
+    def test_unhelpful_override_kwargs(self):
+        node = test_utils.extract_node("""
+        class SuperClass(object):
+            def override(self, standard_method):
+                pass
+
+        class SubClass(object):
+            def override(self, *args, **kwargs): #@
+                return super(SubClass, self).__init__(*args, **kwargs)
+        """)
+
+        message = Message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+    def test_swapping_args_doesnt_raise_unhelpful_override(self):
+        node = test_utils.extract_node("""
+        class SuperClass(object):
+            def override(self, a, b):
+                pass
+
+        class SubClass(object):
+            def override(self, a, b): #@
+                return super(SubClass, self).__init__(b, a)
+        """)
+        message = Message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+        with self.assertAddsMessages(message):
+            self.assertRaises(AssertionError, self.checker.visit_functiondef, node)
+
+    def test_parent_doesnt_raise_unhelpful_override(self):
+        node = test_utils.extract_node("""
+        class SuperClass(object):
+            def override(self, a, b): #@
+                pass
+
+        class SubClass(object):
+            def override(self, a, b):
+                return super(SubClass, self).__init__(b, a)
+        """)
+        message = Message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+        with self.assertAddsMessages(message):
+            self.assertRaises(AssertionError, self.checker.visit_functiondef, node)
+
+    def test_not_overriding_doesnt_raise_unhelpful_override(self):
+        node = test_utils.extract_node("""
+        class SuperClass(object):
+            def override(self, a, b):
+                pass
+
+        class SubClass(object):
+            pass
+        """)
+        message = Message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+        with self.assertAddsMessages(message):
+            self.assertRaises(AssertionError, self.walk, node.root())
+
+    def test_not_overriding_different_method_doesnt_raise_unhelpful_override(self):
+        node = test_utils.extract_node("""
+        class SuperClass(object):
+            def potato(self):
+                pass
+
+        class SubClass(object):
+            def override(self):
+                super(SubClass, self).potato()
+        """)
+        message = Message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+        with self.assertAddsMessages(message):
+            self.assertRaises(AssertionError, self.walk, node.root())
+
+    def test_overriding_values_doesnt_raise_unhelpful_override(self):
+        node = test_utils.extract_node("""
+        class SuperClass(object):
+            def potato(self, a, b):
+                pass
+
+        class SubClass(object):
+            def override(self, a, b):
+                super(SubClass, self).potato(a, 12)
+        """)
+        message = Message('useless-method-override', node=node, line=node.lineno, args=(node.name,))
+        with self.assertAddsMessages(message):
+            self.assertRaises(AssertionError, self.walk, node.root())
 
 
 if __name__ == '__main__':
