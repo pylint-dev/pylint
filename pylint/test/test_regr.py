@@ -6,18 +6,18 @@ to be incorporated in the automatic functional test framework
 """
 
 import sys
-import platform
 import os
 from os.path import abspath, dirname, join
 import unittest
 
+import astroid
 from pylint.testutils import TestReporter
-from pylint.lint import PyLinter
 from pylint import checkers
 from pylint import epylint
+from pylint import lint
 
 test_reporter = TestReporter()
-linter = PyLinter()
+linter = lint.PyLinter()
 linter.set_reporter(test_reporter)
 linter.disable('I')
 linter.config.persistent = 0
@@ -60,24 +60,6 @@ class NonRegrTC(unittest.TestCase):
         finally:
             sys.path.pop(0)
             os.chdir(cwd)
-
-    def test_numarray_inference(self):
-        try:
-            from numarray import random_array
-        except ImportError:
-            self.skipTest('test skipped: numarray.random_array is not available')
-        linter.check(join(REGR_DATA, 'numarray_inf.py'))
-        got = linter.reporter.finalize().strip()
-        self.assertEqual(got, "E:  5: Instance of 'int' has no 'astype' member (but some types could not be inferred)")
-
-    def test_numarray_import(self):
-        try:
-            import numarray
-        except ImportError:
-            self.skipTest('test skipped: numarray is not available')
-        linter.check(join(REGR_DATA, 'numarray_import.py'))
-        got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
 
     def test_class__doc__usage(self):
         linter.check(join(REGR_DATA, 'classdoc_usage.py'))
@@ -137,6 +119,20 @@ class NonRegrTC(unittest.TestCase):
         self.assertTrue(hasattr(err, 'read'))
         output = out.read(10)
         self.assertIsInstance(output, str)
+
+    def test_pylint_config_attr(self):
+        mod = astroid.MANAGER.ast_from_module_name('pylint.lint')
+        pylinter = mod['PyLinter']
+        expect = ['OptionsManagerMixIn', 'object', 'MessagesHandlerMixIn',
+                  'ReportsHandlerMixIn', 'BaseTokenChecker', 'BaseChecker',
+                  'OptionsProviderMixIn']
+        self.assertListEqual([c.name for c in pylinter.ancestors()],
+                             expect)
+        self.assertTrue(list(astroid.Instance(pylinter).getattr('config')))
+        inferred = list(astroid.Instance(pylinter).igetattr('config'))
+        self.assertEqual(len(inferred), 1)
+        self.assertEqual(inferred[0].root().name, 'optparse')
+        self.assertEqual(inferred[0].name, 'Values')
 
 
 if __name__ == '__main__':
