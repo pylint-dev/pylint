@@ -15,10 +15,14 @@ numversion = (2, 0, 0)
 version = '.'.join([str(num) for num in numversion])
 
 install_requires = [
-    'astroid >= 1.5.0,<1.6.0',
+    'astroid',
     'six',
     'isort >= 4.2.5',
     'mccabe',
+]
+
+dependency_links = [
+    'https://github.com/PyCQA/astroid/tarball/master#egg=astroid-master-1.5'
 ]
 
 if sys.platform == 'win32':
