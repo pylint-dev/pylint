@@ -14,7 +14,7 @@ import six
 from six.moves import reload_module
 
 from pylint import config
-from pylint.exceptions import UnknownMessageError
+from pylint.exceptions import UnknownMessageError, InvalidMessageDefinition
 from pylint import lint
 from pylint.lint import PyLinter, Run, preprocess_options, \
      ArgumentPreprocessingError
@@ -685,6 +685,15 @@ class MessagesStoreTC(unittest.TestCase):
                          self.store.check_message_id('W0001').symbol)
         self.assertEqual('msg-symbol',
                          self.store.check_message_id('old-symbol').symbol)
+
+
+class MessageDefinitionTest(unittest.TestCase):
+
+    def test_message_without_symbol_raises_exception(self):
+        with self.assertRaises(InvalidMessageDefinition) as cm:
+            MessageDefinition.from_message_def(None, 'e0001', ('first', 'second'))
+
+        self.assertEqual(str(cm.exception), "Message defined without a symbol.")
 
    
 if __name__ == '__main__':

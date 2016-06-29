@@ -3,3 +3,6 @@
 
 class UnknownMessageError(Exception):
     """Raised when a unregistered message id is encountered"""
+
+class InvalidMessageDefinition(Exception):
+    """Raised when the structure of a message is invalid."""

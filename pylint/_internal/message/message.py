@@ -3,12 +3,11 @@
 
 import collections
 import sys
-import warnings
 import textwrap
 
 import six
 
-from pylint.exceptions import UnknownMessageError
+from pylint.exceptions import UnknownMessageError, InvalidMessageDefinition
 from pylint.interfaces import IRawChecker, ITokenChecker, implements
 from .consts import MSG_TYPES, WarningScope
 
@@ -108,12 +107,8 @@ class MessageDefinition(object):
         elif len(msg_tuple) > 2:
             (msg, symbol, descr) = msg_tuple
         else:
-            # messages should have a symbol, but for backward compatibility
-            # they may not.
-            (msg, descr) = msg_tuple
-            warnings.warn("[pylint 0.26] description of message %s doesn't include "
-                          "a symbolic name" % msgid, DeprecationWarning)
-            symbol = None
+            raise InvalidMessageDefinition("Message defined without a symbol.")
+
         options.setdefault('scope', default_scope)
         return cls(checker, msgid, msg, descr, symbol, **options)
 
