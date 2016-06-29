@@ -416,7 +416,7 @@ given file (report RP0402 must not be disabled)'}
         self._imports_stack = []
         self._first_non_import_node = None
 
-    def visit_if(self, node):
+    def compute_first_non_import_node(self, node):
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
         # of the module will be compared to the position of this first
@@ -442,8 +442,9 @@ given file (report RP0402 must not be disabled)'}
                 return
         self._first_non_import_node = node
 
-    visit_tryfinally = visit_tryexcept = visit_assignattr = visit_assign \
-            = visit_ifexp = visit_comprehension = visit_expr = visit_if
+    visit_tryfinally = visit_tryexcept = visit_assignattr = visit_assign = \
+        visit_ifexp = visit_comprehension = visit_expr = visit_if = \
+        compute_first_non_import_node
 
     def visit_functiondef(self, node):
         # If it is the first non import instruction of the module, record it.
