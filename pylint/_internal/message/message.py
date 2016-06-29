@@ -18,6 +18,13 @@ def _normalize_text(text, line_len=80, indent=''):
                                    subsequent_indent=indent))
 
 
+def _checker_scope(checker):
+    if implements(checker, (IRawChecker, ITokenChecker)):
+        return WarningScope.LINE
+    else:
+        return WarningScope.NODE
+
+
 _MsgBase = collections.namedtuple(
     '_MsgBase',
     ['msg_id', 'symbol', 'msg', 'C', 'category', 'confidence',
@@ -94,13 +101,9 @@ class MessageDefinition(object):
             return ':%s: *%s*\n%s' % (msgid, title, desc)
         return ':%s:\n%s' % (msgid, desc)
 
-
     @classmethod
     def from_message_def(cls, checker, msgid, msg_tuple):
-        if implements(checker, (IRawChecker, ITokenChecker)):
-            default_scope = WarningScope.LINE
-        else:
-            default_scope = WarningScope.NODE
+        default_scope = _checker_scope(checker)
         options = {}
         if len(msg_tuple) > 3:
             (msg, symbol, descr, options) = msg_tuple
