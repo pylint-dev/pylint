@@ -31,15 +31,20 @@ _MsgBase = collections.namedtuple(
      'abspath', 'path', 'module', 'obj', 'line', 'column'])
 _MessageOptions = collections.namedtuple(
     '_MessageOptions',
-    ['minversion', 'maxversion', 'old_names', 'scope']
+    ['minversion', 'maxversion', 'old_names', 'scope', 'stage']
 )
 
 class MessageOptions(_MessageOptions):
     """Holds options for a particular message."""
 
-    def __new__(cls, minversion=None, maxversion=None, old_names=None, scope=None):
+    def __new__(cls, minversion=None, maxversion=None,
+                old_names=None, scope=None, stage=None):
         return _MessageOptions.__new__(
-            cls, minversion, maxversion, old_names, scope)
+            cls, minversion=minversion,
+            maxversion=maxversion,
+            old_names=old_names,
+            scope=scope,
+            stage=stage)
 
 
 class Message(_MsgBase):
@@ -74,6 +79,7 @@ class MessageDefinition(object):
         self.minversion = options.minversion
         self.maxversion = options.maxversion
         self.old_names = options.old_names or []
+        self.stage = options.stage
 
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""
@@ -188,6 +194,11 @@ class MessagesStore(object):
                 self._alternative_names[old_id] = msg
                 self._alternative_names[old_symbol] = msg
             self._msgs_by_category[msg.msgid[0]].append(msg.msgid)
+
+    def stage_messages(self, stage):
+        """Select all the messages for the given stage."""
+        return [message for message in self._messages.values()
+                if message.stage == stage]
 
     def check_message_id(self, msgid):
         """returns the Message object for this message.

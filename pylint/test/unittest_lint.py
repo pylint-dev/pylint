@@ -35,6 +35,7 @@ from pylint.reporters import text, html
 from pylint import checkers
 from pylint.checkers.utils import check_messages
 from pylint import interfaces
+from pylint import stage
 
 if os.name == 'java':
     if os._name == 'nt':
@@ -613,7 +614,7 @@ class PreprocessOptionsTC(unittest.TestCase):
             {'bar' : (None, False)})
 
 
-class MessagesStoreTC(unittest.TestCase):
+class MessagesStoreTest(unittest.TestCase):
     def setUp(self):
         self.store = MessagesStore()
         class Checker(object):
@@ -685,6 +686,30 @@ class MessagesStoreTC(unittest.TestCase):
                          self.store.check_message_id('W0001').symbol)
         self.assertEqual('msg-symbol',
                          self.store.check_message_id('old-symbol').symbol)
+
+    def test_stage_messages(self):
+        store = MessagesStore()
+        class Checker(object):
+            name = 'achecker'
+            msgs = {
+                'W1234': ('message', 'msg-symbol', 'msg description.',
+                          {'old_names': [('W0001', 'old-symbol')], 'stage': stage.CORE}),
+                'W1235': ('message', 'msg-symbol-1', 'msg description.',
+                          {'old_names': [('W0001', 'old-symbol')], 'stage': stage.CORE}),
+                'E1234': ('Duplicate keyword argument %r in %s call',
+                          'duplicate-keyword-arg',
+                          'Used when a function call passes the same keyword argument multiple times.',
+                          {'maxversion': (2, 6), 'stage': stage.PEDANTIC}),
+                }
+        store.register_messages(Checker())
+
+        core = store.stage_messages(stage.CORE)
+        self.assertEqual(len(core), 2)
+        self.assertEqual([msg.symbol for msg in core], ['msg-symbol', 'msg-symbol-1'])
+
+        pedantic = store.stage_messages(stage.PEDANTIC)
+        self.assertEqual(len(pedantic), 1)
+        self.assertEqual(pedantic[0].symbol, 'duplicate-keyword-arg')
 
 
 class MessageDefinitionTest(unittest.TestCase):
