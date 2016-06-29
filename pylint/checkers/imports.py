@@ -431,6 +431,15 @@ given file (report RP0402 must not be disabled)'}
         if is_nested_allowed and \
                 any(node.nodes_of_class((astroid.Import, astroid.ImportFrom))):
             return
+        if isinstance(node, astroid.Assign):
+            # Add compatibility for module level dunder names
+            # https://www.python.org/dev/peps/pep-0008/#module-level-dunder-names
+            valid_targets = [
+                isinstance(target, astroid.AssignName) and
+                target.name.startswith('__') and target.name.endswith('__')
+                for target in node.targets]
+            if all(valid_targets):
+                return
         self._first_non_import_node = node
 
     visit_tryfinally = visit_tryexcept = visit_assignattr = visit_assign \
