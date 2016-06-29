@@ -10,7 +10,6 @@ import unittest
 import sys
 
 import astroid
-from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 import pylint.extensions._check_docs_utils as utils
@@ -28,7 +27,7 @@ class SpaceIndentationTest(unittest.TestCase):
 
 class PossibleExcTypesText(unittest.TestCase):
     def test_exception_class(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func():
             raise NotImplementedError #@
         ''')
@@ -37,7 +36,7 @@ class PossibleExcTypesText(unittest.TestCase):
         self.assertEqual(found, expected)
 
     def test_exception_instance(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func():
             raise NotImplementedError("Not implemented!") #@
         ''')
@@ -46,7 +45,7 @@ class PossibleExcTypesText(unittest.TestCase):
         self.assertEqual(found, expected)
 
     def test_rethrow(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func():
             try:
                 fake_func()
@@ -58,7 +57,7 @@ class PossibleExcTypesText(unittest.TestCase):
         self.assertEqual(found, expected)
 
     def test_nested_in_if_rethrow(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func():
             try:
                 fake_func()
@@ -71,7 +70,7 @@ class PossibleExcTypesText(unittest.TestCase):
         self.assertEqual(found, expected)
 
     def test_nested_in_try(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func():
             try:
                 fake_func()
@@ -87,7 +86,7 @@ class PossibleExcTypesText(unittest.TestCase):
         self.assertEqual(found, expected)
 
     def test_nested_in_try_except(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func():
             try:
                 fake_func()
@@ -102,7 +101,7 @@ class PossibleExcTypesText(unittest.TestCase):
         self.assertEqual(found, expected)
 
     def test_no_rethrow_types(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func():
             try:
                 fake_func()
@@ -114,7 +113,7 @@ class PossibleExcTypesText(unittest.TestCase):
         self.assertEqual(found, expected)
 
     def test_multiple_rethrow_types(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func():
             try:
                 fake_func()

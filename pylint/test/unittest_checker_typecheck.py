@@ -4,7 +4,8 @@
 """Unittest for the type checker."""
 import unittest
 
-from astroid import test_utils
+import astroid
+
 from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
@@ -17,7 +18,7 @@ class TypeCheckerTest(CheckerTestCase):
         """Make sure that a module attribute access is checked by pylint.
         """
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         import optparse
         optparse.THIS_does_not_EXIST 
         """)
@@ -34,7 +35,7 @@ class TypeCheckerTest(CheckerTestCase):
         module that is configured to be ignored.
         """
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         import argparse
         argparse.THIS_does_not_EXIST
         """)
@@ -43,7 +44,7 @@ class TypeCheckerTest(CheckerTestCase):
 
     @set_config(ignored_classes=('xml.etree.', ))
     def test_ignored_modules_invalid_pattern(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         import xml
         xml.etree.Lala
         ''')
@@ -54,7 +55,7 @@ class TypeCheckerTest(CheckerTestCase):
 
     @set_config(ignored_modules=('xml.etree*', ))
     def test_ignored_modules_patterns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         import xml
         xml.etree.portocola #@
         ''')
@@ -63,7 +64,7 @@ class TypeCheckerTest(CheckerTestCase):
 
     @set_config(ignored_classes=('xml.*', ))
     def test_ignored_classes_no_recursive_pattern(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         import xml
         xml.etree.ElementTree.Test
         ''')
@@ -75,7 +76,7 @@ class TypeCheckerTest(CheckerTestCase):
     @set_config(ignored_classes=('optparse.Values', ))
     def test_ignored_classes_qualified_name(self):
         """Test that ignored-classes supports qualified name for ignoring."""
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         import optparse
         optparse.Values.lala
         ''')
@@ -85,7 +86,7 @@ class TypeCheckerTest(CheckerTestCase):
     @set_config(ignored_classes=('Values', ))
     def test_ignored_classes_only_name(self):
         """Test that ignored_classes works with the name only."""
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         import optparse
         optparse.Values.lala
         ''')
@@ -96,7 +97,7 @@ class TypeCheckerTest(CheckerTestCase):
                                            '.custom_contextmanager'))
     def test_custom_context_manager(self):
         """Test that @custom_contextmanager is recognized as configured."""
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         from contextlib import contextmanager
         def custom_contextmanager(f):
             return contextmanager(f)

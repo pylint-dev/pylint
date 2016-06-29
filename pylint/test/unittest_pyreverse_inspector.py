@@ -11,7 +11,6 @@ import astroid
 from astroid import nodes
 from astroid import bases
 from astroid import manager
-from astroid import test_utils
 
 from pylint.pyreverse import inspector
 from unittest_pyreverse_writer import get_project
@@ -65,7 +64,7 @@ class LinkerTest(unittest.TestCase):
         self.assertIs(type_dict['_id'][0], astroid.YES)
 
     def test_concat_interfaces(self):
-        cls = test_utils.extract_node('''
+        cls = astroid.extract_node('''
             class IMachin: pass
 
             class Correct2:

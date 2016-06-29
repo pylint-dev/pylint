@@ -6,7 +6,8 @@
 import sys
 import unittest
 
-from astroid import test_utils
+import astroid
+
 from pylint.checkers import exceptions
 from pylint.testutils import CheckerTestCase, Message
 
@@ -24,7 +25,7 @@ class ExceptionsCheckerTest(CheckerTestCase):
     @unittest.skipUnless(sys.version_info[0] == 3,
                          "The test should emit an error on Python 3.")
     def test_raising_bad_type_python3(self):
-        node = test_utils.extract_node('raise (ZeroDivisionError, None)  #@')
+        node = astroid.extract_node('raise (ZeroDivisionError, None)  #@')
         message = Message('raising-bad-type', node=node, args='tuple')
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
@@ -32,7 +33,7 @@ class ExceptionsCheckerTest(CheckerTestCase):
     @unittest.skipUnless(sys.version_info[0] == 2,
                          "The test is valid only on Python 2.")
     def test_raising_bad_type_python2(self):
-        nodes = test_utils.extract_node('''
+        nodes = astroid.extract_node('''
         raise (ZeroDivisionError, None)  #@
         from something import something
         raise (something, None) #@

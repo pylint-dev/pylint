@@ -10,7 +10,6 @@ import unittest
 import sys
 
 import astroid
-from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.check_docs import DocstringChecker
@@ -24,7 +23,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a function with missing Sphinx parameter documentation in
         the docstring
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(x, y, z):
             '''docstring ...
 
@@ -50,7 +49,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a function with missing Google style parameter
         documentation in the docstring
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(x, y, z):
             '''docstring ...
 
@@ -78,7 +77,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a function with missing NumPy style parameter
         documentation in the docstring
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(x, y, z):
             '''docstring ...
 
@@ -110,7 +109,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         No error message is emitted.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(x, y):
             '''docstring ...
 
@@ -126,7 +125,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         No error message is emitted.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(x, y):
             '''docstring ...
 
@@ -160,7 +159,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a class method with missing parameter documentation in
         the Sphinx style docstring
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class Foo(object):
             def method_foo(self, x, y):
                 '''docstring ...
@@ -188,7 +187,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a class method with missing parameter documentation in
         the Google style docstring
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class Foo(object):
             def method_foo(self, x, y):
                 '''docstring ...
@@ -217,7 +216,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a class method with missing parameter documentation in
         the Numpy style docstring
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class Foo(object):
             def method_foo(self, x, y):
                 '''docstring ...
@@ -248,10 +247,9 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a function with correctly documented parameters and
         return values (Sphinx style)
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg, zarg):
-            '''function foo ...
-
+            '''
             :param xarg: bla xarg
             :type xarg: int
 
@@ -272,7 +270,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a function with correctly documented parameters and
         return values (Google style)
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg, zarg):
             '''function foo ...
 
@@ -295,7 +293,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of a function with correctly documented parameters and
         return values (Numpy style)
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg, zarg):
             '''function foo ...
 
@@ -323,7 +321,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of functions with inconsistent parameter names in the
         signature and in the Sphinx style documentation
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg, zarg):
             '''function foo ...
 
@@ -349,7 +347,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg):
             '''function foo ...
 
@@ -376,7 +374,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of functions with inconsistent parameter names in the
         signature and in the Google style documentation
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg, zarg):
             '''function foo ...
 
@@ -400,7 +398,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg):
             '''function foo ...
 
@@ -427,7 +425,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         """Example of functions with inconsistent parameter names in the
         signature and in the Numpy style documentation
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg, zarg):
             '''function foo ...
 
@@ -455,7 +453,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg):
             '''function foo ...
 
@@ -485,7 +483,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         too many repetitions, e.g. in functions or methods adhering to a
         given interface (Sphinx style)
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg):
             '''function foo ...
 
@@ -504,7 +502,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         too many repetitions, e.g. in functions or methods adhering to a
         given interface (Google style)
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg):
             '''function foo ...
 
@@ -523,7 +521,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         too many repetitions, e.g. in functions or methods adhering to a
         given interface (Numpy style)
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def function_foo(xarg, yarg):
             '''function foo ...
 
@@ -545,7 +543,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             '''docstring foo
 
@@ -576,7 +574,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             '''docstring foo
 
@@ -608,7 +606,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             '''docstring foo
 
@@ -642,7 +640,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             def __init__(self, x, y):
                 '''docstring foo constructor
@@ -674,7 +672,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             def __init__(self, x, y):
                 '''docstring foo constructor
@@ -706,7 +704,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             def __init__(self, x, y):
                 '''docstring foo constructor
@@ -741,7 +739,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             '''docstring foo
 
@@ -792,7 +790,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             '''docstring foo
 
@@ -845,7 +843,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
         Everything is completely analogous to functions.
         """
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         class ClassFoo(object):
             '''docstring foo
 
@@ -897,7 +895,7 @@ class ParamDocCheckerTest(CheckerTestCase):
 
     @unittest.skipIf(sys.version_info[0] != 3, "Enabled on Python 3")
     def test_kwonlyargs_are_taken_in_account(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(arg, *, kwonly, missing_kwonly):
             """The docstring
 
@@ -917,7 +915,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_warns_missing_args_sphinx(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, *args):
             """The docstring
 
@@ -937,7 +935,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_warns_missing_kwargs_sphinx(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, **kwargs):
             """The docstring
 
@@ -957,7 +955,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_warns_missing_args_google(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, *args):
             """The docstring
 
@@ -978,7 +976,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_warns_missing_kwargs_google(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, **kwargs):
             """The docstring
 
@@ -999,7 +997,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_warns_missing_args_numpy(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, *args):
             """The docstring
 
@@ -1024,7 +1022,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_warns_missing_kwargs_numpy(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, **kwargs):
             """The docstring
 
@@ -1049,7 +1047,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_finds_args_without_type_sphinx(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, *args):
             """The docstring
 
@@ -1066,7 +1064,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_finds_kwargs_without_type_sphinx(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, **kwargs):
             """The docstring
 
@@ -1083,7 +1081,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_finds_args_without_type_google(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, *args):
             """The docstring
 
@@ -1101,7 +1099,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_finds_kwargs_without_type_google(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, **kwargs):
             """The docstring
 
@@ -1119,7 +1117,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_finds_args_without_type_numpy(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, *args):
             """The docstring
 
@@ -1142,7 +1140,7 @@ class ParamDocCheckerTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_finds_kwargs_without_type_numpy(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(named_arg, **kwargs):
             """The docstring
 

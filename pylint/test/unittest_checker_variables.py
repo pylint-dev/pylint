@@ -7,7 +7,6 @@ import os
 import unittest
 
 import astroid
-from astroid import test_utils
 
 from pylint.checkers import variables
 from pylint.testutils import CheckerTestCase, linter, set_config, Message
@@ -35,14 +34,14 @@ class VariablesCheckerTC(CheckerTestCase):
         to be ignored.
         """
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         from argparse import THIS_does_not_EXIST
         """)
         with self.assertNoMessages():
             self.checker.visit_importfrom(node)
 
     def test_all_elements_without_parent(self):
-        node = test_utils.extract_node('__all__ = []')
+        node = astroid.extract_node('__all__ = []')
         node.value.elts.append(astroid.Const('test'))
         root = node.root()
         with self.assertNoMessages():
@@ -58,7 +57,7 @@ class VariablesCheckerTC(CheckerTestCase):
         self.checker._to_consume = []
         self.addCleanup(cleanup)
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def callback_one(abc):
              ''' should not emit unused-argument. '''
         """)
@@ -66,7 +65,7 @@ class VariablesCheckerTC(CheckerTestCase):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def two_callback(abc, defg):
              ''' should not emit unused-argument. '''
         """)
@@ -74,7 +73,7 @@ class VariablesCheckerTC(CheckerTestCase):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def normal_func(abc):
              ''' should emit unused-argument. '''
         """)
@@ -83,7 +82,7 @@ class VariablesCheckerTC(CheckerTestCase):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
 
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         def cb_func(abc):
              ''' Previous callbacks are overriden. '''
         """)
@@ -118,7 +117,7 @@ class VariablesCheckerTC(CheckerTestCase):
 
     @set_config(redefining_builtins_modules=('os',))
     def test_redefined_builtin_in_function(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def test():
             from os import open
         ''')

@@ -5,7 +5,7 @@
 
 import unittest
 
-from astroid import test_utils
+import astroid
 
 from pylint.checkers import spelling
 from pylint.testutils import (
@@ -47,7 +47,7 @@ class SpellingCheckerTest(CheckerTestCase):
                      "spelling dictionaries")
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_docstring(self):
-        stmt = test_utils.extract_node(
+        stmt = astroid.extract_node(
             'def fff():\n   """bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
@@ -56,7 +56,7 @@ class SpellingCheckerTest(CheckerTestCase):
                           "comet' or 'comment' or 'moment' or 'foment"))):
             self.checker.visit_functiondef(stmt)
 
-        stmt = test_utils.extract_node(
+        stmt = astroid.extract_node(
             'class Abc(object):\n   """bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
@@ -70,7 +70,7 @@ class SpellingCheckerTest(CheckerTestCase):
                      "spelling dictionaries")
     @set_config(spelling_dict=spell_dict)
     def test_invalid_docstring_characters(self):
-        stmt = test_utils.extract_node(
+        stmt = astroid.extract_node(
             'def fff():\n   """test\\x00"""\n   pass')
         with self.assertAddsMessages(
             Message('invalid-characters-in-docstring', line=2,

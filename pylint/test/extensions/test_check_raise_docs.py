@@ -9,7 +9,6 @@ from __future__ import division, print_function, absolute_import
 import unittest
 
 import astroid
-from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.check_docs import DocstringChecker
@@ -20,7 +19,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
     CHECKER_CLASS = DocstringChecker
 
     def test_ignores_no_docstring(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             raise RuntimeError('hi') #@
         ''')
@@ -28,7 +27,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_ignores_unknown_style(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring."""
             raise RuntimeError('hi')
@@ -39,7 +38,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
 
     @set_config(accept_no_raise_doc=False)
     def test_warns_unknown_style(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring."""
             raise RuntimeError('hi')
@@ -53,7 +52,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_missing_sphinx_raises(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -71,7 +70,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_missing_google_raises(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -90,7 +89,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_missing_numpy_raises(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -111,7 +110,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_all_sphinx_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -125,7 +124,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_all_google_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -140,7 +139,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_all_numpy_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -158,7 +157,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_finds_rethrown_sphinx_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -180,7 +179,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_rethrown_google_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -203,7 +202,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_rethrown_numpy_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -228,7 +227,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_finds_rethrown_sphinx_mutiple_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -250,7 +249,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_rethrown_google_multiple_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -273,7 +272,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_find_rethrown_numpy_multiple_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -298,7 +297,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_ignores_caught_sphinx_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -315,7 +314,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_ignores_caught_google_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -333,7 +332,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             self.checker.visit_raise(raise_node)
 
     def test_ignores_caught_numpy_raises(self):
-        raise_node = test_utils.extract_node('''
+        raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
