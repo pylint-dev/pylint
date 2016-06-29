@@ -34,7 +34,7 @@ Release Process
 
 3. Add a new tag 'pylint-$VERSION'
 
-5. Publish all remaining changes to the Bitbucket repository:
+5. Publish all remaining changes to the GitHub repository:
    https://github.com/PyCQA/pylint
 
 4. Run
