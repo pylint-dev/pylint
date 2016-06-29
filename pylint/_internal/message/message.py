@@ -29,6 +29,17 @@ _MsgBase = collections.namedtuple(
     '_MsgBase',
     ['msg_id', 'symbol', 'msg', 'C', 'category', 'confidence',
      'abspath', 'path', 'module', 'obj', 'line', 'column'])
+_MessageOptions = collections.namedtuple(
+    '_MessageOptions',
+    ['minversion', 'maxversion', 'old_names', 'scope']
+)
+
+class MessageOptions(_MessageOptions):
+    """Holds options for a particular message."""
+
+    def __new__(cls, minversion=None, maxversion=None, old_names=None, scope=None):
+        return _MessageOptions.__new__(
+            cls, minversion, maxversion, old_names, scope)
 
 
 class Message(_MsgBase):
@@ -50,8 +61,7 @@ class Message(_MsgBase):
 
 
 class MessageDefinition(object):
-    def __init__(self, checker, msgid, msg, descr, symbol, scope,
-                 minversion=None, maxversion=None, old_names=None):
+    def __init__(self, checker, msgid, msg, descr, symbol, options):
         self.checker = checker
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
         assert msgid[0] in MSG_TYPES, \
@@ -60,10 +70,10 @@ class MessageDefinition(object):
         self.msg = msg
         self.descr = descr
         self.symbol = symbol
-        self.scope = scope
-        self.minversion = minversion
-        self.maxversion = maxversion
-        self.old_names = old_names or []
+        self.scope = options.scope
+        self.minversion = options.minversion
+        self.maxversion = options.maxversion
+        self.old_names = options.old_names or []
 
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""
@@ -104,7 +114,7 @@ class MessageDefinition(object):
     @classmethod
     def from_message_def(cls, checker, msgid, msg_tuple):
         default_scope = _checker_scope(checker)
-        options = {}
+        options = MessageOptions()
         if len(msg_tuple) > 3:
             (msg, symbol, descr, options) = msg_tuple
         elif len(msg_tuple) > 2:
@@ -112,8 +122,11 @@ class MessageDefinition(object):
         else:
             raise InvalidMessageDefinition("Message defined without a symbol.")
 
-        options.setdefault('scope', default_scope)
-        return cls(checker, msgid, msg, descr, symbol, **options)
+        if isinstance(options, dict):
+            options = MessageOptions(**options)
+        if options.scope is None:
+            options = options._replace(scope=default_scope)
+        return cls(checker, msgid, msg, descr, symbol, options)
 
 
 
