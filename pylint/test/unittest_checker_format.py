@@ -6,7 +6,6 @@
 from __future__ import unicode_literals
 
 import astroid
-from astroid import test_utils
 
 from pylint.checkers.format import *
 
@@ -19,7 +18,7 @@ class MultiStatementLineTest(CheckerTestCase):
   CHECKER_CLASS = FormatChecker
 
   def testSingleLineIfStmts(self):
-      stmt = test_utils.extract_node("""
+      stmt = astroid.extract_node("""
       if True: pass  #@
       """)
       with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
@@ -29,7 +28,7 @@ class MultiStatementLineTest(CheckerTestCase):
       with self.assertNoMessages():
           self.checker.process_tokens([])
           self.checker.visit_default(stmt.body[0])
-      stmt = test_utils.extract_node("""
+      stmt = astroid.extract_node("""
       if True: pass  #@
       else:
         pass
@@ -39,7 +38,7 @@ class MultiStatementLineTest(CheckerTestCase):
           self.checker.visit_default(stmt.body[0])
 
   def testTryExceptFinallyNoMultipleStatement(self):
-      tree = test_utils.extract_node("""
+      tree = astroid.extract_node("""
       try:  #@
         pass
       except:

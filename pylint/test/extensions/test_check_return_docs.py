@@ -9,7 +9,6 @@ from __future__ import division, print_function, absolute_import
 import unittest
 
 import astroid
-from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.check_docs import DocstringChecker
@@ -20,7 +19,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
     CHECKER_CLASS = DocstringChecker
 
     def test_ignores_no_docstring(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             return False #@
         ''')
@@ -29,7 +28,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
 
     @set_config(accept_no_return_doc=False)
     def test_warns_no_docstring(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             return False
         ''')
@@ -41,7 +40,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_ignores_unknown_style(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring."""
             return False #@
@@ -50,7 +49,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warn_partial_sphinx_returns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -66,7 +65,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warn_partial_sphinx_returns_type(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -82,7 +81,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_sphinx_returns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self, doc_type):
             """This is a docstring.
 
@@ -99,7 +98,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warn_partial_google_returns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -116,7 +115,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_google_returns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self, doc_type):
             """This is a docstring.
 
@@ -133,7 +132,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_numpy_returns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self, doc_type):
             """This is a docstring.
 
@@ -152,7 +151,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_find_sphinx_returns(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -165,7 +164,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_find_google_returns(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -178,7 +177,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_find_numpy_returns(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -193,7 +192,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_ignores_sphinx_return_none(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self, doc_type):
             """This is a docstring.
 
@@ -206,7 +205,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_ignores_google_return_none(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self, doc_type):
             """This is a docstring.
 
@@ -219,7 +218,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_ignores_numpy_return_none(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self, doc_type):
             """This is a docstring.
 
@@ -234,7 +233,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_finds_sphinx_return_custom_class(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -247,7 +246,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_finds_google_return_custom_class(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -260,7 +259,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_finds_numpy_return_custom_class(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -275,7 +274,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_finds_sphinx_return_list_of_custom_class(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -288,7 +287,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_finds_google_return_list_of_custom_class(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -301,7 +300,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_finds_numpy_return_list_of_custom_class(self):
-        return_node = test_utils.extract_node('''
+        return_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -316,7 +315,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warns_sphinx_return_list_of_custom_class_without_description(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -332,7 +331,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warns_google_return_list_of_custom_class_without_description(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -349,7 +348,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warns_numpy_return_list_of_custom_class_without_description(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -367,7 +366,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_return(return_node)
 
     def test_warns_sphinx_redundant_return_doc(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -383,7 +382,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_warns_google_redundant_return_doc(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -399,7 +398,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_warns_numpy_redundant_return_doc(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -417,7 +416,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_ignores_sphinx_redundant_return_doc_multiple_returns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -435,7 +434,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_ignores_google_redundant_return_doc_multiple_returns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 
@@ -450,7 +449,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_ignores_numpy_redundant_return_doc_multiple_returns(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
 

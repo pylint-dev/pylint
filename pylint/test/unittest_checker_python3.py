@@ -9,7 +9,6 @@ import unittest
 import textwrap
 
 import astroid
-from astroid import test_utils
 
 from pylint import testutils
 from pylint.checkers import python3 as checker
@@ -25,7 +24,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
     CHECKER_CLASS = checker.Python3Checker
 
     def check_bad_builtin(self, builtin_name):
-        node = test_utils.extract_node(builtin_name + '  #@')
+        node = astroid.extract_node(builtin_name + '  #@')
         message = builtin_name.lower() + '-builtin'
         with self.assertAddsMessages(testutils.Message(message, node=node)):
             self.checker.visit_name(node)
@@ -62,7 +61,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def as_used_by_iterable_in_for_loop_test(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         for x in (whatever(
             {}() #@
         )):
@@ -86,7 +85,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def as_used_in_variant_in_genexp_test(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         list(
             __({}(x))
             for x in [1]
@@ -98,7 +97,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def as_used_in_variant_in_listcomp_test(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         [
             __({}(None, x))
         for x in [[1]]]
@@ -114,7 +113,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def as_argument_to_random_fxn_test(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         y(
             {}() #@
         )
@@ -130,7 +129,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.walk(module)
 
     def as_iterable_in_unpacking(self, fxn):
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         a, b = __({}())
         """.format(fxn))
         with self.assertNoMessages():
@@ -138,7 +137,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def as_assignment(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
         a = __({}())
         """.format(fxn))
         message = testutils.Message(checker, node=node)
@@ -181,7 +180,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def defined_method_test(self, method, warning):
         """Helper for verifying that a certain method is not defined."""
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
             class Foo(object):
                 def __{0}__(self, other):  #@
                     pass""".format(method))
@@ -215,26 +214,26 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     @python2_only
     def test_print_statement(self):
-        node = test_utils.extract_node('print "Hello, World!" #@')
+        node = astroid.extract_node('print "Hello, World!" #@')
         message = testutils.Message('print-statement', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_print(node)
 
     @python2_only
     def test_backtick(self):
-        node = test_utils.extract_node('`test`')
+        node = astroid.extract_node('`test`')
         message = testutils.Message('backtick', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_repr(node)
 
     def test_relative_import(self):
-        node = test_utils.extract_node('import string  #@')
+        node = astroid.extract_node('import string  #@')
         message = testutils.Message('no-absolute-import', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_import(node)
 
     def test_relative_from_import(self):
-        node = test_utils.extract_node('from os import path  #@')
+        node = astroid.extract_node('from os import path  #@')
         message = testutils.Message('no-absolute-import', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_import(node)
@@ -249,7 +248,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
                 self.walk(module)
 
     def test_import_star_module_level(self):
-        node = test_utils.extract_node('''
+        node = astroid.extract_node('''
         def test():
             from lala import * #@
         ''')
@@ -259,7 +258,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_importfrom(node)
 
     def test_division(self):
-        node = test_utils.extract_node('3 / 2  #@')
+        node = astroid.extract_node('3 / 2  #@')
         message = testutils.Message('old-division', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_binop(node)
@@ -270,77 +269,77 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.walk(module)
 
     def test_floor_division(self):
-        node = test_utils.extract_node(' 3 // 2  #@')
+        node = astroid.extract_node(' 3 // 2  #@')
         with self.assertNoMessages():
             self.checker.visit_binop(node)
 
     def test_division_by_float(self):
-        left_node = test_utils.extract_node('3.0 / 2 #@')
-        right_node = test_utils.extract_node(' 3 / 2.0  #@')
+        left_node = astroid.extract_node('3.0 / 2 #@')
+        right_node = astroid.extract_node(' 3 / 2.0  #@')
         with self.assertNoMessages():
             for node in (left_node, right_node):
                 self.checker.visit_binop(node)
 
     def test_dict_iter_method(self):
         for meth in ('keys', 'values', 'items'):
-            node = test_utils.extract_node('x.iter%s()  #@' % meth)
+            node = astroid.extract_node('x.iter%s()  #@' % meth)
             message = testutils.Message('dict-iter-method', node=node)
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)
 
     def test_dict_iter_method_on_dict(self):
-        node = test_utils.extract_node('{}.iterkeys()')
+        node = astroid.extract_node('{}.iterkeys()')
         message = testutils.Message('dict-iter-method', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def test_dict_not_iter_method(self):
-        arg_node = test_utils.extract_node('x.iterkeys(x)  #@')
-        stararg_node = test_utils.extract_node('x.iterkeys(*x)  #@')
-        kwarg_node = test_utils.extract_node('x.iterkeys(y=x)  #@')
-        non_dict_node = test_utils.extract_node('x=[]\nx.iterkeys() #@')
+        arg_node = astroid.extract_node('x.iterkeys(x)  #@')
+        stararg_node = astroid.extract_node('x.iterkeys(*x)  #@')
+        kwarg_node = astroid.extract_node('x.iterkeys(y=x)  #@')
+        non_dict_node = astroid.extract_node('x=[]\nx.iterkeys() #@')
         with self.assertNoMessages():
             for node in (arg_node, stararg_node, kwarg_node, non_dict_node):
                 self.checker.visit_call(node)
 
     def test_dict_view_method(self):
         for meth in ('keys', 'values', 'items'):
-            node = test_utils.extract_node('x.view%s()  #@' % meth)
+            node = astroid.extract_node('x.view%s()  #@' % meth)
             message = testutils.Message('dict-view-method', node=node)
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)
 
     def test_dict_view_method_on_dict(self):
-        node = test_utils.extract_node('{}.viewkeys()')
+        node = astroid.extract_node('{}.viewkeys()')
         message = testutils.Message('dict-view-method', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def test_dict_not_view_method(self):
-        arg_node = test_utils.extract_node('x.viewkeys(x)  #@')
-        stararg_node = test_utils.extract_node('x.viewkeys(*x)  #@')
-        kwarg_node = test_utils.extract_node('x.viewkeys(y=x)  #@')
-        non_dict_node = test_utils.extract_node('x=[]\nx.viewkeys() #@')
+        arg_node = astroid.extract_node('x.viewkeys(x)  #@')
+        stararg_node = astroid.extract_node('x.viewkeys(*x)  #@')
+        kwarg_node = astroid.extract_node('x.viewkeys(y=x)  #@')
+        non_dict_node = astroid.extract_node('x=[]\nx.viewkeys() #@')
         with self.assertNoMessages():
             for node in (arg_node, stararg_node, kwarg_node, non_dict_node):
                 self.checker.visit_call(node)
 
     def test_next_method(self):
-        node = test_utils.extract_node('x.next()  #@')
+        node = astroid.extract_node('x.next()  #@')
         message = testutils.Message('next-method-called', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     def test_not_next_method(self):
-        arg_node = test_utils.extract_node('x.next(x)  #@')
-        stararg_node = test_utils.extract_node('x.next(*x)  #@')
-        kwarg_node = test_utils.extract_node('x.next(y=x)  #@')
+        arg_node = astroid.extract_node('x.next(x)  #@')
+        stararg_node = astroid.extract_node('x.next(*x)  #@')
+        kwarg_node = astroid.extract_node('x.next(y=x)  #@')
         with self.assertNoMessages():
             for node in (arg_node, stararg_node, kwarg_node):
                 self.checker.visit_call(node)
 
     def test_metaclass_assignment(self):
-        node = test_utils.extract_node("""
+        node = astroid.extract_node("""
             class Foo(object):  #@
                 __metaclass__ = type""")
         message = testutils.Message('metaclass-assignment', node=node)
@@ -354,21 +353,21 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     @python2_only
     def test_parameter_unpacking(self):
-        node = test_utils.extract_node('def func((a, b)):#@\n pass')
+        node = astroid.extract_node('def func((a, b)):#@\n pass')
         arg = node.args.args[0]
         with self.assertAddsMessages(testutils.Message('parameter-unpacking', node=arg)):
             self.checker.visit_arguments(node.args)
 
     @python2_only
     def test_old_raise_syntax(self):
-        node = test_utils.extract_node('raise Exception, "test"')
+        node = astroid.extract_node('raise Exception, "test"')
         message = testutils.Message('old-raise-syntax', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
     @python2_only
     def test_raising_string(self):
-        node = test_utils.extract_node('raise "Test"')
+        node = astroid.extract_node('raise "Test"')
         message = testutils.Message('raising-string', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
@@ -385,7 +384,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.walk(node)
 
     def test_using_cmp_argument(self):
-        nodes = test_utils.extract_node("""
+        nodes = astroid.extract_node("""
         [].sort(cmp=lambda x: x) #@
         a = list(range(x))
         a.sort(cmp=lambda x: x) #@

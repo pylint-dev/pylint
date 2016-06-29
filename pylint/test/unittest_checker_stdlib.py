@@ -5,7 +5,6 @@ import contextlib
 import unittest
 
 import astroid
-from astroid import test_utils
 
 from pylint.checkers import stdlib
 from pylint.testutils import CheckerTestCase
@@ -40,7 +39,7 @@ class StdlibCheckerTest(CheckerTestCase):
         manager = astroid.MANAGER
         transform = astroid.inference_tip(infer_func)
         with _add_transform(manager, astroid.Name, transform):
-            node = test_utils.extract_node('''
+            node = astroid.extract_node('''
             call_something()
             ''')
             with self.assertNoMessages():

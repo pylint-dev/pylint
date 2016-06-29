@@ -6,7 +6,7 @@
 import unittest
 import warnings
 
-from astroid import test_utils
+import astroid
 
 from pylint.checkers import utils
 from pylint import __pkginfo__
@@ -22,20 +22,20 @@ class UtilsTC(unittest.TestCase):
         self.assertEqual(utils.is_builtin('mybuiltin'), False)
 
     def testGetArgumentFromCall(self):
-        node = test_utils.extract_node('foo(bar=3)')
+        node = astroid.extract_node('foo(bar=3)')
         self.assertIsNotNone(utils.get_argument_from_call(node, keyword='bar'))
         with self.assertRaises(utils.NoSuchArgumentError):
-            node = test_utils.extract_node('foo(3)')
+            node = astroid.extract_node('foo(3)')
             utils.get_argument_from_call(node, keyword='bar')
         with self.assertRaises(utils.NoSuchArgumentError):
-            node = test_utils.extract_node('foo(one=a, two=b, three=c)')
+            node = astroid.extract_node('foo(one=a, two=b, three=c)')
             utils.get_argument_from_call(node, position=1)
-        node = test_utils.extract_node('foo(a, b, c)')
+        node = astroid.extract_node('foo(a, b, c)')
         self.assertIsNotNone(utils.get_argument_from_call(node, position=1))
-        node = test_utils.extract_node('foo(a, not_this_one=1, this_one=2)')
+        node = astroid.extract_node('foo(a, not_this_one=1, this_one=2)')
         arg = utils.get_argument_from_call(node, position=2, keyword='this_one')
         self.assertEqual(2, arg.value)
-        node = test_utils.extract_node('foo(a)')
+        node = astroid.extract_node('foo(a)')
         with self.assertRaises(utils.NoSuchArgumentError):
             utils.get_argument_from_call(node, position=1)
         with self.assertRaises(ValueError):
@@ -45,7 +45,7 @@ class UtilsTC(unittest.TestCase):
         self.assertEqual(name.name, 'a')
 
     def test_error_of_type(self):
-        nodes = test_utils.extract_node("""
+        nodes = astroid.extract_node("""
         try: pass
         except AttributeError: #@
              pass
@@ -62,7 +62,7 @@ class UtilsTC(unittest.TestCase):
         self.assertFalse(utils.error_of_type(nodes[2], ImportError))
 
     def test_node_ignores_exception(self):
-        nodes = test_utils.extract_node("""
+        nodes = astroid.extract_node("""
         try:
             1/0 #@
         except ZeroDivisionError:

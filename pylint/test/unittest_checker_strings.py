@@ -4,7 +4,7 @@
 import sys
 import unittest
 
-from astroid import test_utils
+import astroid
 
 from pylint.checkers import strings
 from pylint.testutils import CheckerTestCase
@@ -19,7 +19,7 @@ class StringCheckerTest(CheckerTestCase):
                          "string with a .format call")
     def test_format_bytes(self):
         code = "b'test'.format(1, 2)"
-        node = test_utils.extract_node(code)
+        node = astroid.extract_node(code)
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
