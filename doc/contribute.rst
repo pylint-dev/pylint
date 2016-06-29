@@ -22,10 +22,9 @@ python code.
 
 Note that if you don't find something you have expected in Pylint's
 issue tracker, it may be because it is an issue with one of its dependencies, namely
-astroid and logilab-common:
+astroid:
 
 * https://github.com/pycqa/astroid
-* http://www.logilab.org/project/logilab-common
 
 Mailing lists
 -------------
@@ -54,7 +53,6 @@ You can clone Pylint and its dependencies from ::
 
   git clone https://github.com/pycqa/pylint
   git clone https://github.com/pycqa/astroid
-  hg clone http://hg.logilab.org/logilab/common
 
 .. _mercurial: http://www.selenic.com/mercurial/
 .. _git: https://git-scm.com/
@@ -92,8 +90,8 @@ Unit test setup
 ---------------
 
 To run the pylint unit tests within your checkout (without having to install
-anything), you need to set PYTHONPATH so that pylint, astroid and the
-logilab-common are available.  Assume you have those packages in ~/src.  If
+anything), you need to set PYTHONPATH so that pylint and astroid are available.
+Assume you have those packages in ~/src.  If
 you have a normal clone of logilab-common, it will not be properly
 structured to allow import of logilab.common.  To remedy this, create the
 necessary structure::
