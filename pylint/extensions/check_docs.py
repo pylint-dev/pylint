@@ -13,7 +13,7 @@ from pylint.checkers.utils import node_frame_class
 import pylint.extensions._check_docs_utils as utils
 
 
-class DocstringChecker(BaseChecker):
+class DocstringParameterChecker(BaseChecker):
     """Checker for Sphinx, Google, or Numpy style docstrings
 
     * Check that all function, method and constructor parameters are mentioned
@@ -38,7 +38,7 @@ class DocstringChecker(BaseChecker):
     """
     __implements__ = IAstroidChecker
 
-    name = 'docstring_checks'
+    name = 'docstring_params'
     msgs = {
         'W9003': ('"%s" missing or differing in parameter documentation',
                   'missing-param-doc',
@@ -292,4 +292,4 @@ def register(linter):
     :param linter: Main interface object for Pylint plugins
     :type linter: Pylint object
     """
-    linter.register_checker(DocstringChecker(linter))
+    linter.register_checker(DocstringParameterChecker(linter))

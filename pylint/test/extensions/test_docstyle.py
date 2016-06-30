@@ -8,7 +8,7 @@ import os.path as osp
 import unittest
 
 from pylint import checkers
-from pylint.extensions.check_docstring import DocStringStyleChecker
+from pylint.extensions.docstyle import DocStringStyleChecker
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 

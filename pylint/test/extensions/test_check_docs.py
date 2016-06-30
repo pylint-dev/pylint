@@ -12,12 +12,12 @@ import sys
 import astroid
 from pylint.testutils import CheckerTestCase, Message, set_config
 
-from pylint.extensions.check_docs import DocstringChecker
+from pylint.extensions.check_docs import DocstringParameterChecker
 
 
 class ParamDocCheckerTest(CheckerTestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
-    CHECKER_CLASS = DocstringChecker
+    CHECKER_CLASS = DocstringParameterChecker
 
     def test_missing_func_params_in_sphinx_docstring(self):
         """Example of a function with missing Sphinx parameter documentation in
