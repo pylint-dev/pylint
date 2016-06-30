@@ -12,12 +12,12 @@ import astroid
 from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message, set_config
 
-from pylint.extensions.check_docs import DocstringChecker
+from pylint.extensions.check_docs import DocstringParameterChecker
 
 
 class DocstringCheckerRaiseTest(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
-    CHECKER_CLASS = DocstringChecker
+    CHECKER_CLASS = DocstringParameterChecker
 
     def test_ignores_no_docstring(self):
         raise_node = test_utils.extract_node('''
