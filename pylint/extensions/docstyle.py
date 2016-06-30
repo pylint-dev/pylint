@@ -8,19 +8,19 @@ from pylint.interfaces import IAstroidChecker, HIGH
 from pylint.checkers.utils import check_messages
 
 
-class DocStringAddicChecker(BaseChecker):
-    """Checks format of docstrings based on PEP 0257
-    """
+class DocStringStyleChecker(BaseChecker):
+    """Checks format of docstrings based on PEP 0257"""
+
     __implements__ = IAstroidChecker
-    name = 'docstringaddic'
+    name = 'docstyle'
 
     msgs = {
         'C0198': ('Bad docstring quotes in %s, expected """, given %s',
                   'bad-docstring-quotes',
-                  'Used when docstring do not have triple double quotes.'),
+                  'Used when a docstring does not have triple double quotes.'),
         'C0199': ('First line empty in %s docstring',
                   'docstring-first-line-empty',
-                  'Used when blank line from the beginning of the docstring.'),
+                  'Used when a blank line is found at the beginning of a docstring.'),
         }
 
     @check_messages('docstring-first-line-empty', 'bad-docstring-quotes')
@@ -38,13 +38,13 @@ class DocStringAddicChecker(BaseChecker):
 
     def _check_docstring(self, node_type, node):
         docstring = node.doc
-        # Docstring First Line Empty
         if docstring and docstring[0] == '\n':
             self.add_message('docstring-first-line-empty', node=node,
                              args=(node_type,), confidence=HIGH)
-        # Bad Docstring Quotes
-        # I had to use "linecache" because node.as_string() renders contents
-        # of the file and change triple single quotes by triple double quotes
+
+        # Use "linecache", instead of node.as_string(), because the latter
+        # looses the original form of the docstrings.
+
         if docstring:
             lineno = node.fromlineno + 1
             line = linecache.getline(node.root().file, lineno).lstrip()
@@ -69,4 +69,4 @@ def register(linter):
     :param linter: Main interface object for Pylint plugins
     :type linter: Pylint object
     """
-    linter.register_checker(DocStringAddicChecker(linter))
+    linter.register_checker(DocStringStyleChecker(linter))

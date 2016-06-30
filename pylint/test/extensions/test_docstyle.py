@@ -8,7 +8,7 @@ import os.path as osp
 import unittest
 
 from pylint import checkers
-from pylint.extensions.check_docstring import DocStringAddicChecker
+from pylint.extensions.check_docstring import DocStringStyleChecker
 from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 
@@ -22,7 +22,7 @@ class TestReporter(BaseReporter):
         self.messages = []
 
 
-class CheckDocStringAddicTC(unittest.TestCase):
+class CheckDocStringStyleTest(unittest.TestCase):
 
     expected_msg = [
         'First line empty in function docstring',
@@ -48,7 +48,7 @@ class CheckDocStringAddicTC(unittest.TestCase):
         cls._linter = PyLinter()
         cls._linter.set_reporter(TestReporter())
         checkers.initialize(cls._linter)
-        cls._linter.register_checker(DocStringAddicChecker(cls._linter))
+        cls._linter.register_checker(DocStringStyleChecker(cls._linter))
 
     def test_docstring_message(self):
         docstring_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
