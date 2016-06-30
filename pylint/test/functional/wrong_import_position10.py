@@ -1,7 +1,5 @@
 """Checks import position rule"""
-# pylint: disable=unused-import,relative-import,ungrouped-imports,wrong-import-order,using-constant-test
-# pylint: disable=import-error, too-few-public-methods,missing-docstring
-
+# pylint: disable=unused-import
 import os
 
 try:
