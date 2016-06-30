@@ -12,7 +12,7 @@ be useful for you. Sphinx style, Google style, and Numpy style are supported.
 
 You can activate this checker by adding the line::
 
-    load-plugins=pylint.extensions.check_docs
+    load-plugins=pylint.extensions.docparams
 
 to the ``MASTER`` section of your ``.pylintrc``.
 
