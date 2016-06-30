@@ -550,7 +550,7 @@ given file (report RP0402 must not be disabled)'}
                     local_not_nested.append((node, package))
         return std_imports, extern_imports, local_imports
 
-    def get_imported_module(self, importnode, modname):
+    def _get_imported_module(self, importnode, modname):
         try:
             return importnode.do_import_module(modname)
         except astroid.InferenceError as ex:
