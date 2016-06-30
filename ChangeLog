@@ -1,6 +1,16 @@
 ChangeLog for Pylint
 --------------------
 
+- -- 1.6.0
+
+    * Add the ability to ignore files based on regex matching, with the new ``--ignore-patterns``
+      option.
+
+      This addresses issue #156 by allowing for multiple ignore patterns
+      to be specified. Rather than clobber the existing ignore option, we
+      introduced a new one called ignore-patterns.
+
+
 2016-06-06 -- 1.5.6
 
     * config files with BOM markers can now be read.
