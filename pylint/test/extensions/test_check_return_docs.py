@@ -12,7 +12,7 @@ import astroid
 from astroid import test_utils
 from pylint.testutils import CheckerTestCase, Message, set_config
 
-from pylint.extensions.check_docs import DocstringParameterChecker
+from pylint.extensions.docparams import DocstringParameterChecker
 
 
 class DocstringCheckerReturnTest(CheckerTestCase):
