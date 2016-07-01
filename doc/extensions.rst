@@ -142,5 +142,16 @@ Naming inconsistencies in existing parameter and their type documentations are
 still detected.
 
 By default, omitting the parameter documentation of a function altogether is
-tolerated without any warnings. If you want to switch off this behavior,
-set the option ``accept-no-param-doc`` to ``no`` in your ``.pylintrc``.
+tolerated without any warnings. If you want to switch off this behavior
+(forcing functions to document their parameters), set the option
+``accept-no-param-doc`` to ``no`` in your ``.pylintrc``.
+
+By default, omitting the exception raising documentation of a function
+altogether is tolerated without any warnings. If you want to switch off this
+behavior (forcing functions that raise exceptions to document them), set the
+option ``accept-no-raise-doc`` to ``no`` in your ``.pylintrc``.
+
+By default, omitting the return documentation of a function altogether is
+tolerated without any warnings. If you want to switch off this behavior
+(forcing functions to document their returns), set the option
+``accept-no-return-doc`` to ``no`` in your ``.pylintrc``.
