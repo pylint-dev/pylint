@@ -143,4 +143,4 @@ still detected.
 
 By default, omitting the parameter documentation of a function altogether is
 tolerated without any warnings. If you want to switch off this behavior,
-set the option ``accept-no-param-doc`` to ``yes`` in your ``.pylintrc``.
+set the option ``accept-no-param-doc`` to ``no`` in your ``.pylintrc``.
