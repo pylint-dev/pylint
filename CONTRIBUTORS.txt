@@ -98,3 +98,5 @@ Order doesn't matter (not that much, at least ;)
 * Luis Escobar (Vauxoo), Moisés López (Vauxoo): Add bad-docstring-quotes and docstring-first-line-empty
 
 * Yannick Brehon: contributor.
+
+* Glenn Matthews: bug reports, occasional bug fixes

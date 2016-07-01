@@ -200,6 +200,8 @@ ChangeLog for Pylint
       emitted when item deletion is tried on an object which doesn't
       have this ability. Closes issue #592.
 
+    * Fixed a documentation error for the check_docs extension. Fixes #735.
+
 2016-03-21 -- 1.5.5
 
     * Let visit_importfrom from Python 3 porting checker be called when everything is disabled
