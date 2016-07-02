@@ -1,0 +1,6 @@
+consider-merging-isinstance:15:isinstances:Consider merging these isinstance calls to var[3].
+consider-merging-isinstance:17:isinstances:Consider merging these isinstance calls to var[4].
+consider-merging-isinstance:19:isinstances:Consider merging these isinstance calls to var[5].
+consider-merging-isinstance:22:isinstances:Consider merging these isinstance calls to var[6].
+consider-merging-isinstance:23:isinstances:Consider merging these isinstance calls to var[10].
+consider-merging-isinstance:26:isinstances:Consider merging these isinstance calls to var[11].

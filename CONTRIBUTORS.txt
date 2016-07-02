@@ -93,7 +93,8 @@ Order doesn't matter (not that much, at least ;)
 * Moisés López (Vauxoo): Support for deprecated-modules in modules not installed,
   Refactory wrong-import-order to integrate it with `isort` library
   Add check too-complex with mccabe for cyclomatic complexity
-  Refactory wrong-import-position to skip try-import and nested cases.
+  Refactory wrong-import-position to skip try-import and nested cases
+  Add check consider-merging-isinstance
 
 * Luis Escobar (Vauxoo), Moisés López (Vauxoo): Add bad-docstring-quotes and docstring-first-line-empty
 

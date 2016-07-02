@@ -244,8 +244,8 @@ def is_func_decorator(node):
         if isinstance(parent, astroid.Decorators):
             return True
         if (parent.is_statement or
-                isinstance(parent, astroid.Lambda) or
-                isinstance(parent, (scoped_nodes.ComprehensionScope,
+                isinstance(parent, (astroid.Lambda,
+                                    scoped_nodes.ComprehensionScope,
                                     scoped_nodes.ListComp))):
             break
         parent = parent.parent
