@@ -198,39 +198,6 @@ ChangeLog for Pylint
       Closes issue #714. 
 
 
-2016-03-21 -- 1.5.5
-
-    * Let visit_importfrom from Python 3 porting checker be called when everything is disabled
-
-      Because the visit method was filtering the patterns it was expecting to be activated,
-      it didn't run when everything but one pattern was disabled, leading to spurious false 
-      positives
-
-      Close #852
-
-    * Don't emit unsubscriptable-value for classes with unknown
-      base classes.
-
-      Close #776.
-
-    * Use an OrderedDict for storing the configuration elements
-
-      This fixes an issue related to impredictible order of the disable / enable
-      elements from a config file. In certain cases, the disable was coming before
-      the enable which resulted in classes of errors to be enabled, even though the intention
-      was to disable them. The best example for this was in the context of running multiple
-      processes, each one of it having different enables / disables that affected the output.
-
-      Close #815
-
-    * Don't consider bare and broad except handlers as ignoring NameError,
-      AttributeError and similar exceptions, in the context of checkers for
-      these issues.
-
-      Closes issue #826
-
->>>>>>> 4881c97... Fixed check_docs doc error (#735)
-
 2015-12-02 -- 1.5.1
 
     * Don't emit unsubscriptable-object if the node is found
