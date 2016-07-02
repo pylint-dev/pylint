@@ -29,8 +29,6 @@ from pylint.checkers.utils import (
     supports_subscript,
     safe_infer,
     has_known_bases)
-from pylint import utils
-
 
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
