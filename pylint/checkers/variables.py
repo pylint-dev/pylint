@@ -198,6 +198,18 @@ def _find_frame_imports(name, frame):
                 return True
 
 
+def _import_name_is_global(stmt, global_names):
+    for import_name, import_alias in stmt.names:
+        # If the import uses an alias, check only that.
+        # Otherwise, check only the import name.
+        if import_alias:
+            if import_alias in global_names:
+                return True
+        elif import_name in global_names:
+            return True
+    return False
+
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
