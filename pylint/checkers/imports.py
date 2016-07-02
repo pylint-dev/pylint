@@ -73,18 +73,20 @@ def _get_first_import(node, context, name, base, level, alias):
                 found = True
                 break
         elif isinstance(first, astroid.ImportFrom):
-            if level == first.level:
-                for imported_name, imported_alias in first.names:
-                    if fullname == '%s.%s' % (first.modname, imported_name):
-                        found = True
-                        break
-                    if name != '*' and name == imported_name:
-                        if alias or imported_alias:
-                            continue
-                        found = True
-                        break
-                if found:
+            if level != first.level:
+                continue
+
+            for imported_name, imported_alias in first.names:
+                if fullname == '%s.%s' % (first.modname, imported_name):
+                    found = True
                     break
+                if name != '*' and name == imported_name:
+                    if alias or imported_alias:
+                        continue
+                    found = True
+                    break
+            if found:
+                break
     if found and not are_exclusive(first, node):
         return first
 
