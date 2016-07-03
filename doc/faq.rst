@@ -33,11 +33,15 @@ Pylint doesn't?`_).
 ---------------------
 
 Pylint's main author and maintainer for the first ten years of its life has been
-Sylvain Thénault, while he worked at Logilab_ where the project was born. For a
-full list of contributors, see the "Contributors" section of Pylint's README
-file.
+Sylvain Thénault, while he worked at Logilab_ where the project was born.
+The project is now under the umbrella of the PyCQA_ organization, where it is
+maintained by Claudiu Popa and contributors.
+
+For a full list of contributors, see the "Contributors" file under's Pylint's
+repository
 
 .. _Logilab: http://www.logilab.fr/
+.. _PyCQA: https://github.com/PyCQA/
 
 1.4 Who uses Pylint?
 --------------------
@@ -66,10 +70,11 @@ Pylint from the repository, simply invoke ::
 2.3 What are Pylint's dependencies?
 -----------------------------------
 
-Pylint requires the latest `astroid`_. It should be
-compatible with any Python version greater than 2.7.0.
+Pylint depends on astroid_ and a couple of other packages.
+It should be compatible with any Python version greater than 2.7.0 and
+it is also working on PyPy.
 
-.. _`astroid`: https://bitbucket.org/logilab/astroid
+.. _`astroid`: https://github.com/PyCQA/astroid
 
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
@@ -79,9 +84,6 @@ Using this strategy really helps in maintaining a code base compatible
 with both versions and from this benefits not only the maintainers,
 but the end users as well, because it's easier to add and test
 new features.
-If support for Python 2.6 is absolutely required, then the version
-from pylint-1.3 branch can be used. It will receive backports of
-bug fixes for a while.
 
 
 3. Running Pylint
@@ -99,8 +101,8 @@ the file's path using the python path. Some examples :
 directory is automatically added on top of the python path
 
 "pylint directory/mymodule.py" will work if "directory" is a python
-package (i.e. has an __init__.py file) or if "directory" is in the
-python path.
+package (i.e. has an __init__.py file), an implicit namespace package
+or if "directory" is in the python path.
 
 "pylint /whatever/directory/mymodule.py" will work if either:
 
@@ -110,6 +112,8 @@ python path.
 
 	- "directory" is a python package and "/whatever" is in the python
           path
+
+        - "directory" is an implicit namespace package and is in the python path.
 
 	- "directory" is a python package and your cwd is "/whatever" and so
           on...

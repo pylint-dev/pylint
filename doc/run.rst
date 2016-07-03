@@ -28,8 +28,9 @@ directory is automatically added on top of the python path ::
 
   pylint directory/mymodule.py
 
-will work if "directory" is a python package (i.e. has an __init__.py
-file) or if "directory" is in the python path.
+will work if ``directory`` is a python package (i.e. has an __init__.py
+file or it is an implicit namespace package) or if "directory" is in the
+python path.
 
 For more details on this see the :ref:`faq`.
 
@@ -68,16 +69,15 @@ First of all, we have two basic (but useful) options.
 --version             show program's version number and exit
 -h, --help            show help about the command line options
 
-Pylint is architectured around several checkers. By default all
-checkers are enabled. You can disable a specific checker or some of its
-messages or messages categories by specifying
-``--disable=<id>``. If you want to enable only some checkers or some
-message ids, first use ``--disable=all`` then
-``--enable=<id>`` with <id> being a comma separated list of checker
-names and message identifiers. See the list of available features for a
+Pylint is architectured around several checkers. you can disable a specific
+checker or some of its messages or messages categories by specifying
+``--disable=<symbol>``. If you want to enable only some checkers or some
+message symbols, first use ``--disable=all`` then
+``--enable=<symbol>`` with <symbol> being a comma separated list of checker
+names and message symbols. See the list of available features for a
 description of provided checkers with their functionalities.
 The ``--disable`` and ``--enable`` options can be used with comma separated lists
-mixing checkers, message ids and categories like ``-d C,W,E0611,design``
+mixing checkers, message ids and categories like ``-d C,W,no-error,design``
 
 It is possible to disable all messages with ``--disable=all``. This is
 useful to enable only a few checkers or a few messages by first
@@ -121,13 +121,10 @@ configuration.
 
 Other useful global options include:
 
---ignore=<file[,file]>       Add <file> (may be a directory) to the black
-                             list. It should be a base name, not a path.
-                             Multiple entries can be given, separated by
-                             comma.
---persistent=y_or_n        Pickle collected data for later comparisons.
+--ignore=<file[,file...]>  Add files or directories to the blacklist. They
+                           should be base names, not paths.
 --output-format=<format>   Select output format (text, html, custom).
---msg-template=<template>  Modifiy text output message template.
+--msg-template=<template>  Modify text output message template.
 --list-msgs                Generate pylint's messages.
 --full-documentation       Generate pylint's full documentation, in reST
                              format.
@@ -136,12 +133,10 @@ Parallel execution
 ------------------
 
 It is possible to speed up the execution of Pylint. If the running computer
-has more CPUs than one, then the files to be checked could be spread on all
-processors to Pylint sub-processes.
+has more CPUs than one, then the files for checking could be spread on all
+cores via Pylints's sub-processes.
 This functionality is exposed via ``-j`` command line parameter.
-It takes a number of sub-processes that should be spawned.
-If the provided number is 0 then the number of CPUs will be used.
-The default number of workers is 1.
+If the provided number is 0, then the total number of CPUs will be used.
 
 Example::
 
@@ -155,3 +150,30 @@ There are some limitations in running checks in parallel in current
 implementation. It is not possible to use custom plugins
 (i.e. ``--load-plugins`` option), nor it is not possible to use
 initialization hooks (i.e. ``--init-hook`` option).
+
+This will spawn 4 parallel Pylint subprocesses, each provided module being checked
+by one or another subprocess.
+
+
+Exit codes
+----------
+
+Pylint returns bit-encoded exit codes. If applicable the table lists related
+stderr stream message output.
+
+=========  =========================  ==========================================
+exit code  meaning                    stderr stream message
+=========  =========================  ==========================================
+0          no error
+1          fatal message issued
+2          error message issued
+4          warning message issued
+8          refactor message issued
+16         convention message issued
+32         usage error                - "internal error while receiving results\
+                                        from child linter" "Error occured,
+                                        stopping the linter."
+                                      - "<return of linter.help()>"
+                                      - "Jobs number <#> should be greater \
+                                        than 0"
+=========  =========================  ==========================================
