@@ -8,6 +8,8 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Removed pylint-gui from the package.
+
     * ignored-argument-names is now used for ignoring arguments for unused-variable check.
 
       This option was used for ignoring arguments when computing the correct number of arguments

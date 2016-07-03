@@ -149,7 +149,6 @@ def install(**kwargs):
             kwargs['dependency_links'] = dependency_links
         kwargs['entry_points'] = {'console_scripts': [
             'pylint = pylint:run_pylint',
-            'pylint-gui = pylint:run_pylint_gui',
             'epylint = pylint:run_epylint',
             'pyreverse = pylint:run_pyreverse',
             'symilar = pylint:run_symilar',

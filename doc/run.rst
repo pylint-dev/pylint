@@ -34,15 +34,6 @@ python path.
 
 For more details on this see the :ref:`faq`.
 
-You can also start a thin gui around Pylint (require tkinter) by
-typing ::
-
-  pylint-gui
-
-This should open a window where you can enter the name of the package
-or module to check, at Pylint messages will be displayed in the user
-interface.
-
 It is also possible to call Pylint from an other python program,
 thanks to ``py_run()`` function in ``epylint`` module,
 assuming Pylint options are stored in ``pylint_options`` string, as:

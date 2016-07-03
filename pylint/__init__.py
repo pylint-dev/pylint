@@ -10,13 +10,6 @@ def run_pylint():
     from pylint.lint import Run
     Run(sys.argv[1:])
 
-def run_pylint_gui():
-    """run pylint-gui"""
-    try:
-        from pylint.gui import Run
-        Run(sys.argv[1:])
-    except ImportError:
-        sys.exit('tkinter is not available')
 
 def run_epylint():
     """run pylint"""

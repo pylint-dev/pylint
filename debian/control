@@ -20,7 +20,7 @@ Depends: ${python:Depends},
          ${misc:Depends},
 	 python-logilab-common (>= 0.53.0),
 	 python-astroid (>= 1.2)
-Suggests: python-tk, python-enchant
+Suggests: python-enchant
 XB-Python-Version: ${python:Versions}
 Description: python code static checker and UML diagram generator
  Pylint is a Python source code analyzer which looks for programming
@@ -39,5 +39,3 @@ Description: python code static checker and UML diagram generator
  The included command pyreverse generates UML class and package
  diagrams. The included symilar command is a separated similarities checker.
  .
- The recommended python-tk package is only for using the pylint-gui
- script.

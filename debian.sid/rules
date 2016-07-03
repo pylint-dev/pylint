@@ -29,7 +29,7 @@ override_dh_install:
 	                --root=$(CURDIR)/debian/$(PACKAGE3)/ \
 	                ${py_setup_install_args}
 	# rename executables
-	for executable in pylint pylint-gui symilar epylint pyreverse ; do \
+	for executable in pylint symilar epylint pyreverse ; do \
 		new_exec="$$executable"3; \
 		sed 's,^#!.*python$$,&3,' < $(CURDIR)/debian/$(PACKAGE3)/usr/bin/$$executable > $(CURDIR)/debian/$(PACKAGE3)/usr/bin/$$new_exec || exit 1; \
 	done

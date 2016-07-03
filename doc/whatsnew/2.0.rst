@@ -16,3 +16,11 @@ Other Changes
 
 * None yet.
 
+
+Removed Changes
+===============
+
+* ``pylint-gui`` was removed, because it was deemed unfit for being included
+  in *pylint*. It had a couple of bugs and misfeatures, its usability was subpar
+  and since its development was neglected, we decided it is best to move on without it.
+

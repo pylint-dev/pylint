@@ -67,11 +67,11 @@ long_desc = """\
  .
  Additionally, it is possible to write plugins to add your own checks.
  .
- Pylint is shipped with "pylint-gui", "pyreverse" (UML diagram generator)
+ Pylint is shipped with "pyreverse" (UML diagram generator)
  and "symilar" (an independent similarities checker)."""
 
 scripts = [join('bin', filename)
-           for filename in ('pylint', 'pylint-gui', "symilar", "epylint",
+           for filename in ('pylint', "symilar", "epylint",
                             "pyreverse")]
 
 include_dirs = [join('pylint', 'test')]

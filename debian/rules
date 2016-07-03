@@ -42,7 +42,7 @@ install: build
 	rm -rf debian/pylint/usr/lib/python*/*-packages/pylint/test
 
 	# fixes shebangs
-	for exec_file in pylint pylint-gui symilar epylint pyreverse ; do \
+	for exec_file in pylint symilar epylint pyreverse ; do \
 	  if head -1 debian/pylint/usr/bin/$$exec_file | grep "^#! */usr/bin" | grep "python" >/dev/null ; then \
 		sed -i "s@^#! */usr/bin/env \+python\$$@#!/usr/bin/python@" debian/pylint/usr/bin/$$exec_file; \
 	  fi ; \
