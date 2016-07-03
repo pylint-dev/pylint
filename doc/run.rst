@@ -153,3 +153,26 @@ There are some limitations in running checks in parallel in current
 implementation. It is not possible to use custom plugins
 (i.e. ``--load-plugins`` option), nor it is not possible to use
 initialization hooks (i.e. ``--init-hook`` option).
+
+Exit codes
+----------
+
+Pylint returns bit-encoded exit codes. If applicable the table lists related
+stderr stream message output.
+
+=========  =========================  ==========================================
+exit code  meaning                    stderr stream message
+=========  =========================  ==========================================
+0          no error
+1          fatal message issued
+2          error message issued
+4          warning message issued
+8          refactor message issued
+16         convention message issued
+32         usage error                - "internal error while receiving results\
+                                        from child linter" "Error occured,
+                                        stopping the linter."
+                                      - "<return of linter.help()>"
+                                      - "Jobs number <#> should be greater \
+                                        than 0"
+=========  =========================  ==========================================
