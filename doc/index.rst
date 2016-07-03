@@ -9,6 +9,7 @@ https://bitbucket.org/logilab/pylint
    :maxdepth: 2
 
    intro
+   whatsnew/index.rst
    run
    output
    message-control
@@ -24,8 +25,6 @@ https://bitbucket.org/logilab/pylint
    faq
    backlinks
    installation
-
-   changelog
 
 
 

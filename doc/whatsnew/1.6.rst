@@ -1,0 +1,18 @@
+**************************
+  What's New In Pylint 1.6
+**************************
+
+:Release: |release|
+:Date: |TBD|
+
+
+Summary -- Release highlights
+=============================
+
+* None yet.
+
+Other Changes
+=============
+
+* None yet.
+
