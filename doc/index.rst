@@ -9,6 +9,7 @@ https://github.com/pycqa/pylint
    :maxdepth: 2
 
    intro
+   whatsnew/index.rst
    run
    output
    message-control
@@ -24,8 +25,6 @@ https://github.com/pycqa/pylint
    faq
    backlinks
    installation
-
-   changelog
 
 
 
