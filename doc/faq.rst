@@ -175,7 +175,7 @@ module. Pylint 0.26.1 and up have renamed that directive to
 "#pylint: skip-file" (but the first version will be kept for backward
 compatibility).
 
-In order to ease finding which modules are ignored a Information-level message
+In order to ease finding which modules are ignored an Information-level message
 `file-ignored` is emitted. With recent versions of Pylint, if you use the old
 syntax, an additional `deprecated-disable-all` message is emitted.
 
@@ -256,7 +256,7 @@ traverses an AST representation of the code.
 
 Pylint can crash with this error if you have a string in your analyzed
 program, created by joining a lot of strings with the addition operator.
-Due to how Pylint works, visiting nodes on a AST tree and due to how
+Due to how Pylint works, visiting nodes on an AST tree and due to how
 the BinOp node is represented (the node which represents the string '1+1'
 for instance), the same visit method will be called over and over again, leading
 to a maximum recursion error. You can alleviate this problem by passing
