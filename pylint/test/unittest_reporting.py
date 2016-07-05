@@ -4,7 +4,6 @@
 import os
 from os.path import join, dirname, abspath
 import unittest
-import warnings
 
 import six
 
@@ -15,6 +14,7 @@ from pylint.reporters import BaseReporter
 from pylint.reporters.text import TextReporter, ParseableTextReporter
 from pylint.reporters.html import HTMLReporter
 from pylint.reporters.ureports.nodes import Section
+from pylint import testutils
 
 
 HERE = abspath(dirname(__file__))
@@ -44,16 +44,24 @@ class PyLinterTC(unittest.TestCase):
                                   'C0301:002\n')
 
     def test_parseable_output_deprecated(self):
-        with warnings.catch_warnings(record=True) as cm:
-            warnings.simplefilter("always")
+        with testutils.catch_warnings() as cm:
             ParseableTextReporter()
         
         self.assertEqual(len(cm), 1)
         self.assertIsInstance(cm[0].message, DeprecationWarning)
 
+    def test_html_reporter_deprecated(self):
+        with testutils.catch_warnings() as caught:
+            HTMLReporter()
+
+        self.assertEqual(len(caught), 1)
+        self.assertIsInstance(caught[0].message, DeprecationWarning)
+        self.assertEqual(str(caught[0].message),
+                         'This reporter will be removed in Pylint 2.0.')
+
     def test_parseable_output_regression(self):
         output = six.StringIO()
-        with warnings.catch_warnings(record=True):
+        with testutils.catch_warnings():
             linter = PyLinter(reporter=ParseableTextReporter())
 
         checkers.initialize(linter)
@@ -90,7 +98,9 @@ class PyLinterTC(unittest.TestCase):
 </body>
 </html>'''.strip().splitlines()
         output = six.StringIO()
-        linter = PyLinter(reporter=HTMLReporter())
+        with testutils.catch_warnings():
+            linter = PyLinter(reporter=HTMLReporter())
+
         checkers.initialize(linter)
         linter.config.persistent = 0
         linter.reporter.set_output(output)
@@ -135,7 +145,9 @@ a&lt; 5: print "zero"</td>
 </html>
 '''
         output = six.StringIO()
-        linter = PyLinter(reporter=HTMLReporter())
+        with testutils.catch_warnings():
+            linter = PyLinter(reporter=HTMLReporter())
+
         checkers.initialize(linter)
         linter.config.persistent = 0
         linter.reporter.set_output(output)
@@ -157,8 +169,7 @@ a&lt; 5: print "zero"</td>
             with self.assertRaises(AttributeError):
                 reporter.display_results
         else:
-            with warnings.catch_warnings(record=True) as cm:
-                warnings.simplefilter("always")
+            with testutils.catch_warnings() as cm:
                 reporter.display_results(Section())
 
             self.assertEqual(len(cm), 1)

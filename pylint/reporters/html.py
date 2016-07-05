@@ -6,6 +6,7 @@
 import itertools
 import string
 import sys
+import warnings
 
 import six
 
@@ -28,6 +29,9 @@ class HTMLReporter(BaseReporter):
         # Add placeholders for title and parsed messages
         self.header = None
         self.msgargs = []
+
+        warnings.warn("This reporter will be removed in Pylint 2.0.",
+                      DeprecationWarning)
 
     @staticmethod
     def _parse_msg_template(msg_template):

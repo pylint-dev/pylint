@@ -14,5 +14,11 @@ Summary -- Release highlights
 Other Changes
 =============
 
-* None yet.
+* The HTML support was deprecated and will be eventually removed
+  in Pylint 2.0.
+
+  This feature was lately a second class citizen in Pylint, being
+  often neglected and having a couple of bugs. Since we now have
+  the JSON reporter, this can be used as a basis for more prettier
+  HTML outputs than what Pylint can currently offer.
 

@@ -10,6 +10,7 @@ from os.path import join, dirname, abspath
 import tempfile
 import textwrap
 import unittest
+import warnings
 
 import six
 
@@ -19,6 +20,7 @@ from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.html import HTMLReporter
 from pylint.reporters.json import JSONReporter
+from pylint import testutils
 
 HERE = abspath(dirname(__file__))
 
@@ -104,12 +106,14 @@ class RunTC(unittest.TestCase):
 
     def test_all(self):
         """Make pylint check itself."""
-        reporters = [
-            TextReporter(six.StringIO()),
-            HTMLReporter(six.StringIO()),
-            ColorizedTextReporter(six.StringIO()),
-            JSONReporter(six.StringIO())
-        ]
+        with testutils.catch_warnings():
+            reporters = [
+                TextReporter(six.StringIO()),
+                HTMLReporter(six.StringIO()),
+                ColorizedTextReporter(six.StringIO()),
+                JSONReporter(six.StringIO())
+            ]
+
         self._runtest(['pylint/test/functional/arguments.py'],
                       reporter=MultiReporter(reporters), code=1)
 
@@ -258,7 +262,8 @@ class RunTC(unittest.TestCase):
     def test_html_crash_report(self):
         out = six.StringIO()
         module = join(HERE, 'regrtest_data', 'html_crash_420.py')
-        self._runtest([module], code=16, reporter=HTMLReporter(out))
+        with testutils.catch_warnings():
+            self._runtest([module], code=16, reporter=HTMLReporter(out))
 
     def test_wrong_import_position_when_others_disabled(self):
         expected_output = textwrap.dedent('''

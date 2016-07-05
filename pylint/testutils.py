@@ -16,6 +16,7 @@ import re
 import unittest
 import tempfile
 import tokenize
+import warnings
 
 import six
 from six.moves import StringIO
@@ -403,3 +404,11 @@ def create_file_backed_module(code):
         module = astroid.parse(code)
         module.file = temp
         yield module
+
+
+@contextlib.contextmanager
+def catch_warnings(warnfilter="always"):
+    """Suppress the warnings in the surrounding block."""
+    with warnings.catch_warnings(record=True) as cm:
+        warnings.simplefilter(warnfilter)
+        yield cm
