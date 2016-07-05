@@ -214,3 +214,12 @@ man_pages = [
     ('index', 'pylint', u'Pylint Documentation',
      [u'Logilab and contributors'], 1)
 ]
+
+# Default is 'local' building, but reference the public docs site when building
+# under RTD.
+target = os.path.join(os.path.dirname(__file__), '_build')
+if os.environ.get('READTHEDOCS') == 'True':
+    target = 'http://docs.pylint.org/en/latest/'
+intersphinx_mapping = {
+    'docs': (target, None),
+}
