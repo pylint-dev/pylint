@@ -298,7 +298,7 @@ Release date: 2015-11-29
       of its test. Closes issue #698.
          
     * Added a new refactoring warning, 'too-many-boolean-expressions',
-      used when a if statement contains too many boolean expressions,
+      used when an if statement contains too many boolean expressions,
       which makes the code less maintainable and harder to understand.
       Closes issue #677.
 
@@ -607,7 +607,7 @@ Release date: 2015-11-29
       This can generate a RuntimeError in Python, if there are no active exceptions
       to be reraised. While it works in Python 2 due to the fact that the exception
       leaks outside of the except block, it's nevertheless a behaviour that
-      an user shouldn't depend upon, since it's not obvious to the reader of the code
+      a user shouldn't depend upon, since it's not obvious to the reader of the code
       what exception will be raised and it will not be compatible with Python 3 anyhow.
       Closes issue #633.
 
@@ -794,7 +794,7 @@ Release date: 2015-01-16
       raising tuples in the form 'raise (ZeroDivisionError, None)'.
 
     * Fix a false positive with invalid-slots-objects, where the slot entry
-      was an unicode string on Python 2. Closes issue #421.
+      was a unicode string on Python 2. Closes issue #421.
 
     * Add a new warning, 'redundant-unittest-assert', emitted when using
       unittest's methods assertTrue and assertFalse with constant value

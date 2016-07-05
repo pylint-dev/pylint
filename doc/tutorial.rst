@@ -45,7 +45,7 @@ My command line prompt for these examples is:
 Getting Started
 ---------------
 
-Running Pylint with no arguments will invoke the help dialogue and give you a
+Running Pylint with no arguments will invoke the help dialogue and give you an
 idea of the arguments available to you.  Do that now, i.e.:
 
 .. sourcecode:: bash
