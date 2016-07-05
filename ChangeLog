@@ -10,6 +10,8 @@ Release date: tba
 
     * Removed pylint-gui from the package.
 
+    * Removed the HTML reporter. Part of #975.
+
     * ignored-argument-names is now used for ignoring arguments for unused-variable check.
 
       This option was used for ignoring arguments when computing the correct number of arguments

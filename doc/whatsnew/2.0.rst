@@ -24,3 +24,12 @@ Removed Changes
   in *pylint*. It had a couple of bugs and misfeatures, its usability was subpar
   and since its development was neglected, we decided it is best to move on without it.
 
+
+* The HTML reporter was removed, including the ``--output-format=html`` option.
+  It was lately a second class citizen in Pylint, being mostly neglected.
+  Since we now have the JSON reporter, it can be used as a basis for building
+  more prettier HTML reports than what Pylint can currently generate. This is
+  part of the effort of removing cruft from Pylint, by removing less used
+  features.
+
+  

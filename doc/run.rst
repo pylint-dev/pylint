@@ -114,7 +114,7 @@ Other useful global options include:
 
 --ignore=<file[,file...]>  Add files or directories to the blacklist. They
                            should be base names, not paths.
---output-format=<format>   Select output format (text, html, custom).
+--output-format=<format>   Select output format (text, json, custom).
 --msg-template=<template>  Modify text output message template.
 --list-msgs                Generate pylint's messages.
 --full-documentation       Generate pylint's full documentation, in reST

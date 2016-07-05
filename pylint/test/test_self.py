@@ -17,7 +17,6 @@ from pylint.lint import Run
 from pylint import __pkginfo__
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
-from pylint.reporters.html import HTMLReporter
 from pylint.reporters.json import JSONReporter
 
 HERE = abspath(dirname(__file__))
@@ -106,7 +105,6 @@ class RunTC(unittest.TestCase):
         """Make pylint check itself."""
         reporters = [
             TextReporter(six.StringIO()),
-            HTMLReporter(six.StringIO()),
             ColorizedTextReporter(six.StringIO()),
             JSONReporter(six.StringIO())
         ]
@@ -254,11 +252,6 @@ class RunTC(unittest.TestCase):
         """)
         self._test_output([module, "--disable=all", "--enable=all", "-rn"],
                           expected_output=expected)
-
-    def test_html_crash_report(self):
-        out = six.StringIO()
-        module = join(HERE, 'regrtest_data', 'html_crash_420.py')
-        self._runtest([module], code=16, reporter=HTMLReporter(out))
 
     def test_wrong_import_position_when_others_disabled(self):
         expected_output = textwrap.dedent('''

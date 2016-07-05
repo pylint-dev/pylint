@@ -284,7 +284,7 @@ class PyLinter(config.OptionsManagerMixIn,
                   'short': 'f',
                   'group': 'Reports',
                   'help' : 'Set the output format. Available formats are text,'
-                           ' parseable, colorized, json, msvs (visual studio) and html. '
+                           ' parseable, colorized, json and msvs (visual studio).'
                            'You can also give a reporter class, eg mypackage.mymodule.'
                            'MyReporterClass.'}),
 
@@ -294,7 +294,7 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help' : 'Put messages in a separate file for each module / '
                            'package specified on the command line instead of printing '
                            'them on stdout. Reports (if any) will be written in a file '
-                           'name "pylint_global.[txt|html]".'}),
+                           'name "pylint_global.txt.'}),
 
                 ('reports',
                  {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',

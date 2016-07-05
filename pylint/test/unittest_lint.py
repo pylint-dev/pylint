@@ -20,7 +20,7 @@ from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STA
     MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
     build_message_def, tokenize_module, UnknownMessage
 from pylint.testutils import TestReporter
-from pylint.reporters import text, html
+from pylint.reporters import text
 from pylint import checkers
 from pylint.checkers.utils import check_messages
 from pylint import interfaces
@@ -472,16 +472,6 @@ class PyLinterTC(unittest.TestCase):
         self.assertEqual(
             ['C:  2: Line too long (175/100)'],
             self.linter.reporter.messages)
-
-    def test_html_reporter_missing_files(self):
-        output = six.StringIO()
-        self.linter.set_reporter(html.HTMLReporter(output))
-        self.linter.set_option('output-format', 'html')
-        self.linter.check('troppoptop.py')
-        self.linter.generate_reports()
-        value = output.getvalue()
-        self.assertIn('troppoptop.py', value)
-        self.assertIn('fatal', value)
 
     def test_python3_checker_disabled(self):
         checker_names = [c.name for c in self.linter.prepare_checkers()]
