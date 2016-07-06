@@ -21,8 +21,8 @@ def builder_inited(app):
 
     features = os.path.join(os.path.dirname('.'), 'features.rst')
     with open(features, 'wb') as stream:
-        stream.write("Pylint features\n")
-        stream.write("===============\n\n")
+        stream.write(b"Pylint features\n")
+        stream.write(b"===============\n\n")
         stream.write(output)
 
 
