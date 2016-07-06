@@ -364,24 +364,6 @@ class PyLinterTC(unittest.TestCase):
         self.assertTrue(linter.is_message_enabled('W0102', 1))
         self.assertTrue(linter.is_message_enabled('dangerous-default-value', 1))
 
-    def test_lint_ext_module_with_file_output(self):
-        self.linter.set_reporter(text.TextReporter())
-        if sys.version_info < (3, 0):
-            strio = 'StringIO'
-        else:
-            strio = 'io'
-        self.linter.config.files_output = True
-        self.linter.config.reports = True
-        pylint_strio = 'pylint_%s.txt' % strio
-        files = [pylint_strio, 'pylint_global.txt']
-        for file in files:
-            self.addCleanup(remove, file)
-
-        self.linter.check(strio)
-        self.linter.generate_reports()
-        for f in files:
-            self.assertTrue(os.path.exists(f))
-
     def test_enable_report(self):
         self.assertEqual(self.linter.report_is_enabled('RP0001'), True)
         self.linter.disable('RP0001')

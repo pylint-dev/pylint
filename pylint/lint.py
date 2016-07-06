@@ -288,14 +288,6 @@ class PyLinter(config.OptionsManagerMixIn,
                            'You can also give a reporter class, eg mypackage.mymodule.'
                            'MyReporterClass.'}),
 
-                ('files-output',
-                 {'default': 0, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                  'group': 'Reports', 'level': 1,
-                  'help' : 'Put messages in a separate file for each module / '
-                           'package specified on the command line instead of printing '
-                           'them on stdout. Reports (if any) will be written in a file '
-                           'name "pylint_global.txt.'}),
-
                 ('reports',
                  {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                   'short': 'r',
@@ -841,9 +833,7 @@ class PyLinter(config.OptionsManagerMixIn,
             modname, filepath = descr['name'], descr['path']
             if not descr['isarg'] and not self.should_analyze_file(modname, filepath):
                 continue
-            if self.config.files_output:
-                reportfile = 'pylint_%s.%s' % (modname, self.reporter.extension)
-                self.reporter.set_output(open(reportfile, 'w'))
+
             self.set_current_module(modname, filepath)
             # get the module representation
             ast_node = self.get_ast(filepath, modname)
@@ -968,9 +958,6 @@ class PyLinter(config.OptionsManagerMixIn,
             self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
                 sect = self.make_reports(self.stats, previous_stats)
-                if self.config.files_output:
-                    filename = 'pylint_global.' + self.reporter.extension
-                    self.reporter.set_output(open(filename, 'w'))
             else:
                 sect = report_nodes.Section()
 
