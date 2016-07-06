@@ -143,31 +143,6 @@ class RunTC(unittest.TestCase):
         output = out.getvalue()
         self.assertNotIn("profile", output)
 
-    def _test_deprecated_options(self, option, expected):
-        out = six.StringIO()
-        self._run_pylint([option, "--rcfile=", "pylint.config"], out=out)
-        output = out.getvalue()
-        if __pkginfo__.numversion >= (1, 6, 0):
-            self.assertIn("no such option", output)
-        else:
-            self.assertIn(expected, output)
-
-    def test_deprecated_options_zope(self):
-        expected = "no such option"
-        self._test_deprecated_options("--zope=y", expected)
-
-    def test_deprecated_options_symbols(self):
-        expected = "no such option"
-        self._test_deprecated_options("--symbols=y", expected)
-
-    def test_deprecated_options_include_ids(self):
-        expected = "no such option"
-        self._test_deprecated_options("--include-ids=y", expected)
-
-    def test_deprecated_options_profile(self):
-        expected = "no such option"
-        self._test_deprecated_options("--profile=y", expected)
-
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
 

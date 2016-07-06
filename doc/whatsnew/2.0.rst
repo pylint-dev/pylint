@@ -34,4 +34,8 @@ Removed Changes
 
 * The ``--files-output`` option was removed. While the same functionality cannot
   be easily replicated, the JSON reporter, for instance, can be used as a basis
-  for generating the messages per each file.  
+  for generating the messages per each file.
+
+* ``--required-attributes`` option was removed.
+
+* ``--ignore-iface-methods`` option was removed.

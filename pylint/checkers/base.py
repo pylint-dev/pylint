@@ -18,7 +18,7 @@ from astroid import are_exclusive, InferenceError
 
 from pylint.interfaces import (IAstroidChecker, ITokenChecker, INFERENCE,
                                INFERENCE_FAILURE, HIGH)
-from pylint.utils import EmptyReport, deprecated_option
+from pylint.utils import EmptyReport
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers.utils import (
@@ -692,11 +692,6 @@ functions, methods
 
     }
 
-    options = (('required-attributes',
-                deprecated_option(opt_type='csv',
-                                  help_msg="Required attributes for module. "
-                                           "This option is obsolete.")),
-              )
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 
     def __init__(self, linter):

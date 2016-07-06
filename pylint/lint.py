@@ -313,8 +313,6 @@ class PyLinter(config.OptionsManagerMixIn,
                   'group': 'Reports',
                   'help': 'Activate the evaluation score.'}),
 
-                ('comment', utils.deprecated_option(opt_type='yn')),
-
                 ('confidence',
                  {'type' : 'multiple_choice', 'metavar': '<levels>',
                   'default': '',

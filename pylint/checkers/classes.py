@@ -24,7 +24,7 @@ from pylint.checkers.utils import (
     decorated_with_property, unimplemented_abstract_methods,
     decorated_with, class_is_abstract,
     safe_infer, has_known_bases, is_iterable, is_comprehension)
-from pylint.utils import deprecated_option, get_global_option
+from pylint.utils import get_global_option
 
 
 if sys.version_info >= (3, 0):
@@ -291,12 +291,7 @@ class ClassChecker(BaseChecker):
     msgs = MSGS
     priority = -2
     # configuration options
-    options = (('ignore-iface-methods',
-                # TODO(cpopa): remove this in Pylint 1.6.
-                deprecated_option(opt_type="csv",
-                                  help_msg="This is deprecated, because "
-                                           "it is not used anymore.")
-               ),
+    options = (
                ('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
                  'type' : 'csv',
