@@ -8,6 +8,8 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Removed --optimized-ast. Part of #975.
+
     * Removed --files-output option. Part of #975.
 
     * Removed pylint-gui from the package.

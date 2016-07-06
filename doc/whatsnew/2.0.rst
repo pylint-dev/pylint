@@ -39,3 +39,13 @@ Removed Changes
 * ``--required-attributes`` option was removed.
 
 * ``--ignore-iface-methods`` option was removed.
+
+* The ``--optimize-ast`` flag was removed.
+
+  The option was initially added for handling pathological cases,
+  such as joining too many strings using the addition operator, which
+  was leading pylint to have a recursion error when trying to figure
+  out what the string was. Unfortunately, we decided to ignore the
+  issue, since the pathological case would have happen when the
+  code was parsed by Python as well, without actually reaching the
+  runtime step and as such, we decided to remove the error altogether.
