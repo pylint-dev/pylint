@@ -296,8 +296,8 @@ class ClassChecker(BaseChecker):
                 deprecated_option(opt_type="csv",
                                   help_msg="This is deprecated, because "
                                            "it is not used anymore.",
-                                           deprecation_msg="This option %r will be "
-                                                           "removed in Pylint 2.0")),
+                                  deprecation_msg="This option %r will be "
+                                                  "removed in Pylint 2.0")),
                ('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
                  'type' : 'csv',
