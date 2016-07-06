@@ -291,8 +291,7 @@ class ClassChecker(BaseChecker):
     msgs = MSGS
     priority = -2
     # configuration options
-    options = (
-               ('defining-attr-methods',
+    options = (('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
                  'type' : 'csv',
                  'metavar' : '<method names>',
