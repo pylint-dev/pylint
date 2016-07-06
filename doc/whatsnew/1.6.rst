@@ -22,3 +22,6 @@ Other Changes
   the JSON reporter, this can be used as a basis for more prettier
   HTML outputs than what Pylint can currently offer.
 
+* The ``--files-output`` option was deprecated and will be eventually
+  removed in Pylint 2.0.
+

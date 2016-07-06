@@ -297,7 +297,8 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help' : 'Put messages in a separate file for each module / '
                            'package specified on the command line instead of printing '
                            'them on stdout. Reports (if any) will be written in a file '
-                           'name "pylint_global.[txt|html]".'}),
+                           'name "pylint_global.[txt|html]". This option is deprecated and '
+                           'it will be removed in Pylint 2.0.'}),
 
                 ('reports',
                  {'default': 1, 'type' : 'yn', 'metavar' : '<y_or_n>',

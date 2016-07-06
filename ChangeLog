@@ -9,6 +9,8 @@ Release date: 2016-07-03
 
     * Deprecate support for the HTML output. Part of #975.
 
+    * Deprecate support for --output-files. Part of #975.
+
     * Fixed a documentation error for the check_docs extension. Fixes #735.
 
     * Made the list of property-defining decorators configurable.
