@@ -399,7 +399,8 @@ class PyLinter(config.OptionsManagerMixIn,
                            'Joining a lot of strings can lead to a maximum '
                            'recursion error in Pylint and this flag can prevent '
                            'that. It has one side effect, the resulting AST '
-                           'will be different than the one from reality.')}
+                           'will be different than the one from reality. '
+                           'This option is deprecated and it will be removed in Pylint 2.0.')}
                 ),
                )
 

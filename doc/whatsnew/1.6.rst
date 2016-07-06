@@ -25,3 +25,14 @@ Other Changes
 * The ``--files-output`` option was deprecated and will be eventually
   removed in Pylint 2.0.
 
+* The ``--optimize-ast`` option was deprecated and will be eventually
+  removed in Pylint 2.0.
+
+  The option was initially added for handling pathological cases,
+  such as joining too many strings using the addition operator, which
+  was leading pylint to have a recursion error when trying to figure
+  out what the string was. Unfortunately, we decided to ignore the
+  issue, since the pathological case would have happen when the
+  code was parsed by Python as well, without actually reaching the
+  runtime step and as such, we will remove the option in the future.
+

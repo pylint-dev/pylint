@@ -7,6 +7,8 @@ What's New in Pylint 1.6.0?
 
 Release date: 2016-07-03
 
+    * Deprecate support for --optimize-ast. Part of #975.
+
     * Deprecate support for the HTML output. Part of #975.
 
     * Deprecate support for --output-files. Part of #975.
