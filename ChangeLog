@@ -29,8 +29,6 @@ Release date: tba
       the configuration file.
       Close #862.
 
-    * Made the list of property-defining decorators configurable.
-
     * Fix a false positive for keyword variadics with regard to keyword only arguments.
 
       If a keyword only argument was necessary for a function, but that function was called
@@ -39,49 +37,13 @@ Release date: tba
 
       Close #934.
 
-    * Fix a bug where the top name of a qualified import was detected as unused variable.
-
-      Close #923.
-
-    * Do not emit import-error or no-name-in-module for fallback import blocks by default.
-
-      Until now, we warned with these errors when a fallback import block (a TryExcept block
-      that contained imports for Python 2 and 3) was found, but this gets cumbersome when
-      trying to write compatible code. As such, we don't check these blocks by default,
-      but the analysis can be enforced by using the new ``--analyse-fallback-block`` flag.
-
-      Close #769.
-
     * Fix some false positives with unknown sized variadics.
 
       Close #878
 
-    * bad-builtin is now an extension check.
-
-    * generated-members support qualified name through regular expressions.
-
-      For instance, one can specify a regular expression as --generated-members=astroid.node_classes.*
-      for ignoring every no-member error that is accessed as in `astroid.node_classes.missing.object`.
-      Close #723.
-
-    * Don't crash when checking, for super-init-not-called, a method defined in an if block.
-
-    * Don't warn about invalid-sequence-index if the indexed object has unknown base
-      classes.
-
-      Closes #867
-
     * Added a new extension, check_docstring, for checking PEP 257 conventions.
 
       Closes #868.
-
-    * Switch to using isort internally for wrong-import-order.
-
-      Closes #879.
-
-    * check_docs extension can find constructor parameters in __init__.
-
-      Closes #887.
 
     * config files with BOM markers can now be read.
 
@@ -90,6 +52,76 @@ Release date: tba
     * epylint.py_run does not crash on big files, using .communicate() instead of .wait()
 
       Close #599
+
+    * Disable reports by default and show the evaluation score by default
+
+      As per discussion from issue #746, the reports were disabled by
+      default in order to simplify the interaction between the tool 
+      and the users. The score is still shown by default, as a way of
+      closely measuring when it increases or decreases due to changes
+      brought to the code.
+
+    * Disable the information category messages by default.
+
+      This is a step towards making pylint more sane, as
+      per the discussion from issue #746.
+
+    * Catch more cases as not proper iterables for __slots__ with
+      regard to invalid-slots pattern. Closes issue #775.
+
+    * empty indent strings are rejected.
+
+    * Added a new error, 'relative-beyond-top-level', which is emitted
+      when a relative import was attempted beyond the top level package.
+
+      Closes issue #588.
+
+    * Added a new warning, 'unsupported-assignment-operation', which is
+      emitted when item assignment is tried on an object which doesn't
+      have this ability. Closes issue #591.
+
+    * Added a new warning, 'unsupported-delete-operation', which is
+      emitted when item deletion is tried on an object which doesn't
+      have this ability. Closes issue #592.
+
+
+What's New in Pylint 1.6.0?
+===========================
+
+Release date: 2016-07-03
+
+    * Deprecate support for --optimize-ast. Part of #975.
+
+    * Deprecate support for the HTML output. Part of #975.
+
+    * Deprecate support for --output-files. Part of #975.
+
+    * Fixed a documentation error for the check_docs extension. Fixes #735.
+
+    * Made the list of property-defining decorators configurable.
+
+    * Fix a bug where the top name of a qualified import was detected as unused variable.
+
+      Close #923.
+
+    * bad-builtin is now an extension check.
+
+    * generated-members support qualified name through regular expressions.
+
+      For instance, one can specify a regular expression as --generated-members=astroid.node_classes.*
+      for ignoring every no-member error that is accessed as in `astroid.node_classes.missing.object`.
+
+    * Add the ability to ignore files based on regex matching, with the new ``--ignore-patterns``
+      option.
+
+      This addresses issue #156 by allowing for multiple ignore patterns
+      to be specified. Rather than clobber the existing ignore option, we
+      introduced a new one called ignore-patterns.
+
+    * Added a new error, 'trailing-newlines', which is emitted when a file
+      has trailing new lines.
+
+      Closes issue #682.
 
     * Add a new option, 'redefining-builtins-modules', for controlling the modules
       which can redefine builtins, such as six.moves and future.builtins.
@@ -116,104 +148,29 @@ Release date: tba
 
       Close issue #557
 
-    * Disable reports by default and show the evaluation score by default
+    * Switch to using isort internally for wrong-import-order.
 
-      As per discussion from issue #746, the reports were disabled by
-      default in order to simplify the interaction between the tool 
-      and the users. The score is still shown by default, as a way of
-      closely measuring when it increases or decreases due to changes
-      brought to the code.
+      Closes #879.
 
-    * Disable the information category messages by default.
+    * check_docs extension can find constructor parameters in __init__.
 
-      This is a step towards making pylint more sane, as
-      per the discussion from issue #746.
+      Closes #887.
 
-    * Catch more cases as not proper iterables for __slots__ with
-      regard to invalid-slots pattern. Closes issue #775.
+    * Don't warn about invalid-sequence-index if the indexed object has unknown base
+      classes.
 
-    * Merge StringMethodChecker with StringFormatChecker. This fixes a
-      bug where disabling all the messages and enabling only a handful of
-      messages from the StringFormatChecker would have resulted in no
-      messages at all.
+      Closes #867
 
-    * Handle the import fallback idiom with regard to wrong-import-order.
+    * Don't crash when checking, for super-init-not-called, a method defined in an if block.
 
-      Closes issue #750.
+    * Do not emit import-error or no-name-in-module for fallback import blocks by default.
 
-    * Added a new error, 'trailing-newlines', which is emitted when a file
-      has trailing new lines.
+      Until now, we warned with these errors when a fallback import block (a TryExcept block
+      that contained imports for Python 2 and 3) was found, but this gets cumbersome when
+      trying to write compatible code. As such, we don't check these blocks by default,
+      but the analysis can be enforced by using the new ``--analyse-fallback-block`` flag.
 
-      Closes issue #682.
-
-    * Decouple the displaying of reports from the displaying of messages
-
-      Some reporters are aggregating the messages instead of displaying
-      them when they are available. The actual displaying was conflatted
-      in the generate_reports. Unfortunately this behaviour was flaky
-      and in the case of the JSON reporter, the messages weren't shown
-      at all if a file had syntax errors or if it was missing.
-      In order to fix this, the aggregated messages can now be
-      displayed with Reporter.display_message, while the reports are
-      displayed with display_reports.
-      
-      Closes issues #766 and #765.
-
-    * Ignore function calls with variadic arguments without a context.
-
-      Inferring variadic positional arguments and keyword arguments
-      will result into empty Tuples and Dicts, which can lead in
-      some cases to false positives with regard to no-value-for-parameter.
-      In order to avoid this, until we'll have support for call context
-      propagation, we're ignoring such cases if detected.
-      Closes issue #722.
-
-    * Treat AsyncFunctionDef just like FunctionDef nodes,
-      by implementing visit_asyncfunctiondef in terms of
-      visit_functiondef.
-
-      Closes issue #767.
-      
-    * Take in account kwonlyargs when verifying that arguments
-      are defined with the check_docs extension.
-
-      Closes issue #745.
-
-    * empty indent strings are rejected.
-    
-    * Suppress reporting 'unneeded-not' inside `__ne__` methods
-
-      Closes issue #749.
-
-    * Added a new error, 'relative-beyond-top-level', which is emitted
-      when a relative import was attempted beyond the top level package.
-
-      Closes issue #588.
-
-    * Accept only functions and methods for the deprecated-method checker.
-
-     This prevents a crash which can occur when an object doesn't have
-     .qname() method after the inference.
-
-    * Don't crash if graphviz is not installed, instead emit a
-      warning letting the user to know.
-
-    * Don't emit super-on-old-class on classes with unknown bases.
-      Closes issue #721.
-
-    * Allow statements in `if` or `try` blocks containing imports.
-
-      Closes issue #714. 
-
-    * Added a new warning, 'unsupported-assignment-operation', which is
-      emitted when item assignment is tried on an object which doesn't
-      have this ability. Closes issue #591.
-
-    * Added a new warning, 'unsupported-delete-operation', which is
-      emitted when item deletion is tried on an object which doesn't
-      have this ability. Closes issue #592.
-
-    * Fixed a documentation error for the check_docs extension. Fixes #735.
+      Close #769.
 
 
 What's New in Pylint 1.5.5?
@@ -250,6 +207,90 @@ Release date: 2016-03-21
       these issues.
 
       Closes issue #826
+
+
+What's New in Pylint 1.5.4?
+===========================
+
+Release date: 2016-01-15
+
+
+    * Merge StringMethodChecker with StringFormatChecker. This fixes a
+      bug where disabling all the messages and enabling only a handful of
+      messages from the StringFormatChecker would have resulted in no
+      messages at all.
+
+    * Don't apply unneeded-not over sets.
+
+
+What's New in Pylint 1.5.3?
+===========================
+
+Release date: 2016-01-11
+
+    * Handle the import fallback idiom with regard to wrong-import-order.
+
+      Closes issue #750.
+
+    * Decouple the displaying of reports from the displaying of messages
+
+      Some reporters are aggregating the messages instead of displaying
+      them when they are available. The actual displaying was conflatted
+      in the generate_reports. Unfortunately this behaviour was flaky
+      and in the case of the JSON reporter, the messages weren't shown
+      at all if a file had syntax errors or if it was missing.
+      In order to fix this, the aggregated messages can now be
+      displayed with Reporter.display_message, while the reports are
+      displayed with display_reports.
+      
+      Closes issues #766 and #765.
+
+    * Ignore function calls with variadic arguments without a context.
+
+      Inferring variadic positional arguments and keyword arguments
+      will result into empty Tuples and Dicts, which can lead in
+      some cases to false positives with regard to no-value-for-parameter.
+      In order to avoid this, until we'll have support for call context
+      propagation, we're ignoring such cases if detected.
+      Closes issue #722.
+
+    * Treat AsyncFunctionDef just like FunctionDef nodes,
+      by implementing visit_asyncfunctiondef in terms of
+      visit_functiondef.
+
+      Closes issue #767.
+      
+    * Take in account kwonlyargs when verifying that arguments
+      are defined with the check_docs extension.
+
+      Closes issue #745.
+
+    * Suppress reporting 'unneeded-not' inside `__ne__` methods
+
+      Closes issue #749.
+
+
+What's New in Pylint 1.5.2?
+===========================
+
+Release date: 2015-12-21
+        
+    * Don't crash if graphviz is not installed, instead emit a
+      warning letting the user to know.
+
+      Closes issue #168.
+
+    * Accept only functions and methods for the deprecated-method checker.
+
+      This prevents a crash which can occur when an object doesn't have
+      .qname() method after the inference.
+
+    * Don't emit super-on-old-class on classes with unknown bases.
+      Closes issue #721.
+
+    * Allow statements in `if` or `try` blocks containing imports.
+
+      Closes issue #714. 
 
 
 What's New in Pylint 1.5.1?
