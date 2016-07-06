@@ -691,7 +691,8 @@ functions, methods
     options = (('required-attributes',
                 deprecated_option(opt_type='csv',
                                   help_msg="Required attributes for module. "
-                                           "This option is obsolete.")),
+                                           "This option is obsolete.",
+                                  deprecation_msg="This option %r will be removed in Pylint 2.0")),
               )
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 

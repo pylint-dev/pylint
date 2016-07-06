@@ -293,11 +293,11 @@ class ClassChecker(BaseChecker):
     priority = -2
     # configuration options
     options = (('ignore-iface-methods',
-                # TODO(cpopa): remove this in Pylint 1.6.
                 deprecated_option(opt_type="csv",
                                   help_msg="This is deprecated, because "
-                                           "it is not used anymore.")
-               ),
+                                           "it is not used anymore.",
+                                           deprecation_msg="This option %r will be "
+                                                           "removed in Pylint 2.0")),
                ('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
                  'type' : 'csv',
