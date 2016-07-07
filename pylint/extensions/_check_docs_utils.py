@@ -41,6 +41,21 @@ def returns_something(return_node):
     return not (isinstance(returns, astroid.Const) and returns.value is None)
 
 
+def inside_yields(node):
+    """Check if a yield node is defined in child of node.
+
+    :param node: The node to search yield.
+    :type node: astroid.FunctionDef
+
+    :rtype: bool
+    :return: True if a yield node is declared.
+    """
+    try:
+        next(node.nodes_of_class(astroid.Yield))
+        return True
+    except StopIteration:
+        return False
+
 def possible_exc_types(node):
     """
     Gets all of the possible raised exception types for the given raise node.
