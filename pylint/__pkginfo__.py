@@ -21,11 +21,9 @@ install_requires = [
     'mccabe',
 ]
 
-if sys.platform == 'win32':
-    install_requires.append('colorama')
-if sys.version_info[0] == 2:
-    install_requires.append('configparser')
-    install_requires.append('backports.functools_lru_cache')
+extras_require = {}
+extras_require[':sys_platform=="win32"'] = ['colorama']
+extras_require[':python_version=="2.7"'] = ['configparser', 'backports.functools_lru_cache']
 
 
 license = 'GPL'
