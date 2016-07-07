@@ -4,10 +4,10 @@
  What's New in Pylint
 ######################
 
-Descriptions of the most important changes between major Pylint versions.
+High level descriptions of the most important changes between major Pylint versions.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    1.6.rst
 
