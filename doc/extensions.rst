@@ -171,6 +171,8 @@ you can use the ``bad-functions`` option::
     ...
 
 
+.. _mccabe_extension:
+
 Complexity checker
 ------------------
 
