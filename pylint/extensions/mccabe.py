@@ -3,6 +3,8 @@
 
 """Module to add McCabe checker class for pylint. """
 
+from __future__ import absolute_import
+
 from mccabe import PathGraph as Mccabe_PathGraph, \
         PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 from pylint.checkers.base import BaseChecker
