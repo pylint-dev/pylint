@@ -9,7 +9,7 @@ import os.path as osp
 import unittest
 
 from pylint import checkers
-from pylint.extensions.check_reassign import MultipleTypesChecker
+from pylint.extensions.redefined_variable_type import MultipleTypesChecker
 from pylint.lint import PyLinter, fix_import_path
 from pylint.reporters import BaseReporter
 
