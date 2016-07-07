@@ -57,6 +57,7 @@ include_dirs = __pkginfo__.get('include_dirs', [])
 ext_modules = __pkginfo__.get('ext_modules', None)
 install_requires = __pkginfo__.get('install_requires', None)
 dependency_links = __pkginfo__.get('dependency_links', [])
+extras_require = __pkginfo__.get('extras_require', {})
 
 readme_path = join(base_dir, 'README')
 if exists(readme_path):
@@ -171,6 +172,7 @@ def install(**kwargs):
                  data_files=data_files,
                  ext_modules=ext_modules,
                  cmdclass=cmdclass,
+                 extras_require=extras_require,
                  **kwargs)
 
 if __name__ == '__main__':
