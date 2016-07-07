@@ -29,8 +29,8 @@ messages nor reports. XXX not true, emit a 07 report !
 """
 
 import sys
-import tokenize
 import warnings
+import tokenize
 
 from pylint.config import OptionsProviderMixIn
 from pylint.reporters import diff_string

@@ -58,14 +58,12 @@ CHECKED_CONVENIENCE_FUNCTIONS = set([
 
 def is_method_call(callfunc_node, types=(), methods=()):
     """Determines if a CallFunc node represents a method call.
-
     Args:
-      callfunc_node: The CallFunc AST node to check.
-      types: Optional sequence of caller type names to restrict check.
-      methods: Optional sequence of method names to restrict check.
-
+      callfunc_node (astroid.CallFunc): The CallFunc AST node to check.
+      types (Optional[String]): Optional sequence of caller type names to restrict check.
+      methods (Optional[String]): Optional sequence of method names to restrict check.
     Returns:
-      True, if the node represents a method call for the given type and
+      bool: true if the node represents a method call for the given type and
       method names, False otherwise.
     """
     if not isinstance(callfunc_node, astroid.Call):

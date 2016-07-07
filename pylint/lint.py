@@ -24,8 +24,8 @@ try:
 except ImportError:
     multiprocessing = None
 import sys
-import tokenize
 import warnings
+import tokenize
 
 import six
 

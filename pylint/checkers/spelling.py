@@ -5,10 +5,10 @@
 """
 
 import os
-import sys
+import re
 import tokenize
 import string
-import re
+import sys
 
 try:
     import enchant

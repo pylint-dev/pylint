@@ -10,10 +10,10 @@ http://www.python.org/doc/essays/styleguide.html
 Some parts of the process_token method is based from The Tab Nanny std module.
 """
 
-import keyword
-import sys
-import tokenize
 from functools import reduce # pylint: disable=redefined-builtin
+import keyword
+import tokenize
+import sys
 
 import six
 from six.moves import zip, map, filter # pylint: disable=redefined-builtin

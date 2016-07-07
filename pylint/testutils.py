@@ -15,8 +15,8 @@ import sys
 import re
 import unittest
 import tempfile
-import tokenize
 import warnings
+import tokenize
 
 import six
 from six.moves import StringIO

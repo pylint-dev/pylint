@@ -4,9 +4,9 @@
 """imports checkers for Python code"""
 
 import collections
-from distutils import sysconfig
 import os
 import sys
+from distutils import sysconfig
 
 import six
 

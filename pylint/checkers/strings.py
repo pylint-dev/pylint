@@ -4,10 +4,10 @@
 """Checker for string formatting operations.
 """
 
-import sys
+import numbers
 import tokenize
 import string
-import numbers
+import sys
 
 import six
 
