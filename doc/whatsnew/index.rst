@@ -10,6 +10,7 @@ High level descriptions of the most important changes between major Pylint versi
    :maxdepth: 1
 
    2.0.rst
+   1.6.rst
 
 The "Changelog" contains *all* nontrivial changes to Pylint for the current version.
 
