@@ -10,7 +10,7 @@ from os.path import join
 
 modname = distname = 'pylint'
 
-numversion = (1, 6, 0)
+numversion = (1, 6, 1)
 version = '.'.join([str(num) for num in numversion])
 
 install_requires = [

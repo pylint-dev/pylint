@@ -2,6 +2,14 @@
 Pylint NEWS
 -----------
 
+What's new in Pylint 1.6.1?
+===========================
+
+Release date: 2016-07-07
+
+    * Use environment markers for supporting conditional dependencies.
+
+
 What's New in Pylint 1.6.0?
 ===========================
 
