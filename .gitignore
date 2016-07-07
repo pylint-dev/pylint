@@ -9,6 +9,7 @@
 /pylint.egg-info/
 .tox
 *.sw[a-z]
+doc/extensions.rst
 doc/features.rst
 pyve
 build-stamp

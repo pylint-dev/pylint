@@ -37,8 +37,9 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -f features.rst
+	-rm -f extensions.rst
 
-html: features
+html: features extensions
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -131,6 +132,9 @@ doctest:
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
+extensions: $(shell find ../pylint/extensions -type f)
+	rm -f extensions.rst
+	PYTHONPATH=$(PYTHONPATH) ./exts/pylint_extensions.py
 
 features:
 	rm -f features.rst

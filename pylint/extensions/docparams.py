@@ -16,29 +16,125 @@ import pylint.extensions._check_docs_utils as utils
 class DocstringParameterChecker(BaseChecker):
     """Checker for Sphinx, Google, or Numpy style docstrings
 
-    * Check that all function, method and constructor parameters are mentioned
-      in the params and types part of the docstring.  Constructor parameters
-      can be documented in either the class docstring or ``__init__`` docstring,
-      but not both.
-    * Check that there are no naming inconsistencies between the signature and
-      the documentation, i.e. also report documented parameters that are missing
-      in the signature. This is important to find cases where parameters are
-      renamed only in the code, not in the documentation.
-    * Check that all explicity raised exceptions in a function are documented
-      in the function docstring. Caught exceptions are ignored.
+    If you document the parameters of your functions, methods and constructors
+    and their types systematically in your code this optional component might
+    be useful for you. Sphinx style, Google style, and Numpy style are
+    supported. (For some examples, see
+    https://pypi.python.org/pypi/sphinxcontrib-napoleon .)
 
-    Activate this checker by adding the line::
+    This checker verifies that function, method, and constructor docstrings
+    include documentation of the
 
-        load-plugins=pylint.extensions.check_docs
+    * parameters and their types
+    * return value and its type
+    * exceptions raised
 
-    to the ``MASTER`` section of your ``.pylintrc``.
+    and can handle docstrings in
 
-    :param linter: linter object
-    :type linter: :class:`pylint.lint.PyLinter`
+    * Sphinx style (``param``, ``type``, ``return``, ``rtype``,
+      ``raise``/``except``)::
+
+       def function_foo(x, y, z):
+           '''function foo ...
+
+           :param x: bla x
+           :type x: int
+
+           :param y: bla y
+           :type y: float
+
+           :param int z: bla z
+
+           :return: sum
+           :rtype: float
+
+           :raises OSError: bla
+           '''
+           return x + y + z
+
+    * or the Google style (``Args:``, ``Returns:``, ``Raises:``)::
+
+       def function_foo(x, y, z):
+           '''function foo ...
+
+           Args:
+               x (int): bla x
+               y (float): bla y
+
+               z (int): bla z
+
+           Returns:
+               float: sum
+
+           Raises:
+               OSError: bla
+           '''
+           return x + y + z
+
+    * or the Numpy style (``Parameters``, ``Returns``, ``Raises``)::
+
+       def function_foo(x, y, z):
+           '''function foo ...
+
+           Parameters
+           ----------
+           x: int
+               bla x
+           y: float
+               bla y
+
+           z: int
+               bla z
+
+           Returns
+           -------
+           float
+               sum
+
+           Raises
+           ------
+           OSError
+               bla
+           '''
+           return x + y + z
+
+
+    You'll be notified of **missing parameter documentation** but also of
+    **naming inconsistencies** between the signature and the documentation which
+    often arise when parameters are renamed automatically in the code, but not
+    in the documentation.
+
+    Constructor parameters can be documented in either the class docstring or
+    ``__init__`` docstring, but not both.
+
+    In some cases, having to document all parameters is a nuisance, for instance
+    if many of your functions or methods just follow a **common interface**. To
+    remove this burden, the checker accepts missing parameter documentation if
+    one of the following phrases is found in the docstring:
+
+    * For the other parameters, see
+    * For the parameters, see
+
+    (with arbitrary whitespace between the words). Please add a link to the
+    docstring defining the interface, e.g. a superclass method, after "see"::
+
+       def callback(x, y, z):
+           '''Sphinx style docstring for callback ...
+
+           :param x: bla x
+           :type x: int
+
+           For the other parameters, see
+           :class:`MyFrameworkUsingAndDefiningCallback`
+           '''
+           return x + y + z
+
+    Naming inconsistencies in existing parameter and their type documentations
+    are still detected when using this feature.
     """
     __implements__ = IAstroidChecker
 
-    name = 'docstring_params'
+    name = 'parameter_documentation'
     msgs = {
         'W9003': ('"%s" missing or differing in parameter documentation',
                   'missing-param-doc',

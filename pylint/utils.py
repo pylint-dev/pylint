@@ -7,6 +7,7 @@ main pylint class
 from __future__ import print_function
 
 import collections
+from inspect import cleandoc
 import os
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 import re
@@ -460,36 +461,76 @@ class MessagesHandlerMixIn(object):
         print("")
 
         for checker, (options, msgs, reports) in six.iteritems(by_checker):
-            title = '%s checker' % (checker.replace("_", " ").title())
-            print(title)
-            print('~' * len(title))
-            print("")
-            print("Verbatim name of the checker is ``%s``." % checker)
-            print("")
-            if options:
-                title = 'Options'
-                print(title)
-                print('^' * len(title))
-                _rest_format_section(sys.stdout, None, options)
-                print("")
-            if msgs:
-                title = 'Messages'
-                print(title)
-                print('~' * len(title))
-                for msgid, msg in sorted(six.iteritems(msgs),
-                                         key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
-                    msg = build_message_def(checker, msgid, msg)
-                    print(msg.format_help(checkerref=False))
-                print("")
-            if reports:
-                title = 'Reports'
-                print(title)
-                print('~' * len(title))
-                for report in reports:
-                    print(':%s: %s' % report[:2])
-                print("")
-            print("")
+            self._print_checker_doc(checker, options, msgs, reports)
 
+    def _print_checker_doc(self,   # pylint: disable=no-self-use
+                           checker_name, options, msgs, reports,
+                           doc=None, module=None):
+        title = '%s checker' % (checker_name.replace("_", " ").title())
+        if module:
+            # Provide anchor to link against
+            print(".. _%s:\n" % module)
+            # Include module name in title
+            title += " (``%s``)" % module
+        print(title)
+        print('~' * len(title))
+        print("")
+        print("Verbatim name of the checker is ``%s``." % checker_name)
+        print("")
+        if doc:
+            title = 'Documentation'
+            print(title)
+            print('^' * len(title))
+            print(cleandoc(doc))
+            print("")
+        if options:
+            title = 'Options'
+            print(title)
+            print('^' * len(title))
+            _rest_format_section(sys.stdout, None, options)
+            print("")
+        if msgs:
+            title = 'Messages'
+            print(title)
+            print('^' * len(title))
+            for msgid, msg in sorted(six.iteritems(msgs),
+                                     key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
+                msg = build_message_def(checker_name, msgid, msg)
+                print(msg.format_help(checkerref=False))
+            print("")
+        if reports:
+            title = 'Reports'
+            print(title)
+            print('^' * len(title))
+            for report in reports:
+                print(':%s: %s' % report[:2])
+            print("")
+        print("")
+
+    def print_plugin_documentation(self):
+        """output full documentation in ReST format for all loaded plugins"""
+        by_module = {}
+        for checker in self.get_checkers():
+            if checker.name == 'master':
+                continue
+            module = checker.__module__
+            try:
+                by_module[module][0] += checker.options_and_values()
+                by_module[module][1].update(checker.msgs)
+                by_module[module][2] += checker.reports
+                if checker.__doc__:
+                    by_module[module][3] += checker.__doc__
+                by_module[module][4] += checker.name
+            except KeyError:
+                by_module[module] = [list(checker.options_and_values()),
+                                     dict(checker.msgs),
+                                     list(checker.reports),
+                                     checker.__doc__,
+                                     checker.name]
+
+        for module, params in sorted(six.iteritems(by_module)):
+            options, msgs, reports, doc, name = params
+            self._print_checker_doc(name, options, msgs, reports, doc, module)
 
 class FileState(object):
     """Hold internal state specific to the currently analyzed file"""

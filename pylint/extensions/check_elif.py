@@ -12,7 +12,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     """
 
     __implements__ = (ITokenChecker, IAstroidChecker)
-    name = 'elseifused'
+    name = 'else_if_used'
     msgs = {'R5501': ('Consider using "elif" instead of "else if"',
                       'else-if-used',
                       'Used when an else statement is immediately followed by '

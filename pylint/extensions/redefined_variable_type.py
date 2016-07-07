@@ -19,6 +19,7 @@ class MultipleTypesChecker(BaseChecker):
     At a function, method, class or module scope
 
     This rule could be improved:
+
     - Currently, if an attribute is set to different types in 2 methods of a
       same class, it won't be detected (see functional test)
     - One could improve the support for inference on assignment with tuples,
