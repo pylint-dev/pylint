@@ -2,7 +2,7 @@
   What's New In Pylint 1.6
 **************************
 
-:Release: |release|
+:Release: 1.6.0
 :Date: 2016-07-07
 
 
