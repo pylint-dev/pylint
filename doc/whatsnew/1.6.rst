@@ -12,8 +12,8 @@ Summary -- Release highlights
 Nothing major.
 
 
-New checks
-==========
+New checkers
+============
 
 * We added a new recommendation check, ``consider-iterating-dictionary``,
   which is emitted when a dictionary is iterated by using ``.keys()``.
@@ -57,6 +57,14 @@ New checks
 
   The check ``multiple-constructor-doc`` is emitted when the parameter is documented
   in both places.
+
+
+* We added a new extension plugin, 'pylint.extensions.mccabe', which can be used
+  for warning about the complexity in the code.
+
+  You can enable it as in::
+
+      $ pylint module_or_project --load-plugins=pylint.extensions.mccabe
 
 
 New features
