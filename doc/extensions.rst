@@ -155,3 +155,17 @@ By default, omitting the return documentation of a function altogether is
 tolerated without any warnings. If you want to switch off this behavior
 (forcing functions to document their returns), set the option
 ``accept-no-return-doc`` to ``no`` in your ``.pylintrc``.
+
+
+Prohibit builtin checker
+------------------------
+
+This used to be the ``bad-builtin`` core checker, but it was moved to
+an extension instead. It can be used for finding prohibited used builtins,
+such as ``map`` or ``filter``, for which other alternatives exists.
+
+If you want to control for what builtins the checker should warn about,
+you can use the ``bad-functions`` option::
+
+    $ pylint a.py --load-plugins=pylint.extensions.bad_builtin --bad-functions=apply,reduce
+    ...
