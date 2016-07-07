@@ -5,7 +5,7 @@ Pylint NEWS
 What's New in Pylint 1.6.0?
 ===========================
 
-Release date: 2016-07-03
+Release date: 2016-07-07
 
     * Added a new extension, `pylint.extensions.mccabe`, for warning
       about complexity in code.

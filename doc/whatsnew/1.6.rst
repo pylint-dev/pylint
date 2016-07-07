@@ -3,7 +3,7 @@
 **************************
 
 :Release: |release|
-:Date: |TBD|
+:Date: 2016-07-07
 
 
 Summary -- Release highlights
