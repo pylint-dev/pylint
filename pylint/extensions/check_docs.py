@@ -15,4 +15,3 @@ def register(linter):
     warnings.warn("This plugin is deprecated, use pylint.extensions.docparams instead.",
                   DeprecationWarning)
     linter.register_checker(docparams.DocstringParameterChecker(linter))
-
