@@ -2,6 +2,15 @@
 Pylint NEWS
 -----------
 
+What's new in Pylint 1.6.2?
+===========================
+
+Release date: TBA
+
+    * Do not crash when printing the help of options with default regular expressions
+
+      Close #990
+
 What's new in Pylint 1.6.1?
 ===========================
 

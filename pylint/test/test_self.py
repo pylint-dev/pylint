@@ -345,6 +345,10 @@ class RunTC(unittest.TestCase):
         self._test_output([path, "--rcfile=%s" % config_path],
                           expected_output=expected)
 
+    def test_no_crash_with_formatting_regex_defaults(self):
+        self._runtest(["--ignore-patterns=a"], reporter=TextReporter(six.StringIO()),
+                      code=32)
+
 
 if __name__ == '__main__':
     unittest.main()
