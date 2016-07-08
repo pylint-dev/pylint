@@ -143,38 +143,6 @@ class RunTC(unittest.TestCase):
         output = out.getvalue()
         self.assertNotIn("profile", output)
 
-    def test_full_documentation(self):
-        out = six.StringIO()
-        self._runtest(['--full-documentation'], code=0, out=out)
-
-        output = out.getvalue()
-        # A few spot checks only
-        for re_str in [
-            "^Pylint global options and switches$",
-            "Verbatim name of the checker is ``python3``",
-            "^:old-octal-literal \(E1608\):",
-            "^:dummy-variables-rgx:",
-        ]:
-            regexp = re.compile(re_str, re.MULTILINE)
-            self.assertRegexpMatches(output, regexp)
-
-    def test_plugin_documentation(self):
-        out = six.StringIO()
-        self._runtest(['--plugin-documentation',
-                       '--load-plugins=pylint.extensions.docparams'],
-                      code=0, out=out)
-        output = out.getvalue()
-        # A few spot checks only
-        for re_str in [
-            ("^Parameter Documentation checker "
-             "\(``pylint.extensions.docparams``\)"),
-            "Checker for Sphinx, Google, or Numpy style docstrings",
-            "^:accept-no-param-doc:",
-            "^:missing-type-doc \(W9004\):",
-        ]:
-            regexp = re.compile(re_str, re.MULTILINE)
-            self.assertRegexpMatches(output, regexp)
-
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
 

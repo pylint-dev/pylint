@@ -135,6 +135,7 @@ doctest:
 extensions.rst: exts/pylint_extensions.py
 extensions.rst: ../pylint/utils.py
 extensions.rst: $(shell find ../pylint/extensions -type f -regex '.*\.py')
+extensions.rst: $(shell find ../pylint/extensions -type f -regex '.*\.rst')
 	rm -f extensions.rst
 	PYTHONPATH=$(PYTHONPATH) ./exts/pylint_extensions.py
 

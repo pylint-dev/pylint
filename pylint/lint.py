@@ -1144,13 +1144,6 @@ group are mutually exclusive.'),
               'help' : 'Python code to execute, usually for sys.path '
                        'manipulation such as pygtk.require().'}),
 
-            ('plugins-only',
-             {'action' : 'callback', 'callback' : lambda *args: 1,
-              'level': 1,
-              'help' : 'Do not load default checkers and reporters, '
-                       'only the specified plugins',
-              'hide' : True}),
-
             ('help-msg',
              {'action' : 'callback', 'type' : 'string', 'metavar': '<msg-id>',
               'callback' : self.cb_help_message,
@@ -1175,13 +1168,6 @@ group are mutually exclusive.'),
               'callback' : self.cb_full_documentation,
               'group': 'Commands', 'level': 1,
               'help' : "Generate pylint's full documentation."}),
-
-            ('plugin-documentation',
-             {'action' : 'callback',
-              'callback' : self.cb_plugin_documentation,
-              'group': 'Commands', 'level': 1,
-              'help' : "Generate pylint's plugin documentation.",
-              'hide' : True}),
 
             ('generate-rcfile',
              {'action' : 'callback', 'callback' : self.cb_generate_config,
@@ -1333,11 +1319,6 @@ group are mutually exclusive.'),
     def cb_full_documentation(self, option, optname, value, parser):
         """optik callback for printing full documentation"""
         self.linter.print_full_documentation()
-        sys.exit(0)
-
-    def cb_plugin_documentation(self, option, optname, value, parser):
-        """optik callback for printing plugin documentation"""
-        self.linter.print_plugin_documentation()
         sys.exit(0)
 
     def cb_list_messages(self, option, optname, value, parser): # FIXME

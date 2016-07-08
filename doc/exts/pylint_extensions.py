@@ -5,10 +5,11 @@
 """Script used to generate the extensions file before building the actual documentation."""
 
 import os
-import subprocess
 import sys
 
 import sphinx
+
+from pylint.lint import PyLinter
 
 
 def builder_inited(app):
@@ -26,33 +27,26 @@ def builder_inited(app):
         if name == "check_docs":
             continue
         modules.append('pylint.extensions.%s' % name)
-    modules_list = ",".join(modules)
-    if not modules_list:
+    if not modules:
         sys.exit("No Pylint extensions found?")
 
-    popen = subprocess.Popen([sys.executable, "-m", "pylint",
-                              "--plugin-documentation", "--load-plugins",
-                              modules_list],
-                             stdout=subprocess.PIPE)
-    output, _ = popen.communicate()
-
-    if not output:
-        sys.exit(popen.returncode)
+    linter = PyLinter()
+    linter.load_plugin_modules(modules)
 
     extensions_doc = os.path.join(base_path, 'doc', 'extensions.rst')
-    with open(extensions_doc, 'wb') as stream:
-        stream.write(b"Optional Pylint checkers in the extensions module\n")
-        stream.write(b"=================================================\n\n")
-        stream.write(b"Pylint provides the following optional plugins:\n\n")
+    with open(extensions_doc, 'w') as stream:
+        stream.write("Optional Pylint checkers in the extensions module\n")
+        stream.write("=================================================\n\n")
+        stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
-            stream.write(b"- :ref:`{0}`\n".format(module))
+            stream.write("- :ref:`{0}`\n".format(module))
         stream.write("\n")
-        stream.write(b"You can activate any or all of these extensions "
-                     b"by adding a ``load-plugins`` line to the ``MASTER`` "
-                     b"section of your ``.pylintrc``, for example::\n")
-        stream.write(b"\n    load-plugins=pylint.extensions.docparams,"
-                     b"pylint.extensions.docstyle\n\n")
-        stream.write(output)
+        stream.write("You can activate any or all of these extensions "
+                     "by adding a ``load-plugins`` line to the ``MASTER`` "
+                     "section of your ``.pylintrc``, for example::\n")
+        stream.write("\n    load-plugins=pylint.extensions.docparams,"
+                     "pylint.extensions.docstyle\n\n")
+        linter.print_plugin_documentation(stream)
 
 
 def setup(app):

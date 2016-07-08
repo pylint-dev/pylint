@@ -21,11 +21,6 @@ BUILTIN_HINTS['filter'] = BUILTIN_HINTS['map']
 
 
 class BadBuiltinChecker(BaseChecker):
-    """Find prohibited used builtins, such as ``map`` or ``filter``.
-
-    This used to be the ``bad-builtin`` core checker, but it was moved to
-    an extension instead.
-    """
 
     __implements__ = (IAstroidChecker, )
     name = 'deprecated_builtins'
