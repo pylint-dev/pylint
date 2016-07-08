@@ -83,6 +83,10 @@ Release date: tba
       emitted when item deletion is tried on an object which doesn't
       have this ability. Closes issue #592.
 
+    * Fix false negative 'redundant-returns-doc' using 'yield'.
+
+      Closes issue #984.
+
 
 What's new in Pylint 1.6.2?
 ===========================
