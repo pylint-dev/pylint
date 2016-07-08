@@ -115,7 +115,7 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param)
 
     def check_functiondef_returns(self, node, node_doc):
-        if utils.inside_yields(node):
+        if node.is_generator():
             # A *yield None* or *yield* is a type of *return* returning a generator
             return
         return_nodes = node.nodes_of_class(astroid.Return)
