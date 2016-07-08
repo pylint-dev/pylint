@@ -514,6 +514,9 @@ class MessagesHandlerMixIn(object):
             if checker.name == 'master':
                 continue
             module = checker.__module__
+            # Plugins only - skip over core checkers
+            if re.match("pylint.checkers", module):
+                continue
             try:
                 by_module[module][0] += checker.options_and_values()
                 by_module[module][1].update(checker.msgs)

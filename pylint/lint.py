@@ -433,14 +433,11 @@ class PyLinter(config.OptionsManagerMixIn,
         self._dynamic_plugins = set()
         self._python3_porting_mode = False
         self._error_mode = False
-        self._plugins_only = False
         self.load_provider_defaults()
         if reporter:
             self.set_reporter(reporter)
 
     def load_default_plugins(self):
-        if self._plugins_only:
-            return
         checkers.initialize(self)
         reporters.initialize(self)
         # Make sure to load the default reporter, because
@@ -562,10 +559,6 @@ class PyLinter(config.OptionsManagerMixIn,
         for _reporters in six.itervalues(self._reports):
             for report_id, _, _ in _reporters:
                 self.disable_report(report_id)
-
-    def plugins_only(self):
-        """plugins-only mode: do not load default checkers, only plugins"""
-        self._plugins_only = True
 
     def error_mode(self):
         """error mode: enable only errors; no reports, no persistent"""
@@ -1127,14 +1120,12 @@ group are mutually exclusive.'),
     def __init__(self, args, reporter=None, exit=True):
         self._rcfile = None
         self._plugins = []
-        self._plugins_only = False
         try:
             preprocess_options(args, {
                 # option: (callback, takearg)
                 'init-hook':   (cb_init_hook, True),
                 'rcfile':       (self.cb_set_rcfile, True),
                 'load-plugins': (self.cb_add_plugins, True),
-                'plugins-only': (self.cb_plugins_only, False),
                 })
         except ArgumentPreprocessingError as ex:
             print(ex, file=sys.stderr)
@@ -1219,8 +1210,6 @@ group are mutually exclusive.'),
                        'checker will be displayed'}),
 
             ), option_groups=self.option_groups, pylintrc=self._rcfile)
-        if self._plugins_only:
-            linter.plugins_only()
         # register standard checkers
         linter.load_default_plugins()
         # load command line plugins
@@ -1314,10 +1303,6 @@ group are mutually exclusive.'),
     def cb_add_plugins(self, name, value):
         """callback for option preprocessing (i.e. before option parsing)"""
         self._plugins.extend(utils._splitstrip(value))
-
-    def cb_plugins_only(self, *args, **kwargs):
-        """callback for option preprocessing (i.e. before option parsing)"""
-        self._plugins_only = True
 
     def cb_error_mode(self, *args, **kwargs):
         """error mode:

@@ -30,7 +30,7 @@ def builder_inited(app):
     if not modules_list:
         sys.exit("No Pylint extensions found?")
 
-    popen = subprocess.Popen([sys.executable, "-m", "pylint", "--plugins-only",
+    popen = subprocess.Popen([sys.executable, "-m", "pylint",
                               "--plugin-documentation", "--load-plugins",
                               modules_list],
                              stdout=subprocess.PIPE)
