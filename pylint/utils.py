@@ -1084,7 +1084,7 @@ def _comment(string):
 def _format_option_value(optdict, value):
     """return the user input's value from a 'compiled' value"""
     if isinstance(value, (list, tuple)):
-        value = ','.join(value)
+        value = ','.join(_format_option_value(optdict, item) for item in value)
     elif isinstance(value, dict):
         value = ','.join('%s:%s' % (k, v) for k, v in value.items())
     elif hasattr(value, 'match'): # optdict.get('type') == 'regexp'

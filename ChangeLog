@@ -2,7 +2,6 @@
 Pylint NEWS
 -----------
 
-
 What's New in Pylint 2.0?
 =========================
 
@@ -83,6 +82,17 @@ Release date: tba
     * Added a new warning, 'unsupported-delete-operation', which is
       emitted when item deletion is tried on an object which doesn't
       have this ability. Closes issue #592.
+
+
+What's new in Pylint 1.6.2?
+===========================
+
+Release date: TBA
+
+    * Do not crash when printing the help of options with default regular expressions
+
+      Close #990
+
 
 What's new in Pylint 1.6.1?
 ===========================
