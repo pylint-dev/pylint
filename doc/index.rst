@@ -15,7 +15,7 @@ Pylint User Manual
    run
    output
    message-control
-   generated_features
+   features
    extensions
    options
    ide-integration
