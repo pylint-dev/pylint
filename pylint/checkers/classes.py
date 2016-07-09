@@ -68,6 +68,10 @@ def _different_parameters(original, overridden):
     different_positional = _has_different_parameters(original_parameters,
                                                      overridden_parameters)
 
+    if different_positional:
+        # If the second method is using positional variadic arguments, then it is okay
+        # to not complain about it.
+        different_positional = overridden.args.vararg is None
     return different_positional
 
 
