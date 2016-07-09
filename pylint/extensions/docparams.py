@@ -74,19 +74,19 @@ class DocstringParameterChecker(BaseChecker):
                 }),
                ('accept-no-raise-doc',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y or n>',
-                 'help': 'Whether to accept totally missing raises'
-                         'documentation in the docstring of a function that'
+                 'help': 'Whether to accept totally missing raises '
+                         'documentation in the docstring of a function that '
                          'raises an exception.'
                 }),
                ('accept-no-return-doc',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y or n>',
-                 'help': 'Whether to accept totally missing return'
-                         'documentation in the docstring of a function that'
+                 'help': 'Whether to accept totally missing return '
+                         'documentation in the docstring of a function that '
                          'returns a statement.'
                 }),
                ('accept-no-yields-doc',
                 {'default': True, 'type' : 'yn', 'metavar': '<y or n>',
-                 'help': 'Whether to accept totally missing yields'
+                 'help': 'Whether to accept totally missing yields '
                          'documentation in the docstring of a generator.'
                 }),
               )

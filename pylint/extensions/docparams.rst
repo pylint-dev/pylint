@@ -9,10 +9,17 @@ You can activate this checker by adding the line::
 
 to the ``MASTER`` section of your ``.pylintrc``.
 
-This checker verifies that all function, method, and constructor parameters are
-mentioned in the
+This checker verifies that all function, method, and constructor docstrings
+include documentation of the
 
-* Sphinx ``param`` and ``type`` parts of the docstring::
+* parameters and their types
+* return value and its type
+* exceptions raised
+
+and can handle docstrings in
+
+* Sphinx style (``param``, ``type``, ``return``, ``rtype``,
+  ``raise`` / ``except``)::
 
    def function_foo(x, y, z):
        '''function foo ...
@@ -27,10 +34,12 @@ mentioned in the
 
        :return: sum
        :rtype: float
+
+       :raises OSError: bla
        '''
        return x + y + z
 
-* or the Google style ``Args:`` part of the docstring::
+* or the Google style (``Args:``, ``Returns:``, ``Raises:``)::
 
    def function_foo(x, y, z):
        '''function foo ...
@@ -43,10 +52,13 @@ mentioned in the
 
        Returns:
            float: sum
+
+       Raises:
+           OSError: bla
        '''
        return x + y + z
 
-* or the Numpy style ``Parameters`` part of the docstring::
+* or the Numpy style (``Parameters``, ``Returns``, ``Raises``)::
 
    def function_foo(x, y, z):
        '''function foo ...
@@ -65,6 +77,11 @@ mentioned in the
        -------
        float
            sum
+
+       Raises
+       ------
+       OSError
+           bla
        '''
        return x + y + z
 
@@ -74,8 +91,8 @@ You'll be notified of **missing parameter documentation** but also of
 often arise when parameters are renamed automatically in the code, but not in
 the documentation.
 
-By convention, constructor parameters are documented in the class docstring.
-(``__init__`` and ``__new__`` methods are considered constructors.)::
+Constructor parameters can be documented in either the class docstring or
+the ``__init__`` docstring, but not both::
 
     class ClassFoo(object):
         '''Sphinx style docstring foo
@@ -88,14 +105,14 @@ By convention, constructor parameters are documented in the class docstring.
         def __init__(self, x, y):
             pass
 
-    class ClassFoo(object):
-        '''Google style docstring foo
-
-        Args:
-            x (float): bla x
-            y (int): bla y
-        '''
+    class ClassBar(object):
         def __init__(self, x, y):
+            '''Google style docstring bar
+
+            Args:
+                x (float): bla x
+                y (int): bla y
+            '''
             pass
 
 In some cases, having to document all parameters is a nuisance, for instance if
@@ -133,18 +150,3 @@ docstring defining the interface, e.g. a superclass method, after "see"::
 
 Naming inconsistencies in existing parameter and their type documentations are
 still detected.
-
-By default, omitting the parameter documentation of a function altogether is
-tolerated without any warnings. If you want to switch off this behavior
-(forcing functions to document their parameters), set the option
-``accept-no-param-doc`` to ``no`` in your ``.pylintrc``.
-
-By default, omitting the exception raising documentation of a function
-altogether is tolerated without any warnings. If you want to switch off this
-behavior (forcing functions that raise exceptions to document them), set the
-option ``accept-no-raise-doc`` to ``no`` in your ``.pylintrc``.
-
-By default, omitting the return documentation of a function altogether is
-tolerated without any warnings. If you want to switch off this behavior
-(forcing functions to document their returns), set the option
-``accept-no-return-doc`` to ``no`` in your ``.pylintrc``.

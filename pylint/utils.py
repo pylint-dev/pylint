@@ -16,8 +16,6 @@ import tokenize
 import warnings
 import textwrap
 
-import pkg_resources
-
 import six
 from six.moves import zip  # pylint: disable=redefined-builtin
 
@@ -471,28 +469,31 @@ class MessagesHandlerMixIn(object):
         for checker, info in six.iteritems(by_checker):
             self._print_checker_doc(checker, info, stream=stream)
 
-    def _print_checker_doc(self,  # pylint: disable=no-self-use
-                           checker_name, info, stream=None):
+    @staticmethod
+    def _print_checker_doc(checker_name, info, stream=None):
+        """Helper method for print_full_documentation.
 
+        Also used by doc/exts/pylint_extensions.py.
+        """
         if not stream:
             stream = sys.stdout
 
-        doc = info.get('doc', None)
-        module = info.get('module', None)
-        msgs = info.get('msgs', None)
-        options = info.get('options', None)
-        reports = info.get('reports', None)
+        doc = info.get('doc')
+        module = info.get('module')
+        msgs = info.get('msgs')
+        options = info.get('options')
+        reports = info.get('reports')
 
         title = '%s checker' % (checker_name.replace("_", " ").title())
 
         if module:
             # Provide anchor to link against
             print(".. _%s:\n" % module, file=stream)
-            # Include module name in title
-            title += " (``%s``)" % module
         print(title, file=stream)
         print('~' * len(title), file=stream)
         print("", file=stream)
+        if module:
+            print("This checker is provided by ``%s``." % module, file=stream)
         print("Verbatim name of the checker is ``%s``." % checker_name, file=stream)
         print("", file=stream)
         if doc:
@@ -524,44 +525,6 @@ class MessagesHandlerMixIn(object):
                 print(':%s: %s' % report[:2], file=stream)
             print("", file=stream)
         print("", file=stream)
-
-    def print_plugin_documentation(self, stream=None):
-        """output full documentation in ReST format for all loaded plugins"""
-        by_module = {}
-        for checker in self.get_checkers():
-            if checker.name == 'master':
-                continue
-            module = checker.__module__
-            # Plugins only - skip over core checkers
-            if re.match("pylint.checkers", module):
-                continue
-
-            # Find any .rst documentation associated with this plugin
-            mod_package, mod_name = os.path.splitext(module)
-            rst_name = mod_name[1:] + ".rst"
-            doc = ""
-            if pkg_resources.resource_exists(mod_package, rst_name):
-                doc = pkg_resources.resource_string(mod_package, rst_name).decode()
-
-            try:
-                by_module[module]['options'] += checker.options_and_values()
-                by_module[module]['msgs'].update(checker.msgs)
-                by_module[module]['reports'] += checker.reports
-                by_module[module]['doc'] += doc
-                by_module[module]['name'] += checker.name
-                by_module[module]['module'] += module
-            except KeyError:
-                by_module[module] = {
-                    'options': list(checker.options_and_values()),
-                    'msgs':    dict(checker.msgs),
-                    'reports': list(checker.reports),
-                    'doc':     doc,
-                    'name':    checker.name,
-                    'module':  module,
-                }
-
-        for module, info in sorted(six.iteritems(by_module)):
-            self._print_checker_doc(info['name'], info, stream=stream)
 
 class FileState(object):
     """Hold internal state specific to the currently analyzed file"""
