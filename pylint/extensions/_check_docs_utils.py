@@ -86,6 +86,9 @@ class Docstring(object):
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """, re.X | re.S)
 
+    # Set True if the docstring supports a "yield" section
+    support_yield = None
+
     # These methods are designed to be overridden
     # pylint: disable=no-self-use
     def __init__(self, doc):
@@ -157,6 +160,8 @@ class SphinxDocstring(Docstring):
     re_rtype_in_docstring = re.compile(r":rtype:")
 
     re_returns_in_docstring = re.compile(r":returns?:")
+
+    support_yield = False
 
     def is_valid(self):
         return bool(self.re_param_in_docstring.search(self.doc) or
@@ -254,6 +259,8 @@ class GoogleDocstring(Docstring):
         type=re_type,
         container_type=re_container_type
     ), re.X | re.S | re.M)
+
+    support_yield = True
 
     def is_valid(self):
         return bool(self.re_param_section.search(self.doc) or
@@ -406,6 +413,8 @@ class NumpyDocstring(GoogleDocstring):
         type=GoogleDocstring.re_type,
         container_type=GoogleDocstring.re_container_type
     ), re.X | re.S | re.M)
+
+    support_yield = True
 
     @staticmethod
     def min_section_indent(section_match):

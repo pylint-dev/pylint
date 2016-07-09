@@ -16,6 +16,10 @@ Other Changes
 
 * None yet.
 
+Bug fixes
+=========
+
+* Fix false negative 'redundant-returns-doc' using 'yield'.
 
 Removed Changes
 ===============
