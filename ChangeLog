@@ -83,7 +83,8 @@ Release date: tba
       emitted when item deletion is tried on an object which doesn't
       have this ability. Closes issue #592.
 
-    * Fix false negative 'redundant-returns-doc' using 'yield'.
+    * Fix a false positive of 'redundant-returns-doc', occurred when the documented
+      function was using *yield* instead of *return*.
 
       Closes issue #984.
 
