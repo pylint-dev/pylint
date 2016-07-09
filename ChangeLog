@@ -11,6 +11,11 @@ Release date: TBA
 
       Close #990
 
+    * More granular versions for deprecated modules.
+
+      Close #991
+
+
 What's new in Pylint 1.6.1?
 ===========================
 
