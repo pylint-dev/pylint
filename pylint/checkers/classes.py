@@ -34,11 +34,41 @@ else:
 INVALID_BASE_CLASSES = {'bool', 'range', 'slice', 'memoryview'}
 
 
-def _get_method_args(method):
-    args = method.args.args
+def _positional_parameters(method):
+    positional = method.args.args
     if method.type in ('classmethod', 'method'):
-        return len(args) - 1
-    return len(args)
+        positional = positional[1:]
+    return positional
+
+
+def _same_parameter(first, second):
+    return first.name == second.name
+
+
+def _has_different_parameters(original, overridden):
+    same_length = len(original) == len(overridden)
+    if same_length:
+        return any(not _same_parameter(first, second)
+                   for first, second in zip(original, overridden))
+    return True
+
+
+def _different_parameters(original, overridden):
+    """Determine if the two methods have different parameters
+
+    They are considered to have different parameters if:
+
+       * they have different positional parameters, including different names
+
+    """
+
+    original_parameters = _positional_parameters(original)
+    overridden_parameters = _positional_parameters(overridden)
+
+    different_positional = _has_different_parameters(original_parameters,
+                                                     overridden_parameters)
+
+    return different_positional
 
 
 def _is_invalid_base_class(cls):
@@ -926,9 +956,7 @@ a metaclass class method.'}
         # Don't care about functions with unknown argument (builtins).
         if method1.args.args is None or refmethod.args.args is None:
             return
-        # If we use *args, **kwargs, skip the below checks.
-        if method1.args.vararg or method1.args.kwarg:
-            return
+
         # Ignore private to class methods.
         if is_attr_private(method1.name):
             return
@@ -940,9 +968,7 @@ a metaclass class method.'}
                         decorator.attrname == 'setter'):
                     return
 
-        method1_args = _get_method_args(method1)
-        refmethod_args = _get_method_args(refmethod)
-        if method1_args != refmethod_args:
+        if _different_parameters(refmethod, method1):
             self.add_message('arguments-differ',
                              args=(class_type, method1.name),
                              node=method1)

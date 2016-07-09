@@ -134,5 +134,19 @@ class PropertySetter(Property):
 
 class StaticmethodChild2(Staticmethod):
 
-    def func(self, arg):
-        super(StaticmethodChild2, self).func(arg)
+    def func(self, data):
+        super(StaticmethodChild2, self).func(data)
+
+
+class SuperClass(object):
+
+    @staticmethod
+    def impl(arg1, arg2):
+        return arg1 + arg2
+
+
+class MyClass(SuperClass):
+
+    def impl(self, *args, **kwargs):
+
+        super(MyClass, self).impl(*args, **kwargs)
