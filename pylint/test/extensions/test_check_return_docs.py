@@ -439,7 +439,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             """This is a docstring.
 
             Returns:
-            int or None: One, or sometimes None.
+                int or None: One, or sometimes None.
             """
             if a_func():
                 return None

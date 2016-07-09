@@ -73,6 +73,7 @@ def possible_exc_types(node):
     excs = set(exc for exc in excs if not node_ignores_exception(node, exc))
     return excs
 
+
 def docstringify(docstring):
     for docstring_type in [SphinxDocstring, GoogleDocstring, NumpyDocstring]:
         instance = docstring_type(docstring)
@@ -81,13 +82,17 @@ def docstringify(docstring):
 
     return Docstring(docstring)
 
+
 class Docstring(object):
     re_for_parameters_see = re.compile(r"""
         For\s+the\s+(other)?\s*parameters\s*,\s+see
         """, re.X | re.S)
 
-    # Set True if the docstring supports a "yield" section
-    support_yield = None
+    supports_yields = None
+    """True if the docstring supports a "yield" section.
+
+    False if the docstring uses the returns section to document generators.
+    """
 
     # These methods are designed to be overridden
     # pylint: disable=no-self-use
@@ -107,11 +112,15 @@ class Docstring(object):
     def has_returns(self):
         return False
 
+    def has_yields(self):
+        return False
+
     def match_param_docs(self):
         return set(), set()
 
     def params_documented_elsewhere(self):
         return self.re_for_parameters_see.search(self.doc) is not None
+
 
 class SphinxDocstring(Docstring):
     re_type = r"[\w\.]+"
@@ -161,7 +170,7 @@ class SphinxDocstring(Docstring):
 
     re_returns_in_docstring = re.compile(r":returns?:")
 
-    support_yield = False
+    supports_yields = False
 
     def is_valid(self):
         return bool(self.re_param_in_docstring.search(self.doc) or
@@ -188,8 +197,8 @@ class SphinxDocstring(Docstring):
         if not self.doc:
             return False
 
-        return (self.re_rtype_in_docstring.search(self.doc) and
-                self.re_returns_in_docstring.search(self.doc))
+        return bool(self.re_rtype_in_docstring.search(self.doc) and
+                    self.re_returns_in_docstring.search(self.doc))
 
     def match_param_docs(self):
         params_with_doc = set()
@@ -260,12 +269,20 @@ class GoogleDocstring(Docstring):
         container_type=re_container_type
     ), re.X | re.S | re.M)
 
-    support_yield = True
+    re_yields_section = re.compile(
+        _re_section_template.format(r"Yields?"),
+        re.X | re.S | re.M
+    )
+
+    re_yields_line = re_returns_line
+
+    supports_yields = True
 
     def is_valid(self):
         return bool(self.re_param_section.search(self.doc) or
                     self.re_raise_section.search(self.doc) or
-                    self.re_returns_section.search(self.doc))
+                    self.re_returns_section.search(self.doc) or
+                    self.re_yields_section.search(self.doc))
 
     def has_params(self):
         if not self.doc:
@@ -289,6 +306,24 @@ class GoogleDocstring(Docstring):
                 return True
 
         return False
+
+    def has_yields(self):
+        if not self.doc:
+            return False
+
+        entries = self._parse_section(self.re_yields_section)
+        for entry in entries:
+            match = self.re_yields_line.match(entry)
+            if not match:
+                continue
+
+            yield_type = match.group(1)
+            yield_desc = match.group(2)
+            if yield_type and yield_desc:
+                return True
+
+        return False
+
 
     def exceptions(self):
         types = set()
@@ -368,6 +403,7 @@ class GoogleDocstring(Docstring):
 
         return entries
 
+
 class NumpyDocstring(GoogleDocstring):
     _re_section_template = r"""
         ^([ ]*)   {0}   \s*?$          # Numpy parameters header
@@ -414,7 +450,14 @@ class NumpyDocstring(GoogleDocstring):
         container_type=GoogleDocstring.re_container_type
     ), re.X | re.S | re.M)
 
-    support_yield = True
+    re_yields_section = re.compile(
+        _re_section_template.format(r"Yields?"),
+        re.X | re.S | re.M
+    )
+
+    re_yields_line = re_returns_line
+
+    supports_yields = True
 
     @staticmethod
     def min_section_indent(section_match):

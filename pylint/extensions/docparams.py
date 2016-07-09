@@ -58,25 +58,36 @@ class DocstringParameterChecker(BaseChecker):
         'W9008': ('Redundant returns documentation',
                   'redundant-returns-doc',
                   'Please remove the return documentation from this method.'),
+        'W9009': ('Missing yield type documentation',
+                  'missing-yields-doc',
+                  'Please add documentation about what this generator yields.'),
+        'W9010': ('Redundant yields documentation',
+                  'redundant-yields-doc',
+                  'Please remove the yields documentation from this method.'),
     }
 
     options = (('accept-no-param-doc',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Whether to accept totally missing parameter '
-                         'documentation in a docstring of a function that has '
+                         'documentation in the docstring of a function that has '
                          'parameters.'
                 }),
                ('accept-no-raise-doc',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Whether to accept totally missing raises'
-                         'documentation in a docstring of a function that'
+                         'documentation in the docstring of a function that'
                          'raises an exception.'
                 }),
                ('accept-no-return-doc',
                 {'default': True, 'type' : 'yn', 'metavar' : '<y or n>',
                  'help': 'Whether to accept totally missing return'
-                         'documentation in a docstring of a function that'
+                         'documentation in the docstring of a function that'
                          'returns a statement.'
+                }),
+               ('accept-no-yields-doc',
+                {'default': True, 'type' : 'yn', 'metavar': '<y or n>',
+                 'help': 'Whether to accept totally missing yields'
+                         'documentation in the docstring of a generator.'
                 }),
               )
 
@@ -94,6 +105,7 @@ class DocstringParameterChecker(BaseChecker):
         node_doc = utils.docstringify(node.doc)
         self.check_functiondef_params(node, node_doc)
         self.check_functiondef_returns(node, node_doc)
+        self.check_functiondef_yields(node, node_doc)
 
     def check_functiondef_params(self, node, node_doc):
         node_allow_no_param = None
@@ -115,13 +127,23 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param)
 
     def check_functiondef_returns(self, node, node_doc):
-        if not node_doc.support_yield and node.is_generator():
+        if not node_doc.supports_yields and node.is_generator():
             return
+
         return_nodes = node.nodes_of_class(astroid.Return)
         if (node_doc.has_returns() and
                 not any(utils.returns_something(ret_node) for ret_node in return_nodes)):
             self.add_message(
                 'redundant-returns-doc',
+                node=node)
+
+    def check_functiondef_yields(self, node, node_doc):
+        if not node_doc.supports_yields:
+            return
+
+        if node_doc.has_yields() and not node.is_generator():
+            self.add_message(
+                'redundant-yields-doc',
                 node=node)
 
     def visit_raise(self, node):
@@ -160,6 +182,29 @@ class DocstringParameterChecker(BaseChecker):
                 'missing-returns-doc',
                 node=func_node
             )
+
+    def visit_yield(self, node):
+        func_node = node.frame()
+        if not isinstance(func_node, astroid.FunctionDef):
+            return
+
+        doc = utils.docstringify(func_node.doc)
+        if not doc.is_valid() and self.config.accept_no_yields_doc:
+            return
+
+        if doc.supports_yields:
+            doc_has_yields = doc.has_yields()
+        else:
+            doc_has_yields = doc.has_returns()
+
+        if not doc_has_yields:
+            self.add_message(
+                'missing-yields-doc',
+                node=func_node
+            )
+
+    def visit_yieldfrom(self, node):
+        self.visit_yield(node)
 
     def check_arguments_in_docstring(self, doc, arguments_node, warning_node,
                                      accept_no_param_doc=None):
