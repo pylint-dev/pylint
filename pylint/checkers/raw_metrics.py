@@ -9,10 +9,6 @@ Raw metrics checker
 
 import tokenize
 
-# pylint now requires pylint >= 2.2, so this is no longer necessary
-#if not hasattr(tokenize, 'NL'):
-#    raise ValueError("tokenize.NL doesn't exist -- tokenize module too old")
-
 from pylint.interfaces import ITokenChecker
 from pylint.utils import EmptyReport
 from pylint.checkers import BaseTokenChecker

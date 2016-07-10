@@ -165,14 +165,11 @@ class MisdesignChecker(BaseChecker):
     def visit_classdef(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
-        # Is the total inheritance hierarchy is 7 or less?
         nb_parents = len(list(node.ancestors()))
         if nb_parents > self.config.max_parents:
             self.add_message('too-many-ancestors', node=node,
                              args=(nb_parents, self.config.max_parents))
-        # Does the class contain less than 20 attributes for
-        # non-GUI classes (40 for GUI)?
-        # FIXME detect gui classes
+
         if len(node.instance_attrs) > self.config.max_attributes:
             self.add_message('too-many-instance-attributes', node=node,
                              args=(len(node.instance_attrs),
