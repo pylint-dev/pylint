@@ -7,6 +7,7 @@ main pylint class
 from __future__ import print_function
 
 import collections
+from inspect import cleandoc
 import os
 from os.path import dirname, basename, splitext, exists, isdir, join, normpath
 import re
@@ -416,13 +417,16 @@ class MessagesHandlerMixIn(object):
             Message(msgid, symbol,
                     (abspath, path, module, obj, line or 1, col_offset or 0), msg, confidence))
 
-    def print_full_documentation(self):
+    def print_full_documentation(self, stream=None):
         """output a full documentation in ReST format"""
-        print("Pylint global options and switches")
-        print("----------------------------------")
-        print("")
-        print("Pylint provides global options and switches.")
-        print("")
+        if not stream:
+            stream = sys.stdout
+
+        print("Pylint global options and switches", file=stream)
+        print("----------------------------------", file=stream)
+        print("", file=stream)
+        print("Pylint provides global options and switches.", file=stream)
+        print("", file=stream)
 
         by_checker = {}
         for checker in self.get_checkers():
@@ -433,63 +437,94 @@ class MessagesHandlerMixIn(object):
                             title = 'General options'
                         else:
                             title = '%s options' % section.capitalize()
-                        print(title)
-                        print('~' * len(title))
-                        _rest_format_section(sys.stdout, None, options)
-                        print("")
+                        print(title, file=stream)
+                        print('~' * len(title), file=stream)
+                        _rest_format_section(stream, None, options)
+                        print("", file=stream)
             else:
+                name = checker.name
                 try:
-                    by_checker[checker.name][0] += checker.options_and_values()
-                    by_checker[checker.name][1].update(checker.msgs)
-                    by_checker[checker.name][2] += checker.reports
+                    by_checker[name]['options'] += checker.options_and_values()
+                    by_checker[name]['msgs'].update(checker.msgs)
+                    by_checker[name]['reports'] += checker.reports
                 except KeyError:
-                    by_checker[checker.name] = [list(checker.options_and_values()),
-                                                dict(checker.msgs),
-                                                list(checker.reports)]
+                    by_checker[name] = {
+                        'options': list(checker.options_and_values()),
+                        'msgs':    dict(checker.msgs),
+                        'reports': list(checker.reports),
+                    }
 
-        print("Pylint checkers' options and switches")
-        print("-------------------------------------")
-        print("")
-        print("Pylint checkers can provide three set of features:")
-        print("")
-        print("* options that control their execution,")
-        print("* messages that they can raise,")
-        print("* reports that they can generate.")
-        print("")
-        print("Below is a list of all checkers and their features.")
-        print("")
+        print("Pylint checkers' options and switches", file=stream)
+        print("-------------------------------------", file=stream)
+        print("", file=stream)
+        print("Pylint checkers can provide three set of features:", file=stream)
+        print("", file=stream)
+        print("* options that control their execution,", file=stream)
+        print("* messages that they can raise,", file=stream)
+        print("* reports that they can generate.", file=stream)
+        print("", file=stream)
+        print("Below is a list of all checkers and their features.", file=stream)
+        print("", file=stream)
 
-        for checker, (options, msgs, reports) in six.iteritems(by_checker):
-            title = '%s checker' % (checker.replace("_", " ").title())
-            print(title)
-            print('~' * len(title))
-            print("")
-            print("Verbatim name of the checker is ``%s``." % checker)
-            print("")
-            if options:
-                title = 'Options'
-                print(title)
-                print('^' * len(title))
-                _rest_format_section(sys.stdout, None, options)
-                print("")
-            if msgs:
-                title = 'Messages'
-                print(title)
-                print('~' * len(title))
-                for msgid, msg in sorted(six.iteritems(msgs),
-                                         key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
-                    msg = build_message_def(checker, msgid, msg)
-                    print(msg.format_help(checkerref=False))
-                print("")
-            if reports:
-                title = 'Reports'
-                print(title)
-                print('~' * len(title))
-                for report in reports:
-                    print(':%s: %s' % report[:2])
-                print("")
-            print("")
+        for checker, info in six.iteritems(by_checker):
+            self._print_checker_doc(checker, info, stream=stream)
 
+    @staticmethod
+    def _print_checker_doc(checker_name, info, stream=None):
+        """Helper method for print_full_documentation.
+
+        Also used by doc/exts/pylint_extensions.py.
+        """
+        if not stream:
+            stream = sys.stdout
+
+        doc = info.get('doc')
+        module = info.get('module')
+        msgs = info.get('msgs')
+        options = info.get('options')
+        reports = info.get('reports')
+
+        title = '%s checker' % (checker_name.replace("_", " ").title())
+
+        if module:
+            # Provide anchor to link against
+            print(".. _%s:\n" % module, file=stream)
+        print(title, file=stream)
+        print('~' * len(title), file=stream)
+        print("", file=stream)
+        if module:
+            print("This checker is provided by ``%s``." % module, file=stream)
+        print("Verbatim name of the checker is ``%s``." % checker_name, file=stream)
+        print("", file=stream)
+        if doc:
+            title = 'Documentation'
+            print(title, file=stream)
+            print('^' * len(title), file=stream)
+            print(cleandoc(doc), file=stream)
+            print("", file=stream)
+        if options:
+            title = 'Options'
+            print(title, file=stream)
+            print('^' * len(title), file=stream)
+            _rest_format_section(stream, None, options)
+            print("", file=stream)
+        if msgs:
+            title = 'Messages'
+            print(title, file=stream)
+            print('^' * len(title), file=stream)
+            for msgid, msg in sorted(six.iteritems(msgs),
+                                     key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
+                msg = build_message_def(checker_name, msgid, msg)
+                print(msg.format_help(checkerref=False), file=stream)
+            print("", file=stream)
+        if reports:
+            title = 'Reports'
+            print(title, file=stream)
+            print('^' * len(title), file=stream)
+            for report in reports:
+                print(':%s: %s' % report[:2], file=stream)
+            print("", file=stream)
+        print("", file=stream)
 
 class FileState(object):
     """Hold internal state specific to the currently analyzed file"""

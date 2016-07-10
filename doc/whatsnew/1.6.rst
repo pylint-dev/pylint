@@ -57,7 +57,7 @@ New checkers
 
       $ pylint module_or_project --load-plugins=pylint.extensions.mccabe
 
-  See more at :ref:`mccabe_extension`
+  See more at :ref:`pylint.extensions.mccabe`
 
 
 New features
