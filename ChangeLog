@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * arguments-differ takes in consideration kwonlyargs and variadics
+
+      Close #983
+
     * Removed --optimized-ast. Part of #975.
 
     * Removed --files-output option. Part of #975.

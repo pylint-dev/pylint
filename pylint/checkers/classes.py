@@ -60,6 +60,10 @@ def _different_parameters(original, overridden):
 
        * they have different positional parameters, including different names
 
+       * one of the methods is having variadics, while the other is not
+
+       * they have different keyword only parameters.
+
     """
 
     original_parameters = _positional_parameters(original)
@@ -67,12 +71,18 @@ def _different_parameters(original, overridden):
 
     different_positional = _has_different_parameters(original_parameters,
                                                      overridden_parameters)
+    different_kwonly = _has_different_parameters(original.args.kwonlyargs,
+                                                 overridden.args.kwonlyargs)
 
-    if different_positional:
-        # If the second method is using positional variadic arguments, then it is okay
-        # to not complain about it.
-        different_positional = overridden.args.vararg is None
-    return different_positional
+    # Both or none should have extra variadics, otherwise the method
+    # loses or gains capabilities that are not reflected into the parent method,
+    # leading to potential inconsistencies in the code.
+    different_kwarg = sum(1 for param in (original.args.kwarg, overridden.args.kwarg)
+                          if not param) == 1
+    different_vararg = sum(1 for param in (original.args.vararg, overridden.args.vararg)
+                           if not param) == 1
+
+    return different_positional or different_kwarg or different_vararg or different_kwonly
 
 
 def _is_invalid_base_class(cls):

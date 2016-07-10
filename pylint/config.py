@@ -734,36 +734,36 @@ class OptionsProviderMixIn(object):
         """get the current value for the given option"""
         return getattr(self.config, self.option_attrname(opt), None)
 
-    def set_option(self, opt, value, action=None, optdict=None):
+    def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)"""
         if optdict is None:
-            optdict = self.get_option_def(opt)
+            optdict = self.get_option_def(optname)
         if value is not None:
-            value = _validate(value, optdict, opt)
+            value = _validate(value, optdict, optname)
         if action is None:
             action = optdict.get('action', 'store')
         if action == 'store':
-            setattr(self.config, self.option_attrname(opt, optdict), value)
+            setattr(self.config, self.option_attrname(optname, optdict), value)
         elif action in ('store_true', 'count'):
-            setattr(self.config, self.option_attrname(opt, optdict), 0)
+            setattr(self.config, self.option_attrname(optname, optdict), 0)
         elif action == 'store_false':
-            setattr(self.config, self.option_attrname(opt, optdict), 1)
+            setattr(self.config, self.option_attrname(optname, optdict), 1)
         elif action == 'append':
-            opt = self.option_attrname(opt, optdict)
-            _list = getattr(self.config, opt, None)
+            optname = self.option_attrname(optname, optdict)
+            _list = getattr(self.config, optname, None)
             if _list is None:
                 if isinstance(value, (list, tuple)):
                     _list = value
                 elif value is not None:
                     _list = []
                     _list.append(value)
-                setattr(self.config, opt, _list)
+                setattr(self.config, optname, _list)
             elif isinstance(_list, tuple):
-                setattr(self.config, opt, _list + (value,))
+                setattr(self.config, optname, _list + (value,))
             else:
                 _list.append(value)
         elif action == 'callback':
-            optdict['callback'](None, opt, value, None)
+            optdict['callback'](None, optname, value, None)
         else:
             raise UnsupportedAction(action)
 

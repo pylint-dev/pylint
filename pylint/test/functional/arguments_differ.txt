@@ -1,3 +1,8 @@
 arguments-differ:12:Child.test:Arguments number differs from overridden 'test' method
 arguments-differ:23:ChildDefaults.test:Arguments number differs from overridden 'test' method
 arguments-differ:41:ClassmethodChild.func:Arguments number differs from overridden 'func' method
+arguments-differ:68:VarargsChild.has_kwargs:Arguments number differs from overridden 'has_kwargs' method
+arguments-differ:71:VarargsChild.no_kwargs:Arguments number differs from overridden 'no_kwargs' method
+arguments-differ:157:MyClass.impl:Arguments number differs from overridden 'impl' method
+arguments-differ:170:SecondChangesArgs.test:Arguments number differs from overridden 'test' method
+arguments-differ:181:PositionalChild.test:Arguments number differs from overridden 'test' method

@@ -14,7 +14,39 @@ Summary -- Release highlights
 Other Changes
 =============
 
-* None yet.
+* ``arguments-differ`` check was rewritten to take in consideration
+   keyword only parameters and variadics.
+
+   Now it also complains about losing or adding capabilities to a method,
+   by introducing positional or keyword variadics. For instance, *pylint*
+   now complains about these cases::
+
+       class Parent(object):
+
+           def foo(self, first, second):
+               ...
+
+           def bar(self, **kwargs):
+               ...
+
+           def baz(self, *, first):
+               ...
+
+       class Child(Parent):
+
+           # Why subclassing in the first place?
+           def foo(self, *args, **kwargs):
+               # mutate args or kwargs.
+               super(Child, self).foo(*args, **kwargs)
+
+           def bar(self, first=None, second=None, **kwargs):
+               # The overridden method adds two new parameters,
+               # which can also be passed as positional arguments,
+               # breaking the contract of the parent's method.
+
+           def baz(self, first):
+               # Not keyword-only
+
 
 Bug fixes
 =========

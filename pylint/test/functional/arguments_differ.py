@@ -1,5 +1,5 @@
 """Test that we are emitting arguments-differ when the arguments are different."""
-# pylint: disable=missing-docstring, too-few-public-methods
+# pylint: disable=missing-docstring, too-few-public-methods, unused-argument
 
 class Parent(object):
 
@@ -56,13 +56,20 @@ class Builtins(dict):
 
 class Varargs(object):
 
-    def test(self, arg, **kwargs):
+    def has_kwargs(self, arg, **kwargs):
         pass
+
+    def no_kwargs(self, args):
+        pass
+
 
 class VarargsChild(Varargs):
 
-    def test(self, arg):
-        pass
+    def has_kwargs(self, arg): # [arguments-differ]
+        "Not okay to lose capabilities."
+
+    def no_kwargs(self, arg, **kwargs): # [arguments-differ]
+        "Not okay to add extra capabilities."
 
 
 class Super(object):
@@ -141,12 +148,39 @@ class StaticmethodChild2(Staticmethod):
 class SuperClass(object):
 
     @staticmethod
-    def impl(arg1, arg2):
+    def impl(arg1, arg2, **kwargs):
         return arg1 + arg2
 
 
 class MyClass(SuperClass):
 
-    def impl(self, *args, **kwargs):
+    def impl(self, *args, **kwargs): # [arguments-differ]
 
         super(MyClass, self).impl(*args, **kwargs)
+
+
+class FirstHasArgs(object):
+
+    def test(self, *args):
+        pass
+
+
+class SecondChangesArgs(FirstHasArgs):
+
+    def test(self, first, second, *args): # [arguments-differ]
+        pass
+
+class Positional(object):
+
+    def test(self, first, second):
+        pass
+
+
+class PositionalChild(Positional):
+
+    def test(self, *args): # [arguments-differ]
+        """Accepts too many.
+
+        Why subclassing in the first case if the behavior is different?
+        """
+        super(PositionalChild, self).test(args[0], args[1])
