@@ -1611,6 +1611,11 @@ class ComparisonChecker(_BasicChecker):
                       'type(x) == Y, type(x) is Y. Though there are unusual '
                       'situations where these give different results.',
                       {'old_names': [('W0154', 'unidiomatic-typecheck')]}),
+            'R0123': ('Comparison to literal',
+                      'literal-comparison',
+                      'Used when comparing an object to a literal, which is usually '
+                      'what you do not want to do, since you can compare to a different '
+                      'literal than what was expected altogether.'),
            }
 
     def _check_singleton_comparison(self, singleton, root_node):
@@ -1629,6 +1634,23 @@ class ComparisonChecker(_BasicChecker):
                              node=root_node,
                              args=(None, "'expr is None'"))
 
+    def _check_literal_comparison(self, literal, node):
+        """Check if we compare to a literal, which is usually what we do not want to do."""
+        nodes = (astroid.List,
+                 astroid.Tuple,
+                 astroid.Dict,
+                 astroid.Set)
+        is_other_literal = isinstance(literal, nodes)
+        is_const = False
+        if isinstance(literal, astroid.Const):
+            if literal.value in (True, False, None):
+                # Not interested in this values.
+                return
+            is_const = isinstance(literal.value, (bytes, str, int, float))
+
+        if is_const or is_other_literal:
+            self.add_message('literal-comparison', node=node)
+
     def _check_misplaced_constant(self, node, left, right, operator):
         if isinstance(right, astroid.Const):
             return
@@ -1638,13 +1660,14 @@ class ComparisonChecker(_BasicChecker):
                          args=(suggestion,))
 
     @check_messages('singleton-comparison', 'misplaced-comparison-constant',
-                    'unidiomatic-typecheck')
+                    'unidiomatic-typecheck', 'literal-comparison')
     def visit_compare(self, node):
         self._check_unidiomatic_typecheck(node)
         # NOTE: this checker only works with binary comparisons like 'x == 42'
         # but not 'x == y == 42'
         if len(node.ops) != 1:
             return
+
         left = node.left
         operator, right = node.ops[0]
         if (operator in ('<', '<=', '>', '>=', '!=', '==')
@@ -1656,6 +1679,8 @@ class ComparisonChecker(_BasicChecker):
                 self._check_singleton_comparison(left, node)
             elif isinstance(right, astroid.Const):
                 self._check_singleton_comparison(right, node)
+        if operator in ('is', 'is not'):
+            self._check_literal_comparison(right, node)
 
     def _check_unidiomatic_typecheck(self, node):
         operator, right = node.ops[0]

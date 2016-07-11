@@ -11,6 +11,27 @@ Summary -- Release highlights
 
 * None yet.
 
+
+New checkers
+============
+
+* We added a new check, ``literal-comparison``, which is used
+  whenever **pylint** can detect a comparison to a literal. This is usually
+  not what we want and, potentially, error prone. For instance, in the given example,
+  the first string comparison returns true, since smaller strings are interned
+  by the interpreter, while for larger ones, it will return False::
+
+       mystring = "ok"
+       if mystring is "ok": # Returns true
+           # do stuff
+
+       mystring = "a" * 1000
+       if mystring is ("a" * 1000): # This will return False
+           # do stuff
+
+  Instead of using the ``is`` operator, you should use the ``==`` operator for
+  this use case.
+
 Other Changes
 =============
 
