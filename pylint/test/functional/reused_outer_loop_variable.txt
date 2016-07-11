@@ -1,0 +1,4 @@
+reused-outer-loop-variable:7::Using outer loop variable 'i' for inner loop
+reused-outer-loop-variable:12::Using outer loop variable 'i' for inner loop
+reused-outer-loop-variable:17::Using outer loop variable 'i' for inner loop
+reused-outer-loop-variable:22::Using outer loop variable 'a' for inner loop

@@ -141,10 +141,10 @@ def _dependencies_graph(filename, dep_info):
     for modname, dependencies in sorted(six.iteritems(dep_info)):
         done[modname] = 1
         printer.emit_node(modname)
-        for modname in dependencies:
-            if modname not in done:
-                done[modname] = 1
-                printer.emit_node(modname)
+        for depmodname in dependencies:
+            if depmodname not in done:
+                done[depmodname] = 1
+                printer.emit_node(depmodname)
     for depmodname, dependencies in sorted(six.iteritems(dep_info)):
         for modname in dependencies:
             printer.emit_edge(modname, depmodname)

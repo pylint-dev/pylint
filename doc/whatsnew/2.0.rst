@@ -61,6 +61,15 @@ New checkers
        class MyClass(metaclass=SomeClass):
            pass
 
+* ``reused-outer-loop-variable`` check was added, which is emitted when a
+  nested loop's target variable is the same as an outer loop.
+
+  .. code-block:: python
+
+      for i, j in [(1, 2), (3, 4)]:
+          for j in range(i):
+              print(j)
+
 
 Other Changes
 =============
