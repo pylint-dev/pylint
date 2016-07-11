@@ -127,6 +127,15 @@ Other Changes
            def baz(self, first):
                # Not keyword-only
 
+* ``redefined-outer-name`` is now also emitted when a
+  nested loop's target variable is the same as an outer loop.
+
+  .. code-block:: python
+
+      for i, j in [(1, 2), (3, 4)]:
+          for j in range(i):
+              print(j)
+
 
 Bug fixes
 =========

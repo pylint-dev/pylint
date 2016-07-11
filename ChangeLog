@@ -115,6 +115,12 @@ Release date: tba
       occurred when a class docstring uses the 'For the parameters, see'
       magic string but the class __init__ docstring does not, or vice versa.
 
+    * `redefined-outer-name` is now also emitted when a nested loop's target
+      variable is the same as a target variable in an outer loop.
+
+      Closes issue #911.
+
+
 What's new in Pylint 1.6.2?
 ===========================
 

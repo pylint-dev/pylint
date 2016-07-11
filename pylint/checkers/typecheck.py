@@ -42,8 +42,8 @@ def _unflatten(iterable):
     for index, elem in enumerate(iterable):
         if (isinstance(elem, collections.Sequence) and
                 not isinstance(elem, six.string_types)):
-            for elem in _unflatten(elem):
-                yield elem
+            for single_elem in _unflatten(elem):
+                yield single_elem
         elif elem and not index:
             # We're interested only in the first element.
             yield elem
