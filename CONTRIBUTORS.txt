@@ -94,7 +94,7 @@ Order doesn't matter (not that much, at least ;)
   Refactory wrong-import-order to integrate it with `isort` library
   Add check too-complex with mccabe for cyclomatic complexity
   Refactory wrong-import-position to skip try-import and nested cases
-  Add check consider-merging-isinstance
+  Add a new check, consider-merging-isinstance.
 
 * Luis Escobar (Vauxoo), Moisés López (Vauxoo): Add bad-docstring-quotes and docstring-first-line-empty
 

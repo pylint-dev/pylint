@@ -3,6 +3,8 @@
 
 """Looks for code which can be refactored."""
 
+import collections
+
 import astroid
 
 from pylint.interfaces import IAstroidChecker
@@ -12,71 +14,73 @@ from pylint.checkers.utils import check_messages, is_builtin_object, safe_infer
 
 
 class RefactoringChecker(BaseChecker):
-    """Looks for code which can be refactored.
-    """
+    """Looks for code which can be refactored."""
 
     __implements__ = (IAstroidChecker,)
 
-    # configuration section name
     name = 'refactoring'
 
     msgs = {
         'R1701': (
             "Consider merging these isinstance calls to isinstance(%s, (%s))",
             "consider-merging-isinstance",
-            "Usen when multiple isinstance calls can be grouped into one."),
+            "Usen when multiple consecutive isinstance calls can be merged into one."),
     }
-    priority = -2
+    priority = 0
 
     @staticmethod
-    def _first_args_duplicated(node):
-        """Get the objects, as strings, from the *isinstance* calls,
-        found in the BoolOp node.
-        :param astroid.BoolOp node: Node to get first argument of values
-        :returns: First arguments duplicated as string of all `node.values` and
-            parameters as string. E.g. {'var1': ['objx', 'objy'], 'var2': ['objz']}
+    def _duplicated_isinstance_types(node):
+        """Get the duplicated types from the underlying isinstance calls.
+
+        :param astroid.BoolOp node: Node which should contain a bunch of isinstance calls.
+        :returns: Dictionary of the comparison objects from the isinstance calls,
+                  to duplicate values from consecutive calls.
         :rtype: dict
         """
-        first_args = {}
-        duplicated = []
-        for value in node.values:
-            if not isinstance(value, astroid.Call) or len(value.args) != 2:
+        duplicated_objects = set()
+        all_types = collections.defaultdict(set)
+
+        for call in node.values:
+            if not isinstance(call, astroid.Call) or len(call.args) != 2:
                 continue
-            inferred = safe_infer(value.func)
+
+            inferred = safe_infer(call.func)
             if not inferred or not is_builtin_object(inferred):
                 continue
-            if inferred.name == 'isinstance':
-                first_arg = value.args[0].as_string()
-                if first_arg in first_args:
-                    duplicated.append(first_arg)
-                else:
-                    first_args[first_arg] = set()
-                if isinstance(value.args[1], astroid.Tuple):
-                    first_args[first_arg].update([
-                        class_type.as_string() for class_type in value.args[1].itered()])
-                else:
-                    first_args[first_arg].add(value.args[1].as_string())
-        # Remove all keys not duplicated
-        for key in list(first_args):
-            if key not in duplicated:
-                first_args.pop(key)
+
+            if inferred.name != 'isinstance':
+                continue
+
+            isinstance_object = call.args[0].as_string()
+            isinstance_types = call.args[1]
+
+            if isinstance_object in all_types:
+                duplicated_objects.add(isinstance_object)
+
+            if isinstance(isinstance_types, astroid.Tuple):
+                elems = [class_type.as_string() for class_type in isinstance_types.itered()]
             else:
-                first_args[key] = list(first_args[key])
-                first_args[key].sort()
-        return first_args
+                elems = [isinstance_types.as_string()]
+            all_types[isinstance_object].update(elems)
+
+        # Remove all keys which not duplicated
+        return {key: value for key, value in all_types.items()
+                if key in duplicated_objects}
 
     @check_messages('consider-merging-isinstance')
     def visit_boolop(self, node):
-        "Check isinstance calls which can be merged together."
+        '''Check isinstance calls which can be merged together.'''
         if node.op != 'or':
             return
-        first_args = self._first_args_duplicated(node)
+
+        first_args = self._duplicated_isinstance_types(node)
         for duplicated_name, class_names in first_args.items():
-            self.add_message(
-                'consider-merging-isinstance', node=node,
-                args=(duplicated_name, ', '.join([name for name in class_names])))
+            names = sorted(name for name in class_names)
+            self.add_message('consider-merging-isinstance',
+                             node=node,
+                             args=(duplicated_name, ', '.join(names)))
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """Required method to auto register this checker."""
     linter.register_checker(RefactoringChecker(linter))

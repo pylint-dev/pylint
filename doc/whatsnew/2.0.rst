@@ -32,6 +32,22 @@ New checkers
   Instead of using the ``is`` operator, you should use the ``==`` operator for
   this use case.
 
+
+* We added a new refactoring message, 'consider-merging-isinstance', which is
+  emitted whenever we can detect that consecutive *isinstance* calls can be merged
+  together.
+  For instance, in this example, we can merge the first two *isinstance* calls::
+
+      $ cat a.py
+      if isinstance(x, int) or isinstance(x, float):
+          pass
+      if isinstance(x, (int, float)) or isinstance(x, str):
+          pass
+      $ pylint a.py
+      R:  1, 0: Consider merging these isinstance calls to isinstance(x, (float, int)) (consider-merging-isinstance)
+      R:  3, 0: Consider merging these isinstance calls to isinstance(x, (int, float, str)) (consider-merging-isinstance)
+
+
 Other Changes
 =============
 
@@ -107,17 +123,3 @@ Removed Changes
   issue, since the pathological case would have happen when the
   code was parsed by Python as well, without actually reaching the
   runtime step and as such, we decided to remove the error altogether.
-
-
-Added features
-==============
-
-* Refactoring message, 'consider-merging-isinstance', which is
-  used to detect isinstance calls, which can be merged together. 
-
-.. code-block:: python
-
-    $ cat a.py
-    isinstance(x, int) or isinstance(x, float)
-    $ pylint a.py
-    # R:  1, 0: Consider merging these isinstance calls to isinstance(x, (float, int)) (consider-merging-isinstance)
