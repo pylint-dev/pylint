@@ -1089,7 +1089,7 @@ def fix_import_path(args):
     Within this context, each of the given arguments is importable.
     Paths are added to sys.path in corresponding order to the arguments.
     We avoid adding duplicate directories to sys.path.
-    `sys.path` is reset to its original value upon exitign this context.
+    `sys.path` is reset to its original value upon exiting this context.
     """
     orig = list(sys.path)
     changes = []
