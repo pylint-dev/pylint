@@ -124,5 +124,18 @@ class PossibleExcTypesText(unittest.TestCase):
         expected = set(["RuntimeError", "ValueError"])
         self.assertEqual(found, expected)
 
+    def test_ignores_uninferable_type(self):
+        raise_node = astroid.extract_node('''
+        import not_a_module
+        def my_func():
+            try:
+                fake_func()
+            except not_a_module.Error:
+                raise #@
+        ''')
+        found = utils.possible_exc_types(raise_node)
+        expected = set()
+        self.assertEqual(found, expected)
+
 if __name__ == '__main__':
     unittest.main()
