@@ -89,7 +89,31 @@ New checkers
           def not_useless_1(self, first, *args):
               return super(Impl, self).not_useless_1(first + some_value, *args)
 
+* The warnings ``missing-returns-doc`` and ``missing-yields-doc`` have each
+  been replaced with two new warnings - ``missing-[return|yield]-doc`` and
+  ``missing-[return|yield]-type-doc``. Having these as separate warnings
+  allows the user to choose whether their documentation style requires
+  text descriptions of function return/yield, specification of return/yield
+  types, or both.
 
+  .. code-block:: python
+
+      # This will raise missing-return-type-doc but not missing-return-doc
+      def my_sphinx_style_func(self):
+          """This is a Sphinx-style docstring.
+
+          :returns: Always False
+          """
+          return False
+
+      # This will raise missing-return-doc but not missing-return-type-doc
+      def my_google_style_func(self):
+          """This is a Google-style docstring.
+
+          Returns:
+              bool:
+          """
+          return False
 
 Other Changes
 =============
