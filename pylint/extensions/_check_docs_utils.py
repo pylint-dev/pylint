@@ -137,7 +137,13 @@ class Docstring(object):
     def has_returns(self):
         return False
 
+    def has_rtype(self):
+        return False
+
     def has_yields(self):
+        return False
+
+    def has_yields_type(self):
         return False
 
     def match_param_docs(self):
@@ -231,8 +237,13 @@ class SphinxDocstring(Docstring):
         if not self.doc:
             return False
 
-        return bool(self.re_rtype_in_docstring.search(self.doc) and
-                    self.re_returns_in_docstring.search(self.doc))
+        return bool(self.re_returns_in_docstring.search(self.doc))
+
+    def has_rtype(self):
+        if not self.doc:
+            return False
+
+        return bool(self.re_rtype_in_docstring.search(self.doc))
 
     def match_param_docs(self):
         params_with_doc = set()
@@ -334,9 +345,24 @@ class GoogleDocstring(Docstring):
             if not match:
                 continue
 
-            return_type = match.group(1)
             return_desc = match.group(2)
-            if return_type and return_desc:
+            if return_desc:
+                return True
+
+        return False
+
+    def has_rtype(self):
+        if not self.doc:
+            return False
+
+        entries = self._parse_section(self.re_returns_section)
+        for entry in entries:
+            match = self.re_returns_line.match(entry)
+            if not match:
+                continue
+
+            return_type = match.group(1)
+            if return_type:
                 return True
 
         return False
@@ -351,13 +377,27 @@ class GoogleDocstring(Docstring):
             if not match:
                 continue
 
-            yield_type = match.group(1)
             yield_desc = match.group(2)
-            if yield_type and yield_desc:
+            if yield_desc:
                 return True
 
         return False
 
+    def has_yields_type(self):
+        if not self.doc:
+            return False
+
+        entries = self._parse_section(self.re_yields_section)
+        for entry in entries:
+            match = self.re_yields_line.match(entry)
+            if not match:
+                continue
+
+            yield_type = match.group(1)
+            if yield_type:
+                return True
+
+        return False
 
     def exceptions(self):
         types = set()

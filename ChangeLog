@@ -143,6 +143,11 @@ Release date: tba
     * UnknownMessage and EmptyReport are renamed to UnknownMessageError and
       EmptyReportError.
 
+    * Warnings 'missing-returns-type-doc' and 'missing-yields-type-doc'
+      have each been split into two warnings - 'missing-[return|yield]-doc'
+      and 'missing-[return|yield]-type-doc'.
+
+
 What's new in Pylint 1.6.3?
 ===========================
 
