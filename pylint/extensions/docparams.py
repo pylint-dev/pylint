@@ -117,8 +117,16 @@ class DocstringParameterChecker(BaseChecker):
 
                 # __init__ or class docstrings can have no parameters documented
                 # as long as the other documents them.
-                node_allow_no_param = class_doc.has_params() or None
-                class_allow_no_param = node_doc.has_params() or None
+                node_allow_no_param = (
+                    class_doc.has_params() or
+                    class_doc.params_documented_elsewhere() or
+                    None
+                )
+                class_allow_no_param = (
+                    node_doc.has_params() or
+                    node_doc.params_documented_elsewhere() or
+                    None
+                )
 
                 self.check_arguments_in_docstring(
                     class_doc, node.args, class_node, class_allow_no_param)
