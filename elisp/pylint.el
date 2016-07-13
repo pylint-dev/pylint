@@ -69,6 +69,11 @@ Notice that using \\[next-error] or \\[compile-goto-error] modifies
   :type '(file)
   :group 'pylint)
 
+(defcustom pylint-alternate-pylint-command "pylint2"
+  "Command for pylint when invoked with C-u."
+  :type '(file)
+  :group 'pylint)
+
 (defcustom pylint-ask-about-save nil
   "Non-nil means \\[pylint] asks which buffers to save before compiling.
 Otherwise, it saves all modified buffers without asking."
@@ -175,7 +180,7 @@ appending to an existing list)."
 `compilation-minor-mode-map' is a cdr of this.")
 
 ;;;###autoload
-(defun pylint ()
+(defun pylint (&optional arg)
   "Run PYLINT, and collect output in a buffer, much like `compile'.
 
 While pylint runs asynchronously, you can use \\[next-error] (M-x next-error),
@@ -183,18 +188,21 @@ or \\<pylint-mode-map>\\[compile-goto-error] in the grep \
 output buffer, to go to the lines where pylint found matches.
 
 \\{pylint-mode-map}"
-  (interactive)
+  (interactive "P")
 
   (save-some-buffers (not pylint-ask-about-save) nil)
-  (let* ((tramp (tramp-tramp-file-p (buffer-file-name)))
-         (file (or (and tramp
-                        (aref (tramp-dissect-file-name (buffer-file-name)) 3))
-                   (buffer-file-name)))
+  (let* ((filename (buffer-file-name))
+         (filename (or (and (tramp-tramp-file-p filename)
+                         (aref (tramp-dissect-file-name filename) 3))
+                      filename))
+         (filename (shell-quote-argument filename))
+         (pylint-command (if arg
+                             pylint-alternate-pylint-command
+                           pylint-command))
          (command (mapconcat
                    'identity
-                   (list pylint-command
-                         (mapconcat 'identity pylint-options " ")
-                         (shell-quote-argument file)) " ")))
+                   (append `(,pylint-command) pylint-options `(,filename))
+                   " ")))
 
     (compilation-start command 'pylint-mode)))
 
