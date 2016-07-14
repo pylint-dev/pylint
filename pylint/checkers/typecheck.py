@@ -362,15 +362,15 @@ def _infer_from_metaclass_constructor(cls, func):
     """
     context = astroid.context.InferenceContext()
 
-    bases = astroid.List()
-    bases.postinit(elts=cls.bases)
+    class_bases = astroid.List()
+    class_bases.postinit(elts=cls.bases)
 
     attrs = astroid.Dict()
     local_names = [(name, values[-1]) for name, values in cls.locals.items()]
     attrs.postinit(local_names)
 
     builder_args = astroid.Tuple()
-    builder_args.postinit([cls.name, bases, attrs])
+    builder_args.postinit([cls.name, class_bases, attrs])
 
     context.callcontext = astroid.context.CallContext(builder_args)
     try:
