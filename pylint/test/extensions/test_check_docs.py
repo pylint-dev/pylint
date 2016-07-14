@@ -270,12 +270,12 @@ class ParamDocCheckerTest(CheckerTestCase):
             :param xarg: bla xarg
             :type xarg: int
 
-            :param yarg: bla yarg
+            :parameter yarg: bla yarg
             :type yarg: my.qualified.type
 
-            :param int zarg: bla zarg
+            :arg int zarg: bla zarg
 
-            :param my.qualified.type warg: bla warg
+            :keyword my.qualified.type warg: bla warg
 
             :return: sum
             :rtype: float

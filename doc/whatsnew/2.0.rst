@@ -165,6 +165,10 @@ Bug fixes
   will properly be flagged for missing documentation of
   ``:raises ValueError:`` instead of ``:raises ex:``, among other scenarios.
 
+* Fix false positives of ``missing-[raises|params|type]-doc`` due to not
+  recognizing valid keyword synonyms supported by Sphinx.
+
+
 Removed Changes
 ===============
 

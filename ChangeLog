@@ -105,6 +105,9 @@ Release date: tba
 
       Closes issue #984.
 
+    * Fix false positives of 'missing-[raises|params|type]-doc' due to not
+      recognizing keyword synonyms supported by Sphinx.
+
     * Added a new refactoring message, 'consider-merging-isinstance', which is
       emitted whenever we can detect that consecutive isinstance calls can be
       merged together.

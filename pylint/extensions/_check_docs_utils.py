@@ -150,7 +150,12 @@ class SphinxDocstring(Docstring):
         """.format(re_type)
 
     re_param_in_docstring = re.compile(r"""
-        :param                  # Sphinx keyword
+        :                       # initial colon
+        (?:                     # Sphinx keywords
+        param|parameter|
+        arg|argument|
+        key|keyword
+        )
         \s+                     # whitespace
 
         (?:                     # optional type declaration
@@ -172,7 +177,11 @@ class SphinxDocstring(Docstring):
         """.format(type=re_type), re.X | re.S)
 
     re_raise_in_docstring = re.compile(r"""
-        :raises                 # Sphinx keyword
+        :                       # initial colon
+        (?:                     # Sphinx keyword
+        raises?|
+        except|exception
+        )
         \s+                     # whitespace
 
         (?:                     # type declaration
