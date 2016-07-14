@@ -115,10 +115,14 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             """This is a docstring.
 
             :raises RuntimeError: Always
-            :raises NameError: Never
+            :except NameError: Never
+            :raise OSError: Never
+            :exception ValueError: Never
             """
             raise RuntimeError('hi') #@
             raise NameError('hi')
+            raise OSError(2, 'abort!')
+            raise ValueError('foo')
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)

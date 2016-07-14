@@ -147,6 +147,9 @@ Bug fixes
   occurred when a class docstring uses the 'For the parameters, see'
   magic string but the class ``__init__`` docstring does not, or vice versa.
 
+* Fix false positives of ``missing-[raises|params|type]-doc`` due to not
+  recognizing valid keyword synonyms supported by Sphinx.
+
 Removed Changes
 ===============
 
