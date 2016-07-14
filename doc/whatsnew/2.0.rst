@@ -61,6 +61,35 @@ New checkers
        class MyClass(metaclass=SomeClass):
            pass
 
+* A new warning was added, ``useless-super-delegation``, which is used whenever
+  we can detect that an overridden method is useless, relying on *super()* delegation
+  to do the same thing as another method from the MRO.
+
+  For instance, in this example, the first two methods are useless, since they
+  do the exact same thing as the methods from the base classes, while the next
+  two methods are not, since they do some extra operations with the passed
+  arguments.
+
+  .. code-block:: python
+
+      class Impl(Base):
+
+          def __init__(self, param1, param2):
+              super(Impl, self).__init__(param1, param2)
+     
+          def useless(self, first, second):
+              return super(Impl, self).useless(first, second)
+
+          def not_useless(self, first, **kwargs):
+              debug = kwargs.pop('debug', False)
+              if debug:
+                  ...
+              return super(Impl, self).not_useless(first, **kwargs)
+
+          def not_useless_1(self, first, *args):
+              return super(Impl, self).not_useless_1(first + some_value, *args)
+
+
 
 Other Changes
 =============

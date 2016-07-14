@@ -5,8 +5,9 @@
 """
 from __future__ import generators
 
-import sys
+import collections
 from collections import defaultdict
+import sys
 
 import six
 
@@ -33,6 +34,68 @@ else:
     NEXT_METHOD = 'next'
 INVALID_BASE_CLASSES = {'bool', 'range', 'slice', 'memoryview'}
 
+
+# Dealing with useless override detection, with regard
+# to parameters vs arguments
+
+_CallSignature = collections.namedtuple(
+    '_CallSignature', 'args kws starred_args starred_kws')
+_ParameterSignature = collections.namedtuple(
+    '_ParameterSignature',
+    'args kwonlyargs varargs kwargs',
+)
+
+
+def _signature_from_call(call):
+    kws = {}
+    args = []
+    starred_kws = []
+    starred_args = []
+    for keyword in call.keywords or []:
+        arg, value = keyword.arg, keyword.value
+        if arg is None and isinstance(value, astroid.Name):
+            # Starred node and we are interested only in names,
+            # otherwise some transformation might occur for the parameter.
+            starred_kws.append(value.name)
+        elif isinstance(value, astroid.Name):
+            kws[arg] = value.name
+
+    for arg in call.args:
+        if isinstance(arg, astroid.Starred) and isinstance(arg.value, astroid.Name):
+            # Positional variadic and a name, otherwise some transformation
+            # might have occurred.
+            starred_args.append(arg.value.name)
+        elif isinstance(arg, astroid.Name):
+            args.append(arg.name)
+    return _CallSignature(args, kws, starred_args, starred_kws)
+
+
+def _signature_from_arguments(arguments):
+    kwarg = arguments.kwarg
+    vararg = arguments.vararg
+    args = [arg.name for arg in arguments.args if arg.name != 'self']
+    kwonlyargs = [arg.name for arg in arguments.kwonlyargs]
+    return _ParameterSignature(args, kwonlyargs, vararg, kwarg)
+
+
+def _definition_equivalent_to_call(definition, call):
+    '''Check if a definition signature is equivalent to a call.'''
+    if definition.kwargs:
+        same_kw_variadics = definition.kwargs in call.starred_kws
+    else:
+        same_kw_variadics = not call.starred_kws
+    if definition.varargs:
+        same_args_variadics = definition.varargs in call.starred_args
+    else:
+        same_args_variadics = not call.starred_args
+    same_kwonlyargs = all(kw in call.kws for kw in definition.kwonlyargs)
+    same_args = definition.args == call.args
+
+    return all((same_args, same_kwonlyargs, same_args_variadics, same_kw_variadics))
+
+
+
+# Deal with parameters overridding in two methods.
 
 def _positional_parameters(method):
     positional = method.args.args
@@ -285,6 +348,11 @@ MSGS = {
               'non-parent-init-called',
               'Used when an __init__ method is called on a class which is not '
               'in the direct ancestors for the analysed class.'),
+    'W0235': ('Useless super delegation in method %r',
+              'useless-super-delegation',
+              'Used whenever we can detect that an overridden method is useless, '
+              'relying on super() delegation to do the same thing as another method '
+              'from the MRO.'),
     'E0236': ('Invalid object %r in __slots__, must contain '
               'only non empty strings',
               'invalid-slots-object',
@@ -484,6 +552,9 @@ a metaclass class method.'}
         # ignore actual functions
         if not node.is_method():
             return
+
+        self._check_useless_super_delegation(node)
+
         klass = node.parent.frame()
         self._meth_could_be_func = True
         # check first argument is self if this is actually a method
@@ -530,6 +601,69 @@ a metaclass class method.'}
             pass
 
     visit_asyncfunctiondef = visit_functiondef
+
+    def _check_useless_super_delegation(self, function):
+        '''Check if the given function node is an useless method override
+
+        We consider it *useless* if it uses the super() builtin, but having
+        nothing additional whatsoever than not implementing the method at all.
+        If the method uses super() to delegate an operation to the rest of the MRO,
+        and if the method called is the same as the current one, the arguments
+        passed to super() are the same as the parameters that were passed to
+        this method, then the method could be removed altogether, by letting
+        other implementation to take precedence.
+        '''
+
+        if not function.is_method():
+            return
+
+        body = function.body
+        if len(body) != 1:
+            # Multiple statements, which means this overridden method
+            # could do multiple things we are not aware of.
+            return
+
+        statement = body[0]
+        if not isinstance(statement, (astroid.Expr, astroid.Return)):
+            # Doing something else than what we are interested into.
+            return
+
+        call = statement.value
+        if not isinstance(call, astroid.Call):
+            return
+        if not isinstance(call.func, astroid.Attribute):
+            # Not a super() attribute access.
+            return
+
+        # Should be a super call.
+        try:
+            super_call = next(call.func.expr.infer())
+        except astroid.InferenceError:
+            return
+        else:
+            if not isinstance(super_call, objects.Super):
+                return
+
+        # The name should be the same.
+        if call.func.attrname != function.name:
+            return
+
+        # Should be a super call with the MRO pointer being the current class
+        # and the type being the current instance.
+        current_scope = function.parent.scope()
+        if super_call.mro_pointer != current_scope:
+            return
+        if not isinstance(super_call.type, astroid.Instance):
+            return
+        if super_call.type.name != current_scope.name:
+            return
+
+        # Detect if the parameters are the same as the call's arguments.
+        params = _signature_from_arguments(function.args)
+        args = _signature_from_call(call)
+        if _definition_equivalent_to_call(params, args):
+            self.add_message('useless-super-delegation', node=function,
+                             args=(function.name, ))
 
     def _check_slots(self, node):
         if '__slots__' not in node.locals:

@@ -1,5 +1,5 @@
-# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring, wrong-import-position,invalid-name, wrong-import-order
-"""check use of super"""
+# pylint: disable=too-few-public-methods,import-error, no-absolute-import,missing-docstring
+# pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order
 
 from unknown import Missing
 

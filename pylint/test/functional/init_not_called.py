@@ -1,4 +1,4 @@
-# pylint: disable=R0903,import-error,missing-docstring,wrong-import-position
+# pylint: disable=R0903,import-error,missing-docstring,wrong-import-position,useless-super-delegation
 """test for __init__ not called
 """
 from __future__ import print_function

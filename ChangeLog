@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Added a new warning, 'useless-super-delegation'
+
+      Close 839.
+
     * Added a new error, 'invalid-metaclass', raised when
       we can detect that a class is using an improper metaclass.
 
