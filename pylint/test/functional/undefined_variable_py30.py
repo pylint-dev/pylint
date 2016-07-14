@@ -1,7 +1,7 @@
 """Test warnings about access to undefined variables
 for various Python 3 constructs. """
 # pylint: disable=too-few-public-methods, no-init, no-self-use
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position, invalid-metaclass
 class Undefined:
     """ test various annotation problems. """
 

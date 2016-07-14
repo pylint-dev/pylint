@@ -3,6 +3,7 @@
 
 """Unittest for the type checker."""
 import unittest
+import sys
 
 import astroid
 
@@ -109,6 +110,52 @@ class TypeCheckerTest(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_with(node)
+
+    def test_invalid_metaclass(self):
+        module = astroid.parse('''
+        import six
+
+        class InvalidAsMetaclass(object):
+            pass
+
+        @six.add_metaclass(int)
+        class FirstInvalid(object):
+            pass
+
+        @six.add_metaclass(InvalidAsMetaclass)
+        class SecondInvalid(object):
+            pass
+
+        @six.add_metaclass(2)
+        class ThirdInvalid(object):
+            pass
+        ''')
+        for class_obj, metaclass_name in (('ThirdInvalid', '2'),
+                                          ('SecondInvalid', 'InvalidAsMetaclass'),
+                                          ('FirstInvalid', 'int')):
+            classdef = module[class_obj]
+            message = Message('invalid-metaclass', node=classdef, args=(metaclass_name, ))
+            with self.assertAddsMessages(message):
+                self.checker.visit_classdef(classdef)
+
+    @unittest.skipUnless(sys.version_info[0] >= 3, 'Needs Python 3.')
+    def test_invalid_metaclass_function_metaclasses(self):
+        module = astroid.parse('''
+        def invalid_metaclass_1(name, bases, attrs):
+            return int
+        def invalid_metaclass_2(name, bases, attrs):
+            return 1
+        class Invalid(metaclass=invalid_metaclass_1):
+            pass
+        class InvalidSecond(metaclass=invalid_metaclass_2):
+            pass
+        ''')
+        for class_obj, metaclass_name in (('Invalid', 'int'), ('InvalidSecond', '1')):
+            classdef = module[class_obj]
+            message = Message('invalid-metaclass', node=classdef, args=(metaclass_name, ))
+            with self.assertAddsMessages(message):
+                self.checker.visit_classdef(classdef)
+
 
 
 if __name__ == '__main__':

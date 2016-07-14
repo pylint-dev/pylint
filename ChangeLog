@@ -7,6 +7,11 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Added a new error, 'invalid-metaclass', raised when
+      we can detect that a class is using an improper metaclass.
+
+      Close #579
+
     * Added a new refactoring message, 'literal-comparison'.
 
       Close #786
