@@ -332,20 +332,24 @@ def usage(status=0):
     sys.exit(status)
 
 
-def get_state_lines(filename):
-    linter = PyLinter()
-    checkers.initialize(linter)
-    linter.set_reporter(TestReporter())
-    linter.open()
+def _get_state_lines(linter, filename):
     module = os.path.basename(filename)
     linter.set_current_module(module)
-    linter.file_state = FileState(module)
     node = linter.get_ast(filename, module)
     linter.process_tokens(tokenize_module(node))
-    fs = linter.file_state
-    fs.collect_block_lines(linter.msgs_store, node)
-    state_lines = fs._module_msgs_state
+    linter.file_state.collect_block_lines(linter.msgs_store, node)
+    state_lines = linter.file_state._module_msgs_state
     return state_lines.get('R0801') or {}
+
+
+def _init_linter():
+    linter = PyLinter()
+    linter.open()
+    checkers.initialize(linter)
+    linter.set_reporter(TestReporter())
+    linter.set_current_module('foo')
+    linter.file_state = FileState('foo')
+    return linter
 
 
 def Run(argv=None):
@@ -374,9 +378,10 @@ def Run(argv=None):
             ignore_imports = True
     if not args:
         usage(1)
+    linter = _init_linter()
     sim = Similar(min_lines, ignore_comments, ignore_docstrings, ignore_imports)
     for filename in args:
-        state_lines = get_state_lines(filename)
+        state_lines = _get_state_lines(linter, filename)
         with open(filename) as stream:
             sim.append_stream(filename, stream, state_lines=state_lines)
     sim.run()
