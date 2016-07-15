@@ -105,6 +105,8 @@ Bug fixes
 * Fix a false positive of 'redundant-returns-doc', occurred when the documented
   function was using *yield* instead of *return*.
 
+* Fix ignored *disable=duplicate-code* on top file
+
 Removed Changes
 ===============
 

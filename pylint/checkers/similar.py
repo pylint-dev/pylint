@@ -287,6 +287,12 @@ class SimilarChecker(BaseChecker, Similar):
 
         stream must implement the readlines method
         """
+        if not self.linter.is_message_enabled('R0801') or not node.body:
+            return
+
+        for top_line in range(1, node.body[0].lineno):
+            if not self.linter.is_message_enabled('R0801', top_line):
+                return
         with node.stream() as stream:
             self.append_stream(self.linter.current_name,
                                stream,
