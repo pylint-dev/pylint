@@ -340,7 +340,7 @@ def _get_state_lines(linter, filename):
     linter.process_tokens(tokenize_module(node))
     linter.file_state.collect_block_lines(linter.msgs_store, node)
     state_lines = linter.file_state._module_msgs_state
-    return state_lines.get('R0801') or {}
+    return state_lines.get('R0801')
 
 
 def _init_linter():
