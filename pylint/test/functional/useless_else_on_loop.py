@@ -46,7 +46,7 @@ def test_return_for2():
     https://bitbucket.org/logilab/pylint/issue/117/useless-else-on-loop-false-positives
     """
     for i in range(10):
-        for i in range(i):
+        for _ in range(i):
             if i % 2:
                 break
         else:

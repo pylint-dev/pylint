@@ -3,6 +3,7 @@
 
 """variables checkers for Python code
 """
+import collections
 import itertools
 import os
 import sys
@@ -52,7 +53,9 @@ def _is_from_future_import(stmt, name):
 def in_for_else_branch(parent, stmt):
     """Returns True if stmt in inside the else branch for a parent For stmt."""
     return (isinstance(parent, astroid.For) and
-            any(else_stmt.parent_of(stmt) for else_stmt in parent.orelse))
+            any(else_stmt.parent_of(stmt) or else_stmt == stmt
+                for else_stmt in parent.orelse))
+
 
 @lru_cache(maxsize=1000)
 def overridden_method(klass, name):
@@ -217,6 +220,29 @@ def _flattened_scope_names(iterator):
     return set(itertools.chain.from_iterable(values))
 
 
+def _for_loop_assign_names(node):
+    """
+    Get the list of loop variables assigned to by a for loop.
+
+    :param node: An assigned-to variable. Usually this is the result of
+        `for_node.target`.
+    :type node: astroid.NodeNG
+
+    :returns: A generator of variable names that the for loop assigns to.
+    :rtype: generator
+    """
+    queue = collections.deque([node])
+    while queue:
+        elem = queue.popleft()
+        if isinstance(elem, astroid.Starred):
+            elem = elem.value
+
+        if isinstance(elem, astroid.AssignName):
+            yield elem.name
+        elif isinstance(elem, astroid.Tuple):
+            queue.extendleft(reversed(list(elem.get_children())))
+
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
@@ -297,6 +323,11 @@ MSGS = {
               'a sequence is used in an unpack assignment',
               {'old_names': [('W0633', 'unpacking-non-sequence')]}),
 
+    'W0634': ('Using outer loop variable %r for inner loop',
+              'reused-outer-loop-variable',
+              'Used when an inner loop uses the same loop variable name as '
+              'an outer loop.'),
+
     'W0640': ('Cell variable %s defined in loop',
               'cell-var-from-loop',
               'A variable used in a closure is defined in a loop. '
@@ -359,6 +390,7 @@ class VariablesChecker(BaseChecker):
         BaseChecker.__init__(self, linter)
         self._to_consume = None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
         self._checking_mod_attr = None
+        self._loop_variables = []
 
     # Relying on other checker's options, which might not have been initialized yet.
     @decorators.cachedproperty
@@ -369,6 +401,30 @@ class VariablesChecker(BaseChecker):
     def _ignored_modules(self):
         return get_global_option(self, 'ignored-modules', default=[])
 
+
+    @check_messages('reused-outer-loop-variable')
+    def visit_for(self, node):
+        assigned_to = _for_loop_assign_names(node.target)
+
+        # Only check variables that are used
+        dummy_rgx = self.config.dummy_variables_rgx
+        assigned_to = [var for var in assigned_to if not dummy_rgx.match(var)]
+
+        for variable in assigned_to:
+            for outer_for, outer_variables in self._loop_variables:
+                if (variable in outer_variables
+                        and not in_for_else_branch(outer_for, node)):
+                    self.add_message(
+                        'reused-outer-loop-variable',
+                        args=variable,
+                        node=node
+                    )
+                    break
+
+        self._loop_variables.append((node, assigned_to))
+
+    def leave_for(self, _):
+        self._loop_variables.pop()
 
     def visit_module(self, node):
         """visit module : update consumption analysis variable

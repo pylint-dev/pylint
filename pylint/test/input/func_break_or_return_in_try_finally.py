@@ -29,7 +29,7 @@ def break_and_return():
         try:
             my_var += 1.0/i
         finally:
-            for i in range(2):
+            for _ in range(2):
                 if True:
                     break # :D
             else:
