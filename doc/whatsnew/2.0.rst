@@ -147,6 +147,12 @@ Bug fixes
   occurred when a class docstring uses the 'For the parameters, see'
   magic string but the class ``__init__`` docstring does not, or vice versa.
 
+* Fix the duplicate-code (R0801) can't be disabled using
+  pylint enable/disable comments.
+
+  Closes issue #214.
+
+
 Removed Changes
 ===============
 
