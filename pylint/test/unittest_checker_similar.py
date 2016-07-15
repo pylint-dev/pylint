@@ -14,6 +14,7 @@ from pylint.checkers import similar
 
 SIMILAR1 = join(dirname(abspath(__file__)), 'input', 'similar1')
 SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
+SIMILAR_DISABLED = join(dirname(abspath(__file__)), 'input', 'similar_disabled')
 
 
 def test_ignore_comments():
@@ -127,3 +128,34 @@ def test_no_args():
         pytest.fail('not system exit')
     finally:
         sys.stdout = sys.__stdout__
+
+
+def test_disable_comments():
+        sys.stdout = six.StringIO()
+        with pytest.raises(SystemExit) as ex:
+            similar.Run(['--ignore-comments', SIMILAR1, SIMILAR_DISABLED])
+        assert ex.value.code == 0
+        output = sys.stdout.getvalue()
+        sys.stdout = sys.__stdout__
+        output_trailing_ws = '\n'.join(
+            map(str.rstrip, output.strip('\n').splitlines())).strip()
+        output_expected_trailing_ws = ("""
+13 similar lines in 2 files
+==%s:7
+==%s:11
+   eight
+   nine
+   ''' ten
+   eleven
+   twelve '''
+   thirteen
+   fourteen
+   fifteen
+
+
+
+
+   sixteen
+TOTAL lines=49 duplicates=13 percent=26.53
+""" % (SIMILAR1, SIMILAR_DISABLED)).strip()
+        assert output_trailing_ws == output_expected_trailing_ws
