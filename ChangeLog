@@ -107,6 +107,9 @@ Release date: tba
 
       Closes issue #968
 
+    * Fix a false positive of 'missing-param-doc' and 'missing-type-doc',
+      occurred when a class docstring uses the 'For the parameters, see'
+      magic string but the class __init__ docstring does not, or vice versa.
 
 What's new in Pylint 1.6.2?
 ===========================

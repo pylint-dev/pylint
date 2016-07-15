@@ -105,6 +105,10 @@ Bug fixes
 * Fix a false positive of 'redundant-returns-doc', occurred when the documented
   function was using *yield* instead of *return*.
 
+* Fix a false positive of 'missing-param-doc' and 'missing-type-doc',
+  occurred when a class docstring uses the 'For the parameters, see'
+  magic string but the class ``__init__`` docstring does not, or vice versa.
+
 Removed Changes
 ===============
 
