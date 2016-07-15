@@ -20,15 +20,16 @@ before_install:
   - uname -a
   - lsb_release -a
 install:
-  - pip install tox
+  - pip install tox codecov
   - virtualenv --version
   - easy_install --version
   - pip --version
   - tox --version
+  - codecov --version
 script:
-  - tox -e coverage-erase,$TOXENV
+  - tox -e $TOXENV
 after_success:
-  - tox -e codecov
+  - (cd ${TRAVIS_BUILD_DIR}/.tox/$TOXENV && codecov)
 after_failure:
   - more .tox/log/* | cat
   - more .tox/*/log/* | cat
