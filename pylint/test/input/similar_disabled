@@ -1,0 +1,26 @@
+# comment 1
+# comment 2
+# pylint: disable=duplicate-code
+import one
+from two import two
+three
+four
+five
+six # comments optionally ignored
+seven
+# pylint: enable=duplicate-code
+eight
+nine
+''' ten
+eleven
+twelve '''
+thirteen
+fourteen
+fifteen
+
+
+
+
+sixteen
+seventeen
+eighteen
