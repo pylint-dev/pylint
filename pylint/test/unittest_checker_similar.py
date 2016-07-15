@@ -78,8 +78,6 @@ TOTAL lines=49 duplicates=13 percent=26.53
 """ % (SIMILAR1, SIMILAR_DISABLED)).strip()
         self.assertMultiLineEqual(output_trailing_ws, output_expected_trailing_ws)
 
-
-
     def test_ignore_docsrings(self):
         sys.stdout = six.StringIO()
         try:
