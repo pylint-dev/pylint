@@ -126,7 +126,7 @@ class PossibleExcTypesText(unittest.TestCase):
         self.assertEqual(found, expected)
 
     def test_ignores_uninferable_type(self):
-        raise_node = astroid.extract_node('''
+        raise_node = test_utils.extract_node('''
         import not_a_module
         def my_func():
             try:

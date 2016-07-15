@@ -69,7 +69,7 @@ def possible_exc_types(node):
 
         if handler and handler.type:
             excs = astroid.unpack_infer(handler.type)
-            excs = (exc.name for exc in excs if exc is not astroid.Uninferable)
+            excs = (exc.name for exc in excs if exc is not astroid.YES)
 
     excs = set(exc for exc in excs if not node_ignores_exception(node, exc))
     return excs
