@@ -109,6 +109,21 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
                 args=('RuntimeError', ))):
             self.checker.visit_raise(raise_node)
 
+    def test_ignore_spurious_sphinx_raises(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :raises RuntimeError: Always
+            :except NameError: Never
+            :raise OSError: Never
+            :exception ValueError: Never
+            """
+            raise RuntimeError('Blah') #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
     def test_find_all_sphinx_raises(self):
         raise_node = astroid.extract_node('''
         def my_func(self):
