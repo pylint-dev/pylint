@@ -107,6 +107,8 @@ Release date: tba
 
       Closes issue #968
 
+    * Fix ignored *disable=duplicate-code* on top file
+
 
 What's new in Pylint 1.6.2?
 ===========================
