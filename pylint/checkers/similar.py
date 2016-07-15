@@ -6,6 +6,7 @@
 """
 
 from __future__ import print_function
+import os
 import sys
 from collections import defaultdict
 
@@ -15,6 +16,10 @@ from six.moves import zip
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
+from pylint.lint import PyLinter
+from pylint import checkers
+from pylint.utils import FileState, tokenize_module
+from pylint.testutils import TestReporter
 
 
 class Similar(object):
@@ -326,6 +331,23 @@ def usage(status=0):
 [-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] file1...')
     sys.exit(status)
 
+
+def get_state_lines(filename):
+    linter = PyLinter()
+    checkers.initialize(linter)
+    linter.set_reporter(TestReporter())
+    linter.open()
+    module = os.path.basename(filename)
+    linter.set_current_module(module)
+    linter.file_state = FileState(module)
+    node = linter.get_ast(filename, module)
+    linter.process_tokens(tokenize_module(node))
+    fs = linter.file_state
+    fs.collect_block_lines(linter.msgs_store, node)
+    state_lines = fs._module_msgs_state
+    return state_lines.get('R0801') or {}
+
+
 def Run(argv=None):
     """standalone command line access point"""
     if argv is None:
@@ -354,8 +376,9 @@ def Run(argv=None):
         usage(1)
     sim = Similar(min_lines, ignore_comments, ignore_docstrings, ignore_imports)
     for filename in args:
+        state_lines = get_state_lines(filename)
         with open(filename) as stream:
-            sim.append_stream(filename, stream)
+            sim.append_stream(filename, stream, state_lines=state_lines)
     sim.run()
     sys.exit(0)
 
