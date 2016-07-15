@@ -1,2 +1,1 @@
-useless-super-delegation:19:UselessSuper.useless:Useless super delegation in method 'useless'
-useless-super-delegation:22:UselessSuper.useless_1:Useless super delegation in method 'useless_1'
+useless-super-delegation:15:UselessSuper.useless:Useless super delegation in method 'useless'
