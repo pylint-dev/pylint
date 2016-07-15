@@ -20,7 +20,7 @@ before_install:
   - uname -a
   - lsb_release -a
 install:
-  - pip install tox coverage coveralls
+  - pip install tox codecov
   - virtualenv --version
   - easy_install --version
   - pip --version
@@ -31,9 +31,11 @@ script:
   - pip install .
     # Run the tests with newest version of setuptools
   - pip install -U setuptools
-  - tox -e coverage-erase,$TOXENV
+script:
+  - tox -e $TOXENV
 after_success:
-  - tox -e coveralls
+  - cp ${TRAVIS_BUILD_DIR}/.codecov.yml ${TRAVIS_BUILD_DIR}/.tox/$TOXENV/
+  - (cd ${TRAVIS_BUILD_DIR}/.tox/$TOXENV && codecov)
 after_failure:
   - more .tox/log/* | cat
   - more .tox/*/log/* | cat
