@@ -28,7 +28,7 @@ install:
 script:
   - tox -e coverage-erase,$TOXENV
 after_success:
-  - tox -e coveralls,codecov
+  - tox -e codecov
 after_failure:
   - more .tox/log/* | cat
   - more .tox/*/log/* | cat
