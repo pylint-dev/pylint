@@ -423,6 +423,10 @@ Release date: 2017-04-13
 
       Fixes #59
 
+    * Fix duplicate-code (R0801) can't be disabled using
+      pylint disable comments.
+
+      Fixes #214
 
 What's new in Pylint 1.6.3?
 ===========================

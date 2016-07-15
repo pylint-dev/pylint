@@ -109,6 +109,7 @@ Order doesn't matter (not that much, at least ;)
   Refactory wrong-import-position to skip try-import and nested cases
   Add consider-merging-isinstance, superfluous-else-return
   Fix consider-using-ternary for 'True and True and True or True' case
+  Fix disable/enable pylint comments for duplicate-code
 
 * Luis Escobar (Vauxoo), Moisés López (Vauxoo): Add bad-docstring-quotes and docstring-first-line-empty
 
