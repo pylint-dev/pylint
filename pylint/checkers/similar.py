@@ -132,11 +132,12 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports, st
     """return lines with leading/trailing whitespace and any ignored code
     features removed
     """
+
     strippedlines = []
     docstring = None
     for lineno, line in enumerate(lines, start=1):
         if state_lines and lineno in state_lines and not state_lines[lineno]:
-            line = ''
+            strippedlines.append('')
             continue
         line = line.strip()
         if ignore_docstrings:

@@ -22,5 +22,6 @@ fifteen
 
 
 sixteen
+# pylint: disable=duplicate-code
 seventeen
 eighteen
