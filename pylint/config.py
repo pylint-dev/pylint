@@ -500,7 +500,8 @@ class OptionsManagerMixIn(object):
             group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
-            if group_name != "DEFAULT":
+            if group_name != "DEFAULT" and \
+                    group_name not in self.cfgfile_parser._sections:
                 self.cfgfile_parser.add_section(group_name)
         # add provider's specific options
         for opt, optdict in options:

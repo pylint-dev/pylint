@@ -241,6 +241,8 @@ Bug fixes
   conflicts between a new message and any existing message id, symbol,
   or ``old_names``.
 
+* Support duplicated options category of checkers.
+
 
 Removed Changes
 ===============
