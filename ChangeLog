@@ -120,8 +120,6 @@ Release date: tba
 
       Closes issue #911.
 
-	* Fix a false negative of 'useless-super-delegation', occurred when the method
-	  there are *decorators*.
 
 What's new in Pylint 1.6.2?
 ===========================
