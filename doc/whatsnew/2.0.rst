@@ -136,6 +136,12 @@ Other Changes
           for j in range(i):
               print(j)
 
+* relax character limit for method and function names that starts with ``_``.
+  This will let people to use longer descriptive names for methods and
+  functions with a shorter scope (considered as private). The same idea
+  applies to variable names, only with an inverse rule: you want long
+  descriptive names for variables with bigger scope, like globals.
+
 
 Bug fixes
 =========

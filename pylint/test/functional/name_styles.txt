@@ -15,3 +15,4 @@ invalid-name:94:test_globals:"Invalid constant name ""AlsoCorrect"""
 invalid-name:107:FooClass.PROPERTY_NAME:"Invalid attribute name ""PROPERTY_NAME""":INFERENCE
 invalid-name:112:FooClass.ABSTRACT_PROPERTY_NAME:"Invalid attribute name ""ABSTRACT_PROPERTY_NAME""":INFERENCE
 invalid-name:117:FooClass.PROPERTY_NAME_SETTER:"Invalid attribute name ""PROPERTY_NAME_SETTER""":INFERENCE
+invalid-name:132:too_long_function_name_in_public_scope:"Invalid function name ""too_long_function_name_in_public_scope"""

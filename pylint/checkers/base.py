@@ -44,7 +44,7 @@ CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
 MOD_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$')
 CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
 COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9_]*$')
-DEFAULT_NAME_RGX = re.compile('[a-z_][a-z0-9_]{2,30}$')
+DEFAULT_NAME_RGX = re.compile('(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$')
 CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
 # do not require a doc string on private/system methods
 NO_REQUIRED_DOC_RGX = re.compile('^_')
