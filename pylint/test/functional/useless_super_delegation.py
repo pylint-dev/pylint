@@ -103,3 +103,13 @@ class UselessSuper(Base):
 
     def __init__(self): # [useless-super-delegation]
         super(UselessSuper, self).__init__()
+
+
+def trigger_something(value_to_trigger):
+    pass
+
+
+class NotUselessSuperDecorators(Base):
+    @trigger_something('value1')
+    def method_decorated(self):
+        super(NotUselessSuperDecorators, self).method_decorated()

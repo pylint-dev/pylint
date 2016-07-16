@@ -147,6 +147,9 @@ Bug fixes
   occurred when a class docstring uses the 'For the parameters, see'
   magic string but the class ``__init__`` docstring does not, or vice versa.
 
+* Fix a false negative of 'useless-super-delegation', occurred when the method
+  there are *decorators*.
+
 Removed Changes
 ===============
 

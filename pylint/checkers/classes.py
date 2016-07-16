@@ -617,6 +617,10 @@ a metaclass class method.'}
         if not function.is_method():
             return
 
+        if function.decorators:
+            # With decorators is a change of use
+            return
+
         body = function.body
         if len(body) != 1:
             # Multiple statements, which means this overridden method
