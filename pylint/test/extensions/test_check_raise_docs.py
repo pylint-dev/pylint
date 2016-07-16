@@ -226,7 +226,7 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
                 args=('RuntimeError', ))):
             self.checker.visit_raise(raise_node)
 
-    def test_finds_rethrown_sphinx_mutiple_raises(self):
+    def test_finds_rethrown_sphinx_multiple_raises(self):
         raise_node = astroid.extract_node('''
         def my_func(self):
             """This is a docstring.
@@ -350,6 +350,84 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
+
+    def test_find_missing_sphinx_raises_infer_from_instance(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :raises NameError: Never
+            """
+            my_exception = RuntimeError('hi')
+            raise my_exception #@
+            raise NameError('hi')
+        ''')
+        node = raise_node.frame()
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=node,
+                args=('RuntimeError', ))):
+            self.checker.visit_raise(raise_node)
+
+    def test_find_missing_sphinx_raises_infer_from_function(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :raises NameError: Never
+            """
+            def ex_func(val):
+                return RuntimeError(val)
+            raise ex_func('hi') #@
+            raise NameError('hi')
+        ''')
+        node = raise_node.frame()
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=node,
+                args=('RuntimeError', ))):
+            self.checker.visit_raise(raise_node)
+
+    def test_ignores_raise_uninferable(self):
+        raise_node = astroid.extract_node('''
+        from unknown import Unknown
+
+        def my_func(self):
+            """This is a docstring.
+
+            :raises NameError: Never
+            """
+            raise Unknown('hi') #@
+            raise NameError('hi')
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_ignores_returns_from_inner_functions(self):
+        raise_node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            :raises NameError: Never
+            """
+            def ex_func(val):
+                def inner_func(value):
+                    return OSError(value)
+                return RuntimeError(val)
+            raise ex_func('hi') #@
+            raise NameError('hi')
+        ''')
+        node = raise_node.frame()
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=node,
+                args=('RuntimeError', ))):
+            # we do NOT expect a warning about the OSError in inner_func!
+            self.checker.visit_raise(raise_node)
+
 
 if __name__ == '__main__':
     unittest.main()
