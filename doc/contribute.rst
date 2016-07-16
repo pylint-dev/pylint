@@ -70,6 +70,12 @@ your patch gets accepted.
           python -m tox -epy27 # for Python 2.7 suite only
           python -m tox -epylint # for running Pylint over Pylint's codebase
 
+    - To run only a specific test suite, use a pattern for the test filename
+      (**without** the ``.py`` extension), as in::
+
+        python -m tox -e py27 test_functional
+        python -m tox -e py27 \*func\*
+
 - Add a short entry to the ChangeLog describing the change, except for internal
   implementation only changes
 
@@ -111,6 +117,11 @@ For example, this is a valid message line::
 If the Python file is expected to not emit any errors, then the .txt file has to be empty.
 If you need special control over Pylint's flag, you can also create a .rc file, which
 can have sections of Pylint's configuration.
+
+During development, it's sometimes helpful to run all functional tests in your
+current environment in order to have faster feedback. Run with::
+
+    python pylint/test/test_functional.py
 
 .. _`this page`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _here: https://help.github.com/articles/using-pull-requests/
