@@ -1251,7 +1251,7 @@ class SpecialMethodsChecker(BaseChecker):
 
     def _check_len(self, node):
         inferred = _safe_infer_call_result(node, node)
-        if inferred is None or inferred is astroid.util.Uninferable:
+        if not inferred:
             return
 
         if not isinstance(inferred, astroid.Const):

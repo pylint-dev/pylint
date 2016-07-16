@@ -377,10 +377,7 @@ def _infer_from_metaclass_constructor(cls, func):
         inferred = next(func.infer_call_result(func, context), None)
     except astroid.InferenceError:
         return None
-    else:
-        if inferred in (astroid.Uninferable, None):
-            return None
-    return inferred
+    return inferred or None
 
 
 class TypeChecker(BaseChecker):
@@ -658,7 +655,7 @@ accessed. Python regular expressions are accepted.'}
 
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
-        if called is not None and not called.callable():
+        if called and not called.callable():
             self.add_message('not-callable', node=node,
                              args=node.func.as_string())
 

@@ -107,9 +107,11 @@ class NewStyleConflictChecker(BaseChecker):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.
                 continue
+
             expr = stmt.func
             if not isinstance(expr, astroid.Attribute):
                 continue
+
             call = expr.expr
             # skip the test if using super
             if not (isinstance(call, astroid.Call) and
@@ -122,18 +124,17 @@ class NewStyleConflictChecker(BaseChecker):
                 self.add_message('super-on-old-class', node=node)
             else:
                 # super first arg should be the class
-                if not call.args and sys.version_info[0] == 3:
-                    # unless Python 3
-                    continue
+                if not call.args:
+                    if sys.version_info[0] == 3:
+                        # unless Python 3
+                        continue
+                    else:
+                        self.add_message('missing-super-argument', node=call)
+                        continue
 
                 try:
-                    supcls = (call.args and next(call.args[0].infer())
-                              or None)
+                    supcls = call.args and next(call.args[0].infer(), None)
                 except astroid.InferenceError:
-                    continue
-
-                if supcls is None:
-                    self.add_message('missing-super-argument', node=call)
                     continue
 
                 if klass is not supcls:
@@ -141,12 +142,11 @@ class NewStyleConflictChecker(BaseChecker):
                     # if supcls is not YES, then supcls was infered
                     # and use its name. Otherwise, try to look
                     # for call.args[0].name
-                    if supcls is not astroid.YES:
+                    if supcls:
                         name = supcls.name
-                    else:
-                        if hasattr(call.args[0], 'name'):
-                            name = call.args[0].name
-                    if name is not None:
+                    elif call.args and hasattr(call.args[0], 'name'):
+                        name = call.args[0].name
+                    if name:
                         self.add_message('bad-super-call', node=call, args=(name, ))
 
     visit_asyncfunctiondef = visit_functiondef
