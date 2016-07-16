@@ -9,7 +9,7 @@ import re
 
 import astroid
 
-from pylint.checkers.utils import node_ignores_exception
+from pylint.checkers.utils import node_ignores_exception, safe_infer
 
 
 def space_indentation(s):
@@ -31,7 +31,7 @@ def returns_something(return_node):
 
     :rtype: bool
     :return: True if the return node returns a value other than None,
-        False otherise.
+        False otherwise.
     """
     returns = return_node.value
 
@@ -58,10 +58,19 @@ def possible_exc_types(node):
     """
     excs = []
     if isinstance(node.exc, astroid.Name):
-        excs = [node.exc.name]
+        inferred = safe_infer(node.exc)
+        if inferred:
+            excs = [inferred.name]
     elif (isinstance(node.exc, astroid.Call) and
           isinstance(node.exc.func, astroid.Name)):
-        excs = [node.exc.func.name]
+        target = safe_infer(node.exc.func)
+        if isinstance(target, astroid.ClassDef):
+            excs = [target.name]
+        elif isinstance(target, astroid.FunctionDef):
+            for ret in target.nodes_of_class(astroid.Return):
+                val = safe_infer(ret.value)
+                if val:
+                    excs.append(val.name)
     elif node.exc is None:
         handler = node.parent
         while handler and not isinstance(handler, astroid.ExceptHandler):

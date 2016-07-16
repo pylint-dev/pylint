@@ -120,6 +120,8 @@ Release date: tba
 
       Closes issue #911.
 
+    * Added proper exception type inference for 'missing-raises-doc'.
+
 
 What's new in Pylint 1.6.2?
 ===========================

@@ -147,6 +147,18 @@ Bug fixes
   occurred when a class docstring uses the 'For the parameters, see'
   magic string but the class ``__init__`` docstring does not, or vice versa.
 
+* Added proper exception type inference for 'missing-raises-doc'. Now:
+
+  .. code-block:: python
+
+      def my_func():
+          """"My function."""
+          ex = ValueError('foo')
+          raise ex
+
+  will properly be flagged for missing documentation of
+  ``:raises ValueError:`` instead of ``:raises ex:``, among other scenarios.
+
 Removed Changes
 ===============
 
