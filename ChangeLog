@@ -120,6 +120,11 @@ Release date: tba
 
       Closes issue #911.
 
+    * Fix the duplicate-code (R0801) can't be disabled using
+      pylint enable/disable comments.
+
+      Closes issue #214.
+
 
 What's new in Pylint 1.6.2?
 ===========================

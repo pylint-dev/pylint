@@ -11,6 +11,8 @@ from pylint.checkers import similar
 
 SIMILAR1 = join(dirname(abspath(__file__)), 'input', 'similar1')
 SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
+SIMILAR_DISABLED = join(dirname(abspath(__file__)), 'input', 'similar_disabled')
+
 
 class SimilarTC(unittest.TestCase):
     """test the similar command line utility"""
@@ -43,6 +45,38 @@ class SimilarTC(unittest.TestCase):
 TOTAL lines=44 duplicates=10 percent=22.73
 """ % (SIMILAR1, SIMILAR2)).strip())
 
+    def test_disable_comments(self):
+        sys.stdout = six.StringIO()
+        try:
+            similar.Run(['--ignore-comments', SIMILAR1, SIMILAR_DISABLED])
+        except SystemExit as ex:
+            self.assertEqual(ex.code, 0)
+            output = sys.stdout.getvalue()
+        else:
+            self.fail('not system exit')
+        finally:
+            sys.stdout = sys.__stdout__
+        output_trailing_ws = '\n'.join(map(str.rstrip, output.strip('\n').splitlines()))
+        output_expected_trailing_ws = ("""
+13 similar lines in 2 files
+==%s:7
+==%s:11
+   eight
+   nine
+   ''' ten
+   eleven
+   twelve '''
+   thirteen
+   fourteen
+   fifteen
+
+
+
+
+   sixteen
+TOTAL lines=49 duplicates=13 percent=26.53
+""" % (SIMILAR1, SIMILAR_DISABLED)).strip()
+        self.assertMultiLineEqual(output_trailing_ws, output_expected_trailing_ws)
 
     def test_ignore_docsrings(self):
         sys.stdout = six.StringIO()

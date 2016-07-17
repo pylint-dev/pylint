@@ -6,6 +6,7 @@
 """
 
 from __future__ import print_function
+import os
 import sys
 from collections import defaultdict
 
@@ -15,6 +16,10 @@ from six.moves import zip
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
+from pylint.lint import PyLinter
+from pylint import checkers
+from pylint.utils import FileState, tokenize_module
+from pylint.testutils import TestReporter
 
 
 class Similar(object):
@@ -28,7 +33,7 @@ class Similar(object):
         self.ignore_imports = ignore_imports
         self.linesets = []
 
-    def append_stream(self, streamid, stream, encoding=None):
+    def append_stream(self, streamid, stream, encoding=None, state_lines=None):
         """append a file to search for similarities"""
         if encoding is None:
             readlines = stream.readlines
@@ -39,7 +44,7 @@ class Similar(object):
                                          readlines(),
                                          self.ignore_comments,
                                          self.ignore_docstrings,
-                                         self.ignore_imports))
+                                         self.ignore_imports, state_lines))
         except UnicodeDecodeError:
             pass
 
@@ -123,14 +128,17 @@ class Similar(object):
                 for sim in self._find_common(lineset, lineset2):
                     yield sim
 
-def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
+def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports, state_lines=None):
     """return lines with leading/trailing whitespace and any ignored code
     features removed
     """
 
     strippedlines = []
     docstring = None
-    for line in lines:
+    for lineno, line in enumerate(lines, start=1):
+        if state_lines and lineno in state_lines and not state_lines[lineno]:
+            strippedlines.append('')
+            continue
         line = line.strip()
         if ignore_docstrings:
             if not docstring and \
@@ -155,12 +163,12 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
 class LineSet(object):
     """Holds and indexes all the lines of a single source file"""
     def __init__(self, name, lines, ignore_comments=False,
-                 ignore_docstrings=False, ignore_imports=False):
+                 ignore_docstrings=False, ignore_imports=False, state_lines=None):
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(lines, ignore_comments,
                                               ignore_docstrings,
-                                              ignore_imports)
+                                              ignore_imports, state_lines)
         self._index = self._mk_index()
 
     def __str__(self):
@@ -287,10 +295,11 @@ class SimilarChecker(BaseChecker, Similar):
 
         stream must implement the readlines method
         """
+        state_lines = self.linter.file_state._module_msgs_state.get('R0801')
         with node.stream() as stream:
             self.append_stream(self.linter.current_name,
                                stream,
-                               node.file_encoding)
+                               node.file_encoding, state_lines)
 
     def close(self):
         """compute and display similarities on closing (i.e. end of parsing)"""
@@ -323,6 +332,27 @@ def usage(status=0):
 [-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] file1...')
     sys.exit(status)
 
+
+def _get_state_lines(linter, filename):
+    module = os.path.basename(filename)
+    linter.set_current_module(module)
+    node = linter.get_ast(filename, module)
+    linter.process_tokens(tokenize_module(node))
+    linter.file_state.collect_block_lines(linter.msgs_store, node)
+    state_lines = linter.file_state._module_msgs_state
+    return state_lines.get('R0801')
+
+
+def _init_linter():
+    linter = PyLinter()
+    linter.open()
+    checkers.initialize(linter)
+    linter.set_reporter(TestReporter())
+    linter.set_current_module('foo')
+    linter.file_state = FileState('foo')
+    return linter
+
+
 def Run(argv=None):
     """standalone command line access point"""
     if argv is None:
@@ -349,10 +379,12 @@ def Run(argv=None):
             ignore_imports = True
     if not args:
         usage(1)
+    linter = _init_linter()
     sim = Similar(min_lines, ignore_comments, ignore_docstrings, ignore_imports)
     for filename in args:
+        state_lines = _get_state_lines(linter, filename)
         with open(filename) as stream:
-            sim.append_stream(filename, stream)
+            sim.append_stream(filename, stream, state_lines=state_lines)
     sim.run()
     sys.exit(0)
 
