@@ -68,6 +68,9 @@ def possible_exc_types(node):
             excs = [target.name]
         elif isinstance(target, astroid.FunctionDef):
             for ret in target.nodes_of_class(astroid.Return):
+                if ret.frame() != target:
+                    # return from inner function - ignore it
+                    continue
                 val = safe_infer(ret.value)
                 if val:
                     excs.append(val.name)
