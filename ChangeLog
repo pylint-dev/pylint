@@ -137,6 +137,9 @@ Release date: tba
     * More thorough validation in MessagesStore.register_messages() to avoid
       one message accidentally overwriting another.
 
+    * InvalidMessageError, UnknownMessage, and EmptyReport exceptions are
+      moved to the new pylint.exceptions submodule.
+
 What's new in Pylint 1.6.3?
 ===========================
 

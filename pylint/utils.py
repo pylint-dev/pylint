@@ -26,14 +26,7 @@ from astroid import modutils
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
 from pylint.reporters.ureports.nodes import Section
-from pylint.exceptions import InvalidMessageError
-
-
-class UnknownMessage(Exception):
-    """raised when a unregistered message id is encountered"""
-
-class EmptyReport(Exception):
-    """raised when a report is empty and so should not be displayed"""
+from pylint.exceptions import InvalidMessageError, UnknownMessage, EmptyReport
 
 
 MSG_TYPES = {

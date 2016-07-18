@@ -12,7 +12,7 @@ Raw metrics checker
 import tokenize
 
 from pylint.interfaces import ITokenChecker
-from pylint.utils import EmptyReport
+from pylint.exceptions import EmptyReport
 from pylint.checkers import BaseTokenChecker
 from pylint.reporters import diff_string
 from pylint.reporters.ureports.nodes import Table

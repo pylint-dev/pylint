@@ -18,7 +18,8 @@ from astroid.modutils import (get_module_part, is_standard_module)
 import isort
 
 from pylint.interfaces import IAstroidChecker
-from pylint.utils import EmptyReport, get_global_option
+from pylint.utils import get_global_option
+from pylint.exceptions import EmptyReport
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,

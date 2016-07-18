@@ -20,7 +20,7 @@ from astroid import are_exclusive, InferenceError
 
 from pylint.interfaces import (IAstroidChecker, ITokenChecker, INFERENCE,
                                INFERENCE_FAILURE, HIGH)
-from pylint.utils import EmptyReport
+from pylint.exceptions import EmptyReport
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers.utils import (

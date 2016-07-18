@@ -21,8 +21,8 @@ from pylint.lint import PyLinter, Run, preprocess_options, \
      ArgumentPreprocessingError
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
     MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
-    build_message_def, tokenize_module, UnknownMessage
-from pylint.exceptions import InvalidMessageError
+    build_message_def, tokenize_module
+from pylint.exceptions import InvalidMessageError, UnknownMessage
 from pylint.testutils import TestReporter
 from pylint.reporters import text
 from pylint import checkers
