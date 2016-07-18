@@ -126,6 +126,16 @@ Release date: tba
     * Added proper exception type inference for 'missing-raises-doc'.
 
 
+What's new in Pylint 1.6.3?
+===========================
+
+Release date: 2016-07-18
+
+    * Do not crash when inferring uninferable exception types for docparams extension
+
+      Close #998
+
+
 What's new in Pylint 1.6.2?
 ===========================
 
