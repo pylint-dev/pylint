@@ -5,7 +5,7 @@ Pylint NEWS
 What's new in Pylint 1.6.3?
 ===========================
 
-Release date: tba
+Release date: 2016-07-18
 
     * Do not crash when inferring uninferable exception types for docparams extension
 
