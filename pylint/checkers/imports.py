@@ -19,7 +19,7 @@ import isort
 
 from pylint.interfaces import IAstroidChecker
 from pylint.utils import get_global_option
-from pylint.exceptions import EmptyReport
+from pylint.exceptions import EmptyReportError
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
@@ -673,7 +673,7 @@ given file (report RP0402 must not be disabled)'}
         """return a verbatim layout for displaying dependencies"""
         dep_info = _make_tree_defs(six.iteritems(self._external_dependencies_info()))
         if not dep_info:
-            raise EmptyReport()
+            raise EmptyReportError()
         tree_str = _repr_tree_defs(dep_info)
         sect.append(VerbatimText(tree_str))
 
@@ -683,7 +683,7 @@ given file (report RP0402 must not be disabled)'}
         if not dep_info or not (self.config.import_graph
                                 or self.config.ext_import_graph
                                 or self.config.int_import_graph):
-            raise EmptyReport()
+            raise EmptyReportError()
         filename = self.config.import_graph
         if filename:
             _make_graph(filename, dep_info, sect, '')

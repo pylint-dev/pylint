@@ -20,7 +20,7 @@ from astroid import are_exclusive, InferenceError
 
 from pylint.interfaces import (IAstroidChecker, ITokenChecker, INFERENCE,
                                INFERENCE_FAILURE, HIGH)
-from pylint.exceptions import EmptyReport
+from pylint.exceptions import EmptyReportError
 from pylint.reporters import diff_string
 from pylint.checkers import BaseChecker, BaseTokenChecker
 from pylint.checkers.utils import (
@@ -228,7 +228,7 @@ def report_by_type_stats(sect, stats, old_stats):
         try:
             total = stats[node_type]
         except KeyError:
-            raise EmptyReport()
+            raise EmptyReportError()
         nice_stats[node_type] = {}
         if total != 0:
             try:

@@ -145,7 +145,8 @@ Other Changes
 * Add ``InvalidMessageError`` exception class and replace ``assert`` in
   pylint.utils with ``raise InvalidMessageError``.
 
-* ``UnknownMessage`` and ``EmptyReport`` are now provided by the new
+* ``UnknownMessageError`` (formerly ``UnknownMessage``) and
+  ``EmptyReportError`` (formerly ``EmptyReport``) are now provided by the new
   ``pylint.exceptions`` submodule instead of ``pylint.utils`` as before.
 
 Bug fixes

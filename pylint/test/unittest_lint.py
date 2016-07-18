@@ -22,7 +22,7 @@ from pylint.lint import PyLinter, Run, preprocess_options, \
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
     MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
     build_message_def, tokenize_module
-from pylint.exceptions import InvalidMessageError, UnknownMessage
+from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.testutils import TestReporter
 from pylint.reporters import text
 from pylint import checkers
@@ -636,7 +636,7 @@ class MessagesStoreTC(unittest.TestCase):
     def test_check_message_id(self):
         self.assertIsInstance(self.store.check_message_id('W1234'),
                               MessageDefinition)
-        self.assertRaises(UnknownMessage,
+        self.assertRaises(UnknownMessageError,
                           self.store.check_message_id, 'YB12')
 
     def test_message_help(self):

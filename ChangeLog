@@ -140,6 +140,9 @@ Release date: tba
     * InvalidMessageError, UnknownMessage, and EmptyReport exceptions are
       moved to the new pylint.exceptions submodule.
 
+    * UnknownMessage and EmptyReport are renamed to UnknownMessageError and
+      EmptyReportError.
+
 What's new in Pylint 1.6.3?
 ===========================
 

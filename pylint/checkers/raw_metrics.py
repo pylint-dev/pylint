@@ -12,7 +12,7 @@ Raw metrics checker
 import tokenize
 
 from pylint.interfaces import ITokenChecker
-from pylint.exceptions import EmptyReport
+from pylint.exceptions import EmptyReportError
 from pylint.checkers import BaseTokenChecker
 from pylint.reporters import diff_string
 from pylint.reporters.ureports.nodes import Table
@@ -23,7 +23,7 @@ def report_raw_stats(sect, stats, old_stats):
     """
     total_lines = stats['total_lines']
     if not total_lines:
-        raise EmptyReport()
+        raise EmptyReportError()
     sect.description = '%s lines have been analyzed' % total_lines
     lines = ('type', 'number', '%', 'previous', 'difference')
     for node_type in ('code', 'docstring', 'comment', 'empty'):

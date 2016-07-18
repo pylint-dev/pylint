@@ -26,7 +26,7 @@ from astroid import modutils
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
 from pylint.reporters.ureports.nodes import Section
-from pylint.exceptions import InvalidMessageError, UnknownMessage, EmptyReport
+from pylint.exceptions import InvalidMessageError, UnknownMessageError, EmptyReportError
 
 
 MSG_TYPES = {
@@ -246,7 +246,7 @@ class MessagesHandlerMixIn(object):
         try:
             # msgid is a symbolic or numeric msgid.
             msg = self.msgs_store.check_message_id(msgid)
-        except UnknownMessage:
+        except UnknownMessageError:
             if ignore_unknown:
                 return
             raise
@@ -273,7 +273,7 @@ class MessagesHandlerMixIn(object):
         """
         try:
             return self.msgs_store.check_message_id(msgid).symbol
-        except UnknownMessage:
+        except UnknownMessageError:
             return msgid
 
     def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
@@ -307,7 +307,7 @@ class MessagesHandlerMixIn(object):
         try:
             # msgid is a symbolic or numeric msgid.
             msg = self.msgs_store.check_message_id(msgid)
-        except UnknownMessage:
+        except UnknownMessageError:
             if ignore_unknown:
                 return
             raise
@@ -342,7 +342,7 @@ class MessagesHandlerMixIn(object):
                 return False
         try:
             msgid = self.msgs_store.check_message_id(msg_descr).msgid
-        except UnknownMessage:
+        except UnknownMessageError:
             # The linter checks for messages that are not registered
             # due to version mismatch, just treat them as message IDs
             # for now.
@@ -720,7 +720,7 @@ class MessagesStore(object):
 
         msgid may be either a numeric or symbolic id.
 
-        Raises UnknownMessage if the message id is not defined.
+        Raises UnknownMessageError if the message id is not defined.
         """
         if msgid[1:].isdigit():
             msgid = msgid.upper()
@@ -729,7 +729,7 @@ class MessagesStore(object):
                 return source[msgid]
             except KeyError:
                 pass
-        raise UnknownMessage('No such message id %s' % msgid)
+        raise UnknownMessageError('No such message id %s' % msgid)
 
     def get_msg_display_string(self, msgid):
         """Generates a user-consumable representation of a message.
@@ -744,7 +744,7 @@ class MessagesStore(object):
             try:
                 print(self.check_message_id(msgid).format_help(checkerref=True))
                 print("")
-            except UnknownMessage as ex:
+            except UnknownMessageError as ex:
                 print(ex)
                 print("")
                 continue
@@ -811,7 +811,7 @@ class ReportsHandlerMixIn(object):
                 report_sect = Section(r_title)
                 try:
                     r_cb(report_sect, stats, old_stats)
-                except EmptyReport:
+                except EmptyReportError:
                     continue
                 report_sect.report_id = reportid
                 sect.append(report_sect)

@@ -645,7 +645,7 @@ class PyLinter(config.OptionsManagerMixIn,
                             self._ignore_file = True
                             return
                         meth(msgid, 'module', start[0])
-                    except exceptions.UnknownMessage:
+                    except exceptions.UnknownMessageError:
                         self.add_message('bad-option-value', args=msgid, line=start[0])
             else:
                 self.add_message('unrecognized-inline-option', args=opt, line=start[0])
@@ -996,7 +996,7 @@ def report_messages_stats(sect, stats, _):
     """make messages type report"""
     if not stats['by_msg']:
         # don't print this report when we didn't detected any errors
-        raise exceptions.EmptyReport()
+        raise exceptions.EmptyReportError()
     in_order = sorted([(value, msg_id)
                        for msg_id, value in six.iteritems(stats['by_msg'])
                        if not msg_id.startswith('I')])
@@ -1010,7 +1010,7 @@ def report_messages_by_module_stats(sect, stats, _):
     """make errors / warnings by modules report"""
     if len(stats['by_module']) == 1:
         # don't print this report when we are analysing a single module
-        raise exceptions.EmptyReport()
+        raise exceptions.EmptyReportError()
     by_mod = collections.defaultdict(dict)
     for m_type in ('fatal', 'error', 'warning', 'refactor', 'convention'):
         total = stats[m_type]
@@ -1039,7 +1039,7 @@ def report_messages_by_module_stats(sect, stats, _):
         for val in line[:-1]:
             lines.append('%.2f' % val)
     if len(lines) == 5:
-        raise exceptions.EmptyReport()
+        raise exceptions.EmptyReportError()
     sect.append(report_nodes.Table(children=lines, cols=5, rheaders=1))
 
 
