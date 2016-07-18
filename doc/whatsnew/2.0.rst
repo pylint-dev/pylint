@@ -142,6 +142,9 @@ Other Changes
   applies to variable names, only with an inverse rule: you want long
   descriptive names for variables with bigger scope, like globals.
 
+* Add ``InvalidMessageError`` exception class and replace ``assert`` in
+  pylint.utils with ``raise InvalidMessageError``.
+
 
 Bug fixes
 =========
@@ -167,6 +170,10 @@ Bug fixes
 
 * Fix false positives of ``missing-[raises|params|type]-doc`` due to not
   recognizing valid keyword synonyms supported by Sphinx.
+
+* More thorough validation in ``MessagesStore.register_messages()`` to detect
+  conflicts between a new message and any existing message id, symbol,
+  or ``old_names``.
 
 
 Removed Changes

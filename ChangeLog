@@ -131,6 +131,11 @@ Release date: tba
 
     * Added proper exception type inference for 'missing-raises-doc'.
 
+    * Added InvalidMessageError exception class to replace asserts in
+      pylint.utils.
+
+    * More thorough validation in MessagesStore.register_messages() to avoid
+      one message accidentally overwriting another.
 
 What's new in Pylint 1.6.3?
 ===========================

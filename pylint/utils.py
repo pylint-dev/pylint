@@ -26,6 +26,7 @@ from astroid import modutils
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
 from pylint.reporters.ureports.nodes import Section
+from pylint.exceptions import InvalidMessageError
 
 
 class UnknownMessage(Exception):
@@ -157,9 +158,11 @@ class MessageDefinition(object):
     def __init__(self, checker, msgid, msg, descr, symbol, scope,
                  minversion=None, maxversion=None, old_names=None):
         self.checker = checker
-        assert len(msgid) == 5, 'Invalid message id %s' % msgid
-        assert msgid[0] in MSG_TYPES, \
-               'Bad message type %s in %r' % (msgid[0], msgid)
+        if len(msgid) != 5:
+            raise InvalidMessageError('Invalid message id %r' % msgid)
+        if not msgid[0] in MSG_TYPES:
+            raise InvalidMessageError(
+                'Bad message type %s in %r' % (msgid[0], msgid))
         self.msgid = msgid
         self.msg = msg
         self.descr = descr
@@ -375,11 +378,18 @@ class MessagesHandlerMixIn(object):
         # does not apply to them.
         if msgid[0] not in _SCOPE_EXEMPT:
             if msg_info.scope == WarningScope.LINE:
-                assert node is None and line is not None, (
-                    'Message %s must only provide line, got line=%s, node=%s' % (msgid, line, node))
+                if line is None:
+                    raise InvalidMessageError(
+                        'Message %s must provide line, got None' % msgid)
+                if node is not None:
+                    raise InvalidMessageError(
+                        'Message %s must only provide line, '
+                        'got line=%s, node=%s' % (msgid, line, node))
             elif msg_info.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
-                assert node is not None, 'Message %s must provide Node, got None'
+                if node is None:
+                    raise InvalidMessageError(
+                        'Message %s must provide Node, got None' % msgid)
 
         if line is None and node is not None:
             line = node.fromlineno
@@ -669,8 +679,8 @@ class MessagesStore(object):
         """
         msg = self.check_message_id(new_symbol)
         msg.old_names.append((old_id, old_symbol))
-        self._alternative_names[old_id] = msg
-        self._alternative_names[old_symbol] = msg
+        self._register_alternative_name(msg, old_id)
+        self._register_alternative_name(msg, old_symbol)
 
     def register_messages(self, checker):
         """register a dictionary of messages
@@ -682,22 +692,35 @@ class MessagesStore(object):
         are the checker id and the two last the message id in this checker
         """
         chkid = None
-        for msgid, msg_tuple in six.iteritems(checker.msgs):
+        for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
             msg = build_message_def(checker, msgid, msg_tuple)
-            assert msg.symbol not in self._messages, \
-                    'Message symbol %r is already defined' % msg.symbol
             # avoid duplicate / malformed ids
-            assert msg.msgid not in self._alternative_names, \
-                   'Message id %r is already defined' % msgid
-            assert chkid is None or chkid == msg.msgid[1:3], \
-                   'Inconsistent checker part in message id %r' % msgid
+            if msg.symbol in self._messages or msg.symbol in self._alternative_names:
+                raise InvalidMessageError(
+                    'Message symbol %r is already defined' % msg.symbol)
+            if chkid is not None and chkid != msg.msgid[1:3]:
+                raise InvalidMessageError(
+                    "Inconsistent checker part in message id %r (expected 'x%sxx')"
+                    % (msgid, chkid))
             chkid = msg.msgid[1:3]
             self._messages[msg.symbol] = msg
-            self._alternative_names[msg.msgid] = msg
+            self._register_alternative_name(msg, msg.msgid)
             for old_id, old_symbol in msg.old_names:
-                self._alternative_names[old_id] = msg
-                self._alternative_names[old_symbol] = msg
+                self._register_alternative_name(msg, old_id)
+                self._register_alternative_name(msg, old_symbol)
             self._msgs_by_category[msg.msgid[0]].append(msg.msgid)
+
+    def _register_alternative_name(self, msg, name):
+        """helper for register_message()"""
+        if name in self._messages and self._messages[name] != msg:
+            raise InvalidMessageError(
+                'Message symbol %r is already defined' % name)
+        if name in self._alternative_names and self._alternative_names[name] != msg:
+            raise InvalidMessageError(
+                'Message %s %r is already defined' % (
+                    'id' if len(name) == 5 and name[0] in MSG_TYPES else 'alternate name',
+                    name))
+        self._alternative_names[name] = msg
 
     def check_message_id(self, msgid):
         """returns the Message object for this message.
