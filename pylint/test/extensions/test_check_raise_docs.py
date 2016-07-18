@@ -352,5 +352,40 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
 
+    def test_no_crash_when_inferring_handlers(self):
+        raise_node = test_utils.extract_node('''
+        import collections
+
+        def test():
+           """raises
+
+           :raise U: pass
+           """
+           try:
+              pass
+           except collections.U as exc:
+              raise #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_no_crash_when_cant_find_exception(self):
+        raise_node = test_utils.extract_node('''
+        import collections
+
+        def test():
+           """raises
+
+           :raise U: pass
+           """
+           try:
+              pass
+           except U as exc:
+              raise #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+
 if __name__ == '__main__':
     unittest.main()

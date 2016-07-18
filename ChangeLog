@@ -7,7 +7,9 @@ What's new in Pylint 1.6.3?
 
 Release date: tba
 
+    * Do not crash when inferring uninferable exception types for docparams extension
 
+      Close #998
 
 What's new in Pylint 1.6.2?
 ===========================

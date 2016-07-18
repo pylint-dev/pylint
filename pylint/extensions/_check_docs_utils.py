@@ -68,11 +68,14 @@ def possible_exc_types(node):
             handler = handler.parent
 
         if handler and handler.type:
-            excs = astroid.unpack_infer(handler.type)
-            excs = (exc.name for exc in excs if exc is not astroid.YES)
+            inferred_excs = astroid.unpack_infer(handler.type)
+            excs = (exc.name for exc in inferred_excs
+                    if exc is not astroid.YES)
 
-    excs = set(exc for exc in excs if not node_ignores_exception(node, exc))
-    return excs
+    try:
+        return set(exc for exc in excs if not node_ignores_exception(node, exc))
+    except astroid.InferenceError:
+        return ()
 
 def docstringify(docstring):
     for docstring_type in [SphinxDocstring, GoogleDocstring, NumpyDocstring]:
