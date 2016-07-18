@@ -428,6 +428,38 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
             # we do NOT expect a warning about the OSError in inner_func!
             self.checker.visit_raise(raise_node)
 
+    def test_ignores_returns_use_only_names(self):
+        raise_node = astroid.extract_node('''
+        def myfunc():
+            """This is a docstring
+
+            :raises NameError: Never
+            """
+            def inner_func():
+                return 42
+
+            raise inner_func() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
+    def test_ignores_returns_use_only_exception_instances(self):
+        raise_node = astroid.extract_node('''
+        def myfunc():
+            """This is a docstring
+
+            :raises MyException: Never
+            """
+            class MyException(Exception):
+                pass
+            def inner_func():
+                return MyException
+
+            raise inner_func() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_raise(raise_node)
+
 
 if __name__ == '__main__':
     unittest.main()

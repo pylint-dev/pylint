@@ -9,7 +9,11 @@ import re
 
 import astroid
 
-from pylint.checkers.utils import node_ignores_exception, safe_infer
+from pylint.checkers.utils import (
+    inherit_from_std_ex,
+    node_ignores_exception,
+    safe_infer,
+)
 
 
 def space_indentation(s):
@@ -71,8 +75,10 @@ def possible_exc_types(node):
                 if ret.frame() != target:
                     # return from inner function - ignore it
                     continue
+
                 val = safe_infer(ret.value)
-                if val:
+                if (val and isinstance(val, (astroid.Instance, astroid.ClassDef))
+                        and inherit_from_std_ex(val)):
                     excs.append(val.name)
     elif node.exc is None:
         handler = node.parent
