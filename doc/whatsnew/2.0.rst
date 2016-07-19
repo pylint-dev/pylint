@@ -201,3 +201,10 @@ Removed Changes
   issue, since the pathological case would have happen when the
   code was parsed by Python as well, without actually reaching the
   runtime step and as such, we decided to remove the error altogether.
+
+* ``epylint.py_run``'s *script* parameter was removed.
+
+  Now ``epylint.py_run`` is always using the underlying ``epylint.lint``
+  method from the current interpreter. This avoids some issues when multiple
+  instances of **pylint** are installed, which means that ``epylint.py_run``
+  might have ran a different ``epylint`` script than what was intended.
