@@ -1,12 +1,12 @@
-# pylint: disable=W0511
+# Copyright (c) 2003-2016 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-""" Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
-Check source code is ascii only or has an encoding declaration (PEP 263)
-"""
+"""Check source code is ascii only or has an encoding declaration (PEP 263)"""
+
+# pylint: disable=W0511
 
 import re
 

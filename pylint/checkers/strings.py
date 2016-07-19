@@ -1,3 +1,7 @@
+# Copyright (c) 2009-2010 Arista Networks, Inc. - James Lingard
+# Copyright (c) 2004-2016 LOGILAB S.A. (Paris, FRANCE).
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+# http://www.logilab.fr/ -- mailto:contact@logilab.fr
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
