@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pylint'
-copyright = u'2003-2016, Logilab, PyCQA and contributors'
+copyright = u'2003-2016, Logilab'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
