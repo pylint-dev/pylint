@@ -334,6 +334,18 @@ class RunTC(unittest.TestCase):
         self._test_output([path, "--rcfile=%s" % config_path, "-rn"],
                           expected_output=expected)
 
+    def test_pylintrc_comments_in_values(self):
+        path = join(HERE, 'regrtest_data', 'test_pylintrc_comments.py')
+        config_path = join(HERE, 'regrtest_data', 'comments_pylintrc')
+        expected = textwrap.dedent('''
+        ************* Module test_pylintrc_comments
+        W:  2, 0: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
+        C:  1, 0: Missing module docstring (missing-docstring)
+        C:  1, 0: Missing function docstring (missing-docstring)
+        ''')
+        self._test_output([path, "--rcfile=%s" % config_path, "-rn"],
+                          expected_output=expected)
+
     def test_no_crash_with_formatting_regex_defaults(self):
         self._runtest(["--ignore-patterns=a"], reporter=TextReporter(six.StringIO()),
                       code=32)

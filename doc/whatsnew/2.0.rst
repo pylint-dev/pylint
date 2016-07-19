@@ -173,6 +173,26 @@ Other Changes
   ``EmptyReportError`` (formerly ``EmptyReport``) are now provided by the new
   ``pylint.exceptions`` submodule instead of ``pylint.utils`` as before.
 
+* We now support inline comments for comma separated values in the configurations
+
+  For instance, you can now use the **#** sign for having comments inside
+  comma separated values, as seen below::
+
+      disable=no-member, # Don't care about it for now
+              bad-indentation, # No need for this
+              import-error
+
+  Of course, interweaving comments with values is also working::
+
+      disable=no-member,
+              # Don't care about it for now
+              bad-indentation # No need for this
+
+
+  This works by setting the `inline comment prefixes`_ accordingly.
+
+   
+
 Bug fixes
 =========
 
@@ -242,3 +262,5 @@ Removed Changes
   method from the current interpreter. This avoids some issues when multiple
   instances of **pylint** are installed, which means that ``epylint.py_run``
   might have ran a different ``epylint`` script than what was intended.
+
+.. _`inline comment prefixes`: https://docs.python.org/3/library/configparser.html#customizing-parser-behaviour

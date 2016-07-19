@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Support inline comments for comma separated values in the config file
+
+      Closes #1024
+
     * epylint.py_run's *script* parameter was removed.
 
     * epylint.py_run now uses ``shell=False`` for running the underlying process.

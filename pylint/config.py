@@ -28,10 +28,7 @@ import re
 import sys
 import time
 
-try:
-    import configparser
-except ImportError:
-    from six.moves import configparser
+import configparser
 from six.moves import range
 
 from pylint import utils
@@ -460,7 +457,7 @@ class OptionsManagerMixIn(object):
 
     def reset_parsers(self, usage='', version=None):
         # configuration file parser
-        self.cfgfile_parser = configparser.ConfigParser()
+        self.cfgfile_parser = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
         # command line parser
         self.cmdline_parser = OptionParser(usage=usage, version=version)
         self.cmdline_parser.options_manager = self
