@@ -1,8 +1,8 @@
-"""Test for catching non-exceptions."""
+# pylint: disable=missing-docstring, too-few-public-methods
 # pylint: disable=too-many-ancestors, no-absolute-import, import-error, multiple-imports,wrong-import-position
 from __future__ import print_function
 
-import socket, binascii
+import socket, binascii, abc, six
 
 class MyException(object):
     """Custom 'exception'."""
@@ -107,3 +107,17 @@ try:
     1 + 42
 except range: # [catching-non-exception]
     print('caught')
+
+
+class HasErrorInMRO(six.with_metaclass(abc.ABCMeta, Exception)):
+    pass
+
+
+class Second(HasErrorInMRO):
+    pass
+
+
+try:
+    raise Second
+except Second:
+    pass
