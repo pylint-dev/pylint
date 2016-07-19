@@ -430,7 +430,7 @@ def inherit_from_std_ex(node):
             and node.root().name == EXCEPTIONS_MODULE:
         return True
     return any(inherit_from_std_ex(parent)
-               for parent in node.ancestors(recurs=False))
+               for parent in node.ancestors(recurs=True))
 
 def error_of_type(handler, error_type):
     """
