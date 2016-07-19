@@ -5,7 +5,13 @@ Pylint NEWS
 What's new in Pylint 1.6.4?
 ===========================
 
-Release date: tba
+Release date: 2016-07-19
+
+    * Recurse into all the ancestors when checking if an object is an exception
+
+      Since we were going only into the first level, we weren't inferring
+      when a class used a metaclass which defined a base Exception class
+      for the aforementioned class.
 
 
 What's new in Pylint 1.6.3?
