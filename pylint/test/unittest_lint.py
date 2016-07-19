@@ -21,7 +21,8 @@ from pylint.lint import PyLinter, Run, preprocess_options, \
      ArgumentPreprocessingError
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
     MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
-    build_message_def, tokenize_module, UnknownMessage
+    build_message_def, tokenize_module
+from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.testutils import TestReporter
 from pylint.reporters import text
 from pylint import checkers
@@ -444,6 +445,26 @@ class PyLinterTC(unittest.TestCase):
             ['C:  1: Line too long (1/2)', 'C:  2: Line too long (3/4)'],
             self.linter.reporter.messages)
 
+    def test_addmessage_invalid(self):
+        self.linter.set_reporter(TestReporter())
+        self.linter.open()
+        self.linter.set_current_module('0123')
+
+        with self.assertRaises(InvalidMessageError) as cm:
+            self.linter.add_message('line-too-long', args=(1,2))
+        self.assertEqual(str(cm.exception),
+                         "Message C0301 must provide line, got None")
+
+        with self.assertRaises(InvalidMessageError) as cm:
+            self.linter.add_message('line-too-long', line=2, node='fake_node', args=(1, 2))
+        self.assertEqual(str(cm.exception),
+                         "Message C0301 must only provide line, got line=2, node=fake_node")
+
+        with self.assertRaises(InvalidMessageError) as cm:
+            self.linter.add_message('C0321')
+        self.assertEqual(str(cm.exception),
+                         "Message C0321 must provide Node, got None")
+
     def test_init_hooks_called_before_load_plugins(self):
         self.assertRaises(RuntimeError,
                           Run, ['--load-plugins', 'unexistant', '--init-hook', 'raise RuntimeError'])
@@ -615,7 +636,7 @@ class MessagesStoreTC(unittest.TestCase):
     def test_check_message_id(self):
         self.assertIsInstance(self.store.check_message_id('W1234'),
                               MessageDefinition)
-        self.assertRaises(UnknownMessage,
+        self.assertRaises(UnknownMessageError,
                           self.store.check_message_id, 'YB12')
 
     def test_message_help(self):
@@ -661,12 +682,26 @@ class MessagesStoreTC(unittest.TestCase):
         self.assertEqual('msg-symbol',
                          self.store.check_message_id('old-bad-name').symbol)
 
+    def test_add_renamed_message_invalid(self):
+        # conflicting message ID
+        with self.assertRaises(InvalidMessageError) as cm:
+            self.store.add_renamed_message(
+                    'W1234', 'old-msg-symbol', 'duplicate-keyword-arg')
+        self.assertEqual(str(cm.exception),
+                         "Message id 'W1234' is already defined")
+        # conflicting message symbol
+        with self.assertRaises(InvalidMessageError) as cm:
+            self.store.add_renamed_message(
+                'W1337', 'msg-symbol', 'duplicate-keyword-arg')
+        self.assertEqual(str(cm.exception),
+                         "Message symbol 'msg-symbol' is already defined")
+
     def test_renamed_message_register(self):
         self.assertEqual('msg-symbol',
                          self.store.check_message_id('W0001').symbol)
         self.assertEqual('msg-symbol',
                          self.store.check_message_id('old-symbol').symbol)
 
-   
+
 if __name__ == '__main__':
     unittest.main()

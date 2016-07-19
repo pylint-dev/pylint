@@ -26,13 +26,7 @@ from astroid import modutils
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
 from pylint.reporters.ureports.nodes import Section
-
-
-class UnknownMessage(Exception):
-    """raised when a unregistered message id is encountered"""
-
-class EmptyReport(Exception):
-    """raised when a report is empty and so should not be displayed"""
+from pylint.exceptions import InvalidMessageError, UnknownMessageError, EmptyReportError
 
 
 MSG_TYPES = {
@@ -157,9 +151,11 @@ class MessageDefinition(object):
     def __init__(self, checker, msgid, msg, descr, symbol, scope,
                  minversion=None, maxversion=None, old_names=None):
         self.checker = checker
-        assert len(msgid) == 5, 'Invalid message id %s' % msgid
-        assert msgid[0] in MSG_TYPES, \
-               'Bad message type %s in %r' % (msgid[0], msgid)
+        if len(msgid) != 5:
+            raise InvalidMessageError('Invalid message id %r' % msgid)
+        if not msgid[0] in MSG_TYPES:
+            raise InvalidMessageError(
+                'Bad message type %s in %r' % (msgid[0], msgid))
         self.msgid = msgid
         self.msg = msg
         self.descr = descr
@@ -250,7 +246,7 @@ class MessagesHandlerMixIn(object):
         try:
             # msgid is a symbolic or numeric msgid.
             msg = self.msgs_store.check_message_id(msgid)
-        except UnknownMessage:
+        except UnknownMessageError:
             if ignore_unknown:
                 return
             raise
@@ -277,7 +273,7 @@ class MessagesHandlerMixIn(object):
         """
         try:
             return self.msgs_store.check_message_id(msgid).symbol
-        except UnknownMessage:
+        except UnknownMessageError:
             return msgid
 
     def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
@@ -311,7 +307,7 @@ class MessagesHandlerMixIn(object):
         try:
             # msgid is a symbolic or numeric msgid.
             msg = self.msgs_store.check_message_id(msgid)
-        except UnknownMessage:
+        except UnknownMessageError:
             if ignore_unknown:
                 return
             raise
@@ -346,7 +342,7 @@ class MessagesHandlerMixIn(object):
                 return False
         try:
             msgid = self.msgs_store.check_message_id(msg_descr).msgid
-        except UnknownMessage:
+        except UnknownMessageError:
             # The linter checks for messages that are not registered
             # due to version mismatch, just treat them as message IDs
             # for now.
@@ -375,11 +371,18 @@ class MessagesHandlerMixIn(object):
         # does not apply to them.
         if msgid[0] not in _SCOPE_EXEMPT:
             if msg_info.scope == WarningScope.LINE:
-                assert node is None and line is not None, (
-                    'Message %s must only provide line, got line=%s, node=%s' % (msgid, line, node))
+                if line is None:
+                    raise InvalidMessageError(
+                        'Message %s must provide line, got None' % msgid)
+                if node is not None:
+                    raise InvalidMessageError(
+                        'Message %s must only provide line, '
+                        'got line=%s, node=%s' % (msgid, line, node))
             elif msg_info.scope == WarningScope.NODE:
                 # Node-based warnings may provide an override line.
-                assert node is not None, 'Message %s must provide Node, got None'
+                if node is None:
+                    raise InvalidMessageError(
+                        'Message %s must provide Node, got None' % msgid)
 
         if line is None and node is not None:
             line = node.fromlineno
@@ -669,8 +672,8 @@ class MessagesStore(object):
         """
         msg = self.check_message_id(new_symbol)
         msg.old_names.append((old_id, old_symbol))
-        self._alternative_names[old_id] = msg
-        self._alternative_names[old_symbol] = msg
+        self._register_alternative_name(msg, old_id)
+        self._register_alternative_name(msg, old_symbol)
 
     def register_messages(self, checker):
         """register a dictionary of messages
@@ -682,29 +685,42 @@ class MessagesStore(object):
         are the checker id and the two last the message id in this checker
         """
         chkid = None
-        for msgid, msg_tuple in six.iteritems(checker.msgs):
+        for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
             msg = build_message_def(checker, msgid, msg_tuple)
-            assert msg.symbol not in self._messages, \
-                    'Message symbol %r is already defined' % msg.symbol
             # avoid duplicate / malformed ids
-            assert msg.msgid not in self._alternative_names, \
-                   'Message id %r is already defined' % msgid
-            assert chkid is None or chkid == msg.msgid[1:3], \
-                   'Inconsistent checker part in message id %r' % msgid
+            if msg.symbol in self._messages or msg.symbol in self._alternative_names:
+                raise InvalidMessageError(
+                    'Message symbol %r is already defined' % msg.symbol)
+            if chkid is not None and chkid != msg.msgid[1:3]:
+                raise InvalidMessageError(
+                    "Inconsistent checker part in message id %r (expected 'x%sxx')"
+                    % (msgid, chkid))
             chkid = msg.msgid[1:3]
             self._messages[msg.symbol] = msg
-            self._alternative_names[msg.msgid] = msg
+            self._register_alternative_name(msg, msg.msgid)
             for old_id, old_symbol in msg.old_names:
-                self._alternative_names[old_id] = msg
-                self._alternative_names[old_symbol] = msg
+                self._register_alternative_name(msg, old_id)
+                self._register_alternative_name(msg, old_symbol)
             self._msgs_by_category[msg.msgid[0]].append(msg.msgid)
+
+    def _register_alternative_name(self, msg, name):
+        """helper for register_message()"""
+        if name in self._messages and self._messages[name] != msg:
+            raise InvalidMessageError(
+                'Message symbol %r is already defined' % name)
+        if name in self._alternative_names and self._alternative_names[name] != msg:
+            raise InvalidMessageError(
+                'Message %s %r is already defined' % (
+                    'id' if len(name) == 5 and name[0] in MSG_TYPES else 'alternate name',
+                    name))
+        self._alternative_names[name] = msg
 
     def check_message_id(self, msgid):
         """returns the Message object for this message.
 
         msgid may be either a numeric or symbolic id.
 
-        Raises UnknownMessage if the message id is not defined.
+        Raises UnknownMessageError if the message id is not defined.
         """
         if msgid[1:].isdigit():
             msgid = msgid.upper()
@@ -713,7 +729,7 @@ class MessagesStore(object):
                 return source[msgid]
             except KeyError:
                 pass
-        raise UnknownMessage('No such message id %s' % msgid)
+        raise UnknownMessageError('No such message id %s' % msgid)
 
     def get_msg_display_string(self, msgid):
         """Generates a user-consumable representation of a message.
@@ -728,7 +744,7 @@ class MessagesStore(object):
             try:
                 print(self.check_message_id(msgid).format_help(checkerref=True))
                 print("")
-            except UnknownMessage as ex:
+            except UnknownMessageError as ex:
                 print(ex)
                 print("")
                 continue
@@ -795,7 +811,7 @@ class ReportsHandlerMixIn(object):
                 report_sect = Section(r_title)
                 try:
                     r_cb(report_sect, stats, old_stats)
-                except EmptyReport:
+                except EmptyReportError:
                     continue
                 report_sect.report_id = reportid
                 sect.append(report_sect)
