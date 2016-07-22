@@ -1,5 +1,7 @@
-# Copyright (c) 2014-2016 Michal Nowikowski
-# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
