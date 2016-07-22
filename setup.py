@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=W0404,W0622,W0704,W0613
-# Copyright (c) 2003-2016 LOGILAB S.A. (Paris, FRANCE).
-# http://www.logilab.fr/ -- mailto:contact@logilab.fr
+# Copyright (c) 2006, 2009-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2013 T.Rzepka <Tobias.Rzepka@gmail.com>
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
