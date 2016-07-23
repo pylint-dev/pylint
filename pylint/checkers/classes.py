@@ -160,7 +160,6 @@ def _different_parameters(original, overridden):
        * they have different keyword only parameters.
 
     """
-
     original_parameters = _positional_parameters(original)
     overridden_parameters = _positional_parameters(overridden)
 
@@ -168,6 +167,13 @@ def _different_parameters(original, overridden):
                                                      overridden_parameters)
     different_kwonly = _has_different_parameters(original.args.kwonlyargs,
                                                  overridden.args.kwonlyargs)
+    if original.name in PYMETHODS:
+        # Ignore the difference for special methods. If the parameter
+        # numbers are different, then that is going to be caught by
+        # unexpected-special-method-signature.
+        # If the names are different, it doesn't matter, since they can't
+        # be used as keyword arguments anyway.
+        different_positional = different_kwonly = False
 
     # Both or none should have extra variadics, otherwise the method
     # loses or gains capabilities that are not reflected into the parent method,

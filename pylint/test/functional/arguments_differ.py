@@ -184,3 +184,15 @@ class PositionalChild(Positional):
         Why subclassing in the first case if the behavior is different?
         """
         super(PositionalChild, self).test(args[0], args[1])
+
+
+class HasSpecialMethod(object):
+
+    def __getitem__(self, key):
+        return key
+
+
+class OverridesSpecialMethod(HasSpecialMethod):
+
+    def __getitem__(self, cheie):
+        return cheie + 1
