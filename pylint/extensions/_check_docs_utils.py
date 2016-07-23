@@ -100,7 +100,8 @@ def possible_exc_types(node):
 
 
 def docstringify(docstring):
-    for docstring_type in [SphinxDocstring, GoogleDocstring, NumpyDocstring]:
+    for docstring_type in [SphinxDocstring, EpytextDocstring,
+                           GoogleDocstring, NumpyDocstring]:
         instance = docstring_type(docstring)
         if instance.is_valid():
             return instance
@@ -258,6 +259,74 @@ class SphinxDocstring(Docstring):
 
         params_with_type.update(re.findall(self.re_type_in_docstring, self.doc))
         return params_with_doc, params_with_type
+
+
+class EpytextDocstring(SphinxDocstring):
+    """
+    Epytext is similar to Sphinx. See the docs:
+        http://epydoc.sourceforge.net/epytext.html
+        http://epydoc.sourceforge.net/fields.html#fields
+
+    It's used in PyCharm:
+        https://www.jetbrains.com/help/pycharm/2016.1/creating-documentation-comments.html#d848203e314
+        https://www.jetbrains.com/help/pycharm/2016.1/using-docstrings-to-specify-types.html
+    """
+    re_type = r"[\w\.]+"
+
+    re_param_in_docstring = re.compile(r"""
+        @                       # initial "at" symbol
+        (?:                     # Epytext keywords
+        param|parameter|
+        arg|argument|
+        key|keyword
+        )
+        \s+                     # whitespace
+
+        (?:                     # optional type declaration
+        ({type})
+        \s+
+        )?
+
+        (\w+)                   # Parameter name
+        \s*                     # whitespace
+        :                       # final colon
+        """.format(type=re_type), re.X | re.S)
+
+    re_type_in_docstring = re.compile(r"""
+        @type                   # Epytext keyword
+        \s+                     # whitespace
+        ({type})                # Parameter name
+        \s*                     # whitespace
+        :                       # final colon
+        """.format(type=re_type), re.X | re.S)
+
+    re_raise_in_docstring = re.compile(r"""
+        @                       # initial "at" symbol
+        (?:                     # Epytext keyword
+        raises?|
+        except|exception
+        )
+        \s+                     # whitespace
+
+        (?:                     # type declaration
+        ({type})
+        \s+
+        )?
+
+        (\w+)                   # Parameter name
+        \s*                     # whitespace
+        :                       # final colon
+        """.format(type=re_type), re.X | re.S)
+
+    re_rtype_in_docstring = re.compile(r"""
+        @                       # initial "at" symbol
+        (?:                     # Epytext keyword
+        rtype|returntype
+        )
+        :                       # final colon
+        """, re.X | re.S)
+
+    re_returns_in_docstring = re.compile(r"@returns?:")
 
 
 class GoogleDocstring(Docstring):
