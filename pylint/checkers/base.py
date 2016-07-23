@@ -54,13 +54,57 @@ from pylint.checkers.utils import (
 from pylint.reporters.ureports.nodes import Table
 
 
-# regex for class/function/variable/constant name
-CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-MOD_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$')
-CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
-COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9_]*$')
-DEFAULT_NAME_RGX = re.compile('(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$')
-CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
+class NamingStyle(object):
+    CLASS_NAME_RGX = None
+    MOD_NAME_RGX = None
+    CONST_NAME_RGX = None
+    COMP_VAR_RGX = None
+    DEFAULT_NAME_RGX = None
+    CLASS_ATTRIBUTE_RGX = None
+
+    @classmethod
+    def get_regex(cls, node_type):
+        return {
+            'module': cls.MOD_NAME_RGX,
+            'const': cls.CONST_NAME_RGX,
+            'class': cls.CLASS_NAME_RGX,
+            'function': cls.DEFAULT_NAME_RGX,
+            'method': cls.DEFAULT_NAME_RGX,
+            'attr': cls.DEFAULT_NAME_RGX,
+            'argument': cls.DEFAULT_NAME_RGX,
+            'variable': cls.DEFAULT_NAME_RGX,
+            'class_attribute': cls.CLASS_ATTRIBUTE_RGX,
+            'inlinevar': cls.COMP_VAR_RGX,
+        }[node_type]
+
+    @classmethod
+    def known_node_types(cls):
+        return ["module", "const", "class", "function", "method", "attr",
+                "argument", "variable", "class_attribute", "inlinevar"]
+
+
+class SnakeCaseStyle(NamingStyle):
+    CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    MOD_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$')
+    CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9_]*$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
+
+
+class CamelCaseStyle(NamingStyle):
+    CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    MOD_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]*)|([A-Z][a-zA-Z0-9]+))$')
+    CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9]*$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]{2,30})|(__[a-z][a-zA-Z0-9]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9]{2,30}|(__.*__))$')
+
+
+NAMING_STYLES = {'snake_case': SnakeCaseStyle, 'camel_case': CamelCaseStyle}
+DEFAULT_NAMING_STYLE_NAME = 'snake_case'
+DEFAULT_NAMING_STYLE = NAMING_STYLES[DEFAULT_NAMING_STYLE_NAME]
+
 # do not require a doc string on private/system methods
 NO_REQUIRED_DOC_RGX = re.compile('^_')
 REVERSED_PROTOCOL_METHOD = '__reversed__'
@@ -1123,30 +1167,31 @@ functions, methods
                         self.add_message('confusing-with-statement', node=node)
 
 
-_NAME_TYPES = {
-    'module': (MOD_NAME_RGX, 'module'),
-    'const': (CONST_NAME_RGX, 'constant'),
-    'class': (CLASS_NAME_RGX, 'class'),
-    'function': (DEFAULT_NAME_RGX, 'function'),
-    'method': (DEFAULT_NAME_RGX, 'method'),
-    'attr': (DEFAULT_NAME_RGX, 'attribute'),
-    'argument': (DEFAULT_NAME_RGX, 'argument'),
-    'variable': (DEFAULT_NAME_RGX, 'variable'),
-    'class_attribute': (CLASS_ATTRIBUTE_RGX, 'class attribute'),
-    'inlinevar': (COMP_VAR_RGX, 'inline iteration'),
+HUMAN_READABLE_TYPES = {
+    'module': 'module',
+    'const': 'constant',
+    'class': 'class',
+    'function': 'function',
+    'method':  'method',
+    'attr': 'attribute',
+    'argument': 'argument',
+    'variable': 'variable',
+    'class_attribute': 'class attribute',
+    'inlinevar': 'inline iteration'
 }
 
 def _create_naming_options():
     name_options = []
-    for name_type, (rgx, human_readable_name) in six.iteritems(_NAME_TYPES):
+    for name_type in DEFAULT_NAMING_STYLE.known_node_types():
+        human_readable_name = HUMAN_READABLE_TYPES[name_type]
         name_type = name_type.replace('_', '-')
         name_options.append((
             '%s-rgx' % (name_type,),
-            {'default': rgx, 'type': 'regexp', 'metavar': '<regexp>',
+            {'default': None, 'type': 'regexp', 'metavar': '<regexp>',
              'help': 'Regular expression matching correct %s names' % (human_readable_name,)}))
         name_options.append((
             '%s-name-hint' % (name_type,),
-            {'default': rgx.pattern, 'type': 'string', 'metavar': '<string>',
+            {'default': None, 'type': 'string', 'metavar': '<string>',
              'help': 'Naming hint for %s names' % (human_readable_name,)}))
     return tuple(name_options)
 
@@ -1193,7 +1238,14 @@ class NameChecker(_BasicChecker):
                          'abc.abstractproperty. Add to this list to register '
                          'other decorators that produce valid properties.'}
                ),
-              ) + _create_naming_options()
+               ('naming-style',
+                {'default': DEFAULT_NAMING_STYLE_NAME,
+                 'type': 'choice',
+                 'choices': list(NAMING_STYLES.keys()),
+                 'metavar': '<style>',
+                 'help': 'Naming style used across a project (snake_case, camel_case).'}
+                ),
+               ) + _create_naming_options()
 
 
     def __init__(self, linter):
@@ -1201,6 +1253,8 @@ class NameChecker(_BasicChecker):
         self._name_category = {}
         self._name_group = {}
         self._bad_names = {}
+        self._name_regexps = {}
+        self._name_hints = {}
 
     def open(self):
         self.stats = self.linter.add_stats(badname_module=0,
@@ -1214,6 +1268,30 @@ class NameChecker(_BasicChecker):
         for group in self.config.name_group:
             for name_type in group.split(':'):
                 self._name_group[name_type] = 'group_%s' % (group,)
+
+        regexps, hints = self._create_naming_rules()
+        self._name_regexps = regexps
+        self._name_hints = hints
+
+    def _create_naming_rules(self):
+        regexps = {}
+        hints = {}
+        naming_style = NAMING_STYLES[self.config.naming_style]
+
+        for name_type in naming_style.known_node_types():
+            regexps[name_type] = naming_style.get_regex(name_type)
+            overriden_value_name = "%s_rgx" % (name_type,)
+            overriden_value = getattr(self.config, overriden_value_name, None)
+            if overriden_value is not None:
+                regexps[name_type] = overriden_value
+
+            hints[name_type] = regexps[name_type].pattern
+            hint_value_name = "%s_name_hint" % (name_type,)
+            hint_value = getattr(self.config, hint_value_name, None)
+            if hint_value is not None:
+                hints[name_type] = hint_value
+
+        return regexps, hints
 
     @check_messages('blacklisted-name', 'invalid-name')
     def visit_module(self, node):
@@ -1310,10 +1388,10 @@ class NameChecker(_BasicChecker):
         return self._name_group.get(node_type, node_type)
 
     def _raise_name_warning(self, node, node_type, name, confidence):
-        type_label = _NAME_TYPES[node_type][1]
+        type_label = HUMAN_READABLE_TYPES[node_type]
         hint = ''
         if self.config.include_naming_hint:
-            hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
+            hint = ' (hint: %s)' % (self._name_hints[node_type],)
         self.add_message('invalid-name', node=node, args=(type_label, name, hint),
                          confidence=confidence)
         self.stats['badname_' + node_type] += 1
@@ -1330,7 +1408,7 @@ class NameChecker(_BasicChecker):
             self.stats['badname_' + node_type] += 1
             self.add_message('blacklisted-name', node=node, args=name)
             return
-        regexp = getattr(self.config, node_type + '_rgx')
+        regexp = self._name_regexps[node_type]
         match = regexp.match(name)
 
         if _is_multi_naming_match(match, node_type, confidence):
