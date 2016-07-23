@@ -1109,7 +1109,7 @@ a metaclass class method.'}
                              args=(method1, refmethod), node=method1)
             return
 
-        instance = cls.instanciate_class()
+        instance = cls.instantiate_class()
         method1 = function_to_method(method1, instance)
         refmethod = function_to_method(refmethod, instance)
 
