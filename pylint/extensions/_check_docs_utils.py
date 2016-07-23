@@ -100,7 +100,7 @@ def possible_exc_types(node):
 
 
 def docstringify(docstring):
-    for docstring_type in [SphinxEpytextDocstring, GoogleDocstring, NumpyDocstring]:
+    for docstring_type in [SphinxDocstring, GoogleDocstring, NumpyDocstring]:
         instance = docstring_type(docstring)
         if instance.is_valid():
             return instance
@@ -153,12 +153,7 @@ class Docstring(object):
         return self.re_for_parameters_see.search(self.doc) is not None
 
 
-class SphinxEpytextDocstring(Docstring):
-    """
-    This class implements Sphinx/Epytext comments. The difference is slight:
-    :param name: -- this is Sphinx
-    @param name: -- this is Epytext
-    """
+class SphinxDocstring(Docstring):
     re_type = r"[\w\.]+"
 
     re_xref = r"""
@@ -167,7 +162,7 @@ class SphinxEpytextDocstring(Docstring):
         """.format(re_type)
 
     re_param_in_docstring = re.compile(r"""
-        [:@]                    # initial colon or "at" symbol
+        :                       # initial colon
         (?:                     # Sphinx keywords
         param|parameter|
         arg|argument|
@@ -186,7 +181,7 @@ class SphinxEpytextDocstring(Docstring):
         """.format(type=re_type), re.X | re.S)
 
     re_type_in_docstring = re.compile(r"""
-        [:@]type                # Sphinx keyword
+        :type                   # Sphinx keyword
         \s+                     # whitespace
         ({type})                # Parameter name
         \s*                     # whitespace
@@ -194,7 +189,7 @@ class SphinxEpytextDocstring(Docstring):
         """.format(type=re_type), re.X | re.S)
 
     re_raise_in_docstring = re.compile(r"""
-        [:@]                    # initial colon or "at" symbol
+        :                       # initial colon
         (?:                     # Sphinx keyword
         raises?|
         except|exception
@@ -211,9 +206,9 @@ class SphinxEpytextDocstring(Docstring):
         :                       # final colon
         """.format(type=re_type), re.X | re.S)
 
-    re_rtype_in_docstring = re.compile(r"[:@]rtype:")
+    re_rtype_in_docstring = re.compile(r":rtype:")
 
-    re_returns_in_docstring = re.compile(r"[:@]returns?:")
+    re_returns_in_docstring = re.compile(r":returns?:")
 
     supports_yields = False
 
@@ -266,9 +261,9 @@ class SphinxEpytextDocstring(Docstring):
 
 
 class GoogleDocstring(Docstring):
-    re_type = SphinxEpytextDocstring.re_type
+    re_type = SphinxDocstring.re_type
 
-    re_xref = SphinxEpytextDocstring.re_xref
+    re_xref = SphinxDocstring.re_xref
 
     re_container_type = r"""
         (?:{type}|{xref})             # a container type
