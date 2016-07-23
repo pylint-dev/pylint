@@ -45,7 +45,7 @@ powers_of_two()[0]  # [unsubscriptable-object]
 powers_of_two[0]  # [unsubscriptable-object]
 
 
-# check that primitive non subscriptable types are catched
+# check that primitive non subscriptable types are caught
 True[0]  # [unsubscriptable-object]
 None[0]  # [unsubscriptable-object]
 8.5[0]  # [unsubscriptable-object]

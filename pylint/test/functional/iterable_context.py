@@ -103,7 +103,7 @@ for i in B:  # [not-an-iterable]
 for i in range:  # [not-an-iterable]
     pass
 
-# check that primitive non-iterable types are catched
+# check that primitive non-iterable types are caught
 for i in True:  # [not-an-iterable]
     pass
 

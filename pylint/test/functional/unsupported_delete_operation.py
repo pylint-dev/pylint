@@ -44,7 +44,7 @@ del powers_of_two()[0] # [unsupported-delete-operation]
 del powers_of_two[0]  # [unsupported-delete-operation]
 
 
-# check that primitive non subscriptable types are catched
+# check that primitive non subscriptable types are caught
 del True[0]  # [unsupported-delete-operation]
 del None[0] # [unsupported-delete-operation]
 del 8.5[0] # [unsupported-delete-operation]
