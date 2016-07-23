@@ -162,7 +162,7 @@ class SphinxDocstring(Docstring):
         `{0}`                         # what to reference
         """.format(re_type)
 
-    re_param_in_docstring = re.compile(r"""
+    re_param_raw = r"""
         :                       # initial colon
         (?:                     # Sphinx keywords
         param|parameter|
@@ -179,17 +179,19 @@ class SphinxDocstring(Docstring):
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type=re_type)
+    re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
-    re_type_in_docstring = re.compile(r"""
+    re_type_raw = r"""
         :type                   # Sphinx keyword
         \s+                     # whitespace
         ({type})                # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type=re_type)
+    re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
 
-    re_raise_in_docstring = re.compile(r"""
+    re_raise_raw = r"""
         :                       # initial colon
         (?:                     # Sphinx keyword
         raises?|
@@ -205,7 +207,8 @@ class SphinxDocstring(Docstring):
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type=re_type)
+    re_raise_in_docstring = re.compile(re_raise_raw, re.X | re.S)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
 
@@ -271,52 +274,17 @@ class EpytextDocstring(SphinxDocstring):
         https://www.jetbrains.com/help/pycharm/2016.1/creating-documentation-comments.html#d848203e314
         https://www.jetbrains.com/help/pycharm/2016.1/using-docstrings-to-specify-types.html
     """
-    re_type = r"[\w\.]+"
+    re_param_in_docstring = re.compile(
+        SphinxDocstring.re_param_raw.replace(':', '@', 1),
+        re.X | re.S)
 
-    re_param_in_docstring = re.compile(r"""
-        @                       # initial "at" symbol
-        (?:                     # Epytext keywords
-        param|parameter|
-        arg|argument|
-        key|keyword
-        )
-        \s+                     # whitespace
+    re_type_in_docstring = re.compile(
+        SphinxDocstring.re_type_raw.replace(':', '@', 1),
+        re.X | re.S)
 
-        (?:                     # optional type declaration
-        ({type})
-        \s+
-        )?
-
-        (\w+)                   # Parameter name
-        \s*                     # whitespace
-        :                       # final colon
-        """.format(type=re_type), re.X | re.S)
-
-    re_type_in_docstring = re.compile(r"""
-        @type                   # Epytext keyword
-        \s+                     # whitespace
-        ({type})                # Parameter name
-        \s*                     # whitespace
-        :                       # final colon
-        """.format(type=re_type), re.X | re.S)
-
-    re_raise_in_docstring = re.compile(r"""
-        @                       # initial "at" symbol
-        (?:                     # Epytext keyword
-        raises?|
-        except|exception
-        )
-        \s+                     # whitespace
-
-        (?:                     # type declaration
-        ({type})
-        \s+
-        )?
-
-        (\w+)                   # Parameter name
-        \s*                     # whitespace
-        :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+    re_raise_in_docstring = re.compile(
+        SphinxDocstring.re_raise_raw.replace(':', '@', 1),
+        re.X | re.S)
 
     re_rtype_in_docstring = re.compile(r"""
         @                       # initial "at" symbol
