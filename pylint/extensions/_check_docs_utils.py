@@ -104,7 +104,8 @@ def possible_exc_types(node):
 
 
 def docstringify(docstring):
-    for docstring_type in [SphinxDocstring, GoogleDocstring, NumpyDocstring]:
+    for docstring_type in [SphinxDocstring, EpytextDocstring,
+                           GoogleDocstring, NumpyDocstring]:
         instance = docstring_type(docstring)
         if instance.is_valid():
             return instance
@@ -165,7 +166,7 @@ class SphinxDocstring(Docstring):
         `{0}`                         # what to reference
         """.format(re_type)
 
-    re_param_in_docstring = re.compile(r"""
+    re_param_raw = r"""
         :                       # initial colon
         (?:                     # Sphinx keywords
         param|parameter|
@@ -182,17 +183,19 @@ class SphinxDocstring(Docstring):
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type=re_type)
+    re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
-    re_type_in_docstring = re.compile(r"""
+    re_type_raw = r"""
         :type                   # Sphinx keyword
         \s+                     # whitespace
         ({type})                # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type=re_type)
+    re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
 
-    re_raise_in_docstring = re.compile(r"""
+    re_raise_raw = r"""
         :                       # initial colon
         (?:                     # Sphinx keyword
         raises?|
@@ -208,7 +211,8 @@ class SphinxDocstring(Docstring):
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type=re_type)
+    re_raise_in_docstring = re.compile(re_raise_raw, re.X | re.S)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
 
@@ -262,6 +266,39 @@ class SphinxDocstring(Docstring):
 
         params_with_type.update(re.findall(self.re_type_in_docstring, self.doc))
         return params_with_doc, params_with_type
+
+
+class EpytextDocstring(SphinxDocstring):
+    """
+    Epytext is similar to Sphinx. See the docs:
+        http://epydoc.sourceforge.net/epytext.html
+        http://epydoc.sourceforge.net/fields.html#fields
+
+    It's used in PyCharm:
+        https://www.jetbrains.com/help/pycharm/2016.1/creating-documentation-comments.html#d848203e314
+        https://www.jetbrains.com/help/pycharm/2016.1/using-docstrings-to-specify-types.html
+    """
+    re_param_in_docstring = re.compile(
+        SphinxDocstring.re_param_raw.replace(':', '@', 1),
+        re.X | re.S)
+
+    re_type_in_docstring = re.compile(
+        SphinxDocstring.re_type_raw.replace(':', '@', 1),
+        re.X | re.S)
+
+    re_raise_in_docstring = re.compile(
+        SphinxDocstring.re_raise_raw.replace(':', '@', 1),
+        re.X | re.S)
+
+    re_rtype_in_docstring = re.compile(r"""
+        @                       # initial "at" symbol
+        (?:                     # Epytext keyword
+        rtype|returntype
+        )
+        :                       # final colon
+        """, re.X | re.S)
+
+    re_returns_in_docstring = re.compile(r"@returns?:")
 
 
 class GoogleDocstring(Docstring):
