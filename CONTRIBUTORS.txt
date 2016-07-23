@@ -104,3 +104,5 @@ Order doesn't matter (not that much, at least ;)
   bug fixes and enhancements for docparams (née check_docs) extension
 
 * Elias Dorneles: minor adjust to config defaults and docs
+
+* Yuri Bochkarev: Added epytext support to docparams extension.

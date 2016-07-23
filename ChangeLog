@@ -151,6 +151,10 @@ Release date: tba
       have each been split into two warnings - 'missing-[return|yield]-doc'
       and 'missing-[return|yield]-type-doc'.
 
+    * Added epytext support to docparams extension.
+
+      Closes #1029.
+
 
 What's new in Pylint 1.6.3?
 ===========================

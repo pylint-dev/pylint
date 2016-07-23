@@ -191,7 +191,8 @@ Other Changes
 
   This works by setting the `inline comment prefixes`_ accordingly.
 
-   
+* Added epytext docstring support to the docparams extension.
+
 
 Bug fixes
 =========
