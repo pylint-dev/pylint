@@ -67,6 +67,8 @@ def _signature_from_call(call):
             starred_kws.append(value.name)
         elif isinstance(value, astroid.Name):
             kws[arg] = value.name
+        else:
+            kws[arg] = None
 
     for arg in call.args:
         if isinstance(arg, astroid.Starred) and isinstance(arg.value, astroid.Name):
@@ -75,6 +77,9 @@ def _signature_from_call(call):
             starred_args.append(arg.value.name)
         elif isinstance(arg, astroid.Name):
             args.append(arg.name)
+        else:
+            args.append(None)
+
     return _CallSignature(args, kws, starred_args, starred_kws)
 
 
@@ -99,7 +104,26 @@ def _definition_equivalent_to_call(definition, call):
     same_kwonlyargs = all(kw in call.kws for kw in definition.kwonlyargs)
     same_args = definition.args == call.args
 
-    return all((same_args, same_kwonlyargs, same_args_variadics, same_kw_variadics))
+    no_additional_kwarg_arguments = True
+    if call.kws:
+        for keyword in call.kws:
+            is_arg = keyword in call.args
+            is_kwonly = keyword in definition.kwonlyargs
+            if not is_arg and not is_kwonly:
+                # Maybe this argument goes into **kwargs,
+                # or it is an extraneous argument.
+                # In any case, the signature is different than
+                # the call site, which stops our search.
+                no_additional_kwarg_arguments = False
+                break
+
+    return all((
+        same_args,
+        same_kwonlyargs,
+        same_args_variadics,
+        same_kw_variadics,
+        no_additional_kwarg_arguments,
+    ))
 
 
 

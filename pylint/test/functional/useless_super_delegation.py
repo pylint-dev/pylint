@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, no-member, no-self-use, bad-super-call
-# pylint: disable=too-few-public-methods, unused-argument
+# pylint: disable=too-few-public-methods, unused-argument,invalid-name,too-many-public-methods
 
 def not_a_method():
     return super(None, None).not_a_method()
@@ -76,6 +76,21 @@ class NotUselessSuper(Base):
     def no_args_in_signature(self, first, second):
         values = (first + 1, second + 2)
         return super(NotUselessSuper, self).no_args_in_signature(*values)
+
+    def variadics_with_multiple_keyword_arguments(self, **kwargs):
+        return super(NotUselessSuper, self).variadics_with_multiple_keyword_arguments(
+            first=None,
+            second=None,
+            **kwargs)
+
+    def extraneous_keyword_params(self, none_ok=False):
+        super(NotUselessSuper, self).extraneous_keyword_params(
+            none_ok,
+            valid_values=[23, 42])
+
+    def extraneous_positional_args(self, **args):
+        super(NotUselessSuper, self).extraneous_positional_args(
+            1, 2, **args)
 
 
 class UselessSuper(Base):
