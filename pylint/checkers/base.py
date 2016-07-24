@@ -1244,8 +1244,8 @@ class NameChecker(_BasicChecker):
                  'choices': list(NAMING_STYLES.keys()),
                  'metavar': '<style>',
                  'help': 'Naming style used across a project (snake_case, camel_case).'}
-                ),
-               ) + _create_naming_options()
+               ),
+              ) + _create_naming_options()
 
 
     def __init__(self, linter):
