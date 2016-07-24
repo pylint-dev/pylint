@@ -1,5 +1,6 @@
 """Test for W0623, overwriting names in exception handlers."""
 # pylint: disable=broad-except,bare-except,print-statement,no-absolute-import,duplicate-except
+# pylint: disable=invalid-name, unused-variable
 import exceptions
 
 __revision__ = ''
@@ -15,11 +16,11 @@ def some_function():
 
     try:
         {}["a"]
-    except KeyError, exceptions.RuntimeError: # W0623
+    except KeyError, exceptions.RuntimeError: # [redefine-in-handler]
         pass
-    except KeyError, OSError: # W0623
+    except KeyError, OSError: # [redefine-in-handler]
         pass
-    except KeyError, MyError: # W0623
+    except KeyError, MyError: # [redefine-in-handler]
         pass
     except KeyError, exc: # this is fine
         print exc
@@ -42,13 +43,13 @@ exc3 = None
 
 try:
     pass
-except KeyError, exceptions.RuntimeError: # W0623
+except KeyError, exceptions.RuntimeError: # [redefine-in-handler]
     pass
-except KeyError, exceptions.RuntimeError.args: # W0623
+except KeyError, exceptions.RuntimeError.args: # [redefine-in-handler]
     pass
-except KeyError, OSError: # W0623
+except KeyError, OSError: # [redefine-in-handler]
     pass
-except KeyError, MyOtherError: # W0623
+except KeyError, MyOtherError: # [redefine-in-handler]
     pass
 except KeyError, exc3: # this is fine
     print exc3

@@ -1,5 +1,0 @@
-E: 10: Missing mandatory keyword argument 'foo' in function call
-E: 10: Too many positional arguments for function call
-E: 12: Missing mandatory keyword argument 'foo' in function call
-E: 12: Too many positional arguments for function call
-W:  3:function: Redefining name 'foo' from outer scope (line 9)

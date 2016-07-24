@@ -1,2 +1,0 @@
-C: 12:Abcd.abcd: Class method abcd should have 'cls' as first argument
-R: 15:Abcd: Consider using a decorator instead of calling classmethod

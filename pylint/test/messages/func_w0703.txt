@@ -1,1 +1,0 @@
-W:  8: Catching too general exception Exception

@@ -1,7 +1,5 @@
-# pylint: disable=R0903
-'''Test that a function is considered a method when looked up through a class.
-'''
-from __future__ import print_function
+# pylint: disable=missing-docstring,too-few-public-methods
+'''Test that a function is considered a method when looked up through a class.'''
 
 class Clazz(object):
     'test class'
@@ -15,4 +13,4 @@ def func(arg1, arg2):
 
 Clazz.method = func
 
-print(Clazz(1).method(2))
+VAR = Clazz(1).method(2)

@@ -1,44 +1,40 @@
-'Exeptions may be silently swallowed'
-from __future__ import print_function
-__revision__ = None
-# pylint: disable=using-constant-test
+# pylint: disable=missing-docstring, using-constant-test,cell-var-from-loop
+
 def insidious_break_and_return():
-    """I found you !"""
     for i in range(0, -5, -1):
         my_var = 0
-        print(i)
+
         try:
             my_var += 1.0/i
             if i < -3:
-                break # :D
+                break
             else:
-                return my_var # :D
+                return my_var
         finally:
             if i > -2:
-                break # :(
+                break # [lost-exception]
             else:
-                return my_var # :(
+                return my_var # [lost-exception]
     return None
 
+
 def break_and_return():
-    """I found you !"""
     for i in range(0, -5, -1):
         my_var = 0
         if i:
-            break # :D
+            break
         try:
             my_var += 1.0/i
         finally:
             for _ in range(2):
                 if True:
-                    break # :D
+                    break
             else:
                 def strange():
-                    """why not ?"""
                     if True:
-                        return my_var # :D
+                        return my_var
                 strange()
         if i:
-            break # :D
+            break
         else:
-            return # :D
+            return

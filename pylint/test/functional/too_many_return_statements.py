@@ -22,3 +22,19 @@ def stupid_function(arg): # [too-many-return-statements]
     elif arg == 10:
         return 10
     return None
+
+
+def many_yield(text):
+    """Not a problem"""
+    if text:
+        yield "    line 1: %s\n" % text
+        yield "    line 2\n"
+        yield "    line 3\n"
+        yield "    line 4\n"
+        yield "    line 5\n"
+    else:
+        yield "    line 6\n"
+        yield "    line 7\n"
+        yield "    line 8\n"
+        yield "    line 9\n"
+        yield "    line 10\n"
