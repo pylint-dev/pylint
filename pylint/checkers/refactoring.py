@@ -17,104 +17,41 @@ from pylint import checkers
 from pylint.checkers import utils
 
 
+class RefactoringChecker(checkers.BaseTokenChecker):
+    """Looks for code which can be refactored
 
-class RefactoringChecker(checkers.BaseChecker):
-    """Looks for code which can be refactored."""
+    This checker also mixes the astroid and the token approaches
+    in order to create knowledge about whether a "else if" node
+    is a true "else if" node, or a "elif" node.
+    """
 
-    __implements__ = (interfaces.IAstroidChecker,)
+    __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
 
     name = 'refactoring'
 
     msgs = {
-        'R1701': (
-            "Consider merging these isinstance calls to isinstance(%s, (%s))",
-            "consider-merging-isinstance",
-            "Usen when multiple consecutive isinstance calls can be merged into one."),
+        'R1701': ("Consider merging these isinstance calls to isinstance(%s, (%s))",
+                  "consider-merging-isinstance",
+                  "Usen when multiple consecutive isinstance calls can be merged into one."),
+        'R1702': ('Too many nested blocks (%s/%s)',
+                  'too-many-nested-blocks',
+                  'Used when a function or a method has too many nested '
+                  'blocks. This makes the code less understandable and '
+                  'maintainable.',
+                  {'old_names': [('R0101', 'too-many-nested-blocks')]}),
+        'R1703': ('The if statement can be replaced with %s',
+                  'simplifiable-if-statement',
+                  'Used when an if statement can be replaced with '
+                  '\'bool(test)\'. ',
+                  {'old_names': [('R0102', 'simplifiable-if-statement')]}),
     }
-    priority = 0
-
-    @staticmethod
-    def _duplicated_isinstance_types(node):
-        """Get the duplicated types from the underlying isinstance calls.
-
-        :param astroid.BoolOp node: Node which should contain a bunch of isinstance calls.
-        :returns: Dictionary of the comparison objects from the isinstance calls,
-                  to duplicate values from consecutive calls.
-        :rtype: dict
-        """
-        duplicated_objects = set()
-        all_types = collections.defaultdict(set)
-
-        for call in node.values:
-            if not isinstance(call, astroid.Call) or len(call.args) != 2:
-                continue
-
-            inferred = utils.safe_infer(call.func)
-            if not inferred or not utils.is_builtin_object(inferred):
-                continue
-
-            if inferred.name != 'isinstance':
-                continue
-
-            isinstance_object = call.args[0].as_string()
-            isinstance_types = call.args[1]
-
-            if isinstance_object in all_types:
-                duplicated_objects.add(isinstance_object)
-
-            if isinstance(isinstance_types, astroid.Tuple):
-                elems = [class_type.as_string() for class_type in isinstance_types.itered()]
-            else:
-                elems = [isinstance_types.as_string()]
-            all_types[isinstance_object].update(elems)
-
-        # Remove all keys which not duplicated
-        return {key: value for key, value in all_types.items()
-                if key in duplicated_objects}
-
-    @utils.check_messages('consider-merging-isinstance')
-    def visit_boolop(self, node):
-        '''Check isinstance calls which can be merged together.'''
-        if node.op != 'or':
-            return
-
-        first_args = self._duplicated_isinstance_types(node)
-        for duplicated_name, class_names in first_args.items():
-            names = sorted(name for name in class_names)
-            self.add_message('consider-merging-isinstance',
-                             node=node,
-                             args=(duplicated_name, ', '.join(names)))
-
-
-class ElifChecker(checkers.BaseTokenChecker):
-    """Checks needing to distinguish "else if" from "elif"
-
-    This checker mixes the astroid and the token approaches in order to create
-    knowledge about whether a "else if" node is a true "else if" node, or a
-    "elif" node.
-
-    The following checks depend on this implementation:
-        - check for too many nested blocks (if/elif structures aren't considered
-          as nested)
-        - to be continued
-    """
-    __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
-    name = 'elif'
-    msgs = {'R0101': ('Too many nested blocks (%s/%s)',
-                      'too-many-nested-blocks',
-                      'Used when a function or a method has too many nested '
-                      'blocks. This makes the code less understandable and '
-                      'maintainable.'),
-            'R0102': ('The if statement can be replaced with %s',
-                      'simplifiable-if-statement',
-                      'Used when an if statement can be replaced with '
-                      '\'bool(test)\'. '),
-           }
     options = (('max-nested-blocks',
-                {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
+                {'default': 5, 'type': 'int', 'metavar': '<int>',
                  'help': 'Maximum number of nested blocks for function / '
                          'method body'}
-               ),)
+                ),)
+
+    priority = 0
 
     def __init__(self, linter=None):
         checkers.BaseTokenChecker.__init__(self, linter)
@@ -201,7 +138,7 @@ class ElifChecker(checkers.BaseTokenChecker):
             return
 
         self.add_message('simplifiable-if-statement', node=node,
-                         args=(reduced_to, ))
+                         args=(reduced_to,))
 
     def process_tokens(self, tokens):
         # Process tokens and look for 'if' or 'elif'
@@ -282,9 +219,61 @@ class ElifChecker(checkers.BaseTokenChecker):
                                            (len(self._nested_blocks),
                                             self.config.max_nested_blocks))
 
+    @staticmethod
+    def _duplicated_isinstance_types(node):
+        """Get the duplicated types from the underlying isinstance calls.
+
+        :param astroid.BoolOp node: Node which should contain a bunch of isinstance calls.
+        :returns: Dictionary of the comparison objects from the isinstance calls,
+                  to duplicate values from consecutive calls.
+        :rtype: dict
+        """
+        duplicated_objects = set()
+        all_types = collections.defaultdict(set)
+
+        for call in node.values:
+            if not isinstance(call, astroid.Call) or len(call.args) != 2:
+                continue
+
+            inferred = utils.safe_infer(call.func)
+            if not inferred or not utils.is_builtin_object(inferred):
+                continue
+
+            if inferred.name != 'isinstance':
+                continue
+
+            isinstance_object = call.args[0].as_string()
+            isinstance_types = call.args[1]
+
+            if isinstance_object in all_types:
+                duplicated_objects.add(isinstance_object)
+
+            if isinstance(isinstance_types, astroid.Tuple):
+                elems = [class_type.as_string() for class_type in isinstance_types.itered()]
+            else:
+                elems = [isinstance_types.as_string()]
+            all_types[isinstance_object].update(elems)
+
+        # Remove all keys which not duplicated
+        return {key: value for key, value in all_types.items()
+                if key in duplicated_objects}
+
+    @utils.check_messages('consider-merging-isinstance')
+    def visit_boolop(self, node):
+        '''Check isinstance calls which can be merged together.'''
+        if node.op != 'or':
+            return
+
+        first_args = self._duplicated_isinstance_types(node)
+        for duplicated_name, class_names in first_args.items():
+            names = sorted(name for name in class_names)
+            self.add_message('consider-merging-isinstance',
+                             node=node,
+                             args=(duplicated_name, ', '.join(names)))
+
 
 class RecommandationChecker(checkers.BaseChecker):
-    __implements__ = (interfaces.IAstroidChecker, )
+    __implements__ = (interfaces.IAstroidChecker,)
     name = 'refactoring'
     msgs = {'C0200': ('Consider using enumerate instead of iterating with range and len',
                       'consider-using-enumerate',
@@ -296,7 +285,7 @@ class RecommandationChecker(checkers.BaseChecker):
                       'Emitted when the keys of a dictionary are iterated through the .keys() '
                       'method. It is enough to just iterate through the dictionary itself, as '
                       'in "for key in dictionary".'),
-           }
+            }
 
     @staticmethod
     def _is_builtin(node, function):
@@ -388,13 +377,13 @@ class NotChecker(checkers.BaseChecker):
                       'unneeded-not',
                       'Used when a boolean expression contains an unneeded '
                       'negation.'),
-           }
+            }
     name = 'basic'
     reverse_op = {'<': '>=', '<=': '>', '>': '<=', '>=': '<', '==': '!=',
                   '!=': '==', 'in': 'not in', 'is': 'is not'}
     # sets are not ordered, so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is
     # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
-    skipped_nodes = (astroid.Set, )
+    skipped_nodes = (astroid.Set,)
     # 'builtins' py3, '__builtin__' py2
     skipped_classnames = ['%s.%s' % (six.moves.builtins.__name__, qname)
                           for qname in ('set', 'frozenset')]
@@ -427,7 +416,7 @@ class NotChecker(checkers.BaseChecker):
                 if isinstance(_type, self.skipped_nodes):
                     return
                 if (isinstance(_type, astroid.Instance) and
-                        _type.qname() in self.skipped_classnames):
+                            _type.qname() in self.skipped_classnames):
                     return
             suggestion = '%s %s %s' % (left.as_string(),
                                        self.reverse_op[operator],
@@ -436,10 +425,8 @@ class NotChecker(checkers.BaseChecker):
                              args=(node.as_string(), suggestion))
 
 
-
 def register(linter):
     """Required method to auto register this checker."""
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommandationChecker(linter))
-    linter.register_checker(ElifChecker(linter))
