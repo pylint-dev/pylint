@@ -805,7 +805,7 @@ def assign_names(node):
     :param node: An assigned-to variable.
     :type node: astroid.NodeNG
 
-    :returns: A generator of variable names that the node assigns to
+    :returns: A generator of AssignName nodes that the node assigns to
     :rtype: generator
     """
     queue = collections.deque([node])
@@ -815,6 +815,6 @@ def assign_names(node):
             elem = elem.value
 
         if isinstance(elem, astroid.AssignName):
-            yield elem.name
+            yield elem
         elif isinstance(elem, astroid.Tuple):
             queue.extendleft(reversed(list(elem.get_children())))

@@ -377,7 +377,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.check_messages('redefined-outer-name')
     def visit_for(self, node):
-        assigned_to = utils.assign_names(node.target)
+        assigned_to = [var.name for var in utils.assign_names(node.target)]
 
         # Only check variables that are used
         dummy_rgx = self.config.dummy_variables_rgx
