@@ -49,7 +49,8 @@ from pylint.checkers.utils import (
     unimplemented_abstract_methods,
     has_known_bases,
     safe_infer,
-    is_comprehension
+    is_comprehension,
+    is_none
     )
 from pylint.reporters.ureports.nodes import Table
 
@@ -212,13 +213,6 @@ def _determine_function_name_type(node, config=None):
     return 'method'
 
 
-def _is_none(node):
-    return (node is None or
-            (isinstance(node, astroid.Const) and node.value is None) or
-            (isinstance(node, astroid.Name)  and node.name == 'None')
-           )
-
-
 def _has_abstract_methods(node):
     """
     Determine if the given `node` has abstract methods.
@@ -284,27 +278,6 @@ def redefined_by_decorator(node):
                     getattr(decorator.expr, 'name', None) == node.name):
                 return True
     return False
-
-
-def _node_type(node):
-    """Return the inferred type for `node`
-
-    If there is more than one possible type, or if inferred type is YES or None,
-    return None
-    """
-    # check there is only one possible type for the assign node. Else we
-    # don't handle it for now
-    types = set()
-    try:
-        for var_type in node.infer():
-            if var_type == astroid.YES or _is_none(var_type):
-                continue
-            types.add(var_type)
-            if len(types) > 1:
-                return
-    except InferenceError:
-        return
-    return types.pop() if types else None
 
 
 class _BasicChecker(BaseChecker):
@@ -440,7 +413,7 @@ class BasicErrorChecker(_BasicChecker):
             else:
                 values = [r.value for r in returns]
                 # Are we returning anything but None from constructors
-                if [v for v in values if not _is_none(v)]:
+                if [v for v in values if not is_none(v)]:
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
@@ -1919,64 +1892,6 @@ class ElifChecker(BaseTokenChecker):
                                            (len(self._nested_blocks),
                                             self.config.max_nested_blocks))
 
-class NotChecker(_BasicChecker):
-    """checks for too many not in comparison expressions
-
-    - "not not" should trigger a warning
-    - "not" followed by a comparison should trigger a warning
-    """
-    msgs = {'C0113': ('Consider changing "%s" to "%s"',
-                      'unneeded-not',
-                      'Used when a boolean expression contains an unneeded '
-                      'negation.'),
-           }
-
-    reverse_op = {'<': '>=', '<=': '>', '>': '<=', '>=': '<', '==': '!=',
-                  '!=': '==', 'in': 'not in', 'is': 'is not'}
-    # sets are not ordered, so for example "not set(LEFT_VALS) <= set(RIGHT_VALS)" is
-    # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
-    skipped_nodes = (astroid.Set, )
-    # 'builtins' py3, '__builtin__' py2
-    skipped_classnames = ['%s.%s' % (six.moves.builtins.__name__, qname)
-                          for qname in ('set', 'frozenset')]
-
-    @check_messages('unneeded-not')
-    def visit_unaryop(self, node):
-        if node.op != 'not':
-            return
-        operand = node.operand
-
-        if isinstance(operand, astroid.UnaryOp) and operand.op == 'not':
-            self.add_message('unneeded-not', node=node,
-                             args=(node.as_string(),
-                                   operand.operand.as_string()))
-        elif isinstance(operand, astroid.Compare):
-            left = operand.left
-            # ignore multiple comparisons
-            if len(operand.ops) > 1:
-                return
-            operator, right = operand.ops[0]
-            if operator not in self.reverse_op:
-                return
-            # Ignore __ne__ as function of __eq__
-            frame = node.frame()
-            if frame.name == '__ne__' and operator == '==':
-                return
-            for _type in (_node_type(left), _node_type(right)):
-                if not _type:
-                    return
-                if isinstance(_type, self.skipped_nodes):
-                    return
-                if (isinstance(_type, astroid.Instance) and
-                        _type.qname() in self.skipped_classnames):
-                    return
-            suggestion = '%s %s %s' % (left.as_string(),
-                                       self.reverse_op[operator],
-                                       right.as_string())
-            self.add_message('unneeded-not', node=node,
-                             args=(node.as_string(), suggestion))
-
-
 
 def register(linter):
     """required method to auto register this checker"""
@@ -1987,6 +1902,5 @@ def register(linter):
     linter.register_checker(PassChecker(linter))
     linter.register_checker(LambdaForComprehensionChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
-    linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommandationChecker(linter))
     linter.register_checker(ElifChecker(linter))

@@ -7,8 +7,7 @@ import six
 
 import astroid
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import check_messages
-from pylint.checkers.base import _is_none, _node_type
+from pylint.checkers.utils import check_messages, is_none, node_type
 from pylint.interfaces import IAstroidChecker
 
 
@@ -88,9 +87,9 @@ class MultipleTypesChecker(BaseChecker):
         if isinstance(target, (astroid.Tuple, astroid.Subscript)):
             return
         # ignore NoneType
-        if _is_none(node):
+        if is_none(node):
             return
-        _type = _node_type(node.value)
+        _type = node_type(node.value)
         if _type:
             self._assigns[-1].setdefault(target.as_string(), []).append(
                 (node, _type.pytype()))

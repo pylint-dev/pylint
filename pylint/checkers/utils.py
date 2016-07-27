@@ -767,3 +767,31 @@ def has_known_bases(klass, context=None):
             return False
     klass._all_bases_known = True
     return True
+
+
+def is_none(node):
+    return (node is None or
+            (isinstance(node, astroid.Const) and node.value is None) or
+            (isinstance(node, astroid.Name)  and node.name == 'None')
+           )
+
+
+def node_type(node):
+    """Return the inferred type for `node`
+
+    If there is more than one possible type, or if inferred type is YES or None,
+    return None
+    """
+    # check there is only one possible type for the assign node. Else we
+    # don't handle it for now
+    types = set()
+    try:
+        for var_type in node.infer():
+            if var_type == astroid.YES or is_none(var_type):
+                continue
+            types.add(var_type)
+            if len(types) > 1:
+                return
+    except astroid.InferenceError:
+        return
+    return types.pop() if types else None
