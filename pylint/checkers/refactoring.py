@@ -12,19 +12,16 @@ import collections
 import astroid
 import six
 
-from pylint.interfaces import IAstroidChecker
-from pylint.checkers import BaseChecker
-from pylint.checkers.utils import (
-    check_messages, is_builtin_object, safe_infer,
-    node_type)
+from pylint import interfaces
+from pylint import checkers
 from pylint.checkers import utils
 
 
 
-class RefactoringChecker(BaseChecker):
+class RefactoringChecker(checkers.BaseChecker):
     """Looks for code which can be refactored."""
 
-    __implements__ = (IAstroidChecker,)
+    __implements__ = (interfaces.IAstroidChecker,)
 
     name = 'refactoring'
 
@@ -52,8 +49,8 @@ class RefactoringChecker(BaseChecker):
             if not isinstance(call, astroid.Call) or len(call.args) != 2:
                 continue
 
-            inferred = safe_infer(call.func)
-            if not inferred or not is_builtin_object(inferred):
+            inferred = utils.safe_infer(call.func)
+            if not inferred or not utils.is_builtin_object(inferred):
                 continue
 
             if inferred.name != 'isinstance':
@@ -75,7 +72,7 @@ class RefactoringChecker(BaseChecker):
         return {key: value for key, value in all_types.items()
                 if key in duplicated_objects}
 
-    @check_messages('consider-merging-isinstance')
+    @utils.check_messages('consider-merging-isinstance')
     def visit_boolop(self, node):
         '''Check isinstance calls which can be merged together.'''
         if node.op != 'or':
@@ -89,8 +86,8 @@ class RefactoringChecker(BaseChecker):
                              args=(duplicated_name, ', '.join(names)))
 
 
-class RecommandationChecker(BaseChecker):
-    __implements__ = (IAstroidChecker, )
+class RecommandationChecker(checkers.BaseChecker):
+    __implements__ = (interfaces.IAstroidChecker, )
     name = 'refactoring'
     msgs = {'C0200': ('Consider using enumerate instead of iterating with range and len',
                       'consider-using-enumerate',
@@ -183,13 +180,13 @@ class RecommandationChecker(BaseChecker):
                 return
 
 
-class NotChecker(BaseChecker):
+class NotChecker(checkers.BaseChecker):
     """checks for too many not in comparison expressions
 
     - "not not" should trigger a warning
     - "not" followed by a comparison should trigger a warning
     """
-    __implements__ = (IAstroidChecker,)
+    __implements__ = (interfaces.IAstroidChecker,)
     msgs = {'C0113': ('Consider changing "%s" to "%s"',
                       'unneeded-not',
                       'Used when a boolean expression contains an unneeded '
@@ -205,7 +202,7 @@ class NotChecker(BaseChecker):
     skipped_classnames = ['%s.%s' % (six.moves.builtins.__name__, qname)
                           for qname in ('set', 'frozenset')]
 
-    @check_messages('unneeded-not')
+    @utils.check_messages('unneeded-not')
     def visit_unaryop(self, node):
         if node.op != 'not':
             return
@@ -227,7 +224,7 @@ class NotChecker(BaseChecker):
             frame = node.frame()
             if frame.name == '__ne__' and operator == '==':
                 return
-            for _type in (node_type(left), node_type(right)):
+            for _type in (utils.node_type(left), utils.node_type(right)):
                 if not _type:
                     return
                 if isinstance(_type, self.skipped_nodes):
