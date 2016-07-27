@@ -11,11 +11,11 @@
 
 """variables checkers for Python code
 """
+import copy
 import itertools
 import os
 import sys
 import re
-from copy import copy
 try:
     from functools import lru_cache
 except ImportError:
@@ -30,13 +30,6 @@ from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIG
 from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
-from pylint.checkers.utils import (
-    PYMETHODS, is_ancestor_name, is_builtin,
-    is_defined_before, is_error, is_func_default, is_func_decorator,
-    assign_parent, check_messages, is_inside_except, clobber_in_except,
-    get_all_elements, has_known_bases, node_ignores_exception,
-    is_inside_abstract_class, is_comprehension, is_iterable,
-    safe_infer, is_from_fallback_block)
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = '__future__'
@@ -382,7 +375,7 @@ class VariablesChecker(BaseChecker):
         return get_global_option(self, 'ignored-modules', default=[])
 
 
-    @check_messages('redefined-outer-name')
+    @utils.check_messages('redefined-outer-name')
     def visit_for(self, node):
         assigned_to = utils.assign_names(node.target)
 
@@ -403,7 +396,7 @@ class VariablesChecker(BaseChecker):
 
         self._loop_variables.append((node, assigned_to))
 
-    @check_messages('redefined-outer-name')
+    @utils.check_messages('redefined-outer-name')
     def leave_for(self, _):
         self._loop_variables.pop()
 
@@ -411,16 +404,16 @@ class VariablesChecker(BaseChecker):
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
-        self._to_consume = [(copy(node.locals), {}, 'module')]
+        self._to_consume = [(copy.copy(node.locals), {}, 'module')]
         for name, stmts in six.iteritems(node.locals):
-            if is_builtin(name) and not is_inside_except(stmts[0]):
+            if utils.is_builtin(name) and not utils.is_inside_except(stmts[0]):
                 if self._should_ignore_redefined_builtin(stmts[0]):
                     continue
                 self.add_message('redefined-builtin', args=name, node=stmts[0])
 
-    @check_messages('unused-import', 'unused-wildcard-import',
-                    'redefined-builtin', 'undefined-all-variable',
-                    'invalid-all-object')
+    @utils.check_messages('unused-import', 'unused-wildcard-import',
+                          'redefined-builtin', 'undefined-all-variable',
+                          'invalid-all-object')
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -539,7 +532,7 @@ class VariablesChecker(BaseChecker):
     def visit_classdef(self, node):
         """visit class: update consumption analysis variable
         """
-        self._to_consume.append((copy(node.locals), {}, 'class'))
+        self._to_consume.append((copy.copy(node.locals), {}, 'class'))
 
     def leave_classdef(self, _):
         """leave class: update consumption analysis variable
@@ -550,7 +543,7 @@ class VariablesChecker(BaseChecker):
     def visit_lambda(self, node):
         """visit lambda: update consumption analysis variable
         """
-        self._to_consume.append((copy(node.locals), {}, 'lambda'))
+        self._to_consume.append((copy.copy(node.locals), {}, 'lambda'))
 
     def leave_lambda(self, _):
         """leave lambda: update consumption analysis variable
@@ -561,7 +554,7 @@ class VariablesChecker(BaseChecker):
     def visit_generatorexp(self, node):
         """visit genexpr: update consumption analysis variable
         """
-        self._to_consume.append((copy(node.locals), {}, 'comprehension'))
+        self._to_consume.append((copy.copy(node.locals), {}, 'comprehension'))
 
     def leave_generatorexp(self, _):
         """leave genexpr: update consumption analysis variable
@@ -572,7 +565,7 @@ class VariablesChecker(BaseChecker):
     def visit_dictcomp(self, node):
         """visit dictcomp: update consumption analysis variable
         """
-        self._to_consume.append((copy(node.locals), {}, 'comprehension'))
+        self._to_consume.append((copy.copy(node.locals), {}, 'comprehension'))
 
     def leave_dictcomp(self, _):
         """leave dictcomp: update consumption analysis variable
@@ -583,7 +576,7 @@ class VariablesChecker(BaseChecker):
     def visit_setcomp(self, node):
         """visit setcomp: update consumption analysis variable
         """
-        self._to_consume.append((copy(node.locals), {}, 'comprehension'))
+        self._to_consume.append((copy.copy(node.locals), {}, 'comprehension'))
 
     def leave_setcomp(self, _):
         """leave setcomp: update consumption analysis variable
@@ -594,13 +587,13 @@ class VariablesChecker(BaseChecker):
     def visit_functiondef(self, node):
         """visit function: update consumption analysis variable and check locals
         """
-        self._to_consume.append((copy(node.locals), {}, 'function'))
+        self._to_consume.append((copy.copy(node.locals), {}, 'function'))
         if not (self.linter.is_message_enabled('redefined-outer-name') or
                 self.linter.is_message_enabled('redefined-builtin')):
             return
         globs = node.root().globals
         for name, stmt in node.items():
-            if is_inside_except(stmt):
+            if utils.is_inside_except(stmt):
                 continue
             if name in globs and not isinstance(stmt, astroid.Global):
                 definition = globs[name][0]
@@ -615,7 +608,7 @@ class VariablesChecker(BaseChecker):
                     self.add_message('redefined-outer-name',
                                      args=(name, line), node=stmt)
 
-            elif is_builtin(name) and not self._should_ignore_redefined_builtin(stmt):
+            elif utils.is_builtin(name) and not self._should_ignore_redefined_builtin(stmt):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
 
@@ -646,7 +639,7 @@ class VariablesChecker(BaseChecker):
         is_method = node.is_method()
         klass = node.parent.frame()
         if is_method and isinstance(klass, astroid.ClassDef):
-            confidence = INFERENCE if has_known_bases(klass) else INFERENCE_FAILURE
+            confidence = INFERENCE if utils.has_known_bases(klass) else INFERENCE_FAILURE
         else:
             confidence = HIGH
 
@@ -660,7 +653,7 @@ class VariablesChecker(BaseChecker):
                 overridden = overridden_method(klass, node.name)
                 if overridden is not None and name in overridden.argnames():
                     return
-                if node.name in PYMETHODS and node.name not in ('__init__', '__new__'):
+                if node.name in utils.PYMETHODS and node.name not in ('__init__', '__new__'):
                     return
             # Don't check callback arguments
             if any(node.name.startswith(cb) or node.name.endswith(cb)
@@ -688,7 +681,7 @@ class VariablesChecker(BaseChecker):
             return
 
         # Don't check arguments of function which are only raising an exception.
-        if is_error(node):
+        if utils.is_error(node):
             return
 
         # Don't check arguments of abstract methods or within an interface.
@@ -705,9 +698,9 @@ class VariablesChecker(BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
     leave_asyncfunctiondef = leave_functiondef
 
-    @check_messages('global-variable-undefined', 'global-variable-not-assigned',
-                    'global-statement', 'global-at-module-level',
-                    'redefined-builtin')
+    @utils.check_messages('global-variable-undefined', 'global-variable-not-assigned',
+                          'global-statement', 'global-at-module-level',
+                          'redefined-builtin')
     def visit_global(self, node):
         """check names imported exists in the global scope"""
         frame = node.frame()
@@ -815,10 +808,10 @@ class VariablesChecker(BaseChecker):
             return False
         return stmt.modname in self.config.redefining_builtins_modules
 
-    @check_messages('redefine-in-handler')
+    @utils.check_messages('redefine-in-handler')
     def visit_excepthandler(self, node):
-        for name in get_all_elements(node.name):
-            clobbering, args = clobber_in_except(name)
+        for name in utils.get_all_elements(node.name):
+            clobbering, args = utils.clobber_in_except(name)
             if clobbering:
                 self.add_message('redefine-in-handler', args=args, node=name)
 
@@ -950,7 +943,7 @@ class VariablesChecker(BaseChecker):
                      in_annotation_or_default) and
                     name in frame_locals)
 
-    @check_messages(*(MSGS.keys()))
+    @utils.check_messages(*(MSGS.keys()))
     def visit_name(self, node):
         """check that a name is defined if the current scope and doesn't
         redefine a built-in
@@ -965,8 +958,8 @@ class VariablesChecker(BaseChecker):
         # if the name node is used as a function default argument's value or as
         # a decorator, then start from the parent frame of the function instead
         # of the function frame - and thus open an inner class scope
-        if (is_func_default(node) or is_func_decorator(node)
-                or is_ancestor_name(frame, node)):
+        if (utils.is_func_default(node) or utils.is_func_decorator(node)
+                or utils.is_ancestor_name(frame, node)):
             start_index = len(self._to_consume) - 2
         else:
             start_index = len(self._to_consume) - 1
@@ -988,7 +981,7 @@ class VariablesChecker(BaseChecker):
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
             if name in consumed:
-                defnode = assign_parent(consumed[name][0])
+                defnode = utils.assign_parent(consumed[name][0])
                 self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
                 break
@@ -998,7 +991,7 @@ class VariablesChecker(BaseChecker):
             else:
                 continue
             # checks for use before assignment
-            defnode = assign_parent(to_consume[name][0])
+            defnode = utils.assign_parent(to_consume[name][0])
             if defnode is not None:
                 self._check_late_binding_closure(node, defnode)
                 defstmt = defnode.statement()
@@ -1015,7 +1008,7 @@ class VariablesChecker(BaseChecker):
                     base_scope_type, recursive_klass)
 
                 if (maybee0601
-                        and not is_defined_before(node)
+                        and not utils.is_defined_before(node)
                         and not astroid.are_exclusive(stmt, defstmt, ('NameError',
                                                                       'Exception',
                                                                       'BaseException'))):
@@ -1030,7 +1023,7 @@ class VariablesChecker(BaseChecker):
                             or defined_by_stmt
                             or annotation_return
                             or isinstance(defstmt, astroid.Delete)):
-                        if not node_ignores_exception(node, NameError):
+                        if not utils.node_ignores_exception(node, NameError):
                             self.add_message('undefined-variable', args=name,
                                              node=node)
                     elif base_scope_type != 'lambda':
@@ -1065,15 +1058,15 @@ class VariablesChecker(BaseChecker):
         else:
             # we have not found the name, if it isn't a builtin, that's an
             # undefined name !
-            if not (name in astroid.Module.scope_attrs or is_builtin(name)
+            if not (name in astroid.Module.scope_attrs or utils.is_builtin(name)
                     or name in self.config.additional_builtins):
-                if not node_ignores_exception(node, NameError):
+                if not utils.node_ignores_exception(node, NameError):
                     self.add_message('undefined-variable', args=name, node=node)
 
-    @check_messages('no-name-in-module')
+    @utils.check_messages('no-name-in-module')
     def visit_import(self, node):
         """check modules attribute accesses"""
-        if not self._analyse_fallback_blocks and is_from_fallback_block(node):
+        if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
             return
@@ -1086,10 +1079,10 @@ class VariablesChecker(BaseChecker):
                 continue
             self._check_module_attrs(node, module, parts[1:])
 
-    @check_messages('no-name-in-module')
+    @utils.check_messages('no-name-in-module')
     def visit_importfrom(self, node):
         """check modules attribute accesses"""
-        if not self._analyse_fallback_blocks and is_from_fallback_block(node):
+        if not self._analyse_fallback_blocks and utils.is_from_fallback_block(node):
             # No need to verify this, since ImportError is already
             # handled by the client code.
             return
@@ -1107,7 +1100,7 @@ class VariablesChecker(BaseChecker):
                 continue
             self._check_module_attrs(node, module, name.split('.'))
 
-    @check_messages('unbalanced-tuple-unpacking', 'unpacking-non-sequence')
+    @utils.check_messages('unbalanced-tuple-unpacking', 'unpacking-non-sequence')
     def visit_assign(self, node):
         """Check unbalanced tuple unpacking for assignments
         and unpacking non-sequences.
@@ -1117,7 +1110,7 @@ class VariablesChecker(BaseChecker):
 
         targets = node.targets[0].itered()
         try:
-            infered = safe_infer(node.value)
+            infered = utils.safe_infer(node.value)
             if infered is not None:
                 self._check_unpacking(infered, node, targets)
         except astroid.InferenceError:
@@ -1127,9 +1120,9 @@ class VariablesChecker(BaseChecker):
         """ Check for unbalanced tuple unpacking
         and unpacking non sequences.
         """
-        if is_inside_abstract_class(node):
+        if utils.is_inside_abstract_class(node):
             return
-        if is_comprehension(node):
+        if utils.is_comprehension(node):
             return
         if infered is astroid.YES:
             return
@@ -1152,7 +1145,7 @@ class VariablesChecker(BaseChecker):
                                        len(values)))
         # attempt to check unpacking may be possible (ie RHS is iterable)
         else:
-            if not is_iterable(infered):
+            if not utils.is_iterable(infered):
                 self.add_message('unpacking-non-sequence', node=node,
                                  args=(_get_unpacking_extra_info(node, infered),))
 
@@ -1199,7 +1192,7 @@ class VariablesChecker3k(VariablesChecker):
     def visit_listcomp(self, node):
         """visit dictcomp: update consumption analysis variable
         """
-        self._to_consume.append((copy(node.locals), {}, 'comprehension'))
+        self._to_consume.append((copy.copy(node.locals), {}, 'comprehension'))
 
     def leave_listcomp(self, _):
         """leave dictcomp: update consumption analysis variable
@@ -1246,7 +1239,7 @@ class VariablesChecker3k(VariablesChecker):
 
                 if name is not None:
                     if not (name in astroid.Module.scope_attrs or
-                            is_builtin(name) or
+                            utils.is_builtin(name) or
                             name in self.config.additional_builtins or
                             name in node.locals):
                         self.add_message('undefined-variable',
