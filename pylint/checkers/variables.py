@@ -11,7 +11,6 @@
 
 """variables checkers for Python code
 """
-import collections
 import itertools
 import os
 import sys
@@ -30,6 +29,7 @@ from astroid import modutils
 from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIGH
 from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
+from pylint.checkers import utils
 from pylint.checkers.utils import (
     PYMETHODS, is_ancestor_name, is_builtin,
     is_defined_before, is_error, is_func_default, is_func_decorator,
@@ -228,29 +228,6 @@ def _flattened_scope_names(iterator):
     return set(itertools.chain.from_iterable(values))
 
 
-def _for_loop_assign_names(node):
-    """
-    Get the list of loop variables assigned to by a for loop.
-
-    :param node: An assigned-to variable. Usually this is the result of
-        `for_node.target`.
-    :type node: astroid.NodeNG
-
-    :returns: A generator of variable names that the for loop assigns to.
-    :rtype: generator
-    """
-    queue = collections.deque([node])
-    while queue:
-        elem = queue.popleft()
-        if isinstance(elem, astroid.Starred):
-            elem = elem.value
-
-        if isinstance(elem, astroid.AssignName):
-            yield elem.name
-        elif isinstance(elem, astroid.Tuple):
-            queue.extendleft(reversed(list(elem.get_children())))
-
-
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
@@ -407,7 +384,7 @@ class VariablesChecker(BaseChecker):
 
     @check_messages('redefined-outer-name')
     def visit_for(self, node):
-        assigned_to = _for_loop_assign_names(node.target)
+        assigned_to = utils.assign_names(node.target)
 
         # Only check variables that are used
         dummy_rgx = self.config.dummy_variables_rgx

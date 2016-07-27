@@ -11,6 +11,7 @@
 # pylint: disable=W0611
 """some functions that may be useful for various checkers
 """
+import collections
 import functools
 import itertools
 import re
@@ -795,3 +796,25 @@ def node_type(node):
     except astroid.InferenceError:
         return
     return types.pop() if types else None
+
+
+def assign_names(node):
+    """
+    Get the assign names from the given node
+
+    :param node: An assigned-to variable.
+    :type node: astroid.NodeNG
+
+    :returns: A generator of variable names that the node assigns to
+    :rtype: generator
+    """
+    queue = collections.deque([node])
+    while queue:
+        elem = queue.popleft()
+        if isinstance(elem, astroid.Starred):
+            elem = elem.value
+
+        if isinstance(elem, astroid.AssignName):
+            yield elem.name
+        elif isinstance(elem, astroid.Tuple):
+            queue.extendleft(reversed(list(elem.get_children())))
