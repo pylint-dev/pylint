@@ -86,6 +86,203 @@ class RefactoringChecker(checkers.BaseChecker):
                              args=(duplicated_name, ', '.join(names)))
 
 
+class ElifChecker(checkers.BaseTokenChecker):
+    """Checks needing to distinguish "else if" from "elif"
+
+    This checker mixes the astroid and the token approaches in order to create
+    knowledge about whether a "else if" node is a true "else if" node, or a
+    "elif" node.
+
+    The following checks depend on this implementation:
+        - check for too many nested blocks (if/elif structures aren't considered
+          as nested)
+        - to be continued
+    """
+    __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
+    name = 'elif'
+    msgs = {'R0101': ('Too many nested blocks (%s/%s)',
+                      'too-many-nested-blocks',
+                      'Used when a function or a method has too many nested '
+                      'blocks. This makes the code less understandable and '
+                      'maintainable.'),
+            'R0102': ('The if statement can be replaced with %s',
+                      'simplifiable-if-statement',
+                      'Used when an if statement can be replaced with '
+                      '\'bool(test)\'. '),
+           }
+    options = (('max-nested-blocks',
+                {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
+                 'help': 'Maximum number of nested blocks for function / '
+                         'method body'}
+               ),)
+
+    def __init__(self, linter=None):
+        checkers.BaseTokenChecker.__init__(self, linter)
+        self._init()
+
+    def _init(self):
+        self._nested_blocks = []
+        self._elifs = []
+        self._if_counter = 0
+        self._nested_blocks_msg = None
+
+    @staticmethod
+    def _is_bool_const(node):
+        return (isinstance(node.value, astroid.Const)
+                and isinstance(node.value.value, bool))
+
+    def _is_actual_elif(self, node):
+        """Check if the given node is an actual elif
+
+        This is a problem we're having with the builtin ast module,
+        which splits `elif` branches into a separate if statement.
+        Unfortunately we need to know the exact type in certain
+        cases.
+        """
+
+        if isinstance(node.parent, astroid.If):
+            orelse = node.parent.orelse
+            # current if node must directly follow a "else"
+            if orelse and orelse == [node]:
+                if self._elifs[self._if_counter]:
+                    return True
+        return False
+
+    def _check_simplifiable_if(self, node):
+        """Check if the given if node can be simplified.
+
+        The if statement can be reduced to a boolean expression
+        in some cases. For instance, if there are two branches
+        and both of them return a boolean value that depends on
+        the result of the statement's test, then this can be reduced
+        to `bool(test)` without losing any functionality.
+        """
+
+        if self._is_actual_elif(node):
+            # Not interested in if statements with multiple branches.
+            return
+        if len(node.orelse) != 1 or len(node.body) != 1:
+            return
+
+        # Check if both branches can be reduced.
+        first_branch = node.body[0]
+        else_branch = node.orelse[0]
+        if isinstance(first_branch, astroid.Return):
+            if not isinstance(else_branch, astroid.Return):
+                return
+            first_branch_is_bool = self._is_bool_const(first_branch)
+            else_branch_is_bool = self._is_bool_const(else_branch)
+            reduced_to = "'return bool(test)'"
+        elif isinstance(first_branch, astroid.Assign):
+            if not isinstance(else_branch, astroid.Assign):
+                return
+            first_branch_is_bool = self._is_bool_const(first_branch)
+            else_branch_is_bool = self._is_bool_const(else_branch)
+            reduced_to = "'var = bool(test)'"
+        else:
+            return
+
+        if not first_branch_is_bool or not else_branch_is_bool:
+            return
+        if not first_branch.value.value:
+            # This is a case that can't be easily simplified and
+            # if it can be simplified, it will usually result in a
+            # code that's harder to understand and comprehend.
+            # Let's take for instance `arg and arg <= 3`. This could theoretically be
+            # reduced to `not arg or arg > 3`, but the net result is that now the
+            # condition is harder to understand, because it requires understanding of
+            # an extra clause:
+            #   * first, there is the negation of truthness with `not arg`
+            #   * the second clause is `arg > 3`, which occurs when arg has a
+            #     a truth value, but it implies that `arg > 3` is equivalent
+            #     with `arg and arg > 3`, which means that the user must
+            #     think about this assumption when evaluating `arg > 3`.
+            #     The original form is easier to grasp.
+            return
+
+        self.add_message('simplifiable-if-statement', node=node,
+                         args=(reduced_to, ))
+
+    def process_tokens(self, tokens):
+        # Process tokens and look for 'if' or 'elif'
+        for _, token, _, _, _ in tokens:
+            if token == 'elif':
+                self._elifs.append(True)
+            elif token == 'if':
+                self._elifs.append(False)
+
+    def leave_module(self, _):
+        self._init()
+
+    @utils.check_messages('too-many-nested-blocks')
+    def visit_tryexcept(self, node):
+        self._check_nested_blocks(node)
+
+    visit_tryfinally = visit_tryexcept
+    visit_while = visit_tryexcept
+    visit_for = visit_while
+
+    def visit_ifexp(self, _):
+        self._if_counter += 1
+
+    def visit_comprehension(self, node):
+        self._if_counter += len(node.ifs)
+
+    @utils.check_messages('too-many-nested-blocks', 'simplifiable-if-statement')
+    def visit_if(self, node):
+        self._check_simplifiable_if(node)
+        self._check_nested_blocks(node)
+        self._if_counter += 1
+
+    @utils.check_messages('too-many-nested-blocks')
+    def leave_functiondef(self, _):
+        # new scope = reinitialize the stack of nested blocks
+        self._nested_blocks = []
+        # if there is a waiting message left, send it
+        if self._nested_blocks_msg:
+            self.add_message('too-many-nested-blocks',
+                             node=self._nested_blocks_msg[0],
+                             args=self._nested_blocks_msg[1])
+            self._nested_blocks_msg = None
+
+    def _check_nested_blocks(self, node):
+        """Update and check the number of nested blocks
+        """
+        # only check block levels inside functions or methods
+        if not isinstance(node.scope(), astroid.FunctionDef):
+            return
+        # messages are triggered on leaving the nested block. Here we save the
+        # stack in case the current node isn't nested in the previous one
+        nested_blocks = self._nested_blocks[:]
+        if node.parent == node.scope():
+            self._nested_blocks = [node]
+        else:
+            # go through ancestors from the most nested to the less
+            for ancestor_node in reversed(self._nested_blocks):
+                if ancestor_node == node.parent:
+                    break
+                self._nested_blocks.pop()
+            # if the node is a elif, this should not be another nesting level
+            if isinstance(node, astroid.If) and self._elifs[self._if_counter]:
+                if self._nested_blocks:
+                    self._nested_blocks.pop()
+            self._nested_blocks.append(node)
+        # send message only once per group of nested blocks
+        if len(nested_blocks) > self.config.max_nested_blocks:
+            if len(nested_blocks) > len(self._nested_blocks):
+                self.add_message('too-many-nested-blocks', node=nested_blocks[0],
+                                 args=(len(nested_blocks),
+                                       self.config.max_nested_blocks))
+                self._nested_blocks_msg = None
+            else:
+                # if time has not come yet to send the message (ie the stack of
+                # nested nodes is still increasing), save it in case the
+                # current node is the last one of the function
+                self._nested_blocks_msg = (self._nested_blocks[0],
+                                           (len(self._nested_blocks),
+                                            self.config.max_nested_blocks))
+
+
 class RecommandationChecker(checkers.BaseChecker):
     __implements__ = (interfaces.IAstroidChecker, )
     name = 'refactoring'
@@ -245,3 +442,4 @@ def register(linter):
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommandationChecker(linter))
+    linter.register_checker(ElifChecker(linter))
