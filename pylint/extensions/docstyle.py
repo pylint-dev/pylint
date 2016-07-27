@@ -6,12 +6,12 @@
 
 import linecache
 
-from pylint.checkers.base import BaseChecker
+from pylint import checkers
 from pylint.interfaces import IAstroidChecker, HIGH
 from pylint.checkers.utils import check_messages
 
 
-class DocStringStyleChecker(BaseChecker):
+class DocStringStyleChecker(checkers.BaseChecker):
     """Checks format of docstrings based on PEP 0257"""
 
     __implements__ = IAstroidChecker
