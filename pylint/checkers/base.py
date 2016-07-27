@@ -77,13 +77,9 @@ class NamingStyle(object):
             'inlinevar': cls.COMP_VAR_RGX,
         }[node_type]
 
-    @classmethod
-    def known_node_types(cls):
-        return ["module", "const", "class", "function", "method", "attr",
-                "argument", "variable", "class_attribute", "inlinevar"]
-
 
 class SnakeCaseStyle(NamingStyle):
+    # TODO: figure out appropriate regular expressions
     CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
     MOD_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
@@ -93,6 +89,7 @@ class SnakeCaseStyle(NamingStyle):
 
 
 class CamelCaseStyle(NamingStyle):
+    # TODO: figure out appropriate regular expressions
     CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
     MOD_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]*)|([A-Z][a-zA-Z0-9]+))$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
@@ -101,7 +98,29 @@ class CamelCaseStyle(NamingStyle):
     CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9]{2,30}|(__.*__))$')
 
 
-NAMING_STYLES = {'snake_case': SnakeCaseStyle, 'camel_case': CamelCaseStyle}
+class PascalCaseStyle(NamingStyle):
+    # TODO: figure out appropriate regular expressions
+    CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    MOD_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    CONST_NAME_RGX = re.compile('(([A-Z_][A-Za-z0-9_]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    DEFAULT_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+
+
+class UpperCaseStyle(NamingStyle):
+    # TODO: figure out appropriate regular expressions
+    CLASS_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
+    MOD_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
+    CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[A-Z_][A-Z0-9]+$')
+    DEFAULT_NAME_RGX = re.compile('[A-Z_][A-Z0-9]+$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][A-Z0-9]+$')
+
+
+NAMING_STYLES = {'snake_case': SnakeCaseStyle, 'camelCase': CamelCaseStyle,
+                 'PascalCase': PascalCaseStyle, 'UPPER_CASE': UpperCaseStyle}
+
 DEFAULT_NAMING_STYLE_NAME = 'snake_case'
 DEFAULT_NAMING_STYLE = NAMING_STYLES[DEFAULT_NAMING_STYLE_NAME]
 
@@ -1167,6 +1186,12 @@ functions, methods
                         self.add_message('confusing-with-statement', node=node)
 
 
+KNOWN_NODE_TYPES = frozenset(
+    ["module", "const", "class", "function", "method", "attr",
+     "argument", "variable", "class_attribute", "inlinevar"]
+)
+
+
 HUMAN_READABLE_TYPES = {
     'module': 'module',
     'const': 'constant',
@@ -1180,15 +1205,35 @@ HUMAN_READABLE_TYPES = {
     'inlinevar': 'inline iteration'
 }
 
+DEFAULT_NAMING_STYLES = {
+    "module": "snake_case",
+    "const": "UPPER_CASE",
+    "class": "PascalCase",
+    "function": "snake_case",
+    "method": "snake_case",
+    "attr": "snake_case",
+    "argument": "snake_case",
+    "variable": "snake_case",
+    "class_attribute": "snake_case",
+    "inlinevar": "snake_case"
+}
+
 def _create_naming_options():
     name_options = []
-    for name_type in DEFAULT_NAMING_STYLE.known_node_types():
+    for name_type in KNOWN_NODE_TYPES:
         human_readable_name = HUMAN_READABLE_TYPES[name_type]
+        default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace('_', '-')
+        name_options.append((
+            '%s-naming-style' % (name_type,),
+            {'default': default_style,
+             'type': 'choice', 'choices': list(NAMING_STYLES.keys()), 'metavar': '<style>',
+             'help': 'Naming style matching correct %s names' % (human_readable_name,)}),)
         name_options.append((
             '%s-rgx' % (name_type,),
             {'default': None, 'type': 'regexp', 'metavar': '<regexp>',
-             'help': 'Regular expression matching correct %s names' % (human_readable_name,)}))
+             'help': 'Regular expression matching correct %s names. Overrides %s-naming-style'
+                     % (human_readable_name, name_type,)}))
         name_options.append((
             '%s-name-hint' % (name_type,),
             {'default': None, 'type': 'string', 'metavar': '<string>',
@@ -1238,13 +1283,6 @@ class NameChecker(_BasicChecker):
                          'abc.abstractproperty. Add to this list to register '
                          'other decorators that produce valid properties.'}
                ),
-               ('naming-style',
-                {'default': DEFAULT_NAMING_STYLE_NAME,
-                 'type': 'choice',
-                 'choices': list(NAMING_STYLES.keys()),
-                 'metavar': '<style>',
-                 'help': 'Naming style used across a project (snake_case, camel_case).'}
-               ),
               ) + _create_naming_options()
 
 
@@ -1276,14 +1314,17 @@ class NameChecker(_BasicChecker):
     def _create_naming_rules(self):
         regexps = {}
         hints = {}
-        naming_style = NAMING_STYLES[self.config.naming_style]
 
-        for name_type in naming_style.known_node_types():
-            regexps[name_type] = naming_style.get_regex(name_type)
-            overriden_value_name = "%s_rgx" % (name_type,)
-            overriden_value = getattr(self.config, overriden_value_name, None)
-            if overriden_value is not None:
-                regexps[name_type] = overriden_value
+        for name_type in KNOWN_NODE_TYPES:
+            naming_style_option_name = "%s_naming_style" % (name_type,)
+            naming_style_name = getattr(self.config, naming_style_option_name)
+
+            regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(name_type)
+
+            custom_regex_setting_name = "%s_rgx" % (name_type, )
+            custom_regex = getattr(self.config, custom_regex_setting_name, None)
+            if custom_regex is not None:
+                regexps[name_type] = custom_regex
 
             hints[name_type] = regexps[name_type].pattern
             hint_value_name = "%s_name_hint" % (name_type,)

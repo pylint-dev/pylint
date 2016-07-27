@@ -1,4 +1,5 @@
 # pylint: disable=old-style-class,missing-docstring,too-few-public-methods
+__version__ = "1.0"
 SOME_CONSTANT = 42
 
 
@@ -13,6 +14,9 @@ class MyClass:
     @property
     def myPublicX(self):
         return self._mySecretX * 2
+
+    def __eq__(self, other):
+        return isinstance(other, MyClass) and self.myPublicX == other.myPublicX
 
 
 def say_hello():  # [invalid-name]

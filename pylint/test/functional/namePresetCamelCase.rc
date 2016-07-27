@@ -1,2 +1,11 @@
 [BASIC]
-naming-style=camel_case
+function-naming-style=camelCase
+const-naming-style=camelCase
+attr-naming-style=camelCase
+argument-naming-style=camelCase
+module-naming-style=camelCase
+method-naming-style=camelCase
+variable-naming-style=camelCase
+class-attribute-naming-style=camelCase
+inlinevar-naming-style=camelCase
+class-naming-style=camelCase
