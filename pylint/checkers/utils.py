@@ -796,25 +796,3 @@ def node_type(node):
     except astroid.InferenceError:
         return
     return types.pop() if types else None
-
-
-def assign_names(node):
-    """
-    Get the assign names from the given node
-
-    :param node: An assigned-to variable.
-    :type node: astroid.NodeNG
-
-    :returns: A generator of AssignName nodes that the node assigns to
-    :rtype: generator
-    """
-    queue = collections.deque([node])
-    while queue:
-        elem = queue.popleft()
-        if isinstance(elem, astroid.Starred):
-            elem = elem.value
-
-        if isinstance(elem, astroid.AssignName):
-            yield elem
-        elif isinstance(elem, astroid.Tuple):
-            queue.extendleft(reversed(list(elem.get_children())))
