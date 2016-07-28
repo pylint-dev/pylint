@@ -115,6 +115,24 @@ New checkers
           """
           return False
 
+* A new refactoring check was added, ``redefined-argument-from-local``, which is
+  emitted when **pylint** can detect than a function argument is redefined locally
+  in some potential error prone cases. For instance, in the following piece of code,
+  we have a bug, since the check will never return ``True``, given the fact that we
+  are comparing the same object to its attributes.
+
+  .. code-block:: python
+
+      def test(resource):
+          for resource in resources:
+              # The ``for`` is reusing ``resource``, which means that the following
+              # ``resource`` is not what we wanted to check against.
+              if resource.resource_type == resource:
+                 call_resource(resource)
+
+  Other places where this check looks are *with* statement name bindings and
+  except handler's name binding.
+
 Other Changes
 =============
 

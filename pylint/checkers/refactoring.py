@@ -10,10 +10,12 @@
 import collections
 
 import astroid
+from astroid import decorators
 import six
 
 from pylint import interfaces
 from pylint import checkers
+from pylint import utils as lint_utils
 from pylint.checkers import utils
 
 
@@ -44,6 +46,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'Used when an if statement can be replaced with '
                   '\'bool(test)\'. ',
                   {'old_names': [('R0102', 'simplifiable-if-statement')]}),
+        'R1704': ('Redefining argument with the local name %r',
+                  'redefined-argument-from-local',
+                  'Used when a local name is redefining an argument, which might '
+                  'suggest a potential error. This is taken in account only for '
+                  'a handful of name binding operations, such as for iteration, '
+                  'with statement assignment and exception handler assignment.'
+                  )
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -62,6 +71,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._elifs = []
         self._if_counter = 0
         self._nested_blocks_msg = None
+
+    @decorators.cachedproperty
+    def _dummy_rgx(self):
+        return lint_utils.get_global_option(
+            self, 'dummy-variables-rgx', default=None)
 
     @staticmethod
     def _is_bool_const(node):
@@ -157,7 +171,44 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     visit_tryfinally = visit_tryexcept
     visit_while = visit_tryexcept
-    visit_for = visit_while
+
+    def _check_redefined_argument_from_local(self, name_node):
+        if self._dummy_rgx and self._dummy_rgx.match(name_node.name):
+            return
+        if not name_node.lineno:
+            # Unknown position, maybe it is a manually built AST?
+            return
+
+        scope = name_node.scope()
+        if not isinstance(scope, astroid.FunctionDef):
+            return
+
+        for defined_argument in scope.args.nodes_of_class(astroid.AssignName):
+            if defined_argument.name == name_node.name:
+                self.add_message('redefined-argument-from-local',
+                                 node=name_node,
+                                 args=(name_node.name, ))
+
+    @utils.check_messages('redefined-argument-from-local',
+                          'too-many-nested-blocks')
+    def visit_for(self, node):
+        self._check_nested_blocks(node)
+
+        for name in node.target.nodes_of_class(astroid.AssignName):
+            self._check_redefined_argument_from_local(name)
+
+    @utils.check_messages('redefined-argument-from-local')
+    def visit_excepthandler(self, node):
+        if node.name and isinstance(node.name, astroid.AssignName):
+            self._check_redefined_argument_from_local(node.name)
+
+    @utils.check_messages('redefined-argument-from-local')
+    def visit_with(self, node):
+        for _, names in node.items:
+            if not names:
+                continue
+            for name in names.nodes_of_class(astroid.AssignName):
+                self._check_redefined_argument_from_local(name)
 
     def visit_ifexp(self, _):
         self._if_counter += 1
