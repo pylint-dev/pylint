@@ -132,10 +132,10 @@ class UnsupportedAction(Exception):
 
 def _multiple_choice_validator(choices, name, value):
     values = utils._check_csv(value)
-    for value in values:
-        if value not in choices:
+    for csv_value in values:
+        if csv_value not in choices:
             msg = "option %s: invalid value: %r, should be in %s"
-            raise optparse.OptionValueError(msg % (name, value, choices))
+            raise optparse.OptionValueError(msg % (name, csv_value, choices))
     return values
 
 

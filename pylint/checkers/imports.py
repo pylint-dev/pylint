@@ -536,7 +536,7 @@ given file (report RP0402 must not be disabled)'}
         return any(astroid.are_exclusive(import_node, node)
                    for import_node in imports)
 
-    def _check_imports_order(self, node):
+    def _check_imports_order(self, _module_node):
         """Checks imports of module `node` are grouped by category
 
         Imports must follow this order: standard, 3rd party, local
@@ -670,9 +670,9 @@ given file (report RP0402 must not be disabled)'}
         if root is not frame:
             contexts.append((root, None))
 
-        for context, level in contexts:
+        for known_context, level in contexts:
             for name, alias in node.names:
-                first = _get_first_import(node, context, name, basename, level, alias)
+                first = _get_first_import(node, known_context, name, basename, level, alias)
                 if first is not None:
                     self.add_message('reimported', node=node,
                                      args=(name, first.fromlineno))

@@ -219,8 +219,8 @@ class MessagesHandlerMixIn(object):
         self.msg_status = 0
 
     def _checker_messages(self, checker):
-        for checker in self._checkers[checker.lower()]:
-            for msgid in checker.msgs:
+        for known_checker in self._checkers[checker.lower()]:
+            for msgid in known_checker.msgs:
                 yield msgid
 
     def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
@@ -228,8 +228,8 @@ class MessagesHandlerMixIn(object):
         assert scope in ('package', 'module')
         # handle disable=all by disabling all categories
         if msgid == 'all':
-            for msgid in MSG_TYPES:
-                self.disable(msgid, scope, line)
+            for message_id in MSG_TYPES:
+                self.disable(message_id, scope, line)
             return
         # msgid is a category?
         catid = category_id(msgid)
@@ -297,8 +297,8 @@ class MessagesHandlerMixIn(object):
         catid = category_id(msgid)
         # msgid is a category?
         if catid is not None:
-            for msgid in self.msgs_store._msgs_by_category.get(catid):
-                self.enable(msgid, scope, line)
+            for message_id in self.msgs_store._msgs_by_category.get(catid):
+                self.enable(message_id, scope, line)
             return
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
