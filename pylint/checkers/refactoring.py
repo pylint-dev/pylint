@@ -52,13 +52,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'suggest a potential error. This is taken in account only for '
                   'a handful of name binding operations, such as for iteration, '
                   'with statement assignment and exception handler assignment.'
-                  )
+                 )
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
                  'help': 'Maximum number of nested blocks for function / '
                          'method body'}
-                ),)
+               ),)
 
     priority = 0
 
@@ -336,7 +336,7 @@ class RecommandationChecker(checkers.BaseChecker):
                       'Emitted when the keys of a dictionary are iterated through the .keys() '
                       'method. It is enough to just iterate through the dictionary itself, as '
                       'in "for key in dictionary".'),
-            }
+           }
 
     @staticmethod
     def _is_builtin(node, function):
@@ -428,7 +428,7 @@ class NotChecker(checkers.BaseChecker):
                       'unneeded-not',
                       'Used when a boolean expression contains an unneeded '
                       'negation.'),
-            }
+           }
     name = 'basic'
     reverse_op = {'<': '>=', '<=': '>', '>': '<=', '>=': '<', '==': '!=',
                   '!=': '==', 'in': 'not in', 'is': 'is not'}
@@ -467,7 +467,7 @@ class NotChecker(checkers.BaseChecker):
                 if isinstance(_type, self.skipped_nodes):
                     return
                 if (isinstance(_type, astroid.Instance) and
-                            _type.qname() in self.skipped_classnames):
+                        _type.qname() in self.skipped_classnames):
                     return
             suggestion = '%s %s %s' % (left.as_string(),
                                        self.reverse_op[operator],
