@@ -670,9 +670,12 @@ given file (report RP0402 must not be disabled)'}
         if root is not frame:
             contexts.append((root, None))
 
-        for known_context, level in contexts:
+        for known_context, known_level in contexts:
             for name, alias in node.names:
-                first = _get_first_import(node, known_context, name, basename, level, alias)
+                first = _get_first_import(
+                    node, known_context,
+                    name, basename,
+                    known_level, alias)
                 if first is not None:
                     self.add_message('reimported', node=node,
                                      args=(name, first.fromlineno))
