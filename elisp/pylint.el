@@ -64,6 +64,11 @@ Notice that using \\[next-error] or \\[compile-goto-error] modifies
   :type '(repeat string)
   :group 'pylint)
 
+(defcustom pylint-use-python-indent-offset nil
+  "If non-nil, use `python-indent-offset' to set indent-string."
+  :type 'boolean
+  :group 'pylint)
+
 (defcustom pylint-command "pylint"
   "PYLINT command."
   :type '(file)
@@ -179,6 +184,11 @@ appending to an existing list)."
   "Keymap for PYLINT buffers.
 `compilation-minor-mode-map' is a cdr of this.")
 
+(defun pylint--make-indent-string ()
+  "Make a string for the `--indent-string' option."
+  (format "--indent-string='%s'"
+          (make-string python-indent-offset ?\ )))
+
 ;;;###autoload
 (defun pylint (&optional arg)
   "Run PYLINT, and collect output in a buffer, much like `compile'.
@@ -199,6 +209,10 @@ output buffer, to go to the lines where pylint found matches.
          (pylint-command (if arg
                              pylint-alternate-pylint-command
                            pylint-command))
+         (pylint-options (if (not pylint-use-python-indent-offset)
+                             pylint-options
+                           (append pylint-options
+                                   (list (pylint--make-indent-string)))))
          (command (mapconcat
                    'identity
                    (append `(,pylint-command) pylint-options `(,filename))
