@@ -75,7 +75,7 @@ this disables -f values")),
                 'dest' : "black_list", "default" : ('CVS',),
                 'help' : "Add files or directories to the blacklist. They "
                          "should be base names, not paths."}),
-    ("project", {'default': "No Name", 'type' : 'string', 'short': 'p',
+    ("project", {'default': "", 'type' : 'string', 'short': 'p',
                  'metavar': '<project name>', 'help': 'set the project name.'}),
 )
 # FIXME : quiet mode
