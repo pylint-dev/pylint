@@ -113,6 +113,93 @@ MSGS = {
     }
 
 
+class BaseVisitor(object):
+    """Base class for visitors defined in this module."""
+
+    def __init__(self, checker, node):
+        self._checker = checker
+        self._node = node
+
+    def visit(self, node):
+        name = node.__class__.__name__.lower()
+        dispatch_meth = getattr(self, 'visit_' + name, None)
+        if dispatch_meth:
+            dispatch_meth(node)
+        else:
+            self.visit_default(node)
+
+    def visit_default(self, _):
+        """Default implementation for all the nodes."""
+
+
+class ExceptionRaiseRefVisitor(BaseVisitor):
+    """Visit references (anything that is not an AST leaf)."""
+
+    def visit_name(self, name):
+        if name.name == 'NotImplemented':
+            self._checker.add_message(
+                'notimplemented-raised',
+                node=self._node)
+
+    def visit_call(self, call):
+        if isinstance(call.func, astroid.Name):
+            self.visit_name(call.func)
+
+
+class ExceptionRaiseLeafVisitor(BaseVisitor):
+    """Visitor for handling leaf kinds of a raise value."""
+
+    def visit_const(self, const):
+        if not isinstance(const.value, str):
+            # raising-string will be emitted from python3 porting checker.
+            self._checker.add_message('raising-bad-type', node=self._node,
+                                      args=const.value.__class__.__name__)
+
+    def visit_instance(self, instance):
+        # pylint: disable=protected-access
+        cls = instance._proxied
+        self.visit_classdef(cls)
+
+    def visit_classdef(self, cls):
+        if (not utils.inherit_from_std_ex(cls) and
+                utils.has_known_bases(cls)):
+            if cls.newstyle:
+                self._checker.add_message('raising-non-exception', node=self._node)
+            else:
+                self._checker.add_message('nonstandard-exception', node=self._node)
+
+    def visit_tuple(self, tuple_node):
+        if PY3K or not tuple_node.elts:
+            self._checker.add_message('raising-bad-type',
+                                      node=self._node,
+                                      args='tuple')
+            return
+
+        # On Python 2, using the following is not an error:
+        #    raise (ZeroDivisionError, None)
+        #    raise (ZeroDivisionError, )
+        # What's left to do is to check that the first
+        # argument is indeed an exception. Verifying the other arguments
+        # is not the scope of this check.
+        first = tuple_node.elts[0]
+        inferred = utils.safe_infer(first)
+        if not inferred or inferred is astroid.Uninferable:
+            return
+
+        if (isinstance(inferred, astroid.Instance)
+                and inferred.__class__.__name__ != 'Instance'):
+            # TODO: explain why
+            self.visit_default(tuple_node)
+        else:
+            self.visit(inferred)
+
+    def visit_default(self, node):
+        name = getattr(node, 'name', node.__class__.__name__)
+        self._checker.add_message('raising-bad-type',
+                                  node=self._node,
+                                  args=name)
+
+
 class ExceptionsChecker(checkers.BaseChecker):
     """Exception related checks."""
 
@@ -146,15 +233,14 @@ class ExceptionsChecker(checkers.BaseChecker):
             self._check_bad_exception_context(node)
 
         expr = node.exc
-        if self._check_raise_value(node, expr):
-            return
-
         try:
-            value = next(astroid.unpack_infer(expr))
+            inferred_value = next(expr.infer())
         except astroid.InferenceError:
-            return
+            inferred_value = None
 
-        self._check_raise_value(node, value)
+        ExceptionRaiseRefVisitor(self, node).visit(expr)
+        if inferred_value:
+            ExceptionRaiseLeafVisitor(self, node).visit(inferred_value)
 
     def _check_misplaced_bare_raise(self, node):
         # Filter out if it's present in __exit__.
@@ -192,62 +278,6 @@ class ExceptionsChecker(checkers.BaseChecker):
               not utils.inherit_from_std_ex(cause)):
             self.add_message('bad-exception-context',
                              node=node)
-
-    def _check_raise_value(self, node, expr):
-        value_found = True
-        if isinstance(expr, astroid.Const):
-            value = expr.value
-            if not isinstance(value, str):
-                # raising-string will be emitted from python3 porting checker.
-                self.add_message('raising-bad-type', node=node,
-                                 args=value.__class__.__name__)
-        elif ((isinstance(expr, astroid.Name) and
-               expr.name in ('None', 'True', 'False')) or
-              isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
-                                astroid.Module, astroid.FunctionDef))):
-            emit = True
-            if not PY3K and isinstance(expr, astroid.Tuple) and expr.elts:
-                # On Python 2, using the following is not an error:
-                #    raise (ZeroDivisionError, None)
-                #    raise (ZeroDivisionError, )
-                # What's left to do is to check that the first
-                # argument is indeed an exception.
-                # Verifying the other arguments is not
-                # the scope of this check.
-                first = expr.elts[0]
-                inferred = utils.safe_infer(first)
-                if isinstance(inferred, astroid.Instance):
-                    # pylint: disable=protected-access
-                    inferred = inferred._proxied
-                if (inferred is astroid.YES or
-                        isinstance(inferred, astroid.ClassDef)
-                        and utils.inherit_from_std_ex(inferred)):
-                    emit = False
-            if emit:
-                self.add_message('raising-bad-type',
-                                 node=node,
-                                 args=expr.name)
-        elif ((isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
-              or (isinstance(expr, astroid.Call) and
-                  isinstance(expr.func, astroid.Name) and
-                  expr.func.name == 'NotImplemented')):
-            self.add_message('notimplemented-raised', node=node)
-        elif isinstance(expr, (astroid.Instance, astroid.ClassDef)):
-            if isinstance(expr, astroid.Instance):
-                # pylint: disable=protected-access
-                expr = expr._proxied
-            if (isinstance(expr, astroid.ClassDef) and
-                    not utils.inherit_from_std_ex(expr) and
-                    utils.has_known_bases(expr)):
-                if expr.newstyle:
-                    self.add_message('raising-non-exception', node=node)
-                else:
-                    self.add_message('nonstandard-exception', node=node)
-            else:
-                value_found = False
-        else:
-            value_found = False
-        return value_found
 
     def _check_catching_non_exception(self, handler, exc, part):
         if isinstance(exc, astroid.Tuple):
