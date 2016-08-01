@@ -128,7 +128,7 @@ class BaseVisitor(object):
         else:
             self.visit_default(node)
 
-    def visit_default(self, _):
+    def visit_default(self, node): # pylint: disable=unused-argument
         """Default implementation for all the nodes."""
 
 
