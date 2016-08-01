@@ -29,6 +29,11 @@ checkers.initialize(linter)
 REGR_DATA = join(dirname(abspath(__file__)), 'regrtest_data')
 sys.path.insert(1, REGR_DATA)
 
+try:
+    PYPY_VERSION_INFO = sys.pypy_version_info
+except AttributeError:
+    PYPY_VERSION_INFO = None
+
 class NonRegrTC(unittest.TestCase):
     def setUp(self):
         """call reporter.finalize() to cleanup
@@ -115,6 +120,10 @@ class NonRegrTC(unittest.TestCase):
         got = linter.reporter.finalize().strip()
         self.assertIn(expected, got)
 
+    @unittest.skipIf(PYPY_VERSION_INFO and PYPY_VERSION_INFO < (4, 0),
+                     "On older PyPy versions, sys.executable was set to a value "
+                     "that is not supported by the implementation of this function. "
+                     "( https://bitbucket.org/pypy/pypy/commits/19e305e27e67 )")
     def test_epylint_does_not_block_on_huge_files(self):
         path = join(REGR_DATA, 'huge.py')
         out, err = epylint.py_run(path, return_std=True)
