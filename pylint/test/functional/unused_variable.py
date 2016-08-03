@@ -14,3 +14,4 @@ def test_unused_with_prepended_underscore():
     dummy = 24
     _a_ = 42 # [unused-variable]
     __a__ = 24 # [unused-variable]
+    __never_used = 42
