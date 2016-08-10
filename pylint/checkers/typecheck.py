@@ -405,11 +405,16 @@ class TypeChecker(BaseChecker):
     priority = -1
     # configuration options
     options = (('ignore-mixin-members',
-                {'default' : True, 'type' : 'yn', 'metavar': '<y_or_n>',
-                 'help' : 'Tells whether missing members accessed in mixin \
-class should be ignored. A mixin class is detected if its name ends with \
-"mixin" (case insensitive).'}
-               ),
+                {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'Tells whether missing members accessed in mixin '
+                 'class should be ignored. A mixin class is detected if its '
+                 'name ends with "mixin" (case insensitive).'}
+                ),
+               ('ignore-regex-members',
+                {'default': '', 'type': 'string', 'metavar': '<regex list>',
+                 'help': 'Missing members for the class that match any of the'
+                         ' regex in the list will be ignored.'}
+                ),
                ('ignored-modules',
                 {'default': (),
                  'type': 'csv',
@@ -420,28 +425,28 @@ class should be ignored. A mixin class is detected if its name ends with \
                          'thus existing member attributes cannot be '
                          'deduced by static analysis. It supports qualified '
                          'module names, as well as Unix pattern matching.'}
-               ),
+                ),
                # the defaults here are *stdlib* names that (almost) always
                # lead to false positives, since their idiomatic use is
                # 'too dynamic' for pylint to grok.
                ('ignored-classes',
-                {'default' : ('optparse.Values', 'thread._local', '_thread._local'),
-                 'type' : 'csv',
-                 'metavar' : '<members names>',
-                 'help' : 'List of class names for which member attributes '
-                          'should not be checked (useful for classes with '
-                          'dynamically set attributes). This supports '
-                          'the use of qualified names.'}
-               ),
+                {'default': ('optparse.Values', 'thread._local', '_thread._local'),
+                 'type': 'csv',
+                 'metavar': '<members names>',
+                 'help': 'List of class names for which member attributes '
+                         'should not be checked (useful for classes with '
+                         'dynamically set attributes). This supports '
+                         'the use of qualified names.'}
+                ),
 
                ('generated-members',
-                {'default' : (),
-                 'type' : 'string',
-                 'metavar' : '<members names>',
-                 'help' : 'List of members which are set dynamically and \
-missed by pylint inference system, and so shouldn\'t trigger E1101 when \
-accessed. Python regular expressions are accepted.'}
-               ),
+                {'default': (),
+                 'type': 'string',
+                 'metavar': '<members names>',
+                 'help': 'List of members which are set dynamically and '
+                 'missed by pylint inference system, and so shouldn\'t trigger E1101 when '
+                 'accessed. Python regular expressions are accepted.'}
+                ),
                ('contextmanager-decorators',
                 {'default': ['contextlib.contextmanager'],
                  'type': 'csv',
@@ -450,8 +455,8 @@ accessed. Python regular expressions are accepted.'}
                          'such as contextlib.contextmanager. Add to this list '
                          'to register other decorators that produce valid '
                          'context managers.'}
-               ),
-              )
+                ),
+               )
 
     def open(self):
         # do this in open since config not fully initialized in __init__
