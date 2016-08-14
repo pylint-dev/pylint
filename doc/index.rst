@@ -9,9 +9,9 @@ Pylint User Manual
    intro
    tutorial
 
-   user_guide
-   reference_guide
-   development_guide
+   user_guide/index.rst
+   reference_guide/index.rst
+   development_guide/index.rst
 
    faq
    backlinks

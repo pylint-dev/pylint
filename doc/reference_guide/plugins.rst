@@ -6,7 +6,7 @@ Extending Pylint
 
 Pylint provides support for writing two types of extensions. First, there
 is the concept of **checkers**, which can be used for finding problems in your
-code. Secondly, there is also the concept of **transform plugin**, which is a
+code. Secondly, there is also the concept of **transform plugin**, which represents a
 way through which the inference and the capabilities of Pylint can be enhanced
 and tailored to a particular module, library of framework.
 
@@ -21,7 +21,8 @@ So a basic hello-world plugin can be implemented as:
   def register(linter):
     print 'Hello world'
 
-We can run this plugin by placing this module in the PYTHONPATH and invoking as:
+We can run this plugin by placing this module in the PYTHONPATH and invoking
+**pylint** as:
 
 .. sourcecode:: bash
 
