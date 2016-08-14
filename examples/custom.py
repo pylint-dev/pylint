@@ -11,7 +11,11 @@ class MyAstroidChecker(BaseChecker):
     __implements__ = IAstroidChecker
 
     name = 'custom'
-    msgs = {}
+    msgs = {
+        'W0001': ('Message that will be emitted',
+                  'message-symbol',
+                  'Message help')
+    }
     options = ()
     # this is important so that your checker is executed before others
     priority = -1 
