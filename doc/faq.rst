@@ -29,21 +29,7 @@ Pylint doesn't?`_).
 
 .. _Pychecker: http://pychecker.sf.net
 
-1.3 Who wrote Pylint?
----------------------
-
-Pylint's main author and maintainer for the first ten years of its life has been
-Sylvain Thénault, while he worked at Logilab_ where the project was born.
-The project is now under the umbrella of the PyCQA_ organization, where it is
-maintained by Claudiu Popa and contributors.
-
-For a full list of contributors, see the "Contributors" file under's Pylint's
-repository
-
-.. _Logilab: http://www.logilab.fr/
-.. _PyCQA: https://github.com/PyCQA/
-
-1.4 Who uses Pylint?
+1.3 Who uses Pylint?
 --------------------
 
 Everybody knows someone who uses Pylint.
