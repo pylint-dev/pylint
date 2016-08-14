@@ -1,12 +1,9 @@
-.. class:: article
 
-================================================================
-A Beginner's Guide to Code Standards in Python - Pylint Tutorial
-================================================================
+========
+Tutorial
+========
 
 :Author: Robert Kirkpatrick
-
-For a detailed description of Pylint, see http://www.pylint.org
 
 
 Intro

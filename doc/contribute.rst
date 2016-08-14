@@ -1,8 +1,8 @@
 .. -*- coding: utf-8 -*-
 
-============
- Contribute
-============
+==============
+ Contributing
+==============
 
 Bug reports, feedback
 ---------------------
