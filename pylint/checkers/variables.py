@@ -328,7 +328,7 @@ class VariablesChecker(BaseChecker):
                  'help' : 'Tells whether we should check for unused import in '
                           '__init__ files.'}),
                ("dummy-variables-rgx",
-                {'default': ('(_+[a-zA-Z0-9]*?$)|dummy'),
+                {'default': ('_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy'),
                  'type' :'regexp', 'metavar' : '<regexp>',
                  'help' : 'A regular expression matching the name of dummy '
                           'variables (i.e. expectedly not used).'}),
