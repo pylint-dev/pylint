@@ -18,21 +18,6 @@ standard, and tries to enforce a coding style.
 
 .. _`static code checker`: http://en.wikipedia.org/wiki/Static_code_analysis
 
-1.2 How is Pylint different from Pychecker?
--------------------------------------------
-
-A major difference between Pylint and Pychecker_ is that Pylint checks for
-style issues, while Pychecker explicitly does not. There are a few other
-differences, such as the fact that Pylint does not import live modules while
-Pychecker does (see `6.2 Why does Pychecker catch problems with imports that
-Pylint doesn't?`_).
-
-.. _Pychecker: http://pychecker.sf.net
-
-1.3 Who uses Pylint?
---------------------
-
-Everybody knows someone who uses Pylint.
 
 2. Installation
 ===============
@@ -228,22 +213,12 @@ values really bugs you, you can set the formula to be the maximum of 0 and the
 above expression.
 
 
-6.2 Why does Pychecker catch problems with imports that Pylint doesn't?
-------------------------------------------------------------------------
-
-Pychecker and Pylint use different approaches.  pychecker
-imports the modules and rummages around in the result, hence it sees my
-mangled sys.path.  Pylint doesn't import any of the candidate modules and
-thus doesn't include any of import's side effects (good and bad).  It
-traverses an AST representation of the code.
-
-
-6.3 I think I found a bug in Pylint. What should I do?
+6.2 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------
 
 Read http://docs.pylint.org/contribute#bug-reports-feedback
 
-6.4 I have a question about Pylint that isn't answered here.
+6.3 I have a question about Pylint that isn't answered here.
 ------------------------------------------------------------
 
 Read http://docs.pylint.org/contribute#mailing-lists
