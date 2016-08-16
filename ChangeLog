@@ -171,6 +171,8 @@ Release date: tba
 
       Closes #1018
 
+    * Added refactoring message 'superfluous-else-return'.
+
 
 What's new in Pylint 1.6.3?
 ===========================

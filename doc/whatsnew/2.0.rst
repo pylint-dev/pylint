@@ -133,6 +133,30 @@ New checkers
   Other places where this check looks are *with* statement name bindings and
   except handler's name binding.
 
+* A new refactoring check was added, ``superfluous-else-return``, which is
+  emitted when **pylint** can detect than a ``if`` block contains a ``return``
+  statement, the ``else`` block becomes unnecessary.
+  Its contents can be placed outside of the block.
+
+  .. code-block:: python
+
+    def foo1(x, y, z):
+        if x:
+            return y
+        else:  # else unnecessary 
+            return z
+
+
+  We could fix it deleting the ``else`` statement.
+
+  .. code-block:: python
+
+    def foo1(x, y, z):
+        if x:
+            return y
+        return z
+
+
 Other Changes
 =============
 

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,too-few-public-methods,import-error,no-init,wrong-import-position
+# pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,too-few-public-methods,import-error,no-init,wrong-import-position,superfluous-else-return
 
 # standard types
 1 in [1, 2, 3]
