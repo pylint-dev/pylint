@@ -1,4 +1,4 @@
-# pylint: disable=C0111,R0903
+# pylint: disable=C0111,R0903, superfluous-else-return
 """#3291"""
 from __future__ import print_function
 
