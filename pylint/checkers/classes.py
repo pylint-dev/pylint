@@ -18,6 +18,8 @@ from collections import defaultdict
 import sys
 
 import six
+import ast
+import re
 
 import astroid
 from astroid.bases import Generator, BUILTINS
@@ -537,6 +539,14 @@ a metaclass class method.'}
             # something is missing, since it is most likely that it will
             # miss.
             return
+        ignore_regex_list = get_global_option(self, 'ignore-regex-members',
+                                              default=None)
+
+        if ignore_regex_list:
+            for regex in ast.literal_eval(ignore_regex_list):
+                if re.search(regex, cnode.name):
+                    return
+
 
         accessed = self._accessed.pop()
         if cnode.type != 'metaclass':

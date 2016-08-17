@@ -5,6 +5,9 @@
 
 """Checker for anything related to the async protocol (PEP 492)."""
 
+import ast
+import re
+
 import astroid
 from astroid import exceptions
 
@@ -32,6 +35,8 @@ class AsyncChecker(checkers.BaseChecker):
 
     def open(self):
         self._ignore_mixin_members = utils.get_global_option(self, 'ignore-mixin-members')
+        self._ignore_regex_list = ast.literal_eval(
+            utils.get_global_option(self, 'ignore-regex-members', default='[]'))
 
     @checker_utils.check_messages('yield-inside-async-function')
     def visit_asyncfunctiondef(self, node):
@@ -60,6 +65,11 @@ class AsyncChecker(checkers.BaseChecker):
                         if self._ignore_mixin_members:
                             if infered.name[-5:].lower() == 'mixin':
                                 continue
+                        # Ignore matching regex classes.
+                        if self._ignore_regex_list:
+                            for regex in self._ignore_regex_list:
+                                if re.search(regex, infered.name):
+                                    continue
                 else:
                     continue
 
