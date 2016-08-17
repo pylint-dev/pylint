@@ -128,7 +128,7 @@ def _repr_tree_defs(data, indent_str=None):
         if not files:
             files = ''
         else:
-            files = '(%s)' % ','.join(files)
+            files = '(%s)' % ','.join(sorted(files))
         if indent_str is None:
             lines.append('%s %s' % (mod, files))
             sub_indent_str = '  '
