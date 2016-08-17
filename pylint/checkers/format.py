@@ -347,7 +347,7 @@ class ContinuedLineState(object):
                 _Offsets(indentation + self._continuation_size, indentation),
                 _BeforeBlockOffsets(indentation + self._continuation_size,
                                     indentation + self._continuation_size * 2))
-        elif bracket == ':':
+        if bracket == ':':
             # If the dict key was on the same line as the open brace, the new
             # correct indent should be relative to the key instead of the
             # current indent level
@@ -362,13 +362,12 @@ class ContinuedLineState(object):
             # }
             # is handled by the special-casing for hanging continued string indents.
             return _ContinuedIndent(HANGING_DICT_VALUE, bracket, position, paren_align, next_align)
-        else:
-            return _ContinuedIndent(
-                HANGING,
-                bracket,
-                position,
-                _Offsets(indentation, indentation + self._continuation_size),
-                _Offsets(indentation + self._continuation_size))
+        return _ContinuedIndent(
+            HANGING,
+            bracket,
+            position,
+            _Offsets(indentation, indentation + self._continuation_size),
+            _Offsets(indentation + self._continuation_size))
 
     def _continuation_inside_bracket(self, bracket, pos):
         """Extracts indentation information for a continued indent."""
@@ -382,13 +381,12 @@ class ContinuedLineState(object):
                 pos,
                 _Offsets(token_start),
                 _BeforeBlockOffsets(next_token_start, next_token_start + self._continuation_size))
-        else:
-            return _ContinuedIndent(
-                CONTINUED,
-                bracket,
-                pos,
-                _Offsets(token_start),
-                _Offsets(next_token_start))
+        return _ContinuedIndent(
+            CONTINUED,
+            bracket,
+            pos,
+            _Offsets(token_start),
+            _Offsets(next_token_start))
 
     def pop_token(self):
         self._cont_stack.pop()
@@ -648,23 +646,20 @@ class FormatChecker(BaseTokenChecker):
         def _policy_string(policy):
             if policy == _MUST:
                 return 'Exactly one', 'required'
-            else:
-                return 'No', 'allowed'
+            return 'No', 'allowed'
 
         def _name_construct(token):
             if token[1] == ',':
                 return 'comma'
-            elif token[1] == ':':
+            if token[1] == ':':
                 return ':'
-            elif token[1] in '()[]{}':
+            if token[1] in '()[]{}':
                 return 'bracket'
-            elif token[1] in ('<', '>', '<=', '>=', '!=', '=='):
+            if token[1] in ('<', '>', '<=', '>=', '!=', '=='):
                 return 'comparison'
-            else:
-                if self._inside_brackets('('):
-                    return 'keyword argument assignment'
-                else:
-                    return 'assignment'
+            if self._inside_brackets('('):
+                return 'keyword argument assignment'
+            return 'assignment'
 
         good_space = [True, True]
         token = tokens[i]
