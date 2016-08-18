@@ -349,6 +349,11 @@ class RunTC(unittest.TestCase):
         self._test_output(["--rcfile=%s" % config_path,
                            "--help-msg=dummy-message-01,dummy-message-02"],
                           expected_output=expected)
+        expected = (
+            "[DUMMY_PLUGIN]\n\n# Dummy option 1\ndummy_option_1=dummy value 1\n\n"
+            "# Dummy option 2\ndummy_option_2=dummy value 2")
+        self._test_output(["--rcfile=%s" % config_path, "--generate-rcfile"],
+                          expected_output=expected)
         sys.path.remove(dummy_plugin_path)
 
     def test_pylintrc_comments_in_values(self):
