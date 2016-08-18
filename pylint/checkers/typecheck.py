@@ -18,10 +18,14 @@
 
 import collections
 import fnmatch
+import heapq
+import itertools
+import operator
 import re
 import shlex
 import sys
 
+import editdistance
 import six
 
 import astroid
@@ -43,7 +47,8 @@ from pylint.checkers.utils import (
     supports_delitem,
     safe_infer,
     has_known_bases,
-    is_builtin_object)
+    is_builtin_object,
+    singledispatch)
 
 
 BUILTINS = six.moves.builtins.__name__
@@ -89,8 +94,71 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
     return any(name == ignore or qname == ignore for ignore in ignored_classes)
 
 
+@singledispatch
+def _node_names(node):
+    # TODO: maybe we need an ABC for checking if an object is a scoped node
+    # or not?
+    if not hasattr(node, 'locals'):
+        return []
+    return node.locals.keys()
+
+
+@_node_names.register(astroid.ClassDef)
+@_node_names.register(astroid.Instance)
+def _(node):
+    values = itertools.chain(node.instance_attrs.keys(), node.locals.keys())
+
+    try:
+        mro = node.mro()[1:]
+    except (NotImplementedError, TypeError):
+        mro = node.ancestors()
+
+    other_values = [value for cls in mro for value in _node_names(cls)]
+    return itertools.chain(values, other_values)
+
+
+def _similar_names(owner, attrname, distance_threshold, max_choices):
+    """Given an owner and a name, try to find similar names
+
+    The similar names are searched given a distance metric and only
+    a given number of choices will be returned.
+    """
+    possible_names = []
+    names = _node_names(owner)
+
+    for name in names:
+        if name == attrname:
+            continue
+
+        distance = editdistance.eval(attrname, name)
+        if distance <= distance_threshold:
+            possible_names.append((name, distance))
+
+    # Now get back the values with a minimum, up to the given
+    # limit or choices.
+    picked = [name for (name, _) in
+              heapq.nsmallest(max_choices, possible_names,
+                              key=operator.itemgetter(1))]
+    return sorted(picked)
+
+
+def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
+    names = _similar_names(owner, attrname, distance_threshold, max_choices)
+    if not names:
+        # No similar name.
+        return ""
+
+    names = list(map(repr, names))
+    if len(names) == 1:
+        names = ", ".join(names)
+    else:
+        names = "one of {} or {}".format(", ".join(names[:-1]), names[-1])
+
+    return "; maybe {}?".format(names)
+
+
 MSGS = {
-    'E1101': ('%s %r has no %r member',
+    'E1101': ('%s %r has no %r member%s',
               'no-member',
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
@@ -451,6 +519,30 @@ accessed. Python regular expressions are accepted.'}
                          'to register other decorators that produce valid '
                          'context managers.'}
                ),
+               ('missing-member-hint-distance',
+                {'default': 1,
+                 'type': 'int',
+                 'metavar': '<member hint edit distance>',
+                 'help': 'The minimum edit distance a name should have in order '
+                         'to be considered a similar match for a missing member name.'
+                }
+               ),
+               ('missing-member-max-choices',
+                {'default': 1,
+                 'type': "int",
+                 'metavar': '<member hint max choices>',
+                 'help': 'The total number of similar names that should be taken in '
+                         'consideration when showing a hint for a missing member.'
+                }
+               ),
+               ('missing-member-hint',
+                {'default': True,
+                 'type': "yn",
+                 'metavar': '<missing member hint>',
+                 'help': 'Show a hint with possible names when a member name was not '
+                         'found. The aspect of finding the hint is based on edit distance.'
+                }
+               ),
               )
 
     def open(self):
@@ -569,9 +661,17 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
                 confidence = INFERENCE if not inference_failure else INFERENCE_FAILURE
+
+                if self.config.missing_member_hint:
+                    hint = _missing_member_hint(owner, node.attrname,
+                                                self.config.missing_member_hint_distance,
+                                                self.config.missing_member_max_choices)
+                else:
+                    hint = ""
+
                 self.add_message('no-member', node=node,
                                  args=(owner.display_type(), name,
-                                       node.attrname),
+                                       node.attrname, hint),
                                  confidence=confidence)
 
     @check_messages('assignment-from-no-return', 'assignment-from-none')

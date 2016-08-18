@@ -31,7 +31,7 @@ class TypeCheckerTest(CheckerTestCase):
                 Message(
                     'no-member',
                     node=node,
-                    args=('Module', 'optparse', 'THIS_does_not_EXIST'))):
+                    args=('Module', 'optparse', 'THIS_does_not_EXIST', ''))):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=('argparse',))
@@ -54,7 +54,7 @@ class TypeCheckerTest(CheckerTestCase):
         xml.etree.Lala
         ''')
         message = Message('no-member', node=node,
-                          args=('Module', 'xml.etree', 'Lala'))
+                          args=('Module', 'xml.etree', 'Lala', ''))
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
@@ -74,7 +74,7 @@ class TypeCheckerTest(CheckerTestCase):
         xml.etree.ElementTree.Test
         ''')
         message = Message('no-member', node=node,
-                          args=('Module', 'xml.etree.ElementTree', 'Test'))
+                          args=('Module', 'xml.etree.ElementTree', 'Test', ''))
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 

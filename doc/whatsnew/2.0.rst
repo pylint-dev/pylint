@@ -211,6 +211,40 @@ Other Changes
 
 * Added epytext docstring support to the docparams extension.
 
+* We added support for providing hints when not finding a missing member.
+
+  For example, given the following code, it should be obvious that
+  the programmer intended to use the ``mail`` attribute, rather than
+  ``email``.
+
+  .. code-block:: python
+
+    class Contribution:
+        def __init__(self, name, email, date):
+            self.name = name
+            self.mail = mail
+            self.date = date
+
+    for c in contributions:
+        print(c.email) # Oups
+
+  **pylint** will now warn that there is a chance of having a typo,
+  suggesting new names that could be used instead.
+
+  .. code-block:: python
+
+    $ pylint a.py
+    E: 8,10: Instance of 'Contribution' has no 'email' member; maybe 'mail'?
+
+  The behaviour is controlled through the ``--missing-member-hint`` option.
+  Other options that come with this change are ``--missing-member-max-choices``
+  for choosing the total number of choices that should be picked in this
+  situation and ``--missing-member-hint-distance``, which specifies a metric
+  for computing the distance between the names (this is based on Levenshtein
+  distance, which means the lower the number, the more pickier the algorithm
+  will be).
+
+
 
 Bug fixes
 =========

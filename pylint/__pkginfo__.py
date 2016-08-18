@@ -22,6 +22,7 @@ install_requires = [
     'six',
     'isort >= 4.2.5',
     'mccabe',
+    'editdistance',
 ]
 
 dependency_links = [
@@ -31,6 +32,7 @@ dependency_links = [
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ['colorama']
 extras_require[':python_version=="2.7"'] = ['configparser', 'backports.functools_lru_cache']
+extras_require[':python_version<"3.4"'] = ['singledispatch']
 
 
 license = 'GPL'

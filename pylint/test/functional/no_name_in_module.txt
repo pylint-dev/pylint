@@ -3,7 +3,7 @@ no-name-in-module:6::No name 'toto' in module 'collections'
 no-member:10::Module 'xml.etree.ElementTree' has no 'nonexistant_function' member:INFERENCE
 no-member:11::Module 'xml.etree.ElementTree' has no 'another' member:INFERENCE
 no-member:12::Module 'collections' has no 'yo' member:INFERENCE
-no-member:16::Module 'sys' has no 'stdoout' member:INFERENCE
+no-member:16::Module 'sys' has no 'stdoout' member; maybe 'stdout'?:INFERENCE
 no-name-in-module:23::No name 'compiile' in module 're'
 no-name-in-module:23::No name 'findiiter' in module 're'
 pointless-statement:26::Statement seems to have no effect
