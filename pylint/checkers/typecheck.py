@@ -1115,8 +1115,9 @@ accessed. Python regular expressions are accepted.'}
     def visit_compare(self, node):
         if len(node.ops) != 1:
             return
-        operator, right = node.ops[0]
-        if operator in ['in', 'not in']:
+
+        op, right = node.ops[0]
+        if op in ['in', 'not in']:
             self._check_membership_test(right)
 
     @check_messages('unsubscriptable-object', 'unsupported-assignment-operation',

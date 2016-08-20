@@ -13,6 +13,11 @@
 """
 import collections
 import functools
+try:
+    from functools import singledispatch as singledispatch
+except ImportError:
+    # pylint: disable=import-error
+    from singledispatch import singledispatch as singledispatch
 import itertools
 import re
 import sys
@@ -26,11 +31,6 @@ import astroid
 from astroid import bases as _bases
 from astroid import scoped_nodes
 
-try:
-    from functools import singledispatch as singledispatch
-except ImportError:
-    # pylint: disable=import-error
-    from singledispatch import singledispatch as singledispatch
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (astroid.ListComp, astroid.SetComp,
