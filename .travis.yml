@@ -26,6 +26,7 @@ install:
   - pip --version
   - tox --version
   - coverage --version
+  - pip install -U setuptools
 script:
   - tox -e coverage-erase,$TOXENV
 after_success:
