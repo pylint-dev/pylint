@@ -163,7 +163,7 @@ Release date: tba
 
       Closes #1029.
 
-    * Support duplicated options category of checkers.
+    * Support having plugins with the same name and with options defined
 
       Closes #1018
 

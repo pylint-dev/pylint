@@ -275,7 +275,48 @@ Bug fixes
   conflicts between a new message and any existing message id, symbol,
   or ``old_names``.
 
-* Support duplicated options category of checkers.
+* We now support having plugins that shares the same name and with each one
+  providing options.
+
+  A plugin can be logically split into multiple classes, each class providing
+  certain capabilities, all of them being tied under the same name. But when
+  two or more such classes are also adding options, then **pylint** crashed,
+  since it already added the first encountered section. Now, these should
+  work as expected.
+
+  .. code-block:: python
+
+     from pylint.checkers import BaseChecker
+
+
+     class DummyPlugin1(BaseChecker):
+         name = 'dummy_plugin'
+         msgs = {'I9061': ('Dummy short desc 01', 'dummy-message-01', 'Dummy long desc')}
+         options = (
+             ('dummy_option_1', {
+                 'type': 'string',
+                 'metavar': '<string>',
+                 'help': 'Dummy option 1',
+             }),
+         )
+
+
+     class DummyPlugin2(BaseChecker):
+         name = 'dummy_plugin'
+         msgs = {'I9060': ('Dummy short desc 02', 'dummy-message-02', 'Dummy long desc')}
+         options = (
+             ('dummy_option_2', {
+                 'type': 'string',
+                 'metavar': '<string>',
+                 'help': 'Dummy option 2',
+             }),
+         )
+
+
+     def register(linter):
+         linter.register_checker(DummyPlugin1(linter))
+         linter.register_checker(DummyPlugin2(linter))
+
 
 
 Removed Changes
