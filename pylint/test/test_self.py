@@ -134,7 +134,7 @@ class RunTC(unittest.TestCase):
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        master = re.search("\[MASTER", output)        
+        master = re.search("\[MASTER", output)
         out = six.StringIO(output[master.start():])
         parser = six.moves.configparser.RawConfigParser()
         parser.readfp(out)
@@ -335,6 +335,26 @@ class RunTC(unittest.TestCase):
         expected = 'Your code has been rated at 10.00/10'
         self._test_output([path, "--rcfile=%s" % config_path, "-rn"],
                           expected_output=expected)
+
+    def test_pylintrc_plugin_duplicate_options(self):
+        dummy_plugin_path = join(HERE, 'regrtest_data', 'dummy_plugin')
+        # Enable --load-plugins=dummy_plugin
+        sys.path.append(dummy_plugin_path)
+        config_path = join(HERE, 'regrtest_data', 'dummy_plugin.rc')
+        expected = (
+            ":dummy-message-01 (I9061): *Dummy short desc 01*\n"
+            "  Dummy long desc This message belongs to the dummy_plugin checker.\n\n"
+            ":dummy-message-02 (I9060): *Dummy short desc 02*\n"
+            "  Dummy long desc This message belongs to the dummy_plugin checker.")
+        self._test_output(["--rcfile=%s" % config_path,
+                           "--help-msg=dummy-message-01,dummy-message-02"],
+                          expected_output=expected)
+        expected = (
+            "[DUMMY_PLUGIN]\n\n# Dummy option 1\ndummy_option_1=dummy value 1\n\n"
+            "# Dummy option 2\ndummy_option_2=dummy value 2")
+        self._test_output(["--rcfile=%s" % config_path, "--generate-rcfile"],
+                          expected_output=expected)
+        sys.path.remove(dummy_plugin_path)
 
     def test_pylintrc_comments_in_values(self):
         path = join(HERE, 'regrtest_data', 'test_pylintrc_comments.py')

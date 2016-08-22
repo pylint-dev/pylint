@@ -163,6 +163,10 @@ Release date: tba
 
       Closes #1029.
 
+    * Support duplicated options category of checkers.
+
+      Closes #1018
+
 
 What's new in Pylint 1.6.3?
 ===========================
