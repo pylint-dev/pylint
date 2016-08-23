@@ -1009,9 +1009,7 @@ class VariablesChecker(BaseChecker):
 
                 if (maybee0601
                         and not utils.is_defined_before(node)
-                        and not astroid.are_exclusive(stmt, defstmt, ('NameError',
-                                                                      'Exception',
-                                                                      'BaseException'))):
+                        and not astroid.are_exclusive(stmt, defstmt, ('NameError',))):
 
                     # Used and defined in the same place, e.g `x += 1` and `del x`
                     defined_by_stmt = (

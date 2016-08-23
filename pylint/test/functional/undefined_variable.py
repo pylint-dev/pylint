@@ -35,7 +35,7 @@ except NameError:
     POUET = 'something'
 
 try:
-    POUETT # don't catch me
+    POUETT # [used-before-assignment]
 except Exception: # pylint:disable = broad-except
     POUETT = 'something'
 
