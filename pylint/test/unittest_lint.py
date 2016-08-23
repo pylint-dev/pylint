@@ -384,15 +384,6 @@ class PyLinterTC(unittest.TestCase):
         self.linter.set_option('output-format', 'text')
         self.assertEqual(self.linter.reporter.__class__.__name__, 'TextReporter')
 
-    def test_report_output_format_custom(self):
-        this_module = sys.modules[__name__]
-        class TestReporter(object):
-            pass
-        this_module.TestReporter = TestReporter
-        class_name = ".".join((this_module.__name__, 'TestReporter'))
-        self.linter.set_option('output-format', class_name)
-        self.assertEqual(self.linter.reporter.__class__.__name__, 'TestReporter')
-
     def test_set_option_1(self):
         linter = self.linter
         linter.set_option('disable', 'C0111,W0234')
