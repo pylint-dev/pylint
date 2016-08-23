@@ -698,5 +698,39 @@ class MessagesStoreTC(unittest.TestCase):
                          self.store.check_message_id('old-symbol').symbol)
 
 
+class RunTestCase(unittest.TestCase):
+
+    def test_custom_should_analyze_file(self):
+        '''Check that we can write custom should_analyze_file that work
+        even for arguments.
+        '''
+
+        class CustomPyLinter(PyLinter):
+             def should_analyze_file(self, modname, path, is_argument=False):
+                 if os.path.basename(path) == 'wrong.py':
+                     return False
+
+                 return super(CustomPyLinter, self).should_analyze_file(
+                     modname, path, is_argument=is_argument)
+
+        package_dir = os.path.join(HERE, 'regrtest_data', 'bad_package')
+        wrong_file = os.path.join(package_dir, 'wrong.py')
+        reporter = TestReporter()
+        linter = CustomPyLinter()
+        linter.config.persistent = 0
+        linter.open()
+        linter.set_reporter(reporter)
+
+        try:
+            sys.path.append(os.path.dirname(package_dir))
+            linter.check([package_dir, wrong_file])
+        finally:
+             sys.path.pop()
+
+        messages = reporter.messages
+        self.assertEqual(len(messages), 1)
+        self.assertIn('invalid syntax', messages[0])
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -244,6 +244,38 @@ Other Changes
   distance, which means the lower the number, the more pickier the algorithm
   will be).
 
+* ``PyLinter.should_analyze_file`` has a new parameter, ``is_argument``,
+  which specifies if the given path is a **pylint** argument or not.
+
+  ``should_analyze_file`` is called whenever **pylint** tries to determine
+  if a file should be analyzed, defaulting to files with the ``.py``
+  extension, but this function gets called only in the case where the said
+  file is not passed as a command line argument to **pylint**. This usually
+  means that pylint will analyze a file, even if that file has a different
+  extension, as long as the file was explicitly passed at command line.
+  Since ``should_analyze_file`` cannot be overridden to handle all the cases,
+  the check for the provenience of files was moved into ``should_analyze_file``.
+  This means we now can write something similar with this example, for ignoring
+  every file respecting the desired property, disregarding the provenience of the
+  file, being it a file passed as CLI argument or part of a package.
+
+  .. code-block:: python
+
+     from pylint.lint import Run, PyLinter
+
+     class CustomPyLinter(PyLinter):
+
+          def should_analyze_file(self, modname, path, is_argument=False):
+              if respect_condition(path):
+                  return False
+              return super().should_analyze_file(modname, path, is_argument=is_argument)
+
+
+     class CustomRun(Run):
+          LinterClass = CustomPyLinter
+
+     CustomRun(sys.argv[1:])
+
 
 
 Bug fixes

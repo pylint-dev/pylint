@@ -120,6 +120,11 @@ class TestReporter(BaseReporter):
         self.reset()
         return result
 
+    # pylint: disable=unused-argument
+    def on_set_current_module(self, module, filepath):
+        pass
+    # pylint: enable=unused-argument
+
     def display_reports(self, layout):
         """ignore layouts"""
 

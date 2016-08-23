@@ -685,7 +685,9 @@ class PyLinter(config.OptionsManagerMixIn,
                                 reverse=True)
         return neededcheckers
 
-    def should_analyze_file(self, modname, path): # pylint: disable=unused-argument, no-self-use
+    # pylint: disable=unused-argument
+    @staticmethod
+    def should_analyze_file(modname, path, is_argument=False):
         """Returns whether or not a module should be checked.
 
         This implementation returns True for all python source file, indicating
@@ -696,10 +698,16 @@ class PyLinter(config.OptionsManagerMixIn,
 
         :param str modname: The name of the module to be checked.
         :param str path: The full path to the source code of the module.
+        :param bool is_argument: Whetter the file is an argument to pylint or not.
+                                 Files which respect this property are always
+                                 checked, since the user requested it explicitly.
         :returns: True if the module should be checked.
         :rtype: bool
         """
+        if is_argument:
+            return True
         return path.endswith('.py')
+    # pylint: enable=unused-argument
 
     def check(self, files_or_modules):
         """main checking entry: check a list of files or modules from their
@@ -827,8 +835,8 @@ class PyLinter(config.OptionsManagerMixIn,
                 walker.add_checker(checker)
         # build ast and check modules or packages
         for descr in self.expand_files(files_or_modules):
-            modname, filepath = descr['name'], descr['path']
-            if not descr['isarg'] and not self.should_analyze_file(modname, filepath):
+            modname, filepath, is_arg = descr['name'], descr['path'], descr['isarg']
+            if not self.should_analyze_file(modname, filepath, is_argument=is_arg):
                 continue
 
             self.set_current_module(modname, filepath)

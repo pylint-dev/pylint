@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * PyLinter.should_analyze_file has a new optional parameter, called `is_argument`	
+
+      Close #1079
+
     * Add attribute hints for missing members
 
       Closes #1035
