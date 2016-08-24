@@ -897,8 +897,8 @@ def expand_modules(files_or_modules, black_list, black_list_re):
             is_namespace = False
             is_directory = isdir(something)
         else:
-            is_namespace = spec.type == modutils.ModuleType.PY_NAMESPACE
-            is_directory = spec.type == modutils.ModuleType.PKG_DIRECTORY
+            is_namespace = modutils.is_namespace(spec)
+            is_directory = modutils.is_directory(spec)
 
         if not is_namespace:
             result.append({'path': filepath, 'name': modname, 'isarg': True,
