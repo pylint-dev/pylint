@@ -11,8 +11,8 @@ To use Pylint with:
  - Komodo_, see http://mateusz.loskot.net/posts/2006/01/15/running-pylint-from-komodo/,
  - gedit_, see https://launchpad.net/gedit-pylint-2 or https://wiki.gnome.org/Apps/Gedit/PylintPlugin,
  - WingIDE_, see http://www.wingware.com/doc/edit/pylint,
- - PyCharm_, see http://blog.saturnlaboratories.co.za/archive/2012/09/10/running-pylint-pycharm.
- - TextMate_,
+ - PyCharm_, see :ref:`the section below <pylint_in_pycharm>`,
+ - TextMate_, see :ref:`the section below <pylint_in_textmate>`
 
 Pylint is integrated in:
 
@@ -110,6 +110,36 @@ Setup the MS Visual Studio .NET 2003 editor to call Pylint
 .. image:: _static/vs2003_config.jpeg
 
 The output of Pylint is then shown in the "Output" pane of the editor.
+
+.. _pylint_in_pycharm:
+
+Integrate Pylint with PyCharm
+=============================
+
+Install Pylint the usual way::
+
+    pip install pylint
+
+Remember the path at which it's installed::
+
+    which pylint
+
+Within PyCharm:
+
+#.  Navigate to the preferences window
+#.  Select "External Tools"
+#.  Click the plus sign at the bottom of the dialog to add a new external task
+#.  In the dialog, populate the following fields:
+
+    :Name:                              Pylint
+    :Description:                       A Python source code analyzer which looks for programming errors, helps enforcing a coding standard and sniffs for some code smells.
+    :Synchronize files after execution: unchecked
+    :Program:                           ``/path/to/pylint``
+    :Parameters:                        ``$FilePath$``
+
+#.  Click OK
+
+The option to check the current file with Pylint should now be available in *Tools* > *External Tools* > *Pylint*.
 
 
 .. _pylint_in_textmate:
