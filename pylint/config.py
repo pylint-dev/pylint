@@ -587,7 +587,7 @@ class OptionsManagerMixIn(object):
             if printed:
                 print('\n', file=stream)
             utils.format_section(stream, section.upper(),
-                                 options_by_section[section],
+                                 sorted(options_by_section[section]),
                                  encoding)
             printed = True
 
