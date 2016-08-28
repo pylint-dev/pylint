@@ -124,6 +124,15 @@ class RunTC(unittest.TestCase):
     def test_generate_config_option(self):
         self._runtest(['--generate-rcfile'], code=0)
 
+    def test_generate_config_option_order(self):
+        out1 = six.StringIO()
+        out2 = six.StringIO()
+        self._runtest(['--generate-rcfile'], code=0, out=out1)
+        self._runtest(['--generate-rcfile'], code=0, out=out2)
+        output1 = out1.getvalue()
+        output2 = out2.getvalue()
+        self.assertEqual(output1, output2)
+
     def test_generate_config_disable_symbolic_names(self):
         # Test that --generate-rcfile puts symbolic names in the --disable
         # option.
