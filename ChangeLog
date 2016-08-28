@@ -171,6 +171,10 @@ Release date: tba
 
       Closes #1018
 
+	* Sort config options
+
+	  Closes #1087
+
 
 What's new in Pylint 1.6.3?
 ===========================

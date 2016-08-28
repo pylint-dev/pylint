@@ -276,6 +276,9 @@ Other Changes
 
      CustomRun(sys.argv[1:])
 
+* Sort config options
+  Closes #1087
+
 
 
 Bug fixes
