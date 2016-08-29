@@ -1,0 +1,4 @@
+superfluous-else-return:6:foo1:Superfluous return before else
+superfluous-else-return:15:foo2:Superfluous return before else
+superfluous-else-return:27:foo3:Superfluous return before else
+superfluous-else-return:29:foo3:Superfluous return before else

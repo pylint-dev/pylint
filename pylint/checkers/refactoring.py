@@ -52,7 +52,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'suggest a potential error. This is taken in account only for '
                   'a handful of name binding operations, such as for iteration, '
                   'with statement assignment and exception handler assignment.'
-                 )
+                 ),
+        'R1705': ('Superfluous return before else',
+                  'superfluous-else-return',
+                  'If an "if" block contains a return statement, '
+                  'the else block becomes unnecessary. Its contents can'
+                  ' be placed outside of the block.'
+                 ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -216,10 +222,39 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_comprehension(self, node):
         self._if_counter += len(node.ifs)
 
-    @utils.check_messages('too-many-nested-blocks', 'simplifiable-if-statement')
+    def _always_return(self, body):
+        """Search if a list of node has 'return', search nested return into ifs
+        """
+        alwr_all = []
+        for item in body:
+            if isinstance(item, astroid.Return):
+                return True
+            elif isinstance(item, astroid.If):
+                if not hasattr(item, 'alwr_if'):
+                    # Assign variable to object in order to re-use computed data
+                    item.alwr_if = self._always_return(item.body)
+                    item.alwr_else = self._always_return(item.orelse) \
+                        if item.orelse else False
+                alwr_all.append(item.alwr_if and item.alwr_else)
+        return all(alwr_all) if alwr_all else False
+
+    def _check_superfluous_else_return(self, node):
+        if not node.orelse:
+            # Not interested in if statements without else.
+            return
+        if not hasattr(node, 'alwr_if'):
+            # If we can not re-use computed data, then calculate
+            node.alwr_if = self._always_return(node.body)
+            node.alwr_else = self._always_return(node.orelse)
+        if node.alwr_if and node.alwr_else and not self._is_actual_elif(node):
+            self.add_message('superfluous-else-return', node=node)
+
+    @utils.check_messages('too-many-nested-blocks', 'simplifiable-if-statement',
+                          'superfluous-else-return',)
     def visit_if(self, node):
         self._check_simplifiable_if(node)
         self._check_nested_blocks(node)
+        self._check_superfluous_else_return(node)
         self._if_counter += 1
 
     @utils.check_messages('too-many-nested-blocks')
