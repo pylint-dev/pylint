@@ -269,7 +269,7 @@ class MessagesHandlerMixIn(object):
             msgs[msg.msgid] = False
             # sync configuration object
             self.config.disable = [self._message_symbol(mid)
-                                   for mid, val in six.iteritems(msgs)
+                                   for mid, val in sorted(six.iteritems(msgs))
                                    if not val]
 
     def _message_symbol(self, msgid):
@@ -326,7 +326,7 @@ class MessagesHandlerMixIn(object):
             msgs = self._msgs_state
             msgs[msg.msgid] = True
             # sync configuration object
-            self.config.enable = [mid for mid, val in six.iteritems(msgs) if val]
+            self.config.enable = [mid for mid, val in sorted(six.iteritems(msgs)) if val]
 
     def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
         """Returns the scope at which a message was enabled/disabled."""
