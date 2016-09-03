@@ -3,7 +3,7 @@
  Building the documentation
 ==============
 
-When would want to build the documentation for your self.
+When you would want to build the documentation for your self, you certainly can. Here's how...
 
 The bare minimum
 ----------------
