@@ -50,7 +50,7 @@ install_requires = __pkginfo__.get('install_requires', None)
 dependency_links = __pkginfo__.get('dependency_links', [])
 extras_require = __pkginfo__.get('extras_require', {})
 
-readme_path = join(base_dir, 'README')
+readme_path = join(base_dir, 'README.rst')
 if exists(readme_path):
     with open(readme_path) as stream:
         long_description = stream.read()
