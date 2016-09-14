@@ -112,3 +112,14 @@ except AttributeError:
             returncode = -1
             self.timeout = -1
             super(TimeoutExpired, self).__init__(returncode)
+
+
+class SuperWithType(object):
+    """type(self) may lead to recursion loop in derived classes"""
+    def __init__(self):
+        super(type(self), self).__init__() # [bad-super-call]
+
+class SuperWithSelfClass(object):
+    """self.__class__ may lead to recursion loop in derived classes"""
+    def __init__(self):
+        super(self.__class__, self).__init__() # [bad-super-call]
