@@ -7,6 +7,11 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Added new error conditions for 'bad-super-call'
+
+      Now detects ``super(type(self), self)`` and ``super(self.__class__, self)``
+      which can lead to recursion loop in derived classes.
+
     * PyLinter.should_analyze_file has a new optional parameter, called `is_argument`	
 
       Close #1079

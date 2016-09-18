@@ -89,6 +89,26 @@ New checkers
           def not_useless_1(self, first, *args):
               return super(Impl, self).not_useless_1(first + some_value, *args)
 
+* We've added new error conditions for ``bad-super-call`` which now detect
+  the usage of ``super(type(self), self)`` and ``super(self.__class__, self)``
+  patterns. These can lead to recursion loop in derived classes. The problem
+  is visible only if you override a class that uses these incorrect invocations
+  of ``super()``.
+
+  For instance, ``Derived.__init__()`` will correctly call ``Base.__init__``.
+  At this point ``type(self)`` will be equal to ``Derived`` and the call again
+  goes to ``Base.__init__`` and we enter a recursion loop.
+
+  .. code-block:: python
+
+      class Base(object):
+          def __init__(self, param1, param2):
+              super(type(self), self).__init__(param1, param2)
+
+      class Derived(Base):
+          def __init__(self, param1, param2):
+              super(Derived, self).__init__(param1, param2)
+
 * The warnings ``missing-returns-doc`` and ``missing-yields-doc`` have each
   been replaced with two new warnings - ``missing-[return|yield]-doc`` and
   ``missing-[return|yield]-type-doc``. Having these as separate warnings
