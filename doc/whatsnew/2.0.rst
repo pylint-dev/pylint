@@ -153,6 +153,65 @@ New checkers
   Other places where this check looks are *with* statement name bindings and
   except handler's name binding.
 
+* A new Python 3 check was added, ``eq-without-hash``, which enforces classes that implement
+  ``__eq__`` *also* implement ``__hash__``.  The behavior around classes which implement ``__eq__``
+  but not ``__hash__`` changed in Python 3; in Python 2 such classes would get ``object.__hash__``
+  as their default implementation.  In Python 3, aforementioned classes get ``None`` as their
+  implementation thus making them unhashable.
+
+  .. code-block:: python
+
+      class JustEq(object):
+         def __init__(self, x):
+           self.x = x
+
+         def __eq__(self, other):
+           return self.x == other.x
+
+      class Neither(object):
+        def __init__(self, x):
+          self.x = x
+
+      class HashAndEq(object):
+         def __init__(self, x):
+           self.x = x
+
+         def __eq__(self, other):
+           return self.x == other.x
+
+         def __hash__(self):
+           return hash(self.x)
+
+      {Neither(1), Neither(2)}  # OK in Python 2 and Python 3
+      {HashAndEq(1), HashAndEq(2)}  # OK in Python 2 and Python 3
+      {JustEq(1), JustEq(2)}  # Works in Python 2, throws in Python 3
+
+
+  In general, this is a poor practice which motivated the behavior change.
+
+  .. code-block:: python
+
+      as_set = {JustEq(1), JustEq(2)}
+      print(JustEq(1) in as_set)  # prints False
+      print(JustEq(1) in list(as_set))  # prints True
+
+
+  In order to fix this error and avoid behavior differences between Python 2 and Python 3, classes
+  should either explicitly set ``__hash__`` to ``None`` or implement a hashing function.
+
+  .. code-block:: python
+
+      class JustEq(object):
+         def __init__(self, x):
+           self.x = x
+
+         def __eq__(self, other):
+           return self.x == other.x
+
+         __hash__ = None
+
+      {JustEq(1), JustEq(2)}  # Now throws an exception in both Python 2 and Python 3.
+
 Other Changes
 =============
 
