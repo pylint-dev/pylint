@@ -215,6 +215,37 @@ class Python3CheckerTest(testutils.CheckerTestCase):
     def test_cmp_method(self):
         self.defined_method_test('cmp', 'cmp-method')
 
+    def test_eq_and_hash_method(self):
+        """Helper for verifying that a certain method is not defined."""
+        node = astroid.extract_node("""
+            class Foo(object):  #@
+                def __eq__(self, other):
+                    pass
+                def __hash__(self):
+                    pass""")
+        with self.assertNoMessages():
+            self.checker.visit_classdef(node)
+
+    def test_eq_and_hash_is_none(self):
+        """Helper for verifying that a certain method is not defined."""
+        node = astroid.extract_node("""
+            class Foo(object):  #@
+                def __eq__(self, other):
+                    pass
+                __hash__ = None""")
+        with self.assertNoMessages():
+            self.checker.visit_classdef(node)
+
+    def test_eq_without_hash_method(self):
+        """Helper for verifying that a certain method is not defined."""
+        node = astroid.extract_node("""
+            class Foo(object):  #@
+                def __eq__(self, other):
+                    pass""")
+        message = testutils.Message('eq-without-hash', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_classdef(node)
+
     @python2_only
     def test_print_statement(self):
         node = astroid.extract_node('print "Hello, World!" #@')
