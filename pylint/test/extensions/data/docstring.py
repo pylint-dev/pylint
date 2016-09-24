@@ -1,4 +1,5 @@
 """Checks of Dosctrings 'docstring-first-line-empty' 'bad-docstring-quotes'"""
+import mock
 
 
 def check_messages(*messages):
@@ -39,6 +40,7 @@ class FFFF(object):
         """Test OK 1 with decorators"""
         pass
 
+    @mock.patch('bad docstring?')
     def method6(self):
         r"""Test OK 2 with raw string"""
         pass
