@@ -7,10 +7,14 @@
 
 # pylint: disable=W0622,C0103
 """pylint packaging information"""
+
 from __future__ import absolute_import
 
 from os.path import join
+from sys import version_info as py_version
 
+from pkg_resources import parse_version
+from setuptools import __version__ as setuptools_version
 
 modname = distname = 'pylint'
 
@@ -31,8 +35,25 @@ dependency_links = [
 
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ['colorama']
-extras_require[':python_version=="2.7"'] = ['configparser', 'backports.functools_lru_cache']
-extras_require[':python_version<"3.4"'] = ['singledispatch']
+
+
+def has_environment_marker_range_operators_support():
+    """Code extracted from 'pytest/setup.py'
+    https://github.com/pytest-dev/pytest/blob/7538680c/setup.py#L31
+    The first known release to support environment marker with range operators
+    it is 17.1, see: https://setuptools.readthedocs.io/en/latest/history.html#id113
+    """
+    return parse_version(setuptools_version) >= parse_version('17.1')
+
+
+if has_environment_marker_range_operators_support():
+    extras_require[':python_version=="2.7"'] = ['configparser', 'backports.functools_lru_cache']
+    extras_require[':python_version<"3.4"'] = ['singledispatch']
+else:
+    if (py_version.major, py_version.minor) == (2, 7):
+        install_requires.extend(['configparser', 'backports.functools_lru_cache'])
+    if py_version < (3, 4):
+        install_requires.extend(['singledispatch'])
 
 
 license = 'GPL'
