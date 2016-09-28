@@ -212,6 +212,25 @@ New checkers
 
       {JustEq(1), JustEq(2)}  # Now throws an exception in both Python 2 and Python 3.
 
+  * 2 new Python 3 checkers were added, ``div-method`` and ``idiv-method``.  The magic methods
+    ``__div__`` and ``__idiv__`` have been phased out in Python 3 in favor of ``__truediv__``.
+    Classes implementing ``__div__`` that still need to be used from Python 2 code not using
+    ``from __future__ import division`` should implement ``__truediv__`` and alias ``__div__``
+    to that implementation.
+
+  .. code-block:: python
+
+      from __future__ import division
+
+      class DivisibleThing(object):
+         def __init__(self, x):
+           self.x = x
+
+         def __truediv__(self, other):
+           return DivisibleThing(self.x / other.x)
+
+         __div__ = __truediv__
+
 Other Changes
 =============
 

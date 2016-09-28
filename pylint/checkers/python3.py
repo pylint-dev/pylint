@@ -339,6 +339,18 @@ class Python3Checker(checkers.BaseChecker):
                   'get object.__hash__ as the default implementation, in Python 3 objects get '
                   'None as their default __hash__ implementation if they also implement __eq__.',
                   {'maxversion': (3, 0)}),
+        'W1642': ('__div__ method defined',
+                  'div-method',
+                  'Used when a __div__ method is defined.  Using `__truediv__` and setting'
+                  '__div__ = __truediv__ should be preferred.'
+                  '(method is not used by Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1643': ('__idiv__ method defined',
+                  'idiv-method',
+                  'Used when a __idiv__ method is defined.  Using `__itruediv__` and setting'
+                  '__idiv__ = __itruediv__ should be preferred.'
+                  '(method is not used by Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -371,6 +383,8 @@ class Python3Checker(checkers.BaseChecker):
         '__hex__',
         '__nonzero__',
         '__cmp__',
+        '__div__',
+        '__idiv__',
     ])
 
     def __init__(self, *args, **kwargs):
