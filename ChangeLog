@@ -180,6 +180,9 @@ Release date: tba
 
       Closes #1087
 
+    * Added a new Python 3 warning around implementing '__div__' or '__idiv__'
+      as those methods are phased out in Python 3.
+
 
 What's new in Pylint 1.6.3?
 ===========================
