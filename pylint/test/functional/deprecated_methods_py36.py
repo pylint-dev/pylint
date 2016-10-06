@@ -8,6 +8,7 @@ import nntplib
 import platform
 import unittest
 import xml.etree.ElementTree
+from importlib.machinery import SourceFileLoader, SourcelessFileLoader
 
 
 class MyTest(unittest.TestCase):
@@ -25,6 +26,9 @@ platform.popen([]) # [deprecated-method]
 base64.encodestring("42") # [deprecated-method]
 base64.decodestring("42") # [deprecated-method]
 cgi.escape("a") # [deprecated-method]
+
+SourceFileLoader('unittest', unittest.__file__).load_module() # [deprecated-method]
+SourcelessFileLoader('unittest', unittest.__file__).load_module() # [deprecated-method]
 
 
 class SuperCrash(unittest.TestCase):
