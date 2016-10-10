@@ -1058,29 +1058,39 @@ class PyLintASTWalker(object):
 
 PY_EXTS = ('.py', '.pyc', '.pyo', '.pyw', '.so', '.dll')
 
-def register_plugins(linter, directory):
-    """load all module and package in the given directory, looking for a
-    'register' function in each one, used to register pylint checkers
+
+def register_plugins(registry, directory):
+    """Load plugins from all modules and packages in the given directory.
+
+    Args:
+        registry (CheckerRegistry): The registry to register the checkers with.
+        directory (str): The directory to search for plugins.
     """
-    imported = {}
+    imported = set()
     for filename in os.listdir(directory):
-        base, extension = splitext(filename)
+        base, extension = os.path.splitext(filename)
         if base in imported or base == '__pycache__':
             continue
-        if extension in PY_EXTS and base != '__init__' or (
-                not extension and isdir(join(directory, base))):
+
+        if extensions not in PY_EXTS or base == '__init__':
+            continue
+
+        package_dir = os.path.join(directory, base)
+        if not extension and os.path.isdir(package_dir):
+            file_path = os.path.join(directory, filename)
             try:
-                module = modutils.load_module_from_file(join(directory, filename))
+                module = modutils.load_module_from_file(file_path)
             except ValueError:
-                # empty module name (usually emacs auto-save files)
+                # Empty module name
                 continue
             except ImportError as exc:
                 print("Problem importing module %s: %s" % (filename, exc),
                       file=sys.stderr)
             else:
                 if hasattr(module, 'register'):
-                    module.register(linter)
-                    imported[base] = 1
+                    module.register(registry)
+                    imported.add(base)
+
 
 def get_global_option(checker, option, default=None):
     """ Retrieve an option defined by the given *checker* or

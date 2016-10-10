@@ -79,15 +79,10 @@ class BaseChecker(OptionsProviderMixIn):
     # mark this checker as enabled or not.
     enabled = True
 
-    def __init__(self, linter=None):
-        """checker instances should have the linter as argument
+    def __init__(self):
+        super(BaseChecker, self).__init__()
 
-        linter is an object implementing ILinter
-        """
-        self.name = self.name.lower()
-        OptionsProviderMixIn.__init__(self)
-        self.linter = linter
-
+    # TODO: Remove
     def add_message(self, msg_id, line=None, node=None, args=None, confidence=UNDEFINED):
         """add a message of a given type"""
         self.linter.add_message(msg_id, line, node, args, confidence)
@@ -109,8 +104,12 @@ class BaseTokenChecker(BaseChecker):
         raise NotImplementedError()
 
 
-def initialize(linter):
-    """initialize linter with checkers in this package """
-    register_plugins(linter, __path__[0])
+def initialize(registry):
+    """Register the checkers in this package.
+
+    Args:
+        registry (CheckerRegistry): The registry to register the checkers with.
+    """
+    register_plugins(registry, __path__[0])
 
 __all__ = ('BaseChecker', 'initialize')

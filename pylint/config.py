@@ -19,6 +19,7 @@ from __future__ import print_function
 # in order to not depend on it anymore and it will definitely
 # need a cleanup. It could be completely reengineered as well.
 
+import argparse
 import contextlib
 import collections
 import copy
@@ -79,38 +80,110 @@ def save_results(results, base):
         print('Unable to create file %s: %s' % (data_file, ex), file=sys.stderr)
 
 
-def find_pylintrc():
+# TODO: Put into utils
+def walk_up(from_dir):
+    """Walk up a directory tree
+
+    :param from_dir: The directory to walk up from.
+        This directory is included in the output.
+    :type from_dir: str
+
+    :returns: Each parent directory
+    :rtype: generator(str)
+    """
+    cur_dir = None
+    new_dir = os.path.expanduser(from_dir)
+    new_dir = os.path.abspath(new_dir)
+
+    # The parent of the root directory is the root directory.
+    # Once we have reached it, we are done.
+    while cur_dir != new_dir:
+        cur_dur = new_dir
+        yield cur_dir
+        new_dir = os.path.abspath(os.path.join(cur_dir, os.pardir))
+
+
+def find_pylintrc_in(search_dir):
+    """Find a pylintrc file in the given directory.
+
+    :param search_dir: The directory to search.
+    :type search_dir: str
+
+    :returns: The path to the pylintrc file, if found.
+        Otherwise None.
+    :rtype: str or None
+    """
+    path = None
+
+    search_dir = os.path.expanduser(search_dir)
+    if os.path.isfile(os.path.join(search_dir, 'pylintrc')):
+        path = os.path.join(search_dir, 'pylintrc')
+    elif os.path.isfile(os.path.join(search_dir, '.pylintrc')):
+        path = os.path.join(search_dir, '.pylintrc')
+
+    return path
+
+
+def find_nearby_pylintrc(search_dir=''):
+    """Search for the nearest pylint rc file.
+
+    :param search_dir: The directory to search.
+    :type search_dir: str
+
+    :returns: The absolute path to the pylintrc file, if found.
+        Otherwise None
+    :rtype: str or None
+    """
+    search_dir = os.path.expanduser(search_dir)
+    path = find_pylintrc_in(search_dir)
+
+    for search_dir in walk_up(search_dir):
+        if path or not os.path.isfile(os.path.join(search_dir, '__init__.py')):
+            break
+
+        path = find_pylintrc_in(search_dir)
+
+    if path:
+        path = os.path.abspath(path)
+
+    return path
+
+
+def find_global_pylintrc():
     """search the pylint rc file and return its path if it find it, else None
     """
-    # is there a pylint rc file in the current directory ?
-    if os.path.exists('pylintrc'):
-        return os.path.abspath('pylintrc')
-    if os.path.exists('.pylintrc'):
-        return os.path.abspath('.pylintrc')
-    if os.path.isfile('__init__.py'):
-        curdir = os.path.abspath(os.getcwd())
-        while os.path.isfile(os.path.join(curdir, '__init__.py')):
-            curdir = os.path.abspath(os.path.join(curdir, '..'))
-            if os.path.isfile(os.path.join(curdir, 'pylintrc')):
-                return os.path.join(curdir, 'pylintrc')
-            if os.path.isfile(os.path.join(curdir, '.pylintrc')):
-                return os.path.join(curdir, '.pylintrc')
-    if 'PYLINTRC' in os.environ and os.path.exists(os.environ['PYLINTRC']):
+    pylintrc = None
+
+    if 'PYLINTRC' in os.environ and os.path.isfile(os.environ['PYLINTRC']):
         pylintrc = os.environ['PYLINTRC']
     else:
-        user_home = os.path.expanduser('~')
-        if user_home == '~' or user_home == '/root':
-            pylintrc = ".pylintrc"
-        else:
-            pylintrc = os.path.join(user_home, '.pylintrc')
-            if not os.path.isfile(pylintrc):
-                pylintrc = os.path.join(user_home, '.config', 'pylintrc')
-    if not os.path.isfile(pylintrc):
-        if os.path.isfile('/etc/pylintrc'):
-            pylintrc = '/etc/pylintrc'
-        else:
-            pylintrc = None
+        search_dirs = ('~', os.path.join('~', '.config'), '/etc/pylintrc')
+        for search_dir in search_dirs:
+            path = find_pylintrc_in(search_dir)
+            if path:
+                break
+
     return pylintrc
+
+
+def find_pylintrc():
+    """Search for a pylintrc file.
+
+    The locations searched are, in order:
+
+    - The current directory
+    - Each parent directory that contains a __init__.py file
+    - The value of the `PYLINTRC` environment variable
+    - The current user's home directory
+    - The `.config` folder in the current user's home directory
+    - /etc/pylintrc
+
+    :returns: The path to the pylintrc file,
+        or None if one was not found.
+    :rtype: str or None
+    """
+    return find_nearby_pylintrc() or find_global_pylintrc()
+
 
 PYLINTRC = find_pylintrc()
 
@@ -709,12 +782,13 @@ class OptionsProviderMixIn(object):
     priority = -1
     name = 'default'
     options = ()
+    option_groups = ()
     level = 0
 
     def __init__(self):
-        self.config = optparse.Values()
-        self.load_defaults()
+        self.config = None
 
+    # TODO: Remove remaining methods
     def load_defaults(self):
         """initialize the provider using default values"""
         for opt, optdict in self.options:
@@ -829,3 +903,229 @@ def _generate_manpage(optparser, pkginfo, section=1,
     print(formatter.format_head(optparser, pkginfo, section), file=stream)
     print(optparser.format_option_help(formatter), file=stream)
     print(formatter.format_tail(pkginfo), file=stream)
+
+
+class Configuration(object):
+    def __init__(self):
+        self._option_definitions = {}
+        self._options = set()
+
+    def add_option(self, option_definition):
+        name, definition = option_definition
+        self._options.add(name)
+        # TODO: Raise duplicate error
+        self._option_definitions[name] = definition
+
+
+    def add_options(self, option_definitions):
+        for option_definition in option_definitions:
+            self.add_option(option_definition)
+
+    def set_option(self, option, value):
+        setattr(self, option, value)
+
+    def copy(self):
+        result = self.__class__()
+        result.add_options(self._option_definitions)
+
+        for option in self._options:
+            value = getattr(self, option)
+            setattr(result, option, value)
+
+        return result
+
+    def __add__(self, other):
+        result = self.copy()
+        result += other
+        return result
+
+    def __iadd__(self, other):
+        # TODO: Option definitions
+        for option in other._options:
+            value = getattr(other, option)
+            setattr(result, option, value)
+
+        return self
+
+
+class ConfigurationStore(object):
+    def __init__(self, global_config):
+        """A class to store configuration objects for many paths.
+
+        :param global_config: The global configuration object.
+        :type global_config: Config
+        """
+        self.global_config = global_config
+
+        self._store = {}
+        self._cache = {}
+
+    def add_config_for(self, path, config):
+        """Add a configuration object to the store.
+
+        :param path: The path to add the config for.
+        :type path: str
+
+        :param config: The config object for the given path.
+        :type config: Config
+        """
+        path = os.path.expanduser(path)
+        path = os.path.abspath(path)
+
+        self._store[path] = config
+        self._cache = {}
+
+    def _get_parent_configs(self, path):
+        """Get the config objects for all parent directories.
+
+        :param path: The absolute path to get the parent configs for.
+        :type path: str
+
+        :returns: The config objects for all parent directories.
+        :rtype: generator(Config)
+        """
+        for cfg_dir in walk_up(path):
+            if cfg_dir in self._cache:
+                yield self._cache[cfg_dir]
+                break
+            elif cfg_dir in self._store:
+                yield self._store[cfg_dir]
+
+    def get_config_for(self, path):
+        """Get the configuration object for a file or directory.
+
+        This will merge the global config with all of the config objects from
+        the root directory to the given path.
+
+        :param path: The file or directory to the get configuration object for.
+        :type path: str
+
+        :returns: The configuration object for the given file or directory.
+        :rtype: Config
+        """
+        path = os.path.expanduser(path)
+        path = os.path.abspath(path)
+
+        config = self._cache.get(path)
+
+        if not config:
+            config = self.global_config.copy()
+
+            parent_configs = self._get_parent_configs(path)
+            for parent_config in reversed(parent_configs):
+                config += parent_config
+
+            self._cache['path'] = config
+
+        return config
+
+    def __getitem__(self, path):
+        return self.get_config_for(path)
+
+    def __setitem__(self, path, config):
+        return self.add_config_for(path, config)
+
+
+# TODO: abcmeta
+class ConfigParser(object):
+    def __init__(self, option_definitions, option_groups=()):
+        self._option_definitions = dict(option_definitions)
+        self._option_groups = set(option_groups)
+        self._add_undefined_option_groups()
+
+    def _add_undefined_option_groups(self):
+        for definition_dict in six.itervalues(self._option_definitions):
+            try:
+                group = (optdict['group'].upper(), '')
+            except KeyError:
+                continue
+            else:
+                self._option_groups.add(group)
+
+    def parse(self, to_parse, config):
+        """Parse the given object into the config object.
+
+        Args:
+            to_parse (object): The object to parse.
+            config (Configuration): The config object to parse into.
+        """
+        raise NotImplemented
+
+
+class CLIParser(ConfigParser):
+    def __init__(self, option_definitions, description=''):
+        super(CLIParser, self).__init__(option_definitions)
+
+        self._parser = argparse.ArgumentParser(
+            description=description,
+            # Only set the arguments that are specified.
+            argument_default=argparse.SUPPRESS
+        )
+
+        for option, definition in option_definitions:
+            # TODO: Convert definition
+            self._parser.add_option(definition)
+
+        # TODO: Let this be definable elsewhere
+        self._parser.add_option('module_or_package', required=True)
+
+    def parse(self, argv, config):
+        """Parse the command line arguments into the given config object.
+
+        Args:
+            argv (list(str)): The command line arguments to parse.
+            config (Configuration): The config object to parse
+                the command line into.
+        """
+        args = self._parser.parse_args(argv)
+
+        for option, value in vars(args):
+            config.set_option(option, value)
+
+    # TODO: Maybe add this to config parser
+    @staticmethod
+    def preprocess(argv, *options):
+        """Do some guess work to get a value for the specified option.
+
+        Args:
+            argv (list(str)): The command line arguments to parse.
+            option (str): The option to look for.
+
+        Returns:
+            collections.namedtuple: The value of each of the options.
+        """
+        # TODO: Cache args or allow multiple options
+        args, _ = self._parser.parse_known_args(argv)
+
+        OptionValues = collections.namedtuple(
+            'OptionValues',
+            options
+        )
+        values = {option: getattr(args, option, None) for option in options}
+        return OptionValues(**values)
+
+
+class FileParser(ConfigParser):
+    def parse(self, file_path, config):
+        raise NotImplemented
+
+
+class IniFileParser(FileParser):
+    """Parses a config files into config objects."""
+
+    def __init__(self, option_definitions):
+        super(IniFileParser, self).__init__(option_definitions)
+
+        self._parser = configparser.ConfigParser(
+            inline_comment_prefixes=('#', ';')
+        )
+        #TODO: Add option definitions
+
+    def parse(self, file_path, config):
+        with io.open(file_path, 'r', encoding='utf_8_sig') as config_file:
+            self._parser.readfp(config_file)
+
+        for section in self._parser.sections():
+            for option in self._parser.options(section):
+                value = self._parser.get(section, option)
+                config.set_option(option, value)
