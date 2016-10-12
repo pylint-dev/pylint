@@ -187,6 +187,9 @@ Release date: tba
       emitted when two exceptions in the same except-clause are aliases
       for each other or one exceptions is an ancestor of another.
 
+    * Avoid crashing on ill-formatted strings when checking for string formatting errors.
+
+
 What's new in Pylint 1.6.3?
 ===========================
 

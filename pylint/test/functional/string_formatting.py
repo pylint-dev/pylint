@@ -180,3 +180,9 @@ def issue_463():
     data = "{0.__class__.__name__}: {0}".format(42)
     data2 = "{0[0]}: {0}".format([1])
     return (data, data2)
+
+
+def avoid_empty_attribute():
+    """The following string is invalid, avoid crashing."""
+
+    return "There are {.:2f} undiscovered errors.".format(1) # [bad-format-string]

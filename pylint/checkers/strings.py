@@ -185,7 +185,10 @@ def parse_format_method_string(format_string):
                 # to different output between 2 and 3
                 manual_pos_arg.add(str(keyname))
                 keyname = int(keyname)
-            keys.append((keyname, list(fielditerator)))
+            try:
+                keys.append((keyname, list(fielditerator)))
+            except ValueError:
+                raise utils.IncompleteFormatString()
         else:
             num_args += 1
     return keys, num_args, len(manual_pos_arg)
