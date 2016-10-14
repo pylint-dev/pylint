@@ -110,6 +110,9 @@ MSGS = {
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),
+    'W0714': ('Overlapping exceptions (%s)',
+              'overlapping-except',
+              'Used when exceptions in handler overlap or are identical')
     }
 
 
@@ -321,7 +324,8 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.check_messages('bare-except', 'broad-except',
                           'binary-op-exception', 'bad-except-order',
-                          'catching-non-exception', 'duplicate-except')
+                          'catching-non-exception', 'duplicate-except',
+                          'overlapping-except')
     def visit_tryexcept(self, node):
         """check for empty except"""
         exceptions_classes = []
@@ -344,6 +348,8 @@ class ExceptionsChecker(checkers.BaseChecker):
                     excs = list(_annotated_unpack_infer(handler.type))
                 except astroid.InferenceError:
                     continue
+
+                handled_in_clause = []
                 for part, exc in excs:
                     if exc is astroid.YES:
                         continue
@@ -359,6 +365,27 @@ class ExceptionsChecker(checkers.BaseChecker):
 
                     exc_ancestors = [anc for anc in exc.ancestors()
                                      if isinstance(anc, astroid.ClassDef)]
+
+                    for prev_part, prev_exc in handled_in_clause:
+                        prev_exc_ancestors = [anc for anc in prev_exc.ancestors()
+                                              if isinstance(anc, astroid.ClassDef)]
+                        if exc == prev_exc:
+                            self.add_message('overlapping-except',
+                                             node=handler.type,
+                                             args='%s and %s are the same' %
+                                             (prev_part.as_string(),
+                                              part.as_string()))
+                        elif (prev_exc in exc_ancestors or
+                              exc in prev_exc_ancestors):
+                            ancestor = part if exc in prev_exc_ancestors else prev_part
+                            decendant = part if prev_exc in exc_ancestors else prev_part
+                            self.add_message('overlapping-except',
+                                             node=handler.type,
+                                             args='%s is an ancestor class of %s' %
+                                             (ancestor.as_string(),
+                                              decendant.as_string()))
+                    handled_in_clause += [(part, exc)]
+
                     for previous_exc in exceptions_classes:
                         if previous_exc in exc_ancestors:
                             msg = '%s is an ancestor class of %s' % (

@@ -183,6 +183,9 @@ Release date: tba
     * Added a new Python 3 warning around implementing '__div__' or '__idiv__'
       as those methods are phased out in Python 3.
 
+    * Added a new warning, 'overlapping-except', which is
+      emitted when two exceptions in the same except-clause are aliases
+      for each other or one exceptions is an ancestor of another.
 
 What's new in Pylint 1.6.3?
 ===========================

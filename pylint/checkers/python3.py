@@ -36,7 +36,7 @@ def _check_dict_node(node):
         inferred = node.infer()
         for inferred_node in inferred:
             inferred_types.add(inferred_node)
-    except (astroid.InferenceError, astroid.UnresolvableName):
+    except astroid.InferenceError:
         pass
     return (not inferred_types
             or any(isinstance(x, astroid.Dict) for x in inferred_types))
