@@ -1,0 +1,3 @@
+overlapping-except:7::Overlapping exceptions (IOError and OSError are the same)
+overlapping-except:12::Overlapping exceptions (socket.error and OSError are the same)
+overlapping-except:17::Overlapping exceptions (socket.error is an ancestor class of ConnectionError)
