@@ -49,7 +49,7 @@ MSGS = {
               the end of a conversion specifier.'),
     'E1205': ('Too many arguments for logging format string',
               'logging-too-many-args',
-              'Used when a logging format string is given too many arguments'),
+              'Used when a logging format string is given too many arguments.'),
     'E1206': ('Not enough arguments for logging format string',
               'logging-too-few-args',
               'Used when a logging format string is given too few arguments.'),
