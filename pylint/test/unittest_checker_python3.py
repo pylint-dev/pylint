@@ -221,6 +221,9 @@ class Python3CheckerTest(testutils.CheckerTestCase):
     def test_idiv_method(self):
         self.defined_method_test('idiv', 'idiv-method')
 
+    def test_rdiv_method(self):
+        self.defined_method_test('rdiv', 'rdiv-method')
+
     def test_eq_and_hash_method(self):
         """Helper for verifying that a certain method is not defined."""
         node = astroid.extract_node("""

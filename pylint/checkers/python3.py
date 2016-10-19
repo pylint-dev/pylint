@@ -351,6 +351,12 @@ class Python3Checker(checkers.BaseChecker):
                   '__idiv__ = __itruediv__ should be preferred.'
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1644': ('__rdiv__ method defined',
+                  'rdiv-method',
+                  'Used when a __rdiv__ method is defined.  Using `__rtruediv__` and setting'
+                  '__rdiv__ = __rtruediv__ should be preferred.'
+                  '(method is not used by Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -385,6 +391,7 @@ class Python3Checker(checkers.BaseChecker):
         '__cmp__',
         '__div__',
         '__idiv__',
+        '__rdiv__',
     ])
 
     def __init__(self, *args, **kwargs):
