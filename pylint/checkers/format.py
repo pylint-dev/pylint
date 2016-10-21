@@ -43,7 +43,7 @@ if sys.version_info < (3, 0):
 
 _SPACED_OPERATORS = ['==', '<', '>', '!=', '<>', '<=', '>=',
                      '+=', '-=', '*=', '**=', '/=', '//=', '&=', '|=', '^=',
-                     '%=', '>>=', '<<=', '/']
+                     '%=', '>>=', '<<=']
 _OPENING_BRACKETS = ['(', '[', '{']
 _CLOSING_BRACKETS = [')', ']', '}']
 _TAB_LENGTH = 8
@@ -738,7 +738,7 @@ class FormatChecker(BaseTokenChecker):
 
             (['lambda'], self._open_lambda),
 
-            (['*', '**'], self._check_arithmetic_operators),
+            (['*', '+', '-', '*', '/', '**'], self._check_arithmetic_operators),
 
             ]
 
