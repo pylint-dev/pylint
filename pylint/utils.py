@@ -44,7 +44,7 @@ MSG_TYPES = {
     'E' : 'error',
     'F' : 'fatal'
     }
-MSG_TYPES_LONG = {v: k for k, v in six.iteritems(MSG_TYPES)}
+MSG_TYPES_LONG = dict((v, k) for (k, v) in six.iteritems(MSG_TYPES))
 
 MSG_TYPES_STATUS = {
     'I' : 0,

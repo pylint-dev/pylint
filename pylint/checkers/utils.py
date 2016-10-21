@@ -93,11 +93,11 @@ _SPECIAL_METHODS_PARAMS = {
     (0, 1): ('__round__', ),
 }
 
-SPECIAL_METHODS_PARAMS = {
-    name: params
-    for params, methods in _SPECIAL_METHODS_PARAMS.items()
+SPECIAL_METHODS_PARAMS = dict(
+    (name, params)
+    for (params, methods) in _SPECIAL_METHODS_PARAMS.items()
     for name in methods
-}
+)
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
 

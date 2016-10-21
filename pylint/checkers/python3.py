@@ -44,8 +44,8 @@ def _check_dict_node(node):
 def _is_builtin(node):
     return getattr(node, 'name', None) in ('__builtin__', 'builtins')
 
-_ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
-                     'all', 'enumerate', 'dict'}
+_ACCEPTS_ITERATOR = set(['iter', 'list', 'tuple', 'sorted', 'set', 'sum',
+                         'any', 'all', 'enumerate', 'dict'])
 
 def _in_iterating_context(node):
     """Check if the node is being used as an iterator.

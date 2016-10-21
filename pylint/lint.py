@@ -611,7 +611,7 @@ class PyLinter(config.OptionsManagerMixIn,
         """process tokens from the current module to search for module/block
         level options
         """
-        control_pragmas = {'disable', 'enable'}
+        control_pragmas = set(['disable', 'enable'])
         for (tok_type, content, start, _, _) in tokens:
             if tok_type != tokenize.COMMENT:
                 continue
@@ -730,7 +730,7 @@ class PyLinter(config.OptionsManagerMixIn,
 
     def _get_jobs_config(self):
         child_config = collections.OrderedDict()
-        filter_options = {'long-help'}
+        filter_options = set(['long-help'])
         filter_options.update((opt_name for opt_name, _ in self._external_opts))
         for opt_providers in six.itervalues(self._all_options):
             for optname, optdict, val in opt_providers.options_and_values():

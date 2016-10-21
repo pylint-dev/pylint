@@ -219,8 +219,8 @@ class ColorizedTextReporter(TextReporter):
         color, style = self._get_decoration(msg.C)
 
         msg = msg._replace(
-            **{attr: colorize_ansi(getattr(msg, attr), color, style)
-               for attr in ('msg', 'symbol', 'category', 'C')})
+            **dict((attr, colorize_ansi(getattr(msg, attr), color, style))
+                   for attr in ('msg', 'symbol', 'category', 'C')))
         self.write_message(msg)
 
 

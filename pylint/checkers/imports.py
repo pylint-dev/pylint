@@ -494,7 +494,11 @@ given file (report RP0402 must not be disabled)'}
     def _check_same_line_imports(self, node):
         # Detect duplicate imports on the same line.
         names = (name for name, _ in node.names)
-        counter = collections.Counter(names)
+        try:
+            counter = collections.Counter(names)
+        except AttributeError:  # Python 2.6 and older compatibility
+            names = list(names)
+            counter = dict((name, names.count(name)) for name in set(names))
         for name, count in counter.items():
             if count > 1:
                 self.add_message('reimported', node=node,

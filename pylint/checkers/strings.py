@@ -198,8 +198,8 @@ def get_args(callfunc):
     is the keyword arguments in a dict.
     """
     if callfunc.keywords:
-        named = {arg.arg: utils.safe_infer(arg.value)
-                 for arg in callfunc.keywords}
+        named = dict((arg.arg, utils.safe_infer(arg.value))
+                     for arg in callfunc.keywords)
     else:
         named = {}
     positional = len(callfunc.args)

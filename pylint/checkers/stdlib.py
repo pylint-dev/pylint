@@ -20,7 +20,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
 
-OPEN_FILES = {'open', 'file'}
+OPEN_FILES = set(['open', 'file'])
 UNITTEST_CASE = 'unittest.case'
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
