@@ -61,7 +61,7 @@ class A(object):
 # not to rely on it.
 exc = None
 try:
-    1/0
+    1 / 0
 except ZeroDivisionError as exc:
     pass
 if exc:

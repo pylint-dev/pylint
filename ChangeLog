@@ -2876,6 +2876,10 @@ Release date: 2003-09-12
 
     * easy functional test infrastructure
 
+	* Raise bad-whitespace error on arithmetic operators that miss spaces
+	around them.
+	  Close #1110
+
 
 What's New in Pylint 0.1.2?
 ===========================

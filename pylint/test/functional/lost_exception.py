@@ -5,7 +5,7 @@ def insidious_break_and_return():
         my_var = 0
 
         try:
-            my_var += 1.0/i
+            my_var += 1.0 / i
             if i < -3:
                 break
             else:
@@ -24,7 +24,7 @@ def break_and_return():
         if i:
             break
         try:
-            my_var += 1.0/i
+            my_var += 1.0 / i
         finally:
             for _ in range(2):
                 if True:

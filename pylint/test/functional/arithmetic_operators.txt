@@ -1,0 +1,9 @@
+bad-whitespace:5::"Exactly one space required around arithmetic operator
+a = 5*4  # [bad-whitespace]
+     ^"
+bad-whitespace:6::"Exactly one space required before arithmetic operator
+b = a* 20  # [bad-whitespace]
+     ^"
+bad-whitespace:7::"Exactly one space required after arithmetic operator
+b = 4 /20  # [bad-whitespace]
+      ^"

@@ -43,7 +43,7 @@ if sys.version_info < (3, 0):
 
 _SPACED_OPERATORS = ['==', '<', '>', '!=', '<>', '<=', '>=',
                      '+=', '-=', '*=', '**=', '/=', '//=', '&=', '|=', '^=',
-                     '%=', '>>=', '<<=']
+                     '%=', '>>=', '<<=', '/']
 _OPENING_BRACKETS = ['(', '[', '{']
 _CLOSING_BRACKETS = [')', ']', '}']
 _TAB_LENGTH = 8
@@ -660,6 +660,8 @@ class FormatChecker(BaseTokenChecker):
                 return 'bracket'
             elif token[1] in ('<', '>', '<=', '>=', '!=', '=='):
                 return 'comparison'
+            elif token[1] in ['+', '-', '/', '*', '**']:
+                return 'arithmetic operator'
             else:
                 if self._inside_brackets('('):
                     return 'keyword argument assignment'
@@ -695,6 +697,25 @@ class FormatChecker(BaseTokenChecker):
                              args=(count, state, position, construct,
                                    _underline_token(token)))
 
+    def _check_arithmetic_operators(self, tokens, i):
+        "Check that the arithmetic operators are surrounded by spaces wherever appropriate"
+        if tokens[i][1] in ['+', '-']:
+            if tokens[i-1][1] not in [tokenize.NUMBER, tokenize.NAME]:
+                self._check_space(tokens, i, (_MUST, _MUST_NOT))
+            else:
+                self._check_space(tokens, i, (_MUST, _MUST))
+        elif tokens[i][1] in ['*', '**']:
+            if tokens[i-1][1] in ['('] or tokens[i-1][0] == tokenize.NL:
+                self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
+            elif tokens[i-1][1] in [',', 'lambda']:
+                self._check_space(tokens, i, (_MUST, _MUST_NOT))
+            else:
+                self._check_space(tokens, i, (_MUST, _MUST))
+        else:
+            self._check_space(tokens, i, (_MUST, _MUST))
+
+
+
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left
 
@@ -716,6 +737,8 @@ class FormatChecker(BaseTokenChecker):
             ([':'], self._handle_colon),
 
             (['lambda'], self._open_lambda),
+
+            (['*', '**'], self._check_arithmetic_operators),
 
             ]
 

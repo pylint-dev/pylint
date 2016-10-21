@@ -11,15 +11,15 @@ C2 = {'key{}'.format(x): 'value{}'.format(x) for x in
       range(3)}
 
 # Dictionary comprehensions with multiple loops broken in different places
-C3 = {x*y: (x, y) for x in range(3) for y in range(3)}
+C3 = {x * y: (x, y) for x in range(3) for y in range(3)}
 
-C4 = {x*y: (x, y)
+C4 = {x * y: (x, y)
       for x in range(3) for y in range(3)}
 
-C5 = {x*y: (x, y) for x
+C5 = {x * y: (x, y) for x
       in range(3) for y in range(3)}
 
-C6 = {x*y: (x, y) for x in range(3)
+C6 = {x * y: (x, y) for x in range(3)
       for y in range(3)}
 
 C7 = {key:

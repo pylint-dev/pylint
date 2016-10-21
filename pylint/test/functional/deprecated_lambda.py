@@ -3,7 +3,7 @@
 import functools
 
 # Don't do this, use a comprehension instead.
-assert map(lambda x: x*2, [1, 2, 3]) == [2, 4, 6] # [deprecated-lambda]
+assert map(lambda x: x * 2, [1, 2, 3]) == [2, 4, 6] # [deprecated-lambda]
 
 assert filter(lambda x: x != 1, [1, 2, 3]) == [2, 3] # [deprecated-lambda]
 

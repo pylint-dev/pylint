@@ -3,4 +3,4 @@
 
 class MyClass(object):
     var1 = []
-    var2 = list(value*2 for value in var1)
+    var2 = list(value * 2 for value in var1)

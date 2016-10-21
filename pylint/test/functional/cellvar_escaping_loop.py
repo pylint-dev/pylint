@@ -97,7 +97,7 @@ def bad_case4():
     for i in range(10):
         def nested():
             """Nested function."""
-            return i**2  # [cell-var-from-loop]
+            return i ** 2  # [cell-var-from-loop]
         lst.append(nested)
     return lst
 
