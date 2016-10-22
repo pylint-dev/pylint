@@ -183,6 +183,9 @@ Release date: tba
     * Added a new Python 3 warning around implementing '__div__' or '__idiv__'
       as those methods are phased out in Python 3.
 
+    * Added check for whitespace around arithmetic operators
+
+      Closes #1110
 
 What's new in Pylint 1.6.3?
 ===========================
@@ -2875,10 +2878,6 @@ Release date: 2003-09-12
     * a ton of bug fixes
 
     * easy functional test infrastructure
-
-	* Raise bad-whitespace error on arithmetic operators that miss spaces
-	around them.
-	  Close #1110
 
 
 What's New in Pylint 0.1.2?
