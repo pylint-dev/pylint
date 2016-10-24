@@ -306,8 +306,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             all_types[isinstance_object].update(elems)
 
         # Remove all keys which not duplicated
-        return {key: value for key, value in all_types.items()
-                if key in duplicated_objects}
+        return dict((key, value) for (key, value) in all_types.items()
+                    if key in duplicated_objects)
 
     @utils.check_messages('consider-merging-isinstance')
     def visit_boolop(self, node):

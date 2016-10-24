@@ -469,7 +469,7 @@ def error_of_type(handler, error_type):
 
     if not isinstance(error_type, tuple):
         error_type = (error_type, )
-    expected_errors = {stringify_error(error) for error in error_type}
+    expected_errors = set([stringify_error(error) for error in error_type])
     if not handler.type:
         # bare except. While this indeed catches anything, if the desired errors
         # aren't specified directly, then we just ignore it.
