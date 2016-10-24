@@ -113,7 +113,7 @@ class DocstringParameterChecker(BaseChecker):
     priority = -2
 
     constructor_names = set(['__init__', '__new__'])
-    not_needed_param_in_docstring = {'self', 'cls'}
+    not_needed_param_in_docstring = set(['self', 'cls'])
 
     def visit_functiondef(self, node):
         """Called for function and method definitions (def).
