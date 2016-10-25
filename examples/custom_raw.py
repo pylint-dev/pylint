@@ -21,7 +21,7 @@ class MyRawChecker(BaseChecker):
 
         the module's content is accessible via node.stream() function
         """
-        with module.stream() as stream:
+        with node.stream() as stream:
             for (lineno, line) in enumerate(stream):
                 if line.rstrip().endswith('\\'):
                     self.add_message('backslash-line-continuation',
