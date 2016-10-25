@@ -59,8 +59,8 @@ W5 = {
             'long continuation',
     'key2': 'breaking'
         'wrong',  # [bad-continuation]
-    'key3': 2*(
-        2+2),
+    'key3': 2 * (
+        2 + 2),
     'key4': ('parenthesis',
              'continuation')  # No comma here
     }

@@ -183,6 +183,9 @@ Release date: tba
     * Added a new Python 3 warning around implementing '__div__', '__idiv__', or
       '__rdiv__' as those methods are phased out in Python 3.
 
+    * Added check for whitespace around arithmetic operators
+
+      Closes #1110
 
 What's new in Pylint 1.6.3?
 ===========================
