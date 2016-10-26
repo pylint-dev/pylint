@@ -535,6 +535,13 @@ class Python3Checker(checkers.BaseChecker):
         except astroid.InferenceError:
             return
 
+    def visit_assignattr(self, node):
+        if isinstance(node.assign_type(), astroid.AugAssign):
+            self.visit_attribute(node)
+
+    def visit_delattr(self, node):
+        self.visit_attribute(node)
+
     @utils.check_messages('exception-message-attribute')
     def visit_attribute(self, node):
         """ Look for accessing message on exceptions. """

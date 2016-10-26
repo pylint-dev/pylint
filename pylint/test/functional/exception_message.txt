@@ -1,3 +1,4 @@
-exception-message:12::Exception.message removed in Python 3
-exception-message:13::Exception.message removed in Python 3
-exception-message:15::Exception.message removed in Python 3
+exception-message-attribute:12::Exception.message removed in Python 3
+exception-message-attribute:13::Exception.message removed in Python 3
+exception-message-attribute:15::Exception.message removed in Python 3
+exception-message-attribute:20::Exception.message removed in Python 3
