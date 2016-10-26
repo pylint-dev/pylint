@@ -357,6 +357,11 @@ class Python3Checker(checkers.BaseChecker):
                   '__rdiv__ = __rtruediv__ should be preferred.'
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
+        'W1645': ('Exception.message accessed',
+                  'exception-message-attribute',
+                  'Used when the message attribute is accessed on an Exception.  Use '
+                  'str(exception) instead.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -527,6 +532,19 @@ class Python3Checker(checkers.BaseChecker):
                     continue
                 if utils.inherit_from_std_ex(infered):
                     self.add_message('indexing-exception', node=node)
+        except astroid.InferenceError:
+            return
+
+    @utils.check_messages('exception-message-attribute')
+    def visit_attribute(self, node):
+        """ Look for accessing message on exceptions. """
+        try:
+            for infered in node.expr.infer():
+                if not isinstance(infered, astroid.Instance):
+                    continue
+                if utils.inherit_from_std_ex(infered):
+                    if node.attrname == 'message':
+                        self.add_message('exception-message-attribute', node=node)
         except astroid.InferenceError:
             return
 
