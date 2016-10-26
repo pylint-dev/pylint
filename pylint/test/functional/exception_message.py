@@ -18,3 +18,6 @@ try:
     raise Exception('e')
 except Exception as exception:
     _ = exception.message # [exception-message-attribute]
+    del exception.message # [exception-message-attribute]
+    exception.message += 'hello world' # [exception-message-attribute]
+    exception.message = 'hello world'
