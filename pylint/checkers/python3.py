@@ -357,7 +357,7 @@ class Python3Checker(checkers.BaseChecker):
                   '__rdiv__ = __rtruediv__ should be preferred.'
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
-        'W1645': ('Exception.message accessed',
+        'W1645': ('Exception.message removed in Python 3',
                   'exception-message-attribute',
                   'Used when the message attribute is accessed on an Exception.  Use '
                   'str(exception) instead.',
