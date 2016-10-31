@@ -248,8 +248,10 @@ class ImportsChecker(BaseChecker):
 
     if six.PY2:
         deprecated_modules = ('regsub', 'TERMIOS', 'Bastion', 'rexec')
-    else:
+    elif sys.version_info < (3, 5):
         deprecated_modules = ('optparse', )
+    else:
+        deprecated_modules = ('optparse', 'tkinter.tix')
     options = (('deprecated-modules',
                 {'default' : deprecated_modules,
                  'type' : 'csv',

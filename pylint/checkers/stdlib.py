@@ -170,6 +170,9 @@ class StdlibChecker(BaseChecker):
                 'inspect.getcallargs',
                 'platform.linux_distribution', 'platform.dist',
             ],
+            (3, 6, 0): [
+                'importlib._bootstrap_external.FileLoader.load_module',
+            ],
         },
     }
 
