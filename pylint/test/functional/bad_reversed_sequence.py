@@ -40,7 +40,7 @@ def uninferable(seq):
 def test(path):
     """ test function """
     seq = reversed() # No argument given
-    seq = reversed(None) # [bad-reversed-sequence]
+    '''seq = reversed(None) # [bad-reversed-sequence]
     seq = reversed([1, 2, 3])
     seq = reversed((1, 2, 3))
     seq = reversed(set()) # [bad-reversed-sequence]
@@ -57,6 +57,7 @@ def test(path):
     seq = reversed("123")
     seq = uninferable([1, 2, 3])
     seq = reversed(path.split("/"))
+    '''
     return seq
 
 def test_dict_ancestor_and_reversed():
