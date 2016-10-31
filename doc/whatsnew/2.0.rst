@@ -212,11 +212,11 @@ New checkers
 
       {JustEq(1), JustEq(2)}  # Now throws an exception in both Python 2 and Python 3.
 
-  * 3 new Python 3 checkers were added, ``div-method``, ``idiv-method`` and ``rdiv-method``.
-    The magic methods ``__div__`` and ``__idiv__`` have been phased out in Python 3 in favor
-    of ``__truediv__``.  Classes implementing ``__div__`` that still need to be used from Python
-    2 code not using ``from __future__ import division`` should implement ``__truediv__`` and
-    alias ``__div__`` to that implementation.
+* 3 new Python 3 checkers were added, ``div-method``, ``idiv-method`` and ``rdiv-method``.
+  The magic methods ``__div__`` and ``__idiv__`` have been phased out in Python 3 in favor
+  of ``__truediv__``.  Classes implementing ``__div__`` that still need to be used from Python
+  2 code not using ``from __future__ import division`` should implement ``__truediv__`` and
+  alias ``__div__`` to that implementation.
 
   .. code-block:: python
 
@@ -231,9 +231,9 @@ New checkers
 
          __div__ = __truediv__
 
-  * A new Python 3 checker was added to warn about accessing the ``message`` attribute on
-    Exceptions.  The message attribute was deprecated in Python 2.7 and was removed in Python 3.
-    See https://www.python.org/dev/peps/pep-0352/#retracted-ideas for more information.
+* A new Python 3 checker was added to warn about accessing the ``message`` attribute on
+  Exceptions.  The message attribute was deprecated in Python 2.7 and was removed in Python 3.
+  See https://www.python.org/dev/peps/pep-0352/#retracted-ideas for more information.
 
   .. code-block:: python
 
@@ -252,21 +252,22 @@ New checkers
       except Exception as e:
         print(str(e))
 
-  * A new warning was added, ``overlapping-except``, which is emitted
-    when an except handler treats two exceptions which are *overlapping*.
-    This means that one exception is an ancestor of the other one or it is
-    just an alias.
-  
-    For example, in Python 3.3+, IOError is an alias for OSError. In addition, socket.error is
-    an alias for OSError. The intention is to find cases like the following::
+
+* A new warning was added, ``overlapping-except``, which is emitted
+  when an except handler treats two exceptions which are *overlapping*.
+  This means that one exception is an ancestor of the other one or it is
+  just an alias.
+
+  For example, in Python 3.3+, IOError is an alias for OSError. In addition, socket.error is
+  an alias for OSError. The intention is to find cases like the following:
 
   .. code-block:: python
 
       import socket
       try:
-        pass
+          pass
       except (ConnectionError, IOError, OSError, socket.error):
-        pass
+          pass
 
 Other Changes
 =============
@@ -366,7 +367,7 @@ Other Changes
   **pylint** will now warn that there is a chance of having a typo,
   suggesting new names that could be used instead.
 
-  .. code-block:: python
+  .. code-block:: sh
 
     $ pylint a.py
     E: 8,10: Instance of 'Contribution' has no 'email' member; maybe 'mail'?
