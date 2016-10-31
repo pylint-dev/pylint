@@ -1,1 +1,8 @@
-comment: false
+codecov:
+  notify:
+    require_ci_to_pass: yes
+  branch: enable_codecov
+comment:
+  layout: "header, diff"
+  behavior: default
+
