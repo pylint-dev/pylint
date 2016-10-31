@@ -252,6 +252,22 @@ New checkers
       except Exception as e:
         print(str(e))
 
+  * A new warning was added, ``overlapping-except``, which is emitted
+    when an except handler treats two exceptions which are *overlapping*.
+    This means that one exception is an ancestor of the other one or it is
+    just an alias.
+  
+    For example, in Python 3.3+, IOError is an alias for OSError. In addition, socket.error is
+    an alias for OSError. The intention is to find cases like the following::
+
+  .. code-block:: python
+
+      import socket
+      try:
+        pass
+      except (ConnectionError, IOError, OSError, socket.error):
+        pass
+
 Other Changes
 =============
 
