@@ -109,4 +109,5 @@ Order doesn't matter (not that much, at least ;)
 
 * Alexander Todorov: added new errro conditions to 'bad-super-call'.
 
-* Roy Williams (Lyft): added check for implementing __eq__ without implementing __hash__.
+* Roy Williams (Lyft): added check for implementing __eq__ without implementing __hash__,
+  Added Python 3 check for accessing Exception.message

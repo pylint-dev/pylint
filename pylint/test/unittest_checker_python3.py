@@ -409,6 +409,26 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_raise(node)
 
     @python2_only
+    def test_exception_message_attribute(self):
+        node = astroid.extract_node("""
+        try:
+            raise Exception("test")
+        except Exception as e:
+            e.message #@
+        """)
+        message = testutils.Message('exception-message-attribute', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_normal_message_attribute(self):
+        node = astroid.extract_node("""
+        e.message #@
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node)
+
+    @python2_only
     def test_raising_string(self):
         node = astroid.extract_node('raise "Test"')
         message = testutils.Message('raising-string', node=node)

@@ -231,6 +231,27 @@ New checkers
 
          __div__ = __truediv__
 
+  * A new Python 3 checker was added to warn about accessing the ``message`` attribute on
+    Exceptions.  The message attribute was deprecated in Python 2.7 and was removed in Python 3.
+    See https://www.python.org/dev/peps/pep-0352/#retracted-ideas for more information.
+
+  .. code-block:: python
+
+      try:
+        raise Exception("Oh No!!")
+      except Exception as e:
+        print(e.message)
+
+  Instead of relying on the ``message`` attribute, you should explicitly cast the exception to a
+  string:
+
+  .. code-block:: python
+
+      try:
+        raise Exception("Oh No!!")
+      except Exception as e:
+        print(str(e))
+
 Other Changes
 =============
 
