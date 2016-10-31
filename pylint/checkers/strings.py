@@ -125,7 +125,10 @@ else:
                 yield is_attr, key
 
     def split_format_field_names(format_string):
-        keyname, fielditerator = format_string._formatter_field_name_split()
+        try:
+            keyname, fielditerator = format_string._formatter_field_name_split()
+        except ValueError:
+            raise utils.IncompleteFormatString
         # it will return longs, instead of ints, which will complicate
         # the output
         return keyname, _field_iterator_convertor(fielditerator)
