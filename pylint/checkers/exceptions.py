@@ -378,12 +378,11 @@ class ExceptionsChecker(checkers.BaseChecker):
                         elif (prev_exc in exc_ancestors or
                               exc in prev_exc_ancestors):
                             ancestor = part if exc in prev_exc_ancestors else prev_part
-                            decendant = part if prev_exc in exc_ancestors else prev_part
+                            descendant = part if prev_exc in exc_ancestors else prev_part
                             self.add_message('overlapping-except',
                                              node=handler.type,
                                              args='%s is an ancestor class of %s' %
-                                             (ancestor.as_string(),
-                                              decendant.as_string()))
+                                             (ancestor.as_string(), descendant.as_string()))
                     handled_in_clause += [(part, exc)]
 
                     for previous_exc in exceptions_classes:
