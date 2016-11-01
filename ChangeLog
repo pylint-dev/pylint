@@ -11,6 +11,9 @@ Release date: tba
     
     * Don't try to access variables defined in a separate scope when checking for ``protected-access``
      
+    * Added new check to detect incorrect usage of len(SEQUENCE) inside
+      test conditions.
+
     * Added new error conditions for 'bad-super-call'
 
       Now detects ``super(type(self), self)`` and ``super(self.__class__, self)``

@@ -96,6 +96,42 @@ New checkers
           def not_useless_1(self, first, *args):
               return super(Impl, self).not_useless_1(first + some_value, *args)
 
+* A new warning was added, ``len-as-condition``, which is used whenever
+  we detect that a condition uses ``len(SEQUENCE)`` incorrectly. Instead
+  one could use ``if SEQUENCE`` or ``if not SEQUENCE``.
+
+  For instance, all of the examples below:
+
+  .. code-block:: python
+
+      if len(S):
+        pass
+
+      if not len(S):
+        pass
+
+      if len(S) > 0:
+        pass
+
+      if len(S) != 0:
+        pass
+
+      if len(S) == 0:
+        pass
+
+  can be written in a more natural way:
+
+  .. code-block:: python
+
+      if S:
+        pass
+
+      if not S:
+        pass
+
+  See https://www.python.org/dev/peps/pep-0008/#programming-recommendations
+  for more information.
+
 * We've added new error conditions for ``bad-super-call`` which now detect
   the usage of ``super(type(self), self)`` and ``super(self.__class__, self)``
   patterns. These can lead to recursion loop in derived classes. The problem
