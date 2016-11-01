@@ -70,7 +70,8 @@ _SPECIAL_METHODS_PARAMS = {
         '__float__', '__neg__', '__pos__', '__abs__', '__complex__', '__int__',
         '__float__', '__index__', '__enter__', '__aenter__', '__getnewargs_ex__',
         '__getnewargs__', '__getstate__', '__reduce__', '__copy__',
-        '__unicode__', '__nonzero__', '__await__', '__aiter__', '__anext__'),
+        '__unicode__', '__nonzero__', '__await__', '__aiter__', '__anext__',
+        '__fspath__'),
 
     1: ('__format__', '__lt__', '__le__', '__eq__', '__ne__', '__gt__',
         '__ge__', '__getattr__', '__getattribute__', '__delattr__',
