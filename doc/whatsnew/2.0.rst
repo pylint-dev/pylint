@@ -603,7 +603,25 @@ Bug fixes
          linter.register_checker(DummyPlugin1(linter))
          linter.register_checker(DummyPlugin2(linter))
 
+* We do not yield ``unused-argument`` for singledispatch implementations and
+  do not warn about ``function-redefined`` for multiple implementations with same name.
 
+  .. code-block:: python
+
+     from functools import singledispatch
+
+     @singledispatch
+     def f(x):
+         return 2*x
+
+     @f.register(str)
+     def _(x):
+         return -1
+
+     @f.register(int)
+     @f.register(float)
+     def _(x):
+         return -x
 
 Removed Changes
 ===============
