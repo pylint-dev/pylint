@@ -210,6 +210,11 @@ Release date: tba
 
     * Added a new Python 3 check for accessing deprecated string functions.
 
+    * Do not warn about unused arguments or function being redefined in singledispatch
+      registered implementations.
+
+      Closes #1032 and #1034
+
 
 What's new in Pylint 1.6.3?
 ===========================

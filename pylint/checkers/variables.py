@@ -692,6 +692,10 @@ class VariablesChecker(BaseChecker):
         if is_method and node.is_abstract():
             return
 
+        # Don't check arguments of singledispatch.register function.
+        if utils.is_registered_in_singledispatch_function(node):
+            return
+
         global_names = _flattened_scope_names(node.nodes_of_class(astroid.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(astroid.Nonlocal))
 

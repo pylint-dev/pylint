@@ -384,7 +384,8 @@ class BasicErrorChecker(_BasicChecker):
                           'duplicate-argument-name', 'nonlocal-and-global')
     def visit_functiondef(self, node):
         self._check_nonlocal_and_global(node)
-        if not redefined_by_decorator(node):
+        if (not redefined_by_decorator(node) and
+                not utils.is_registered_in_singledispatch_function(node)):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
         # checks for max returns, branch, return in __init__
         returns = node.nodes_of_class(astroid.Return,

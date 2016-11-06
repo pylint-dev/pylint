@@ -238,8 +238,7 @@ class LintModuleTest(unittest.TestCase):
         self._test_file = test_file
 
     def setUp(self):
-        if (sys.version_info < self._test_file.options['min_pyver']
-                or sys.version_info >= self._test_file.options['max_pyver']):
+        if self._should_be_skipped_due_to_version():
             self.skipTest(
                 'Test cannot run with Python %s.' % (sys.version.split(' ')[0],))
         missing = []
@@ -260,6 +259,10 @@ class LintModuleTest(unittest.TestCase):
                 self.skipTest(
                     'Test cannot run with Python implementation %r'
                      % (implementation, ))
+
+    def _should_be_skipped_due_to_version(self):
+        return (sys.version_info < self._test_file.options['min_pyver'] or
+                sys.version_info > self._test_file.options['max_pyver'])
 
     def __str__(self):
         return "%s (%s.%s)" % (self._test_file.base, self.__class__.__module__,
