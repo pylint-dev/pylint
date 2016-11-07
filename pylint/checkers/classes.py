@@ -1245,7 +1245,7 @@ class SpecialMethodsChecker(BaseChecker):
         if expected_params is None:
             # This can support a variable number of parameters.
             return
-        if not len(node.args.args) and not node.args.vararg:
+        if not node.args.args and not node.args.vararg:
             # Method has no parameter, will be caught
             # by no-method-argument.
             return

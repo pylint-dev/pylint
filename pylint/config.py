@@ -172,7 +172,7 @@ def _yn_validator(opt, _, value):
 
 
 def _non_empty_string_validator(opt, _, value):
-    if not len(value):
+    if not value:
         msg = "indent string can't be empty."
         raise optparse.OptionValueError(msg)
     return utils._unquote(value)

@@ -691,7 +691,7 @@ accessed. Python regular expressions are accepted.'}
             return
         returns = list(function_node.nodes_of_class(astroid.Return,
                                                     skip_klass=astroid.FunctionDef))
-        if len(returns) == 0:
+        if not returns:
             self.add_message('assignment-from-no-return', node=node)
         else:
             for rnode in returns:

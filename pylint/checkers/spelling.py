@@ -139,13 +139,13 @@ class SpellingChecker(BaseTokenChecker):
         words = []
         for word in line2.split():
             # Skip words with digits.
-            if len(re.findall(r"\d", word)) > 0:
+            if re.findall(r"\d", word):
                 continue
 
             # Skip words with mixed big and small letters,
             # they are probaly class names.
-            if (len(re.findall("[A-Z]", word)) > 0 and
-                    len(re.findall("[a-z]", word)) > 0 and
+            if (re.findall("[A-Z]", word) and
+                    re.findall("[a-z]", word) and
                     len(word) > 2):
                 continue
 
