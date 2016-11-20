@@ -64,14 +64,14 @@ class EncodingChecker(BaseChecker):
         match = notes.search(line)
         if not match:
             return
-        self.add_message('fixme', args=line[match.start(1):-1], line=lineno)
+        self.add_message('fixme', args = line[match.start(1):-1], line = lineno)
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
             return six.text_type(line, file_encoding)
         except UnicodeDecodeError as ex:
-            self.add_message('invalid-encoded-data', line=lineno,
-                             args=(file_encoding, ex.args[2]))
+            self.add_message('invalid-encoded-data', line = lineno,
+                             args = (file_encoding, ex.args[2]))
 
     def process_module(self, module):
         """inspect the source file to find encoding problem or fixmes like

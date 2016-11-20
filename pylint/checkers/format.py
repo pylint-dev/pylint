@@ -473,7 +473,7 @@ class FormatChecker(BaseTokenChecker):
                           'e.g. empty (any line ending), LF or CRLF.')}),
               )
 
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         BaseTokenChecker.__init__(self, linter)
         self._lines = None
         self._visited_lines = None
@@ -490,7 +490,7 @@ class FormatChecker(BaseTokenChecker):
     def new_line(self, tokens, line_end, line_start):
         """a new line has been encountered, process it if necessary"""
         if _last_token_on_line_is(tokens, line_end, ';'):
-            self.add_message('unnecessary-semicolon', line=tokens.start_line(line_end))
+            self.add_message('unnecessary-semicolon', line = tokens.start_line(line_end))
 
         line_num = tokens.start_line(line_start)
         line = tokens.line(line_start)
@@ -548,15 +548,15 @@ class FormatChecker(BaseTokenChecker):
                         return
                     if keyword_token == 'not':
                         if not found_and_or:
-                            self.add_message('superfluous-parens', line=line_num,
-                                             args=keyword_token)
+                            self.add_message('superfluous-parens', line = line_num,
+                                             args = keyword_token)
                     elif keyword_token in ('return', 'yield'):
-                        self.add_message('superfluous-parens', line=line_num,
-                                         args=keyword_token)
+                        self.add_message('superfluous-parens', line = line_num,
+                                         args = keyword_token)
                     elif keyword_token not in self._keywords_with_parens:
                         if not (tokens[i+1][1] == 'in' and found_and_or):
-                            self.add_message('superfluous-parens', line=line_num,
-                                             args=keyword_token)
+                            self.add_message('superfluous-parens', line = line_num,
+                                             args = keyword_token)
                 return
             elif depth == 1:
                 # This is a tuple, which is always acceptable.
@@ -691,9 +691,9 @@ class FormatChecker(BaseTokenChecker):
         for policy, position in warnings:
             construct = _name_construct(token)
             count, state = _policy_string(policy)
-            self.add_message('bad-whitespace', line=token[2][0],
-                             args=(count, state, position, construct,
-                                   _underline_token(token)))
+            self.add_message('bad-whitespace', line = token[2][0],
+                             args = (count, state, position, construct,
+                                     _underline_token(token)))
 
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left
@@ -796,7 +796,7 @@ class FormatChecker(BaseTokenChecker):
                     self.check_indent_level(line, indents[-1], line_num)
 
             if tok_type == tokenize.NUMBER and token.endswith('l'):
-                self.add_message('lowercase-l-suffix', line=line_num)
+                self.add_message('lowercase-l-suffix', line = line_num)
 
             try:
                 handler = token_handlers[token]
@@ -814,19 +814,19 @@ class FormatChecker(BaseTokenChecker):
             line = next(filter(None,
                                map(self.linter._pragma_lineno.get, names)), 1)
             self.add_message('too-many-lines',
-                             args=(line_num, self.config.max_module_lines),
-                             line=line)
+                             args = (line_num, self.config.max_module_lines),
+                             line = line)
 
         # See if there are any trailing lines.  Do not complain about empty
         # files like __init__.py markers.
         if line_num == last_blank_line_num and line_num > 0:
-            self.add_message('trailing-newlines', line=line_num)
+            self.add_message('trailing-newlines', line = line_num)
 
     def _check_line_ending(self, line_ending, line_num):
         # check if line endings are mixed
         if self._last_line_ending is not None:
             if line_ending != self._last_line_ending:
-                self.add_message('mixed-line-endings', line=line_num)
+                self.add_message('mixed-line-endings', line = line_num)
 
         self._last_line_ending = line_ending
 
@@ -837,8 +837,8 @@ class FormatChecker(BaseTokenChecker):
             line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")
             line_ending = 'LF' if line_ending == '\n' else 'CRLF'
             if line_ending != expected:
-                self.add_message('unexpected-line-ending-format', args=(line_ending, expected),
-                                 line=line_num)
+                self.add_message('unexpected-line-ending-format', args = (line_ending, expected),
+                                 line = line_num)
 
 
     def _process_retained_warnings(self, tokens, current_pos):
@@ -884,9 +884,9 @@ class FormatChecker(BaseTokenChecker):
         hint_line, delta_message = _get_indent_hint_line(offsets, tokens.start_col(position))
         self.add_message(
             'bad-continuation',
-            line=tokens.start_line(position),
-            args=(readable_type, readable_position, delta_message,
-                  tokens.line(position), hint_line))
+            line = tokens.start_line(position),
+            args = (readable_type, readable_position, delta_message,
+                    tokens.line(position), hint_line))
 
     @check_messages('multiple-statements')
     def visit_default(self, node):
@@ -942,7 +942,7 @@ class FormatChecker(BaseTokenChecker):
         if (isinstance(node.parent, nodes.If) and not node.parent.orelse
                 and self.config.single_line_if_stmt):
             return
-        self.add_message('multiple-statements', node=node)
+        self.add_message('multiple-statements', node = node)
         self._visited_lines[line] = 2
 
     def check_lines(self, lines, i):
@@ -953,14 +953,14 @@ class FormatChecker(BaseTokenChecker):
 
         for line in lines.splitlines(True):
             if not line.endswith('\n'):
-                self.add_message('missing-final-newline', line=i)
+                self.add_message('missing-final-newline', line = i)
             else:
                 stripped_line = line.rstrip()
                 if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
                     # allow empty lines
                     pass
                 elif line[len(stripped_line):] not in ('\n', '\r\n'):
-                    self.add_message('trailing-whitespace', line=i)
+                    self.add_message('trailing-whitespace', line = i)
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
@@ -968,7 +968,7 @@ class FormatChecker(BaseTokenChecker):
                 line = line.split('#')[0].rstrip()
 
             if len(line) > max_chars and not ignore_long_line.search(line):
-                self.add_message('line-too-long', line=i, args=(len(line), max_chars))
+                self.add_message('line-too-long', line = i, args = (len(line), max_chars))
             i += 1
 
     def check_indent_level(self, string, expected, line_num):
@@ -989,7 +989,7 @@ class FormatChecker(BaseTokenChecker):
                     args = ('tab', 'space')
                 else:
                     args = ('space', 'tab')
-                self.add_message('mixed-indentation', args=args, line=line_num)
+                self.add_message('mixed-indentation', args = args, line = line_num)
                 return level
             suppl += string[0]
             string = string[1:]
@@ -997,9 +997,9 @@ class FormatChecker(BaseTokenChecker):
             i_type = 'spaces'
             if indent[0] == '\t':
                 i_type = 'tabs'
-            self.add_message('bad-indentation', line=line_num,
-                             args=(level * unit_size + len(suppl), i_type,
-                                   expected * unit_size))
+            self.add_message('bad-indentation', line = line_num,
+                             args = (level * unit_size + len(suppl), i_type,
+                                     expected * unit_size))
 
 
 def register(linter):

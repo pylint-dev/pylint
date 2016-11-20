@@ -65,9 +65,6 @@ def good_case9():
         def func(bound_i = i):
             """Ignore."""
             return bound_i
-            return bound_i
-            return bound_i
-            return bound_i
         funs.append(func)
     return funs
 

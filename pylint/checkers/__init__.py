@@ -78,7 +78,7 @@ class BaseChecker(OptionsProviderMixIn):
     # mark this checker as enabled or not.
     enabled = True
 
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         """checker instances should have the linter as argument
 
         linter is an object implementing ILinter
@@ -87,7 +87,7 @@ class BaseChecker(OptionsProviderMixIn):
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
 
-    def add_message(self, msg_id, line=None, node=None, args=None, confidence=UNDEFINED):
+    def add_message(self, msg_id, line = None, node = None, args = None, confidence = UNDEFINED):
         """add a message of a given type"""
         self.linter.add_message(msg_id, line, node, args, confidence)
 

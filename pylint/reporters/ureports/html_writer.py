@@ -11,7 +11,7 @@ from pylint.reporters.ureports import BaseWriter
 class HTMLWriter(BaseWriter):
     """format layouts as HTML"""
 
-    def __init__(self, snippet=None):
+    def __init__(self, snippet = None):
         super(HTMLWriter, self).__init__()
         self.snippet = snippet
 

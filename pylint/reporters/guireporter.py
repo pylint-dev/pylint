@@ -16,7 +16,7 @@ class GUIReporter(BaseReporter):
     __implements__ = IReporter
     extension = ''
 
-    def __init__(self, gui, output=sys.stdout):
+    def __init__(self, gui, output = sys.stdout):
         """init"""
         BaseReporter.__init__(self, output)
         self.gui = gui

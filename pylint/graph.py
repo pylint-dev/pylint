@@ -25,8 +25,8 @@ def target_info_from_filename(filename):
 
 class DotBackend(object):
     """Dot File backend."""
-    def __init__(self, graphname, rankdir=None, size=None, ratio=None,
-                 charset='utf-8', renderer='dot', additional_param=None):
+    def __init__(self, graphname, rankdir = None, size = None, ratio = None,
+                 charset = 'utf-8', renderer = 'dot', additional_param = None):
         if additional_param is None:
             additional_param = {}
         self.graphname = graphname
@@ -57,7 +57,7 @@ class DotBackend(object):
 
     source = property(get_source)
 
-    def generate(self, outputfile=None, dotfile=None, mapfile=None):
+    def generate(self, outputfile = None, dotfile = None, mapfile = None):
         """Generates a graph file.
 
         :param str outputfile: filename and path [defaults to graphname.png]
@@ -88,7 +88,7 @@ class DotBackend(object):
             ppng, outputfile = tempfile.mkstemp(".png", name)
             os.close(pdot)
             os.close(ppng)
-        pdot = codecs.open(dot_sourcepath, 'w', encoding='utf8')
+        pdot = codecs.open(dot_sourcepath, 'w', encoding = 'utf8')
         pdot.write(self.source)
         pdot.close()
         if target != 'dot':
@@ -97,11 +97,11 @@ class DotBackend(object):
                 subprocess.call([self.renderer, '-Tcmapx', '-o',
                                  mapfile, '-T', target, dot_sourcepath,
                                  '-o', outputfile],
-                                shell=use_shell)
+                                shell = use_shell)
             else:
                 subprocess.call([self.renderer, '-T', target,
                                  dot_sourcepath, '-o', outputfile],
-                                shell=use_shell)
+                                shell = use_shell)
             os.unlink(dot_sourcepath)
         return outputfile
 
@@ -128,7 +128,7 @@ def normalize_node_id(nid):
     """Returns a suitable DOT node id for `nid`."""
     return '"%s"' % nid
 
-def get_cycles(graph_dict, vertices=None):
+def get_cycles(graph_dict, vertices = None):
     '''given a dictionary representing an ordered graph (i.e. key are vertices
     and values is a list of destination vertices representing edges), return a
     list of detected cycles

@@ -71,7 +71,7 @@ def get_tests_info(input_dir, msg_dir, prefix, suffix):
         messages = glob(join(msg_dir, fbase + '*.txt'))
         # the last one will be without ext, i.e. for all or upper versions:
         if messages:
-            for outfile in sorted(messages, reverse=True):
+            for outfile in sorted(messages, reverse = True):
                 py_rest = outfile.rsplit('_py', 1)[-1][:-4]
                 if py_rest.isdigit() and SYS_VERS_STR >= py_rest:
                     break
@@ -116,7 +116,7 @@ class TestReporter(BaseReporter):
     def finalize(self):
         self.messages.sort()
         for msg in self.messages:
-            print(msg, file=self.out)
+            print(msg, file = self.out)
         result = self.out.getvalue()
         self.reset()
         return result
@@ -129,7 +129,7 @@ class TestReporter(BaseReporter):
 
 class Message(collections.namedtuple('Message',
                                      ['msg_id', 'line', 'node', 'args'])):
-    def __new__(cls, msg_id, line=None, node=None, args=None):
+    def __new__(cls, msg_id, line = None, node = None, args = None):
         return tuple.__new__(cls, (msg_id, line, node, args))
 
 
@@ -147,8 +147,8 @@ class UnittestLinter(object):
         finally:
             self._messages = []
 
-    def add_message(self, msg_id, line=None, node=None, args=None,
-                    confidence=None):
+    def add_message(self, msg_id, line = None, node = None, args = None,
+                    confidence = None):
         self._messages.append(Message(msg_id, line, node, args))
 
     def is_message_enabled(self, *unused_args):
@@ -378,7 +378,7 @@ def tokenize_str(code):
     return list(tokenize.generate_tokens(StringIO(code).readline))
 
 @contextlib.contextmanager
-def create_tempfile(content=None):
+def create_tempfile(content = None):
     """Create a new temporary file.
 
     If *content* parameter is given, then it will be written
@@ -411,8 +411,8 @@ def create_file_backed_module(code):
 
 
 @contextlib.contextmanager
-def catch_warnings(warnfilter="always"):
+def catch_warnings(warnfilter = "always"):
     """Suppress the warnings in the surrounding block."""
-    with warnings.catch_warnings(record=True) as cm:
+    with warnings.catch_warnings(record = True) as cm:
         warnings.simplefilter(warnfilter)
         yield cm

@@ -124,7 +124,7 @@ class DocstringParameterChecker(BaseChecker):
                 not any(utils.returns_something(ret_node) for ret_node in return_nodes)):
             self.add_message(
                 'redundant-returns-doc',
-                node=node)
+                node = node)
 
     def visit_raise(self, node):
         func_node = node.frame()
@@ -160,11 +160,11 @@ class DocstringParameterChecker(BaseChecker):
         if not doc.has_returns():
             self.add_message(
                 'missing-returns-doc',
-                node=func_node
+                node = func_node
             )
 
     def check_arguments_in_docstring(self, doc, arguments_node, warning_node,
-                                     accept_no_param_doc=None):
+                                     accept_no_param_doc = None):
         """Check that all parameters in a function, method or class constructor
         on the one hand and the parameters mentioned in the parameter
         documentation (e.g. the Sphinx tags 'param' and 'type') on the other
@@ -250,9 +250,9 @@ class DocstringParameterChecker(BaseChecker):
             if missing_or_differing_argument_names:
                 self.add_message(
                     message_id,
-                    args=(', '.join(
+                    args = (', '.join(
                         sorted(missing_or_differing_argument_names)),),
-                    node=warning_node)
+                    node = warning_node)
 
         _compare_args(params_with_doc, 'missing-param-doc',
                       self.not_needed_param_in_docstring)
@@ -263,8 +263,8 @@ class DocstringParameterChecker(BaseChecker):
         if class_doc.has_params() and init_doc.has_params():
             self.add_message(
                 'multiple-constructor-doc',
-                args=(class_node.name,),
-                node=class_node)
+                args = (class_node.name,),
+                node = class_node)
 
     def _handle_no_raise_doc(self, excs, node):
         if self.config.accept_no_raise_doc:
@@ -287,8 +287,8 @@ class DocstringParameterChecker(BaseChecker):
 
         self.add_message(
             'missing-raises-doc',
-            args=(', '.join(sorted(missing_excs)),),
-            node=node)
+            args = (', '.join(sorted(missing_excs)),),
+            node = node)
 
 def register(linter):
     """Required method to auto register this checker.

@@ -31,7 +31,7 @@ class NewClass(object):
 
 from abc import ABCMeta
 
-class TestMetaclass(object, metaclass=ABCMeta):
+class TestMetaclass(object, metaclass = ABCMeta):
     """ Test attribute access for metaclasses. """
 
 class Metaclass(type):
@@ -40,7 +40,7 @@ class Metaclass(type):
     def test(mcs):
         """ classmethod """
 
-class UsingMetaclass(object, metaclass=Metaclass):
+class UsingMetaclass(object, metaclass = Metaclass):
     """ empty """
 
 # TestMetaclass.register(int)

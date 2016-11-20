@@ -7,14 +7,14 @@ import sys
 from abc import ABCMeta
 from abc import ABCMeta as SomethingElse
 
-class Meta(metaclass=abc.ABCMeta):
+class Meta(metaclass = abc.ABCMeta):
     """ Test """
     def __init__(self):
         self.data = sys.executable
         self.test = abc
 
-class Meta2(metaclass=ABCMeta):
+class Meta2(metaclass = ABCMeta):
     """ Test """
 
-class Meta3(metaclass=SomethingElse):
+class Meta3(metaclass = SomethingElse):
     """ test """

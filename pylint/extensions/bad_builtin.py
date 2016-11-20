@@ -55,7 +55,7 @@ class BadBuiltinChecker(BaseChecker):
                         args = "%r. %s" % (name, hint)
                     else:
                         args = repr(name)
-                    self.add_message('bad-builtin', node=node, args=args)
+                    self.add_message('bad-builtin', node = node, args = args)
 
 
 def register(linter):

@@ -42,7 +42,7 @@ def report_raw_stats(sect, stats, old_stats):
             old, diff_str = 'NC', 'NC'
         lines += (node_type, str(total), '%.2f' % percent,
                   str(old), diff_str)
-    sect.append(Table(children=lines, cols=5, rheaders=1))
+    sect.append(Table(children = lines, cols = 5, rheaders = 1))
 
 
 class RawMetricsChecker(BaseTokenChecker):
@@ -71,9 +71,9 @@ class RawMetricsChecker(BaseTokenChecker):
 
     def open(self):
         """init statistics"""
-        self.stats = self.linter.add_stats(total_lines=0, code_lines=0,
-                                           empty_lines=0, docstring_lines=0,
-                                           comment_lines=0)
+        self.stats = self.linter.add_stats(total_lines = 0, code_lines = 0,
+                                           empty_lines = 0, docstring_lines = 0,
+                                           comment_lines = 0)
 
     def process_tokens(self, tokens):
         """update stats"""

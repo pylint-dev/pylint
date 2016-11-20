@@ -42,8 +42,8 @@ class DocStringStyleChecker(BaseChecker):
     def _check_docstring(self, node_type, node):
         docstring = node.doc
         if docstring and docstring[0] == '\n':
-            self.add_message('docstring-first-line-empty', node=node,
-                             args=(node_type,), confidence=HIGH)
+            self.add_message('docstring-first-line-empty', node = node,
+                             args = (node_type,), confidence = HIGH)
 
         # Use "linecache", instead of node.as_string(), because the latter
         # looses the original form of the docstrings.
@@ -62,8 +62,8 @@ class DocStringStyleChecker(BaseChecker):
             else:
                 quotes = False
             if quotes:
-                self.add_message('bad-docstring-quotes', node=node,
-                                 args=(node_type, quotes), confidence=HIGH)
+                self.add_message('bad-docstring-quotes', node = node,
+                                 args = (node_type, quotes), confidence = HIGH)
 
 
 def register(linter):

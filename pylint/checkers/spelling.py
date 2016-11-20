@@ -178,7 +178,7 @@ class SpellingChecker(BaseTokenChecker):
             except enchant.errors.Error:
                 # this can only happen in docstrings, not comments
                 self.add_message('invalid-characters-in-docstring',
-                                 line=line_num, args=(word,))
+                                 line = line_num, args = (word,))
                 continue
 
             # Store word to private dict or raise a message.
@@ -199,10 +199,10 @@ class SpellingChecker(BaseTokenChecker):
                     col = line.lower().index(word)
                 indicator = (" " * col) + ("^" * len(word))
 
-                self.add_message(msgid, line=line_num,
-                                 args=(orig_word, line,
-                                       indicator,
-                                       "' or '".join(suggestions)))
+                self.add_message(msgid, line = line_num,
+                                 args = (orig_word, line,
+                                         indicator,
+                                         "' or '".join(suggestions)))
 
     def process_tokens(self, tokens):
         if not self.initialized:

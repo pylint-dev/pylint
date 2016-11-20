@@ -4,7 +4,7 @@ class A:
     def __init__(self):
         self.store = {}
 
-    def get(self, key, default=None):
+    def get(self, key, default = None):
         return self.store.get(key, default)
 
 class B(A):

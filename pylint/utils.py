@@ -176,7 +176,7 @@ def build_message_def(checker, msgid, msg_tuple):
 
 class MessageDefinition(object):
     def __init__(self, checker, msgid, msg, descr, symbol, scope,
-                 minversion=None, maxversion=None, old_names=None):
+                 minversion = None, maxversion = None, old_names = None):
         self.checker = checker
         assert len(msgid) == 5, 'Invalid message id %s' % msgid
         assert msgid[0] in MSG_TYPES, \
@@ -198,7 +198,7 @@ class MessageDefinition(object):
             return False
         return True
 
-    def format_help(self, checkerref=False):
+    def format_help(self, checkerref = False):
         """return the help string for the given message id"""
         desc = self.descr
         if checkerref:
@@ -220,7 +220,7 @@ class MessageDefinition(object):
                 desc += " It can't be emitted when using Python %s." % restr
             else:
                 desc += " This message can't be emitted when using Python %s." % restr
-        desc = _normalize_text(' '.join(desc.split()), indent='  ')
+        desc = _normalize_text(' '.join(desc.split()), indent = '  ')
         if title != '%s':
             title = title.splitlines()[0]
             return ':%s: *%s*\n%s' % (msgid, title, desc)
@@ -241,7 +241,7 @@ class MessagesHandlerMixIn(object):
             for msgid in checker.msgs:
                 yield msgid
 
-    def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
+    def disable(self, msgid, scope = 'package', line = None, ignore_unknown = False):
         """don't output message of the given id"""
         assert scope in ('package', 'module')
         # handle disable=all by disabling all categories
@@ -279,8 +279,8 @@ class MessagesHandlerMixIn(object):
         if scope == 'module':
             self.file_state.set_msg_status(msg, line, False)
             if msg.symbol != 'locally-disabled':
-                self.add_message('locally-disabled', line=line,
-                                 args=(msg.symbol, msg.msgid))
+                self.add_message('locally-disabled', line = line,
+                                 args = (msg.symbol, msg.msgid))
 
         else:
             msgs = self._msgs_state
@@ -301,12 +301,12 @@ class MessagesHandlerMixIn(object):
         except UnknownMessage:
             return msgid
 
-    def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
+    def enable(self, msgid, scope = 'package', line = None, ignore_unknown = False):
         """reenable message of the given id"""
         assert scope in ('package', 'module')
         if msgid == 'all':
             for msgid_ in MSG_TYPES:
-                self.enable(msgid_, scope=scope, line=line)
+                self.enable(msgid_, scope = scope, line = line)
             if not self._python3_porting_mode:
                 # Don't activate the python 3 porting checker if it
                 # wasn't activated explicitly.
@@ -339,14 +339,14 @@ class MessagesHandlerMixIn(object):
 
         if scope == 'module':
             self.file_state.set_msg_status(msg, line, True)
-            self.add_message('locally-enabled', line=line, args=(msg.symbol, msg.msgid))
+            self.add_message('locally-enabled', line = line, args = (msg.symbol, msg.msgid))
         else:
             msgs = self._msgs_state
             msgs[msg.msgid] = True
             # sync configuration object
             self.config.enable = [mid for mid, val in six.iteritems(msgs) if val]
 
-    def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
+    def get_message_state_scope(self, msgid, line = None, confidence = UNDEFINED):
         """Returns the scope at which a message was enabled/disabled."""
         if self.config.confidence and confidence.name not in self.config.confidence:
             return MSG_STATE_CONFIDENCE
@@ -356,7 +356,7 @@ class MessagesHandlerMixIn(object):
         except (KeyError, TypeError):
             return MSG_STATE_SCOPE_CONFIG
 
-    def is_message_enabled(self, msg_descr, line=None, confidence=None):
+    def is_message_enabled(self, msg_descr, line = None, confidence = None):
         """return true if the message associated to the given message id is
         enabled
 
@@ -379,7 +379,7 @@ class MessagesHandlerMixIn(object):
         except KeyError:
             return self._msgs_state.get(msgid, True)
 
-    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED):
+    def add_message(self, msg_descr, line = None, node = None, args = None, confidence = UNDEFINED):
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args
@@ -501,9 +501,9 @@ class MessagesHandlerMixIn(object):
                 print(title)
                 print('~' * len(title))
                 for msgid, msg in sorted(six.iteritems(msgs),
-                                         key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
+                                         key = lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])):
                     msg = build_message_def(checker, msgid, msg)
-                    print(msg.format_help(checkerref=False))
+                    print(msg.format_help(checkerref = False))
                 print("")
             if reports:
                 title = 'Reports'
@@ -518,7 +518,7 @@ class MessagesHandlerMixIn(object):
 class FileState(object):
     """Hold internal state specific to the currently analyzed file"""
 
-    def __init__(self, modname=None):
+    def __init__(self, modname = None):
         self.base_name = modname
         self._module_msgs_state = {}
         self._raw_module_msgs_state = {}
@@ -713,7 +713,7 @@ class MessagesStore(object):
         """display help messages for the given message identifiers"""
         for msgid in msgids:
             try:
-                print(self.check_message_id(msgid).format_help(checkerref=True))
+                print(self.check_message_id(msgid).format_help(checkerref = True))
                 print("")
             except UnknownMessage as ex:
                 print(ex)
@@ -722,11 +722,11 @@ class MessagesStore(object):
 
     def list_messages(self):
         """output full messages list documentation in ReST format"""
-        msgs = sorted(six.itervalues(self._messages), key=lambda msg: msg.msgid)
+        msgs = sorted(six.itervalues(self._messages), key = lambda msg: msg.msgid)
         for msg in msgs:
             if not msg.may_be_emitted():
                 continue
-            print(msg.format_help(checkerref=False))
+            print(msg.format_help(checkerref = False))
         print("")
 
 
@@ -929,10 +929,10 @@ class PyLintASTWalker(object):
                 msg = ("Implemented method {meth}_{old} instead of {meth}_{new}. "
                        "This will be supported until Pylint 2.0.")
                 if visit_events:
-                    warnings.warn(msg.format(meth="visit", old=old_cid, new=cid),
+                    warnings.warn(msg.format(meth = "visit", old = old_cid, new = cid),
                                   PendingDeprecationWarning)
                 if leave_events:
-                    warnings.warn(msg.format(meth="leave", old=old_cid, new=cid),
+                    warnings.warn(msg.format(meth = "leave", old = old_cid, new = cid),
                                   PendingDeprecationWarning)
 
         visit_events = itertools.chain(visit_events,
@@ -972,13 +972,13 @@ def register_plugins(linter, directory):
                 continue
             except ImportError as exc:
                 print("Problem importing module %s: %s" % (filename, exc),
-                      file=sys.stderr)
+                      file = sys.stderr)
             else:
                 if hasattr(module, 'register'):
                     module.register(linter)
                     imported[base] = 1
 
-def get_global_option(checker, option, default=None):
+def get_global_option(checker, option, default = None):
     """ Retrieve an option defined by the given *checker* or
     by all known option providers.
 
@@ -1000,7 +1000,7 @@ def get_global_option(checker, option, default=None):
     return default
 
 
-def deprecated_option(shortname=None, opt_type=None, help_msg=None, deprecation_msg=None):
+def deprecated_option(shortname = None, opt_type = None, help_msg = None, deprecation_msg = None):
     def _warn_deprecated(option, optname, *args): # pylint: disable=unused-argument
         if deprecation_msg:
             sys.stderr.write(deprecation_msg % (optname,))
@@ -1018,7 +1018,7 @@ def deprecated_option(shortname=None, opt_type=None, help_msg=None, deprecation_
     return option
 
 
-def _splitstrip(string, sep=','):
+def _splitstrip(string, sep = ','):
     """return a list of stripped string by splitting the string given as
     argument on `sep` (',' by default). Empty string are discarded.
 
@@ -1058,10 +1058,10 @@ def _unquote(string):
     return string
 
 
-def _normalize_text(text, line_len=80, indent=''):
+def _normalize_text(text, line_len = 80, indent = ''):
     """Wrap the text on the given line length."""
-    return '\n'.join(textwrap.wrap(text, width=line_len, initial_indent=indent,
-                                   subsequent_indent=indent))
+    return '\n'.join(textwrap.wrap(text, width = line_len, initial_indent = indent,
+                                   subsequent_indent = indent))
 
 
 def _check_csv(value):
@@ -1110,12 +1110,12 @@ def _format_option_value(optdict, value):
     return value
 
 
-def _ini_format_section(stream, section, options, encoding=None, doc=None):
+def _ini_format_section(stream, section, options, encoding = None, doc = None):
     """format an options section using the INI format"""
     encoding = _get_encoding(encoding, stream)
     if doc:
-        print(_encode(_comment(doc), encoding), file=stream)
-    print('[%s]' % section, file=stream)
+        print(_encode(_comment(doc), encoding), file = stream)
+    print('[%s]' % section, file = stream)
     _ini_format(stream, options, encoding)
 
 
@@ -1125,35 +1125,35 @@ def _ini_format(stream, options, encoding):
         value = _format_option_value(optdict, value)
         help = optdict.get('help')
         if help:
-            help = _normalize_text(help, line_len=79, indent='# ')
-            print(file=stream)
-            print(_encode(help, encoding), file=stream)
+            help = _normalize_text(help, line_len = 79, indent = '# ')
+            print(file = stream)
+            print(_encode(help, encoding), file = stream)
         else:
-            print(file=stream)
+            print(file = stream)
         if value is None:
-            print('#%s=' % optname, file=stream)
+            print('#%s=' % optname, file = stream)
         else:
             value = _encode(value, encoding).strip()
-            print('%s=%s' % (optname, value), file=stream)
+            print('%s=%s' % (optname, value), file = stream)
 
 format_section = _ini_format_section
 
 
-def _rest_format_section(stream, section, options, encoding=None, doc=None):
+def _rest_format_section(stream, section, options, encoding = None, doc = None):
     """format an options section using as ReST formatted output"""
     encoding = _get_encoding(encoding, stream)
     if section:
-        print('%s\n%s' % (section, "'"*len(section)), file=stream)
+        print('%s\n%s' % (section, "'"*len(section)), file = stream)
     if doc:
-        print(_encode(_normalize_text(doc, line_len=79, indent=''), encoding), file=stream)
-        print(file=stream)
+        print(_encode(_normalize_text(doc, line_len = 79, indent = ''), encoding), file = stream)
+        print(file = stream)
     for optname, optdict, value in options:
         help = optdict.get('help')
-        print(':%s:' % optname, file=stream)
+        print(':%s:' % optname, file = stream)
         if help:
-            help = _normalize_text(help, line_len=79, indent='  ')
-            print(_encode(help, encoding), file=stream)
+            help = _normalize_text(help, line_len = 79, indent = '  ')
+            print(_encode(help, encoding), file = stream)
         if value:
             value = _encode(_format_option_value(optdict, value), encoding)
-            print(file=stream)
-            print('  Default: ``%s``' % value.replace("`` ", "```` ``"), file=stream)
+            print(file = stream)
+            print('  Default: ``%s``' % value.replace("`` ", "```` ``"), file = stream)

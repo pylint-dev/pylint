@@ -82,7 +82,7 @@ class NoMroAbstractMethods(Container, Iterator, Sizable, Hashable):
 class BadMroAbstractMethods(Container, Iterator, AbstractSizable):
     pass
 
-class SomeMetaclass(metaclass=abc.ABCMeta):
+class SomeMetaclass(metaclass = abc.ABCMeta):
 
     @abc.abstractmethod
     def prop(self):

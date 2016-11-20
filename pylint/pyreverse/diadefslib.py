@@ -79,7 +79,7 @@ class DiaDefGenerator(object):
         """return ancestor nodes of a class node"""
         if level == 0:
             return
-        for ancestor in node.ancestors(recurs=False):
+        for ancestor in node.ancestors(recurs = False):
             if not self.show_node(ancestor):
                 continue
             yield ancestor

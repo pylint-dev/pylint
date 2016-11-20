@@ -60,7 +60,7 @@ CHECKED_CONVENIENCE_FUNCTIONS = set([
     'critical', 'debug', 'error', 'exception', 'fatal', 'info', 'warn',
     'warning'])
 
-def is_method_call(callfunc_node, types=(), methods=()):
+def is_method_call(callfunc_node, types = (), methods = ()):
     """Determines if a CallFunc node represents a method call.
     Args:
       callfunc_node (astroid.CallFunc): The CallFunc AST node to check.
@@ -175,7 +175,7 @@ class LoggingChecker(checkers.BaseChecker):
             return
 
         if isinstance(node.args[format_pos], astroid.BinOp) and node.args[format_pos].op == '%':
-            self.add_message('logging-not-lazy', node=node)
+            self.add_message('logging-not-lazy', node = node)
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
@@ -189,7 +189,7 @@ class LoggingChecker(checkers.BaseChecker):
             CallFunc AST node to be checked.
         """
         if is_method_call(callfunc_node, ('str', 'unicode'), ('format',)):
-            self.add_message('logging-format-interpolation', node=callfunc_node)
+            self.add_message('logging-format-interpolation', node = callfunc_node)
 
     def _check_format_string(self, node, format_arg):
         """Checks that format string tokens match the supplied arguments.
@@ -218,16 +218,16 @@ class LoggingChecker(checkers.BaseChecker):
                     return
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
-                self.add_message('logging-unsupported-format', node=node,
-                                 args=(char, ord(char), ex.index))
+                self.add_message('logging-unsupported-format', node = node,
+                                 args = (char, ord(char), ex.index))
                 return
             except utils.IncompleteFormatString:
-                self.add_message('logging-format-truncated', node=node)
+                self.add_message('logging-format-truncated', node = node)
                 return
         if num_args > required_num_args:
-            self.add_message('logging-too-many-args', node=node)
+            self.add_message('logging-too-many-args', node = node)
         elif num_args < required_num_args:
-            self.add_message('logging-too-few-args', node=node)
+            self.add_message('logging-too-few-args', node = node)
 
 
 def _count_supplied_tokens(args):

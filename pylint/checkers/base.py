@@ -142,10 +142,10 @@ def _loop_exits_early(loop):
             # break statement may be in orelse of child loop.
             # pylint: disable=superfluous-parens
             for orelse in (child.orelse or ()):
-                for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
+                for _ in orelse.nodes_of_class(astroid.Break, skip_klass = loop_nodes):
                     return True
             continue
-        for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
+        for _ in child.nodes_of_class(astroid.Break, skip_klass = loop_nodes):
             return True
     return False
 
@@ -177,7 +177,7 @@ def _get_properties(config):
     return property_classes, property_names
 
 
-def _determine_function_name_type(node, config=None):
+def _determine_function_name_type(node, config = None):
     """Determine the name type whose regex the a function's name should match.
 
     :param node: A function node.
@@ -267,7 +267,7 @@ def report_by_type_stats(sect, stats, old_stats):
         lines += (node_type, str(new), str(old), diff_str,
                   nice_stats[node_type].get('percent_documented', '0'),
                   nice_stats[node_type].get('percent_badname', '0'))
-    sect.append(Table(children=lines, cols=6, rheaders=1))
+    sect.append(Table(children = lines, cols = 6, rheaders = 1))
 
 def redefined_by_decorator(node):
     """return True if the object is a method redefined via decorator.
@@ -397,11 +397,11 @@ class BasicErrorChecker(_BasicChecker):
     def visit_assign(self, node):
         starred = list(node.targets[0].nodes_of_class(astroid.Starred))
         if len(starred) > 1:
-            self.add_message('too-many-star-expressions', node=node)
+            self.add_message('too-many-star-expressions', node = node)
 
         # Check *a = b
         if isinstance(node.targets[0], astroid.Starred):
-            self.add_message('invalid-star-assignment-target', node=node)
+            self.add_message('invalid-star-assignment-target', node = node)
 
     @check_messages('star-needs-assignment-target')
     def visit_starred(self, node):
@@ -421,7 +421,7 @@ class BasicErrorChecker(_BasicChecker):
             return
 
         if stmt.value is node or stmt.value.parent_of(node):
-            self.add_message('star-needs-assignment-target', node=node)
+            self.add_message('star-needs-assignment-target', node = node)
 
     @check_messages('init-is-generator', 'return-in-init',
                     'function-redefined', 'return-arg-in-generator',
@@ -432,29 +432,29 @@ class BasicErrorChecker(_BasicChecker):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
         # checks for max returns, branch, return in __init__
         returns = node.nodes_of_class(astroid.Return,
-                                      skip_klass=(astroid.FunctionDef,
-                                                  astroid.ClassDef))
+                                      skip_klass = (astroid.FunctionDef,
+                                                    astroid.ClassDef))
         if node.is_method() and node.name == '__init__':
             if node.is_generator():
-                self.add_message('init-is-generator', node=node)
+                self.add_message('init-is-generator', node = node)
             else:
                 values = [r.value for r in returns]
                 # Are we returning anything but None from constructors
                 if [v for v in values if not _is_none(v)]:
-                    self.add_message('return-in-init', node=node)
+                    self.add_message('return-in-init', node = node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
             if not PY33:
                 for retnode in returns:
                     if isinstance(retnode.value, astroid.Const) and \
                            retnode.value.value is not None:
-                        self.add_message('return-arg-in-generator', node=node,
-                                         line=retnode.fromlineno)
+                        self.add_message('return-arg-in-generator', node = node,
+                                         line = retnode.fromlineno)
         # Check for duplicate names
         args = set()
         for name in node.argnames():
             if name in args:
-                self.add_message('duplicate-argument-name', node=node, args=(name,))
+                self.add_message('duplicate-argument-name', node = node, args = (name,))
             else:
                 args.add(name)
 
@@ -474,12 +474,12 @@ class BasicErrorChecker(_BasicChecker):
             if same_scope(child)))
         for name in nonlocals.intersection(global_vars):
             self.add_message('nonlocal-and-global',
-                             args=(name, ), node=node)
+                             args = (name, ), node = node)
 
     @check_messages('return-outside-function')
     def visit_return(self, node):
         if not isinstance(node.frame(), astroid.FunctionDef):
-            self.add_message('return-outside-function', node=node)
+            self.add_message('return-outside-function', node = node)
 
     @check_messages('yield-outside-function')
     def visit_yield(self, node):
@@ -511,7 +511,7 @@ class BasicErrorChecker(_BasicChecker):
         if ((node.op in '+-') and
                 isinstance(node.operand, astroid.UnaryOp) and
                 (node.operand.op == node.op)):
-            self.add_message('nonexistent-operator', node=node, args=node.op*2)
+            self.add_message('nonexistent-operator', node = node, args = node.op*2)
 
     def _check_nonlocal_without_binding(self, node, name):
         current_scope = node.scope()
@@ -520,8 +520,8 @@ class BasicErrorChecker(_BasicChecker):
                 break
 
             if not isinstance(current_scope, astroid.FunctionDef):
-                self.add_message('nonlocal-without-binding', args=(name, ),
-                                 node=node)
+                self.add_message('nonlocal-without-binding', args = (name, ),
+                                 node = node)
                 return
             else:
                 if name not in current_scope.locals:
@@ -531,7 +531,7 @@ class BasicErrorChecker(_BasicChecker):
                     # Okay, found it.
                     return
 
-        self.add_message('nonlocal-without-binding', args=(name, ), node=node)
+        self.add_message('nonlocal-without-binding', args = (name, ), node = node)
 
     @check_messages('nonlocal-without-binding')
     def visit_nonlocal(self, node):
@@ -568,27 +568,27 @@ class BasicErrorChecker(_BasicChecker):
             for ancestor in infered.ancestors():
                 if ancestor.qname() == 'abc.ABC' and abstract_methods:
                     self.add_message('abstract-class-instantiated',
-                                     args=(infered.name, ),
-                                     node=node)
+                                     args = (infered.name, ),
+                                     node = node)
                     break
             return
         if metaclass.qname() == 'abc.ABCMeta' and abstract_methods:
             self.add_message('abstract-class-instantiated',
-                             args=(infered.name, ),
-                             node=node)
+                             args = (infered.name, ),
+                             node = node)
 
     def _check_yield_outside_func(self, node):
         if not isinstance(node.frame(), (astroid.FunctionDef, astroid.Lambda)):
-            self.add_message('yield-outside-function', node=node)
+            self.add_message('yield-outside-function', node = node)
 
     def _check_else_on_loop(self, node):
         """Check that any loop with an else clause has a break statement."""
         if node.orelse and not _loop_exits_early(node):
-            self.add_message('useless-else-on-loop', node=node,
+            self.add_message('useless-else-on-loop', node = node,
                              # This is not optimal, but the line previous
                              # to the first statement in the else clause
                              # will usually be the one that contains the else:.
-                             line=node.orelse[0].lineno - 1)
+                             line = node.orelse[0].lineno - 1)
 
     def _check_in_loop(self, node, node_name):
         """check that a node is inside a for or while loop"""
@@ -603,18 +603,18 @@ class BasicErrorChecker(_BasicChecker):
             if (isinstance(_node, astroid.TryFinally)
                     and node in _node.finalbody
                     and isinstance(node, astroid.Continue)):
-                self.add_message('continue-in-finally', node=node)
+                self.add_message('continue-in-finally', node = node)
 
             _node = _node.parent
 
-        self.add_message('not-in-loop', node=node, args=node_name)
+        self.add_message('not-in-loop', node = node, args = node_name)
 
     def _check_redefinition(self, redeftype, node):
         """check for redefinition of a function / method / class name"""
         defined_self = node.parent.frame()[node.name]
         if defined_self is not node and not are_exclusive(node, defined_self):
-            self.add_message('function-redefined', node=node,
-                             args=(redeftype, defined_self.fromlineno))
+            self.add_message('function-redefined', node = node,
+                             args = (redeftype, defined_self.fromlineno))
 
 
 
@@ -708,10 +708,10 @@ functions, methods
     }
 
     options = (('required-attributes',
-                deprecated_option(opt_type='csv',
-                                  help_msg="Required attributes for module. "
-                                           "This option is obsolete.",
-                                  deprecation_msg="This option %r will be removed in Pylint 2.0")),
+                deprecated_option(opt_type = 'csv',
+                                  help_msg = "Required attributes for module. "
+                                             "This option is obsolete.",
+                                  deprecation_msg = "This option %r will be removed in Pylint 2.0")),
               )
     reports = (('RP0101', 'Statistics by type', report_by_type_stats),)
 
@@ -724,8 +724,8 @@ functions, methods
         """initialize visit variables and statistics
         """
         self._tryfinallys = []
-        self.stats = self.linter.add_stats(module=0, function=0,
-                                           method=0, class_=0)
+        self.stats = self.linter.add_stats(module = 0, function = 0,
+                                           method = 0, class_ = 0)
 
     @check_messages('using-constant-test')
     def visit_if(self, node):
@@ -765,7 +765,7 @@ functions, methods
             inferred = safe_infer(test)
 
         if emit or isinstance(inferred, const_nodes):
-            self.add_message('using-constant-test', node=node)
+            self.add_message('using-constant-test', node = node)
 
     def visit_module(self, _):
         """check module name, docstring and required arguments
@@ -798,7 +798,7 @@ functions, methods
                     if (sibling is not None and sibling.scope() is scope and
                             isinstance(sibling, astroid.Assign)):
                         return
-            self.add_message('pointless-string-statement', node=node)
+            self.add_message('pointless-string-statement', node = node)
             return
         # ignore if this is :
         # * a direct function call
@@ -811,10 +811,10 @@ functions, methods
                  node.parent.body == [node])):
             return
         if any(expr.nodes_of_class(astroid.Call)):
-            self.add_message('expression-not-assigned', node=node,
-                             args=expr.as_string())
+            self.add_message('expression-not-assigned', node = node,
+                             args = expr.as_string())
         else:
-            self.add_message('pointless-statement', node=node)
+            self.add_message('pointless-statement', node = node)
 
     @staticmethod
     def _filter_vararg(node, call_args):
@@ -889,8 +889,8 @@ functions, methods
             if arg.name != passed_arg.name:
                 return
 
-        self.add_message('unnecessary-lambda', line=node.fromlineno,
-                         node=node)
+        self.add_message('unnecessary-lambda', line = node.fromlineno,
+                         node = node)
 
     @check_messages('dangerous-default-value')
     def visit_functiondef(self, node):
@@ -937,8 +937,8 @@ functions, methods
                     msg = '%s (%s)' % (default.as_string(),
                                        DEFAULT_ARGUMENT_SYMBOLS[value.qname()])
                 self.add_message('dangerous-default-value',
-                                 node=node,
-                                 args=(msg, ))
+                                 node = node,
+                                 args = (msg, ))
 
     @check_messages('unreachable', 'lost-exception')
     def visit_return(self, node):
@@ -980,7 +980,7 @@ functions, methods
     @check_messages('exec-used')
     def visit_exec(self, node):
         """just print a warning on exec statements"""
-        self.add_message('exec-used', node=node)
+        self.add_message('exec-used', node = node)
 
     @check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
     def visit_call(self, node):
@@ -994,18 +994,18 @@ functions, methods
             if not (name in node.frame() or
                     name in node.root()):
                 if name == 'exec':
-                    self.add_message('exec-used', node=node)
+                    self.add_message('exec-used', node = node)
                 elif name == 'reversed':
                     self._check_reversed(node)
                 elif name == 'eval':
-                    self.add_message('eval-used', node=node)
+                    self.add_message('eval-used', node = node)
 
     @check_messages('assert-on-tuple')
     def visit_assert(self, node):
         """check the use of an assert statement on a tuple."""
         if node.fail is None and isinstance(node.test, astroid.Tuple) and \
                 len(node.test.elts) == 2:
-            self.add_message('assert-on-tuple', node=node)
+            self.add_message('assert-on-tuple', node = node)
 
     @check_messages('duplicate-key')
     def visit_dict(self, node):
@@ -1015,7 +1015,7 @@ functions, methods
             if isinstance(k, astroid.Const):
                 key = k.value
                 if key in keys:
-                    self.add_message('duplicate-key', node=node, args=key)
+                    self.add_message('duplicate-key', node = node, args = key)
                 keys.add(key)
 
     def visit_tryfinally(self, node):
@@ -1030,9 +1030,9 @@ functions, methods
         """check unreachable code"""
         unreach_stmt = node.next_sibling()
         if unreach_stmt is not None:
-            self.add_message('unreachable', node=unreach_stmt)
+            self.add_message('unreachable', node = unreach_stmt)
 
-    def _check_not_in_finally(self, node, node_name, breaker_classes=()):
+    def _check_not_in_finally(self, node, node_name, breaker_classes = ()):
         """check that a node is not inside a finally clause of a
         try...finally statement.
         If we found before a try...finally bloc a parent which its type is
@@ -1045,7 +1045,7 @@ functions, methods
         _node = node
         while _parent and not isinstance(_parent, breaker_classes):
             if hasattr(_parent, 'finalbody') and _node in _parent.finalbody:
-                self.add_message('lost-exception', node=node, args=node_name)
+                self.add_message('lost-exception', node = node, args = node_name)
                 return
             _node = _parent
             _parent = _node.parent
@@ -1053,7 +1053,7 @@ functions, methods
     def _check_reversed(self, node):
         """ check that the argument to `reversed` is a sequence """
         try:
-            argument = safe_infer(get_argument_from_call(node, position=0))
+            argument = safe_infer(get_argument_from_call(node, position = 0))
         except NoSuchArgumentError:
             pass
         else:
@@ -1069,13 +1069,13 @@ functions, methods
                         return
                     if (getattr(func, 'name', None) == 'iter' and
                             is_builtin_object(func)):
-                        self.add_message('bad-reversed-sequence', node=node)
+                        self.add_message('bad-reversed-sequence', node = node)
                 return
 
             if isinstance(argument, astroid.Instance):
                 if (argument._proxied.name == 'dict' and
                         is_builtin_object(argument._proxied)):
-                    self.add_message('bad-reversed-sequence', node=node)
+                    self.add_message('bad-reversed-sequence', node = node)
                     return
                 elif any(ancestor.name == 'dict' and is_builtin_object(ancestor)
                          for ancestor in argument._proxied.ancestors()):
@@ -1084,7 +1084,7 @@ functions, methods
                     try:
                         argument.locals[REVERSED_PROTOCOL_METHOD]
                     except KeyError:
-                        self.add_message('bad-reversed-sequence', node=node)
+                        self.add_message('bad-reversed-sequence', node = node)
                     return
 
                 for methods in REVERSED_METHODS:
@@ -1096,10 +1096,10 @@ functions, methods
                     else:
                         break
                 else:
-                    self.add_message('bad-reversed-sequence', node=node)
+                    self.add_message('bad-reversed-sequence', node = node)
             elif not isinstance(argument, (astroid.List, astroid.Tuple)):
                 # everything else is not a proper sequence for reversed()
-                self.add_message('bad-reversed-sequence', node=node)
+                self.add_message('bad-reversed-sequence', node = node)
 
     @check_messages('confusing-with-statement')
     def visit_with(self, node):
@@ -1126,7 +1126,7 @@ functions, methods
                     if PY3K or node.lineno == node.parent.lineno:
                         # if the line number doesn't match
                         # we assume it's a nested "with"
-                        self.add_message('confusing-with-statement', node=node)
+                        self.add_message('confusing-with-statement', node = node)
 
 
 _NAME_TYPES = {
@@ -1209,14 +1209,14 @@ class NameChecker(_BasicChecker):
         self._bad_names = {}
 
     def open(self):
-        self.stats = self.linter.add_stats(badname_module=0,
-                                           badname_class=0, badname_function=0,
-                                           badname_method=0, badname_attr=0,
-                                           badname_const=0,
-                                           badname_variable=0,
-                                           badname_inlinevar=0,
-                                           badname_argument=0,
-                                           badname_class_attribute=0)
+        self.stats = self.linter.add_stats(badname_module = 0,
+                                           badname_class = 0, badname_function = 0,
+                                           badname_method = 0, badname_attr = 0,
+                                           badname_const = 0,
+                                           badname_variable = 0,
+                                           badname_inlinevar = 0,
+                                           badname_argument = 0,
+                                           badname_class_attribute = 0)
         for group in self.config.name_group:
             for name_type in group.split(':'):
                 self._name_group[name_type] = 'group_%s' % (group,)
@@ -1237,7 +1237,7 @@ class NameChecker(_BasicChecker):
                 min_warnings = min(len(group), min_warnings)
             if len(groups[min_warnings]) > 1:
                 by_line = sorted(groups[min_warnings],
-                                 key=lambda group: min(warning[0].lineno for warning in group))
+                                 key = lambda group: min(warning[0].lineno for warning in group))
                 warnings = itertools.chain(*by_line[1:])
             else:
                 warnings = groups[min_warnings][0]
@@ -1263,7 +1263,7 @@ class NameChecker(_BasicChecker):
                           else INFERENCE_FAILURE)
 
         self._check_name(_determine_function_name_type(node,
-                                                       config=self.config),
+                                                       config = self.config),
                          node.name, node, confidence)
         # Check argument names
         args = node.args.args
@@ -1320,11 +1320,11 @@ class NameChecker(_BasicChecker):
         hint = ''
         if self.config.include_naming_hint:
             hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
-        self.add_message('invalid-name', node=node, args=(type_label, name, hint),
-                         confidence=confidence)
+        self.add_message('invalid-name', node = node, args = (type_label, name, hint),
+                         confidence = confidence)
         self.stats['badname_' + node_type] += 1
 
-    def _check_name(self, node_type, name, node, confidence=HIGH):
+    def _check_name(self, node_type, name, node, confidence = HIGH):
         """check for a name using the type's regexp"""
         if is_inside_except(node):
             clobbering, _ = clobber_in_except(node)
@@ -1334,7 +1334,7 @@ class NameChecker(_BasicChecker):
             return
         if name in self.config.bad_names:
             self.stats['badname_' + node_type] += 1
-            self.add_message('blacklisted-name', node=node, args=name)
+            self.add_message('blacklisted-name', node = node, args = name)
             return
         regexp = getattr(self.config, node_type + '_rgx')
         match = regexp.match(name)
@@ -1378,10 +1378,10 @@ class DocStringChecker(_BasicChecker):
 
 
     def open(self):
-        self.stats = self.linter.add_stats(undocumented_module=0,
-                                           undocumented_function=0,
-                                           undocumented_method=0,
-                                           undocumented_class=0)
+        self.stats = self.linter.add_stats(undocumented_module = 0,
+                                           undocumented_function = 0,
+                                           undocumented_method = 0,
+                                           undocumented_class = 0)
     @check_messages('missing-docstring', 'empty-docstring')
     def visit_module(self, node):
         self._check_docstring('module', node)
@@ -1418,15 +1418,15 @@ class DocStringChecker(_BasicChecker):
                         overridden = True
                         break
                 self._check_docstring(ftype, node,
-                                      report_missing=not overridden,
-                                      confidence=confidence)
+                                      report_missing = not overridden,
+                                      confidence = confidence)
             else:
                 self._check_docstring(ftype, node)
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_docstring(self, node_type, node, report_missing=True,
-                         confidence=HIGH):
+    def _check_docstring(self, node_type, node, report_missing = True,
+                         confidence = HIGH):
         """check the node has a non empty docstring"""
         docstring = node.doc
         if docstring is None:
@@ -1457,12 +1457,12 @@ class DocStringChecker(_BasicChecker):
                         return
                     elif func.bound.name in ('str', 'unicode', 'bytes'):
                         return
-            self.add_message('missing-docstring', node=node, args=(node_type,),
-                             confidence=confidence)
+            self.add_message('missing-docstring', node = node, args = (node_type,),
+                             confidence = confidence)
         elif not docstring.strip():
             self.stats['undocumented_'+node_type] += 1
-            self.add_message('empty-docstring', node=node, args=(node_type,),
-                             confidence=confidence)
+            self.add_message('empty-docstring', node = node, args = (node_type,),
+                             confidence = confidence)
 
 
 class PassChecker(_BasicChecker):
@@ -1475,7 +1475,7 @@ class PassChecker(_BasicChecker):
     @check_messages('unnecessary-pass')
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
-            self.add_message('unnecessary-pass', node=node)
+            self.add_message('unnecessary-pass', node = node)
 
 
 class LambdaForComprehensionChecker(_BasicChecker):
@@ -1505,7 +1505,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
         infered = safe_infer(node.func)
         if (is_builtin_object(infered)
                 and infered.name in ['map', 'filter']):
-            self.add_message('deprecated-lambda', node=node)
+            self.add_message('deprecated-lambda', node = node)
 
 
 class RecommandationChecker(_BasicChecker):
@@ -1545,7 +1545,7 @@ class RecommandationChecker(_BasicChecker):
             statement = statement.value
 
         if isinstance(statement, astroid.For) or is_comprehension(statement):
-            self.add_message('consider-iterating-dictionary', node=node)
+            self.add_message('consider-iterating-dictionary', node = node)
 
     @check_messages('consider-using-enumerate')
     def visit_for(self, node):
@@ -1596,7 +1596,7 @@ class RecommandationChecker(_BasicChecker):
                     # loop, another scope was created, where the same
                     # name for the iterating object was used.
                     continue
-                self.add_message('consider-using-enumerate', node=node)
+                self.add_message('consider-using-enumerate', node = node)
                 return
 
 
@@ -1638,25 +1638,25 @@ class ComparisonChecker(_BasicChecker):
         if singleton.value is True:
             suggestion = "just 'expr' or 'expr is True'"
             self.add_message('singleton-comparison',
-                             node=root_node,
-                             args=(True, suggestion))
+                             node = root_node,
+                             args = (True, suggestion))
         elif singleton.value is False:
             suggestion = "'not expr' or 'expr is False'"
             self.add_message('singleton-comparison',
-                             node=root_node,
-                             args=(False, suggestion))
+                             node = root_node,
+                             args = (False, suggestion))
         elif singleton.value is None:
             self.add_message('singleton-comparison',
-                             node=root_node,
-                             args=(None, "'expr is None'"))
+                             node = root_node,
+                             args = (None, "'expr is None'"))
 
     def _check_misplaced_constant(self, node, left, right, operator):
         if isinstance(right, astroid.Const):
             return
         operator = REVERSED_COMPS.get(operator, operator)
         suggestion = '%s %s %r' % (right.as_string(), operator, left.value)
-        self.add_message('misplaced-comparison-constant', node=node,
-                         args=(suggestion,))
+        self.add_message('misplaced-comparison-constant', node = node,
+                         args = (suggestion,))
 
     @check_messages('singleton-comparison', 'misplaced-comparison-constant',
                     'unidiomatic-typecheck')
@@ -1701,7 +1701,7 @@ class ComparisonChecker(_BasicChecker):
                 if not isinstance(right_arg, LITERAL_NODE_TYPES):
                     # not e.g. type(x) == type([])
                     return
-        self.add_message('unidiomatic-typecheck', node=node)
+        self.add_message('unidiomatic-typecheck', node = node)
 
 
 class ElifChecker(BaseTokenChecker):
@@ -1734,7 +1734,7 @@ class ElifChecker(BaseTokenChecker):
                          'method body'}
                ),)
 
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         BaseTokenChecker.__init__(self, linter)
         self._init()
 
@@ -1818,8 +1818,8 @@ class ElifChecker(BaseTokenChecker):
             #     The original form is easier to grasp.
             return
 
-        self.add_message('simplifiable-if-statement', node=node,
-                         args=(reduced_to, ))
+        self.add_message('simplifiable-if-statement', node = node,
+                         args = (reduced_to, ))
 
     def process_tokens(self, tokens):
         # Process tokens and look for 'if' or 'elif'
@@ -1859,8 +1859,8 @@ class ElifChecker(BaseTokenChecker):
         # if there is a waiting message left, send it
         if self._nested_blocks_msg:
             self.add_message('too-many-nested-blocks',
-                             node=self._nested_blocks_msg[0],
-                             args=self._nested_blocks_msg[1])
+                             node = self._nested_blocks_msg[0],
+                             args = self._nested_blocks_msg[1])
             self._nested_blocks_msg = None
 
     def _check_nested_blocks(self, node):
@@ -1888,9 +1888,9 @@ class ElifChecker(BaseTokenChecker):
         # send message only once per group of nested blocks
         if len(nested_blocks) > self.config.max_nested_blocks:
             if len(nested_blocks) > len(self._nested_blocks):
-                self.add_message('too-many-nested-blocks', node=nested_blocks[0],
-                                 args=(len(nested_blocks),
-                                       self.config.max_nested_blocks))
+                self.add_message('too-many-nested-blocks', node = nested_blocks[0],
+                                 args = (len(nested_blocks),
+                                         self.config.max_nested_blocks))
                 self._nested_blocks_msg = None
             else:
                 # if time has not come yet to send the message (ie the stack of
@@ -1928,9 +1928,9 @@ class NotChecker(_BasicChecker):
         operand = node.operand
 
         if isinstance(operand, astroid.UnaryOp) and operand.op == 'not':
-            self.add_message('unneeded-not', node=node,
-                             args=(node.as_string(),
-                                   operand.operand.as_string()))
+            self.add_message('unneeded-not', node = node,
+                             args = (node.as_string(),
+                                     operand.operand.as_string()))
         elif isinstance(operand, astroid.Compare):
             left = operand.left
             # ignore multiple comparisons
@@ -1954,8 +1954,8 @@ class NotChecker(_BasicChecker):
             suggestion = '%s %s %s' % (left.as_string(),
                                        self.reverse_op[operator],
                                        right.as_string())
-            self.add_message('unneeded-not', node=node,
-                             args=(node.as_string(), suggestion))
+            self.add_message('unneeded-not', node = node,
+                             args = (node.as_string(), suggestion))
 
 
 class MultipleTypesChecker(BaseChecker):
@@ -2005,8 +2005,8 @@ class MultipleTypesChecker(BaseChecker):
                 if redef_type != orig_type:
                     orig_type = orig_type.replace(BUILTINS + ".", '')
                     redef_type = redef_type.replace(BUILTINS + ".", '')
-                    self.add_message('redefined-variable-type', node=redef_node,
-                                     args=(name, orig_type, redef_type))
+                    self.add_message('redefined-variable-type', node = redef_node,
+                                     args = (name, orig_type, redef_type))
                     break
 
     def visit_assign(self, node):

@@ -16,7 +16,7 @@ from pylint.interfaces import HIGH, IAstroidChecker
 
 class PathGraph(Mccabe_PathGraph):
     def __init__(self, node):
-        super(PathGraph, self).__init__(name='', entity='', lineno=1)
+        super(PathGraph, self).__init__(name = '', entity = '', lineno = 1)
         self.root = node
 
 
@@ -80,7 +80,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         self.tail = node
         return node
 
-    def _subgraph(self, node, name, extra_blocks=()):
+    def _subgraph(self, node, name, extra_blocks = ()):
         """create the subgraphs representing any `if` and `for` statements"""
         if self.graph is None:
             # global loop
@@ -157,8 +157,8 @@ class McCabeMethodChecker(BaseChecker):
             if complexity <= self.config.max_complexity:
                 continue
             self.add_message(
-                'too-complex', node=node, confidence=HIGH,
-                args=(node_name, complexity))
+                'too-complex', node = node, confidence = HIGH,
+                args = (node_name, complexity))
 
 
 def register(linter):

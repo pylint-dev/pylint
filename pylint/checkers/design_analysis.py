@@ -154,7 +154,7 @@ class MisdesignChecker(BaseChecker):
                ),
               )
 
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         BaseChecker.__init__(self, linter)
         self.stats = None
         self._returns = None
@@ -175,15 +175,15 @@ class MisdesignChecker(BaseChecker):
         # Is the total inheritance hierarchy is 7 or less?
         nb_parents = len(list(node.ancestors()))
         if nb_parents > self.config.max_parents:
-            self.add_message('too-many-ancestors', node=node,
-                             args=(nb_parents, self.config.max_parents))
+            self.add_message('too-many-ancestors', node = node,
+                             args = (nb_parents, self.config.max_parents))
         # Does the class contain less than 20 attributes for
         # non-GUI classes (40 for GUI)?
         # FIXME detect gui classes
         if len(node.instance_attrs) > self.config.max_attributes:
-            self.add_message('too-many-instance-attributes', node=node,
-                             args=(len(node.instance_attrs),
-                                   self.config.max_attributes))
+            self.add_message('too-many-instance-attributes', node = node,
+                             args = (len(node.instance_attrs),
+                                     self.config.max_attributes))
 
     @check_messages('too-few-public-methods', 'too-many-public-methods')
     def leave_classdef(self, node):
@@ -201,9 +201,9 @@ class MisdesignChecker(BaseChecker):
         # a lot of assert methods. It doesn't make sense to warn
         # when the user subclasses TestCase to add his own tests.
         if my_methods > self.config.max_public_methods:
-            self.add_message('too-many-public-methods', node=node,
-                             args=(my_methods,
-                                   self.config.max_public_methods))
+            self.add_message('too-many-public-methods', node = node,
+                             args = (my_methods,
+                                     self.config.max_public_methods))
         # stop here for exception, metaclass and interface classes
         if node.type != 'class':
             return
@@ -212,9 +212,9 @@ class MisdesignChecker(BaseChecker):
         # This checks all the methods defined by ancestors and
         # by the current class.
         if all_methods < self.config.min_public_methods:
-            self.add_message('too-few-public-methods', node=node,
-                             args=(all_methods,
-                                   self.config.min_public_methods))
+            self.add_message('too-few-public-methods', node = node,
+                             args = (all_methods,
+                                     self.config.min_public_methods))
 
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
@@ -233,15 +233,15 @@ class MisdesignChecker(BaseChecker):
                  if self.config.ignored_argument_names.match(arg.name)])
             argnum = len(args) - ignored_args_num
             if  argnum > self.config.max_args:
-                self.add_message('too-many-arguments', node=node,
-                                 args=(len(args), self.config.max_args))
+                self.add_message('too-many-arguments', node = node,
+                                 args = (len(args), self.config.max_args))
         else:
             ignored_args_num = 0
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
         if locnum > self.config.max_locals:
-            self.add_message('too-many-locals', node=node,
-                             args=(locnum, self.config.max_locals))
+            self.add_message('too-many-locals', node = node,
+                             args = (locnum, self.config.max_locals))
         # init statements counter
         self._stmts = 1
 
@@ -256,16 +256,16 @@ class MisdesignChecker(BaseChecker):
         """
         returns = self._returns.pop()
         if returns > self.config.max_returns:
-            self.add_message('too-many-return-statements', node=node,
-                             args=(returns, self.config.max_returns))
+            self.add_message('too-many-return-statements', node = node,
+                             args = (returns, self.config.max_returns))
         branches = self._branches[node]
         if branches > self.config.max_branches:
-            self.add_message('too-many-branches', node=node,
-                             args=(branches, self.config.max_branches))
+            self.add_message('too-many-branches', node = node,
+                             args = (branches, self.config.max_branches))
         # check number of statements
         if self._stmts > self.config.max_statements:
-            self.add_message('too-many-statements', node=node,
-                             args=(self._stmts, self.config.max_statements))
+            self.add_message('too-many-statements', node = node,
+                             args = (self._stmts, self.config.max_statements))
 
     leave_asyncfunctiondef = leave_functiondef
 
@@ -317,8 +317,8 @@ class MisdesignChecker(BaseChecker):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.config.max_bool_expr:
-            self.add_message('too-many-boolean-expressions', node=condition,
-                             args=(nb_bool_expr, self.config.max_bool_expr))
+            self.add_message('too-many-boolean-expressions', node = condition,
+                             args = (nb_bool_expr, self.config.max_bool_expr))
 
     def visit_while(self, node):
         """increments the branches counter"""
@@ -329,7 +329,7 @@ class MisdesignChecker(BaseChecker):
 
     visit_for = visit_while
 
-    def _inc_branch(self, node, branchesnum=1):
+    def _inc_branch(self, node, branchesnum = 1):
         """increments the branches counter"""
         self._branches[node.scope()] += branchesnum
 

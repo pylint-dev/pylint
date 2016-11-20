@@ -59,7 +59,7 @@ def in_for_else_branch(parent, stmt):
     return (isinstance(parent, astroid.For) and
             any(else_stmt.parent_of(stmt) for else_stmt in parent.orelse))
 
-@lru_cache(maxsize=1000)
+@lru_cache(maxsize = 1000)
 def overridden_method(klass, name):
     """get overridden method if any"""
     try:
@@ -185,7 +185,7 @@ def _fix_dot_imports(not_consumed):
                         second_name = imports[0]
                 if second_name and second_name not in names:
                     names[second_name] = stmt
-    return sorted(names.items(), key=lambda a: a[1].fromlineno)
+    return sorted(names.items(), key = lambda a: a[1].fromlineno)
 
 def _find_frame_imports(name, frame):
     """
@@ -348,7 +348,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                          'that can redefine builtins.'}
                ),
               )
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         BaseChecker.__init__(self, linter)
         self._to_consume = None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
         self._checking_mod_attr = None
@@ -356,11 +356,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
     # Relying on other checker's options, which might not have been initialized yet.
     @decorators.cachedproperty
     def _analyse_fallback_blocks(self):
-        return get_global_option(self, 'analyse-fallback-blocks', default=False)
+        return get_global_option(self, 'analyse-fallback-blocks', default = False)
 
     @decorators.cachedproperty
     def _ignored_modules(self):
-        return get_global_option(self, 'ignored-modules', default=[])
+        return get_global_option(self, 'ignored-modules', default = [])
 
 
     def visit_module(self, node):
@@ -372,7 +372,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if is_builtin(name) and not is_inside_except(stmts[0]):
                 if self._should_ignore_redefined_builtin(stmts[0]):
                     continue
-                self.add_message('redefined-builtin', args=name, node=stmts[0])
+                self.add_message('redefined-builtin', args = name, node = stmts[0])
 
     @check_messages('unused-import', 'unused-wildcard-import',
                     'redefined-builtin', 'undefined-all-variable',
@@ -409,7 +409,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if (not isinstance(elt_name, astroid.Const)
                     or not isinstance(elt_name.value, six.string_types)):
                 self.add_message('invalid-all-object',
-                                 args=elt.as_string(), node=elt)
+                                 args = elt.as_string(), node = elt)
                 continue
 
             elt_name = elt_name.value
@@ -421,8 +421,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if elt_name not in node.locals:
                 if not node.package:
                     self.add_message('undefined-all-variable',
-                                     args=(elt_name, ),
-                                     node=elt)
+                                     args = (elt_name, ),
+                                     node = elt)
                 else:
                     basename = os.path.splitext(node.file)[0]
                     if os.path.basename(basename) == '__init__':
@@ -431,8 +431,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             modutils.file_from_modpath(name.split("."))
                         except ImportError:
                             self.add_message('undefined-all-variable',
-                                             args=(elt_name, ),
-                                             node=elt)
+                                             args = (elt_name, ),
+                                             node = elt)
                         except SyntaxError:
                             # don't yield an syntax-error warning,
                             # because it will be later yielded
@@ -466,7 +466,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                         msg = "import %s" % imported_name
                     else:
                         msg = "%s imported as %s" % (imported_name, as_name)
-                    self.add_message('unused-import', args=msg, node=stmt)
+                    self.add_message('unused-import', args = msg, node = stmt)
                 elif (isinstance(stmt, astroid.ImportFrom)
                       and stmt.modname != FUTURE):
 
@@ -482,14 +482,14 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
                     if imported_name == '*':
                         self.add_message('unused-wildcard-import',
-                                         args=name, node=stmt)
+                                         args = name, node = stmt)
                     else:
                         if as_name is None:
                             msg = "%s imported from %s" % (imported_name, stmt.modname)
                         else:
                             fields = (imported_name, stmt.modname, as_name)
                             msg = "%s imported from %s as %s" % fields
-                        self.add_message('unused-import', args=msg, node=stmt)
+                        self.add_message('unused-import', args = msg, node = stmt)
         del self._to_consume
 
     def visit_classdef(self, node):
@@ -569,11 +569,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 dummy_rgx = self.config.dummy_variables_rgx
                 if not dummy_rgx.match(name):
                     self.add_message('redefined-outer-name',
-                                     args=(name, line), node=stmt)
+                                     args = (name, line), node = stmt)
 
             elif is_builtin(name) and not self._should_ignore_redefined_builtin(stmt):
                 # do not print Redefining builtin for additional builtins
-                self.add_message('redefined-builtin', args=name, node=stmt)
+                self.add_message('redefined-builtin', args = name, node = stmt)
 
     @staticmethod
     def _flattened_scope_names(iterator):
@@ -619,8 +619,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if any(node.name.startswith(cb) or node.name.endswith(cb)
                    for cb in self.config.callbacks):
                 return
-            self.add_message('unused-argument', args=name, node=stmt,
-                             confidence=confidence)
+            self.add_message('unused-argument', args = name, node = stmt,
+                             confidence = confidence)
         else:
             if stmt.parent and isinstance(stmt.parent, astroid.Assign):
                 if name in nonlocal_names:
@@ -631,7 +631,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 qname, asname = stmt.names[0]
                 name = asname or qname
 
-            self.add_message('unused-variable', args=name, node=stmt)
+            self.add_message('unused-variable', args = name, node = stmt)
 
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
@@ -665,7 +665,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         """check names imported exists in the global scope"""
         frame = node.frame()
         if isinstance(frame, astroid.Module):
-            self.add_message('global-at-module-level', node=node)
+            self.add_message('global-at-module-level', node = node)
             return
         module = frame.root()
         default_message = True
@@ -686,23 +686,23 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             else:
                 if not _find_frame_imports(name, frame):
                     self.add_message('global-variable-not-assigned',
-                                     args=name, node=node)
+                                     args = name, node = node)
                 default_message = False
             if not assign_nodes:
                 continue
             for anode in assign_nodes:
                 if anode.parent is None:
-                    self.add_message('redefined-builtin', args=name, node=node)
+                    self.add_message('redefined-builtin', args = name, node = node)
                     break
                 if anode.frame() is module:
                     # module level assignment
                     break
             else:
                 # global undefined at the module scope
-                self.add_message('global-variable-undefined', args=name, node=node)
+                self.add_message('global-variable-undefined', args = name, node = node)
                 default_message = False
         if default_message:
-            self.add_message('global-statement', node=node)
+            self.add_message('global-statement', node = node)
 
     def _check_late_binding_closure(self, node, assignment_node):
         def _is_direct_lambda_call():
@@ -717,7 +717,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
 
         if isinstance(assignment_node, astroid.Comprehension):
             if assignment_node.parent.parent_of(node.scope()):
-                self.add_message('cell-var-from-loop', node=node, args=node.name)
+                self.add_message('cell-var-from-loop', node = node, args = node.name)
         else:
             assign_scope = assignment_node.scope()
             maybe_for = assignment_node
@@ -729,7 +729,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if (maybe_for.parent_of(node_scope)
                         and not _is_direct_lambda_call()
                         and not isinstance(node_scope.statement(), astroid.Return)):
-                    self.add_message('cell-var-from-loop', node=node, args=node.name)
+                    self.add_message('cell-var-from-loop', node = node, args = node.name)
 
     def _loopvar_name(self, node, name):
         # filter variables according to node's scope
@@ -766,7 +766,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if (isinstance(assign, (astroid.For, astroid.Comprehension,
                                     astroid.GeneratorExp))
                     and assign.statement() is not node.statement()):
-                self.add_message('undefined-loop-variable', args=name, node=node)
+                self.add_message('undefined-loop-variable', args = name, node = node)
 
     def _should_ignore_redefined_builtin(self, stmt):
         if not isinstance(stmt, astroid.ImportFrom):
@@ -778,7 +778,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         for name in get_all_elements(node.name):
             clobbering, args = clobber_in_except(name)
             if clobbering:
-                self.add_message('redefine-in-handler', args=args, node=name)
+                self.add_message('redefine-in-handler', args = args, node = name)
 
     def visit_assignname(self, node):
         if isinstance(node.assign_type(), astroid.AugAssign):
@@ -989,11 +989,11 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                             or annotation_return
                             or isinstance(defstmt, astroid.Delete)):
                         if not node_ignores_exception(node, NameError):
-                            self.add_message('undefined-variable', args=name,
-                                             node=node)
+                            self.add_message('undefined-variable', args = name,
+                                             node = node)
                     elif base_scope_type != 'lambda':
                         # E0601 may *not* occurs in lambda scope.
-                        self.add_message('used-before-assignment', args=name, node=node)
+                        self.add_message('used-before-assignment', args = name, node = node)
                     elif base_scope_type == 'lambda':
                         # E0601 can occur in class-level scope in lambdas, as in
                         # the following example:
@@ -1008,13 +1008,13 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                                     #      x = 42
                                     #      y = lambda attr=x: attr
                                     self.add_message('used-before-assignment',
-                                                     args=name, node=node)
+                                                     args = name, node = node)
                             else:
                                 self.add_message('undefined-variable',
-                                                 args=name, node=node)
+                                                 args = name, node = node)
                         elif scope_type == 'lambda':
                             self.add_message('undefined-variable',
-                                             node=node, args=name)
+                                             node = node, args = name)
 
             del to_consume[name]
             # check it's not a loop variable used outside the loop
@@ -1026,7 +1026,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             if not (name in astroid.Module.scope_attrs or is_builtin(name)
                     or name in self.config.additional_builtins):
                 if not node_ignores_exception(node, NameError):
-                    self.add_message('undefined-variable', args=name, node=node)
+                    self.add_message('undefined-variable', args = name, node = node)
 
     @check_messages('no-name-in-module')
     def visit_import(self, node):
@@ -1104,15 +1104,15 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if any(isinstance(target, astroid.Starred)
                        for target in targets):
                     return
-                self.add_message('unbalanced-tuple-unpacking', node=node,
-                                 args=(_get_unpacking_extra_info(node, infered),
-                                       len(targets),
-                                       len(values)))
+                self.add_message('unbalanced-tuple-unpacking', node = node,
+                                 args = (_get_unpacking_extra_info(node, infered),
+                                         len(targets),
+                                         len(values)))
         # attempt to check unpacking may be possible (ie RHS is iterable)
         else:
             if not is_iterable(infered):
-                self.add_message('unpacking-non-sequence', node=node,
-                                 args=(_get_unpacking_extra_info(node, infered),))
+                self.add_message('unpacking-non-sequence', node = node,
+                                 args = (_get_unpacking_extra_info(node, infered),))
 
 
     def _check_module_attrs(self, node, module, module_names):
@@ -1134,7 +1134,7 @@ builtins. Remember that you should avoid to define new builtins when possible.'
                 if module.name in self._ignored_modules:
                     return None
                 self.add_message('no-name-in-module',
-                                 args=(name, module.name), node=node)
+                                 args = (name, module.name), node = node)
                 return None
             except astroid.InferenceError:
                 return None
@@ -1142,8 +1142,8 @@ builtins. Remember that you should avoid to define new builtins when possible.'
             # FIXME: other message if name is not the latest part of
             # module_names ?
             modname = module and module.name or '__dict__'
-            self.add_message('no-name-in-module', node=node,
-                             args=('.'.join(module_names), modname))
+            self.add_message('no-name-in-module', node = node,
+                             args = ('.'.join(module_names), modname))
             return None
         if isinstance(module, astroid.Module):
             return module
@@ -1208,8 +1208,8 @@ class VariablesChecker3k(VariablesChecker):
                             name in self.config.additional_builtins or
                             name in node.locals):
                         self.add_message('undefined-variable',
-                                         node=klass,
-                                         args=(name, ))
+                                         node = klass,
+                                         args = (name, ))
         # Pop the consumed items, in order to
         # avoid having unused-import false positives
         for name in consumed:

@@ -141,7 +141,7 @@ class VCGPrinter(object):
         self._stream.write('}\n')
 
 
-    def edge(self, from_node, to_node, edge_type='', **args):
+    def edge(self, from_node, to_node, edge_type = '', **args):
         """draw an edge from a node to another.
         """
         self._stream.write(

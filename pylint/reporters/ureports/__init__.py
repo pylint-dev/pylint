@@ -17,7 +17,7 @@ import six
 class BaseWriter(object):
     """base class for ureport writers"""
 
-    def format(self, layout, stream=None, encoding=None):
+    def format(self, layout, stream = None, encoding = None):
         """format and write the given layout into the stream object
 
         unicode policy: unicode strings may be found in the layout;
@@ -41,7 +41,7 @@ class BaseWriter(object):
         for child in getattr(layout, 'children', ()):
             child.accept(self)
 
-    def writeln(self, string=u''):
+    def writeln(self, string = u''):
         """write a line in the output buffer"""
         self.write(string + os.linesep)
 

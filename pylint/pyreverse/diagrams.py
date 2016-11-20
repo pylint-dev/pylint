@@ -19,7 +19,7 @@ class Figure(object):
 class Relationship(Figure):
     """a relation ship from an object in the diagram to another
     """
-    def __init__(self, from_object, to_object, relation_type, name=None):
+    def __init__(self, from_object, to_object, relation_type, name = None):
         Figure.__init__(self)
         self.from_object = from_object
         self.to_object = to_object
@@ -30,7 +30,7 @@ class Relationship(Figure):
 class DiagramEntity(Figure):
     """a diagram object, i.e. a label associated to an astroid node
     """
-    def __init__(self, title='No name', node=None):
+    def __init__(self, title = 'No name', node = None):
         Figure.__init__(self)
         self.title = title
         self.node = node
@@ -52,10 +52,10 @@ class ClassDiagram(Figure, FilterMixIn):
     def get_relationships(self, role):
         # sorted to get predictable (hence testable) results
         return sorted(self.relationships.get(role, ()),
-                      key=lambda x: (x.from_object.fig_id, x.to_object.fig_id))
+                      key = lambda x: (x.from_object.fig_id, x.to_object.fig_id))
 
     def add_relationship(self, from_object, to_object,
-                         relation_type, name=None):
+                         relation_type, name = None):
         """create a relation ship
         """
         rel = Relationship(from_object, to_object, relation_type, name)
@@ -95,7 +95,7 @@ class ClassDiagram(Figure, FilterMixIn):
             and not decorated_with_property(m)
             and self.show_attr(m.name)
         ]
-        return sorted(methods, key=lambda n: n.name)
+        return sorted(methods, key = lambda n: n.name)
 
     def add_object(self, title, node):
         """create a diagram object
@@ -158,7 +158,7 @@ class ClassDiagram(Figure, FilterMixIn):
             else:
                 obj.shape = 'class'
             # inheritance link
-            for par_node in node.ancestors(recurs=False):
+            for par_node in node.ancestors(recurs = False):
                 try:
                     par_obj = self.object_from_node(par_node)
                     self.add_relationship(obj, par_obj, 'specialization')
