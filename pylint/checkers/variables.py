@@ -635,7 +635,10 @@ class VariablesChecker(BaseChecker):
             if global_names and _import_name_is_global(stmt, global_names):
                 return
 
-        argnames = node.argnames()
+        argnames = list(itertools.chain(
+            node.argnames(),
+            [arg.name for arg in node.args.kwonlyargs]
+        ))
         is_method = node.is_method()
         klass = node.parent.frame()
         if is_method and isinstance(klass, astroid.ClassDef):

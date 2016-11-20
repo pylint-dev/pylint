@@ -6,6 +6,8 @@ What's New in Pylint 2.0?
 =========================
 
 Release date: tba
+
+    * Treat keyword only arguments the same as positional arguments with regard to unused-argument check
     
     * Don't try to access variables defined in a separate scope when checking for ``protected-access``
      
