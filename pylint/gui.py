@@ -414,7 +414,7 @@ class LintGui(object):
         if not package:
             filename = askopenfilename(parent = self.root,
                                        filetypes = [('pythonfiles', '*.py'),
-                                                  ('allfiles', '*')],
+                                                    ('allfiles', '*')],
                                        title = 'Select Module')
         else:
             filename = askdirectory(title = "Select A Folder", mustexist = 1)
