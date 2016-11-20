@@ -11,12 +11,12 @@ def pprint_bad():
     "{} }".format() # [bad-format-string]
     "{0} {}".format(1, 2) # [format-combined-specification]
     # +1: [missing-format-argument-key, unused-format-string-argument]
-    "{a} {b}".format(a=1, c=2)
+    "{a} {b}".format(a = 1, c = 2)
     "{} {a}".format(1, 2) # [missing-format-argument-key]
     "{} {}".format(1) # [too-few-format-args]
     "{} {}".format(1, 2, 3) # [too-many-format-args]
     # +1: [missing-format-argument-key,missing-format-argument-key,missing-format-argument-key]
     "{a} {b} {c}".format()
-    "{} {}".format(a=1, b=2) # [too-few-format-args]
+    "{} {}".format(a = 1, b = 2) # [too-few-format-args]
     # +1: [missing-format-argument-key, missing-format-argument-key]
     "{a} {b}".format(1, 2)

@@ -186,6 +186,6 @@ if not (1 and
     print(3)
 
 continue2("foo",
-          some_other_arg="this "
-                         "is "
-                         "fine")
+          some_other_arg = "this "
+                           "is "
+                           "fine")

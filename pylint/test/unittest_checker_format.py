@@ -185,8 +185,8 @@ class CheckSpaceTest(CheckerTestCase):
 
     def testKeywordSpacingGood(self):
         with self.assertNoMessages():
-            self.checker.process_tokens(tokenize_str('foo(foo=bar)\n'))
-            self.checker.process_tokens(tokenize_str('lambda x=1: x\n'))
+            self.checker.process_tokens(tokenize_str('foo(foo = bar)\n'))
+            self.checker.process_tokens(tokenize_str('lambda x = 1: x\n'))
 
     def testKeywordSpacingBad(self):
         with self.assertAddsMessages(
@@ -204,7 +204,7 @@ class CheckSpaceTest(CheckerTestCase):
         with self.assertAddsMessages(
             Message('bad-whitespace', line=1,
                     args=('No', 'allowed', 'around', 'keyword argument assignment',
-                          '(foo = bar)\n     ^'))):
+                          '(foo=bar)\n     ^'))):
             self.checker.process_tokens(tokenize_str('(foo = bar)\n'))
 
     def testOperatorSpacingGood(self):

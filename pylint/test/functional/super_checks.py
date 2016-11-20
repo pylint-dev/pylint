@@ -92,7 +92,7 @@ class InvalidSuperChecks(BaseClass):
         super(InvalidSuperChecks, self).function() # [no-value-for-parameter]
         super(InvalidSuperChecks, self).function(42, 24, 24) # [too-many-function-args]
         # +1: [unexpected-keyword-arg,no-value-for-parameter]
-        super(InvalidSuperChecks, self).function(lala=42)
+        super(InvalidSuperChecks, self).function(lala = 42)
         # Even though BaseClass has a __getattr__, that won't
         # be called.
         super(InvalidSuperChecks, self).attribute_error() # [no-member]

@@ -62,8 +62,11 @@ def good_case9():
     """Another eager binding of the cell variable."""
     funs = []
     for i in range(10):
-        def func(bound_i=i):
+        def func(bound_i = i):
             """Ignore."""
+            return bound_i
+            return bound_i
+            return bound_i
             return bound_i
         funs.append(func)
     return funs

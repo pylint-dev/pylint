@@ -9,5 +9,5 @@ def test(a, b):
     return a, b
 
 test(1, 24)
-test(1, b=24, **{})
-test(1, b=24, **{'b': 24}) # [repeated-keyword]
+test(1, b = 24, **{})
+test(1, b = 24, **{'b': 24}) # [repeated-keyword]

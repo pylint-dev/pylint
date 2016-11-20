@@ -12,7 +12,7 @@ class Meta(type):
     def keys(cls):
         return ['a', 'b', 'c']
 
-class SomeClass(metaclass=Meta):
+class SomeClass(metaclass = Meta):
     pass
 
 test(**SomeClass)

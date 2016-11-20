@@ -4,7 +4,7 @@
 from __future__ import print_function
 
 
-def function(arg=1):
+def function(arg = 1):
     """ignore arg"""
 
 
@@ -23,11 +23,11 @@ class AAAA(object):
         """
         return cls
 
-    def using_inner_function(self, etype, size=1):
+    def using_inner_function(self, etype, size = 1):
         """return a fake result set for a particular entity type"""
         rset = AAAA([('A',)]*size, '%s X' % etype,
-                    description=[(etype,)]*size)
-        def inner(row, col=0, etype=etype, req=self, rset=rset):
+                    description = [(etype,)]*size)
+        def inner(row, col = 0, etype = etype, req = self, rset = rset):
             """inner using all its argument"""
             # pylint: disable = E1103
             return req.vreg.etype_class(etype)(req, rset, row, col)

@@ -19,7 +19,7 @@
 1 in iter([1, 2, 3])
 
 # generator
-def count(upto=float("inf")):
+def count(upto = float("inf")):
     i = 0
     while True:
         if i > upto:

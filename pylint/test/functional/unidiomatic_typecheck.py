@@ -19,20 +19,20 @@ def simple_inference_positives():
     alias(42) not in [int] # [unidiomatic-typecheck]
 
 def type_creation_negatives():
-    type('Q', (object,), dict(a=1)) is int
-    type('Q', (object,), dict(a=1)) is not int
-    type('Q', (object,), dict(a=1)) == int
-    type('Q', (object,), dict(a=1)) != int
-    type('Q', (object,), dict(a=1)) in [int]
-    type('Q', (object,), dict(a=1)) not in [int]
+    type('Q', (object,), dict(a = 1)) is int
+    type('Q', (object,), dict(a = 1)) is not int
+    type('Q', (object,), dict(a = 1)) == int
+    type('Q', (object,), dict(a = 1)) != int
+    type('Q', (object,), dict(a = 1)) in [int]
+    type('Q', (object,), dict(a = 1)) not in [int]
 
 def invalid_type_call_negatives(**kwargs):
-    type(bad=7) is int
-    type(bad=7) is not int
-    type(bad=7) == int
-    type(bad=7) != int
-    type(bad=7) in [int]
-    type(bad=7) not in [int]
+    type(bad = 7) is int
+    type(bad = 7) is not int
+    type(bad = 7) == int
+    type(bad = 7) != int
+    type(bad = 7) in [int]
+    type(bad = 7) not in [int]
     type('bad', 7) is int
     type('bad', 7) is not int
     type('bad', 7) == int

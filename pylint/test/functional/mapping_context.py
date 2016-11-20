@@ -10,7 +10,7 @@ def test(**kwargs):
 
 
 # dictionary value/comprehension
-dict_value = dict(a=1, b=2, c=3)
+dict_value = dict(a = 1, b = 2, c = 3)
 dict_comp = {chr(x): x for x in range(256)}
 test(**dict_value)
 test(**dict_comp)
@@ -20,7 +20,7 @@ test(**dict_comp)
 # __iter__(), __getitem__(key) and keys().
 class CustomMapping(object):
     def __init__(self):
-        self.data = dict(a=1, b=2, c=3, d=4, e=5)
+        self.data = dict(a = 1, b = 2, c = 3, d = 4, e = 5)
 
     def __getitem__(self, key):
         return self.data[key]

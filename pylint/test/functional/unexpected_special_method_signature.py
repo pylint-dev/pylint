@@ -80,16 +80,16 @@ class Valid(object):
     def __round__(self, n):
         pass
 
-    def __index__(self, n=42):
+    def __index__(self, n = 42):
         """Expects 0 args, but we are taking in account arguments with defaults."""
 
     def __deepcopy__(self, memo):
         pass
 
-    def __format__(self, format_specification=''):
+    def __format__(self, format_specification = ''):
         pass
 
-    def __copy__(self, this=None, is_not=None, necessary=None):
+    def __copy__(self, this = None, is_not = None, necessary = None):
         pass
 
     @staticmethod
@@ -110,7 +110,7 @@ class FirstGoodContextManager(object):
 class SecondGoodContextManager(object):
     def __enter__(self):
         return self
-    def __exit__(self, exc_type=None, value=None, tb=None):
+    def __exit__(self, exc_type = None, value = None, tb = None):
         pass
 
 class ThirdGoodContextManager(object):
