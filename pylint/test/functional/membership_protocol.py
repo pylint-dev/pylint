@@ -27,7 +27,7 @@ def count(upto = float("inf")):
         yield i
         i += 1
 
-10 in count(upto=10)
+10 in count(upto = 10)
 
 # custom instance
 class UniversalContainer(object):
