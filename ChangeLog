@@ -6,7 +6,9 @@ What's New in Pylint 2.0?
 =========================
 
 Release date: tba
-
+    
+    * Don't try to access variables defined in a separate scope when checking for ``protected-access``
+     
     * Added new error conditions for 'bad-super-call'
 
       Now detects ``super(type(self), self)`` and ``super(self.__class__, self)``

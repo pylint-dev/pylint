@@ -14,7 +14,6 @@
 from __future__ import generators
 
 import collections
-from collections import defaultdict
 import sys
 
 import six
@@ -424,6 +423,28 @@ MSGS = {
     }
 
 
+class ScopeAccessMap(object):
+    """Store the accessed variables per scope."""
+
+    def __init__(self):
+        self._scopes = collections.defaultdict(
+            lambda: collections.defaultdict(list)
+        )
+
+    def set_accessed(self, node):
+        """Set the given node as accessed."""
+
+        frame = node_frame_class(node)
+        if frame is None:
+            # The node does not live in a class.
+            return
+        self._scopes[frame][node.attrname].append(node)
+
+    def accessed(self, scope):
+        """Get the accessed variables for the given scope."""
+        return self._scopes.get(scope, {})
+
+
 class ClassChecker(BaseChecker):
     """checks for :
     * methods without self as first argument
@@ -475,14 +496,13 @@ a metaclass class method.'}
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        self._accessed = []
+        self._accessed = ScopeAccessMap()
         self._first_attrs = []
         self._meth_could_be_func = None
 
     def visit_classdef(self, node):
         """init visit variable _accessed
         """
-        self._accessed.append(defaultdict(list))
         self._check_bases_classes(node)
         # if not an exception or a metaclass
         if node.type == 'class' and has_known_bases(node):
@@ -538,7 +558,7 @@ a metaclass class method.'}
             # miss.
             return
 
-        accessed = self._accessed.pop()
+        accessed = self._accessed.accessed(cnode)
         if cnode.type != 'metaclass':
             self._check_accessed_members(cnode, accessed)
         # checks attributes are defined in an allowed method such as __init__
@@ -779,10 +799,9 @@ a metaclass class method.'}
         class member from outside its class (but ignore __special__
         methods)
         """
-        attrname = node.attrname
         # Check self
         if self.is_first_attr(node):
-            self._accessed[-1][attrname].append(node)
+            self._accessed.set_accessed(node)
             return
         if not self.linter.is_message_enabled('protected-access'):
             return
@@ -791,7 +810,7 @@ a metaclass class method.'}
 
     def visit_assignattr(self, node):
         if isinstance(node.assign_type(), astroid.AugAssign) and self.is_first_attr(node):
-            self._accessed[-1][node.attrname].append(node)
+            self._accessed.set_accessed(node)
         self._check_in_slots(node)
 
     def _check_in_slots(self, node):
