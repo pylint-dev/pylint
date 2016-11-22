@@ -113,3 +113,5 @@ Order doesn't matter (not that much, at least ;)
   Added Python 3 check for accessing Exception.message
 
 * Erik Eriksson - Added overlapping-except error check.
+
+* Anthony Foglia (Google): Added simple string slots check.

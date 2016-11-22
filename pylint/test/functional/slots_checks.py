@@ -28,12 +28,9 @@ class FourthGood(object):
     __slots__ = ('a%s' % i for i in range(10))
 
 class FifthGood(object):
-    __slots__ = "a"
-
-class SixthGood(object):
     __slots__ = deque(["a", "b", "c"])
 
-class SeventhGood(object):
+class SixthGood(object):
     __slots__ = {"a": "b", "c": "d"}
 
 class Bad(object): # [invalid-slots]
@@ -51,14 +48,20 @@ class FourthBad(object):  # [invalid-slots]
 class FifthBad(object):
     __slots__ = ("a", "b", "")  # [invalid-slots-object]
 
+class SixthBad(object):  # [single-string-used-for-slots]
+    __slots__ = "a"
+
+class SeventhBad(object):  # [single-string-used-for-slots]
+    __slots__ = ('foo')
+
+class EighthBad(object):  # [single-string-used-for-slots]
+    __slots__ = deque.__name__
+
 class PotentiallyGood(object):
     __slots__ = func()
 
 class PotentiallySecondGood(object):
     __slots__ = ('a', deque.__name__)
-
-class PotentiallyThirdGood(object):
-    __slots__ = deque.__name__
 
 
 import six
@@ -75,5 +78,8 @@ class Metaclass(type):
 class IterableClass(object):
     pass
 
-class PotentiallyFourthGood(object):
+class PotentiallyThirdGood(object):
     __slots__ = IterableClass
+
+class PotentiallyFourthGood(object):
+    __slots__ = Good.__slots__
