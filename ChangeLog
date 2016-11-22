@@ -189,6 +189,10 @@ Release date: tba
 
     * Avoid crashing on ill-formatted strings when checking for string formatting errors.
 
+    * Added new coding convention message, 'single-string-used-for-slots'.
+
+      Closes #1166
+
 
 What's new in Pylint 1.6.3?
 ===========================
