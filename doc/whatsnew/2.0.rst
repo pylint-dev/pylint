@@ -253,6 +253,23 @@ New checkers
         print(str(e))
 
 
+* A new Python 3 checker was added to warn about using ``encode`` or ``decode`` on strings
+  with non-text codecs.  This check also checks calls to ``open`` with the keyword argument
+  ``encoding``.  See https://docs.python.org/3/whatsnew/3.4.html#improvements-to-codec-handling
+  for more information.
+
+  .. code-block:: python
+
+      'hello world'.encode('hex')
+
+  Instead of using the ``encode`` method for non-text codecs use the ``codecs`` module.
+
+  .. code-block:: python
+
+      import codecs
+      codecs.encode('hello world', 'hex')
+
+
 * A new warning was added, ``overlapping-except``, which is emitted
   when an except handler treats two exceptions which are *overlapping*.
   This means that one exception is an ancestor of the other one or it is

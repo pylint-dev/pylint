@@ -429,6 +429,38 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @python2_only
+    def test_invalid_codec(self):
+        node = astroid.extract_node('foobar.encode("hex") #@')
+        message = testutils.Message('invalid-str-codec', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_valid_codec(self):
+        node = astroid.extract_node('foobar.encode("ascii", "ignore")  #@')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_visit_call_with_kwarg(self):
+        node = astroid.extract_node('foobar.raz(encoding="hex")  #@')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_invalid_open_codec(self):
+        node = astroid.extract_node('open(foobar, encoding="hex") #@')
+        message = testutils.Message('invalid-str-codec', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_valid_open_codec(self):
+        node = astroid.extract_node('open(foobar, encoding="palmos") #@')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
     def test_raising_string(self):
         node = astroid.extract_node('raise "Test"')
         message = testutils.Message('raising-string', node=node)
