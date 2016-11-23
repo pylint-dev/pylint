@@ -362,6 +362,11 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when the message attribute is accessed on an Exception.  Use '
                   'str(exception) instead.',
                   {'maxversion': (3, 0)}),
+        'W1646': ('non-text encoding used in str.decode',
+                  'invalid-str-codec',
+                  'Used when using str.encode or str.decode with a non-text encoding.  Use '
+                  'codecs module to handle arbitrary codecs.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -397,6 +402,27 @@ class Python3Checker(checkers.BaseChecker):
         '__div__',
         '__idiv__',
         '__rdiv__',
+    ])
+
+    _invalid_encodings = frozenset([
+        'base64_codec',
+        'base64',
+        'base_64',
+        'bz2_codec',
+        'bz2',
+        'hex_codec',
+        'hex',
+        'quopri_codec',
+        'quopri',
+        'quotedprintable',
+        'quoted_printable',
+        'uu_codec',
+        'uu',
+        'zlib_codec',
+        'zlib',
+        'zip',
+        'rot13',
+        'rot_13',
     ])
 
     def __init__(self, *args, **kwargs):
@@ -504,7 +530,13 @@ class Python3Checker(checkers.BaseChecker):
         self._check_cmp_argument(node)
 
         if isinstance(node.func, astroid.Attribute):
-            if any([node.args, node.keywords]):
+            if node.args:
+                if node.func.attrname in ('encode', 'decode'):
+                    if len(node.args) >= 1 and node.args[0]:
+                        first_arg = node.args[0]
+                        self._validate_encoding(first_arg, node)
+                return
+            if node.keywords:
                 return
             if node.func.attrname == 'next':
                 self.add_message('next-method-called', node=node)
@@ -521,7 +553,19 @@ class Python3Checker(checkers.BaseChecker):
                     if not _in_iterating_context(node):
                         checker = '{}-builtin-not-iterating'.format(node.func.name)
                         self.add_message(checker, node=node)
+                if node.func.name == 'open' and node.keywords:
+                    kwargs = node.keywords
+                    for kwarg in kwargs or []:
+                        if kwarg.arg == 'encoding':
+                            self._validate_encoding(kwarg.value, node)
+                            break
 
+    def _validate_encoding(self, encoding, node):
+        if isinstance(encoding, astroid.Const):
+            value = encoding.value
+            if value in self._invalid_encodings:
+                self.add_message('invalid-str-codec',
+                                 node=node)
 
     @utils.check_messages('indexing-exception')
     def visit_subscript(self, node):

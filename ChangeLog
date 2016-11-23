@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Treat keyword only arguments the same as positional arguments with regard to unused-argument check
+    
+    * Don't try to access variables defined in a separate scope when checking for ``protected-access``
+     
     * Added new error conditions for 'bad-super-call'
 
       Now detects ``super(type(self), self)`` and ``super(self.__class__, self)``
@@ -188,6 +192,9 @@ Release date: tba
       for each other or one exceptions is an ancestor of another.
 
     * Avoid crashing on ill-formatted strings when checking for string formatting errors.
+
+    * Added a new Python 3 warning for calling 'str.encode' or 'str.decode' with a non-text
+      encoding.
 
     * Added new coding convention message, 'single-string-used-for-slots'.
 
