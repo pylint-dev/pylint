@@ -193,6 +193,9 @@ Release date: tba
 
     * Avoid crashing on ill-formatted strings when checking for string formatting errors.
 
+    * Added a new Python 3 warning for calling 'str.encode' or 'str.decode' with a non-text
+      encoding.
+
 
 What's new in Pylint 1.6.3?
 ===========================
