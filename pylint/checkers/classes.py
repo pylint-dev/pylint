@@ -420,6 +420,10 @@ MSGS = {
               'no-staticmethod-decorator',
               'Used when a static method is defined without using the decorator '
               'syntax.'),
+    'C0205': ('Class __slots__ should be a non-string iterable',
+              'single-string-used-for-slots',
+              'Used when a class __slots__ is a simple string, rather '
+              'than an iterable.'),
     }
 
 
@@ -740,6 +744,7 @@ a metaclass class method.'}
 
             if isinstance(slots, astroid.Const):
                 # a string, ignore the following checks
+                self.add_message('single-string-used-for-slots', node=node)
                 continue
             if not hasattr(slots, 'itered'):
                 # we can't obtain the values, maybe a .deque?

@@ -196,6 +196,10 @@ Release date: tba
     * Added a new Python 3 warning for calling 'str.encode' or 'str.decode' with a non-text
       encoding.
 
+    * Added new coding convention message, 'single-string-used-for-slots'.
+
+      Closes #1166
+
 
 What's new in Pylint 1.6.3?
 ===========================
