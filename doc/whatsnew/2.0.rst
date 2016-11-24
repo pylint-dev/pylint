@@ -15,6 +15,13 @@ Summary -- Release highlights
 New checkers
 ============
 
+* ``single-string-used-for-slots`` check was added, which is used
+  whenever a class is using a single string as a slot value. While this
+  is technically not a problem per se, it might trip users when manipulating
+  the slots value as an iterable, which would in turn iterate over characters
+  of the slot value. In order to be more straight-forward, always try to use
+  a container such as a list or a tuple for defining slot values.
+
 * We added a new check, ``literal-comparison``, which is used
   whenever **pylint** can detect a comparison to a literal. This is usually
   not what we want and, potentially, error prone. For instance, in the given example,
