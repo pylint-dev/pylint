@@ -112,6 +112,7 @@ Order doesn't matter (not that much, at least ;)
 * Roy Williams (Lyft): added check for implementing __eq__ without implementing __hash__,
   Added Python 3 check for accessing Exception.message,
   Added Python 3 check for calling encode/decode with invalid codecs.
+  Added Python 3 check for accessing sys.maxint
 
 * Erik Eriksson - Added overlapping-except error check.
 

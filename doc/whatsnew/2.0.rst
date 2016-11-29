@@ -293,6 +293,22 @@ New checkers
       except (ConnectionError, IOError, OSError, socket.error):
           pass
 
+* A new Python 3 checker was added to warn about accessing ``sys.maxint``.  This attribute was
+  removed in Python 3 in favor of ``sys.maxsize``.
+
+  .. code-block:: python
+
+      import sys
+      print(sys.maxint)
+
+  Instead of using ``sys.maxint``, use ``sys.maxsize``
+
+  .. code-block:: python
+
+      import sys
+      print(sys.maxsize)
+
+
 Other Changes
 =============
 

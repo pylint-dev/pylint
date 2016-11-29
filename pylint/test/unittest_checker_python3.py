@@ -491,6 +491,24 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)
 
+    @python2_only
+    def test_sys_maxint(self):
+        node = astroid.extract_node('''
+        import sys
+        sys.maxint #@
+        ''')
+        message = testutils.Message('sys-max-int', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_object_maxint(self):
+        node = astroid.extract_node('''
+        sys = object()
+        sys.maxint #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node)
 
 @python2_only
 class Python3TokenCheckerTest(testutils.CheckerTestCase):
