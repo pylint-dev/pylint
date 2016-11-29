@@ -367,6 +367,10 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when using str.encode or str.decode with a non-text encoding.  Use '
                   'codecs module to handle arbitrary codecs.',
                   {'maxversion': (3, 0)}),
+        'W1647': ('sys.maxint removed in Python 3',
+                  'sys-max-int',
+                  'Used when accessing sys.maxint.  Use sys.maxsize instead.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -591,11 +595,13 @@ class Python3Checker(checkers.BaseChecker):
         """ Look for accessing message on exceptions. """
         try:
             for infered in node.expr.infer():
-                if not isinstance(infered, astroid.Instance):
-                    continue
-                if utils.inherit_from_std_ex(infered):
+                if (isinstance(infered, astroid.Instance) and
+                        utils.inherit_from_std_ex(infered)):
                     if node.attrname == 'message':
                         self.add_message('exception-message-attribute', node=node)
+                if isinstance(infered, astroid.Module) and infered.name == 'sys':
+                    if node.attrname == 'maxint':
+                        self.add_message('sys-max-int', node=node)
         except astroid.InferenceError:
             return
 
