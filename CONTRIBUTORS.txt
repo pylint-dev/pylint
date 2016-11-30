@@ -121,7 +121,8 @@ Order doesn't matter (not that much, at least ;)
 * Yuri Bochkarev: Added epytext support to docparams extension.
 
 * Alexander Todorov: added new error conditions to 'bad-super-call',
-  Added new check for incorrect len(SEQUENCE) usage
+  Added new check for incorrect len(SEQUENCE) usage,
+  Added new extension for comparison against empty string constants
 
 * Erik Eriksson - Added overlapping-except error check.
 

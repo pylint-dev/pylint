@@ -8,11 +8,13 @@ What's New in Pylint 2.0?
 Release date: tba
 
     * Treat keyword only arguments the same as positional arguments with regard to unused-argument check
-    
+
     * Don't try to access variables defined in a separate scope when checking for ``protected-access``
-     
+
     * Added new check to detect incorrect usage of len(SEQUENCE) inside
       test conditions.
+
+    * Added new extension to detect comparisons against empty string constants
 
     * Added new error conditions for 'bad-super-call'
 
