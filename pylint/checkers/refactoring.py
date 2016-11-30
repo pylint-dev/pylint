@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Moisés López <moylop260@vauxoo.com>
 # Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Alexander Todorov <atodorov@MrSenko.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Looks for code which can be refactored."""
 
+import itertools
 import collections
 
 import astroid
@@ -476,8 +478,119 @@ class NotChecker(checkers.BaseChecker):
                              args=(node.as_string(), suggestion))
 
 
+def _is_len_call(node):
+    """Checks if node is len(SOMETHING)."""
+    return (isinstance(node, astroid.Call) and isinstance(node.func, astroid.Name) and
+            node.func.name == 'len')
+
+def _is_constant_zero(node):
+    return isinstance(node, astroid.Const) and node.value == 0
+
+def _node_is_test_condition(node):
+    """ Checks if node is an if, while, assert or if expression statement."""
+    return isinstance(node, (astroid.If, astroid.While, astroid.Assert, astroid.IfExp))
+
+
+class LenChecker(checkers.BaseChecker):
+    """Checks for incorrect usage of len() inside conditions.
+    Pep8 states:
+    For sequences, (strings, lists, tuples), use the fact that empty sequences are false.
+
+        Yes: if not seq:
+             if seq:
+
+        No: if len(seq):
+            if not len(seq):
+
+    Problems detected:
+    * if len(sequence):
+    * if not len(sequence):
+    * if len(sequence) == 0:
+    * if len(sequence) != 0:
+    * if len(sequence) > 0:
+    """
+
+    __implements__ = (interfaces.IAstroidChecker,)
+
+    # configuration section name
+    name = 'len'
+    msgs = {'C1801': ('Do not use `len(SEQUENCE)` as condition value',
+                      'len-as-condition',
+                      'Used when Pylint detects incorrect use of len(sequence) inside '
+                      'conditions.'),
+           }
+
+    priority = -2
+    options = ()
+
+    @utils.check_messages('len-as-condition')
+    def visit_call(self, node):
+        # a len(S) call is used inside a test condition
+        # could be if, while, assert or if expression statement
+        # e.g. `if len(S):`
+        if _is_len_call(node):
+            # the len() call could also be nested together with other
+            # boolean operations, e.g. `if z or len(x):`
+            parent = node.parent
+            while isinstance(parent, astroid.BoolOp):
+                parent = parent.parent
+
+            # we're finally out of any nested boolean operations so check if
+            # this len() call is part of a test condition
+            if _node_is_test_condition(parent):
+                self.add_message('len-as-condition', node=node)
+
+
+    @utils.check_messages('len-as-condition')
+    def visit_unaryop(self, node):
+        """`not len(S)` must become `not S` regardless if the parent block
+        is a test condition or something else (boolean expression)
+        e.g. `if not len(S):`"""
+        if isinstance(node, astroid.UnaryOp) and node.op == 'not' and _is_len_call(node.operand):
+            self.add_message('len-as-condition', node=node)
+
+    @utils.check_messages('len-as-condition')
+    def visit_compare(self, node):
+        # compare nodes are trickier because the len(S) expression
+        # may be somewhere in the middle of the node
+
+        # note: astroid.Compare has the left most operand in node.left
+        # while the rest are a list of tuples in node.ops
+        # the format of the tuple is ('compare operator sign', node)
+        # here we squash everything into `ops` to make it easier for processing later
+        ops = [('', node.left)]
+        ops.extend(node.ops)
+        ops = list(itertools.chain(*ops))
+
+        for ops_idx in range(len(ops) - 2):
+            op_1 = ops[ops_idx]
+            op_2 = ops[ops_idx + 1]
+            op_3 = ops[ops_idx + 2]
+            error_detected = False
+
+            # 0 ?? len()
+            if _is_constant_zero(op_1) and op_2 in ['==', '!=', '<'] and _is_len_call(op_3):
+                error_detected = True
+            # len() ?? 0
+            elif _is_len_call(op_1) and op_2 in ['==', '!=', '>'] and _is_constant_zero(op_3):
+                error_detected = True
+
+            if error_detected:
+                parent = node.parent
+                # traverse the AST to figure out if this comparisson was part of
+                # a test condition
+                while parent and not _node_is_test_condition(parent):
+                    parent = parent.parent
+
+                # report only if this len() comparison is part of a test condition
+                # for example: return len() > 0 should not report anything
+                if _node_is_test_condition(parent):
+                    self.add_message('len-as-condition', node=node)
+
+
 def register(linter):
     """Required method to auto register this checker."""
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
     linter.register_checker(RecommandationChecker(linter))
+    linter.register_checker(LenChecker(linter))
