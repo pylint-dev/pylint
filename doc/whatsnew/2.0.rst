@@ -344,6 +344,35 @@ New checkers
       import sys
       print(sys.maxsize)
 
+* A new Python 3 checker was added to warn about importing modules that have either moved or been
+  removed from the standard library.
+
+  One of the major undertakings with Python 3 was a reorganization of the standard library to
+  remove old or supplanted modules and reorganize some of the existing modules.  As a result,
+  roughly 100 modules that exist in Python 2 no longer exist in Python 3.  See
+  https://www.python.org/dev/peps/pep-3108/ and https://www.python.org/dev/peps/pep-0004/ for more
+  information.  For suggestions on hwo to handle this, see
+  https://pythonhosted.org/six/#module-six.moves or http://python3porting.com/stdlib.html.
+
+  .. code-block:: python
+
+      from cStringIO import StringIO
+
+  Instead of directly importing the deprecated module, either use ``six.moves`` or a conditional
+  import.
+
+  .. code-block:: python
+
+      from six.moves import cStringIO as StringIO
+
+      if sys.version_info[0] >= 3:
+          from io import StringIO
+      else:
+          from cStringIO import StringIO
+
+  This checker will assume any imports that happen within a conditional or a ``try/except`` block
+  are valid.
+
 
 Other Changes
 =============
