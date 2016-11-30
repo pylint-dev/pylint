@@ -203,6 +203,8 @@ Release date: tba
     * Added a new Python 3 check for accessing 'sys.maxint' which was removed in Python 3 in favor
       of 'sys.maxsize'
 
+    * Added a new Python 3 check for bad imports.
+
 
 What's new in Pylint 1.6.3?
 ===========================
