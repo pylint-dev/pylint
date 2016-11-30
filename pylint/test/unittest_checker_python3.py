@@ -510,6 +510,89 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
+    @python2_only
+    def test_bad_import(self):
+        node = astroid.extract_node('''
+        import urllib2, sys #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('bad-python3-import', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_conditional(self):
+        node = astroid.extract_node('''
+        import six
+        if six.PY2:
+            import urllib2 #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_try_except_handler(self):
+        node = astroid.extract_node('''
+        try:
+            from hashlib import sha
+        except:
+            import sha #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_try(self):
+        node = astroid.extract_node('''
+        try:
+            import md5  #@
+        except:
+            from hashlib import md5
+        finally:
+            pass
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_try_finally(self):
+        node = astroid.extract_node('''
+        try:
+            import Queue  #@
+        finally:
+            import queue
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('bad-python3-import', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_from(self):
+        node = astroid.extract_node('''
+        from cStringIO import StringIO #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('bad-python3-import', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_bad_import_else_block(self):
+        node = astroid.extract_node('''
+        import six
+        if six.PY3:
+            from io import StringIO
+        else:
+            from cStringIO import StringIO #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
+            self.checker.visit_importfrom(node)
+
 @python2_only
 class Python3TokenCheckerTest(testutils.CheckerTestCase):
 

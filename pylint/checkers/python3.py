@@ -82,6 +82,14 @@ def _in_iterating_context(node):
     return False
 
 
+def _is_conditional_import(node):
+    """Checks if a import node is in the context of a conditional.
+    """
+    parent = node.parent
+    return isinstance(parent, (astroid.TryExcept, astroid.ExceptHandler,
+                               astroid.If, astroid.IfExp))
+
+
 class Python3Checker(checkers.BaseChecker):
 
     __implements__ = interfaces.IAstroidChecker
@@ -371,6 +379,10 @@ class Python3Checker(checkers.BaseChecker):
                   'sys-max-int',
                   'Used when accessing sys.maxint.  Use sys.maxsize instead.',
                   {'maxversion': (3, 0)}),
+        'W1648': ('Module moved in Python 3',
+                  'bad-python3-import',
+                  'Used when importing a module that no longer exists in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -429,6 +441,23 @@ class Python3Checker(checkers.BaseChecker):
         'rot_13',
     ])
 
+    _bad_imports = frozenset([
+        'anydbm', 'BaseHTTPServer', '__builtin__', 'CGIHTTPServer', 'ConfigParser', 'copy_reg',
+        'cPickle', 'cProfile', 'cStringIO', 'Cookie', 'cookielib', 'dbhash', 'dbm', 'dumbdbm',
+        'dumbdb', 'Dialog', 'DocXMLRPCServer', 'FileDialog', 'FixTk', 'gdbm', 'htmlentitydefs',
+        'HTMLParser', 'httplib', 'markupbase', 'Queue', 'repr', 'robotparser', 'ScrolledText',
+        'SimpleDialog', 'SimpleHTTPServer', 'SimpleXMLRPCServer', 'StringIO', 'dummy_thread',
+        'SocketServer', 'test.test_support', 'Tkinter', 'Tix', 'Tkconstants', 'tkColorChooser',
+        'tkCommonDialog', 'Tkdnd', 'tkFileDialog', 'tkFont', 'tkMessageBox', 'tkSimpleDialog',
+        'turtle', 'UserList', 'UserString', 'whichdb', '_winreg', 'xmlrpclib', 'audiodev',
+        'Bastion', 'bsddb185', 'bsddb3', 'Canvas', 'cfmfile', 'cl', 'commands', 'compiler',
+        'dircache', 'dl', 'exception', 'fpformat', 'htmllib', 'ihooks', 'imageop', 'imputil',
+        'linuxaudiodev', 'md5', 'mhlib', 'mimetools', 'MimeWriter', 'mimify', 'multifile',
+        'mutex', 'new', 'popen2', 'posixfile', 'pure', 'rexec', 'rfc822', 'sha', 'sgmllib',
+        'sre', 'stat', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
+        'toaiff', 'user', 'urllib2', 'urlparse'
+    ])
+
     def __init__(self, *args, **kwargs):
         self._future_division = False
         self._future_absolute_import = False
@@ -471,18 +500,24 @@ class Python3Checker(checkers.BaseChecker):
                     self._future_division = True
                 elif name == 'absolute_import':
                     self._future_absolute_import = True
-        elif not self._future_absolute_import:
-            if self.linter.is_message_enabled('no-absolute-import'):
-                self.add_message('no-absolute-import', node=node)
+        else:
+            if not self._future_absolute_import:
+                if self.linter.is_message_enabled('no-absolute-import'):
+                    self.add_message('no-absolute-import', node=node)
+            if node.modname in self._bad_imports and not _is_conditional_import(node):
+                self.add_message('bad-python3-import', node=node)
+
         if node.names[0][0] == '*':
             if self.linter.is_message_enabled('import-star-module-level'):
                 if not isinstance(node.scope(), astroid.Module):
                     self.add_message('import-star-module-level', node=node)
 
-    @utils.check_messages('no-absolute-import')
     def visit_import(self, node):
         if not self._future_absolute_import:
             self.add_message('no-absolute-import', node=node)
+        for name in node.names:
+            if name[0] in self._bad_imports and not _is_conditional_import(node):
+                self.add_message('bad-python3-import', node=node)
 
     @utils.check_messages('metaclass-assignment')
     def visit_classdef(self, node):
