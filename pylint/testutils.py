@@ -277,7 +277,7 @@ class LintTestUsingModule(unittest.TestCase):
             msg = '%(mode)s test of input file "%(input)s" in "%(pkg)s" (%(cls)s)'
         return msg % values
 
-    def test_functionality(self):
+    def _test_functionality(self):
         tocheck = [self.package+'.'+self.module]
         # pylint: disable=not-an-iterable; can't handle boolean checks for now
         if self.depends:
@@ -319,7 +319,7 @@ class LintTestUsingFile(LintTestUsingModule):
 
     _TEST_TYPE = 'file'
 
-    def test_functionality(self):
+    def _test_functionality(self):
         importable = join(self.INPUT_DIR, self.module)
         # python also prefers packages over simple modules.
         if not isdir(importable):

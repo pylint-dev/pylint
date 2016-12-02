@@ -22,11 +22,11 @@ class SpaceIndentationTest(unittest.TestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
 
     def test_space_indentation(self):
-        self.assertEqual(utils.space_indentation('abc'), 0)
-        self.assertEqual(utils.space_indentation(''), 0)
-        self.assertEqual(utils.space_indentation('  abc'), 2)
-        self.assertEqual(utils.space_indentation('\n  abc'), 0)
-        self.assertEqual(utils.space_indentation('   \n  abc'), 3)
+        assert utils.space_indentation('abc') == 0
+        assert utils.space_indentation('') == 0
+        assert utils.space_indentation('  abc') == 2
+        assert utils.space_indentation('\n  abc') == 0
+        assert utils.space_indentation('   \n  abc') == 3
 
 class PossibleExcTypesText(unittest.TestCase):
     def test_exception_class(self):
@@ -36,7 +36,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set(["NotImplementedError"])
-        self.assertEqual(found, expected)
+        assert found == expected
 
     def test_exception_instance(self):
         raise_node = astroid.extract_node('''
@@ -45,7 +45,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set(["NotImplementedError"])
-        self.assertEqual(found, expected)
+        assert found == expected
 
     def test_rethrow(self):
         raise_node = astroid.extract_node('''
@@ -57,7 +57,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set(["RuntimeError"])
-        self.assertEqual(found, expected)
+        assert found == expected
 
     def test_nested_in_if_rethrow(self):
         raise_node = astroid.extract_node('''
@@ -70,7 +70,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set(["RuntimeError"])
-        self.assertEqual(found, expected)
+        assert found == expected
 
     def test_nested_in_try(self):
         raise_node = astroid.extract_node('''
@@ -86,7 +86,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set(["RuntimeError"])
-        self.assertEqual(found, expected)
+        assert found == expected
 
     def test_nested_in_try_except(self):
         raise_node = astroid.extract_node('''
@@ -101,7 +101,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set(["NameError"])
-        self.assertEqual(found, expected)
+        assert found == expected
 
     def test_no_rethrow_types(self):
         raise_node = astroid.extract_node('''
@@ -113,7 +113,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set()
-        self.assertEqual(found, expected)
+        assert found == expected
 
     def test_multiple_rethrow_types(self):
         raise_node = astroid.extract_node('''
@@ -125,7 +125,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set(["RuntimeError", "ValueError"])
-        self.assertEqual(found, expected)
+        assert found == expected
 
     def test_ignores_uninferable_type(self):
         raise_node = astroid.extract_node('''
@@ -138,7 +138,7 @@ class PossibleExcTypesText(unittest.TestCase):
         ''')
         found = utils.possible_exc_types(raise_node)
         expected = set()
-        self.assertEqual(found, expected)
+        assert found == expected
 
 if __name__ == '__main__':
     unittest.main()

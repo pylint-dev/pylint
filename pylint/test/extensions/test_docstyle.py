@@ -58,12 +58,12 @@ class CheckDocStringStyleTest(unittest.TestCase):
                                   'docstring.py')
         self._linter.check([docstring_test])
         msgs = self._linter.reporter.messages
-        self.assertEqual(len(msgs), 7)
+        assert len(msgs) == 7
         for msg, expected_symbol, expected_msg in zip(msgs,
                                                       self.expected_symbol,
                                                       self.expected_msg):
-            self.assertEqual(msg.symbol, expected_symbol)
-            self.assertEqual(msg.msg, expected_msg)
+            assert msg.symbol == expected_symbol
+            assert msg.msg == expected_msg
 
 
 if __name__ == '__main__':

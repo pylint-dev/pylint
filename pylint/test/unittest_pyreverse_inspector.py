@@ -33,37 +33,37 @@ class LinkerTest(unittest.TestCase):
 
     def test_class_implements(self):
         klass = self.project.get_module('data.clientmodule_test')['Ancestor']
-        self.assertTrue(hasattr(klass, 'implements'))
-        self.assertEqual(len(klass.implements), 1)
-        self.assertTrue(isinstance(klass.implements[0], nodes.ClassDef))
-        self.assertEqual(klass.implements[0].name, "Interface")
+        assert hasattr(klass, 'implements')
+        assert len(klass.implements) == 1
+        assert isinstance(klass.implements[0], nodes.ClassDef)
+        assert klass.implements[0].name == "Interface"
         klass = self.project.get_module('data.clientmodule_test')['Specialization']
-        self.assertTrue(hasattr(klass, 'implements'))
-        self.assertEqual(len(klass.implements), 0)
+        assert hasattr(klass, 'implements')
+        assert len(klass.implements) == 0
 
     def test_locals_assignment_resolution(self):
         klass = self.project.get_module('data.clientmodule_test')['Specialization']
-        self.assertTrue(hasattr(klass, 'locals_type'))
+        assert hasattr(klass, 'locals_type')
         type_dict = klass.locals_type
-        self.assertEqual(len(type_dict), 2)
+        assert len(type_dict) == 2
         keys = sorted(type_dict.keys())
-        self.assertEqual(keys, ['TYPE', 'top'])
-        self.assertEqual(len(type_dict['TYPE']), 1)
-        self.assertEqual(type_dict['TYPE'][0].value, 'final class')
-        self.assertEqual(len(type_dict['top']), 1)
-        self.assertEqual(type_dict['top'][0].value, 'class')
+        assert keys == ['TYPE', 'top']
+        assert len(type_dict['TYPE']) == 1
+        assert type_dict['TYPE'][0].value == 'final class'
+        assert len(type_dict['top']) == 1
+        assert type_dict['top'][0].value == 'class'
 
     def test_instance_attrs_resolution(self):
         klass = self.project.get_module('data.clientmodule_test')['Specialization']
-        self.assertTrue(hasattr(klass, 'instance_attrs_type'))
+        assert hasattr(klass, 'instance_attrs_type')
         type_dict = klass.instance_attrs_type
-        self.assertEqual(len(type_dict), 2)
+        assert len(type_dict) == 2
         keys = sorted(type_dict.keys())
-        self.assertEqual(keys, ['_id', 'relation'])
-        self.assertTrue(isinstance(type_dict['relation'][0], bases.Instance),
-                        type_dict['relation'])
-        self.assertEqual(type_dict['relation'][0].name, 'DoNothing')
-        self.assertIs(type_dict['_id'][0], astroid.YES)
+        assert keys == ['_id', 'relation']
+        assert isinstance(type_dict['relation'][0], bases.Instance), \
+                        type_dict['relation']
+        assert type_dict['relation'][0].name == 'DoNothing'
+        assert type_dict['_id'][0] is astroid.YES
 
     def test_concat_interfaces(self):
         cls = astroid.extract_node('''
@@ -82,7 +82,7 @@ class LinkerTest(unittest.TestCase):
                 __implements__ = BadArgument.__implements__ + Correct2.__implements__
         ''')
         interfaces = inspector.interfaces(cls)
-        self.assertEqual([i.name for i in interfaces], ['IMachin'])
+        assert [i.name for i in interfaces] == ['IMachin']
 
     def test_interfaces(self):
         module = astroid.parse('''
@@ -103,21 +103,21 @@ class LinkerTest(unittest.TestCase):
                                   ('Concrete2', ['MyIFace', 'AnotherIFace']),
                                   ('Concrete23', ['MyIFace', 'AnotherIFace'])):
             klass = module[klass]
-            self.assertEqual([i.name for i in inspector.interfaces(klass)],
-                             interfaces)
+            assert [i.name for i in inspector.interfaces(klass)] == \
+                             interfaces
 
 
     def test_from_directory(self):
         expected = os.path.join('pylint', 'test', 'data', '__init__.py')
-        self.assertEqual(self.project.name, 'data')
-        self.assertTrue(self.project.path.endswith(expected), self.project.path)
+        assert self.project.name == 'data'
+        assert self.project.path.endswith(expected), self.project.path
 
     def test_project_node(self):
         expected = [
             'data', 'data.clientmodule_test',
             'data.suppliermodule_test',
         ]
-        self.assertListEqual(sorted(self.project.keys()), expected)
+        assert sorted(self.project.keys()) == expected
 
 
 

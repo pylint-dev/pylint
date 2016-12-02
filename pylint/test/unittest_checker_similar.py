@@ -23,13 +23,13 @@ class SimilarTC(unittest.TestCase):
         try:
             similar.Run(['--ignore-comments', SIMILAR1, SIMILAR2])
         except SystemExit as ex:
-            self.assertEqual(ex.code, 0)
+            assert ex.code == 0
             output = sys.stdout.getvalue()
         else:
             self.fail('not system exit')
         finally:
             sys.stdout = sys.__stdout__
-        self.assertMultiLineEqual(output.strip(), ("""
+        assert output.strip() == ("""
 10 similar lines in 2 files
 ==%s:0
 ==%s:0
@@ -44,7 +44,7 @@ class SimilarTC(unittest.TestCase):
    nine
    ''' ten
 TOTAL lines=44 duplicates=10 percent=22.73
-""" % (SIMILAR1, SIMILAR2)).strip())
+""" % (SIMILAR1, SIMILAR2)).strip()
 
 
     def test_ignore_docsrings(self):
@@ -52,13 +52,13 @@ TOTAL lines=44 duplicates=10 percent=22.73
         try:
             similar.Run(['--ignore-docstrings', SIMILAR1, SIMILAR2])
         except SystemExit as ex:
-            self.assertEqual(ex.code, 0)
+            assert ex.code == 0
             output = sys.stdout.getvalue()
         else:
             self.fail('not system exit')
         finally:
             sys.stdout = sys.__stdout__
-        self.assertMultiLineEqual(output.strip(), ("""
+        assert output.strip() == ("""
 8 similar lines in 2 files
 ==%s:6
 ==%s:6
@@ -80,7 +80,7 @@ TOTAL lines=44 duplicates=10 percent=22.73
    four
    five
 TOTAL lines=44 duplicates=13 percent=29.55
-""" % ((SIMILAR1, SIMILAR2) * 2)).strip())
+""" % ((SIMILAR1, SIMILAR2) * 2)).strip()
 
 
     def test_ignore_imports(self):
@@ -88,15 +88,15 @@ TOTAL lines=44 duplicates=13 percent=29.55
         try:
             similar.Run(['--ignore-imports', SIMILAR1, SIMILAR2])
         except SystemExit as ex:
-            self.assertEqual(ex.code, 0)
+            assert ex.code == 0
             output = sys.stdout.getvalue()
         else:
             self.fail('not system exit')
         finally:
             sys.stdout = sys.__stdout__
-        self.assertMultiLineEqual(output.strip(), """
+        assert output.strip() == """
 TOTAL lines=44 duplicates=0 percent=0.00
-""".strip())
+""".strip()
 
 
     def test_ignore_nothing(self):
@@ -104,13 +104,13 @@ TOTAL lines=44 duplicates=0 percent=0.00
         try:
             similar.Run([SIMILAR1, SIMILAR2])
         except SystemExit as ex:
-            self.assertEqual(ex.code, 0)
+            assert ex.code == 0
             output = sys.stdout.getvalue()
         else:
             self.fail('not system exit')
         finally:
             sys.stdout = sys.__stdout__
-        self.assertMultiLineEqual(output.strip(), ("""
+        assert output.strip() == ("""
 5 similar lines in 2 files
 ==%s:0
 ==%s:0
@@ -120,14 +120,14 @@ TOTAL lines=44 duplicates=0 percent=0.00
    four
    five
 TOTAL lines=44 duplicates=5 percent=11.36
-""" % (SIMILAR1, SIMILAR2)).strip())
+""" % (SIMILAR1, SIMILAR2)).strip()
 
     def test_help(self):
         sys.stdout = six.StringIO()
         try:
             similar.Run(['--help'])
         except SystemExit as ex:
-            self.assertEqual(ex.code, 0)
+            assert ex.code == 0
         else:
             self.fail('not system exit')
         finally:
@@ -138,7 +138,7 @@ TOTAL lines=44 duplicates=5 percent=11.36
         try:
             similar.Run([])
         except SystemExit as ex:
-            self.assertEqual(ex.code, 1)
+            assert ex.code == 1
         else:
             self.fail('not system exit')
         finally:

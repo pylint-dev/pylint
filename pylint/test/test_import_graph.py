@@ -27,7 +27,7 @@ class DependenciesGraphTC(unittest.TestCase):
         imports._dependencies_graph(self.dest, {'labas': ['hoho', 'yep'],
                                                 'hoho': ['yep']})
         with open(self.dest) as stream:
-            self.assertEqual(stream.read().strip(),
+            assert stream.read().strip() == \
                           '''
 digraph "dependencies_graph" {
 rankdir=LR
@@ -40,7 +40,7 @@ URL="." node[shape="box"]
 "hoho" -> "labas" [];
 "yep" -> "labas" [];
 }
-'''.strip())
+'''.strip()
 
 class ImportCheckerTC(unittest.TestCase):
     def setUp(self):
@@ -61,9 +61,9 @@ class ImportCheckerTC(unittest.TestCase):
         try:
             l.check('input')
             l.generate_reports()
-            self.assertTrue(exists('import.dot'))
-            self.assertTrue(exists('ext_import.dot'))
-            self.assertTrue(exists('int_import.dot'))
+            assert exists('import.dot')
+            assert exists('ext_import.dot')
+            assert exists('int_import.dot')
         finally:
             for fname in ('import.dot', 'ext_import.dot', 'int_import.dot'):
                 try:

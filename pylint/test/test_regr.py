@@ -44,19 +44,19 @@ class NonRegrTC(unittest.TestCase):
     def test_package___path___manipulation(self):
         linter.check('package.__init__')
         got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
+        assert got == ''
 
     def test_package___init___precedence(self):
         linter.check('precedence_test')
         got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
+        assert got == ''
 
     def test_check_package___init__(self):
         filename = 'package.__init__'
         linter.check(filename)
         checked = list(linter.stats['by_module'].keys())
-        self.assertEqual(checked, ['package.__init__'],
-                         '%s: %s' % (filename, checked))
+        assert checked == ['package.__init__'], \
+                         '%s: %s' % (filename, checked)
 
         cwd = os.getcwd()
         os.chdir(join(REGR_DATA, 'package'))
@@ -64,7 +64,7 @@ class NonRegrTC(unittest.TestCase):
         try:
             linter.check('__init__')
             checked = list(linter.stats['by_module'].keys())
-            self.assertEqual(checked, ['__init__'], checked)
+            assert checked == ['__init__'], checked
         finally:
             sys.path.pop(0)
             os.chdir(cwd)
@@ -72,12 +72,12 @@ class NonRegrTC(unittest.TestCase):
     def test_class__doc__usage(self):
         linter.check(join(REGR_DATA, 'classdoc_usage.py'))
         got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
+        assert got == ''
 
     def test_package_import_relative_subpackage_no_attribute_error(self):
         linter.check('import_package_subpackage_module')
         got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
+        assert got == ''
 
     def test_import_assign_crash(self):
         linter.check(join(REGR_DATA, 'import_assign.py'))
@@ -88,12 +88,12 @@ class NonRegrTC(unittest.TestCase):
     def test_module_global_crash(self):
         linter.check(join(REGR_DATA, 'module_global.py'))
         got = linter.reporter.finalize().strip()
-        self.assertEqual(got, '')
+        assert got == ''
 
     def test_decimal_inference(self):
         linter.check(join(REGR_DATA, 'decimal_inference.py'))
         got = linter.reporter.finalize().strip()
-        self.assertEqual(got, "")
+        assert got == ""
 
     def test_descriptor_crash(self):
         for fname in os.listdir(REGR_DATA):
@@ -107,18 +107,18 @@ class NonRegrTC(unittest.TestCase):
     def test___path__(self):
         linter.check('pylint.checkers.__init__')
         messages = linter.reporter.finalize().strip()
-        self.assertFalse('__path__' in messages, messages)
+        assert not ('__path__' in messages), messages
 
     def test_absolute_import(self):
         linter.check(join(REGR_DATA, 'absimp', 'string.py'))
         got = linter.reporter.finalize().strip()
-        self.assertEqual(got, "")
+        assert got == ""
 
     def test_no_context_file(self):
         expected = "Unused import missing"
         linter.check(join(REGR_DATA, 'bad_package'))
         got = linter.reporter.finalize().strip()
-        self.assertIn(expected, got)
+        assert expected in got
 
     @unittest.skipIf(PYPY_VERSION_INFO and PYPY_VERSION_INFO < (4, 0),
                      "On older PyPy versions, sys.executable was set to a value "
@@ -127,10 +127,10 @@ class NonRegrTC(unittest.TestCase):
     def test_epylint_does_not_block_on_huge_files(self):
         path = join(REGR_DATA, 'huge.py')
         out, err = epylint.py_run(path, return_std=True)
-        self.assertTrue(hasattr(out, 'read'))
-        self.assertTrue(hasattr(err, 'read'))
+        assert hasattr(out, 'read')
+        assert hasattr(err, 'read')
         output = out.read(10)
-        self.assertIsInstance(output, str)
+        assert isinstance(output, str)
 
     def test_pylint_config_attr(self):
         mod = astroid.MANAGER.ast_from_module_name('pylint.lint')
@@ -138,13 +138,13 @@ class NonRegrTC(unittest.TestCase):
         expect = ['OptionsManagerMixIn', 'object', 'MessagesHandlerMixIn',
                   'ReportsHandlerMixIn', 'BaseTokenChecker', 'BaseChecker',
                   'OptionsProviderMixIn']
-        self.assertListEqual([c.name for c in pylinter.ancestors()],
-                             expect)
-        self.assertTrue(list(astroid.Instance(pylinter).getattr('config')))
+        assert [c.name for c in pylinter.ancestors()] == \
+                             expect
+        assert list(astroid.Instance(pylinter).getattr('config'))
         inferred = list(astroid.Instance(pylinter).igetattr('config'))
-        self.assertEqual(len(inferred), 1)
-        self.assertEqual(inferred[0].root().name, 'optparse')
-        self.assertEqual(inferred[0].name, 'Values')
+        assert len(inferred) == 1
+        assert inferred[0].root().name == 'optparse'
+        assert inferred[0].name == 'Values'
 
 
 if __name__ == '__main__':

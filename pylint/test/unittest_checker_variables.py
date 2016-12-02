@@ -138,8 +138,8 @@ class MissingSubmoduleTest(CheckerTestCase):
         try:
             linter.check(os.path.join(regr_data, 'package_all'))
             got = linter.reporter.finalize().strip()
-            self.assertEqual(got, "E:  3: Undefined variable name "
-                                  "'missing' in __all__")
+            assert got == "E:  3: Undefined variable name " \
+                                  "'missing' in __all__"
         finally:
             sys.path.pop(0)
 

@@ -40,13 +40,13 @@ class CheckElseIfUsedTC(unittest.TestCase):
                              'elif.py')
         self._linter.check([elif_test])
         msgs = self._linter.reporter.messages
-        self.assertEqual(len(msgs), 2)
+        assert len(msgs) == 2
         for msg in msgs:
-            self.assertEqual(msg.symbol, 'else-if-used')
-            self.assertEqual(msg.msg,
-                             'Consider using "elif" instead of "else if"')
-        self.assertEqual(msgs[0].line, 9)
-        self.assertEqual(msgs[1].line, 21)
+            assert msg.symbol == 'else-if-used'
+            assert msg.msg == \
+                             'Consider using "elif" instead of "else if"'
+        assert msgs[0].line == 9
+        assert msgs[1].line == 21
 
 
 if __name__ == '__main__':

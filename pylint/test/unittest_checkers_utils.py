@@ -13,39 +13,40 @@ import astroid
 
 from pylint.checkers import utils
 from pylint import __pkginfo__
+import pytest
 
 class UtilsTC(unittest.TestCase):
 
     def test_is_builtin(self):
-        self.assertEqual(utils.is_builtin('min'), True)
-        self.assertEqual(utils.is_builtin('__builtins__'), True)
-        self.assertEqual(utils.is_builtin('__path__'), False)
-        self.assertEqual(utils.is_builtin('__file__'), False)
-        self.assertEqual(utils.is_builtin('whatever'), False)
-        self.assertEqual(utils.is_builtin('mybuiltin'), False)
+        assert utils.is_builtin('min') == True
+        assert utils.is_builtin('__builtins__') == True
+        assert utils.is_builtin('__path__') == False
+        assert utils.is_builtin('__file__') == False
+        assert utils.is_builtin('whatever') == False
+        assert utils.is_builtin('mybuiltin') == False
 
     def testGetArgumentFromCall(self):
         node = astroid.extract_node('foo(bar=3)')
-        self.assertIsNotNone(utils.get_argument_from_call(node, keyword='bar'))
-        with self.assertRaises(utils.NoSuchArgumentError):
+        assert utils.get_argument_from_call(node, keyword='bar') is not None
+        with pytest.raises(utils.NoSuchArgumentError):
             node = astroid.extract_node('foo(3)')
             utils.get_argument_from_call(node, keyword='bar')
-        with self.assertRaises(utils.NoSuchArgumentError):
+        with pytest.raises(utils.NoSuchArgumentError):
             node = astroid.extract_node('foo(one=a, two=b, three=c)')
             utils.get_argument_from_call(node, position=1)
         node = astroid.extract_node('foo(a, b, c)')
-        self.assertIsNotNone(utils.get_argument_from_call(node, position=1))
+        assert utils.get_argument_from_call(node, position=1) is not None
         node = astroid.extract_node('foo(a, not_this_one=1, this_one=2)')
         arg = utils.get_argument_from_call(node, position=2, keyword='this_one')
-        self.assertEqual(2, arg.value)
+        assert 2 == arg.value
         node = astroid.extract_node('foo(a)')
-        with self.assertRaises(utils.NoSuchArgumentError):
+        with pytest.raises(utils.NoSuchArgumentError):
             utils.get_argument_from_call(node, position=1)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             utils.get_argument_from_call(node, None, None)
 
         name = utils.get_argument_from_call(node, position=0)
-        self.assertEqual(name.name, 'a')
+        assert name.name == 'a'
 
     def test_error_of_type(self):
         nodes = astroid.extract_node("""
@@ -58,11 +59,11 @@ class UtilsTC(unittest.TestCase):
         except: #@
              pass
         """)
-        self.assertTrue(utils.error_of_type(nodes[0], AttributeError))
-        self.assertTrue(utils.error_of_type(nodes[0], (AttributeError, )))
-        self.assertFalse(utils.error_of_type(nodes[0], Exception))
-        self.assertTrue(utils.error_of_type(nodes[1], Exception))
-        self.assertFalse(utils.error_of_type(nodes[2], ImportError))
+        assert utils.error_of_type(nodes[0], AttributeError)
+        assert utils.error_of_type(nodes[0], (AttributeError, ))
+        assert not utils.error_of_type(nodes[0], Exception)
+        assert utils.error_of_type(nodes[1], Exception)
+        assert not utils.error_of_type(nodes[2], ImportError)
 
     def test_node_ignores_exception(self):
         nodes = astroid.extract_node("""
@@ -83,10 +84,10 @@ class UtilsTC(unittest.TestCase):
         except ValueError:
             pass
         """)
-        self.assertTrue(utils.node_ignores_exception(nodes[0], ZeroDivisionError))
-        self.assertFalse(utils.node_ignores_exception(nodes[1], ZeroDivisionError))
-        self.assertFalse(utils.node_ignores_exception(nodes[2], ZeroDivisionError))
-        self.assertFalse(utils.node_ignores_exception(nodes[3], ZeroDivisionError))
+        assert utils.node_ignores_exception(nodes[0], ZeroDivisionError)
+        assert not utils.node_ignores_exception(nodes[1], ZeroDivisionError)
+        assert not utils.node_ignores_exception(nodes[2], ZeroDivisionError)
+        assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)
 
 
 if __name__ == '__main__':

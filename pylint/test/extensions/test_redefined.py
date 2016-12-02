@@ -54,10 +54,10 @@ class CheckElseIfUsedTC(unittest.TestCase):
         with fix_import_path([elif_test]):
             self._linter.check([elif_test])
         msgs = sorted(self._linter.reporter.messages, key=lambda item: item.line)
-        self.assertEqual(len(msgs), 9)
+        assert len(msgs) == 9
         for msg, expected in zip(msgs, self.expected):
-            self.assertEqual(msg.symbol, 'redefined-variable-type')
-            self.assertEqual(msg.msg, expected)
+            assert msg.symbol == 'redefined-variable-type'
+            assert msg.msg == expected
 
 
 if __name__ == '__main__':

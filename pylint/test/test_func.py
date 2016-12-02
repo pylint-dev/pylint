@@ -16,7 +16,7 @@ from os import getcwd
 from os.path import abspath, dirname, join
 
 from pylint.testutils import (make_tests, LintTestUsingModule, LintTestUsingFile,
-    LintTestUpdate, cb_test_gen, linter, test_reporter)
+    LintTestUpdate, cb_test_gen, linter)
 
 PY3K = sys.version_info >= (3, 0)
 

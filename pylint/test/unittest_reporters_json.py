@@ -46,7 +46,7 @@ class TestJSONReporter(unittest.TestCase):
         report_result = json.loads(output.getvalue())
         report_result = [sorted(report_result[0].items(),
                                 key=lambda item: item[0])]
-        self.assertEqual(report_result, expected_result)
+        assert report_result == expected_result
 
 
 if __name__ == '__main__':

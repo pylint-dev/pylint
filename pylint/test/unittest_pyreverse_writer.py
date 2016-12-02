@@ -85,9 +85,9 @@ class DotWriterTC(unittest.TestCase):
         expected = '\n'.join(expected)
         files = "\n *** expected : %s, generated : %s \n"  % (
             expected_file, generated_file)
-        self.assertEqual(expected, generated, '%s%s' % (
+        assert expected == generated, '%s%s' % (
             files, '\n'.join(line for line in unified_diff(
-            expected.splitlines(), generated.splitlines() ))) )
+            expected.splitlines(), generated.splitlines() )))
         os.remove(generated_file)
 
     def test_package_diagram(self):
@@ -102,23 +102,23 @@ class GetVisibilityTC(unittest.TestCase):
 
     def test_special(self):
         for name in ["__reduce_ex__",  "__setattr__"]:
-            self.assertEqual(get_visibility(name), 'special')
+            assert get_visibility(name) == 'special'
 
     def test_private(self):
         for name in ["__g_", "____dsf", "__23_9"]:
             got = get_visibility(name)
-            self.assertEqual(got, 'private',
-                             'got %s instead of private for value %s' % (got, name))
+            assert got == 'private', \
+                             'got %s instead of private for value %s' % (got, name)
 
     def test_public(self):
-        self.assertEqual(get_visibility('simple'), 'public')
+        assert get_visibility('simple') == 'public'
 
     def test_protected(self):
         for name in ["_","__", "___", "____", "_____", "___e__",
                      "_nextsimple", "_filter_it_"]:
             got = get_visibility(name)
-            self.assertEqual(got, 'protected',
-                             'got %s instead of protected for value %s' % (got, name))
+            assert got == 'protected', \
+                             'got %s instead of protected for value %s' % (got, name)
 
 
 if __name__ == '__main__':
