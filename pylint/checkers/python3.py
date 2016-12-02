@@ -389,6 +389,11 @@ class Python3Checker(checkers.BaseChecker):
                   'deprecated-string-function',
                   'Used when accessing a string function that has been deprecated in Python 3.',
                   {'maxversion': (3, 0)}),
+        'W1650': ('Using str.translate with deprecated deletechars parameters',
+                  'deprecated-str-translate-call',
+                  'Used when using the deprecated deletechars parameters from str.translate.  Use'
+                  're.sub to remove the desired characters ',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -594,6 +599,19 @@ class Python3Checker(checkers.BaseChecker):
                 self.add_message('using-cmp-argument', node=node)
                 return
 
+    @staticmethod
+    def _is_constant_string_or_name(node):
+        return ((isinstance(node, astroid.Const) and isinstance(node.value, six.string_types)) or
+                isinstance(node, astroid.Name))
+
+    @staticmethod
+    def _is_none(node):
+        return isinstance(node, astroid.Const) and node.value is None
+
+    @staticmethod
+    def _has_only_n_positional_args(node, number_of_args):
+        return len(node.args) == number_of_args and all(node.args) and not node.keywords
+
     def visit_call(self, node):
         self._check_cmp_argument(node)
 
@@ -610,6 +628,23 @@ class Python3Checker(checkers.BaseChecker):
                     if len(node.args) >= 1 and node.args[0]:
                         first_arg = node.args[0]
                         self._validate_encoding(first_arg, node)
+                if (node.func.attrname == 'translate' and
+                        self._has_only_n_positional_args(node, 2) and
+                        self._is_none(node.args[0]) and
+                        self._is_constant_string_or_name(node.args[1])):
+                    # The above statement looking for calls of the form:
+                    #
+                    # foo.translate(None, 'abc123')
+                    #
+                    # or
+                    #
+                    # foo.translate(None, some_variable)
+                    #
+                    # This check is somewhat broad and _may_ have some false positives, but after
+                    # checking several large codebases it did not have any false positives while
+                    # finding several real issues.  This call pattern seems rare enough that the
+                    # trade off is worth it.
+                    self.add_message('deprecated-str-translate-call', node=node)
                 return
             if node.keywords:
                 return
