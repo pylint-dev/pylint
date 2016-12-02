@@ -489,7 +489,6 @@ class Python3Checker(checkers.BaseChecker):
         self._future_absolute_import = False
 
     def visit_functiondef(self, node):
-        print('Checking {}'.format(node.name))
         if node.is_method() and node.name in self._unused_magic_methods:
             method_name = node.name
             if node.name.startswith('__'):
