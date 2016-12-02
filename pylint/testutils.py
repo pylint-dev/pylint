@@ -274,6 +274,10 @@ class LintTestUsingModule(unittest.TestCase):
     _TEST_TYPE = 'module'
     maxDiff = None
 
+    def runTest(self):
+        # This is a hack to make ./test/test_func.py work under pytest.
+        pass
+
     def shortDescription(self):
         values = {'mode' : self._TEST_TYPE,
                   'input': self.module,
