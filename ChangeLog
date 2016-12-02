@@ -208,6 +208,8 @@ Release date: tba
 
     * Added a new Python 3 check for bad imports.
 
+    * Added a new Python 3 check for accessing deprecated string functions.
+
 
 What's new in Pylint 1.6.3?
 ===========================

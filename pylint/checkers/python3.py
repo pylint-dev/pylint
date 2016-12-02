@@ -10,6 +10,8 @@ from __future__ import absolute_import, print_function
 import re
 import tokenize
 
+import six
+
 import astroid
 from astroid import bases
 
@@ -383,6 +385,10 @@ class Python3Checker(checkers.BaseChecker):
                   'bad-python3-import',
                   'Used when importing a module that no longer exists in Python 3.',
                   {'maxversion': (3, 0)}),
+        'W1649': ('Accessing a function method on the string module',
+                  'deprecated-string-function',
+                  'Used when accessing a string function that has been deprecated in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -441,26 +447,40 @@ class Python3Checker(checkers.BaseChecker):
         'rot_13',
     ])
 
-    _bad_imports = frozenset([
-        'anydbm', 'BaseHTTPServer', '__builtin__', 'CGIHTTPServer', 'ConfigParser', 'copy_reg',
-        'cPickle', 'cProfile', 'cStringIO', 'Cookie', 'cookielib', 'dbhash', 'dbm', 'dumbdbm',
-        'dumbdb', 'Dialog', 'DocXMLRPCServer', 'FileDialog', 'FixTk', 'gdbm', 'htmlentitydefs',
-        'HTMLParser', 'httplib', 'markupbase', 'Queue', 'repr', 'robotparser', 'ScrolledText',
-        'SimpleDialog', 'SimpleHTTPServer', 'SimpleXMLRPCServer', 'StringIO', 'dummy_thread',
-        'SocketServer', 'test.test_support', 'Tkinter', 'Tix', 'Tkconstants', 'tkColorChooser',
-        'tkCommonDialog', 'Tkdnd', 'tkFileDialog', 'tkFont', 'tkMessageBox', 'tkSimpleDialog',
-        'turtle', 'UserList', 'UserString', 'whichdb', '_winreg', 'xmlrpclib', 'audiodev',
-        'Bastion', 'bsddb185', 'bsddb3', 'Canvas', 'cfmfile', 'cl', 'commands', 'compiler',
-        'dircache', 'dl', 'exception', 'fpformat', 'htmllib', 'ihooks', 'imageop', 'imputil',
-        'linuxaudiodev', 'md5', 'mhlib', 'mimetools', 'MimeWriter', 'mimify', 'multifile',
-        'mutex', 'new', 'popen2', 'posixfile', 'pure', 'rexec', 'rfc822', 'sha', 'sgmllib',
-        'sre', 'stat', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
-        'toaiff', 'user', 'urllib2', 'urlparse'
-    ])
+    _bad_python3_module_map = {
+        'sys-max-int': {
+            'sys': frozenset(['maxint'])
+        },
+        'bad-python3-import': frozenset([
+            'anydbm', 'BaseHTTPServer', '__builtin__', 'CGIHTTPServer', 'ConfigParser', 'copy_reg',
+            'cPickle', 'cProfile', 'cStringIO', 'Cookie', 'cookielib', 'dbhash', 'dbm', 'dumbdbm',
+            'dumbdb', 'Dialog', 'DocXMLRPCServer', 'FileDialog', 'FixTk', 'gdbm', 'htmlentitydefs',
+            'HTMLParser', 'httplib', 'markupbase', 'Queue', 'repr', 'robotparser', 'ScrolledText',
+            'SimpleDialog', 'SimpleHTTPServer', 'SimpleXMLRPCServer', 'StringIO', 'dummy_thread',
+            'SocketServer', 'test.test_support', 'Tkinter', 'Tix', 'Tkconstants', 'tkColorChooser',
+            'tkCommonDialog', 'Tkdnd', 'tkFileDialog', 'tkFont', 'tkMessageBox', 'tkSimpleDialog',
+            'turtle', 'UserList', 'UserString', 'whichdb', '_winreg', 'xmlrpclib', 'audiodev',
+            'Bastion', 'bsddb185', 'bsddb3', 'Canvas', 'cfmfile', 'cl', 'commands', 'compiler',
+            'dircache', 'dl', 'exception', 'fpformat', 'htmllib', 'ihooks', 'imageop', 'imputil',
+            'linuxaudiodev', 'md5', 'mhlib', 'mimetools', 'MimeWriter', 'mimify', 'multifile',
+            'mutex', 'new', 'popen2', 'posixfile', 'pure', 'rexec', 'rfc822', 'sha', 'sgmllib',
+            'sre', 'stat', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
+            'toaiff', 'user', 'urllib2', 'urlparse'
+        ]),
+        'deprecated-string-function': {
+            'string': frozenset([
+                'maketrans', 'atof', 'atoi', 'atol', 'capitalize', 'expandtabs', 'find', 'rfind',
+                'index', 'rindex', 'count', 'lower', 'split', 'rsplit', 'splitfields', 'join',
+                'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate', 'upper',
+                'ljust', 'rjust', 'center', 'zfill', 'replace'
+            ])
+        }
+    }
 
     def __init__(self, *args, **kwargs):
         self._future_division = False
         self._future_absolute_import = False
+        self._modules_warned_about = set()
         super(Python3Checker, self).__init__(*args, **kwargs)
 
     def visit_module(self, node): # pylint: disable=unused-argument
@@ -469,6 +489,7 @@ class Python3Checker(checkers.BaseChecker):
         self._future_absolute_import = False
 
     def visit_functiondef(self, node):
+        print('Checking {}'.format(node.name))
         if node.is_method() and node.name in self._unused_magic_methods:
             method_name = node.name
             if node.name.startswith('__'):
@@ -493,6 +514,15 @@ class Python3Checker(checkers.BaseChecker):
     def visit_print(self, node):
         self.add_message('print-statement', node=node)
 
+    def _warn_if_deprecated(self, node, module, attributes):
+        for message, module_map in six.iteritems(self._bad_python3_module_map):
+            if module in module_map and module not in self._modules_warned_about:
+                if isinstance(module_map, frozenset):
+                    self._modules_warned_about.add(module)
+                    self.add_message(message, node=node)
+                elif attributes and module_map[module].intersection(attributes):
+                    self.add_message(message, node=node)
+
     def visit_importfrom(self, node):
         if node.modname == '__future__':
             for name, _ in node.names:
@@ -504,8 +534,8 @@ class Python3Checker(checkers.BaseChecker):
             if not self._future_absolute_import:
                 if self.linter.is_message_enabled('no-absolute-import'):
                     self.add_message('no-absolute-import', node=node)
-            if node.modname in self._bad_imports and not _is_conditional_import(node):
-                self.add_message('bad-python3-import', node=node)
+            if not _is_conditional_import(node):
+                self._warn_if_deprecated(node, node.modname, {x[0] for x in node.names})
 
         if node.names[0][0] == '*':
             if self.linter.is_message_enabled('import-star-module-level'):
@@ -515,9 +545,9 @@ class Python3Checker(checkers.BaseChecker):
     def visit_import(self, node):
         if not self._future_absolute_import:
             self.add_message('no-absolute-import', node=node)
-        for name in node.names:
-            if name[0] in self._bad_imports and not _is_conditional_import(node):
-                self.add_message('bad-python3-import', node=node)
+        if not _is_conditional_import(node):
+            for name, _ in node.names:
+                self._warn_if_deprecated(node, name, None)
 
     @utils.check_messages('metaclass-assignment')
     def visit_classdef(self, node):
@@ -569,6 +599,13 @@ class Python3Checker(checkers.BaseChecker):
         self._check_cmp_argument(node)
 
         if isinstance(node.func, astroid.Attribute):
+            try:
+                for inferred_receiver in node.func.expr.infer():
+                    if isinstance(inferred_receiver, astroid.Module):
+                        self._warn_if_deprecated(node, inferred_receiver.name,
+                                                 {node.func.attrname})
+            except astroid.InferenceError:
+                pass
             if node.args:
                 if node.func.attrname in ('encode', 'decode'):
                     if len(node.args) >= 1 and node.args[0]:
@@ -610,10 +647,10 @@ class Python3Checker(checkers.BaseChecker):
     def visit_subscript(self, node):
         """ Look for indexing exceptions. """
         try:
-            for infered in node.value.infer():
-                if not isinstance(infered, astroid.Instance):
+            for inferred in node.value.infer():
+                if not isinstance(inferred, astroid.Instance):
                     continue
-                if utils.inherit_from_std_ex(infered):
+                if utils.inherit_from_std_ex(inferred):
                     self.add_message('indexing-exception', node=node)
         except astroid.InferenceError:
             return
@@ -629,14 +666,13 @@ class Python3Checker(checkers.BaseChecker):
     def visit_attribute(self, node):
         """ Look for accessing message on exceptions. """
         try:
-            for infered in node.expr.infer():
-                if (isinstance(infered, astroid.Instance) and
-                        utils.inherit_from_std_ex(infered)):
+            for inferred in node.expr.infer():
+                if (isinstance(inferred, astroid.Instance) and
+                        utils.inherit_from_std_ex(inferred)):
                     if node.attrname == 'message':
                         self.add_message('exception-message-attribute', node=node)
-                if isinstance(infered, astroid.Module) and infered.name == 'sys':
-                    if node.attrname == 'maxint':
-                        self.add_message('sys-max-int', node=node)
+                if isinstance(inferred, astroid.Module):
+                    self._warn_if_deprecated(node, inferred.name, {node.attrname})
         except astroid.InferenceError:
             return
 
