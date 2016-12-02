@@ -502,6 +502,16 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @python2_only
+    def test_sys_maxint_imort_from(self):
+        node = astroid.extract_node('''
+        from sys import maxint #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('sys-max-int', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
     def test_object_maxint(self):
         node = astroid.extract_node('''
         sys = object()
@@ -581,14 +591,58 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_importfrom(node)
 
     @python2_only
-    def test_bad_import_else_block(self):
+    def test_bad_string_attribute(self):
         node = astroid.extract_node('''
-        import six
-        if six.PY3:
-            from io import StringIO
-        else:
-            from cStringIO import StringIO #@
+        import string
+        string.maketrans #@
         ''')
+        message = testutils.Message('deprecated-string-function', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_ok_string_attribute(self):
+        node = astroid.extract_node('''
+        import string
+        string.letters #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_bad_string_call(self):
+        node = astroid.extract_node('''
+        import string
+        string.upper("hello world") #@
+        ''')
+        message = testutils.Message('deprecated-string-function', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_string_call(self):
+        node = astroid.extract_node('''
+        import string
+        string.Foramtter() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_bad_string_import_from(self):
+        node = astroid.extract_node('''
+         from string import atoi #@
+         ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('deprecated-string-function', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_ok_string_import_from(self):
+        node = astroid.extract_node('''
+         from string import digits #@
+         ''')
         absolute_import_message = testutils.Message('no-absolute-import', node=node)
         with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_importfrom(node)

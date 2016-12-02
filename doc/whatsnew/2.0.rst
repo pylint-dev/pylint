@@ -373,6 +373,20 @@ New checkers
   This checker will assume any imports that happen within a conditional or a ``try/except`` block
   are valid.
 
+* A new Python 3 checker was added to warn about accessing deprecated functions on the string
+  module.  Python 3 removed functions that were duplicated from the builtin ``str`` class.  See
+  https://docs.python.org/2/library/string.html#deprecated-string-functions for more information.
+
+  .. code-block:: python
+
+      import string
+      print(string.upper('hello world!'))
+
+  Instead of using ``string.upper``, call the ``upper`` method directly on the string object.
+
+  .. code-block:: python
+
+      "hello world!".upper()
 
 Other Changes
 =============
