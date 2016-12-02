@@ -115,6 +115,7 @@ Order doesn't matter (not that much, at least ;)
   Added Python 3 check for calling encode/decode with invalid codecs.
   Added Python 3 check for accessing sys.maxint.
   Added Python 3 check for bad import statements.
+  Added Python 3 check for accessing deprecated methods on the 'string' module.
 
 * Erik Eriksson - Added overlapping-except error check.
 
