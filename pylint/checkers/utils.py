@@ -503,9 +503,12 @@ def decorated_with(func, qnames):
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
     decorators = func.decorators.nodes if func.decorators else []
     for decorator_node in decorators:
-        dec = safe_infer(decorator_node)
-        if dec and dec.qname() in qnames:
-            return True
+        try:
+            if any(i is not None and i.qname() in qnames for i in decorator_node.infer()):
+                return True
+        except astroid.InferenceError:
+            continue
+    return False
 
 
 def unimplemented_abstract_methods(node, is_abstract_cb=None):
@@ -803,3 +806,29 @@ def node_type(node):
     except astroid.InferenceError:
         return
     return types.pop() if types else None
+
+
+def is_registered_in_singledispatch_function(node):
+    if not isinstance(node, astroid.FunctionDef):
+        return False
+
+    decorators = node.decorators.nodes if node.decorators else []
+    for decorator in decorators:
+        # func.register are function calls
+        if not isinstance(decorator, astroid.Call):
+            continue
+
+        func = decorator.func
+        if not isinstance(func, astroid.Attribute) or func.attrname != 'register':
+            continue
+
+        try:
+            func_def = next(func.expr.infer())
+        except astroid.InferenceError:
+            continue
+
+        singledispatch_qnames = ('functools.singledispatch', 'singledispatch.singledispatch')
+        if isinstance(func_def, astroid.FunctionDef):
+            return decorated_with(func_def, singledispatch_qnames)
+
+    return False
