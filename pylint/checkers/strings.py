@@ -478,8 +478,8 @@ class StringFormatChecker(BaseChecker):
                     warn_error = False
                     if hasattr(previous, 'getitem'):
                         try:
-                            previous = previous.getitem(specifier)
-                        except (IndexError, TypeError):
+                            previous = previous.getitem(astroid.Const(specifier))
+                        except (astroid.AstroidIndexError, astroid.AstroidTypeError):
                             warn_error = True
                         except astroid.InferenceError:
                             break
