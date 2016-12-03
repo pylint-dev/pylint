@@ -55,6 +55,25 @@ from pylint.reporters.ureports import nodes as report_nodes
 
 MANAGER = astroid.MANAGER
 
+# FIXME(CPC): move to astroid
+def _ast_from_string(data, filepath, modname):
+    if modname in MANAGER.astroid_cache and MANAGER.astroid_cache[modname].file == filepath:
+        return MANAGER.astroid_cache[modname]
+    from astroid.builder import AstroidBuilder
+    return AstroidBuilder(MANAGER).string_build(data, modname, filepath)
+
+from io import StringIO, TextIOWrapper
+if sys.version_info >= (3, 0):
+    def _read_stdin():
+        # https://mail.python.org/pipermail/python-list/2012-November/634424.html
+        # FIXME should this try to check the file's declared encoding?
+        sys.stdin = TextIOWrapper(sys.stdin.detach(), newline=None)
+        return sys.stdin.read()
+else:
+    def _read_stdin():
+        encoding = sys.stdin.encoding or "utf-8"  # FIXME
+        data = sys.stdin.read().decode(encoding)
+        return StringIO(data, newline=None).read()
 
 def _get_new_args(message):
     location = (
@@ -391,6 +410,12 @@ class PyLinter(config.OptionsManagerMixIn,
                            ' loading into the active Python interpreter and may run'
                            ' arbitrary code')}
                 ),
+
+                ('stdin-file-name',
+                 {'type' : 'string', 'metavar': '<stdin-file-name>',
+                  'default': "stdin", #FIXME check if things break with this default
+                  'help' : ('Name of file being passed on standard input. '
+                            "When this is used, module_or_package should be '-'.")}),
                )
 
     option_groups = (
@@ -834,14 +859,14 @@ class PyLinter(config.OptionsManagerMixIn,
             if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
         # build ast and check modules or packages
-        for descr in self.expand_files(files_or_modules):
+        for descr in self.expand_files(files_or_modules): # CPC make change here
             modname, filepath, is_arg = descr['name'], descr['path'], descr['isarg']
             if not self.should_analyze_file(modname, filepath, is_argument=is_arg):
                 continue
 
             self.set_current_module(modname, filepath)
             # get the module representation
-            ast_node = self.get_ast(filepath, modname)
+            ast_node = self.get_ast(filepath, modname, descr.get("proxy", None))
             if ast_node is None:
                 continue
             # XXX to be correct we need to keep module_msgs_state for every
@@ -865,6 +890,10 @@ class PyLinter(config.OptionsManagerMixIn,
     def expand_files(self, modules):
         """get modules and errors from a list of modules and handle errors
         """
+        if "-" in modules:
+            assert len(modules) == 1 # FIXME(CPC): raise an error instead
+            modules = (("-", self.config.stdin_file_name),)
+
         result, errors = utils.expand_modules(modules, self.config.black_list,
                                               self.config.black_list_re)
         for error in errors:
@@ -890,10 +919,14 @@ class PyLinter(config.OptionsManagerMixIn,
         for msg_cat in six.itervalues(utils.MSG_TYPES):
             self.stats['by_module'][modname][msg_cat] = 0
 
-    def get_ast(self, filepath, modname):
+    def get_ast(self, filepath, modname, proxy=None):
         """return a ast(roid) representation for a module"""
         try:
-            return MANAGER.ast_from_file(filepath, modname, source=True)
+            if proxy is not None:
+                assert proxy == "-"  # For now, we only support proxying through stdin
+                return _ast_from_string(_read_stdin(), filepath, modname)
+            else:
+                return MANAGER.ast_from_file(filepath, modname, source=True)
         except astroid.AstroidSyntaxError as ex:
             self.add_message('syntax-error',
                              line=getattr(ex.error, 'lineno', 0),

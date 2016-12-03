@@ -858,13 +858,21 @@ def _modpath_from_file(filename, is_namespace):
 
 
 def expand_modules(files_or_modules, black_list, black_list_re):
-    """take a list of files/modules/packages and return the list of tuple
-    (file, module name) which have to be actually checked
+    """take a list of files/modules/packages and return the list of dictionaries
+    indicating properties of files that have to be actually checked
     """
     result = []
     errors = []
     for something in files_or_modules:
-        if exists(something):
+        proxy = None
+        if isinstance(something, tuple):
+            proxy, realpath = something
+            modname = splitext(basename(realpath))[0]
+            result.append({'path': realpath, 'name': modname, 'isarg': True,
+                           'basepath': realpath, 'basename': modname, 'proxy': proxy})
+            continue
+
+        if exists(something) or proxy is not None:
             # this is a file or a directory
             try:
                 modname = '.'.join(modutils.modpath_from_file(something))
@@ -902,12 +910,13 @@ def expand_modules(files_or_modules, black_list, black_list_re):
 
         if not is_namespace:
             result.append({'path': filepath, 'name': modname, 'isarg': True,
-                           'basepath': filepath, 'basename': modname})
+                           'basepath': filepath, 'basename': modname, 'proxy': proxy})
 
         has_init = (not (modname.endswith('.__init__') or modname == '__init__')
                     and '__init__.py' in filepath)
 
         if has_init or is_namespace or is_directory:
+            assert proxy is None # FIXME
             for subfilepath in modutils.get_module_files(dirname(filepath), black_list,
                                                          list_all=is_namespace):
                 if filepath == subfilepath:
