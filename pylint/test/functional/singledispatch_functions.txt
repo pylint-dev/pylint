@@ -1,1 +1,4 @@
-unused-argument:51:uninferable:Unused argument 'arg'
+unused-argument:64:not_single_dispatch:Unused argument 'arg'
+unused-argument:69:bad_single_dispatch:Unused argument 'arg'
+function-redefined:74:bad_single_dispatch:function already defined line 69
+unused-argument:74:bad_single_dispatch:Unused argument 'arg'

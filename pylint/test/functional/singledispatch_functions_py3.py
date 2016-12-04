@@ -1,14 +1,26 @@
 # pylint: disable=missing-docstring,import-error,unused-import,assignment-from-no-return
+# pylint: disable=invalid-name, too-few-public-methods
 from __future__ import print_function
-from UNINFERABLE import uninferable_decorator, uninferable_func
+from UNINFERABLE import uninferable_func
 
 try:
     from functools import singledispatch
 except ImportError:
     from singledispatch import singledispatch
 
-my_single_dispatch = singledispatch  # pylint: disable=invalid-name
+my_single_dispatch = singledispatch
 
+
+class FakeSingleDispatch(object):
+
+    @staticmethod
+    def register(function):
+        return function
+
+    def __call__(self, function):
+        return function
+
+fake_singledispatch_decorator = FakeSingleDispatch()
 
 @singledispatch
 def func(arg):
@@ -48,16 +60,16 @@ def _(arg, verbose=False):
     return arg[::-1]
 
 
-@uninferable_decorator
-def uninferable(arg):
-    return 2*arg
+@fake_singledispatch_decorator
+def not_single_dispatch(arg): # [unused-argument]
+    return 'not yet implemented'
 
 
-@uninferable.register(str)
-def bad_single_dispatch(arg):
-    return arg
+@fake_singledispatch_decorator.register(str)
+def bad_single_dispatch(arg): # [unused-argument]
+    return 42
 
 
-@uninferable_func.register(str)
-def test(arg):
-    return arg
+@fake_singledispatch_decorator.register(str)
+def bad_single_dispatch(arg): # [unused-argument, function-redefined]
+    return 24
