@@ -18,11 +18,12 @@ import unittest
 import six
 from six.moves import configparser
 
+import pytest
+
 from pylint import checkers
 from pylint import interfaces
 from pylint import lint
 from pylint import reporters
-from pylint import utils
 
 class test_dialect(csv.excel):
     if sys.version_info[0] < 3:
@@ -239,8 +240,8 @@ class LintModuleTest(unittest.TestCase):
 
     def setUp(self):
         if self._should_be_skipped_due_to_version():
-            self.skipTest(
-                'Test cannot run with Python %s.' % (sys.version.split(' ')[0],))
+            pytest.skip(
+            'Test cannot run with Python %s.' % (sys.version.split(' ')[0],))
         missing = []
         for req in self._test_file.options['requires']:
             try:
@@ -248,7 +249,7 @@ class LintModuleTest(unittest.TestCase):
             except ImportError:
                 missing.append(req)
         if missing:
-            self.skipTest('Requires %s to be present.' % (','.join(missing),))
+            pytest.skip('Requires %s to be present.' % (','.join(missing),))
         if self._test_file.options['except_implementations']:
             implementations = [
                 item.strip() for item in
@@ -256,9 +257,9 @@ class LintModuleTest(unittest.TestCase):
             ]
             implementation = platform.python_implementation()
             if implementation in implementations:
-                self.skipTest(
+                pytest.skip(
                     'Test cannot run with Python implementation %r'
-                     % (implementation, ))
+                    % (implementation, ))
 
     def _should_be_skipped_due_to_version(self):
         return (sys.version_info < self._test_file.options['min_pyver'] or
@@ -352,26 +353,29 @@ class LintModuleOutputUpdate(LintModuleTest):
                 for line in remaining:
                     writer.writerow(line.to_csv())
 
-def suite():
+def get_tests():
     input_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              'functional')
-    suite = unittest.TestSuite()
+    suite = []
     for fname in os.listdir(input_dir):
         if fname != '__init__.py' and fname.endswith('.py'):
-            test_file = FunctionalTestFile(input_dir, fname)
-            if UPDATE:
-                suite.addTest(LintModuleOutputUpdate(test_file))
-            else:
-                suite.addTest(LintModuleTest(test_file))
+            suite.append(FunctionalTestFile(input_dir, fname))
     return suite
+
+
+@pytest.mark.parametrize("test_file", get_tests())
+def test_functional(test_file):
+    LintTest = LintModuleOutputUpdate(test_file) if UPDATE else LintModuleTest(test_file)
+    LintTest.setUp()
+    LintTest._runTest()
 
 
 def load_tests(loader, tests, pattern):
     return suite()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     if '-u' in sys.argv:
         UPDATE = True
         sys.argv.remove('-u')
-    unittest.main(defaultTest='suite')
+    pytest.main(sys.argv)

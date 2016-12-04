@@ -139,6 +139,8 @@ class MinimalTestReporter(BaseReporter):
     def on_set_current_module(self, module, filepath):
         self.messages = []
 
+    _display = None
+
 
 class Message(collections.namedtuple('Message',
                                      ['msg_id', 'line', 'node', 'args', 'confidence'])):
