@@ -443,7 +443,7 @@ Please report bugs on the project\'s mailing list:
 class OrderedValues(optparse.Values):
     def __init__(self, defaults=None):
         self.value_set_order = []
-        super(OrderedValues, self).__init__(defaults=defaults)
+        optparse.Values.__init__(self, defaults=defaults)
 
     def __setattr__(self, key, value):
         try:
@@ -451,10 +451,11 @@ class OrderedValues(optparse.Values):
         except ValueError:
             pass
         except AttributeError:  # for inside __init__
-            return super(OrderedValues, self).__setattr__(key, value)
+            self.__dict__[key] = value
+            return
 
         self.value_set_order.append(key)
-        return super(OrderedValues, self).__setattr__(key, value)
+        self.__dict__[key] = value
 
 
 class OptionsManagerMixIn(object):
