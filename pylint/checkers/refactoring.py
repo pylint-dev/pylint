@@ -8,8 +8,8 @@
 
 """Looks for code which can be refactored."""
 
-import itertools
 import collections
+import itertools
 
 import astroid
 from astroid import decorators
@@ -19,6 +19,33 @@ from pylint import interfaces
 from pylint import checkers
 from pylint import utils as lint_utils
 from pylint.checkers import utils
+
+
+def _all_elements_are_true(gen):
+    values = list(gen)
+    return values and all(values)
+
+
+def _if_statement_is_always_returning(if_node):
+    def _has_return_node(elems, scope):
+        for node in elems:
+            if isinstance(node, astroid.If):
+                yield _if_statement_is_always_returning(node)
+            elif isinstance(node, astroid.Return):
+                yield node.scope() is scope
+
+    scope = if_node.scope()
+    body_returns = _all_elements_are_true(
+        _has_return_node(if_node.body, scope=scope)
+    )
+    if if_node.orelse:
+        orelse_returns = _all_elements_are_true(
+            _has_return_node(if_node.orelse, scope=scope)
+        )
+    else:
+        orelse_returns = False
+
+    return body_returns and orelse_returns
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -224,31 +251,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_comprehension(self, node):
         self._if_counter += len(node.ifs)
 
-    def _always_return(self, body):
-        """Search if a list of node has 'return', search nested return into ifs
-        """
-        alwr_all = []
-        for item in body:
-            if isinstance(item, astroid.Return):
-                return True
-            elif isinstance(item, astroid.If):
-                if not hasattr(item, 'alwr_if'):
-                    # Assign variable to object in order to re-use computed data
-                    item.alwr_if = self._always_return(item.body)
-                    item.alwr_else = self._always_return(item.orelse) \
-                        if item.orelse else False
-                alwr_all.append(item.alwr_if and item.alwr_else)
-        return all(alwr_all) if alwr_all else False
-
     def _check_superfluous_else_return(self, node):
         if not node.orelse:
             # Not interested in if statements without else.
             return
-        if not hasattr(node, 'alwr_if'):
-            # If we can not re-use computed data, then calculate
-            node.alwr_if = self._always_return(node.body)
-            node.alwr_else = self._always_return(node.orelse)
-        if node.alwr_if and node.alwr_else and not self._is_actual_elif(node):
+
+        if _if_statement_is_always_returning(node) and not self._is_actual_elif(node):
             self.add_message('superfluous-else-return', node=node)
 
     @utils.check_messages('too-many-nested-blocks', 'simplifiable-if-statement',
