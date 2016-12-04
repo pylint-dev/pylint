@@ -809,6 +809,13 @@ def node_type(node):
 
 
 def is_registered_in_singledispatch_function(node):
+    """Check if the given function node is a singledispatch function."""
+
+    singledispatch_qnames = (
+        'functools.singledispatch',
+        'singledispatch.singledispatch'
+    )
+
     if not isinstance(node, astroid.FunctionDef):
         return False
 
@@ -827,7 +834,6 @@ def is_registered_in_singledispatch_function(node):
         except astroid.InferenceError:
             continue
 
-        singledispatch_qnames = ('functools.singledispatch', 'singledispatch.singledispatch')
         if isinstance(func_def, astroid.FunctionDef):
             return decorated_with(func_def, singledispatch_qnames)
 
