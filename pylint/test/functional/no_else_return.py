@@ -3,7 +3,7 @@
 # pylint:disable=invalid-name,missing-docstring,unused-variable
 
 def foo1(x, y, z):
-    if x:  # [superfluous-else-return]
+    if x:  # [no-else-return]
         a = 1
         return y
     else:
@@ -12,7 +12,7 @@ def foo1(x, y, z):
 
 
 def foo2(x, y, w, z):
-    if x:  # [superfluous-else-return]
+    if x:  # [no-else-return]
         a = 1
         return y
     elif z:
@@ -24,9 +24,9 @@ def foo2(x, y, w, z):
 
 
 def foo3(x, y, z):
-    if x:  # [superfluous-else-return]
+    if x:  # [no-else-return]
         a = 1
-        if y:  # [superfluous-else-return]
+        if y:  # [no-else-return]
             b = 2
             return y
         else:

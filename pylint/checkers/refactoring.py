@@ -82,11 +82,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'a handful of name binding operations, such as for iteration, '
                   'with statement assignment and exception handler assignment.'
                  ),
-        'R1705': ('Superfluous return before else',
-                  'superfluous-else-return',
-                  'If an "if" block contains a return statement, '
-                  'the else block becomes unnecessary. Its contents can'
-                  ' be placed outside of the block.'
+        'R1705': ('Disallow return before else',
+                  'no-else-return',
+                  'Used in order to highlight an unnecessary block of '
+                  'code following an if containing a return statement. '
+                  'As such, it will warn when it encounters an else '
+                  'following a chain of ifs, all of them containing a '
+                  'return statement.'
                  ),
     }
     options = (('max-nested-blocks',
@@ -257,10 +259,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if _if_statement_is_always_returning(node) and not self._is_actual_elif(node):
-            self.add_message('superfluous-else-return', node=node)
+            self.add_message('no-else-return', node=node)
 
     @utils.check_messages('too-many-nested-blocks', 'simplifiable-if-statement',
-                          'superfluous-else-return',)
+                          'no-else-return',)
     def visit_if(self, node):
         self._check_simplifiable_if(node)
         self._check_nested_blocks(node)

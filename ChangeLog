@@ -215,7 +215,7 @@ Release date: tba
 
       Closes #1032 and #1034
 
-    * Added refactoring message 'superfluous-else-return'.
+    * Added refactoring message 'no-else-return'.
 
 
 

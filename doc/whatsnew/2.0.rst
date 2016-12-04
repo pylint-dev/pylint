@@ -196,6 +196,27 @@ New checkers
   Other places where this check looks are *with* statement name bindings and
   except handler's name binding.
 
+* A new refactoring check was added, ``no-else-return``, which is
+  emitted when pylint encounters an else following a chain of ifs,
+  all of them containing a return statement.
+  .. code-block:: python
+
+    def foo1(x, y, z):
+        if x:
+            return y
+        else:  # This is unnecessary here.
+            return z
+
+
+  We could fix it deleting the ``else`` statement.
+
+  .. code-block:: python
+
+    def foo1(x, y, z):
+        if x:
+            return y
+        return z
+
 * A new Python 3 check was added, ``eq-without-hash``, which enforces classes that implement
   ``__eq__`` *also* implement ``__hash__``.  The behavior around classes which implement ``__eq__``
   but not ``__hash__`` changed in Python 3; in Python 2 such classes would get ``object.__hash__``
