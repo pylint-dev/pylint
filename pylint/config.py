@@ -812,14 +812,17 @@ class OptionsProviderMixIn(object):
     def options_and_values(self, options=None):
         if options is None:
             options = self.options
-        options = dict(options)
-
+        options_dict = dict(options)
 
         for option_name in self.config.value_set_order:
             try:
-                yield (option_name, options[option_name], self.option_value(option_name))
+                yield (option_name, options_dict[option_name],
+                       self.option_value(option_name))
             except KeyError:
                 pass
+        for option_name, option_dict in options:
+            if option_name not in self.config.value_set_order:
+                yield (option_name, option_dict, self.option_value(option_name))
 
 
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
