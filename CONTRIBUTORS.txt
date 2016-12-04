@@ -9,13 +9,26 @@ Order doesn't matter (not that much, at least ;)
 
 * Claudiu Popa: maintainer, contributor
 
-* ceridwen: astroid committer.
+* Cara Vinson, astroid committer.
 
-* Dmitry Pribysh: committer, multiple-imports, not-iterable, not-a-mapping, various patches.
+* Dmitry Pribysh: committer
 
-* Ashley Whetter: committer, check_docs extension can find constructor parameters in __init__,
-	          added check_raise_docs extension.
+  multiple-imports, not-iterable, not-a-mapping, various patches.
 
+* Ashley Whetter: committer
+  
+  check_docs extension can find constructor parameters in __init__,
+  added check_raise_docs extension, various patches.
+
+* Roy Williams (Lyft): committer
+
+  added check for implementing __eq__ without implementing __hash__,
+  Added Python 3 check for accessing Exception.message.
+  Added Python 3 check for calling encode/decode with invalid codecs.
+  Added Python 3 check for accessing sys.maxint.
+  Added Python 3 check for bad import statements.
+  Added Python 3 check for accessing deprecated methods on the 'string' module,
+  various patches.
 
 * Daniel Balparda (Google): GPyLint maintainer (Google's pylint variant),
   various patches
@@ -109,13 +122,6 @@ Order doesn't matter (not that much, at least ;)
 
 * Alexander Todorov: added new error conditions to 'bad-super-call',
   Added new check for incorrect len(SEQUENCE) usage
-
-* Roy Williams (Lyft): added check for implementing __eq__ without implementing __hash__,
-  Added Python 3 check for accessing Exception.message.
-  Added Python 3 check for calling encode/decode with invalid codecs.
-  Added Python 3 check for accessing sys.maxint.
-  Added Python 3 check for bad import statements.
-  Added Python 3 check for accessing deprecated methods on the 'string' module.
 
 * Erik Eriksson - Added overlapping-except error check.
 
