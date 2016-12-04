@@ -440,6 +440,23 @@ Please report bugs on the project\'s mailing list:
         return tail
 
 
+class OrderedValues(optparse.Values):
+    def __init__(self, defaults=None):
+        self.value_set_order = []
+        super(OrderedValues, self).__init__(defaults=defaults)
+
+    def __setattr__(self, key, value):
+        try:
+            self.value_set_order.remove(key)
+        except ValueError:
+            pass
+        except AttributeError:  # for inside __init__
+            return super(OrderedValues, self).__setattr__(key, value)
+
+        self.value_set_order.append(key)
+        return super(OrderedValues, self).__setattr__(key, value)
+
+
 class OptionsManagerMixIn(object):
     """Handle configuration from both a configuration file and command line options"""
 
@@ -712,7 +729,7 @@ class OptionsProviderMixIn(object):
     level = 0
 
     def __init__(self):
-        self.config = optparse.Values()
+        self.config = OrderedValues()
         self.load_defaults()
 
     def load_defaults(self):
@@ -795,8 +812,14 @@ class OptionsProviderMixIn(object):
     def options_and_values(self, options=None):
         if options is None:
             options = self.options
-        for optname, optdict in options:
-            yield (optname, optdict, self.option_value(optname))
+        options = dict(options)
+
+
+        for option_name in self.config.value_set_order:
+            try:
+                yield (option_name, options[option_name], self.option_value(option_name))
+            except KeyError:
+                pass
 
 
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
