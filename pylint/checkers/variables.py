@@ -662,6 +662,9 @@ class VariablesChecker(BaseChecker):
             if any(node.name.startswith(cb) or node.name.endswith(cb)
                    for cb in self.config.callbacks):
                 return
+            # Don't check arguments of singledispatch.register function.
+            if utils.is_registered_in_singledispatch_function(node):
+                return
             self.add_message('unused-argument', args=name, node=stmt,
                              confidence=confidence)
         else:
@@ -692,13 +695,8 @@ class VariablesChecker(BaseChecker):
         if is_method and node.is_abstract():
             return
 
-        # Don't check arguments of singledispatch.register function.
-        if utils.is_registered_in_singledispatch_function(node):
-            return
-
         global_names = _flattened_scope_names(node.nodes_of_class(astroid.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(astroid.Nonlocal))
-
         for name, stmts in six.iteritems(not_consumed):
             self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
 

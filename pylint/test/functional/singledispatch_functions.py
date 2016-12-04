@@ -57,6 +57,7 @@ def with_extra_arg(arg, verbose=False):
 
 @with_extra_arg.register(str)
 def _(arg, verbose=False):
+    unused = 42 # [unused-variable]
     return arg[::-1]
 
 
