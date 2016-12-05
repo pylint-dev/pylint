@@ -612,39 +612,51 @@ class Python3Checker(checkers.BaseChecker):
     def _has_only_n_positional_args(node, number_of_args):
         return len(node.args) == number_of_args and all(node.args) and not node.keywords
 
+    @staticmethod
+    def _could_be_string(inferred_types):
+        for inferred_type in inferred_types:
+            if not (inferred_type == astroid.Uninferable or (
+                    isinstance(inferred_type, astroid.Const) and
+                    isinstance(inferred_type.value, six.string_types))):
+                return False
+        return True
+
     def visit_call(self, node):
         self._check_cmp_argument(node)
 
         if isinstance(node.func, astroid.Attribute):
+            inferred_types = set()
             try:
                 for inferred_receiver in node.func.expr.infer():
+                    inferred_types.add(type(inferred_receiver))
                     if isinstance(inferred_receiver, astroid.Module):
                         self._warn_if_deprecated(node, inferred_receiver.name,
                                                  {node.func.attrname})
             except astroid.InferenceError:
                 pass
             if node.args:
-                if node.func.attrname in ('encode', 'decode'):
-                    if len(node.args) >= 1 and node.args[0]:
+                if self._could_be_string(inferred_types):
+                    if (node.func.attrname in ('encode', 'decode') and
+                            len(node.args) >= 1 and node.args[0]):
                         first_arg = node.args[0]
                         self._validate_encoding(first_arg, node)
-                if (node.func.attrname == 'translate' and
-                        self._has_only_n_positional_args(node, 2) and
-                        self._is_none(node.args[0]) and
-                        self._is_constant_string_or_name(node.args[1])):
-                    # The above statement looking for calls of the form:
-                    #
-                    # foo.translate(None, 'abc123')
-                    #
-                    # or
-                    #
-                    # foo.translate(None, some_variable)
-                    #
-                    # This check is somewhat broad and _may_ have some false positives, but after
-                    # checking several large codebases it did not have any false positives while
-                    # finding several real issues.  This call pattern seems rare enough that the
-                    # trade off is worth it.
-                    self.add_message('deprecated-str-translate-call', node=node)
+                    if (node.func.attrname == 'translate' and
+                            self._has_only_n_positional_args(node, 2) and
+                            self._is_none(node.args[0]) and
+                            self._is_constant_string_or_name(node.args[1])):
+                        # The above statement looking for calls of the form:
+                        #
+                        # foo.translate(None, 'abc123')
+                        #
+                        # or
+                        #
+                        # foo.translate(None, some_variable)
+                        #
+                        # This check is somewhat broad and _may_ have some false positives, but
+                        # after checking several large codebases it did not have any false
+                        # positives while finding several real issues.  This call pattern seems
+                        # rare enough that the trade off is worth it.
+                        self.add_message('deprecated-str-translate-call', node=node)
                 return
             if node.keywords:
                 return

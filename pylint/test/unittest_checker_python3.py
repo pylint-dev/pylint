@@ -681,6 +681,16 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
+    @python2_only
+    def test_ok_str_translate_call_not_str(self):
+        node = astroid.extract_node('''
+         foobar = {}
+         foobar.translate(None, 'foobar') #@
+         ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+
 @python2_only
 class Python3TokenCheckerTest(testutils.CheckerTestCase):
 
