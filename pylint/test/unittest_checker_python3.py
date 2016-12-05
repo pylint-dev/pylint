@@ -647,6 +647,50 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertAddsMessages(absolute_import_message):
             self.checker.visit_importfrom(node)
 
+    @python2_only
+    def test_bad_str_translate_call_string_literal(self):
+        node = astroid.extract_node('''
+         foobar.translate(None, 'abc123') #@
+         ''')
+        message = testutils.Message('deprecated-str-translate-call', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_bad_str_translate_call_variable(self):
+        node = astroid.extract_node('''
+         foobar.translate(None, foobar) #@
+         ''')
+        message = testutils.Message('deprecated-str-translate-call', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_str_translate_call_integer(self):
+        node = astroid.extract_node('''
+         foobar.translate(None, 33) #@
+         ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_str_translate_call_keyword(self):
+        node = astroid.extract_node('''
+         foobar.translate(None, 'foobar', raz=33) #@
+         ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_str_translate_call_not_str(self):
+        node = astroid.extract_node('''
+         foobar = {}
+         foobar.translate(None, 'foobar') #@
+         ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+
 @python2_only
 class Python3TokenCheckerTest(testutils.CheckerTestCase):
 

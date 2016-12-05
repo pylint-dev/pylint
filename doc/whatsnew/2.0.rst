@@ -410,6 +410,37 @@ New checkers
       "hello world!".upper()
 
 
+* A new Python 3 checker was added to warn about calling ``str.translate`` with the removed
+  ``deletechars`` parameter.  ``str.translate`` is frequently used as a way to remove characters
+  from a string.
+
+  .. code-block:: python
+
+      'hello world'.translate(None, 'low')
+
+  Unfortunately, there is not an idiomatic way of writing this call in a 2and3 compatible way.  If
+  this code is not in the critical path for your application and the use of ``translate`` was a
+  premature optimization, consider using ``re.sub`` instead:
+
+  .. code-block:: python
+
+      import re
+      chars_to_remove = re.compile('[low]')
+      chars_to_remove.sub('', 'hello world')
+
+  If this code is in your critical path and must be as fast as possible, consider declaring a
+  helper method that varies based upon Python version.
+
+  .. code-block:: python
+
+      if six.PY3:
+          def _remove_characters(text, deletechars):
+              return text.translate({ord(x): None for x in deletechars})
+      else:
+          def _remove_characters(text, deletechars):
+              return text.translate(None, deletechars)
+
+
 Other Changes
 =============
 
