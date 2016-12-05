@@ -16,6 +16,7 @@ import astroid
 from astroid import bases
 
 from pylint import checkers, interfaces
+from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
 from pylint.utils import WarningScope
 from pylint.checkers import utils
 
@@ -614,12 +615,14 @@ class Python3Checker(checkers.BaseChecker):
 
     @staticmethod
     def _could_be_string(inferred_types):
+        confidence = INFERENCE if inferred_types else INFERENCE_FAILURE
         for inferred_type in inferred_types:
-            if not (inferred_type == astroid.Uninferable or (
-                    isinstance(inferred_type, astroid.Const) and
-                    isinstance(inferred_type.value, six.string_types))):
-                return False
-        return True
+            if inferred_type is astroid.Uninferable:
+                confidence = INFERENCE_FAILURE
+            elif not (isinstance(inferred_type, astroid.Const) and
+                      isinstance(inferred_type.value, six.string_types)):
+                return None
+        return confidence
 
     def visit_call(self, node):
         self._check_cmp_argument(node)
@@ -628,14 +631,15 @@ class Python3Checker(checkers.BaseChecker):
             inferred_types = set()
             try:
                 for inferred_receiver in node.func.expr.infer():
-                    inferred_types.add(type(inferred_receiver))
+                    inferred_types.add(inferred_receiver)
                     if isinstance(inferred_receiver, astroid.Module):
                         self._warn_if_deprecated(node, inferred_receiver.name,
                                                  {node.func.attrname})
             except astroid.InferenceError:
                 pass
             if node.args:
-                if self._could_be_string(inferred_types):
+                is_str_confidence = self._could_be_string(inferred_types)
+                if is_str_confidence:
                     if (node.func.attrname in ('encode', 'decode') and
                             len(node.args) >= 1 and node.args[0]):
                         first_arg = node.args[0]
@@ -656,7 +660,9 @@ class Python3Checker(checkers.BaseChecker):
                         # after checking several large codebases it did not have any false
                         # positives while finding several real issues.  This call pattern seems
                         # rare enough that the trade off is worth it.
-                        self.add_message('deprecated-str-translate-call', node=node)
+                        self.add_message('deprecated-str-translate-call',
+                                         node=node,
+                                         confidence=is_str_confidence)
                 return
             if node.keywords:
                 return

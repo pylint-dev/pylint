@@ -132,9 +132,18 @@ class TestReporter(BaseReporter):
 
 
 class Message(collections.namedtuple('Message',
-                                     ['msg_id', 'line', 'node', 'args'])):
-    def __new__(cls, msg_id, line=None, node=None, args=None):
-        return tuple.__new__(cls, (msg_id, line, node, args))
+                                     ['msg_id', 'line', 'node', 'args', 'confidence'])):
+    def __new__(cls, msg_id, line=None, node=None, args=None, confidence=None):
+        return tuple.__new__(cls, (msg_id, line, node, args, confidence))
+
+    def __eq__(self, other):
+        if isinstance(other, Message):
+            if self.confidence and other.confidence:
+                return super(Message, self).__eq__(other)
+            return self[:-1] == other[:-1]
+        return NotImplemented  # pragma: no cover
+
+    __hash__ = None
 
 
 class UnittestLinter(object):
@@ -151,9 +160,8 @@ class UnittestLinter(object):
         finally:
             self._messages = []
 
-    def add_message(self, msg_id, line=None, node=None, args=None,
-                    confidence=None):
-        self._messages.append(Message(msg_id, line, node, args))
+    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None):
+        self._messages.append(Message(msg_id, line, node, args, confidence))
 
     def is_message_enabled(self, *unused_args, **unused_kwargs):
         return True
