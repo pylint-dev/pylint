@@ -15,6 +15,7 @@ import astroid
 
 from pylint import testutils
 from pylint.checkers import python3 as checker
+from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
 
 
 def python2_only(test):
@@ -652,16 +653,30 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         node = astroid.extract_node('''
          foobar.translate(None, 'abc123') #@
          ''')
-        message = testutils.Message('deprecated-str-translate-call', node=node)
+        message = testutils.Message('deprecated-str-translate-call', node=node,
+                                    confidence=INFERENCE_FAILURE)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
     @python2_only
     def test_bad_str_translate_call_variable(self):
         node = astroid.extract_node('''
+         def raz(foobar):
+           foobar.translate(None, 'hello') #@
+         ''')
+        message = testutils.Message('deprecated-str-translate-call', node=node,
+                                    confidence=INFERENCE_FAILURE)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_bad_str_translate_call_infer_str(self):
+        node = astroid.extract_node('''
+         foobar = "hello world"
          foobar.translate(None, foobar) #@
          ''')
-        message = testutils.Message('deprecated-str-translate-call', node=node)
+        message = testutils.Message('deprecated-str-translate-call', node=node,
+                                    confidence=INFERENCE)
         with self.assertAddsMessages(message):
             self.checker.visit_call(node)
 
