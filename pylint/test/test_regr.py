@@ -14,12 +14,12 @@ from os.path import abspath, dirname, join
 import unittest
 
 import astroid
-from pylint.testutils import TestReporter
+import pylint.testutils as testutils
 from pylint import checkers
 from pylint import epylint
 from pylint import lint
 
-test_reporter = TestReporter()
+test_reporter = testutils.TestReporter()
 linter = lint.PyLinter()
 linter.set_reporter(test_reporter)
 linter.disable('I')

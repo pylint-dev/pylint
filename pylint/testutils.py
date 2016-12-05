@@ -131,6 +131,15 @@ class TestReporter(BaseReporter):
     _display = None
 
 
+class MinimalTestReporter(BaseReporter):
+
+    def handle_message(self, msg):
+        self.messages.append(msg)
+
+    def on_set_current_module(self, module, filepath):
+        self.messages = []
+
+
 class Message(collections.namedtuple('Message',
                                      ['msg_id', 'line', 'node', 'args', 'confidence'])):
     def __new__(cls, msg_id, line=None, node=None, args=None, confidence=None):

@@ -13,16 +13,7 @@ import unittest
 from pylint import checkers
 from pylint.extensions.bad_builtin import BadBuiltinChecker
 from pylint.lint import PyLinter, fix_import_path
-from pylint.reporters import BaseReporter
-
-
-class TestReporter(BaseReporter):
-
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
-    def on_set_current_module(self, module, filepath):
-        self.messages = []
+from pylint.testutils import MinimalTestReporter
 
 
 class BadBuiltinTestCase(unittest.TestCase):
@@ -34,7 +25,7 @@ class BadBuiltinTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls._linter = PyLinter()
-        cls._linter.set_reporter(TestReporter())
+        cls._linter.set_reporter(MinimalTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(BadBuiltinChecker(cls._linter))
         cls._linter.disable('I')

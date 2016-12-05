@@ -14,16 +14,7 @@ import unittest
 from pylint import checkers
 from pylint.extensions.check_elif import ElseifUsedChecker
 from pylint.lint import PyLinter
-from pylint.reporters import BaseReporter
-
-
-class TestReporter(BaseReporter):
-
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
-    def on_set_current_module(self, module, filepath):
-        self.messages = []
+from pylint.testutils import MinimalTestReporter
 
 
 class CheckElseIfUsedTC(unittest.TestCase):
@@ -31,7 +22,7 @@ class CheckElseIfUsedTC(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls._linter = PyLinter()
-        cls._linter.set_reporter(TestReporter())
+        cls._linter.set_reporter(MinimalTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(ElseifUsedChecker(cls._linter))
 

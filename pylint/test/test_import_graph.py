@@ -14,7 +14,7 @@ import six
 from pylint.checkers import initialize, imports
 from pylint.lint import PyLinter
 
-from pylint.testutils import TestReporter
+import pylint.testutils as testutils
 
 class DependenciesGraphTC(unittest.TestCase):
     """test the imports graph function"""
@@ -44,7 +44,7 @@ URL="." node[shape="box"]
 
 class ImportCheckerTC(unittest.TestCase):
     def setUp(self):
-        self.linter = l = PyLinter(reporter=TestReporter())
+        self.linter = l = PyLinter(reporter=testutils.TestReporter())
         initialize(l)
 
     def test_checker_dep_graphs(self):

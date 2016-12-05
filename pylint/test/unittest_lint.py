@@ -27,7 +27,7 @@ from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STA
     MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
     build_message_def, tokenize_module
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
-from pylint.testutils import TestReporter
+import pylint.testutils as testutils
 from pylint.reporters import text
 from pylint import checkers
 from pylint.checkers.utils import check_messages
@@ -207,7 +207,7 @@ class PyLinterTC(unittest.TestCase):
         self.linter.config.persistent = 0
         # register checkers
         checkers.initialize(self.linter)
-        self.linter.set_reporter(TestReporter())
+        self.linter.set_reporter(testutils.TestReporter())
 
     def init_linter(self):
         linter = self.linter
@@ -431,7 +431,7 @@ class PyLinterTC(unittest.TestCase):
             assert not (cname in checker_names), cname
 
     def test_addmessage(self):
-        self.linter.set_reporter(TestReporter())
+        self.linter.set_reporter(testutils.TestReporter())
         self.linter.open()
         self.linter.set_current_module('0123')
         self.linter.add_message('C0301', line=1, args=(1, 2))
@@ -440,7 +440,7 @@ class PyLinterTC(unittest.TestCase):
             self.linter.reporter.messages
 
     def test_addmessage_invalid(self):
-        self.linter.set_reporter(TestReporter())
+        self.linter.set_reporter(testutils.TestReporter())
         self.linter.open()
         self.linter.set_current_module('0123')
 
@@ -467,7 +467,7 @@ class PyLinterTC(unittest.TestCase):
 
 
     def test_analyze_explicit_script(self):
-        self.linter.set_reporter(TestReporter())
+        self.linter.set_reporter(testutils.TestReporter())
         self.linter.check(os.path.join(os.path.dirname(__file__), 'data', 'ascript'))
         assert ['C:  2: Line too long (175/100)'] == \
             self.linter.reporter.messages
@@ -707,7 +707,7 @@ class RunTestCase(unittest.TestCase):
 
         package_dir = os.path.join(HERE, 'regrtest_data', 'bad_package')
         wrong_file = os.path.join(package_dir, 'wrong.py')
-        reporter = TestReporter()
+        reporter = testutils.TestReporter()
         linter = CustomPyLinter()
         linter.config.persistent = 0
         linter.open()

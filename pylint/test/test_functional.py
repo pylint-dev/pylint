@@ -87,7 +87,7 @@ def parse_python_version(str):
     return tuple(int(digit) for digit in str.split('.'))
 
 
-class TestReporter(reporters.BaseReporter):
+class FunctionalTestReporter(reporters.BaseReporter):
     def handle_message(self, msg):
         self.messages.append(msg)
 
@@ -98,7 +98,7 @@ class TestReporter(reporters.BaseReporter):
         """Ignore layouts."""
 
 
-class TestFile(object):
+class FunctionalTestFile(object):
     """A single functional test case file with options."""
 
     _CONVERTERS = {
@@ -224,7 +224,7 @@ class LintModuleTest(unittest.TestCase):
 
     def __init__(self, test_file):
         super(LintModuleTest, self).__init__('_runTest')
-        test_reporter = TestReporter()
+        test_reporter = FunctionalTestReporter()
         self._linter = lint.PyLinter()
         self._linter.set_reporter(test_reporter)
         self._linter.config.persistent = 0
@@ -358,7 +358,7 @@ def suite():
     suite = unittest.TestSuite()
     for fname in os.listdir(input_dir):
         if fname != '__init__.py' and fname.endswith('.py'):
-            test_file = TestFile(input_dir, fname)
+            test_file = FunctionalTestFile(input_dir, fname)
             if UPDATE:
                 suite.addTest(LintModuleOutputUpdate(test_file))
             else:

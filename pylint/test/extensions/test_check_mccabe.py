@@ -13,16 +13,7 @@ import unittest
 from pylint import checkers
 from pylint.extensions.mccabe import register
 from pylint.lint import PyLinter
-from pylint.reporters import BaseReporter
-
-
-class TestReporter(BaseReporter):
-
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
-    def on_set_current_module(self, module, filepath):
-        self.messages = []
+from pylint.testutils import MinimalTestReporter
 
 
 class TestMcCabeMethodChecker(unittest.TestCase):
@@ -48,7 +39,7 @@ class TestMcCabeMethodChecker(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls._linter = PyLinter()
-        cls._linter.set_reporter(TestReporter())
+        cls._linter.set_reporter(MinimalTestReporter())
         checkers.initialize(cls._linter)
         register(cls._linter)
         cls._linter.disable('all')
