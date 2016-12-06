@@ -620,6 +620,15 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_call(node)
 
     @python2_only
+    def test_ok_shadowed_call(self):
+        node = astroid.extract_node('''
+        import six.moves.configparser
+        six.moves.configparser.ConfigParser() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
     def test_ok_string_call(self):
         node = astroid.extract_node('''
         import string

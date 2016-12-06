@@ -514,12 +514,13 @@ class Python3Checker(checkers.BaseChecker):
     def visit_print(self, node):
         self.add_message('print-statement', node=node)
 
-    def _warn_if_deprecated(self, node, module, attributes):
+    def _warn_if_deprecated(self, node, module, attributes, report_on_modules=True):
         for message, module_map in six.iteritems(self._bad_python3_module_map):
             if module in module_map and module not in self._modules_warned_about:
                 if isinstance(module_map, frozenset):
-                    self._modules_warned_about.add(module)
-                    self.add_message(message, node=node)
+                    if report_on_modules:
+                        self._modules_warned_about.add(module)
+                        self.add_message(message, node=node)
                 elif attributes and module_map[module].intersection(attributes):
                     self.add_message(message, node=node)
 
@@ -603,7 +604,8 @@ class Python3Checker(checkers.BaseChecker):
                 for inferred_receiver in node.func.expr.infer():
                     if isinstance(inferred_receiver, astroid.Module):
                         self._warn_if_deprecated(node, inferred_receiver.name,
-                                                 {node.func.attrname})
+                                                 {node.func.attrname},
+                                                 report_on_modules=False)
             except astroid.InferenceError:
                 pass
             if node.args:
@@ -672,7 +674,8 @@ class Python3Checker(checkers.BaseChecker):
                     if node.attrname == 'message':
                         self.add_message('exception-message-attribute', node=node)
                 if isinstance(inferred, astroid.Module):
-                    self._warn_if_deprecated(node, inferred.name, {node.attrname})
+                    self._warn_if_deprecated(node, inferred.name, {node.attrname},
+                                             report_on_modules=False)
         except astroid.InferenceError:
             return
 
