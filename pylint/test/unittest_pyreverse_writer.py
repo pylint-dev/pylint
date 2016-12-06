@@ -5,18 +5,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """
-unittest for visitors.diadefs and extensions.diadefslib modules
+unit test for visitors.diadefs and extensions.diadefslib modules
 """
 
 
 import os
-import sys
 import codecs
-from os.path import join, dirname, abspath
 from difflib import unified_diff
-import unittest
 
-from astroid import MANAGER
 
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
@@ -56,10 +52,10 @@ def get_project(module, name="No Name"):
 
 CONFIG = Config()
 
-class DotWriterTC(unittest.TestCase):
+class TestDotWriter(object):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         project = get_project(os.path.join(os.path.dirname(__file__), 'data'))
         linker = Linker(project)
         handler = DiadefsHandler(CONFIG)
@@ -70,7 +66,7 @@ class DotWriterTC(unittest.TestCase):
         writer.write(dd)
 
     @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         for fname in ('packages_No_Name.dot', 'classes_No_Name.dot',):
             try:
                 os.remove(fname)
@@ -83,11 +79,11 @@ class DotWriterTC(unittest.TestCase):
         expected = _file_lines(expected_file)
         generated = '\n'.join(generated)
         expected = '\n'.join(expected)
-        files = "\n *** expected : %s, generated : %s \n"  % (
+        files = "\n *** expected : %s, generated : %s \n" % (
             expected_file, generated_file)
         assert expected == generated, '%s%s' % (
             files, '\n'.join(line for line in unified_diff(
-            expected.splitlines(), generated.splitlines() )))
+                expected.splitlines(), generated.splitlines() )))
         os.remove(generated_file)
 
     def test_package_diagram(self):
@@ -97,29 +93,29 @@ class DotWriterTC(unittest.TestCase):
         self._test_same_file('classes_No_Name.dot')
 
 
+def test_special():
+    for name in ["__reduce_ex__",  "__setattr__"]:
+        assert get_visibility(name) == 'special'
 
-class GetVisibilityTC(unittest.TestCase):
 
-    def test_special(self):
-        for name in ["__reduce_ex__",  "__setattr__"]:
-            assert get_visibility(name) == 'special'
+def test_private():
+    for name in ["__g_", "____dsf", "__23_9"]:
+        got = get_visibility(name)
+        assert got == 'private', 'got %s instead of private for value %s' % (got, name)
 
-    def test_private(self):
-        for name in ["__g_", "____dsf", "__23_9"]:
-            got = get_visibility(name)
-            assert got == 'private', \
-                             'got %s instead of private for value %s' % (got, name)
 
-    def test_public(self):
-        assert get_visibility('simple') == 'public'
+def test_public():
+    assert get_visibility('simple') == 'public'
 
-    def test_protected(self):
-        for name in ["_","__", "___", "____", "_____", "___e__",
-                     "_nextsimple", "_filter_it_"]:
-            got = get_visibility(name)
-            assert got == 'protected', \
-                             'got %s instead of protected for value %s' % (got, name)
+
+def test_protected():
+    for name in ["_", "__", "___", "____", "_____", "___e__",
+                 "_nextsimple", "_filter_it_"]:
+        got = get_visibility(name)
+        assert got == 'protected', 'got %s instead of protected for value %s' % (got, name)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

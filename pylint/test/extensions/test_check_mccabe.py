@@ -8,7 +8,6 @@
 """
 
 import os.path as osp
-import unittest
 
 from pylint import checkers
 from pylint.extensions.mccabe import register
@@ -16,7 +15,7 @@ from pylint.lint import PyLinter
 from pylint.testutils import MinimalTestReporter
 
 
-class TestMcCabeMethodChecker(unittest.TestCase):
+class TestMcCabeMethodChecker(object):
     """Test McCabe Method Checker"""
 
     expected_msgs = [
@@ -37,7 +36,7 @@ class TestMcCabeMethodChecker(unittest.TestCase):
     ]
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls._linter = PyLinter()
         cls._linter.set_reporter(MinimalTestReporter())
         checkers.initialize(cls._linter)
@@ -45,7 +44,7 @@ class TestMcCabeMethodChecker(unittest.TestCase):
         cls._linter.disable('all')
         cls._linter.enable('too-complex')
 
-    def setUp(self):
+    def setup_method(self):
         self.fname_mccabe_example = osp.join(
             osp.dirname(osp.abspath(__file__)), 'data', 'mccabe.py')
 
@@ -63,4 +62,6 @@ class TestMcCabeMethodChecker(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

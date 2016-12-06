@@ -5,17 +5,15 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unittest for the logging checker."""
-import unittest
-
 import astroid
 
 from pylint.checkers import logging
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
-class LoggingModuleDetectionTest(CheckerTestCase):
+class TestLoggingModuleDetection(CheckerTestCase):
     CHECKER_CLASS = logging.LoggingChecker
-    
+
     def test_detects_standard_logging_module(self):
         stmts = astroid.extract_node("""
         import logging #@
@@ -49,4 +47,6 @@ class LoggingModuleDetectionTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

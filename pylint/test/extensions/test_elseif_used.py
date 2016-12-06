@@ -7,9 +7,7 @@
 """Tests for the pylint checker in :mod:`pylint.extensions.check_elif
 """
 
-import os
 import os.path as osp
-import unittest
 
 from pylint import checkers
 from pylint.extensions.check_elif import ElseifUsedChecker
@@ -17,10 +15,10 @@ from pylint.lint import PyLinter
 from pylint.testutils import MinimalTestReporter
 
 
-class CheckElseIfUsedTC(unittest.TestCase):
+class TestCheckElseIfUsed():
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls._linter = PyLinter()
         cls._linter.set_reporter(MinimalTestReporter())
         checkers.initialize(cls._linter)
@@ -34,11 +32,12 @@ class CheckElseIfUsedTC(unittest.TestCase):
         assert len(msgs) == 2
         for msg in msgs:
             assert msg.symbol == 'else-if-used'
-            assert msg.msg == \
-                             'Consider using "elif" instead of "else if"'
+            assert msg.msg == 'Consider using "elif" instead of "else if"'
         assert msgs[0].line == 9
         assert msgs[1].line == 21
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

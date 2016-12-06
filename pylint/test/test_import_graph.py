@@ -4,31 +4,29 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-import sys
 import os
 from os.path import exists
-import unittest
 
-import six
 
 from pylint.checkers import initialize, imports
 from pylint.lint import PyLinter
 
 import pylint.testutils as testutils
 
-class DependenciesGraphTC(unittest.TestCase):
+
+class TestDependenciesGraph(object):
     """test the imports graph function"""
 
     dest = 'dependencies_graph.dot'
-    def tearDown(self):
+
+    def teardown_method(self):
         os.remove(self.dest)
 
     def test_dependencies_graph(self):
         imports._dependencies_graph(self.dest, {'labas': ['hoho', 'yep'],
                                                 'hoho': ['yep']})
         with open(self.dest) as stream:
-            assert stream.read().strip() == \
-                          '''
+            assert stream.read().strip() == '''
 digraph "dependencies_graph" {
 rankdir=LR
 charset="utf-8"
@@ -42,8 +40,9 @@ URL="." node[shape="box"]
 }
 '''.strip()
 
-class ImportCheckerTC(unittest.TestCase):
-    def setUp(self):
+
+class TestImportChecker(object):
+    def setup_method(self):
         self.linter = l = PyLinter(reporter=testutils.TestReporter())
         initialize(l)
 
@@ -72,4 +71,6 @@ class ImportCheckerTC(unittest.TestCase):
                     pass
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

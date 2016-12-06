@@ -6,14 +6,13 @@
 """Unit tests for the variables checker."""
 import sys
 import os
-import unittest
 
 import astroid
 
 from pylint.checkers import variables
 from pylint.testutils import CheckerTestCase, linter, set_config, Message
 
-class VariablesCheckerTC(CheckerTestCase):
+class TestVariablesChecker(CheckerTestCase):
 
     CHECKER_CLASS = variables.VariablesChecker
 
@@ -50,49 +49,6 @@ class VariablesCheckerTC(CheckerTestCase):
             self.checker.visit_module(root)
             self.checker.leave_module(root)
 
-    @set_config(callbacks=('callback_', '_callback'))
-    def test_custom_callback_string(self):
-        """ Test the --calbacks option works. """
-        def cleanup():
-            self.checker._to_consume = _to_consume
-        _to_consume = self.checker._to_consume
-        self.checker._to_consume = []
-        self.addCleanup(cleanup)
-
-        node = astroid.extract_node("""
-        def callback_one(abc):
-             ''' should not emit unused-argument. '''
-        """)
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-            self.checker.leave_functiondef(node)
-
-        node = astroid.extract_node("""
-        def two_callback(abc, defg):
-             ''' should not emit unused-argument. '''
-        """)
-        with self.assertNoMessages():
-            self.checker.visit_functiondef(node)
-            self.checker.leave_functiondef(node)
-
-        node = astroid.extract_node("""
-        def normal_func(abc):
-             ''' should emit unused-argument. '''
-        """)
-        with self.assertAddsMessages(
-                Message('unused-argument', node=node['abc'], args='abc')):
-            self.checker.visit_functiondef(node)
-            self.checker.leave_functiondef(node)
-
-        node = astroid.extract_node("""
-        def cb_func(abc):
-             ''' Previous callbacks are overriden. '''
-        """)
-        with self.assertAddsMessages(
-                Message('unused-argument', node=node['abc'], args='abc')):
-            self.checker.visit_functiondef(node)
-            self.checker.leave_functiondef(node)
-
     def test_redefined_builtin_ignored(self):
         node = astroid.parse('''
         from future.builtins import open
@@ -128,7 +84,57 @@ class VariablesCheckerTC(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
 
-class MissingSubmoduleTest(CheckerTestCase):
+class TestVariablesCheckerWithTearDown(CheckerTestCase):
+
+    CHECKER_CLASS = variables.VariablesChecker
+
+    def setup_method(self):
+        super(TestVariablesCheckerWithTearDown, self).setup_method()
+        self._to_consume_backup = self.checker._to_consume
+        self.checker._to_consume = []
+
+    def teardown_method(self, method):
+            self.checker._to_consume = self._to_consume_backup
+
+    @set_config(callbacks=('callback_', '_callback'))
+    def test_custom_callback_string(self):
+        """ Test the --calbacks option works. """
+        node = astroid.extract_node("""
+        def callback_one(abc):
+             ''' should not emit unused-argument. '''
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+            self.checker.leave_functiondef(node)
+
+        node = astroid.extract_node("""
+        def two_callback(abc, defg):
+             ''' should not emit unused-argument. '''
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+            self.checker.leave_functiondef(node)
+
+        node = astroid.extract_node("""
+        def normal_func(abc):
+             ''' should emit unused-argument. '''
+        """)
+        with self.assertAddsMessages(
+                Message('unused-argument', node=node['abc'], args='abc')):
+            self.checker.visit_functiondef(node)
+            self.checker.leave_functiondef(node)
+
+        node = astroid.extract_node("""
+        def cb_func(abc):
+             ''' Previous callbacks are overriden. '''
+        """)
+        with self.assertAddsMessages(
+                Message('unused-argument', node=node['abc'], args='abc')):
+            self.checker.visit_functiondef(node)
+            self.checker.leave_functiondef(node)
+
+
+class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
     def test_package_all(self):
@@ -138,10 +144,10 @@ class MissingSubmoduleTest(CheckerTestCase):
         try:
             linter.check(os.path.join(regr_data, 'package_all'))
             got = linter.reporter.finalize().strip()
-            assert got == "E:  3: Undefined variable name " \
-                                  "'missing' in __all__"
+            assert got == "E:  3: Undefined variable name 'missing' in __all__"
         finally:
             sys.path.pop(0)
 
 if __name__ == '__main__':
-    unittest.main()
+    import pytest
+    pytest.main(sys.argv)

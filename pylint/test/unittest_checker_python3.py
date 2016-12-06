@@ -8,8 +8,9 @@
 from __future__ import absolute_import
 
 import sys
-import unittest
 import textwrap
+
+import pytest
 
 import astroid
 
@@ -18,13 +19,12 @@ from pylint.checkers import python3 as checker
 from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
 
 
-def python2_only(test):
-    """Decorator for any tests that will fail under Python 3."""
-    return unittest.skipIf(sys.version_info[0] > 2, 'Python 2 only')(test)
+# Decorator for any tests that will fail under Python 3
+python2_only = pytest.mark.skipif(sys.version_info[0] > 2, reason='Python 2 only')
 
 # TODO(cpopa): Port these to the functional test framework instead.
 
-class Python3CheckerTest(testutils.CheckerTestCase):
+class TestPython3Checker(testutils.CheckerTestCase):
     CHECKER_CLASS = checker.Python3Checker
 
     def check_bad_builtin(self, builtin_name):
@@ -284,9 +284,9 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def test_absolute_import(self):
         module_import = astroid.parse(
-                'from __future__ import absolute_import; import os')
+            'from __future__ import absolute_import; import os')
         module_from = astroid.parse(
-                'from __future__ import absolute_import; from os import path')
+            'from __future__ import absolute_import; from os import path')
         with self.assertNoMessages():
             for module in (module_import, module_from):
                 self.walk(module)
@@ -716,7 +716,7 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
 
 @python2_only
-class Python3TokenCheckerTest(testutils.CheckerTestCase):
+class TestPython3TokenChecker(testutils.CheckerTestCase):
 
     CHECKER_CLASS = checker.Python3TokenChecker
 
@@ -745,4 +745,4 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main(sys.argv)

@@ -6,9 +6,7 @@
 """Tests for the pylint checker in :mod:`pylint.extensions.bad_builtin
 """
 
-import os
 import os.path as osp
-import unittest
 
 from pylint import checkers
 from pylint.extensions.bad_builtin import BadBuiltinChecker
@@ -16,14 +14,13 @@ from pylint.lint import PyLinter, fix_import_path
 from pylint.testutils import MinimalTestReporter
 
 
-class BadBuiltinTestCase(unittest.TestCase):
+class TestBadBuiltin():
 
     expected = [
     ]
 
-
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls._linter = PyLinter()
         cls._linter.set_reporter(MinimalTestReporter())
         checkers.initialize(cls._linter)
@@ -43,4 +40,6 @@ class BadBuiltinTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

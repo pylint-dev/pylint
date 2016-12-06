@@ -5,7 +5,7 @@
 
 """Unittest for the spelling checker."""
 
-import unittest
+import pytest
 
 import astroid
 
@@ -29,12 +29,12 @@ if enchant is not None:
         pass
 
 
-class SpellingCheckerTest(CheckerTestCase):
+class TestSpellingChecker(CheckerTestCase):
     CHECKER_CLASS = spelling.SpellingChecker
 
-    @unittest.skipIf(spell_dict is None,
-                     "missing python-enchant package or missing "
-                     "spelling dictionaries")
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_coment(self):
         with self.assertAddsMessages(
@@ -44,9 +44,9 @@ class SpellingCheckerTest(CheckerTestCase):
                           "comet' or 'comment' or 'moment' or 'foment"))):
             self.checker.process_tokens(tokenize_str("# bad coment"))
 
-    @unittest.skipIf(spell_dict is None,
-                     "missing python-enchant package or missing "
-                     "spelling dictionaries")
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_docstring(self):
         stmt = astroid.extract_node(
@@ -67,9 +67,9 @@ class SpellingCheckerTest(CheckerTestCase):
                           "comet' or 'comment' or 'moment' or 'foment"))):
             self.checker.visit_classdef(stmt)
 
-    @unittest.skipIf(spell_dict is None,
-                     "missing python-enchant package or missing "
-                     "spelling dictionaries")
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
     @set_config(spelling_dict=spell_dict)
     def test_invalid_docstring_characters(self):
         stmt = astroid.extract_node(
@@ -81,4 +81,5 @@ class SpellingCheckerTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    pytest.main(sys.argv)

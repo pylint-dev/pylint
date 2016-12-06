@@ -15,17 +15,14 @@ import tempfile
 from shutil import rmtree
 from os import getcwd, chdir
 from os.path import join, basename, dirname, isdir, abspath, sep
-import unittest
 
 import six
 from six.moves import reload_module
 
 from pylint import config, lint
-from pylint.lint import PyLinter, Run, preprocess_options, \
-     ArgumentPreprocessingError
+from pylint.lint import PyLinter, Run, preprocess_options, ArgumentPreprocessingError
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
-    MessagesStore, PyLintASTWalker, MessageDefinition, FileState, \
-    build_message_def, tokenize_module
+    MessagesStore, MessageDefinition, FileState, tokenize_module
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
 import pylint.testutils as testutils
 from pylint.reporters import text
@@ -127,13 +124,13 @@ def create_files(paths, chroot='.'):
         open(filepath, 'w').close()
 
 
-class SysPathFixupTC(unittest.TestCase):
-    def setUp(self):
+class TestSysPathFixup(object):
+    def setup_method(self):
         self.orig = list(sys.path)
         self.fake = [1, 2, 3]
         sys.path[:] = self.fake
 
-    def tearDown(self):
+    def teardown_method(self):
         sys.path[:] = self.orig
 
     def test_no_args(self):
@@ -199,9 +196,9 @@ class SysPathFixupTC(unittest.TestCase):
                 assert sys.path == self.fake
 
 
-class PyLinterTC(unittest.TestCase):
+class TestPyLinter(object):
 
-    def setUp(self):
+    def setup_method(self):
         self.linter = PyLinter()
         self.linter.disable('I')
         self.linter.config.persistent = 0
@@ -224,7 +221,7 @@ class PyLinterTC(unittest.TestCase):
 
             @check_messages('custom')
             def visit_class(self, _):
-               pass
+                pass
 
         self.linter.register_checker(CustomChecker(self.linter))
         self.linter.open()
@@ -373,11 +370,11 @@ class PyLinterTC(unittest.TestCase):
         assert linter.is_message_enabled('dangerous-default-value', 1)
 
     def test_enable_report(self):
-        assert self.linter.report_is_enabled('RP0001') == True
+        assert self.linter.report_is_enabled('RP0001') is True
         self.linter.disable('RP0001')
-        assert self.linter.report_is_enabled('RP0001') == False
+        assert self.linter.report_is_enabled('RP0001') is False
         self.linter.enable('RP0001')
-        assert self.linter.report_is_enabled('RP0001') == True
+        assert self.linter.report_is_enabled('RP0001') is True
 
     def test_report_output_format_aliased(self):
         text.register(self.linter)
@@ -497,9 +494,9 @@ class PyLinterTC(unittest.TestCase):
             regexp = re.compile(re_str, re.MULTILINE)
             assert re.search(regexp, output)
 
-class ConfigTC(unittest.TestCase):
+class TestConfig(object):
 
-    def setUp(self):
+    def setup_method(self):
         os.environ.pop('PYLINTRC', None)
 
     def test_pylint_home(self):
@@ -527,12 +524,12 @@ class ConfigTC(unittest.TestCase):
     def test_pylintrc(self):
         with fake_home():
             try:
-                assert config.find_pylintrc() == None
+                assert config.find_pylintrc() is None
                 os.environ['PYLINTRC'] = join(tempfile.gettempdir(),
                                               '.pylintrc')
-                assert config.find_pylintrc() == None
+                assert config.find_pylintrc() is None
                 os.environ['PYLINTRC'] = '.'
-                assert config.find_pylintrc() == None
+                assert config.find_pylintrc() is None
             finally:
                 reload_module(config)
 
@@ -543,7 +540,7 @@ class ConfigTC(unittest.TestCase):
                           'a/b/c/__init__.py', 'a/b/c/d/__init__.py',
                           'a/b/c/d/e/.pylintrc'])
             with fake_home():
-                assert config.find_pylintrc() == None
+                assert config.find_pylintrc() is None
             results = {'a'       : join(chroot, 'a', 'pylintrc'),
                        'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
                        'a/b/c'   : join(chroot, 'a', 'b', 'pylintrc'),
@@ -558,7 +555,7 @@ class ConfigTC(unittest.TestCase):
         with tempdir() as chroot:
             with fake_home():
                 create_files(['a/pylintrc', 'a/b/pylintrc', 'a/b/c/d/__init__.py'])
-                assert config.find_pylintrc() == None
+                assert config.find_pylintrc() is None
                 results = {'a'       : join(chroot, 'a', 'pylintrc'),
                            'a/b'     : join(chroot, 'a', 'b', 'pylintrc'),
                            'a/b/c'   : None,
@@ -569,7 +566,7 @@ class ConfigTC(unittest.TestCase):
                     assert config.find_pylintrc() == expected
 
 
-class PreprocessOptionsTC(unittest.TestCase):
+class TestPreprocessOptions(object):
     def _callback(self, name, value):
         self.args.append((name, value))
 
@@ -603,8 +600,8 @@ class PreprocessOptionsTC(unittest.TestCase):
             {'bar' : (None, False)})
 
 
-class MessagesStoreTC(unittest.TestCase):
-    def setUp(self):
+class TestMessagesStore(object):
+    def setup_method(self):
         self.store = MessagesStore()
         class Checker(object):
             name = 'achecker'
@@ -690,7 +687,7 @@ class MessagesStoreTC(unittest.TestCase):
                          self.store.check_message_id('old-symbol').symbol
 
 
-class RunTestCase(unittest.TestCase):
+class TestRunCase(object):
 
     def test_custom_should_analyze_file(self):
         '''Check that we can write custom should_analyze_file that work
@@ -725,4 +722,4 @@ class RunTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main(sys.argv)

@@ -5,7 +5,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import contextlib
-import unittest
 
 import astroid
 
@@ -22,7 +21,7 @@ def _add_transform(manager, node, transform, predicate=None):
         manager.unregister_transform(node, transform, predicate)
 
 
-class StdlibCheckerTest(CheckerTestCase):
+class TestStdlibChecker(CheckerTestCase):
     CHECKER_CLASS = stdlib.StdlibChecker
 
     def test_deprecated_no_qname_on_unexpected_nodes(self):
@@ -51,4 +50,6 @@ class StdlibCheckerTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

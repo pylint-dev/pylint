@@ -8,14 +8,13 @@
 
 """Unit tests for the imports checker."""
 import os
-import unittest
 
 import astroid
 from pylint.checkers import imports
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
-class ImportsCheckerTC(CheckerTestCase):
+class TestImportsChecker(CheckerTestCase):
 
     CHECKER_CLASS = imports.ImportsChecker
 
@@ -91,7 +90,7 @@ class ImportsCheckerTC(CheckerTestCase):
         msg = Message(msg_id='relative-beyond-top-level',
                       node=import_from)
         with self.assertAddsMessages(msg):
-            self.checker.visit_importfrom(import_from)    
+            self.checker.visit_importfrom(import_from)
         with self.assertNoMessages():
             self.checker.visit_importfrom(module.body[1])
         with self.assertNoMessages():
@@ -99,4 +98,6 @@ class ImportsCheckerTC(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

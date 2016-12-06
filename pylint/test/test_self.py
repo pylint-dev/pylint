@@ -13,12 +13,10 @@ import os
 from os.path import join, dirname, abspath
 import tempfile
 import textwrap
-import unittest
 
 import six
 
 from pylint.lint import Run
-from pylint import __pkginfo__
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.json import JSONReporter
@@ -69,7 +67,7 @@ class MultiReporter(BaseReporter):
             rep.linter = value
 
 
-class RunTC(unittest.TestCase):
+class TestRunTC(object):
 
     def _runtest(self, args, reporter=None, out=None, code=28):
         if out is None:
@@ -200,7 +198,7 @@ class RunTC(unittest.TestCase):
                        '--py3k', '-j 2'],
                       code=rc_code)
 
-    @unittest.skipIf(sys.version_info[0] > 2, "Requires the --py3k flag.")
+    @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
     def test_py3k_commutative_with_errors_only(self):
 
         # Test what gets emitted with -E only
@@ -384,4 +382,4 @@ class RunTC(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main(sys.argv)

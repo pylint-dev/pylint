@@ -4,7 +4,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 import sys
-import unittest
+
+import pytest
 
 import astroid
 
@@ -12,13 +13,13 @@ from pylint.checkers import strings
 from pylint.testutils import CheckerTestCase
 
 
-class StringCheckerTest(CheckerTestCase):
+class TestStringChecker(CheckerTestCase):
     CHECKER_CLASS = strings.StringFormatChecker
 
-    @unittest.skipUnless(sys.version_info > (3, 0),
-                         "Tests that the string formatting checker "
-                         "doesn't fail when encountering a bytes "
-                         "string with a .format call")
+    @pytest.mark.skipif(sys.version_info <= (3, 0), reason=""
+                       "Tests that the string formatting checker "
+                       "doesn't fail when encountering a bytes "
+                       "string with a .format call")
     def test_format_bytes(self):
         code = "b'test'.format(1, 2)"
         node = astroid.extract_node(code)
@@ -27,4 +28,4 @@ class StringCheckerTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main(sys.argv)

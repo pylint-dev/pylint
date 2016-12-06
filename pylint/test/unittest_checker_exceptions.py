@@ -9,7 +9,8 @@
 """Tests for pylint.checkers.exceptions."""
 
 import sys
-import unittest
+
+import pytest
 
 import astroid
 
@@ -17,7 +18,7 @@ from pylint.checkers import exceptions
 from pylint.testutils import CheckerTestCase, Message
 
 
-class ExceptionsCheckerTest(CheckerTestCase):
+class TestExceptionsChecker(CheckerTestCase):
     """Tests for pylint.checkers.exceptions."""
 
     CHECKER_CLASS = exceptions.ExceptionsChecker
@@ -27,16 +28,16 @@ class ExceptionsCheckerTest(CheckerTestCase):
     # and `raise (Error, ...)` will be converted to
     # `raise Error(...)`, so it beats the purpose of the test.
 
-    @unittest.skipUnless(sys.version_info[0] == 3,
-                         "The test should emit an error on Python 3.")
+    @pytest.mark.skipif(sys.version_info[0] != 3,
+                        reason="The test should emit an error on Python 3.")
     def test_raising_bad_type_python3(self):
         node = astroid.extract_node('raise (ZeroDivisionError, None)  #@')
         message = Message('raising-bad-type', node=node, args='tuple')
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
-    @unittest.skipUnless(sys.version_info[0] == 2,
-                         "The test is valid only on Python 2.")
+    @pytest.mark.skipif(sys.version_info[0] != 2,
+                        reason="The test is valid only on Python 2.")
     def test_raising_bad_type_python2(self):
         nodes = astroid.extract_node('''
         raise (ZeroDivisionError, None)  #@
@@ -60,4 +61,4 @@ class ExceptionsCheckerTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main(sys.argv)

@@ -7,7 +7,6 @@
  for the visitors.diadefs module
 """
 import os
-import unittest
 
 import astroid
 from astroid import nodes
@@ -19,14 +18,14 @@ from unittest_pyreverse_writer import get_project
 
 MANAGER = manager.AstroidManager()
 
+
 def astroid_wrapper(func, modname):
     return func(modname)
 
 
-class LinkerTest(unittest.TestCase):
+class TestLinker(object):
 
-    def setUp(self):
-        super(LinkerTest, self).setUp()
+    def setup_method(self):
         self.project = get_project('data', 'data')
         self.linker = inspector.Linker(self.project)
         self.linker.visit(self.project)
@@ -61,7 +60,7 @@ class LinkerTest(unittest.TestCase):
         keys = sorted(type_dict.keys())
         assert keys == ['_id', 'relation']
         assert isinstance(type_dict['relation'][0], bases.Instance), \
-                        type_dict['relation']
+            type_dict['relation']
         assert type_dict['relation'][0].name == 'DoNothing'
         assert type_dict['_id'][0] is astroid.YES
 
@@ -103,9 +102,7 @@ class LinkerTest(unittest.TestCase):
                                   ('Concrete2', ['MyIFace', 'AnotherIFace']),
                                   ('Concrete23', ['MyIFace', 'AnotherIFace'])):
             klass = module[klass]
-            assert [i.name for i in inspector.interfaces(klass)] == \
-                             interfaces
-
+            assert [i.name for i in inspector.interfaces(klass)] == interfaces
 
     def test_from_directory(self):
         expected = os.path.join('pylint', 'test', 'data', '__init__.py')
@@ -120,6 +117,7 @@ class LinkerTest(unittest.TestCase):
         assert sorted(self.project.keys()) == expected
 
 
-
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

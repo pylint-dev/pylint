@@ -19,7 +19,7 @@ from pylint.testutils import (
 )
 
 
-class MultiStatementLineTest(CheckerTestCase):
+class TestMultiStatementLine(CheckerTestCase):
   CHECKER_CLASS = FormatChecker
 
   def testSingleLineIfStmts(self):
@@ -56,7 +56,7 @@ class MultiStatementLineTest(CheckerTestCase):
 
 
 
-class SuperfluousParenthesesTest(CheckerTestCase):
+class TestSuperfluousParentheses(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
     def testCheckKeywordParensHandlesValidCases(self):
@@ -113,7 +113,7 @@ print('Hello world!')
             self.checker.process_tokens(tokenize_str(code))
 
 
-class CheckSpaceTest(CheckerTestCase):
+class TestCheckSpace(CheckerTestCase):
     CHECKER_CLASS = FormatChecker
 
     def testParenthesesGood(self):
@@ -249,5 +249,6 @@ class CheckSpaceTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    import unittest
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

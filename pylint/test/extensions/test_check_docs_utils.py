@@ -9,136 +9,141 @@ in particular the parameter documentation checker `DocstringChecker`
 """
 from __future__ import division, print_function, absolute_import
 
-import unittest
-import sys
-
 import astroid
-from pylint.testutils import CheckerTestCase, Message, set_config
 
 import pylint.extensions._check_docs_utils as utils
 
 
-class SpaceIndentationTest(unittest.TestCase):
-    """Tests for pylint_plugin.ParamDocChecker"""
+def test_space_indentation():
+    """Test for pylint_plugin.ParamDocChecker"""
+    assert utils.space_indentation('abc') == 0
+    assert utils.space_indentation('') == 0
+    assert utils.space_indentation('  abc') == 2
+    assert utils.space_indentation('\n  abc') == 0
+    assert utils.space_indentation('   \n  abc') == 3
 
-    def test_space_indentation(self):
-        assert utils.space_indentation('abc') == 0
-        assert utils.space_indentation('') == 0
-        assert utils.space_indentation('  abc') == 2
-        assert utils.space_indentation('\n  abc') == 0
-        assert utils.space_indentation('   \n  abc') == 3
 
-class PossibleExcTypesText(unittest.TestCase):
-    def test_exception_class(self):
-        raise_node = astroid.extract_node('''
-        def my_func():
-            raise NotImplementedError #@
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set(["NotImplementedError"])
-        assert found == expected
+def test_exception_class():
+    raise_node = astroid.extract_node('''
+    def my_func():
+        raise NotImplementedError #@
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set(["NotImplementedError"])
+    assert found == expected
 
-    def test_exception_instance(self):
-        raise_node = astroid.extract_node('''
-        def my_func():
-            raise NotImplementedError("Not implemented!") #@
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set(["NotImplementedError"])
-        assert found == expected
 
-    def test_rethrow(self):
-        raise_node = astroid.extract_node('''
-        def my_func():
-            try:
-                fake_func()
-            except RuntimeError:
+def test_exception_instance():
+    raise_node = astroid.extract_node('''
+    def my_func():
+        raise NotImplementedError("Not implemented!") #@
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set(["NotImplementedError"])
+    assert found == expected
+
+
+def test_rethrow():
+    raise_node = astroid.extract_node('''
+    def my_func():
+        try:
+            fake_func()
+        except RuntimeError:
+            raise #@
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set(["RuntimeError"])
+    assert found == expected
+
+
+def test_nested_in_if_rethrow():
+    raise_node = astroid.extract_node('''
+    def my_func():
+        try:
+            fake_func()
+        except RuntimeError:
+            if another_func():
                 raise #@
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set(["RuntimeError"])
-        assert found == expected
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set(["RuntimeError"])
+    assert found == expected
 
-    def test_nested_in_if_rethrow(self):
-        raise_node = astroid.extract_node('''
-        def my_func():
-            try:
-                fake_func()
-            except RuntimeError:
-                if another_func():
-                    raise #@
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set(["RuntimeError"])
-        assert found == expected
 
-    def test_nested_in_try(self):
-        raise_node = astroid.extract_node('''
-        def my_func():
+def test_nested_in_try():
+    raise_node = astroid.extract_node('''
+    def my_func():
+        try:
+            fake_func()
+        except RuntimeError:
             try:
-                fake_func()
-            except RuntimeError:
-                try:
-                    another_func()
-                    raise #@
-                except NameError:
-                    pass
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set(["RuntimeError"])
-        assert found == expected
-
-    def test_nested_in_try_except(self):
-        raise_node = astroid.extract_node('''
-        def my_func():
-            try:
-                fake_func()
-            except RuntimeError:
-                try:
-                    another_func()
-                except NameError:
-                    raise #@
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set(["NameError"])
-        assert found == expected
-
-    def test_no_rethrow_types(self):
-        raise_node = astroid.extract_node('''
-        def my_func():
-            try:
-                fake_func()
-            except:
+                another_func()
                 raise #@
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set()
-        assert found == expected
+            except NameError:
+                pass
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set(["RuntimeError"])
+    assert found == expected
 
-    def test_multiple_rethrow_types(self):
-        raise_node = astroid.extract_node('''
-        def my_func():
-            try:
-                fake_func()
-            except (RuntimeError, ValueError):
-                raise #@
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set(["RuntimeError", "ValueError"])
-        assert found == expected
 
-    def test_ignores_uninferable_type(self):
-        raise_node = astroid.extract_node('''
-        import not_a_module
-        def my_func():
+def test_nested_in_try_except():
+    raise_node = astroid.extract_node('''
+    def my_func():
+        try:
+            fake_func()
+        except RuntimeError:
             try:
-                fake_func()
-            except not_a_module.Error:
+                another_func()
+            except NameError:
                 raise #@
-        ''')
-        found = utils.possible_exc_types(raise_node)
-        expected = set()
-        assert found == expected
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set(["NameError"])
+    assert found == expected
+
+
+def test_no_rethrow_types():
+    raise_node = astroid.extract_node('''
+    def my_func():
+        try:
+            fake_func()
+        except:
+            raise #@
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set()
+    assert found == expected
+
+
+def test_multiple_rethrow_types():
+    raise_node = astroid.extract_node('''
+    def my_func():
+        try:
+            fake_func()
+        except (RuntimeError, ValueError):
+            raise #@
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set(["RuntimeError", "ValueError"])
+    assert found == expected
+
+
+def test_ignores_uninferable_type():
+    raise_node = astroid.extract_node('''
+    import not_a_module
+    def my_func():
+        try:
+            fake_func()
+        except not_a_module.Error:
+            raise #@
+    ''')
+    found = utils.possible_exc_types(raise_node)
+    expected = set()
+    assert found == expected
+
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

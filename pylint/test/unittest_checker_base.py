@@ -10,14 +10,13 @@
 """Unittest for the base checker."""
 
 import re
-import unittest
 
 import astroid
 from pylint.checkers import base
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
-class DocstringTest(CheckerTestCase):
+class TestDocstring(CheckerTestCase):
     CHECKER_CLASS = base.DocStringChecker
 
     def test_missing_docstring_module(self):
@@ -70,7 +69,7 @@ class DocstringTest(CheckerTestCase):
             self.checker.visit_classdef(klass)
 
 
-class NameCheckerTest(CheckerTestCase):
+class TestNameChecker(CheckerTestCase):
     CHECKER_CLASS = base.NameChecker
     CONFIG = {
         'bad_names': set(),
@@ -180,7 +179,7 @@ class NameCheckerTest(CheckerTestCase):
             self.checker.visit_assignname(assign.targets[0])
 
 
-class MultiNamingStyleTest(CheckerTestCase):
+class TestMultiNamingStyle(CheckerTestCase):
     CHECKER_CLASS = base.NameChecker
 
     MULTI_STYLE_RE = re.compile('(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$')
@@ -262,7 +261,7 @@ class MultiNamingStyleTest(CheckerTestCase):
                 self.checker.visit_functiondef(func)
             self.checker.leave_module(func.root)
 
-class ComparisonTest(CheckerTestCase):
+class TestComparison(CheckerTestCase):
     CHECKER_CLASS = base.ComparisonChecker
 
     def test_comparison(self):
@@ -319,4 +318,6 @@ class ComparisonTest(CheckerTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)

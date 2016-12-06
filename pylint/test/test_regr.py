@@ -11,7 +11,8 @@ to be incorporated in the automatic functional test framework
 import sys
 import os
 from os.path import abspath, dirname, join
-import unittest
+
+import pytest
 
 import astroid
 import pylint.testutils as testutils
@@ -34,8 +35,8 @@ try:
 except AttributeError:
     PYPY_VERSION_INFO = None
 
-class NonRegrTC(unittest.TestCase):
-    def setUp(self):
+class TestNonRegr(object):
+    def setup_method(self):
         """call reporter.finalize() to cleanup
         pending messages if a test finished badly
         """
@@ -55,8 +56,7 @@ class NonRegrTC(unittest.TestCase):
         filename = 'package.__init__'
         linter.check(filename)
         checked = list(linter.stats['by_module'].keys())
-        assert checked == ['package.__init__'], \
-                         '%s: %s' % (filename, checked)
+        assert checked == ['package.__init__'], '%s: %s' % (filename, checked)
 
         cwd = os.getcwd()
         os.chdir(join(REGR_DATA, 'package'))
@@ -120,10 +120,10 @@ class NonRegrTC(unittest.TestCase):
         got = linter.reporter.finalize().strip()
         assert expected in got
 
-    @unittest.skipIf(PYPY_VERSION_INFO and PYPY_VERSION_INFO < (4, 0),
-                     "On older PyPy versions, sys.executable was set to a value "
-                     "that is not supported by the implementation of this function. "
-                     "( https://bitbucket.org/pypy/pypy/commits/19e305e27e67 )")
+    @pytest.mark.skipif(PYPY_VERSION_INFO and PYPY_VERSION_INFO < (4, 0),
+                        reason="On older PyPy versions, sys.executable was set to a value "
+                        "that is not supported by the implementation of this function. "
+                        "( https://bitbucket.org/pypy/pypy/commits/19e305e27e67 )")
     def test_epylint_does_not_block_on_huge_files(self):
         path = join(REGR_DATA, 'huge.py')
         out, err = epylint.py_run(path, return_std=True)
@@ -138,8 +138,7 @@ class NonRegrTC(unittest.TestCase):
         expect = ['OptionsManagerMixIn', 'object', 'MessagesHandlerMixIn',
                   'ReportsHandlerMixIn', 'BaseTokenChecker', 'BaseChecker',
                   'OptionsProviderMixIn']
-        assert [c.name for c in pylinter.ancestors()] == \
-                             expect
+        assert [c.name for c in pylinter.ancestors()] == expect
         assert list(astroid.Instance(pylinter).getattr('config'))
         inferred = list(astroid.Instance(pylinter).igetattr('config'))
         assert len(inferred) == 1
@@ -148,4 +147,4 @@ class NonRegrTC(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main(sys.argv)

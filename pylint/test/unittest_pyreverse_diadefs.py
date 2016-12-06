@@ -5,18 +5,14 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """
-unittest for the extensions.diadefslib modules
+unit test for the extensions.diadefslib modules
 """
-
-import unittest
-import sys
 
 import six
 
-import astroid
-from astroid import MANAGER
-
 import pytest
+
+import astroid
 
 from pylint.pyreverse.inspector import Linker
 from pylint.pyreverse.diadefslib import *
@@ -42,43 +38,43 @@ def _process_relations(relations):
     return result
 
 
-class DiaDefGeneratorTC(unittest.TestCase):
-    def test_option_values(self):
-        """test for ancestor, associated and module options"""
-        handler = DiadefsHandler(Config())
-        df_h = DiaDefGenerator(Linker(PROJECT), handler)
-        cl_config = Config()
-        cl_config.classes = ['Specialization']
-        cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config) )
-        assert (0, 0) == df_h._get_levels()
-        assert False == df_h.module_names
-        assert (-1, -1) == cl_h._get_levels()
-        assert True == cl_h.module_names
-        for hndl in [df_h, cl_h]:
-            hndl.config.all_ancestors = True
-            hndl.config.all_associated = True
-            hndl.config.module_names = True
-            hndl._set_default_options()
-            assert (-1, -1) == hndl._get_levels()
-            assert True == hndl.module_names
-        handler = DiadefsHandler( Config())
-        df_h = DiaDefGenerator(Linker(PROJECT), handler)
-        cl_config = Config()
-        cl_config.classes = ['Specialization']
-        cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config) )
-        for hndl in [df_h, cl_h]:
-            hndl.config.show_ancestors = 2
-            hndl.config.show_associated = 1
-            hndl.config.module_names = False
-            hndl._set_default_options()
-            assert (2, 1) == hndl._get_levels()
-            assert False == hndl.module_names
-    #def test_default_values(self):
-        """test efault values for package or class diagrams"""
-        # TODO : should test difference between default values for package
-        # or class diagrams
+def test_option_values():
+    """test for ancestor, associated and module options"""
+    handler = DiadefsHandler(Config())
+    df_h = DiaDefGenerator(Linker(PROJECT), handler)
+    cl_config = Config()
+    cl_config.classes = ['Specialization']
+    cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config) )
+    assert (0, 0) == df_h._get_levels()
+    assert False == df_h.module_names
+    assert (-1, -1) == cl_h._get_levels()
+    assert True == cl_h.module_names
+    for hndl in [df_h, cl_h]:
+        hndl.config.all_ancestors = True
+        hndl.config.all_associated = True
+        hndl.config.module_names = True
+        hndl._set_default_options()
+        assert (-1, -1) == hndl._get_levels()
+        assert True == hndl.module_names
+    handler = DiadefsHandler( Config())
+    df_h = DiaDefGenerator(Linker(PROJECT), handler)
+    cl_config = Config()
+    cl_config.classes = ['Specialization']
+    cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config) )
+    for hndl in [df_h, cl_h]:
+        hndl.config.show_ancestors = 2
+        hndl.config.show_associated = 1
+        hndl.config.module_names = False
+        hndl._set_default_options()
+        assert (2, 1) == hndl._get_levels()
+        assert False == hndl.module_names
 
-class DefaultDiadefGeneratorTC(unittest.TestCase):
+#def test_default_values():
+    """test efault values for package or class diagrams"""
+    # TODO : should test difference between default values for package
+    # or class diagrams
+
+class TestDefaultDiadefGenerator(object):
     def test_known_values1(self):
         dd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)
         assert len(dd) == 2
@@ -89,15 +85,15 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         modules = sorted([(isinstance(m.node, astroid.Module), m.title)
                          for m in pd.objects])
         assert modules == [(True, 'data'),
-                                   (True, 'data.clientmodule_test'),
-                                   (True, 'data.suppliermodule_test')]
+                           (True, 'data.clientmodule_test'),
+                           (True, 'data.suppliermodule_test')]
         cd = dd[1]
         assert cd.title == 'classes No Name'
         classes = _process_classes(cd.objects)
         assert classes == [(True, 'Ancestor'),
-                                   (True, 'DoNothing'),
-                                   (True, 'Interface'),
-                                   (True, 'Specialization')]
+                           (True, 'DoNothing'),
+                           (True, 'Interface'),
+                           (True, 'Specialization')]
 
     _should_rels = [('association', 'DoNothing', 'Ancestor'),
                     ('association', 'DoNothing', 'Specialization'),
@@ -133,32 +129,32 @@ class DefaultDiadefGeneratorTC(unittest.TestCase):
         assert cd.title == 'classes No Name'
         classes = _process_classes(cd.objects)
         assert classes == [(True, 'Ancestor'),
-                                   (True, 'DoNothing'),
-                                   (True, 'Specialization')]
+                           (True, 'DoNothing'),
+                           (True, 'Specialization')]
 
-class ClassDiadefGeneratorTC(unittest.TestCase):
-    def test_known_values1(self):
-        HANDLER.config.classes = ['Specialization']
-        cdg = ClassDiadefGenerator(Linker(PROJECT), HANDLER)
-        special = 'data.clientmodule_test.Specialization'
-        cd = cdg.class_diagram(PROJECT, special)
-        assert cd.title == special
-        classes = _process_classes(cd.objects)
-        assert classes == [(True, 'data.clientmodule_test.Ancestor'),
-                                   (True, special),
-                                   (True, 'data.suppliermodule_test.DoNothing'),
-                                  ]
 
-    def test_known_values2(self):
-        HANDLER.config.module_names = False
-        cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(PROJECT, 'data.clientmodule_test.Specialization')
-        assert cd.title == 'data.clientmodule_test.Specialization'
-        classes = _process_classes(cd.objects)
-        assert classes == [(True, 'Ancestor'),
-                                   (True, 'DoNothing'),
-                                   (True, 'Specialization')
-                                  ]
+def test_known_values1():
+    HANDLER.config.classes = ['Specialization']
+    cdg = ClassDiadefGenerator(Linker(PROJECT), HANDLER)
+    special = 'data.clientmodule_test.Specialization'
+    cd = cdg.class_diagram(PROJECT, special)
+    assert cd.title == special
+    classes = _process_classes(cd.objects)
+    assert classes == [(True, 'data.clientmodule_test.Ancestor'),
+                       (True, special),
+                       (True, 'data.suppliermodule_test.DoNothing')]
+
+
+def test_known_values2():
+    HANDLER.config.module_names = False
+    cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(PROJECT, 'data.clientmodule_test.Specialization')
+    assert cd.title == 'data.clientmodule_test.Specialization'
+    classes = _process_classes(cd.objects)
+    assert classes == [(True, 'Ancestor'),
+                       (True, 'DoNothing'),
+                       (True, 'Specialization')]
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    pytest.main(sys.argv)

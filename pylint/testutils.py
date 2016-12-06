@@ -17,7 +17,6 @@ from os import linesep, getcwd, sep
 from os.path import abspath, basename, dirname, isdir, join, splitext
 import sys
 import re
-import unittest
 import tempfile
 import tokenize
 
@@ -202,12 +201,12 @@ def set_config(**kwargs):
     return _wrapper
 
 
-class CheckerTestCase(unittest.TestCase):
-    """A base testcase class for unittesting individual checker classes."""
+class CheckerTestCase(object):
+    """A base testcase class for unit testing individual checker classes."""
     CHECKER_CLASS = None
     CONFIG = {}
 
-    def setUp(self):
+    def setup_method(self):
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter) # pylint: disable=not-callable
         for key, value in six.iteritems(self.CONFIG):
@@ -233,7 +232,7 @@ class CheckerTestCase(unittest.TestCase):
         msg = ('Expected messages did not match actual.\n'
                'Expected:\n%s\nGot:\n%s' % ('\n'.join(repr(m) for m in messages),
                                             '\n'.join(repr(m) for m in got)))
-        self.assertEqual(list(messages), got, msg)
+        assert list(messages) == got, msg
 
     def walk(self, node):
         """recursive walk on the given node"""
@@ -265,7 +264,7 @@ def exception_str(self, ex): # pylint: disable=unused-argument
 
 # Test classes
 
-class LintTestUsingModule(unittest.TestCase):
+class LintTestUsingModule(object):
     INPUT_DIR = None
     DEFAULT_PACKAGE = 'input'
     package = DEFAULT_PACKAGE
@@ -274,23 +273,10 @@ class LintTestUsingModule(unittest.TestCase):
     depends = None
     output = None
     _TEST_TYPE = 'module'
-    maxDiff = None
 
-    def runTest(self):
-        # This is a hack to make ./test/test_func.py work under pytest.
-        pass
-
-    def shortDescription(self):
-        values = {'mode' : self._TEST_TYPE,
-                  'input': self.module,
-                  'pkg':   self.package,
-                  'cls':   self.__class__.__name__}
-
-        if self.package == self.DEFAULT_PACKAGE:
-            msg = '%(mode)s test of input file "%(input)s" (%(cls)s)'
-        else:
-            msg = '%(mode)s test of input file "%(input)s" in "%(pkg)s" (%(cls)s)'
-        return msg % values
+    # def runTest(self):
+    #     # This is a hack to make ./test/test_func.py work under pytest.
+    #     pass
 
     def _test_functionality(self):
         tocheck = [self.package+'.'+self.module]
@@ -301,8 +287,7 @@ class LintTestUsingModule(unittest.TestCase):
         self._test(tocheck)
 
     def _check_result(self, got):
-        self.assertMultiLineEqual(self._get_expected().strip()+'\n',
-                                  got.strip()+'\n')
+        assert self._get_expected().strip()+'\n' == got.strip()+'\n'
 
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):

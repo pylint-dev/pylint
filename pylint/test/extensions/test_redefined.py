@@ -6,9 +6,7 @@
 """Tests for the pylint checker in :mod:`pylint.extensions.check_elif
 """
 
-import os
 import os.path as osp
-import unittest
 
 from pylint import checkers
 from pylint.extensions.redefined_variable_type import MultipleTypesChecker
@@ -16,7 +14,7 @@ from pylint.lint import PyLinter, fix_import_path
 from pylint.testutils import MinimalTestReporter
 
 
-class CheckElseIfUsedTC(unittest.TestCase):
+class TestCheckElseIfUsed(object):
 
     expected = [
         'Redefinition of self.var1 type from int to float',
@@ -30,9 +28,8 @@ class CheckElseIfUsedTC(unittest.TestCase):
         'Redefinition of var4 type from float to str',
     ]
 
-
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls._linter = PyLinter()
         cls._linter.set_reporter(MinimalTestReporter())
         checkers.initialize(cls._linter)
@@ -52,4 +49,6 @@ class CheckElseIfUsedTC(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import sys
+    import pytest
+    pytest.main(sys.argv)
