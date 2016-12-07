@@ -569,9 +569,3 @@ class TestDocstringCheckerReturn(CheckerTestCase):
         with self.assertAddsMessages(
                 Message(msg_id='redundant-returns-doc', node=node)):
             self.checker.visit_functiondef(node)
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

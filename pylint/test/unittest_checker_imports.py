@@ -95,9 +95,3 @@ class TestImportsChecker(CheckerTestCase):
             self.checker.visit_importfrom(module.body[1])
         with self.assertNoMessages():
             self.checker.visit_importfrom(module.body[2].body[0])
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

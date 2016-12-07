@@ -160,8 +160,3 @@ class TestTypeChecker(CheckerTestCase):
             message = Message('invalid-metaclass', node=classdef, args=(metaclass_name, ))
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
-
-
-
-if __name__ == '__main__':
-    pytest.main(sys.argv)

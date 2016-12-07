@@ -44,9 +44,3 @@ def test_simple_json_output():
     report_result = [sorted(report_result[0].items(),
                             key=lambda item: item[0])]
     assert report_result == expected_result
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

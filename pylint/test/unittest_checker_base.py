@@ -315,9 +315,3 @@ class TestComparison(CheckerTestCase):
                             args=(None, "'expr is None'")))
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

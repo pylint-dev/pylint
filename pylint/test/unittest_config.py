@@ -47,7 +47,3 @@ def test__regexp_csv_validator_invalid():
     pattern_strings = ["test_.*", "foo\.bar", "^baz)$"]
     with pytest.raises(sre_constants.error):
         config._regexp_csv_validator(None, None, ",".join(pattern_strings))
-
-if __name__ == "__main__":
-    import sys
-    pytest.main(sys.argv)

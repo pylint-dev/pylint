@@ -59,9 +59,3 @@ class TestMcCabeMethodChecker(object):
         self._linter.check([self.fname_mccabe_example])
         real_msgs = [message.msg for message in self._linter.reporter.messages]
         assert sorted(self.expected_msgs[-2:]) == sorted(real_msgs)
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

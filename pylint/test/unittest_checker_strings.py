@@ -17,15 +17,11 @@ class TestStringChecker(CheckerTestCase):
     CHECKER_CLASS = strings.StringFormatChecker
 
     @pytest.mark.skipif(sys.version_info <= (3, 0), reason=""
-                       "Tests that the string formatting checker "
-                       "doesn't fail when encountering a bytes "
-                       "string with a .format call")
+                        "Tests that the string formatting checker "
+                        "doesn't fail when encountering a bytes "
+                        "string with a .format call")
     def test_format_bytes(self):
         code = "b'test'.format(1, 2)"
         node = astroid.extract_node(code)
         with self.assertNoMessages():
             self.checker.visit_call(node)
-
-
-if __name__ == '__main__':
-    pytest.main(sys.argv)

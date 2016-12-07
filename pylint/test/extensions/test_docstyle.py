@@ -54,9 +54,3 @@ class TestCheckDocStringStyle(object):
                                                       self.expected_msg):
             assert msg.symbol == expected_symbol
             assert msg.msg == expected_msg
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

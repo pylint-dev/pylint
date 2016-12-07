@@ -82,8 +82,3 @@ def test_node_ignores_exception():
     assert not utils.node_ignores_exception(nodes[1], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[2], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)
-
-
-if __name__ == '__main__':
-    import sys
-    pytest.main(sys.argv)

@@ -246,9 +246,3 @@ class TestCheckSpace(CheckerTestCase):
         self.checker.config.no_space_check = ['empty-line']
         with self.assertNoMessages():
             self.checker.process_tokens(tokenize_str('a = 1\n  \nb = 2\n'))
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

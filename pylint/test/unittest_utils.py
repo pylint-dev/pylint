@@ -219,7 +219,3 @@ def test_create_invalid_message_type():
         utils.MessageDefinition('checker', 'Q1234',
                                 'msg', 'descr', 'symbol', 'scope')
     assert str(cm.value) == "Bad message type Q in 'Q1234'"
-
-if __name__ == '__main__':
-    import sys
-    pytest.main(sys.argv)

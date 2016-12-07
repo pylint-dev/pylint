@@ -140,6 +140,3 @@ def test_no_args():
         pytest.fail('not system exit')
     finally:
         sys.stdout = sys.__stdout__
-
-if __name__ == '__main__':
-    pytest.main(sys.argv)

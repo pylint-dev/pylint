@@ -44,9 +44,3 @@ class TestLoggingModuleDetection(CheckerTestCase):
         self.checker.visit_import(stmts[0])
         with self.assertAddsMessages(Message('logging-not-lazy', node=stmts[1])):
             self.checker.visit_call(stmts[1])
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

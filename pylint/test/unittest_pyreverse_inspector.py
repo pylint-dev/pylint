@@ -115,9 +115,3 @@ class TestLinker(object):
             'data.suppliermodule_test',
         ]
         assert sorted(self.project.keys()) == expected
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

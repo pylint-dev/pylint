@@ -514,9 +514,3 @@ class TestDocstringCheckerRaise(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

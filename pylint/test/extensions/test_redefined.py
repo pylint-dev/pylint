@@ -46,9 +46,3 @@ class TestCheckElseIfUsed(object):
         for msg, expected in zip(msgs, self.expected):
             assert msg.symbol == 'redefined-variable-type'
             assert msg.msg == expected
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

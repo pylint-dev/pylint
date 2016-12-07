@@ -10,9 +10,7 @@ import pytest
 import astroid
 
 from pylint.checkers import spelling
-from pylint.testutils import (
-    CheckerTestCase, Message, set_config, tokenize_str,
-)
+from pylint.testutils import CheckerTestCase, Message, set_config, tokenize_str
 
 # try to create enchant dictionary
 try:
@@ -78,8 +76,3 @@ class TestSpellingChecker(CheckerTestCase):
             Message('invalid-characters-in-docstring', line=2,
                     args=('test\x00',))):
             self.checker.visit_functiondef(stmt)
-
-
-if __name__ == '__main__':
-    import sys
-    pytest.main(sys.argv)

@@ -269,20 +269,15 @@ class TestPyLinter(object):
 
         linter = self.init_linter()
         linter.disable('C0202')
-        assert MSG_STATE_SCOPE_CONFIG == \
-                         linter.get_message_state_scope('C0202')
+        assert MSG_STATE_SCOPE_CONFIG == linter.get_message_state_scope('C0202')
         linter.disable('W0101', scope='module', line=3)
-        assert MSG_STATE_SCOPE_CONFIG == \
-                         linter.get_message_state_scope('C0202')
-        assert MSG_STATE_SCOPE_MODULE == \
-                         linter.get_message_state_scope('W0101', 3)
+        assert MSG_STATE_SCOPE_CONFIG == linter.get_message_state_scope('C0202')
+        assert MSG_STATE_SCOPE_MODULE == linter.get_message_state_scope('W0101', 3)
         linter.enable('W0102', scope='module', line=3)
-        assert MSG_STATE_SCOPE_MODULE == \
-                         linter.get_message_state_scope('W0102', 3)
+        assert MSG_STATE_SCOPE_MODULE == linter.get_message_state_scope('W0102', 3)
         linter.config = FakeConfig()
-        assert MSG_STATE_CONFIDENCE == \
-            linter.get_message_state_scope('this-is-bad',
-                                           confidence=interfaces.INFERENCE)
+        assert MSG_STATE_CONFIDENCE == linter.get_message_state_scope('this-is-bad',
+            confidence=interfaces.INFERENCE)
 
     def test_enable_message_block(self):
         linter = self.init_linter()
@@ -443,18 +438,15 @@ class TestPyLinter(object):
 
         with pytest.raises(InvalidMessageError) as cm:
             self.linter.add_message('line-too-long', args=(1,2))
-        assert str(cm.value) == \
-                         "Message C0301 must provide line, got None"
+        assert str(cm.value) == "Message C0301 must provide line, got None"
 
         with pytest.raises(InvalidMessageError) as cm:
             self.linter.add_message('line-too-long', line=2, node='fake_node', args=(1, 2))
-        assert str(cm.value) == \
-                         "Message C0301 must only provide line, got line=2, node=fake_node"
+        assert str(cm.value) == "Message C0301 must only provide line, got line=2, node=fake_node"
 
         with pytest.raises(InvalidMessageError) as cm:
             self.linter.add_message('C0321')
-        assert str(cm.value) == \
-                         "Message C0321 must provide Node, got None"
+        assert str(cm.value) == "Message C0321 must provide Node, got None"
 
     def test_init_hooks_called_before_load_plugins(self):
         with pytest.raises(RuntimeError):
@@ -584,20 +576,17 @@ class TestPreprocessOptions(object):
         assert [('qu', 'ux')] == self.args
 
     def test_error_missing_expected_value(self):
-        with pytest.raises(
-            ArgumentPreprocessingError):
+        with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(['--foo', '--bar', '--qu=ux'],
-            {'bar' : (None, True)})
-        with pytest.raises(
-            ArgumentPreprocessingError):
+                               {'bar' : (None, True)})
+        with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(['--foo', '--bar'],
-            {'bar' : (None, True)})
+                               {'bar' : (None, True)})
 
     def test_error_unexpected_value(self):
-        with pytest.raises(
-            ArgumentPreprocessingError):
+        with pytest.raises(ArgumentPreprocessingError):
             preprocess_options(['--foo', '--bar=spam', '--qu=ux'],
-            {'bar' : (None, False)})
+                               {'bar' : (None, False)})
 
 
 class TestMessagesStore(object):
@@ -661,30 +650,24 @@ class TestMessagesStore(object):
 
     def test_add_renamed_message(self):
         self.store.add_renamed_message('W1234', 'old-bad-name', 'msg-symbol')
-        assert 'msg-symbol' == \
-                         self.store.check_message_id('W1234').symbol
-        assert 'msg-symbol' == \
-                         self.store.check_message_id('old-bad-name').symbol
+        assert 'msg-symbol' == self.store.check_message_id('W1234').symbol
+        assert 'msg-symbol' == self.store.check_message_id('old-bad-name').symbol
 
     def test_add_renamed_message_invalid(self):
         # conflicting message ID
         with pytest.raises(InvalidMessageError) as cm:
             self.store.add_renamed_message(
-                    'W1234', 'old-msg-symbol', 'duplicate-keyword-arg')
-        assert str(cm.value) == \
-                         "Message id 'W1234' is already defined"
+                'W1234', 'old-msg-symbol', 'duplicate-keyword-arg')
+        assert str(cm.value) == "Message id 'W1234' is already defined"
         # conflicting message symbol
         with pytest.raises(InvalidMessageError) as cm:
             self.store.add_renamed_message(
                 'W1337', 'msg-symbol', 'duplicate-keyword-arg')
-        assert str(cm.value) == \
-                         "Message symbol 'msg-symbol' is already defined"
+        assert str(cm.value) == "Message symbol 'msg-symbol' is already defined"
 
     def test_renamed_message_register(self):
-        assert 'msg-symbol' == \
-                         self.store.check_message_id('W0001').symbol
-        assert 'msg-symbol' == \
-                         self.store.check_message_id('old-symbol').symbol
+        assert 'msg-symbol' == self.store.check_message_id('W0001').symbol
+        assert 'msg-symbol' == self.store.check_message_id('old-symbol').symbol
 
 
 class TestRunCase(object):
@@ -714,12 +697,8 @@ class TestRunCase(object):
             sys.path.append(os.path.dirname(package_dir))
             linter.check([package_dir, wrong_file])
         finally:
-             sys.path.pop()
+            sys.path.pop()
 
         messages = reporter.messages
         assert len(messages) == 1
         assert 'invalid syntax' in messages[0]
-
-
-if __name__ == '__main__':
-    pytest.main(sys.argv)

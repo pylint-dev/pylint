@@ -82,9 +82,3 @@ class TestFixme(CheckerTestCase):
             with self.assertAddsMessages(
                     Message(msg_id='fixme', line=2, args=u'CODETAG')):
                 self.checker.process_module(module)
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

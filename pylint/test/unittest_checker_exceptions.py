@@ -58,7 +58,3 @@ class TestExceptionsChecker(CheckerTestCase):
         message = Message('raising-bad-type', node=nodes[3], args='tuple')
         with self.assertAddsMessages(message):
             self.checker.visit_raise(nodes[3])
-
-
-if __name__ == '__main__':
-    pytest.main(sys.argv)

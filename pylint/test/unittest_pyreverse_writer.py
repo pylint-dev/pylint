@@ -113,9 +113,3 @@ def test_protected():
                  "_nextsimple", "_filter_it_"]:
         got = get_visibility(name)
         assert got == 'protected', 'got %s instead of protected for value %s' % (got, name)
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

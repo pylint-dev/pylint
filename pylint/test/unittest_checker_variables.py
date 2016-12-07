@@ -147,7 +147,3 @@ class TestMissingSubmodule(CheckerTestCase):
             assert got == "E:  3: Undefined variable name 'missing' in __all__"
         finally:
             sys.path.pop(0)
-
-if __name__ == '__main__':
-    import pytest
-    pytest.main(sys.argv)

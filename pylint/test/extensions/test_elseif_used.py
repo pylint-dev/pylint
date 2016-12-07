@@ -35,9 +35,3 @@ class TestCheckElseIfUsed():
             assert msg.msg == 'Consider using "elif" instead of "else if"'
         assert msgs[0].line == 9
         assert msgs[1].line == 21
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

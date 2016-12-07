@@ -46,10 +46,3 @@ class TestStdlibChecker(CheckerTestCase):
             ''')
             with self.assertNoMessages():
                 self.checker.visit_call(node)
- 
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

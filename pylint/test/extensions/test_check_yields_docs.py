@@ -393,9 +393,3 @@ class TestDocstringCheckerYield(CheckerTestCase):
         with self.assertAddsMessages(
                 Message(msg_id='redundant-yields-doc', node=node)):
             self.checker.visit_functiondef(node)
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

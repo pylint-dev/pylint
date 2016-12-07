@@ -83,7 +83,3 @@ class TestVariablesChecker(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
-
-
-if __name__ == '__main__':
-    pytest.main(sys.argv)

@@ -153,8 +153,3 @@ def test_known_values2():
     assert classes == [(True, 'Ancestor'),
                        (True, 'DoNothing'),
                        (True, 'Specialization')]
-
-
-if __name__ == '__main__':
-    import sys
-    pytest.main(sys.argv)

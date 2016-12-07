@@ -75,8 +75,3 @@ class TestPyLinter():
         reporter = CustomReporter()
         with pytest.raises(AttributeError):
             reporter.display_results
-
-
-if __name__ == '__main__':
-    import sys
-    pytest.main(sys.argv)

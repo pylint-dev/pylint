@@ -742,7 +742,3 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
             tokens = testutils.tokenize_str(non_octal)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)
-
-
-if __name__ == '__main__':
-    pytest.main(sys.argv)

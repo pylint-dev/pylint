@@ -141,9 +141,3 @@ def test_ignores_uninferable_type():
     found = utils.possible_exc_types(raise_node)
     expected = set()
     assert found == expected
-
-
-if __name__ == '__main__':
-    import sys
-    import pytest
-    pytest.main(sys.argv)

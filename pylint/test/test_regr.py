@@ -144,7 +144,3 @@ class TestNonRegr(object):
         assert len(inferred) == 1
         assert inferred[0].root().name == 'optparse'
         assert inferred[0].name == 'Values'
-
-
-if __name__ == '__main__':
-    pytest.main(sys.argv)

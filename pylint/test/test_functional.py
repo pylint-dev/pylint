@@ -240,8 +240,7 @@ class LintModuleTest(unittest.TestCase):
 
     def setUp(self):
         if self._should_be_skipped_due_to_version():
-            pytest.skip(
-            'Test cannot run with Python %s.' % (sys.version.split(' ')[0],))
+            pytest.skip( 'Test cannot run with Python %s.' % (sys.version.split(' ')[0],))
         missing = []
         for req in self._test_file.options['requires']:
             try:
@@ -368,10 +367,6 @@ def test_functional(test_file):
     LintTest = LintModuleOutputUpdate(test_file) if UPDATE else LintModuleTest(test_file)
     LintTest.setUp()
     LintTest._runTest()
-
-
-def load_tests(loader, tests, pattern):
-    return suite()
 
 
 if __name__ == '__main__':
