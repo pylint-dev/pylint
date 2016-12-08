@@ -689,7 +689,7 @@ class VariablesChecker(BaseChecker):
                              confidence=confidence)
         else:
             if stmt.parent and isinstance(stmt.parent, astroid.Assign):
-                if name in nonlocal_names and self._allow_global_unused_variables:
+                if name in nonlocal_names:
                     return
 
             if isinstance(stmt, astroid.Import):
