@@ -394,8 +394,8 @@ class PyLinter(config.OptionsManagerMixIn,
                )
 
     option_groups = (
-        ('Messages control', 'Options controling analysis messages'),
-        ('Reports', 'Options related to output formating and reporting'),
+        ('Messages control', 'Options controlling analysis messages'),
+        ('Reports', 'Options related to output formatting and reporting'),
         )
 
     def __init__(self, options=(), reporter=None, option_groups=(),
