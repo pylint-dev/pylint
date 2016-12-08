@@ -15,17 +15,14 @@ from pylint.checkers import similar
 SIMILAR1 = join(dirname(abspath(__file__)), 'input', 'similar1')
 SIMILAR2 = join(dirname(abspath(__file__)), 'input', 'similar2')
 
+
 def test_ignore_comments():
     sys.stdout = six.StringIO()
-    try:
+    with pytest.raises(SystemExit) as ex:
         similar.Run(['--ignore-comments', SIMILAR1, SIMILAR2])
-    except SystemExit as ex:
-        assert ex.code == 0
-        output = sys.stdout.getvalue()
-    else:
-        pytest.fail('not system exit')
-    finally:
-        sys.stdout = sys.__stdout__
+    assert ex.value.code == 0
+    output = sys.stdout.getvalue()
+    sys.stdout = sys.__stdout__
     assert output.strip() == ("""
 10 similar lines in 2 files
 ==%s:0
@@ -46,15 +43,11 @@ TOTAL lines=44 duplicates=10 percent=22.73
 
 def test_ignore_docsrings():
     sys.stdout = six.StringIO()
-    try:
+    with pytest.raises(SystemExit) as ex:
         similar.Run(['--ignore-docstrings', SIMILAR1, SIMILAR2])
-    except SystemExit as ex:
-        assert ex.code == 0
-        output = sys.stdout.getvalue()
-    else:
-        pytest.fail('not system exit')
-    finally:
-        sys.stdout = sys.__stdout__
+    assert ex.value.code == 0
+    output = sys.stdout.getvalue()
+    sys.stdout = sys.__stdout__
     assert output.strip() == ("""
 8 similar lines in 2 files
 ==%s:6
@@ -82,15 +75,11 @@ TOTAL lines=44 duplicates=13 percent=29.55
 
 def test_ignore_imports():
     sys.stdout = six.StringIO()
-    try:
+    with pytest.raises(SystemExit) as ex:
         similar.Run(['--ignore-imports', SIMILAR1, SIMILAR2])
-    except SystemExit as ex:
-        assert ex.code == 0
-        output = sys.stdout.getvalue()
-    else:
-        pytest.fail('not system exit')
-    finally:
-        sys.stdout = sys.__stdout__
+    assert ex.value.code == 0
+    output = sys.stdout.getvalue()
+    sys.stdout = sys.__stdout__
     assert output.strip() == """
 TOTAL lines=44 duplicates=0 percent=0.00
 """.strip()
@@ -98,15 +87,11 @@ TOTAL lines=44 duplicates=0 percent=0.00
 
 def test_ignore_nothing():
     sys.stdout = six.StringIO()
-    try:
+    with pytest.raises(SystemExit) as ex:
         similar.Run([SIMILAR1, SIMILAR2])
-    except SystemExit as ex:
-        assert ex.code == 0
-        output = sys.stdout.getvalue()
-    else:
-        pytest.fail('not system exit')
-    finally:
-        sys.stdout = sys.__stdout__
+    assert ex.value.code == 0
+    output = sys.stdout.getvalue()
+    sys.stdout = sys.__stdout__
     assert output.strip() == ("""
 5 similar lines in 2 files
 ==%s:0
@@ -119,24 +104,18 @@ def test_ignore_nothing():
 TOTAL lines=44 duplicates=5 percent=11.36
 """ % (SIMILAR1, SIMILAR2)).strip()
 
+
 def test_help():
     sys.stdout = six.StringIO()
-    try:
+    with pytest.raises(SystemExit) as ex:
         similar.Run(['--help'])
-    except SystemExit as ex:
-        assert ex.code == 0
-    else:
-        pytest.fail('not system exit')
-    finally:
-        sys.stdout = sys.__stdout__
+    assert ex.value.code == 0
+    sys.stdout = sys.__stdout__
+
 
 def test_no_args():
     sys.stdout = six.StringIO()
-    try:
+    with pytest.raises(SystemExit) as ex:
         similar.Run([])
-    except SystemExit as ex:
-        assert ex.code == 1
-    else:
-        pytest.fail('not system exit')
-    finally:
-        sys.stdout = sys.__stdout__
+    assert ex.value.code == 1
+    sys.stdout = sys.__stdout__

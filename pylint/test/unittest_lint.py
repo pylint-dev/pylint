@@ -146,46 +146,47 @@ def test_no_args(fake_path):
     assert sys.path == fake_path
 
 
-def test_one_arg(fake_path):
+@pytest.mark.parametrize("case", [
+    ['a/b/'],
+    ['a/b'],
+    ['a/b/__init__.py'],
+    ['a/'],
+    ['a'],
+])
+def test_one_arg(fake_path, case):
     with tempdir() as chroot:
         create_files(['a/b/__init__.py'])
         expected = [join(chroot, 'a')] + ["."] + fake_path
 
-        cases = (
-            ['a/b/'],
-            ['a/b'],
-            ['a/b/__init__.py'],
-            ['a/'],
-            ['a'],
-        )
-
         assert sys.path == fake_path
-        for case in cases:
-            with lint.fix_import_path(case):
-                assert sys.path == expected
-            assert sys.path == fake_path
+        with lint.fix_import_path(case):
+            assert sys.path == expected
+        assert sys.path == fake_path
 
 
-def test_two_similar_args(fake_path):
+@pytest.mark.parametrize("case", [
+    ['a/b', 'a/c'],
+    ['a/c/', 'a/b/'],
+    ['a/b/__init__.py', 'a/c/__init__.py'],
+    ['a', 'a/c/__init__.py'],
+])
+def test_two_similar_args(fake_path, case):
     with tempdir() as chroot:
         create_files(['a/b/__init__.py', 'a/c/__init__.py'])
         expected = [join(chroot, 'a')] + ["."] + fake_path
 
-        cases = (
-            ['a/b', 'a/c'],
-            ['a/c/', 'a/b/'],
-            ['a/b/__init__.py', 'a/c/__init__.py'],
-            ['a', 'a/c/__init__.py'],
-        )
-
         assert sys.path == fake_path
-        for case in cases:
-            with lint.fix_import_path(case):
-                assert sys.path == expected
-            assert sys.path == fake_path
+        with lint.fix_import_path(case):
+            assert sys.path == expected
+        assert sys.path == fake_path
 
 
-def test_more_args(fake_path):
+@pytest.mark.parametrize("case", [
+    ['a/b/c/__init__.py', 'a/d/__init__.py', 'a/e/f.py'],
+    ['a/b/c', 'a', 'a/e'],
+    ['a/b/c', 'a', 'a/b/c', 'a/e', 'a'],
+])
+def test_more_args(fake_path, case):
     with tempdir() as chroot:
         create_files(['a/b/c/__init__.py', 'a/d/__init__.py', 'a/e/f.py'])
         expected = [
@@ -193,17 +194,10 @@ def test_more_args(fake_path):
             for suffix in [sep.join(('a', 'b')), 'a', sep.join(('a', 'e'))]
         ] + ["."] + fake_path
 
-        cases = (
-            ['a/b/c/__init__.py', 'a/d/__init__.py', 'a/e/f.py'],
-            ['a/b/c', 'a', 'a/e'],
-            ['a/b/c', 'a', 'a/b/c', 'a/e', 'a'],
-        )
-
         assert sys.path == fake_path
-        for case in cases:
-            with lint.fix_import_path(case):
-                assert sys.path == expected
-            assert sys.path == fake_path
+        with lint.fix_import_path(case):
+            assert sys.path == expected
+        assert sys.path == fake_path
 
 
 @pytest.fixture
@@ -384,11 +378,11 @@ def test_enable_by_symbol(init_linter):
 
 
 def test_enable_report(linter):
-    assert linter.report_is_enabled('RP0001') is True
+    assert linter.report_is_enabled('RP0001')
     linter.disable('RP0001')
-    assert linter.report_is_enabled('RP0001') is False
+    assert not linter.report_is_enabled('RP0001')
     linter.enable('RP0001')
-    assert linter.report_is_enabled('RP0001') is True
+    assert linter.report_is_enabled('RP0001')
 
 
 def test_report_output_format_aliased(linter):

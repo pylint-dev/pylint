@@ -11,36 +11,51 @@ import astroid
 from pylint.checkers import utils
 import pytest
 
-def test_is_builtin():
-    assert utils.is_builtin('min') is True
-    assert utils.is_builtin('__builtins__') is True
-    assert utils.is_builtin('__path__') is False
-    assert utils.is_builtin('__file__') is False
-    assert utils.is_builtin('whatever') is False
-    assert utils.is_builtin('mybuiltin') is False
+
+@pytest.mark.parametrize("name,expected", [
+    ('min', True),
+    ('__builtins__', True),
+    ('__path__', False),
+    ('__file__', False),
+    ('whatever', False),
+    ('mybuiltin', False),
+])
+def test_is_builtin(name, expected):
+    assert utils.is_builtin(name) == expected
+
+
+@pytest.mark.parametrize("fn,kw", [
+    ('foo(3)', {'keyword': 'bar'}),
+    ('foo(one=a, two=b, three=c)', {'position': 1}),
+])
+def testGetArgumentFromCallError(fn, kw):
+    with pytest.raises(utils.NoSuchArgumentError):
+        node = astroid.extract_node(fn)
+        utils.get_argument_from_call(node, **kw)
+
+
+@pytest.mark.parametrize("fn,kw", [
+    ('foo(bar=3)', {'keyword': 'bar'}),
+    ('foo(a, b, c)', {'position': 1}),
+])
+def testGetArgumentFromCallExists(fn, kw):
+    node = astroid.extract_node(fn)
+    assert utils.get_argument_from_call(node, **kw) is not None
+
 
 def testGetArgumentFromCall():
-    node = astroid.extract_node('foo(bar=3)')
-    assert utils.get_argument_from_call(node, keyword='bar') is not None
-    with pytest.raises(utils.NoSuchArgumentError):
-        node = astroid.extract_node('foo(3)')
-        utils.get_argument_from_call(node, keyword='bar')
-    with pytest.raises(utils.NoSuchArgumentError):
-        node = astroid.extract_node('foo(one=a, two=b, three=c)')
-        utils.get_argument_from_call(node, position=1)
-    node = astroid.extract_node('foo(a, b, c)')
-    assert utils.get_argument_from_call(node, position=1) is not None
     node = astroid.extract_node('foo(a, not_this_one=1, this_one=2)')
     arg = utils.get_argument_from_call(node, position=2, keyword='this_one')
     assert 2 == arg.value
+
     node = astroid.extract_node('foo(a)')
     with pytest.raises(utils.NoSuchArgumentError):
         utils.get_argument_from_call(node, position=1)
     with pytest.raises(ValueError):
         utils.get_argument_from_call(node, None, None)
-
     name = utils.get_argument_from_call(node, position=0)
     assert name.name == 'a'
+
 
 def test_error_of_type():
     nodes = astroid.extract_node("""
@@ -58,6 +73,7 @@ def test_error_of_type():
     assert not utils.error_of_type(nodes[0], Exception)
     assert utils.error_of_type(nodes[1], Exception)
     assert not utils.error_of_type(nodes[2], ImportError)
+
 
 def test_node_ignores_exception():
     nodes = astroid.extract_node("""
