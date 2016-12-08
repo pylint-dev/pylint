@@ -1203,15 +1203,23 @@ class VariablesChecker3k(VariablesChecker):
         # do not check for not used locals here
         self._to_consume.pop()
 
+    def leave_functiondef(self, node):
+        self._check_metaclasses(node)
+        super(VariablesChecker3k, self).leave_functiondef(node)
+
     def leave_module(self, node):
-        """ Update consumption analysis variable
-        for metaclasses.
-        """
-        module_locals = self._to_consume[0][0]
-        module_imports = self._to_consume[0][1]
+        self._check_metaclasses(node)
+        super(VariablesChecker3k, self).leave_module(node)
+
+    def _check_metaclasses(self, node):
+        """ Update consumption analysis for metaclasses. """
+        locals = self._to_consume[-1][0]
+        imports = self._to_consume[-1][1]  # imports are always empty, should they?
         consumed = {}
 
-        for klass in node.nodes_of_class(astroid.ClassDef):
+        for klass in node.get_children():
+            if not isinstance(klass, astroid.ClassDef):
+                continue
             found = metaclass = name = None
             if not klass._metaclass:
                 # Skip if this class doesn't use
@@ -1230,8 +1238,7 @@ class VariablesChecker3k(VariablesChecker):
                 name = metaclass.root().name
 
             if name:
-                found = consumed.setdefault(
-                    name, module_locals.get(name, module_imports.get(name)))
+                found = consumed.setdefault(name, locals.get(name, imports.get(name)))
 
             if found is None and not metaclass:
                 name = None
@@ -1249,10 +1256,9 @@ class VariablesChecker3k(VariablesChecker):
                                          node=klass,
                                          args=(name, ))
         # Pop the consumed items, in order to
-        # avoid having unused-import false positives
+        # avoid having unused-import and unused-variable false positives
         for name in consumed:
-            module_locals.pop(name, None)
-        super(VariablesChecker3k, self).leave_module(node)
+            locals.pop(name, None)
 
 if sys.version_info >= (3, 0):
     VariablesChecker = VariablesChecker3k
