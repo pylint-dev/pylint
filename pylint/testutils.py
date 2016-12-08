@@ -344,50 +344,10 @@ class LintTestUpdate(LintTestUsingModule):
                 with open(self.output, 'w') as fobj:
                     fobj.write(got)
 
-# Callback
-
-def cb_test_gen(base_class):
-    def call(input_dir, msg_dir, module_file, messages_file, dependencies):
-        # pylint: disable=no-init
-        class LintTC(base_class):
-            module = module_file.replace('.py', '')
-            output = messages_file
-            depends = dependencies or None
-            INPUT_DIR = input_dir
-            MSG_DIR = msg_dir
-        return LintTC
-    return call
-
-# Main function
-
-def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
-    """generate tests classes from test info
-
-    return the list of generated test classes
-    """
-    if filter_rgx:
-        is_to_run = re.compile(filter_rgx).search
-    else:
-        is_to_run = lambda x: 1
-    tests = []
-    for module_file, messages_file in (
-            get_tests_info(input_dir, msg_dir, 'func_', '')
-    ):
-        if not is_to_run(module_file) or module_file.endswith(('.pyc', "$py.class")):
-            continue
-        base = module_file.replace('func_', '').replace('.py', '')
-
-        dependencies = get_tests_info(input_dir, msg_dir, base, '.py')
-
-        for callback in callbacks:
-            test = callback(input_dir, msg_dir, module_file, messages_file,
-                            dependencies)
-            if test:
-                tests.append(test)
-    return tests
 
 def tokenize_str(code):
     return list(tokenize.generate_tokens(StringIO(code).readline))
+
 
 @contextlib.contextmanager
 def create_tempfile(content=None):
