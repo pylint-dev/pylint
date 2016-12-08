@@ -13,6 +13,7 @@ import os
 import codecs
 from difflib import unified_diff
 
+import pytest
 
 from pylint.pyreverse.inspector import Linker, project_from_files
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
@@ -27,6 +28,7 @@ _DEFAULTS = {
     'show_ancestors': None, 'classes': (), 'all_associated': None,
     'mode': 'PUB_ONLY', 'show_builtin': False, 'only_classnames': False
     }
+
 
 class Config(object):
     """config object for tests"""
@@ -43,6 +45,7 @@ def _file_lines(path):
                      not line.startswith('__revision__ = "$Id:'))]
     return [line for line in lines if line]
 
+
 def get_project(module, name="No Name"):
     """return a astroid project representation"""
     def _astroid_wrapper(func, modname):
@@ -50,66 +53,53 @@ def get_project(module, name="No Name"):
     return project_from_files([module], _astroid_wrapper,
                               project_name=name)
 
-CONFIG = Config()
 
-class TestDotWriter(object):
-
-    @classmethod
-    def setup_class(cls):
-        project = get_project(os.path.join(os.path.dirname(__file__), 'data'))
-        linker = Linker(project)
-        handler = DiadefsHandler(CONFIG)
-        dd = DefaultDiadefGenerator(linker, handler).visit(project)
-        for diagram in dd:
-            diagram.extract_relationships()
-        writer = DotWriter(CONFIG)
-        writer.write(dd)
-
-    @classmethod
-    def teardown_class(cls):
-        for fname in ('packages_No_Name.dot', 'classes_No_Name.dot',):
-            try:
-                os.remove(fname)
-            except:
-                continue
-
-    def _test_same_file(self, generated_file):
-        expected_file = os.path.join(os.path.dirname(__file__), 'data', generated_file)
-        generated = _file_lines(generated_file)
-        expected = _file_lines(expected_file)
-        generated = '\n'.join(generated)
-        expected = '\n'.join(expected)
-        files = "\n *** expected : %s, generated : %s \n" % (
-            expected_file, generated_file)
-        assert expected == generated, '%s%s' % (
-            files, '\n'.join(line for line in unified_diff(
-                expected.splitlines(), generated.splitlines() )))
-        os.remove(generated_file)
-
-    def test_package_diagram(self):
-        self._test_same_file('packages_No_Name.dot')
-
-    def test_class_diagram(self):
-        self._test_same_file('classes_No_Name.dot')
+DOT_FILES = ['packages_No_Name.dot', 'classes_No_Name.dot']
 
 
-def test_special():
-    for name in ["__reduce_ex__",  "__setattr__"]:
-        assert get_visibility(name) == 'special'
+@pytest.fixture(scope="module")
+def setup():
+    project = get_project(os.path.join(os.path.dirname(__file__), 'data'))
+    linker = Linker(project)
+    CONFIG = Config()
+    handler = DiadefsHandler(CONFIG)
+    dd = DefaultDiadefGenerator(linker, handler).visit(project)
+    for diagram in dd:
+        diagram.extract_relationships()
+    writer = DotWriter(CONFIG)
+    writer.write(dd)
+    yield
+    for fname in DOT_FILES:
+        try:
+            os.remove(fname)
+        except:
+            continue
 
 
-def test_private():
-    for name in ["__g_", "____dsf", "__23_9"]:
+@pytest.mark.usefixtures("setup")
+@pytest.mark.parametrize("generated_file", DOT_FILES)
+def test_dot_files(generated_file):
+    expected_file = os.path.join(os.path.dirname(__file__), 'data', generated_file)
+    generated = _file_lines(generated_file)
+    expected = _file_lines(expected_file)
+    generated = '\n'.join(generated)
+    expected = '\n'.join(expected)
+    files = "\n *** expected : %s, generated : %s \n" % (
+        expected_file, generated_file)
+    assert expected == generated, '%s%s' % (
+        files, '\n'.join(line for line in unified_diff(
+            expected.splitlines(), generated.splitlines())))
+    os.remove(generated_file)
+
+
+@pytest.mark.parametrize("names, expected",
+    [(["__reduce_ex__",  "__setattr__"], "special"),
+        (["__g_", "____dsf", "__23_9"], "private"),
+        (["simple"], "public"),
+        (["_", "__", "___", "____", "_____", "___e__", "_nextsimple",
+          "_filter_it_"], "protected")])
+def test_get_visibility(names, expected):
+    for name in names:
         got = get_visibility(name)
-        assert got == 'private', 'got %s instead of private for value %s' % (got, name)
-
-
-def test_public():
-    assert get_visibility('simple') == 'public'
-
-
-def test_protected():
-    for name in ["_", "__", "___", "____", "_____", "___e__",
-                 "_nextsimple", "_filter_it_"]:
-        got = get_visibility(name)
-        assert got == 'protected', 'got %s instead of protected for value %s' % (got, name)
+        assert got == expected, \
+            'got %s instead of %s for value %s' % (got, expected, name)

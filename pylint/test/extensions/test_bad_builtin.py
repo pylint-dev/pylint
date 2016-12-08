@@ -8,32 +8,37 @@
 
 import os.path as osp
 
+import pytest
+
 from pylint import checkers
 from pylint.extensions.bad_builtin import BadBuiltinChecker
 from pylint.lint import PyLinter, fix_import_path
 from pylint.testutils import MinimalTestReporter
 
 
-class TestBadBuiltin():
+EXPECTED = [
+    "Used builtin function 'map'. Using a list comprehension can be clearer.",
+    "Used builtin function 'filter'. Using a list comprehension can be clearer.",
+]
 
-    expected = [
-    ]
 
-    @classmethod
-    def setup_class(cls):
-        cls._linter = PyLinter()
-        cls._linter.set_reporter(MinimalTestReporter())
-        checkers.initialize(cls._linter)
-        cls._linter.register_checker(BadBuiltinChecker(cls._linter))
-        cls._linter.disable('I')
+@pytest.fixture(scope="module")
+def linter():
+    linter = PyLinter()
+    linter.set_reporter(MinimalTestReporter())
+    checkers.initialize(linter)
+    linter.register_checker(BadBuiltinChecker(linter))
+    linter.disable('I')
+    return linter
 
-    def test_types_redefined(self):
-        elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
-                             'bad_builtin.py')
-        with fix_import_path([elif_test]):
-            self._linter.check([elif_test])
-        msgs = sorted(self._linter.reporter.messages, key=lambda item: item.line)
-        assert len(msgs) == 2
-        for msg, expected in zip(msgs, self.expected):
-            assert msg.symbol == 'bad-builtin'
-            assert msg.msg == expected
+
+def test_types_redefined(linter):
+    elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
+                         'bad_builtin.py')
+    with fix_import_path([elif_test]):
+        linter.check([elif_test])
+    msgs = sorted(linter.reporter.messages, key=lambda item: item.line)
+    assert len(msgs) == 2
+    for msg, expected in zip(msgs, EXPECTED):
+        assert msg.symbol == 'bad-builtin'
+        assert msg.msg == expected

@@ -87,135 +87,85 @@ def test__basename_in_blacklist_re_nomatch():
     assert not utils._basename_in_blacklist_re("enchilad.py", patterns)
 
 
-class TestMessagesStoreRegisterMessages(object):
-    def setup_method(self):
-        self.store = utils.MessagesStore()
-
-    def test_register_error_inconsistent_checker_id(self):
-        class Checker(object):
-            name = 'checker'
-            msgs = {
-                'W1234': ('message one', 'msg-symbol-one', 'msg description'),
-                'W4321': ('message two', 'msg-symbol-two', 'msg description'),
-            }
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(Checker())
-        assert str(cm.value) == \
-            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx')"
-
-    def test_register_error_new_id_duplicate_of_new(self):
-        class CheckerOne(object):
-            name = 'checker_one'
-            msgs = {
-                'W1234': ('message one', 'msg-symbol-one', 'msg description.'),
-                }
-
-        class CheckerTwo(object):
-            name = 'checker_two'
-            msgs = {
-                'W1234': ('message two', 'msg-symbol-two', 'another msg description.'),
-                }
-        self.store.register_messages(CheckerOne())
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(CheckerTwo())
-        assert str(cm.value) == "Message id 'W1234' is already defined"
-
-    def test_register_error_new_id_duplicate_of_old(self):
-        class Checker(object):
-            name = 'checker'
-            msgs = {
-                'W1233': ('message two', 'msg-symbol-two', 'msg description',
-                          {'old_names': [('W1234', 'old-symbol')]}),
-                'W1234': ('message one', 'msg-symbol-one', 'msg description'),
-            }
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(Checker())
-        assert str(cm.value) == "Message id 'W1234' is already defined"
-
-    def test_register_error_old_id_duplicate_of_new(self):
-        class Checker(object):
-            name = 'checker'
-            msgs = {
-                'W1234': ('message one', 'msg-symbol-one', 'msg description'),
-                'W1235': ('message two', 'msg-symbol-two', 'msg description',
-                          {'old_names': [('W1234', 'old-symbol')]}),
-            }
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(Checker())
-        assert str(cm.value) == "Message id 'W1234' is already defined"
-
-    def test_register_error_old_id_duplicate_of_old(self):
-        class Checker(object):
-            name = 'checker'
-            msgs = {
-                'W1234': ('message one', 'msg-symbol-one', 'msg description',
-                          {'old_names': [('W1201', 'old-symbol-one')]}),
-                'W1235': ('message two', 'msg-symbol-two', 'msg description',
-                          {'old_names': [('W1201', 'old-symbol-two')]}),
-            }
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(Checker())
-        assert str(cm.value) == "Message id 'W1201' is already defined"
-
-    def test_register_error_new_symbol_duplicate_of_new(self):
-        class Checker(object):
-            name = 'checker'
-            msgs = {
-                'W1234': ('message one', 'msg-symbol', 'msg description'),
-                'W1235': ('message two', 'msg-symbol', 'msg description'),
-            }
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(Checker())
-        assert str(cm.value) == "Message symbol 'msg-symbol' is already defined"
-
-    def test_register_error_new_symbol_duplicate_of_old(self):
-        class Checker(object):
-            name = 'checker'
-            msgs = {
-                'W1233': ('message two', 'msg-symbol-two', 'msg description',
-                          {'old_names': [('W1230', 'msg-symbol-one')]}),
-                'W1234': ('message one', 'msg-symbol-one', 'msg description'),
-            }
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(Checker())
-        assert str(cm.value) == "Message symbol 'msg-symbol-one' is already defined"
-
-    def test_register_error_old_symbol_duplicate_of_new(self):
-        class Checker(object):
-            name = 'checker'
-            msgs = {
-                'W1234': ('message one', 'msg-symbol-one', 'msg description'),
-                'W1235': ('message two', 'msg-symbol-two', 'msg description',
-                          {'old_names': [('W1230', 'msg-symbol-one')]}),
-            }
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(Checker())
-        assert str(cm.value) == "Message symbol 'msg-symbol-one' is already defined"
-
-    def test_register_error_old_symbol_duplicate_of_old(self):
-        class Checker(object):
-            name = 'checker'
-            msgs = {
-                'W1234': ('message one', 'msg-symbol-one', 'msg description',
-                          {'old_names': [('W1230', 'old-symbol-one')]}),
-                'W1235': ('message two', 'msg-symbol-two', 'msg description',
-                          {'old_names': [('W1231', 'old-symbol-one')]}),
-            }
-        with pytest.raises(InvalidMessageError) as cm:
-            self.store.register_messages(Checker())
-        assert str(cm.value) == \
-            "Message alternate name 'old-symbol-one' is already defined"
+@pytest.fixture
+def store():
+    return utils.MessagesStore()
 
 
-def test_create_invalid_msgid():
+@pytest.mark.parametrize("messages,expected", [
+    ({'W1234': ('message one', 'msg-symbol-one', 'msg description'),
+      'W4321': ('message two', 'msg-symbol-two', 'msg description')},
+     r"Inconsistent checker part in message id 'W4321' (expected 'x12xx')"),
+
+    ({'W1233': ('message two', 'msg-symbol-two', 'msg description',
+                {'old_names': [('W1234', 'old-symbol')]}),
+      'W1234': ('message one', 'msg-symbol-one', 'msg description')},
+     "Message id 'W1234' is already defined"),
+
+    ({'W1234': ('message one', 'msg-symbol-one', 'msg description'),
+      'W1235': ('message two', 'msg-symbol-two', 'msg description',
+                {'old_names': [('W1234', 'old-symbol')]})},
+     "Message id 'W1234' is already defined"),
+
+    ({'W1234': ('message one', 'msg-symbol-one', 'msg description',
+                {'old_names': [('W1201', 'old-symbol-one')]}),
+      'W1235': ('message two', 'msg-symbol-two', 'msg description',
+                {'old_names': [('W1201', 'old-symbol-two')]})},
+     "Message id 'W1201' is already defined"),
+    ({'W1234': ('message one', 'msg-symbol', 'msg description'),
+      'W1235': ('message two', 'msg-symbol', 'msg description')},
+     "Message symbol 'msg-symbol' is already defined"),
+
+    ({'W1233': ('message two', 'msg-symbol-two', 'msg description',
+                {'old_names': [('W1230', 'msg-symbol-one')]}),
+      'W1234': ('message one', 'msg-symbol-one', 'msg description')},
+     "Message symbol 'msg-symbol-one' is already defined"),
+
+    ({'W1234': ('message one', 'msg-symbol-one', 'msg description'),
+      'W1235': ('message two', 'msg-symbol-two', 'msg description',
+                {'old_names': [('W1230', 'msg-symbol-one')]})},
+     "Message symbol 'msg-symbol-one' is already defined"),
+
+    ({'W1234': ('message one', 'msg-symbol-one', 'msg description',
+                {'old_names': [('W1230', 'old-symbol-one')]}),
+      'W1235': ('message two', 'msg-symbol-two', 'msg description',
+                {'old_names': [('W1231', 'old-symbol-one')]})},
+     "Message alternate name 'old-symbol-one' is already defined"),
+
+])
+def test_register_error(store, messages, expected):
+    class Checker(object):
+        name = 'checker'
+        msgs = messages
     with pytest.raises(InvalidMessageError) as cm:
-        utils.MessageDefinition('checker', 'W12345',
-                                'msg', 'descr', 'symbol', 'scope')
-    assert str(cm.value) == "Invalid message id 'W12345'"
+        store.register_messages(Checker())
+    assert str(cm.value) == expected
 
 
-def test_create_invalid_message_type():
+def test_register_error_new_id_duplicate_of_new(store):
+    class CheckerOne(object):
+        name = 'checker_one'
+        msgs = {
+            'W1234': ('message one', 'msg-symbol-one', 'msg description.'),
+            }
+
+    class CheckerTwo(object):
+        name = 'checker_two'
+        msgs = {
+            'W1234': ('message two', 'msg-symbol-two', 'another msg description.'),
+            }
+    store.register_messages(CheckerOne())
+    test_register_error(store,
+                        {'W1234': ('message two', 'msg-symbol-two', 'another msg description.')},
+                        "Message id 'W1234' is already defined")
+
+
+@pytest.mark.parametrize("msgid,expected", [
+    ("Q1234", "Bad message type Q in 'Q1234'"),
+    ("W12345", "Invalid message id 'W12345'"),
+])
+def test_create_invalid_message_type(msgid, expected):
     with pytest.raises(InvalidMessageError) as cm:
-        utils.MessageDefinition('checker', 'Q1234',
+        utils.MessageDefinition('checker', msgid,
                                 'msg', 'descr', 'symbol', 'scope')
-    assert str(cm.value) == "Bad message type Q in 'Q1234'"
+    assert str(cm.value) == expected

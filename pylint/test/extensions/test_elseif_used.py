@@ -9,29 +9,31 @@
 
 import os.path as osp
 
+import pytest
+
 from pylint import checkers
 from pylint.extensions.check_elif import ElseifUsedChecker
 from pylint.lint import PyLinter
 from pylint.testutils import MinimalTestReporter
 
 
-class TestCheckElseIfUsed():
+@pytest.fixture(scope="module")
+def linter():
+    linter = PyLinter()
+    linter.set_reporter(MinimalTestReporter())
+    checkers.initialize(linter)
+    linter.register_checker(ElseifUsedChecker(linter))
+    return linter
 
-    @classmethod
-    def setup_class(cls):
-        cls._linter = PyLinter()
-        cls._linter.set_reporter(MinimalTestReporter())
-        checkers.initialize(cls._linter)
-        cls._linter.register_checker(ElseifUsedChecker(cls._linter))
 
-    def test_elseif_message(self):
-        elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
-                             'elif.py')
-        self._linter.check([elif_test])
-        msgs = self._linter.reporter.messages
-        assert len(msgs) == 2
-        for msg in msgs:
-            assert msg.symbol == 'else-if-used'
-            assert msg.msg == 'Consider using "elif" instead of "else if"'
-        assert msgs[0].line == 9
-        assert msgs[1].line == 21
+def test_elseif_message(linter):
+    elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
+                         'elif.py')
+    linter.check([elif_test])
+    msgs = linter.reporter.messages
+    assert len(msgs) == 2
+    for msg in msgs:
+        assert msg.symbol == 'else-if-used'
+        assert msg.msg == 'Consider using "elif" instead of "else if"'
+    assert msgs[0].line == 9
+    assert msgs[1].line == 21
