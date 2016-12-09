@@ -64,7 +64,7 @@ class EncodingChecker(BaseChecker):
         match = notes.search(line)
         if not match:
             return
-        self.add_message('fixme', args=line[match.start(1):-1], line=lineno)
+        self.add_message('fixme', args=line[match.start(1):].rstrip(), line=lineno)
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
