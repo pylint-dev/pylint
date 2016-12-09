@@ -1213,14 +1213,12 @@ class VariablesChecker3k(VariablesChecker):
 
     def _check_metaclasses(self, node):
         """ Update consumption analysis for metaclasses. """
-        locals = self._to_consume[-1][0]
-        imports = self._to_consume[-1][1]  # imports are always empty, should they?
-        consumed = {}
+        consumed = []  # (scope_locals_dict, key)
 
         for klass in node.get_children():
             if not isinstance(klass, astroid.ClassDef):
                 continue
-            found = metaclass = name = None
+
             if not klass._metaclass:
                 # Skip if this class doesn't use
                 # explictly a metaclass, but inherits it from ancestors
@@ -1228,17 +1226,20 @@ class VariablesChecker3k(VariablesChecker):
 
             metaclass = klass.metaclass()
 
-            # Look the name in the already found locals.
-            # If it's not found there, look in the module locals
-            # and in the imported modules.
+            name = None
             if isinstance(klass._metaclass, astroid.Name):
                 name = klass._metaclass.name
             elif metaclass:
-                # if it uses a `metaclass=module.Class`
                 name = metaclass.root().name
 
+            found = None
             if name:
-                found = consumed.setdefault(name, locals.get(name, imports.get(name)))
+                # check enclosing scopes starting from most local
+                for scope_not_consumed_locals, _, _ in self._to_consume[::-1]:
+                    found = scope_not_consumed_locals.get(name)
+                    if found:
+                        consumed.append((scope_not_consumed_locals, name))
+                        break
 
             if found is None and not metaclass:
                 name = None
@@ -1255,10 +1256,11 @@ class VariablesChecker3k(VariablesChecker):
                         self.add_message('undefined-variable',
                                          node=klass,
                                          args=(name, ))
-        # Pop the consumed items, in order to
-        # avoid having unused-import and unused-variable false positives
-        for name in consumed:
-            locals.pop(name, None)
+
+        # Pop the consumed items, in order to avoid having
+        # unused-import and unused-variable false positives
+        for scope_locals_dict, name in consumed:
+            scope_locals_dict.pop(name, None)
 
 if sys.version_info >= (3, 0):
     VariablesChecker = VariablesChecker3k

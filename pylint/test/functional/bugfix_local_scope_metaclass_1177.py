@@ -41,13 +41,16 @@ def imported_and_nested_scope1():  # fails currently
     class ClassImp1(metaclass=ImportedMetaclass):
         pass
 
-    return ClassImp1
+    class ClassImp2(metaclass=ImportedMetaclass):
+        pass
+
+    return ClassImp1, ClassImp2
 
 
 def imported_and_nested_scope2():
     from UNINFERABLE import ImportedMetaclass2
 
-    class ClassImp2(metaclass=ImportedMetaclass2):
+    class ClassImp3(metaclass=ImportedMetaclass2):
         pass
 
-    return ClassImp2
+    return ClassImp3
