@@ -1,1 +1,1 @@
-unused-import:3::Unused import pylint
+unused-import:3::Unused import pylint.checkers
