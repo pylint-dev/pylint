@@ -24,7 +24,6 @@ HANDLER = DiadefsHandler(Config())
 
 def _process_classes(classes):
     """extract class names of a list"""
-    print([c.title for c in classes])
     return sorted([(isinstance(c.node, astroid.ClassDef), c.title) for c in classes])
 
 def _process_relations(relations):
