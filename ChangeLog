@@ -217,6 +217,9 @@ Release date: tba
 
     * Added refactoring message 'no-else-return'.
 
+    * Improve handing of Python 3 classes with metaclasses declared in nested scopes.
+
+      Closes #1177
 
 
 What's new in Pylint 1.6.3?

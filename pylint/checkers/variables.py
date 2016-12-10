@@ -1213,11 +1213,12 @@ class VariablesChecker3k(VariablesChecker):
 
     def _check_metaclasses(self, node):
         """ Update consumption analysis for metaclasses. """
-        consumed = []  # (scope_locals_dict, key)
+        consumed = []  # [(scope_locals, consumed_key)]
 
-        for klass in node.get_children():
-            if not isinstance(klass, astroid.ClassDef):
+        for child_node in node.get_children():
+            if not isinstance(child_node, astroid.ClassDef):
                 continue
+            klass = child_node
 
             if not klass._metaclass:
                 # Skip if this class doesn't use
@@ -1235,10 +1236,10 @@ class VariablesChecker3k(VariablesChecker):
             found = None
             if name:
                 # check enclosing scopes starting from most local
-                for scope_not_consumed_locals, _, _ in self._to_consume[::-1]:
-                    found = scope_not_consumed_locals.get(name)
+                for scope_locals, _, _ in self._to_consume[::-1]:
+                    found = scope_locals.get(name)
                     if found:
-                        consumed.append((scope_not_consumed_locals, name))
+                        consumed.append((scope_locals, name))
                         break
 
             if found is None and not metaclass:
@@ -1259,8 +1260,8 @@ class VariablesChecker3k(VariablesChecker):
 
         # Pop the consumed items, in order to avoid having
         # unused-import and unused-variable false positives
-        for scope_locals_dict, name in consumed:
-            scope_locals_dict.pop(name, None)
+        for scope_locals, name in consumed:
+            scope_locals.pop(name, None)
 
 if sys.version_info >= (3, 0):
     VariablesChecker = VariablesChecker3k
