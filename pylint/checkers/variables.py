@@ -1216,52 +1216,55 @@ class VariablesChecker3k(VariablesChecker):
         consumed = []  # [(scope_locals, consumed_key)]
 
         for child_node in node.get_children():
-            if not isinstance(child_node, astroid.ClassDef):
-                continue
-            klass = child_node
-
-            if not klass._metaclass:
-                # Skip if this class doesn't use
-                # explictly a metaclass, but inherits it from ancestors
-                continue
-
-            metaclass = klass.metaclass()
-
-            name = None
-            if isinstance(klass._metaclass, astroid.Name):
-                name = klass._metaclass.name
-            elif metaclass:
-                name = metaclass.root().name
-
-            found = None
-            if name:
-                # check enclosing scopes starting from most local
-                for scope_locals, _, _ in self._to_consume[::-1]:
-                    found = scope_locals.get(name)
-                    if found:
-                        consumed.append((scope_locals, name))
-                        break
-
-            if found is None and not metaclass:
-                name = None
-                if isinstance(klass._metaclass, astroid.Name):
-                    name = klass._metaclass.name
-                elif isinstance(klass._metaclass, astroid.Attribute):
-                    name = klass._metaclass.as_string()
-
-                if name is not None:
-                    if not (name in astroid.Module.scope_attrs or
-                            utils.is_builtin(name) or
-                            name in self.config.additional_builtins or
-                            name in node.locals):
-                        self.add_message('undefined-variable',
-                                         node=klass,
-                                         args=(name, ))
+            if isinstance(child_node, astroid.ClassDef):
+                consumed.extend(self._check_classdef_metaclasses(child_node, node))
 
         # Pop the consumed items, in order to avoid having
         # unused-import and unused-variable false positives
         for scope_locals, name in consumed:
             scope_locals.pop(name, None)
+
+    def _check_classdef_metaclasses(self, klass, parent_node):
+        if not klass._metaclass:
+            # Skip if this class doesn't use explictly a metaclass, but inherits it from ancestors
+            return []
+
+        consumed = []  # [(scope_locals, consumed_key)]
+        metaclass = klass.metaclass()
+
+        name = None
+        if isinstance(klass._metaclass, astroid.Name):
+            name = klass._metaclass.name
+        elif metaclass:
+            name = metaclass.root().name
+
+        found = None
+        if name:
+            # check enclosing scopes starting from most local
+            for scope_locals, _, _ in self._to_consume[::-1]:
+                found = scope_locals.get(name)
+                if found:
+                    consumed.append((scope_locals, name))
+                    break
+
+        if found is None and not metaclass:
+            name = None
+            if isinstance(klass._metaclass, astroid.Name):
+                name = klass._metaclass.name
+            elif isinstance(klass._metaclass, astroid.Attribute):
+                name = klass._metaclass.as_string()
+
+            if name is not None:
+                if not (name in astroid.Module.scope_attrs or
+                        utils.is_builtin(name) or
+                        name in self.config.additional_builtins or
+                        name in parent_node.locals):
+                    self.add_message('undefined-variable',
+                                     node=klass,
+                                     args=(name,))
+
+        return consumed
+
 
 if sys.version_info >= (3, 0):
     VariablesChecker = VariablesChecker3k

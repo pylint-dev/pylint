@@ -37,7 +37,7 @@ def mixed_scopes():
     return ClassM
 
 
-def imported_and_nested_scope1():  # fails currently
+def imported_and_nested_scope1():
     class ClassImp1(metaclass=ImportedMetaclass):
         pass
 
