@@ -217,6 +217,10 @@ Release date: tba
 
     * Added refactoring message 'no-else-return'.
 
+    * Improve unused-variable checker to warn about unused variables in module scope.
+
+      Closes #919
+
     * Improve handing of Python 3 classes with metaclasses declared in nested scopes.
 
       Closes #1177

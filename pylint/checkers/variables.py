@@ -358,7 +358,13 @@ class VariablesChecker(BaseChecker):
                  'help' : 'Argument names that match this expression will be '
                           'ignored. Default to name with leading underscore'}
                ),
+               ('allow-global-unused-variables',
+                {'default': True,
+                 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'Tells whether unused global variables should be treated as a violation.'}
+               ),
               )
+
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self._to_consume = None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
@@ -374,6 +380,9 @@ class VariablesChecker(BaseChecker):
     def _ignored_modules(self):
         return get_global_option(self, 'ignored-modules', default=[])
 
+    @decorators.cachedproperty
+    def _allow_global_unused_variables(self):
+        return get_global_option(self, 'allow-global-unused-variables', default=True)
 
     @utils.check_messages('redefined-outer-name')
     def visit_for(self, node):
@@ -413,7 +422,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.check_messages('unused-import', 'unused-wildcard-import',
                           'redefined-builtin', 'undefined-all-variable',
-                          'invalid-all-object')
+                          'invalid-all-object', 'unused-variable')
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -422,6 +431,10 @@ class VariablesChecker(BaseChecker):
         # attempt to check for __all__ if defined
         if '__all__' in node.locals:
             self._check_all(node, not_consumed)
+
+        # check for unused globals
+        self._check_globals(not_consumed)
+
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
@@ -475,6 +488,13 @@ class VariablesChecker(BaseChecker):
                             # because it will be later yielded
                             # when the file will be checked
                             pass
+
+    def _check_globals(self, not_consumed):
+        if self._allow_global_unused_variables:
+            return
+        for name, nodes in six.iteritems(not_consumed):
+            for node in nodes:
+                self.add_message('unused-variable', args=(name,), node=node)
 
     def _check_imports(self, not_consumed):
         local_names = _fix_dot_imports(not_consumed)
