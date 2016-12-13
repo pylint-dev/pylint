@@ -676,6 +676,11 @@ Bug fixes
      def _(x):
          return -x
 
+* `unused-variable` checker has new functionality of warning about unused
+  variables in global module namespace. Since globals in module namespace
+  may be a part of exposed API, this check is disabled by default. For
+  enabling it, set `allow-global-unused-variables` to false.
+
 Removed Changes
 ===============
 
