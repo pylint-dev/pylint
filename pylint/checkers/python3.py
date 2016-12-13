@@ -603,8 +603,9 @@ class Python3Checker(checkers.BaseChecker):
 
     @staticmethod
     def _is_constant_string_or_name(node):
-        return ((isinstance(node, astroid.Const) and isinstance(node.value, six.string_types)) or
-                isinstance(node, astroid.Name))
+        if isinstance(node, astroid.Const):
+            return isinstance(node.value, six.string_types)
+        return isinstance(node, astroid.Name)
 
     @staticmethod
     def _is_none(node):

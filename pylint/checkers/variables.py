@@ -1201,7 +1201,7 @@ class VariablesChecker(BaseChecker):
         if module_names:
             # FIXME: other message if name is not the latest part of
             # module_names ?
-            modname = module and module.name or '__dict__'
+            modname = module.name if module else '__dict__'
             self.add_message('no-name-in-module', node=node,
                              args=('.'.join(module_names), modname))
             return None

@@ -1,0 +1,5 @@
+consider-using-ternary:5::Consider using ternary true_value if condition else false_value:HIGH
+consider-using-ternary:6::Consider using ternary true_value if condition else false_value:HIGH
+consider-using-ternary:16:func2:Consider using ternary true_value if condition else false_value:HIGH
+consider-using-ternary:21:func3:Consider using ternary true_value if condition else false_value:HIGH
+consider-using-ternary:24::Consider using ternary 'ERROR' if some_callable(condition) else 'SUCCESS':HIGH
