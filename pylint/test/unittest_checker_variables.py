@@ -127,6 +127,13 @@ class VariablesCheckerTC(CheckerTestCase):
             self.checker.visit_module(node.root())
             self.checker.visit_functiondef(node)
 
+    def test_import_as_underscore(self):
+        node = astroid.parse('''
+        import math as _
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
 
 class MissingSubmoduleTest(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker

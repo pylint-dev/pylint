@@ -519,6 +519,8 @@ class VariablesChecker(BaseChecker):
                         # Filter special objects (__doc__, __all__) etc.,
                         # because they can be imported for exporting.
                         continue
+                    if as_name == "_":
+                        continue
                     if as_name is None:
                         msg = "import %s" % imported_name
                     else:
