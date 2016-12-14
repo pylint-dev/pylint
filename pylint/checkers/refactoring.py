@@ -393,8 +393,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and isinstance(node.values[0], astroid.BoolOp)
                 and not isinstance(node.values[1], astroid.BoolOp)
                 and node.values[0].op == 'and'
-                and not (isinstance(node.values[0].values[0], astroid.BoolOp)
-                         or isinstance(node.values[0].values[1], astroid.BoolOp)))
+                and not isinstance(node.values[0].values[1], astroid.BoolOp))
 
     @staticmethod
     def _get_and_or_ternary_arguments(node):
