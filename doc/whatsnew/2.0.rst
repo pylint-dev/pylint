@@ -586,6 +586,8 @@ Other Changes
 
 * Imports aliased with underscore are skipped when checking for unused imports.
 
+* Detects referenced and inferred cases for exec-used, eval-used.
+
 
 Bug fixes
 =========
