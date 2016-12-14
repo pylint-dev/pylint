@@ -220,6 +220,10 @@ Release date: tba
     * Improve unused-variable checker to warn about unused variables in module scope.
 
       Closes #919
+	
+    * Ignore modules import as _ when checking for unused imports.
+
+      Closes #1190
 
 
 What's new in Pylint 1.6.3?
