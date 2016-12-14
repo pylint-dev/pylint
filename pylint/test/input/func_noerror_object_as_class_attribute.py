@@ -1,4 +1,5 @@
 # pylint: disable=R0903
+# pylint: disable=redefined-builtin
 """Test case for the problem described below :
  - A class extends 'object'
  - This class defines its own __init__()

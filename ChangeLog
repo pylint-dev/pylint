@@ -7,6 +7,14 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+	* Detect class level redefinition of outer name.
+
+	* Properly detect if imported name is assigned to same name in different
+	  scope.
+
+	  Close #636
+
+
     * 'trailing-comma-tuple' check was added
 
       This message is emitted when pylint finds an one-element tuple,
