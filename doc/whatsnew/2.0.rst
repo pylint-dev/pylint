@@ -584,6 +584,8 @@ Other Changes
 
      CustomRun(sys.argv[1:])
 
+* Imports aliased with underscore are skipped when checking for unused imports.
+
 
 Bug fixes
 =========
