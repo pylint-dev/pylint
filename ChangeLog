@@ -233,6 +233,11 @@ Release date: tba
 
       Closes #1177
 
+    * Detects unused imports when a module and its submodules, or multiple
+	submodules are imported.
+
+      Closes #718
+
 
 What's new in Pylint 1.6.3?
 ===========================
