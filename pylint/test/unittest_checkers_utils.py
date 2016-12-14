@@ -20,7 +20,7 @@ import pytest
     ('whatever', False),
     ('mybuiltin', False),
 ])
-def test_is_builtin(name, expected):
+def testIsBuiltin(name, expected):
     assert utils.is_builtin(name) == expected
 
 

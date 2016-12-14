@@ -107,15 +107,23 @@ TOTAL lines=44 duplicates=5 percent=11.36
 
 def test_help():
     sys.stdout = six.StringIO()
-    with pytest.raises(SystemExit) as ex:
+    try:
         similar.Run(['--help'])
-    assert ex.value.code == 0
-    sys.stdout = sys.__stdout__
+    except SystemExit as ex:
+        assert ex.code == 0
+    else:
+        pytest.fail('not system exit')
+    finally:
+        sys.stdout = sys.__stdout__
 
 
 def test_no_args():
     sys.stdout = six.StringIO()
-    with pytest.raises(SystemExit) as ex:
+    try:
         similar.Run([])
-    assert ex.value.code == 1
-    sys.stdout = sys.__stdout__
+    except SystemExit as ex:
+        assert ex.code == 1
+    else:
+        pytest.fail('not system exit')
+    finally:
+        sys.stdout = sys.__stdout__

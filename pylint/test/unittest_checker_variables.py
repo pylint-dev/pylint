@@ -94,7 +94,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         self.checker._to_consume = []
 
     def teardown_method(self, method):
-            self.checker._to_consume = self._to_consume_backup
+        self.checker._to_consume = self._to_consume_backup
 
     @set_config(callbacks=('callback_', '_callback'))
     def test_custom_callback_string(self):
@@ -133,8 +133,34 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
 
+    @set_config(redefining_builtins_modules=('os',))
+    def test_redefined_builtin_modname_not_ignored(self):
+        node = astroid.parse('''
+        from future.builtins import open
+        ''')
+        with self.assertAddsMessages(
+                Message('redefined-builtin', node=node.body[0], args='open')):
+            self.checker.visit_module(node)
 
-class TestMissingSubmodule(CheckerTestCase):
+    @set_config(redefining_builtins_modules=('os',))
+    def test_redefined_builtin_in_function(self):
+        node = astroid.extract_node('''
+        def test():
+            from os import open
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_module(node.root())
+            self.checker.visit_functiondef(node)
+
+    def test_import_as_underscore(self):
+        node = astroid.parse('''
+        import math as _
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
+
+class MissingSubmoduleTest(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
     def test_package_all(self):
