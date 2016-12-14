@@ -938,18 +938,19 @@ functions, methods
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
-        if isinstance(node.func, astroid.Name):
-            name = node.func.name
+        node_infer = utils.safe_infer(node.func)
+        is_builtin = utils.is_builtin_object(node_infer)
+        if not isinstance(node.func, astroid.Name) or not is_builtin:
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (name in node.frame() or
-                    name in node.root()):
-                if name == 'exec':
-                    self.add_message('exec-used', node=node)
-                elif name == 'reversed':
-                    self._check_reversed(node)
-                elif name == 'eval':
-                    self.add_message('eval-used', node=node)
+            return
+        name = node_infer.name
+        if name == 'exec':
+            self.add_message('exec-used', node=node)
+        elif name == 'reversed':
+            self._check_reversed(node)
+        elif name == 'eval':
+            self.add_message('eval-used', node=node)
 
     @utils.check_messages('assert-on-tuple')
     def visit_assert(self, node):
