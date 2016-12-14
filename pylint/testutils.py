@@ -268,6 +268,7 @@ class LintTestUsingModule(object):
     INPUT_DIR = None
     DEFAULT_PACKAGE = 'input'
     package = DEFAULT_PACKAGE
+    # pylint: disable=redefined-outer-name
     linter = linter
     module = None
     depends = None

@@ -149,7 +149,7 @@ class KeywordArgument(object):
     func = lambda arg=arg: arg * arg # [undefined-variable]
 
     arg2 = 0
-    func2 = lambda arg2=arg2: arg2 * arg2
+    func3 = lambda arg2=arg2: arg2 * arg2
 
 # Don't emit if the code is protected by NameError
 try:
@@ -175,3 +175,10 @@ except ValueError:
 # See https://bitbucket.org/logilab/pylint/issue/111/
 try: raise IOError(1, "a")
 except IOError as err: print(err)
+
+
+def test_conditional_comprehension():
+    methods = ['a', 'b', '_c', '_d']
+    my_methods = sum(1 for method in methods
+                     if not method.startswith('_'))
+    return my_methods
