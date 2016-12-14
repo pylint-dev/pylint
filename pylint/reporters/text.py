@@ -191,9 +191,7 @@ class ColorizedTextReporter(TextReporter):
         self.color_mapping = color_mapping or \
                              dict(ColorizedTextReporter.COLOR_MAPPING)
         ansi_terms = ['xterm-16color', 'xterm-256color']
-        try:
-            assert os.environ['TERM'] in ansi_terms
-        except (KeyError, AssertionError):
+        if os.environ.get('TERM') not in ansi_terms:
             if sys.platform == 'win32':
                 import colorama
                 self.out = colorama.AnsiToWin32(self.out)
