@@ -225,6 +225,8 @@ Release date: tba
 
       Closes #1190
 
+	* Detects inferred cases for exec-used, eval-used and bad-reversed-sequence.
+
 
 What's new in Pylint 1.6.3?
 ===========================
