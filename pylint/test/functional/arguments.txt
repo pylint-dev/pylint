@@ -32,3 +32,5 @@ no-value-for-parameter:163:no_context_but_redefined:No value for argument 'three
 no-value-for-parameter:163:no_context_but_redefined:No value for argument 'two' in function call
 no-value-for-parameter:166:no_context_one_elem:No value for argument 'three' in function call
 no-value-for-parameter:166:no_context_one_elem:No value for argument 'two' in function call
+no-value-for-parameter:202::No value for argument 'arg' in function call
+too-many-function-args:204::Too many positional arguments for function call
