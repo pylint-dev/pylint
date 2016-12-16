@@ -1225,56 +1225,68 @@ class VariablesChecker3k(VariablesChecker):
         # do not check for not used locals here
         self._to_consume.pop()
 
+    def leave_functiondef(self, node):
+        self._check_metaclasses(node)
+        super(VariablesChecker3k, self).leave_functiondef(node)
+
     def leave_module(self, node):
-        """ Update consumption analysis variable
-        for metaclasses.
-        """
-        module_locals = self._to_consume[0][0]
-        module_imports = self._to_consume[0][1]
-        consumed = {}
+        self._check_metaclasses(node)
+        super(VariablesChecker3k, self).leave_module(node)
 
-        for klass in node.nodes_of_class(astroid.ClassDef):
-            found = metaclass = name = None
-            if not klass._metaclass:
-                # Skip if this class doesn't use
-                # explictly a metaclass, but inherits it from ancestors
-                continue
+    def _check_metaclasses(self, node):
+        """ Update consumption analysis for metaclasses. """
+        consumed = []  # [(scope_locals, consumed_key)]
 
-            metaclass = klass.metaclass()
+        for child_node in node.get_children():
+            if isinstance(child_node, astroid.ClassDef):
+                consumed.extend(self._check_classdef_metaclasses(child_node, node))
 
-            # Look the name in the already found locals.
-            # If it's not found there, look in the module locals
-            # and in the imported modules.
+        # Pop the consumed items, in order to avoid having
+        # unused-import and unused-variable false positives
+        for scope_locals, name in consumed:
+            scope_locals.pop(name, None)
+
+    def _check_classdef_metaclasses(self, klass, parent_node):
+        if not klass._metaclass:
+            # Skip if this class doesn't use explictly a metaclass, but inherits it from ancestors
+            return []
+
+        consumed = []  # [(scope_locals, consumed_key)]
+        metaclass = klass.metaclass()
+
+        name = None
+        if isinstance(klass._metaclass, astroid.Name):
+            name = klass._metaclass.name
+        elif metaclass:
+            name = metaclass.root().name
+
+        found = None
+        if name:
+            # check enclosing scopes starting from most local
+            for scope_locals, _, _ in self._to_consume[::-1]:
+                found = scope_locals.get(name)
+                if found:
+                    consumed.append((scope_locals, name))
+                    break
+
+        if found is None and not metaclass:
+            name = None
             if isinstance(klass._metaclass, astroid.Name):
                 name = klass._metaclass.name
-            elif metaclass:
-                # if it uses a `metaclass=module.Class`
-                name = metaclass.root().name
+            elif isinstance(klass._metaclass, astroid.Attribute):
+                name = klass._metaclass.as_string()
 
-            if name:
-                found = consumed.setdefault(
-                    name, module_locals.get(name, module_imports.get(name)))
+            if name is not None:
+                if not (name in astroid.Module.scope_attrs or
+                        utils.is_builtin(name) or
+                        name in self.config.additional_builtins or
+                        name in parent_node.locals):
+                    self.add_message('undefined-variable',
+                                     node=klass,
+                                     args=(name,))
 
-            if found is None and not metaclass:
-                name = None
-                if isinstance(klass._metaclass, astroid.Name):
-                    name = klass._metaclass.name
-                elif isinstance(klass._metaclass, astroid.Attribute):
-                    name = klass._metaclass.as_string()
+        return consumed
 
-                if name is not None:
-                    if not (name in astroid.Module.scope_attrs or
-                            utils.is_builtin(name) or
-                            name in self.config.additional_builtins or
-                            name in node.locals):
-                        self.add_message('undefined-variable',
-                                         node=klass,
-                                         args=(name, ))
-        # Pop the consumed items, in order to
-        # avoid having unused-import false positives
-        for name in consumed:
-            module_locals.pop(name, None)
-        super(VariablesChecker3k, self).leave_module(node)
 
 if sys.version_info >= (3, 0):
     VariablesChecker = VariablesChecker3k
