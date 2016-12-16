@@ -768,8 +768,12 @@ accessed. Python regular expressions are accepted.'}
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called and not called.callable():
-            self.add_message('not-callable', node=node,
-                             args=node.func.as_string())
+            if isinstance(called, astroid.Instance) and not has_known_bases(called):
+                # Don't emit if we can't make sure this object is callable.
+                pass
+            else:
+                self.add_message('not-callable', node=node,
+                                 args=node.func.as_string())
 
         self._check_uninferable_callfunc(node)
 
