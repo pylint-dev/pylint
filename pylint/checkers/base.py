@@ -933,23 +933,28 @@ functions, methods
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
+    @utils.check_messages('eval-used', 'exec-used')
+    def visit_name(self, node):
+        """Detect when a "bad" built-in is referenced."""
+        node_infer = utils.safe_infer(node)
+        if not utils.is_builtin_object(node_infer):
+            # Skip not builtin objects
+            return
+        if node_infer.name in ('eval', 'exec'):
+            self.add_message(node_infer.name + '-used', node=node)
+
+    @utils.check_messages('bad-reversed-sequence')
     def visit_call(self, node):
-        """visit a CallFunc node -> check if this is not a blacklisted builtin
-        call and check for * or ** use
+        """visit a CallFunc node -> check for * or ** use
         """
         if isinstance(node.func, astroid.Name):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (name in node.frame() or
-                    name in node.root()):
-                if name == 'exec':
-                    self.add_message('exec-used', node=node)
-                elif name == 'reversed':
-                    self._check_reversed(node)
-                elif name == 'eval':
-                    self.add_message('eval-used', node=node)
+            if name in node.frame() or name in node.root():
+                return
+            if name == 'reversed':
+                self._check_reversed(node)
 
     @utils.check_messages('assert-on-tuple')
     def visit_assert(self, node):

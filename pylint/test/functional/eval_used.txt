@@ -1,4 +1,9 @@
 eval-used:3::Use of eval
 eval-used:4::Use of eval
 eval-used:6::Use of eval
-eval-used:10:func:Use of eval
+eval-used:11:func:Use of eval
+eval-used:22:func3:Use of eval
+eval-used:24:func3:Use of eval
+eval-used:26:func3:Use of eval
+eval-used:28:func3:Use of eval
+eval-used:29:func3:Use of eval

@@ -229,6 +229,8 @@ Release date: tba
 
       Closes #1190
 
+	* Detects referenced and inferred cases for exec-used, eval-used.
+
 
 What's new in Pylint 1.6.3?
 ===========================
