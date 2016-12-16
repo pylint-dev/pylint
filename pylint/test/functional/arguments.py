@@ -202,3 +202,11 @@ MODIFIED_FUNCTION_SIGNATURE = signature_decorator(original_function_signature)
 MODIFIED_FUNCTION_SIGNATURE()  # [no-value-for-parameter]
 MODIFIED_FUNCTION_SIGNATURE('two')
 MODIFIED_FUNCTION_SIGNATURE('one', 'two')  # [too-many-function-args]
+
+@signature_decorator
+def modified_function_signature(one, two):
+    return one + two
+
+modified_function_signature()  # [no-value-for-parameter]
+modified_function_signature('two')
+modified_function_signature('one', 'two')  # [too-many-function-args]
