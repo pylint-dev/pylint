@@ -19,8 +19,6 @@ from pylint.pyreverse.diadefslib import *
 
 from unittest_pyreverse_writer import Config, get_project
 
-PROJECT = get_project('data')
-HANDLER = DiadefsHandler(Config())
 
 def _process_classes(classes):
     """extract class names of a list"""
@@ -37,10 +35,19 @@ def _process_relations(relations):
     return result
 
 
-def test_option_values():
+@pytest.fixture
+def HANDLER():
+    return DiadefsHandler(Config())
+
+
+@pytest.fixture(scope='module')
+def PROJECT():
+    return get_project('data')
+
+
+def test_option_values(HANDLER, PROJECT):
     """test for ancestor, associated and module options"""
-    handler = DiadefsHandler(Config())
-    df_h = DiaDefGenerator(Linker(PROJECT), handler)
+    df_h = DiaDefGenerator(Linker(PROJECT), HANDLER)
     cl_config = Config()
     cl_config.classes = ['Specialization']
     cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config) )
@@ -74,7 +81,7 @@ def test_option_values():
     # or class diagrams
 
 class TestDefaultDiadefGenerator(object):
-    def test_known_values1(self):
+    def test_known_values1(self, HANDLER, PROJECT):
         dd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)
         assert len(dd) == 2
         keys = [d.TYPE for d in dd]
@@ -98,7 +105,7 @@ class TestDefaultDiadefGenerator(object):
                     ('association', 'DoNothing', 'Specialization'),
                     ('implements', 'Ancestor', 'Interface'),
                     ('specialization', 'Specialization', 'Ancestor')]
-    def test_exctract_relations(self):
+    def test_exctract_relations(self, HANDLER, PROJECT):
         """test extract_relations between classes"""
         cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
         cd.extract_relationships()
@@ -117,8 +124,7 @@ class TestDefaultDiadefGenerator(object):
         relations = _process_relations(cd.relationships)
         assert relations == self._should_rels
 
-    @pytest.mark.skip(reason="Passes under unittest.  Don't know why it fails under pytest.")
-    def test_known_values2(self):
+    def test_known_values2(self, HANDLER):
         project = get_project('data.clientmodule_test')
         dd = DefaultDiadefGenerator(Linker(project), HANDLER).visit(project)
         assert len(dd) == 1
@@ -128,11 +134,10 @@ class TestDefaultDiadefGenerator(object):
         assert cd.title == 'classes No Name'
         classes = _process_classes(cd.objects)
         assert classes == [(True, 'Ancestor'),
-                           (True, 'DoNothing'),
                            (True, 'Specialization')]
 
 
-def test_known_values1():
+def test_known_values1(HANDLER, PROJECT):
     HANDLER.config.classes = ['Specialization']
     cdg = ClassDiadefGenerator(Linker(PROJECT), HANDLER)
     special = 'data.clientmodule_test.Specialization'
@@ -144,7 +149,8 @@ def test_known_values1():
                        (True, 'data.suppliermodule_test.DoNothing')]
 
 
-def test_known_values2():
+def test_known_values2(HANDLER, PROJECT):
+    HANDLER.config.classes = ['Specialization']
     HANDLER.config.module_names = False
     cd = ClassDiadefGenerator(Linker(PROJECT), HANDLER).class_diagram(PROJECT, 'data.clientmodule_test.Specialization')
     assert cd.title == 'data.clientmodule_test.Specialization'

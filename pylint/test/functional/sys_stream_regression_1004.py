@@ -2,6 +2,6 @@
 # pylint: disable=missing-docstring, pointless-statement
 
 import sys
-sys.stdout.buffer.write('test')
-sys.stdout.buff # [no-member]
-sys.stdout.buffer.write1 # [no-member]
+sys.__stdout__.buffer.write('test')
+sys.__stdout__.buff # [no-member]
+sys.__stdout__.buffer.write1 # [no-member]

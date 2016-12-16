@@ -160,7 +160,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.walk(node)
 
 
-class MissingSubmoduleTest(CheckerTestCase):
+class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
     def test_package_all(self):

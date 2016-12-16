@@ -13,7 +13,6 @@ import os
 import re
 import sys
 import platform
-import unittest
 
 import six
 from six.moves import configparser
@@ -220,11 +219,10 @@ def multiset_difference(left_op, right_op):
     return missing, unexpected
 
 
-class LintModuleTest(unittest.TestCase):
+class LintModuleTest(object):
     maxDiff = None
 
     def __init__(self, test_file):
-        super(LintModuleTest, self).__init__('_runTest')
         test_reporter = FunctionalTestReporter()
         self._linter = lint.PyLinter()
         self._linter.set_reporter(test_reporter)
@@ -314,7 +312,7 @@ class LintModuleTest(unittest.TestCase):
             if unexpected:
                 msg.append('\nUnexpected in testdata:')
                 msg.extend(' %3d: %s' % msg for msg in sorted(unexpected))
-            self.fail('\n'.join(msg))
+            pytest.fail('\n'.join(msg))
         self._check_output_text(expected_messages, expected_text, received_text)
 
     def _split_lines(self, expected_messages, lines):
@@ -362,7 +360,15 @@ def get_tests():
     return suite
 
 
+# @pytest.fixture
+# def wrap_stdout(request, capsys):
+#     if request.getfixturevalue('test_file').base == 'sys_stream_regression_1004':
+#         with capsys.disabled():
+#             yield
+
+
 @pytest.mark.parametrize("test_file", get_tests())
+# @pytest.mark.usefixtures('wrap_stdout')
 def test_functional(test_file):
     LintTest = LintModuleOutputUpdate(test_file) if UPDATE else LintModuleTest(test_file)
     LintTest.setUp()
