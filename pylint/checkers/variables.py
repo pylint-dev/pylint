@@ -309,6 +309,28 @@ MSGS = {
 
     }
 
+
+def _search_nodes(node, name, found):
+    return_node = None
+    max_depth = 0
+    for n in found:
+        if isinstance(n, astroid.Import) and name in n.names[0][0]:
+            if isinstance(node.parent, astroid.node_classes.Attribute):
+                new_name = '%s.%s' % (name, node.parent.attrname)
+                temp_node, depth = _search_nodes(node.parent, new_name, found)
+                if depth == 0:
+                    temp_node = n
+                depth += 1
+                if depth > max_depth:
+                    max_depth = depth
+                    return_node = temp_node
+            else:
+                if max_depth == 0:
+                    max_depth = 1
+                    return_node = n
+    return return_node, max_depth
+
+
 class VariablesChecker(BaseChecker):
     """checks for
     * unused variables / imports
@@ -866,6 +888,16 @@ class VariablesChecker(BaseChecker):
         return in_annotation_or_default
 
     @staticmethod
+    def _next_to_consume_import(node, name, to_consume):
+        # mark the name as consumed if it's defined in this scope
+        found_node = to_consume.get(name)
+        if found_node is None:
+            return None
+        if len(found_node) == 1:
+            return found_node[0]
+        return _search_nodes(node, name, found_node)[0]
+
+    @staticmethod
     def _next_to_consume(node, name, to_consume):
         # mark the name as consumed if it's defined in this scope
         found_node = to_consume.get(name)
@@ -1007,16 +1039,31 @@ class VariablesChecker(BaseChecker):
 
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
-            if name in consumed:
-                defnode = utils.assign_parent(consumed[name][0])
-                self._check_late_binding_closure(node, defnode)
-                self._loopvar_name(node, name)
-                break
-            found_node = self._next_to_consume(node, name, to_consume)
-            if found_node:
-                consumed[name] = found_node
+            found_node = None
+            if name in to_consume and isinstance(to_consume[name][0],
+                                                 astroid.node_classes.Import):
+                found_node = self._next_to_consume_import(node, name, to_consume)
+                if found_node:
+                    if name not in consumed:
+                        consumed[name] = [n for n in to_consume[name] if not
+                                          isinstance(n, astroid.node_classes.Import)]
+                    consumed[name].append(found_node)
+                else:
+                    if name in consumed:
+                        break
+                    else:
+                        continue
             else:
-                continue
+                if name in consumed:
+                    defnode = utils.assign_parent(consumed[name][0])
+                    self._check_late_binding_closure(node, defnode)
+                    self._loopvar_name(node, name)
+                    break
+                found_node = self._next_to_consume(node, name, to_consume)
+                if found_node:
+                    consumed[name] = found_node
+                else:
+                    continue
             # checks for use before assignment
             defnode = utils.assign_parent(to_consume[name][0])
             if defnode is not None:
@@ -1076,7 +1123,18 @@ class VariablesChecker(BaseChecker):
                             self.add_message('undefined-variable',
                                              node=node, args=name)
 
-            del to_consume[name]
+            if isinstance(found_node, list):
+                del to_consume[name]
+            else:
+                if len(to_consume[name]) == 1:
+                    del to_consume[name]
+                else:
+                    remainder = [n for n in to_consume[name] if
+                                 self.filter_nodes(found_node, n, name)]
+                    if remainder:
+                        to_consume[name] = remainder
+                    else:
+                        del to_consume[name]
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
             break
@@ -1208,6 +1266,31 @@ class VariablesChecker(BaseChecker):
         if isinstance(module, astroid.Module):
             return module
         return None
+
+    @staticmethod
+    def filter_nodes(base_node, node, name):
+        if not isinstance(node, astroid.node_classes.Import):
+            return False
+        if node == base_node:
+            return False
+
+        full_name = ""
+        for _name, as_name in base_node.names:
+            if as_name is None:
+                as_name = _name
+            if as_name:
+                if name in as_name:
+                    full_name = as_name
+                    break
+
+        for _name, as_name in node.names:
+            if as_name is None:
+                as_name = _name
+            if as_name:
+                if full_name == as_name:
+                    return False
+
+        return True
 
 
 class VariablesChecker3k(VariablesChecker):
