@@ -440,6 +440,20 @@ New checkers
           def _remove_characters(text, deletechars):
               return text.translate(None, deletechars)
 
+* A new refactoring check was added, ``consider-using-ternary``, which is
+  emitted when pylint encounters constructs which were used to emulate
+  ternary statement before it was introduced in Python 2.5.
+  .. code-block:: python
+
+    value = condition and truth_value or false_value
+
+
+  Warning can be fixed by using standard ternary construct:
+
+  .. code-block:: python
+
+    value = truth_value if condition else false_value
+
 
 Other Changes
 =============

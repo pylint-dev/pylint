@@ -233,6 +233,10 @@ Release date: tba
 
       Closes #1177
 
+    * Added refactoring message 'consider-using-ternary'.
+
+      Closes #1204
+
 
 What's new in Pylint 1.6.3?
 ===========================

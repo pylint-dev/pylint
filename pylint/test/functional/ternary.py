@@ -7,17 +7,17 @@ SOME_VALUE3 = (false_value, true_value)[condition]  # [consider-using-ternary]
 
 
 def func1():
-    """Tenrary return value correct"""
+    """Ternary return value correct"""
     return true_value if condition else false_value
 
 
 def func2():
-    """Tenrary return value incorrect"""
+    """Ternary return value incorrect"""
     return condition and true_value or false_value  # [consider-using-ternary]
 
 
 def func3():
-    """Tenrary return value incorrect"""
+    """Ternary return value incorrect"""
     return (false_value, true_value)[condition]  # [consider-using-ternary]
 
 

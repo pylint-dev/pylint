@@ -64,7 +64,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         'R1701': ("Consider merging these isinstance calls to isinstance(%s, (%s))",
                   "consider-merging-isinstance",
                   "Used when multiple consecutive isinstance calls can be merged into one."),
-        'R1706': ("Consider using ternary %s if %s else %s",
+        'R1706': ("Consider using ternary (%s if %s else %s)",
                   "consider-using-ternary",
                   "Used when one of known pre-python 2.5 ternary syntax is used."),
         'R1702': ('Too many nested blocks (%s/%s)',
