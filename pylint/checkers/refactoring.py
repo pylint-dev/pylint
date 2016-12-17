@@ -387,9 +387,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _is_and_or_ternary(node):
-        """Returns true if node is 'condition and true_value else false_value' form.
-        All of: condition, true_value and false_value should not be a complex boolean expression"""
-        return (isinstance(node, astroid.BoolOp) and node.op == 'or' and len(node.values) == 2
+        """
+        Returns true if node is 'condition and true_value else false_value' form.
+
+        All of: condition, true_value and false_value should not be a complex boolean expression
+        """
+        return (isinstance(node, astroid.BoolOp)
+                and node.op == 'or' and len(node.values) == 2
                 and isinstance(node.values[0], astroid.BoolOp)
                 and not isinstance(node.values[1], astroid.BoolOp)
                 and node.values[0].op == 'and'
