@@ -206,9 +206,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def process_tokens(self, tokens):
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
-            if token.string == 'elif':
+            token_string = token[1]
+            if token_string == 'elif':
                 self._elifs.append(True)
-            elif token.string == 'if':
+            elif token_string == 'if':
                 self._elifs.append(False)
             elif six.PY3 and token.exact_type == tokenize.COMMA:
                 self._check_one_element_trailing_comma_tuple(tokens, token, index)
