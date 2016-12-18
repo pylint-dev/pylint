@@ -10,6 +10,7 @@
 
 import collections
 import itertools
+import tokenize
 
 import astroid
 from astroid import decorators
@@ -93,6 +94,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'following a chain of ifs, all of them containing a '
                   'return statement.'
                  ),
+        'R1707': ('Disallow trailing comma tuple',
+                  'trailing-comma-tuple',
+                  'In Python, a tuple is actually created by the comma symbol, '
+                  'not by the parentheses. Unfortunately, one can actually create a '
+                  'tuple by misplacing a trailing comma, which can lead to potential '
+                  'weird bugs in your code. You should always use parentheses '
+                  'explicitly for creating a tuple.',
+                  {'minversion': (3, 0)}),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -196,11 +205,32 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def process_tokens(self, tokens):
         # Process tokens and look for 'if' or 'elif'
-        for _, token, _, _, _ in tokens:
-            if token == 'elif':
+        for index, token in enumerate(tokens):
+            if token.string == 'elif':
                 self._elifs.append(True)
-            elif token == 'if':
+            elif token.string == 'if':
                 self._elifs.append(False)
+            elif six.PY3 and token.exact_type == tokenize.COMMA:
+                self._check_one_element_trailing_comma_tuple(tokens, token, index)
+
+    def _check_one_element_trailing_comma_tuple(self, tokens, token, index):
+        left_tokens = itertools.islice(tokens, index + 1, None)
+        same_line_tokens = (
+            other_token for other_token in left_tokens
+            if other_token.start[0] == token.start[0]
+        )
+        is_last_element = all(
+            token.type in (tokenize.NEWLINE, tokenize.COMMENT)
+            for token in same_line_tokens
+        )
+        if not is_last_element:
+            return
+
+        assign_token = tokens[index-2:index-1]
+        if assign_token and assign_token[0].string == '=':
+            if self.linter.is_message_enabled('trailing-comma-tuple'):
+                self.add_message('trailing-comma-tuple',
+                                 line=token.start[0])
 
     def leave_module(self, _):
         self._init()

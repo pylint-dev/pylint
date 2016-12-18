@@ -7,6 +7,13 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * 'trailing-comma-tuple' check was added
+
+      This message is emitted when pylint finds an one-element tuple,
+      created by a stray comma. This can suggest a potential problem in the
+      code and it is recommended to use parantheses in order to emphasise the
+      creation of a tuple, rather than relying on the comma itself.
+
     * Don't emit not-callable for instances with unknown bases.
 
       Close #1213

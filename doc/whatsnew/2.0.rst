@@ -455,6 +455,25 @@ New checkers
     value = truth_value if condition else false_value
 
 
+* A new refactoring check was added, 'trailing-comma-tuple', which is emitted
+  when pylint finds an one-element tuple, created by a stray comma. This can
+  suggest a potential problem in the code and it is recommended to use parantheses
+  in order to emphasise the creation of a tuple, rather than relying on the comma
+  itself.
+
+  The warning is emitted for such a construct:
+
+  .. code-block:: python
+
+     a = 1,
+
+  The warning can be fixed by adding parantheses:
+
+  .. code-block:: python
+
+     a = (1, )
+
+
 Other Changes
 =============
 
