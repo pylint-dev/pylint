@@ -237,8 +237,8 @@ class MessagesHandlerMixIn(object):
         assert scope in ('package', 'module')
 
         if msgid == 'all':
-            for msgid_ in MSG_TYPES:
-                self._set_msg_status(msgid_, enable, scope, line, ignore_unknown)
+            for _msgid in MSG_TYPES:
+                self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
             if enable and not self._python3_porting_mode:
                 # Don't activate the python 3 porting checker if it wasn't activated explicitly.
                 self.disable('python3')
@@ -247,17 +247,17 @@ class MessagesHandlerMixIn(object):
         # msgid is a category?
         catid = category_id(msgid)
         if catid is not None:
-            for message_id in self.msgs_store._msgs_by_category.get(catid):
-                self._set_msg_status(message_id, enable, scope, line)
+            for _msgid in self.msgs_store._msgs_by_category.get(catid):
+                self._set_msg_status(_msgid, enable, scope, line)
             return
 
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
             msgs_store = self.msgs_store
             for checker in self._checkers[msgid.lower()]:
-                for msgid_ in checker.msgs:
-                    if msgid_ in msgs_store._alternative_names:
-                        self._set_msg_status(msgid_, enable, scope, line)
+                for _msgid in checker.msgs:
+                    if _msgid in msgs_store._alternative_names:
+                        self._set_msg_status(_msgid, enable, scope, line)
             return
 
         # msgid is report id?
