@@ -175,8 +175,9 @@ class TestRunTC(object):
         else:
             strio = six.StringIO()
         assert strio.encoding is None
-        self._runtest([join(HERE, 'regrtest_data/no_stdout_encoding.py')],
-                      out=strio)
+        self._runtest([join(HERE, 'regrtest_data/no_stdout_encoding.py'),
+                       '--enable=all'],
+                      out=strio, code=28)
 
     def test_parallel_execution(self):
         self._runtest(['-j 2', 'pylint/test/functional/arguments.py',
@@ -204,7 +205,6 @@ class TestRunTC(object):
         # Test what gets emitted with -E only
         module = join(HERE, 'regrtest_data', 'py3k_error_flag.py')
         expected = textwrap.dedent("""
-        No config file found, using default configuration
         ************* Module py3k_error_flag
         Explicit return in __init__
         """)
@@ -213,7 +213,6 @@ class TestRunTC(object):
 
         # Test what gets emitted with -E --py3k
         expected = textwrap.dedent("""
-        No config file found, using default configuration
         ************* Module py3k_error_flag
         Use raise ErrorClass(args) instead of raise ErrorClass, args.
         """)
@@ -231,7 +230,6 @@ class TestRunTC(object):
     def test_enable_all_works(self):
         module = join(HERE, 'data', 'clientmodule_test.py')
         expected = textwrap.dedent("""
-        No config file found, using default configuration
         ************* Module data.clientmodule_test
         W: 10, 8: Unused variable 'local_variable' (unused-variable)
         C: 18, 4: Missing method docstring (missing-docstring)
@@ -242,7 +240,6 @@ class TestRunTC(object):
 
     def test_wrong_import_position_when_others_disabled(self):
         expected_output = textwrap.dedent('''
-        No config file found, using default configuration
         ************* Module wrong_import_position
         C: 11, 0: Import "import os" should be placed at the top of the module (wrong-import-position)
         ''')
@@ -253,11 +250,18 @@ class TestRunTC(object):
                 "-rn", "-sn"]
         out = six.StringIO()
         self._run_pylint(args, out=out)
-        actual_output = out.getvalue()
+        actual_output = out.getvalue().strip()
+
+        to_remove = "No config file found, using default configuration"
+        if to_remove in actual_output:
+            actual_output = actual_output[len(to_remove):]
         assert expected_output.strip() == actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self):
-        expected = 'No config file found, using default configuration'
+        expected = textwrap.dedent('''
+        ------------------------------------
+        Your code has been rated at 10.00/10
+        ''')
         package = join(HERE, 'regrtest_data', 'dummy')
         self._test_output([package, '--disable=locally-disabled', '-rn'],
                           expected_output=expected)
@@ -313,13 +317,12 @@ class TestRunTC(object):
         assert message['message'].startswith("No module named")
 
     def test_information_category_disabled_by_default(self):
-        expected = 'No config file found, using default configuration'
+        expected = 'Your code has been rated at 10.00/10'
         path = join(HERE, 'regrtest_data', 'meta.py')
         self._test_output([path], expected_output=expected)
 
     def test_error_mode_shows_no_score(self):
         expected_output = textwrap.dedent('''
-        No config file found, using default configuration
         ************* Module application_crash
         E:  1, 6: Undefined variable 'something_undefined' (undefined-variable)
         ''')
@@ -327,12 +330,12 @@ class TestRunTC(object):
         self._test_output([module, "-E"], expected_output=expected_output)
 
     def test_evaluation_score_shown_by_default(self):
-        expected_output = 'Your code has been rated at -60.00/10'
+        expected_output = 'Your code has been rated at '
         module = join(HERE, 'regrtest_data', 'application_crash.py')
         self._test_output([module], expected_output=expected_output)
 
     def test_confidence_levels(self):
-        expected = 'No config file found, using default configuration'
+        expected = 'Your code has been rated at'
         path = join(HERE, 'regrtest_data', 'meta.py')
         self._test_output([path, "--confidence=HIGH,INFERENCE"],
                           expected_output=expected)
