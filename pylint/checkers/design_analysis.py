@@ -222,11 +222,12 @@ class MisdesignChecker(BaseChecker):
         args = node.args.args
         ignored_argument_names = self._ignored_argument_names
         if args is not None:
-            ignored_args_num = len(
-                [arg for arg in args
-                 if ignored_argument_names and ignored_argument_names.match(arg.name)])
+            ignored_args_num = 0
+            if ignored_argument_names:
+                ignored_args_num = sum(1 for arg in args if ignored_argument_names.match(arg.name))
+
             argnum = len(args) - ignored_args_num
-            if  argnum > self.config.max_args:
+            if argnum > self.config.max_args:
                 self.add_message('too-many-arguments', node=node,
                                  args=(len(args), self.config.max_args))
         else:
