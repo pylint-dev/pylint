@@ -258,10 +258,7 @@ class TestRunTC(object):
         assert expected_output.strip() == actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self):
-        expected = textwrap.dedent('''
-        ------------------------------------
-        Your code has been rated at 10.00/10
-        ''')
+        expected = 'Your code has been rated at 10.00/10'
         package = join(HERE, 'regrtest_data', 'dummy')
         self._test_output([package, '--disable=locally-disabled', '-rn'],
                           expected_output=expected)
