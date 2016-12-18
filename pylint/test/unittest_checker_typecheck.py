@@ -6,8 +6,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unittest for the type checker."""
-import unittest
 import sys
+
+import pytest
 
 import astroid
 
@@ -15,7 +16,7 @@ from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
-class TypeCheckerTest(CheckerTestCase):
+class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
@@ -142,7 +143,7 @@ class TypeCheckerTest(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
-    @unittest.skipUnless(sys.version_info[0] >= 3, 'Needs Python 3.')
+    @pytest.mark.skipif(sys.version_info[0] < 3, reason='Needs Python 3.')
     def test_invalid_metaclass_function_metaclasses(self):
         module = astroid.parse('''
         def invalid_metaclass_1(name, bases, attrs):
@@ -159,8 +160,3 @@ class TypeCheckerTest(CheckerTestCase):
             message = Message('invalid-metaclass', node=classdef, args=(metaclass_name, ))
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
-
-
-
-if __name__ == '__main__':
-    unittest.main()

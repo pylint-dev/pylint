@@ -8,58 +8,63 @@
 
 """functional/non regression tests for pylint"""
 
-import unittest
 import sys
 import re
 
-from os import getcwd
+import pytest
 from os.path import abspath, dirname, join
 
-from pylint.testutils import (make_tests, LintTestUsingModule, LintTestUsingFile,
-    LintTestUpdate, cb_test_gen, linter, test_reporter)
+from pylint.testutils import get_tests_info, LintTestUsingModule, LintTestUpdate
 
 PY3K = sys.version_info >= (3, 0)
+SYS_VERS_STR = '%d%d%d' % sys.version_info[:3]
 
 # Configure paths
 INPUT_DIR = join(dirname(abspath(__file__)), 'input')
 MSG_DIR = join(dirname(abspath(__file__)), 'messages')
 
+FILTER_RGX = None
+UPDATE = False
+
 # Classes
 
 quote = "'" if sys.version_info >= (3, 3) else ''
 
-def gen_tests(filter_rgx):
-    if UPDATE:
-        callbacks = [cb_test_gen(LintTestUpdate)]
-    else:
-        callbacks = [cb_test_gen(LintTestUsingModule)]
-    tests = make_tests(INPUT_DIR, MSG_DIR, filter_rgx, callbacks)
-    if UPDATE:
-        return tests
 
+def gen_tests(filter_rgx):
     if filter_rgx:
         is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = lambda x: 1
+    tests = []
+    for module_file, messages_file in (
+            get_tests_info(INPUT_DIR, MSG_DIR, 'func_', '')
+    ):
+        if not is_to_run(module_file) or module_file.endswith(('.pyc', "$py.class")):
+            continue
+        base = module_file.replace('func_', '').replace('.py', '')
+        dependencies = get_tests_info(INPUT_DIR, MSG_DIR, base, '.py')
+        tests.append((module_file, messages_file, dependencies))
+
+    if UPDATE:
+        return tests
 
     assert len(tests) < 196, "Please do not add new test cases here."
     return tests
 
-# Create suite
 
-FILTER_RGX = None
-UPDATE = False
+@pytest.mark.parametrize("module_file,messages_file,dependencies", gen_tests(FILTER_RGX))
+def test_functionality(module_file, messages_file, dependencies):
 
-def suite():
-    return unittest.TestSuite([unittest.makeSuite(test, suiteClass=unittest.TestSuite)
-                              for test in gen_tests(FILTER_RGX)])
+    LT = LintTestUpdate() if UPDATE else LintTestUsingModule()
 
+    LT.module = module_file.replace('.py', '')
+    LT.output = messages_file
+    LT.depends = dependencies or None
+    LT.INPUT_DIR = INPUT_DIR
+    LT._test_functionality()
 
-def load_tests(loader, tests, pattern):
-    return suite()
-
-
-if __name__=='__main__':
+if __name__ == '__main__':
     if '-u' in sys.argv:
         UPDATE = True
         sys.argv.remove('-u')
@@ -67,4 +72,4 @@ if __name__=='__main__':
     if len(sys.argv) > 1:
         FILTER_RGX = sys.argv[1]
         del sys.argv[1]
-    unittest.main(defaultTest='suite')
+    pytest.main(sys.argv)

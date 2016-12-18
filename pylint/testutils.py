@@ -17,7 +17,6 @@ from os import linesep, getcwd, sep
 from os.path import abspath, basename, dirname, isdir, join, splitext
 import sys
 import re
-import unittest
 import tempfile
 import tokenize
 
@@ -131,6 +130,17 @@ class TestReporter(BaseReporter):
     _display = None
 
 
+class MinimalTestReporter(BaseReporter):
+
+    def handle_message(self, msg):
+        self.messages.append(msg)
+
+    def on_set_current_module(self, module, filepath):
+        self.messages = []
+
+    _display = None
+
+
 class Message(collections.namedtuple('Message',
                                      ['msg_id', 'line', 'node', 'args', 'confidence'])):
     def __new__(cls, msg_id, line=None, node=None, args=None, confidence=None):
@@ -191,12 +201,12 @@ def set_config(**kwargs):
     return _wrapper
 
 
-class CheckerTestCase(unittest.TestCase):
-    """A base testcase class for unittesting individual checker classes."""
+class CheckerTestCase(object):
+    """A base testcase class for unit testing individual checker classes."""
     CHECKER_CLASS = None
     CONFIG = {}
 
-    def setUp(self):
+    def setup_method(self):
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter) # pylint: disable=not-callable
         for key, value in six.iteritems(self.CONFIG):
@@ -222,7 +232,7 @@ class CheckerTestCase(unittest.TestCase):
         msg = ('Expected messages did not match actual.\n'
                'Expected:\n%s\nGot:\n%s' % ('\n'.join(repr(m) for m in messages),
                                             '\n'.join(repr(m) for m in got)))
-        self.assertEqual(list(messages), got, msg)
+        assert list(messages) == got, msg
 
     def walk(self, node):
         """recursive walk on the given node"""
@@ -254,7 +264,7 @@ def exception_str(self, ex): # pylint: disable=unused-argument
 
 # Test classes
 
-class LintTestUsingModule(unittest.TestCase):
+class LintTestUsingModule(object):
     INPUT_DIR = None
     DEFAULT_PACKAGE = 'input'
     package = DEFAULT_PACKAGE
@@ -263,21 +273,12 @@ class LintTestUsingModule(unittest.TestCase):
     depends = None
     output = None
     _TEST_TYPE = 'module'
-    maxDiff = None
 
-    def shortDescription(self):
-        values = {'mode' : self._TEST_TYPE,
-                  'input': self.module,
-                  'pkg':   self.package,
-                  'cls':   self.__class__.__name__}
+    # def runTest(self):
+    #     # This is a hack to make ./test/test_func.py work under pytest.
+    #     pass
 
-        if self.package == self.DEFAULT_PACKAGE:
-            msg = '%(mode)s test of input file "%(input)s" (%(cls)s)'
-        else:
-            msg = '%(mode)s test of input file "%(input)s" in "%(pkg)s" (%(cls)s)'
-        return msg % values
-
-    def test_functionality(self):
+    def _test_functionality(self):
         tocheck = [self.package+'.'+self.module]
         # pylint: disable=not-an-iterable; can't handle boolean checks for now
         if self.depends:
@@ -286,8 +287,7 @@ class LintTestUsingModule(unittest.TestCase):
         self._test(tocheck)
 
     def _check_result(self, got):
-        self.assertMultiLineEqual(self._get_expected().strip()+'\n',
-                                  got.strip()+'\n')
+        assert self._get_expected().strip()+'\n' == got.strip()+'\n'
 
     def _test(self, tocheck):
         if INFO_TEST_RGX.match(self.module):
@@ -319,7 +319,7 @@ class LintTestUsingFile(LintTestUsingModule):
 
     _TEST_TYPE = 'file'
 
-    def test_functionality(self):
+    def _test_functionality(self):
         importable = join(self.INPUT_DIR, self.module)
         # python also prefers packages over simple modules.
         if not isdir(importable):
@@ -344,50 +344,10 @@ class LintTestUpdate(LintTestUsingModule):
                 with open(self.output, 'w') as fobj:
                     fobj.write(got)
 
-# Callback
-
-def cb_test_gen(base_class):
-    def call(input_dir, msg_dir, module_file, messages_file, dependencies):
-        # pylint: disable=no-init
-        class LintTC(base_class):
-            module = module_file.replace('.py', '')
-            output = messages_file
-            depends = dependencies or None
-            INPUT_DIR = input_dir
-            MSG_DIR = msg_dir
-        return LintTC
-    return call
-
-# Main function
-
-def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
-    """generate tests classes from test info
-
-    return the list of generated test classes
-    """
-    if filter_rgx:
-        is_to_run = re.compile(filter_rgx).search
-    else:
-        is_to_run = lambda x: 1
-    tests = []
-    for module_file, messages_file in (
-            get_tests_info(input_dir, msg_dir, 'func_', '')
-    ):
-        if not is_to_run(module_file) or module_file.endswith(('.pyc', "$py.class")):
-            continue
-        base = module_file.replace('func_', '').replace('.py', '')
-
-        dependencies = get_tests_info(input_dir, msg_dir, base, '.py')
-
-        for callback in callbacks:
-            test = callback(input_dir, msg_dir, module_file, messages_file,
-                            dependencies)
-            if test:
-                tests.append(test)
-    return tests
 
 def tokenize_str(code):
     return list(tokenize.generate_tokens(StringIO(code).readline))
+
 
 @contextlib.contextmanager
 def create_tempfile(content=None):

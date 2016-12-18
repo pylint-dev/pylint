@@ -11,8 +11,9 @@ in particular the parameter documentation checker `DocstringChecker`
 """
 from __future__ import division, print_function, absolute_import
 
-import unittest
 import sys
+
+import pytest
 
 import astroid
 from pylint.testutils import CheckerTestCase, Message, set_config
@@ -20,7 +21,7 @@ from pylint.testutils import CheckerTestCase, Message, set_config
 from pylint.extensions.docparams import DocstringParameterChecker
 
 
-class ParamDocCheckerTest(CheckerTestCase):
+class TestParamDocChecker(CheckerTestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
     CHECKER_CLASS = DocstringParameterChecker
 
@@ -957,7 +958,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         ):
             self._visit_methods_of_class(node)
 
-    @unittest.skipIf(sys.version_info[0] != 3, "Enabled on Python 3")
+    @pytest.mark.skipif(sys.version_info[0] != 3, reason="Enabled on Python 3")
     def test_kwonlyargs_are_taken_in_account(self):
         node = astroid.extract_node('''
         def my_func(arg, *, kwonly, missing_kwonly):
@@ -1225,7 +1226,3 @@ class ParamDocCheckerTest(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
-
-
-if __name__ == '__main__':
-    unittest.main()

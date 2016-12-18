@@ -13,15 +13,14 @@ import os
 from os.path import join, dirname, abspath
 import tempfile
 import textwrap
-import unittest
 
 import six
 
 from pylint.lint import Run
-from pylint import __pkginfo__
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.json import JSONReporter
+import pytest
 
 HERE = abspath(dirname(__file__))
 
@@ -68,7 +67,7 @@ class MultiReporter(BaseReporter):
             rep.linter = value
 
 
-class RunTC(unittest.TestCase):
+class TestRunTC(object):
 
     def _runtest(self, args, reporter=None, out=None, code=28):
         if out is None:
@@ -83,22 +82,22 @@ class RunTC(unittest.TestCase):
         msg = 'expected output status %s, got %s' % (code, pylint_code)
         if output is not None:
             msg = '%s. Below pylint output: \n%s' % (msg, output)
-        self.assertEqual(pylint_code, code, msg)
+        assert pylint_code == code, msg
 
     def _run_pylint(self, args, out, reporter=None):
         args = args + ['--persistent=no']
         with _patch_streams(out):
-            with self.assertRaises(SystemExit) as cm:
+            with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     Run(args, reporter=reporter)
-            return cm.exception.code
+            return cm.value.code
 
     def _test_output(self, args, expected_output):
         out = six.StringIO()
         self._run_pylint(args, out=out)
         actual_output = out.getvalue()
-        self.assertIn(expected_output.strip(), actual_output.strip())
+        assert expected_output.strip() in actual_output.strip()
 
     def test_pkginfo(self):
         """Make pylint check itself."""
@@ -131,7 +130,7 @@ class RunTC(unittest.TestCase):
         self._runtest(['--generate-rcfile'], code=0, out=out2)
         output1 = out1.getvalue()
         output2 = out2.getvalue()
-        self.assertEqual(output1, output2)
+        assert output1 == output2
 
     def test_generate_config_disable_symbolic_names(self):
         # Test that --generate-rcfile puts symbolic names in the --disable
@@ -148,13 +147,13 @@ class RunTC(unittest.TestCase):
         parser = six.moves.configparser.RawConfigParser()
         parser.readfp(out)
         messages = parser.get('MESSAGES CONTROL', 'disable').split(",")
-        self.assertIn('suppressed-message', messages)
+        assert 'suppressed-message' in messages
 
     def test_generate_rcfile_no_obsolete_methods(self):
         out = six.StringIO()
         self._run_pylint(["--generate-rcfile"], out=out)
         output = out.getvalue()
-        self.assertNotIn("profile", output)
+        assert "profile" not in output
 
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
@@ -199,7 +198,7 @@ class RunTC(unittest.TestCase):
                        '--py3k', '-j 2'],
                       code=rc_code)
 
-    @unittest.skipIf(sys.version_info[0] > 2, "Requires the --py3k flag.")
+    @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
     def test_py3k_commutative_with_errors_only(self):
 
         # Test what gets emitted with -E only
@@ -255,7 +254,7 @@ class RunTC(unittest.TestCase):
         out = six.StringIO()
         self._run_pylint(args, out=out)
         actual_output = out.getvalue()
-        self.assertEqual(expected_output.strip(), actual_output.strip())
+        assert expected_output.strip() == actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self):
         expected = 'No config file found, using default configuration'
@@ -274,9 +273,9 @@ class RunTC(unittest.TestCase):
         module = join(HERE, 'regrtest_data', 'syntax_error.py')
         self._runtest([module], code=2, reporter=JSONReporter(out))
         output = json.loads(out.getvalue())
-        self.assertIsInstance(output, list)
-        self.assertEqual(len(output), 1)
-        self.assertIsInstance(output[0], dict)
+        assert isinstance(output, list)
+        assert len(output) == 1
+        assert isinstance(output[0], dict)
         expected = {
             "obj": "",
             "column": 0,
@@ -287,18 +286,18 @@ class RunTC(unittest.TestCase):
         }
         message = output[0]
         for key, value in expected.items():
-            self.assertIn(key, message)
-            self.assertEqual(message[key], value)
-        self.assertIn('invalid syntax', message['message'].lower())
+            assert key in message
+            assert message[key] == value
+        assert 'invalid syntax' in message['message'].lower()
 
     def test_json_report_when_file_is_missing(self):
         out = six.StringIO()
         module = join(HERE, 'regrtest_data', 'totally_missing.py')
         self._runtest([module], code=1, reporter=JSONReporter(out))
         output = json.loads(out.getvalue())
-        self.assertIsInstance(output, list)
-        self.assertEqual(len(output), 1)
-        self.assertIsInstance(output[0], dict)
+        assert isinstance(output, list)
+        assert len(output) == 1
+        assert isinstance(output[0], dict)
         expected = {
             "obj": "",
             "column": 0,
@@ -309,9 +308,9 @@ class RunTC(unittest.TestCase):
         }
         message = output[0]
         for key, value in expected.items():
-            self.assertIn(key, message)
-            self.assertEqual(message[key], value)
-        self.assertTrue(message['message'].startswith("No module named"))
+            assert key in message
+            assert message[key] == value
+        assert message['message'].startswith("No module named")
 
     def test_information_category_disabled_by_default(self):
         expected = 'No config file found, using default configuration'
@@ -380,7 +379,3 @@ class RunTC(unittest.TestCase):
     def test_no_crash_with_formatting_regex_defaults(self):
         self._runtest(["--ignore-patterns=a"], reporter=TextReporter(six.StringIO()),
                       code=32)
-
-
-if __name__ == '__main__':
-    unittest.main()
