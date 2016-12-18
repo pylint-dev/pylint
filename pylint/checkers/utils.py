@@ -486,17 +486,21 @@ def decorated_with_property(node):
         if not isinstance(decorator, astroid.Name):
             continue
         try:
-            for infered in decorator.infer():
-                if isinstance(infered, astroid.ClassDef):
-                    if (infered.root().name == BUILTINS_NAME and
-                            infered.name == 'property'):
-                        return True
-                    for ancestor in infered.ancestors():
-                        if (ancestor.name == 'property' and
-                                ancestor.root().name == BUILTINS_NAME):
-                            return True
+            if _is_property_decorator(decorator):
+                return True
         except astroid.InferenceError:
             pass
+    return False
+
+
+def _is_property_decorator(decorator):
+    for infered in decorator.infer():
+        if isinstance(infered, astroid.ClassDef):
+            if infered.root().name == BUILTINS_NAME and infered.name == 'property':
+                return True
+            for ancestor in infered.ancestors():
+                if ancestor.name == 'property' and ancestor.root().name == BUILTINS_NAME:
+                    return True
 
 
 def decorated_with(func, qnames):
