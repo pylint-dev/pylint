@@ -34,7 +34,7 @@ class DocStringStyleChecker(checkers.BaseChecker):
         self._check_docstring('class', node)
 
     def visit_functiondef(self, node):
-        ftype = node.is_method() and 'method' or 'function'
+        ftype = 'method' if node.is_method() else 'function'
         self._check_docstring(ftype, node)
 
     visit_asyncfunctiondef = visit_functiondef

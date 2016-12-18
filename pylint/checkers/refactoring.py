@@ -63,7 +63,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     msgs = {
         'R1701': ("Consider merging these isinstance calls to isinstance(%s, (%s))",
                   "consider-merging-isinstance",
-                  "Usen when multiple consecutive isinstance calls can be merged into one."),
+                  "Used when multiple consecutive isinstance calls can be merged into one."),
+        'R1706': ("Consider using ternary (%s if %s else %s)",
+                  "consider-using-ternary",
+                  "Used when one of known pre-python 2.5 ternary syntax is used."),
         'R1702': ('Too many nested blocks (%s/%s)',
                   'too-many-nested-blocks',
                   'Used when a function or a method has too many nested '
@@ -368,6 +371,52 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message('consider-merging-isinstance',
                              node=node,
                              args=(duplicated_name, ', '.join(names)))
+
+    @utils.check_messages('consider-using-ternary')
+    def visit_assign(self, node):
+        if self._is_and_or_ternary(node.value):
+            cond, truth_value, false_value = self._get_and_or_ternary_arguments(node.value)
+        elif self._is_seq_based_ternary(node.value):
+            cond, truth_value, false_value = self._get_seq_based_ternary_params(node.value)
+        else:
+            return
+        self.add_message('consider-using-ternary', node=node,
+                         args=(truth_value.as_string(), cond.as_string(), false_value.as_string()),)
+
+    visit_return = visit_assign
+
+    @staticmethod
+    def _is_and_or_ternary(node):
+        """
+        Returns true if node is 'condition and true_value else false_value' form.
+
+        All of: condition, true_value and false_value should not be a complex boolean expression
+        """
+        return (isinstance(node, astroid.BoolOp)
+                and node.op == 'or' and len(node.values) == 2
+                and isinstance(node.values[0], astroid.BoolOp)
+                and not isinstance(node.values[1], astroid.BoolOp)
+                and node.values[0].op == 'and'
+                and not isinstance(node.values[0].values[1], astroid.BoolOp))
+
+    @staticmethod
+    def _get_and_or_ternary_arguments(node):
+        false_value = node.values[1]
+        condition, true_value = node.values[0].values
+        return condition, true_value, false_value
+
+    @staticmethod
+    def _is_seq_based_ternary(node):
+        """Returns true if node is '[false_value,true_value][condition]' form"""
+        return (isinstance(node, astroid.Subscript)
+                and isinstance(node.value, (astroid.Tuple, astroid.List))
+                and len(node.value.elts) == 2 and isinstance(node.slice, astroid.Index))
+
+    @staticmethod
+    def _get_seq_based_ternary_params(node):
+        false_value, true_value = node.value.elts
+        condition = node.slice.value
+        return condition, true_value, false_value
 
 
 class RecommandationChecker(checkers.BaseChecker):

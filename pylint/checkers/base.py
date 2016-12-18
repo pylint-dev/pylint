@@ -1354,7 +1354,7 @@ class DocStringChecker(_BasicChecker):
     @utils.check_messages('missing-docstring', 'empty-docstring')
     def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
-            ftype = node.is_method() and 'method' or 'function'
+            ftype = 'method' if node.is_method() else 'function'
             if node.decorators and self._is_setter_or_deleter(node):
                 return
 

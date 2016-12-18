@@ -1151,7 +1151,7 @@ def _format_option_value(optdict, value):
         # compiled regexp
         value = value.pattern
     elif optdict.get('type') == 'yn':
-        value = value and 'yes' or 'no'
+        value = 'yes' if value else 'no'
     elif isinstance(value, six.string_types) and value.isspace():
         value = "'%s'" % value
     return value
