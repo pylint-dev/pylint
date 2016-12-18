@@ -941,6 +941,15 @@ class VariablesChecker(BaseChecker):
             maybee0601 = True
         else:
             maybee0601 = maybee0601 and stmt.fromlineno <= defstmt.fromlineno
+            if maybee0601 and stmt.fromlineno == defstmt.fromlineno:
+                if (isinstance(defframe, astroid.FunctionDef)
+                        and frame is defframe
+                        and defframe.parent_of(node)
+                        and stmt is not defstmt):
+                    # Single statement function, with the statement on the
+                    # same line as the function definition
+                    maybee0601 = False
+
         return maybee0601, annotation_return
 
     def _ignore_class_scope(self, node, name, frame):
@@ -1043,7 +1052,6 @@ class VariablesChecker(BaseChecker):
                         defstmt is stmt
                         and isinstance(node, (astroid.DelName, astroid.AssignName))
                     )
-
                     if (recursive_klass
                             or defined_by_stmt
                             or annotation_return
