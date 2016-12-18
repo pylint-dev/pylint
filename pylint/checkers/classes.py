@@ -124,8 +124,6 @@ def _definition_equivalent_to_call(definition, call):
         no_additional_kwarg_arguments,
     ))
 
-
-
 # Deal with parameters overridding in two methods.
 
 def _positional_parameters(method):
@@ -162,10 +160,12 @@ def _different_parameters(original, overridden):
     original_parameters = _positional_parameters(original)
     overridden_parameters = _positional_parameters(overridden)
 
-    different_positional = _has_different_parameters(original_parameters,
-                                                     overridden_parameters)
-    different_kwonly = _has_different_parameters(original.args.kwonlyargs,
-                                                 overridden.args.kwonlyargs)
+    different_positional = _has_different_parameters(
+        original_parameters,
+        overridden_parameters)
+    different_kwonly = _has_different_parameters(
+        original.args.kwonlyargs,
+        overridden.args.kwonlyargs)
     if original.name in PYMETHODS:
         # Ignore the difference for special methods. If the parameter
         # numbers are different, then that is going to be caught by
@@ -177,12 +177,19 @@ def _different_parameters(original, overridden):
     # Both or none should have extra variadics, otherwise the method
     # loses or gains capabilities that are not reflected into the parent method,
     # leading to potential inconsistencies in the code.
-    different_kwarg = sum(1 for param in (original.args.kwarg, overridden.args.kwarg)
-                          if not param) == 1
-    different_vararg = sum(1 for param in (original.args.vararg, overridden.args.vararg)
-                           if not param) == 1
+    different_kwarg = sum(
+        1 for param in (original.args.kwarg, overridden.args.kwarg)
+        if not param) == 1
+    different_vararg = sum(
+        1 for param in (original.args.vararg, overridden.args.vararg)
+        if not param) == 1
 
-    return different_positional or different_kwarg or different_vararg or different_kwonly
+    return any((
+        different_positional,
+        different_kwarg,
+        different_vararg,
+        different_kwonly
+    ))
 
 
 def _is_invalid_base_class(cls):
@@ -263,6 +270,7 @@ def _is_attribute_property(name, klass):
             return True
     return False
 
+
 def _has_bare_super_call(fundef_node):
     for call in fundef_node.nodes_of_class(astroid.Call):
         func = call.func
@@ -271,6 +279,7 @@ def _has_bare_super_call(fundef_node):
                 not call.args):
             return True
     return False
+
 
 def _safe_infer_call_result(node, caller, context=None):
     """
@@ -293,6 +302,7 @@ def _safe_infer_call_result(node, caller, context=None):
         return  # there is some kind of ambiguity
     except StopIteration:
         return value
+
 
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
