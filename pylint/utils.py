@@ -225,22 +225,13 @@ class MessagesHandlerMixIn(object):
 
     def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """don't output message of the given id"""
-        self._set_msg_status(msgid, False, scope, line, ignore_unknown)
-
-    def _message_symbol(self, msgid):
-        """Get the message symbol of the given message id
-
-        Return the original message id if the message does not
-        exist.
-        """
-        try:
-            return self.msgs_store.check_message_id(msgid).symbol
-        except UnknownMessageError:
-            return msgid
+        self._set_msg_status(msgid, enable=False, scope=scope,
+                             line=line, ignore_unknown=ignore_unknown)
 
     def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """reenable message of the given id"""
-        self._set_msg_status(msgid, True, scope, line, ignore_unknown)
+        self._set_msg_status(msgid, enable=True, scope=scope,
+                             line=line, ignore_unknown=ignore_unknown)
 
     def _set_msg_status(self, msgid, enable, scope='package', line=None, ignore_unknown=False):
         assert scope in ('package', 'module')
@@ -301,6 +292,17 @@ class MessagesHandlerMixIn(object):
                                   in sorted(six.iteritems(msgs)) if val]
             self.config.disable = [self._message_symbol(mid) for mid, val
                                    in sorted(six.iteritems(msgs)) if not val]
+
+    def _message_symbol(self, msgid):
+        """Get the message symbol of the given message id
+
+        Return the original message id if the message does not
+        exist.
+        """
+        try:
+            return self.msgs_store.check_message_id(msgid).symbol
+        except UnknownMessageError:
+            return msgid
 
     def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
         """Returns the scope at which a message was enabled/disabled."""
