@@ -86,7 +86,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'a handful of name binding operations, such as for iteration, '
                   'with statement assignment and exception handler assignment.'
                  ),
-        'R1705': ('Disallow return before else',
+        'R1705': ('Unnecessary "else" after "return"',
                   'no-else-return',
                   'Used in order to highlight an unnecessary block of '
                   'code following an if containing a return statement. '
