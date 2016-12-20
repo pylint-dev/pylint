@@ -606,23 +606,21 @@ class FormatChecker(BaseTokenChecker):
         """Extended check of PEP-484 type hint presence"""
         if not self._inside_brackets('('):
             return False
-        pos = i - 1
         bracket_level = 0
-        while pos:
-            if tokens[pos][1] == ':' and pos < i-1:
+        for token in tokens[i-1::-1]:
+            if token[1] == ':':
                 return True
-            if tokens[pos][1] == '(':
+            if token[1] == '(':
                 return False
-            if tokens[pos][1] == ']':
+            if token[1] == ']':
                 bracket_level += 1
-            elif tokens[pos][1] == '[':
+            elif token[1] == '[':
                 bracket_level -= 1
-            elif tokens[pos][1] == ',':
+            elif token[1] == ',':
                 if not bracket_level:
                     return False
-            elif tokens[pos][0] not in (tokenize.NAME, tokenize.STRING):
+            elif token[0] not in (tokenize.NAME, tokenize.STRING):
                 return False
-            pos -= 1
         return False
 
     def _check_equals_spacing(self, tokens, i):
