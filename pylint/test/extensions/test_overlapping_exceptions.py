@@ -5,78 +5,68 @@
 """
 
 from sys import version_info
-import os
 from os.path import join, dirname
-import unittest
 
 from pylint import checkers
 from pylint.lint import PyLinter
-from pylint.reporters import BaseReporter
 from pylint.extensions.overlapping_exceptions import OverlappingExceptionsChecker
+from pylint.testutils import MinimalTestReporter
 
-class TestReporter(BaseReporter):
-
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
-    def on_set_current_module(self, module, filepath):
-        self.messages = []
+import pytest
 
 
-class CheckOverlappingExceptions(unittest.TestCase):
+@pytest.fixture
+def linter():
+    linter = PyLinter()
+    linter.set_reporter(MinimalTestReporter())
+    checkers.initialize(linter)
+    linter.register_checker(OverlappingExceptionsChecker(linter))
+    linter.disable('I')
+    return linter
 
-    @classmethod
-    def setUpClass(cls):
-        cls._linter = PyLinter()
-        cls._linter.set_reporter(TestReporter())
-        checkers.initialize(cls._linter)
-        cls._linter.register_checker(OverlappingExceptionsChecker(cls._linter))
-        cls._linter.disable('I')
 
-    def test_overlapping_exceptions(self):
-        test = join(dirname(__file__), 'data', 'overlapping_exceptions.py')
-        self._linter.check([test])
-        msgs = self._linter.reporter.messages
+def test_overlapping_exceptions(linter):
+    test = join(dirname(__file__), 'data', 'overlapping_exceptions.py')
+    linter.check([test])
+    msgs = linter.reporter.messages
 
-        expected = [
-            (13, 'Overlapping exceptions (SomeException and SomeException are the same)'),
-            (18, 'Overlapping exceptions (SomeException is an ancestor class of SubclassException)'),
-            (23, 'Overlapping exceptions (SomeException and AliasException are the same)'),
-            (28, 'Overlapping exceptions (AliasException is an ancestor class of SubclassException)'),
-            (34, 'Overlapping exceptions (SomeException and AliasException are the same)'),
-            (34, 'Overlapping exceptions (SomeException is an ancestor class of SubclassException)'),
-            (34, 'Overlapping exceptions (AliasException is an ancestor class of SubclassException)'),
-            (39, 'Overlapping exceptions (ArithmeticError is an ancestor class of FloatingPointError)'),
-            (44, 'Overlapping exceptions (ValueError is an ancestor class of UnicodeDecodeError)')
-        ]
-        
-        self.assertEqual(len(msgs), len(expected))
-        for msg, exp in zip(msgs, expected):
-            self.assertEqual(msg.msg_id, 'W0714')
-            self.assertEqual(msg.symbol, 'overlapping-except')
-            self.assertEqual(msg.category, 'warning')
-            self.assertEqual((msg.line, msg.msg), exp)
+    expected = [
+        (13, 'Overlapping exceptions (SomeException and SomeException are the same)'),
+        (18, 'Overlapping exceptions (SomeException is an ancestor class of SubclassException)'),
+        (23, 'Overlapping exceptions (SomeException and AliasException are the same)'),
+        (28, 'Overlapping exceptions (AliasException is an ancestor class of SubclassException)'),
+        (34, 'Overlapping exceptions (SomeException and AliasException are the same)'),
+        (34, 'Overlapping exceptions (SomeException is an ancestor class of SubclassException)'),
+        (34, 'Overlapping exceptions (AliasException is an ancestor class of SubclassException)'),
+        (39, 'Overlapping exceptions (ArithmeticError is an ancestor class of FloatingPointError)'),
+        (44, 'Overlapping exceptions (ValueError is an ancestor class of UnicodeDecodeError)')
+    ]
 
-    @unittest.skipIf(version_info < (3, 3), "not relevant to Python version")
-    def test_overlapping_exceptions_py33(self):
-        """From Python 3.3 both IOError and socket.error are aliases for OSError."""
-        test = join(dirname(__file__), 'data', 'overlapping_exceptions_py33.py')
-        self._linter.check([test])
-        msgs = self._linter.reporter.messages
+    assert len(msgs) == len(expected)
+    for msg, exp in zip(msgs, expected):
+        assert msg.msg_id == 'W0714'
+        assert msg.symbol == 'overlapping-except'
+        assert msg.category == 'warning'
+        assert (msg.line, msg.msg) == exp
 
-        expected = [
-            (7,  'Overlapping exceptions (IOError and OSError are the same)'),
-            (12, 'Overlapping exceptions (socket.error and OSError are the same)'),
-            (17, 'Overlapping exceptions (socket.error is an ancestor class of ConnectionError)'),
-        ]
 
-        self.assertEqual(len(msgs), len(expected))
-        for msg, exp in zip(msgs, expected):
-            self.assertEqual(msg.msg_id, 'W0714')
-            self.assertEqual(msg.symbol, 'overlapping-except')
-            self.assertEqual(msg.category, 'warning')
-            self.assertEqual((msg.line, msg.msg), exp)
+@pytest.mark.skipif(version_info < (3, 3),
+                    reason="not relevant to Python version")
+def test_overlapping_exceptions_py33(linter):
+    """From Python 3.3 both IOError and socket.error are aliases for OSError."""
+    test = join(dirname(__file__), 'data', 'overlapping_exceptions_py33.py')
+    linter.check([test])
+    msgs = linter.reporter.messages
 
-            
-if __name__ == '__main__':
-    unittest.main()
+    expected = [
+        (7,  'Overlapping exceptions (IOError and OSError are the same)'),
+        (12, 'Overlapping exceptions (socket.error and OSError are the same)'),
+        (17, 'Overlapping exceptions (socket.error is an ancestor class of ConnectionError)'),
+    ]
+
+    assert len(msgs) == len(expected)
+    for msg, exp in zip(msgs, expected):
+        assert msg.msg_id == 'W0714'
+        assert msg.symbol == 'overlapping-except'
+        assert msg.category == 'warning'
+        assert (msg.line, msg.msg) == exp
