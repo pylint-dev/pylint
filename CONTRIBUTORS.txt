@@ -123,7 +123,8 @@ Order doesn't matter (not that much, at least ;)
 
 * Alexander Todorov: added new error conditions to 'bad-super-call',
   Added new check for incorrect len(SEQUENCE) usage,
-  Added new extension for comparison against empty string constants
+  Added new extension for comparison against empty string constants,
+  Added new extension which detects comparing integers to zero
 
 * Erik Eriksson - Added overlapping-except error check.
 

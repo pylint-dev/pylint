@@ -166,6 +166,40 @@ New checkers
 
       $ pylint a.py --load-plugins=pylint.extensions.emptystring
 
+* A new extension was added, ``comparetozero.py`` which detects whenever
+  we compare integers to zero. This extension is disabled by default.
+  For instance, the examples below:
+
+  .. code-block:: python
+
+      if X != 0:
+        pass
+
+      if X == 0:
+        pass
+
+  can be written in a more natural way:
+
+  .. code-block:: python
+
+      if X:
+        pass
+
+      if not X:
+        pass
+
+  An exception to this is when zero is an allowed value whose meaning
+  is treated differently than ``None``. For example the meaning could be
+  ``None`` means no limit, while ``0`` means the limit it zero!
+
+  You can activate this checker by adding the line::
+
+      load-plugins=pylint.extensions.comparetozero
+
+  to the ``MASTER`` section of your ``.pylintrc`` or using the command::
+
+      $ pylint a.py --load-plugins=pylint.extensions.comparetozero
+
 * We've added new error conditions for ``bad-super-call`` which now detect
   the usage of ``super(type(self), self)`` and ``super(self.__class__, self)``
   patterns. These can lead to recursion loop in derived classes. The problem
