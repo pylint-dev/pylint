@@ -602,10 +602,32 @@ class FormatChecker(BaseTokenChecker):
 
         self._check_space(tokens, i, (policy_before, _IGNORE))
 
+    def _has_valid_type_annotation(self, tokens, i):
+        """Extended check of PEP-484 type hint presence"""
+        if not self._inside_brackets('('):
+            return False
+        pos = i - 1
+        bracket_level = 0
+        while pos:
+            if tokens[pos][1] == ':' and pos < i-1:
+                return True
+            if tokens[pos][1] == '(':
+                return False
+            if tokens[pos][1] == ']':
+                bracket_level += 1
+            elif tokens[pos][1] == '[':
+                bracket_level -= 1
+            elif tokens[pos][1] == ',':
+                if not bracket_level:
+                    return False
+            elif tokens[pos][0] not in (tokenize.NAME, tokenize.STRING):
+                return False
+            pos -= 1
+        return False
+
     def _check_equals_spacing(self, tokens, i):
         """Check the spacing of a single equals sign."""
-        if (self._inside_brackets('(') and tokens[i-2][1] == ':' and
-                tokens[i-1][0] in (tokenize.NAME, tokenize.STRING)):
+        if self._has_valid_type_annotation(tokens, i):
             self._check_space(tokens, i, (_MUST, _MUST))
         elif self._inside_brackets('(') or self._inside_brackets('lambda'):
             self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
