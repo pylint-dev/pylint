@@ -305,14 +305,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @utils.check_messages('too-many-nested-blocks')
     def leave_functiondef(self, _):
+        # check left-over nested blocks stack
+        self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
-        # if there is a waiting message left, send it
-        if self._nested_blocks_msg:
-            self.add_message('too-many-nested-blocks',
-                             node=self._nested_blocks_msg[0],
-                             args=self._nested_blocks_msg[1])
-            self._nested_blocks_msg = None
 
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks
@@ -336,20 +332,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if self._nested_blocks:
                     self._nested_blocks.pop()
             self._nested_blocks.append(node)
+
         # send message only once per group of nested blocks
+        if len(nested_blocks) > len(self._nested_blocks):
+            self._emit_nested_blocks_message_if_needed(nested_blocks)
+
+    def _emit_nested_blocks_message_if_needed(self, nested_blocks):
         if len(nested_blocks) > self.config.max_nested_blocks:
-            if len(nested_blocks) > len(self._nested_blocks):
-                self.add_message('too-many-nested-blocks', node=nested_blocks[0],
-                                 args=(len(nested_blocks),
-                                       self.config.max_nested_blocks))
-                self._nested_blocks_msg = None
-            else:
-                # if time has not come yet to send the message (ie the stack of
-                # nested nodes is still increasing), save it in case the
-                # current node is the last one of the function
-                self._nested_blocks_msg = (self._nested_blocks[0],
-                                           (len(self._nested_blocks),
-                                            self.config.max_nested_blocks))
+            self.add_message('too-many-nested-blocks', node=nested_blocks[0],
+                             args=(len(nested_blocks), self.config.max_nested_blocks))
 
     @staticmethod
     def _duplicated_isinstance_types(node):
