@@ -564,7 +564,6 @@ class VariablesChecker(BaseChecker):
         """visit class: update consumption analysis variable
         """
         self._to_consume.append((copy.copy(node.locals), {}, 'class'))
-        self._check_redefined(node)
 
     def leave_classdef(self, _):
         """leave class: update consumption analysis variable
@@ -620,9 +619,6 @@ class VariablesChecker(BaseChecker):
         """visit function: update consumption analysis variable and check locals
         """
         self._to_consume.append((copy.copy(node.locals), {}, 'function'))
-        self._check_redefined(node)
-
-    def _check_redefined(self, node):
         if not (self.linter.is_message_enabled('redefined-outer-name') or
                 self.linter.is_message_enabled('redefined-builtin')):
             return
@@ -630,13 +626,7 @@ class VariablesChecker(BaseChecker):
         for name, stmt in node.items():
             if utils.is_inside_except(stmt):
                 continue
-            if isinstance(stmt.frame(), astroid.ClassDef):
-                if name in ['__slots__', '__metaclass__']:
-                    continue
             if name in globs and not isinstance(stmt, astroid.Global):
-                if (isinstance(node, astroid.ClassDef)
-                        and isinstance(stmt, astroid.FunctionDef)):
-                    continue
                 definition = globs[name][0]
                 if (isinstance(definition, astroid.ImportFrom)
                         and definition.modname == FUTURE):
@@ -649,14 +639,7 @@ class VariablesChecker(BaseChecker):
                     self.add_message('redefined-outer-name',
                                      args=(name, line), node=stmt)
 
-            elif utils.is_builtin(name):
-                if self._should_ignore_redefined_builtin(stmt):
-                    continue
-                if (isinstance(node, astroid.ClassDef) and
-                        isinstance(stmt, astroid.FunctionDef) and
-                        name == 'next'):
-                    continue
-
+            elif utils.is_builtin(name) and not self._should_ignore_redefined_builtin(stmt):
                 # do not print Redefining builtin for additional builtins
                 self.add_message('redefined-builtin', args=name, node=stmt)
 

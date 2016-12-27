@@ -4,4 +4,4 @@ from .a import x
 
 
 class Y(object):
-    x = x[0] # [redefined-outer-name]
+    x = x[0]
