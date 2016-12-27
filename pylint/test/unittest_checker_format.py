@@ -185,6 +185,10 @@ class TestCheckSpace(CheckerTestCase):
     def testKeywordSpacingGood(self):
         with self.assertNoMessages():
             self.checker.process_tokens(tokenize_str('foo(foo=bar)\n'))
+            self.checker.process_tokens(tokenize_str('foo(foo: int = bar)\n'))
+            self.checker.process_tokens(tokenize_str('foo(foo: Dict[int, str] = bar)\n'))
+            self.checker.process_tokens(tokenize_str('foo(foo: \'int\' = bar)\n'))
+            self.checker.process_tokens(tokenize_str('foo(foo: Dict[int, \'str\'] = bar)\n'))
             self.checker.process_tokens(tokenize_str('lambda x=1: x\n'))
 
     def testKeywordSpacingBad(self):
@@ -205,6 +209,30 @@ class TestCheckSpace(CheckerTestCase):
                     args=('No', 'allowed', 'around', 'keyword argument assignment',
                           '(foo = bar)\n     ^'))):
             self.checker.process_tokens(tokenize_str('(foo = bar)\n'))
+
+        with self.assertAddsMessages(
+            Message('bad-whitespace', line=1,
+                    args=('Exactly one', 'required', 'before', 'keyword argument assignment',
+                          '(foo: int= bar)\n         ^'))):
+            self.checker.process_tokens(tokenize_str('(foo: int= bar)\n'))
+
+        with self.assertAddsMessages(
+            Message('bad-whitespace', line=1,
+                    args=('Exactly one', 'required', 'after', 'keyword argument assignment',
+                          '(foo: int =bar)\n          ^'))):
+            self.checker.process_tokens(tokenize_str('(foo: int =bar)\n'))
+
+        with self.assertAddsMessages(
+            Message('bad-whitespace', line=1,
+                    args=('Exactly one', 'required', 'around', 'keyword argument assignment',
+                          '(foo: int=bar)\n         ^'))):
+            self.checker.process_tokens(tokenize_str('(foo: int=bar)\n'))
+
+        with self.assertAddsMessages(
+            Message('bad-whitespace', line=1,
+                    args=('Exactly one', 'required', 'around', 'keyword argument assignment',
+                          '(foo: List[int]=bar)\n               ^'))):
+            self.checker.process_tokens(tokenize_str('(foo: List[int]=bar)\n'))
 
     def testOperatorSpacingGood(self):
         good_cases = [
