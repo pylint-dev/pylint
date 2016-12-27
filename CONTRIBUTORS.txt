@@ -129,3 +129,5 @@ Order doesn't matter (not that much, at least ;)
 * Anthony Foglia (Google): Added simple string slots check.
 
 * Derek Gustafson: contributor
+
+* Petr Pulc: require whitespace around annotations
