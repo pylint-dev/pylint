@@ -397,13 +397,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @utils.check_messages('consider-using-ternary')
     def visit_assign(self, node):
         if self._is_and_or_ternary(node.value):
-            cond, truth_value, false_value = self._get_and_or_ternary_arguments(node.value)
+            cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
         elif self._is_seq_based_ternary(node.value):
-            cond, truth_value, false_value = self._get_seq_based_ternary_params(node.value)
+            cond, truth_value, false_value = self._seq_based_ternary_params(node.value)
         else:
             return
-        self.add_message('consider-using-ternary', node=node,
-                         args=(truth_value.as_string(), cond.as_string(), false_value.as_string()),)
+
+        self.add_message(
+            'consider-using-ternary', node=node,
+            args=(truth_value.as_string(),
+                  cond.as_string(),
+                  false_value.as_string()),)
 
     visit_return = visit_assign
 
@@ -423,7 +427,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and len(node.values[0].values) == 2)
 
     @staticmethod
-    def _get_and_or_ternary_arguments(node):
+    def _and_or_ternary_arguments(node):
         false_value = node.values[1]
         condition, true_value = node.values[0].values
         return condition, true_value, false_value
@@ -436,7 +440,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and len(node.value.elts) == 2 and isinstance(node.slice, astroid.Index))
 
     @staticmethod
-    def _get_seq_based_ternary_params(node):
+    def _seq_based_ternary_params(node):
         false_value, true_value = node.value.elts
         condition = node.slice.value
         return condition, true_value, false_value
