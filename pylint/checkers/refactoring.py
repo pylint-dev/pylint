@@ -481,7 +481,7 @@ class RecommandationChecker(checkers.BaseChecker):
 
         # Check if the statement is what we're expecting to have.
         statement = node.statement()
-        if isinstance(statement, astroid.Expr):
+        if isinstance(statement, (astroid.Expr, astroid.Assign)):
             statement = statement.value
 
         if isinstance(statement, astroid.For) or utils.is_comprehension(statement):

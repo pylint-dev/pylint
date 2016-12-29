@@ -24,5 +24,9 @@ for key in CustomClass().keys():
 (key for key in {}.keys()) # [consider-iterating-dictionary]
 {key for key in {}.keys()} # [consider-iterating-dictionary]
 {key: key for key in {}.keys()} # [consider-iterating-dictionary]
+COMP1 = [key for key in {}.keys()] # [consider-iterating-dictionary]
+COMP2 = (key for key in {}.keys()) # [consider-iterating-dictionary]
+COMP3 = {key for key in {}.keys()} # [consider-iterating-dictionary]
+COMP4 = {key: key for key in {}.keys()} # [consider-iterating-dictionary]
 for key in {}.keys(): # [consider-iterating-dictionary]
     pass
