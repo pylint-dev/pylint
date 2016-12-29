@@ -479,12 +479,7 @@ class RecommandationChecker(checkers.BaseChecker):
         if not isinstance(inferred.bound, astroid.Dict) or inferred.name != 'keys':
             return
 
-        # Check if the statement is what we're expecting to have.
-        statement = node.statement()
-        if isinstance(statement, (astroid.Expr, astroid.Assign)):
-            statement = statement.value
-
-        if isinstance(statement, astroid.For) or utils.is_comprehension(statement):
+        if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
             self.add_message('consider-iterating-dictionary', node=node)
 
     @utils.check_messages('consider-using-enumerate')
