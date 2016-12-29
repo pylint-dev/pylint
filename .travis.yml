@@ -31,7 +31,9 @@ script:
   - pip install .
     # Run the tests with newest version of setuptools
   - pip install -U setuptools
-  - tox -e coverage-erase,$TOXENV
+    # pypy is very slow with multiple processes due too long startup time
+  - if [ $TOXENV == "pypy" ]; then POSARGS=""; else POSARGS="-n 4"; fi
+  - tox -e coverage-erase,$TOXENV -- $POSARGS
 after_success:
   - tox -e coveralls
 after_failure:
