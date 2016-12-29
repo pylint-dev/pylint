@@ -101,6 +101,12 @@ SPECIAL_METHODS_PARAMS = {
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
+OPEN_FILES = {'open', 'file'}
+if sys.version_info >= (3, 0):
+    OPEN_MODULE = '_io'
+else:
+    OPEN_MODULE = '__builtin__'
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -842,3 +848,8 @@ def is_registered_in_singledispatch_function(node):
             return decorated_with(func_def, singledispatch_qnames)
 
     return False
+
+
+def is_builtin_open_func(node):
+    return (node.root().name == OPEN_MODULE and
+            getattr(node, 'name', None) in OPEN_FILES)

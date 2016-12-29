@@ -20,12 +20,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
 
-OPEN_FILES = {'open', 'file'}
 UNITTEST_CASE = 'unittest.case'
-if sys.version_info >= (3, 0):
-    OPEN_MODULE = '_io'
-else:
-    OPEN_MODULE = '__builtin__'
 
 
 def _check_mode_str(mode):
@@ -182,9 +177,8 @@ class StdlibChecker(BaseChecker):
         """Visit a CallFunc node."""
         try:
             for inferred in node.func.infer():
-                if inferred.root().name == OPEN_MODULE:
-                    if getattr(node.func, 'name', None) in OPEN_FILES:
-                        self._check_open_mode(node)
+                if utils.is_builtin_open_func(inferred):
+                    self._check_open_mode(node)
                 if inferred.root().name == UNITTEST_CASE:
                     self._check_redundant_assert(node, inferred)
                 self._check_deprecated_method(node, inferred)

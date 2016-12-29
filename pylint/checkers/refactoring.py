@@ -21,6 +21,10 @@ from pylint import checkers
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 
+FILE_READLINES_METHODS = {'readlines'}
+if six.PY2:
+    FILE_READLINES_METHODS |= {'xreadlines'}
+
 
 def _all_elements_are_true(gen):
     values = list(gen)
@@ -446,7 +450,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return condition, true_value, false_value
 
 
-class RecommandationChecker(checkers.BaseChecker):
+class RecommendationChecker(checkers.BaseChecker):
     __implements__ = (interfaces.IAstroidChecker,)
     name = 'refactoring'
     msgs = {'C0200': ('Consider using enumerate instead of iterating with range and len',
@@ -459,7 +463,39 @@ class RecommandationChecker(checkers.BaseChecker):
                       'Emitted when the keys of a dictionary are iterated through the .keys() '
                       'method. It is enough to just iterate through the dictionary itself, as '
                       'in "for key in dictionary".'),
+            'C0206': ('Consider iterating the file directly instead of calling .%s()',
+                      'consider-iterating-file',
+                      'Emitted when the lines of a file are iterated through the .readlines() '
+                      'or .xreadlines() method. It is enough to just iterate through the file '
+                      'itself, as in "for line in file".'),
            }
+
+    @staticmethod
+    def _is_in_iterating_context(node):
+        statement = node.statement()
+        if isinstance(statement, (astroid.Expr, astroid.Assign)):
+            statement = statement.value
+        return isinstance(statement, astroid.For) or utils.is_comprehension(statement)
+
+    @staticmethod
+    def _safe_lookup_assign_stmt(node):
+        """Given Name node, finds corresponding AssignName node"""
+        _, assign_stmts = node.lookup(node.name)
+        if len(assign_stmts) != 1:
+            return None  # looked up value may be ambiguous or uninferable
+        return assign_stmts[0]
+
+    @staticmethod
+    def _find_assigned_value(assign_stmt):
+        """Given AssignName node, finds node representing assigned value"""
+        assign_type = assign_stmt.assign_type()
+        if isinstance(assign_type, astroid.Assign):
+            return assign_type.value
+        elif isinstance(assign_type, astroid.With):
+            for value, name in assign_type.items:
+                if name == assign_stmt:
+                    return value
+        return None
 
     @staticmethod
     def _is_builtin(node, function):
@@ -467,6 +503,28 @@ class RecommandationChecker(checkers.BaseChecker):
         if not inferred:
             return False
         return utils.is_builtin_object(inferred) and inferred.name == function
+
+    @utils.check_messages('consider-iterating-file')
+    def visit_attribute(self, node):
+        if node.attrname not in FILE_READLINES_METHODS:
+            return
+
+        # we can't actually infer open() return value, so we manually check for open() calls
+        # TODO: implement inference of file (py2) / IOBase (py3) in astroid
+        open_call = None
+        if isinstance(node.expr, astroid.Call):
+            open_call = node.expr
+        elif isinstance(node.expr, astroid.Name):
+            assign_stmt = self._safe_lookup_assign_stmt(node.expr)
+            if assign_stmt:
+                open_call = self._find_assigned_value(assign_stmt)
+
+        if open_call is None or not isinstance(open_call, astroid.Call):
+            return
+
+        func = utils.safe_infer(open_call.func)
+        if func and utils.is_builtin_open_func(func) and self._is_in_iterating_context(node):
+            self.add_message('consider-iterating-file', node=node, args=(node.attrname,))
 
     @utils.check_messages('consider-iterating-dictionary')
     def visit_call(self, node):
@@ -479,12 +537,7 @@ class RecommandationChecker(checkers.BaseChecker):
         if not isinstance(inferred.bound, astroid.Dict) or inferred.name != 'keys':
             return
 
-        # Check if the statement is what we're expecting to have.
-        statement = node.statement()
-        if isinstance(statement, (astroid.Expr, astroid.Assign)):
-            statement = statement.value
-
-        if isinstance(statement, astroid.For) or utils.is_comprehension(statement):
+        if self._is_in_iterating_context(node):
             self.add_message('consider-iterating-dictionary', node=node)
 
     @utils.check_messages('consider-using-enumerate')
@@ -713,5 +766,5 @@ def register(linter):
     """Required method to auto register this checker."""
     linter.register_checker(RefactoringChecker(linter))
     linter.register_checker(NotChecker(linter))
-    linter.register_checker(RecommandationChecker(linter))
+    linter.register_checker(RecommendationChecker(linter))
     linter.register_checker(LenChecker(linter))
