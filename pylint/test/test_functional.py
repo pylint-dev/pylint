@@ -360,15 +360,11 @@ def get_tests():
     return suite
 
 
-# @pytest.fixture
-# def wrap_stdout(request, capsys):
-#     if request.getfixturevalue('test_file').base == 'sys_stream_regression_1004':
-#         with capsys.disabled():
-#             yield
+TESTS = get_tests()
+TESTS_NAMES = [t.base for t in TESTS]
 
 
-@pytest.mark.parametrize("test_file", get_tests())
-# @pytest.mark.usefixtures('wrap_stdout')
+@pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 def test_functional(test_file):
     LintTest = LintModuleOutputUpdate(test_file) if UPDATE else LintModuleTest(test_file)
     LintTest.setUp()
