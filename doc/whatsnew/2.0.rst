@@ -132,6 +132,40 @@ New checkers
   See https://www.python.org/dev/peps/pep-0008/#programming-recommendations
   for more information.
 
+* A new extension was added, ``emptystring.py`` which detects whenever
+  we detect comparisons to empty string constants. This extension is disabled
+  by default. For instance, the examples below:
+
+  .. code-block:: python
+
+      if S != "":
+        pass
+
+      if S == '':
+        pass
+
+  can be written in a more natural way:
+
+  .. code-block:: python
+
+      if S:
+        pass
+
+      if not S:
+        pass
+
+  An exception to this is when empty string is an allowed value whose meaning
+  is treated differently than ``None``. For example the meaning could be
+  user selected no additional options vs. user has not made their selection yet!
+
+  You can activate this checker by adding the line::
+
+      load-plugins=pylint.extensions.emptystring
+
+  to the ``MASTER`` section of your ``.pylintrc`` or using the command::
+
+      $ pylint a.py --load-plugins=pylint.extensions.emptystring
+
 * We've added new error conditions for ``bad-super-call`` which now detect
   the usage of ``super(type(self), self)`` and ``super(self.__class__, self)``
   patterns. These can lead to recursion loop in derived classes. The problem
