@@ -478,24 +478,14 @@ class RecommendationChecker(checkers.BaseChecker):
         return isinstance(statement, astroid.For) or utils.is_comprehension(statement)
 
     @staticmethod
-    def _safe_lookup_assign_stmt(node):
-        """Given Name node, finds corresponding AssignName node"""
-        _, assign_stmts = node.lookup(node.name)
-        if len(assign_stmts) != 1:
-            return None  # looked up value may be ambiguous or uninferable
-        return assign_stmts[0]
+    def _is_dict_keys_call(inferred):
+        return isinstance(inferred.bound, astroid.Dict) and inferred.name == 'keys'
 
     @staticmethod
-    def _find_assigned_value(assign_stmt):
-        """Given AssignName node, finds node representing assigned value"""
-        assign_type = assign_stmt.assign_type()
-        if isinstance(assign_type, astroid.Assign):
-            return assign_type.value
-        elif isinstance(assign_type, astroid.With):
-            for value, name in assign_type.items:
-                if name == assign_stmt:
-                    return value
-        return None
+    def _is_file_readlines_call(inferred):
+        return (isinstance(inferred.bound, astroid.Instance)
+                and utils.is_builtin_file_obj(inferred.bound)
+                and inferred.name in FILE_READLINES_METHODS)
 
     @staticmethod
     def _is_builtin(node, function):
@@ -504,41 +494,23 @@ class RecommendationChecker(checkers.BaseChecker):
             return False
         return utils.is_builtin_object(inferred) and inferred.name == function
 
-    @utils.check_messages('consider-iterating-file')
-    def visit_attribute(self, node):
-        if node.attrname not in FILE_READLINES_METHODS:
-            return
-
-        # we can't actually infer open() return value, so we manually check for open() calls
-        # TODO: implement inference of file (py2) / IOBase (py3) in astroid
-        open_call = None
-        if isinstance(node.expr, astroid.Call):
-            open_call = node.expr
-        elif isinstance(node.expr, astroid.Name):
-            assign_stmt = self._safe_lookup_assign_stmt(node.expr)
-            if assign_stmt:
-                open_call = self._find_assigned_value(assign_stmt)
-
-        if open_call is None or not isinstance(open_call, astroid.Call):
-            return
-
-        func = utils.safe_infer(open_call.func)
-        if func and utils.is_builtin_open_func(func) and self._is_in_iterating_context(node):
-            self.add_message('consider-iterating-file', node=node, args=(node.attrname,))
-
-    @utils.check_messages('consider-iterating-dictionary')
+    @utils.check_messages('consider-iterating-dictionary', 'consider-iterating-file')
     def visit_call(self, node):
         inferred = utils.safe_infer(node.func)
-        if not inferred:
+        if inferred is None or not isinstance(inferred, astroid.BoundMethod):
             return
 
-        if not isinstance(inferred, astroid.BoundMethod):
-            return
-        if not isinstance(inferred.bound, astroid.Dict) or inferred.name != 'keys':
+        if self._is_dict_keys_call(inferred):
+            msg = 'consider-iterating-dictionary'
+            args = ()
+        elif self._is_file_readlines_call(inferred):
+            msg = 'consider-iterating-file'
+            args = (inferred.name,)
+        else:
             return
 
         if self._is_in_iterating_context(node):
-            self.add_message('consider-iterating-dictionary', node=node)
+            self.add_message(msg, node=node, args=args)
 
     @utils.check_messages('consider-using-enumerate')
     def visit_for(self, node):

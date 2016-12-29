@@ -246,6 +246,10 @@ Release date: tba
 
       Closes #1204
 
+    * Added refactoring message 'consider-iterating-file'.
+
+      Closes #696
+
 
 What's new in Pylint 1.6.3?
 ===========================

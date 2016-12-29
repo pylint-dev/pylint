@@ -473,6 +473,22 @@ New checkers
 
      a = (1, )
 
+* A new refactoring check was added, ``consider-iterating-file``, which is
+  emitted when pylint encounters calls of `.readlines()` and `.xreadlines()`
+  methods of file objects, where standard iteration over file may be used.
+  .. code-block:: python
+
+    with open(file) as fh:
+        for line in fh.readlines():
+            process(line)
+
+
+  Warning can be fixed by iterating over file itself:
+
+    with open(file) as fh:
+        for line in fh:
+            process(line)
+
 
 Other Changes
 =============

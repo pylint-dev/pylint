@@ -101,15 +101,19 @@ SPECIAL_METHODS_PARAMS = {
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
-OPEN_FILES = {'open', 'file'}
+OPEN_FUNCTIONS = {'open'}
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
+    FILEOBJ_INSTANCES = {'_IOBase'}  # TODO: update after improvements in astroid
 else:
     OPEN_MODULE = '__builtin__'
+    OPEN_FUNCTIONS |= {'file'}
+    FILEOBJ_INSTANCES = {'file'}
 
 
 class NoSuchArgumentError(Exception):
     pass
+
 
 def is_inside_except(node):
     """Returns true if node is inside the name of an except handler."""
@@ -852,4 +856,9 @@ def is_registered_in_singledispatch_function(node):
 
 def is_builtin_open_func(node):
     return (node.root().name == OPEN_MODULE and
-            getattr(node, 'name', None) in OPEN_FILES)
+            getattr(node, 'name', None) in OPEN_FUNCTIONS)
+
+
+def is_builtin_file_obj(node):
+    return (node.root().name == OPEN_MODULE and
+            getattr(node, 'name', None) in FILEOBJ_INSTANCES)
