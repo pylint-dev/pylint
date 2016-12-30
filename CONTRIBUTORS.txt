@@ -133,3 +133,5 @@ Order doesn't matter (not that much, at least ;)
 * Derek Gustafson: contributor
 
 * Petr Pulc: require whitespace around annotations
+
+* David Euresti (Dropbox): Added typing extension.

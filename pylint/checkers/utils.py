@@ -702,6 +702,12 @@ def _supports_protocol(value, protocol_callback):
         if meta is not None:
             if protocol_callback(meta):
                 return True
+        # Or if it has an iterable base class.
+        for base in value.bases:
+            inferred = safe_infer(base)
+            if inferred and _supports_protocol(inferred, protocol_callback):
+                return True
+
     if isinstance(value, astroid.BaseInstance):
         if not has_known_bases(value):
             return True

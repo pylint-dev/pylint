@@ -23,6 +23,7 @@ from pylint import checkers
 from pylint import interfaces
 from pylint import lint
 from pylint import reporters
+from pylint import utils
 
 class test_dialect(csv.excel):
     if sys.version_info[0] < 3:
@@ -231,6 +232,13 @@ class LintModuleTest(object):
         self._linter.disable('I')
         try:
             self._linter.read_config_file(test_file.option_file)
+            config_parser = self._linter.cfgfile_parser
+
+            if config_parser.has_option('MASTER', 'load-plugins'):
+                plugins = utils._splitstrip(
+                    config_parser.get('MASTER', 'load-plugins'))
+                self._linter.load_plugin_modules(plugins)
+
             self._linter.load_config_file()
         except NoFileError:
             pass
