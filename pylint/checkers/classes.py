@@ -21,6 +21,7 @@ import six
 import astroid
 from astroid.bases import Generator, BUILTINS
 from astroid.exceptions import InconsistentMroError, DuplicateBasesError
+from astroid import decorators
 from astroid import objects
 from astroid.scoped_nodes import function_to_method
 from pylint.interfaces import IAstroidChecker
@@ -133,19 +134,22 @@ def _positional_parameters(method):
     return positional
 
 
-def _same_parameter(first, second):
-    return first.name == second.name
+def _has_different_parameters(original, overridden, dummy_parameter_regex):
+    zipped = six.moves.zip_longest(original, overridden)
+    for original_param, overridden_param in zipped:
+        params = (original_param, overridden_param)
+        if not all(params):
+            return True
+
+        names = [param.name for param in params]
+        if any(map(dummy_parameter_regex.match, names)):
+            continue
+        if original_param.name != overridden_param.name:
+            return True
+    return False
 
 
-def _has_different_parameters(original, overridden):
-    same_length = len(original) == len(overridden)
-    if same_length:
-        return any(not _same_parameter(first, second)
-                   for first, second in zip(original, overridden))
-    return True
-
-
-def _different_parameters(original, overridden):
+def _different_parameters(original, overridden, dummy_parameter_regex):
     """Determine if the two methods have different parameters
 
     They are considered to have different parameters if:
@@ -162,10 +166,12 @@ def _different_parameters(original, overridden):
 
     different_positional = _has_different_parameters(
         original_parameters,
-        overridden_parameters)
+        overridden_parameters,
+        dummy_parameter_regex)
     different_kwonly = _has_different_parameters(
         original.args.kwonlyargs,
-        overridden.args.kwonlyargs)
+        overridden.args.kwonlyargs,
+        dummy_parameter_regex)
     if original.name in PYMETHODS:
         # Ignore the difference for special methods. If the parameter
         # numbers are different, then that is going to be caught by
@@ -514,6 +520,16 @@ a metaclass class method.'}
         self._first_attrs = []
         self._meth_could_be_func = None
 
+    @decorators.cachedproperty
+    def _dummy_rgx(self):
+        return get_global_option(
+            self, 'dummy-variables-rgx', default=None)
+
+    @decorators.cachedproperty
+    def _ignore_mixin(self):
+        return get_global_option(
+            self, 'ignore-mixin-members', default=True)
+
     def visit_classdef(self, node):
         """init visit variable _accessed
         """
@@ -564,9 +580,7 @@ a metaclass class method.'}
         access to existent members
         """
         # check access to existent members on non metaclass classes
-        ignore_mixins = get_global_option(self, 'ignore-mixin-members',
-                                          default=True)
-        if ignore_mixins and cnode.name[-5:].lower() == 'mixin':
+        if self._ignore_mixin and cnode.name[-5:].lower() == 'mixin':
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.
@@ -1192,7 +1206,9 @@ a metaclass class method.'}
                         decorator.attrname == 'setter'):
                     return
 
-        if _different_parameters(refmethod, method1):
+        if _different_parameters(
+                refmethod, method1,
+                dummy_parameter_regex=self._dummy_rgx):
             self.add_message('arguments-differ',
                              args=(class_type, method1.name),
                              node=method1)

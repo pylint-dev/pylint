@@ -196,3 +196,15 @@ class OverridesSpecialMethod(HasSpecialMethod):
 
     def __getitem__(self, cheie):
         return cheie + 1
+
+
+class ParentClass(object):
+
+    def meth(self, arg, arg1):
+        raise NotImplementedError
+
+
+class ChildClass(ParentClass):
+
+    def meth(self, _arg, dummy):
+        pass
