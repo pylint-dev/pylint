@@ -471,10 +471,6 @@ class RecommendationChecker(checkers.BaseChecker):
            }
 
     @staticmethod
-    def _is_in_iterating_context(node):
-        return isinstance(node.parent, (astroid.For, astroid.Comprehension))
-
-    @staticmethod
     def _is_dict_keys_call(inferred):
         return isinstance(inferred.bound, astroid.Dict) and inferred.name == 'keys'
 
@@ -512,7 +508,7 @@ class RecommendationChecker(checkers.BaseChecker):
         else:
             return
 
-        if self._is_in_iterating_context(node):
+        if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
             self.add_message(msg, node=node, args=args)
 
     @utils.check_messages('consider-using-enumerate')
