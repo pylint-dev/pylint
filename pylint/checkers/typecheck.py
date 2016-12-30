@@ -32,6 +32,7 @@ import astroid
 import astroid.context
 import astroid.arguments
 from astroid import exceptions
+from astroid.interpreter import dunder_lookup
 from astroid import objects
 from astroid import bases
 
@@ -945,11 +946,13 @@ accessed. Python regular expressions are accepted.'}
         # type. This way we catch subclasses of sequence types but skip classes
         # that override __getitem__ and which may allow non-integer indices.
         try:
-            methods = parent_type.getattr(methodname)
+            methods = dunder_lookup.lookup(parent_type, methodname)
             if methods is astroid.YES:
                 return
             itemmethod = methods[0]
-        except (exceptions.NotFoundError, IndexError):
+        except (exceptions.NotFoundError,
+                exceptions.AttributeInferenceError,
+                IndexError):
             return
         if not isinstance(itemmethod, astroid.FunctionDef):
             return
