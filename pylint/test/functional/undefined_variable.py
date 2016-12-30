@@ -182,3 +182,19 @@ def test_conditional_comprehension():
     my_methods = sum(1 for method in methods
                      if not method.startswith('_'))
     return my_methods
+
+
+class MyError(object):
+    pass
+
+
+class MyClass(object):
+    class MyError(MyError):
+        pass
+
+
+def dec(inp):
+    def inner(func):
+        print(inp)
+        return func
+    return inner

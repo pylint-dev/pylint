@@ -11,6 +11,7 @@ Release date: tba
       scope.
 
       Close #636
+      Close #851
 
     * Require one space for annotations with type hints, as per PEP 8.
 
