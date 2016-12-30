@@ -16,7 +16,7 @@ from pylint.lint import PyLinter
 from pylint.reporters import BaseReporter
 
 
-class TestReporter(BaseReporter):
+class EmptyStringTestReporter(BaseReporter):
 
     def handle_message(self, msg):
         self.messages.append(msg)
@@ -30,7 +30,7 @@ class CheckEmptyStringUsedTC(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls._linter = PyLinter()
-        cls._linter.set_reporter(TestReporter())
+        cls._linter.set_reporter(EmptyStringTestReporter())
         checkers.initialize(cls._linter)
         cls._linter.register_checker(CompareToEmptyStringChecker(cls._linter))
         cls._linter.disable('I')
