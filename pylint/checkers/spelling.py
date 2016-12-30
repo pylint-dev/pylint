@@ -129,6 +129,15 @@ class SpellingChecker(BaseTokenChecker):
 
     def _check_spelling(self, msgid, line, line_num):
         line2 = line.strip()
+        if line_num == 1 and line.startswith('#!/'):
+            # Skip shebang lines
+            return
+        if line_num <= 2 and re.match("^[ \t\v]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)", line):
+            # Skip coding definition lines
+            return
+        if line.startswith('# pylint:'):
+            # Skip pylint enable/disable comments
+            return
         # Replace ['afadf with afadf (but preserve don't)
         line2 = re.sub("'([^a-zA-Z]|$)", " ", line2)
         # Replace afadf'] with afadf (but preserve don't)
