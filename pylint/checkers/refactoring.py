@@ -472,10 +472,7 @@ class RecommendationChecker(checkers.BaseChecker):
 
     @staticmethod
     def _is_in_iterating_context(node):
-        statement = node.statement()
-        if isinstance(statement, (astroid.Expr, astroid.Assign)):
-            statement = statement.value
-        return isinstance(statement, astroid.For) or utils.is_comprehension(statement)
+        return isinstance(node.parent, (astroid.For, astroid.Comprehension))
 
     @staticmethod
     def _is_dict_keys_call(inferred):
@@ -484,7 +481,7 @@ class RecommendationChecker(checkers.BaseChecker):
     @staticmethod
     def _is_file_readlines_call(inferred):
         return (isinstance(inferred.bound, astroid.Instance)
-                and utils.is_builtin_file_obj(inferred.bound)
+                and utils.is_builtin_file_instance(inferred.bound)
                 and inferred.name in FILE_READLINES_METHODS)
 
     @staticmethod
@@ -496,8 +493,14 @@ class RecommendationChecker(checkers.BaseChecker):
 
     @utils.check_messages('consider-iterating-dictionary', 'consider-iterating-file')
     def visit_call(self, node):
-        inferred = utils.safe_infer(node.func)
-        if inferred is None or not isinstance(inferred, astroid.BoundMethod):
+        # due to nested inheritance structure of file objects in Python3,
+        # we cannot use utils.safe_infer()
+        try:
+            inferred = next(node.func.infer())
+        except astroid.exceptions.InferenceError:
+            return
+
+        if not isinstance(inferred, astroid.BoundMethod):
             return
 
         if self._is_dict_keys_call(inferred):

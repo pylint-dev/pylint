@@ -104,11 +104,9 @@ PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 OPEN_FUNCTIONS = {'open'}
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
-    FILEOBJ_INSTANCES = {'_IOBase'}  # TODO: update after improvements in astroid
 else:
     OPEN_MODULE = '__builtin__'
     OPEN_FUNCTIONS |= {'file'}
-    FILEOBJ_INSTANCES = {'file'}
 
 
 class NoSuchArgumentError(Exception):
@@ -859,6 +857,10 @@ def is_builtin_open_func(node):
             getattr(node, 'name', None) in OPEN_FUNCTIONS)
 
 
-def is_builtin_file_obj(node):
-    return (node.root().name == OPEN_MODULE and
-            getattr(node, 'name', None) in FILEOBJ_INSTANCES)
+def is_builtin_file_instance(node):
+    if not node.root().name == OPEN_MODULE:
+        return False
+    if six.PY2:
+        return node.name == 'file'
+    else:
+        return any(c.name == '_IOBase' for c in node.ancestors())
