@@ -907,8 +907,10 @@ class VariablesChecker(BaseChecker):
             forbid_lookup = isinstance(frame, astroid.FunctionDef) and _assigned_locally(node)
             if not forbid_lookup and defframe.root().lookup(name)[1]:
                 maybee0601 = False
-                use_outer_definition = stmt == defstmt and \
-                    not isinstance(defnode, astroid.node_classes.Comprehension)
+                use_outer_definition = (
+                    stmt == defstmt
+                    and not isinstance(defnode, astroid.node_classes.Comprehension)
+                )
             else:
                 # check if we have a nonlocal
                 if name in defframe.locals:
