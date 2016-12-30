@@ -376,7 +376,7 @@ MSGS = {
               'Used when a method doesn\'t use its bound instance, and so could '
               'be written as a function.'
              ),
-    'W0221': ('Arguments number differs from %s %r method',
+    'W0221': ('Parameters differ from %s %r method',
               'arguments-differ',
               'Used when a method has a different number of arguments than in '
               'the implemented interface or in an overridden method.'),
