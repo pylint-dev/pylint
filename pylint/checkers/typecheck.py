@@ -555,7 +555,7 @@ accessed. Python regular expressions are accepted.'}
         if isinstance(self.config.generated_members, six.string_types):
             gen = shlex.shlex(self.config.generated_members)
             gen.whitespace += ','
-            gen.wordchars += '[]-+\.*?'
+            gen.wordchars += '[]-+\.*?()|'
             self.config.generated_members = tuple(tok.strip('"') for tok in gen)
 
     @check_messages('invalid-metaclass')
