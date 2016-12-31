@@ -548,8 +548,70 @@ New checkers
      a = (1, )
 
 
+* Two new check were added for detecting an unsupported operation
+  over an instance, ``unsupported-assignment-operation`` and ``unsupported-delete-operation``.
+  The first one is emitted whenever an object does not support item assignment, while
+  the second is emitted when an object does not support item deletion:
+
+  .. code-block:: python
+
+      class A:
+          pass
+      instance = A()
+      instance[4] = 4 # unsupported-assignment-operation
+      del instance[4] # unsupported-delete-operation
+
+* A new check was added, ``relative-beyond-top-level``, which is emitted
+  when a relative import tries to access too many levels in the current package.
+
+* A new check was added, ``trailing-newlines``, which is emitted when a file
+  has trailing new lines.
+
+* ``invalid-length-returned`` check was added, which is emitted when a ``__len__``
+  implementation does not return a non-negative integer.
+
+* There is a new extension, ``pylint.extensions.mccabe``, which can be used for
+  computing the McCabe complexity of classes and functions.
+
+  You can enable this extension through ``--load-plugins=pylint.extensions.mccabe``
+
+
 Other Changes
 =============
+
+* Namespace packages are now supported by pylint. This includes both explicit namespace
+  packages and implicit namespace packages, supported in Python 3 through PEP 420.
+
+* A new option was added, ``--analyse-fallback-block``.
+
+  This can be used to support both Python 2 and 3 compatible import block code,
+  which means that the import block might have code that exists only in one or another
+  interpreter, leading to false positives when analysed. By default, this is false, you
+  can enable the analysis for both branches using this flag.
+
+* ``ignored-argument-names`` option is now used for ignoring arguments
+  for unused-variable check.
+
+  This option was used for ignoring arguments when computing the correct number of arguments
+  a function should have, but for handling the arguments with regard
+  to unused-variable check, dummy-variables-rgx was used instead. Now, ignored-argument-names
+  is used for its original purpose and also for ignoring the matched arguments for
+  the unused-variable check. This offers a better control of what should be ignored
+  and how.
+  Also, the same option was moved from the design checker to the variables checker,
+  which means that the option now appears under the ``[VARIABLES]`` section inside
+  the configuration file.
+
+* A new option was added, ``redefining-builtins-modules``, for controlling the modules
+  which can redefine builtins, such as six.moves and future.builtins.
+
+* A new option was added, ``ignore-patterns``, which is used for building a
+  blacklist of directories and files matching the regex patterns, similar to the
+  ``ignore`` option.
+
+
+* The reports are now disabled by default, as well as the information category
+  warnings.
 
 * ``arguments-differ`` check was rewritten to take in consideration
   keyword only parameters and variadics.
@@ -694,6 +756,10 @@ Other Changes
      CustomRun(sys.argv[1:])
 
 * Imports aliased with underscore are skipped when checking for unused imports.
+
+* ``bad-builtin`` and ``redefined-variable-type`` are now extensions,
+  being disabled by default. They can be enabled through:
+  ``--load-plugins=pylint.extensions.redefined_variable_type,pylint.extensions.bad_builtin``
 
 
 Bug fixes
