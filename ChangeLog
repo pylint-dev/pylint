@@ -29,6 +29,8 @@ Release date: tba
 
     * Added new extension to detect comparisons against empty string constants
 
+    * Added new extension to detect comparisons of integers against zero
+
     * Added new error conditions for 'bad-super-call'
 
       Now detects ``super(type(self), self)`` and ``super(self.__class__, self)``
