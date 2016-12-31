@@ -1,0 +1,3 @@
+used-before-assignment:7:used_before_assignment_1:Using variable 'x' before assignment
+used-before-assignment:13:used_before_assignment_2:Using variable 'x' before assignment
+used-before-assignment:19:used_before_assignment_3:Using variable 'x' before assignment
