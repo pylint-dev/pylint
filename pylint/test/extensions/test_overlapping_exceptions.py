@@ -7,22 +7,19 @@
 from sys import version_info
 from os.path import join, dirname
 
-from pylint import checkers
-from pylint.lint import PyLinter
 from pylint.extensions.overlapping_exceptions import OverlappingExceptionsChecker
-from pylint.testutils import MinimalTestReporter
 
 import pytest
 
 
-@pytest.fixture
-def linter():
-    linter = PyLinter()
-    linter.set_reporter(MinimalTestReporter())
-    checkers.initialize(linter)
-    linter.register_checker(OverlappingExceptionsChecker(linter))
-    linter.disable('I')
-    return linter
+@pytest.fixture(scope='module')
+def checker(checker):
+    return OverlappingExceptionsChecker
+
+
+@pytest.fixture(scope='module')
+def disable(disable):
+    return ['I']
 
 
 def test_overlapping_exceptions(linter):

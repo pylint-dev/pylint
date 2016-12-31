@@ -200,15 +200,14 @@ def test_more_args(fake_path, case):
         assert sys.path == fake_path
 
 
-@pytest.fixture
-def linter():
-    linter = PyLinter()
-    linter.disable('I')
-    linter.config.persistent = 0
-    # register checkers
-    checkers.initialize(linter)
-    linter.set_reporter(testutils.TestReporter())
-    return linter
+@pytest.fixture(scope='module')
+def disable(disable):
+    return ['I']
+
+
+@pytest.fixture(scope='module')
+def reporter(reporter):
+    return testutils.TestReporter
 
 
 @pytest.fixture

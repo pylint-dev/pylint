@@ -4,7 +4,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-import os
 import warnings
 
 import six
@@ -15,15 +14,14 @@ from pylint.reporters.text import TextReporter, ParseableTextReporter
 import pytest
 
 
-@pytest.fixture
-def linter():
-    linter = PyLinter(reporter=TextReporter())
-    linter.disable('I')
-    linter.config.persistent = 0
-    # register checkers
-    checkers.initialize(linter)
-    os.environ.pop('PYLINTRC', None)
-    return linter
+@pytest.fixture(scope='module')
+def reporter(reporter):
+    return TextReporter
+
+
+@pytest.fixture(scope='module')
+def disable(disable):
+    return ['I']
 
 
 def test_template_option(linter):

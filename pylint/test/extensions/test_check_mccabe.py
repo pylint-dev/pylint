@@ -11,10 +11,7 @@ import os.path as osp
 
 import pytest
 
-from pylint import checkers
-from pylint.extensions.mccabe import register
-from pylint.lint import PyLinter
-from pylint.testutils import MinimalTestReporter
+from pylint.extensions import mccabe
 
 EXPECTED_MSGS = [
     "'f1' is too complex. The McCabe rating is 1",
@@ -35,14 +32,18 @@ EXPECTED_MSGS = [
 
 
 @pytest.fixture(scope="module")
-def linter():
-    linter = PyLinter()
-    linter.set_reporter(MinimalTestReporter())
-    checkers.initialize(linter)
-    register(linter)
-    linter.disable('all')
-    linter.enable('too-complex')
-    return linter
+def enable(enable):
+    return ['too-complex']
+
+
+@pytest.fixture(scope="module")
+def disable(disable):
+    return ['all']
+
+
+@pytest.fixture(scope="module")
+def register(register):
+    return mccabe.register
 
 
 @pytest.fixture
