@@ -26,7 +26,9 @@ New checkers
   whenever **pylint** can detect a comparison to a literal. This is usually
   not what we want and, potentially, error prone. For instance, in the given example,
   the first string comparison returns true, since smaller strings are interned
-  by the interpreter, while for larger ones, it will return False::
+  by the interpreter, while for larger ones, it will return False:
+
+  .. code-block:: python
 
        mystring = "ok"
        if mystring is "ok": # Returns true
@@ -40,10 +42,12 @@ New checkers
   this use case.
 
 
-* We added a new refactoring message, 'consider-merging-isinstance', which is
+* We added a new refactoring message, ``consider-merging-isinstance``, which is
   emitted whenever we can detect that consecutive *isinstance* calls can be merged
   together.
-  For instance, in this example, we can merge the first two *isinstance* calls::
+  For instance, in this example, we can merge the first two *isinstance* calls:
+
+  .. code-block:: python
 
       $ cat a.py
       if isinstance(x, int) or isinstance(x, float):
@@ -267,6 +271,7 @@ New checkers
 * A new refactoring check was added, ``no-else-return``, which is
   emitted when pylint encounters an else following a chain of ifs,
   all of them containing a return statement.
+
   .. code-block:: python
 
     def foo1(x, y, z):
@@ -511,6 +516,7 @@ New checkers
 * A new refactoring check was added, ``consider-using-ternary``, which is
   emitted when pylint encounters constructs which were used to emulate
   ternary statement before it was introduced in Python 2.5.
+
   .. code-block:: python
 
     value = condition and truth_value or false_value
@@ -523,7 +529,7 @@ New checkers
     value = truth_value if condition else false_value
 
 
-* A new refactoring check was added, 'trailing-comma-tuple', which is emitted
+* A new refactoring check was added, ``trailing-comma-tuple``, which is emitted
   when pylint finds an one-element tuple, created by a stray comma. This can
   suggest a potential problem in the code and it is recommended to use parantheses
   in order to emphasise the creation of a tuple, rather than relying on the comma
@@ -546,11 +552,13 @@ Other Changes
 =============
 
 * ``arguments-differ`` check was rewritten to take in consideration
-   keyword only parameters and variadics.
+  keyword only parameters and variadics.
 
-   Now it also complains about losing or adding capabilities to a method,
-   by introducing positional or keyword variadics. For instance, *pylint*
-   now complains about these cases::
+  Now it also complains about losing or adding capabilities to a method,
+  by introducing positional or keyword variadics. For instance, *pylint*
+  now complains about these cases:
+
+  .. code-block:: python
 
        class Parent(object):
 
@@ -691,14 +699,14 @@ Other Changes
 Bug fixes
 =========
 
-* Fix a false positive of 'redundant-returns-doc', occurred when the documented
+* Fix a false positive of ``redundant-returns-doc``, occurred when the documented
   function was using *yield* instead of *return*.
 
-* Fix a false positive of 'missing-param-doc' and 'missing-type-doc',
-  occurred when a class docstring uses the 'For the parameters, see'
+* Fix a false positive of ``missing-param-doc`` and ``missing-type-doc``,
+  occurred when a class docstring uses the ``For the parameters, see``
   magic string but the class ``__init__`` docstring does not, or vice versa.
 
-* Added proper exception type inference for 'missing-raises-doc'. Now:
+* Added proper exception type inference for ``missing-raises-doc``. Now:
 
   .. code-block:: python
 
@@ -779,10 +787,10 @@ Bug fixes
      def _(x):
          return -x
 
-* `unused-variable` checker has new functionality of warning about unused
+* ``unused-variable`` checker has new functionality of warning about unused
   variables in global module namespace. Since globals in module namespace
   may be a part of exposed API, this check is disabled by default. For
-  enabling it, set `allow-global-unused-variables` to false.
+  enabling it, set ``allow-global-unused-variables`` option to false.
 
 Removed Changes
 ===============
