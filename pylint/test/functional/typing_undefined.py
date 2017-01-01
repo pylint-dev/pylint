@@ -5,18 +5,17 @@ from __future__ import (
     print_function,
 )
 
-import datetime
-from typing import Set, Optional, List
+# pylint: disable=line-too-long
 
 def func_1(arg1, arg2):
-    # type: (Set[int], Set[int]) -> Set[int]
-    var = None  # type: Optional[Set[int]]
+    # type: (Set[int], Set[int]) -> Set[int]  # [undefined-variable,undefined-variable,undefined-variable]
+    var = None  # type: Optional[Set[int]]  # [undefined-variable,undefined-variable]
     assert arg2
     if arg1:
         var = {1, 2, 3}
     return var
 
-def add(arg1,  # type: List[int]
+def add(arg1,  # type: List[int]  # [undefined-variable]
         arg2   # type: int
        ):
     # type: (...) -> int
@@ -28,15 +27,15 @@ def do_nothing():
 
 class Awesome(object):
 
-    DATA = []  # type: List[str]
+    DATA = []  # type: List[str] # [undefined-variable]
 
     def __init__(self, data):
         # type: (str) -> None
         self.data = data
-        self.arg = None  # type: Optional[datetime.date]
+        self.arg = None  # type: Optional[datetime.date] # [undefined-variable,undefined-variable]
 
     def set(self, arg, data):
-        # type: (datetime.date, str) -> None
+        # type: (datetime.date, str) -> None # [undefined-variable]
         self.arg = arg
         self.data = data
 

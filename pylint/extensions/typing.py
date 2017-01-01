@@ -15,7 +15,7 @@ from astroid.node_classes import NodeNG
 from astroid.context import InferenceContext
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IRawChecker
+from pylint.interfaces import IRawChecker, IAstroidChecker
 from pylint.lint import PyLinter
 
 MYPY = False
@@ -141,19 +141,27 @@ def expr_for_comment(comment):
 
     return expr
 
-def find_scope(node, lineno):
-    # type: (NodeNG, int) -> Tuple[NodeNG, int]
-    """Find the scope of the code at lineno."""
-    while True:
-        for i, child in enumerate(node.body):
-            if isinstance(child, (astroid.Module, astroid.ClassDef, astroid.FunctionDef)):
-                if child.fromlineno <= lineno <= child.tolineno:
-                    node = child
-                    break
+def find_insert_point(node, lineno):
+    # type: (NodeNG, int) -> int
+    """Find the insertion point for the lineno"""
+    for i, child in enumerate(node.body):
+        if child.tolineno >= lineno:
+            # This child node is past the line so insert here.
+            return i
 
-            if child.tolineno >= lineno:
-                # We went past the node.
-                return child.scope(), i
+def fill_scope_map(scope_map, node):
+    # type: (List[NodeNG], NodeNG) -> None
+    """Fill in the scope_map so that we get a quick lookup table of line numbers to scopes."""
+    if not isinstance(node, (astroid.Module, astroid.ClassDef, astroid.FunctionDef)):
+        return
+
+    # We want our line numbers to be 1 indexed, however fromlineno and to lineno are 0 indexed so add 1, except
+    # fromlineno always starts one line after the def or class so just don't add 1 to that one.
+    for line in range(node.fromlineno, node.tolineno + 1):
+        scope_map[line] = node
+
+    for child in node.get_children():
+        fill_scope_map(scope_map, child)
 
 def inject_imports(module):
     # type: (NodeNG) -> NodeNG
@@ -170,6 +178,10 @@ def inject_imports(module):
     if not re.search(r'#\s*type:', stream.read().decode()):
         return module
 
+    # Build a scope_map for faster lookups.
+    scope_map = [module] * (module.tolineno + 1)
+    fill_scope_map(scope_map, module)
+
     # Tokenize the file looking for those juicy # type: annotations.
     stream.seek(0)
     module.injected_lines = []
@@ -180,8 +192,14 @@ def inject_imports(module):
             if expr:
                 # Now convert that expression to an Assign node and insert it in the module.
                 assign = build_assign(expr, lineno)
-                scope, i = find_scope(module, lineno)
-                scope.body.insert(i, assign)
+                scope = scope_map[lineno]
+                i = find_insert_point(scope, lineno)
+                if isinstance(scope.body[i], astroid.Pass) and len(scope.body) == 1:
+                    # If what we have is a single pass statement then replace it with the assign.
+                    # This is to avoid 'unnecessary-pass' warnings.
+                    scope.body[i] = assign
+                else:
+                    scope.body.insert(i, assign)
                 assign.parent = scope
                 module.injected_lines.append(lineno)
 
@@ -197,7 +215,7 @@ class IgnoreMyPyWarnings(BaseChecker):
     statements on the same line so that's the only way to fix it.
 
     """
-    __implements__ = (IRawChecker,)
+    __implements__ = IRawChecker
 
     name = 'ignore-mypy'
     msgs = {
