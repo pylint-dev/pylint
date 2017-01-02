@@ -15,15 +15,15 @@ from astroid.node_classes import NodeNG
 from astroid.context import InferenceContext
 
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IRawChecker, IAstroidChecker
+from pylint.interfaces import IRawChecker
 from pylint.lint import PyLinter
-
-MYPY = False
-if MYPY:
-    from typing import Optional, Tuple, Iterator, Callable
 
 # Note: This module is in astroid.brain but astroid sticks it in the root.
 from brain_namedtuple_enum import infer_named_tuple
+
+MYPY = False
+if MYPY:
+    from typing import Optional, Iterator, Callable, List
 
 TYPING_SUBSCRIPTABLE_CLASSES = {
     # These are types that have metaclasses with __getitem__ methods
@@ -167,8 +167,9 @@ def fill_scope_map(scope_map, node):
     if not isinstance(node, (astroid.Module, astroid.ClassDef, astroid.FunctionDef)):
         return
 
-    # We want our line numbers to be 1 indexed, however fromlineno and to lineno are 0 indexed so add 1, except
-    # fromlineno always starts one line after the def or class so just don't add 1 to that one.
+    # We want our line numbers to be 1 indexed, however fromlineno and to lineno
+    # are 0 indexed so add 1, except fromlineno always starts one line after the
+    # def or class so just don't add 1 to that one.
     for line in range(node.fromlineno, node.tolineno + 1):
         scope_map[line] = node
 
@@ -187,7 +188,8 @@ def inject_imports(module):
         return module
 
     # Don't bother checking files without annotations.
-    if not re.search(r'#\s*type:', stream.read().decode()):
+    encoding = module.file_encoding or 'utf-8'
+    if not re.search(r'#\s*type:', stream.read().decode(encoding)):
         return module
 
     # Build a scope_map for faster lookups.
@@ -197,7 +199,7 @@ def inject_imports(module):
     # Tokenize the file looking for those juicy # type: annotations.
     stream.seek(0)
     module.injected_lines = []
-    tokens = tokenize.generate_tokens(lambda: stream.readline().decode())
+    tokens = tokenize.generate_tokens(lambda: stream.readline().decode(encoding))
     for tok_type, tok_val, (lineno, _), _, _ in tokens:
         if tok_type == tokenize.COMMENT:
             expr = expr_for_comment(tok_val)
