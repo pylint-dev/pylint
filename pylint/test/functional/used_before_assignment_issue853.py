@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,bare-except,pointless-statement
+# pylint: disable=missing-docstring,bare-except,pointless-statement,superfluous-parens
 def strangeproblem():
     try:
         for _ in range(0, 4):
