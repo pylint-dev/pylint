@@ -186,3 +186,11 @@ class TestSpellingChecker(CheckerTestCase):
             'def fff(param_name):\n   """test param_name"""\n   pass')
         self.checker.visit_functiondef(stmt)
         assert self.linter.release_messages() == []
+
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_email_address(self):
+        self.checker.process_tokens(tokenize_str('# uname@domain.tld'))
+        assert self.linter.release_messages() == []
