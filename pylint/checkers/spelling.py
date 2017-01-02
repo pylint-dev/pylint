@@ -19,6 +19,9 @@ try:
     from enchant.tokenize import get_tokenizer, Filter, EmailFilter, URLFilter, WikiWordFilter
 except ImportError:
     enchant = None
+    class Filter:
+        pass
+
 import six
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
