@@ -152,3 +152,26 @@ class TestSpellingChecker(CheckerTestCase):
     def test_skip_words_with_numbers(self):
         self.checker.process_tokens(tokenize_str('\n# 0ne\n# Thr33\n# Sh3ll'))
         assert self.linter.release_messages() == []
+
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_camel_cased_words(self):
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """ComentAbc with a bad coment"""\n   pass')
+        try:
+            with self.assertAddsMessages(
+                Message('wrong-spelling-in-docstring', line=2,
+                        args=('coment', 'ComentAbc with a bad coment',
+                              '                     ^^^^^^',
+                              "comet' or 'comment' or 'moment' or 'foment"))):
+                self.checker.visit_classdef(stmt)
+        except AssertionError:
+            # In Arch Linux, at least, the suggestions do not match
+            with self.assertAddsMessages(
+                Message('wrong-spelling-in-docstring', line=2,
+                        args=('coment', 'ComentAbc with a bad coment',
+                              '                     ^^^^^^',
+                              "comet' or 'comment' or 'cement' or 'cogent"))):
+                self.checker.visit_classdef(stmt)
