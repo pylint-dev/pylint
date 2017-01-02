@@ -86,6 +86,8 @@ class SpellingChecker(BaseTokenChecker):
                           'raising a message.'}),
               )
 
+    _python_coding_comment_re = re.compile(r"^[ \t\v]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)")
+
     def open(self):
         self.initialized = False
         self.private_dict_file = None
@@ -129,15 +131,6 @@ class SpellingChecker(BaseTokenChecker):
 
     def _check_spelling(self, msgid, line, line_num):
         line2 = line.strip()
-        if line_num == 1 and line.startswith('#!/'):
-            # Skip shebang lines
-            return
-        if line_num <= 2 and re.match("^[ \t\v]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)", line):
-            # Skip coding definition lines
-            return
-        if line.startswith('# pylint:'):
-            # Skip pylint enable/disable comments
-            return
         # Replace ['afadf with afadf (but preserve don't)
         line2 = re.sub("'([^a-zA-Z]|$)", " ", line2)
         # Replace afadf'] with afadf (but preserve don't)
@@ -220,6 +213,15 @@ class SpellingChecker(BaseTokenChecker):
         # Process tokens and look for comments.
         for (tok_type, token, (start_row, _), _, _) in tokens:
             if tok_type == tokenize.COMMENT:
+                if start_row == 1 and token.startswith('#!/'):
+                    # Skip shebang lines
+                    continue
+                if start_row <= 2 and self._python_coding_comment_re.match(token):
+                    # Skip coding definition lines
+                    continue
+                if token.startswith('# pylint:'):
+                    # Skip pylint enable/disable comments
+                    continue
                 self._check_spelling('wrong-spelling-in-comment',
                                      token, start_row)
 
