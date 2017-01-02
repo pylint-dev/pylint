@@ -175,3 +175,13 @@ class TestSpellingChecker(CheckerTestCase):
                               '                     ^^^^^^',
                               "comet' or 'comment' or 'cement' or 'cogent"))):
                 self.checker.visit_classdef(stmt)
+
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_words_with_underscores(self):
+        stmt = astroid.extract_node(
+            'def fff(param_name):\n   """test param_name"""\n   pass')
+        self.checker.visit_functiondef(stmt)
+        assert self.linter.release_messages() == []
