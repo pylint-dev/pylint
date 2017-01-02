@@ -35,12 +35,21 @@ class TestSpellingChecker(CheckerTestCase):
                         "spelling dictionaries")
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_coment(self):
-        with self.assertAddsMessages(
-            Message('wrong-spelling-in-comment', line=1,
-                    args=('coment', '# bad coment',
-                          '      ^^^^^^',
-                          "comet' or 'comment' or 'moment' or 'foment"))):
-            self.checker.process_tokens(tokenize_str("# bad coment"))
+        try:
+            with self.assertAddsMessages(
+                Message('wrong-spelling-in-comment', line=1,
+                        args=('coment', '# bad coment',
+                              '      ^^^^^^',
+                              "comet' or 'comment' or 'moment' or 'foment"))):
+                self.checker.process_tokens(tokenize_str("# bad coment"))
+        except AssertionError:
+            # In Arch Linux, at least, the suggestions do not match
+            with self.assertAddsMessages(
+                Message('wrong-spelling-in-comment', line=1,
+                        args=('coment', '# bad coment',
+                              '      ^^^^^^',
+                              "comet' or 'comment' or 'cement' or 'cogent"))):
+                self.checker.process_tokens(tokenize_str("# bad coment"))
 
     @pytest.mark.skipif(spell_dict is None,
                         reason="missing python-enchant package or missing "
@@ -49,21 +58,39 @@ class TestSpellingChecker(CheckerTestCase):
     def test_check_bad_docstring(self):
         stmt = astroid.extract_node(
             'def fff():\n   """bad coment"""\n   pass')
-        with self.assertAddsMessages(
-            Message('wrong-spelling-in-docstring', line=2,
-                    args=('coment', 'bad coment',
-                          '    ^^^^^^',
-                          "comet' or 'comment' or 'moment' or 'foment"))):
-            self.checker.visit_functiondef(stmt)
+        try:
+            with self.assertAddsMessages(
+                Message('wrong-spelling-in-docstring', line=2,
+                        args=('coment', 'bad coment',
+                              '    ^^^^^^',
+                              "comet' or 'comment' or 'moment' or 'foment"))):
+                self.checker.visit_functiondef(stmt)
+        except AssertionError:
+            # In Arch Linux, at least, the suggestions do not match
+            with self.assertAddsMessages(
+                Message('wrong-spelling-in-docstring', line=2,
+                        args=('coment', 'bad coment',
+                              '    ^^^^^^',
+                              "comet' or 'comment' or 'cement' or 'cogent"))):
+                self.checker.visit_functiondef(stmt)
 
         stmt = astroid.extract_node(
             'class Abc(object):\n   """bad coment"""\n   pass')
-        with self.assertAddsMessages(
-            Message('wrong-spelling-in-docstring', line=2,
-                    args=('coment', 'bad coment',
-                          '    ^^^^^^',
-                          "comet' or 'comment' or 'moment' or 'foment"))):
-            self.checker.visit_classdef(stmt)
+        try:
+            with self.assertAddsMessages(
+                Message('wrong-spelling-in-docstring', line=2,
+                        args=('coment', 'bad coment',
+                              '    ^^^^^^',
+                              "comet' or 'comment' or 'moment' or 'foment"))):
+                self.checker.visit_classdef(stmt)
+        except AssertionError:
+            # In Arch Linux, at least, the suggestions do not match
+            with self.assertAddsMessages(
+                Message('wrong-spelling-in-docstring', line=2,
+                        args=('coment', 'bad coment',
+                              '    ^^^^^^',
+                              "comet' or 'comment' or 'cement' or 'cogent"))):
+                self.checker.visit_classdef(stmt)
 
     @pytest.mark.skipif(spell_dict is None,
                         reason="missing python-enchant package or missing "
