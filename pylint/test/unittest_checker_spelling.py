@@ -194,3 +194,11 @@ class TestSpellingChecker(CheckerTestCase):
     def test_skip_email_address(self):
         self.checker.process_tokens(tokenize_str('# uname@domain.tld'))
         assert self.linter.release_messages() == []
+
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_urls(self):
+        self.checker.process_tokens(tokenize_str('# https://github.com/rfk/pyenchant'))
+        assert self.linter.release_messages() == []
