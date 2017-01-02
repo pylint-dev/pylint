@@ -935,9 +935,10 @@ functions, methods
     @utils.check_messages('except-pass')
     def visit_tryexcept(self, node):
         """Visit block try except"""
-        for orelse in node.orelse:
-            if isinstance(orelse, astroid.node_classes.Continue):
-                self.add_message('except-pass', node=node)
+        for handler in node.handlers:
+            for body in handler.body:
+                if isinstance(body, astroid.node_classes.Pass):
+                    self.add_message('except-pass', node=node)
 
     @utils.check_messages('exec-used')
     def visit_exec(self, node):
