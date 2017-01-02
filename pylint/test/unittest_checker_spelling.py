@@ -150,3 +150,11 @@ class TestSpellingChecker(CheckerTestCase):
                           "fut' or 'uhf"))):
             self.checker.process_tokens(tokenize_str(
                 '# Line 1\n# Line 2\n# vim: set fileencoding=utf-8 :'))
+
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_top_level_pylint_enable_disable_comments(self):
+        self.checker.process_tokens(tokenize_str('# Line 1\n Line 2\n# pylint: disable=ungrouped-imports'))
+        assert self.linter.release_messages() == []
