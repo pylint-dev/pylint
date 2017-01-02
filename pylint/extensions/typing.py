@@ -233,9 +233,9 @@ class IgnoreMyPyWarnings(BaseChecker):
 
 def register(linter):
     # type: (PyLinter) -> None
-    astroid.MANAGER.register_transform(astroid.Module, inject_imports)
-    astroid.MANAGER.register_transform(astroid.Subscript, astroid.inference_tip(infer_typing_subscript))
-    astroid.MANAGER.register_transform(astroid.Call, astroid.inference_tip(infer_typing_call),
-                                       call_looks_like('NamedTuple', 'NewType', 'TypeVar'))
-
     linter.register_checker(IgnoreMyPyWarnings(linter))
+
+astroid.MANAGER.register_transform(astroid.Module, inject_imports)
+astroid.MANAGER.register_transform(astroid.Subscript, astroid.inference_tip(infer_typing_subscript))
+astroid.MANAGER.register_transform(astroid.Call, astroid.inference_tip(infer_typing_call),
+                                   call_looks_like('NamedTuple', 'NewType', 'TypeVar'))
