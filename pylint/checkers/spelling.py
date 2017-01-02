@@ -16,6 +16,7 @@ import re
 
 try:
     import enchant
+    from enchant.tokenize import get_tokenizer, Filter, EmailFilter, URLFilter, WikiWordFilter
 except ImportError:
     enchant = None
 import six
@@ -42,6 +43,27 @@ else:
     instr = " To make it working install python-enchant package."
 
 table = maketrans("", "")
+
+
+class WordsWithDigigtsFilter(Filter):
+    """
+    Skips words with digits
+    """
+    _pattern = re.compile(r"\d")
+
+    def _skip(self, word):
+        if self._pattern.findall(word):
+            return True
+        return False
+
+
+class WordsWithUnderscores(Filter):
+    """
+    Skips words with underscores.
+    They are probably function parameter names.
+    """
+    def _skip(self, word):
+        return word.count('_') > 0
 
 
 class SpellingChecker(BaseTokenChecker):
@@ -86,8 +108,6 @@ class SpellingChecker(BaseTokenChecker):
                           'raising a message.'}),
               )
 
-    _python_coding_comment_re = re.compile(r"^[ \t\v]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)")
-
     def open(self):
         self.initialized = False
         self.private_dict_file = None
@@ -123,6 +143,11 @@ class SpellingChecker(BaseTokenChecker):
         # ' and _ are treated in a special way.
         puncts = string.punctuation.replace("'", "").replace("_", "")
         self.punctuation_regex = re.compile('[%s]' % re.escape(puncts))
+        self.tokenizer = get_tokenizer(dict_name, filters=[EmailFilter,
+                                                           URLFilter,
+                                                           WikiWordFilter,
+                                                           WordsWithDigigtsFilter,
+                                                           WordsWithUnderscores])
         self.initialized = True
 
     def close(self):
@@ -130,35 +155,7 @@ class SpellingChecker(BaseTokenChecker):
             self.private_dict_file.close()
 
     def _check_spelling(self, msgid, line, line_num):
-        line2 = line.strip()
-        # Replace ['afadf with afadf (but preserve don't)
-        line2 = re.sub("'([^a-zA-Z]|$)", " ", line2)
-        # Replace afadf'] with afadf (but preserve don't)
-        line2 = re.sub("([^a-zA-Z]|^)'", " ", line2)
-        # Replace punctuation signs with space e.g. and/or -> and or
-        line2 = self.punctuation_regex.sub(' ', line2)
-
-        words = []
-        for word in line2.split():
-            # Skip words with digits.
-            if re.findall(r"\d", word):
-                continue
-
-            # Skip words with mixed big and small letters,
-            # they are probaly class names.
-            if (re.findall("[A-Z]", word) and
-                    re.findall("[a-z]", word) and
-                    len(word) > 2):
-                continue
-
-            # Skip words with _ - they are probably function parameter names.
-            if word.count('_') > 0:
-                continue
-
-            words.append(word)
-
-        # Go through words and check them.
-        for word in words:
+        for word, _ in self.tokenizer(line.strip()):
             # Skip words from ignore list.
             if word in self.ignore_list:
                 continue
@@ -215,9 +212,6 @@ class SpellingChecker(BaseTokenChecker):
             if tok_type == tokenize.COMMENT:
                 if start_row == 1 and token.startswith('#!/'):
                     # Skip shebang lines
-                    continue
-                if start_row <= 2 and self._python_coding_comment_re.match(token):
-                    # Skip coding definition lines
                     continue
                 if token.startswith('# pylint:'):
                     # Skip pylint enable/disable comments
