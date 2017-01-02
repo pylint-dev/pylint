@@ -25,14 +25,21 @@ if MYPY:
 # Note: This module is in astroid.brain but astroid sticks it in the root.
 from brain_namedtuple_enum import infer_named_tuple
 
-TYPING_SUBSCRIPTABLE_QNAMES = {
+TYPING_SUBSCRIPTABLE_CLASSES = {
     # These are types that have metaclasses with __getitem__ methods
     # that return new classes of the base class.
-    'typing.Union',
     'typing.Generic',
     'typing.Tuple',
-    'typing.Optional',
     'typing.Callable',
+    # Older versions of typing have this as classes.
+    'typing.Union',
+    'typing.Optional',
+}
+
+TYPING_SUBSCRIPTABLE_INSTANCES = {
+    # Newer versions of the typing module say Union = _Union(..)
+    'typing._Union',
+    'typing._Optional',
 }
 
 def infer_typing_subscript(node, context=None):
@@ -41,9 +48,14 @@ def infer_typing_subscript(node, context=None):
     assert isinstance(node, astroid.Subscript)
     for value in node.value.infer(context=context):
         if isinstance(value, astroid.ClassDef):
-            for qname in TYPING_SUBSCRIPTABLE_QNAMES:
-                if value.is_subtype_of(qname):
+            for cls in TYPING_SUBSCRIPTABLE_CLASSES:
+                if value.is_subtype_of(cls):
                     return iter([value])
+        if isinstance(value, astroid.Instance):
+            if value.qname() in TYPING_SUBSCRIPTABLE_INSTANCES:
+                # Now infer the value to get the ClassDef
+                return iter(value.inferred())
+
     raise astroid.UseInferenceDefault
 
 def infer_typing_call(node, context=None):
