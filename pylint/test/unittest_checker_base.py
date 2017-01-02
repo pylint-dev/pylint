@@ -178,6 +178,17 @@ class TestNameChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_assignname(assign.targets[0])
 
+    def test_function_level_class_alias(self):
+        assign = astroid.extract_node("""
+        import collections
+        def f():
+            Class = collections.namedtuple("a", ("b", "c")) #@
+            return Class((1, 2))
+        """)
+
+        with self.assertNoMessages():
+            self.checker.visit_assignname(assign.targets[0])
+
 
 class TestMultiNamingStyle(CheckerTestCase):
     CHECKER_CLASS = base.NameChecker
