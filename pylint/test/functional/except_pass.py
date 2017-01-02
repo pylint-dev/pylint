@@ -1,6 +1,6 @@
 # coding: utf-8
 """Test Except Pass usage"""
-# pylint: disable=too-few-public-methods, no-self-use
+# pylint: disable=too-few-public-methods, no-self-use, continue-in-finally
 
 
 class TestExceptPass(object):
