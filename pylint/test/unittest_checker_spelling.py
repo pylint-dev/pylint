@@ -111,3 +111,42 @@ class TestSpellingChecker(CheckerTestCase):
     def test_skip_shebangs(self):
         self.checker.process_tokens(tokenize_str('#!/usr/bin/env python'))
         assert self.linter.release_messages() == []
+
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_python_coding_comments(self):
+        self.checker.process_tokens(tokenize_str(
+            '# -*- coding: utf-8 -*-'))
+        assert self.linter.release_messages() == []
+        self.checker.process_tokens(tokenize_str(
+            '# coding=utf-8'))
+        assert self.linter.release_messages() == []
+        self.checker.process_tokens(tokenize_str(
+            '# vim: set fileencoding=utf-8 :'))
+        assert self.linter.release_messages() == []
+        # Now with a shebang first
+        self.checker.process_tokens(tokenize_str(
+            '#!/usr/bin/env python\n# -*- coding: utf-8 -*-'))
+        assert self.linter.release_messages() == []
+        self.checker.process_tokens(tokenize_str(
+            '#!/usr/bin/env python\n# coding=utf-8'))
+        assert self.linter.release_messages() == []
+        self.checker.process_tokens(tokenize_str(
+            '#!/usr/bin/env python\n# vim: set fileencoding=utf-8 :'))
+        assert self.linter.release_messages() == []
+        # Howerver, if not found on the first 2 lines...
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-comment', line=3,
+                    args=('fileencoding',
+                          '# vim: set fileencoding=utf-8 :',
+                          '           ^^^^^^^^^^^^',
+                          "file encoding' or 'file-encoding' or 'filigreeing")),
+            Message('wrong-spelling-in-comment', line=3,
+                    args=('utf',
+                          '# vim: set fileencoding=utf-8 :',
+                          '                        ^^^',
+                          "fut' or 'uhf"))):
+            self.checker.process_tokens(tokenize_str(
+                '# Line 1\n# Line 2\n# vim: set fileencoding=utf-8 :'))
