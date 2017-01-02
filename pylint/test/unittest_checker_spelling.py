@@ -103,3 +103,11 @@ class TestSpellingChecker(CheckerTestCase):
             Message('invalid-characters-in-docstring', line=2,
                     args=('test\x00',))):
             self.checker.visit_functiondef(stmt)
+
+    @pytest.mark.skipif(spell_dict is None,
+                        reason="missing python-enchant package or missing "
+                        "spelling dictionaries")
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_shebangs(self):
+        self.checker.process_tokens(tokenize_str('#!/usr/bin/env python'))
+        assert self.linter.release_messages() == []
