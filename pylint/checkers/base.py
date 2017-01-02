@@ -656,6 +656,10 @@ functions, methods
                   'Emitted when a conditional statement (If or ternary if) '
                   'uses a constant value for its test. This might not be what '
                   'the user intended to do.'),
+        'W0126': ('pass into block except',
+                  'except-pass',
+                  'If you really need to use the pass consider logging that'
+                  'exception'),
         'E0111': ('The first reversed() argument is not a sequence',
                   'bad-reversed-sequence',
                   'Used when the first argument to reversed() builtin '
@@ -921,12 +925,19 @@ functions, methods
         # 2 - Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'break', (astroid.For, astroid.While,))
 
-    @utils.check_messages('unreachable')
+    @utils.check_messages('unreachable', 'except-pass')
     def visit_raise(self, node):
         """check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
+
+    @utils.check_messages('except-pass')
+    def visit_tryexcept(self, node):
+        """Visit block try except"""
+        for orelse in node.orelse:
+            if isinstance(orelse, astroid.node_classes.Continue):
+                self.add_message('except-pass', node=node)
 
     @utils.check_messages('exec-used')
     def visit_exec(self, node):
