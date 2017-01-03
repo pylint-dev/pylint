@@ -16,9 +16,7 @@ import pytest
 
 import astroid
 import pylint.testutils as testutils
-from pylint import checkers
 from pylint import epylint
-from pylint import lint
 
 
 REGR_DATA = join(dirname(abspath(__file__)), 'regrtest_data')
@@ -31,14 +29,13 @@ except AttributeError:
 
 
 @pytest.fixture(scope="module")
-def linter():
-    test_reporter = testutils.TestReporter()
-    linter = lint.PyLinter()
-    linter.set_reporter(test_reporter)
-    linter.disable('I')
-    linter.config.persistent = 0
-    checkers.initialize(linter)
-    return linter
+def reporter(reporter):
+    return testutils.TestReporter
+
+
+@pytest.fixture(scope="module")
+def disable(disable):
+    return ['I']
 
 
 @pytest.fixture

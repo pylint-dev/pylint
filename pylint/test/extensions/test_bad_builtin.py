@@ -10,10 +10,8 @@ import os.path as osp
 
 import pytest
 
-from pylint import checkers
 from pylint.extensions.bad_builtin import BadBuiltinChecker
-from pylint.lint import PyLinter, fix_import_path
-from pylint.testutils import MinimalTestReporter
+from pylint.lint import fix_import_path
 
 
 EXPECTED = [
@@ -22,14 +20,14 @@ EXPECTED = [
 ]
 
 
-@pytest.fixture(scope="module")
-def linter():
-    linter = PyLinter()
-    linter.set_reporter(MinimalTestReporter())
-    checkers.initialize(linter)
-    linter.register_checker(BadBuiltinChecker(linter))
-    linter.disable('I')
-    return linter
+@pytest.fixture(scope='module')
+def checker(checker):
+    return BadBuiltinChecker
+
+
+@pytest.fixture(scope='module')
+def disable(disable):
+    return ['I']
 
 
 def test_types_redefined(linter):

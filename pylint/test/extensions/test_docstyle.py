@@ -11,10 +11,7 @@ import os.path as osp
 
 import pytest
 
-from pylint import checkers
 from pylint.extensions.docstyle import DocStringStyleChecker
-from pylint.lint import PyLinter
-from pylint.testutils import MinimalTestReporter
 
 
 EXPECTED_MSGS = [
@@ -39,12 +36,8 @@ EXPECTED_SYMBOLS = [
 
 
 @pytest.fixture(scope="module")
-def linter():
-    linter = PyLinter()
-    linter.set_reporter(MinimalTestReporter())
-    checkers.initialize(linter)
-    linter.register_checker(DocStringStyleChecker(linter))
-    return linter
+def checker(checker):
+    return DocStringStyleChecker
 
 
 def test_docstring_message(linter):

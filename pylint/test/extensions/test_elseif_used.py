@@ -11,19 +11,12 @@ import os.path as osp
 
 import pytest
 
-from pylint import checkers
 from pylint.extensions.check_elif import ElseifUsedChecker
-from pylint.lint import PyLinter
-from pylint.testutils import MinimalTestReporter
 
 
 @pytest.fixture(scope="module")
-def linter():
-    linter = PyLinter()
-    linter.set_reporter(MinimalTestReporter())
-    checkers.initialize(linter)
-    linter.register_checker(ElseifUsedChecker(linter))
-    return linter
+def checker(checker):
+    return ElseifUsedChecker
 
 
 def test_elseif_message(linter):

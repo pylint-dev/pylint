@@ -10,10 +10,8 @@ import os.path as osp
 
 import pytest
 
-from pylint import checkers
 from pylint.extensions.redefined_variable_type import MultipleTypesChecker
-from pylint.lint import PyLinter, fix_import_path
-from pylint.testutils import MinimalTestReporter
+from pylint.lint import fix_import_path
 
 
 EXPECTED = [
@@ -30,13 +28,13 @@ EXPECTED = [
 
 
 @pytest.fixture(scope="module")
-def linter():
-    linter = PyLinter()
-    linter.set_reporter(MinimalTestReporter())
-    checkers.initialize(linter)
-    linter.register_checker(MultipleTypesChecker(linter))
-    linter.disable('I')
-    return linter
+def checker(checker):
+    return MultipleTypesChecker
+
+
+@pytest.fixture(scope="module")
+def disable(disable):
+    return ['I']
 
 
 def test_types_redefined(linter):
