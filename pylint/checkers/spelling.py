@@ -53,11 +53,11 @@ class WordsWithDigigtsFilter(Filter):
     """
     Skips words with digits
     """
-    _pattern = re.compile(r"\d")
 
     def _skip(self, word):
-        if self._pattern.findall(word):
-            return True
+        for char in word:
+            if char.isdigit():
+                return True
         return False
 
 
