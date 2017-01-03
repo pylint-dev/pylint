@@ -30,9 +30,11 @@ if enchant is not None:
 class TestSpellingChecker(CheckerTestCase):
     CHECKER_CLASS = spelling.SpellingChecker
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    skip_on_missing_package_or_dict = pytest.mark.skipif(
+        spell_dict is None,
+        reason="missing python-enchant package or missing spelling dictionaries")
+
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_coment(self):
         try:
@@ -51,9 +53,7 @@ class TestSpellingChecker(CheckerTestCase):
                               "comet' or 'comment' or 'cement' or 'cogent"))):
                 self.checker.process_tokens(tokenize_str("# bad coment"))
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_docstring(self):
         stmt = astroid.extract_node(
@@ -93,9 +93,7 @@ class TestSpellingChecker(CheckerTestCase):
                 self.checker.visit_classdef(stmt)
 
     @pytest.mark.skipif(True, reason='pyenchant\'s tokenizer strips these')
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_invalid_docstring_characters(self):
         stmt = astroid.extract_node(
@@ -105,17 +103,13 @@ class TestSpellingChecker(CheckerTestCase):
                     args=('test\x00',))):
             self.checker.visit_functiondef(stmt)
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_shebangs(self):
         self.checker.process_tokens(tokenize_str('#!/usr/bin/env python'))
         assert self.linter.release_messages() == []
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_python_coding_comments(self):
         self.checker.process_tokens(tokenize_str(
@@ -138,25 +132,19 @@ class TestSpellingChecker(CheckerTestCase):
             '#!/usr/bin/env python\n# vim: set fileencoding=utf-8 :'))
         assert self.linter.release_messages() == []
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_top_level_pylint_enable_disable_comments(self):
         self.checker.process_tokens(tokenize_str('# Line 1\n Line 2\n# pylint: disable=ungrouped-imports'))
         assert self.linter.release_messages() == []
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_words_with_numbers(self):
         self.checker.process_tokens(tokenize_str('\n# 0ne\n# Thr33\n# Sh3ll'))
         assert self.linter.release_messages() == []
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_camel_cased_words(self):
         stmt = astroid.extract_node(
@@ -177,9 +165,7 @@ class TestSpellingChecker(CheckerTestCase):
                               "comet' or 'comment' or 'cement' or 'cogent"))):
                 self.checker.visit_classdef(stmt)
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_words_with_underscores(self):
         stmt = astroid.extract_node(
@@ -187,17 +173,13 @@ class TestSpellingChecker(CheckerTestCase):
         self.checker.visit_functiondef(stmt)
         assert self.linter.release_messages() == []
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_email_address(self):
         self.checker.process_tokens(tokenize_str('# uname@domain.tld'))
         assert self.linter.release_messages() == []
 
-    @pytest.mark.skipif(spell_dict is None,
-                        reason="missing python-enchant package or missing "
-                        "spelling dictionaries")
+    @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_urls(self):
         self.checker.process_tokens(tokenize_str('# https://github.com/rfk/pyenchant'))
