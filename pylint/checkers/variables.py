@@ -1126,7 +1126,6 @@ class VariablesChecker(BaseChecker):
             parts = name.split('.')
             try:
                 module = next(node.infer_name_module(parts[0]))
-
             except astroid.ResolveError:
                 continue
             self._check_module_attrs(node, module, parts[1:])

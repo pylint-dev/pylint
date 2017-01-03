@@ -149,7 +149,7 @@ class KeywordArgument(object):
     func = lambda arg=arg: arg * arg # [undefined-variable]
 
     arg2 = 0
-    func3 = lambda arg2=arg2: arg2 * arg2
+    func2 = lambda arg2=arg2: arg2 * arg2
 
 # Don't emit if the code is protected by NameError
 try:
