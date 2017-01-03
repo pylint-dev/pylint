@@ -57,8 +57,9 @@ MSGS = {
     }
 
 
-CHECKED_CONVENIENCE_FUNCTIONS = {'critical', 'debug', 'error', 'exception',
-                                 'fatal', 'info', 'warn', 'warning'}
+CHECKED_CONVENIENCE_FUNCTIONS = {
+    'critical', 'debug', 'error', 'exception', 'fatal', 'info', 'warn', 'warning'
+}
 
 
 def is_method_call(func, types=(), methods=()):
@@ -233,7 +234,7 @@ class LoggingChecker(checkers.BaseChecker):
 
 
 def is_complex_format_str(node):
-    """ Checks if node represents a string with complex formatting specs.
+    """Checks if node represents a string with complex formatting specs.
 
     Args:
         node (astroid.node_classes.NodeNG): AST node to check
