@@ -67,7 +67,7 @@ class WordsWithUnderscores(Filter):
     They are probably function parameter names.
     """
     def _skip(self, word):
-        return word.count('_') > 0
+        return '_' in word
 
 
 class SpellingChecker(BaseTokenChecker):
