@@ -37,60 +37,35 @@ class TestSpellingChecker(CheckerTestCase):
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_coment(self):
-        try:
-            with self.assertAddsMessages(
-                Message('wrong-spelling-in-comment', line=1,
-                        args=('coment', '# bad coment',
-                              '      ^^^^^^',
-                              "comet' or 'comment' or 'moment' or 'foment"))):
-                self.checker.process_tokens(tokenize_str("# bad coment"))
-        except AssertionError:
-            # In Arch Linux, at least, the suggestions do not match
-            with self.assertAddsMessages(
-                Message('wrong-spelling-in-comment', line=1,
-                        args=('coment', '# bad coment',
-                              '      ^^^^^^',
-                              "comet' or 'comment' or 'cement' or 'cogent"))):
-                self.checker.process_tokens(tokenize_str("# bad coment"))
+        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-comment', line=1,
+                    args=('coment', '# bad coment',
+                          '      ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.process_tokens(tokenize_str("# bad coment"))
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_docstring(self):
+        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         stmt = astroid.extract_node(
             'def fff():\n   """bad coment"""\n   pass')
-        try:
-            with self.assertAddsMessages(
-                Message('wrong-spelling-in-docstring', line=2,
-                        args=('coment', 'bad coment',
-                              '    ^^^^^^',
-                              "comet' or 'comment' or 'moment' or 'foment"))):
-                self.checker.visit_functiondef(stmt)
-        except AssertionError:
-            # In Arch Linux, at least, the suggestions do not match
-            with self.assertAddsMessages(
-                Message('wrong-spelling-in-docstring', line=2,
-                        args=('coment', 'bad coment',
-                              '    ^^^^^^',
-                              "comet' or 'comment' or 'cement' or 'cogent"))):
-                self.checker.visit_functiondef(stmt)
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'bad coment',
+                          '    ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_functiondef(stmt)
 
         stmt = astroid.extract_node(
             'class Abc(object):\n   """bad coment"""\n   pass')
-        try:
-            with self.assertAddsMessages(
-                Message('wrong-spelling-in-docstring', line=2,
-                        args=('coment', 'bad coment',
-                              '    ^^^^^^',
-                              "comet' or 'comment' or 'moment' or 'foment"))):
-                self.checker.visit_classdef(stmt)
-        except AssertionError:
-            # In Arch Linux, at least, the suggestions do not match
-            with self.assertAddsMessages(
-                Message('wrong-spelling-in-docstring', line=2,
-                        args=('coment', 'bad coment',
-                              '    ^^^^^^',
-                              "comet' or 'comment' or 'cement' or 'cogent"))):
-                self.checker.visit_classdef(stmt)
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'bad coment',
+                          '    ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
 
     @pytest.mark.skipif(True, reason='pyenchant\'s tokenizer strips these')
     @skip_on_missing_package_or_dict
@@ -147,23 +122,15 @@ class TestSpellingChecker(CheckerTestCase):
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_camel_cased_words(self):
+        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """ComentAbc with a bad coment"""\n   pass')
-        try:
-            with self.assertAddsMessages(
-                Message('wrong-spelling-in-docstring', line=2,
-                        args=('coment', 'ComentAbc with a bad coment',
-                              '                     ^^^^^^',
-                              "comet' or 'comment' or 'moment' or 'foment"))):
-                self.checker.visit_classdef(stmt)
-        except AssertionError:
-            # In Arch Linux, at least, the suggestions do not match
-            with self.assertAddsMessages(
-                Message('wrong-spelling-in-docstring', line=2,
-                        args=('coment', 'ComentAbc with a bad coment',
-                              '                     ^^^^^^',
-                              "comet' or 'comment' or 'cement' or 'cogent"))):
-                self.checker.visit_classdef(stmt)
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'ComentAbc with a bad coment',
+                          '                     ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
