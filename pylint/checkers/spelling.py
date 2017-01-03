@@ -20,7 +20,8 @@ try:
 except ImportError:
     enchant = None
     class Filter:
-        pass
+        def _skip(self, word):
+            raise NotImplementedError
 
 import six
 
