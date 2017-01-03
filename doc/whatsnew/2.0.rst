@@ -858,6 +858,10 @@ Bug fixes
   may be a part of exposed API, this check is disabled by default. For
   enabling it, set ``allow-global-unused-variables`` option to false.
 
+* Fix a false-positive ``logging-format-interpolation`` message, when format
+  specifications are used in formatted string. In general, these operations
+  are not always convertible to old-style formatting used by logging module.
+
 Removed Changes
 ===============
 

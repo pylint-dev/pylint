@@ -250,6 +250,11 @@ Release date: tba
 
       Closes #1204
 
+    * Bug-fix for false-positive logging-format-interpolation` when format specifications
+      are used in formatted string.
+
+      Fixes #572
+
 
 What's new in Pylint 1.6.3?
 ===========================
