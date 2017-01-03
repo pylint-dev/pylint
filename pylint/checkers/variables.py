@@ -901,8 +901,9 @@ class VariablesChecker(BaseChecker):
         else:
             # we are in a local scope, check the name is not
             # defined in global or builtin scope
-            # skip this lookup if name is assigned later in given scope
-            if not _assigned_locally(node) and defframe.root().lookup(name)[1]:
+            # skip this lookup if name is assigned later in function scope
+            forbid_lookup = isinstance(frame, astroid.FunctionDef) and _assigned_locally(node)
+            if not forbid_lookup and defframe.root().lookup(name)[1]:
                 maybee0601 = False
             else:
                 # check if we have a nonlocal
