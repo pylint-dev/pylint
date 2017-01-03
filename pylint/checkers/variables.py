@@ -221,6 +221,14 @@ def _flattened_scope_names(iterator):
     return set(itertools.chain.from_iterable(values))
 
 
+def _assigned_locally(name_node):
+    """
+    Checks if name_node has corresponding assign statement in same scope
+    """
+    assign_stmts = name_node.scope().nodes_of_class(astroid.AssignName)
+    return any(a.name == name_node.name for a in assign_stmts)
+
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
@@ -893,7 +901,8 @@ class VariablesChecker(BaseChecker):
         else:
             # we are in a local scope, check the name is not
             # defined in global or builtin scope
-            if defframe.root().lookup(name)[1]:
+            # skip this lookup if name is assigned later in given scope
+            if not _assigned_locally(node) and defframe.root().lookup(name)[1]:
                 maybee0601 = False
             else:
                 # check if we have a nonlocal
