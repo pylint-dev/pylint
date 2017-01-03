@@ -714,6 +714,69 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
+    def test_non_py2_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.maxsize:
+            x.iterkeys()  #@
+        '''
+        node = astroid.extract_node(code)
+        module = node.parent.parent
+        message = testutils.Message('dict-iter-method', node=node)
+        with self.assertAddsMessages(message):
+            self.walk(module)
+
+    def test_six_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import six
+        x = {}
+        if six.PY2:
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_versioninfo_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.version_info[0] == 2:
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_versioninfo_tuple_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.version_info == (2, 7):
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_six_ifexp_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import six
+        import string
+        string.translate if six.PY2 else None
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
 
 @python2_only
 class TestPython3TokenChecker(testutils.CheckerTestCase):
