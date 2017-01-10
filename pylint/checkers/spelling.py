@@ -50,8 +50,7 @@ table = maketrans("", "")
 
 
 class WordsWithDigigtsFilter(Filter):
-    """
-    Skips words with digits
+    """Skips words with digits.
     """
 
     def _skip(self, word):
@@ -62,8 +61,8 @@ class WordsWithDigigtsFilter(Filter):
 
 
 class WordsWithUnderscores(Filter):
-    """
-    Skips words with underscores.
+    """Skips words with underscores.
+
     They are probably function parameter names.
     """
     def _skip(self, word):
