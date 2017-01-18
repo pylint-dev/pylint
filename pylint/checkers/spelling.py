@@ -16,8 +16,13 @@ import re
 
 try:
     import enchant
+    from enchant.tokenize import get_tokenizer, Filter, EmailFilter, URLFilter, WikiWordFilter
 except ImportError:
     enchant = None
+    class Filter:
+        def _skip(self, word):
+            raise NotImplementedError
+
 import six
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
@@ -42,6 +47,26 @@ else:
     instr = " To make it working install python-enchant package."
 
 table = maketrans("", "")
+
+
+class WordsWithDigigtsFilter(Filter):
+    """Skips words with digits.
+    """
+
+    def _skip(self, word):
+        for char in word:
+            if char.isdigit():
+                return True
+        return False
+
+
+class WordsWithUnderscores(Filter):
+    """Skips words with underscores.
+
+    They are probably function parameter names.
+    """
+    def _skip(self, word):
+        return '_' in word
 
 
 class SpellingChecker(BaseTokenChecker):
@@ -121,6 +146,11 @@ class SpellingChecker(BaseTokenChecker):
         # ' and _ are treated in a special way.
         puncts = string.punctuation.replace("'", "").replace("_", "")
         self.punctuation_regex = re.compile('[%s]' % re.escape(puncts))
+        self.tokenizer = get_tokenizer(dict_name, filters=[EmailFilter,
+                                                           URLFilter,
+                                                           WikiWordFilter,
+                                                           WordsWithDigigtsFilter,
+                                                           WordsWithUnderscores])
         self.initialized = True
 
     def close(self):
@@ -128,44 +158,7 @@ class SpellingChecker(BaseTokenChecker):
             self.private_dict_file.close()
 
     def _check_spelling(self, msgid, line, line_num):
-        line2 = line.strip()
-        if line_num == 1 and line.startswith('#!/'):
-            # Skip shebang lines
-            return
-        if line_num <= 2 and re.match("^[ \t\v]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)", line):
-            # Skip coding definition lines
-            return
-        if line.startswith('# pylint:'):
-            # Skip pylint enable/disable comments
-            return
-        # Replace ['afadf with afadf (but preserve don't)
-        line2 = re.sub("'([^a-zA-Z]|$)", " ", line2)
-        # Replace afadf'] with afadf (but preserve don't)
-        line2 = re.sub("([^a-zA-Z]|^)'", " ", line2)
-        # Replace punctuation signs with space e.g. and/or -> and or
-        line2 = self.punctuation_regex.sub(' ', line2)
-
-        words = []
-        for word in line2.split():
-            # Skip words with digits.
-            if re.findall(r"\d", word):
-                continue
-
-            # Skip words with mixed big and small letters,
-            # they are probaly class names.
-            if (re.findall("[A-Z]", word) and
-                    re.findall("[a-z]", word) and
-                    len(word) > 2):
-                continue
-
-            # Skip words with _ - they are probably function parameter names.
-            if word.count('_') > 0:
-                continue
-
-            words.append(word)
-
-        # Go through words and check them.
-        for word in words:
+        for word, _ in self.tokenizer(line.strip()):
             # Skip words from ignore list.
             if word in self.ignore_list:
                 continue
@@ -211,7 +204,7 @@ class SpellingChecker(BaseTokenChecker):
                 self.add_message(msgid, line=line_num,
                                  args=(orig_word, line,
                                        indicator,
-                                       "' or '".join(suggestions)))
+                                       "'{0}'".format("' or '".join(suggestions))))
 
     def process_tokens(self, tokens):
         if not self.initialized:
@@ -220,6 +213,12 @@ class SpellingChecker(BaseTokenChecker):
         # Process tokens and look for comments.
         for (tok_type, token, (start_row, _), _, _) in tokens:
             if tok_type == tokenize.COMMENT:
+                if start_row == 1 and token.startswith('#!/'):
+                    # Skip shebang lines
+                    continue
+                if token.startswith('# pylint:'):
+                    # Skip pylint enable/disable comments
+                    continue
                 self._check_spelling('wrong-spelling-in-comment',
                                      token, start_row)
 
