@@ -7,6 +7,9 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Added a new plugin (pylint.extensions.typing) to support PEP484 style Type Comments.
+      It also fixes some noisy lint messages around Subscripts and invalid names.
+
     * Require one space for annotations with type hints, as per PEP 8.
 
     * 'trailing-comma-tuple' check was added
