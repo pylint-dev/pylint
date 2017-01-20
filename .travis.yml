@@ -21,6 +21,8 @@ before_install:
   - python --version
   - uname -a
   - lsb_release -a
+  - sudo apt-get -qq update
+  - sudo apt-get install -y enchant
 install:
   - pip install tox coverage coveralls
   - virtualenv --version
