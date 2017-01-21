@@ -842,3 +842,41 @@ def is_registered_in_singledispatch_function(node):
             return decorated_with(func_def, singledispatch_qnames)
 
     return False
+
+
+def splitlines(value, keepends=False):
+    """Splitlines only on universal newlines for consistency across python2
+    and python3, as well as across str and unicode inputs in python2."""
+    value_len = len(value)
+    i = 0
+    j = 0
+    nfind = value.find('\n', j)
+    rfind = value.find('\r', j)
+    # find a line and yield it
+    while j < value_len:
+        # if \n or \r is not in the string its find will only run once.
+        # if the character is behind our seek point then find the next one.
+        nfind = value.find('\n', j) if nfind != -1 and nfind + 1 <= j else nfind
+        rfind = value.find('\r', j) if rfind != -1 and rfind + 1 <= j else rfind
+        # these can only ever be equal if both are not found
+        if nfind == rfind:
+            i = value_len
+        else:
+            i = min(nfind, rfind)
+
+        # one of them was not found, use the other
+        if i == -1:
+            i = max(nfind, rfind)
+
+        # skip the line break, reading CRLF as one line break
+        eol = i
+        if i < value_len:
+            if i == rfind and rfind + 1 == nfind:
+                i += 2
+            else:
+                i += 1
+            if keepends:
+                eol = i
+
+        yield value[j:eol]
+        j = i

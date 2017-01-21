@@ -32,7 +32,7 @@ from astroid import nodes
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseTokenChecker
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, splitlines
 from pylint.utils import WarningScope, OPTION_RGX
 
 _CONTINUATION_BLOCK_OPENERS = ['elif', 'except', 'for', 'if', 'while', 'def', 'class']
@@ -969,11 +969,12 @@ class FormatChecker(BaseTokenChecker):
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
 
-        for line in lines.splitlines(True):
+        for line in splitlines(lines, True):
             if not line.endswith('\n'):
                 self.add_message('missing-final-newline', line=i)
             else:
-                stripped_line = line.rstrip()
+                # exclude \f (formfeed) from the rstrip
+                stripped_line = line.rstrip('\t\n\r\v ')
                 if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
                     # allow empty lines
                     pass

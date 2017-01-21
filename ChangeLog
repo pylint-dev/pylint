@@ -7,6 +7,10 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Don't emit missing-final-newline or trailing-whitespace for formfeeds (page breaks).
+
+      Close #1218 and #1219
+
     * Require one space for annotations with type hints, as per PEP 8.
 
     * 'trailing-comma-tuple' check was added

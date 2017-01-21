@@ -269,8 +269,25 @@ class TestCheckSpace(CheckerTestCase):
         self.checker.config.no_space_check = []
         with self.assertAddsMessages(
             Message('trailing-whitespace', line=2)):
-            self.checker.process_tokens(tokenize_str('a = 1\n  \nb = 2\n'))
+            self.checker.process_tokens(tokenize_str('a = 1\n \nb = 2\n'))
+
+        with self.assertAddsMessages(
+            Message('trailing-whitespace', line=2)):
+            self.checker.process_tokens(tokenize_str('a = 1\n\t\nb = 2\n'))
+
+        with self.assertAddsMessages(
+            Message('trailing-whitespace', line=2)):
+            self.checker.process_tokens(tokenize_str('a = 1\n\v\nb = 2\n'))
+
+        with self.assertNoMessages():
+            self.checker.process_tokens(tokenize_str('a = 1\n\f\nb = 2\n'))
 
         self.checker.config.no_space_check = ['empty-line']
         with self.assertNoMessages():
-            self.checker.process_tokens(tokenize_str('a = 1\n  \nb = 2\n'))
+            self.checker.process_tokens(tokenize_str('a = 1\n \nb = 2\n'))
+
+        with self.assertNoMessages():
+            self.checker.process_tokens(tokenize_str('a = 1\n\t\nb = 2\n'))
+
+        with self.assertNoMessages():
+            self.checker.process_tokens(tokenize_str('a = 1\n\v\nb = 2\n'))
