@@ -7,6 +7,11 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Properly detect if imported name is assigned to same name in different
+      scope.
+
+      Close #636, #848, #851, and #900
+
     * Require one space for annotations with type hints, as per PEP 8.
 
     * 'trailing-comma-tuple' check was added

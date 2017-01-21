@@ -31,6 +31,7 @@ from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
+
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = '__future__'
 # regexp for ignored argument name
@@ -891,6 +892,7 @@ class VariablesChecker(BaseChecker):
                                recursive_klass):
         maybee0601 = True
         annotation_return = False
+        use_outer_definition = False
         if frame is not defframe:
             maybee0601 = _detect_global_scope(node, frame, defframe)
         elif defframe.parent is None:
@@ -905,6 +907,10 @@ class VariablesChecker(BaseChecker):
             forbid_lookup = isinstance(frame, astroid.FunctionDef) and _assigned_locally(node)
             if not forbid_lookup and defframe.root().lookup(name)[1]:
                 maybee0601 = False
+                use_outer_definition = (
+                    stmt == defstmt
+                    and not isinstance(defnode, astroid.node_classes.Comprehension)
+                )
             else:
                 # check if we have a nonlocal
                 if name in defframe.locals:
@@ -960,7 +966,7 @@ class VariablesChecker(BaseChecker):
                     # same line as the function definition
                     maybee0601 = False
 
-        return maybee0601, annotation_return
+        return maybee0601, annotation_return, use_outer_definition
 
     def _ignore_class_scope(self, node, name, frame):
         # Detect if we are in a local class scope, as an assignment.
@@ -1032,9 +1038,7 @@ class VariablesChecker(BaseChecker):
                 self._loopvar_name(node, name)
                 break
             found_node = self._next_to_consume(node, name, to_consume)
-            if found_node:
-                consumed[name] = found_node
-            else:
+            if found_node is None:
                 continue
             # checks for use before assignment
             defnode = utils.assign_parent(to_consume[name][0])
@@ -1048,10 +1052,13 @@ class VariablesChecker(BaseChecker):
                                    isinstance(defframe, astroid.ClassDef) and
                                    node.name == defframe.name)
 
-                maybee0601, annotation_return = self._is_variable_violation(
+                maybee0601, annotation_return, use_outer_definition = self._is_variable_violation(
                     node, name, defnode, stmt, defstmt,
                     frame, defframe,
                     base_scope_type, recursive_klass)
+
+                if use_outer_definition:
+                    continue
 
                 if (maybee0601
                         and not utils.is_defined_before(node)
@@ -1094,6 +1101,7 @@ class VariablesChecker(BaseChecker):
                             self.add_message('undefined-variable',
                                              node=node, args=name)
 
+            consumed[name] = found_node
             del to_consume[name]
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
