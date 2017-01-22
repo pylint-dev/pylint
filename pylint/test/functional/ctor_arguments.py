@@ -14,7 +14,7 @@ class Class3Arg(object):
         """three arguments function"""
 
 class ClassDefaultArg(object):
-    def __init__(self, one=1, two=2):
+    def __init__(self, one = 1, two = 2):
         """function with default value"""
 
 class Subclass1Arg(Class1Arg):
@@ -28,7 +28,7 @@ class ClassMultiInheritance(Class1Arg, Class3Arg):
     pass
 
 class ClassNew(object):
-    def __new__(cls, first_argument, kwarg=None):
+    def __new__(cls, first_argument, kwarg = None):
         return first_argument, kwarg
 
 Class1Arg(420)
@@ -41,34 +41,34 @@ Class3Arg()
 Class3Arg(1337, 347, 456)
 Class3Arg('bab', 'bebe', None, 5.6)  # [too-many-function-args]
 
-ClassDefaultArg(1, two=5)
-ClassDefaultArg(two=5)
+ClassDefaultArg(1, two = 5)
+ClassDefaultArg(two = 5)
 
-Class1Arg(bob=4)  # [no-value-for-parameter,unexpected-keyword-arg]
-ClassDefaultArg(1, 4, coin="hello")  # [unexpected-keyword-arg]
+Class1Arg(bob = 4)  # [no-value-for-parameter,unexpected-keyword-arg]
+ClassDefaultArg(1, 4, coin = "hello")  # [unexpected-keyword-arg]
 
-ClassDefaultArg(1, one=5)  # [redundant-keyword-arg]
+ClassDefaultArg(1, one = 5)  # [redundant-keyword-arg]
 
 Subclass1Arg(420)
 Subclass1Arg()  # [no-value-for-parameter]
 Subclass1Arg(1337, 347)  # [too-many-function-args]
 
 ClassAllArgs()
-ClassAllArgs(1, 2, 3, even=4, more=5)
+ClassAllArgs(1, 2, 3, even = 4, more = 5)
 
 ClassMultiInheritance(1)
 ClassMultiInheritance(1, 2, 3)  # [too-many-function-args]
 
-ClassNew(1, kwarg=1)
+ClassNew(1, kwarg = 1)
 ClassNew(1, 2, 3)  # [too-many-function-args]
-ClassNew(one=2)  # [no-value-for-parameter,unexpected-keyword-arg]
+ClassNew(one = 2)  # [no-value-for-parameter,unexpected-keyword-arg]
 
 
 class Metaclass(type):
     def __new__(mcs, name, bases, namespace):
         return type.__new__(mcs, name, bases, namespace)
 
-def with_metaclass(meta, base=object):
+def with_metaclass(meta, base = object):
     """Create a new type that can be used as a metaclass."""
     return meta("NewBase", (base, ), {})
 
@@ -79,10 +79,10 @@ ClassWithMeta()
 
 
 class BuiltinExc(Exception):
-    def __init__(self, val=True):
+    def __init__(self, val = True):
         self.val = val
 
-BuiltinExc(42, 24, badarg=1) # [too-many-function-args,unexpected-keyword-arg]
+BuiltinExc(42, 24, badarg = 1) # [too-many-function-args,unexpected-keyword-arg]
 
 
 class Clsmethod(object):
@@ -101,4 +101,4 @@ class Clsmethod(object):
     @classmethod
     def from_nothing2(cls):
         # +1: [no-value-for-parameter,unexpected-keyword-arg]
-        return cls(1, not_argument=2)
+        return cls(1, not_argument = 2)

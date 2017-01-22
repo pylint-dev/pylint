@@ -67,7 +67,7 @@ def _get_import_name(importnode, modname):
             root = importnode.root()
             if isinstance(root, astroid.Module):
                 modname = root.relative_to_absolute_name(
-                    modname, level=importnode.level)
+                    modname, level = importnode.level)
     return modname
 
 
@@ -120,11 +120,11 @@ def _make_tree_defs(mod_files_list):
     return tree_defs
 
 
-def _repr_tree_defs(data, indent_str=None):
+def _repr_tree_defs(data, indent_str = None):
     """return a string which represents imports as a tree"""
     lines = []
     nodes = data.items()
-    for i, (mod, (sub, files)) in enumerate(sorted(nodes, key=lambda x: x[0])):
+    for i, (mod, (sub, files)) in enumerate(sorted(nodes, key = lambda x: x[0])):
         if not files:
             files = ''
         else:
@@ -147,7 +147,7 @@ def _dependencies_graph(filename, dep_info):
     """write dependencies as a dot (graphviz) file
     """
     done = {}
-    printer = DotBackend(filename[:-4], rankdir='LR')
+    printer = DotBackend(filename[:-4], rankdir = 'LR')
     printer.emit('URL="." node[shape="box"]')
     for modname, dependencies in sorted(six.iteritems(dep_info)):
         done[modname] = 1
@@ -299,7 +299,7 @@ given file (report RP0402 must not be disabled)'}
 
               )
 
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         BaseChecker.__init__(self, linter)
         self.stats = None
         self.import_graph = None
@@ -322,7 +322,7 @@ given file (report RP0402 must not be disabled)'}
         paths = set()
         real_prefix = getattr(sys, 'real_prefix', None)
         for prefix in filter(None, (real_prefix, sys.prefix)):
-            path = sysconfig.get_python_lib(prefix=prefix)
+            path = sysconfig.get_python_lib(prefix = prefix)
             path = _normalized_path(path)
             paths.add(path)
 
@@ -337,20 +337,20 @@ given file (report RP0402 must not be disabled)'}
 
     def open(self):
         """called before visiting project (i.e set of modules)"""
-        self.linter.add_stats(dependencies={})
-        self.linter.add_stats(cycles=[])
+        self.linter.add_stats(dependencies = {})
+        self.linter.add_stats(cycles = [])
         self.stats = self.linter.stats
         self.import_graph = collections.defaultdict(set)
         self._ignored_modules = get_global_option(
-            self, 'ignored-modules', default=[])
+            self, 'ignored-modules', default = [])
 
     def close(self):
         """called before visiting project (i.e set of modules)"""
         # don't try to compute cycles if the associated message is disabled
         if self.linter.is_message_enabled('cyclic-import'):
             vertices = list(self.import_graph)
-            for cycle in get_cycles(self.import_graph, vertices=vertices):
-                self.add_message('cyclic-import', args=' -> '.join(cycle))
+            for cycle in get_cycles(self.import_graph, vertices = vertices):
+                self.add_message('cyclic-import', args = ' -> '.join(cycle))
 
     @check_messages('wrong-import-position', 'multiple-imports',
                     'relative-import', 'reimported', 'deprecated-module')
@@ -361,7 +361,7 @@ given file (report RP0402 must not be disabled)'}
         modnode = node.root()
         names = [name for name, _ in node.names]
         if len(names) >= 2:
-            self.add_message('multiple-imports', args=', '.join(names), node=node)
+            self.add_message('multiple-imports', args = ', '.join(names), node = node)
 
         for name in names:
             self._check_deprecated_module(node, name)
@@ -386,7 +386,7 @@ given file (report RP0402 must not be disabled)'}
         self._check_deprecated_module(node, basename)
         self._check_wildcard_imports(node)
         self._check_same_line_imports(node)
-        self._check_reimport(node, basename=basename, level=node.level)
+        self._check_reimport(node, basename = basename, level = node.level)
 
         modnode = node.root()
         importedmodnode = self._get_imported_module(node, basename)
@@ -415,8 +415,8 @@ given file (report RP0402 must not be disabled)'}
         for import_node, import_name in std_imports + ext_imports + loc_imports:
             package, _, _ = import_name.partition('.')
             if current_package and current_package != package and package in met:
-                self.add_message('ungrouped-imports', node=import_node,
-                                 args=package)
+                self.add_message('ungrouped-imports', node = import_node,
+                                 args = package)
             current_package = package
             met.add(package)
 
@@ -484,7 +484,7 @@ given file (report RP0402 must not be disabled)'}
                 # consecutive future statements are possible
                 if not (isinstance(prev, astroid.ImportFrom)
                         and prev.modname == '__future__'):
-                    self.add_message('misplaced-future', node=node)
+                    self.add_message('misplaced-future', node = node)
             return
 
     def _check_same_line_imports(self, node):
@@ -493,8 +493,8 @@ given file (report RP0402 must not be disabled)'}
         counter = collections.Counter(names)
         for name, count in counter.items():
             if count > 1:
-                self.add_message('reimported', node=node,
-                                 args=(name, node.fromlineno))
+                self.add_message('reimported', node = node,
+                                 args = (name, node.fromlineno))
 
     def _check_position(self, node):
         """Check `node` import or importfrom node position is correct
@@ -504,8 +504,8 @@ given file (report RP0402 must not be disabled)'}
         # if a first non-import instruction has already been encountered,
         # it means the import comes after it and therefore is not well placed
         if self._first_non_import_node:
-            self.add_message('wrong-import-position', node=node,
-                             args=node.as_string())
+            self.add_message('wrong-import-position', node = node,
+                             args = node.as_string())
 
     def _record_import(self, node, importedmodnode):
         """Record the package `node` imports from"""
@@ -543,8 +543,8 @@ given file (report RP0402 must not be disabled)'}
         extern_not_nested = []
         local_not_nested = []
         isort_obj = isort.SortImports(
-            file_contents='', known_third_party=self.config.known_third_party,
-            known_standard_library=self.config.known_standard_library,
+            file_contents = '', known_third_party = self.config.known_third_party,
+            known_standard_library = self.config.known_standard_library,
         )
         for node, modname in self._imports_stack:
             if modname.startswith('.'):
@@ -559,18 +559,18 @@ given file (report RP0402 must not be disabled)'}
                 if self._is_fallback_import(node, wrong_import):
                     continue
                 if wrong_import and not nested:
-                    self.add_message('wrong-import-order', node=node,
-                                     args=('standard import "%s"' % node.as_string(),
-                                           '"%s"' % wrong_import[0][0].as_string()))
+                    self.add_message('wrong-import-order', node = node,
+                                     args = ('standard import "%s"' % node.as_string(),
+                                             '"%s"' % wrong_import[0][0].as_string()))
             elif import_category in ('FIRSTPARTY', 'THIRDPARTY'):
                 extern_imports.append((node, package))
                 if not nested:
                     extern_not_nested.append((node, package))
                 wrong_import = local_not_nested
                 if wrong_import and not nested:
-                    self.add_message('wrong-import-order', node=node,
-                                     args=('external import "%s"' % node.as_string(),
-                                           '"%s"' % wrong_import[0][0].as_string()))
+                    self.add_message('wrong-import-order', node = node,
+                                     args = ('external import "%s"' % node.as_string(),
+                                             '"%s"' % wrong_import[0][0].as_string()))
             elif import_category == 'LOCALFOLDER':
                 local_imports.append((node, package))
                 if not nested:
@@ -595,7 +595,7 @@ given file (report RP0402 must not be disabled)'}
                 return None
 
             if not node_ignores_exception(importnode, ImportError):
-                self.add_message("import-error", args=args, node=importnode)
+                self.add_message("import-error", args = args, node = importnode)
 
     def _check_relative_import(self, modnode, importnode, importedmodnode,
                                importedasname):
@@ -613,8 +613,8 @@ given file (report RP0402 must not be disabled)'}
         if importedmodnode.name != importedasname:
             # this must be a relative import...
             self.add_message('relative-import',
-                             args=(importedasname, importedmodnode.name),
-                             node=importnode)
+                             args = (importedasname, importedmodnode.name),
+                             node = importnode)
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
@@ -638,7 +638,7 @@ given file (report RP0402 must not be disabled)'}
             pass
 
         if context_name == importedmodname:
-            self.add_message('import-self', node=node)
+            self.add_message('import-self', node = node)
         elif not is_standard_module(importedmodname):
             # handle dependencies
             importedmodnames = self.stats['dependencies'].setdefault(
@@ -654,9 +654,9 @@ given file (report RP0402 must not be disabled)'}
         """check if the module is deprecated"""
         for mod_name in self.config.deprecated_modules:
             if mod_path == mod_name or mod_path.startswith(mod_name + '.'):
-                self.add_message('deprecated-module', node=node, args=mod_path)
+                self.add_message('deprecated-module', node = node, args = mod_path)
 
-    def _check_reimport(self, node, basename=None, level=None):
+    def _check_reimport(self, node, basename = None, level = None):
         """check if the import is necessary (i.e. not already done)"""
         if not self.linter.is_message_enabled('reimported'):
             return
@@ -671,8 +671,8 @@ given file (report RP0402 must not be disabled)'}
             for name, alias in node.names:
                 first = _get_first_import(node, context, name, basename, level, alias)
                 if first is not None:
-                    self.add_message('reimported', node=node,
-                                     args=(name, first.fromlineno))
+                    self.add_message('reimported', node = node,
+                                     args = (name, first.fromlineno))
 
     def _report_external_dependencies(self, sect, _, dummy):
         """return a verbatim layout for displaying dependencies"""
@@ -728,7 +728,7 @@ given file (report RP0402 must not be disabled)'}
     def _check_wildcard_imports(self, node):
         for name, _ in node.names:
             if name == '*':
-                self.add_message('wildcard-import', args=node.modname, node=node)
+                self.add_message('wildcard-import', args = node.modname, node = node)
 
 
 def register(linter):

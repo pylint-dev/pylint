@@ -11,24 +11,24 @@ import weakref
 from lala import Bala
 
 
-class GoodClass(object, metaclass=abc.ABCMeta):
+class GoodClass(object, metaclass = abc.ABCMeta):
     pass
 
-class SecondGoodClass(object, metaclass=abc.ABCMeta):
+class SecondGoodClass(object, metaclass = abc.ABCMeta):
     def test(self):
         """ do nothing. """
 
-class ThirdGoodClass(object, metaclass=abc.ABCMeta):
+class ThirdGoodClass(object, metaclass = abc.ABCMeta):
     """ This should not raise the warning. """
     def test(self):
         raise NotImplementedError()
 
-class BadClass(object, metaclass=abc.ABCMeta):
+class BadClass(object, metaclass = abc.ABCMeta):
     @abc.abstractmethod
     def test(self):
         """ do nothing. """
 
-class SecondBadClass(object, metaclass=abc.ABCMeta):
+class SecondBadClass(object, metaclass = abc.ABCMeta):
     @property
     @abc.abstractmethod
     def test(self):
@@ -38,7 +38,7 @@ class ThirdBadClass(SecondBadClass):
     pass
 
 
-class Structure(object, metaclass=abc.ABCMeta):
+class Structure(object, metaclass = abc.ABCMeta):
     @abc.abstractmethod
     def __iter__(self):
         pass
@@ -82,7 +82,7 @@ class NoMroAbstractMethods(Container, Iterator, Sizable, Hashable):
 class BadMroAbstractMethods(Container, Iterator, AbstractSizable):
     pass
 
-class SomeMetaclass(metaclass=abc.ABCMeta):
+class SomeMetaclass(metaclass = abc.ABCMeta):
 
     @abc.abstractmethod
     def prop(self):

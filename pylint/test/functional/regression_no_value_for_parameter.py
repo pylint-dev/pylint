@@ -11,5 +11,5 @@ class ConfigManager(Unknown):
     def test(self):
         self.RENAMED_SECTIONS.items() #@
 
-    def items(self, sectname, raw=True):
+    def items(self, sectname, raw = True):
         pass

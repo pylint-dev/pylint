@@ -402,10 +402,10 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
                 confidence = INFERENCE if not inference_failure else INFERENCE_FAILURE
-                self.add_message('no-member', node=node,
-                                 args=(owner.display_type(), name,
-                                       node.attrname),
-                                 confidence=confidence)
+                self.add_message('no-member', node = node,
+                                 args = (owner.display_type(), name,
+                                         node.attrname),
+                                 confidence = confidence)
 
     @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):
@@ -420,12 +420,12 @@ accessed. Python regular expressions are accepted.'}
                 function_node.root().fully_defined()):
             return
         if function_node.is_generator() \
-               or function_node.is_abstract(pass_is_abstract=False):
+               or function_node.is_abstract(pass_is_abstract = False):
             return
         returns = list(function_node.nodes_of_class(astroid.Return,
-                                                    skip_klass=astroid.FunctionDef))
+                                                    skip_klass = astroid.FunctionDef))
         if len(returns) == 0:
-            self.add_message('assignment-from-no-return', node=node)
+            self.add_message('assignment-from-no-return', node = node)
         else:
             for rnode in returns:
                 if not (isinstance(rnode.value, astroid.Const)
@@ -433,7 +433,7 @@ accessed. Python regular expressions are accepted.'}
                         or rnode.value is None):
                     break
             else:
-                self.add_message('assignment-from-none', node=node)
+                self.add_message('assignment-from-none', node = node)
 
     def _check_uninferable_callfunc(self, node):
         """
@@ -475,8 +475,8 @@ accessed. Python regular expressions are accepted.'}
                        for return_node in attr.infer_call_result(node)):
                     continue
                 else:
-                    self.add_message('not-callable', node=node,
-                                     args=node.func.as_string())
+                    self.add_message('not-callable', node = node,
+                                     args = node.func.as_string())
                     break
 
     @staticmethod
@@ -522,8 +522,8 @@ accessed. Python regular expressions are accepted.'}
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called is not None and not called.callable():
-            self.add_message('not-callable', node=node,
-                             args=node.func.as_string())
+            self.add_message('not-callable', node = node,
+                             args = node.func.as_string())
 
         self._check_uninferable_callfunc(node)
 
@@ -547,7 +547,7 @@ accessed. Python regular expressions are accepted.'}
         # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
         for keyword in call_site.duplicated_keywords:
             self.add_message('repeated-keyword',
-                             node=node, args=(keyword, ))
+                             node = node, args = (keyword, ))
 
         if call_site.has_invalid_arguments() or call_site.has_invalid_keywords():
             # Can't make sense of this.
@@ -596,7 +596,7 @@ accessed. Python regular expressions are accepted.'}
             else:
                 # Too many positional arguments.
                 self.add_message('too-many-function-args',
-                                 node=node, args=(callable_name,))
+                                 node = node, args = (callable_name,))
                 break
 
         # 2. Match the keyword arguments.
@@ -613,14 +613,14 @@ accessed. Python regular expressions are accepted.'}
                     # it if that's the case.
                     if not (keyword == 'self' and called.qname() == STR_FORMAT):
                         self.add_message('redundant-keyword-arg',
-                                         node=node, args=(keyword, callable_name))
+                                         node = node, args = (keyword, callable_name))
                 else:
                     parameters[i][1] = True
             elif keyword in kwparams:
                 if kwparams[keyword][1]:  # XXX is that even possible?
                     # Duplicate definition of function parameter.
-                    self.add_message('redundant-keyword-arg', node=node,
-                                     args=(keyword, callable_name))
+                    self.add_message('redundant-keyword-arg', node = node,
+                                     args = (keyword, callable_name))
                 else:
                     kwparams[keyword][1] = True
             elif called.args.kwarg is not None:
@@ -628,8 +628,8 @@ accessed. Python regular expressions are accepted.'}
                 pass
             else:
                 # Unexpected keyword argument.
-                self.add_message('unexpected-keyword-arg', node=node,
-                                 args=(keyword, callable_name))
+                self.add_message('unexpected-keyword-arg', node = node,
+                                 args = (keyword, callable_name))
 
         # 3. Match the **kwargs, if any.
         if node.kwargs:
@@ -652,14 +652,14 @@ accessed. Python regular expressions are accepted.'}
                     display_name = repr(name)
                 # TODO(cpopa): this should be removed after PyCQA/astroid/issues/177
                 if not no_context_variadic:
-                    self.add_message('no-value-for-parameter', node=node,
-                                     args=(display_name, callable_name))
+                    self.add_message('no-value-for-parameter', node = node,
+                                     args = (display_name, callable_name))
 
         for name in kwparams:
             defval, assigned = kwparams[name]
             if defval is None and not assigned:
-                self.add_message('missing-kwoa', node=node,
-                                 args=(name, callable_name))
+                self.add_message('missing-kwoa', node = node,
+                                 args = (name, callable_name))
 
     @check_messages('invalid-sequence-index')
     def visit_extslice(self, node):
@@ -740,7 +740,7 @@ accessed. Python regular expressions are accepted.'}
             return self.visit_slice(index_type)
 
         # Anything else is an error
-        self.add_message('invalid-sequence-index', node=node)
+        self.add_message('invalid-sequence-index', node = node)
 
     @check_messages('invalid-slice-index')
     def visit_slice(self, node):
@@ -771,13 +771,13 @@ accessed. Python regular expressions are accepted.'}
                     pass
 
             # Anything else is an error
-            self.add_message('invalid-slice-index', node=node)
+            self.add_message('invalid-slice-index', node = node)
 
     @check_messages('not-context-manager')
     def visit_with(self, node):
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
-            infered = safe_infer(ctx_mgr, context=context)
+            infered = safe_infer(ctx_mgr, context = context)
             if infered is None or infered is astroid.YES:
                 continue
 
@@ -806,7 +806,7 @@ accessed. Python regular expressions are accepted.'}
                         break
                 else:
                     self.add_message('not-context-manager',
-                                     node=node, args=(infered.name, ))
+                                     node = node, args = (infered.name, ))
             else:
                 try:
                     infered.getattr('__enter__')
@@ -823,7 +823,7 @@ accessed. Python regular expressions are accepted.'}
                                 continue
 
                     self.add_message('not-context-manager',
-                                     node=node, args=(infered.name, ))
+                                     node = node, args = (infered.name, ))
 
     # Disabled until we'll have a more capable astroid.
     @check_messages('invalid-unary-operand-type')
@@ -833,7 +833,7 @@ accessed. Python regular expressions are accepted.'}
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message('invalid-unary-operand-type',
-                             args=str(error), node=node)
+                             args = str(error), node = node)
 
     @check_messages('unsupported-binary-operation')
     def _visit_binop(self, node):
@@ -849,7 +849,7 @@ accessed. Python regular expressions are accepted.'}
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message('unsupported-binary-operation',
-                             args=str(error), node=node)
+                             args = str(error), node = node)
 
     def _check_membership_test(self, node):
         if is_inside_abstract_class(node):
@@ -861,8 +861,8 @@ accessed. Python regular expressions are accepted.'}
             return
         if not supports_membership_test(infered):
             self.add_message('unsupported-membership-test',
-                             args=node.as_string(),
-                             node=node)
+                             args = node.as_string(),
+                             node = node)
 
     @check_messages('unsupported-membership-test')
     def visit_compare(self, node):
@@ -878,8 +878,8 @@ accessed. Python regular expressions are accepted.'}
             return
         if isinstance(node.value, astroid.SetComp):
             self.add_message('unsubscriptable-object',
-                             args=node.value.as_string(),
-                             node=node.value)
+                             args = node.value.as_string(),
+                             node = node.value)
             return
 
         infered = safe_infer(node.value)
@@ -891,8 +891,8 @@ accessed. Python regular expressions are accepted.'}
 
         if not supports_subscript(infered):
             self.add_message('unsubscriptable-object',
-                             args=node.value.as_string(),
-                             node=node.value)
+                             args = node.value.as_string(),
+                             node = node.value)
 
 
 
@@ -931,8 +931,8 @@ class IterableChecker(BaseChecker):
             return
         if not is_iterable(infered):
             self.add_message('not-an-iterable',
-                             args=node.as_string(),
-                             node=node)
+                             args = node.as_string(),
+                             node = node)
 
     def _check_mapping(self, node):
         if is_inside_abstract_class(node):
@@ -944,8 +944,8 @@ class IterableChecker(BaseChecker):
             return
         if not is_mapping(infered):
             self.add_message('not-a-mapping',
-                             args=node.as_string(),
-                             node=node)
+                             args = node.as_string(),
+                             node = node)
 
     @check_messages('not-an-iterable')
     def visit_for(self, node):

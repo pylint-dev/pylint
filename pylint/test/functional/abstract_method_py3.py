@@ -32,7 +32,7 @@ class Concret(Abstract): # [abstract-method]
         """overidden form Abstract"""
 
 
-class Structure(object, metaclass=abc.ABCMeta):
+class Structure(object, metaclass = abc.ABCMeta):
     @abc.abstractmethod
     def __iter__(self):
         pass

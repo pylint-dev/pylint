@@ -4,7 +4,7 @@ def function(*, foo):
     '''A function for testing'''
     print(foo)
 
-function(foo=1)
+function(foo = 1)
 
 foo = 1
 function(foo)

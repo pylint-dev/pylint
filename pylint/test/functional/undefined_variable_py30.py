@@ -59,19 +59,19 @@ class FalsePositive342(object):
 
 from abc import ABCMeta
 
-class Bad(metaclass=ABCMet): # [undefined-variable]
+class Bad(metaclass = ABCMet): # [undefined-variable]
     """ Notice the typo """
 
-class SecondBad(metaclass=ab.ABCMeta): # [undefined-variable]
+class SecondBad(metaclass = ab.ABCMeta): # [undefined-variable]
     """ Notice the `ab` module. """
 
-class Good(metaclass=int):
+class Good(metaclass = int):
     """ int is not a proper metaclass, but it is defined. """
 
-class SecondGood(metaclass=Good):
+class SecondGood(metaclass = Good):
     """ empty """
 
-class ThirdGood(metaclass=ABCMeta):
+class ThirdGood(metaclass = ABCMeta):
     """ empty """
 
 class FourthGood(ThirdGood):

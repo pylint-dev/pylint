@@ -19,7 +19,7 @@
 1 in iter([1, 2, 3])
 
 # generator
-def count(upto=float("inf")):
+def count(upto = float("inf")):
     i = 0
     while True:
         if i > upto:
@@ -27,7 +27,7 @@ def count(upto=float("inf")):
         yield i
         i += 1
 
-10 in count(upto=10)
+10 in count(upto = 10)
 
 # custom instance
 class UniversalContainer(object):

@@ -19,7 +19,7 @@ DEFINED[__revision__] = OTHER = 'move this is astroid test'
 
 OTHER += '$'
 
-def bad_default(var, default=unknown2):  # [undefined-variable]
+def bad_default(var, default = unknown2):  # [undefined-variable]
     """function with defaut arg's value set to an unexistant name"""
     print(var, default)
     print(xxxx)  # [undefined-variable]
@@ -69,11 +69,11 @@ def decorator(arg):
     return lambda: list(arg)
 
 
-@decorator(arg=[i * 2 for i in range(15)])
+@decorator(arg = [i * 2 for i in range(15)])
 def func1():
     """A function with a decorator that contains a listcomp."""
 
-@decorator(arg=(i * 2 for i in range(15)))
+@decorator(arg = (i * 2 for i in range(15)))
 def func2():
     """A function with a decorator that contains a genexpr."""
 
@@ -83,7 +83,7 @@ def main():
 
 # Test shared scope.
 
-def test_arguments(arg=TestClass):  # [used-before-assignment]
+def test_arguments(arg = TestClass):  # [used-before-assignment]
     """ TestClass isn't defined yet. """
     return arg
 
@@ -135,13 +135,13 @@ class KeywordArgument(object):
     """Test keyword arguments."""
 
     enable = True
-    def test(self, is_enabled=enable):
+    def test(self, is_enabled = enable):
         """do nothing."""
 
-    def test1(self, is_enabled=enabled): # [used-before-assignment]
+    def test1(self, is_enabled = enabled): # [used-before-assignment]
         """enabled is undefined at this point, but it is used before assignment."""
 
-    def test2(self, is_disabled=disabled): # [undefined-variable]
+    def test2(self, is_disabled = disabled): # [undefined-variable]
         """disabled is undefined"""
 
     enabled = True

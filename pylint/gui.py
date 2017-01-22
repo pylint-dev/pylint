@@ -117,7 +117,7 @@ class BasicStream(object):
 class LintGui(object):
     """Build and control a window to interact with pylint"""
 
-    def __init__(self, root=None):
+    def __init__(self, root = None):
         """init"""
         self.root = root or Tk()
         self.root.title('Pylint')
@@ -150,8 +150,8 @@ class LintGui(object):
     def init_gui(self):
         """init helper"""
 
-        window = PanedWindow(self.root, orient="vertical")
-        window.pack(side=TOP, fill=BOTH, expand=True)
+        window = PanedWindow(self.root, orient = "vertical")
+        window.pack(side = TOP, fill = BOTH, expand = True)
 
         top_pane = Frame(window)
         window.add(top_pane)
@@ -170,89 +170,89 @@ class LintGui(object):
         check_frame = Frame(bottom_pane)
         msg_frame = Frame(bottom_pane)
         btn_frame = Frame(bottom_pane)
-        top_frame.pack(side=TOP, fill=X)
-        mid_frame.pack(side=TOP, fill=X)
-        history_frame.pack(side=TOP, fill=BOTH, expand=True)
-        radio_frame.pack(side=TOP, fill=X)
-        rating_frame.pack(side=TOP, fill=X)
-        res_frame.pack(side=TOP, fill=BOTH, expand=True)
-        check_frame.pack(side=TOP, fill=X)
-        msg_frame.pack(side=TOP, fill=BOTH, expand=True)
-        btn_frame.pack(side=TOP, fill=X)
+        top_frame.pack(side = TOP, fill = X)
+        mid_frame.pack(side = TOP, fill = X)
+        history_frame.pack(side = TOP, fill = BOTH, expand = True)
+        radio_frame.pack(side = TOP, fill = X)
+        rating_frame.pack(side = TOP, fill = X)
+        res_frame.pack(side = TOP, fill = BOTH, expand = True)
+        check_frame.pack(side = TOP, fill = X)
+        msg_frame.pack(side = TOP, fill = BOTH, expand = True)
+        btn_frame.pack(side = TOP, fill = X)
 
         # Binding F5 application-wide to run lint
         self.root.bind('<F5>', self.run_lint)
 
         #Message ListBox
         rightscrollbar = Scrollbar(msg_frame)
-        rightscrollbar.pack(side=RIGHT, fill=Y)
-        bottomscrollbar = Scrollbar(msg_frame, orient=HORIZONTAL)
-        bottomscrollbar.pack(side=BOTTOM, fill=X)
+        rightscrollbar.pack(side = RIGHT, fill = Y)
+        bottomscrollbar = Scrollbar(msg_frame, orient = HORIZONTAL)
+        bottomscrollbar.pack(side = BOTTOM, fill = X)
         self.lb_messages = Listbox(
             msg_frame,
-            yscrollcommand=rightscrollbar.set,
-            xscrollcommand=bottomscrollbar.set,
-            bg="white")
+            yscrollcommand = rightscrollbar.set,
+            xscrollcommand = bottomscrollbar.set,
+            bg = "white")
         self.lb_messages.bind("<Double-Button-1>", self.show_sourcefile)
-        self.lb_messages.pack(expand=True, fill=BOTH)
-        rightscrollbar.config(command=self.lb_messages.yview)
-        bottomscrollbar.config(command=self.lb_messages.xview)
+        self.lb_messages.pack(expand = True, fill = BOTH)
+        rightscrollbar.config(command = self.lb_messages.yview)
+        bottomscrollbar.config(command = self.lb_messages.xview)
 
         #History ListBoxes
         rightscrollbar2 = Scrollbar(history_frame)
-        rightscrollbar2.pack(side=RIGHT, fill=Y)
-        bottomscrollbar2 = Scrollbar(history_frame, orient=HORIZONTAL)
-        bottomscrollbar2.pack(side=BOTTOM, fill=X)
+        rightscrollbar2.pack(side = RIGHT, fill = Y)
+        bottomscrollbar2 = Scrollbar(history_frame, orient = HORIZONTAL)
+        bottomscrollbar2.pack(side = BOTTOM, fill = X)
         self.showhistory = Listbox(
             history_frame,
-            yscrollcommand=rightscrollbar2.set,
-            xscrollcommand=bottomscrollbar2.set,
-            bg="white")
-        self.showhistory.pack(expand=True, fill=BOTH)
-        rightscrollbar2.config(command=self.showhistory.yview)
-        bottomscrollbar2.config(command=self.showhistory.xview)
+            yscrollcommand = rightscrollbar2.set,
+            xscrollcommand = bottomscrollbar2.set,
+            bg = "white")
+        self.showhistory.pack(expand = True, fill = BOTH)
+        rightscrollbar2.config(command = self.showhistory.yview)
+        bottomscrollbar2.config(command = self.showhistory.xview)
         self.showhistory.bind('<Double-Button-1>', self.select_recent_file)
         self.set_history_window()
 
         #status bar
-        self.status = Label(self.root, text="", bd=1, relief=SUNKEN, anchor=W)
-        self.status.pack(side=BOTTOM, fill=X)
+        self.status = Label(self.root, text = "", bd = 1, relief = SUNKEN, anchor = W)
+        self.status.pack(side = BOTTOM, fill = X)
 
         #labelbl_ratingls
-        lbl_rating_label = Label(rating_frame, text='Rating:')
-        lbl_rating_label.pack(side=LEFT)
-        lbl_rating = Label(rating_frame, textvariable=self.rating)
-        lbl_rating.pack(side=LEFT)
-        Label(mid_frame, text='Recently Used:').pack(side=LEFT)
-        Label(top_frame, text='Module or package').pack(side=LEFT)
+        lbl_rating_label = Label(rating_frame, text = 'Rating:')
+        lbl_rating_label.pack(side = LEFT)
+        lbl_rating = Label(rating_frame, textvariable = self.rating)
+        lbl_rating.pack(side = LEFT)
+        Label(mid_frame, text = 'Recently Used:').pack(side = LEFT)
+        Label(top_frame, text = 'Module or package').pack(side = LEFT)
 
         #file textbox
-        self.txt_module = Entry(top_frame, background='white')
+        self.txt_module = Entry(top_frame, background = 'white')
         self.txt_module.bind('<Return>', self.run_lint)
-        self.txt_module.pack(side=LEFT, expand=True, fill=X)
+        self.txt_module.pack(side = LEFT, expand = True, fill = X)
 
         #results box
         rightscrollbar = Scrollbar(res_frame)
-        rightscrollbar.pack(side=RIGHT, fill=Y)
-        bottomscrollbar = Scrollbar(res_frame, orient=HORIZONTAL)
-        bottomscrollbar.pack(side=BOTTOM, fill=X)
+        rightscrollbar.pack(side = RIGHT, fill = Y)
+        bottomscrollbar = Scrollbar(res_frame, orient = HORIZONTAL)
+        bottomscrollbar.pack(side = BOTTOM, fill = X)
         self.results = Listbox(
             res_frame,
-            yscrollcommand=rightscrollbar.set,
-            xscrollcommand=bottomscrollbar.set,
-            bg="white", font="Courier")
-        self.results.pack(expand=True, fill=BOTH, side=BOTTOM)
-        rightscrollbar.config(command=self.results.yview)
-        bottomscrollbar.config(command=self.results.xview)
+            yscrollcommand = rightscrollbar.set,
+            xscrollcommand = bottomscrollbar.set,
+            bg = "white", font = "Courier")
+        self.results.pack(expand = True, fill = BOTH, side = BOTTOM)
+        rightscrollbar.config(command = self.results.yview)
+        bottomscrollbar.config(command = self.results.xview)
 
         #buttons
-        Button(top_frame, text='Open', command=self.file_open).pack(side=LEFT)
-        Button(top_frame, text='Open Package',
-               command=(lambda: self.file_open(package=True))).pack(side=LEFT)
+        Button(top_frame, text = 'Open', command = self.file_open).pack(side = LEFT)
+        Button(top_frame, text = 'Open Package',
+               command = (lambda: self.file_open(package = True))).pack(side = LEFT)
 
-        self.btnRun = Button(top_frame, text='Run', command=self.run_lint)
-        self.btnRun.pack(side=LEFT)
-        Button(btn_frame, text='Quit', command=self.quit).pack(side=BOTTOM)
+        self.btnRun = Button(top_frame, text = 'Run', command = self.run_lint)
+        self.btnRun.pack(side = LEFT)
+        Button(btn_frame, text = 'Quit', command = self.quit).pack(side = BOTTOM)
 
         #radio buttons
         self.information_box = IntVar()
@@ -261,70 +261,70 @@ class LintGui(object):
         self.warning_box = IntVar()
         self.error_box = IntVar()
         self.fatal_box = IntVar()
-        i = Checkbutton(check_frame, text="Information", fg=COLORS['(I)'],
-                        variable=self.information_box, command=self.refresh_msg_window)
-        c = Checkbutton(check_frame, text="Convention", fg=COLORS['(C)'],
-                        variable=self.convention_box, command=self.refresh_msg_window)
-        r = Checkbutton(check_frame, text="Refactor", fg=COLORS['(R)'],
-                        variable=self.refactor_box, command=self.refresh_msg_window)
-        w = Checkbutton(check_frame, text="Warning", fg=COLORS['(W)'],
-                        variable=self.warning_box, command=self.refresh_msg_window)
-        e = Checkbutton(check_frame, text="Error", fg=COLORS['(E)'],
-                        variable=self.error_box, command=self.refresh_msg_window)
-        f = Checkbutton(check_frame, text="Fatal", fg=COLORS['(F)'],
-                        variable=self.fatal_box, command=self.refresh_msg_window)
+        i = Checkbutton(check_frame, text = "Information", fg = COLORS['(I)'],
+                        variable = self.information_box, command = self.refresh_msg_window)
+        c = Checkbutton(check_frame, text = "Convention", fg = COLORS['(C)'],
+                        variable = self.convention_box, command = self.refresh_msg_window)
+        r = Checkbutton(check_frame, text = "Refactor", fg = COLORS['(R)'],
+                        variable = self.refactor_box, command = self.refresh_msg_window)
+        w = Checkbutton(check_frame, text = "Warning", fg = COLORS['(W)'],
+                        variable = self.warning_box, command = self.refresh_msg_window)
+        e = Checkbutton(check_frame, text = "Error", fg = COLORS['(E)'],
+                        variable = self.error_box, command = self.refresh_msg_window)
+        f = Checkbutton(check_frame, text = "Fatal", fg = COLORS['(F)'],
+                        variable = self.fatal_box, command = self.refresh_msg_window)
         i.select()
         c.select()
         r.select()
         w.select()
         e.select()
         f.select()
-        i.pack(side=LEFT)
-        c.pack(side=LEFT)
-        r.pack(side=LEFT)
-        w.pack(side=LEFT)
-        e.pack(side=LEFT)
-        f.pack(side=LEFT)
+        i.pack(side = LEFT)
+        c.pack(side = LEFT)
+        r.pack(side = LEFT)
+        w.pack(side = LEFT)
+        e.pack(side = LEFT)
+        f.pack(side = LEFT)
 
         #check boxes
         self.box = StringVar()
         # XXX should be generated
         report = Radiobutton(
-            radio_frame, text="Report", variable=self.box,
-            value="Report", command=self.refresh_results_window)
+            radio_frame, text = "Report", variable = self.box,
+            value = "Report", command = self.refresh_results_window)
         raw_met = Radiobutton(
-            radio_frame, text="Raw metrics", variable=self.box,
-            value="Raw metrics", command=self.refresh_results_window)
+            radio_frame, text = "Raw metrics", variable = self.box,
+            value = "Raw metrics", command = self.refresh_results_window)
         dup = Radiobutton(
-            radio_frame, text="Duplication", variable=self.box,
-            value="Duplication", command=self.refresh_results_window)
+            radio_frame, text = "Duplication", variable = self.box,
+            value = "Duplication", command = self.refresh_results_window)
         ext = Radiobutton(
-            radio_frame, text="External dependencies",
-            variable=self.box, value="External dependencies",
-            command=self.refresh_results_window)
+            radio_frame, text = "External dependencies",
+            variable = self.box, value = "External dependencies",
+            command = self.refresh_results_window)
         stat = Radiobutton(
-            radio_frame, text="Statistics by type",
-            variable=self.box, value="Statistics by type",
-            command=self.refresh_results_window)
+            radio_frame, text = "Statistics by type",
+            variable = self.box, value = "Statistics by type",
+            command = self.refresh_results_window)
         msg_cat = Radiobutton(
-            radio_frame, text="Messages by category",
-            variable=self.box, value="Messages by category",
-            command=self.refresh_results_window)
+            radio_frame, text = "Messages by category",
+            variable = self.box, value = "Messages by category",
+            command = self.refresh_results_window)
         msg = Radiobutton(
-            radio_frame, text="Messages", variable=self.box,
-            value="Messages", command=self.refresh_results_window)
+            radio_frame, text = "Messages", variable = self.box,
+            value = "Messages", command = self.refresh_results_window)
         source_file = Radiobutton(
-            radio_frame, text="Source File", variable=self.box,
-            value="Source File", command=self.refresh_results_window)
+            radio_frame, text = "Source File", variable = self.box,
+            value = "Source File", command = self.refresh_results_window)
         report.select()
-        report.grid(column=0, row=0, sticky=W)
-        raw_met.grid(column=1, row=0, sticky=W)
-        dup.grid(column=2, row=0, sticky=W)
-        msg.grid(column=3, row=0, sticky=W)
-        stat.grid(column=0, row=1, sticky=W)
-        msg_cat.grid(column=1, row=1, sticky=W)
-        ext.grid(column=2, row=1, sticky=W)
-        source_file.grid(column=3, row=1, sticky=W)
+        report.grid(column = 0, row = 0, sticky = W)
+        raw_met.grid(column = 1, row = 0, sticky = W)
+        dup.grid(column = 2, row = 0, sticky = W)
+        msg.grid(column = 3, row = 0, sticky = W)
+        stat.grid(column = 0, row = 1, sticky = W)
+        msg_cat.grid(column = 1, row = 1, sticky = W)
+        ext.grid(column = 2, row = 1, sticky = W)
+        source_file.grid(column = 3, row = 1, sticky = W)
 
         #dictionary for check boxes and associated error term
         self.msg_type_dict = {
@@ -360,7 +360,7 @@ class LintGui(object):
                 msg_str = convert_to_string(msg)
                 self.lb_messages.insert(END, msg_str)
                 fg_color = COLORS.get(msg_str[:3], 'black')
-                self.lb_messages.itemconfigure(END, fg=fg_color)
+                self.lb_messages.itemconfigure(END, fg = fg_color)
 
     def refresh_results_window(self):
         """refresh the results window with current output"""
@@ -390,7 +390,7 @@ class LintGui(object):
                     msg_str = convert_to_string(msg)
                     self.lb_messages.insert(END, msg_str)
                     fg_color = COLORS.get(msg_str[:3], 'black')
-                    self.lb_messages.itemconfigure(END, fg=fg_color)
+                    self.lb_messages.itemconfigure(END, fg = fg_color)
 
             except six.moves.queue.Empty:
                 pass
@@ -402,13 +402,13 @@ class LintGui(object):
             self.root.after(100, self.periodic_call)
         else:
             #enabling button so it can be run again
-            self.btnRun.config(state=NORMAL)
+            self.btnRun.config(state = NORMAL)
 
     def mainloop(self):
         """launch the mainloop of the application"""
         self.root.mainloop()
 
-    def quit(self, _=None):
+    def quit(self, _ = None):
         """quit the application"""
         self.root.quit()
 
@@ -416,15 +416,15 @@ class LintGui(object):
         """program halt placeholder"""
         return
 
-    def file_open(self, package=False, _=None):
+    def file_open(self, package = False, _ = None):
         """launch a file browser"""
         if not package:
-            filename = askopenfilename(parent=self.root,
-                                       filetypes=[('pythonfiles', '*.py'),
-                                                  ('allfiles', '*')],
-                                       title='Select Module')
+            filename = askopenfilename(parent = self.root,
+                                       filetypes = [('pythonfiles', '*.py'),
+                                                    ('allfiles', '*')],
+                                       title = 'Select Module')
         else:
-            filename = askdirectory(title="Select A Folder", mustexist=1)
+            filename = askdirectory(title = "Select A Folder", mustexist = 1)
 
         if filename == ():
             return
@@ -462,11 +462,11 @@ class LintGui(object):
             # do nothing since history file will be created later
             return
 
-    def run_lint(self, _=None):
+    def run_lint(self, _ = None):
         """launches pylint"""
         self.update_filenames()
-        self.root.configure(cursor='watch')
-        self.reporter = GUIReporter(self, output=self.report_stream)
+        self.root.configure(cursor = 'watch')
+        self.reporter = GUIReporter(self, output = self.report_stream)
         module = self.txt_module.get()
         if not module:
             module = os.getcwd()
@@ -477,10 +477,10 @@ class LintGui(object):
         self.lb_messages.delete(0, END)
         self.tabs = {}
         self.results.delete(0, END)
-        self.btnRun.config(state=DISABLED)
+        self.btnRun.config(state = DISABLED)
 
         #setting up a worker thread to run pylint
-        worker = Thread(target=lint_thread, args=(module, self.reporter, self,))
+        worker = Thread(target = lint_thread, args = (module, self.reporter, self,))
         self.periodic_call()
         worker.start()
 
@@ -491,9 +491,9 @@ class LintGui(object):
         write_history.close()
         self.set_history_window()
 
-        self.root.configure(cursor='')
+        self.root.configure(cursor = '')
 
-    def show_sourcefile(self, event=None):  # pylint: disable=unused-argument
+    def show_sourcefile(self, event = None):  # pylint: disable=unused-argument
         selected = self.lb_messages.curselection()
         if not selected:
             return
@@ -513,7 +513,7 @@ class LintGui(object):
 def lint_thread(module, reporter, gui):
     """thread for pylint"""
     gui.status.text = "processing module(s)"
-    pylint.lint.Run(args=[module], reporter=reporter, exit=False)
+    pylint.lint.Run(args = [module], reporter = reporter, exit = False)
     gui.msg_queue.put("DONE")
 
 

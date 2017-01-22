@@ -144,7 +144,7 @@ def _has_bare_super_call(fundef_node):
             return True
     return False
 
-def _safe_infer_call_result(node, caller, context=None):
+def _safe_infer_call_result(node, caller, context = None):
     """
     Safely infer the return value of a function.
 
@@ -152,7 +152,7 @@ def _safe_infer_call_result(node, caller, context=None):
     one node has been inferred). Otherwise returns infered value.
     """
     try:
-        inferit = node.infer_call_result(caller, context=context)
+        inferit = node.infer_call_result(caller, context = context)
         value = next(inferit)
     except astroid.InferenceError:
         return  # inference failed
@@ -308,11 +308,11 @@ class ClassChecker(BaseChecker):
     priority = -2
     # configuration options
     options = (('ignore-iface-methods',
-                deprecated_option(opt_type="csv",
-                                  help_msg="This is deprecated, because "
-                                           "it is not used anymore.",
-                                  deprecation_msg="This option %r will be "
-                                                  "removed in Pylint 2.0")),
+                deprecated_option(opt_type = "csv",
+                                  help_msg = "This is deprecated, because "
+                                             "it is not used anymore.",
+                                  deprecation_msg = "This option %r will be "
+                                                    "removed in Pylint 2.0")),
                ('defining-attr-methods',
                 {'default' : ('__init__', '__new__', 'setUp'),
                  'type' : 'csv',
@@ -345,7 +345,7 @@ a metaclass class method.'}
                              'from the protected access warning.')}
                ))
 
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         BaseChecker.__init__(self, linter)
         self._accessed = []
         self._first_attrs = []
@@ -361,7 +361,7 @@ a metaclass class method.'}
             try:
                 node.local_attr('__init__')
             except astroid.NotFoundError:
-                self.add_message('no-init', args=node, node=node)
+                self.add_message('no-init', args = node, node = node)
         self._check_slots(node)
         self._check_proper_bases(node)
         self._check_consistent_mro(node)
@@ -371,9 +371,9 @@ a metaclass class method.'}
         try:
             node.mro()
         except InconsistentMroError:
-            self.add_message('inconsistent-mro', args=node.name, node=node)
+            self.add_message('inconsistent-mro', args = node.name, node = node)
         except DuplicateBasesError:
-            self.add_message('duplicate-bases', args=node.name, node=node)
+            self.add_message('duplicate-bases', args = node.name, node = node)
         except NotImplementedError:
             # Old style class, there's no mro so don't do anything.
             pass
@@ -394,7 +394,7 @@ a metaclass class method.'}
             if (not isinstance(ancestor, astroid.ClassDef) or
                     _is_invalid_base_class(ancestor)):
                 self.add_message('inherit-non-class',
-                                 args=base.as_string(), node=node)
+                                 args = base.as_string(), node = node)
 
     def leave_classdef(self, cnode):
         """close a class node:
@@ -403,7 +403,7 @@ a metaclass class method.'}
         """
         # check access to existent members on non metaclass classes
         ignore_mixins = get_global_option(self, 'ignore-mixin-members',
-                                          default=True)
+                                          default = True)
         if ignore_mixins and cnode.name[-5:].lower() == 'mixin':
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
@@ -455,7 +455,7 @@ a metaclass class method.'}
                                                   defining_methods):
                                 continue
                             self.add_message('attribute-defined-outside-init',
-                                             args=attr, node=node)
+                                             args = attr, node = node)
 
     def visit_functiondef(self, node):
         """check method arguments, overriding"""
@@ -503,7 +503,7 @@ a metaclass class method.'}
             if (isinstance(overridden_frame, astroid.ClassDef)
                     and klass.is_subtype_of(overridden_frame.qname())):
                 args = (overridden.root().name, overridden.fromlineno)
-                self.add_message('method-hidden', args=args, node=node)
+                self.add_message('method-hidden', args = args, node = node)
         except astroid.NotFoundError:
             pass
 
@@ -521,7 +521,7 @@ a metaclass class method.'}
                 except astroid.NotFoundError:
                     continue
             else:
-                self.add_message('invalid-slots', node=node)
+                self.add_message('invalid-slots', node = node)
                 continue
 
             if isinstance(slots, astroid.Const):
@@ -551,13 +551,13 @@ a metaclass class method.'}
             if (not isinstance(infered, astroid.Const) or
                     not isinstance(infered.value, six.string_types)):
                 self.add_message('invalid-slots-object',
-                                 args=infered.as_string(),
-                                 node=elt)
+                                 args = infered.as_string(),
+                                 node = elt)
                 continue
             if not infered.value:
                 self.add_message('invalid-slots-object',
-                                 args=infered.as_string(),
-                                 node=elt)
+                                 args = infered.as_string(),
+                                 node = elt)
 
     def leave_functiondef(self, node):
         """on method node, check if this method couldn't be a function
@@ -577,7 +577,7 @@ a metaclass class method.'}
                              overrides_a_method(class_node, node.name) or
                              decorated_with_property(node) or
                              (six.PY3 and _has_bare_super_call(node)))):
-                self.add_message('no-self-use', node=node)
+                self.add_message('no-self-use', node = node)
 
     def visit_attribute(self, node):
         """check if the getattr is an access to a class member
@@ -633,7 +633,7 @@ a metaclass class method.'}
                         # Descriptors circumvent the slots mechanism as well.
                         return
                     self.add_message('assigning-non-slot',
-                                     args=(node.attrname, ), node=node)
+                                     args = (node.attrname, ), node = node)
 
     @check_messages('protected-access', 'no-classmethod-decorator',
                     'no-staticmethod-decorator')
@@ -680,7 +680,7 @@ a metaclass class method.'}
         method_name = classmeth_arg.name
         if any(method_name == member.name
                for member in parent_class.mymethods()):
-            self.add_message(msg, node=node.targets[0])
+            self.add_message(msg, node = node.targets[0])
 
     def _check_protected_attribute_access(self, node):
         '''Given an attribute access node (set or get), check if attribute
@@ -706,7 +706,7 @@ a metaclass class method.'}
 
             # We are not in a class, no remaining valid case
             if klass is None:
-                self.add_message('protected-access', node=node, args=attrname)
+                self.add_message('protected-access', node = node, args = attrname)
                 return
 
             # If the expression begins with a call to super, that's ok.
@@ -732,7 +732,7 @@ a metaclass class method.'}
                     if _is_attribute_property(name, klass):
                         return
 
-                self.add_message('protected-access', node=node, args=attrname)
+                self.add_message('protected-access', node = node, args = attrname)
 
     def visit_name(self, node):
         """check if the name handle an access to a class member
@@ -790,9 +790,9 @@ a metaclass class method.'}
                         if _node.frame() is frame and _node.fromlineno < lno \
                            and not astroid.are_exclusive(_node.statement(), defstmt, excs):
                             self.add_message('access-member-before-definition',
-                                             node=_node, args=(attr, lno))
+                                             node = _node, args = (attr, lno))
 
-    def _check_first_arg_for_type(self, node, metaclass=0):
+    def _check_first_arg_for_type(self, node, metaclass = 0):
         """check the name of first argument, expect:
 
         * 'self' for a regular method
@@ -813,12 +813,12 @@ a metaclass class method.'}
             if (first_arg == 'self' or
                     first_arg in self.config.valid_classmethod_first_arg or
                     first_arg in self.config.valid_metaclass_classmethod_first_arg):
-                self.add_message('bad-staticmethod-argument', args=first, node=node)
+                self.add_message('bad-staticmethod-argument', args = first, node = node)
                 return
             self._first_attrs[-1] = None
         # class / regular method with no args
         elif not node.args.args:
-            self.add_message('no-method-argument', node=node)
+            self.add_message('no-method-argument', node = node)
         # metaclass
         elif metaclass:
             # metaclass __new__ or classmethod
@@ -845,7 +845,7 @@ a metaclass class method.'}
                     node.name)
             # regular method without self as argument
             elif first != 'self':
-                self.add_message('no-self-argument', node=node)
+                self.add_message('no-self-argument', node = node)
 
     def _check_first_arg_config(self, first, config, node, message,
                                 method_name):
@@ -855,14 +855,14 @@ a metaclass class method.'}
             else:
                 valid = ', '.join(repr(v) for v in config[:-1])
                 valid = '%s or %r' % (valid, config[-1])
-            self.add_message(message, args=(method_name, valid), node=node)
+            self.add_message(message, args = (method_name, valid), node = node)
 
     def _check_bases_classes(self, node):
         """check that the given class node implements abstract methods from
         base classes
         """
         def is_abstract(method):
-            return method.is_abstract(pass_is_abstract=False)
+            return method.is_abstract(pass_is_abstract = False)
 
         # check if this class abstract
         if class_is_abstract(node):
@@ -870,7 +870,7 @@ a metaclass class method.'}
 
         methods = sorted(
             unimplemented_abstract_methods(node, is_abstract).items(),
-            key=lambda item: item[0],
+            key = lambda item: item[0],
         )
         for name, method in methods:
             owner = method.parent.frame()
@@ -881,8 +881,8 @@ a metaclass class method.'}
             if name in node.locals:
                 # it is redefined as an attribute or with a descriptor
                 continue
-            self.add_message('abstract-method', node=node,
-                             args=(name, owner.name))
+            self.add_message('abstract-method', node = node,
+                             args = (name, owner.name))
 
     def _check_init(self, node):
         """check that the __init__ method call super or ancestors'__init__
@@ -927,14 +927,14 @@ a metaclass class method.'}
                     except KeyError:
                         if klass not in to_call:
                             self.add_message('non-parent-init-called',
-                                             node=expr, args=klass.name)
+                                             node = expr, args = klass.name)
             except astroid.InferenceError:
                 continue
         for klass, method in six.iteritems(not_called_yet):
             cls = node_frame_class(method)
             if klass.name == 'object' or (cls and cls.name == 'object'):
                 continue
-            self.add_message('super-init-not-called', args=klass.name, node=node)
+            self.add_message('super-init-not-called', args = klass.name, node = node)
 
     def _check_signature(self, method1, refmethod, class_type, cls):
         """check that the signature of the two given methods match
@@ -942,7 +942,7 @@ a metaclass class method.'}
         if not (isinstance(method1, astroid.FunctionDef)
                 and isinstance(refmethod, astroid.FunctionDef)):
             self.add_message('method-check-failed',
-                             args=(method1, refmethod), node=method1)
+                             args = (method1, refmethod), node = method1)
             return
 
         instance = cls.instanciate_class()
@@ -970,12 +970,12 @@ a metaclass class method.'}
         refmethod_args = _get_method_args(refmethod)
         if method1_args != refmethod_args:
             self.add_message('arguments-differ',
-                             args=(class_type, method1.name),
-                             node=method1)
+                             args = (class_type, method1.name),
+                             node = method1)
         elif len(method1.args.defaults) < len(refmethod.args.defaults):
             self.add_message('signature-differs',
-                             args=(class_type, method1.name),
-                             node=method1)
+                             args = (class_type, method1.name),
+                             node = method1)
 
     def is_first_attr(self, node):
         """Check that attribute lookup name use first attribute variable name
@@ -1067,8 +1067,8 @@ class SpecialMethodsChecker(BaseChecker):
         if emit:
             verb = "was" if current_params <= 1 else "were"
             self.add_message('unexpected-special-method-signature',
-                             args=(node.name, expected_params, current_params, verb),
-                             node=node)
+                             args = (node.name, expected_params, current_params, verb),
+                             node = node)
 
     @staticmethod
     def _is_iterator(node):
@@ -1099,7 +1099,7 @@ class SpecialMethodsChecker(BaseChecker):
         infered = _safe_infer_call_result(node, node)
         if infered is not None:
             if not self._is_iterator(infered):
-                self.add_message('non-iterator-returned', node=node)
+                self.add_message('non-iterator-returned', node = node)
 
     def _check_len(self, node):
         inferred = _safe_infer_call_result(node, node)
@@ -1107,20 +1107,20 @@ class SpecialMethodsChecker(BaseChecker):
             return
 
         if not isinstance(inferred, astroid.Const):
-            self.add_message('invalid-length-returned', node=node)
+            self.add_message('invalid-length-returned', node = node)
             return
 
         value = inferred.value
         if not isinstance(value, six.integer_types) or value < 0:
-            self.add_message('invalid-length-returned', node=node)
+            self.add_message('invalid-length-returned', node = node)
 
 
-def _ancestors_to_call(klass_node, method='__init__'):
+def _ancestors_to_call(klass_node, method = '__init__'):
     """return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node
     """
     to_call = {}
-    for base_node in klass_node.ancestors(recurs=False):
+    for base_node in klass_node.ancestors(recurs = False):
         try:
             to_call[base_node] = next(base_node.igetattr(method))
         except astroid.InferenceError:

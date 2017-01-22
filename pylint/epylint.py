@@ -62,7 +62,7 @@ def _get_env():
     env['PYTHONPATH'] = os.pathsep.join(sys.path)
     return env
 
-def lint(filename, options=None):
+def lint(filename, options = None):
     """Pylint the given file.
 
     When run from emacs we will be in the directory of a file, and passed its
@@ -94,8 +94,8 @@ def lint(filename, options=None):
     cmd = [sys.executable, "-c", run_cmd] + options + [
         '--msg-template', '{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}',
         '-r', 'n', child_path]
-    process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=_get_env(),
-                    universal_newlines=True)
+    process = Popen(cmd, stdout = PIPE, cwd = parent_path, env = _get_env(),
+                    universal_newlines = True)
 
     for line in process.stdout:
         # remove pylintrc warning
@@ -106,14 +106,14 @@ def lint(filename, options=None):
         parts = line.split(":")
         if parts and parts[0] == child_path:
             line = ":".join([filename] + parts[1:])
-        print(line, end=' ')
+        print(line, end = ' ')
 
     process.wait()
     return process.returncode
 
 
-def py_run(command_options='', return_std=False, stdout=None, stderr=None,
-           script='epylint'):
+def py_run(command_options = '', return_std = False, stdout = None, stderr = None,
+           script = 'epylint'):
     """Run pylint from python
 
     ``command_options`` is a string containing ``pylint`` command line options;
@@ -156,8 +156,8 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
         else:
             stderr = sys.stderr
     # Call pylint in a subprocess
-    process = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
-                    env=_get_env(), universal_newlines=True)
+    process = Popen(command_line, shell = True, stdout = stdout, stderr = stderr,
+                    env = _get_env(), universal_newlines = True)
     proc_stdout, proc_stderr = process.communicate()
     # Return standard output and error
     if return_std:

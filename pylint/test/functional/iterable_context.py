@@ -32,7 +32,7 @@ for i in set(numbers):
 for i in frozenset(numbers):
     pass
 
-for i in dict(a=1, b=2):
+for i in dict(a = 1, b = 2):
     pass
 
 # comprehensions

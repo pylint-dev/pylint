@@ -23,7 +23,7 @@ class JSONReporter(BaseReporter):
     name = 'json'
     extension = 'json'
 
-    def __init__(self, output=sys.stdout):
+    def __init__(self, output = sys.stdout):
         BaseReporter.__init__(self, output)
         self.messages = []
 
@@ -44,7 +44,7 @@ class JSONReporter(BaseReporter):
     def display_messages(self, layout):
         """Launch layouts display"""
         if self.messages:
-            print(json.dumps(self.messages, indent=4), file=self.out)
+            print(json.dumps(self.messages, indent = 4), file = self.out)
 
     def display_reports(self, _):
         """Don't do nothing in this reporter."""

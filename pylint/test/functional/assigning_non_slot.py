@@ -101,7 +101,7 @@ class UnicodeSlots(object):
 
 
 class DataDescriptor(object):
-    def __init__(self, name, default=''):
+    def __init__(self, name, default = ''):
         self.__name = name
         self.__default = default
 

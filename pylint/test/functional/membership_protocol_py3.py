@@ -17,13 +17,13 @@ class MetaContainer(type):
         return False
 
 
-class IterableClass(metaclass=MetaOldIterable):
+class IterableClass(metaclass = MetaOldIterable):
     pass
 
-class OldIterableClass(metaclass=MetaOldIterable):
+class OldIterableClass(metaclass = MetaOldIterable):
     pass
 
-class ContainerClass(metaclass=MetaContainer):
+class ContainerClass(metaclass = MetaContainer):
     pass
 
 

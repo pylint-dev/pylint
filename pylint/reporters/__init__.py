@@ -46,7 +46,7 @@ class BaseReporter(object):
 
     extension = ''
 
-    def __init__(self, output=None):
+    def __init__(self, output = None):
         self.linter = None
         self.section = 0
         self.out = None
@@ -58,7 +58,7 @@ class BaseReporter(object):
     def handle_message(self, msg):
         """Handle a new message triggered on the current file."""
 
-    def set_output(self, output=None):
+    def set_output(self, output = None):
         """set output stream"""
         self.out = output or sys.stdout
 
@@ -76,9 +76,9 @@ class BaseReporter(object):
             # settings
             return string.encode(encoding, 'replace')
 
-    def writeln(self, string=''):
+    def writeln(self, string = ''):
         """write a line in the output buffer"""
-        print(self.encode(string), file=self.out)
+        print(self.encode(string), file = self.out)
 
     def display_reports(self, layout):
         """display results encapsulated in the layout tree"""

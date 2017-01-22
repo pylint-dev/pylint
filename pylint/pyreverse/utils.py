@@ -116,7 +116,7 @@ class FilterMixIn(object):
             try:
                 __mode += MODES[nummod]
             except KeyError as ex:
-                print('Unknown filter mode %s' % ex, file=sys.stderr)
+                print('Unknown filter mode %s' % ex, file = sys.stderr)
         self.__mode = __mode
 
 
@@ -141,7 +141,7 @@ class ASTWalker(object):
         self.handler = handler
         self._cache = {}
 
-    def walk(self, node, _done=None):
+    def walk(self, node, _done = None):
         """walk on the tree from <node>, getting callbacks from handler"""
         if _done is None:
             _done = set()

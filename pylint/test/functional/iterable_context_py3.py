@@ -8,7 +8,7 @@ class Meta(type):
     def __iter__(self):
         return iter((1, 2, 3))
 
-class SomeClass(metaclass=Meta):
+class SomeClass(metaclass = Meta):
     pass
 
 

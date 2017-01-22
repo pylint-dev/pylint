@@ -8,11 +8,11 @@ def getter(self):
 
 class CorrectClass(object):
     """correct usage"""
-    method = property(getter, doc='hop')
+    method = property(getter, doc = 'hop')
 
 class OldStyleClass:  # <3.0:[old-style-class]
     """bad usage"""
-    method = property(getter, doc='hop')  # <3.0:[property-on-old-class]
+    method = property(getter, doc = 'hop')  # <3.0:[property-on-old-class]
 
     def __init__(self):
         pass

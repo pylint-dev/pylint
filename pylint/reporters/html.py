@@ -23,7 +23,7 @@ class HTMLReporter(BaseReporter):
     name = 'html'
     extension = 'html'
 
-    def __init__(self, output=sys.stdout):
+    def __init__(self, output = sys.stdout):
         BaseReporter.__init__(self, output)
         self.msgs = []
         # Add placeholders for title and parsed messages
@@ -67,7 +67,7 @@ class HTMLReporter(BaseReporter):
         self.msgs += [value if isinstance(value, six.text_type) else str(value)
                       for value in values]
 
-    def set_output(self, output=None):
+    def set_output(self, output = None):
         """set output stream
 
         messages buffered for old output is processed first"""
@@ -92,7 +92,7 @@ class HTMLReporter(BaseReporter):
             msgs += self.msgs
             sect = Section('Messages')
             layout.append(sect)
-            sect.append(Table(cols=cols, children=msgs, rheaders=1))
+            sect.append(Table(cols = cols, children = msgs, rheaders = 1))
             self.msgs = []
             self._display(layout)
 

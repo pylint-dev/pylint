@@ -413,7 +413,7 @@ def is_attr_private(attrname):
     regex = re.compile('^_{2,}.*[^_]+_?$')
     return regex.match(attrname)
 
-def get_argument_from_call(callfunc_node, position=None, keyword=None):
+def get_argument_from_call(callfunc_node, position = None, keyword = None):
     """Returns the specified argument from a function call.
     :param astroid.Call callfunc_node: Node representing a function call to check.
     :param int position: position of the argument.
@@ -447,7 +447,7 @@ def inherit_from_std_ex(node):
             and node.root().name == EXCEPTIONS_MODULE:
         return True
     return any(inherit_from_std_ex(parent)
-               for parent in node.ancestors(recurs=True))
+               for parent in node.ancestors(recurs = True))
 
 def error_of_type(handler, error_type):
     """
@@ -505,7 +505,7 @@ def decorated_with(func, qnames):
             return True
 
 
-def unimplemented_abstract_methods(node, is_abstract_cb=None):
+def unimplemented_abstract_methods(node, is_abstract_cb = None):
     """
     Get the unimplemented abstract methods for the given *node*.
 
@@ -519,7 +519,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     """
     if is_abstract_cb is None:
         is_abstract_cb = functools.partial(
-            decorated_with, qnames=ABC_METHODS)
+            decorated_with, qnames = ABC_METHODS)
     visited = {}
     try:
         mro = reversed(node.mro())
@@ -596,7 +596,7 @@ def is_from_fallback_block(node):
 
 def _except_handlers_ignores_exception(handlers, exception):
     func = functools.partial(error_of_type,
-                             error_type=(exception, ))
+                             error_type = (exception, ))
     return any(map(func, handlers))
 
 
@@ -618,7 +618,7 @@ def class_is_abstract(node):
     """
     for method in node.methods():
         if method.parent.frame() is node:
-            if method.is_abstract(pass_is_abstract=False):
+            if method.is_abstract(pass_is_abstract = False):
                 return True
     return False
 
@@ -739,14 +739,14 @@ def supports_subscript(value):
     return False
 
 # TODO(cpopa): deprecate these or leave them as aliases?
-def safe_infer(node, context=None):
+def safe_infer(node, context = None):
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred).
     """
     try:
-        inferit = node.infer(context=context)
+        inferit = node.infer(context = context)
         value = next(inferit)
     except astroid.InferenceError:
         return
@@ -759,18 +759,18 @@ def safe_infer(node, context=None):
         return value
 
 
-def has_known_bases(klass, context=None):
+def has_known_bases(klass, context = None):
     """Return true if all base classes of a class could be inferred."""
     try:
         return klass._all_bases_known
     except AttributeError:
         pass
     for base in klass.bases:
-        result = safe_infer(base, context=context)
+        result = safe_infer(base, context = context)
         # TODO: check for A->B->A->B pattern in class structure too?
         if (not isinstance(result, astroid.ClassDef) or
                 result is klass or
-                not has_known_bases(result, context=context)):
+                not has_known_bases(result, context = context)):
             klass._all_bases_known = False
             return False
     klass._all_bases_known = True

@@ -13,7 +13,7 @@ class Test(object):
     ident = lambda x: x
 
     @ident(ident)
-    def method(self, val=ident(7), func=ident):
+    def method(self, val = ident(7), func = ident):
         """hop"""
         print(self)
         return func(val)

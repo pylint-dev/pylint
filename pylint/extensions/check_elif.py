@@ -24,7 +24,7 @@ class ElseifUsedChecker(BaseTokenChecker):
                       'would be unrelated to it.'),
            }
 
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         BaseTokenChecker.__init__(self, linter)
         self._init()
 
@@ -56,7 +56,7 @@ class ElseifUsedChecker(BaseTokenChecker):
             # current if node must directly follow a "else"
             if orelse and orelse == [node]:
                 if not self._elifs[self._if_counter]:
-                    self.add_message('else-if-used', node=node)
+                    self.add_message('else-if-used', node = node)
         self._if_counter += 1
 
 

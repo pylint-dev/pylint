@@ -30,15 +30,15 @@ from pylint.reporters.ureports.nodes import Table
 class Similar(object):
     """finds copy-pasted lines of code in a project"""
 
-    def __init__(self, min_lines=4, ignore_comments=False,
-                 ignore_docstrings=False, ignore_imports=False):
+    def __init__(self, min_lines = 4, ignore_comments = False,
+                 ignore_docstrings = False, ignore_imports = False):
         self.min_lines = min_lines
         self.ignore_comments = ignore_comments
         self.ignore_docstrings = ignore_docstrings
         self.ignore_imports = ignore_imports
         self.linesets = []
 
-    def append_stream(self, streamid, stream, encoding=None):
+    def append_stream(self, streamid, stream, encoding = None):
         """append a file to search for similarities"""
         if encoding is None:
             readlines = stream.readlines
@@ -164,8 +164,8 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
 
 class LineSet(object):
     """Holds and indexes all the lines of a single source file"""
-    def __init__(self, name, lines, ignore_comments=False,
-                 ignore_docstrings=False, ignore_imports=False):
+    def __init__(self, name, lines, ignore_comments = False,
+                 ignore_docstrings = False, ignore_imports = False):
         self.name = name
         self._real_lines = lines
         self._stripped_lines = stripped_lines(lines, ignore_comments,
@@ -188,7 +188,7 @@ class LineSet(object):
     def __hash__(self):
         return id(self)
 
-    def enumerate_stripped(self, start_at=0):
+    def enumerate_stripped(self, start_at = 0):
         """return an iterator on stripped lines, starting from a given index
         if specified, else 0
         """
@@ -227,7 +227,7 @@ def report_similarities(sect, stats, old_stats):
     lines += table_lines_from_stats(stats, old_stats,
                                     ('nb_duplicated_lines',
                                      'percent_duplicated_lines'))
-    sect.append(Table(children=lines, cols=4, rheaders=1, cheaders=1))
+    sect.append(Table(children = lines, cols = 4, rheaders = 1, cheaders = 1))
 
 
 # wrapper to get a pylint checker from the similar class
@@ -263,13 +263,13 @@ class SimilarChecker(BaseChecker, Similar):
     # reports
     reports = (('RP0801', 'Duplication', report_similarities),)
 
-    def __init__(self, linter=None):
+    def __init__(self, linter = None):
         BaseChecker.__init__(self, linter)
-        Similar.__init__(self, min_lines=4,
-                         ignore_comments=True, ignore_docstrings=True)
+        Similar.__init__(self, min_lines = 4,
+                         ignore_comments = True, ignore_docstrings = True)
         self.stats = None
 
-    def set_option(self, optname, value, action=None, optdict=None):
+    def set_option(self, optname, value, action = None, optdict = None):
         """method called to set an option (registered in the options list)
 
         overridden to report options setting to Similar
@@ -287,8 +287,8 @@ class SimilarChecker(BaseChecker, Similar):
     def open(self):
         """init the checkers: reset linesets and statistics information"""
         self.linesets = []
-        self.stats = self.linter.add_stats(nb_duplicated_lines=0,
-                                           percent_duplicated_lines=0)
+        self.stats = self.linter.add_stats(nb_duplicated_lines = 0,
+                                           percent_duplicated_lines = 0)
 
     def process_module(self, node):
         """process a module
@@ -315,7 +315,7 @@ class SimilarChecker(BaseChecker, Similar):
             # pylint: disable=W0631
             for line in lineset._real_lines[idx:idx+num]:
                 msg.append(line.rstrip())
-            self.add_message('R0801', args=(len(couples), '\n'.join(msg)))
+            self.add_message('R0801', args = (len(couples), '\n'.join(msg)))
             duplicated += num * (len(couples) - 1)
         stats['nb_duplicated_lines'] = duplicated
         stats['percent_duplicated_lines'] = total and duplicated * 100. / total
@@ -325,7 +325,7 @@ def register(linter):
     """required method to auto register this checker """
     linter.register_checker(SimilarChecker(linter))
 
-def usage(status=0):
+def usage(status = 0):
     """display command line usage information"""
     print("finds copy pasted blocks in a set of files")
     print()
@@ -333,7 +333,7 @@ def usage(status=0):
 [-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] file1...')
     sys.exit(status)
 
-def Run(argv=None):
+def Run(argv = None):
     """standalone command line access point"""
     if argv is None:
         argv = sys.argv[1:]

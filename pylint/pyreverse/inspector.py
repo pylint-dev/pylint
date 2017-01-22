@@ -39,7 +39,7 @@ def _astroid_wrapper(func, modname):
         traceback.print_exc()
 
 
-def interfaces(node, herited=True, handler_func=_iface_hdlr):
+def interfaces(node, herited = True, handler_func = _iface_hdlr):
     """Return an iterator on interfaces implemented by the given class node."""
     # FIXME: what if __implements__ = (MyIFace, MyParent.__implements__)...
     try:
@@ -64,10 +64,10 @@ def interfaces(node, herited=True, handler_func=_iface_hdlr):
 class IdGeneratorMixIn(object):
     """Mixin adding the ability to generate integer uid."""
 
-    def __init__(self, start_value=0):
+    def __init__(self, start_value = 0):
         self.id_count = start_value
 
-    def init_counter(self, start_value=0):
+    def init_counter(self, start_value = 0):
         """init the id counter
         """
         self.id_count = start_value
@@ -102,7 +102,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
       list of implemented interface _objects_ (only on astroid.Class nodes)
     """
 
-    def __init__(self, project, inherited_interfaces=0, tag=False):
+    def __init__(self, project, inherited_interfaces = 0, tag = False):
         IdGeneratorMixIn.__init__(self)
         utils.LocalsVisitor.__init__(self)
         # take inherited interface in consideration or not
@@ -159,7 +159,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         if self.tag:
             node.uid = self.generate_id()
         # resolve ancestors
-        for baseobj in node.ancestors(recurs=False):
+        for baseobj in node.ancestors(recurs = False):
             specializations = getattr(baseobj, 'specializations', [])
             specializations.append(node)
             baseobj.specializations = specializations
@@ -302,7 +302,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
 class Project(object):
     """a project handle a set of modules / packages"""
-    def __init__(self, name=''):
+    def __init__(self, name = ''):
         self.name = name
         self.path = None
         self.modules = []
@@ -328,9 +328,9 @@ class Project(object):
                                                     len(self.modules))
 
 
-def project_from_files(files, func_wrapper=_astroid_wrapper,
-                       project_name="no name",
-                       black_list=('CVS',)):
+def project_from_files(files, func_wrapper = _astroid_wrapper,
+                       project_name = "no name",
+                       black_list = ('CVS',)):
     """return a Project from a list of files or modules"""
     # build the project representation
     astroid_manager = manager.AstroidManager()

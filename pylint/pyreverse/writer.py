@@ -39,8 +39,8 @@ class DiagramWriter(object):
     def write_packages(self, diagram):
         """write a package diagram"""
         # sorted to get predictable (hence testable) results
-        for i, obj in enumerate(sorted(diagram.modules(), key=lambda x: x.title)):
-            self.printer.emit_node(i, label=self.get_title(obj), shape='box')
+        for i, obj in enumerate(sorted(diagram.modules(), key = lambda x: x.title)):
+            self.printer.emit_node(i, label = self.get_title(obj), shape = 'box')
             obj.fig_id = i
         # package dependencies
         for rel in diagram.get_relationships('depends'):
@@ -50,7 +50,7 @@ class DiagramWriter(object):
     def write_classes(self, diagram):
         """write a class diagram"""
         # sorted to get predictable (hence testable) results
-        for i, obj in enumerate(sorted(diagram.objects, key=lambda x: x.title)):
+        for i, obj in enumerate(sorted(diagram.objects, key = lambda x: x.title)):
             self.printer.emit_node(i, **self.get_values(obj))
             obj.fig_id = i
         # inheritance links
@@ -64,7 +64,7 @@ class DiagramWriter(object):
         # generate associations
         for rel in diagram.get_relationships('association'):
             self.printer.emit_edge(rel.from_object.fig_id, rel.to_object.fig_id,
-                                   label=rel.name, **self.ass_edges)
+                                   label = rel.name, **self.ass_edges)
 
     def set_printer(self, file_name, basename):
         """set printer"""
@@ -88,19 +88,19 @@ class DotWriter(DiagramWriter):
     """
 
     def __init__(self, config):
-        styles = [dict(arrowtail='none', arrowhead="open"),
-                  dict(arrowtail='none', arrowhead='empty'),
-                  dict(arrowtail='node', arrowhead='empty', style='dashed'),
-                  dict(fontcolor='green', arrowtail='none',
-                       arrowhead='diamond', style='solid'),
+        styles = [dict(arrowtail = 'none', arrowhead = 'open'),
+                  dict(arrowtail = 'none', arrowhead = 'empty'),
+                  dict(arrowtail = 'node', arrowhead = 'empty', style = 'dashed'),
+                  dict(fontcolor = 'green', arrowtail = 'none',
+                       arrowhead = 'diamond', style = 'solid'),
                  ]
         DiagramWriter.__init__(self, config, styles)
 
     def set_printer(self, file_name, basename):
         """initialize DotWriter and add options for layout.
         """
-        layout = dict(rankdir="BT")
-        self.printer = DotBackend(basename, additional_param=layout)
+        layout = dict(rankdir = "BT")
+        self.printer = DotBackend(basename, additional_param = layout)
         self.file_name = file_name
 
     def get_title(self, obj):
@@ -121,8 +121,8 @@ class DotWriter(DiagramWriter):
                 label = r'%s%s()\l' % (label, func.name)
             label = '{%s}' % label
         if is_exception(obj.node):
-            return dict(fontcolor='red', label=label, shape='record')
-        return dict(label=label, shape='record')
+            return dict(fontcolor = 'red', label = label, shape = 'record')
+        return dict(label = label, shape = 'record')
 
     def close_graph(self):
         """print the dot graph into <file_name>"""
@@ -133,14 +133,14 @@ class VCGWriter(DiagramWriter):
     """write vcg graphs from a diagram definition and a project
     """
     def __init__(self, config):
-        styles = [dict(arrowstyle='solid', backarrowstyle='none',
-                       backarrowsize=0),
-                  dict(arrowstyle='solid', backarrowstyle='none',
-                       backarrowsize=10),
-                  dict(arrowstyle='solid', backarrowstyle='none',
-                       linestyle='dotted', backarrowsize=10),
-                  dict(arrowstyle='solid', backarrowstyle='none',
-                       textcolor='green'),
+        styles = [dict(arrowstyle = 'solid', backarrowstyle = 'none',
+                       backarrowsize = 0),
+                  dict(arrowstyle = 'solid', backarrowstyle = 'none',
+                       backarrowsize = 10),
+                  dict(arrowstyle = 'solid', backarrowstyle = 'none',
+                       linestyle = 'dotted', backarrowsize = 10),
+                  dict(arrowstyle = 'solid', backarrowstyle = 'none',
+                       textcolor = 'green'),
                  ]
         DiagramWriter.__init__(self, config, styles)
 
@@ -148,9 +148,9 @@ class VCGWriter(DiagramWriter):
         """initialize VCGWriter for a UML graph"""
         self.graph_file = open(file_name, 'w+')
         self.printer = VCGPrinter(self.graph_file)
-        self.printer.open_graph(title=basename, layoutalgorithm='dfs',
-                                late_edge_labels='yes', port_sharing='no',
-                                manhattan_edges='yes')
+        self.printer.open_graph(title = basename, layoutalgorithm = 'dfs',
+                                late_edge_labels = 'yes', port_sharing = 'no',
+                                manhattan_edges = 'yes')
         self.printer.emit_node = self.printer.node
         self.printer.emit_edge = self.printer.edge
 
@@ -184,7 +184,7 @@ class VCGWriter(DiagramWriter):
                 label = r'%s\n\f%s' % (label, line)
             for func in methods:
                 label = r'%s\n\f10%s()' % (label, func)
-        return dict(label=label, shape=shape)
+        return dict(label = label, shape = shape)
 
     def close_graph(self):
         """close graph and file"""

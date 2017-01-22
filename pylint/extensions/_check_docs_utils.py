@@ -137,7 +137,7 @@ class SphinxDocstring(Docstring):
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type = re_type), re.X | re.S)
 
     re_type_in_docstring = re.compile(r"""
         :type                   # Sphinx keyword
@@ -145,7 +145,7 @@ class SphinxDocstring(Docstring):
         ({type})                # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type = re_type), re.X | re.S)
 
     re_raise_in_docstring = re.compile(r"""
         :raises                 # Sphinx keyword
@@ -159,7 +159,7 @@ class SphinxDocstring(Docstring):
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type), re.X | re.S)
+        """.format(type = re_type), re.X | re.S)
 
     re_rtype_in_docstring = re.compile(r":rtype:")
 
@@ -216,7 +216,7 @@ class GoogleDocstring(Docstring):
     re_container_type = r"""
         (?:{type}|{xref})             # a container type
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
-    """.format(type=re_type, xref=re_xref)
+    """.format(type = re_type, xref = re_xref)
 
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header
@@ -235,8 +235,8 @@ class GoogleDocstring(Docstring):
             [)] )? \s* :                # optional type declaration
         \s*  (.*)                       # beginning of optional description
     """.format(
-        type=re_type,
-        container_type=re_container_type
+        type = re_type,
+        container_type = re_container_type
     ), re.X | re.S | re.M)
 
     re_raise_section = re.compile(
@@ -247,7 +247,7 @@ class GoogleDocstring(Docstring):
     re_raise_line = re.compile(r"""
         \s*  ({type}) \s* :              # identifier
         \s*  (.*)                        # beginning of optional description
-    """.format(type=re_type), re.X | re.S | re.M)
+    """.format(type = re_type), re.X | re.S | re.M)
 
     re_returns_section = re.compile(
         _re_section_template.format(r"Returns?"),
@@ -258,8 +258,8 @@ class GoogleDocstring(Docstring):
         \s* ({container_type}:|{type}:)?  # identifier
         \s* (.*)                          # beginning of description
     """.format(
-        type=re_type,
-        container_type=re_container_type
+        type = re_type,
+        container_type = re_container_type
     ), re.X | re.S | re.M)
 
     def is_valid(self):
@@ -387,8 +387,8 @@ class NumpyDocstring(GoogleDocstring):
         \n                              # description starts on a new line
         \s* (.*)                        # description
     """.format(
-        type=GoogleDocstring.re_type,
-        container_type=GoogleDocstring.re_container_type
+        type = GoogleDocstring.re_type,
+        container_type = GoogleDocstring.re_container_type
     ), re.X | re.S)
 
     re_raise_section = re.compile(
@@ -399,7 +399,7 @@ class NumpyDocstring(GoogleDocstring):
     re_raise_line = re.compile(r"""
         \s* ({type})$   # type declaration
         \s* (.*)        # optional description
-    """.format(type=GoogleDocstring.re_type), re.X | re.S | re.M)
+    """.format(type = GoogleDocstring.re_type), re.X | re.S | re.M)
 
     re_returns_section = re.compile(
         _re_section_template.format(r"Returns?"),
@@ -410,8 +410,8 @@ class NumpyDocstring(GoogleDocstring):
         \s* ({container_type}|{type})$ # type declaration
         \s* (.*)                       # optional description
     """.format(
-        type=GoogleDocstring.re_type,
-        container_type=GoogleDocstring.re_container_type
+        type = GoogleDocstring.re_type,
+        container_type = GoogleDocstring.re_container_type
     ), re.X | re.S | re.M)
 
     @staticmethod

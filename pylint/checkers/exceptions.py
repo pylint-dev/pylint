@@ -41,7 +41,7 @@ def _builtin_exceptions():
     return {exc.__name__ for (_, exc) in members}
 
 
-def _annotated_unpack_infer(stmt, context=None):
+def _annotated_unpack_infer(stmt, context = None):
     """
     Recursively generate nodes inferred by the given statement.
     If the inferred value is a list or a tuple, recurse on the elements.
@@ -189,7 +189,7 @@ class ExceptionsChecker(BaseChecker):
         expected = (astroid.ExceptHandler,)
         if (not current
                 or not isinstance(current.parent, expected)):
-            self.add_message('misplaced-bare-raise', node=node)
+            self.add_message('misplaced-bare-raise', node = node)
 
     def _check_bad_exception_context(self, node):
         """Verify that the exception context is properly set.
@@ -202,11 +202,11 @@ class ExceptionsChecker(BaseChecker):
         if isinstance(cause, astroid.Const):
             if cause.value is not None:
                 self.add_message('bad-exception-context',
-                                 node=node)
+                                 node = node)
         elif (not isinstance(cause, astroid.ClassDef) and
               not inherit_from_std_ex(cause)):
             self.add_message('bad-exception-context',
-                             node=node)
+                             node = node)
 
     def _check_raise_value(self, node, expr):
         """check for bad values, string exception and class inheritance
@@ -216,8 +216,8 @@ class ExceptionsChecker(BaseChecker):
             value = expr.value
             if not isinstance(value, str):
                 # raising-string will be emitted from python3 porting checker.
-                self.add_message('raising-bad-type', node=node,
-                                 args=value.__class__.__name__)
+                self.add_message('raising-bad-type', node = node,
+                                 args = value.__class__.__name__)
         elif ((isinstance(expr, astroid.Name) and
                expr.name in ('None', 'True', 'False')) or
               isinstance(expr, (astroid.List, astroid.Dict, astroid.Tuple,
@@ -242,13 +242,13 @@ class ExceptionsChecker(BaseChecker):
                     emit = False
             if emit:
                 self.add_message('raising-bad-type',
-                                 node=node,
-                                 args=expr.name)
+                                 node = node,
+                                 args = expr.name)
         elif ((isinstance(expr, astroid.Name) and expr.name == 'NotImplemented')
               or (isinstance(expr, astroid.Call) and
                   isinstance(expr.func, astroid.Name) and
                   expr.func.name == 'NotImplemented')):
-            self.add_message('notimplemented-raised', node=node)
+            self.add_message('notimplemented-raised', node = node)
         elif isinstance(expr, (astroid.Instance, astroid.ClassDef)):
             if isinstance(expr, astroid.Instance):
                 # pylint: disable=protected-access
@@ -257,9 +257,9 @@ class ExceptionsChecker(BaseChecker):
                     not inherit_from_std_ex(expr) and
                     has_known_bases(expr)):
                 if expr.newstyle:
-                    self.add_message('raising-non-exception', node=node)
+                    self.add_message('raising-non-exception', node = node)
                 else:
-                    self.add_message('nonstandard-exception', node=node)
+                    self.add_message('nonstandard-exception', node = node)
             else:
                 value_found = False
         else:
@@ -291,20 +291,20 @@ class ExceptionsChecker(BaseChecker):
                     # defined by the entire exception handler, then
                     # emit a warning.
                     self.add_message('catching-non-exception',
-                                     node=handler.type,
-                                     args=(part.as_string(), ))
+                                     node = handler.type,
+                                     args = (part.as_string(), ))
             else:
                 self.add_message('catching-non-exception',
-                                 node=handler.type,
-                                 args=(part.as_string(), ))
+                                 node = handler.type,
+                                 args = (part.as_string(), ))
             return
 
         if (not inherit_from_std_ex(exc) and
                 exc.name not in self.builtin_exceptions):
             if has_known_bases(exc):
                 self.add_message('catching-non-exception',
-                                 node=handler.type,
-                                 args=(exc.name, ))
+                                 node = handler.type,
+                                 args = (exc.name, ))
 
     @check_messages('bare-except', 'broad-except',
                     'binary-op-exception', 'bad-except-order',
@@ -316,16 +316,16 @@ class ExceptionsChecker(BaseChecker):
         for index, handler in enumerate(node.handlers):
             if handler.type is None:
                 if not is_raising(handler.body):
-                    self.add_message('bare-except', node=handler)
+                    self.add_message('bare-except', node = handler)
                 # check if a "except:" is followed by some other
                 # except
                 if index < (nb_handlers - 1):
                     msg = 'empty except clause should always appear last'
-                    self.add_message('bad-except-order', node=node, args=msg)
+                    self.add_message('bad-except-order', node = node, args = msg)
 
             elif isinstance(handler.type, astroid.BoolOp):
                 self.add_message('binary-op-exception',
-                                 node=handler, args=handler.type.op)
+                                 node = handler, args = handler.type.op)
             else:
                 try:
                     excs = list(_annotated_unpack_infer(handler.type))
@@ -351,16 +351,16 @@ class ExceptionsChecker(BaseChecker):
                             msg = '%s is an ancestor class of %s' % (
                                 previous_exc.name, exc.name)
                             self.add_message('bad-except-order',
-                                             node=handler.type, args=msg)
+                                             node = handler.type, args = msg)
                     if (exc.name in self.config.overgeneral_exceptions
                             and exc.root().name == EXCEPTIONS_MODULE
                             and not is_raising(handler.body)):
                         self.add_message('broad-except',
-                                         args=exc.name, node=handler.type)
+                                         args = exc.name, node = handler.type)
 
                     if exc in exceptions_classes:
                         self.add_message('duplicate-except',
-                                         args=exc.name, node=handler.type)
+                                         args = exc.name, node = handler.type)
 
                 exceptions_classes += [exc for _, exc in excs]
 

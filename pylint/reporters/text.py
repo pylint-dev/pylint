@@ -54,7 +54,7 @@ ANSI_COLORS = {
     'white': "37",
 }
 
-def _get_ansi_code(color=None, style=None):
+def _get_ansi_code(color = None, style = None):
     """return ansi escape code corresponding to color and style
 
     :type color: str or None
@@ -87,7 +87,7 @@ def _get_ansi_code(color=None, style=None):
         return ANSI_PREFIX + ';'.join(ansi_code) + ANSI_END
     return ''
 
-def colorize_ansi(msg, color=None, style=None):
+def colorize_ansi(msg, color = None, style = None):
     """colorize message by wrapping it with ansi escape codes
 
     :type msg: str or unicode
@@ -125,7 +125,7 @@ class TextReporter(BaseReporter):
     extension = 'txt'
     line_format = '{C}:{line:3d},{column:2d}: {msg} ({symbol})'
 
-    def __init__(self, output=None):
+    def __init__(self, output = None):
         BaseReporter.__init__(self, output)
         self._modules = set()
         self._template = None
@@ -149,7 +149,7 @@ class TextReporter(BaseReporter):
 
     def _display(self, layout):
         """launch layouts display"""
-        print(file=self.out)
+        print(file = self.out)
         TextWriter().format(layout, self.out)
 
 
@@ -162,7 +162,7 @@ class ParseableTextReporter(TextReporter):
     name = 'parseable'
     line_format = '{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'
 
-    def __init__(self, output=None):
+    def __init__(self, output = None):
         warnings.warn('%s output format is deprecated. This is equivalent '
                       'to --msg-template=%s' % (self.name, self.line_format),
                       DeprecationWarning)
@@ -189,7 +189,7 @@ class ColorizedTextReporter(TextReporter):
         'S' : ("yellow", "inverse"), # S stands for module Separator
     }
 
-    def __init__(self, output=None, color_mapping=None):
+    def __init__(self, output = None, color_mapping = None):
         TextReporter.__init__(self, output)
         self.color_mapping = color_mapping or \
                              dict(ColorizedTextReporter.COLOR_MAPPING)

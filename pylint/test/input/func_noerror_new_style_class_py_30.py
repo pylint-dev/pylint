@@ -10,7 +10,7 @@ class File(file):  # pylint: disable=file-builtin
     """ Testing new-style class inheritance from file"""
 
     #
-    def __init__(self, name, mode="r", buffering=-1, verbose=False):
+    def __init__(self, name, mode = "r", buffering = -1, verbose = False):
         """Constructor"""
 
         self.was_modified = False

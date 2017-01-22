@@ -386,13 +386,13 @@ class Python3Checker(checkers.BaseChecker):
             method_name = node.name
             if node.name.startswith('__'):
                 method_name = node.name[2:-2]
-            self.add_message(method_name + '-method', node=node)
+            self.add_message(method_name + '-method', node = node)
 
     @utils.check_messages('parameter-unpacking')
     def visit_arguments(self, node):
         for arg in node.args:
             if isinstance(arg, astroid.Tuple):
-                self.add_message('parameter-unpacking', node=arg)
+                self.add_message('parameter-unpacking', node = arg)
 
     def visit_name(self, node):
         """Detect when a "bad" built-in is referenced."""
@@ -400,11 +400,11 @@ class Python3Checker(checkers.BaseChecker):
         if _is_builtin(found_node):
             if node.name in self._bad_builtins:
                 message = node.name.lower() + '-builtin'
-                self.add_message(message, node=node)
+                self.add_message(message, node = node)
 
     @utils.check_messages('print-statement')
     def visit_print(self, node):
-        self.add_message('print-statement', node=node)
+        self.add_message('print-statement', node = node)
 
     def visit_importfrom(self, node):
         if node.modname == '__future__':
@@ -415,21 +415,21 @@ class Python3Checker(checkers.BaseChecker):
                     self._future_absolute_import = True
         elif not self._future_absolute_import:
             if self.linter.is_message_enabled('no-absolute-import'):
-                self.add_message('no-absolute-import', node=node)
+                self.add_message('no-absolute-import', node = node)
         if node.names[0][0] == '*':
             if self.linter.is_message_enabled('import-star-module-level'):
                 if not isinstance(node.scope(), astroid.Module):
-                    self.add_message('import-star-module-level', node=node)
+                    self.add_message('import-star-module-level', node = node)
 
     @utils.check_messages('no-absolute-import')
     def visit_import(self, node):
         if not self._future_absolute_import:
-            self.add_message('no-absolute-import', node=node)
+            self.add_message('no-absolute-import', node = node)
 
     @utils.check_messages('metaclass-assignment')
     def visit_classdef(self, node):
         if '__metaclass__' in node.locals:
-            self.add_message('metaclass-assignment', node=node)
+            self.add_message('metaclass-assignment', node = node)
 
     @utils.check_messages('old-division')
     def visit_binop(self, node):
@@ -438,7 +438,7 @@ class Python3Checker(checkers.BaseChecker):
                 if isinstance(arg, astroid.Const) and isinstance(arg.value, float):
                     break
             else:
-                self.add_message('old-division', node=node)
+                self.add_message('old-division', node = node)
 
     def _check_cmp_argument(self, node):
         # Check that the `cmp` argument is used
@@ -466,7 +466,7 @@ class Python3Checker(checkers.BaseChecker):
 
         for kwarg in kwargs or []:
             if kwarg.arg == 'cmp':
-                self.add_message('using-cmp-argument', node=node)
+                self.add_message('using-cmp-argument', node = node)
                 return
 
     def visit_call(self, node):
@@ -476,20 +476,20 @@ class Python3Checker(checkers.BaseChecker):
             if any([node.args, node.keywords]):
                 return
             if node.func.attrname == 'next':
-                self.add_message('next-method-called', node=node)
+                self.add_message('next-method-called', node = node)
             else:
                 if _check_dict_node(node.func.expr):
                     if node.func.attrname in ('iterkeys', 'itervalues', 'iteritems'):
-                        self.add_message('dict-iter-method', node=node)
+                        self.add_message('dict-iter-method', node = node)
                     elif node.func.attrname in ('viewkeys', 'viewvalues', 'viewitems'):
-                        self.add_message('dict-view-method', node=node)
+                        self.add_message('dict-view-method', node = node)
         elif isinstance(node.func, astroid.Name):
             found_node = node.func.lookup(node.func.name)[0]
             if _is_builtin(found_node):
                 if node.func.name in ('filter', 'map', 'range', 'zip'):
                     if not _in_iterating_context(node):
                         checker = '{}-builtin-not-iterating'.format(node.func.name)
-                        self.add_message(checker, node=node)
+                        self.add_message(checker, node = node)
 
 
     @utils.check_messages('indexing-exception')
@@ -500,7 +500,7 @@ class Python3Checker(checkers.BaseChecker):
                 if not isinstance(infered, astroid.Instance):
                     continue
                 if utils.inherit_from_std_ex(infered):
-                    self.add_message('indexing-exception', node=node)
+                    self.add_message('indexing-exception', node = node)
         except astroid.InferenceError:
             return
 
@@ -508,11 +508,11 @@ class Python3Checker(checkers.BaseChecker):
     def visit_excepthandler(self, node):
         """Visit an except handler block and check for exception unpacking."""
         if isinstance(node.name, (astroid.Tuple, astroid.List)):
-            self.add_message('unpacking-in-except', node=node)
+            self.add_message('unpacking-in-except', node = node)
 
     @utils.check_messages('backtick')
     def visit_repr(self, node):
-        self.add_message('backtick', node=node)
+        self.add_message('backtick', node = node)
 
     @utils.check_messages('raising-string', 'old-raise-syntax')
     def visit_raise(self, node):
@@ -522,7 +522,7 @@ class Python3Checker(checkers.BaseChecker):
         if (node.exc is not None and
                 node.inst is not None and
                 node.tback is None):
-            self.add_message('old-raise-syntax', node=node)
+            self.add_message('old-raise-syntax', node = node)
 
         # Ignore empty raise.
         if node.exc is None:
@@ -541,7 +541,7 @@ class Python3Checker(checkers.BaseChecker):
         if isinstance(expr, astroid.Const):
             value = expr.value
             if isinstance(value, str):
-                self.add_message('raising-string', node=node)
+                self.add_message('raising-string', node = node)
                 return True
 
 
@@ -576,11 +576,11 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
             if tok_type == tokenize.NUMBER:
                 if token.lower().endswith('l'):
                     # This has a different semantic than lowercase-l-suffix.
-                    self.add_message('long-suffix', line=start[0])
+                    self.add_message('long-suffix', line = start[0])
                 elif _is_old_octal(token):
-                    self.add_message('old-octal-literal', line=start[0])
+                    self.add_message('old-octal-literal', line = start[0])
             if tokens[idx][1] == '<>':
-                self.add_message('old-ne-operator', line=tokens[idx][2][0])
+                self.add_message('old-ne-operator', line = tokens[idx][2][0])
 
 
 def register(linter):

@@ -13,7 +13,7 @@ numbers[0]
 u"123"[0]
 b"123"[0]
 bytearray(b"123")[0]
-dict(a=1, b=2)['a']
+dict(a = 1, b = 2)['a']
 (1, 2, 3)[0]
 
 # list/dict comprehensions are fine
@@ -85,7 +85,7 @@ test[0]  # [unsubscriptable-object]
 
 # deque
 from collections import deque
-deq = deque(maxlen=10)
+deq = deque(maxlen = 10)
 deq.append(42)
 deq[0]
 

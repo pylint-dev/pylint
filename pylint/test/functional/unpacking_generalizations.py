@@ -24,6 +24,6 @@ func_variadic_positional_args(1, 2, 3, *(3, 4))
 func_positional_args(*(2, 3, 4), *(2, 3)) # [too-many-function-args]
 func_positional_args(*(1, 2), 3) # [no-value-for-parameter]
 func_positional_args(1, *(2, ), 3, *(4, 5)) # [too-many-function-args]
-func_positional_args(1, 2, c=24, d=32, **{'d': 32}) # [repeated-keyword]
+func_positional_args(1, 2, c = 24, d = 32, **{'d': 32}) # [repeated-keyword]
 # +1: [repeated-keyword,repeated-keyword]
-func_positional_args(1, 2, c=24, **{'c': 34, 'd': 33}, **{'d': 24})
+func_positional_args(1, 2, c = 24, **{'c': 34, 'd': 33}, **{'d': 24})

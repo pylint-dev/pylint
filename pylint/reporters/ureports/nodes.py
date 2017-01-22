@@ -13,7 +13,7 @@ from six import string_types
 
 class VNode(object):
 
-    def __init__(self, nid=None):
+    def __init__(self, nid = None):
         self.id = nid
         # navigation
         self.parent = None
@@ -58,7 +58,7 @@ class BaseLayout(VNode):
     attributes
     * children : components in this table (i.e. the table's cells)
     """
-    def __init__(self, children=(), **kwargs):
+    def __init__(self, children = (), **kwargs):
         super(BaseLayout, self).__init__(**kwargs)
         for child in children:
             if isinstance(child, VNode):
@@ -91,7 +91,7 @@ class Text(VNode):
     attributes :
     * data : the text value as an encoded or unicode string
     """
-    def __init__(self, data, escaped=True, **kwargs):
+    def __init__(self, data, escaped = True, **kwargs):
         super(Text, self).__init__(**kwargs)
         #if isinstance(data, unicode):
         #    data = data.encode('ascii')
@@ -120,12 +120,12 @@ class Section(BaseLayout):
     a description may also be given to the constructor, it'll be added
     as a first paragraph
     """
-    def __init__(self, title=None, description=None, **kwargs):
+    def __init__(self, title = None, description = None, **kwargs):
         super(Section, self).__init__(**kwargs)
         if description:
             self.insert(0, Paragraph([Text(description)]))
         if title:
-            self.insert(0, Title(children=(title,)))
+            self.insert(0, Title(children = (title,)))
 
 
 class Title(BaseLayout):
@@ -158,8 +158,8 @@ class Table(BaseLayout):
     * cheaders : the first col's elements are table's header
     * title : the table's optional title
     """
-    def __init__(self, cols, title=None,
-                 rheaders=0, cheaders=0,
+    def __init__(self, cols, title = None,
+                 rheaders = 0, cheaders = 0,
                  **kwargs):
         super(Table, self).__init__(**kwargs)
         assert isinstance(cols, int)

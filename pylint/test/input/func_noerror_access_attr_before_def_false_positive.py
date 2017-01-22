@@ -15,7 +15,7 @@ class SeeTelnet(telnetlib.Telnet):
     Extension of telnetlib.
     """
 
-    def __init__(self, host=None, port=0):
+    def __init__(self, host = None, port = 0):
         """
         Constructor.
         When called without arguments, create an unconnected instance.
@@ -27,7 +27,7 @@ class SeeTelnet(telnetlib.Telnet):
         """
         telnetlib.Telnet.__init__(self, host, port)
 
-    def readUntilArray(self, matches, _=None):
+    def readUntilArray(self, matches, _ = None):
         """
         Read until a given string is encountered or until timeout.
         ...

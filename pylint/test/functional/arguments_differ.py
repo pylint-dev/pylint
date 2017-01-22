@@ -15,12 +15,12 @@ class Child(Parent):
 
 class ParentDefaults(object):
 
-    def test(self, arg=None, barg=None):
+    def test(self, arg = None, barg = None):
         pass
 
 class ChildDefaults(ParentDefaults):
 
-    def test(self, arg=None): # [arguments-differ]
+    def test(self, arg = None): # [arguments-differ]
         pass
 
 
@@ -97,7 +97,7 @@ class Sub(Super):
     def ___private3(self, arg):
         pass
 
-    def method(self, param='abc'):
+    def method(self, param = 'abc'):
         pass
 
 

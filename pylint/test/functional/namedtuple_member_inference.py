@@ -18,5 +18,5 @@ def test():
     fan = Fantastic(1)
     print(fan.foo)
     # Should not raise protected-access.
-    fan2 = fan._replace(foo=2)
+    fan2 = fan._replace(foo = 2)
     print(fan2.foo)

@@ -226,8 +226,8 @@ if multiprocessing is not None:
                     results_queue.put(result)
                 except Exception as ex:
                     print("internal error with sending report for module %s" %
-                          file_or_module, file=sys.stderr)
-                    print(ex, file=sys.stderr)
+                          file_or_module, file = sys.stderr)
+                    print(ex, file = sys.stderr)
                     results_queue.put({})
 
         def _run_linter(self, file_or_module):
@@ -345,7 +345,7 @@ class PyLinter(config.OptionsManagerMixIn,
                            'statements analyzed. This is used by the global '
                            'evaluation report (RP0004).'}),
 
-                ('comment', utils.deprecated_option(opt_type='yn')),
+                ('comment', utils.deprecated_option(opt_type = 'yn')),
 
                 ('confidence',
                  {'type' : 'multiple_choice', 'metavar': '<levels>',
@@ -434,8 +434,8 @@ class PyLinter(config.OptionsManagerMixIn,
         ('Reports', 'Options related to output formating and reporting'),
         )
 
-    def __init__(self, options=(), reporter=None, option_groups=(),
-                 pylintrc=None):
+    def __init__(self, options = (), reporter = None, option_groups = (),
+                 pylintrc = None):
         # some stuff has to be done before ancestors initialization...
         #
         # messages store / checkers / reporter / astroid manager
@@ -465,9 +465,9 @@ class PyLinter(config.OptionsManagerMixIn,
         utils.MessagesHandlerMixIn.__init__(self)
         utils.ReportsHandlerMixIn.__init__(self)
         super(PyLinter, self).__init__(
-            usage=__doc__,
-            version=full_version,
-            config_file=pylintrc or config.PYLINTRC)
+            usage = __doc__,
+            version = full_version,
+            config_file = pylintrc or config.PYLINTRC)
         checkers.BaseTokenChecker.__init__(self)
         # provided reports
         self.reports = (('RP0001', 'Messages by category',
@@ -523,7 +523,7 @@ class PyLinter(config.OptionsManagerMixIn,
         self.reporter = reporter
         reporter.linter = self
 
-    def set_option(self, optname, value, action=None, optdict=None):
+    def set_option(self, optname, value, action = None, optdict = None):
         """overridden from config.OptionsProviderMixin to handle some
         special options
         """
@@ -540,7 +540,7 @@ class PyLinter(config.OptionsManagerMixIn,
                 value = utils._check_csv(value)
                 if isinstance(value, (list, tuple)):
                     for _id in value:
-                        meth(_id, ignore_unknown=True)
+                        meth(_id, ignore_unknown = True)
                 else:
                     meth(value)
                 return # no need to call set_option, disable/enable methods do it
@@ -556,13 +556,13 @@ class PyLinter(config.OptionsManagerMixIn,
                                                  value, action, optdict)
         except config.UnsupportedAction:
             print('option %s can\'t be read from config file' % \
-                  optname, file=sys.stderr)
+                  optname, file = sys.stderr)
 
     def register_reporter(self, reporter_class):
         self._reporters[reporter_class.name] = reporter_class
 
     def report_order(self):
-        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
+        reports = sorted(self._reports, key = lambda x: getattr(x, 'name', ''))
         try:
             # Remove the current reporter and add it
             # at the end of the list.
@@ -658,16 +658,16 @@ class PyLinter(config.OptionsManagerMixIn,
             if match.group(1).strip() == "disable-all" or \
                     match.group(1).strip() == 'skip-file':
                 if match.group(1).strip() == "disable-all":
-                    self.add_message('deprecated-pragma', line=start[0],
-                                     args=('disable-all', 'skip-file'))
-                self.add_message('file-ignored', line=start[0])
+                    self.add_message('deprecated-pragma', line = start[0],
+                                     args = ('disable-all', 'skip-file'))
+                self.add_message('file-ignored', line = start[0])
                 self._ignore_file = True
                 return
             try:
                 opt, value = match.group(1).split('=', 1)
             except ValueError:
-                self.add_message('bad-inline-option', args=match.group(1).strip(),
-                                 line=start[0])
+                self.add_message('bad-inline-option', args = match.group(1).strip(),
+                                 line = start[0])
                 continue
             opt = opt.strip()
             if opt in self._options_methods or opt in self._bw_options_methods:
@@ -676,8 +676,8 @@ class PyLinter(config.OptionsManagerMixIn,
                 except KeyError:
                     meth = self._bw_options_methods[opt]
                     # found a "(dis|en)able-msg" pragma deprecated suppresssion
-                    self.add_message('deprecated-pragma', line=start[0],
-                                     args=(opt, opt.replace('-msg', '')))
+                    self.add_message('deprecated-pragma', line = start[0],
+                                     args = (opt, opt.replace('-msg', '')))
                 for msgid in utils._splitstrip(value):
                     # Add the line where a control pragma was encountered.
                     if opt in control_pragmas:
@@ -685,16 +685,16 @@ class PyLinter(config.OptionsManagerMixIn,
 
                     try:
                         if (opt, msgid) == ('disable', 'all'):
-                            self.add_message('deprecated-pragma', line=start[0],
-                                             args=('disable=all', 'skip-file'))
-                            self.add_message('file-ignored', line=start[0])
+                            self.add_message('deprecated-pragma', line = start[0],
+                                             args = ('disable=all', 'skip-file'))
+                            self.add_message('file-ignored', line = start[0])
                             self._ignore_file = True
                             return
                         meth(msgid, 'module', start[0])
                     except utils.UnknownMessage:
-                        self.add_message('bad-option-value', args=msgid, line=start[0])
+                        self.add_message('bad-option-value', args = msgid, line = start[0])
             else:
-                self.add_message('unrecognized-inline-option', args=opt, line=start[0])
+                self.add_message('unrecognized-inline-option', args = opt, line = start[0])
 
 
     # code checking methods ###################################################
@@ -718,8 +718,8 @@ class PyLinter(config.OptionsManagerMixIn,
                 neededcheckers.append(checker)
         # Sort checkers by priority
         neededcheckers = sorted(neededcheckers,
-                                key=operator.attrgetter('priority'),
-                                reverse=True)
+                                key = operator.attrgetter('priority'),
+                                reverse = True)
         return neededcheckers
 
     def should_analyze_file(self, modname, path): # pylint: disable=unused-argument, no-self-use
@@ -783,8 +783,8 @@ class PyLinter(config.OptionsManagerMixIn,
         results_queue = manager.Queue()
 
         for _ in range(self.config.jobs):
-            child_linter = ChildLinter(args=(tasks_queue, results_queue,
-                                             child_config))
+            child_linter = ChildLinter(args = (tasks_queue, results_queue,
+                                               child_config))
             child_linter.start()
             children.append(child_linter)
 
@@ -801,8 +801,8 @@ class PyLinter(config.OptionsManagerMixIn,
                 result = results_queue.get()
             except Exception as ex:
                 print("internal error while receiving results from child linter",
-                      file=sys.stderr)
-                print(ex, file=sys.stderr)
+                      file = sys.stderr)
+                print(ex, file = sys.stderr)
                 failed = True
                 break
             yield result
@@ -814,7 +814,7 @@ class PyLinter(config.OptionsManagerMixIn,
             child.join()
 
         if failed:
-            print("Error occured, stopping the linter.", file=sys.stderr)
+            print("Error occured, stopping the linter.", file = sys.stderr)
             sys.exit(32)
 
     def _parallel_check(self, files_or_modules):
@@ -904,10 +904,10 @@ class PyLinter(config.OptionsManagerMixIn,
             self.set_current_module(modname)
             if key == "fatal":
                 message = str(error["ex"]).replace(os.getcwd() + os.sep, '')
-            self.add_message(key, args=message)
+            self.add_message(key, args = message)
         return result
 
-    def set_current_module(self, modname, filepath=None):
+    def set_current_module(self, modname, filepath = None):
         """set the name of the currently analyzed module and
         init statistics for it
         """
@@ -924,19 +924,19 @@ class PyLinter(config.OptionsManagerMixIn,
     def get_ast(self, filepath, modname):
         """return a ast(roid) representation for a module"""
         try:
-            return MANAGER.ast_from_file(filepath, modname, source=True)
+            return MANAGER.ast_from_file(filepath, modname, source = True)
         except astroid.AstroidBuildingException as ex:
             if isinstance(ex.args[0], SyntaxError):
                 ex = ex.args[0]
                 self.add_message('syntax-error',
-                                 line=ex.lineno or 0,
-                                 args=ex.msg)
+                                 line = ex.lineno or 0,
+                                 args = ex.msg)
             else:
-                self.add_message('parse-error', args=ex)
+                self.add_message('parse-error', args = ex)
         except Exception as ex: # pylint: disable=broad-except
             import traceback
             traceback.print_exc()
-            self.add_message('astroid-error', args=(ex.__class__, ex))
+            self.add_message('astroid-error', args = (ex.__class__, ex))
 
     def check_astroid_module(self, ast_node, walker,
                              rawcheckers, tokencheckers):
@@ -944,11 +944,11 @@ class PyLinter(config.OptionsManagerMixIn,
         try:
             tokens = utils.tokenize_module(ast_node)
         except tokenize.TokenError as ex:
-            self.add_message('syntax-error', line=ex.args[1][0], args=ex.args[0])
+            self.add_message('syntax-error', line = ex.args[1][0], args = ex.args[0])
             return
 
         if not ast_node.pure_python:
-            self.add_message('raw-checker-failed', args=ast_node.name)
+            self.add_message('raw-checker-failed', args = ast_node.name)
         else:
             #assert astroid.file.endswith('.py')
             # invoke ITokenChecker interface on self to fetch module/block
@@ -1039,7 +1039,7 @@ def report_total_messages_stats(sect, stats, previous_stats):
     lines += checkers.table_lines_from_stats(stats, previous_stats,
                                              ('convention', 'refactor',
                                               'warning', 'error'))
-    sect.append(report_nodes.Table(children=lines, cols=4, rheaders=1))
+    sect.append(report_nodes.Table(children = lines, cols = 4, rheaders = 1))
 
 def report_messages_stats(sect, stats, _):
     """make messages type report"""
@@ -1053,7 +1053,7 @@ def report_messages_stats(sect, stats, _):
     lines = ('message id', 'occurrences')
     for value, msg_id in in_order:
         lines += (msg_id, str(value))
-    sect.append(report_nodes.Table(children=lines, cols=2, rheaders=1))
+    sect.append(report_nodes.Table(children = lines, cols = 2, rheaders = 1))
 
 def report_messages_by_module_stats(sect, stats, _):
     """make errors / warnings by modules report"""
@@ -1089,7 +1089,7 @@ def report_messages_by_module_stats(sect, stats, _):
             lines.append('%.2f' % val)
     if len(lines) == 5:
         raise utils.EmptyReport()
-    sect.append(report_nodes.Table(children=lines, cols=5, rheaders=1))
+    sect.append(report_nodes.Table(children = lines, cols = 5, rheaders = 1))
 
 
 # utilities ###################################################################
@@ -1169,7 +1169,7 @@ class Run(object):
 group are mutually exclusive.'),
         )
 
-    def __init__(self, args, reporter=None, exit=True):
+    def __init__(self, args, reporter = None, exit = True):
         self._rcfile = None
         self._plugins = []
         try:
@@ -1180,7 +1180,7 @@ group are mutually exclusive.'),
                 'load-plugins': (self.cb_add_plugins, True),
                 })
         except ArgumentPreprocessingError as ex:
-            print(ex, file=sys.stderr)
+            print(ex, file = sys.stderr)
             sys.exit(32)
 
         self.linter = linter = self.LinterClass((
@@ -1247,13 +1247,13 @@ group are mutually exclusive.'),
                        'disabled and only messages emitted by the porting '
                        'checker will be displayed'}),
 
-            ), option_groups=self.option_groups, pylintrc=self._rcfile)
+            ), option_groups = self.option_groups, pylintrc = self._rcfile)
         # register standard checkers
         linter.load_default_plugins()
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
         # add some help section
-        linter.add_help_section('Environment variables', config.ENV_HELP, level=1)
+        linter.add_help_section('Environment variables', config.ENV_HELP, level = 1)
         # pylint: disable=bad-continuation
         linter.add_help_section('Output',
 'Using the default text output, the message format is :                          \n'
@@ -1267,7 +1267,7 @@ group are mutually exclusive.'),
 '    * (E) error, for probable bugs in the code                                  \n'
 '    * (F) fatal, if an error occurred which prevented pylint from doing further\n'
 'processing.\n'
-                                , level=1)
+                                , level = 1)
         linter.add_help_section('Output status code',
 'Pylint should leave with following status code:                                 \n'
 '    * 0 if everything went fine                                                 \n'
@@ -1280,7 +1280,7 @@ group are mutually exclusive.'),
 '                                                                                \n'
 'status 1 to 16 will be bit-ORed so you can know which different categories has\n'
 'been issued by analysing pylint output status code\n',
-                                level=1)
+                                level = 1)
         # read configuration
         linter.disable('suppressed-message')
         linter.disable('useless-suppression')
@@ -1316,12 +1316,12 @@ group are mutually exclusive.'),
 
         if linter.config.jobs < 0:
             print("Jobs number (%d) should be greater than 0"
-                  % linter.config.jobs, file=sys.stderr)
+                  % linter.config.jobs, file = sys.stderr)
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
             if multiprocessing is None:
                 print("Multiprocessing library is missing, "
-                      "fallback to single process", file=sys.stderr)
+                      "fallback to single process", file = sys.stderr)
                 linter.set_option("jobs", 1)
             else:
                 if linter.config.jobs == 0:
@@ -1355,7 +1355,7 @@ group are mutually exclusive.'),
 
     def cb_generate_config(self, *args, **kwargs):
         """optik callback for sample config file generation"""
-        self.linter.generate_config(skipsections=('COMMANDS',))
+        self.linter.generate_config(skipsections = ('COMMANDS',))
         sys.exit(0)
 
     def cb_generate_manpage(self, *args, **kwargs):
