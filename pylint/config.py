@@ -1,5 +1,14 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2008 pyves@crater.logilab.fr <pyves@crater.logilab.fr>
+# Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
+# Copyright (c) 2013 Google, Inc.
+# Copyright (c) 2013 John McGehee <jmcgehee@altera.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 John Kirkham <jakirkham@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html

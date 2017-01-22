@@ -1,7 +1,16 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2009 Vincent
+# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014 Damien Nozay <damien.nozay@gmail.com>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 LCD 47 <lcd047@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
