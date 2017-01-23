@@ -479,10 +479,8 @@ class StringFormatChecker(BaseChecker):
                     if hasattr(previous, 'getitem'):
                         try:
                             previous = previous.getitem(astroid.Const(specifier))
-                        except (astroid.AstroidIndexError, astroid.AstroidTypeError):
+                        except (astroid.AstroidIndexError, astroid.AstroidTypeError, astroid.InferenceError):
                             warn_error = True
-                        except astroid.InferenceError:
-                            break
                     else:
                         try:
                             # Lookup __getitem__ in the current node,
@@ -499,8 +497,13 @@ class StringFormatChecker(BaseChecker):
                                          node=node)
                         break
 
+                inferred = previous.infer()
+                if inferred is astroid.Uninferable:
+                    # can't check further if we can't infer it
+                    break
+
                 try:
-                    previous = next(previous.infer())
+                    previous = next(inferred)
                 except astroid.InferenceError:
                     # can't check further if we can't infer it
                     break
