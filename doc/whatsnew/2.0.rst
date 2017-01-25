@@ -866,6 +866,15 @@ Bug fixes
   specifications are used in formatted string. In general, these operations
   are not always convertible to old-style formatting used by logging module.
 
+* Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+  of empty class bodies (as seen in the example below). Pylint won't emit a
+  ``multiple-statements`` message when this option is enabled.
+
+  .. code-block:: python
+
+     class MyError(Exception): pass
+
+
 Removed Changes
 ===============
 
