@@ -479,9 +479,13 @@ class StringFormatChecker(BaseChecker):
                     if hasattr(previous, 'getitem'):
                         try:
                             previous = previous.getitem(astroid.Const(specifier))
-                        except (astroid.AstroidIndexError, astroid.AstroidTypeError):
+                        except (astroid.AstroidIndexError,
+                                astroid.AstroidTypeError,
+                                astroid.AttributeInferenceError):
                             warn_error = True
                         except astroid.InferenceError:
+                            break
+                        if previous is astroid.Uninferable:
                             break
                     else:
                         try:
@@ -504,7 +508,6 @@ class StringFormatChecker(BaseChecker):
                 except astroid.InferenceError:
                     # can't check further if we can't infer it
                     break
-
 
 
 class StringConstantChecker(BaseTokenChecker):
