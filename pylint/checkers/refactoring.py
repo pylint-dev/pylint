@@ -102,6 +102,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
+        'R1706': ("The mutable (%s) sequence was modified inside the loop",
+                  'mutable-sequence-modified-in-loop',
+                  'Modification within the cycle may cause each iteration to'
+                  'have an index that is not as expected'),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -261,12 +265,30 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                                  args=(name_node.name, ))
 
     @utils.check_messages('redefined-argument-from-local',
-                          'too-many-nested-blocks')
+                          'too-many-nested-blocks',
+                          'mutable-sequence-modified-in-loop')
     def visit_for(self, node):
         self._check_nested_blocks(node)
 
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
+        for part in node.body:
+            if isinstance(node.iter, astroid.node_classes.Name):
+                self._check_mutable_sequence_modified_in_loop(part,
+                                                              node.iter.name)
+
+    def _check_mutable_sequence_modified_in_loop(self, node, target_name):
+        if hasattr(node, 'body'):
+            for part in node.body:
+                self._check_mutable_sequence_modified_in_loop(part,
+                                                              target_name)
+        if (isinstance(node, astroid.node_classes.Expr) and
+                isinstance(node.value, astroid.node_classes.Call) and
+                isinstance(node.value.func, astroid.node_classes.Attribute) and
+                node.value.func.attrname in ['remove', 'delete', 'pop'] and
+                node.value.func.expr.name == target_name):
+            self.add_message('mutable-sequence-modified-in-loop', node=node,
+                             args=(target_name))
 
     @utils.check_messages('redefined-argument-from-local')
     def visit_excepthandler(self, node):
