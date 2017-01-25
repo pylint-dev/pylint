@@ -829,7 +829,7 @@ a metaclass class method.'}
         methods)
         """
         # Check self
-        if self.is_first_attr(node):
+        if self._uses_first_arg(node):
             self._accessed.set_accessed(node)
             return
         if not self.linter.is_message_enabled('protected-access'):
@@ -838,7 +838,7 @@ a metaclass class method.'}
         self._check_protected_attribute_access(node)
 
     def visit_assignattr(self, node):
-        if isinstance(node.assign_type(), astroid.AugAssign) and self.is_first_attr(node):
+        if isinstance(node.assign_type(), astroid.AugAssign) and self._uses_first_arg(node):
             self._accessed.set_accessed(node)
         self._check_in_slots(node)
 
@@ -885,7 +885,7 @@ a metaclass class method.'}
         if not isinstance(node, astroid.AssignAttr):
             return
 
-        if self.is_first_attr(node):
+        if self._uses_first_arg(node):
             return
         self._check_protected_attribute_access(node)
 
@@ -936,45 +936,59 @@ a metaclass class method.'}
         '''
         attrname = node.attrname
 
-        if (is_attr_protected(attrname) and
-                attrname not in self.config.exclude_protected):
+        if not is_attr_protected(attrname) or attrname in self.config.exclude_protected:
+            return
 
-            klass = node_frame_class(node)
+        klass = node_frame_class(node)
 
-            # XXX infer to be more safe and less dirty ??
-            # in classes, check we are not getting a parent method
-            # through the class object or through super
-            callee = node.expr.as_string()
+        # XXX infer to be more safe and less dirty ??
+        # in classes, check we are not getting a parent method
+        # through the class object or through super
+        callee = node.expr.as_string()
 
-            # We are not in a class, no remaining valid case
-            if klass is None:
-                self.add_message('protected-access', node=node, args=attrname)
-                return
+        # We are not in a class, no remaining valid case
+        if klass is None:
+            self.add_message('protected-access', node=node, args=attrname)
+            return
 
-            # If the expression begins with a call to super, that's ok.
-            if isinstance(node.expr, astroid.Call) and \
-               isinstance(node.expr.func, astroid.Name) and \
-               node.expr.func.name == 'super':
-                return
+        # If the expression begins with a call to super, that's ok.
+        if self._is_super_call(node.expr):
+            return
 
-            # We are in a class, one remaining valid cases, Klass._attr inside
-            # Klass
-            if not (callee == klass.name or callee in klass.basenames):
-                # Detect property assignments in the body of the class.
-                # This is acceptable:
-                #
-                # class A:
-                #     b = property(lambda: self._b)
+        # If the expression begins with a call to type(self), that's ok.
+        if self._is_type_self_call(node.expr):
+            return
 
-                stmt = node.parent.statement()
-                if (isinstance(stmt, astroid.Assign)
-                        and len(stmt.targets) == 1
-                        and isinstance(stmt.targets[0], astroid.AssignName)):
-                    name = stmt.targets[0].name
-                    if _is_attribute_property(name, klass):
-                        return
+        # We are in a class, one remaining valid cases, Klass._attr inside
+        # Klass
+        if not (callee == klass.name or callee in klass.basenames):
+            # Detect property assignments in the body of the class.
+            # This is acceptable:
+            #
+            # class A:
+            #     b = property(lambda: self._b)
 
-                self.add_message('protected-access', node=node, args=attrname)
+            stmt = node.parent.statement()
+            if (isinstance(stmt, astroid.Assign)
+                    and len(stmt.targets) == 1
+                    and isinstance(stmt.targets[0], astroid.AssignName)):
+                name = stmt.targets[0].name
+                if _is_attribute_property(name, klass):
+                    return
+
+            self.add_message('protected-access', node=node, args=attrname)
+
+    @staticmethod
+    def _is_super_call(expr):
+        return (isinstance(expr, astroid.Call) and
+                isinstance(expr.func, astroid.Name) and
+                expr.func.name == 'super')
+
+    def _is_type_self_call(self, expr):
+        return (isinstance(expr, astroid.Call) and
+                isinstance(expr.func, astroid.Name) and
+                expr.func.name == 'type' and len(expr.args) == 1 and
+                self._is_first_arg(expr.args[0]))
 
     def visit_name(self, node):
         """check if the name handle an access to a class member
@@ -1217,12 +1231,20 @@ a metaclass class method.'}
                              args=(class_type, method1.name),
                              node=method1)
 
-    def is_first_attr(self, node):
+    def _uses_first_arg(self, node):
         """Check that attribute lookup name use first attribute variable name
-        (self for method, cls for classmethod and mcs for metaclass).
+
+        Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
-        return self._first_attrs and isinstance(node.expr, astroid.Name) and \
-                   node.expr.name == self._first_attrs[-1]
+        return self._is_first_arg(node.expr)
+
+    def _is_first_arg(self, node):
+        """Check if astroid.Name corresponds to first attribute variable name
+
+        Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
+        """
+        return (self._first_attrs and isinstance(node, astroid.Name)
+                and node.name == self._first_attrs[-1])
 
 
 class SpecialMethodsChecker(BaseChecker):
