@@ -440,6 +440,11 @@ class FormatChecker(BaseTokenChecker):
                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : ('Allow the body of an if to be on the same '
                            'line as the test if there is no else.')}),
+               ('single-line-class-stmt',
+                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'help' : ('Allow the body of a class to be on the same '
+                           'line as the declaration if body contains '
+                           'single statement.')}),
                ('no-space-check',
                 {'default': ','.join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
                  'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
@@ -959,6 +964,9 @@ class FormatChecker(BaseTokenChecker):
             return
         if (isinstance(node.parent, nodes.If) and not node.parent.orelse
                 and self.config.single_line_if_stmt):
+            return
+        if (isinstance(node.parent, nodes.ClassDef) and len(node.parent.body) == 1
+                and self.config.single_line_class_stmt):
             return
         self.add_message('multiple-statements', node=node)
         self._visited_lines[line] = 2

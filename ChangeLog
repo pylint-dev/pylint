@@ -264,6 +264,10 @@ Release date: tba
 
       Fixes #572
 
+    * Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+      of empty class bodies.
+
+      Closes #738
 
 What's new in Pylint 1.6.3?
 ===========================
