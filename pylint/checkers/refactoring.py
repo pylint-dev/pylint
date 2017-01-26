@@ -102,7 +102,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
-        'R1706': ("The mutable (%s) sequence was modified inside the loop",
+        'R1708': ("The mutable (%s) sequence was modified inside the loop",
                   'mutable-sequence-modified-in-loop',
                   'Modification within the cycle may cause each iteration to'
                   'have an index that is not as expected'),
