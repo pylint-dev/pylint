@@ -1,0 +1,5 @@
+mutable-sequence-modified-in-loop:4::The mutable (items) sequence was modified inside the loop
+mutable-sequence-modified-in-loop:9::The mutable (items) sequence was modified inside the loop
+mutable-sequence-modified-in-loop:20::The mutable (items) sequence was modified inside the loop
+mutable-sequence-modified-in-loop:25::The mutable (items) sequence was modified inside the loop
+mutable-sequence-modified-in-loop:29::The mutable (items) sequence was modified inside the loop
