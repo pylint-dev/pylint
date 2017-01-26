@@ -618,8 +618,7 @@ accessed. Python regular expressions are accepted.'}
         for owner in infered:
             # skip yes object
             if owner is astroid.YES:
-                inference_failure = True
-                continue
+                return
 
             name = getattr(owner, 'name', None)
             if _is_owner_ignored(owner, name, self.config.ignored_classes,
