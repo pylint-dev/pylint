@@ -862,6 +862,17 @@ Bug fixes
   specifications are used in formatted string. In general, these operations
   are not always convertible to old-style formatting used by logging module.
 
+  * `too-many-format-args` and `too-few-format-args` are emitted correctly
+    (or not emitted at all, when exact count of elements in RHS cannot be
+    inferred) when starred expressions are used in RHS tuple. For example,
+    code block as shown below detects correctly that used tuple has in fact
+    three elements, not two.
+
+  .. code-block:: python
+
+    meat = ['spam', 'ham']
+    print('%s%s%s' % ('eggs', *meat))
+
 Removed Changes
 ===============
 

@@ -852,3 +852,20 @@ def is_registered_in_singledispatch_function(node):
             return decorated_with(func_def, singledispatch_qnames)
 
     return False
+
+
+def infer_sequence_with_starred_expressions(seq_node):
+    if not any(isinstance(e, astroid.Starred) for e in seq_node.elts):
+        return seq_node
+    expanded_elts = []
+    for e in seq_node.elts:
+        if isinstance(e, astroid.Starred):
+            inferred = safe_infer(e.value)
+            if not is_iterable(inferred):
+                raise astroid.InferenceError
+            expanded_elts.extend(inferred.elts)
+        else:
+            expanded_elts.append(e)
+    t = astroid.Tuple()
+    t.postinit(expanded_elts)
+    return t

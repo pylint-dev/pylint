@@ -264,6 +264,11 @@ Release date: tba
 
       Fixes #572
 
+    * `too-many-format-args` and `too-few-format-args` are emitted correctly when
+      starred expression are used in RHS tuple.
+
+      Fixes #957
+
 
 What's new in Pylint 1.6.3?
 ===========================
