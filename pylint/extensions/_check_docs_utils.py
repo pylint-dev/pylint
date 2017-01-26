@@ -311,6 +311,11 @@ class GoogleDocstring(Docstring):
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
     """.format(type=re_type, xref=re_xref)
 
+    re_multiple_type = r"""
+        (?:{container_type}|{type})
+        (?:\s+or\s+(?:{container_type}|{type}))*
+    """.format(type=re_type, container_type=re_container_type)
+
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header
         (  .* )                       # section
@@ -324,12 +329,11 @@ class GoogleDocstring(Docstring):
     re_param_line = re.compile(r"""
         \s*  \*{{0,2}}(\w+)             # identifier potentially with asterisks
         \s*  ( [(]
-            (?:{container_type}|{type})
+            {type}
             [)] )? \s* :                # optional type declaration
         \s*  (.*)                       # beginning of optional description
     """.format(
-        type=re_type,
-        container_type=re_container_type
+        type=re_multiple_type,
     ), re.X | re.S | re.M)
 
     re_raise_section = re.compile(
@@ -348,11 +352,10 @@ class GoogleDocstring(Docstring):
     )
 
     re_returns_line = re.compile(r"""
-        \s* ({container_type}:|{type}:)?  # identifier
+        \s* ({type}:)?                    # identifier
         \s* (.*)                          # beginning of description
     """.format(
-        type=re_type,
-        container_type=re_container_type
+        type=re_multiple_type,
     ), re.X | re.S | re.M)
 
     re_yields_section = re.compile(
@@ -534,12 +537,11 @@ class NumpyDocstring(GoogleDocstring):
     re_param_line = re.compile(r"""
         \s*  (\w+)                      # identifier
         \s*  :
-        \s*  ({container_type}|{type})? # optional type declaration
+        \s*  ({type})? # optional type declaration
         \n                              # description starts on a new line
         \s* (.*)                        # description
     """.format(
-        type=GoogleDocstring.re_type,
-        container_type=GoogleDocstring.re_container_type
+        type=GoogleDocstring.re_multiple_type,
     ), re.X | re.S)
 
     re_raise_section = re.compile(
@@ -558,11 +560,10 @@ class NumpyDocstring(GoogleDocstring):
     )
 
     re_returns_line = re.compile(r"""
-        \s* ({container_type}|{type})$ # type declaration
+        \s* ({type})$ # type declaration
         \s* (.*)                       # optional description
     """.format(
-        type=GoogleDocstring.re_type,
-        container_type=GoogleDocstring.re_container_type
+        type=GoogleDocstring.re_multiple_type,
     ), re.X | re.S | re.M)
 
     re_yields_section = re.compile(
