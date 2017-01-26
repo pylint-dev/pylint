@@ -397,7 +397,7 @@ class BasicErrorChecker(_BasicChecker):
             else:
                 values = [r.value for r in returns]
                 # Are we returning anything but None from constructors
-                if [v for v in values if not utils.is_none(v)]:
+                if any(v for v in values if not utils.is_none(v)):
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
