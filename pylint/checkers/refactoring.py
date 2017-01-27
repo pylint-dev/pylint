@@ -272,10 +272,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
-        for part in node.body:
-            if isinstance(node.iter, astroid.node_classes.Name):
-                self._check_mutable_sequence_modified_in_loop(part,
-                                                              node.iter.name)
+
+        try:
+            if (node.iter.inferred() and
+                    node.iter.infered()[0]._type != 'class'):
+                for part in node.body:
+                    if isinstance(node.iter, astroid.node_classes.Name):
+                        self._check_mutable_sequence_modified_in_loop(
+                            part,
+                            node.iter.name)
+        except astroid.exceptions.InferenceError:
+            pass
 
     def _check_mutable_sequence_modified_in_loop(self, node, target_name):
         if hasattr(node, 'body'):
