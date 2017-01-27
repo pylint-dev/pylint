@@ -274,14 +274,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._check_redefined_argument_from_local(name)
 
         try:
-            if (isinstance(node.iter, astroid.node_classes.Name) and
+            if (isinstance(node.iter, astroid.Name) and
                     node.iter.inferred() and
                     node.iter.infered()[0]._type != 'class' and
                     node.body):
                 for part in node.nodes_of_class(astroid.Expr):
-                    if (isinstance(part.value, astroid.node_classes.Call) and
+                    if (isinstance(part.value, astroid.Call) and
                             isinstance(part.value.func,
-                                       astroid.node_classes.Attribute) and
+                                       astroid.Attribute) and
                             part.value.func.attrname in ('remove', 'delete',
                                                          'pop') and
                             part.value.func.expr.name == node.iter.name):
