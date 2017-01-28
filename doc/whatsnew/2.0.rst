@@ -575,6 +575,10 @@ New checkers
 
   You can enable this extension through ``--load-plugins=pylint.extensions.mccabe``
 
+* A new check was added, ``used-prior-global-declaration``. This is emitted when
+  a name is used prior a global declaration, resulting in a SyntaxError in Python 3.6.
+
+
 
 Other Changes
 =============
