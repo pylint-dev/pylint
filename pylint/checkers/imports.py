@@ -214,7 +214,7 @@ MSGS = {
               'multiple-imports',
               'Used when import statement importing multiple modules is '
               'detected.'),
-    'C0411': ('%s comes before %s',
+    'C0411': ('%s should be placed before %s',
               'wrong-import-order',
               'Used when PEP8 import order is not respected (standard imports '
               'first, then third-party libraries, then local imports)'),
