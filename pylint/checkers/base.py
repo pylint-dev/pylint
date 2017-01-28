@@ -425,17 +425,18 @@ class BasicErrorChecker(_BasicChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_name_used_prior_global(self, node):
-        def same_scope(current):
-            return current.scope() is node
 
         scope_globals = {
             name: child
             for child in node.nodes_of_class(astroid.Global)
             for name in child.names
-            if same_scope(child)
+            if child.scope() is node
         }
 
         for node_name in node.nodes_of_class(astroid.Name):
+            if node_name.scope() is not node:
+                continue
+
             name = node_name.name
             corresponding_global = scope_globals.get(name)
             if not corresponding_global:

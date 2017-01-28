@@ -20,3 +20,20 @@ def other_test_1():
     global SOMETHING
 
     CONST
+
+
+def other_test_2():
+    CONST
+
+    def inner():
+        global CONST
+
+    return inner
+
+
+def other_test_3():
+    def inner():
+        return CONST
+
+    global CONST
+    return inner
