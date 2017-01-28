@@ -1226,3 +1226,68 @@ class TestParamDocChecker(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    COMPLEX_TYPES = [
+        'int or str',
+        'dict(str, str)',
+        'dict[str, str]',
+        'tuple(int)',
+        'tuple(int or str)',
+        'tuple(int) or list(int)',
+        'tuple(int or str) or list(int or str)',
+    ]
+
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_sphinx(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: {0}
+
+            :returns: named_arg
+            :rtype: {0}
+            """
+            return named_arg
+        '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_google(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            Args:
+                named_arg ({0}): Returned
+
+            Returns:
+                {0}: named_arg
+            """
+            return named_arg
+        '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_numpy(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            Args
+            ----
+            named_arg : {0}
+                Returned
+
+            Returns
+            -------
+                {0}
+                    named_arg
+            """
+            return named_arg
+        '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
