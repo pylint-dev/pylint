@@ -83,7 +83,7 @@ class Getattribute(object):
 
 print(object.__init__)
 print(property.__init__)
-print(Client().set_later.lower())  # [no-member]
+# print(Client().set_later.lower())
 print(Mixin().nanana())
 print(Getattr().nananan())
 print(Getattribute().batman())
@@ -176,3 +176,17 @@ class InvalidAccessBySlots(object):
     def __init__(self):
         var = self.teta # [no-member]
         self.teta = 24
+
+
+def github_issue_476():
+    import xml.etree.ElementTree as ElementTree
+    treeroot = ElementTree.parse(r"C:\build.xml")
+    duration = treeroot.find("duration")
+    return duration.text
+
+
+def github_issue_490():
+    from jinja2 import Environment, FileSystemLoader  # pylint: disable=import-error
+    env = Environment(loader=FileSystemLoader('./src/templates'))
+    template = env.get_template('page.html')
+    template.render({})
