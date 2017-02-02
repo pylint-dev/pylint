@@ -8,6 +8,7 @@
 
 """Looks for code which can be refactored."""
 
+import os
 import collections
 import itertools
 import tokenize
@@ -102,6 +103,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
+        'R1708': ('Sub package folder (%s) conflict with sub package python '
+                  'file (%s)',
+                  'subpackage-conflict-with-python-file',
+                  'Conflict on the resolution of names given that the folder'
+                  'in the package and a file in the package are called equal'),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -232,6 +238,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if self.linter.is_message_enabled('trailing-comma-tuple'):
                 self.add_message('trailing-comma-tuple',
                                  line=token.start[0])
+
+    @utils.check_messages('subpackage-conflict-with-python-file')
+    def visit_module(self, node):
+        module_name = os.path.splitext(node.file)[0]
+        if (os.path.isfile(os.path.join(module_name, '__init__.py'))):
+            #import pdb
+            #pdb.set_trace()
+            self.add_message('subpackage-conflict-with-python-file',
+                             node=node,
+                             args=((os.path.relpath(module_name),
+                                    os.path.relpath(module_name + '.py'))))
 
     def leave_module(self, _):
         self._init()
