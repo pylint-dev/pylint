@@ -275,6 +275,11 @@ Release date: tba
 
       Closes #738
 
+    * Protected access in form `type(self)._attribute` are now allowed.
+
+      Fixes #1031
+
+
 What's new in Pylint 1.6.3?
 ===========================
 
