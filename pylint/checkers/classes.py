@@ -936,47 +936,47 @@ a metaclass class method.'}
         '''
         attrname = node.attrname
 
-        if not is_attr_protected(attrname) or attrname in self.config.exclude_protected:
-            return
+        if (is_attr_protected(attrname) and
+                attrname not in self.config.exclude_protected):
 
-        klass = node_frame_class(node)
+            klass = node_frame_class(node)
 
-        # XXX infer to be more safe and less dirty ??
-        # in classes, check we are not getting a parent method
-        # through the class object or through super
-        callee = node.expr.as_string()
+            # XXX infer to be more safe and less dirty ??
+            # in classes, check we are not getting a parent method
+            # through the class object or through super
+            callee = node.expr.as_string()
 
-        # We are not in a class, no remaining valid case
-        if klass is None:
-            self.add_message('protected-access', node=node, args=attrname)
-            return
+            # We are not in a class, no remaining valid case
+            if klass is None:
+                self.add_message('protected-access', node=node, args=attrname)
+                return
 
-        # If the expression begins with a call to super, that's ok.
-        if self._is_super_call(node.expr):
-            return
+            # If the expression begins with a call to super, that's ok.
+            if self._is_super_call(node.expr):
+                return
 
-        # If the expression begins with a call to type(self), that's ok.
-        if self._is_type_self_call(node.expr):
-            return
+            # If the expression begins with a call to type(self), that's ok.
+            if self._is_type_self_call(node.expr):
+                return
 
-        # We are in a class, one remaining valid cases, Klass._attr inside
-        # Klass
-        if not (callee == klass.name or callee in klass.basenames):
-            # Detect property assignments in the body of the class.
-            # This is acceptable:
-            #
-            # class A:
-            #     b = property(lambda: self._b)
+            # We are in a class, one remaining valid cases, Klass._attr inside
+            # Klass
+            if not (callee == klass.name or callee in klass.basenames):
+                # Detect property assignments in the body of the class.
+                # This is acceptable:
+                #
+                # class A:
+                #     b = property(lambda: self._b)
 
-            stmt = node.parent.statement()
-            if (isinstance(stmt, astroid.Assign)
-                    and len(stmt.targets) == 1
-                    and isinstance(stmt.targets[0], astroid.AssignName)):
-                name = stmt.targets[0].name
-                if _is_attribute_property(name, klass):
-                    return
+                stmt = node.parent.statement()
+                if (isinstance(stmt, astroid.Assign)
+                        and len(stmt.targets) == 1
+                        and isinstance(stmt.targets[0], astroid.AssignName)):
+                    name = stmt.targets[0].name
+                    if _is_attribute_property(name, klass):
+                        return
 
-            self.add_message('protected-access', node=node, args=attrname)
+                self.add_message('protected-access', node=node, args=attrname)
 
     @staticmethod
     def _is_super_call(expr):
