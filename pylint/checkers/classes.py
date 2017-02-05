@@ -952,7 +952,9 @@ a metaclass class method.'}
                 return
 
             # If the expression begins with a call to super, that's ok.
-            if self._is_super_call(node.expr):
+            if isinstance(node.expr, astroid.Call) and \
+               isinstance(node.expr.func, astroid.Name) and \
+               node.expr.func.name == 'super':
                 return
 
             # If the expression begins with a call to type(self), that's ok.
@@ -977,12 +979,6 @@ a metaclass class method.'}
                         return
 
                 self.add_message('protected-access', node=node, args=attrname)
-
-    @staticmethod
-    def _is_super_call(expr):
-        return (isinstance(expr, astroid.Call) and
-                isinstance(expr.func, astroid.Name) and
-                expr.func.name == 'super')
 
     def _is_type_self_call(self, expr):
         return (isinstance(expr, astroid.Call) and
