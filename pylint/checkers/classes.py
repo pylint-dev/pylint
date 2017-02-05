@@ -829,7 +829,7 @@ a metaclass class method.'}
         methods)
         """
         # Check self
-        if self._uses_first_arg(node):
+        if self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
             return
         if not self.linter.is_message_enabled('protected-access'):
@@ -838,7 +838,8 @@ a metaclass class method.'}
         self._check_protected_attribute_access(node)
 
     def visit_assignattr(self, node):
-        if isinstance(node.assign_type(), astroid.AugAssign) and self._uses_first_arg(node):
+        if (isinstance(node.assign_type(), astroid.AugAssign) and
+                self._uses_mandatory_method_param(node)):
             self._accessed.set_accessed(node)
         self._check_in_slots(node)
 
@@ -885,7 +886,7 @@ a metaclass class method.'}
         if not isinstance(node, astroid.AssignAttr):
             return
 
-        if self._uses_first_arg(node):
+        if self._uses_mandatory_method_param(node):
             return
         self._check_protected_attribute_access(node)
 
@@ -984,7 +985,7 @@ a metaclass class method.'}
         return (isinstance(expr, astroid.Call) and
                 isinstance(expr.func, astroid.Name) and
                 expr.func.name == 'type' and len(expr.args) == 1 and
-                self._is_first_arg(expr.args[0]))
+                self._is_mandatory_method_param(expr.args[0]))
 
     def visit_name(self, node):
         """check if the name handle an access to a class member
@@ -1227,14 +1228,14 @@ a metaclass class method.'}
                              args=(class_type, method1.name),
                              node=method1)
 
-    def _uses_first_arg(self, node):
+    def _uses_mandatory_method_param(self, node):
         """Check that attribute lookup name use first attribute variable name
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
-        return self._is_first_arg(node.expr)
+        return self._is_mandatory_method_param(node.expr)
 
-    def _is_first_arg(self, node):
+    def _is_mandatory_method_param(self, node):
         """Check if astroid.Name corresponds to first attribute variable name
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
