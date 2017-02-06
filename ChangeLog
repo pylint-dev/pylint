@@ -275,6 +275,14 @@ Release date: tba
 
       Closes #738
 
+What's new in Pylint 1.6.4?
+===========================
+
+Release date: 2016-07-19
+
+    * Lets the user modify msg-template when Pylint is called from a Python script
+      Fixes #1269
+
 What's new in Pylint 1.6.3?
 ===========================
 
