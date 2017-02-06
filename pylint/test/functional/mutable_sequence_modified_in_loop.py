@@ -1,7 +1,6 @@
-# coding: utf-8
 """ The mutable sequence was modified inside the loop """
 
-# pylint:disable=superfluous-parens,using-constant-test,invalid-name,missing-docstring,redefined-outer-name,syntax-error,no-member
+# pylint:disable=print-statement, missing-docstring, redefined-outer-name, invalid-name, using-constant-test, syntax-error, no-member
 
 
 class MyList(object):
@@ -24,38 +23,38 @@ class MyList(object):
 
 my_list = MyList()
 for item in my_list:
-    print(item)
+    print item
     my_list.remove(item)
 
 my_list = MyList()
 for item in my_list:
-    print(item)
+    print item
     my_list.delete(item)
 
 my_list = MyList()
 for item in my_list:
-    print(item)
+    print item
     my_list.pop(item)
 
 
 items = range(1, 6)
 for item in items:
-    print(item)
+    print item
     items.remove(item)  # [mutable-sequence-modified-in-loop]
 
 items = list([1, 2, 3, 4, 5, 6])
 for item in items:
-    print(item)
+    print item
     items.pop(item)  # [mutable-sequence-modified-in-loop]
 
 items = range(1, 6)
 for item in list(items):
-    print(item)
+    print item
     items.remove(item)
 
 items = range(1, 6)
 for item in items:
-    print(item)
+    print item
     items.remove(item)  # [mutable-sequence-modified-in-loop]
 
 items = range(1, 6)
@@ -64,4 +63,4 @@ for item in items:
         items.remove(item)  # [mutable-sequence-modified-in-loop]
         if True:
             items.pop()  # [mutable-sequence-modified-in-loop]
-    print(item)
+    print item
