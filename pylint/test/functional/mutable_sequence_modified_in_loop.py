@@ -1,6 +1,7 @@
+# coding: utf-8
 """ The mutable sequence was modified inside the loop """
 
-# pylint:disable=superfluous-parens,using-constant-test,invalid-name,missing-docstring,redefined-outer-name
+# pylint:disable=superfluous-parens,using-constant-test,invalid-name,missing-docstring,redefined-outer-name,syntax-error
 
 
 class MyList(object):
@@ -23,17 +24,17 @@ class MyList(object):
 
 my_list = MyList()
 for item in my_list:
-    print item
+    print(item)
     my_list.remove(item)
 
 my_list = MyList()
 for item in my_list:
-    print item
+    print(item)
     my_list.delete(item)
 
 my_list = MyList()
 for item in my_list:
-    print item
+    print(item)
     my_list.pop(item)
 
 
