@@ -105,7 +105,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   {'minversion': (3, 0)}),
         'R1708': ('Sub package folder (%s) conflict with sub package python '
                   'file (%s)',
-                  'subpackage-conflict-with-python-file',
+                  'package-module-conflict',
                   'Conflict on the resolution of names given that the folder'
                   'in the package and a file in the package are called equal'),
     }
@@ -239,13 +239,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message('trailing-comma-tuple',
                                  line=token.start[0])
 
-    @utils.check_messages('subpackage-conflict-with-python-file')
+    @utils.check_messages('package-module-conflict')
     def visit_module(self, node):
         module_name = os.path.splitext(node.file)[0]
         if (os.path.isfile(os.path.join(module_name, '__init__.py'))):
-            #import pdb
-            #pdb.set_trace()
-            self.add_message('subpackage-conflict-with-python-file',
+            self.add_message('package-module-conflict',
                              node=node,
                              args=((os.path.relpath(module_name),
                                     os.path.relpath(module_name + '.py'))))
