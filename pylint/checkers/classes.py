@@ -829,7 +829,7 @@ a metaclass class method.'}
         methods)
         """
         # Check self
-        if self.is_first_attr(node):
+        if self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
             return
         if not self.linter.is_message_enabled('protected-access'):
@@ -838,7 +838,8 @@ a metaclass class method.'}
         self._check_protected_attribute_access(node)
 
     def visit_assignattr(self, node):
-        if isinstance(node.assign_type(), astroid.AugAssign) and self.is_first_attr(node):
+        if (isinstance(node.assign_type(), astroid.AugAssign) and
+                self._uses_mandatory_method_param(node)):
             self._accessed.set_accessed(node)
         self._check_in_slots(node)
 
@@ -885,7 +886,7 @@ a metaclass class method.'}
         if not isinstance(node, astroid.AssignAttr):
             return
 
-        if self.is_first_attr(node):
+        if self._uses_mandatory_method_param(node):
             return
         self._check_protected_attribute_access(node)
 
@@ -957,6 +958,10 @@ a metaclass class method.'}
                node.expr.func.name == 'super':
                 return
 
+            # If the expression begins with a call to type(self), that's ok.
+            if self._is_type_self_call(node.expr):
+                return
+
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
             if not (callee == klass.name or callee in klass.basenames):
@@ -975,6 +980,12 @@ a metaclass class method.'}
                         return
 
                 self.add_message('protected-access', node=node, args=attrname)
+
+    def _is_type_self_call(self, expr):
+        return (isinstance(expr, astroid.Call) and
+                isinstance(expr.func, astroid.Name) and
+                expr.func.name == 'type' and len(expr.args) == 1 and
+                self._is_mandatory_method_param(expr.args[0]))
 
     def visit_name(self, node):
         """check if the name handle an access to a class member
@@ -1217,12 +1228,20 @@ a metaclass class method.'}
                              args=(class_type, method1.name),
                              node=method1)
 
-    def is_first_attr(self, node):
+    def _uses_mandatory_method_param(self, node):
         """Check that attribute lookup name use first attribute variable name
-        (self for method, cls for classmethod and mcs for metaclass).
+
+        Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
-        return self._first_attrs and isinstance(node.expr, astroid.Name) and \
-                   node.expr.name == self._first_attrs[-1]
+        return self._is_mandatory_method_param(node.expr)
+
+    def _is_mandatory_method_param(self, node):
+        """Check if astroid.Name corresponds to first attribute variable name
+
+        Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
+        """
+        return (self._first_attrs and isinstance(node, astroid.Name)
+                and node.name == self._first_attrs[-1])
 
 
 class SpecialMethodsChecker(BaseChecker):
