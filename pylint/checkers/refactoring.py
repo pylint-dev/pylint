@@ -274,9 +274,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._check_redefined_argument_from_local(name)
 
         try:
+            inferrend = node.iter.inferred().pop()
             if (isinstance(node.iter, astroid.Name) and
-                    node.iter.inferred() and
-                    node.iter.infered()[0]._type != 'class' and
+                    (isinstance(inferrend,
+                                type(astroid.util.Uninferable)) or
+                     isinstance(inferrend,
+                                astroid.node_classes.List)) and
                     node.body):
                 for part in node.nodes_of_class(astroid.Expr):
                     if (isinstance(part.value, astroid.Call) and
@@ -288,7 +291,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         self.add_message('mutable-sequence-modified-in-loop',
                                          node=part,
                                          args=(node.iter.name))
-        except astroid.exceptions.InferenceError:
+        except (astroid.exceptions.InferenceError, IndexError):
             pass
 
     @utils.check_messages('redefined-argument-from-local')

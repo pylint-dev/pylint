@@ -7,6 +7,11 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+	* Adding new check 'mutable-sequence-modified-in-loop' when a mutable
+	  sequence is modified in a for
+
+	  Close #1297
+
     * The protocol checks are emitting their messages when a special method is set to None.
 
       Close #1263
