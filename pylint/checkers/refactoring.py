@@ -242,7 +242,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @utils.check_messages('package-module-conflict')
     def visit_module(self, node):
         module_name = os.path.splitext(node.file)[0]
-        if (os.path.isfile(os.path.join(module_name, '__init__.py'))):
+        if os.path.isfile(os.path.join(module_name, '__init__.py')):
             self.add_message('package-module-conflict',
                              node=node,
                              args=((os.path.relpath(module_name),
