@@ -1,6 +1,6 @@
 """ The mutable sequence was modified inside the loop """
 
-# pylint:disable=print-statement, missing-docstring, redefined-outer-name, invalid-name, using-constant-test, syntax-error, no-member
+# pylint:disable=print-statement, missing-docstring, redefined-outer-name, invalid-name, using-constant-test, syntax-error, no-member, superfluous-parens
 
 
 class MyList(object):

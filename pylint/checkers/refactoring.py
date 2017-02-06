@@ -273,26 +273,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
 
-        try:
-            inferrend = node.iter.inferred().pop()
-            if (isinstance(node.iter, astroid.Name) and
-                    (isinstance(inferrend,
-                                type(astroid.util.Uninferable)) or
-                     isinstance(inferrend,
-                                astroid.node_classes.List)) and
-                    node.body):
-                for part in node.nodes_of_class(astroid.Expr):
-                    if (isinstance(part.value, astroid.Call) and
-                            isinstance(part.value.func,
-                                       astroid.Attribute) and
-                            part.value.func.attrname in ('remove', 'delete',
-                                                         'pop') and
-                            part.value.func.expr.name == node.iter.name):
-                        self.add_message('mutable-sequence-modified-in-loop',
-                                         node=part,
-                                         args=(node.iter.name))
-        except (astroid.exceptions.InferenceError, IndexError):
-            pass
+        inferrend = utils.safe_infer(node.iter)
+        if (isinstance(node.iter, astroid.Name) and
+                (isinstance(inferrend, type(astroid.util.Uninferable)) or
+                 isinstance(inferrend, astroid.node_classes.List)) and
+                node.body):
+            for part in node.nodes_of_class(astroid.Expr):
+                if (isinstance(part.value, astroid.Call) and
+                        isinstance(part.value.func,
+                                   astroid.Attribute) and
+                        part.value.func.attrname in ('remove', 'delete',
+                                                     'pop') and
+                        part.value.func.expr.name == node.iter.name):
+                    self.add_message('mutable-sequence-modified-in-loop',
+                                     node=part,
+                                     args=(node.iter.name))
 
     @utils.check_messages('redefined-argument-from-local')
     def visit_excepthandler(self, node):
