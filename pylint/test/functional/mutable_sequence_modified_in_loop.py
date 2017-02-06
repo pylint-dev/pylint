@@ -1,7 +1,7 @@
 # coding: utf-8
 """ The mutable sequence was modified inside the loop """
 
-# pylint:disable=superfluous-parens,using-constant-test,invalid-name,missing-docstring,redefined-outer-name,syntax-error
+# pylint:disable=superfluous-parens,using-constant-test,invalid-name,missing-docstring,redefined-outer-name,syntax-error,no-member
 
 
 class MyList(object):
