@@ -73,8 +73,8 @@ your patch gets accepted.
     - To run only a specific test suite, use a pattern for the test filename
       (**without** the ``.py`` extension), as in::
 
-        python -m tox -e py27 test_functional
-        python -m tox -e py27 \*func\*
+        python -m tox -e py27 -- -k test_functional
+        python -m tox -e py27 -- -k  \*func\*
 
 - Add a short entry to the ChangeLog describing the change, except for internal
   implementation only changes

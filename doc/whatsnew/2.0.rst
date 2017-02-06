@@ -575,6 +575,10 @@ New checkers
 
   You can enable this extension through ``--load-plugins=pylint.extensions.mccabe``
 
+* A new check was added, ``used-prior-global-declaration``. This is emitted when
+  a name is used prior a global declaration, resulting in a SyntaxError in Python 3.6.
+
+
 
 Other Changes
 =============
@@ -861,6 +865,15 @@ Bug fixes
 * Fix a false-positive ``logging-format-interpolation`` message, when format
   specifications are used in formatted string. In general, these operations
   are not always convertible to old-style formatting used by logging module.
+
+* Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+  of empty class bodies (as seen in the example below). Pylint won't emit a
+  ``multiple-statements`` message when this option is enabled.
+
+  .. code-block:: python
+
+     class MyError(Exception): pass
+
 
 Removed Changes
 ===============

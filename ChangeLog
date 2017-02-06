@@ -7,10 +7,16 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
-	* Adding new check 'mutable-sequence-modified-in-loop' when a mutable
-	  sequence is modified in a for
+	  * Adding new check 'mutable-sequence-modified-in-loop' when a mutable
+	    sequence is modified in a for
 
-	  Close #1297
+	    Close #1297
+
+    * Added a new error, 'used-prior-global-declaration', which is emitted when a name
+      is used prior a global declaration in a function. This causes a SyntaxError in
+      Python 3.6
+
+      Close #1257
 
     * The protocol checks are emitting their messages when a special method is set to None.
 
@@ -268,6 +274,15 @@ Release date: tba
       are used in formatted string.
 
       Fixes #572
+
+    * Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+      of empty class bodies.
+
+      Closes #738
+
+    * Protected access in form `type(self)._attribute` are now allowed.
+
+      Fixes #1031
 
 
 What's new in Pylint 1.6.3?

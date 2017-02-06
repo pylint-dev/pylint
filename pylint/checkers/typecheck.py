@@ -272,7 +272,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
         return False
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
-    if isinstance(owner, astroid.Instance):
+    if isinstance(owner, (astroid.Instance, astroid.ClassDef)):
         if owner.has_dynamic_getattr() or not has_known_bases(owner):
             return False
     if isinstance(owner, objects.Super):
