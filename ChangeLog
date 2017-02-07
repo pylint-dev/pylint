@@ -280,6 +280,7 @@ Release date: tba
       Fixes #1031
 
     * Let the user modify msg-template when Pylint is called from a Python script
+    
       Fixes #1269
 
 What's new in Pylint 1.6.3?
