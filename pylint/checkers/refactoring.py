@@ -18,7 +18,6 @@ import six
 
 from pylint import interfaces
 from pylint import checkers
-from pylint.checkers.logging import is_method_call
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 
@@ -105,8 +104,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   {'minversion': (3, 0)}),
         'R1708': ("The mutable sequence (%s) is modified within the loop",
                   'mutable-sequence-modified-in-loop',
-                  'Modification within the cycle may cause each iteration to'
-                  'have an index that is not as expected'),
+                  'Modifying a mutable object while iterating through it can '
+                  'result in unexpected behaviour. This message is emitted '
+                  'whenever a case like this is detected.'),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -274,32 +274,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
 
-        if self._check_iter_is_infer_list(node):
-            for part in node.nodes_of_class(astroid.Expr):
-                if self._check_part_is_call_method_elimination(node, part):
-                    self.add_message('mutable-sequence-modified-in-loop',
-                                     node=part,
-                                     args=(node.iter.name))
+        if self._is_iterating_mutable_sequence(node):
+            parts = node.nodes_of_class(astroid.Call)
+            if isinstance(parts, collections.Iterable):
+                for part in parts:
+                    if self._check_part_is_call_method_elimination(node.iter,
+                                                                   part.func):
+                        self.add_message('mutable-sequence-modified-in-loop',
+                                         node=part,
+                                         args=(node.iter.name))
 
     @staticmethod
-    def _check_iter_is_infer_list(node):
-        """ Check if node.iter is astroid.util.Uninferable o
-            astroid.node_classes.List instance and if node.body
-            contains records """
+    def _is_iterating_mutable_sequence(node):
+        """Check if node.iter is astroid.util.Uninferable o
+        astroid.node_classes.List instance and if node.body contains records"""
         inferred = utils.safe_infer(node.iter)
         return (node.body and isinstance(node.iter, astroid.Name) and
                 (inferred is astroid.util.Uninferable or
                 isinstance(inferred, astroid.node_classes.List)))
 
     @staticmethod
-    def _check_part_is_call_method_elimination(node, part):
-        """ Check if the part is a astroid.Call instance and the method called
-            is in ('remove', 'delete', 'pop') """
-        return (isinstance(part.value, astroid.Call) and
-                isinstance(part.value.func, astroid.Attribute) and
-                part.value.func.attrname in ('remove', 'delete', 'pop') and
-                (part.value.func.expr.name == node.iter.name or
-                 isinstance(utils.safe_infer(node.iter),
+    def _check_part_is_call_method_elimination(iter, func):
+        """Check if the method called is in into method_names"""
+        method_names = ('remove', 'delete', 'pop', 'append', 'extend')
+        return (isinstance(func, astroid.Attribute) and
+                func.attrname in method_names and
+                (func.expr.name == iter.name or
+                 isinstance(utils.safe_infer(iter),
                             astroid.node_classes.List)))
 
     @utils.check_messages('redefined-argument-from-local')
@@ -312,8 +313,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for _, names in node.items:
             if not names:
                 continue
-            for name in names.nodes_of_class(astroid.AssignName):
-                self._check_redefined_argument_from_local(name)
+
 
     def visit_ifexp(self, _):
         self._if_counter += 1
