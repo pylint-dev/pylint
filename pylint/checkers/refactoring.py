@@ -18,6 +18,7 @@ import six
 
 from pylint import interfaces
 from pylint import checkers
+from pylint.checkers.logging import is_method_call
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 
@@ -102,7 +103,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
-        'R1708': ("The mutable (%s) sequence was modified inside the loop",
+        'R1708': ("The mutable sequence (%s) is modified within the loop",
                   'mutable-sequence-modified-in-loop',
                   'Modification within the cycle may cause each iteration to'
                   'have an index that is not as expected'),
@@ -273,21 +274,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
 
-        inferrend = utils.safe_infer(node.iter)
-        if (isinstance(node.iter, astroid.Name) and
-                (isinstance(inferrend, type(astroid.util.Uninferable)) or
-                 isinstance(inferrend, astroid.node_classes.List)) and
-                node.body):
+        if self._check_iter_is_infer_list(node):
             for part in node.nodes_of_class(astroid.Expr):
-                if (isinstance(part.value, astroid.Call) and
-                        isinstance(part.value.func,
-                                   astroid.Attribute) and
-                        part.value.func.attrname in ('remove', 'delete',
-                                                     'pop') and
-                        part.value.func.expr.name == node.iter.name):
+                if self._check_part_is_call_method_elimination(node, part):
                     self.add_message('mutable-sequence-modified-in-loop',
                                      node=part,
                                      args=(node.iter.name))
+
+    @staticmethod
+    def _check_iter_is_infer_list(node):
+        """ Check if node.iter is astroid.util.Uninferable o
+            astroid.node_classes.List instance and if node.body
+            contains records """
+        inferred = utils.safe_infer(node.iter)
+        return (node.body and isinstance(node.iter, astroid.Name) and
+                (inferred is astroid.util.Uninferable or
+                isinstance(inferred, astroid.node_classes.List)))
+
+    @staticmethod
+    def _check_part_is_call_method_elimination(node, part):
+        """ Check if the part is a astroid.Call instance and the method called
+            is in ('remove', 'delete', 'pop') """
+        return (isinstance(part.value, astroid.Call) and
+                isinstance(part.value.func, astroid.Attribute) and
+                part.value.func.attrname in ('remove', 'delete', 'pop') and
+                (part.value.func.expr.name == node.iter.name or
+                 isinstance(utils.safe_infer(node.iter),
+                            astroid.node_classes.List)))
 
     @utils.check_messages('redefined-argument-from-local')
     def visit_excepthandler(self, node):

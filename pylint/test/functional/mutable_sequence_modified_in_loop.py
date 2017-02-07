@@ -1,6 +1,10 @@
+
+
 """ The mutable sequence was modified inside the loop """
 
-# pylint:disable=print-statement, missing-docstring, redefined-outer-name, invalid-name, using-constant-test, syntax-error, no-member, superfluous-parens
+# pylint:disable=print-statement, missing-docstring, redefined-outer-name, invalid-name, using-constant-test, no-member
+
+from __future__ import print_function
 
 
 class MyList(object):
@@ -23,38 +27,38 @@ class MyList(object):
 
 my_list = MyList()
 for item in my_list:
-    print item
+    print(item)
     my_list.remove(item)
 
 my_list = MyList()
 for item in my_list:
-    print item
+    print(item)
     my_list.delete(item)
 
 my_list = MyList()
 for item in my_list:
-    print item
+    print(item)
     my_list.pop(item)
 
 
 items = range(1, 6)
 for item in items:
-    print item
+    print(item)
     items.remove(item)  # [mutable-sequence-modified-in-loop]
 
 items = list([1, 2, 3, 4, 5, 6])
 for item in items:
-    print item
+    print(item)
     items.pop(item)  # [mutable-sequence-modified-in-loop]
 
 items = range(1, 6)
 for item in list(items):
-    print item
+    print(item)
     items.remove(item)
 
 items = range(1, 6)
 for item in items:
-    print item
+    print(item)
     items.remove(item)  # [mutable-sequence-modified-in-loop]
 
 items = range(1, 6)
@@ -63,4 +67,9 @@ for item in items:
         items.remove(item)  # [mutable-sequence-modified-in-loop]
         if True:
             items.pop()  # [mutable-sequence-modified-in-loop]
-    print item
+    print(item)
+
+my_list = [1, 2, 3]
+my_seq = my_list
+for i in my_seq:
+    my_list.pop()  # [mutable-sequence-modified-in-loop]
