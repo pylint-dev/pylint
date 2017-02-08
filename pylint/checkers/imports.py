@@ -301,8 +301,13 @@ given file (report RP0402 must not be disabled)'}
                  'help': 'Analyse import fallback blocks. This can be used to '
                          'support both Python 2 and 3 compatible code, which means that '
                          'the block might have code that exists only in one or another '
-                         'interpreter, leading to false positives when analysed.'}),
-
+                         'interpreter, leading to false positives when analysed.'},
+                ),
+                ('allow-wildcard-with-all',
+                 {'default': False,
+                  'type': 'yn',
+                  'metavar': '<y_or_n>',
+                  'help': 'Allow wildcard imports from modules that define __all__.'}),
               )
 
     def __init__(self, linter=None):
@@ -735,8 +740,14 @@ given file (report RP0402 must not be disabled)'}
 
     def _check_wildcard_imports(self, node):
         for name, _ in node.names:
-            if name == '*':
+            if name == '*' and not self._wildcard_import_is_allowed(node):
                 self.add_message('wildcard-import', args=node.modname, node=node)
+
+    def _wildcard_import_is_allowed(self, node):
+        if not self.config.allow_wildcard_with_all:
+            return False
+        module = node.do_import_module()
+        return '__all__' in module.locals
 
 
 def register(linter):
