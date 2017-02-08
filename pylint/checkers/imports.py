@@ -302,8 +302,8 @@ given file (report RP0402 must not be disabled)'}
                          'support both Python 2 and 3 compatible code, which means that '
                          'the block might have code that exists only in one or another '
                          'interpreter, leading to false positives when analysed.'},
-                ),
-                ('allow-wildcard-with-all',
+               ),
+               ('allow-wildcard-with-all',
                  {'default': False,
                   'type': 'yn',
                   'metavar': '<y_or_n>',
