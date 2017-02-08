@@ -291,12 +291,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         inferred = utils.safe_infer(node.iter)
         return (node.body and isinstance(node.iter, astroid.Name) and
                 (inferred is astroid.util.Uninferable or
-                isinstance(inferred, astroid.node_classes.List)))
+                isinstance(inferred, astroid.node_classes.List) or
+                (isinstance(inferred, astroid.bases.Instance) and
+                 inferred._proxied.root().name == 'builtins')))
 
     @staticmethod
     def _check_part_is_call_method_elimination(iter, func):
         """Check if the method called is in into method_names"""
         method_names = ('remove', 'delete', 'pop', 'append', 'extend')
+        if (isinstance(func, astroid.Attribute) and
+                not hasattr(func.expr, 'name')):
+            return False
         return (isinstance(func, astroid.Attribute) and
                 func.attrname in method_names and
                 (func.expr.name == iter.name or
