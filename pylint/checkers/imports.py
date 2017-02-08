@@ -304,10 +304,10 @@ given file (report RP0402 must not be disabled)'}
                          'interpreter, leading to false positives when analysed.'},
                ),
                ('allow-wildcard-with-all',
-                 {'default': False,
-                  'type': 'yn',
-                  'metavar': '<y_or_n>',
-                  'help': 'Allow wildcard imports from modules that define __all__.'}),
+                {'default': False,
+                 'type': 'yn',
+                 'metavar': '<y_or_n>',
+                 'help': 'Allow wildcard imports from modules that define __all__.'}),
               )
 
     def __init__(self, linter=None):
