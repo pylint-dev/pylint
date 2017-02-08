@@ -318,7 +318,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for _, names in node.items:
             if not names:
                 continue
-
+            for name in names.nodes_of_class(astroid.AssignName):
+                self._check_redefined_argument_from_local(name)
 
     def visit_ifexp(self, _):
         self._if_counter += 1
