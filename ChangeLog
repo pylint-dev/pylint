@@ -284,7 +284,7 @@ Release date: tba
       Fixes #1269
 
     * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
-      warning on wildcard import when imported module defines __all__ variable.
+      warning on wildcard import when imported module defines `__all__` variable.
 
       Fixes #831
 
