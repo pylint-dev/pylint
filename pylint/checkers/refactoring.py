@@ -292,9 +292,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         inferred = utils.safe_infer(node.iter)
         return (node.body and isinstance(node.iter, astroid.Name) and
                 (inferred is astroid.util.Uninferable or
-                isinstance(inferred, astroid.node_classes.List) or
-                (isinstance(inferred, astroid.bases.Instance) and
-                 inferred._proxied.root().name == 'builtins')))
+                 isinstance(inferred, astroid.node_classes.List) or
+                 (isinstance(inferred, astroid.bases.Instance) and
+                  inferred._proxied.root().name == 'builtins')))
 
     @staticmethod
     def _check_method_of_elimination_is_called(iter, func):
