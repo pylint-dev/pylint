@@ -275,13 +275,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._check_redefined_argument_from_local(name)
 
         if self._is_iterating_mutable_sequence(node):
-            parts = node.nodes_of_class(astroid.Call)
-            if isinstance(parts, collections.Iterable):
-                for part in parts:
-                    if self._check_part_is_call_method_elimination(node.iter,
-                                                                   part.func):
+            call_nodes = node.nodes_of_class(astroid.Call)
+            if isinstance(call_nodes, collections.Iterable):
+                for call_node in call_nodes:
+                    if self._check_method_of_elimination_is_called(node.iter,
+                                                                   call_node.
+                                                                   func):
                         self.add_message('mutable-sequence-modified-in-loop',
-                                         node=part,
+                                         node=call_node,
                                          args=(node.iter.name))
 
     @staticmethod
@@ -296,7 +297,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                  inferred._proxied.root().name == 'builtins')))
 
     @staticmethod
-    def _check_part_is_call_method_elimination(iter, func):
+    def _check_method_of_elimination_is_called(iter, func):
         """Check if the method called is in into method_names"""
         method_names = ('remove', 'delete', 'pop', 'append', 'extend')
         if (isinstance(func, astroid.Attribute) and
