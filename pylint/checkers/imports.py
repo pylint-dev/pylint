@@ -746,8 +746,11 @@ given file (report RP0402 must not be disabled)'}
     def _wildcard_import_is_allowed(self, node):
         if not self.config.allow_wildcard_with_all:
             return False
-        module = node.do_import_module()
-        return '__all__' in module.locals
+        try:
+            module = node.do_import_module()
+            return '__all__' in module.locals
+        except astroid.AstroidImportError:
+            return False
 
 
 def register(linter):
