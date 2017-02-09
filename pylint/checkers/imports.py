@@ -745,11 +745,9 @@ given file (report RP0402 must not be disabled)'}
                 self.add_message('wildcard-import', args=node.modname, node=node)
 
     def _wildcard_import_is_allowed(self, imported_module):
-        if not self.config.allow_wildcard_with_all:
-            return False
-        if imported_module is None:
-            return False
-        return '__all__' in imported_module.locals
+        return (self.config.allow_wildcard_with_all
+                and imported_module is not None
+                and '__all__' in imported_module.locals)
 
 
 def register(linter):
