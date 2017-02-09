@@ -766,7 +766,7 @@ Other Changes
   ``--load-plugins=pylint.extensions.redefined_variable_type,pylint.extensions.bad_builtin``
 
   * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
-    warning on wildcard import when imported module defines __all__ variable.
+    warning on wildcard import when imported module defines `__all__` variable.
 
 
 Bug fixes
