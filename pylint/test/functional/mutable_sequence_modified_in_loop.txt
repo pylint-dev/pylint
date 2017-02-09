@@ -3,6 +3,5 @@ mutable-sequence-modified-in-loop:44::"The mutable sequence (items) is modified 
 mutable-sequence-modified-in-loop:52::"The mutable sequence (items) is modified within the loop"
 mutable-sequence-modified-in-loop:57::"The mutable sequence (items) is modified within the loop"
 mutable-sequence-modified-in-loop:59::"The mutable sequence (items) is modified within the loop"
-mutable-sequence-modified-in-loop:64::"The mutable sequence (my_seq) is modified within the loop"
 mutable-sequence-modified-in-loop:65::"The mutable sequence (my_seq) is modified within the loop"
 mutable-sequence-modified-in-loop:66::"The mutable sequence (my_seq) is modified within the loop"

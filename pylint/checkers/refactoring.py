@@ -305,9 +305,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return False
         return (isinstance(func, astroid.Attribute) and
                 func.attrname in method_names and
-                (func.expr.name == iter.name or
-                 isinstance(utils.safe_infer(iter),
-                            astroid.node_classes.List)))
+                func.expr.name == iter.name)
 
     @utils.check_messages('redefined-argument-from-local')
     def visit_excepthandler(self, node):
