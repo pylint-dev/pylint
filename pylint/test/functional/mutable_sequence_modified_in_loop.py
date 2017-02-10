@@ -64,3 +64,9 @@ for i in my_seq:
     my_list.pop()
     my_seq.append(4)  # [mutable-sequence-modified-in-loop]
     my_seq.extend([5, 6, 7])  # [mutable-sequence-modified-in-loop]
+
+my_list = [1, 2, 3]
+for item in my_list:
+    break
+else:
+    my_list.pop()

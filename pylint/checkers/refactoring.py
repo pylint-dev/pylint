@@ -276,11 +276,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if self._is_iterating_mutable_sequence(node):
             call_nodes = node.nodes_of_class(astroid.Call)
+            call_orelse = []
+            if node.orelse:
+                for orelse in node.orelse:
+                    call_orelse.extend(orelse.nodes_of_class(astroid.Call))
             if isinstance(call_nodes, collections.Iterable):
                 for call_node in call_nodes:
-                    if self._check_method_of_elimination_is_called(node.iter,
-                                                                   call_node.
-                                                                   func):
+                    if (call_node not in call_orelse and
+                            self._check_method_of_elimination_is_called(
+                                node.iter,
+                                call_node.func)):
                         self.add_message('mutable-sequence-modified-in-loop',
                                          node=call_node,
                                          args=(node.iter.name))
