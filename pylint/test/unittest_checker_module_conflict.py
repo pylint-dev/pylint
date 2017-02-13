@@ -21,8 +21,10 @@ class TestCheckerModuleConflict(CheckerTestCase):
             data = stream.read()
         module = astroid.parse(data, module_name='my_wrong_subpackage',
                                path=path)
-        args = ('../../my_wrong_package/my_wrong_subpackage',
-                '../../my_wrong_package/my_wrong_subpackage.py')
+        args = (os.path.join('..', '..', 'my_wrong_package',
+                             'my_wrong_subpackage'),
+                os.path.join('..', '..', 'my_wrong_package',
+                             'my_wrong_subpackage.py'))
         msg = Message(msg_id='package-module-conflict', node=module, args=args,
                       confidence=interfaces.UNDEFINED)
         with self.assertAddsMessages(msg):
