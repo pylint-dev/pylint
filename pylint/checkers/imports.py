@@ -740,8 +740,11 @@ given file (report RP0402 must not be disabled)'}
         return self.__int_dep_info
 
     def _check_wildcard_imports(self, node, imported_module):
+        wildcard_import_is_allowed = (
+            self._wildcard_import_is_allowed(imported_module)
+        )
         for name, _ in node.names:
-            if name == '*' and not self._wildcard_import_is_allowed(imported_module):
+            if name == '*' and not wildcard_import_is_allowed:
                 self.add_message('wildcard-import', args=node.modname, node=node)
 
     def _wildcard_import_is_allowed(self, imported_module):
