@@ -63,3 +63,8 @@ class MetaClass(object):
     @classmethod
     def whatever(cls):
         return cls.mro() + cls.missing() # [no-member]
+
+from collections import namedtuple
+
+Tuple = namedtuple("Tuple", "field other")
+Tuple.field.__doc__ = "A doc for the field."

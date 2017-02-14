@@ -7,6 +7,12 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Added a new error, 'used-prior-global-declaration', which is emitted when a name
+      is used prior a global declaration in a function. This causes a SyntaxError in
+      Python 3.6
+
+      Close #1257
+
     * The protocol checks are emitting their messages when a special method is set to None.
 
       Close #1263
@@ -263,6 +269,24 @@ Release date: tba
       are used in formatted string.
 
       Fixes #572
+
+    * Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+      of empty class bodies.
+
+      Closes #738
+
+    * Protected access in form `type(self)._attribute` are now allowed.
+
+      Fixes #1031
+
+    * Let the user modify msg-template when Pylint is called from a Python script
+    
+      Fixes #1269
+
+    * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+      warning on wildcard import when imported module defines `__all__` variable.
+
+      Fixes #831
 
     * `too-many-format-args` and `too-few-format-args` are emitted correctly when
       starred expression are used in RHS tuple.

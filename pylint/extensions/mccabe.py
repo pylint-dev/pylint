@@ -25,9 +25,9 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         super(PathGraphingAstVisitor, self).__init__()
         self._bottom_counter = 0
 
-    def default(self, node):
+    def default(self, node, *args):
         for child in node.get_children():
-            self.dispatch(child)
+            self.dispatch(child, *args)
 
     def dispatch(self, node, *args):
         self.node = node
