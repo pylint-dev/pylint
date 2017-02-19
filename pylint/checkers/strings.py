@@ -304,7 +304,10 @@ class StringFormatChecker(BaseChecker):
             # the % operator matches the number required by the format
             # string.
             if isinstance(args, astroid.Tuple):
-                num_args = len(args.elts)
+                rhs_tuple = utils.safe_infer(args)
+                num_args = None
+                if rhs_tuple not in (None, astroid.Uninferable):
+                    num_args = len(rhs_tuple.elts)
             elif isinstance(args, OTHER_NODES + (astroid.Dict, astroid.DictComp)):
                 num_args = 1
             else:
