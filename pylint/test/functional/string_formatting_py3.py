@@ -7,7 +7,7 @@ def issue_957_good():
 
 
 def issue_957_bad1():
-    meat = ['spam', 'ham', 'monthy python']
+    meat = ['spam', 'ham', 'monty python']
     print('%s%s%s' % ('eggs', *meat))  # [too-many-format-args]
 
 
