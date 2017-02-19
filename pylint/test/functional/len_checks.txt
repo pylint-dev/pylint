@@ -8,3 +8,4 @@ len-as-condition:20::Do not use `len(SEQUENCE)` as condition value
 len-as-condition:26::Do not use `len(SEQUENCE)` as condition value
 len-as-condition:30::Do not use `len(SEQUENCE)` as condition value
 len-as-condition:43::Do not use `len(SEQUENCE)` as condition value
+len-as-condition:61:github_issue_1331_v2:Do not use `len(SEQUENCE)` as condition value

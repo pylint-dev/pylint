@@ -654,8 +654,11 @@ class LenChecker(checkers.BaseChecker):
             # we're finally out of any nested boolean operations so check if
             # this len() call is part of a test condition
             if _node_is_test_condition(parent):
+                try:
+                    node is parent.test or parent.test.locate_child(node)
+                except astroid.AstroidError:
+                    return
                 self.add_message('len-as-condition', node=node)
-
 
     @utils.check_messages('len-as-condition')
     def visit_unaryop(self, node):
