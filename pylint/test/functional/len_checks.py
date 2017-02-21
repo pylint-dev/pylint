@@ -59,3 +59,7 @@ def github_issue_1331(*args):
 
 def github_issue_1331_v2(*args):
     assert len(args), args  # [len-as-condition]
+
+
+def github_issue_1331_v3(*args):
+    assert len(args) or z, args  # [len-as-condition]
