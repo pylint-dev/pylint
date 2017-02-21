@@ -7,6 +7,11 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Disabling 'wrong-import-order' or 'wrong-import-position' for a single line now
+      prevents that line from triggering violations on subsequent lines.
+
+      Close #1336
+
     * Added a new error, 'used-prior-global-declaration', which is emitted when a name
       is used prior a global declaration in a function. This causes a SyntaxError in
       Python 3.6
