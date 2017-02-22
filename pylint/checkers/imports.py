@@ -413,6 +413,8 @@ given file (report RP0402 must not be disabled)'}
         met = set()
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
+            if not self.linter.is_message_enabled('ungrouped-imports', import_node.fromlineno):
+                continue
             package, _, _ = import_name.partition('.')
             if current_package and current_package != package and package in met:
                 self.add_message('ungrouped-imports', node=import_node,

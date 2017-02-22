@@ -7,8 +7,9 @@ What's new in Pylint 1.6.5?
 
 Release date: tba
 
-    * Disabling 'wrong-import-order' or 'wrong-import-position' for a single line now
-      prevents that line from triggering violations on subsequent lines.
+    * Disabling 'wrong-import-order', 'wrong-import-position', or
+      'ungrouped-imports' for a single line now prevents that line from
+      triggering violations on subsequent lines.
 
       Close #1336
 
