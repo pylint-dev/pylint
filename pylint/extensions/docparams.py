@@ -45,10 +45,10 @@ class DocstringParameterChecker(BaseChecker):
 
     name = 'parameter_documentation'
     msgs = {
-        'W9003': ('"%s" missing or differing in parameter documentation',
+        'W9003': ('"%s" missing in parameter documentation',
                   'missing-param-doc',
                   'Please add parameter declarations for all parameters.'),
-        'W9004': ('"%s" missing or differing in parameter type documentation',
+        'W9004': ('"%s" missing in parameter type documentation',
                   'missing-type-doc',
                   'Please add parameter type declarations for all parameters.'),
         'W9005': ('"%s" has constructor parameters documented in class and __init__',
