@@ -83,6 +83,14 @@ class DocstringParameterChecker(BaseChecker):
                   # we can't use the same old_name for two different warnings
                   # {'old_names': [('W9009', 'missing-yields-doc')]},
                  ),
+        'W9015': ('"%s" differing in parameter documentation',
+                  'differing-param-doc',
+                  'Please check parameter names in declarations.'
+                  ),
+        'W9016': ('"%s" differing in parameter type documentation',
+                  'differing-type-doc',
+                  'Please check parameter names in type declarations.'
+                  ),
     }
 
     options = (('accept-no-param-doc',
@@ -311,11 +319,12 @@ class DocstringParameterChecker(BaseChecker):
                 and accept_no_param_doc):
             tolerate_missing_params = True
 
-        def _compare_args(found_argument_names, message_id, not_needed_names):
+        def _compare_missing_args(found_argument_names, message_id,
+                                  not_needed_names):
             """Compare the found argument names with the expected ones and
-            generate a message if there are inconsistencies.
+            generate a message if there are arguments missing.
 
-            :param list found_argument_names: argument names found in the
+            :param set found_argument_names: argument names found in the
                 docstring
 
             :param str message_id: pylint message id
@@ -324,25 +333,49 @@ class DocstringParameterChecker(BaseChecker):
             :type not_needed_names: set of str
             """
             if not tolerate_missing_params:
-                missing_or_differing_argument_names = (
-                    (expected_argument_names ^ found_argument_names)
-                    - not_needed_names)
-            else:
-                missing_or_differing_argument_names = (
-                    (found_argument_names - expected_argument_names)
+                missing_argument_names = (
+                    (expected_argument_names - found_argument_names)
                     - not_needed_names)
 
-            if missing_or_differing_argument_names:
                 self.add_message(
                     message_id,
                     args=(', '.join(
-                        sorted(missing_or_differing_argument_names)),),
+                        sorted(missing_argument_names)),),
                     node=warning_node)
 
-        _compare_args(params_with_doc, 'missing-param-doc',
-                      self.not_needed_param_in_docstring)
-        _compare_args(params_with_type, 'missing-type-doc',
-                      not_needed_type_in_docstring)
+        def _compare_different_args(found_argument_names, message_id,
+                                    not_needed_names):
+            """Compare the found argument names with the expected ones and
+            generate a message if there are extra arguments found.
+
+            :param set found_argument_names: argument names found in the
+                docstring
+
+            :param str message_id: pylint message id
+
+            :param not_needed_names: names that may be omitted
+            :type not_needed_names: set of str
+            """
+            differing_argument_names = (
+                (expected_argument_names ^ found_argument_names)
+                - not_needed_names - expected_argument_names)
+
+            if differing_argument_names:
+                self.add_message(
+                    message_id,
+                    args=(', '.join(
+                        sorted(differing_argument_names)),),
+                    node=warning_node)
+
+        _compare_missing_args(params_with_doc, 'missing-param-doc',
+                              self.not_needed_param_in_docstring)
+        _compare_missing_args(params_with_type, 'missing-type-doc',
+                              not_needed_type_in_docstring)
+
+        _compare_different_args(params_with_doc, 'differing-param-doc',
+                                self.not_needed_param_in_docstring)
+        _compare_different_args(params_with_type, 'differing-type-doc',
+                                not_needed_type_in_docstring)
 
     def check_single_constructor_params(self, class_doc, init_doc, class_node):
         if class_doc.has_params() and init_doc.has_params():
