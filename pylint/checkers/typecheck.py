@@ -661,7 +661,10 @@ accessed. Python regular expressions are accepted.'}
             name = getattr(owner, 'name', None)
             if _is_owner_ignored(owner, name, self.config.ignored_classes,
                                  self.config.ignored_modules):
-                continue
+                # The owner is ignored and as such could legitimately have the
+                # corresponding attribute, no need to check other inferred
+                # owners.
+                break
 
             try:
                 if not [n for n in owner.getattr(node.attrname)

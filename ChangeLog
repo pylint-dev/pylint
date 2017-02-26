@@ -6,6 +6,11 @@ What's New in Pylint 1.8?
 
 Release date: TBD
 
+    * Ignore unknown members when one of the inferred owners is ignored for
+      type checks.
+
+      Fixes #1276
+
 
 What's New in Pylint 1.7.1?
 =========================
@@ -342,7 +347,6 @@ Release date: 2017-04-13
       cycle is not reported as violation.
 
       Fixes #59
-
 
 What's new in Pylint 1.6.3?
 ===========================
