@@ -8,8 +8,9 @@
 from __future__ import absolute_import
 
 import sys
-import unittest
 import textwrap
+
+import pytest
 
 import astroid
 
@@ -18,13 +19,12 @@ from pylint.checkers import python3 as checker
 from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
 
 
-def python2_only(test):
-    """Decorator for any tests that will fail under Python 3."""
-    return unittest.skipIf(sys.version_info[0] > 2, 'Python 2 only')(test)
+# Decorator for any tests that will fail under Python 3
+python2_only = pytest.mark.skipif(sys.version_info[0] > 2, reason='Python 2 only')
 
 # TODO(cpopa): Port these to the functional test framework instead.
 
-class Python3CheckerTest(testutils.CheckerTestCase):
+class TestPython3Checker(testutils.CheckerTestCase):
     CHECKER_CLASS = checker.Python3Checker
 
     def check_bad_builtin(self, builtin_name):
@@ -284,9 +284,9 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def test_absolute_import(self):
         module_import = astroid.parse(
-                'from __future__ import absolute_import; import os')
+            'from __future__ import absolute_import; import os')
         module_from = astroid.parse(
-                'from __future__ import absolute_import; from os import path')
+            'from __future__ import absolute_import; from os import path')
         with self.assertNoMessages():
             for module in (module_import, module_from):
                 self.walk(module)
@@ -714,9 +714,72 @@ class Python3CheckerTest(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
+    def test_non_py2_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.maxsize:
+            x.iterkeys()  #@
+        '''
+        node = astroid.extract_node(code)
+        module = node.parent.parent
+        message = testutils.Message('dict-iter-method', node=node)
+        with self.assertAddsMessages(message):
+            self.walk(module)
+
+    def test_six_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import six
+        x = {}
+        if six.PY2:
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_versioninfo_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.version_info[0] == 2:
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_versioninfo_tuple_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.version_info == (2, 7):
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_six_ifexp_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import six
+        import string
+        string.translate if six.PY2 else None
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
 
 @python2_only
-class Python3TokenCheckerTest(testutils.CheckerTestCase):
+class TestPython3TokenChecker(testutils.CheckerTestCase):
 
     CHECKER_CLASS = checker.Python3TokenChecker
 
@@ -742,7 +805,3 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
             tokens = testutils.tokenize_str(non_octal)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)
-
-
-if __name__ == '__main__':
-    unittest.main()

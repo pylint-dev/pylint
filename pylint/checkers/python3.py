@@ -8,7 +8,10 @@
 from __future__ import absolute_import, print_function
 
 import re
+import sys
 import tokenize
+
+from collections import namedtuple
 
 import six
 
@@ -92,6 +95,7 @@ def _is_conditional_import(node):
     return isinstance(parent, (astroid.TryExcept, astroid.ExceptHandler,
                                astroid.If, astroid.IfExp))
 
+Branch = namedtuple('Branch', ['node', 'is_py2_only'])
 
 class Python3Checker(checkers.BaseChecker):
 
@@ -483,13 +487,54 @@ class Python3Checker(checkers.BaseChecker):
         }
     }
 
+    if (3, 4) <= sys.version_info < (3, 4, 4):
+        # Python 3.4.0 -> 3.4.3 has a bug which breaks `repr_tree()`:
+        # https://bugs.python.org/issue23572
+        _python_2_tests = frozenset()
+    else:
+        _python_2_tests = frozenset(
+            [astroid.extract_node(x).repr_tree() for x in [
+                'sys.version_info[0] == 2',
+                'sys.version_info[0] < 3',
+                'sys.version_info == (2, 7)',
+                'sys.version_info <= (2, 7)',
+                'sys.version_info < (3, 0)',
+            ]])
+
     def __init__(self, *args, **kwargs):
         self._future_division = False
         self._future_absolute_import = False
         self._modules_warned_about = set()
+        self._branch_stack = []
         super(Python3Checker, self).__init__(*args, **kwargs)
 
-    def visit_module(self, node): # pylint: disable=unused-argument
+    def add_message(self, msg_id, always_warn=False,  # pylint: disable=arguments-differ
+                    *args, **kwargs):
+        if always_warn or not (self._branch_stack and self._branch_stack[-1].is_py2_only):
+            super(Python3Checker, self).add_message(msg_id, *args, **kwargs)
+
+    def _is_py2_test(self, node):
+        if isinstance(node.test, astroid.Attribute) and isinstance(node.test.expr, astroid.Name):
+            if node.test.expr.name == 'six' and node.test.attrname == 'PY2':
+                return True
+        elif (isinstance(node.test, astroid.Compare) and
+              node.test.repr_tree() in self._python_2_tests):
+            return True
+        return False
+
+    def visit_if(self, node):
+        self._branch_stack.append(Branch(node, self._is_py2_test(node)))
+
+    def leave_if(self, node):
+        assert self._branch_stack.pop().node == node
+
+    def visit_ifexp(self, node):
+        self._branch_stack.append(Branch(node, self._is_py2_test(node)))
+
+    def leave_ifexp(self, node):
+        assert self._branch_stack.pop().node == node
+
+    def visit_module(self, node):  # pylint: disable=unused-argument
         """Clear checker state after previous module."""
         self._future_division = False
         self._future_absolute_import = False
@@ -517,7 +562,7 @@ class Python3Checker(checkers.BaseChecker):
 
     @utils.check_messages('print-statement')
     def visit_print(self, node):
-        self.add_message('print-statement', node=node)
+        self.add_message('print-statement', node=node, always_warn=True)
 
     def _warn_if_deprecated(self, node, module, attributes, report_on_modules=True):
         for message, module_map in six.iteritems(self._bad_python3_module_map):
@@ -603,8 +648,9 @@ class Python3Checker(checkers.BaseChecker):
 
     @staticmethod
     def _is_constant_string_or_name(node):
-        return ((isinstance(node, astroid.Const) and isinstance(node.value, six.string_types)) or
-                isinstance(node, astroid.Name))
+        if isinstance(node, astroid.Const):
+            return isinstance(node.value, six.string_types)
+        return isinstance(node, astroid.Name)
 
     @staticmethod
     def _is_none(node):

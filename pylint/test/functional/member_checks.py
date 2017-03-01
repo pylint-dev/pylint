@@ -1,7 +1,7 @@
 # pylint: disable=print-statement,missing-docstring,no-self-use,too-few-public-methods,bare-except,broad-except
-# pylint: disable=using-constant-test,expression-not-assigned, assigning-non-slot, unused-variable
+# pylint: disable=using-constant-test,expression-not-assigned, assigning-non-slot, unused-variable,pointless-statement
 from __future__ import print_function
-
+import six
 class Provider(object):
     """provide some attributes and method"""
     cattr = 4
@@ -176,3 +176,16 @@ class InvalidAccessBySlots(object):
     def __init__(self):
         var = self.teta # [no-member]
         self.teta = 24
+
+
+class MetaWithDynamicGetattr(type):
+
+    def __getattr__(cls, attr):
+        return attr
+
+@six.add_metaclass(MetaWithDynamicGetattr)
+class SomeClass(object):
+    pass
+
+
+SomeClass.does_not_exist

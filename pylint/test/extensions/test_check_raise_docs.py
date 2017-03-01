@@ -10,15 +10,13 @@
 """
 from __future__ import division, print_function, absolute_import
 
-import unittest
-
 import astroid
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.docparams import DocstringParameterChecker
 
 
-class DocstringCheckerRaiseTest(CheckerTestCase):
+class TestDocstringCheckerRaise(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
     CHECKER_CLASS = DocstringParameterChecker
 
@@ -516,7 +514,3 @@ class DocstringCheckerRaiseTest(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_raise(raise_node)
-
-
-if __name__ == '__main__':
-    unittest.main()

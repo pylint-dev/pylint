@@ -7,8 +7,6 @@
 
 """Tests for the misc checker."""
 
-import unittest
-
 from pylint.checkers import misc
 from pylint.testutils import (
     CheckerTestCase, Message,
@@ -16,7 +14,7 @@ from pylint.testutils import (
 )
 
 
-class FixmeTest(CheckerTestCase):
+class TestFixme(CheckerTestCase):
     CHECKER_CLASS = misc.EncodingChecker
 
     def test_fixme_with_message(self):
@@ -84,7 +82,3 @@ class FixmeTest(CheckerTestCase):
             with self.assertAddsMessages(
                     Message(msg_id='fixme', line=2, args=u'CODETAG')):
                 self.checker.process_module(module)
-
-
-if __name__ == '__main__':
-    unittest.main()

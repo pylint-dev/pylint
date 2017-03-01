@@ -31,6 +31,7 @@ from pylint.utils import get_global_option
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
 
+
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = '__future__'
 # regexp for ignored argument name
@@ -221,6 +222,14 @@ def _flattened_scope_names(iterator):
     return set(itertools.chain.from_iterable(values))
 
 
+def _assigned_locally(name_node):
+    """
+    Checks if name_node has corresponding assign statement in same scope
+    """
+    assign_stmts = name_node.scope().nodes_of_class(astroid.AssignName)
+    return any(a.name == name_node.name for a in assign_stmts)
+
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
@@ -358,7 +367,13 @@ class VariablesChecker(BaseChecker):
                  'help' : 'Argument names that match this expression will be '
                           'ignored. Default to name with leading underscore'}
                ),
+               ('allow-global-unused-variables',
+                {'default': True,
+                 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'Tells whether unused global variables should be treated as a violation.'}
+               ),
               )
+
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
         self._to_consume = None  # list of tuples: (to_consume:dict, consumed:dict, scope_type:str)
@@ -374,6 +389,9 @@ class VariablesChecker(BaseChecker):
     def _ignored_modules(self):
         return get_global_option(self, 'ignored-modules', default=[])
 
+    @decorators.cachedproperty
+    def _allow_global_unused_variables(self):
+        return get_global_option(self, 'allow-global-unused-variables', default=True)
 
     @utils.check_messages('redefined-outer-name')
     def visit_for(self, node):
@@ -413,7 +431,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.check_messages('unused-import', 'unused-wildcard-import',
                           'redefined-builtin', 'undefined-all-variable',
-                          'invalid-all-object')
+                          'invalid-all-object', 'unused-variable')
     def leave_module(self, node):
         """leave module: check globals
         """
@@ -422,6 +440,10 @@ class VariablesChecker(BaseChecker):
         # attempt to check for __all__ if defined
         if '__all__' in node.locals:
             self._check_all(node, not_consumed)
+
+        # check for unused globals
+        self._check_globals(not_consumed)
+
         # don't check unused imports in __init__ files
         if not self.config.init_import and node.package:
             return
@@ -476,6 +498,13 @@ class VariablesChecker(BaseChecker):
                             # when the file will be checked
                             pass
 
+    def _check_globals(self, not_consumed):
+        if self._allow_global_unused_variables:
+            return
+        for name, nodes in six.iteritems(not_consumed):
+            for node in nodes:
+                self.add_message('unused-variable', args=(name,), node=node)
+
     def _check_imports(self, not_consumed):
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
@@ -498,6 +527,8 @@ class VariablesChecker(BaseChecker):
                             SPECIAL_OBJ.search(imported_name)):
                         # Filter special objects (__doc__, __all__) etc.,
                         # because they can be imported for exporting.
+                        continue
+                    if as_name == "_":
                         continue
                     if as_name is None:
                         msg = "import %s" % imported_name
@@ -861,6 +892,7 @@ class VariablesChecker(BaseChecker):
                                recursive_klass):
         maybee0601 = True
         annotation_return = False
+        use_outer_definition = False
         if frame is not defframe:
             maybee0601 = _detect_global_scope(node, frame, defframe)
         elif defframe.parent is None:
@@ -871,8 +903,14 @@ class VariablesChecker(BaseChecker):
         else:
             # we are in a local scope, check the name is not
             # defined in global or builtin scope
-            if defframe.root().lookup(name)[1]:
+            # skip this lookup if name is assigned later in function scope
+            forbid_lookup = isinstance(frame, astroid.FunctionDef) and _assigned_locally(node)
+            if not forbid_lookup and defframe.root().lookup(name)[1]:
                 maybee0601 = False
+                use_outer_definition = (
+                    stmt == defstmt
+                    and not isinstance(defnode, astroid.node_classes.Comprehension)
+                )
             else:
                 # check if we have a nonlocal
                 if name in defframe.locals:
@@ -919,7 +957,16 @@ class VariablesChecker(BaseChecker):
             maybee0601 = True
         else:
             maybee0601 = maybee0601 and stmt.fromlineno <= defstmt.fromlineno
-        return maybee0601, annotation_return
+            if maybee0601 and stmt.fromlineno == defstmt.fromlineno:
+                if (isinstance(defframe, astroid.FunctionDef)
+                        and frame is defframe
+                        and defframe.parent_of(node)
+                        and stmt is not defstmt):
+                    # Single statement function, with the statement on the
+                    # same line as the function definition
+                    maybee0601 = False
+
+        return maybee0601, annotation_return, use_outer_definition
 
     def _ignore_class_scope(self, node, name, frame):
         # Detect if we are in a local class scope, as an assignment.
@@ -991,9 +1038,7 @@ class VariablesChecker(BaseChecker):
                 self._loopvar_name(node, name)
                 break
             found_node = self._next_to_consume(node, name, to_consume)
-            if found_node:
-                consumed[name] = found_node
-            else:
+            if found_node is None:
                 continue
             # checks for use before assignment
             defnode = utils.assign_parent(to_consume[name][0])
@@ -1007,10 +1052,13 @@ class VariablesChecker(BaseChecker):
                                    isinstance(defframe, astroid.ClassDef) and
                                    node.name == defframe.name)
 
-                maybee0601, annotation_return = self._is_variable_violation(
+                maybee0601, annotation_return, use_outer_definition = self._is_variable_violation(
                     node, name, defnode, stmt, defstmt,
                     frame, defframe,
                     base_scope_type, recursive_klass)
+
+                if use_outer_definition:
+                    continue
 
                 if (maybee0601
                         and not utils.is_defined_before(node)
@@ -1021,7 +1069,6 @@ class VariablesChecker(BaseChecker):
                         defstmt is stmt
                         and isinstance(node, (astroid.DelName, astroid.AssignName))
                     )
-
                     if (recursive_klass
                             or defined_by_stmt
                             or annotation_return
@@ -1054,6 +1101,7 @@ class VariablesChecker(BaseChecker):
                             self.add_message('undefined-variable',
                                              node=node, args=name)
 
+            consumed[name] = found_node
             del to_consume[name]
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
@@ -1179,7 +1227,7 @@ class VariablesChecker(BaseChecker):
         if module_names:
             # FIXME: other message if name is not the latest part of
             # module_names ?
-            modname = module and module.name or '__dict__'
+            modname = module.name if module else '__dict__'
             self.add_message('no-name-in-module', node=node,
                              args=('.'.join(module_names), modname))
             return None
@@ -1203,56 +1251,68 @@ class VariablesChecker3k(VariablesChecker):
         # do not check for not used locals here
         self._to_consume.pop()
 
+    def leave_functiondef(self, node):
+        self._check_metaclasses(node)
+        super(VariablesChecker3k, self).leave_functiondef(node)
+
     def leave_module(self, node):
-        """ Update consumption analysis variable
-        for metaclasses.
-        """
-        module_locals = self._to_consume[0][0]
-        module_imports = self._to_consume[0][1]
-        consumed = {}
+        self._check_metaclasses(node)
+        super(VariablesChecker3k, self).leave_module(node)
 
-        for klass in node.nodes_of_class(astroid.ClassDef):
-            found = metaclass = name = None
-            if not klass._metaclass:
-                # Skip if this class doesn't use
-                # explictly a metaclass, but inherits it from ancestors
-                continue
+    def _check_metaclasses(self, node):
+        """ Update consumption analysis for metaclasses. """
+        consumed = []  # [(scope_locals, consumed_key)]
 
-            metaclass = klass.metaclass()
+        for child_node in node.get_children():
+            if isinstance(child_node, astroid.ClassDef):
+                consumed.extend(self._check_classdef_metaclasses(child_node, node))
 
-            # Look the name in the already found locals.
-            # If it's not found there, look in the module locals
-            # and in the imported modules.
+        # Pop the consumed items, in order to avoid having
+        # unused-import and unused-variable false positives
+        for scope_locals, name in consumed:
+            scope_locals.pop(name, None)
+
+    def _check_classdef_metaclasses(self, klass, parent_node):
+        if not klass._metaclass:
+            # Skip if this class doesn't use explictly a metaclass, but inherits it from ancestors
+            return []
+
+        consumed = []  # [(scope_locals, consumed_key)]
+        metaclass = klass.metaclass()
+
+        name = None
+        if isinstance(klass._metaclass, astroid.Name):
+            name = klass._metaclass.name
+        elif metaclass:
+            name = metaclass.root().name
+
+        found = None
+        if name:
+            # check enclosing scopes starting from most local
+            for scope_locals, _, _ in self._to_consume[::-1]:
+                found = scope_locals.get(name)
+                if found:
+                    consumed.append((scope_locals, name))
+                    break
+
+        if found is None and not metaclass:
+            name = None
             if isinstance(klass._metaclass, astroid.Name):
                 name = klass._metaclass.name
-            elif metaclass:
-                # if it uses a `metaclass=module.Class`
-                name = metaclass.root().name
+            elif isinstance(klass._metaclass, astroid.Attribute):
+                name = klass._metaclass.as_string()
 
-            if name:
-                found = consumed.setdefault(
-                    name, module_locals.get(name, module_imports.get(name)))
+            if name is not None:
+                if not (name in astroid.Module.scope_attrs or
+                        utils.is_builtin(name) or
+                        name in self.config.additional_builtins or
+                        name in parent_node.locals):
+                    self.add_message('undefined-variable',
+                                     node=klass,
+                                     args=(name,))
 
-            if found is None and not metaclass:
-                name = None
-                if isinstance(klass._metaclass, astroid.Name):
-                    name = klass._metaclass.name
-                elif isinstance(klass._metaclass, astroid.Attribute):
-                    name = klass._metaclass.as_string()
+        return consumed
 
-                if name is not None:
-                    if not (name in astroid.Module.scope_attrs or
-                            utils.is_builtin(name) or
-                            name in self.config.additional_builtins or
-                            name in node.locals):
-                        self.add_message('undefined-variable',
-                                         node=klass,
-                                         args=(name, ))
-        # Pop the consumed items, in order to
-        # avoid having unused-import false positives
-        for name in consumed:
-            module_locals.pop(name, None)
-        super(VariablesChecker3k, self).leave_module(node)
 
 if sys.version_info >= (3, 0):
     VariablesChecker = VariablesChecker3k

@@ -6,8 +6,9 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unittest for the type checker."""
-import unittest
 import sys
+
+import pytest
 
 import astroid
 
@@ -15,7 +16,7 @@ from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
-class TypeCheckerTest(CheckerTestCase):
+class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
@@ -142,7 +143,7 @@ class TypeCheckerTest(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
-    @unittest.skipUnless(sys.version_info[0] >= 3, 'Needs Python 3.')
+    @pytest.mark.skipif(sys.version_info[0] < 3, reason='Needs Python 3.')
     def test_invalid_metaclass_function_metaclasses(self):
         module = astroid.parse('''
         def invalid_metaclass_1(name, bases, attrs):
@@ -160,7 +161,26 @@ class TypeCheckerTest(CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
 
+    @pytest.mark.skipif(sys.version_info < (3, 5), reason='Needs Python 3.5.')
+    def test_typing_namedtuple_not_callable_issue1295(self):
+        module = astroid.parse("""
+        import typing
+        Named = typing.NamedTuple('Named', [('foo', int), ('bar', int)])
+        named = Named(1, 2)
+        """)
+        call = module.body[-1].value
+        callables = call.func.infered()
+        assert len(callables) == 1
+        assert callables[0].callable()
+        with self.assertNoMessages():
+            self.checker.visit_call(call)
 
-
-if __name__ == '__main__':
-    unittest.main()
+    @pytest.mark.skipif(sys.version_info < (3, 5), reason='Needs Python 3.5.')
+    def test_typing_namedtuple_unsubscriptable_object_issue1295(self):
+        module = astroid.parse("""
+        import typing
+        MyType = typing.Tuple[str, str]
+        """)
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)

@@ -1,5 +1,5 @@
 **************************
-  What's New In Pylint 2.0
+  What's New In Pylint 1.7
 **************************
 
 :Release: |release|
@@ -26,7 +26,9 @@ New checkers
   whenever **pylint** can detect a comparison to a literal. This is usually
   not what we want and, potentially, error prone. For instance, in the given example,
   the first string comparison returns true, since smaller strings are interned
-  by the interpreter, while for larger ones, it will return False::
+  by the interpreter, while for larger ones, it will return False:
+
+  .. code-block:: python
 
        mystring = "ok"
        if mystring is "ok": # Returns true
@@ -40,10 +42,12 @@ New checkers
   this use case.
 
 
-* We added a new refactoring message, 'consider-merging-isinstance', which is
+* We added a new refactoring message, ``consider-merging-isinstance``, which is
   emitted whenever we can detect that consecutive *isinstance* calls can be merged
   together.
-  For instance, in this example, we can merge the first two *isinstance* calls::
+  For instance, in this example, we can merge the first two *isinstance* calls:
+
+  .. code-block:: python
 
       $ cat a.py
       if isinstance(x, int) or isinstance(x, float):
@@ -132,6 +136,74 @@ New checkers
   See https://www.python.org/dev/peps/pep-0008/#programming-recommendations
   for more information.
 
+* A new extension was added, ``emptystring.py`` which detects whenever
+  we detect comparisons to empty string constants. This extension is disabled
+  by default. For instance, the examples below:
+
+  .. code-block:: python
+
+      if S != "":
+        pass
+
+      if S == '':
+        pass
+
+  can be written in a more natural way:
+
+  .. code-block:: python
+
+      if S:
+        pass
+
+      if not S:
+        pass
+
+  An exception to this is when empty string is an allowed value whose meaning
+  is treated differently than ``None``. For example the meaning could be
+  user selected no additional options vs. user has not made their selection yet!
+
+  You can activate this checker by adding the line::
+
+      load-plugins=pylint.extensions.emptystring
+
+  to the ``MASTER`` section of your ``.pylintrc`` or using the command::
+
+      $ pylint a.py --load-plugins=pylint.extensions.emptystring
+
+* A new extension was added, ``comparetozero.py`` which detects whenever
+  we compare integers to zero. This extension is disabled by default.
+  For instance, the examples below:
+
+  .. code-block:: python
+
+      if X != 0:
+        pass
+
+      if X == 0:
+        pass
+
+  can be written in a more natural way:
+
+  .. code-block:: python
+
+      if X:
+        pass
+
+      if not X:
+        pass
+
+  An exception to this is when zero is an allowed value whose meaning
+  is treated differently than ``None``. For example the meaning could be
+  ``None`` means no limit, while ``0`` means the limit it zero!
+
+  You can activate this checker by adding the line::
+
+      load-plugins=pylint.extensions.comparetozero
+
+  to the ``MASTER`` section of your ``.pylintrc`` or using the command::
+
+      $ pylint a.py --load-plugins=pylint.extensions.comparetozero
+
 * We've added new error conditions for ``bad-super-call`` which now detect
   the usage of ``super(type(self), self)`` and ``super(self.__class__, self)``
   patterns. These can lead to recursion loop in derived classes. The problem
@@ -199,6 +271,7 @@ New checkers
 * A new refactoring check was added, ``no-else-return``, which is
   emitted when pylint encounters an else following a chain of ifs,
   all of them containing a return statement.
+
   .. code-block:: python
 
     def foo1(x, y, z):
@@ -440,16 +513,118 @@ New checkers
           def _remove_characters(text, deletechars):
               return text.translate(None, deletechars)
 
+* A new refactoring check was added, ``consider-using-ternary``, which is
+  emitted when pylint encounters constructs which were used to emulate
+  ternary statement before it was introduced in Python 2.5.
+
+  .. code-block:: python
+
+    value = condition and truth_value or false_value
+
+
+  Warning can be fixed by using standard ternary construct:
+
+  .. code-block:: python
+
+    value = truth_value if condition else false_value
+
+
+* A new refactoring check was added, ``trailing-comma-tuple``, which is emitted
+  when pylint finds an one-element tuple, created by a stray comma. This can
+  suggest a potential problem in the code and it is recommended to use parantheses
+  in order to emphasise the creation of a tuple, rather than relying on the comma
+  itself.
+
+  The warning is emitted for such a construct:
+
+  .. code-block:: python
+
+     a = 1,
+
+  The warning can be fixed by adding parantheses:
+
+  .. code-block:: python
+
+     a = (1, )
+
+
+* Two new check were added for detecting an unsupported operation
+  over an instance, ``unsupported-assignment-operation`` and ``unsupported-delete-operation``.
+  The first one is emitted whenever an object does not support item assignment, while
+  the second is emitted when an object does not support item deletion:
+
+  .. code-block:: python
+
+      class A:
+          pass
+      instance = A()
+      instance[4] = 4 # unsupported-assignment-operation
+      del instance[4] # unsupported-delete-operation
+
+* A new check was added, ``relative-beyond-top-level``, which is emitted
+  when a relative import tries to access too many levels in the current package.
+
+* A new check was added, ``trailing-newlines``, which is emitted when a file
+  has trailing new lines.
+
+* ``invalid-length-returned`` check was added, which is emitted when a ``__len__``
+  implementation does not return a non-negative integer.
+
+* There is a new extension, ``pylint.extensions.mccabe``, which can be used for
+  computing the McCabe complexity of classes and functions.
+
+  You can enable this extension through ``--load-plugins=pylint.extensions.mccabe``
+
+* A new check was added, ``used-prior-global-declaration``. This is emitted when
+  a name is used prior a global declaration, resulting in a SyntaxError in Python 3.6.
+
+
 
 Other Changes
 =============
 
-* ``arguments-differ`` check was rewritten to take in consideration
-   keyword only parameters and variadics.
+* Namespace packages are now supported by pylint. This includes both explicit namespace
+  packages and implicit namespace packages, supported in Python 3 through PEP 420.
 
-   Now it also complains about losing or adding capabilities to a method,
-   by introducing positional or keyword variadics. For instance, *pylint*
-   now complains about these cases::
+* A new option was added, ``--analyse-fallback-block``.
+
+  This can be used to support both Python 2 and 3 compatible import block code,
+  which means that the import block might have code that exists only in one or another
+  interpreter, leading to false positives when analysed. By default, this is false, you
+  can enable the analysis for both branches using this flag.
+
+* ``ignored-argument-names`` option is now used for ignoring arguments
+  for unused-variable check.
+
+  This option was used for ignoring arguments when computing the correct number of arguments
+  a function should have, but for handling the arguments with regard
+  to unused-variable check, dummy-variables-rgx was used instead. Now, ignored-argument-names
+  is used for its original purpose and also for ignoring the matched arguments for
+  the unused-variable check. This offers a better control of what should be ignored
+  and how.
+  Also, the same option was moved from the design checker to the variables checker,
+  which means that the option now appears under the ``[VARIABLES]`` section inside
+  the configuration file.
+
+* A new option was added, ``redefining-builtins-modules``, for controlling the modules
+  which can redefine builtins, such as six.moves and future.builtins.
+
+* A new option was added, ``ignore-patterns``, which is used for building a
+  blacklist of directories and files matching the regex patterns, similar to the
+  ``ignore`` option.
+
+
+* The reports are now disabled by default, as well as the information category
+  warnings.
+
+* ``arguments-differ`` check was rewritten to take in consideration
+  keyword only parameters and variadics.
+
+  Now it also complains about losing or adding capabilities to a method,
+  by introducing positional or keyword variadics. For instance, *pylint*
+  now complains about these cases:
+
+  .. code-block:: python
 
        class Parent(object):
 
@@ -584,18 +759,27 @@ Other Changes
 
      CustomRun(sys.argv[1:])
 
+* Imports aliased with underscore are skipped when checking for unused imports.
+
+* ``bad-builtin`` and ``redefined-variable-type`` are now extensions,
+  being disabled by default. They can be enabled through:
+  ``--load-plugins=pylint.extensions.redefined_variable_type,pylint.extensions.bad_builtin``
+
+  * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+    warning on wildcard import when imported module defines `__all__` variable.
+
 
 Bug fixes
 =========
 
-* Fix a false positive of 'redundant-returns-doc', occurred when the documented
+* Fix a false positive of ``redundant-returns-doc``, occurred when the documented
   function was using *yield* instead of *return*.
 
-* Fix a false positive of 'missing-param-doc' and 'missing-type-doc',
-  occurred when a class docstring uses the 'For the parameters, see'
+* Fix a false positive of ``missing-param-doc`` and ``missing-type-doc``,
+  occurred when a class docstring uses the ``For the parameters, see``
   magic string but the class ``__init__`` docstring does not, or vice versa.
 
-* Added proper exception type inference for 'missing-raises-doc'. Now:
+* Added proper exception type inference for ``missing-raises-doc``. Now:
 
   .. code-block:: python
 
@@ -675,6 +859,34 @@ Bug fixes
      @f.register(float)
      def _(x):
          return -x
+
+* ``unused-variable`` checker has new functionality of warning about unused
+  variables in global module namespace. Since globals in module namespace
+  may be a part of exposed API, this check is disabled by default. For
+  enabling it, set ``allow-global-unused-variables`` option to false.
+
+* Fix a false-positive ``logging-format-interpolation`` message, when format
+  specifications are used in formatted string. In general, these operations
+  are not always convertible to old-style formatting used by logging module.
+
+* Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+  of empty class bodies (as seen in the example below). Pylint won't emit a
+  ``multiple-statements`` message when this option is enabled.
+
+  .. code-block:: python
+
+     class MyError(Exception): pass
+
+  * `too-many-format-args` and `too-few-format-args` are emitted correctly
+    (or not emitted at all, when exact count of elements in RHS cannot be
+    inferred) when starred expressions are used in RHS tuple. For example,
+    code block as shown below detects correctly that the used tuple has in
+    fact three elements, not two.
+
+  .. code-block:: python
+
+    meat = ['spam', 'ham']
+    print('%s%s%s' % ('eggs', *meat))
 
 Removed Changes
 ===============

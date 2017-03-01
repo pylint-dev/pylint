@@ -440,6 +440,11 @@ class FormatChecker(BaseTokenChecker):
                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : ('Allow the body of an if to be on the same '
                            'line as the test if there is no else.')}),
+               ('single-line-class-stmt',
+                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'help' : ('Allow the body of a class to be on the same '
+                           'line as the declaration if body contains '
+                           'single statement.')}),
                ('no-space-check',
                 {'default': ','.join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
                  'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
@@ -602,9 +607,32 @@ class FormatChecker(BaseTokenChecker):
 
         self._check_space(tokens, i, (policy_before, _IGNORE))
 
+    def _has_valid_type_annotation(self, tokens, i):
+        """Extended check of PEP-484 type hint presence"""
+        if not self._inside_brackets('('):
+            return False
+        bracket_level = 0
+        for token in tokens[i-1::-1]:
+            if token[1] == ':':
+                return True
+            if token[1] == '(':
+                return False
+            if token[1] == ']':
+                bracket_level += 1
+            elif token[1] == '[':
+                bracket_level -= 1
+            elif token[1] == ',':
+                if not bracket_level:
+                    return False
+            elif token[0] not in (tokenize.NAME, tokenize.STRING):
+                return False
+        return False
+
     def _check_equals_spacing(self, tokens, i):
         """Check the spacing of a single equals sign."""
-        if self._inside_brackets('(') or self._inside_brackets('lambda'):
+        if self._has_valid_type_annotation(tokens, i):
+            self._check_space(tokens, i, (_MUST, _MUST))
+        elif self._inside_brackets('(') or self._inside_brackets('lambda'):
             self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
         else:
             self._check_space(tokens, i, (_MUST, _MUST))
@@ -936,6 +964,9 @@ class FormatChecker(BaseTokenChecker):
             return
         if (isinstance(node.parent, nodes.If) and not node.parent.orelse
                 and self.config.single_line_if_stmt):
+            return
+        if (isinstance(node.parent, nodes.ClassDef) and len(node.parent.body) == 1
+                and self.config.single_line_class_stmt):
             return
         self.add_message('multiple-statements', node=node)
         self._visited_lines[line] = 2

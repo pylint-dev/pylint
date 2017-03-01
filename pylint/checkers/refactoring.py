@@ -10,6 +10,7 @@
 
 import collections
 import itertools
+import tokenize
 
 import astroid
 from astroid import decorators
@@ -63,7 +64,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     msgs = {
         'R1701': ("Consider merging these isinstance calls to isinstance(%s, (%s))",
                   "consider-merging-isinstance",
-                  "Usen when multiple consecutive isinstance calls can be merged into one."),
+                  "Used when multiple consecutive isinstance calls can be merged into one."),
+        'R1706': ("Consider using ternary (%s if %s else %s)",
+                  "consider-using-ternary",
+                  "Used when one of known pre-python 2.5 ternary syntax is used."),
         'R1702': ('Too many nested blocks (%s/%s)',
                   'too-many-nested-blocks',
                   'Used when a function or a method has too many nested '
@@ -82,7 +86,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'a handful of name binding operations, such as for iteration, '
                   'with statement assignment and exception handler assignment.'
                  ),
-        'R1705': ('Disallow return before else',
+        'R1705': ('Unnecessary "else" after "return"',
                   'no-else-return',
                   'Used in order to highlight an unnecessary block of '
                   'code following an if containing a return statement. '
@@ -90,6 +94,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'following a chain of ifs, all of them containing a '
                   'return statement.'
                  ),
+        'R1707': ('Disallow trailing comma tuple',
+                  'trailing-comma-tuple',
+                  'In Python, a tuple is actually created by the comma symbol, '
+                  'not by the parentheses. Unfortunately, one can actually create a '
+                  'tuple by misplacing a trailing comma, which can lead to potential '
+                  'weird bugs in your code. You should always use parentheses '
+                  'explicitly for creating a tuple.',
+                  {'minversion': (3, 0)}),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -193,11 +205,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def process_tokens(self, tokens):
         # Process tokens and look for 'if' or 'elif'
-        for _, token, _, _, _ in tokens:
-            if token == 'elif':
+        for index, token in enumerate(tokens):
+            token_string = token[1]
+            if token_string == 'elif':
                 self._elifs.append(True)
-            elif token == 'if':
+            elif token_string == 'if':
                 self._elifs.append(False)
+            elif six.PY3 and token.exact_type == tokenize.COMMA:
+                self._check_one_element_trailing_comma_tuple(tokens, token, index)
+
+    def _check_one_element_trailing_comma_tuple(self, tokens, token, index):
+        left_tokens = itertools.islice(tokens, index + 1, None)
+        same_line_tokens = (
+            other_token for other_token in left_tokens
+            if other_token.start[0] == token.start[0]
+        )
+        is_last_element = all(
+            token.type in (tokenize.NEWLINE, tokenize.COMMENT)
+            for token in same_line_tokens
+        )
+        if not is_last_element:
+            return
+
+        assign_token = tokens[index-2:index-1]
+        if assign_token and assign_token[0].string == '=':
+            if self.linter.is_message_enabled('trailing-comma-tuple'):
+                self.add_message('trailing-comma-tuple',
+                                 line=token.start[0])
 
     def leave_module(self, _):
         self._init()
@@ -271,14 +305,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @utils.check_messages('too-many-nested-blocks')
     def leave_functiondef(self, _):
+        # check left-over nested blocks stack
+        self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
-        # if there is a waiting message left, send it
-        if self._nested_blocks_msg:
-            self.add_message('too-many-nested-blocks',
-                             node=self._nested_blocks_msg[0],
-                             args=self._nested_blocks_msg[1])
-            self._nested_blocks_msg = None
 
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks
@@ -302,20 +332,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if self._nested_blocks:
                     self._nested_blocks.pop()
             self._nested_blocks.append(node)
+
         # send message only once per group of nested blocks
+        if len(nested_blocks) > len(self._nested_blocks):
+            self._emit_nested_blocks_message_if_needed(nested_blocks)
+
+    def _emit_nested_blocks_message_if_needed(self, nested_blocks):
         if len(nested_blocks) > self.config.max_nested_blocks:
-            if len(nested_blocks) > len(self._nested_blocks):
-                self.add_message('too-many-nested-blocks', node=nested_blocks[0],
-                                 args=(len(nested_blocks),
-                                       self.config.max_nested_blocks))
-                self._nested_blocks_msg = None
-            else:
-                # if time has not come yet to send the message (ie the stack of
-                # nested nodes is still increasing), save it in case the
-                # current node is the last one of the function
-                self._nested_blocks_msg = (self._nested_blocks[0],
-                                           (len(self._nested_blocks),
-                                            self.config.max_nested_blocks))
+            self.add_message('too-many-nested-blocks', node=nested_blocks[0],
+                             args=(len(nested_blocks), self.config.max_nested_blocks))
 
     @staticmethod
     def _duplicated_isinstance_types(node):
@@ -369,6 +394,57 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                              node=node,
                              args=(duplicated_name, ', '.join(names)))
 
+    @utils.check_messages('consider-using-ternary')
+    def visit_assign(self, node):
+        if self._is_and_or_ternary(node.value):
+            cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
+        elif self._is_seq_based_ternary(node.value):
+            cond, truth_value, false_value = self._seq_based_ternary_params(node.value)
+        else:
+            return
+
+        self.add_message(
+            'consider-using-ternary', node=node,
+            args=(truth_value.as_string(),
+                  cond.as_string(),
+                  false_value.as_string()),)
+
+    visit_return = visit_assign
+
+    @staticmethod
+    def _is_and_or_ternary(node):
+        """
+        Returns true if node is 'condition and true_value else false_value' form.
+
+        All of: condition, true_value and false_value should not be a complex boolean expression
+        """
+        return (isinstance(node, astroid.BoolOp)
+                and node.op == 'or' and len(node.values) == 2
+                and isinstance(node.values[0], astroid.BoolOp)
+                and not isinstance(node.values[1], astroid.BoolOp)
+                and node.values[0].op == 'and'
+                and not isinstance(node.values[0].values[1], astroid.BoolOp)
+                and len(node.values[0].values) == 2)
+
+    @staticmethod
+    def _and_or_ternary_arguments(node):
+        false_value = node.values[1]
+        condition, true_value = node.values[0].values
+        return condition, true_value, false_value
+
+    @staticmethod
+    def _is_seq_based_ternary(node):
+        """Returns true if node is '[false_value,true_value][condition]' form"""
+        return (isinstance(node, astroid.Subscript)
+                and isinstance(node.value, (astroid.Tuple, astroid.List))
+                and len(node.value.elts) == 2 and isinstance(node.slice, astroid.Index))
+
+    @staticmethod
+    def _seq_based_ternary_params(node):
+        false_value, true_value = node.value.elts
+        condition = node.slice.value
+        return condition, true_value, false_value
+
 
 class RecommandationChecker(checkers.BaseChecker):
     __implements__ = (interfaces.IAstroidChecker,)
@@ -403,12 +479,7 @@ class RecommandationChecker(checkers.BaseChecker):
         if not isinstance(inferred.bound, astroid.Dict) or inferred.name != 'keys':
             return
 
-        # Check if the statement is what we're expecting to have.
-        statement = node.statement()
-        if isinstance(statement, astroid.Expr):
-            statement = statement.value
-
-        if isinstance(statement, astroid.For) or utils.is_comprehension(statement):
+        if isinstance(node.parent, (astroid.For, astroid.Comprehension)):
             self.add_message('consider-iterating-dictionary', node=node)
 
     @utils.check_messages('consider-using-enumerate')
@@ -582,9 +653,11 @@ class LenChecker(checkers.BaseChecker):
 
             # we're finally out of any nested boolean operations so check if
             # this len() call is part of a test condition
-            if _node_is_test_condition(parent):
-                self.add_message('len-as-condition', node=node)
-
+            if not _node_is_test_condition(parent):
+                return
+            if not (node is parent.test or parent.test.parent_of(node)):
+                return
+            self.add_message('len-as-condition', node=node)
 
     @utils.check_messages('len-as-condition')
     def visit_unaryop(self, node):

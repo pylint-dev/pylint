@@ -7,12 +7,44 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Added a new error, 'used-prior-global-declaration', which is emitted when a name
+      is used prior a global declaration in a function. This causes a SyntaxError in
+      Python 3.6
+
+      Close #1257
+
+    * The protocol checks are emitting their messages when a special method is set to None.
+
+      Close #1263
+
+    * Properly detect if imported name is assigned to same name in different
+      scope.
+
+      Close #636, #848, #851, and #900
+
+    * Require one space for annotations with type hints, as per PEP 8.
+
+    * 'trailing-comma-tuple' check was added
+
+      This message is emitted when pylint finds an one-element tuple,
+      created by a stray comma. This can suggest a potential problem in the
+      code and it is recommended to use parantheses in order to emphasise the
+      creation of a tuple, rather than relying on the comma itself.
+
+    * Don't emit not-callable for instances with unknown bases.
+
+      Close #1213
+
     * Treat keyword only arguments the same as positional arguments with regard to unused-argument check
-    
+
     * Don't try to access variables defined in a separate scope when checking for ``protected-access``
-     
+
     * Added new check to detect incorrect usage of len(SEQUENCE) inside
       test conditions.
+
+    * Added new extension to detect comparisons against empty string constants
+
+    * Added new extension to detect comparisons of integers against zero
 
     * Added new error conditions for 'bad-super-call'
 
@@ -217,6 +249,49 @@ Release date: tba
 
     * Added refactoring message 'no-else-return'.
 
+    * Improve unused-variable checker to warn about unused variables in module scope.
+
+      Closes #919
+	
+    * Ignore modules import as _ when checking for unused imports.
+
+      Closes #1190
+
+    * Improve handing of Python 3 classes with metaclasses declared in nested scopes.
+
+      Closes #1177
+
+    * Added refactoring message 'consider-using-ternary'.
+
+      Closes #1204
+
+    * Bug-fix for false-positive logging-format-interpolation` when format specifications
+      are used in formatted string.
+
+      Fixes #572
+
+    * Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+      of empty class bodies.
+
+      Closes #738
+
+    * Protected access in form `type(self)._attribute` are now allowed.
+
+      Fixes #1031
+
+    * Let the user modify msg-template when Pylint is called from a Python script
+    
+      Fixes #1269
+
+    * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+      warning on wildcard import when imported module defines `__all__` variable.
+
+      Fixes #831
+
+    * `too-many-format-args` and `too-few-format-args` are emitted correctly when
+      starred expression are used in RHS tuple.
+
+      Fixes #957
 
 
 What's new in Pylint 1.6.3?

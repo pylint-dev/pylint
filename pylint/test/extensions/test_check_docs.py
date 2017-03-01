@@ -11,8 +11,9 @@ in particular the parameter documentation checker `DocstringChecker`
 """
 from __future__ import division, print_function, absolute_import
 
-import unittest
 import sys
+
+import pytest
 
 import astroid
 from pylint.testutils import CheckerTestCase, Message, set_config
@@ -20,7 +21,7 @@ from pylint.testutils import CheckerTestCase, Message, set_config
 from pylint.extensions.docparams import DocstringParameterChecker
 
 
-class ParamDocCheckerTest(CheckerTestCase):
+class TestParamDocChecker(CheckerTestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
     CHECKER_CLASS = DocstringParameterChecker
 
@@ -957,7 +958,7 @@ class ParamDocCheckerTest(CheckerTestCase):
         ):
             self._visit_methods_of_class(node)
 
-    @unittest.skipIf(sys.version_info[0] != 3, "Enabled on Python 3")
+    @pytest.mark.skipif(sys.version_info[0] != 3, reason="Enabled on Python 3")
     def test_kwonlyargs_are_taken_in_account(self):
         node = astroid.extract_node('''
         def my_func(arg, *, kwonly, missing_kwonly):
@@ -1226,6 +1227,67 @@ class ParamDocCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
+    COMPLEX_TYPES = [
+        'int or str',
+        'dict(str, str)',
+        'dict[str, str]',
+        'tuple(int)',
+        'tuple(int or str)',
+        'tuple(int) or list(int)',
+        'tuple(int or str) or list(int or str)',
+    ]
 
-if __name__ == '__main__':
-    unittest.main()
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_sphinx(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: {0}
+
+            :returns: named_arg
+            :rtype: {0}
+            """
+            return named_arg
+        '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_google(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            Args:
+                named_arg ({0}): Returned
+
+            Returns:
+                {0}: named_arg
+            """
+            return named_arg
+        '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_numpy(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            Args
+            ----
+            named_arg : {0}
+                Returned
+
+            Returns
+            -------
+                {0}
+                    named_arg
+            """
+            return named_arg
+        '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)

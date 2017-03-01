@@ -179,6 +179,16 @@ tricks like: ::
      method-hidden,
      too-many-lines
 
+
+4.7 Why are there a bunch of messages disabled by default?
+----------------------------------------------------------
+
+pylint does have some messages disabled by default, either because
+they are prone to false positives or that they are opinionated enough
+for not being included as default messages. But most of the disabled
+messages are from the Python 3 porting checker, which is disabled by
+default. It needs special activation with the ``--py3k`` flag.
+
 5. Classes and Inheritance
 ==========================
 

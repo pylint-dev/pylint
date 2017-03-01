@@ -1,2 +1,2 @@
 [testoptions]
-requires=gtk
+min_pyver=3.0

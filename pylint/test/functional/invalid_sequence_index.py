@@ -1,6 +1,6 @@
 """Errors for invalid sequence indices"""
 # pylint: disable=too-few-public-methods, no-self-use, import-error, missing-docstring
-
+import six
 from unknown import Unknown
 
 TESTLIST = [1, 2, 3]
@@ -222,3 +222,21 @@ def function27():
     slices = UnknownBase["aaaa"] + UnknownBase()[object]
     ext_slices = UnknownBase[..., 0] + UnknownBase()[..., 0]
     return slices, ext_slices
+
+
+def function28():
+    """Don't emit for classes with the right implementation."""
+
+    class Meta(type):
+        def __getitem__(cls, arg):
+            return 24
+
+    @six.add_metaclass(Meta)
+    class Works(object):
+        pass
+
+    @six.add_metaclass(Meta)
+    class Error(list):
+        pass
+
+    return Works['hello'] + Error['hello']

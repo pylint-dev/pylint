@@ -342,6 +342,11 @@ class BasicErrorChecker(_BasicChecker):
                   'Emitted when a nonlocal variable does not have an attached '
                   'name somewhere in the parent scopes',
                   {'minversion': (3, 0)}),
+        'E0118': ("Name %r is used prior to global declaration",
+                  'used-prior-global-declaration',
+                  'Emitted when a name is used prior a global declaration, '
+                  'which results in an error since Python 3.6.',
+                  {'minversion': (3, 6)}),
         }
 
     @utils.check_messages('function-redefined')
@@ -381,9 +386,11 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages('init-is-generator', 'return-in-init',
                           'function-redefined', 'return-arg-in-generator',
-                          'duplicate-argument-name', 'nonlocal-and-global')
+                          'duplicate-argument-name', 'nonlocal-and-global',
+                          'used-prior-global-declaration')
     def visit_functiondef(self, node):
         self._check_nonlocal_and_global(node)
+        self._check_name_used_prior_global(node)
         if (not redefined_by_decorator(node) and
                 not utils.is_registered_in_singledispatch_function(node)):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
@@ -397,7 +404,7 @@ class BasicErrorChecker(_BasicChecker):
             else:
                 values = [r.value for r in returns]
                 # Are we returning anything but None from constructors
-                if [v for v in values if not utils.is_none(v)]:
+                if any(v for v in values if not utils.is_none(v)):
                     self.add_message('return-in-init', node=node)
         elif node.is_generator():
             # make sure we don't mix non-None returns and yields
@@ -416,6 +423,29 @@ class BasicErrorChecker(_BasicChecker):
                 args.add(name)
 
     visit_asyncfunctiondef = visit_functiondef
+
+    def _check_name_used_prior_global(self, node):
+
+        scope_globals = {
+            name: child
+            for child in node.nodes_of_class(astroid.Global)
+            for name in child.names
+            if child.scope() is node
+        }
+
+        for node_name in node.nodes_of_class(astroid.Name):
+            if node_name.scope() is not node:
+                continue
+
+            name = node_name.name
+            corresponding_global = scope_globals.get(name)
+            if not corresponding_global:
+                continue
+
+            global_lineno = corresponding_global.fromlineno
+            if global_lineno and global_lineno > node_name.fromlineno:
+                self.add_message('used-prior-global-declaration',
+                                 node=node_name, args=(name, ))
 
     def _check_nonlocal_and_global(self, node):
         """Check that a name is both nonlocal and global."""
@@ -1354,7 +1384,7 @@ class DocStringChecker(_BasicChecker):
     @utils.check_messages('missing-docstring', 'empty-docstring')
     def visit_functiondef(self, node):
         if self.config.no_docstring_rgx.match(node.name) is None:
-            ftype = node.is_method() and 'method' or 'function'
+            ftype = 'method' if node.is_method() else 'function'
             if node.decorators and self._is_setter_or_deleter(node):
                 return
 

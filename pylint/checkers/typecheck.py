@@ -32,6 +32,7 @@ import astroid
 import astroid.context
 import astroid.arguments
 from astroid import exceptions
+from astroid.interpreter import dunder_lookup
 from astroid import objects
 from astroid import bases
 
@@ -271,7 +272,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
         return False
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
-    if isinstance(owner, astroid.Instance):
+    if isinstance(owner, (astroid.Instance, astroid.ClassDef)):
         if owner.has_dynamic_getattr() or not has_known_bases(owner):
             return False
     if isinstance(owner, objects.Super):
@@ -554,7 +555,7 @@ accessed. Python regular expressions are accepted.'}
         if isinstance(self.config.generated_members, six.string_types):
             gen = shlex.shlex(self.config.generated_members)
             gen.whitespace += ','
-            gen.wordchars += '[]-+\.*?'
+            gen.wordchars += '[]-+\.*?()|'
             self.config.generated_members = tuple(tok.strip('"') for tok in gen)
 
     @check_messages('invalid-metaclass')
@@ -768,8 +769,12 @@ accessed. Python regular expressions are accepted.'}
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
         if called and not called.callable():
-            self.add_message('not-callable', node=node,
-                             args=node.func.as_string())
+            if isinstance(called, astroid.Instance) and not has_known_bases(called):
+                # Don't emit if we can't make sure this object is callable.
+                pass
+            else:
+                self.add_message('not-callable', node=node,
+                                 args=node.func.as_string())
 
         self._check_uninferable_callfunc(node)
 
@@ -941,11 +946,13 @@ accessed. Python regular expressions are accepted.'}
         # type. This way we catch subclasses of sequence types but skip classes
         # that override __getitem__ and which may allow non-integer indices.
         try:
-            methods = parent_type.getattr(methodname)
+            methods = dunder_lookup.lookup(parent_type, methodname)
             if methods is astroid.YES:
                 return
             itemmethod = methods[0]
-        except (exceptions.NotFoundError, IndexError):
+        except (exceptions.NotFoundError,
+                exceptions.AttributeInferenceError,
+                IndexError):
             return
         if not isinstance(itemmethod, astroid.FunctionDef):
             return

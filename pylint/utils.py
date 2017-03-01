@@ -225,29 +225,47 @@ class MessagesHandlerMixIn(object):
 
     def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """don't output message of the given id"""
+        self._set_msg_status(msgid, enable=False, scope=scope,
+                             line=line, ignore_unknown=ignore_unknown)
+
+    def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
+        """reenable message of the given id"""
+        self._set_msg_status(msgid, enable=True, scope=scope,
+                             line=line, ignore_unknown=ignore_unknown)
+
+    def _set_msg_status(self, msgid, enable, scope='package', line=None, ignore_unknown=False):
         assert scope in ('package', 'module')
-        # handle disable=all by disabling all categories
+
         if msgid == 'all':
-            for message_id in MSG_TYPES:
-                self.disable(message_id, scope, line)
+            for _msgid in MSG_TYPES:
+                self._set_msg_status(_msgid, enable, scope, line, ignore_unknown)
+            if enable and not self._python3_porting_mode:
+                # Don't activate the python 3 porting checker if it wasn't activated explicitly.
+                self.disable('python3')
             return
+
         # msgid is a category?
         catid = category_id(msgid)
         if catid is not None:
             for _msgid in self.msgs_store._msgs_by_category.get(catid):
-                self.disable(_msgid, scope, line)
+                self._set_msg_status(_msgid, enable, scope, line)
             return
+
         # msgid is a checker name?
         if msgid.lower() in self._checkers:
             msgs_store = self.msgs_store
             for checker in self._checkers[msgid.lower()]:
                 for _msgid in checker.msgs:
                     if _msgid in msgs_store._alternative_names:
-                        self.disable(_msgid, scope, line)
+                        self._set_msg_status(_msgid, enable, scope, line)
             return
+
         # msgid is report id?
         if msgid.lower().startswith('rp'):
-            self.disable_report(msgid)
+            if enable:
+                self.enable_report(msgid)
+            else:
+                self.disable_report(msgid)
             return
 
         try:
@@ -259,18 +277,21 @@ class MessagesHandlerMixIn(object):
             raise
 
         if scope == 'module':
-            self.file_state.set_msg_status(msg, line, False)
-            if msg.symbol != 'locally-disabled':
+            self.file_state.set_msg_status(msg, line, enable)
+            if enable:
+                self.add_message('locally-enabled', line=line,
+                                 args=(msg.symbol, msg.msgid))
+            elif msg.symbol != 'locally-disabled':
                 self.add_message('locally-disabled', line=line,
                                  args=(msg.symbol, msg.msgid))
-
         else:
             msgs = self._msgs_state
-            msgs[msg.msgid] = False
+            msgs[msg.msgid] = enable
             # sync configuration object
-            self.config.disable = [self._message_symbol(mid)
-                                   for mid, val in sorted(six.iteritems(msgs))
-                                   if not val]
+            self.config.enable = [self._message_symbol(mid) for mid, val
+                                  in sorted(six.iteritems(msgs)) if val]
+            self.config.disable = [self._message_symbol(mid) for mid, val
+                                   in sorted(six.iteritems(msgs)) if not val]
 
     def _message_symbol(self, msgid):
         """Get the message symbol of the given message id
@@ -282,51 +303,6 @@ class MessagesHandlerMixIn(object):
             return self.msgs_store.check_message_id(msgid).symbol
         except UnknownMessageError:
             return msgid
-
-    def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
-        """reenable message of the given id"""
-        assert scope in ('package', 'module')
-        if msgid == 'all':
-            for msgid_ in MSG_TYPES:
-                self.enable(msgid_, scope=scope, line=line)
-            if not self._python3_porting_mode:
-                # Don't activate the python 3 porting checker if it
-                # wasn't activated explicitly.
-                self.disable('python3')
-            return
-        catid = category_id(msgid)
-        # msgid is a category?
-        if catid is not None:
-            for message_id in self.msgs_store._msgs_by_category.get(catid):
-                self.enable(message_id, scope, line)
-            return
-        # msgid is a checker name?
-        if msgid.lower() in self._checkers:
-            for checker in self._checkers[msgid.lower()]:
-                for msgid_ in checker.msgs:
-                    self.enable(msgid_, scope, line)
-            return
-        # msgid is report id?
-        if msgid.lower().startswith('rp'):
-            self.enable_report(msgid)
-            return
-
-        try:
-            # msgid is a symbolic or numeric msgid.
-            msg = self.msgs_store.check_message_id(msgid)
-        except UnknownMessageError:
-            if ignore_unknown:
-                return
-            raise
-
-        if scope == 'module':
-            self.file_state.set_msg_status(msg, line, True)
-            self.add_message('locally-enabled', line=line, args=(msg.symbol, msg.msgid))
-        else:
-            msgs = self._msgs_state
-            msgs[msg.msgid] = True
-            # sync configuration object
-            self.config.enable = [mid for mid, val in sorted(six.iteritems(msgs)) if val]
 
     def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
         """Returns the scope at which a message was enabled/disabled."""
@@ -1151,7 +1127,7 @@ def _format_option_value(optdict, value):
         # compiled regexp
         value = value.pattern
     elif optdict.get('type') == 'yn':
-        value = value and 'yes' or 'no'
+        value = 'yes' if value else 'no'
     elif isinstance(value, six.string_types) and value.isspace():
         value = "'%s'" % value
     return value

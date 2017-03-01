@@ -490,17 +490,21 @@ def decorated_with_property(node):
         if not isinstance(decorator, astroid.Name):
             continue
         try:
-            for infered in decorator.infer():
-                if isinstance(infered, astroid.ClassDef):
-                    if (infered.root().name == BUILTINS_NAME and
-                            infered.name == 'property'):
-                        return True
-                    for ancestor in infered.ancestors():
-                        if (ancestor.name == 'property' and
-                                ancestor.root().name == BUILTINS_NAME):
-                            return True
+            if _is_property_decorator(decorator):
+                return True
         except astroid.InferenceError:
             pass
+    return False
+
+
+def _is_property_decorator(decorator):
+    for infered in decorator.infer():
+        if isinstance(infered, astroid.ClassDef):
+            if infered.root().name == BUILTINS_NAME and infered.name == 'property':
+                return True
+            for ancestor in infered.ancestors():
+                if ancestor.name == 'property' and ancestor.root().name == BUILTINS_NAME:
+                    return True
 
 
 def decorated_with(func, qnames):
@@ -634,12 +638,17 @@ def class_is_abstract(node):
     return False
 
 
-def _hasattr(value, attr):
+def _supports_protocol_method(value, attr):
     try:
-        value.getattr(attr)
-        return True
+        attributes = value.getattr(attr)
     except astroid.NotFoundError:
         return False
+
+    first = attributes[0]
+    if isinstance(first, astroid.AssignName):
+        if isinstance(first.parent.value, astroid.Const):
+            return False
+    return True
 
 
 def is_comprehension(node):
@@ -651,27 +660,33 @@ def is_comprehension(node):
 
 
 def _supports_mapping_protocol(value):
-    return _hasattr(value, GETITEM_METHOD) and _hasattr(value, KEYS_METHOD)
+    return (
+        _supports_protocol_method(value, GETITEM_METHOD)
+        and _supports_protocol_method(value, KEYS_METHOD)
+    )
 
 
 def _supports_membership_test_protocol(value):
-    return _hasattr(value, CONTAINS_METHOD)
+    return _supports_protocol_method(value, CONTAINS_METHOD)
 
 
 def _supports_iteration_protocol(value):
-    return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
+    return (
+        _supports_protocol_method(value, ITER_METHOD)
+        or _supports_protocol_method(value, GETITEM_METHOD)
+    )
 
 
 def _supports_getitem_protocol(value):
-    return _hasattr(value, GETITEM_METHOD)
+    return _supports_protocol_method(value, GETITEM_METHOD)
 
 
 def _supports_setitem_protocol(value):
-    return _hasattr(value, SETITEM_METHOD)
+    return _supports_protocol_method(value, SETITEM_METHOD)
 
 
 def _supports_delitem_protocol(value):
-    return _hasattr(value, DELITEM_METHOD)
+    return _supports_protocol_method(value, DELITEM_METHOD)
 
 
 def _is_abstract_class_name(name):
@@ -708,7 +723,6 @@ def _supports_protocol(value, protocol_callback):
             return True
         if protocol_callback(value):
             return True
-
 
     # TODO: this is not needed in astroid 2.0, where we can
     # check the type using a virtual base class instead.

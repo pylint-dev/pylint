@@ -164,6 +164,9 @@ def install(**kwargs):
                  ext_modules=ext_modules,
                  cmdclass=cmdclass,
                  extras_require=extras_require,
+                 test_suite='test',
+                 setup_requires=['pytest-runner'],
+                 tests_require=['pytest'],
                  **kwargs)
 
 if __name__ == '__main__':

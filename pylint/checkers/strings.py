@@ -304,7 +304,10 @@ class StringFormatChecker(BaseChecker):
             # the % operator matches the number required by the format
             # string.
             if isinstance(args, astroid.Tuple):
-                num_args = len(args.elts)
+                rhs_tuple = utils.safe_infer(args)
+                num_args = None
+                if rhs_tuple not in (None, astroid.Uninferable):
+                    num_args = len(rhs_tuple.elts)
             elif isinstance(args, OTHER_NODES + (astroid.Dict, astroid.DictComp)):
                 num_args = 1
             else:
@@ -479,9 +482,13 @@ class StringFormatChecker(BaseChecker):
                     if hasattr(previous, 'getitem'):
                         try:
                             previous = previous.getitem(astroid.Const(specifier))
-                        except (astroid.AstroidIndexError, astroid.AstroidTypeError):
+                        except (astroid.AstroidIndexError,
+                                astroid.AstroidTypeError,
+                                astroid.AttributeInferenceError):
                             warn_error = True
                         except astroid.InferenceError:
+                            break
+                        if previous is astroid.Uninferable:
                             break
                     else:
                         try:
@@ -504,7 +511,6 @@ class StringFormatChecker(BaseChecker):
                 except astroid.InferenceError:
                     # can't check further if we can't infer it
                     break
-
 
 
 class StringConstantChecker(BaseTokenChecker):

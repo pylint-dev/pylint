@@ -75,7 +75,7 @@ def save_results(results, base):
     try:
         with open(data_file, _PICK_DUMP) as stream:
             pickle.dump(results, stream)
-    except (IOError, OSError) as ex: # pylint: disable=overlapping-except
+    except (IOError, OSError) as ex:
         print('Unable to create file %s: %s' % (data_file, ex), file=sys.stderr)
 
 
