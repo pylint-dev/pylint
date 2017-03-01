@@ -514,6 +514,8 @@ def decorated_with(func, qnames):
             continue
     return False
 
+_ABSTRACT_METHOD_CACHE = {
+}
 
 def unimplemented_abstract_methods(node, is_abstract_cb=None):
     """
@@ -527,6 +529,10 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     For the rest of them, it will return a dictionary of abstract method
     names and their inferred objects.
     """
+    node_key = id(node)
+    if node_key in _ABSTRACT_METHOD_CACHE:
+        return _ABSTRACT_METHOD_CACHE[node_key]
+
     if is_abstract_cb is None:
         is_abstract_cb = functools.partial(
             decorated_with, qnames=ABC_METHODS)
@@ -570,6 +576,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
                     visited[obj.name] = infered
                 elif not abstract and obj.name in visited:
                     del visited[obj.name]
+    _ABSTRACT_METHOD_CACHE[node_key] = visited
     return visited
 
 
@@ -756,23 +763,31 @@ def supports_delitem(value):
 
 
 # TODO(cpopa): deprecate these or leave them as aliases?
+_INFERENCE_CACHE = {}
 def safe_infer(node, context=None):
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred).
     """
+    node_key = id(node)
+    if node_key in _INFERENCE_CACHE:
+        return _INFERENCE_CACHE[node_key]
+
     try:
         inferit = node.infer(context=context)
         value = next(inferit)
     except astroid.InferenceError:
+        _INFERENCE_CACHE[node_key] = None
         return
     try:
         next(inferit)
+        _INFERENCE_CACHE[node_key] = None
         return # None if there is ambiguity on the inferred node
     except astroid.InferenceError:
         return # there is some kind of ambiguity
     except StopIteration:
+        _INFERENCE_CACHE[node_key] = value
         return value
 
 
