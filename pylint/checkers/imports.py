@@ -17,6 +17,7 @@ import collections
 from distutils import sysconfig
 import os
 import sys
+import copy
 
 import six
 
@@ -353,10 +354,9 @@ class ImportsChecker(BaseChecker):
             self, 'ignored-modules', default=[])
 
     def _import_graph_without_ignored_edges(self):
-        from copy import deepcopy
-        filtered_graph = deepcopy(self.import_graph)
+        filtered_graph = copy.deepcopy(self.import_graph)
         for node in filtered_graph:
-            filtered_graph[node] -= self._excluded_edges[node]
+            filtered_graph[node].difference_update(self._excluded_edges[node])
         return filtered_graph
 
     def close(self):
