@@ -45,12 +45,6 @@ class DocstringParameterChecker(BaseChecker):
 
     name = 'parameter_documentation'
     msgs = {
-        'W9003': ('"%s" missing in parameter documentation',
-                  'missing-param-doc',
-                  'Please add parameter declarations for all parameters.'),
-        'W9004': ('"%s" missing in parameter type documentation',
-                  'missing-type-doc',
-                  'Please add parameter type declarations for all parameters.'),
         'W9005': ('"%s" has constructor parameters documented in class and __init__',
                   'multiple-constructor-doc',
                   'Please remove parameter declarations in the class or constructor.'),
@@ -83,12 +77,22 @@ class DocstringParameterChecker(BaseChecker):
                   # we can't use the same old_name for two different warnings
                   # {'old_names': [('W9009', 'missing-yields-doc')]},
                  ),
-        'W9015': ('"%s" differing in parameter documentation',
+        'W9015': ('"%s" missing in parameter documentation',
+                  'missing-param-doc',
+                  'Please add parameter declarations for all parameters.',
+                  {'old_names': [('W9003', 'missing-param-doc')]}),
+        'W9016': ('"%s" missing in parameter type documentation',
+                  'missing-type-doc',
+                  'Please add parameter type declarations for all parameters.',
+                  {'old_names': [('W9004', 'missing-type-doc')]}),
+        'W9017': ('"%s" differing in parameter documentation',
                   'differing-param-doc',
-                  'Please check parameter names in declarations.'),
-        'W9016': ('"%s" differing in parameter type documentation',
+                  'Please check parameter names in declarations.',
+                 ),
+        'W9018': ('"%s" differing in parameter type documentation',
                   'differing-type-doc',
-                  'Please check parameter names in type declarations.'),
+                  'Please check parameter names in type declarations.',
+                 ),
     }
 
     options = (('accept-no-param-doc',
