@@ -18,6 +18,10 @@ try:
 except ImportError:
     # pylint: disable=import-error
     from singledispatch import singledispatch as singledispatch
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 import itertools
 import re
 import sys
@@ -515,6 +519,7 @@ def decorated_with(func, qnames):
     return False
 
 
+@lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(node, is_abstract_cb=None):
     """
     Get the unimplemented abstract methods for the given *node*.
@@ -756,6 +761,7 @@ def supports_delitem(value):
 
 
 # TODO(cpopa): deprecate these or leave them as aliases?
+@lru_cache(maxsize=1024)
 def safe_infer(node, context=None):
     """Return the inferred value for the given node.
 
