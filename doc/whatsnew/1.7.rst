@@ -1,5 +1,5 @@
 **************************
-  What's New In Pylint 2.0
+  What's New In Pylint 1.7
 **************************
 
 :Release: |release|
