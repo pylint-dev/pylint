@@ -4,6 +4,13 @@ def test_unused(first, second, _not_used): # [unused-argument, unused-argument]
     pass
 
 
+def test_prefixed_with_ignored(first, ignored_second):
+    first()
+
+
+def test_prefixed_with_unused(first, unused_second):
+    first()
+
 # for Sub.inherited, only the warning for "aay" is desired.
 # The warnings for "aab" and "aac"  are most likely false positives though,
 # because there could be another subclass that overrides the same method and does

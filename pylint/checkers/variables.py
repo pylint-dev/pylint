@@ -35,7 +35,7 @@ from pylint.checkers import utils
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = '__future__'
 # regexp for ignored argument name
-IGNORED_ARGUMENT_NAMES = re.compile('_.*')
+IGNORED_ARGUMENT_NAMES = re.compile('_.*|^ignored_|^unused_')
 PY3K = sys.version_info >= (3, 0)
 
 
@@ -337,7 +337,7 @@ class VariablesChecker(BaseChecker):
                  'help' : 'Tells whether we should check for unused import in '
                           '__init__ files.'}),
                ("dummy-variables-rgx",
-                {'default': ('_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy'),
+                {'default': '_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_',
                  'type' :'regexp', 'metavar' : '<regexp>',
                  'help' : 'A regular expression matching the name of dummy '
                           'variables (i.e. expectedly not used).'}),
