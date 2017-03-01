@@ -279,6 +279,20 @@ Release date: tba
 
       Fixes #1031
 
+    * Let the user modify msg-template when Pylint is called from a Python script
+    
+      Fixes #1269
+
+    * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+      warning on wildcard import when imported module defines `__all__` variable.
+
+      Fixes #831
+
+    * `too-many-format-args` and `too-few-format-args` are emitted correctly when
+      starred expression are used in RHS tuple.
+
+      Fixes #957
+
     * `cyclic-import` checker supports local disable clauses. When one
       of cycle imports was done in scope where disable clause was active,
       cycle is not reported as violation.

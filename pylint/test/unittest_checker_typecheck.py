@@ -160,3 +160,27 @@ class TestTypeChecker(CheckerTestCase):
             message = Message('invalid-metaclass', node=classdef, args=(metaclass_name, ))
             with self.assertAddsMessages(message):
                 self.checker.visit_classdef(classdef)
+
+    @pytest.mark.skipif(sys.version_info < (3, 5), reason='Needs Python 3.5.')
+    def test_typing_namedtuple_not_callable_issue1295(self):
+        module = astroid.parse("""
+        import typing
+        Named = typing.NamedTuple('Named', [('foo', int), ('bar', int)])
+        named = Named(1, 2)
+        """)
+        call = module.body[-1].value
+        callables = call.func.infered()
+        assert len(callables) == 1
+        assert callables[0].callable()
+        with self.assertNoMessages():
+            self.checker.visit_call(call)
+
+    @pytest.mark.skipif(sys.version_info < (3, 5), reason='Needs Python 3.5.')
+    def test_typing_namedtuple_unsubscriptable_object_issue1295(self):
+        module = astroid.parse("""
+        import typing
+        MyType = typing.Tuple[str, str]
+        """)
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)

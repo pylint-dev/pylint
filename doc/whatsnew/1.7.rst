@@ -1,5 +1,5 @@
 **************************
-  What's New In Pylint 2.0
+  What's New In Pylint 1.7
 **************************
 
 :Release: |release|
@@ -765,6 +765,9 @@ Other Changes
   being disabled by default. They can be enabled through:
   ``--load-plugins=pylint.extensions.redefined_variable_type,pylint.extensions.bad_builtin``
 
+  * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+    warning on wildcard import when imported module defines `__all__` variable.
+
 
 Bug fixes
 =========
@@ -877,6 +880,11 @@ Bug fixes
 * `cyclic-import` checker supports local disable clauses. When one
   of cycle imports was done in scope where disable clause was active,
   cycle is not reported as violation.
+
+  .. code-block:: python
+
+    meat = ['spam', 'ham']
+    print('%s%s%s' % ('eggs', *meat))
 
 Removed Changes
 ===============
