@@ -877,14 +877,20 @@ Bug fixes
 
      class MyError(Exception): pass
 
-* `cyclic-import` checker supports local disable clauses. When one
-  of cycle imports was done in scope where disable clause was active,
-  cycle is not reported as violation.
+  * `too-many-format-args` and `too-few-format-args` are emitted correctly
+    (or not emitted at all, when exact count of elements in RHS cannot be
+    inferred) when starred expressions are used in RHS tuple. For example,
+    code block as shown below detects correctly that the used tuple has in
+    fact three elements, not two.
 
   .. code-block:: python
 
     meat = ['spam', 'ham']
     print('%s%s%s' % ('eggs', *meat))
+
+* `cyclic-import` checker supports local disable clauses. When one
+  of cycle imports was done in scope where disable clause was active,
+  cycle is not reported as violation.
 
 Removed Changes
 ===============
