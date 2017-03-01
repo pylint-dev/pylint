@@ -17,6 +17,7 @@ import collections
 from distutils import sysconfig
 import os
 import sys
+import copy
 
 import six
 
@@ -256,42 +257,43 @@ class ImportsChecker(BaseChecker):
                 {'default' : deprecated_modules,
                  'type' : 'csv',
                  'metavar' : '<modules>',
-                 'help' : 'Deprecated modules which should not be used, \
-separated by a comma'}
+                 'help' : 'Deprecated modules which should not be used,'
+                          ' separated by a comma'}
                ),
                ('import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
-                 'help' : 'Create a graph of every (i.e. internal and \
-external) dependencies in the given file (report RP0402 must not be disabled)'}
+                 'help' : 'Create a graph of every (i.e. internal and'
+                          ' external) dependencies in the given file'
+                          ' (report RP0402 must not be disabled)'}
                ),
                ('ext-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
-                 'help' : 'Create a graph of external dependencies in the \
-given file (report RP0402 must not be disabled)'}
+                 'help' : 'Create a graph of external dependencies in the'
+                          ' given file (report RP0402 must not be disabled)'}
                ),
                ('int-import-graph',
                 {'default' : '',
                  'type' : 'string',
                  'metavar' : '<file.dot>',
-                 'help' : 'Create a graph of internal dependencies in the \
-given file (report RP0402 must not be disabled)'}
+                 'help' : 'Create a graph of internal dependencies in the'
+                          ' given file (report RP0402 must not be disabled)'}
                ),
                ('known-standard-library',
                 {'default': DEFAULT_STANDARD_LIBRARY,
                  'type': 'csv',
                  'metavar': '<modules>',
-                 'help': 'Force import order to recognize a module as part of' \
+                 'help': 'Force import order to recognize a module as part of'
                          ' the standard compatibility libraries.'}
                ),
                ('known-third-party',
                 {'default': DEFAULT_KNOWN_THIRD_PARTY,
                  'type': 'csv',
                  'metavar': '<modules>',
-                 'help': 'Force import order to recognize a module as part of' \
+                 'help': 'Force import order to recognize a module as part of'
                          ' a third party library.'}
                ),
                ('analyse-fallback-blocks',
@@ -352,15 +354,22 @@ given file (report RP0402 must not be disabled)'}
         self.linter.add_stats(cycles=[])
         self.stats = self.linter.stats
         self.import_graph = collections.defaultdict(set)
+        self._excluded_edges = collections.defaultdict(set)
         self._ignored_modules = get_global_option(
             self, 'ignored-modules', default=[])
 
+    def _import_graph_without_ignored_edges(self):
+        filtered_graph = copy.deepcopy(self.import_graph)
+        for node in filtered_graph:
+            filtered_graph[node].difference_update(self._excluded_edges[node])
+        return filtered_graph
+
     def close(self):
         """called before visiting project (i.e set of modules)"""
-        # don't try to compute cycles if the associated message is disabled
         if self.linter.is_message_enabled('cyclic-import'):
-            vertices = list(self.import_graph)
-            for cycle in get_cycles(self.import_graph, vertices=vertices):
+            graph = self._import_graph_without_ignored_edges()
+            vertices = list(graph)
+            for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message('cyclic-import', args=' -> '.join(cycle))
 
     @check_messages('wrong-import-position', 'multiple-imports',
@@ -656,10 +665,11 @@ given file (report RP0402 must not be disabled)'}
                 importedmodname, set())
             if context_name not in importedmodnames:
                 importedmodnames.add(context_name)
+
             # update import graph
-            mgraph = self.import_graph[context_name]
-            if importedmodname not in mgraph:
-                mgraph.add(importedmodname)
+            self.import_graph[context_name].add(importedmodname)
+            if not self.linter.is_message_enabled('cyclic-import'):
+                self._excluded_edges[context_name].add(importedmodname)
 
     def _check_deprecated_module(self, node, mod_path):
         """check if the module is deprecated"""
