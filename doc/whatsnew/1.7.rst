@@ -768,6 +768,9 @@ Other Changes
   * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
     warning on wildcard import when imported module defines `__all__` variable.
 
+* ``differing-param-doc`` is now used for the differing part of the old ``missing-param-doc``,
+  and ``differing-type-doc`` for the differing part of the old ``missing-type-doc``.
+
 
 Bug fixes
 =========
