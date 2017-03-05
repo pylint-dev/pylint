@@ -282,9 +282,8 @@ class ExceptionsChecker(checkers.BaseChecker):
     def _check_catching_non_exception(self, handler, exc, part):
         if isinstance(exc, astroid.Tuple):
             # Check if it is a tuple of exceptions.
-            if astroid.YES in exc.elts:
-                return
-            inferred = [utils.safe_infer(elt) for elt in exc.elts]
+            inferred = [utils.safe_infer(elt) for elt in exc.elts
+                        if elt is not astroid.YES]
             if any(node is astroid.YES for node in inferred):
                 # Don't emit if we don't know every component.
                 return
