@@ -15,3 +15,8 @@ def test_unused_with_prepended_underscore():
     _a_ = 42 # [unused-variable]
     __a__ = 24 # [unused-variable]
     __never_used = 42
+
+def test_local_field_prefixed_with_unused_or_ignored():
+    flagged_local_field = 42 # [unused-variable]
+    unused_local_field = 42
+    ignored_local_field = 42
