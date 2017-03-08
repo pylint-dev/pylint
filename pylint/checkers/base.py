@@ -1277,9 +1277,11 @@ class NameChecker(_BasicChecker):
             elif isinstance(ass_type, astroid.ExceptHandler):
                 self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
-            # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
-                if not _redefines_import(node):
+                if (isinstance(ass_type, astroid.Assign) and not in_loop(ass_type) and
+                        isinstance(utils.safe_infer(ass_type.value), astroid.ClassDef)):
+                    self._check_name('class', node.name, node)
+                elif not _redefines_import(node):
                     self._check_name('variable', node.name, node)
         elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
