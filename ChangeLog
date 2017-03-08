@@ -7,6 +7,12 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Added a new check, 'mutable-sequence-modified-in-loop'
+
+      This is emitted when a mutable sequence is modified in a for loop.
+
+      Close #1297
+
     * Added a new error, 'used-prior-global-declaration', which is emitted when a name
       is used prior a global declaration in a function. This causes a SyntaxError in
       Python 3.6

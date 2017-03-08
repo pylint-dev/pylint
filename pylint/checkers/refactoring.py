@@ -102,6 +102,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
+        'R1708': ("The mutable sequence (%s) is modified within the loop",
+                  'mutable-sequence-modified-in-loop',
+                  'Modifying a mutable object while iterating through it can '
+                  'result in unexpected behaviour. This message is emitted '
+                  'whenever a case like this is detected.'),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -261,12 +266,51 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                                  args=(name_node.name, ))
 
     @utils.check_messages('redefined-argument-from-local',
-                          'too-many-nested-blocks')
+                          'too-many-nested-blocks',
+                          'mutable-sequence-modified-in-loop')
     def visit_for(self, node):
         self._check_nested_blocks(node)
 
         for name in node.target.nodes_of_class(astroid.AssignName):
             self._check_redefined_argument_from_local(name)
+
+        if self._is_iterating_mutable_sequence(node):
+            call_nodes = node.nodes_of_class(astroid.Call)
+            call_orelse = []
+            if node.orelse:
+                for orelse in node.orelse:
+                    call_orelse.extend(orelse.nodes_of_class(astroid.Call))
+            if isinstance(call_nodes, collections.Iterable):
+                for call_node in call_nodes:
+                    if (call_node not in call_orelse and
+                            self._check_method_of_elimination_is_called(
+                                node.iter,
+                                call_node.func)):
+                        self.add_message('mutable-sequence-modified-in-loop',
+                                         node=call_node,
+                                         args=(node.iter.name))
+
+    @staticmethod
+    def _is_iterating_mutable_sequence(node):
+        """Check if node.iter is astroid.util.Uninferable o
+        astroid.node_classes.List instance and if node.body contains records"""
+        inferred = utils.safe_infer(node.iter)
+        return (node.body and isinstance(node.iter, astroid.Name) and
+                (inferred is astroid.util.Uninferable or
+                 isinstance(inferred, astroid.node_classes.List) or
+                 (isinstance(inferred, astroid.bases.Instance) and
+                  inferred._proxied.root().name == 'builtins')))
+
+    @staticmethod
+    def _check_method_of_elimination_is_called(iter, func):
+        """Check if the method called is in into method_names"""
+        method_names = ('remove', 'delete', 'pop', 'append', 'extend')
+        if (isinstance(func, astroid.Attribute) and
+                not hasattr(func.expr, 'name')):
+            return False
+        return (isinstance(func, astroid.Attribute) and
+                func.attrname in method_names and
+                func.expr.name == iter.name)
 
     @utils.check_messages('redefined-argument-from-local')
     def visit_excepthandler(self, node):
