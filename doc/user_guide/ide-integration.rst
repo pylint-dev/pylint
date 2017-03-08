@@ -7,6 +7,7 @@ To use Pylint with:
 
  - Emacs_, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8,
  - Vim_, see http://www.vim.org/scripts/script.php?script_id=891,
+ - `Visual Studio`_, see https://docs.microsoft.com/visualstudio/python/code-pylint,
  - Eclipse_ and PyDev_, see http://pydev.org/manual_adv_pylint.html,
  - Komodo_, see http://mateusz.loskot.net/posts/2006/01/15/running-pylint-from-komodo/,
  - gedit_, see https://launchpad.net/gedit-pylint-2 or https://wiki.gnome.org/Apps/Gedit/PylintPlugin,
@@ -16,12 +17,14 @@ To use Pylint with:
 
 Pylint is integrated in:
 
+ - `Visual Studio`_, see the `Python > Run PyLint` command on a project's context menu.
  - Eric_ IDE, see the `Project > Check` menu,
  - Spyder_, see http://packages.python.org/spyder/pylint.html,
  - pyscripter_, see the `Tool -> Tools` menu.
 
 .. _Emacs: http://www.gnu.org/software/emacs/
 .. _Vim: http://www.vim.org/
+.. _Visual Studio: https://www.visualstudio.com/
 .. _Eclipse: https://www.eclipse.org/
 .. _Eric: http://eric-ide.python-projects.org/
 .. _pyscripter: http://code.google.com/p/pyscripter/
@@ -103,13 +106,6 @@ the following instead of a post-command-hook
     (defadvice flymake-goto-prev-error (after display-message activate compile)
       "Display the error in the mini-buffer rather than having to mouse over it"
       (show-fly-err-at-point))
-
-Setup the MS Visual Studio .NET 2003 editor to call Pylint
-==========================================================
-
-.. image:: _static/vs2003_config.jpeg
-
-The output of Pylint is then shown in the "Output" pane of the editor.
 
 .. _pylint_in_pycharm:
 
