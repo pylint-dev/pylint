@@ -7,6 +7,12 @@ What's New in Pylint 2.0?
 
 Release date: tba
 
+    * Split the 'missing or differing' in parameter documentation in different error.
+      'differing-param-doc' covers the differing part of the old 'missing-param-doc',
+      and 'differing-type-doc' covers the differing part of the old 'missing-type-doc'
+
+      Close #1342
+
     * Added a new error, 'used-prior-global-declaration', which is emitted when a name
       is used prior a global declaration in a function. This causes a SyntaxError in
       Python 3.6
