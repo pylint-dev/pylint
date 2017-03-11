@@ -61,6 +61,7 @@ class BaseReporter(object):
         def encode(self, string):
             if not isinstance(string, six.text_type):
                 return string
+
             encoding = (getattr(self.out, 'encoding', None) or
                         locale.getdefaultlocale()[1] or
                         sys.getdefaultencoding())
