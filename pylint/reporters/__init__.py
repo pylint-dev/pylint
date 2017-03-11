@@ -63,7 +63,7 @@ class BaseReporter(object):
                 return string
 
             encoding = (getattr(self.out, 'encoding', None) or
-                        locale.getdefaultlocale()[1] or
+                        locale.getpreferredencoding(do_setlocale=False) or
                         sys.getdefaultencoding())
             # errors=replace, we don't want to crash when attempting to show
             # source code line that can't be encoded with the current locale
