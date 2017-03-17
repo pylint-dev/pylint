@@ -31,6 +31,7 @@ import six
 import astroid
 import astroid.context
 import astroid.arguments
+import astroid.nodes
 from astroid import exceptions
 from astroid.interpreter import dunder_lookup
 from astroid import objects
@@ -618,6 +619,10 @@ accessed. Python regular expressions are accepted.'}
         for owner in infered:
             # skip yes object
             if owner is astroid.YES:
+                inference_failure = True
+                continue
+
+            if isinstance(owner, astroid.nodes.Unknown):
                 inference_failure = True
                 continue
 
