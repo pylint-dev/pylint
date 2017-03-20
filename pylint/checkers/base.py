@@ -1339,7 +1339,8 @@ class NameChecker(_BasicChecker):
         if match is None:
             self._raise_name_warning(node, node_type, name, confidence)
 
-    def _name_became_keyword_in_version(self, name):
+    @staticmethod
+    def _name_became_keyword_in_version(name):
         rules = {
             (3, 0): {'True', 'False'},
             (3, 7): {'async', 'await'}
