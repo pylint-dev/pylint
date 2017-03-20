@@ -1147,6 +1147,10 @@ class NameChecker(_BasicChecker):
                   'invalid-name',
                   'Used when the name doesn\'t match the regular expression '
                   'associated to its type (constant, variable, class...).'),
+        'W0111': ('Name %s will become a keyword in Python %s',
+                  'assign-to-new-keyword',
+                  'Used when assignment will become invalid in future '
+                  'Python release due to introducing new keyword'),
     }
 
     options = (('good-names',
@@ -1261,6 +1265,12 @@ class NameChecker(_BasicChecker):
     @utils.check_messages('blacklisted-name', 'invalid-name')
     def visit_assignname(self, node):
         """check module level assigned names"""
+        keyword_first_version = self._name_became_keyword_in_version(node.name)
+        if keyword_first_version is not None:
+            self.add_message('assign-to-new-keyword',
+                             node=node, args=(node.name, keyword_first_version),
+                             confidence=interfaces.HIGH)
+
         frame = node.frame()
         ass_type = node.assign_type()
         if isinstance(ass_type, astroid.Comprehension):
@@ -1328,6 +1338,16 @@ class NameChecker(_BasicChecker):
 
         if match is None:
             self._raise_name_warning(node, node_type, name, confidence)
+
+    def _name_became_keyword_in_version(self, name):
+        rules = {
+            (3, 0): {'True', 'False'},
+            (3, 7): {'async', 'await'}
+        }
+        for version, keywords in rules.items():
+            if name in keywords and sys.version_info < version:
+                return '.'.join(str(s) for s in version)
+        return None
 
 
 class DocStringChecker(_BasicChecker):
