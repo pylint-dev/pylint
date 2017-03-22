@@ -1315,3 +1315,25 @@ class TestParamDocChecker(CheckerTestCase):
         '''.format(complex_type))
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_ignores_optional_specifier_numpy(self):
+        node = astroid.extract_node('''
+        def do_something(param, param2='all'):
+            """Do something.
+
+            Parameters
+            ----------
+            param : str
+                Description.
+            param2 : str, optional
+                Description (the default is 'all').
+
+            Returns
+            -------
+            int
+                Description.
+            """
+            return param, param2
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
