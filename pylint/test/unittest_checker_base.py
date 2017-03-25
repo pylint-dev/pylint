@@ -25,7 +25,7 @@ class TestDocstring(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
-    def test_missing_docstring_emtpy_module(self):
+    def test_missing_docstring_empty_module(self):
         module = astroid.parse("")
         with self.assertNoMessages():
             self.checker.visit_module(module)

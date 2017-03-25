@@ -278,7 +278,7 @@ class StringFormatChecker(BaseChecker):
                     else:
                         # One of the keys was something other than a
                         # constant.  Since we can't tell what it is,
-                        # supress checks for missing keys in the
+                        # suppress checks for missing keys in the
                         # dictionary.
                         unknown_keys = True
                 if not unknown_keys:

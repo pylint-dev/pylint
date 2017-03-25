@@ -46,7 +46,7 @@ class Init(NoInit):
         self.arg = arg
 
 class NewStyleC(object):
-    """__init__ defined by assignemnt."""
+    """__init__ defined by assignment."""
     def xx_init(self):
         """Initializer."""
         pass

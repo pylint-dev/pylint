@@ -297,10 +297,10 @@ class Option(optparse.Option):
         # value(s) are bogus.
         value = self.convert_value(opt, value)
         if self.type == 'named':
-            existant = getattr(values, self.dest)
-            if existant:
-                existant.update(value)
-                value = existant
+            existent = getattr(values, self.dest)
+            if existent:
+                existent.update(value)
+                value = existent
         # And then take whatever action is expected of us.
         # This is a separate method to make life easier for
         # subclasses to add new actions.

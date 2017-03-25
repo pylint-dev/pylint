@@ -1274,7 +1274,7 @@ class VariablesChecker3k(VariablesChecker):
 
     def _check_classdef_metaclasses(self, klass, parent_node):
         if not klass._metaclass:
-            # Skip if this class doesn't use explictly a metaclass, but inherits it from ancestors
+            # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
             return []
 
         consumed = []  # [(scope_locals, consumed_key)]

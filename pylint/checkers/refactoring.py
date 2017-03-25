@@ -695,7 +695,7 @@ class LenChecker(checkers.BaseChecker):
 
             if error_detected:
                 parent = node.parent
-                # traverse the AST to figure out if this comparisson was part of
+                # traverse the AST to figure out if this comparison was part of
                 # a test condition
                 while parent and not _node_is_test_condition(parent):
                     parent = parent.parent

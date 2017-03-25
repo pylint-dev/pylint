@@ -110,7 +110,7 @@ class TestBase(object):
 class Test(TestBase):
     'child class that overrides `test` method'
     def __init__(self):
-        # no error should be emitted here as `test` is overriden in this class
+        # no error should be emitted here as `test` is overridden in this class
         (self.aaa, self.bbb, self.ccc) = self.test(None)
 
     @staticmethod

@@ -50,7 +50,7 @@
   "The most recent PYLINT buffer.
 A PYLINT buffer becomes most recent when you select PYLINT mode in it.
 Notice that using \\[next-error] or \\[compile-goto-error] modifies
-`complation-last-buffer' rather than `pylint-last-buffer'.")
+`completion-last-buffer' rather than `pylint-last-buffer'.")
 
 (defconst pylint-regexp-alist
   (let ((base "^\\(.*\\):\\([0-9]+\\):\s+\\(\\[%s.*\\)$"))
@@ -240,7 +240,7 @@ output buffer, to go to the lines where pylint found matches.
               ((boundp 'python-mode-map) python-mode-map))))
   
     (define-key map [menu-bar Python pylint-separator]
-      '("--" . pylint-seperator))
+      '("--" . pylint-separator))
     (define-key map [menu-bar Python next-error]
       '("Next error" . next-error))
     (define-key map [menu-bar Python prev-error]

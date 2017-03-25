@@ -29,7 +29,7 @@ class DocstringParameterChecker(BaseChecker):
       the documentation, i.e. also report documented parameters that are missing
       in the signature. This is important to find cases where parameters are
       renamed only in the code, not in the documentation.
-    * Check that all explicity raised exceptions in a function are documented
+    * Check that all explicitly raised exceptions in a function are documented
       in the function docstring. Caught exceptions are ignored.
 
     Activate this checker by adding the line::
