@@ -499,7 +499,7 @@ def test_full_documentation(linter):
         "^Pylint global options and switches$",
         "Verbatim name of the checker is ``python3``",
         # messages
-        "^:old-octal-literal \(E1608\):",
+        "^:old-octal-literal \\(E1608\\):",
         # options
         "^:dummy-variables-rgx:",
     ]:

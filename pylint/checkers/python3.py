@@ -29,7 +29,7 @@ _ZERO = re.compile("^0+$")
 def _is_old_octal(literal):
     if _ZERO.match(literal):
         return False
-    if re.match('0\d+', literal):
+    if re.match(r'0\d+', literal):
         try:
             int(literal, 8)
         except ValueError:
