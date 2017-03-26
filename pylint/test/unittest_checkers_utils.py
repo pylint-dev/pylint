@@ -98,9 +98,3 @@ def test_node_ignores_exception():
     assert not utils.node_ignores_exception(nodes[1], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[2], ZeroDivisionError)
     assert not utils.node_ignores_exception(nodes[3], ZeroDivisionError)
-
-
-def test_splitlines():
-    test_string = 'a = 1\nb = 1\r\nc = 1\rd = 1'
-    assert list(utils.splitlines(test_string)) == ['a = 1', 'b = 1', 'c = 1', 'd = 1']
-    assert list(utils.splitlines(test_string, True)) == ['a = 1\n', 'b = 1\r\n', 'c = 1\r', 'd = 1']
