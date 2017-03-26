@@ -20,40 +20,71 @@ from pylint.testutils import (
 
 
 class TestMultiStatementLine(CheckerTestCase):
-  CHECKER_CLASS = FormatChecker
+    CHECKER_CLASS = FormatChecker
 
-  def testSingleLineIfStmts(self):
-      stmt = astroid.extract_node("""
-      if True: pass  #@
-      """)
-      with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
-          self.checker.process_tokens([])
-          self.checker.visit_default(stmt.body[0])
-      self.checker.config.single_line_if_stmt = True
-      with self.assertNoMessages():
-          self.checker.process_tokens([])
-          self.checker.visit_default(stmt.body[0])
-      stmt = astroid.extract_node("""
-      if True: pass  #@
-      else:
-        pass
-      """)
-      with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
-          self.checker.process_tokens([])
-          self.checker.visit_default(stmt.body[0])
+    def testSingleLineIfStmts(self):
+        stmt = astroid.extract_node("""
+        if True: pass  #@
+        """)
+        self.checker.config.single_line_if_stmt = False
+        with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
+            self.visitFirst(stmt)
+        self.checker.config.single_line_if_stmt = True
+        with self.assertNoMessages():
+            self.visitFirst(stmt)
+        stmt = astroid.extract_node("""
+        if True: pass  #@
+        else:
+            pass
+        """)
+        with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
+            self.visitFirst(stmt)
 
-  def testTryExceptFinallyNoMultipleStatement(self):
-      tree = astroid.extract_node("""
-      try:  #@
-        pass
-      except:
-        pass
-      finally:
-        pass""")
-      with self.assertNoMessages():
-          self.checker.process_tokens([])
-          self.checker.visit_default(tree.body[0])
+    def testSingleLineClassStmts(self):
+        stmt = astroid.extract_node("""
+        class MyError(Exception): pass  #@
+        """)
+        self.checker.config.single_line_class_stmt = False
+        with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
+            self.visitFirst(stmt)
+        self.checker.config.single_line_class_stmt = True
+        with self.assertNoMessages():
+            self.visitFirst(stmt)
 
+        stmt = astroid.extract_node("""
+        class MyError(Exception): a='a'  #@
+        """)
+        self.checker.config.single_line_class_stmt = False
+        with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
+            self.visitFirst(stmt)
+        self.checker.config.single_line_class_stmt = True
+        with self.assertNoMessages():
+            self.visitFirst(stmt)
+
+        stmt = astroid.extract_node("""
+        class MyError(Exception): a='a'; b='b'  #@
+        """)
+        self.checker.config.single_line_class_stmt = False
+        with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
+            self.visitFirst(stmt)
+        self.checker.config.single_line_class_stmt = True
+        with self.assertAddsMessages(Message('multiple-statements', node=stmt.body[0])):
+            self.visitFirst(stmt)
+
+    def testTryExceptFinallyNoMultipleStatement(self):
+        tree = astroid.extract_node("""
+        try:  #@
+            pass
+        except:
+            pass
+        finally:
+            pass""")
+        with self.assertNoMessages():
+            self.visitFirst(tree)
+
+    def visitFirst(self, tree):
+        self.checker.process_tokens([])
+        self.checker.visit_default(tree.body[0])
 
 
 class TestSuperfluousParentheses(CheckerTestCase):

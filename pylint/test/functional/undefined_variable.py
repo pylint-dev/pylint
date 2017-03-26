@@ -175,3 +175,26 @@ except ValueError:
 # See https://bitbucket.org/logilab/pylint/issue/111/
 try: raise IOError(1, "a")
 except IOError as err: print(err)
+
+
+def test_conditional_comprehension():
+    methods = ['a', 'b', '_c', '_d']
+    my_methods = sum(1 for method in methods
+                     if not method.startswith('_'))
+    return my_methods
+
+
+class MyError(object):
+    pass
+
+
+class MyClass(object):
+    class MyError(MyError):
+        pass
+
+
+def dec(inp):
+    def inner(func):
+        print(inp)
+        return func
+    return inner

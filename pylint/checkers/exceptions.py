@@ -84,10 +84,10 @@ MSGS = {
               'notimplemented-raised',
               'Used when NotImplemented is raised instead of \
               NotImplementedError'),
-    'E0712': ('Catching an exception which doesn\'t inherit from BaseException: %s',
+    'E0712': ('Catching an exception which doesn\'t inherit from Exception: %s',
               'catching-non-exception',
               'Used when a class which doesn\'t inherit from \
-               BaseException is used as an exception in an except clause.'),
+               Exception is used as an exception in an except clause.'),
     'W0702': ('No exception type(s) specified',
               'bare-except',
               'Used when an except clause doesn\'t specify exceptions type to \

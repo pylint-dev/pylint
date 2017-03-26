@@ -367,11 +367,19 @@ class TestParamDocChecker(CheckerTestCase):
             Message(
                 msg_id='missing-param-doc',
                 node=node,
-                args=('xarg, xarg1, zarg, zarg1',)),
+                args=('xarg, zarg',)),
             Message(
                 msg_id='missing-type-doc',
                 node=node,
-                args=('yarg, yarg1, zarg, zarg1',)),
+                args=('yarg, zarg',)),
+            Message(
+                    msg_id='differing-param-doc',
+                    node=node,
+                    args=('xarg1, zarg1',)),
+            Message(
+                msg_id='differing-type-doc',
+                node=node,
+                args=('yarg1, zarg1',)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -388,13 +396,13 @@ class TestParamDocChecker(CheckerTestCase):
         """)
         with self.assertAddsMessages(
             Message(
-                msg_id='missing-param-doc',
+                msg_id='differing-param-doc',
                 node=node,
                 args=('yarg1',)),
             Message(
-                msg_id='missing-type-doc',
+                msg_id='differing-type-doc',
                 node=node,
-                args=('yarg1',))
+                args=('yarg1',)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -418,11 +426,19 @@ class TestParamDocChecker(CheckerTestCase):
             Message(
                 msg_id='missing-param-doc',
                 node=node,
-                args=('xarg, xarg1, zarg, zarg1',)),
+                args=('xarg, zarg',)),
             Message(
                 msg_id='missing-type-doc',
                 node=node,
-                args=('xarg, xarg1, zarg, zarg1',)),
+                args=('xarg, zarg',)),
+            Message(
+                msg_id='differing-param-doc',
+                node=node,
+                args=('xarg1, zarg1',)),
+            Message(
+                msg_id='differing-type-doc',
+                node=node,
+                args=('xarg1, zarg1',)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -439,11 +455,11 @@ class TestParamDocChecker(CheckerTestCase):
         """)
         with self.assertAddsMessages(
             Message(
-                msg_id='missing-param-doc',
+                msg_id='differing-param-doc',
                 node=node,
                 args=('yarg1',)),
             Message(
-                msg_id='missing-type-doc',
+                msg_id='differing-type-doc',
                 node=node,
                 args=('yarg1',))
         ):
@@ -473,11 +489,19 @@ class TestParamDocChecker(CheckerTestCase):
             Message(
                 msg_id='missing-param-doc',
                 node=node,
-                args=('xarg, xarg1, zarg, zarg1',)),
+                args=('xarg, zarg',)),
             Message(
                 msg_id='missing-type-doc',
                 node=node,
-                args=('xarg, xarg1, zarg, zarg1',)),
+                args=('xarg, zarg',)),
+            Message(
+                msg_id='differing-param-doc',
+                node=node,
+                args=('xarg1, zarg1',)),
+            Message(
+                msg_id='differing-type-doc',
+                node=node,
+                args=('xarg1, zarg1',)),
         ):
             self.checker.visit_functiondef(node)
 
@@ -496,11 +520,11 @@ class TestParamDocChecker(CheckerTestCase):
         """)
         with self.assertAddsMessages(
             Message(
-                msg_id='missing-param-doc',
+                msg_id='differing-param-doc',
                 node=node,
                 args=('yarg1',)),
             Message(
-                msg_id='missing-type-doc',
+                msg_id='differing-type-doc',
                 node=node,
                 args=('yarg1',))
         ):
@@ -1224,5 +1248,70 @@ class TestParamDocChecker(CheckerTestCase):
             if kwargs:
                 return named_arg
         ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    COMPLEX_TYPES = [
+        'int or str',
+        'dict(str, str)',
+        'dict[str, str]',
+        'tuple(int)',
+        'tuple(int or str)',
+        'tuple(int) or list(int)',
+        'tuple(int or str) or list(int or str)',
+    ]
+
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_sphinx(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            :param named_arg: Returned
+            :type named_arg: {0}
+
+            :returns: named_arg
+            :rtype: {0}
+            """
+            return named_arg
+        '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_google(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            Args:
+                named_arg ({0}): Returned
+
+            Returns:
+                {0}: named_arg
+            """
+            return named_arg
+        '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('complex_type', COMPLEX_TYPES)
+    def test_finds_multiple_types_numpy(self, complex_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            Args
+            ----
+            named_arg : {0}
+                Returned
+
+            Returns
+            -------
+                {0}
+                    named_arg
+            """
+            return named_arg
+        '''.format(complex_type))
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)

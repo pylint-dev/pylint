@@ -42,3 +42,18 @@ INST._protected = 2  # [protected-access]
 print(INST._protected)  # [protected-access]
 INST._cls_protected = 3  # [protected-access]
 print(INST._cls_protected)  # [protected-access]
+
+
+class Issue1031(object):
+    """Test for GitHub issue 1031"""
+    _attr = 1
+
+    def correct_access(self):
+        """Demonstrates correct access"""
+        return type(self)._attr
+
+    def incorrect_access(self):
+        """Demonstrates incorrect access"""
+        if self._attr == 1:
+            return type(INST)._protected  # [protected-access]
+        return None

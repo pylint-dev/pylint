@@ -653,9 +653,11 @@ class LenChecker(checkers.BaseChecker):
 
             # we're finally out of any nested boolean operations so check if
             # this len() call is part of a test condition
-            if _node_is_test_condition(parent):
-                self.add_message('len-as-condition', node=node)
-
+            if not _node_is_test_condition(parent):
+                return
+            if not (node is parent.test or parent.test.parent_of(node)):
+                return
+            self.add_message('len-as-condition', node=node)
 
     @utils.check_messages('len-as-condition')
     def visit_unaryop(self, node):

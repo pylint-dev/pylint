@@ -36,6 +36,19 @@ def _patch_streams(out):
         sys.stdout = sys.__stdout__
 
 
+@contextlib.contextmanager
+def _configure_lc_ctype(lc_ctype):
+    lc_ctype_env = 'LC_CTYPE'
+    original_lctype = os.environ.get(lc_ctype_env)
+    os.environ[lc_ctype_env] = lc_ctype
+    try:
+        yield
+    finally:
+        os.environ.pop(lc_ctype_env)
+        if original_lctype:
+            os.environ[lc_ctype_env] = original_lctype
+
+
 class MultiReporter(BaseReporter):
     def __init__(self, reporters):
         self._reporters = reporters
@@ -379,3 +392,12 @@ class TestRunTC(object):
     def test_no_crash_with_formatting_regex_defaults(self):
         self._runtest(["--ignore-patterns=a"], reporter=TextReporter(six.StringIO()),
                       code=32)
+
+    def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self):
+        expected_output = textwrap.dedent('''
+        ************* Module application_crash
+        E:  1, 6: Undefined variable 'something_undefined' (undefined-variable)
+        ''')
+        module = join(HERE, 'regrtest_data', 'application_crash.py')
+        with _configure_lc_ctype('UTF-8'):
+            self._test_output([module, '-E'], expected_output=expected_output)
