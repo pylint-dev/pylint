@@ -145,7 +145,6 @@ def is_typing_type(obj):
         return True
 
     inferred = utils.safe_infer(obj)
-    print(obj.lineno, inferred, inferred.qname())
     if isinstance(inferred, astroid.FunctionDef):
         return inferred.qname() == 'typing.NewType.new_type'
     elif isinstance(inferred, astroid.Instance):
