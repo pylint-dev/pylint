@@ -391,7 +391,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
     def format_short_description(pgm, short_desc):
         return '''.SH NAME
 .B %s
-\- %s
+\\- %s
 ''' % (pgm, short_desc.strip())
 
     @staticmethod
