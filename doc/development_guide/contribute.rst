@@ -88,7 +88,7 @@ your patch gets accepted.
 - Document your change, if it is a non-trivial one.
 
 - Send a pull request from GitHub (see `About pull requests`_ for more insight
-  abou this topic)
+  about this topic)
 
 
 Functional tests
