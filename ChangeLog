@@ -305,6 +305,11 @@ Release date: tba
 
       Fixes #59
 
+    * `invalid-name` messages are now correctly not emitted when typing module
+      is used to define custom types.
+
+      Fixes #1290
+
 
 What's new in Pylint 1.6.3?
 ===========================

@@ -1,0 +1,4 @@
+invalid-name:8::Invalid class name "my_type_var"
+invalid-name:9::Invalid class name "vector"
+invalid-name:10::Invalid class name "any_str"
+invalid-name:11::Invalid class name "user_id"

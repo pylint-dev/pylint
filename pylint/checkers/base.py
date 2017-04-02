@@ -139,6 +139,22 @@ def _is_multi_naming_match(match, node_type, confidence):
             match.lastgroup not in EXEMPT_NAME_CATEGORIES
             and (node_type != 'method' or confidence != interfaces.INFERENCE_FAILURE))
 
+def is_typing_type(obj):
+    # TODO: understanding of subscripted Generics should be part of astroid
+    if isinstance(obj, astroid.Subscript) and is_typing_type(obj.value):
+        return True
+
+    inferred = utils.safe_infer(obj)
+    print(obj.lineno, inferred, inferred.qname())
+    if isinstance(inferred, astroid.FunctionDef):
+        return inferred.qname() == 'typing.NewType.new_type'
+    elif isinstance(inferred, astroid.Instance):
+        return inferred.qname() == 'typing.TypeVar'
+    elif isinstance(inferred, astroid.ClassDef):
+        return inferred.qname().startswith('typing.')
+
+    return False
+
 
 if sys.version_info < (3, 0):
     BUILTIN_PROPERTY = '__builtin__.property'
@@ -1267,7 +1283,8 @@ class NameChecker(_BasicChecker):
             self._check_name('inlinevar', node.name, node)
         elif isinstance(frame, astroid.Module):
             if isinstance(ass_type, astroid.Assign) and not in_loop(ass_type):
-                if isinstance(utils.safe_infer(ass_type.value), astroid.ClassDef):
+                if (isinstance(utils.safe_infer(ass_type.value), astroid.ClassDef) or
+                        is_typing_type(ass_type.value)):
                     self._check_name('class', node.name, node)
                 else:
                     if not _redefines_import(node):
