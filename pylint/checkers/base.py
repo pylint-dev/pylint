@@ -686,6 +686,12 @@ functions, methods
                   'Emitted when a conditional statement (If or ternary if) '
                   'uses a constant value for its test. This might not be what '
                   'the user intended to do.'),
+        'W0126': ('StopIteration exception will be raised in generator. Use '
+                  'return statement to terminate generator early instead',
+                  'stopiteration-raised-in-gen',
+                  'Emitted when a StopException is raised from generator or coroutine. '
+                  'It\'s deprecated by PEP479 and may cause spurious errors between '
+                  'Python 3.7 and older released.'),
         'E0111': ('The first reversed() argument is not a sequence',
                   'bad-reversed-sequence',
                   'Used when the first argument to reversed() builtin '
@@ -951,19 +957,21 @@ functions, methods
         # 2 - Is it inside final body of a try...finally bloc ?
         self._check_not_in_finally(node, 'break', (astroid.For, astroid.While,))
 
-    @utils.check_messages('unreachable')
+    @utils.check_messages('unreachable', 'stopiteration-raised-in-gen')
     def visit_raise(self, node):
         """check if the node has a right sibling (if so, that's some unreachable
         code)
         """
         self._check_unreachable(node)
+        self._check_raising_stopexception_in_generator_explicit_raise(node)
 
     @utils.check_messages('exec-used')
     def visit_exec(self, node):
         """just print a warning on exec statements"""
         self.add_message('exec-used', node=node)
 
-    @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
+    @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence',
+                          'stopiteration-raised-in-gen')
     def visit_call(self, node):
         """visit a CallFunc node -> check if this is not a blacklisted builtin
         call and check for * or ** use
@@ -980,6 +988,8 @@ functions, methods
                     self._check_reversed(node)
                 elif name == 'eval':
                     self.add_message('eval-used', node=node)
+                elif name == 'next':
+                    self._check_raising_stopiteration_in_generator_next_call(node)
 
     @utils.check_messages('assert-on-tuple')
     def visit_assert(self, node):
@@ -1109,6 +1119,19 @@ functions, methods
                         # we assume it's a nested "with"
                         self.add_message('confusing-with-statement', node=node)
 
+    def _check_raising_stopexception_in_generator_explicit_raise(self, node):
+        frame = node.frame()
+        if isinstance(frame, astroid.FunctionDef) and frame.is_generator():
+            exc = utils.safe_infer(node.exc)
+            stopiteration_qname = '{}.StopIteration'.format(utils.EXCEPTIONS_MODULE)
+            if exc is not None and exc.qname() == stopiteration_qname:
+                self.add_message('stopiteration-raised-in-gen', node=node)
+
+    def _check_raising_stopiteration_in_generator_next_call(self, node):
+        frame = node.frame()
+        if (isinstance(frame, astroid.FunctionDef) and frame.is_generator()
+                and not utils.node_ignores_exception(node, StopIteration)):
+            self.add_message('stopiteration-raised-in-gen', node=node)
 
 _NAME_TYPES = {
     'module': (MOD_NAME_RGX, 'module'),

@@ -1,0 +1,1 @@
+stopiteration-raised-in-gen:6:gen1:StopIteration exception will be raised in generator. Use return statement to terminate generator early instead
