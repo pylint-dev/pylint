@@ -24,7 +24,7 @@ Note that if you don't find something you have expected in Pylint's
 issue tracker, it may be because it is an issue with one of its dependencies, namely
 astroid:
 
-* https://github.com/pycqa/astroid
+* https://github.com/PyCQA/astroid
 
 Mailing lists
 -------------
@@ -46,8 +46,8 @@ Pylint is developed using the git_ distributed version control system.
 
 You can clone Pylint and its dependencies from ::
 
-  git clone https://github.com/pycqa/pylint
-  git clone https://github.com/pycqa/astroid
+  git clone https://github.com/PyCQA/pylint
+  git clone https://github.com/PyCQA/astroid
 
 .. _git: https://git-scm.com/
 
@@ -82,11 +82,13 @@ your patch gets accepted.
 - Write a comprehensive commit message
 
 - Relate your change to an issue in the tracker if such an issue exists (see
-  `this page`_ of the GitHub documentation for more information on this)
+  `Closing issues via commit messages`_ of the GitHub documentation for more
+   information on this)
 
 - Document your change, if it is a non-trivial one.
 
-- Send a pull request from GitHub (more on this here_)
+- Send a pull request from GitHub (see `About pull requests`_ for more insight
+  about this topic)
 
 
 Functional tests
@@ -123,6 +125,6 @@ current environment in order to have faster feedback. Run with::
 
     python pylint/test/test_functional.py
 
-.. _`this page`: https://help.github.com/articles/closing-issues-via-commit-messages/
-.. _here: https://help.github.com/articles/using-pull-requests/
+.. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
+.. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
 .. _tox: http://tox.readthedocs.io/en/latest/
