@@ -147,9 +147,7 @@ def is_typing_type(obj):
     inferred = utils.safe_infer(obj)
     if isinstance(inferred, astroid.FunctionDef):
         return inferred.qname() == 'typing.NewType.new_type'
-    elif isinstance(inferred, astroid.Instance):
-        return inferred.qname() == 'typing.TypeVar'
-    elif isinstance(inferred, astroid.ClassDef):
+    elif isinstance(inferred, (astroid.Instance, astroid.ClassDef)):
         return inferred.qname().startswith('typing.')
 
     return False
