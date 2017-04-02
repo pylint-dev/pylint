@@ -662,7 +662,7 @@ class TestMessagesStore(object):
             msg, checkerref=False)
 
     def test_message_help_minmax(self, store):
-        # build the message manually to be python version independant
+        # build the message manually to be python version independent
         msg = store.check_message_id('E1234')
         self._compare_messages(
             ''':duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*

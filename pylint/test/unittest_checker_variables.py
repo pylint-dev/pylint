@@ -126,7 +126,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
         node = astroid.extract_node("""
         def cb_func(abc):
-             ''' Previous callbacks are overriden. '''
+             ''' Previous callbacks are overridden. '''
         """)
         with self.assertAddsMessages(
                 Message('unused-argument', node=node['abc'], args='abc')):

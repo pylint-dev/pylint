@@ -534,8 +534,8 @@ class FileState(object):
         self._collect_block_lines(msgs_store, module_node, orig_state)
 
     def _collect_block_lines(self, msgs_store, node, msg_state):
-        """Recursivly walk (depth first) AST to collect block level options line
-        numbers.
+        """Recursively walk (depth first) AST to collect block level options
+        line numbers.
         """
         for child in node.get_children():
             self._collect_block_lines(msgs_store, child, msg_state)

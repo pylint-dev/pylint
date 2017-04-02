@@ -162,7 +162,7 @@ exit code  meaning                    stderr stream message
 8          refactor message issued
 16         convention message issued
 32         usage error                - "internal error while receiving results\
-                                        from child linter" "Error occured,
+                                        from child linter" "Error occurred,
                                         stopping the linter."
                                       - "<return of linter.help()>"
                                       - "Jobs number <#> should be greater \
