@@ -35,6 +35,7 @@ from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope, OPTION_RGX
 
+_ASYNC_TOKEN = 'async'
 _CONTINUATION_BLOCK_OPENERS = ['elif', 'except', 'for', 'if', 'while', 'def', 'class']
 _KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
                    'raise', 'return', 'while', 'yield']
@@ -302,7 +303,13 @@ class ContinuedLineState(object):
         """Record the first non-junk token at the start of a line."""
         if self._line_start > -1:
             return
-        self._is_block_opener = self._tokens.token(pos) in _CONTINUATION_BLOCK_OPENERS
+
+        check_token_position = pos
+        if self._tokens.token(pos) == _ASYNC_TOKEN:
+            check_token_position += 1
+        self._is_block_opener = self._tokens.token(
+            check_token_position
+        ) in _CONTINUATION_BLOCK_OPENERS
         self._line_start = pos
 
     def next_physical_line(self):
@@ -863,7 +870,6 @@ class FormatChecker(BaseTokenChecker):
                 self.add_message('unexpected-line-ending-format', args=(line_ending, expected),
                                  line=line_num)
 
-
     def _process_retained_warnings(self, tokens, current_pos):
         single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ':')
 
@@ -900,6 +906,7 @@ class FormatChecker(BaseTokenChecker):
                 and tokens.start_col(next_idx) in valid_offsets):
             self._current_line.add_block_warning(next_idx, state, valid_offsets)
         elif tokens.start_col(next_idx) not in valid_offsets:
+
             self._add_continuation_message(state, valid_offsets, tokens, next_idx)
 
     def _add_continuation_message(self, state, offsets, tokens, position):
