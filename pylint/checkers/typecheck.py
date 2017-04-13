@@ -483,8 +483,8 @@ class TypeChecker(BaseChecker):
                          'but some branches might not be evaluated, which results in '
                          'partial inference. In that case, it might be useful to still emit '
                          'no-member and other checks for the rest of the inferred objects.'}
-                ),
-              ('ignore-mixin-members',
+               ),
+               ('ignore-mixin-members',
                 {'default' : True, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'Tells whether missing members accessed in mixin \
 class should be ignored. A mixin class is detected if its name ends with \
