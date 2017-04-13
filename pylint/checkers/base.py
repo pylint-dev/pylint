@@ -1137,7 +1137,9 @@ def _create_naming_options():
              'help': 'Naming hint for %s names' % (human_readable_name,)}))
     return tuple(name_options)
 
+
 class NameChecker(_BasicChecker):
+
     msgs = {
         'C0102': ('Black listed name "%s"',
                   'blacklisted-name',
@@ -1186,6 +1188,10 @@ class NameChecker(_BasicChecker):
                ),
               ) + _create_naming_options()
 
+    KEYWORD_ONSET = {
+        (3, 0): {'True', 'False'},
+        (3, 7): {'async', 'await'}
+    }
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
@@ -1265,7 +1271,9 @@ class NameChecker(_BasicChecker):
     @utils.check_messages('blacklisted-name', 'invalid-name')
     def visit_assignname(self, node):
         """check module level assigned names"""
-        keyword_first_version = self._name_became_keyword_in_version(node.name)
+        keyword_first_version = self._name_became_keyword_in_version(
+            node.name, self.KEYWORD_ONSET
+        )
         if keyword_first_version is not None:
             self.add_message('assign-to-new-keyword',
                              node=node, args=(node.name, keyword_first_version),
@@ -1340,14 +1348,10 @@ class NameChecker(_BasicChecker):
             self._raise_name_warning(node, node_type, name, confidence)
 
     @staticmethod
-    def _name_became_keyword_in_version(name):
-        rules = {
-            (3, 0): {'True', 'False'},
-            (3, 7): {'async', 'await'}
-        }
+    def _name_became_keyword_in_version(name, rules):
         for version, keywords in rules.items():
             if name in keywords and sys.version_info < version:
-                return '.'.join(str(s) for s in version)
+                return '.'.join(map(str, version))
         return None
 
 
