@@ -7,6 +7,11 @@ What's New in Pylint 1.7?
 
 Release date: tba
 
+    * Added new message `assign-to-new-keyword` to warn about assigning to names which
+      will become a keyword in future Python releases.
+
+      Close #1351
+
     * Split the 'missing or differing' in parameter documentation in different error.
       'differing-param-doc' covers the differing part of the old 'missing-param-doc',
       and 'differing-type-doc' covers the differing part of the old 'missing-type-doc'
