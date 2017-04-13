@@ -984,11 +984,12 @@ class FormatChecker(BaseTokenChecker):
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
 
-        for line in lines.splitlines(True):
+        def check_line(line, i):
             if not line.endswith('\n'):
                 self.add_message('missing-final-newline', line=i)
             else:
-                stripped_line = line.rstrip()
+                # exclude \f (formfeed) from the rstrip
+                stripped_line = line.rstrip('\t\n\r\v ')
                 if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
                     # allow empty lines
                     pass
@@ -1002,7 +1003,25 @@ class FormatChecker(BaseTokenChecker):
 
             if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message('line-too-long', line=i, args=(len(line), max_chars))
-            i += 1
+            return i + 1
+
+        unsplit_ends = {
+            '\v', '\x0b', '\f', '\x0c', '\x1c', '\x1d', '\x1e', '\x85', '\u2028', '\u2029'}
+        unsplit = []
+        for line in lines.splitlines(True):
+            if line[-1] in unsplit_ends:
+                unsplit.append(line)
+                continue
+
+            if unsplit:
+                unsplit.append(line)
+                line = ''.join(unsplit)
+                unsplit = []
+
+            i = check_line(line, i)
+
+        if unsplit:
+            check_line(''.join(unsplit), i)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
