@@ -474,7 +474,17 @@ class TypeChecker(BaseChecker):
     msgs = MSGS
     priority = -1
     # configuration options
-    options = (('ignore-mixin-members',
+    options = (('ignore-on-opaque-inference',
+               {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+                'help': 'This flag controls whether pylint should warn about '
+                        'no-member and similar checks whenever an opaque object '
+                        'is returned when inferring. The inference can return '
+                        'multiple potential results while evaluating a Python object, '
+                        'but some branches might not be evaluated, which results in '
+                        'partial inference. In that case, it might be useful to still emit '
+                        'no-member and other checks for the rest of the inferred objects.'}
+               ),
+              ('ignore-mixin-members',
                 {'default' : True, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'Tells whether missing members accessed in mixin \
 class should be ignored. A mixin class is detected if its name ends with \
@@ -610,22 +620,26 @@ accessed. Python regular expressions are accepted.'}
                 return
 
         try:
-            infered = list(node.expr.infer())
+            inferred = list(node.expr.infer())
         except exceptions.InferenceError:
             return
+
         # list of (node, nodename) which are missing the attribute
         missingattr = set()
-        inference_failure = False
-        for owner in infered:
-            # skip yes object
-            if owner is astroid.YES:
-                inference_failure = True
-                continue
 
-            if isinstance(owner, astroid.nodes.Unknown):
-                inference_failure = True
-                continue
+        non_opaque_inference_results = [
+            owner for owner in inferred
+            if owner is not astroid.Uninferable
+            and not isinstance(owner, astroid.nodes.Unknown)
+        ]
+        if (len(non_opaque_inference_results) != len(inferred)
+                and self.config.ignore_on_opaque_inference):
+            # There is an ambiguity in the inference. Since we can't
+            # make sure that we won't emit a false positive, we just stop
+            # whenever the inference returns an opaque inference object.
+            return
 
+        for owner in non_opaque_inference_results:
             name = getattr(owner, 'name', None)
             if _is_owner_ignored(owner, name, self.config.ignored_classes,
                                  self.config.ignored_modules):
@@ -666,7 +680,6 @@ accessed. Python regular expressions are accepted.'}
                 if actual in done:
                     continue
                 done.add(actual)
-                confidence = INFERENCE if not inference_failure else INFERENCE_FAILURE
 
                 if self.config.missing_member_hint:
                     hint = _missing_member_hint(owner, node.attrname,
@@ -678,7 +691,7 @@ accessed. Python regular expressions are accepted.'}
                 self.add_message('no-member', node=node,
                                  args=(owner.display_type(), name,
                                        node.attrname, hint),
-                                 confidence=confidence)
+                                 confidence=INFERENCE)
 
     @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):

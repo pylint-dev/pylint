@@ -6,10 +6,19 @@ What's New in Pylint 1.7?
 =========================
 
 Release date: tba
+
     * Don't emit missing-final-newline or trailing-whitespace for formfeeds (page breaks).
 
       Close #1218 and #1219
-      
+
+    * Don't emit by default no-member if we have opaque inference objects in the inference results
+
+      This is controlled through the new flag ignore-on-opaque-inference, which is by
+      default True. The inference can return  multiple potential results while
+      evaluating a Python object, but some branches might not be evaluated, which
+      results in partial inference. In that case, it might be useful to still emit
+      no-member and other checks for the rest of the inferred objects.
+
     * Added new message `assign-to-new-keyword` to warn about assigning to names which
       will become a keyword in future Python releases.
 
