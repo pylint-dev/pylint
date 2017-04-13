@@ -16,7 +16,7 @@ from pylint.checkers.exceptions import _annotated_unpack_infer
 
 class OverlappingExceptionsChecker(checkers.BaseChecker):
     """Checks for two or more exceptions in the same exception handler
-    clause that are identical or parts of the same inheritence hierarchy
+    clause that are identical or parts of the same inheritance hierarchy
     (i.e. overlapping)."""
 
     __implements__ = interfaces.IAstroidChecker

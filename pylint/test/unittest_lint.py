@@ -499,7 +499,7 @@ def test_full_documentation(linter):
         "^Pylint global options and switches$",
         "Verbatim name of the checker is ``python3``",
         # messages
-        "^:old-octal-literal \(E1608\):",
+        "^:old-octal-literal \\(E1608\\):",
         # options
         "^:dummy-variables-rgx:",
     ]:
@@ -662,7 +662,7 @@ class TestMessagesStore(object):
             msg, checkerref=False)
 
     def test_message_help_minmax(self, store):
-        # build the message manually to be python version independant
+        # build the message manually to be python version independent
         msg = store.check_message_id('E1234')
         self._compare_messages(
             ''':duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*

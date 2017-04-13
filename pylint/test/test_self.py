@@ -155,7 +155,7 @@ class TestRunTC(object):
         output = out.getvalue()
         # Get rid of the pesky messages that pylint emits if the
         # configuration file is not found.
-        master = re.search("\[MASTER", output)
+        master = re.search(r"\[MASTER", output)
         out = six.StringIO(output[master.start():])
         parser = six.moves.configparser.RawConfigParser()
         parser.readfp(out)

@@ -866,6 +866,7 @@ class VariablesChecker(BaseChecker):
             in_annotation_or_default = (
                 (
                     PY3K and (node in frame.args.annotations
+                              or node in frame.args.kwonlyargs_annotations
                               or node is frame.args.varargannotation
                               or node is frame.args.kwargannotation)
                 )
@@ -1274,7 +1275,7 @@ class VariablesChecker3k(VariablesChecker):
 
     def _check_classdef_metaclasses(self, klass, parent_node):
         if not klass._metaclass:
-            # Skip if this class doesn't use explictly a metaclass, but inherits it from ancestors
+            # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
             return []
 
         consumed = []  # [(scope_locals, consumed_key)]

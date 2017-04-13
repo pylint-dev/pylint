@@ -537,7 +537,7 @@ class NumpyDocstring(GoogleDocstring):
     re_param_line = re.compile(r"""
         \s*  (\w+)                      # identifier
         \s*  :
-        \s*  ({type})? # optional type declaration
+        \s*  (?:({type})(?:,\s+optional)?)? # optional type declaration
         \n                              # description starts on a new line
         \s* (.*)                        # description
     """.format(

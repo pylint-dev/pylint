@@ -10,6 +10,8 @@
 """Unittest for the base checker."""
 
 import re
+import sys
+import unittest
 
 import astroid
 from pylint.checkers import base
@@ -25,7 +27,7 @@ class TestDocstring(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_module(module)
 
-    def test_missing_docstring_emtpy_module(self):
+    def test_missing_docstring_empty_module(self):
         module = astroid.parse("")
         with self.assertNoMessages():
             self.checker.visit_module(module)
@@ -177,6 +179,38 @@ class TestNameChecker(CheckerTestCase):
         CONST = "12 34 ".rstrip().split()""")
         with self.assertNoMessages():
             self.checker.visit_assignname(assign.targets[0])
+
+    @unittest.skipIf(sys.version_info >= (3, 0), reason="Needs Python 2.x")
+    @set_config(const_rgx=re.compile(".+"))
+    def test_assign_to_new_keyword_py2(self):
+        ast = astroid.extract_node("""
+        True = 0  #@
+        False = 1 #@
+        """)
+        with self.assertAddsMessages(
+            Message(msg_id='assign-to-new-keyword', node=ast[0].targets[0], args=('True', '3.0'))
+        ):
+            self.checker.visit_assignname(ast[0].targets[0])
+        with self.assertAddsMessages(
+            Message(msg_id='assign-to-new-keyword', node=ast[1].targets[0], args=('False', '3.0'))
+        ):
+            self.checker.visit_assignname(ast[1].targets[0])
+
+    @unittest.skipIf(sys.version_info >= (3, 7), reason="Needs Python 3.6 or earlier")
+    @set_config(const_rgx=re.compile(".+"))
+    def test_assign_to_new_keyword_py3(self):
+        ast = astroid.extract_node("""
+        async = "foo"  #@
+        await = "bar"  #@
+        """)
+        with self.assertAddsMessages(
+            Message(msg_id='assign-to-new-keyword', node=ast[0].targets[0], args=('async', '3.7'))
+        ):
+            self.checker.visit_assignname(ast[0].targets[0])
+        with self.assertAddsMessages(
+            Message(msg_id='assign-to-new-keyword', node=ast[1].targets[0], args=('await', '3.7'))
+        ):
+            self.checker.visit_assignname(ast[1].targets[0])
 
 
 class TestMultiNamingStyle(CheckerTestCase):

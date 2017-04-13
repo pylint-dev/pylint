@@ -138,7 +138,7 @@ MSGS = {
               'traceback. Please report such errors !'),
     'F0010': ('error while code parsing: %s',
               'parse-error',
-              'Used when an exception occured while building the Astroid '
+              'Used when an exception occurred while building the Astroid '
               'representation which could be handled by astroid.'),
 
     'I0001': ('Unable to run raw checkers on built-in module %s',
@@ -253,8 +253,8 @@ class PyLinter(config.OptionsManagerMixIn,
     * handle message activation / deactivation at the module level
     * handle some basic but necessary stats'data (number of classes, methods...)
 
-    IDE plugins developpers: you may have to call
-    `astroid.builder.MANAGER.astroid_cache.clear()` accross run if you want
+    IDE plugin developers: you may have to call
+    `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want
     to ensure the latest code version is actually checked.
     """
 
@@ -638,7 +638,7 @@ class PyLinter(config.OptionsManagerMixIn,
                     meth = self._options_methods[opt]
                 except KeyError:
                     meth = self._bw_options_methods[opt]
-                    # found a "(dis|en)able-msg" pragma deprecated suppresssion
+                    # found a "(dis|en)able-msg" pragma deprecated suppression
                     self.add_message('deprecated-pragma', line=start[0],
                                      args=(opt, opt.replace('-msg', '')))
                 for msgid in utils._splitstrip(value):
@@ -785,7 +785,7 @@ class PyLinter(config.OptionsManagerMixIn,
             child.join()
 
         if failed:
-            print("Error occured, stopping the linter.", file=sys.stderr)
+            print("Error occurred, stopping the linter.", file=sys.stderr)
             sys.exit(32)
 
     def _parallel_check(self, files_or_modules):
