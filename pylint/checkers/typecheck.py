@@ -37,7 +37,7 @@ from astroid.interpreter import dunder_lookup
 from astroid import objects
 from astroid import bases
 
-from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
+from pylint.interfaces import IAstroidChecker, INFERENCE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
@@ -475,15 +475,15 @@ class TypeChecker(BaseChecker):
     priority = -1
     # configuration options
     options = (('ignore-on-opaque-inference',
-               {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
-                'help': 'This flag controls whether pylint should warn about '
-                        'no-member and similar checks whenever an opaque object '
-                        'is returned when inferring. The inference can return '
-                        'multiple potential results while evaluating a Python object, '
-                        'but some branches might not be evaluated, which results in '
-                        'partial inference. In that case, it might be useful to still emit '
-                        'no-member and other checks for the rest of the inferred objects.'}
-               ),
+                {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'This flag controls whether pylint should warn about '
+                         'no-member and similar checks whenever an opaque object '
+                         'is returned when inferring. The inference can return '
+                         'multiple potential results while evaluating a Python object, '
+                         'but some branches might not be evaluated, which results in '
+                         'partial inference. In that case, it might be useful to still emit '
+                         'no-member and other checks for the rest of the inferred objects.'}
+                ),
               ('ignore-mixin-members',
                 {'default' : True, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'Tells whether missing members accessed in mixin \
