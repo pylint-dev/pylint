@@ -62,7 +62,7 @@ PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
 
 # Name categories that are always consistent with all naming conventions.
-EXEMPT_NAME_CATEGORIES = set(('exempt', 'ignore'))
+EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
 
 # A mapping from builtin-qname -> symbol, to be used when generating messages
 # about dangerous default values as arguments
@@ -72,7 +72,6 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
 )
 REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
 
-del re
 
 def _redefines_import(node):
     """ Detect that the given node (AssName) is inside an
@@ -94,6 +93,7 @@ def _redefines_import(node):
                 return True
     return False
 
+
 def in_loop(node):
     """return True if the node is inside a kind of for loop"""
     parent = node.parent
@@ -103,6 +103,7 @@ def in_loop(node):
             return True
         parent = parent.parent
     return False
+
 
 def in_nested_list(nested_list, obj):
     """return true if the object is an element of <nested_list> or of a nested
@@ -115,6 +116,7 @@ def in_nested_list(nested_list, obj):
         elif elmt == obj:
             return True
     return False
+
 
 def _loop_exits_early(loop):
     """Returns true if a loop has a break statement in its body."""
@@ -132,6 +134,7 @@ def _loop_exits_early(loop):
         for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True
     return False
+
 
 def _is_multi_naming_match(match, node_type, confidence):
     return (match is not None and
@@ -246,6 +249,7 @@ def report_by_type_stats(sect, stats, old_stats):
                   nice_stats[node_type].get('percent_badname', '0'))
     sect.append(reporter_nodes.Table(children=lines, cols=6, rheaders=1))
 
+
 def redefined_by_decorator(node):
     """return True if the object is a method redefined via decorator.
 
@@ -266,6 +270,7 @@ def redefined_by_decorator(node):
 class _BasicChecker(checkers.BaseChecker):
     __implements__ = interfaces.IAstroidChecker
     name = 'basic'
+
 
 class BasicErrorChecker(_BasicChecker):
     msgs = {
@@ -602,7 +607,6 @@ class BasicErrorChecker(_BasicChecker):
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
             self.add_message('function-redefined', node=node,
                              args=(redeftype, defined_self.fromlineno))
-
 
 
 class BasicChecker(_BasicChecker):
@@ -1123,6 +1127,7 @@ _NAME_TYPES = {
     'inlinevar': (COMP_VAR_RGX, 'inline iteration'),
 }
 
+
 def _create_naming_options():
     name_options = []
     for name_type, (rgx, human_readable_name) in six.iteritems(_NAME_TYPES):
@@ -1382,12 +1387,12 @@ class DocStringChecker(_BasicChecker):
                ),
               )
 
-
     def open(self):
         self.stats = self.linter.add_stats(undocumented_module=0,
                                            undocumented_function=0,
                                            undocumented_method=0,
                                            undocumented_class=0)
+
     @utils.check_messages('missing-docstring', 'empty-docstring')
     def visit_module(self, node):
         self._check_docstring('module', node)
@@ -1478,6 +1483,7 @@ class PassChecker(_BasicChecker):
                       'Used when a "pass" statement that can be avoided is '
                       'encountered.'),
            }
+
     @utils.check_messages('unnecessary-pass')
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
@@ -1641,7 +1647,6 @@ class ComparisonChecker(_BasicChecker):
                     # not e.g. type(x) == type([])
                     return
         self.add_message('unidiomatic-typecheck', node=node)
-
 
 
 def register(linter):
