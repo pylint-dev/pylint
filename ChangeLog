@@ -5,7 +5,7 @@ Pylint's ChangeLog
 What's New in Pylint 1.7?
 =========================
 
-Release date: tba
+Release date: 2017-04-13
 
     * Don't emit missing-final-newline or trailing-whitespace for formfeeds (page breaks).
 
