@@ -160,6 +160,9 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
         cls = instance._proxied
         self.visit_classdef(cls)
 
+    # Exception instances have a particular class type
+    visit_exceptioninstance = visit_instance
+
     def visit_classdef(self, cls):
         if (not utils.inherit_from_std_ex(cls) and
                 utils.has_known_bases(cls)):
@@ -239,6 +242,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             inferred_value = None
 
         ExceptionRaiseRefVisitor(self, node).visit(expr)
+
         if inferred_value:
             ExceptionRaiseLeafVisitor(self, node).visit(inferred_value)
 
