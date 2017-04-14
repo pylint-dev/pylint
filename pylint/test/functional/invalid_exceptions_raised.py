@@ -81,3 +81,11 @@ def unknown_bases():
     class MyException(bala):
         pass
     raise MyException
+
+
+def exception_instance_regression():
+    """Exceptions have a particular class type"""
+    try:
+        int("9a")
+    except ValueError as exc:
+        raise exc
