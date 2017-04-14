@@ -1,0 +1,12 @@
+**************************
+  What's New In Pylint 1.8
+**************************
+
+:Release: |release|
+:Date: |TBA|
+
+
+Summary -- Release highlights
+=============================
+
+* None yet.
