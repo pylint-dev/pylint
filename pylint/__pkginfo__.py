@@ -26,7 +26,6 @@ install_requires = [
     'six',
     'isort >= 4.2.5',
     'mccabe',
-    'editdistance',
 ]
 
 dependency_links = []

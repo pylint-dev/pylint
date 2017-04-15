@@ -25,7 +25,6 @@ import re
 import shlex
 import sys
 
-import editdistance
 import six
 
 import astroid
@@ -119,6 +118,25 @@ def _(node):
     return itertools.chain(values, other_values)
 
 
+def _string_distance(seq1, seq2):
+    seq2_length = len(seq2)
+
+    row = list(range(1, seq2_length + 1)) + [0]
+    for seq1_index, seq1_char in enumerate(seq1):
+        last_row = row
+        row = [0] * seq2_length + [seq1_index + 1]
+
+        for seq2_index, seq2_char in enumerate(seq2):
+            row[seq2_index] = min(
+                last_row[seq2_index] + 1,
+                row[seq2_index - 1] + 1,
+                last_row[seq2_index - 1] + (seq1_char != seq2_char)
+
+            )
+
+    return row[seq2_length - 1]
+
+
 def _similar_names(owner, attrname, distance_threshold, max_choices):
     """Given an owner and a name, try to find similar names
 
@@ -132,7 +150,7 @@ def _similar_names(owner, attrname, distance_threshold, max_choices):
         if name == attrname:
             continue
 
-        distance = editdistance.eval(attrname, name)
+        distance = _string_distance(attrname, name)
         if distance <= distance_threshold:
             possible_names.append((name, distance))
 
