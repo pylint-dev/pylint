@@ -216,21 +216,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_one_element_trailing_comma_tuple(self, tokens, token, index):
         left_tokens = itertools.islice(tokens, index + 1, None)
-        same_line_ending_tokens = list(
+        same_line_remaining_tokens = list(
             other_token for other_token in left_tokens
             if other_token.start[0] == token.start[0]
-            and other_token.type in (tokenize.NEWLINE, tokenize.COMMENT)
         )
-        if not same_line_ending_tokens:
+        is_last_element = all(
+            other_token.type in (tokenize.NEWLINE, tokenize.COMMENT)
+            for other_token in same_line_remaining_tokens
+        )
+
+        if not same_line_remaining_tokens or not is_last_element:
             return
 
         assign_token = tokens[index-2:index-1]
-        if not assign_token or '=' not in assign_token[0].string:
-            return
-
-        if self.linter.is_message_enabled('trailing-comma-tuple'):
-            self.add_message('trailing-comma-tuple',
-                             line=token.start[0])
+        if assign_token and '=' in assign_token[0].string:
+            if self.linter.is_message_enabled('trailing-comma-tuple'):
+                self.add_message('trailing-comma-tuple',
+                                 line=token.start[0])
 
     def leave_module(self, _):
         self._init()
