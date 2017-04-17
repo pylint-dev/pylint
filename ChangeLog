@@ -7,6 +7,22 @@ What's New in Pylint 1.8?
 Release date: TBD
 
 
+What's New in Pylint 1.7.1?
+=========================
+
+Release date: |TBA|
+
+    * Fix a false positive which occurred when an exception was reraised
+
+      Close #1419
+
+    * Fix a false positive of ``disallow-trailing-tuple``
+
+      The check was improved by verifying for non-terminating newlines, which
+      should exempt function calls and function definitions from the check
+      Close #1424
+
+
 What's New in Pylint 1.7?
 =========================
 
