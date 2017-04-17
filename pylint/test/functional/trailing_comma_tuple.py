@@ -12,3 +12,14 @@ DDD = (
 EEE = (
     "aaa",
 )
+
+
+def test(*args, **kwargs):
+    return args, kwargs
+
+
+test(widget=1, label='test')
+test(widget=1,
+     label='test')
+test(widget=1, \
+     label='test')
