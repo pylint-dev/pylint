@@ -186,3 +186,27 @@ def compare_prices(arg):
 def find_problems2(prob_dates):
     for fff in range(10):
         prob_dates |= compare_prices(fff)
+
+def signature_decorator(fun):
+    """Decorator that modifies the function signature"""
+    def modified_fun(arg):
+        """Function with no args"""
+        return fun('one', arg)
+    return modified_fun
+
+def original_function_signature(one, two):
+    return one + two
+
+MODIFIED_FUNCTION_SIGNATURE = signature_decorator(original_function_signature)
+
+MODIFIED_FUNCTION_SIGNATURE()  # [no-value-for-parameter]
+MODIFIED_FUNCTION_SIGNATURE('two')
+MODIFIED_FUNCTION_SIGNATURE('one', 'two')  # [too-many-function-args]
+
+@signature_decorator
+def modified_function_signature(one, two):
+    return one + two
+
+modified_function_signature()  # [no-value-for-parameter]
+modified_function_signature('two')
+modified_function_signature('one', 'two')  # [too-many-function-args]
