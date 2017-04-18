@@ -1,11 +1,49 @@
 ------------------
 Pylint's ChangeLog
 ------------------
+What's New in Pylint 1.8?
+=========================
+
+Release date: TBD
+
+
+What's New in Pylint 1.7.1?
+=========================
+
+Release date: |TBA|
+
+    * Fix a false positive which occurred when an exception was reraised
+
+      Close #1419
+
+    * Fix a false positive of ``disallow-trailing-tuple``
+
+      The check was improved by verifying for non-terminating newlines, which
+      should exempt function calls and function definitions from the check
+      Close #1424
+
 
 What's New in Pylint 1.7?
 =========================
 
-Release date: tba
+Release date: 2017-04-13
+
+    * Don't emit missing-final-newline or trailing-whitespace for formfeeds (page breaks).
+
+      Close #1218 and #1219
+
+    * Don't emit by default no-member if we have opaque inference objects in the inference results
+
+      This is controlled through the new flag ignore-on-opaque-inference, which is by
+      default True. The inference can return  multiple potential results while
+      evaluating a Python object, but some branches might not be evaluated, which
+      results in partial inference. In that case, it might be useful to still emit
+      no-member and other checks for the rest of the inferred objects.
+
+    * Added new message `assign-to-new-keyword` to warn about assigning to names which
+      will become a keyword in future Python releases.
+
+      Close #1351
 
     * Split the 'missing or differing' in parameter documentation in different error.
       'differing-param-doc' covers the differing part of the old 'missing-param-doc',

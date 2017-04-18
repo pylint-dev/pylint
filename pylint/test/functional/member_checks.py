@@ -83,7 +83,7 @@ class Getattribute(object):
 
 print(object.__init__)
 print(property.__init__)
-print(Client().set_later.lower())  # [no-member]
+print(Client().set_later.lower())
 print(Mixin().nanana())
 print(Getattr().nananan())
 print(Getattribute().batman())

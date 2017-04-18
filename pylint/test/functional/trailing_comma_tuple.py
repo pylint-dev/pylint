@@ -1,5 +1,5 @@
 """Check trailing comma one element tuples."""
-# pylint: disable=bad-whitespace
+# pylint: disable=bad-whitespace, missing-docstring
 AAA = 1, # [trailing-comma-tuple]
 BBB = "aaaa", # [trailing-comma-tuple]
 CCC="aaa", # [trailing-comma-tuple]
@@ -12,3 +12,14 @@ DDD = (
 EEE = (
     "aaa",
 )
+
+
+def test(*args, **kwargs):
+    return args, kwargs
+
+
+test(widget=1, label='test')
+test(widget=1,
+     label='test')
+test(widget=1, \
+     label='test')

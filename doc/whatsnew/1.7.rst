@@ -3,7 +3,7 @@
 **************************
 
 :Release: |release|
-:Date: |TBD|
+:Date: 2017-04-13
 
 
 Summary -- Release highlights
@@ -578,10 +578,31 @@ New checkers
 * A new check was added, ``used-prior-global-declaration``. This is emitted when
   a name is used prior a global declaration, resulting in a SyntaxError in Python 3.6.
 
+* A new message was added, ``assign-to-new-keyword``. This is emitted when used name
+  is known to become a keyword in future Python release. Assignments to keywords
+  would result in ``SyntaxError`` after switching to newer interpreter version.
+
+  .. code-block:: python
+
+      # While it's correct in Python 2.x, it raises a SyntaxError in Python 3.x
+      True = 1
+      False = 0
+
+      # Same as above, but it'll be a SyntaxError starting from Python 3.7
+      async = "async"
+      await = "await
 
 
 Other Changes
 =============
+
+* We don't emit by default ``no-member`` if we have opaque inference objects in the inference results
+
+  This is controlled through the new flag ``--ignore-on-opaque-inference``, which is by
+  default True. The inference can return  multiple potential results while
+  evaluating a Python object, but some branches might not be evaluated, which
+  results in partial inference. In that case, it might be useful to still emit
+  no-member and other checks for the rest of the inferred objects.
 
 * Namespace packages are now supported by pylint. This includes both explicit namespace
   packages and implicit namespace packages, supported in Python 3 through PEP 420.

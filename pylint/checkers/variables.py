@@ -866,6 +866,7 @@ class VariablesChecker(BaseChecker):
             in_annotation_or_default = (
                 (
                     PY3K and (node in frame.args.annotations
+                              or node in frame.args.kwonlyargs_annotations
                               or node is frame.args.varargannotation
                               or node is frame.args.kwargannotation)
                 )

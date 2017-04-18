@@ -25,7 +25,6 @@ import re
 import shlex
 import sys
 
-import editdistance
 import six
 
 import astroid
@@ -37,7 +36,7 @@ from astroid.interpreter import dunder_lookup
 from astroid import objects
 from astroid import bases
 
-from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
+from pylint.interfaces import IAstroidChecker, INFERENCE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
@@ -119,6 +118,25 @@ def _(node):
     return itertools.chain(values, other_values)
 
 
+def _string_distance(seq1, seq2):
+    seq2_length = len(seq2)
+
+    row = list(range(1, seq2_length + 1)) + [0]
+    for seq1_index, seq1_char in enumerate(seq1):
+        last_row = row
+        row = [0] * seq2_length + [seq1_index + 1]
+
+        for seq2_index, seq2_char in enumerate(seq2):
+            row[seq2_index] = min(
+                last_row[seq2_index] + 1,
+                row[seq2_index - 1] + 1,
+                last_row[seq2_index - 1] + (seq1_char != seq2_char)
+
+            )
+
+    return row[seq2_length - 1]
+
+
 def _similar_names(owner, attrname, distance_threshold, max_choices):
     """Given an owner and a name, try to find similar names
 
@@ -132,7 +150,7 @@ def _similar_names(owner, attrname, distance_threshold, max_choices):
         if name == attrname:
             continue
 
-        distance = editdistance.eval(attrname, name)
+        distance = _string_distance(attrname, name)
         if distance <= distance_threshold:
             possible_names.append((name, distance))
 
@@ -474,7 +492,17 @@ class TypeChecker(BaseChecker):
     msgs = MSGS
     priority = -1
     # configuration options
-    options = (('ignore-mixin-members',
+    options = (('ignore-on-opaque-inference',
+                {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'This flag controls whether pylint should warn about '
+                         'no-member and similar checks whenever an opaque object '
+                         'is returned when inferring. The inference can return '
+                         'multiple potential results while evaluating a Python object, '
+                         'but some branches might not be evaluated, which results in '
+                         'partial inference. In that case, it might be useful to still emit '
+                         'no-member and other checks for the rest of the inferred objects.'}
+               ),
+               ('ignore-mixin-members',
                 {'default' : True, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'Tells whether missing members accessed in mixin \
 class should be ignored. A mixin class is detected if its name ends with \
@@ -610,22 +638,26 @@ accessed. Python regular expressions are accepted.'}
                 return
 
         try:
-            infered = list(node.expr.infer())
+            inferred = list(node.expr.infer())
         except exceptions.InferenceError:
             return
+
         # list of (node, nodename) which are missing the attribute
         missingattr = set()
-        inference_failure = False
-        for owner in infered:
-            # skip yes object
-            if owner is astroid.YES:
-                inference_failure = True
-                continue
 
-            if isinstance(owner, astroid.nodes.Unknown):
-                inference_failure = True
-                continue
+        non_opaque_inference_results = [
+            owner for owner in inferred
+            if owner is not astroid.Uninferable
+            and not isinstance(owner, astroid.nodes.Unknown)
+        ]
+        if (len(non_opaque_inference_results) != len(inferred)
+                and self.config.ignore_on_opaque_inference):
+            # There is an ambiguity in the inference. Since we can't
+            # make sure that we won't emit a false positive, we just stop
+            # whenever the inference returns an opaque inference object.
+            return
 
+        for owner in non_opaque_inference_results:
             name = getattr(owner, 'name', None)
             if _is_owner_ignored(owner, name, self.config.ignored_classes,
                                  self.config.ignored_modules):
@@ -666,7 +698,6 @@ accessed. Python regular expressions are accepted.'}
                 if actual in done:
                     continue
                 done.add(actual)
-                confidence = INFERENCE if not inference_failure else INFERENCE_FAILURE
 
                 if self.config.missing_member_hint:
                     hint = _missing_member_hint(owner, node.attrname,
@@ -678,7 +709,7 @@ accessed. Python regular expressions are accepted.'}
                 self.add_message('no-member', node=node,
                                  args=(owner.display_type(), name,
                                        node.attrname, hint),
-                                 confidence=confidence)
+                                 confidence=INFERENCE)
 
     @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):
