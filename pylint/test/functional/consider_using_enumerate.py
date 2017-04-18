@@ -6,6 +6,8 @@ def bad():
     iterable = [1, 2, 3]
     for obj in range(len(iterable)): # [consider-using-enumerate]
         yield iterable[obj]
+    for obj in range(0, len(iterable)): # [consider-using-enumerate]
+        yield iterable[obj]
 
 
 def good():
@@ -26,6 +28,8 @@ def good():
     for index in range(10):
         yield iterable[index]
     for index in range(len([1, 2, 3, 4])):
+        yield index
+    for index in range(1, len(iterable)):
         yield index
     for index in range(len(iterable)):
         yield [1, 2, 3][index]
