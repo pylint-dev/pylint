@@ -37,6 +37,7 @@ except ImportError:
 import sys
 import tokenize
 import warnings
+import fnmatch
 
 import six
 
@@ -105,6 +106,13 @@ def _merge_stats(stats):
     merged['by_msg'] = by_msg
     return merged
 
+def _explore_dir(filepat, top):
+    file_names = []
+    for (path, _, filelist) in os.walk(top):
+        for name in fnmatch.filter(filelist, filepat):
+            full_name = os.path.join(path, name)
+            file_names.append(full_name)
+    return file_names
 
 @contextlib.contextmanager
 def _patch_sysmodules():
@@ -713,6 +721,18 @@ class PyLinter(config.OptionsManagerMixIn,
         """main checking entry: check a list of files or modules from their
         name.
         """
+        temp_files_or_modules = []
+
+        for file in files_or_modules:
+            #If it is a directory, then fetch all files present inside it.
+            if os.path.isdir(file):
+                file_list = _explore_dir("*.py", file)
+                temp_files_or_modules.extend(file_list)
+            else:
+                temp_files_or_modules.append(file)
+
+        files_or_modules = temp_files_or_modules
+
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
