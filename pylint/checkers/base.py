@@ -1404,7 +1404,7 @@ class DocStringChecker(_BasicChecker):
 
     @staticmethod
     def _is_setter_or_deleter(node):
-        names = {'setter', 'deleter'}
+        names = set(['setter', 'deleter'])
         for decorator in node.decorators.nodes:
             if (isinstance(decorator, astroid.Attribute)
                     and decorator.attrname in names):

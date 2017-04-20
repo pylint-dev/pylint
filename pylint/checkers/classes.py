@@ -40,7 +40,7 @@ if sys.version_info >= (3, 0):
     NEXT_METHOD = '__next__'
 else:
     NEXT_METHOD = 'next'
-INVALID_BASE_CLASSES = {'bool', 'range', 'slice', 'memoryview'}
+INVALID_BASE_CLASSES = set(['bool', 'range', 'slice', 'memoryview'])
 
 
 # Dealing with useless override detection, with regard

@@ -98,11 +98,11 @@ _SPECIAL_METHODS_PARAMS = {
     (0, 1): ('__round__', ),
 }
 
-SPECIAL_METHODS_PARAMS = {
-    name: params
-    for params, methods in _SPECIAL_METHODS_PARAMS.items()
+SPECIAL_METHODS_PARAMS = dict(
+    (name, params)
+    for (params, methods) in _SPECIAL_METHODS_PARAMS.items()
     for name in methods
-}
+)
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
 
@@ -474,7 +474,7 @@ def error_of_type(handler, error_type):
 
     if not isinstance(error_type, tuple):
         error_type = (error_type, )
-    expected_errors = {stringify_error(error) for error in error_type}
+    expected_errors = set([stringify_error(error) for error in error_type])
     if not handler.type:
         # bare except. While this indeed catches anything, if the desired errors
         # aren't specified directly, then we just ignore it.

@@ -25,7 +25,7 @@ def _builtin_exceptions():
         return isinstance(obj, type) and issubclass(obj, BaseException)
 
     members = inspect.getmembers(six.moves.builtins, predicate)
-    return {exc.__name__ for (_, exc) in members}
+    return set([exc.__name__ for (_, exc) in members])
 
 
 def _annotated_unpack_infer(stmt, context=None):

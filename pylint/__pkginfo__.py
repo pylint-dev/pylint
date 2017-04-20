@@ -47,7 +47,7 @@ if has_environment_marker_range_operators_support():
     extras_require[':python_version=="2.7"'] = ['configparser', 'backports.functools_lru_cache']
     extras_require[':python_version<"3.4"'] = ['singledispatch']
 else:
-    if (py_version.major, py_version.minor) == (2, 7):
+    if py_version <= (2, 7):
         install_requires.extend(['configparser', 'backports.functools_lru_cache'])
     if py_version < (3, 4):
         install_requires.extend(['singledispatch'])
