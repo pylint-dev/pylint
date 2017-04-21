@@ -28,6 +28,11 @@ MSGS = {
               'Used when a source line cannot be decoded using the specified '
               'source file encoding.',
               {'maxversion': (3, 0)}),
+    'W0513': ('Cannot decode using encoding "%s", bad encoding',
+              'invalid-encoding',
+              'Used when a source line cannot be decoded using the specified '
+              'source file encoding, because encoding is wrong.',
+              {'maxversion': (3, 0)}),
 }
 
 
@@ -72,6 +77,9 @@ class EncodingChecker(BaseChecker):
         except UnicodeDecodeError as ex:
             self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))
+        except LookupError as ex:
+            self.add_message('invalid-encoding', line=lineno,
+                             args=(file_encoding))
 
     def process_module(self, module):
         """inspect the source file to find encoding problem or fixmes like
