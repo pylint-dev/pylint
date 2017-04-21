@@ -121,8 +121,8 @@ def category_id(cid):
 def _readline_with_encoding_convert(stream, encoding, replace_errors=False):
     line = stream.readline()
     try:
-        kwarg = {'errors': 'replace'} if replace_errors else {}
-        result = line.decode(encoding, **kwargs)
+        decode_kwargs = {'errors': 'replace'} if replace_errors else {}
+        result = line.decode(encoding, **decode_kwargs)
     except LookupError:
         return line
     else:
