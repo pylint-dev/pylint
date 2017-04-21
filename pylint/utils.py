@@ -118,8 +118,8 @@ def category_id(cid):
         return cid
     return MSG_TYPES_LONG.get(cid)
 
-def _readline_with_encoding_convert(stream, encoding, replace_errors=False):
-    line = stream.readline()
+def safe_decode(line, encoding, replace_errors=False):
+    result = line
     try:
         decode_kwargs = {'errors': 'replace'} if replace_errors else {}
         result = line.decode(encoding, **decode_kwargs)
@@ -128,9 +128,11 @@ def _readline_with_encoding_convert(stream, encoding, replace_errors=False):
     else:
         return result
 
+def _readline_with_encoding_convert(stream, encoding):
+    return lambda: safe_decode(stream.readline(), encoding, replace_errors=True)
 
 def _decoding_readline(stream, encoding):
-    return lambda: _readline_with_encoding_convert(stream, encoding, replace_errors=True)
+    return lambda: _readline_with_encoding_convert(stream, encoding)
 
 
 def tokenize_module(module):
