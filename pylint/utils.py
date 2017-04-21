@@ -119,15 +119,14 @@ def category_id(cid):
     return MSG_TYPES_LONG.get(cid)
 
 def safe_decode(line, encoding, *args, **kwargs):
-    result = line
+    '''safe decode line from encoding (safe: if encoding not exists return line)'''
     try:
-        result = line.decode(encoding, *args, **kwargs)
+        return line.decode(encoding, *args, **kwargs)
     except LookupError:
         return line
-    else:
-        return result
 
 def _decoding_readline(stream, encoding):
+    '''return lambda function for tokenize with safe decode'''
     return lambda: safe_decode(stream.readline(), encoding, 'replace')
 
 
