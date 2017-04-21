@@ -37,7 +37,7 @@ class Similar(object):
         if encoding is None:
             readlines = stream.readlines
         else:
-            readlines = lambda: safe_decode(stream, encoding)
+            readlines = lambda: [safe_decode(line, encoding) for line in stream]
         try:
             self.linesets.append(LineSet(streamid,
                                          readlines(),
