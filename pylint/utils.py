@@ -118,10 +118,11 @@ def category_id(cid):
         return cid
     return MSG_TYPES_LONG.get(cid)
 
-def _readline_with_encoding_convert(stream, encoding):
+def _readline_with_encoding_convert(stream, encoding, replace_errors=False):
     line = stream.readline()
     try:
-        result = line.decode(encoding, 'replace')
+        kwarg = {'errors': 'replace'} if replace_errors else {}
+        result = line.decode(encoding, **kwargs)
     except LookupError:
         return line
     else:
@@ -129,7 +130,7 @@ def _readline_with_encoding_convert(stream, encoding):
 
 
 def _decoding_readline(stream, encoding):
-    return lambda: _readline_with_encoding_convert(stream, encoding)
+    return lambda: _readline_with_encoding_convert(stream, encoding, replace_errors=True)
 
 
 def tokenize_module(module):
