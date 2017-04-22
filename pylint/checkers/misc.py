@@ -78,8 +78,9 @@ class EncodingChecker(BaseChecker):
             self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))
         except LookupError as ex:
-            self.add_message('invalid-encoding', line=lineno,
-                             args=(file_encoding))
+            if line.startswith('#') and "coding" in line and file_encoding in line:
+                self.add_message('invalid-encoding', line=lineno,
+                                 args=(file_encoding))
 
     def process_module(self, module):
         """inspect the source file to find encoding problem or fixmes like
