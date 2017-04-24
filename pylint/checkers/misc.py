@@ -23,15 +23,11 @@ MSGS = {
     'W0511': ('%s',
               'fixme',
               'Used when a warning note as FIXME or XXX is detected.'),
-    'W0512': ('Cannot decode using encoding "%s", unexpected byte at position %d',
+    'W0512': ('Cannot decode using encoding "%s",'
+              ' unexpected byte at position %d',
               'invalid-encoded-data',
               'Used when a source line cannot be decoded using the specified '
               'source file encoding.',
-              {'maxversion': (3, 0)}),
-    'W0513': ('Cannot decode using encoding "%s", bad encoding',
-              'invalid-encoding',
-              'Used when a source line cannot be decoded using the specified '
-              'source file encoding, because encoding is wrong.',
               {'maxversion': (3, 0)}),
 }
 
@@ -69,7 +65,8 @@ class EncodingChecker(BaseChecker):
         match = notes.search(line)
         if not match:
             return
-        self.add_message('fixme', args=line[match.start(1):].rstrip(), line=lineno)
+        self.add_message('fixme', args=line[match.start(1):].rstrip(),
+                         line=lineno)
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
@@ -78,9 +75,12 @@ class EncodingChecker(BaseChecker):
             self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))
         except LookupError as ex:
-            if line.startswith('#') and "coding" in line and file_encoding in line:
-                self.add_message('invalid-encoding', line=lineno,
-                                 args=(file_encoding))
+            if (line.startswith('#') and
+                    "coding" in line and file_encoding in line):
+                self.add_message('syntax-error',
+                                 line=lineno,
+                                 args='Cannot decode using encoding "{}",'
+                                      ' bad encoding'.format(file_encoding))
 
     def process_module(self, module):
         """inspect the source file to find encoding problem or fixmes like
