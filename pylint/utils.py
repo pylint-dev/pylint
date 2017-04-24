@@ -118,9 +118,16 @@ def category_id(cid):
         return cid
     return MSG_TYPES_LONG.get(cid)
 
+def safe_decode(line, encoding, *args, **kwargs):
+    '''return decoded line from encoding or decode with default encoding'''
+    try:
+        return line.decode(encoding or sys.getdefaultencoding(), *args, **kwargs)
+    except LookupError:
+        return line.decode(sys.getdefaultencoding(), *args, **kwargs)
 
 def _decoding_readline(stream, encoding):
-    return lambda: stream.readline().decode(encoding, 'replace')
+    '''return lambda function for tokenize with safe decode'''
+    return lambda: safe_decode(stream.readline(), encoding, 'replace')
 
 
 def tokenize_module(module):

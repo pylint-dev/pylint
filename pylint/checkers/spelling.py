@@ -28,6 +28,7 @@ import six
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
+from pylint.utils import safe_decode
 
 if sys.version_info[0] >= 3:
     maketrans = str.maketrans
@@ -251,8 +252,7 @@ class SpellingChecker(BaseTokenChecker):
         start_line = node.lineno + 1
         if six.PY2:
             encoding = node.root().file_encoding
-            docstring = docstring.decode(encoding or sys.getdefaultencoding(),
-                                         'replace')
+            docstring = safe_decode(docstring, encoding, 'replace')
 
         # Go through lines of docstring
         for idx, line in enumerate(docstring.splitlines()):
