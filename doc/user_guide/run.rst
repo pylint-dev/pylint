@@ -7,9 +7,10 @@ Invoking Pylint
 
 Pylint is meant to be called from the command line. The usage is ::
 
-   pylint [options] module_or_package
+   pylint [options] modules_or_packages
 
-You should give Pylint the name of a python package or module. Pylint
+You should give Pylint the name of a python package or module, or some number
+of packages or modules. Pylint
 ``will not import`` this package or module, though uses Python internals
 to locate them and as such is subject to the same rules and configuration.
 You should pay attention to your ``PYTHONPATH``, since it is a common error

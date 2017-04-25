@@ -12,9 +12,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-""" %prog [options] module_or_package
+""" %prog [options] modules_or_packages
 
-  Check that a module satisfies a coding standard (and more !).
+  Check that module(s) satisfy a coding standard (and more !).
 
     %prog --help
 
