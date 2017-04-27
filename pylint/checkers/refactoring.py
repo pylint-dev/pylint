@@ -486,24 +486,27 @@ class RecommandationChecker(checkers.BaseChecker):
     @utils.check_messages('consider-using-enumerate')
     def visit_for(self, node):
         """Emit a convention whenever range and len are used for indexing."""
-        # Verify that we have a `range(len(...))` call and that the object
-        # which is iterated is used as a subscript in the body of the for.
+        # Verify that we have a `range([start], len(...), [stop])` call and
+        # that the object which is iterated is used as a subscript in the
+        # body of the for.
 
         # Is it a proper range call?
         if not isinstance(node.iter, astroid.Call):
             return
         if not self._is_builtin(node.iter.func, 'range'):
             return
-        if len(node.iter.args) != 1:
+        if len(node.iter.args) == 2 and not _is_constant_zero(node.iter.args[0]):
+            return
+        if len(node.iter.args) > 2:
             return
 
         # Is it a proper len call?
-        if not isinstance(node.iter.args[0], astroid.Call):
+        if not isinstance(node.iter.args[-1], astroid.Call):
             return
-        second_func = node.iter.args[0].func
+        second_func = node.iter.args[-1].func
         if not self._is_builtin(second_func, 'len'):
             return
-        len_args = node.iter.args[0].args
+        len_args = node.iter.args[-1].args
         if not len_args or len(len_args) != 1:
             return
         iterating_object = len_args[0]
