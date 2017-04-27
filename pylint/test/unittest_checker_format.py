@@ -217,6 +217,7 @@ class TestCheckSpace(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.process_tokens(tokenize_str('foo(foo=bar)\n'))
             self.checker.process_tokens(tokenize_str('foo(foo: int = bar)\n'))
+            self.checker.process_tokens(tokenize_str('foo(foo: module.classname = bar)\n'))
             self.checker.process_tokens(tokenize_str('foo(foo: Dict[int, str] = bar)\n'))
             self.checker.process_tokens(tokenize_str('foo(foo: \'int\' = bar)\n'))
             self.checker.process_tokens(tokenize_str('foo(foo: Dict[int, \'str\'] = bar)\n'))

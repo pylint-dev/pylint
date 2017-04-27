@@ -631,6 +631,8 @@ class FormatChecker(BaseTokenChecker):
             elif token[1] == ',':
                 if not bracket_level:
                     return False
+            elif token[1] == '.':
+                continue
             elif token[0] not in (tokenize.NAME, tokenize.STRING):
                 return False
         return False
