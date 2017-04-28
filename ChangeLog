@@ -4,7 +4,12 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
-Release date: TBD
+    * Raise meaningful exception for invalid reporter class being selected
+
+      When unknown reporter class will be selected as Pylint reporter,
+      meaningful error message would be raised instead of bare ``ImportError``
+      or ``AttribueError`` related to module or reporter class being not found.
+      Close #1388
 
 
 What's New in Pylint 1.7.1?

@@ -28,6 +28,7 @@ import pylint.testutils as testutils
 from pylint.reporters import text
 from pylint import checkers
 from pylint.checkers.utils import check_messages
+from pylint import exceptions
 from pylint import interfaces
 import pytest
 
@@ -388,6 +389,12 @@ def test_report_output_format_aliased(linter):
     text.register(linter)
     linter.set_option('output-format', 'text')
     assert linter.reporter.__class__.__name__ == 'TextReporter'
+
+
+def test_set_unsupported_reporter(linter):
+    text.register(linter)
+    with pytest.raises(exceptions.InvalidReporterError):
+        linter.set_option('output-format', 'missing.module.Class')
 
 
 def test_set_option_1(linter):

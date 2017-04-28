@@ -473,12 +473,20 @@ class PyLinter(config.OptionsManagerMixIn,
         if name in self._reporters:
             self.set_reporter(self._reporters[name]())
         else:
-            qname = self._reporter_name
-            module = modutils.load_module_from_name(
-                modutils.get_module_part(qname))
-            class_name = qname.split('.')[-1]
-            reporter_class = getattr(module, class_name)
-            self.set_reporter(reporter_class())
+            try:
+                reporter_class = self._load_reporter_class()
+            except (ImportError, AttributeError):
+                raise exceptions.InvalidReporterError(name)
+            else:
+                self.set_reporter(reporter_class())
+
+    def _load_reporter_class(self):
+        qname = self._reporter_name
+        module = modutils.load_module_from_name(
+            modutils.get_module_part(qname))
+        class_name = qname.split('.')[-1]
+        reporter_class = getattr(module, class_name)
+        return reporter_class
 
     def set_reporter(self, reporter):
         """set the reporter used to display messages and reports"""
