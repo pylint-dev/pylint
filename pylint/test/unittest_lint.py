@@ -745,3 +745,17 @@ def test_custom_should_analyze_file():
     messages = reporter.messages
     assert len(messages) == 1
     assert 'invalid syntax' in messages[0]
+
+
+def test_filename_with__init__(init_linter):
+    # This tracks a regression where a file whose name ends in __init__.py,
+    # such as flycheck__init__.py, would accidentally lead to linting the
+    # entire containing directory.
+    reporter = testutils.TestReporter()
+    linter = init_linter
+    linter.open()
+    linter.set_reporter(reporter)
+    filepath = join(INPUTDIR, 'not__init__.py')
+    linter.check([filepath])
+    messages = reporter.messages
+    assert len(messages) == 0
