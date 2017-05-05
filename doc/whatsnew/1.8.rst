@@ -9,4 +9,5 @@
 Summary -- Release highlights
 =============================
 
-* None yet.
+* Raise meaningful exception in case of invalid reporter class (output format)
+  being selected.
