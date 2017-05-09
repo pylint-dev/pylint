@@ -634,10 +634,12 @@ class LenChecker(checkers.BaseChecker):
 
     # configuration section name
     name = 'len'
-    msgs = {'C1801': ('Do not use `len(SEQUENCE)` as condition value',
+    msgs = {'C1801': ('Do not use `len(SEQUENCE)` to determine if a sequence is empty',
                       'len-as-condition',
-                      'Used when Pylint detects incorrect use of len(sequence) inside '
-                      'conditions.'),
+                      'Used when Pylint detects that len(sequence) is being used inside '
+                      'a condition to determine if a sequence is empty. Instead of '
+                      'comparing the length to 0, rely on the fact that empty sequences '
+                      'are false.'),
            }
 
     priority = -2
