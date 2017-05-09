@@ -295,6 +295,13 @@ class SimilarChecker(BaseChecker, Similar):
                                stream,
                                node.file_encoding)
 
+    def _is_disabled_comment(self, lines):
+        for line in lines:
+            # TODO: Better way of get a disabled comment from a string
+            if ('R0801' in line or 'duplicate-code' in line) and ('pylint' in line and 'disable' in line):
+                return True
+        return False
+
     def close(self):
         """compute and display similarities on closing (i.e. end of parsing)"""
         total = sum(len(lineset) for lineset in self.linesets)
@@ -303,7 +310,10 @@ class SimilarChecker(BaseChecker, Similar):
         for num, couples in self._compute_sims():
             msg = []
             for lineset, idx in couples:
-                msg.append("==%s:%s" % (lineset.name, idx))
+                if not self._is_disabled_comment(lineset._real_lines):
+                    msg.append("==%s:%s" % (lineset.name, idx))
+            if len(msg) < 2:
+                continue
             msg.sort()
             # pylint: disable=W0631
             for line in lineset._real_lines[idx:idx+num]:
