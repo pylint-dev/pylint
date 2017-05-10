@@ -703,7 +703,9 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
 
-                if isinstance(owner, astroid.Module) and not modutils.is_standard_module(owner.name) and not owner.fully_defined():
+                if (isinstance(owner, astroid.Module) and
+                        not modutils.is_standard_module(owner.name) and
+                        not owner.fully_defined()):
                     msg = 'cext-no-member'
                     hint = ""
                 else:
