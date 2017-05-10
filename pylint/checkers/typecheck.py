@@ -35,6 +35,7 @@ from astroid import exceptions
 from astroid.interpreter import dunder_lookup
 from astroid import objects
 from astroid import bases
+from astroid import modutils
 
 from pylint.interfaces import IAstroidChecker, INFERENCE
 from pylint.checkers import BaseChecker
@@ -182,6 +183,9 @@ MSGS = {
               'no-member',
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
+    'I1101': ('%s %r has not %r member, but source is unavailable.%s',
+              'cext-no-member',
+              'Used when a variable is accessed for an unexistent member on C-ext.'),
     'E1102': ('%s is not callable',
               'not-callable',
               'Used when an object being called has been inferred to a non \
@@ -699,14 +703,19 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
 
-                if self.config.missing_member_hint:
-                    hint = _missing_member_hint(owner, node.attrname,
-                                                self.config.missing_member_hint_distance,
-                                                self.config.missing_member_max_choices)
-                else:
+                if isinstance(owner, astroid.Module) and not modutils.is_standard_module(owner.name) and not owner.fully_defined():
+                    msg = 'cext-no-member'
                     hint = ""
+                else:
+                    msg = 'no-member'
+                    if self.config.missing_member_hint:
+                        hint = _missing_member_hint(owner, node.attrname,
+                                                    self.config.missing_member_hint_distance,
+                                                    self.config.missing_member_max_choices)
+                    else:
+                        hint = ""
 
-                self.add_message('no-member', node=node,
+                self.add_message(msg, node=node,
                                  args=(owner.display_type(), name,
                                        node.attrname, hint),
                                  confidence=INFERENCE)
