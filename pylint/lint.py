@@ -1259,6 +1259,7 @@ group are mutually exclusive.'),
                                 level=1)
         # read configuration
         linter.disable('I')
+        linter.enable('cext-no-member')
         linter.read_config_file()
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins
