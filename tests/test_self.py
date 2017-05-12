@@ -344,8 +344,8 @@ class TestRunTC(object):
             """
         ************* Module data.clientmodule_test
         {0}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
-        {0}:18:4: C0111: Missing method docstring (missing-docstring)
-        {0}:22:0: C0111: Missing class docstring (missing-docstring)
+        {0}:18:4: C0116: Missing function or method docstring (missing-function-docstring)
+        {0}:22:0: C0115: Missing class docstring (missing-class-docstring)
         """.format(
                 module
             )
@@ -542,8 +542,8 @@ class TestRunTC(object):
             """
         ************* Module test_pylintrc_comments
         {0}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
-        {0}:1:0: C0111: Missing module docstring (missing-docstring)
-        {0}:1:0: C0111: Missing function docstring (missing-docstring)
+        {0}:1:0: C0114: Missing module docstring (missing-module-docstring)
+        {0}:1:0: C0116: Missing function or method docstring (missing-function-docstring)
         """.format(
                 path
             )

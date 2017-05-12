@@ -1076,6 +1076,13 @@ Release date: 2018-07-15
 
       Close 1992
 
+    * Broke down "missing-docstrings" between "module", "class" and "function"
+
+      For this to work we had to make multiple messages with the same old name
+      possible.
+
+      Closes #1164
+
 What's New in Pylint 1.9?
 =========================
 

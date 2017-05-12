@@ -6,6 +6,6 @@ def foo(): #pylint: disable=C0102
 def toto(): #pylint: disable=C0102,R1711
     return
 
-# +1: [missing-docstring]
+# +1: [missing-function-docstring]
 def test_enabled_by_id_msg(): #pylint: enable=C0111
     pass
