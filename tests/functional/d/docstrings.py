@@ -1,12 +1,12 @@
 # pylint: disable=R0201, useless-object-inheritance, unnecessary-pass
-# -1: [missing-docstring]
+# -1: [missing-module-docstring]
 from __future__ import print_function
 
 # +1: [empty-docstring]
 def function0():
     """"""
 
-# +1: [missing-docstring]
+# +1: [missing-function-docstring]
 def function1(value):
     # missing docstring
     print(value)
@@ -19,7 +19,7 @@ def function3(value):
     """docstring"""
     print(value)
 
-# +1: [missing-docstring]
+# +1: [missing-class-docstring]
 class AAAA(object):
     # missing docstring
 
@@ -36,7 +36,7 @@ class AAAA(object):
 ##             """ yeah !"""
 ##             pass
 
-    # +1: [missing-docstring]
+    # +1: [missing-function-docstring]
     def method1(self):
         pass
 
@@ -66,7 +66,7 @@ class DDDD(AAAA):
     def method3(self):
         pass
 
-    # +1: [missing-docstring]
+    # +1: [missing-function-docstring]
     def method4(self):
         pass
 

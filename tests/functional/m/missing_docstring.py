@@ -1,4 +1,4 @@
-# [missing-docstring]
+# [missing-module-docstring]
 # pylint: disable=too-few-public-methods, useless-object-inheritance
 
 def public_documented():
@@ -18,11 +18,11 @@ class ClassDocumented(object):
     """It has a docstring."""
 
 
-class ClassUndocumented(object): # [missing-docstring]
+class ClassUndocumented(object): # [missing-class-docstring]
     pass
 
 
-def public_undocumented(): # [missing-docstring]
+def public_undocumented(): # [missing-function-docstring]
     pass
 
 

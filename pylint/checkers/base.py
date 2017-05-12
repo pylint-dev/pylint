@@ -1942,18 +1942,33 @@ class NameChecker(_BasicChecker):
 
 class DocStringChecker(_BasicChecker):
     msgs = {
-        "C0111": (
-            "Missing %s docstring",  # W0131
-            "missing-docstring",
-            "Used when a module, function, class or method has no docstring. "
-            "Some special methods like __init__ don't necessarily require a "
-            "docstring.",
-        ),
         "C0112": (
             "Empty %s docstring",  # W0132
             "empty-docstring",
             "Used when a module, function, class or method has an empty "
             "docstring (it would be too easy ;).",
+        ),
+        "C0114": (
+            "Missing module docstring",
+            "missing-module-docstring",
+            "Used when a module has no docstring."
+            "Empty modules do not require a docstring.",
+            {"old_names": [("C0111", "missing-docstring")]},
+        ),
+        "C0115": (
+            "Missing class docstring",
+            "missing-class-docstring",
+            "Used when a class has no docstring."
+            "Even an empty class must have a docstring.",
+            {"old_names": [("C0111", "missing-docstring")]},
+        ),
+        "C0116": (
+            "Missing function or method docstring",
+            "missing-function-docstring",
+            "Used when a function or method has no docstring."
+            "Some special methods like __init__ do not require a "
+            "docstring.",
+            {"old_names": [("C0111", "missing-docstring")]},
         ),
     }
     options = (
@@ -2064,9 +2079,13 @@ class DocStringChecker(_BasicChecker):
                         return
                     if func.bound.name in ("str", "unicode", "bytes"):
                         return
-            self.add_message(
-                "missing-docstring", node=node, args=(node_type,), confidence=confidence
-            )
+            if node_type == "module":
+                message = "missing-module-docstring"
+            elif node_type == "class":
+                message = "missing-class-docstring"
+            else:
+                message = "missing-function-docstring"
+            self.add_message(message, node=node, confidence=confidence)
         elif not docstring.strip():
             self.stats["undocumented_" + node_type] += 1
             self.add_message(

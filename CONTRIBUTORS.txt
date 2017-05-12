@@ -136,6 +136,9 @@ contributors:
 
 * Erik Eriksson - Added overlapping-except error check.
 
+* Pierre Sassoulas : Broke down "missing-docstrings" between "module", "class"
+  and "function", made multiple message with the same old name possible.
+
 * Anthony Foglia (Google): Added simple string slots check.
 
 * Derek Gustafson: contributor
