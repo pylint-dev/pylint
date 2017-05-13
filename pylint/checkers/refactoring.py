@@ -216,10 +216,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_one_element_trailing_comma_tuple(self, tokens, token, index):
         left_tokens = itertools.islice(tokens, index + 1, None)
-        same_line_remaining_tokens = list(
-            other_token for other_token in left_tokens
-            if other_token.start[0] == token.start[0]
-        )
+        same_line_remaining_tokens = list(itertools.takewhile(
+            lambda other_token, _token=token: other_token.start[0] == _token.start[0],
+            left_tokens
+        ))
         is_last_element = all(
             other_token.type in (tokenize.NEWLINE, tokenize.COMMENT)
             for other_token in same_line_remaining_tokens
