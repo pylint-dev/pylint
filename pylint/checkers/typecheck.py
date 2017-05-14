@@ -183,9 +183,13 @@ MSGS = {
               'no-member',
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
-    'I1101': ('%s %r has not %r member, but source is unavailable.%s',
-              'cext-no-member',
-              'Used when a variable is accessed for an unexistent member on C-ext.'),
+    'I1101': ('%s %r has not %r member, but source is unavailable. Consider '
+              'adding this package to extension-package-whitelist if you want '
+              'to perform analysis based on run-time introspection of package.',
+              'c-extension-no-member',
+              'Used when a variable is accessed for not-existent member of C '
+              'extension. Due to unavailability of source, static analysis is impossible, '
+              'but it may be performed by introspecting living objects in run-time.'),
     'E1102': ('%s is not callable',
               'not-callable',
               'Used when an object being called has been inferred to a non \
