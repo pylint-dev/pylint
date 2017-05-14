@@ -484,6 +484,10 @@ def _infer_from_metaclass_constructor(cls, func):
     return inferred or None
 
 
+def _is_c_extension(module_node):
+    return not modutils.is_standard_module(module_node.name) and not module_node.fully_defined()
+
+
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
@@ -703,9 +707,7 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
 
-                if (isinstance(owner, astroid.Module) and
-                        not modutils.is_standard_module(owner.name) and
-                        not owner.fully_defined()):
+                if isinstance(owner, astroid.Module) and _is_c_extension(owner):
                     msg = 'c-extension-no-member'
                     hint = ""
                 else:
