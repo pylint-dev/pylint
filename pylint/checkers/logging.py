@@ -185,8 +185,8 @@ class LoggingChecker(checkers.BaseChecker):
         """Checks that function call is not format_string.format().
 
         Args:
-          node (astroid.node_classes.CallFunc):
-            CallFunc AST node to be checked.
+          node (astroid.node_classes.Call):
+            Call AST node to be checked.
         """
         func = utils.safe_infer(node.func)
         types = ('str', 'unicode')

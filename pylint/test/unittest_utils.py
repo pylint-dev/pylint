@@ -39,7 +39,7 @@ class TestPyLintASTWalker(object):
 
         @check_messages('second-message', 'third-message')
         def visit_assignname(self, module):
-            self.called.add('assname')
+            self.called.add('assignname')
 
         @check_messages('second-message')
         def leave_assignname(self, module):
@@ -53,7 +53,7 @@ class TestPyLintASTWalker(object):
         checker = self.Checker()
         walker.add_checker(checker)
         walker.walk(astroid.parse("x = func()"))
-        assert set(['module', 'assname']) == checker.called
+        assert {'module', 'assignname'} == checker.called
 
     def test_deprecated_methods(self):
         class Checker(object):

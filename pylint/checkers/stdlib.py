@@ -179,7 +179,7 @@ class StdlibChecker(BaseChecker):
     @utils.check_messages('bad-open-mode', 'redundant-unittest-assert',
                           'deprecated-method')
     def visit_call(self, node):
-        """Visit a CallFunc node."""
+        """Visit a Call node."""
         try:
             for inferred in node.func.infer():
                 if inferred.root().name == OPEN_MODULE:

@@ -233,9 +233,9 @@ def _called_in_methods(func, klass, methods):
         except astroid.NotFoundError:
             continue
         for infer_method in infered:
-            for callfunc in infer_method.nodes_of_class(astroid.Call):
+            for call in infer_method.nodes_of_class(astroid.Call):
                 try:
-                    bound = next(callfunc.func.infer())
+                    bound = next(call.func.infer())
                 except (astroid.InferenceError, StopIteration):
                     continue
                 if not isinstance(bound, astroid.BoundMethod):
@@ -624,7 +624,7 @@ a metaclass class method.'}
                 except astroid.NotFoundError:
                     for node in nodes:
                         if node.frame().name not in defining_methods:
-                            # If the attribute was set by a callfunc in any
+                            # If the attribute was set by a call in any
                             # of the defining methods, then don't emit
                             # the warning.
                             if _called_in_methods(node.frame(), cnode,
@@ -844,7 +844,7 @@ a metaclass class method.'}
         self._check_in_slots(node)
 
     def _check_in_slots(self, node):
-        """ Check that the given assattr node
+        """ Check that the given AssignAttr node
         is defined in the class slots.
         """
         infered = safe_infer(node.expr)
