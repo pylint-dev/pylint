@@ -99,14 +99,21 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
-    @pytest.mark.skipif(False, reason='requires precompiled C-extension module')
     def test_nomember_on_c_extension_informational_message(self):
+        """Coverage happens to have C-extension tracer that we may use for test"""
+        try:
+            import coverage.tracer as _
+        except ImportError:
+            _ = None
+            pytest.skip('Requires coverage (source of C-extension)')
+
         node = astroid.extract_node('''
-        import c_extension
-        c_extension.hello
+        from coverage import tracer
+        tracer.CTracer  #@
         ''')
+        print(node)
         message = Message('c-extension-no-member', node=node,
-                          args=('Module', 'c_extension', 'hello', ''))
+                          args=('Module', 'coverage.tracer', 'CTracer', ''))
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
