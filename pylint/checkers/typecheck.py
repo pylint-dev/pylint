@@ -711,22 +711,25 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
 
-                if isinstance(owner, astroid.Module) and _is_c_extension(owner):
-                    msg = 'c-extension-no-member'
-                    hint = ""
-                else:
-                    msg = 'no-member'
-                    if self.config.missing_member_hint:
-                        hint = _missing_member_hint(owner, node.attrname,
-                                                    self.config.missing_member_hint_distance,
-                                                    self.config.missing_member_max_choices)
-                    else:
-                        hint = ""
-
+                msg, hint = self._get_nomember_msgid_hint(node, owner)
                 self.add_message(msg, node=node,
                                  args=(owner.display_type(), name,
                                        node.attrname, hint),
                                  confidence=INFERENCE)
+
+    def _get_nomember_msgid_hint(self, node, owner):
+        if isinstance(owner, astroid.Module) and _is_c_extension(owner):
+            msg = 'c-extension-no-member'
+            hint = ""
+        else:
+            msg = 'no-member'
+            if self.config.missing_member_hint:
+                hint = _missing_member_hint(owner, node.attrname,
+                                            self.config.missing_member_hint_distance,
+                                            self.config.missing_member_max_choices)
+            else:
+                hint = ""
+        return msg, hint
 
     @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):
