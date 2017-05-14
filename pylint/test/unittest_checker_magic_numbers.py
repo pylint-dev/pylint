@@ -57,7 +57,7 @@ class TestMagicNumbersChecker(CheckerTestCase):
     def test_oserror_errno_compare_in(self):
         compare = astroid.extract_node("""
         exc = OSError()
-        exc.errno in (15, 17)  #@
+        exc.errno in (2, 17)  #@
         """)
         with self.assertAddsMessages(Message('magic-number-used', node=compare,
                                              args=('(errno.ENOENT, errno.EEXIST)', '(2, 17)'))):
@@ -66,7 +66,7 @@ class TestMagicNumbersChecker(CheckerTestCase):
     def test_oserror_errno_compare_notin(self):
         compare = astroid.extract_node("""
         exc = OSError()
-        exc.errno in (15, 17)  #@
+        exc.errno in (2, 17)  #@
         """)
         with self.assertAddsMessages(Message('magic-number-used', node=compare,
                                              args=('(errno.ENOENT, errno.EEXIST)', '(2, 17)'))):
