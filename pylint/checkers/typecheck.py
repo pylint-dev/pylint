@@ -706,7 +706,7 @@ accessed. Python regular expressions are accepted.'}
                 if (isinstance(owner, astroid.Module) and
                         not modutils.is_standard_module(owner.name) and
                         not owner.fully_defined()):
-                    msg = 'cext-no-member'
+                    msg = 'c-extension-no-member'
                     hint = ""
                 else:
                     msg = 'no-member'

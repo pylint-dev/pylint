@@ -99,6 +99,17 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
+    @pytest.mark.skipif(False, reason='requires precompiled C-extension module')
+    def test_nomember_on_c_extension_informational_message(self):
+        node = astroid.extract_node('''
+        import c_extension
+        c_extension.hello
+        ''')
+        message = Message('c-extension-no-member', node=node,
+                          args=('Module', 'c_extension', 'hello', ''))
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
     @set_config(contextmanager_decorators=('contextlib.contextmanager',
                                            '.custom_contextmanager'))
     def test_custom_context_manager(self):
