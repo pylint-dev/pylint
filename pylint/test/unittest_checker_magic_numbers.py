@@ -60,7 +60,7 @@ class TestMagicNumbersChecker(CheckerTestCase):
         exc.errno in (15, 17)  #@
         """)
         with self.assertAddsMessages(Message('magic-number-used', node=compare,
-                                             args=('(errno.ENOTBLK, errno.EEXIST)', '(15, 17)'))):
+                                             args=('(errno.ENOENT, errno.EEXIST)', '(2, 17)'))):
             self.checker.visit_compare(compare)
 
     def test_oserror_errno_compare_notin(self):
@@ -69,5 +69,5 @@ class TestMagicNumbersChecker(CheckerTestCase):
         exc.errno in (15, 17)  #@
         """)
         with self.assertAddsMessages(Message('magic-number-used', node=compare,
-                                             args=('(errno.ENOTBLK, errno.EEXIST)', '(15, 17)'))):
+                                             args=('(errno.ENOENT, errno.EEXIST)', '(2, 17)'))):
             self.checker.visit_compare(compare)
