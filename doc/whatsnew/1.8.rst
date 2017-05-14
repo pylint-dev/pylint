@@ -9,5 +9,24 @@
 Summary -- Release highlights
 =============================
 
+* Added new checker class, `MagicNumberChecker` which warns about using literals
+  in situations where constants we're predefined.
+
+  Examples of invalid usage are:
+
+  .. code-block:: python
+
+    import re
+    pattern = re.compile('\d.\d', 16)
+
+    try:
+        os.mkdir('x')
+    except OSError as exc:
+        if exc.errno != 17:
+            raise
+
+  Code snippets above should use `re.DOTALL` and `errno.EEXIST` respectively.
+
+
 * Raise meaningful exception in case of invalid reporter class (output format)
   being selected.

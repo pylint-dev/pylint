@@ -11,6 +11,10 @@ What's New in Pylint 1.8?
       or ``AttribueError`` related to module or reporter class being not found.
       Close #1388
 
+    * Added new checker class, `MagicNumberChecker` which warns about using
+      literals in situations where constants we're predefined.
+      Close #1379
+
 
 What's New in Pylint 1.7.1?
 =========================
