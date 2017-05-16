@@ -198,6 +198,9 @@ class MessageDefinition(object):
         self.maxversion = maxversion
         self.old_names = old_names or []
 
+    def __repr__(self):
+        return "MessageDefinition:{}".format(self.__dict__)
+
     def may_be_emitted(self):
         """return True if message may be emitted using the current interpreter"""
         if self.minversion is not None and self.minversion > sys.version_info:
@@ -685,6 +688,8 @@ class MessagesStore(object):
         # that can be emitted by pylint for the underlying Python
         # version). It contains the 1:1 mapping from symbolic names
         # to message definition objects.
+        # Keys are msg ids, values are a 2-uple with the msg type and the
+        # msg itself
         self._messages = {}
         # Maps alternative names (numeric IDs, deprecated names) to
         # message definitions. May contain several names for each definition
@@ -704,48 +709,126 @@ class MessagesStore(object):
         """
         msg = self.check_message_id(new_symbol)
         msg.old_names.append((old_id, old_symbol))
-        self._register_alternative_name(msg, old_id)
-        self._register_alternative_name(msg, old_symbol)
+        self._register_alternative_name(msg, old_id, old_symbol)
+
+    def get_checker_message_definitions(self, checker):
+        """ Return the list of messages definitions for a checker.
+
+        :param BaseChecker checker:
+        :return: A list of MessageDefinition. """
+        message_definitions = []
+        for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
+            message = build_message_def(checker, msgid, msg_tuple)
+            message_definitions.append(message)
+        return message_definitions
 
     def register_messages(self, checker):
-        """register a dictionary of messages
+        """ Register messages from a checker.
 
-        Keys are message ids, values are a 2-uple with the message type and the
-        message itself
+        :param BaseChecker checker: """
+        messages = self.get_checker_message_definitions(checker)
+        self._check_checker_consistency(messages)
+        for message in messages:
+            self.register_message(message)
 
-        message ids should be a string of len 4, where the two first characters
-        are the checker id and the two last the message id in this checker
-        """
-        chkid = None
-        for msgid, msg_tuple in sorted(six.iteritems(checker.msgs)):
-            msg = build_message_def(checker, msgid, msg_tuple)
-            # avoid duplicate / malformed ids
-            if msg.symbol in self._messages or msg.symbol in self._alternative_names:
-                raise InvalidMessageError(
-                    'Message symbol %r is already defined' % msg.symbol)
-            if chkid is not None and chkid != msg.msgid[1:3]:
-                raise InvalidMessageError(
-                    "Inconsistent checker part in message id %r (expected 'x%sxx')"
-                    % (msgid, chkid))
-            chkid = msg.msgid[1:3]
-            self._messages[msg.symbol] = msg
-            self._register_alternative_name(msg, msg.msgid)
-            for old_id, old_symbol in msg.old_names:
-                self._register_alternative_name(msg, old_id)
-                self._register_alternative_name(msg, old_symbol)
-            self._msgs_by_category[msg.msgid[0]].append(msg.msgid)
+    def register_message(self, message):
+        """ Register a MessageDefinition with consistency in mind.
 
-    def _register_alternative_name(self, msg, name):
+        :param MessageDefinition message: The message definition being added. """
+        self._check_id_and_symbol_consistency(message.msgid, message.symbol)
+        self._check_symbol(message.msgid, message.symbol)
+        self._check_msgid(message.msgid, message.symbol)
+        for old_name in message.old_names:
+            self._check_symbol(message.msgid, old_name[1])
+        self._messages[message.symbol] = message
+        self._register_alternative_name(message, message.msgid, message.symbol)
+        for old_id, old_symbol in message.old_names:
+            self._register_alternative_name(message, old_id, old_symbol)
+        self._msgs_by_category[message.msgid[0]].append(message.msgid)
+
+    def _check_checker_consistency(self, messages):
+        """ Check the msgid consistency in a list of messages definitions.
+
+        msg ids for a checker should be a string of len 4, where the two first
+        characters are the checker id and the two last the msg id in this
+        checker.
+
+        :param list messages: List of MessageDefinition.
+        :raises InvalidMessageError: If the checker id in the messages are not
+        always the same """
+        checker_id = None
+        for message in messages:
+            if checker_id is not None and checker_id != message.msgid[1:3]:
+                error_msg = "Inconsistent checker part in message id %r" % message.msgid
+                error_msg += " (expected 'x%sxx')" % checker_id
+                raise InvalidMessageError(error_msg)
+            checker_id = message.msgid[1:3]
+
+
+    def _register_alternative_name(self, msg, msgid, symbol):
         """helper for register_message()"""
-        if name in self._messages and self._messages[name] != msg:
-            raise InvalidMessageError(
-                'Message symbol %r is already defined' % name)
-        if name in self._alternative_names and self._alternative_names[name] != msg:
-            raise InvalidMessageError(
-                'Message %s %r is already defined' % (
-                    'id' if len(name) == 5 and name[0] in MSG_TYPES else 'alternate name',
-                    name))
-        self._alternative_names[name] = msg
+        self._check_id_and_symbol_consistency(msgid, symbol)
+        self._alternative_names[msgid] = msg
+        self._alternative_names[symbol] = msg
+
+    def _check_symbol(self, msgid, symbol):
+        """ Check that a symbol is not already used. """
+        if symbol in self._messages:
+            other_msgid = self._messages[symbol].msgid
+            self._raise_duplicate_msg_id(symbol, msgid, other_msgid)
+        if symbol in self._alternative_names:
+            msg = self._alternative_names[symbol]
+            if msg.symbol == symbol:
+                other_msgid = msg.msgid
+            else:
+                for old_msgid, old_symbol in msg.old_names:
+                    if old_symbol == symbol:
+                        other_msgid = old_msgid
+                        break
+            if msgid != other_msgid:
+                self._raise_duplicate_msg_id(symbol, msgid, other_msgid)
+
+    def _check_msgid(self, msgid, symbol):
+        for m_symbol in self._messages:
+            msg = self._messages[m_symbol]
+            if msg.msgid == msgid:
+                self._raise_duplicate_symbol(msgid, symbol, msg.symbol)
+
+    def _check_id_and_symbol_consistency(self, msgid, symbol):
+        try:
+            alternative = self._alternative_names[msgid]
+        except KeyError:
+            alternative = False
+        try:
+            if not alternative:
+                alternative = self._alternative_names[symbol]
+        except KeyError:
+            # There is no alternative names concerning this msgid/symbol.
+            # So nothing to check
+            return None
+        old_symbolic_name = None
+        old_symbolic_id = None
+        for tuple_ in alternative.old_names:
+            if tuple_[0] == msgid or tuple_[1] == symbol:
+                old_symbolic_id = tuple_[0]
+                old_symbolic_name = tuple_[1]
+        if alternative.symbol != symbol and symbol != old_symbolic_name:
+            if msgid == old_symbolic_id:
+                self._raise_duplicate_symbol(msgid, symbol, old_symbolic_name)
+            else:
+                self._raise_duplicate_symbol(msgid, symbol, alternative.symbol)
+
+    def _raise_duplicate_symbol(self, msgid, symbol, other_symbol):
+        """Raise an InvalidMessageError when a msgid is duplicated. """
+        ime = "Message id '%s' cannot have both '%s'" % (msgid, other_symbol)
+        ime += " and '%s' as symbolic name." % symbol
+        raise InvalidMessageError(ime)
+
+    def _raise_duplicate_msg_id(self, symbol, msgid, other_msgid):
+        """Raise an InvalidMessageError when a symbol is duplicated. """
+        ime = "Message symbol '%s' cannot be used for " % symbol
+        ime += "'%s' and '%s' at the same time." % (other_msgid, msgid)
+        raise InvalidMessageError(ime)
 
     def check_message_id(self, msgid):
         """returns the Message object for this message.

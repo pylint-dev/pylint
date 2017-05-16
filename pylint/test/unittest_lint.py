@@ -716,12 +716,9 @@ class TestMessagesStore(object):
         with pytest.raises(InvalidMessageError) as cm:
             store.add_renamed_message(
                 'W1234', 'old-msg-symbol', 'duplicate-keyword-arg')
-        assert str(cm.value) == "Message id 'W1234' is already defined"
-        # conflicting message symbol
-        with pytest.raises(InvalidMessageError) as cm:
-            store.add_renamed_message(
-                'W1337', 'msg-symbol', 'duplicate-keyword-arg')
-        assert str(cm.value) == "Message symbol 'msg-symbol' is already defined"
+        expected = "Message id 'W1234' cannot have both 'msg-symbol' and \
+'old-msg-symbol' as symbolic name."
+        assert str(cm.value) == expected
 
     def test_renamed_message_register(self, store):
         assert 'msg-symbol' == store.check_message_id('W0001').symbol
