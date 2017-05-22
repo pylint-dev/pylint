@@ -1,0 +1,2 @@
+magic-number-used:7:re_funcs:Avoid using magic numbers, use re.DOTALL instead of 16
+magic-number-used:15:errno:Avoid using magic numbers, use errno.EEXIST instead of 17
