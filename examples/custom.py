@@ -20,11 +20,11 @@ class MyAstroidChecker(BaseChecker):
     # this is important so that your checker is executed before others
     priority = -1 
 
-    def visit_callfunc(self, node):
-        """called when a CallFunc node is encountered.
+    def visit_call(self, node):
+        """called when a Call node is encountered.
 
         See astroid for the description of available nodes."""
-        if not (isinstance(node.func, astroid.Getattr)
+        if not (isinstance(node.func, astroid.Attribute)
                 and isinstance(node.func.expr, astroid.Name)
                 and node.func.expr.name == 'properties'
                 and node.func.attrname == 'create'):

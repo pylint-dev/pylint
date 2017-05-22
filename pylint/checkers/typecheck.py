@@ -739,16 +739,16 @@ accessed. Python regular expressions are accepted.'}
             else:
                 self.add_message('assignment-from-none', node=node)
 
-    def _check_uninferable_callfunc(self, node):
+    def _check_uninferable_call(self, node):
         """
-        Check that the given uninferable CallFunc node does not
+        Check that the given uninferable Call node does not
         call an actual function.
         """
         if not isinstance(node.func, astroid.Attribute):
             return
 
         # Look for properties. First, obtain
-        # the lhs of the Getattr node and search the attribute
+        # the lhs of the Attribute node and search the attribute
         # there. If that attribute is a property or a subclass of properties,
         # then most likely it's not callable.
 
@@ -812,7 +812,7 @@ accessed. Python regular expressions are accepted.'}
                 self.add_message('not-callable', node=node,
                                  args=node.func.as_string())
 
-        self._check_uninferable_callfunc(node)
+        self._check_uninferable_call(node)
 
         try:
             called, implicit_args, callable_name = _determine_callable(called)

@@ -74,7 +74,7 @@ REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
 
 
 def _redefines_import(node):
-    """ Detect that the given node (AssName) is inside an
+    """ Detect that the given node (AssignName) is inside an
     exception handler and redefines an import from the tryexcept body.
     Returns True if the node redefines an import, False otherwise.
     """
@@ -738,7 +738,7 @@ functions, methods
         # These nodes are excepted, since they are not constant
         # values, requiring a computation to happen. The only type
         # of node in this list which doesn't have this property is
-        # Getattr, which is excepted because the conditional statement
+        # Attribute, which is excepted because the conditional statement
         # can be used to verify that the attribute was set inside a class,
         # which is definitely a valid use case.
         except_nodes = (astroid.Attribute, astroid.Call,
@@ -969,7 +969,7 @@ functions, methods
 
     @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
     def visit_call(self, node):
-        """visit a CallFunc node -> check if this is not a blacklisted builtin
+        """visit a Call node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
         if isinstance(node.func, astroid.Name):
@@ -1507,7 +1507,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
 
     @utils.check_messages('deprecated-lambda')
     def visit_call(self, node):
-        """visit a CallFunc node, check if map or filter are called with a
+        """visit a Call node, check if map or filter are called with a
         lambda
         """
         if not node.args:
