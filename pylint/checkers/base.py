@@ -690,6 +690,10 @@ functions, methods
                   'Emitted when a conditional statement (If or ternary if) '
                   'uses a constant value for its test. This might not be what '
                   'the user intended to do.'),
+        'W0126': ('pass into block except',
+                  'except-pass',
+                  'If you really need to use the pass consider logging that'
+                  'exception'),
         'E0111': ('The first reversed() argument is not a sequence',
                   'bad-reversed-sequence',
                   'Used when the first argument to reversed() builtin '
@@ -961,6 +965,14 @@ functions, methods
         code)
         """
         self._check_unreachable(node)
+
+    @utils.check_messages('except-pass')
+    def visit_tryexcept(self, node):
+        """Visit block try except"""
+        for handler in node.handlers:
+            for body in handler.body:
+                if isinstance(body, astroid.node_classes.Pass):
+                    self.add_message('except-pass', node=node)
 
     @utils.check_messages('exec-used')
     def visit_exec(self, node):
