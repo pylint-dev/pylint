@@ -103,7 +103,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
-        'R1708': ('Sub package folder (%s) conflict with sub package python '
+        'R1708': ('Package folder (%s) conflict with package '
                   'file (%s)',
                   'package-module-conflict',
                   'Conflict on the resolution of names given that the folder'
