@@ -399,6 +399,10 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when using the deprecated deletechars parameters from str.translate.  Use'
                   're.sub to remove the desired characters ',
                   {'maxversion': (3, 0)}),
+        'W1651': ('Accessing a deprecated function on the itertools module',
+                  'deprecated-itertools-function',
+                  'Used when accessing a function on itertools that has been removed in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -460,6 +464,9 @@ class Python3Checker(checkers.BaseChecker):
     _bad_python3_module_map = {
         'sys-max-int': {
             'sys': frozenset(['maxint'])
+        },
+        'deprecated-itertools-function': {
+            'itertools': frozenset(['izip', 'ifilter', 'imap', 'izip_longest', 'ifilterfalse'])
         },
         'bad-python3-import': frozenset([
             'anydbm', 'BaseHTTPServer', '__builtin__', 'CGIHTTPServer', 'ConfigParser', 'copy_reg',

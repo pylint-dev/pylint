@@ -503,6 +503,16 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @python2_only
+    def test_itertools_izip(self):
+        node = astroid.extract_node('''
+        from itertools import izip #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('deprecated-itertools-function', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
     def test_sys_maxint_imort_from(self):
         node = astroid.extract_node('''
         from sys import maxint #@

@@ -11,3 +11,18 @@ Summary -- Release highlights
 
 * Raise meaningful exception in case of invalid reporter class (output format)
   being selected.
+
+* A new Python 3 checker was added to warn about accessing functions that have been
+  removed from the itertools module ``izip``, ``imap``, ``iflter``, ``izip_longest``, and ``ifilterfalse``.
+
+  .. code-block:: python
+
+      from itertools import izip
+      print(list(izip([1, 2], [3])))
+
+  Instead use ``six.moves`` to import a Python 2 and Python 3 compatible function:
+
+  .. code-block:: python
+
+      from six.moves import zip
+      print(list(zip([1, 2], [3])))
