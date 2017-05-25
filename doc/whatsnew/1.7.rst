@@ -87,7 +87,7 @@ New checkers
 
           def __init__(self, param1, param2):
               super(Impl, self).__init__(param1, param2)
-     
+
           def useless(self, first, second):
               return super(Impl, self).useless(first, second)
 
@@ -445,7 +445,7 @@ New checkers
   remove old or supplanted modules and reorganize some of the existing modules.  As a result,
   roughly 100 modules that exist in Python 2 no longer exist in Python 3.  See
   https://www.python.org/dev/peps/pep-3108/ and https://www.python.org/dev/peps/pep-0004/ for more
-  information.  For suggestions on hwo to handle this, see
+  information.  For suggestions on how to handle this, see
   https://pythonhosted.org/six/#module-six.moves or http://python3porting.com/stdlib.html.
 
   .. code-block:: python
