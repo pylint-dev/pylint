@@ -513,6 +513,16 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_importfrom(node)
 
     @python2_only
+    def test_deprecated_types_fiels(self):
+        node = astroid.extract_node('''
+        from types import StringType #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('deprecated-types-field', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
     def test_sys_maxint_imort_from(self):
         node = astroid.extract_node('''
         from sys import maxint #@

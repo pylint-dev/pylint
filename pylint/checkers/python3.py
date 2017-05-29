@@ -403,6 +403,10 @@ class Python3Checker(checkers.BaseChecker):
                   'deprecated-itertools-function',
                   'Used when accessing a function on itertools that has been removed in Python 3.',
                   {'maxversion': (3, 0)}),
+        'W1652': ('Accessing a deprecated fields on the types module',
+                  'deprecated-types-field',
+                  'Used when accessing a field on types that has been removed in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -467,6 +471,16 @@ class Python3Checker(checkers.BaseChecker):
         },
         'deprecated-itertools-function': {
             'itertools': frozenset(['izip', 'ifilter', 'imap', 'izip_longest', 'ifilterfalse'])
+        },
+        'deprecated-types-field': {
+            'types': frozenset([
+                'EllipsisType', 'XRangeType', 'ComplexType', 'StringType',
+                'TypeType', 'LongType', 'UnicodeType', 'ClassType',
+                'BufferType', 'StringTypes', 'NotImplementedType', 'NoneType',
+                'InstanceType', 'FloatType', 'SliceType', 'UnboundMethodType',
+                'ObjectType', 'IntType', 'TupleType', 'ListType', 'DictType',
+                'FileType', 'DictionaryType', 'BooleanType', 'DictProxyType'
+            ])
         },
         'bad-python3-import': frozenset([
             'anydbm', 'BaseHTTPServer', '__builtin__', 'CGIHTTPServer', 'ConfigParser', 'copy_reg',

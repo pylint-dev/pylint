@@ -26,3 +26,17 @@ Summary -- Release highlights
 
       from six.moves import zip
       print(list(zip([1, 2], [3])))
+
+* A new Python 3 checker was added to warn about accessing deprecated fields from
+  the types module like ``ListType`` or ``IntType``
+
+  .. code-block:: python
+
+      from types import ListType
+      print(isinstance([], ListType))
+
+  Instead use the declarations in the builtin namespace:
+
+  .. code-block:: python
+
+      print(isinstance([], list))
