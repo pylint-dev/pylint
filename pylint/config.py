@@ -307,6 +307,9 @@ class Option(optparse.Option):
         return self.take_action(
             self.action, self.dest, opt, value, values, parser)
 
+    def __getitem__(self, key):
+        return getattr(self, key)
+
 
 class OptionParser(optparse.OptionParser):
 
