@@ -17,6 +17,9 @@ What's New in Pylint 1.8?
     * Added a new Python 3 check for accessing removed fields from the types
       module like ``UnicodeType`` or ``XRangeType``
 
+    * Added a new Python 3 check for declaring a method ``next`` that would have
+      been treated as an iterator in Python 2 but a normal function in Python 3.
+
 What's New in Pylint 1.7.1?
 =========================
 
