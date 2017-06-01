@@ -1,0 +1,1 @@
+used-before-assignment:8::Using variable 'test1' before assignment
