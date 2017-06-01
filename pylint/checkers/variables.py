@@ -873,8 +873,50 @@ builtins. Remember that you should avoid to define new builtins when possible.'
         elif recursive_klass:
             maybee0601 = True
         else:
-            maybee0601 = maybee0601 and stmt.fromlineno <= defstmt.fromlineno
+            maybee0601 = maybee0601 and (stmt.fromlineno <= defstmt.fromlineno
+                                         or not VariablesChecker._same_branch(stmt, defstmt, name))
         return maybee0601, annotation_return
+
+    @staticmethod
+    def _same_branch(a, b, name):
+        a_parents = list(VariablesChecker._get_parents(a))
+        b_parents = list(VariablesChecker._get_parents(b))
+        common_ancestor = next((p for p in a_parents if p in b_parents), None)
+        if not common_ancestor or not isinstance(common_ancestor, astroid.If):
+            # no shared if branch, so the statements do not appear in a different branch
+            return True
+        # include the node itself so that the common ancestor is never the first elt
+        a_parents_and_self = [a] + a_parents
+        a_index = a_parents_and_self.index(common_ancestor)
+        b_parents_and_self = [b] + b_parents
+        b_index = b_parents_and_self.index(common_ancestor)
+        a_branch_node = a_parents_and_self[a_index - 1]  # parent before the common ancestor
+        b_branch_node = b_parents_and_self[b_index - 1]
+        same_branch = (
+            (a_branch_node in common_ancestor.body and b_branch_node in common_ancestor.body) or
+            (a_branch_node in common_ancestor.orelse and b_branch_node in common_ancestor.orelse))
+        if same_branch:
+            return same_branch
+        # extra check: even if the statements are not in the same branch, there might be
+        # a statement preceding a which *also* redefines the value of a (in addition to b) and *is*
+        # in the same branch
+        for p in a_parents_and_self:
+            if p == common_ancestor:
+                break  # stop searching
+            sibling = p
+            while sibling:
+                if isinstance(sibling, astroid.node_classes.Assign) and \
+                        any(isinstance(t, astroid.node_classes.AssignName) and \
+                                t.name == name for t in sibling.targets):
+                    return VariablesChecker._same_branch(a, sibling, name)
+                sibling = sibling.previous_sibling()
+        return same_branch
+
+    @staticmethod
+    def _get_parents(node):
+        while node.parent is not None:
+            yield node.parent
+            node = node.parent
 
     def _ignore_class_scope(self, node, name, frame):
         # Detect if we are in a local class scope, as an assignment.
