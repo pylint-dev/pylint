@@ -798,6 +798,58 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    @python2_only
+    def test_next_defined(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                def next(self):  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_too_many_args(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                def next(self, foo=None):  #@
+                    pass""")
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_static_method_too_many_args(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @staticmethod
+                def next(self):  #@
+                    pass""")
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_static_method(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @staticmethod
+                def next():  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_class_method(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @classmethod
+                def next(cls):  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+
 @python2_only
 class TestPython3TokenChecker(testutils.CheckerTestCase):
 

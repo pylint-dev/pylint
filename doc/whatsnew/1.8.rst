@@ -40,3 +40,23 @@ Summary -- Release highlights
   .. code-block:: python
 
       print(isinstance([], list))
+
+* A new Python 3 checker was added to warn about declaring a ``next`` method that
+  would have implemented the ``Iterator`` protocol in Python 2 but is now a normal
+  method in Python 3.
+
+  .. code-block:: python
+
+      class Foo(object):
+          def next(self):
+              return 42
+
+  Instead implement a ``__next__`` method and use ``six.Iterator`` as a base class
+  or alias ``next`` to ``__next__``:
+
+  .. code-block:: python
+
+      class Foo(object):
+          def __next__(self):
+              return 42
+          next = __next__

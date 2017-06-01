@@ -407,6 +407,11 @@ class Python3Checker(checkers.BaseChecker):
                   'deprecated-types-field',
                   'Used when accessing a field on types that has been removed in Python 3.',
                   {'maxversion': (3, 0)}),
+        'W1653': ('next method defined',
+                  'next-method-defined',
+                  'Used when a next method is defined that would be an iterator in Python 2 but '
+                  'is treated as a normal function in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -561,11 +566,24 @@ class Python3Checker(checkers.BaseChecker):
         self._future_absolute_import = False
 
     def visit_functiondef(self, node):
-        if node.is_method() and node.name in self._unused_magic_methods:
-            method_name = node.name
-            if node.name.startswith('__'):
-                method_name = node.name[2:-2]
-            self.add_message(method_name + '-method', node=node)
+        if node.is_method():
+            if node.name in self._unused_magic_methods:
+                method_name = node.name
+                if node.name.startswith('__'):
+                    method_name = node.name[2:-2]
+                self.add_message(method_name + '-method', node=node)
+            elif node.name == 'next':
+                # If there is a method named `next` declared, if it is invokable
+                # with zero arguments then it implements the Iterator protocol.
+                # This means if the method is a instance method or a
+                # classmethod 1 argument should cause a failure, if it is a
+                # staticmethod 0 arguments should cause a failure.
+                failing_arg_count = 1
+                if utils.decorated_with(node,
+                                        [bases.BUILTINS + ".staticmethod"]):
+                    failing_arg_count = 0
+                if len(node.args.args) == failing_arg_count:
+                    self.add_message('next-method-defined', node=node)
 
     @utils.check_messages('parameter-unpacking')
     def visit_arguments(self, node):
