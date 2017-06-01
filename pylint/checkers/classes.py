@@ -310,6 +310,16 @@ def _safe_infer_call_result(node, caller, context=None):
         return value
 
 
+def _has_same_layout_slots(slots, assigned_value):
+    inferred = next(assigned_value.infer())
+    if isinstance(inferred, astroid.ClassDef):
+        other_slots = inferred.slots()
+        if all(first_slot and second_slot and first_slot.value == second_slot.value
+               for (first_slot, second_slot) in six.moves.zip_longest(slots, other_slots)):
+            return True
+    return False
+
+
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
               'method-check-failed',
@@ -874,6 +884,8 @@ a metaclass class method.'}
                     if (node.attrname in klass.locals
                             and _has_data_descriptor(klass, node.attrname)):
                         # Descriptors circumvent the slots mechanism as well.
+                        return
+                    if node.attrname == '__class__' and _has_same_layout_slots(slots, node.parent.value):
                         return
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
