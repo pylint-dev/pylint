@@ -674,7 +674,7 @@ class ImportsChecker(BaseChecker):
 
             # update import graph
             self.import_graph[context_name].add(importedmodname)
-            if not self.linter.is_message_enabled('cyclic-import'):
+            if not self.linter.is_message_enabled('cyclic-import', line=node.lineno):
                 self._excluded_edges[context_name].add(importedmodname)
 
     def _check_deprecated_module(self, node, mod_path):
