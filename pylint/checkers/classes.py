@@ -885,7 +885,8 @@ a metaclass class method.'}
                             and _has_data_descriptor(klass, node.attrname)):
                         # Descriptors circumvent the slots mechanism as well.
                         return
-                    if node.attrname == '__class__' and _has_same_layout_slots(slots, node.parent.value):
+                    if (node.attrname == '__class__'
+                            and _has_same_layout_slots(slots, node.parent.value)):
                         return
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
