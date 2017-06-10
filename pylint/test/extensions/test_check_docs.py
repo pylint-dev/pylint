@@ -1337,3 +1337,18 @@ class TestParamDocChecker(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_finds_short_name_exception(self):
+        node = astroid.extract_node('''
+        from fake_package import BadError
+
+        def do_something(): #@
+            """Do something.
+
+            Raises:
+                ~fake_package.exceptions.BadError: When something bad happened.
+            """
+            raise BadError("A bad thing happened.")
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)

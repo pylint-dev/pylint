@@ -17,6 +17,7 @@ import astroid
 
 from pylint.checkers.utils import (
     inherit_from_std_ex,
+    node_frame_class,
     node_ignores_exception,
     safe_infer,
 )
@@ -31,6 +32,67 @@ def space_indentation(s):
     :return: number of leading spaces
     """
     return len(s) - len(s.lstrip(' '))
+
+
+def is_property(name, node):
+    """Check if the node is a property with the given name.
+
+    :param name: The name of the property to look for.
+    :type name: str
+    :param node: The node to check.
+    :type node: astroid.Node
+
+    :rtype: bool
+    :returns: Whether the given node is a property with the given name (True)
+        or not (False).
+    """
+    return (
+        isinstance(node, astroid.FunctionDef) and
+        node.name == name and
+        any(name.endswith("property") for name in node.decoratornames())
+    )
+
+
+def get_setters_property_name(node):
+    """Get the name of the property that the given node is a setter for.
+
+    :param node: The node to get the property name for.
+    :type node: str
+
+    :rtype: str or None
+    :returns: The name of the property that the node is a setter for,
+        or None if one could not be found.
+    """
+    decorators = node.decorators.nodes if node.decorators else []
+    for decorator in decorators:
+        if isinstance(decorator, astroid.Attribute) and \
+                decorator.attrname == "setter" and \
+                isinstance(decorator.expr, astroid.Name):
+            return decorator.expr.name
+
+
+def get_setters_property(node):
+    """Get the property node for the given setter node.
+
+    :param node: The node to get the property for.
+    :type node: astroid.FunctionDef
+
+    :rtype: astroid.FunctionDef or None
+    :returns: The node relating to the property of the given setter node,
+        or None if one could not be found.
+    """
+    property_ = None
+
+    property_name = get_setters_property_name(node)
+    class_node = node_frame_class(node)
+    if property_name and class_node is not None:
+        class_attrs = class_node.getattr(node.name)
+        for attr in class_attrs:
+            if is_property(property_name, attr):
+                property_ = attr
+                break
+
+    return property_
 
 
 def returns_something(return_node):
