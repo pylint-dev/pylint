@@ -1352,3 +1352,335 @@ class TestParamDocChecker(CheckerTestCase):
         ''')
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
+
+    def test_finds_missing_raises_from_setter_sphinx(self):
+        """Example of a setter having missing raises documentation in
+        the Sphinx style docstring of the property
+        """
+        property_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''docstring ...
+
+                :type: int
+                '''
+                return 10
+
+            @foo.setter
+            def foo(self, value):
+                raise AttributeError() #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=property_node,
+                args=('AttributeError',)),
+        ):
+            self.checker.visit_raise(node)
+
+    def test_finds_missing_raises_from_setter_google(self):
+        """Example of a setter having missing raises documentation in
+        the Google style docstring of the property
+        """
+        property_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''int: docstring
+
+                Include a "Raises" section so that this is identified
+                as a Google docstring and not a Numpy docstring.
+
+                Raises:
+                    RuntimeError: Always
+                '''
+                raise RuntimeError()
+                return 10
+
+            @foo.setter
+            def foo(self, value):
+                raises AttributeError() #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=property_node,
+                args=('AttributeError',)),
+        ):
+            self.checker.visit_raise(node)
+
+    def test_finds_missing_raises_from_setter_numpy(self):
+        """Example of a setter having missing raises documentation in
+        the Numpy style docstring of the property
+        """
+        property_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''int: docstring
+
+                Include a "Raises" section so that this is identified
+                as a Numpy docstring and not a Google docstring.
+
+                Raises
+                ------
+                RuntimeError
+                    Always
+                '''
+                raise RuntimeError()
+                return 10
+
+            @foo.setter
+            def foo(self, value):
+                raises AttributeError() #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=property_node,
+                args=('AttributeError',)),
+        ):
+            self.checker.visit_raise(node)
+
+    def test_finds_missing_raises_in_setter_sphinx(self):
+        """Example of a setter having missing raises documentation in
+        its own Sphinx style docstring
+        """
+        setter_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self):
+                '''docstring ...
+
+                :type: int
+                :raises RuntimeError: Always
+                '''
+                raise RuntimeError()
+                return 10
+
+            @foo.setter
+            def foo(self, value): #@
+                '''setter docstring ...
+
+                :type: None
+                '''
+                raise AttributeError() #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=setter_node,
+                args=('AttributeError',)),
+        ):
+            self.checker.visit_raise(node)
+
+    def test_finds_missing_raises_from_setter_google(self):
+        """Example of a setter having missing raises documentation in
+        its own Google style docstring of the property
+        """
+        setter_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self):
+                '''int: docstring ...
+
+                Raises:
+                    RuntimeError: Always
+                '''
+                raise RuntimeError()
+                return 10
+
+            @foo.setter
+            def foo(self, value): #@
+                '''setter docstring ...
+
+                Raises:
+                    RuntimeError: Never
+                '''
+                if True:
+                    raise AttributeError() #@
+                raise RuntimeError()
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=setter_node,
+                args=('AttributeError',)),
+        ):
+            self.checker.visit_raise(node)
+
+    def test_finds_missing_raises_from_setter_numpy(self):
+        """Example of a setter having missing raises documentation in
+        its own Numpy style docstring of the property
+        """
+        setter_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self):
+                '''int: docstring ...
+
+                Raises
+                ------
+                RuntimeError
+                    Always
+                '''
+                raise RuntimeError()
+                return 10
+
+            @foo.setter
+            def foo(self, value): #@
+                '''setter docstring ...
+
+                Raises
+                ------
+                RuntimeError
+                    Never
+                '''
+                if True:
+                    raise AttributeError() #@
+                raise RuntimeError()
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-raises-doc',
+                node=setter_node,
+                args=('AttributeError',)),
+        ):
+            self.checker.visit_raise(node)
+
+    def test_finds_property_return_type_sphinx(self):
+        """Example of a property having return documentation in
+        a Sphinx style docstring
+        """
+        node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''docstring ...
+
+                :type: int
+                '''
+                return 10
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_property_return_type_google(self):
+        """Example of a property having return documentation in
+        a Google style docstring
+        """
+        node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''int: docstring ...
+
+                Raises:
+                    RuntimeError: Always
+                '''
+                raise RuntimeError()
+                return 10
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_property_return_type_numpy(self):
+        """Example of a property having return documentation in
+        a numpy style docstring
+        """
+        node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''int: docstring ...
+
+                Raises
+                ------
+                RuntimeError
+                    Always
+                '''
+                raise RuntimeError()
+                return 10
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_missing_property_return_type_sphinx(self):
+        """Example of a property having missing return documentation in
+        a Sphinx style docstring
+        """
+        property_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''docstring ...
+
+                :raises RuntimeError: Always
+                '''
+                raise RuntimeError()
+                return 10 #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-return-doc',
+                node=property_node),
+            Message(
+                msg_id='missing-return-type-doc',
+                node=property_node),
+        ):
+            self.checker.visit_return(node)
+
+    def test_finds_property_return_type_google(self):
+        """Example of a property having return documentation in
+        a Google style docstring
+        """
+        property_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''docstring ...
+
+                Raises:
+                    RuntimeError: Always
+                '''
+                raise RuntimeError()
+                return 10 #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-return-doc',
+                node=property_node),
+            Message(
+                msg_id='missing-return-type-doc',
+                node=property_node),
+        ):
+            self.checker.visit_return(node)
+
+    def test_finds_property_return_type_numpy(self):
+        """Example of a property having return documentation in
+        a numpy style docstring
+        """
+        property_node, node = astroid.extract_node("""
+        class Foo(object):
+            @property
+            def foo(self): #@
+                '''docstring ...
+
+                Raises
+                ------
+                RuntimeError
+                    Always
+                '''
+                raise RuntimeError()
+                return 10 #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-return-doc',
+                node=property_node),
+            Message(
+                msg_id='missing-return-type-doc',
+                node=property_node),
+        ):
+            self.checker.visit_return(node)

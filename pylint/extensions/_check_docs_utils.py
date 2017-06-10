@@ -295,7 +295,8 @@ class SphinxDocstring(Docstring):
         return bool(self.re_param_in_docstring.search(self.doc) or
                     self.re_raise_in_docstring.search(self.doc) or
                     self.re_rtype_in_docstring.search(self.doc) or
-                    self.re_returns_in_docstring.search(self.doc))
+                    self.re_returns_in_docstring.search(self.doc) or
+                    self.re_property_type_in_docstring.search(self.doc))
 
     def exceptions(self):
         types = set()
@@ -318,7 +319,7 @@ class SphinxDocstring(Docstring):
 
         # If this is a property docstring, the summary is the return doc.
         if self.re_property_type_in_docstring.search(self.doc):
-            first_line = self.doc.lsplit().split('\n', 1)[0]
+            first_line = self.doc.lstrip().split('\n', 1)[0]
             # The summary line is the first line without a directive.
             return not first_line.startswith(':')
 
@@ -456,7 +457,8 @@ class GoogleDocstring(Docstring):
         return bool(self.re_param_section.search(self.doc) or
                     self.re_raise_section.search(self.doc) or
                     self.re_returns_section.search(self.doc) or
-                    self.re_yields_section.search(self.doc))
+                    self.re_yields_section.search(self.doc) or
+                    self.re_property_returns_line.search(self._first_line()))
 
     def has_params(self):
         if not self.doc:
@@ -478,8 +480,7 @@ class GoogleDocstring(Docstring):
             if return_desc:
                 return True
 
-        first_line = self.doc.lstrip().split('\n', 1)[0]
-        return bool(self.re_property_returns_line.match(first_line))
+        return bool(self.re_property_returns_line.match(self._first_line()))
 
     def has_rtype(self):
         if not self.doc:
@@ -495,8 +496,7 @@ class GoogleDocstring(Docstring):
             if return_type:
                 return True
 
-        first_line = self.doc.lstrip().split('\n', 1)[0]
-        return bool(self.re_property_returns_line.match(first_line))
+        return bool(self.re_property_returns_line.match(self._first_line()))
 
     def has_yields(self):
         if not self.doc:
@@ -566,6 +566,9 @@ class GoogleDocstring(Docstring):
                 params_with_doc.add(param_name)
 
         return params_with_doc, params_with_type
+
+    def _first_line(self):
+        return self.doc.lstrip().split('\n', 1)[0]
 
     @staticmethod
     def min_section_indent(section_match):
