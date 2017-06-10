@@ -257,6 +257,15 @@ class SphinxDocstring(Docstring):
         """.format(type=re_type)
     re_type_in_docstring = re.compile(re_type_raw, re.X | re.S)
 
+    re_property_type_raw = r"""
+        :type:                  # Sphinx keyword
+        \s+                     # whitespace
+        {type}                  # type declaration
+        """.format(type=re_type)
+    re_property_type_in_docstring = re.compile(
+        re_property_type_raw, re.X | re.S
+    )
+
     re_raise_raw = r"""
         :                       # initial colon
         (?:                     # Sphinx keyword
@@ -307,13 +316,20 @@ class SphinxDocstring(Docstring):
         if not self.doc:
             return False
 
+        # If this is a property docstring, the summary is the return doc.
+        if self.re_property_type_in_docstring.search(self.doc):
+            first_line = self.doc.lsplit().split('\n', 1)[0]
+            # The summary line is the first line without a directive.
+            return not first_line.startswith(':')
+
         return bool(self.re_returns_in_docstring.search(self.doc))
 
     def has_rtype(self):
         if not self.doc:
             return False
 
-        return bool(self.re_rtype_in_docstring.search(self.doc))
+        return bool(self.re_rtype_in_docstring.search(self.doc) or
+                    self.re_property_type_in_docstring.search(self.doc))
 
     def match_param_docs(self):
         params_with_doc = set()
@@ -420,6 +436,13 @@ class GoogleDocstring(Docstring):
         type=re_multiple_type,
     ), re.X | re.S | re.M)
 
+    re_property_returns_line = re.compile(r"""
+        ^{type}:                       # indentifier
+        \s* (.*)                       # Summary line / description
+    """.format(
+        type=re_multiple_type,
+    ), re.X | re.S | re.M)
+
     re_yields_section = re.compile(
         _re_section_template.format(r"Yields?"),
         re.X | re.S | re.M
@@ -455,7 +478,8 @@ class GoogleDocstring(Docstring):
             if return_desc:
                 return True
 
-        return False
+        first_line = self.doc.lstrip().split('\n', 1)[0]
+        return bool(self.re_property_returns_line.match(first_line))
 
     def has_rtype(self):
         if not self.doc:
@@ -471,7 +495,8 @@ class GoogleDocstring(Docstring):
             if return_type:
                 return True
 
-        return False
+        first_line = self.doc.lstrip().split('\n', 1)[0]
+        return bool(self.re_property_returns_line.match(first_line))
 
     def has_yields(self):
         if not self.doc:
