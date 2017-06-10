@@ -60,3 +60,27 @@ Summary -- Release highlights
           def __next__(self):
               return 42
           next = __next__
+
+* The docparams extension now allows a property docstring to document both
+  the property and the setter. Therefore setters can also have no docstring.
+
+* The docparams extension now understands property type syntax.
+
+  .. code-block:: python
+
+      class Foo(object):
+          @property
+          def foo(self):
+              """My Sphinx style docstring description.
+
+              :type: int
+              """
+              return 10
+
+  .. code-block:: python
+
+    class Foo(object):
+        @property
+        def foo(self):
+            """int: My Numpy and Google docstring style description."""
+            return 10
