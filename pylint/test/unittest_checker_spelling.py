@@ -121,7 +121,7 @@ class TestSpellingChecker(CheckerTestCase):
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
-    def test_skip_camel_cased_words(self):
+    def test_skip_wiki_words(self):
         suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """ComentAbc with a bad coment"""\n   pass')
@@ -129,6 +129,40 @@ class TestSpellingChecker(CheckerTestCase):
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'ComentAbc with a bad coment',
                           '                     ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_camel_cased_words(self):
+        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """comentAbc with a bad coment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'comentAbc with a bad coment',
+                          '                     ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
+
+        # With just a single upper case letter in the end
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """argumentN with a bad coment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'argumentN with a bad coment',
+                          '                     ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
+
+        # With just a single lower and upper case letter is not good
+        suggestions = self.checker.spelling_dict.suggest('zN')[:4]
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """zN with a bad comment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('zN', 'zN with a bad comment',
+                          '^^',
                           "'{0}'".format("' or '".join(suggestions))))):
             self.checker.visit_classdef(stmt)
 
@@ -151,3 +185,28 @@ class TestSpellingChecker(CheckerTestCase):
     def test_skip_urls(self):
         self.checker.process_tokens(_tokenize_str('# https://github.com/rfk/pyenchant'))
         assert self.linter.release_messages() == []
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_sphinx_directives(self):
+        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
+        stmt = astroid.extract_node(
+                'class ComentAbc(object):\n   """This is :class:`ComentAbc` with a bad coment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'This is :class:`ComentAbc` with a bad coment',
+                          '                                      ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_handle_words_joined_by_forward_slash(self):
+        stmt = astroid.extract_node(
+                'class ComentAbc(object):\n   """This is Comment/Abcz with a bad comment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('Abcz', 'This is Comment/Abcz with a bad comment',
+                          '                ^^^^',
+                          "'ABC'"))):
+            self.checker.visit_classdef(stmt)
