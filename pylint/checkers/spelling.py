@@ -180,13 +180,17 @@ class SpellingChecker(BaseTokenChecker):
             self.private_dict_file.close()
 
     def _check_spelling(self, msgid, line, line_num):
+        original_line = line
+        if line.strip().startswith('#'):
+            line = line.strip()[1:]
+            starts_with_comment = True
+        else:
+            starts_with_comment = False
         for word, _ in self.tokenizer(line.strip()):
-
-            try:
-                lower_cased_word = word.casefold()
-            except AttributeError:
-                # Python 2
+            if six.PY2:
                 lower_cased_word = word.lower()
+            else:
+                lower_cased_word = word.casefold()
 
             # Skip words from ignore list.
             if word in self.ignore_list or lower_cased_word in self.ignore_list:
@@ -229,10 +233,13 @@ class SpellingChecker(BaseTokenChecker):
                     col = m.regs[2][0]
                 else:
                     col = line.index(word)
+
+                if starts_with_comment:
+                    col += 1
                 indicator = (" " * col) + ("^" * len(word))
 
                 self.add_message(msgid, line=line_num,
-                                 args=(word, line,
+                                 args=(word, original_line,
                                        indicator,
                                        "'{0}'".format("' or '".join(suggestions))))
 
