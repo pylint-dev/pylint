@@ -9,9 +9,7 @@
 """
 
 import os
-import sys
 import tokenize
-import string
 import re
 
 try:
@@ -30,11 +28,6 @@ from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import safe_decode
 
-if sys.version_info[0] >= 3:
-    maketrans = str.maketrans
-else:
-    maketrans = string.maketrans
-
 if enchant is not None:
     br = enchant.Broker()
     dicts = br.list_dicts()
@@ -46,8 +39,6 @@ else:
     dicts = "none"
     dict_choices = ['']
     instr = " To make it working install python-enchant package."
-
-table = maketrans("", "")
 
 
 class WordsWithDigigtsFilter(Filter):
@@ -68,6 +59,22 @@ class WordsWithUnderscores(Filter):
     """
     def _skip(self, word):
         return '_' in word
+
+
+class CamelCasedWord(Filter):
+    r"""Filter skipping over camelCasedWords.
+    This filter skips any words matching the following regular expression:
+
+           ^([a-z]\w+[A-Z]+\w+)
+
+    That is, any words that are camelCasedWords.
+    """
+    _pattern = re.compile(r"^([a-z]\w+[A-Z]+\w+)")
+    def _skip(self, word):
+        if self._pattern.match(word):
+            return True
+        return False
+
 
 
 class SpellingChecker(BaseTokenChecker):
@@ -143,15 +150,12 @@ class SpellingChecker(BaseTokenChecker):
         if self.config.spelling_store_unknown_words:
             self.unknown_words = set()
 
-        # Prepare regex for stripping punctuation signs from text.
-        # ' and _ are treated in a special way.
-        puncts = string.punctuation.replace("'", "").replace("_", "")
-        self.punctuation_regex = re.compile('[%s]' % re.escape(puncts))
         self.tokenizer = get_tokenizer(dict_name, filters=[EmailFilter,
                                                            URLFilter,
                                                            WikiWordFilter,
                                                            WordsWithDigigtsFilter,
-                                                           WordsWithUnderscores])
+                                                           WordsWithUnderscores,
+                                                           CamelCasedWord])
         self.initialized = True
 
     def close(self):
@@ -164,14 +168,8 @@ class SpellingChecker(BaseTokenChecker):
             if word in self.ignore_list:
                 continue
 
-            orig_word = word
-            word = word.lower()
-
             # Strip starting u' from unicode literals and r' from raw strings.
-            if (word.startswith("u'") or
-                    word.startswith('u"') or
-                    word.startswith("r'") or
-                    word.startswith('r"')) and len(word) > 2:
+            if word.startswith(("u'", 'u"', "r'", 'r"')) and len(word) > 2:
                 word = word[2:]
 
             # If it is a known word, then continue.
@@ -194,16 +192,16 @@ class SpellingChecker(BaseTokenChecker):
                 # TODO: add support for customising this.
                 suggestions = self.spelling_dict.suggest(word)[:4]
 
-                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line.lower())
+                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
                 if m:
                     # Start position of second group in regex.
                     col = m.regs[2][0]
                 else:
-                    col = line.lower().index(word)
+                    col = line.index(word)
                 indicator = (" " * col) + ("^" * len(word))
 
                 self.add_message(msgid, line=line_num,
-                                 args=(orig_word, line,
+                                 args=(word, line,
                                        indicator,
                                        "'{0}'".format("' or '".join(suggestions))))
 
