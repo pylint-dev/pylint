@@ -144,6 +144,16 @@ class TestSpellingChecker(CheckerTestCase):
                           '                     ^^^^^^',
                           "'{0}'".format("' or '".join(suggestions))))):
             self.checker.visit_classdef(stmt)
+        # With just a single lower case letter followed by upper cased
+
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """cProfile with a bad coment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'cProfile with a bad coment',
+                          '                    ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
