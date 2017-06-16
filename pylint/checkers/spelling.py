@@ -181,29 +181,43 @@ class SpellingChecker(BaseTokenChecker):
 
     def _check_spelling(self, msgid, line, line_num):
         for word, _ in self.tokenizer(line.strip()):
+
+            try:
+                lower_cased_word = word.casefold()
+            except AttributeError:
+                # Python 2
+                lower_cased_word = word.lower()
+
             # Skip words from ignore list.
-            if word in self.ignore_list:
+            if word in self.ignore_list or lower_cased_word in self.ignore_list:
                 continue
 
             # Strip starting u' from unicode literals and r' from raw strings.
             if word.startswith(("u'", 'u"', "r'", 'r"')) and len(word) > 2:
                 word = word[2:]
+                lower_cased_word = lower_cased_word[2:]
 
             # If it is a known word, then continue.
             try:
+                if self.spelling_dict.check(lower_cased_word):
+                    # The lower cased version of word passed spell checking
+                    continue
+
+                # If we reached this far, it means there was a spelling mistake.
+                # Let's retry with the original work because 'unicode' is a
+                # spelling mistake but 'Unicode' is not
                 if self.spelling_dict.check(word):
                     continue
             except enchant.errors.Error:
-                # this can only happen in docstrings, not comments
                 self.add_message('invalid-characters-in-docstring',
                                  line=line_num, args=(word,))
                 continue
 
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
-                if word not in self.unknown_words:
-                    self.private_dict_file.write("%s\n" % word)
-                    self.unknown_words.add(word)
+                if lower_cased_word not in self.unknown_words:
+                    self.private_dict_file.write("%s\n" % lower_cased_word)
+                    self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to 4 suggestions.
                 # TODO: add support for customising this.
