@@ -144,14 +144,25 @@ class TestSpellingChecker(CheckerTestCase):
                           '                     ^^^^^^',
                           "'{0}'".format("' or '".join(suggestions))))):
             self.checker.visit_classdef(stmt)
-        # With just a single lower case letter followed by upper cased
 
+        # With just a single upper case letter in the end
         stmt = astroid.extract_node(
-            'class ComentAbc(object):\n   """cProfile with a bad coment"""\n   pass')
+            'class ComentAbc(object):\n   """argumentN with a bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
-                    args=('coment', 'cProfile with a bad coment',
-                          '                    ^^^^^^',
+                    args=('coment', 'argumentN with a bad coment',
+                          '                     ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
+
+        # With just a single lower and upper case letter is not good
+        suggestions = self.checker.spelling_dict.suggest('zN')[:4]
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """zN with a bad comment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('zN', 'zN with a bad comment',
+                          '^^',
                           "'{0}'".format("' or '".join(suggestions))))):
             self.checker.visit_classdef(stmt)
 
