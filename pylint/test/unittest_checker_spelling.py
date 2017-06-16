@@ -164,3 +164,16 @@ class TestSpellingChecker(CheckerTestCase):
     def test_skip_urls(self):
         self.checker.process_tokens(tokenize_str('# https://github.com/rfk/pyenchant'))
         assert self.linter.release_messages() == []
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_sphinx_directives(self):
+        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
+        stmt = astroid.extract_node(
+                'class ComentAbc(object):\n   """This is :class:`ComentAbc` with a bad coment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'This is :class:`ComentAbc` with a bad coment',
+                          '                                      ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)

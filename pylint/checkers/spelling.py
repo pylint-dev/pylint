@@ -76,6 +76,22 @@ class CamelCasedWord(Filter):
         return False
 
 
+class SphinxDicrectives(Filter):
+    r"""Filter skipping over Sphinx Directives.
+    This filter skips any words matching the following regular expression:
+
+           ^:([a-z]+):`([^`]+)(`)?
+
+    That is, for example, :class:`BaseQuery`
+    """
+    # The final ` in the pattern is optional because enchant strips it out
+    _pattern = re.compile(r"^:([a-z]+):`([^`]+)(`)?")
+    def _skip(self, word):
+        if self._pattern.match(word):
+            return True
+        return False
+
+
 
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings"""
@@ -155,7 +171,8 @@ class SpellingChecker(BaseTokenChecker):
                                                            WikiWordFilter,
                                                            WordsWithDigigtsFilter,
                                                            WordsWithUnderscores,
-                                                           CamelCasedWord])
+                                                           CamelCasedWord,
+                                                           SphinxDicrectives])
         self.initialized = True
 
     def close(self):
