@@ -121,13 +121,26 @@ class TestSpellingChecker(CheckerTestCase):
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
-    def test_skip_camel_cased_words(self):
+    def test_skip_wiki_words(self):
         suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """ComentAbc with a bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'ComentAbc with a bad coment',
+                          '                     ^^^^^^',
+                          "'{0}'".format("' or '".join(suggestions))))):
+            self.checker.visit_classdef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    def test_skip_camel_cased_words(self):
+        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
+        stmt = astroid.extract_node(
+            'class ComentAbc(object):\n   """comentAbc with a bad coment"""\n   pass')
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-docstring', line=2,
+                    args=('coment', 'comentAbc with a bad coment',
                           '                     ^^^^^^',
                           "'{0}'".format("' or '".join(suggestions))))):
             self.checker.visit_classdef(stmt)
