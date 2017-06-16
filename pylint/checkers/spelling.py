@@ -14,12 +14,21 @@ import re
 
 try:
     import enchant
-    from enchant.tokenize import get_tokenizer, Filter, EmailFilter, URLFilter, WikiWordFilter
+    from enchant.tokenize import (get_tokenizer,
+                                  Chunker,
+                                  Filter,
+                                  EmailFilter,
+                                  URLFilter,
+                                  WikiWordFilter)
 except ImportError:
     enchant = None
     class Filter:
         def _skip(self, word):
             raise NotImplementedError
+
+    class Chunker:
+        pass
+
 
 import six
 
@@ -90,6 +99,46 @@ class SphinxDicrectives(Filter):
         if self._pattern.match(word):
             return True
         return False
+
+
+class ForwardSlashChunkder(Chunker):
+    '''
+    This chunker allows splitting words like 'before/after' into 'before' and 'after'
+    '''
+    def next(self):
+        offset = self.offset
+        while True:
+            if not self._text:
+                raise StopIteration()
+            if '/' not in self._text:
+                text = self._text
+                self._offset = 0
+                self._text = ''
+                return (text, 0)
+            pre_text, post_text = self._text.split('/', 1)
+            self._text = post_text
+            self._offset = 0
+            if not pre_text or not post_text or \
+                    not pre_text[-1].isalpha() or not post_text[0].isalpha():
+                self._text = ''
+                self._offset = 0
+                return (pre_text + '/' + post_text, 0)
+            return (pre_text, 0)
+        if not self._text:
+            raise StopIteration()
+
+    def _next(self):
+        while True:
+            if '/' not in self._text:
+                return (self._text, 0)
+            pre_text, post_text = self._text.split('/', 1)
+            if not pre_text or not post_text:
+                break
+                raise StopIteration()
+            if not pre_text[-1].isalpha() or not post_text[0].isalpha():
+                raise StopIteration()
+            self._text = pre_text + ' ' + post_text
+        raise StopIteration()
 
 
 
@@ -166,13 +215,15 @@ class SpellingChecker(BaseTokenChecker):
         if self.config.spelling_store_unknown_words:
             self.unknown_words = set()
 
-        self.tokenizer = get_tokenizer(dict_name, filters=[EmailFilter,
-                                                           URLFilter,
-                                                           WikiWordFilter,
-                                                           WordsWithDigigtsFilter,
-                                                           WordsWithUnderscores,
-                                                           CamelCasedWord,
-                                                           SphinxDicrectives])
+        self.tokenizer = get_tokenizer(dict_name,
+                                       chunkers=[ForwardSlashChunkder],
+                                       filters=[EmailFilter,
+                                                URLFilter,
+                                                WikiWordFilter,
+                                                WordsWithDigigtsFilter,
+                                                WordsWithUnderscores,
+                                                CamelCasedWord,
+                                                SphinxDicrectives])
         self.initialized = True
 
     def close(self):
