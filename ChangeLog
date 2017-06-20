@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * In non-quiet mode, absolute path of used config file is logged to
+      standard error.
+      Close #1519
+
     * Raise meaningful exception for invalid reporter class being selected
 
       When unknown reporter class will be selected as Pylint reporter,
