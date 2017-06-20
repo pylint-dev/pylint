@@ -23,9 +23,11 @@ version = '.'.join([str(num) for num in numversion])
 
 install_requires = [
     'astroid>=1.5.1',
-    'six',
+    'future>=0.16.0',
+    'futures>=3.1.1',
     'isort >= 4.2.5',
     'mccabe',
+    'six',
 ]
 
 dependency_links = []
