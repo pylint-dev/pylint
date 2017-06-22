@@ -372,8 +372,7 @@ class ImportsChecker(BaseChecker):
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message('cyclic-import', args=' -> '.join(cycle))
 
-    @check_messages('wrong-import-position', 'multiple-imports',
-                    'relative-import', 'reimported', 'deprecated-module')
+    @check_messages(*MSGS.keys())
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
