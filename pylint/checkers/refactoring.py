@@ -418,6 +418,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns true if node is 'condition and true_value else false_value' form.
 
         All of: condition, true_value and false_value should not be a complex boolean expression
+        true_value should not be false in boolean context
         """
         return (isinstance(node, astroid.BoolOp)
                 and node.op == 'or' and len(node.values) == 2
@@ -425,7 +426,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and not isinstance(node.values[1], astroid.BoolOp)
                 and node.values[0].op == 'and'
                 and not isinstance(node.values[0].values[1], astroid.BoolOp)
-                and len(node.values[0].values) == 2)
+                and len(node.values[0].values) == 2
+                and node.values[0].values[1].bool_value() is not False)
 
     @staticmethod
     def _and_or_ternary_arguments(node):
