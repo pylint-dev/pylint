@@ -1623,15 +1623,12 @@ class TestParamDocChecker(CheckerTestCase):
         """)
         with self.assertAddsMessages(
             Message(
-                msg_id='missing-return-doc',
-                node=property_node),
-            Message(
                 msg_id='missing-return-type-doc',
                 node=property_node),
         ):
             self.checker.visit_return(node)
 
-    def test_finds_property_return_type_google(self):
+    def test_finds_missing_property_return_type_google(self):
         """Example of a property having return documentation in
         a Google style docstring
         """
@@ -1649,15 +1646,12 @@ class TestParamDocChecker(CheckerTestCase):
         """)
         with self.assertAddsMessages(
             Message(
-                msg_id='missing-return-doc',
-                node=property_node),
-            Message(
                 msg_id='missing-return-type-doc',
                 node=property_node),
         ):
             self.checker.visit_return(node)
 
-    def test_finds_property_return_type_numpy(self):
+    def test_finds_missing_property_return_type_numpy(self):
         """Example of a property having return documentation in
         a numpy style docstring
         """
@@ -1677,10 +1671,82 @@ class TestParamDocChecker(CheckerTestCase):
         """)
         with self.assertAddsMessages(
             Message(
-                msg_id='missing-return-doc',
-                node=property_node),
-            Message(
                 msg_id='missing-return-type-doc',
                 node=property_node),
+        ):
+            self.checker.visit_return(node)
+
+    def test_ignores_non_property_return_type_sphinx(self):
+        """Example of a class function trying to use `type` as return
+        documentation in a Sphinx style docstring
+        """
+        func_node, node = astroid.extract_node("""
+        class Foo(object):
+            def foo(self): #@
+                '''docstring ...
+
+                :type: int
+                '''
+                return 10 #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-return-doc',
+                node=func_node),
+            Message(
+                msg_id='missing-return-type-doc',
+                node=func_node),
+        ):
+            self.checker.visit_return(node)
+
+    def test_ignores_non_property_return_type_google(self):
+        """Example of a class function trying to use `type` as return
+        documentation in a Google style docstring
+        """
+        func_node, node = astroid.extract_node("""
+        class Foo(object):
+            def foo(self): #@
+                '''int: docstring ...
+
+                Raises:
+                    RuntimeError: Always
+                '''
+                raise RuntimeError()
+                return 10 #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-return-doc',
+                node=func_node),
+            Message(
+                msg_id='missing-return-type-doc',
+                node=func_node),
+        ):
+            self.checker.visit_return(node)
+
+    def test_ignores_non_property_return_type_numpy(self):
+        """Example of a class function trying to use `type` as return
+        documentation in a numpy style docstring
+        """
+        func_node, node = astroid.extract_node("""
+        class Foo(object):
+            def foo(self): #@
+                '''int: docstring ...
+
+                Raises
+                ------
+                RuntimeError
+                    Always
+                '''
+                raise RuntimeError()
+                return 10 #@
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-return-doc',
+                node=func_node),
+            Message(
+                msg_id='missing-return-type-doc',
+                node=func_node),
         ):
             self.checker.visit_return(node)
