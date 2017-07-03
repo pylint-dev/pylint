@@ -14,7 +14,7 @@ import astroid
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import node_frame_class
+from pylint.checkers import utils as checker_utils
 import pylint.extensions._check_docs_utils as utils
 
 
@@ -139,7 +139,7 @@ class DocstringParameterChecker(BaseChecker):
     def check_functiondef_params(self, node, node_doc):
         node_allow_no_param = None
         if node.name in self.constructor_names:
-            class_node = node_frame_class(node)
+            class_node = checker_utils.node_frame_class(node)
             if class_node is not None:
                 class_doc = utils.docstringify(class_node.doc)
                 self.check_single_constructor_params(class_doc, node_doc, class_node)
@@ -222,13 +222,17 @@ class DocstringParameterChecker(BaseChecker):
         if not doc.is_valid() and self.config.accept_no_return_doc:
             return
 
-        if not doc.has_returns():
+        is_property = checker_utils.decorated_with_property(func_node)
+
+        if not (doc.has_returns() or
+                (doc.has_property_returns() and is_property)):
             self.add_message(
                 'missing-return-doc',
                 node=func_node
             )
 
-        if not doc.has_rtype():
+        if not (doc.has_rtype() or
+                (doc.has_property_type() and is_property)):
             self.add_message(
                 'missing-return-type-doc',
                 node=func_node

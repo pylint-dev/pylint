@@ -15,12 +15,7 @@ import re
 
 import astroid
 
-from pylint.checkers.utils import (
-    inherit_from_std_ex,
-    node_frame_class,
-    node_ignores_exception,
-    safe_infer,
-)
+from pylint.checkers import utils
 
 
 def space_indentation(s):
@@ -32,25 +27,6 @@ def space_indentation(s):
     :return: number of leading spaces
     """
     return len(s) - len(s.lstrip(' '))
-
-
-def is_property(name, node):
-    """Check if the node is a property with the given name.
-
-    :param name: The name of the property to look for.
-    :type name: str
-    :param node: The node to check.
-    :type node: astroid.Node
-
-    :rtype: bool
-    :returns: Whether the given node is a property with the given name (True)
-        or not (False).
-    """
-    return (
-        isinstance(node, astroid.FunctionDef) and
-        node.name == name and
-        any(name.endswith("property") for name in node.decoratornames())
-    )
 
 
 def get_setters_property_name(node):
@@ -65,9 +41,9 @@ def get_setters_property_name(node):
     """
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        if isinstance(decorator, astroid.Attribute) and \
-                decorator.attrname == "setter" and \
-                isinstance(decorator.expr, astroid.Name):
+        if (isinstance(decorator, astroid.Attribute) and
+                decorator.attrname == "setter" and
+                isinstance(decorator.expr, astroid.Name)):
             return decorator.expr.name
 
 
@@ -84,11 +60,11 @@ def get_setters_property(node):
     property_ = None
 
     property_name = get_setters_property_name(node)
-    class_node = node_frame_class(node)
-    if property_name and class_node is not None:
+    class_node = utils.node_frame_class(node)
+    if property_name and class_node:
         class_attrs = class_node.getattr(node.name)
         for attr in class_attrs:
-            if is_property(property_name, attr):
+            if utils.decorated_with_property(attr):
                 property_ = attr
                 break
 
@@ -130,12 +106,12 @@ def possible_exc_types(node):
     """
     excs = []
     if isinstance(node.exc, astroid.Name):
-        inferred = safe_infer(node.exc)
+        inferred = utils.safe_infer(node.exc)
         if inferred:
             excs = [inferred.name]
     elif (isinstance(node.exc, astroid.Call) and
           isinstance(node.exc.func, astroid.Name)):
-        target = safe_infer(node.exc.func)
+        target = utils.safe_infer(node.exc.func)
         if isinstance(target, astroid.ClassDef):
             excs = [target.name]
         elif isinstance(target, astroid.FunctionDef):
@@ -144,9 +120,9 @@ def possible_exc_types(node):
                     # return from inner function - ignore it
                     continue
 
-                val = safe_infer(ret.value)
+                val = utils.safe_infer(ret.value)
                 if (val and isinstance(val, (astroid.Instance, astroid.ClassDef))
-                        and inherit_from_std_ex(val)):
+                        and utils.inherit_from_std_ex(val)):
                     excs.append(val.name)
     elif node.exc is None:
         handler = node.parent
@@ -160,7 +136,7 @@ def possible_exc_types(node):
 
 
     try:
-        return set(exc for exc in excs if not node_ignores_exception(node, exc))
+        return set(exc for exc in excs if not utils.node_ignores_exception(node, exc))
     except astroid.InferenceError:
         return ()
 
@@ -205,6 +181,12 @@ class Docstring(object):
         return False
 
     def has_rtype(self):
+        return False
+
+    def has_property_returns(self):
+        return False
+
+    def has_property_type(self):
         return False
 
     def has_yields(self):
@@ -317,20 +299,27 @@ class SphinxDocstring(Docstring):
         if not self.doc:
             return False
 
-        # If this is a property docstring, the summary is the return doc.
-        if self.re_property_type_in_docstring.search(self.doc):
-            first_line = self.doc.lstrip().split('\n', 1)[0]
-            # The summary line is the first line without a directive.
-            return not first_line.startswith(':')
-
         return bool(self.re_returns_in_docstring.search(self.doc))
 
     def has_rtype(self):
         if not self.doc:
             return False
 
-        return bool(self.re_rtype_in_docstring.search(self.doc) or
-                    self.re_property_type_in_docstring.search(self.doc))
+        return bool(self.re_rtype_in_docstring.search(self.doc))
+
+    def has_property_returns(self):
+        if not self.doc:
+            return False
+
+        # The summary line is the return doc,
+        # so the first line must not be a known directive.
+        return not self.doc.lstrip().startswith(':')
+
+    def has_property_type(self):
+        if not self.doc:
+            return False
+
+        return bool(self.re_property_type_in_docstring.search(self.doc))
 
     def match_param_docs(self):
         params_with_doc = set()
@@ -365,6 +354,10 @@ class EpytextDocstring(SphinxDocstring):
         SphinxDocstring.re_type_raw.replace(':', '@', 1),
         re.X | re.S)
 
+    re_property_type_in_docstring = re.compile(
+        SphinxDocstring.re_property_type_raw.replace(':', '@', 1),
+        re.X | re.S)
+
     re_raise_in_docstring = re.compile(
         SphinxDocstring.re_raise_raw.replace(':', '@', 1),
         re.X | re.S)
@@ -378,6 +371,18 @@ class EpytextDocstring(SphinxDocstring):
         """, re.X | re.S)
 
     re_returns_in_docstring = re.compile(r"@returns?:")
+
+    def has_property_returns(self):
+        if not self.doc:
+            return False
+
+        # If this is a property docstring, the summary is the return doc.
+        if self.has_property_type():
+            # The summary line is the return doc,
+            # so the first line must not be a known directive.
+            return not self.doc.lstrip().startswith('@')
+
+        return False
 
 
 class GoogleDocstring(Docstring):
@@ -480,7 +485,7 @@ class GoogleDocstring(Docstring):
             if return_desc:
                 return True
 
-        return bool(self.re_property_returns_line.match(self._first_line()))
+        return False
 
     def has_rtype(self):
         if not self.doc:
@@ -495,6 +500,21 @@ class GoogleDocstring(Docstring):
             return_type = match.group(1)
             if return_type:
                 return True
+
+        return False
+
+    def has_property_returns(self):
+        # The summary line is the return doc,
+        # so the first line must not be a known directive.
+        first_line = self._first_line()
+        return not bool(self.re_param_section.search(first_line) or
+                        self.re_raise_section.search(first_line) or
+                        self.re_returns_section.search(first_line) or
+                        self.re_yields_section.search(first_line))
+
+    def has_property_type(self):
+        if not self.doc:
+            return False
 
         return bool(self.re_property_returns_line.match(self._first_line()))
 
