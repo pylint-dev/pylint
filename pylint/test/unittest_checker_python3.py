@@ -856,7 +856,7 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
     CHECKER_CLASS = checker.Python3TokenChecker
 
     def _test_token_message(self, code, symbolic_message):
-        tokens = testutils.tokenize_str(code)
+        tokens = testutils._tokenize_str(code)
         message = testutils.Message(symbolic_message, line=1)
         with self.assertAddsMessages(message):
             self.checker.process_tokens(tokens)
@@ -874,6 +874,6 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
 
         # Make sure we are catching only octals.
         for non_octal in ("45", "00", "085", "08", "1"):
-            tokens = testutils.tokenize_str(non_octal)
+            tokens = testutils._tokenize_str(non_octal)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)
