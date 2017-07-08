@@ -27,6 +27,7 @@ class CompatException(Exception):
     """An exception which should work on py2 and py3."""
 
     def __init__(self, message=''):
+        super(CompatException, self).__init__()
         self.message = message
 
     def __repr__(self):
@@ -37,4 +38,4 @@ class CompatException(Exception):
 try:
     raise CompatException('message here')
 except CompatException as error:
-    message = error.message
+    _ = error.message
