@@ -118,7 +118,7 @@ For example::
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
 
-Much probably. Read http://pylint.readthedocs.io/en/latest/ide-integration
+Much probably. Read :ref:`ide-integration`
 
 4. Message Control
 ==================
@@ -228,9 +228,9 @@ above expression.
 6.2 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------
 
-Read http://pylint.readthedocs.io/en/latest/contribute#bug-reports-feedback
+Read :ref:`Bug reports, feedback`
 
 6.3 I have a question about Pylint that isn't answered here.
 ------------------------------------------------------------
 
-Read http://pylint.readthedocs.io/en/latest/contribute#mailing-lists
+Read :ref:`Mailing lists`
