@@ -803,12 +803,17 @@ class Python3Checker(checkers.BaseChecker):
 
     @utils.check_messages('exception-message-attribute')
     def visit_attribute(self, node):
-        """ Look for accessing message on exceptions. """
+        """Look for accessing message on exceptions. """
+        message = 'message'
         try:
             for inferred in node.expr.infer():
                 if (isinstance(inferred, astroid.Instance) and
                         utils.inherit_from_std_ex(inferred)):
-                    if node.attrname == 'message':
+                    if node.attrname == message:
+
+                        # Exceptions with .message clearly defined are an exception
+                        if message in inferred.instance_attrs:
+                            continue
                         self.add_message('exception-message-attribute', node=node)
                 if isinstance(inferred, astroid.Module):
                     self._warn_if_deprecated(node, inferred.name, {node.attrname},
