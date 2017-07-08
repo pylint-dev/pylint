@@ -25,7 +25,7 @@ standard, and tries to enforce a coding style.
 2.1 How do I install Pylint?
 ----------------------------
 
-Everything should be explained on http://pylint.readthedocs.io/en/latest/installation
+Everything should be explained on :ref:`installation`.
 
 2.2 What kind of versioning system does Pylint use?
 ---------------------------------------------------
