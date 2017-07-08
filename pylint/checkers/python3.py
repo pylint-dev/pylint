@@ -500,7 +500,7 @@ class Python3Checker(checkers.BaseChecker):
             'dircache', 'dl', 'exception', 'fpformat', 'htmllib', 'ihooks', 'imageop', 'imputil',
             'linuxaudiodev', 'md5', 'mhlib', 'mimetools', 'MimeWriter', 'mimify', 'multifile',
             'mutex', 'new', 'popen2', 'posixfile', 'pure', 'rexec', 'rfc822', 'sha', 'sgmllib',
-            'sre', 'stat', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
+            'sre', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
             'toaiff', 'user', 'urllib2', 'urlparse'
         ]),
         'deprecated-string-function': {
