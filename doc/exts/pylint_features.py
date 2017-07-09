@@ -18,7 +18,7 @@ def builder_inited(app):
     linter = PyLinter()
     linter.load_default_plugins()
 
-    features = os.path.join(base_path, 'doc', 'reference_guide', 'features.rst')
+    features = os.path.join(base_path, 'doc', 'technical_reference', 'features.rst')
     with open(features, 'w') as stream:
         stream.write("Pylint features\n")
         stream.write("===============\n\n")
