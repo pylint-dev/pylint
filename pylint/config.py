@@ -12,13 +12,8 @@
 """
 from __future__ import print_function
 
-# TODO(cpopa): this module contains the logic for the
-# configuration parser and for the command line parser,
-# but it's really coupled to optparse's internals.
-# The code was copied almost verbatim from logilab.common,
-# in order to not depend on it anymore and it will definitely
-# need a cleanup. It could be completely reengineered as well.
-
+import abc
+import argparse
 import contextlib
 import collections
 import copy
@@ -31,6 +26,7 @@ import sys
 import time
 
 import configparser
+import six
 from six.moves import range
 
 from pylint import utils
@@ -95,7 +91,7 @@ def walk_up(from_dir):
     # The parent of the root directory is the root directory.
     # Once we have reached it, we are done.
     while cur_dir != new_dir:
-        cur_dur = new_dir
+        cur_dir = new_dir
         yield cur_dir
         new_dir = os.path.abspath(os.path.join(cur_dir, os.pardir))
 
@@ -528,7 +524,7 @@ class OptionsManagerMixIn(object):
 
     def reset_parsers(self, usage='', version=None):
         # configuration file parser
-        self.cfgfile_parser = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
+        self.cfgfile_parser = IniFileParser()
         # command line parser
         self.cmdline_parser = OptionParser(usage=usage, version=version)
         self.cmdline_parser.options_manager = self
@@ -569,9 +565,12 @@ class OptionsManagerMixIn(object):
             group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
-            if group_name != "DEFAULT" and \
-                    group_name not in self.cfgfile_parser._sections:
-                self.cfgfile_parser.add_section(group_name)
+            if group_name != "DEFAULT":
+                try:
+                    self.cfgfile_parser._parser.add_section(group_name)
+                except configparser.DuplicateSectionError:
+                    pass
+
         # add provider's specific options
         for opt, optdict in options:
             self.add_optik_option(provider, group, opt, optdict)
@@ -698,16 +697,7 @@ class OptionsManagerMixIn(object):
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:
-            parser = self.cfgfile_parser
-
-            # Use this encoding in order to strip the BOM marker, if any.
-            with io.open(config_file, 'r', encoding='utf_8_sig') as fp:
-                parser.read_file(fp)
-
-            # normalize sections'title
-            for sect, values in list(parser._sections.items()):
-                if not sect.isupper() and values:
-                    parser._sections[sect.upper()] = values
+            self.cfgfile_parser.parse(config_file, Configuration())
 
         if self.quiet:
             return
@@ -722,9 +712,8 @@ class OptionsManagerMixIn(object):
         """dispatch values previously read from a configuration file to each
         options provider)
         """
-        parser = self.cfgfile_parser
-        for section in parser.sections():
-            for option, value in parser.items(section):
+        for section in self.cfgfile_parser._parser.sections():
+            for option, value in self.cfgfile_parser._parser.items(section):
                 try:
                     self.global_set_option(option, value)
                 except (KeyError, optparse.OptionError):
@@ -787,7 +776,7 @@ class OptionsProviderMixIn(object):
     level = 0
 
     def __init__(self):
-        self.config = optparse.Values()
+        self.config = Configuration()
         self.load_defaults()
 
     def load_defaults(self):
@@ -904,3 +893,326 @@ def _generate_manpage(optparser, pkginfo, section=1,
     print(formatter.format_head(optparser, pkginfo, section), file=stream)
     print(optparser.format_option_help(formatter), file=stream)
     print(formatter.format_tail(pkginfo), file=stream)
+
+
+OptionDefinition = collections.namedtuple(
+    'OptionDefinition', ['name', 'definition']
+)
+
+
+class Configuration(object):
+    def __init__(self):
+        self._option_definitions = {}
+
+    def add_option(self, option_definition):
+        name, definition = option_definition
+        if name in self._option_definitions:
+            # TODO: Raise something more sensible
+            raise Exception('Option "{0}" already exists.')
+        self._option_definitions[name] = definition
+
+
+    def add_options(self, option_definitions):
+        for option_definition in option_definitions:
+            self.add_option(option_definition)
+
+    def set_option(self, option, value):
+        setattr(self, option, value)
+
+    def copy(self):
+        result = self.__class__()
+        result.add_options(six.iteritems(self._option_definitions))
+
+        for option in self._option_definitions:
+            value = getattr(self, option)
+            setattr(result, option, value)
+
+        return result
+
+    def __add__(self, other):
+        result = self.copy()
+        result += other
+        return result
+
+    def __iadd__(self, other):
+        self._option_definitions.update(other._option_definitions)
+
+        for option in other._option_definitions:
+            value = getattr(other, option)
+            setattr(result, option, value)
+
+        return self
+
+
+class ConfigurationStore(object):
+    def __init__(self, global_config):
+        """A class to store configuration objects for many paths.
+        :param global_config: The global configuration object.
+        :type global_config: Configuration
+        """
+        self.global_config = global_config
+
+        self._store = {}
+        self._cache = {}
+
+    def add_config_for(self, path, config):
+        """Add a configuration object to the store.
+        :param path: The path to add the config for.
+        :type path: str
+        :param config: The config object for the given path.
+        :type config: Configuration
+        """
+        path = os.path.expanduser(path)
+        path = os.path.abspath(path)
+
+        self._store[path] = config
+        self._cache = {}
+
+    def _get_parent_configs(self, path):
+        """Get the config objects for all parent directories.
+        :param path: The absolute path to get the parent configs for.
+        :type path: str
+        :returns: The config objects for all parent directories.
+        :rtype: generator(Configuration)
+        """
+        for cfg_dir in walk_up(path):
+            if cfg_dir in self._cache:
+                yield self._cache[cfg_dir]
+                break
+            elif cfg_dir in self._store:
+                yield self._store[cfg_dir]
+
+    def get_config_for(self, path):
+        """Get the configuration object for a file or directory.
+        This will merge the global config with all of the config objects from
+        the root directory to the given path.
+        :param path: The file or directory to the get configuration object for.
+        :type path: str
+        :returns: The configuration object for the given file or directory.
+        :rtype: Configuration
+        """
+        # TODO: Until we turn on local pylintrc searching,
+        # this is always going to be the global config
+        return self.global_config
+
+        path = os.path.expanduser(path)
+        path = os.path.abspath(path)
+
+        config = self._cache.get(path)
+
+        if not config:
+            config = self.global_config.copy()
+
+            parent_configs = self._get_parent_configs(path)
+            for parent_config in reversed(parent_configs):
+                config += parent_config
+
+            self._cache['path'] = config
+
+        return config
+
+    def __getitem__(self, path):
+        return self.get_config_for(path)
+
+    def __setitem__(self, path, config):
+        return self.add_config_for(path, config)
+
+
+@six.add_metaclass(abc.ABCMeta)
+class ConfigParser(object):
+    def __init__(self):
+        self._option_definitions = {}
+        self._option_groups = set()
+
+    def add_option_definitions(self, option_definitions):
+        self._option_definitions.update(option_definitions)
+
+        for _, definition_dict in option_definitions:
+            try:
+                group = optdict['group'].upper()
+            except KeyError:
+                continue
+            else:
+                self._option_groups.add(group)
+
+    def add_option_definition(self, option_definition):
+        self.add_option_definitions([option_definition])
+
+    @abc.abstractmethod
+    def parse(self, to_parse, config):
+        """Parse the given object into the config object.
+        Args:
+            to_parse (object): The object to parse.
+            config (Configuration): The config object to parse into.
+        """
+
+
+class CLIParser(ConfigParser):
+    def __init__(self, description=''):
+        super(CLIParser, self).__init__()
+
+        self._parser = argparse.ArgumentParser(
+            description=description,
+            # Only set the arguments that are specified.
+            argument_default=argparse.SUPPRESS
+        )
+
+    def add_option_definitions(self, option_definitions):
+        option_groups = collections.defaultdict(list)
+
+        for option, definition in option_definitions:
+            group, args, kwargs = self._convert_definition(option, definition)
+            option_groups[group].append(args, kwargs)
+
+        for args, kwargs in option_groups['DEFAULT']:
+            self._parser.add_argument(*args, **kwargs)
+
+        del option_groups['DEFAULT']
+        # TODO: Let this be definable elsewhere
+        self._parser.add_argument('module_or_package')
+
+        for group, arguments in six.iteritems(option_groups):
+            self._option_groups.add(group)
+            self._parser.add_argument_group(group.title())
+            for args, kwargs in arguments:
+                self._parser.add_argument(*args, **kwargs)
+
+    @staticmethod
+    def _convert_definition(option, definition):
+        """Convert an option definition to a set of arguments for add_argument.
+
+        Args:
+            option (str): The name of the option
+            definition (dict): The argument definition to convert.
+
+        Returns:
+            tuple(str, list, dict): A tuple of the group to add the argument to,
+            plus the args and kwargs for :func:`ArgumentParser.add_argument`.
+
+        Raises:
+            Exception: When the definition is invalid.
+        """
+        args = []
+
+        if 'short' in definition:
+            args.append('-{0}'.format(definition['short']))
+
+        args.append('--{0}'.format(option))
+
+        copy_keys = ('action', 'default', 'dest', 'help', 'metavar')
+        kwargs = {k: definition[k] for k in copy_keys if k in definition}
+
+        if 'type' in definition:
+            if definition['type'] in VALIDATORS:
+                kwargs['type'] = VALIDATORS[definition['type']]
+            elif definition['type'] in ('choice', 'multiple_choice'):
+                if 'choices' not in definition:
+                    msg = 'No choice list given for option "{0}" of type "choice".'
+                    msg = msg.format(option)
+                    # TODO: Raise something more sensible
+                    raise Exception(msg)
+
+                if definition['type'] == 'multiple_choice':
+                    kwargs['type'] = VALIDATORS['csv']
+
+                kwargs['choices'] = definition['choices']
+            else:
+                msg = 'Unsupported type "{0}"'.format(definition['type'])
+                # TODO: Raise something more sensible
+                raise Exception(msg)
+
+        if definition.get('hide'):
+            kwargs['help'] = argparse.SUPPRESS
+
+        group = definition.get('group', 'DEFAULT').upper()
+        # TODO: Handle the level. This is either going to require subclassing
+        # ArgumentParser or doing the help message printing ourselves.
+        return group, args, kwargs
+
+    def parse(self, argv, config):
+        """Parse the command line arguments into the given config object.
+        Args:
+            argv (list(str)): The command line arguments to parse.
+            config (Configuration): The config object to parse
+                the command line into.
+        """
+        args = self._parser.parse_args(argv)
+
+        for option, value in vars(args):
+            config.set_option(option, value)
+
+    def preprocess(self, argv, *options):
+        """Do some guess work to get a value for the specified option.
+        Args:
+            argv (list(str)): The command line arguments to parse.
+            *options (str): The names of the options to look for.
+        Returns:
+            Configuration: A config with the processed options.
+        """
+        config = Config()
+        config.add_options(self._option_definitions)
+
+        args = self._parser.parse_known_args(argv)[0]
+        for option in options:
+            config.set_option(option, getattr(args, option, None))
+
+        return config
+
+
+@six.add_metaclass(abc.ABCMeta)
+class FileParser(ConfigParser):
+    @abc.abstractmethod
+    def parse(self, file_path, config):
+        pass
+
+
+class IniFileParser(FileParser):
+    """Parses a config files into config objects."""
+
+    def __init__(self):
+        super(IniFileParser, self).__init__()
+        self._parser = configparser.ConfigParser(
+            inline_comment_prefixes=('#', ';'),
+        )
+
+    def add_option_definitions(self, option_definitions):
+        for option, definition in option_definitions:
+            group, default = self._convert_definition(option, definition)
+
+            try:
+                self._parser.add_section(group)
+            except configparser.DuplicateSectionError:
+                pass
+            else:
+                self._option_groups.add(group)
+
+            # TODO: Do we need to do this?
+            self._parser['DEFAULT'].update(default)
+
+    @staticmethod
+    def _convert_definition(option, definition):
+        """Convert an option definition to a set of arguments for the parser.
+
+        Args:
+            option (str): The name of the option.
+            definition (dict): The argument definition to convert.
+        """
+        default = {option: definition.get('default')}
+
+        group = definition.get('group', 'DEFAULT').upper()
+        return group, default
+
+    def parse(self, file_path, config):
+        self._parser.read(file_path)
+
+        for section in self._parser.sections():
+            # Normalise the section titles
+            if not section.isupper():
+                new_section = section.upper()
+                for option, value in self._parser.items(section):
+                    self._parser.set(new_section, option, value)
+                self._parser.remove_section(section)
+                section = section.upper()
+
+            for option, value in self._parser.items(section):
+                config.set_option(option, value)
