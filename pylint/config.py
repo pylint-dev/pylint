@@ -40,6 +40,7 @@ import argparse
 import contextlib
 import collections
 import copy
+import functools
 import io
 import optparse
 import os
@@ -538,6 +539,11 @@ Please report bugs on the project\'s mailing list:
 class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options"""
 
+    class NullAction(argparse.Action):
+        """Doesn't store the value on the config."""
+        def __call__(self, *args, **kwargs):
+            pass
+
     def __init__(self, usage, config_file=None, version=None):
         self.config_file = config_file
         self.reset_parsers(usage, version=version)
@@ -555,9 +561,7 @@ class OptionsManagerMixIn:
         # configuration file parser
         self.cfgfile_parser = IniFileParser()
         # command line parser
-        self.cmdline_parser = OptionParser(Option, usage=usage, version=version)
-        self.cmdline_parser.options_manager = self
-        self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
+        self.cmdline_parser = CLIParser(description=usage)
 
     def register_options_provider(self, provider, own_group=True):
         """register an options provider"""
@@ -588,10 +592,10 @@ class OptionsManagerMixIn:
         if group_name in self._mygroups:
             group = self._mygroups[group_name]
         else:
-            group = optparse.OptionGroup(self.cmdline_parser,
-                                         title=group_name.capitalize())
-            self.cmdline_parser.add_option_group(group)
-            group.level = provider.level
+            group = self.cmdline_parser._parser.add_argument_group(
+                group_name.capitalize()
+            )
+            #group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
             if group_name != "DEFAULT":
@@ -606,37 +610,61 @@ class OptionsManagerMixIn:
 
     def add_optik_option(self, provider, optikcontainer, opt, optdict):
         args, optdict = self.optik_option(provider, opt, optdict)
-        option = optikcontainer.add_option(*args, **optdict)
+        if hasattr(optikcontainer, '_parser'):
+            optikcontainer = optikcontainer._parser
+        if 'group' in optdict:
+            optikcontainer = self._mygroups[optdict['group'].upper()]
+            del optdict['group']
+
+        # Some sanity checks for things that trip up argparse
+        assert not any(' ' in arg for arg in args)
+        assert all(optdict.values())
+        assert not ('metavar' in optdict and '[' in optdict['metavar'])
+
+        option = optikcontainer.add_argument(*args, **optdict)
         self._all_options[opt] = provider
-        self._maxlevel = max(self._maxlevel, option.level or 0)
+        self._maxlevel = max(self._maxlevel, optdict.get('level', 0))
 
     def optik_option(self, provider, opt, optdict):
         """get our personal option definition and return a suitable form for
         use with optik/optparse
         """
+        # TODO: Changed to work with argparse but this should call
+        # self.cmdline_parser.add_argument_definitions and not use callbacks
         optdict = copy.copy(optdict)
         if 'action' in optdict:
             self._nocallback_options[provider] = opt
+            if optdict['action'] == 'callback':
+                pass
         else:
-            optdict['action'] = 'callback'
-            optdict['callback'] = self.cb_set_provider_option
+            callback = functools.partial(
+                self.cb_set_provider_option, None, '--' + str(opt), parser=None,
+            )
+            optdict['type'] = callback
+            optdict['action'] = self.NullAction
         # default is handled here and *must not* be given to optik if you
         # want the whole machinery to work
         if 'default' in optdict:
             if ('help' in optdict
                     and optdict.get('default') is not None
                     and optdict['action'] not in ('store_true', 'store_false')):
-                optdict['help'] += ' [current: %default]'
+                optdict['help'] += ' [current: %(default)s]'
             del optdict['default']
         args = ['--' + str(opt)]
         if 'short' in optdict:
             self._short_options[optdict['short']] = opt
             args.append('-' + optdict['short'])
             del optdict['short']
-        # cleanup option definition dict before giving it to optik
-        for key in list(optdict.keys()):
-            if key not in self._optik_option_attrs:
-                optdict.pop(key)
+        if optdict.get('action') == 'callback':
+            optdict['type'] = optdict['callback']
+            del optdict['action']
+            del optdict['callback']
+        if optdict.get('hide'):
+            optdict['help'] = argparse.SUPPRESS
+            del optdict['hide']
+        # TODO: Implement long help
+        if 'level' in optdict:
+            del optdict['level']
         return args, optdict
 
     def cb_set_provider_option(self, option, opt, value, parser):
@@ -651,6 +679,7 @@ class OptionsManagerMixIn:
         if value is None:
             value = 1
         self.global_set_option(opt, value)
+        return value
 
     def global_set_option(self, opt, value):
         """set option on the correct option provider"""
@@ -769,30 +798,26 @@ class OptionsManagerMixIn:
                 args = sys.argv[1:]
             else:
                 args = list(args)
-            (options, args) = self.cmdline_parser.parse_args(args=args)
             for provider in self._nocallback_options:
-                config = provider.config
-                for attr in config.__dict__.keys():
-                    value = getattr(options, attr, None)
-                    if value is None:
-                        continue
-                    setattr(config, attr, value)
-            return args
+                self.cmdline_parser.parse(args, provider.config)
+            config = Configuration()
+            self.cmdline_parser.parse(args, config)
+            return config.module_or_package
 
     def add_help_section(self, title, description, level=0):
         """add a dummy option section for help purpose """
-        group = optparse.OptionGroup(self.cmdline_parser,
-                                     title=title.capitalize(),
-                                     description=description)
-        group.level = level
+        self.cmdline_parser._parser.add_argument_group(
+            title.capitalize(), description,
+        )
+        #group.level = level
         self._maxlevel = max(self._maxlevel, level)
-        self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
         """return the usage string for available options """
-        self.cmdline_parser.formatter.output_level = level
+        # TODO: Not implemented long help yet
+        #self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
-            return self.cmdline_parser.format_help()
+            return self.cmdline_parser._parser.format_help()
 
 
 class OptionsProviderMixIn:
@@ -1079,10 +1104,12 @@ class CLIParser(ConfigParser):
         super(CLIParser, self).__init__()
 
         self._parser = argparse.ArgumentParser(
-            description=description,
+            description=description.replace("%prog", "%(prog)s"),
             # Only set the arguments that are specified.
             argument_default=argparse.SUPPRESS
         )
+        # TODO: Let this be definable elsewhere
+        self._parser.add_argument('module_or_package', nargs=argparse.REMAINDER)
 
     def add_option_definitions(self, option_definitions):
         option_groups = collections.defaultdict(list)
@@ -1095,8 +1122,6 @@ class CLIParser(ConfigParser):
             self._parser.add_argument(*args, **kwargs)
 
         del option_groups['DEFAULT']
-        # TODO: Let this be definable elsewhere
-        self._parser.add_argument('module_or_package')
 
         for group, arguments in option_groups.items():
             self._option_groups.add(group)
@@ -1163,10 +1188,7 @@ class CLIParser(ConfigParser):
             config (Configuration): The config object to parse
                 the command line into.
         """
-        args = self._parser.parse_args(argv)
-
-        for option, value in vars(args):
-            config.set_option(option, value)
+        self._parser.parse_args(argv, config)
 
     def preprocess(self, argv, *options):
         """Do some guess work to get a value for the specified option.

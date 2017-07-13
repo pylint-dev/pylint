@@ -302,13 +302,13 @@ class PyLinter(config.OptionsManagerMixIn,
     @staticmethod
     def make_options():
         return (('ignore',
-                 {'type' : 'csv', 'metavar' : '<file>[,<file>...]',
+                 {'type' : 'csv', 'metavar' : '<file>,...',
                   'dest' : 'black_list', 'default' : ('CVS',),
                   'help' : 'Add files or directories to the blacklist. '
                            'They should be base names, not paths.'}),
 
                 ('ignore-patterns',
-                 {'type' : 'regexp_csv', 'metavar' : '<pattern>[,<pattern>...]',
+                 {'type' : 'regexp_csv', 'metavar' : '<pattern>,...',
                   'dest' : 'black_list_re', 'default' : (),
                   'help' : 'Add files or directories matching the regex patterns to the'
                            ' blacklist. The regex matches against base names, not paths.'}),
@@ -426,7 +426,7 @@ class PyLinter(config.OptionsManagerMixIn,
                            'large functions or complex, nested conditions. ')}),
 
                 ('extension-pkg-whitelist',
-                 {'type': 'csv', 'metavar': '<pkg[,pkg]>', 'default': [],
+                 {'type': 'csv', 'metavar': '<pkg>,...', 'default': [],
                   'help': ('A comma-separated list of package or module names'
                            ' from where C extensions may be loaded. Extensions are'
                            ' loading into the active Python interpreter and may run'
