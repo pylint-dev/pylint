@@ -322,7 +322,7 @@ class PyLinter(
                 "ignore",
                 {
                     "type": "csv",
-                    "metavar": "<file>[,<file>...]",
+                    "metavar": "<file>,...",
                     "dest": "black_list",
                     "default": ("CVS",),
                     "help": "Add files or directories to the blacklist. "
@@ -333,7 +333,7 @@ class PyLinter(
                 "ignore-patterns",
                 {
                     "type": "regexp_csv",
-                    "metavar": "<pattern>[,<pattern>...]",
+                    "metavar": "<pattern>,...",
                     "dest": "black_list_re",
                     "default": (),
                     "help": "Add files or directories matching the regex patterns to the"
@@ -522,7 +522,7 @@ class PyLinter(
                 "extension-pkg-whitelist",
                 {
                     "type": "csv",
-                    "metavar": "<pkg[,pkg]>",
+                    "metavar": "<pkg>,...",
                     "default": [],
                     "help": (
                         "A comma-separated list of package or module names"
