@@ -110,6 +110,11 @@ MSGS = {
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),
+    'W0715': ('Arguments to %s suggest string formatting might be intended',
+              'raising-format-tuple',
+              'Used when passing multiple arguments to an exception \
+              constructor, the first of them a string literal containing what \
+              appears to be placeholders intended for formatting'),
     }
 
 
@@ -144,6 +149,16 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
     def visit_call(self, call):
         if isinstance(call.func, astroid.Name):
             self.visit_name(call.func)
+        if (len(call.args) > 1 and
+                isinstance(call.args[0], astroid.Const) and
+                isinstance(call.args[0].value, six.string_types)):
+            msg = call.args[0].value
+            if ('%' in msg or
+                    ('{' in msg and '}' in msg)):
+                self._checker.add_message(
+                    'raising-format-tuple',
+                    node=self._node,
+                    args=call.func.name)
 
 
 class ExceptionRaiseLeafVisitor(BaseVisitor):
@@ -226,7 +241,8 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.check_messages('nonstandard-exception', 'misplaced-bare-raise',
                           'raising-bad-type', 'raising-non-exception',
-                          'notimplemented-raised', 'bad-exception-context')
+                          'notimplemented-raised', 'bad-exception-context',
+                          'raising-format-tuple')
     def visit_raise(self, node):
         if node.exc is None:
             self._check_misplaced_bare_raise(node)
