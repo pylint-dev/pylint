@@ -84,3 +84,26 @@ Summary -- Release highlights
         def foo(self):
             """int: My Numpy and Google docstring style description."""
             return 10
+
+* A new Python 3.5 checker was added to warn about raising a ``StopIteration`` inside
+  a generator
+  
+  .. code-block:: python
+
+      def Generator(value=42):
+          for i in range(value):
+              if i**3 < value**2:
+                  yield i
+              else:
+                  raise StopIteration
+
+  Instead use a simple ``return`` statement
+
+  .. code-block:: python
+
+      def Generator(value=42):
+          for i in range(value):
+              if i**3 < value**2:
+                  yield i
+              else:
+                  return

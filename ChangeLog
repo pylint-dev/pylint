@@ -24,6 +24,9 @@ What's New in Pylint 1.8?
     * Added a new Python 3 check for declaring a method ``next`` that would have
       been treated as an iterator in Python 2 but a normal function in Python 3.
 
+		* Added a new Python 3.5 check for raising a StopIteration inside a
+			generator.
+
 What's New in Pylint 1.7.1?
 =========================
 

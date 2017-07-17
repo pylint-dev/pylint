@@ -1,1 +1,2 @@
-stop-iteration-return:13:classic_generator:Replace StopIteration raising by a return statement
+stop-iteration-return:18:classic_generator:Replace StopIteration raising by a return statement
+stop-iteration-return:29:generator_non_std_exc_raising:Replace StopIteration raising by a return statement
