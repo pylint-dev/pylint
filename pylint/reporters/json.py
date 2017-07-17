@@ -37,6 +37,7 @@ class JSONReporter(BaseReporter):
             'symbol': msg.symbol,
             # pylint: disable=deprecated-method; deprecated since 3.2.
             'message': cgi.escape(msg.msg or ''),
+            'message-id': msg.msg_id,
         })
 
     def display_messages(self, layout):
