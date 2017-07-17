@@ -118,7 +118,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _init(self):
         self._nested_blocks = []
         self._elifs = []
-        self._if_counter = 0
         self._nested_blocks_msg = None
 
     @decorators.cachedproperty
@@ -144,7 +143,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             orelse = node.parent.orelse
             # current if node must directly follow a "else"
             if orelse and orelse == [node]:
-                if self._elifs[self._if_counter]:
+                if (node.lineno, node.col_offset) in self._elifs:
                     return True
         return False
 
@@ -208,9 +207,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for index, token in enumerate(tokens):
             token_string = token[1]
             if token_string == 'elif':
-                self._elifs.append(True)
-            elif token_string == 'if':
-                self._elifs.append(False)
+                # AST exists by the time process_tokens is called, so
+                # it's safe to assume tokens[index+1]
+                # exists. tokens[index+1][2] is the elif's position as
+                # reported by cPython, Jython and PyPy,
+                # tokens[index][2] is the actual position and also is
+                # reported by IronPython.
+                self._elifs.extend([tokens[index][2], tokens[index+1][2]])
             elif six.PY3 and token.exact_type == tokenize.COMMA:
                 self._check_one_element_trailing_comma_tuple(tokens, token, index)
 
@@ -282,12 +285,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             for name in names.nodes_of_class(astroid.AssignName):
                 self._check_redefined_argument_from_local(name)
 
-    def visit_ifexp(self, _):
-        self._if_counter += 1
-
-    def visit_comprehension(self, node):
-        self._if_counter += len(node.ifs)
-
     def _check_superfluous_else_return(self, node):
         if not node.orelse:
             # Not interested in if statements without else.
@@ -302,7 +299,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_simplifiable_if(node)
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
-        self._if_counter += 1
 
     @utils.check_messages('too-many-nested-blocks')
     def leave_functiondef(self, _):
@@ -329,7 +325,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     break
                 self._nested_blocks.pop()
             # if the node is a elif, this should not be another nesting level
-            if isinstance(node, astroid.If) and self._elifs[self._if_counter]:
+            if isinstance(node, astroid.If) and self._is_actual_elif(node):
                 if self._nested_blocks:
                     self._nested_blocks.pop()
             self._nested_blocks.append(node)
