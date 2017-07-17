@@ -1,0 +1,1 @@
+stop-iteration-return:13:classic_generator:Replace StopIteration raising by a return statement
