@@ -102,6 +102,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
+        'R1708': ('Replace StopIteration raising by a return statement',
+                  'stop-iteration-return',
+                  'According to PEP479, the raise of StopIteration to end the loop of '
+                  'a generator may lead to hard to find bugs. This PEP specify that '
+                  'raise StopIteration has to be replaced by a simple return statement',
+                  {'minversion': (3, 5)}),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -306,6 +312,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
+
+    def visit_raise(self, node):
+        self._check_stop_iteration_inside_generator(node)
+
+    def _check_stop_iteration_inside_generator(self, node):
+        """
+        Check if an exception of type StopIteration is raised inside a generator
+        
+        :todo: add check for an exception that inherit from StopIteration
+        """
+        exc = node.exc
+        scope = node.scope()
+        if getattr(exc, 'name', '') == 'StopIteration':
+            if isinstance(scope, astroid.FunctionDef) and scope.is_generator():
+                self.add_message('stop-iteration-return', node=node)
 
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks
