@@ -110,3 +110,30 @@ Other Changes
 
 * In case of ``--output-format=json``, the dictionary returned holds a new key-value pair.
   The key is ``message-id`` and the value the message id.
+
+* A new Python 3.5 checker was added to warn about raising a ``StopIteration`` inside
+  a generator
+  
+  .. code-block:: python
+
+      def Generator(value=42):
+          for i in range(value):
+              if i**3 < value**2:
+                  yield i
+              else:
+                  raise StopIteration
+
+  Instead use a simple ``return`` statement
+
+  .. code-block:: python
+
+      def Generator(value=42):
+          for i in range(value):
+              if i**3 < value**2:
+                  yield i
+              else:
+                  return
+
+  The check about raising a StopIteration inside a generator is also valid if the exception
+  raised inherit from StopIteration but only if this exception is defined inside the same module.
+  Close #1385
