@@ -328,17 +328,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(scope, astroid.FunctionDef) and scope.is_generator():
             exception_name = getattr(node.exc, 'name', '')
             # Get all hand made exceptions
-            non_std_exc = [klass for klass in 
-                    node.root().nodes_of_class(astroid.ClassDef) 
-                    if utils.inherit_from_std_ex(klass)]
+            non_std_exc = [klass for klass in
+                           node.root().nodes_of_class(astroid.ClassDef)
+                           if utils.inherit_from_std_ex(klass)]
             # Filter those inheriting from StopIteration
-            stopiteration_like_exc = [exc for exc in non_std_exc 
-                    if self._check_exception_inherit_from_stopiteration(exc)]
+            stopiteration_like_exc = [exc for exc in non_std_exc
+                                      if self._check_exception_inherit_from_stopiteration(exc)]
             if (exception_name == 'StopIteration'
                     or exception_name in
                     [klass.name for klass in stopiteration_like_exc]):
-                    self.add_message('stop-iteration-return', node=node)
-    
+                self.add_message('stop-iteration-return', node=node)
+
     @staticmethod
     def _check_exception_inherit_from_stopiteration(exc):
         """
