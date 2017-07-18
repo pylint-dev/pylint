@@ -24,8 +24,9 @@ What's New in Pylint 1.8?
     * Added a new Python 3 check for declaring a method ``next`` that would have
       been treated as an iterator in Python 2 but a normal function in Python 3.
 
-		* Added a new key-value pair in json output. The key is ``message-id`` and 
-		  the value is the message id.
+    * Added a new key-value pair in json output. The key is ``message-id``
+      and the value is the message id.
+      Close #1512
 
 What's New in Pylint 1.7.1?
 =========================
