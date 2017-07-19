@@ -31,7 +31,7 @@ What's New in Pylint 1.8?
 What's New in Pylint 1.7.1?
 =========================
 
-Release date: |TBA|
+Release date: 2017-04-17
 
     * Fix a false positive which occurred when an exception was reraised
 
