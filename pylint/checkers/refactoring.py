@@ -327,6 +327,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         scope = node.scope()
         if not isinstance(scope, astroid.FunctionDef) or not scope.is_generator():
             return
+        if self._check_raise_inside_tryexcept_catching_stopiter(node):
+            return
         exception_name = getattr(node.exc, 'name', '')
         # Get all hand made exceptions defined inside the module
         # that inherit from StopIteration
@@ -342,6 +344,27 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Return True if the exception node in argument inherit from StopIteration
         """
         return any([_class.name == 'StopIteration' for _class in exc.mro()])
+
+    def _check_raise_inside_tryexcept_catching_stopiter(self, node):
+        """
+        Return True if the node is, or is nested inside, a TryExcept node
+        that handle StopIteration exception
+        """
+        if (isinstance(node, astroid.TryExcept)
+                and self._check_stop_iteration_catched(node)):
+            return True
+        elif getattr(node, 'parent', False):
+            return self._check_raise_inside_tryexcept_catching_stopiter(node.parent)
+        else:
+            return False
+
+    @staticmethod
+    def _check_stop_iteration_catched(try_except):
+        """
+        Return True if the TryExcept node in argument handles StopIteration exception
+        """
+        handlers = try_except.handlers
+        return any([_handler.type.name == 'StopIteration' for _handler in handlers])
 
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks
