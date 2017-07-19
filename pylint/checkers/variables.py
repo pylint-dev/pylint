@@ -615,9 +615,25 @@ class VariablesChecker(BaseChecker):
         # do not check for not used locals here
         self._to_consume.pop()
 
+    def _consume_in_scope(self, name, target_scope):
+        """move a name from to_consume to consumed in given scope
+        """
+        if not name:
+            return
+        for to_consume, consumed, scope in self._to_consume:
+            if scope == target_scope:
+                if name in to_consume:
+                    consumed[name] = to_consume[name]
+                    del to_consume[name]
+
     def visit_functiondef(self, node):
         """visit function: update consumption analysis variable and check locals
         """
+        for arg_annotation in node.args.annotations:
+            if isinstance(arg_annotation, astroid.Const):
+                for name in re.split('[\[\]]', arg_annotation.value):
+                    self._consume_in_scope(name, 'module')
+
         self._to_consume.append((copy.copy(node.locals), {}, 'function'))
         if not (self.linter.is_message_enabled('redefined-outer-name') or
                 self.linter.is_message_enabled('redefined-builtin')):
