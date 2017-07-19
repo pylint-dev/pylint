@@ -85,5 +85,5 @@ Summary -- Release highlights
             """int: My Numpy and Google docstring style description."""
             return 10
 
-* In case of ``--output-format=json``, the dictionnary returned holds a new key-value pair.
+* In case of ``--output-format=json``, the dictionary returned holds a new key-value pair.
   The key is ``message-id`` and the value the message id.
