@@ -321,29 +321,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Check if an exception of type StopIteration is raised inside a generator
         """
         scope = node.scope()
-        if isinstance(scope, astroid.FunctionDef) and scope.is_generator():
-            exception_name = getattr(node.exc, 'name', '')
-            # Get all hand made exceptions
-            non_std_exc = [klass for klass in
-                           node.root().nodes_of_class(astroid.ClassDef)
-                           if utils.inherit_from_std_ex(klass)]
-            # Filter those inheriting from StopIteration
-            stopiteration_like_exc = [exc for exc in non_std_exc
-                                      if self._check_exception_inherit_from_stopiteration(exc)]
-            if (exception_name == 'StopIteration'
-                    or exception_name in
-                    [klass.name for klass in stopiteration_like_exc]):
-                self.add_message('stop-iteration-return', node=node)
+        if not isinstance(scope, astroid.FunctionDef) or not scope.is_generator():
+            return
+        exception_name = getattr(node.exc, 'name', '')
+        # Get all hand made exceptions defined inside the module
+        # that inherit from StopIteration
+        stopiteration_like_exc = [klass.name for klass in
+                                  node.root().nodes_of_class(astroid.ClassDef)
+                                  if self._check_exception_inherit_from_stopiteration(klass)]
+        if exception_name in ['StopIteration'] + stopiteration_like_exc:
+            self.add_message('stop-iteration-return', node=node)
 
     @staticmethod
     def _check_exception_inherit_from_stopiteration(exc):
         """
         Return True if the exception node in argument inherit from StopIteration
         """
-        for anc in exc.ancestors(recurs=True):
-            if anc.name == 'StopIteration':
-                return True
-        return False
+        return any([_class.name == 'StopIteration' for _class in exc.mro()])
 
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks
