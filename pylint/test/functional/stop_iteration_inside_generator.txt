@@ -1,2 +1,3 @@
 stop-iteration-return:18:classic_generator:Do not raise StopIteration in generator, use return statement instead
 stop-iteration-return:29:generator_non_std_exc_raising:Do not raise StopIteration in generator, use return statement instead
+stop-iteration-return:55:generator_stopiter_notcatched:Do not raise StopIteration in generator, use return statement instead
