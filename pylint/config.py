@@ -604,7 +604,7 @@ class OptionsManagerMixIn:
         # configuration file parser
         self.cfgfile_parser = IniFileParser()
         # command line parser
-        self.cmdline_parser = CLIParser(description=usage)
+        self.cmdline_parser = CLIParser(usage)
 
     def register_options_provider(self, provider, own_group=True):
         """register an options provider"""
@@ -644,9 +644,8 @@ class OptionsManagerMixIn:
             group = self._mygroups[group_name]
         else:
             group = self.cmdline_parser._parser.add_argument_group(
-                group_name.capitalize()
+                group_name.capitalize(), level=provider.level
             )
-            # group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
             if group_name != "DEFAULT":
@@ -672,7 +671,9 @@ class OptionsManagerMixIn:
         assert all(optdict.values())
         assert not ("metavar" in optdict and "[" in optdict["metavar"])
 
+        level = optdict.pop("level", 0)
         option = optikcontainer.add_argument(*args, **optdict)
+        option.level = level
         self._all_options[opt] = provider
         self._maxlevel = max(self._maxlevel, optdict.get("level", 0))
 
@@ -701,7 +702,10 @@ class OptionsManagerMixIn:
                 and optdict.get("default") is not None
                 and optdict["action"] not in ("store_true", "store_false")
             ):
-                optdict["help"] += " [current: %(default)s]"
+                default = optdict["default"]
+                if isinstance(default, (tuple, list)):
+                    default = ",".join(str(x) for x in default)
+                optdict["help"] += " [current: {0}]".format(default)
             del optdict["default"]
         args = ["--" + str(opt)]
         if "short" in optdict:
@@ -715,9 +719,6 @@ class OptionsManagerMixIn:
         if optdict.get("hide"):
             optdict["help"] = argparse.SUPPRESS
             del optdict["hide"]
-        # TODO: Implement long help
-        if "level" in optdict:
-            del optdict["level"]
         return args, optdict
 
     def cb_set_provider_option(self, option, opt, value, parser):
@@ -790,22 +791,24 @@ class OptionsManagerMixIn:
         """read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
+        """
         helplevel = 1
         while helplevel <= self._maxlevel:
-            opt = "-".join(["long"] * helplevel) + "-help"
+            opt = '-'.join(['long'] * helplevel) + '-help'
             if opt in self._all_options:
-                break  # already processed
+                break # already processed
             # pylint: disable=unused-argument
             def helpfunc(option, opt, val, p, level=helplevel):
                 print(self.help(level))
                 sys.exit(0)
-
-            helpmsg = "%s verbose help." % " ".join(["more"] * helplevel)
-            optdict = {"action": "callback", "callback": helpfunc, "help": helpmsg}
+            helpmsg = '%s verbose help.' % ' '.join(['more'] * helplevel)
+            optdict = {'action': 'callback', 'callback': helpfunc,
+                       'help': helpmsg}
             provider = self.options_providers[0]
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
             helplevel += 1
+        """
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
@@ -853,29 +856,26 @@ class OptionsManagerMixIn:
 
         return additional arguments
         """
-        with _patch_optparse():
-            if args is None:
-                args = sys.argv[1:]
-            else:
-                args = list(args)
-            for provider in self._nocallback_options:
-                self.cmdline_parser.parse(args, provider.config)
-            config = Configuration()
-            self.cmdline_parser.parse(args, config)
-            return config.module_or_package
+        if args is None:
+            args = sys.argv[1:]
+        else:
+            args = list(args)
+        for provider in self._nocallback_options:
+            self.cmdline_parser.parse(args, provider.config)
+        config = Configuration()
+        self.cmdline_parser.parse(args, config)
+        return config.module_or_package
 
     def add_help_section(self, title, description, level=0):
         """add a dummy option section for help purpose """
-        self.cmdline_parser._parser.add_argument_group(title.capitalize(), description)
-        # group.level = level
+        group = self.cmdline_parser._parser.add_argument_group(
+            title.capitalize(), description, level=level
+        )
         self._maxlevel = max(self._maxlevel, level)
 
     def help(self, level=0):
         """return the usage string for available options """
-        # TODO: Not implemented long help yet
-        # self.cmdline_parser.formatter.output_level = level
-        with _patch_optparse():
-            return self.cmdline_parser._parser.format_help()
+        return self.cmdline_parser._parser.format_help(level)
 
 
 class OptionsProviderMixIn:
@@ -1157,11 +1157,11 @@ class ConfigParser(metaclass=abc.ABCMeta):
 
 
 class CLIParser(ConfigParser):
-    def __init__(self, description=""):
+    def __init__(self, usage=""):
         super(CLIParser, self).__init__()
 
-        self._parser = argparse.ArgumentParser(
-            description=description.replace("%prog", "%(prog)s"),
+        self._parser = LongHelpArgumentParser(
+            usage=usage.replace("%prog", "%(prog)s"),
             # Only set the arguments that are specified.
             argument_default=argparse.SUPPRESS,
         )
@@ -1208,7 +1208,7 @@ class CLIParser(ConfigParser):
 
         args.append("--{0}".format(option))
 
-        copy_keys = ("action", "default", "dest", "help", "metavar")
+        copy_keys = ("action", "default", "dest", "help", "metavar", "level")
         kwargs = {k: definition[k] for k in copy_keys if k in definition}
 
         if "type" in definition:
@@ -1234,8 +1234,6 @@ class CLIParser(ConfigParser):
             kwargs["help"] = argparse.SUPPRESS
 
         group = definition.get("group", "DEFAULT").upper()
-        # TODO: Handle the level. This is either going to require subclassing
-        # ArgumentParser or doing the help message printing ourselves.
         return group, args, kwargs
 
     def parse(self, argv, config):
@@ -1319,3 +1317,147 @@ class IniFileParser(FileParser):
 
             for option, value in self._parser.items(section):
                 config.set_option(option, value)
+
+
+class LongHelpFormatter(argparse.HelpFormatter):
+    output_level = None
+
+    def add_argument(self, action):
+        if action.level <= self.output_level:
+            super(LongHelpFormatter, self).add_argument(action)
+
+    def add_usage(self, usage, actions, groups, prefix=None):
+        actions = [action for action in actions if action.level <= self.output_level]
+        super(LongHelpFormatter, self).add_usage(usage, actions, groups, prefix)
+
+
+class LongHelpAction(argparse.Action):
+    def __init__(
+        self,
+        option_strings,
+        dest=argparse.SUPPRESS,
+        default=argparse.SUPPRESS,
+        help=None,
+    ):
+        super(LongHelpAction, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            default=default,
+            nargs=0,
+            help=help,
+        )
+        self.level = 0
+
+    @staticmethod
+    def _parse_option_string(option_string):
+        level = 0
+        if option_string:
+            level = option_string.count("l-") or option_string.count("long-")
+        return level
+
+    @staticmethod
+    def build_add_args(level, prefix_chars="-"):
+        default_prefix = "-" if "-" in prefix_chars else prefix_chars[0]
+        return (
+            default_prefix + "-".join(["l"] * level) + "-h",
+            default_prefix * 2 + "-".join(["long"] * level) + "-help",
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        level = self._parse_option_string(option_string)
+        parser.print_help(level=level)
+        parser.exit()
+
+
+class LongHelpArgumentParser(argparse.ArgumentParser):
+    def __init__(self, *args, formatter_class=LongHelpFormatter, **kwargs):
+        self._max_level = 0
+        super(LongHelpArgumentParser, self).__init__(
+            *args, formatter_class=formatter_class, **kwargs
+        )
+
+    # Stop ArgumentParser __init__ adding the wrong help formatter
+    def register(self, registry_name, value, object):
+        if registry_name == "action" and value == "help":
+            object = LongHelpAction
+
+        super(LongHelpArgumentParser, self).register(registry_name, value, object)
+
+    def _add_help_levels(self):
+        level = max(action.level for action in self._actions)
+        if level > self._max_level and self.add_help:
+            for new_level in range(self._max_level + 1, level + 1):
+                action = super(LongHelpArgumentParser, self).add_argument(
+                    *LongHelpAction.build_add_args(new_level, self.prefix_chars),
+                    action="help",
+                    default=argparse.SUPPRESS,
+                    help=(
+                        "show this {0} verbose help message and exit".format(
+                            " ".join(["really"] * (new_level - 1))
+                        )
+                    )
+                )
+                action.level = 0
+            self._max_level = level
+
+    def parse_known_args(self, *args, **kwargs):
+        self._add_help_levels()
+        return super(LongHelpArgumentParser, self).parse_known_args(*args, **kwargs)
+
+    def add_argument(self, *args, **kwargs):
+        """See :func:`argparse.ArgumentParser.add_argument`.
+
+        Patches in the level to each created action instance.
+
+        Returns:
+            argparse.Action: The created action.
+        """
+        level = kwargs.pop("level", 0)
+        action = super(LongHelpArgumentParser, self).add_argument(*args, **kwargs)
+        action.level = level
+        return action
+
+    def add_argument_group(self, *args, level=0, **kwargs):
+        group = super(LongHelpArgumentParser, self).add_argument_group(*args, **kwargs)
+        group.level = level
+        return group
+
+    # These methods use yucky way of passing the level to the formatter class
+    # without having to rely on argparse implementation details.
+    def format_usage(self, level=0):
+        if hasattr(self.formatter_class, "output_level"):
+            if self.formatter_class.output_level is None:
+                self.formatter_class.output_level = level
+        return super(LongHelpArgumentParser, self).format_usage()
+
+    def format_help(self, level=0):
+        if hasattr(self.formatter_class, "output_level"):
+            if self.formatter_class.output_level is None:
+                self.formatter_class.output_level = level
+            else:
+                level = self.formatter_class.output_level
+
+        # Unfortunately there's no way of publicly accessing the groups or
+        # an easy way of overriding format_help without using protected methods.
+        old_action_groups = self._action_groups
+        try:
+            self._action_groups = [
+                group for group in self._action_groups if group.level <= level
+            ]
+            result = super(LongHelpArgumentParser, self).format_help()
+        finally:
+            self._action_groups = old_action_groups
+
+        return result
+
+    def print_usage(self, file=None, level=0):
+        if hasattr(self.formatter_class, "output_level"):
+            if self.formatter_class.output_level is None:
+                self.formatter_class.output_level = level
+        super(LongHelpArgumentParser, self).print_usage(file)
+
+    def print_help(self, file=None, level=0):
+        if hasattr(self.formatter_class, "output_level"):
+            if self.formatter_class.output_level is None:
+                self.formatter_class.output_level = level
+        super(LongHelpArgumentParser, self).print_help(file)
