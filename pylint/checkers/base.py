@@ -511,19 +511,20 @@ class BasicErrorChecker(_BasicChecker):
             if current_scope.parent is None:
                 break
 
-            if not isinstance(current_scope, astroid.FunctionDef):
+            if not isinstance(current_scope, (astroid.ClassDef, astroid.FunctionDef)):
                 self.add_message('nonlocal-without-binding', args=(name, ),
                                  node=node)
                 return
-            else:
-                if name not in current_scope.locals:
-                    current_scope = current_scope.parent.scope()
-                    continue
-                else:
-                    # Okay, found it.
-                    return
 
-        self.add_message('nonlocal-without-binding', args=(name, ), node=node)
+            if name not in current_scope.locals:
+                current_scope = current_scope.parent.scope()
+                continue
+
+            # Okay, found it.
+            return
+
+        if not isinstance(current_scope, astroid.FunctionDef):
+            self.add_message('nonlocal-without-binding', args=(name, ), node=node)
 
     @utils.check_messages('nonlocal-without-binding')
     def visit_nonlocal(self, node):
