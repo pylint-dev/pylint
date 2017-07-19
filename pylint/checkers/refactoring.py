@@ -107,7 +107,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'According to PEP479, the raise of StopIteration to end the loop of '
                   'a generator may lead to hard to find bugs. This PEP specify that '
                   'raise StopIteration has to be replaced by a simple return statement',
-                  {'minversion': (3, 5)}),
+                  {'minversion': (3, 0)}),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -351,8 +351,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return True
         elif getattr(node, 'parent', False):
             return self._check_raise_inside_tryexcept_catching_stopiter(node.parent)
-        else:
-            return False
+        return False
 
     @staticmethod
     def _check_stop_iteration_catched(try_except):
