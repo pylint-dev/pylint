@@ -27,3 +27,31 @@ def generator_non_std_exc_raising(variable):
             yield i
         else:
             raise RebornStopIteration # [stop-iteration-return]
+
+def generator_stopiter_catched(variable):
+    """
+    A toy generator raising StopIteration that is catched inside
+    a try/except block
+    """
+    for i in range(variable):
+        if i**3 < variable**2:
+            yield i
+        else:
+            try:
+                raise StopIteration
+            except StopIteration:
+                return
+
+def generator_stopiter_notcatched(variable):
+    """
+    A toy generator raising StopIteration that is nested inside
+    a try/except bloc but the latter does not handle it
+    """
+    for i in range(variable):
+        if i**3 < variable**2:
+            yield i
+        else:
+            try:
+                raise StopIteration # [stop-iteration-return]
+            except ValueError:
+                return
