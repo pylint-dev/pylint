@@ -102,7 +102,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
-        'R1708': ('Replace StopIteration raising by a return statement',
+        'R1708': ('Do not raise StopIteration in generator, use return statement instead',
                   'stop-iteration-return',
                   'According to PEP479, the raise of StopIteration to end the loop of '
                   'a generator may lead to hard to find bugs. This PEP specify that '
