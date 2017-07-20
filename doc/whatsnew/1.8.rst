@@ -9,9 +9,10 @@
 Summary -- Release highlights
 =============================
 
-* Raise meaningful exception in case of invalid reporter class (output format)
-  being selected.
+* None so far
 
+New checkers
+============
 
 * A new check was added, ``bad-thread-instantiation``.
 
@@ -75,6 +76,13 @@ Summary -- Release highlights
           def __next__(self):
               return 42
           next = __next__
+
+
+Other Changes
+=============
+
+* Raise meaningful exception in case of invalid reporter class (output format)
+  being selected.
 
 * The docparams extension now allows a property docstring to document both
   the property and the setter. Therefore setters can also have no docstring.
