@@ -160,6 +160,23 @@ New checkers
 
  .. _PEP479: https://www.python.org/dev/peps/pep-0479
 
+* A new Python checker was added to warn about using a ``+`` operator inside call of logging methods
+  when one of the operands is a litteral string:
+
+  .. code-block:: python
+
+     import logging
+     var = "123"
+     logging.log(logging.INFO, "Var: " + var)
+
+  Instead use formatted string and positional arguments :
+  
+  .. code-block:: python
+
+     import logging
+     var = "123"
+     logging.log(logging.INFO, "Var: %s", var)
+
 Other Changes
 =============
 
