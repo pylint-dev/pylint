@@ -12,6 +12,21 @@ Summary -- Release highlights
 * Raise meaningful exception in case of invalid reporter class (output format)
   being selected.
 
+
+* A new check was added, ``bad-thread-instantiation``.
+
+  This message is emitted when the threading.Thread class does not
+  receive the target argument, but receives just one argument, which
+  is by default the group parameter.
+
+  In the following example, the instantiation will fail, which is definitely
+  not desired:
+
+  .. code-block:: python
+
+     import threading
+     threading.Thread(lambda: print(1)) # Oups, this is the group parameter
+
 * A new Python 3 checker was added to warn about accessing functions that have been
   removed from the itertools module ``izip``, ``imap``, ``iflter``, ``izip_longest``, and ``ifilterfalse``.
 

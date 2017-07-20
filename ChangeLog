@@ -4,6 +4,14 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Added a new warning, 'bad-thread-instantiation'
+
+      This message is emitted when the threading.Thread class does not
+      receive the target argument, but receives just one argument, which
+      is by default the group parameter.
+
+      Close #1327
+
     * In non-quiet mode, absolute path of used config file is logged to
       standard error.
       Close #1519
