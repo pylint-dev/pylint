@@ -4,6 +4,8 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Protocol checks (not-a-mapping, not-an-iterable and co.) aren't emitted on classes with dynamic getattr
+
     * Added a new warning, 'bad-thread-instantiation'
 
       This message is emitted when the threading.Thread class does not
