@@ -48,6 +48,9 @@ What's New in Pylint 1.8?
     * Added a new warning, ``raising-format-tuple``, to detect multi-argument
       exception construction instead of message string formatting.
 
+    * Added a new check for method of logging module that concatenate string via + operator
+      Close #1479
+
 What's New in Pylint 1.7.1?
 =========================
 
