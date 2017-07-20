@@ -20,8 +20,6 @@ import shutil
 from os.path import isdir, exists, join
 
 try:
-    if os.environ.get('NO_SETUPTOOLS'):
-        raise ImportError()
     from setuptools import setup
     from setuptools.command import easy_install as easy_install_lib
     from setuptools.command import install_lib
