@@ -77,6 +77,19 @@ New checkers
               return 42
           next = __next__
 
+* Three new Python 3 checkers were added to warn about using dictionary methods
+  in non-iterating contexts.
+
+  For example, the following are returning iterators in Python 3::
+
+  .. code-block:: python
+
+     d = {}
+     d.keys()[0]
+     d.items()[0]
+     d.values() + d.keys()
+
+
 
 Other Changes
 =============

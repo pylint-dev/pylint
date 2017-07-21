@@ -26,6 +26,7 @@ from pylint.checkers import utils
 
 _ZERO = re.compile("^0+$")
 
+
 def _is_old_octal(literal):
     if _ZERO.match(literal):
         return False
@@ -35,6 +36,7 @@ def _is_old_octal(literal):
         except ValueError:
             return False
         return True
+
 
 def _check_dict_node(node):
     inferred_types = set()
@@ -47,11 +49,15 @@ def _check_dict_node(node):
     return (not inferred_types
             or any(isinstance(x, astroid.Dict) for x in inferred_types))
 
+
 def _is_builtin(node):
     return getattr(node, 'name', None) in ('__builtin__', 'builtins')
 
+
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
                      'all', 'enumerate', 'dict'}
+DICT_METHODS = {'items', 'keys', 'values'}
+
 
 def _in_iterating_context(node):
     """Check if the node is being used as an iterator.
@@ -95,7 +101,9 @@ def _is_conditional_import(node):
     return isinstance(parent, (astroid.TryExcept, astroid.ExceptHandler,
                                astroid.If, astroid.IfExp))
 
+
 Branch = namedtuple('Branch', ['node', 'is_py2_only'])
+
 
 class Python3Checker(checkers.BaseChecker):
 
@@ -412,6 +420,21 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when a next method is defined that would be an iterator in Python 2 but '
                   'is treated as a normal function in Python 3.',
                   {'maxversion': (3, 0)}),
+        'W1654': ('dict.items referenced when not iterating',
+                  'dict-items-not-iterating',
+                  'Used when dict.items is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1655': ('dict.keys referenced when not iterating',
+                  'dict-keys-not-iterating',
+                  'Used when dict.keys is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1656': ('dict.values referenced when not iterating',
+                  'dict-values-not-iterating',
+                  'Used when dict.values is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -722,6 +745,11 @@ class Python3Checker(checkers.BaseChecker):
                         self._warn_if_deprecated(node, inferred_receiver.name,
                                                  {node.func.attrname},
                                                  report_on_modules=False)
+                    if (isinstance(inferred_receiver, astroid.Dict)
+                            and node.func.attrname in DICT_METHODS):
+                        if not _in_iterating_context(node):
+                            checker = 'dict-{}-not-iterating'.format(node.func.attrname)
+                            self.add_message(checker, node=node)
             except astroid.InferenceError:
                 pass
             if node.args:
