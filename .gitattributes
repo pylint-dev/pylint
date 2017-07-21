@@ -1,0 +1,16 @@
+*       text=auto
+*.py    text
+*.txt   text
+*.rc    text
+*.rst   text
+*.bat   text eol=crlf
+*.1     text
+*.md    text
+*.png   -text
+*.jpg   -text
+*.jpeg  -text
+
+# Some tests deliberately use mixed eol conventions
+**/test/extensions/data/docstring.py            -text
+**/test/functional/line_endings.py              -text
+**/test/functional/trailing_whitespaces.py      -text
