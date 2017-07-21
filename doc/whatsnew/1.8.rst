@@ -89,6 +89,27 @@ New checkers
      d.items()[0]
      d.values() + d.keys()
 
+* A new warning, ``raising-format-tuple``, will catch situations where the
+  intent was likely raising an exception with a formatted message string,
+  but the actual code did omit the formatting and instead passes template
+  string and value parameters as separate arguments to the exception
+  constructor.  So it detects things like
+
+  .. code-block:: python
+
+      raise SomeError('message about %s', foo)
+      raise SomeError('message about {}', foo)
+
+  which likely were meant instead as
+
+  .. code-block:: python
+
+      raise SomeError('message about %s' % foo)
+      raise SomeError('message about {}'.format(foo))
+
+  This warning can be ignored on projects which deliberately use lazy
+  formatting of messages in all user-facing exception handlers.
+
 
 
 Other Changes

@@ -40,6 +40,9 @@ What's New in Pylint 1.8?
       and the value is the message id.
       Close #1512
 
+    * Added a new warning, ``raising-format-tuple``, to detect multi-argument
+      exception construction instead of message string formatting.
+
 What's New in Pylint 1.7.1?
 =========================
 
