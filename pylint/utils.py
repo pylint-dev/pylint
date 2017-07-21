@@ -849,6 +849,8 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     for something in files_or_modules:
         if os.path.basename(something) in black_list:
             continue
+        if _basename_in_blacklist_re(os.path.basename(something), black_list_re):
+            continue
         if exists(something):
             # this is a file or a directory
             try:
