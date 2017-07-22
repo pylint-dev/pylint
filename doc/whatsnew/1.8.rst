@@ -77,6 +77,39 @@ New checkers
               return 42
           next = __next__
 
+* Three new Python 3 checkers were added to warn about using dictionary methods
+  in non-iterating contexts.
+
+  For example, the following are returning iterators in Python 3::
+
+  .. code-block:: python
+
+     d = {}
+     d.keys()[0]
+     d.items()[0]
+     d.values() + d.keys()
+
+* A new warning, ``raising-format-tuple``, will catch situations where the
+  intent was likely raising an exception with a formatted message string,
+  but the actual code did omit the formatting and instead passes template
+  string and value parameters as separate arguments to the exception
+  constructor.  So it detects things like
+
+  .. code-block:: python
+
+      raise SomeError('message about %s', foo)
+      raise SomeError('message about {}', foo)
+
+  which likely were meant instead as
+
+  .. code-block:: python
+
+      raise SomeError('message about %s' % foo)
+      raise SomeError('message about {}'.format(foo))
+
+  This warning can be ignored on projects which deliberately use lazy
+  formatting of messages in all user-facing exception handlers.
+
 * Following the recommendations of PEP479_ ,a new Python 3.0 checker was added to warn about raising a ``StopIteration`` inside
   a generator. Raising a ``StopIteration`` inside a generator may be due a direct call 
   to ``raise StopIteration``: 
