@@ -40,7 +40,7 @@ What's New in Pylint 1.8?
 		
     * Added a new Python 3.0 check for raising a StopIteration inside a generator.
       The check about raising a StopIteration inside a generator is also valid if the exception
-      raised inherit from StopIteration but only if this exception is defined inside the same module.
+      raised inherit from StopIteration.
       Close #1385
 
 What's New in Pylint 1.7.1?
