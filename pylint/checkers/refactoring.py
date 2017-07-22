@@ -317,49 +317,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_stop_iteration_inside_generator(node)
 
     def _check_stop_iteration_inside_generator(self, node):
-        """
-        Check if an exception of type StopIteration is raised inside a generator
-        """
-        scope = node.scope()
-        if not isinstance(scope, astroid.FunctionDef) or not scope.is_generator():
+        """Check if an exception of type StopIteration is raised inside a generator"""
+        frame = node.frame()
+        if not isinstance(frame, astroid.FunctionDef) or not frame.is_generator():
             return
-        if self._check_raise_inside_tryexcept_catching_stopiter(node):
+        if utils.node_ignores_exception(node, StopIteration):
             return
-        exception_name = getattr(node.exc, 'name', '')
-        # Get all hand made exceptions defined inside the module
-        # that inherit from StopIteration
-        stopiteration_like_exc = [klass.name for klass in
-                                  node.root().nodes_of_class(astroid.ClassDef)
-                                  if self._check_exception_inherit_from_stopiteration(klass)]
-        if exception_name in ['StopIteration'] + stopiteration_like_exc:
+        exc = utils.safe_infer(node.exc)
+        if exc is not None and self._check_exception_inherit_from_stopiteration(exc):
             self.add_message('stop-iteration-return', node=node)
 
     @staticmethod
     def _check_exception_inherit_from_stopiteration(exc):
-        """
-        Return True if the exception node in argument inherit from StopIteration
-        """
-        return any([_class.name == 'StopIteration' for _class in exc.mro()])
+        """Return True if the exception node in argument inherit from StopIteration"""
+        stopiteration_qname = '{}.StopIteration'.format(utils.EXCEPTIONS_MODULE)
+        return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
-    def _check_raise_inside_tryexcept_catching_stopiter(self, node):
-        """
-        Return True if the node is, or is nested inside, a TryExcept node
-        that handle StopIteration exception
-        """
-        if (isinstance(node, astroid.TryExcept)
-                and self._check_stop_iteration_catched(node)):
-            return True
-        elif getattr(node, 'parent', False):
-            return self._check_raise_inside_tryexcept_catching_stopiter(node.parent)
-        return False
+    def visit_call(self, node):
+        self._check_raising_stopiteration_in_generator_next_call(node)
 
-    @staticmethod
-    def _check_stop_iteration_catched(try_except):
-        """
-        Return True if the TryExcept node in argument handles StopIteration exception
-        """
-        handlers = try_except.handlers
-        return any([_handler.type.name == 'StopIteration' for _handler in handlers])
+    def _check_raising_stopiteration_in_generator_next_call(self, node):
+        """Check if a StopIteration exception is raised by the call to next function"""
+        inferred = utils.safe_infer(node.func)
+        if getattr(inferred, 'name', '') == 'next':
+            frame = node.frame()
+            if (isinstance(frame, astroid.FunctionDef) and frame.is_generator()
+                    and not utils.node_ignores_exception(node, StopIteration)):
+                self.add_message('stop-iteration-return', node=node)
 
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks
@@ -524,7 +508,6 @@ class RecommandationChecker(checkers.BaseChecker):
         inferred = utils.safe_infer(node.func)
         if not inferred:
             return
-
         if not isinstance(inferred, astroid.BoundMethod):
             return
         if not isinstance(inferred.bound, astroid.Dict) or inferred.name != 'keys':
