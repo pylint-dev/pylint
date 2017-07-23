@@ -79,10 +79,9 @@ class CamelCasedWord(Filter):
     That is, any words that are camelCasedWords.
     """
     _pattern = re.compile(r"^([a-z]+[A-Z]\w+|[a-z]\w+[A-Z]+)")
+
     def _skip(self, word):
-        if self._pattern.match(word):
-            return True
-        return False
+        return bool(self._pattern.match(word))
 
 
 class SphinxDicrectives(Filter):
@@ -95,10 +94,9 @@ class SphinxDicrectives(Filter):
     """
     # The final ` in the pattern is optional because enchant strips it out
     _pattern = re.compile(r"^:([a-z]+):`([^`]+)(`)?")
+
     def _skip(self, word):
-        if self._pattern.match(word):
-            return True
-        return False
+        return bool(self._pattern.match(word))
 
 
 class ForwardSlashChunkder(Chunker):
@@ -124,8 +122,6 @@ class ForwardSlashChunkder(Chunker):
                 self._offset = 0
                 return (pre_text + '/' + post_text, 0)
             return (pre_text, 0)
-        if not self._text:
-            raise StopIteration()
 
     def _next(self):
         while True:
@@ -134,7 +130,6 @@ class ForwardSlashChunkder(Chunker):
             pre_text, post_text = self._text.split('/', 1)
             if not pre_text or not post_text:
                 break
-                raise StopIteration()
             if not pre_text[-1].isalpha() or not post_text[0].isalpha():
                 raise StopIteration()
             self._text = pre_text + ' ' + post_text

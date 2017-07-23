@@ -202,11 +202,14 @@ class TestSpellingChecker(CheckerTestCase):
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_handle_words_joined_by_forward_slash(self):
-        stmt = astroid.extract_node(
-                'class ComentAbc(object):\n   """This is Comment/Abcz with a bad comment"""\n   pass')
+        stmt = astroid.extract_node('''
+        class ComentAbc(object):
+            """This is Comment/Abcz with a bad comment"""
+            pass
+        ''')
         with self.assertAddsMessages(
-            Message('wrong-spelling-in-docstring', line=2,
+            Message('wrong-spelling-in-docstring', line=3,
                     args=('Abcz', 'This is Comment/Abcz with a bad comment',
                           '                ^^^^',
-                          "'ABC'"))):
+                          "'ABC' or 'Abacus' or 'Aback'"))):
             self.checker.visit_classdef(stmt)
