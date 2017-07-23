@@ -102,6 +102,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
+        'R1708': ('Do not raise StopIteration in generator, use return statement instead',
+                  'stop-iteration-return',
+                  'According to PEP479, the raise of StopIteration to end the loop of '
+                  'a generator may lead to hard to find bugs. This PEP specify that '
+                  'raise StopIteration has to be replaced by a simple return statement',
+                  {'minversion': (3, 0)}),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -307,6 +313,38 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
 
+    def visit_raise(self, node):
+        self._check_stop_iteration_inside_generator(node)
+
+    def _check_stop_iteration_inside_generator(self, node):
+        """Check if an exception of type StopIteration is raised inside a generator"""
+        frame = node.frame()
+        if not isinstance(frame, astroid.FunctionDef) or not frame.is_generator():
+            return
+        if utils.node_ignores_exception(node, StopIteration):
+            return
+        exc = utils.safe_infer(node.exc)
+        if exc is not None and self._check_exception_inherit_from_stopiteration(exc):
+            self.add_message('stop-iteration-return', node=node)
+
+    @staticmethod
+    def _check_exception_inherit_from_stopiteration(exc):
+        """Return True if the exception node in argument inherit from StopIteration"""
+        stopiteration_qname = '{}.StopIteration'.format(utils.EXCEPTIONS_MODULE)
+        return any(_class.qname() == stopiteration_qname for _class in exc.mro())
+
+    def visit_call(self, node):
+        self._check_raising_stopiteration_in_generator_next_call(node)
+
+    def _check_raising_stopiteration_in_generator_next_call(self, node):
+        """Check if a StopIteration exception is raised by the call to next function"""
+        inferred = utils.safe_infer(node.func)
+        if getattr(inferred, 'name', '') == 'next':
+            frame = node.frame()
+            if (isinstance(frame, astroid.FunctionDef) and frame.is_generator()
+                    and not utils.node_ignores_exception(node, StopIteration)):
+                self.add_message('stop-iteration-return', node=node)
+
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks
         """
@@ -470,7 +508,6 @@ class RecommandationChecker(checkers.BaseChecker):
         inferred = utils.safe_infer(node.func)
         if not inferred:
             return
-
         if not isinstance(inferred, astroid.BoundMethod):
             return
         if not isinstance(inferred.bound, astroid.Dict) or inferred.name != 'keys':

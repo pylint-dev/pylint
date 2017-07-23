@@ -39,6 +39,11 @@ What's New in Pylint 1.8?
     * Added a new key-value pair in json output. The key is ``message-id``
       and the value is the message id.
       Close #1512
+		
+    * Added a new Python 3.0 check for raising a StopIteration inside a generator.
+      The check about raising a StopIteration inside a generator is also valid if the exception
+      raised inherit from StopIteration.
+      Close #1385
 
     * Added a new warning, ``raising-format-tuple``, to detect multi-argument
       exception construction instead of message string formatting.
