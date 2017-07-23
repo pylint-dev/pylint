@@ -84,7 +84,7 @@ class CamelCasedWord(Filter):
         return bool(self._pattern.match(word))
 
 
-class SphinxDicrectives(Filter):
+class SphinxDirectives(Filter):
     r"""Filter skipping over Sphinx Directives.
     This filter skips any words matching the following regular expression:
 
@@ -218,7 +218,7 @@ class SpellingChecker(BaseTokenChecker):
                                                 WordsWithDigigtsFilter,
                                                 WordsWithUnderscores,
                                                 CamelCasedWord,
-                                                SphinxDicrectives])
+                                                SphinxDirectives])
         self.initialized = True
 
     def close(self):
