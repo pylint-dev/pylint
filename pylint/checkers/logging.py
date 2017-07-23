@@ -190,9 +190,7 @@ class LoggingChecker(checkers.BaseChecker):
         """
         Return True if the operand in argument is a literal string
         """
-        if isinstance(operand, astroid.Const) and operand.name == 'str':
-            return True
-        return False
+        return isinstance(operand, astroid.Const) and operand.name == 'str'
 
     def _check_call_func(self, node):
         """Checks that function call is not format_string.format().
