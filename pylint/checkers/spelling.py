@@ -104,7 +104,6 @@ class ForwardSlashChunkder(Chunker):
     This chunker allows splitting words like 'before/after' into 'before' and 'after'
     '''
     def next(self):
-        offset = self.offset
         while True:
             if not self._text:
                 raise StopIteration()
@@ -134,7 +133,6 @@ class ForwardSlashChunkder(Chunker):
                 raise StopIteration()
             self._text = pre_text + ' ' + post_text
         raise StopIteration()
-
 
 
 class SpellingChecker(BaseTokenChecker):
