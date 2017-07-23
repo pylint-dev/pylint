@@ -89,6 +89,11 @@ New checkers
      d.items()[0]
      d.values() + d.keys()
 
+* A new Python 3 porting check was added, ``non-ascii-bytes-literals``
+
+  This message is emitted whenever we detect that a bytes string contain
+  non-ASCII characters, which results in a SyntaxError on Python 3.
+
 * A new warning, ``raising-format-tuple``, will catch situations where the
   intent was likely raising an exception with a formatted message string,
   but the actual code did omit the formatting and instead passes template

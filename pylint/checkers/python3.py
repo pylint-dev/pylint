@@ -914,6 +914,11 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                   'removed in Python 3. To use the new syntax, '
                   'prepend 0o on the number.',
                   {'maxversion': (3, 0)}),
+        'E1610': ('Non-ascii bytes literals not supported in 3.x',
+                  'non-ascii-bytes-literal',
+                  'Used when non-ascii bytes literals are found in a program. '
+                  'They are no longer supported in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     def process_tokens(self, tokens):
@@ -926,6 +931,9 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                     self.add_message('old-octal-literal', line=start[0])
             if tokens[idx][1] == '<>':
                 self.add_message('old-ne-operator', line=tokens[idx][2][0])
+            if tok_type == tokenize.STRING and token.startswith('b'):
+                if any(elem for elem in token if ord(elem) > 127):
+                    self.add_message('non-ascii-bytes-literal', line=start[0])
 
 
 def register(linter):
