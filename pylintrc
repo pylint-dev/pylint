@@ -58,8 +58,7 @@ disable=invalid-name,protected-access,fixme,too-many-branches,
         too-many-return-statements,too-few-public-methods,
         import-error,too-many-lines,too-many-instance-attributes,
         too-many-public-methods,duplicate-code,broad-except,
-        redefined-builtin,anomalous-backslash-in-string,
-        missing-docstring,no-member,
+        redefined-builtin,missing-docstring,no-member,
         # Crashes, see #743.
         redefined-variable-type
 

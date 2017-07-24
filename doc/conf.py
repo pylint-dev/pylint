@@ -25,7 +25,12 @@ sys.path.append(os.path.abspath('exts'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['pylint_features', 'pylint_extensions']
+extensions = [
+    'pylint_features',
+    'pylint_extensions',
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.intersphinx',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pylint'
-copyright = u'2003-2016, Logilab, PyCQA and contributors'
+copyright = u'2003-2017, Logilab, PyCQA and contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -214,3 +219,8 @@ man_pages = [
     ('index', 'pylint', u'Pylint Documentation',
      [u'Logilab, PyCQA and contributors'], 1)
 ]
+
+intersphinx_mapping = {
+    'astroid': ('http://astroid.readthedocs.io/en/latest/', None),
+    'python': ('https://docs.python.org/3', None),
+}

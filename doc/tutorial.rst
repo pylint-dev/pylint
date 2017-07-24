@@ -267,7 +267,7 @@ command line and try this:
   No config file found, using default configuration
   :missing-docstring (C0111): *Missing docstring*
     Used when a module, function, class or method has no docstring. Some special
-    methods like __init__ doesn't necessary require a docstring. This message
+    methods like __init__ doesn't necessarily require a docstring. This message
     belongs to the basic checker.
 
 Yeah, ok. That one was a bit of a no-brainer but I have run into error messages

@@ -45,3 +45,21 @@ if z or 10 > len('TEST') != 0: # [len-as-condition]
 
 def some_func():
     return len('TEST') > 0  # Should be fine
+
+
+def github_issue_1325():
+    l = [1, 2, 3]
+    length = len(l) if l else 0
+    return length
+
+
+def github_issue_1331(*args):
+    assert False, len(args)
+
+
+def github_issue_1331_v2(*args):
+    assert len(args), args  # [len-as-condition]
+
+
+def github_issue_1331_v3(*args):
+    assert len(args) or z, args  # [len-as-condition]

@@ -62,7 +62,7 @@ PY3K = sys.version_info >= (3, 0)
 PY35 = sys.version_info >= (3, 5)
 
 # Name categories that are always consistent with all naming conventions.
-EXEMPT_NAME_CATEGORIES = set(('exempt', 'ignore'))
+EXEMPT_NAME_CATEGORIES = {'exempt', 'ignore'}
 
 # A mapping from builtin-qname -> symbol, to be used when generating messages
 # about dangerous default values as arguments
@@ -72,10 +72,9 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
 )
 REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
 
-del re
 
 def _redefines_import(node):
-    """ Detect that the given node (AssName) is inside an
+    """ Detect that the given node (AssignName) is inside an
     exception handler and redefines an import from the tryexcept body.
     Returns True if the node redefines an import, False otherwise.
     """
@@ -94,6 +93,7 @@ def _redefines_import(node):
                 return True
     return False
 
+
 def in_loop(node):
     """return True if the node is inside a kind of for loop"""
     parent = node.parent
@@ -103,6 +103,7 @@ def in_loop(node):
             return True
         parent = parent.parent
     return False
+
 
 def in_nested_list(nested_list, obj):
     """return true if the object is an element of <nested_list> or of a nested
@@ -115,6 +116,7 @@ def in_nested_list(nested_list, obj):
         elif elmt == obj:
             return True
     return False
+
 
 def _loop_exits_early(loop):
     """Returns true if a loop has a break statement in its body."""
@@ -132,6 +134,7 @@ def _loop_exits_early(loop):
         for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
             return True
     return False
+
 
 def _is_multi_naming_match(match, node_type, confidence):
     return (match is not None and
@@ -246,6 +249,7 @@ def report_by_type_stats(sect, stats, old_stats):
                   nice_stats[node_type].get('percent_badname', '0'))
     sect.append(reporter_nodes.Table(children=lines, cols=6, rheaders=1))
 
+
 def redefined_by_decorator(node):
     """return True if the object is a method redefined via decorator.
 
@@ -266,6 +270,7 @@ def redefined_by_decorator(node):
 class _BasicChecker(checkers.BaseChecker):
     __implements__ = interfaces.IAstroidChecker
     name = 'basic'
+
 
 class BasicErrorChecker(_BasicChecker):
     msgs = {
@@ -342,6 +347,11 @@ class BasicErrorChecker(_BasicChecker):
                   'Emitted when a nonlocal variable does not have an attached '
                   'name somewhere in the parent scopes',
                   {'minversion': (3, 0)}),
+        'E0118': ("Name %r is used prior to global declaration",
+                  'used-prior-global-declaration',
+                  'Emitted when a name is used prior a global declaration, '
+                  'which results in an error since Python 3.6.',
+                  {'minversion': (3, 6)}),
         }
 
     @utils.check_messages('function-redefined')
@@ -381,9 +391,11 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages('init-is-generator', 'return-in-init',
                           'function-redefined', 'return-arg-in-generator',
-                          'duplicate-argument-name', 'nonlocal-and-global')
+                          'duplicate-argument-name', 'nonlocal-and-global',
+                          'used-prior-global-declaration')
     def visit_functiondef(self, node):
         self._check_nonlocal_and_global(node)
+        self._check_name_used_prior_global(node)
         if (not redefined_by_decorator(node) and
                 not utils.is_registered_in_singledispatch_function(node)):
             self._check_redefinition(node.is_method() and 'method' or 'function', node)
@@ -416,6 +428,29 @@ class BasicErrorChecker(_BasicChecker):
                 args.add(name)
 
     visit_asyncfunctiondef = visit_functiondef
+
+    def _check_name_used_prior_global(self, node):
+
+        scope_globals = {
+            name: child
+            for child in node.nodes_of_class(astroid.Global)
+            for name in child.names
+            if child.scope() is node
+        }
+
+        for node_name in node.nodes_of_class(astroid.Name):
+            if node_name.scope() is not node:
+                continue
+
+            name = node_name.name
+            corresponding_global = scope_globals.get(name)
+            if not corresponding_global:
+                continue
+
+            global_lineno = corresponding_global.fromlineno
+            if global_lineno and global_lineno > node_name.fromlineno:
+                self.add_message('used-prior-global-declaration',
+                                 node=node_name, args=(name, ))
 
     def _check_nonlocal_and_global(self, node):
         """Check that a name is both nonlocal and global."""
@@ -476,19 +511,20 @@ class BasicErrorChecker(_BasicChecker):
             if current_scope.parent is None:
                 break
 
-            if not isinstance(current_scope, astroid.FunctionDef):
+            if not isinstance(current_scope, (astroid.ClassDef, astroid.FunctionDef)):
                 self.add_message('nonlocal-without-binding', args=(name, ),
                                  node=node)
                 return
-            else:
-                if name not in current_scope.locals:
-                    current_scope = current_scope.parent.scope()
-                    continue
-                else:
-                    # Okay, found it.
-                    return
 
-        self.add_message('nonlocal-without-binding', args=(name, ), node=node)
+            if name not in current_scope.locals:
+                current_scope = current_scope.parent.scope()
+                continue
+
+            # Okay, found it.
+            return
+
+        if not isinstance(current_scope, astroid.FunctionDef):
+            self.add_message('nonlocal-without-binding', args=(name, ), node=node)
 
     @utils.check_messages('nonlocal-without-binding')
     def visit_nonlocal(self, node):
@@ -572,7 +608,6 @@ class BasicErrorChecker(_BasicChecker):
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
             self.add_message('function-redefined', node=node,
                              args=(redeftype, defined_self.fromlineno))
-
 
 
 class BasicChecker(_BasicChecker):
@@ -704,7 +739,7 @@ functions, methods
         # These nodes are excepted, since they are not constant
         # values, requiring a computation to happen. The only type
         # of node in this list which doesn't have this property is
-        # Getattr, which is excepted because the conditional statement
+        # Attribute, which is excepted because the conditional statement
         # can be used to verify that the attribute was set inside a class,
         # which is definitely a valid use case.
         except_nodes = (astroid.Attribute, astroid.Call,
@@ -935,7 +970,7 @@ functions, methods
 
     @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
     def visit_call(self, node):
-        """visit a CallFunc node -> check if this is not a blacklisted builtin
+        """visit a Call node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
         if isinstance(node.func, astroid.Name):
@@ -1093,6 +1128,7 @@ _NAME_TYPES = {
     'inlinevar': (COMP_VAR_RGX, 'inline iteration'),
 }
 
+
 def _create_naming_options():
     name_options = []
     for name_type, (rgx, human_readable_name) in six.iteritems(_NAME_TYPES):
@@ -1107,7 +1143,9 @@ def _create_naming_options():
              'help': 'Naming hint for %s names' % (human_readable_name,)}))
     return tuple(name_options)
 
+
 class NameChecker(_BasicChecker):
+
     msgs = {
         'C0102': ('Black listed name "%s"',
                   'blacklisted-name',
@@ -1117,6 +1155,10 @@ class NameChecker(_BasicChecker):
                   'invalid-name',
                   'Used when the name doesn\'t match the regular expression '
                   'associated to its type (constant, variable, class...).'),
+        'W0111': ('Name %s will become a keyword in Python %s',
+                  'assign-to-new-keyword',
+                  'Used when assignment will become invalid in future '
+                  'Python release due to introducing new keyword'),
     }
 
     options = (('good-names',
@@ -1152,6 +1194,10 @@ class NameChecker(_BasicChecker):
                ),
               ) + _create_naming_options()
 
+    KEYWORD_ONSET = {
+        (3, 0): {'True', 'False'},
+        (3, 7): {'async', 'await'}
+    }
 
     def __init__(self, linter):
         _BasicChecker.__init__(self, linter)
@@ -1195,17 +1241,19 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(*args)
 
-    @utils.check_messages('blacklisted-name', 'invalid-name')
+    @utils.check_messages('blacklisted-name', 'invalid-name', 'assign-to-new-keyword')
     def visit_classdef(self, node):
+        self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name('class', node.name, node)
         for attr, anodes in six.iteritems(node.instance_attrs):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name('attr', attr, anodes[0])
 
-    @utils.check_messages('blacklisted-name', 'invalid-name')
+    @utils.check_messages('blacklisted-name', 'invalid-name', 'assign-to-new-keyword')
     def visit_functiondef(self, node):
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
+        self._check_assign_to_new_keyword_violation(node.name, node)
         confidence = interfaces.HIGH
         if node.is_method():
             if utils.overrides_a_method(node.parent.frame(), node.name):
@@ -1228,9 +1276,10 @@ class NameChecker(_BasicChecker):
         for name in node.names:
             self._check_name('const', name, node)
 
-    @utils.check_messages('blacklisted-name', 'invalid-name')
+    @utils.check_messages('blacklisted-name', 'invalid-name', 'assign-to-new-keyword')
     def visit_assignname(self, node):
         """check module level assigned names"""
+        self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame()
         ass_type = node.assign_type()
         if isinstance(ass_type, astroid.Comprehension):
@@ -1299,6 +1348,22 @@ class NameChecker(_BasicChecker):
         if match is None:
             self._raise_name_warning(node, node_type, name, confidence)
 
+    def _check_assign_to_new_keyword_violation(self, name, node):
+        keyword_first_version = self._name_became_keyword_in_version(
+            name, self.KEYWORD_ONSET
+        )
+        if keyword_first_version is not None:
+            self.add_message('assign-to-new-keyword',
+                             node=node, args=(name, keyword_first_version),
+                             confidence=interfaces.HIGH)
+
+    @staticmethod
+    def _name_became_keyword_in_version(name, rules):
+        for version, keywords in rules.items():
+            if name in keywords and sys.version_info < version:
+                return '.'.join(map(str, version))
+        return None
+
 
 class DocStringChecker(_BasicChecker):
     msgs = {
@@ -1327,12 +1392,12 @@ class DocStringChecker(_BasicChecker):
                ),
               )
 
-
     def open(self):
         self.stats = self.linter.add_stats(undocumented_module=0,
                                            undocumented_function=0,
                                            undocumented_method=0,
                                            undocumented_class=0)
+
     @utils.check_messages('missing-docstring', 'empty-docstring')
     def visit_module(self, node):
         self._check_docstring('module', node)
@@ -1423,6 +1488,7 @@ class PassChecker(_BasicChecker):
                       'Used when a "pass" statement that can be avoided is '
                       'encountered.'),
            }
+
     @utils.check_messages('unnecessary-pass')
     def visit_pass(self, node):
         if len(node.parent.child_sequence(node)) > 1:
@@ -1446,7 +1512,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
 
     @utils.check_messages('deprecated-lambda')
     def visit_call(self, node):
-        """visit a CallFunc node, check if map or filter are called with a
+        """visit a Call node, check if map or filter are called with a
         lambda
         """
         if not node.args:
@@ -1586,7 +1652,6 @@ class ComparisonChecker(_BasicChecker):
                     # not e.g. type(x) == type([])
                     return
         self.add_message('unidiomatic-typecheck', node=node)
-
 
 
 def register(linter):

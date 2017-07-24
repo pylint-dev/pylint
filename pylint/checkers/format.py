@@ -35,6 +35,7 @@ from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope, OPTION_RGX
 
+_ASYNC_TOKEN = 'async'
 _CONTINUATION_BLOCK_OPENERS = ['elif', 'except', 'for', 'if', 'while', 'def', 'class']
 _KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
                    'raise', 'return', 'while', 'yield']
@@ -302,7 +303,13 @@ class ContinuedLineState(object):
         """Record the first non-junk token at the start of a line."""
         if self._line_start > -1:
             return
-        self._is_block_opener = self._tokens.token(pos) in _CONTINUATION_BLOCK_OPENERS
+
+        check_token_position = pos
+        if self._tokens.token(pos) == _ASYNC_TOKEN:
+            check_token_position += 1
+        self._is_block_opener = self._tokens.token(
+            check_token_position
+        ) in _CONTINUATION_BLOCK_OPENERS
         self._line_start = pos
 
     def next_physical_line(self):
@@ -440,6 +447,11 @@ class FormatChecker(BaseTokenChecker):
                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : ('Allow the body of an if to be on the same '
                            'line as the test if there is no else.')}),
+               ('single-line-class-stmt',
+                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'help' : ('Allow the body of a class to be on the same '
+                           'line as the declaration if body contains '
+                           'single statement.')}),
                ('no-space-check',
                 {'default': ','.join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
                  'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
@@ -619,6 +631,8 @@ class FormatChecker(BaseTokenChecker):
             elif token[1] == ',':
                 if not bracket_level:
                     return False
+            elif token[1] == '.':
+                continue
             elif token[0] not in (tokenize.NAME, tokenize.STRING):
                 return False
         return False
@@ -858,7 +872,6 @@ class FormatChecker(BaseTokenChecker):
                 self.add_message('unexpected-line-ending-format', args=(line_ending, expected),
                                  line=line_num)
 
-
     def _process_retained_warnings(self, tokens, current_pos):
         single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ':')
 
@@ -895,6 +908,7 @@ class FormatChecker(BaseTokenChecker):
                 and tokens.start_col(next_idx) in valid_offsets):
             self._current_line.add_block_warning(next_idx, state, valid_offsets)
         elif tokens.start_col(next_idx) not in valid_offsets:
+
             self._add_continuation_message(state, valid_offsets, tokens, next_idx)
 
     def _add_continuation_message(self, state, offsets, tokens, position):
@@ -960,6 +974,9 @@ class FormatChecker(BaseTokenChecker):
         if (isinstance(node.parent, nodes.If) and not node.parent.orelse
                 and self.config.single_line_if_stmt):
             return
+        if (isinstance(node.parent, nodes.ClassDef) and len(node.parent.body) == 1
+                and self.config.single_line_class_stmt):
+            return
         self.add_message('multiple-statements', node=node)
         self._visited_lines[line] = 2
 
@@ -969,11 +986,12 @@ class FormatChecker(BaseTokenChecker):
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
 
-        for line in lines.splitlines(True):
+        def check_line(line, i):
             if not line.endswith('\n'):
                 self.add_message('missing-final-newline', line=i)
             else:
-                stripped_line = line.rstrip()
+                # exclude \f (formfeed) from the rstrip
+                stripped_line = line.rstrip('\t\n\r\v ')
                 if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
                     # allow empty lines
                     pass
@@ -987,7 +1005,35 @@ class FormatChecker(BaseTokenChecker):
 
             if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message('line-too-long', line=i, args=(len(line), max_chars))
-            i += 1
+            return i + 1
+
+        unsplit_ends = {
+            u'\v',
+            u'\x0b',
+            u'\f',
+            u'\x0c',
+            u'\x1c',
+            u'\x1d',
+            u'\x1e',
+            u'\x85',
+            u'\u2028',
+            u'\u2029'
+        }
+        unsplit = []
+        for line in lines.splitlines(True):
+            if line[-1] in unsplit_ends:
+                unsplit.append(line)
+                continue
+
+            if unsplit:
+                unsplit.append(line)
+                line = ''.join(unsplit)
+                unsplit = []
+
+            i = check_line(line, i)
+
+        if unsplit:
+            check_line(''.join(unsplit), i)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string

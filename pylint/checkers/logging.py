@@ -174,19 +174,30 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], astroid.BinOp) and node.args[format_pos].op == '%':
-            self.add_message('logging-not-lazy', node=node)
+        if isinstance(node.args[format_pos], astroid.BinOp):
+            binop = node.args[format_pos]
+            if (binop.op == '%' or binop.op == '+' and
+                    len([_operand for _operand in (binop.left, binop.right)
+                         if self._is_operand_literal_str(_operand)]) == 1):
+                self.add_message('logging-not-lazy', node=node)
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
 
+    @staticmethod
+    def _is_operand_literal_str(operand):
+        """
+        Return True if the operand in argument is a literal string
+        """
+        return isinstance(operand, astroid.Const) and operand.name == 'str'
+
     def _check_call_func(self, node):
         """Checks that function call is not format_string.format().
 
         Args:
-          node (astroid.node_classes.CallFunc):
-            CallFunc AST node to be checked.
+          node (astroid.node_classes.Call):
+            Call AST node to be checked.
         """
         func = utils.safe_infer(node.func)
         types = ('str', 'unicode')

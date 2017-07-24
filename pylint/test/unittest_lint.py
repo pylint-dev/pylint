@@ -28,6 +28,7 @@ import pylint.testutils as testutils
 from pylint.reporters import text
 from pylint import checkers
 from pylint.checkers.utils import check_messages
+from pylint import exceptions
 from pylint import interfaces
 import pytest
 
@@ -390,6 +391,12 @@ def test_report_output_format_aliased(linter):
     assert linter.reporter.__class__.__name__ == 'TextReporter'
 
 
+def test_set_unsupported_reporter(linter):
+    text.register(linter)
+    with pytest.raises(exceptions.InvalidReporterError):
+        linter.set_option('output-format', 'missing.module.Class')
+
+
 def test_set_option_1(linter):
     linter.set_option('disable', 'C0111,W0234')
     assert not linter.is_message_enabled('C0111')
@@ -499,7 +506,7 @@ def test_full_documentation(linter):
         "^Pylint global options and switches$",
         "Verbatim name of the checker is ``python3``",
         # messages
-        "^:old-octal-literal \(E1608\):",
+        "^:old-octal-literal \\(E1608\\):",
         # options
         "^:dummy-variables-rgx:",
     ]:
@@ -662,7 +669,7 @@ class TestMessagesStore(object):
             msg, checkerref=False)
 
     def test_message_help_minmax(self, store):
-        # build the message manually to be python version independant
+        # build the message manually to be python version independent
         msg = store.check_message_id('E1234')
         self._compare_messages(
             ''':duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*
@@ -738,3 +745,17 @@ def test_custom_should_analyze_file():
     messages = reporter.messages
     assert len(messages) == 1
     assert 'invalid syntax' in messages[0]
+
+
+def test_filename_with__init__(init_linter):
+    # This tracks a regression where a file whose name ends in __init__.py,
+    # such as flycheck__init__.py, would accidentally lead to linting the
+    # entire containing directory.
+    reporter = testutils.TestReporter()
+    linter = init_linter
+    linter.open()
+    linter.set_reporter(reporter)
+    filepath = join(INPUTDIR, 'not__init__.py')
+    linter.check([filepath])
+    messages = reporter.messages
+    assert len(messages) == 0

@@ -84,10 +84,10 @@ MSGS = {
               'notimplemented-raised',
               'Used when NotImplemented is raised instead of \
               NotImplementedError'),
-    'E0712': ('Catching an exception which doesn\'t inherit from BaseException: %s',
+    'E0712': ('Catching an exception which doesn\'t inherit from Exception: %s',
               'catching-non-exception',
               'Used when a class which doesn\'t inherit from \
-               BaseException is used as an exception in an except clause.'),
+               Exception is used as an exception in an except clause.'),
     'W0702': ('No exception type(s) specified',
               'bare-except',
               'Used when an except clause doesn\'t specify exceptions type to \
@@ -110,6 +110,11 @@ MSGS = {
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),
+    'W0715': ('Arguments to %s suggest string formatting might be intended',
+              'raising-format-tuple',
+              'Used when passing multiple arguments to an exception \
+              constructor, the first of them a string literal containing what \
+              appears to be placeholders intended for formatting'),
     }
 
 
@@ -144,6 +149,16 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
     def visit_call(self, call):
         if isinstance(call.func, astroid.Name):
             self.visit_name(call.func)
+        if (len(call.args) > 1 and
+                isinstance(call.args[0], astroid.Const) and
+                isinstance(call.args[0].value, six.string_types)):
+            msg = call.args[0].value
+            if ('%' in msg or
+                    ('{' in msg and '}' in msg)):
+                self._checker.add_message(
+                    'raising-format-tuple',
+                    node=self._node,
+                    args=call.func.name)
 
 
 class ExceptionRaiseLeafVisitor(BaseVisitor):
@@ -159,6 +174,9 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
         # pylint: disable=protected-access
         cls = instance._proxied
         self.visit_classdef(cls)
+
+    # Exception instances have a particular class type
+    visit_exceptioninstance = visit_instance
 
     def visit_classdef(self, cls):
         if (not utils.inherit_from_std_ex(cls) and
@@ -223,7 +241,8 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.check_messages('nonstandard-exception', 'misplaced-bare-raise',
                           'raising-bad-type', 'raising-non-exception',
-                          'notimplemented-raised', 'bad-exception-context')
+                          'notimplemented-raised', 'bad-exception-context',
+                          'raising-format-tuple')
     def visit_raise(self, node):
         if node.exc is None:
             self._check_misplaced_bare_raise(node)
@@ -239,6 +258,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             inferred_value = None
 
         ExceptionRaiseRefVisitor(self, node).visit(expr)
+
         if inferred_value:
             ExceptionRaiseLeafVisitor(self, node).visit(inferred_value)
 

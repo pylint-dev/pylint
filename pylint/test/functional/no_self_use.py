@@ -30,10 +30,10 @@ class Base(object):
 
 
 class Sub(Base):
-    """a concret class"""
+    """a concrete class"""
 
     def check(self, arg):
-        """a concret method, could not be a function since it need
+        """a concrete method, could not be a function since it need
         polymorphism benefits
         """
         return arg == 0

@@ -233,9 +233,9 @@ def _called_in_methods(func, klass, methods):
         except astroid.NotFoundError:
             continue
         for infer_method in infered:
-            for callfunc in infer_method.nodes_of_class(astroid.Call):
+            for call in infer_method.nodes_of_class(astroid.Call):
                 try:
-                    bound = next(callfunc.func.infer())
+                    bound = next(call.func.infer())
                 except (astroid.InferenceError, StopIteration):
                     continue
                 if not isinstance(bound, astroid.BoundMethod):
@@ -308,6 +308,16 @@ def _safe_infer_call_result(node, caller, context=None):
         return  # there is some kind of ambiguity
     except StopIteration:
         return value
+
+
+def _has_same_layout_slots(slots, assigned_value):
+    inferred = next(assigned_value.infer())
+    if isinstance(inferred, astroid.ClassDef):
+        other_slots = inferred.slots()
+        if all(first_slot and second_slot and first_slot.value == second_slot.value
+               for (first_slot, second_slot) in six.moves.zip_longest(slots, other_slots)):
+            return True
+    return False
 
 
 MSGS = {
@@ -624,7 +634,7 @@ a metaclass class method.'}
                 except astroid.NotFoundError:
                     for node in nodes:
                         if node.frame().name not in defining_methods:
-                            # If the attribute was set by a callfunc in any
+                            # If the attribute was set by a call in any
                             # of the defining methods, then don't emit
                             # the warning.
                             if _called_in_methods(node.frame(), cnode,
@@ -829,7 +839,7 @@ a metaclass class method.'}
         methods)
         """
         # Check self
-        if self.is_first_attr(node):
+        if self._uses_mandatory_method_param(node):
             self._accessed.set_accessed(node)
             return
         if not self.linter.is_message_enabled('protected-access'):
@@ -838,12 +848,13 @@ a metaclass class method.'}
         self._check_protected_attribute_access(node)
 
     def visit_assignattr(self, node):
-        if isinstance(node.assign_type(), astroid.AugAssign) and self.is_first_attr(node):
+        if (isinstance(node.assign_type(), astroid.AugAssign) and
+                self._uses_mandatory_method_param(node)):
             self._accessed.set_accessed(node)
         self._check_in_slots(node)
 
     def _check_in_slots(self, node):
-        """ Check that the given assattr node
+        """ Check that the given AssignAttr node
         is defined in the class slots.
         """
         infered = safe_infer(node.expr)
@@ -874,6 +885,9 @@ a metaclass class method.'}
                             and _has_data_descriptor(klass, node.attrname)):
                         # Descriptors circumvent the slots mechanism as well.
                         return
+                    if (node.attrname == '__class__'
+                            and _has_same_layout_slots(slots, node.parent.value)):
+                        return
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
 
@@ -885,7 +899,7 @@ a metaclass class method.'}
         if not isinstance(node, astroid.AssignAttr):
             return
 
-        if self.is_first_attr(node):
+        if self._uses_mandatory_method_param(node):
             return
         self._check_protected_attribute_access(node)
 
@@ -957,6 +971,10 @@ a metaclass class method.'}
                node.expr.func.name == 'super':
                 return
 
+            # If the expression begins with a call to type(self), that's ok.
+            if self._is_type_self_call(node.expr):
+                return
+
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
             if not (callee == klass.name or callee in klass.basenames):
@@ -975,6 +993,12 @@ a metaclass class method.'}
                         return
 
                 self.add_message('protected-access', node=node, args=attrname)
+
+    def _is_type_self_call(self, expr):
+        return (isinstance(expr, astroid.Call) and
+                isinstance(expr.func, astroid.Name) and
+                expr.func.name == 'type' and len(expr.args) == 1 and
+                self._is_mandatory_method_param(expr.args[0]))
 
     def visit_name(self, node):
         """check if the name handle an access to a class member
@@ -1217,12 +1241,20 @@ a metaclass class method.'}
                              args=(class_type, method1.name),
                              node=method1)
 
-    def is_first_attr(self, node):
+    def _uses_mandatory_method_param(self, node):
         """Check that attribute lookup name use first attribute variable name
-        (self for method, cls for classmethod and mcs for metaclass).
+
+        Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
-        return self._first_attrs and isinstance(node.expr, astroid.Name) and \
-                   node.expr.name == self._first_attrs[-1]
+        return self._is_mandatory_method_param(node.expr)
+
+    def _is_mandatory_method_param(self, node):
+        """Check if astroid.Name corresponds to first attribute variable name
+
+        Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
+        """
+        return (self._first_attrs and isinstance(node, astroid.Name)
+                and node.name == self._first_attrs[-1])
 
 
 class SpecialMethodsChecker(BaseChecker):

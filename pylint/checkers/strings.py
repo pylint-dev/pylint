@@ -196,19 +196,19 @@ def parse_format_method_string(format_string):
             num_args += 1
     return keys, num_args, len(manual_pos_arg)
 
-def get_args(callfunc):
-    """Get the arguments from the given `CallFunc` node.
+def get_args(call):
+    """Get the arguments from the given `Call` node.
 
     Return a tuple, where the first element is the
     number of positional arguments and the second element
     is the keyword arguments in a dict.
     """
-    if callfunc.keywords:
+    if call.keywords:
         named = {arg.arg: utils.safe_infer(arg.value)
-                 for arg in callfunc.keywords}
+                 for arg in call.keywords}
     else:
         named = {}
-    positional = len(callfunc.args)
+    positional = len(call.args)
     return positional, named
 
 def get_access_path(key, parts):
@@ -278,7 +278,7 @@ class StringFormatChecker(BaseChecker):
                     else:
                         # One of the keys was something other than a
                         # constant.  Since we can't tell what it is,
-                        # supress checks for missing keys in the
+                        # suppress checks for missing keys in the
                         # dictionary.
                         unknown_keys = True
                 if not unknown_keys:
@@ -304,7 +304,10 @@ class StringFormatChecker(BaseChecker):
             # the % operator matches the number required by the format
             # string.
             if isinstance(args, astroid.Tuple):
-                num_args = len(args.elts)
+                rhs_tuple = utils.safe_infer(args)
+                num_args = None
+                if rhs_tuple not in (None, astroid.Uninferable):
+                    num_args = len(rhs_tuple.elts)
             elif isinstance(args, OTHER_NODES + (astroid.Dict, astroid.DictComp)):
                 num_args = 1
             else:

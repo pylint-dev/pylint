@@ -159,7 +159,7 @@ Deprecated features
 ===================
 
 * The HTML support was deprecated and will be eventually removed
-  in Pylint 2.0.
+  in Pylint 1.7.0.
 
   This feature was lately a second class citizen in Pylint, being
   often neglected and having a couple of bugs. Since we now have
@@ -167,10 +167,10 @@ Deprecated features
   HTML outputs than what Pylint can currently offer.
 
 * The ``--files-output`` option was deprecated and will be eventually
-  removed in Pylint 2.0.
+  removed in Pylint 1.7.0.
 
 * The ``--optimize-ast`` option was deprecated and will be eventually
-  removed in Pylint 2.0.
+  removed in Pylint 1.7.0.
 
   The option was initially added for handling pathological cases,
   such as joining too many strings using the addition operator, which

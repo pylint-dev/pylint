@@ -24,7 +24,7 @@ Note that if you don't find something you have expected in Pylint's
 issue tracker, it may be because it is an issue with one of its dependencies, namely
 astroid:
 
-* https://github.com/pycqa/astroid
+* https://github.com/PyCQA/astroid
 
 Mailing lists
 -------------
@@ -39,6 +39,8 @@ Archives before April 2013 are available at
 http://lists.logilab.org/pipermail/python-projects/
 
 
+.. _repository:
+
 Repository
 ----------
 
@@ -46,8 +48,8 @@ Pylint is developed using the git_ distributed version control system.
 
 You can clone Pylint and its dependencies from ::
 
-  git clone https://github.com/pycqa/pylint
-  git clone https://github.com/pycqa/astroid
+  git clone https://github.com/PyCQA/pylint
+  git clone https://github.com/PyCQA/astroid
 
 .. _git: https://git-scm.com/
 
@@ -73,8 +75,8 @@ your patch gets accepted.
     - To run only a specific test suite, use a pattern for the test filename
       (**without** the ``.py`` extension), as in::
 
-        python -m tox -e py27 test_functional
-        python -m tox -e py27 \*func\*
+        python -m tox -e py27 -- -k test_functional
+        python -m tox -e py27 -- -k  \*func\*
 
 - Add a short entry to the ChangeLog describing the change, except for internal
   implementation only changes
@@ -82,14 +84,18 @@ your patch gets accepted.
 - Write a comprehensive commit message
 
 - Relate your change to an issue in the tracker if such an issue exists (see
-  `this page`_ of the GitHub documentation for more information on this)
+  `Closing issues via commit messages`_ of the GitHub documentation for more
+   information on this)
 
 - Document your change, if it is a non-trivial one.
 
-- Send a pull request from GitHub (more on this here_)
+- Send a pull request from GitHub (see `About pull requests`_ for more insight
+  about this topic)
 
 
-Functional tests
+.. _functional_tests:
+
+Functional Tests
 ----------------
 
 These are residing under '/test/functional' and they are formed of multiple
@@ -123,6 +129,43 @@ current environment in order to have faster feedback. Run with::
 
     python pylint/test/test_functional.py
 
-.. _`this page`: https://help.github.com/articles/closing-issues-via-commit-messages/
-.. _here: https://help.github.com/articles/using-pull-requests/
+.. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
+.. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
 .. _tox: http://tox.readthedocs.io/en/latest/
+
+
+Tips for Getting Started with Pylint Development
+------------------------------------------------
+* Read the :ref:`technical-reference`. It gives a short walkthrough of the pylint
+  codebase and will help you identify where you will need to make changes
+  for what you are trying to implement.
+* :func:`astroid.extract_node` is your friend. Most checkers are AST based,
+  so you will likely need to interact with :mod:`astroid`.
+  A short example of how to use :func:`astroid.extract_node` is given
+  :ref:`here <astroid_extract_node>`.
+* When fixing a bug for a specific check, search the code for the warning
+  message to find where the warning is raised,
+  and therefore where the logic for that code exists.
+
+A Typical Development Workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#. Create a virtualenv in which to work::
+
+     $ tox
+
+#. Write the tests. See :ref:`functional_tests`.
+#. Check that the tests fail::
+
+     $ tox
+
+#. Fix pylint!
+#. Make sure your tests pass::
+
+     $ tox
+
+   It is also possible to give tox a `pytest specifier <https://docs.pytest.org/en/latest/usage.html#specifying-tests-selecting-tests>`_
+   to run only your test::
+
+     $ tox pylint/test/test_functional.py::test_functional
+
+#. Package up and submit your changes as outlined in `repository`_.

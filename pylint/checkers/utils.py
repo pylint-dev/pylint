@@ -18,6 +18,10 @@ try:
 except ImportError:
     # pylint: disable=import-error
     from singledispatch import singledispatch as singledispatch
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 import itertools
 import re
 import sys
@@ -280,7 +284,7 @@ def is_ancestor_name(frame, node):
     return False
 
 def assign_parent(node):
-    """return the higher parent which is not an AssName, Tuple or List node
+    """return the higher parent which is not an AssignName, Tuple or List node
     """
     while node and isinstance(node, (astroid.AssignName,
                                      astroid.Tuple,
@@ -414,10 +418,10 @@ def is_attr_private(attrname):
     regex = re.compile('^_{2,}.*[^_]+_?$')
     return regex.match(attrname)
 
-def get_argument_from_call(callfunc_node, position=None, keyword=None):
+def get_argument_from_call(call_node, position=None, keyword=None):
     """Returns the specified argument from a function call.
 
-    :param astroid.Call callfunc_node: Node representing a function call to check.
+    :param astroid.Call call_node: Node representing a function call to check.
     :param int position: position of the argument.
     :param str keyword: the keyword of the argument.
 
@@ -431,11 +435,11 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
         raise ValueError('Must specify at least one of: position or keyword.')
     if position is not None:
         try:
-            return callfunc_node.args[position]
+            return call_node.args[position]
         except IndexError:
             pass
-    if keyword and callfunc_node.keywords:
-        for arg in callfunc_node.keywords:
+    if keyword and call_node.keywords:
+        for arg in call_node.keywords:
             if arg.arg == keyword:
                 return arg.value
 
@@ -515,6 +519,7 @@ def decorated_with(func, qnames):
     return False
 
 
+@lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(node, is_abstract_cb=None):
     """
     Get the unimplemented abstract methods for the given *node*.
@@ -716,6 +721,8 @@ def _supports_protocol(value, protocol_callback):
     if isinstance(value, astroid.BaseInstance):
         if not has_known_bases(value):
             return True
+        if value.has_dynamic_getattr():
+            return True
         if protocol_callback(value):
             return True
 
@@ -756,6 +763,7 @@ def supports_delitem(value):
 
 
 # TODO(cpopa): deprecate these or leave them as aliases?
+@lru_cache(maxsize=1024)
 def safe_infer(node, context=None):
     """Return the inferred value for the given node.
 

@@ -181,7 +181,7 @@ def function23():
 
     test[0][0] = 0 # getitem with int and setitem with int, no error
     test[0] = 0 # setitem with int, no error
-    del test[None] # delitem overriden, no error
+    del test[None] # delitem overridden, no error
     del test[0] # delitem with int, no error
 
 def function24():
@@ -197,7 +197,7 @@ def function24():
     # delitem with invalid index
     del test[None] # [invalid-sequence-index]
 
-    test[None][0] = 0 # getitem overriden, no error
+    test[None][0] = 0 # getitem overridden, no error
     test[0][0] = 0 # getitem with int and setitem with int, no error
     test[0] = 0 # setitem with int, no error
     del test[0] # delitem with int, no error

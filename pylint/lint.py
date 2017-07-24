@@ -12,9 +12,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-""" %prog [options] module_or_package
+""" %prog [options] modules_or_packages
 
-  Check that a module satisfies a coding standard (and more !).
+  Check that module(s) satisfy a coding standard (and more !).
 
     %prog --help
 
@@ -138,7 +138,7 @@ MSGS = {
               'traceback. Please report such errors !'),
     'F0010': ('error while code parsing: %s',
               'parse-error',
-              'Used when an exception occured while building the Astroid '
+              'Used when an exception occurred while building the Astroid '
               'representation which could be handled by astroid.'),
 
     'I0001': ('Unable to run raw checkers on built-in module %s',
@@ -205,8 +205,8 @@ if multiprocessing is not None:
 
             # Run linter for received files/modules.
             for file_or_module in iter(tasks_queue.get, 'STOP'):
-                result = self._run_linter(file_or_module[0])
                 try:
+                    result = self._run_linter(file_or_module[0])
                     results_queue.put(result)
                 except Exception as ex:
                     print("internal error with sending report for module %s" %
@@ -253,8 +253,8 @@ class PyLinter(config.OptionsManagerMixIn,
     * handle message activation / deactivation at the module level
     * handle some basic but necessary stats'data (number of classes, methods...)
 
-    IDE plugins developpers: you may have to call
-    `astroid.builder.MANAGER.astroid_cache.clear()` accross run if you want
+    IDE plugin developers: you may have to call
+    `astroid.builder.MANAGER.astroid_cache.clear()` across runs if you want
     to ensure the latest code version is actually checked.
     """
 
@@ -473,12 +473,20 @@ class PyLinter(config.OptionsManagerMixIn,
         if name in self._reporters:
             self.set_reporter(self._reporters[name]())
         else:
-            qname = self._reporter_name
-            module = modutils.load_module_from_name(
-                modutils.get_module_part(qname))
-            class_name = qname.split('.')[-1]
-            reporter_class = getattr(module, class_name)
-            self.set_reporter(reporter_class())
+            try:
+                reporter_class = self._load_reporter_class()
+            except (ImportError, AttributeError):
+                raise exceptions.InvalidReporterError(name)
+            else:
+                self.set_reporter(reporter_class())
+
+    def _load_reporter_class(self):
+        qname = self._reporter_name
+        module = modutils.load_module_from_name(
+            modutils.get_module_part(qname))
+        class_name = qname.split('.')[-1]
+        reporter_class = getattr(module, class_name)
+        return reporter_class
 
     def set_reporter(self, reporter):
         """set the reporter used to display messages and reports"""
@@ -638,7 +646,7 @@ class PyLinter(config.OptionsManagerMixIn,
                     meth = self._options_methods[opt]
                 except KeyError:
                     meth = self._bw_options_methods[opt]
-                    # found a "(dis|en)able-msg" pragma deprecated suppresssion
+                    # found a "(dis|en)able-msg" pragma deprecated suppression
                     self.add_message('deprecated-pragma', line=start[0],
                                      args=(opt, opt.replace('-msg', '')))
                 for msgid in utils._splitstrip(value):
@@ -785,7 +793,7 @@ class PyLinter(config.OptionsManagerMixIn,
             child.join()
 
         if failed:
-            print("Error occured, stopping the linter.", file=sys.stderr)
+            print("Error occurred, stopping the linter.", file=sys.stderr)
             sys.exit(32)
 
     def _parallel_check(self, files_or_modules):
@@ -795,6 +803,8 @@ class PyLinter(config.OptionsManagerMixIn,
         all_stats = []
         module = None
         for result in self._parallel_task(files_or_modules):
+            if not result:
+                continue
             (
                 _,
                 self.file_state.base_name,

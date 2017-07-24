@@ -1,9 +1,9 @@
 **************************
-  What's New In Pylint 2.0
+  What's New In Pylint 1.7
 **************************
 
 :Release: |release|
-:Date: |TBD|
+:Date: 2017-04-13
 
 
 Summary -- Release highlights
@@ -87,7 +87,7 @@ New checkers
 
           def __init__(self, param1, param2):
               super(Impl, self).__init__(param1, param2)
-     
+
           def useless(self, first, second):
               return super(Impl, self).useless(first, second)
 
@@ -445,7 +445,7 @@ New checkers
   remove old or supplanted modules and reorganize some of the existing modules.  As a result,
   roughly 100 modules that exist in Python 2 no longer exist in Python 3.  See
   https://www.python.org/dev/peps/pep-3108/ and https://www.python.org/dev/peps/pep-0004/ for more
-  information.  For suggestions on hwo to handle this, see
+  information.  For suggestions on how to handle this, see
   https://pythonhosted.org/six/#module-six.moves or http://python3porting.com/stdlib.html.
 
   .. code-block:: python
@@ -575,9 +575,34 @@ New checkers
 
   You can enable this extension through ``--load-plugins=pylint.extensions.mccabe``
 
+* A new check was added, ``used-prior-global-declaration``. This is emitted when
+  a name is used prior a global declaration, resulting in a SyntaxError in Python 3.6.
+
+* A new message was added, ``assign-to-new-keyword``. This is emitted when used name
+  is known to become a keyword in future Python release. Assignments to keywords
+  would result in ``SyntaxError`` after switching to newer interpreter version.
+
+  .. code-block:: python
+
+      # While it's correct in Python 2.x, it raises a SyntaxError in Python 3.x
+      True = 1
+      False = 0
+
+      # Same as above, but it'll be a SyntaxError starting from Python 3.7
+      async = "async"
+      await = "await
+
 
 Other Changes
 =============
+
+* We don't emit by default ``no-member`` if we have opaque inference objects in the inference results
+
+  This is controlled through the new flag ``--ignore-on-opaque-inference``, which is by
+  default True. The inference can return  multiple potential results while
+  evaluating a Python object, but some branches might not be evaluated, which
+  results in partial inference. In that case, it might be useful to still emit
+  no-member and other checks for the rest of the inferred objects.
 
 * Namespace packages are now supported by pylint. This includes both explicit namespace
   packages and implicit namespace packages, supported in Python 3 through PEP 420.
@@ -761,6 +786,12 @@ Other Changes
   being disabled by default. They can be enabled through:
   ``--load-plugins=pylint.extensions.redefined_variable_type,pylint.extensions.bad_builtin``
 
+  * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+    warning on wildcard import when imported module defines `__all__` variable.
+
+* ``differing-param-doc`` is now used for the differing part of the old ``missing-param-doc``,
+  and ``differing-type-doc`` for the differing part of the old ``missing-type-doc``.
+
 
 Bug fixes
 =========
@@ -861,6 +892,29 @@ Bug fixes
 * Fix a false-positive ``logging-format-interpolation`` message, when format
   specifications are used in formatted string. In general, these operations
   are not always convertible to old-style formatting used by logging module.
+
+* Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+  of empty class bodies (as seen in the example below). Pylint won't emit a
+  ``multiple-statements`` message when this option is enabled.
+
+  .. code-block:: python
+
+     class MyError(Exception): pass
+
+  * `too-many-format-args` and `too-few-format-args` are emitted correctly
+    (or not emitted at all, when exact count of elements in RHS cannot be
+    inferred) when starred expressions are used in RHS tuple. For example,
+    code block as shown below detects correctly that the used tuple has in
+    fact three elements, not two.
+
+  .. code-block:: python
+
+    meat = ['spam', 'ham']
+    print('%s%s%s' % ('eggs', *meat))
+
+* `cyclic-import` checker supports local disable clauses. When one
+  of cycle imports was done in scope where disable clause was active,
+  cycle is not reported as violation.
 
 Removed Changes
 ===============

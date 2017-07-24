@@ -25,16 +25,16 @@ standard, and tries to enforce a coding style.
 2.1 How do I install Pylint?
 ----------------------------
 
-Everything should be explained on http://docs.pylint.org/installation
+Everything should be explained on :ref:`installation`.
 
 2.2 What kind of versioning system does Pylint use?
 ---------------------------------------------------
 
 Pylint uses the git distributed version control system. The URL of the
-repository is: https://github.com/pycqa/pylint . To get the latest version of
+repository is: https://github.com/PyCQA/pylint . To get the latest version of
 Pylint from the repository, simply invoke ::
 
-    git clone https://github.com/pycqa/pylint
+    git clone https://github.com/PyCQA/pylint
 
 .. _git: http://git-scm.com/
 
@@ -50,7 +50,9 @@ it is also working on PyPy.
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
 
-Since Pylint 1.4, we support only Python 2.7+ and Python 3.3+.
+Since Pylint 1.4, we support only Python 2.7+ and Python 3.3+. If code
+uses new Python 3.6 syntax, minimal required version is Pylint 1.7.
+
 Using this strategy really helps in maintaining a code base compatible
 with both versions and from this benefits not only the maintainers,
 but the end users as well, because it's easier to add and test
@@ -116,7 +118,7 @@ For example::
 3.4 I'd rather not run Pylint from the command line. Can I integrate it with my editor?
 ---------------------------------------------------------------------------------------
 
-Much probably. Read http://docs.pylint.org/ide-integration
+Much probably. Read :ref:`ide-integration`
 
 4. Message Control
 ==================
@@ -179,6 +181,16 @@ tricks like: ::
      method-hidden,
      too-many-lines
 
+
+4.7 Why are there a bunch of messages disabled by default?
+----------------------------------------------------------
+
+pylint does have some messages disabled by default, either because
+they are prone to false positives or that they are opinionated enough
+for not being included as default messages. But most of the disabled
+messages are from the Python 3 porting checker, which is disabled by
+default. It needs special activation with the ``--py3k`` flag.
+
 5. Classes and Inheritance
 ==========================
 
@@ -216,9 +228,9 @@ above expression.
 6.2 I think I found a bug in Pylint. What should I do?
 -------------------------------------------------------
 
-Read http://docs.pylint.org/contribute#bug-reports-feedback
+Read :ref:`Bug reports, feedback`
 
 6.3 I have a question about Pylint that isn't answered here.
 ------------------------------------------------------------
 
-Read http://docs.pylint.org/contribute#mailing-lists
+Read :ref:`Mailing lists`

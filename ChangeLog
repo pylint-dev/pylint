@@ -1,11 +1,115 @@
 ------------------
 Pylint's ChangeLog
 ------------------
-
-What's New in Pylint 2.0?
+What's New in Pylint 1.8?
 =========================
 
-Release date: tba
+    * Added a new Python 3 check, ``non-ascii-bytes-literals``
+
+      Close #1545
+
+    * Added a couple of new Python 3 checks for accessing dict methods in non-iterable context
+
+    * Protocol checks (not-a-mapping, not-an-iterable and co.) aren't emitted on classes with dynamic getattr
+
+    * Added a new warning, 'bad-thread-instantiation'
+
+      This message is emitted when the threading.Thread class does not
+      receive the target argument, but receives just one argument, which
+      is by default the group parameter.
+
+      Close #1327
+
+    * In non-quiet mode, absolute path of used config file is logged to
+      standard error.
+      Close #1519
+
+    * Raise meaningful exception for invalid reporter class being selected
+
+      When unknown reporter class will be selected as Pylint reporter,
+      meaningful error message would be raised instead of bare ``ImportError``
+      or ``AttribueError`` related to module or reporter class being not found.
+      Close #1388
+
+    * Added a new Python 3 check for accessing removed functions from itertools
+      like ``izip`` or ``ifilterfalse``
+
+    * Added a new Python 3 check for accessing removed fields from the types
+      module like ``UnicodeType`` or ``XRangeType``
+
+    * Added a new Python 3 check for declaring a method ``next`` that would have
+      been treated as an iterator in Python 2 but a normal function in Python 3.
+
+    * Added a new key-value pair in json output. The key is ``message-id``
+      and the value is the message id.
+      Close #1512
+		
+    * Added a new Python 3.0 check for raising a StopIteration inside a generator.
+      The check about raising a StopIteration inside a generator is also valid if the exception
+      raised inherit from StopIteration.
+      Close #1385
+
+    * Added a new warning, ``raising-format-tuple``, to detect multi-argument
+      exception construction instead of message string formatting.
+
+    * Added a new check for method of logging module that concatenate string via + operator
+      Close #1479
+
+What's New in Pylint 1.7.1?
+=========================
+
+Release date: 2017-04-17
+
+    * Fix a false positive which occurred when an exception was reraised
+
+      Close #1419
+
+    * Fix a false positive of ``disallow-trailing-tuple``
+
+      The check was improved by verifying for non-terminating newlines, which
+      should exempt function calls and function definitions from the check
+      Close #1424
+
+
+What's New in Pylint 1.7?
+=========================
+
+Release date: 2017-04-13
+
+    * Don't emit missing-final-newline or trailing-whitespace for formfeeds (page breaks).
+
+      Close #1218 and #1219
+
+    * Don't emit by default no-member if we have opaque inference objects in the inference results
+
+      This is controlled through the new flag ignore-on-opaque-inference, which is by
+      default True. The inference can return  multiple potential results while
+      evaluating a Python object, but some branches might not be evaluated, which
+      results in partial inference. In that case, it might be useful to still emit
+      no-member and other checks for the rest of the inferred objects.
+
+    * Added new message `assign-to-new-keyword` to warn about assigning to names which
+      will become a keyword in future Python releases.
+
+      Close #1351
+
+    * Split the 'missing or differing' in parameter documentation in different error.
+      'differing-param-doc' covers the differing part of the old 'missing-param-doc',
+      and 'differing-type-doc' covers the differing part of the old 'missing-type-doc'
+
+      Close #1342
+
+    * Disabling 'wrong-import-order', 'wrong-import-position', or
+      'ungrouped-imports' for a single line now prevents that line from
+      triggering violations on subsequent lines.
+
+      Close #1336
+
+    * Added a new error, 'used-prior-global-declaration', which is emitted when a name
+      is used prior a global declaration in a function. This causes a SyntaxError in
+      Python 3.6
+
+      Close #1257
 
     * The protocol checks are emitting their messages when a special method is set to None.
 
@@ -45,7 +149,7 @@ Release date: tba
       Now detects ``super(type(self), self)`` and ``super(self.__class__, self)``
       which can lead to recursion loop in derived classes.
 
-    * PyLinter.should_analyze_file has a new optional parameter, called `is_argument`	
+    * PyLinter.should_analyze_file has a new optional parameter, called `is_argument`
 
       Close #1079
 
@@ -132,7 +236,7 @@ Release date: tba
     * Disable reports by default and show the evaluation score by default
 
       As per discussion from issue #746, the reports were disabled by
-      default in order to simplify the interaction between the tool 
+      default in order to simplify the interaction between the tool
       and the users. The score is still shown by default, as a way of
       closely measuring when it increases or decreases due to changes
       brought to the code.
@@ -246,7 +350,7 @@ Release date: tba
     * Improve unused-variable checker to warn about unused variables in module scope.
 
       Closes #919
-	
+
     * Ignore modules import as _ when checking for unused imports.
 
       Closes #1190
@@ -263,6 +367,35 @@ Release date: tba
       are used in formatted string.
 
       Fixes #572
+
+    * Added a new switch ``single-line-class-stmt`` to allow single-line declaration
+      of empty class bodies.
+
+      Closes #738
+
+    * Protected access in form `type(self)._attribute` are now allowed.
+
+      Fixes #1031
+
+    * Let the user modify msg-template when Pylint is called from a Python script
+
+      Fixes #1269
+
+    * Imports checker supports new switch ``allow-wildcard-with-all`` which disables
+      warning on wildcard import when imported module defines `__all__` variable.
+
+      Fixes #831
+
+    * `too-many-format-args` and `too-few-format-args` are emitted correctly when
+      starred expression are used in RHS tuple.
+
+      Fixes #957
+
+    * `cyclic-import` checker supports local disable clauses. When one
+      of cycle imports was done in scope where disable clause was active,
+      cycle is not reported as violation.
+
+      Fixes #59
 
 
 What's new in Pylint 1.6.3?
@@ -397,7 +530,7 @@ Release date: 2016-03-21
     * Let visit_importfrom from Python 3 porting checker be called when everything is disabled
 
       Because the visit method was filtering the patterns it was expecting to be activated,
-      it didn't run when everything but one pattern was disabled, leading to spurious false 
+      it didn't run when everything but one pattern was disabled, leading to spurious false
       positives
 
       Close #852
@@ -457,7 +590,7 @@ Release date: 2016-01-11
       In order to fix this, the aggregated messages can now be
       displayed with Reporter.display_message, while the reports are
       displayed with display_reports.
-      
+
       Closes issues #766 and #765.
 
     * Ignore function calls with variadic arguments without a context.
@@ -474,7 +607,7 @@ Release date: 2016-01-11
       visit_functiondef.
 
       Closes issue #767.
-      
+
     * Take in account kwonlyargs when verifying that arguments
       are defined with the check_docs extension.
 
@@ -489,7 +622,7 @@ What's New in Pylint 1.5.2?
 ===========================
 
 Release date: 2015-12-21
-        
+
     * Don't crash if graphviz is not installed, instead emit a
       warning letting the user to know.
 
@@ -505,7 +638,7 @@ Release date: 2015-12-21
 
     * Allow statements in `if` or `try` blocks containing imports.
 
-      Closes issue #714. 
+      Closes issue #714.
 
 
 What's New in Pylint 1.5.1?
@@ -550,7 +683,7 @@ Release date: 2015-11-29
       latter to be at the top of the file, in order to figure out easier by
       a human reader what dependencies a module has.
       Closes issue #692.
-      
+
     * Added a new refactoring warning, 'unneeded-not', emitted
       when an expression with the not operator could be simplified.
       Closes issue #670.
@@ -558,7 +691,7 @@ Release date: 2015-11-29
     * Added a new refactoring warning, 'simplifiable-if-statement',
       used when an if statement could be reduced to a boolean evaluation
       of its test. Closes issue #698.
-         
+
     * Added a new refactoring warning, 'too-many-boolean-expressions',
       used when an if statement contains too many boolean expressions,
       which makes the code less maintainable and harder to understand.
