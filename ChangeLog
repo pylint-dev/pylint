@@ -4,6 +4,26 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Added a new Python 3 check, ``non-ascii-bytes-literals``
+
+      Close #1545
+
+    * Added a couple of new Python 3 checks for accessing dict methods in non-iterable context
+
+    * Protocol checks (not-a-mapping, not-an-iterable and co.) aren't emitted on classes with dynamic getattr
+
+    * Added a new warning, 'bad-thread-instantiation'
+
+      This message is emitted when the threading.Thread class does not
+      receive the target argument, but receives just one argument, which
+      is by default the group parameter.
+
+      Close #1327
+
+    * In non-quiet mode, absolute path of used config file is logged to
+      standard error.
+      Close #1519
+
     * Raise meaningful exception for invalid reporter class being selected
 
       When unknown reporter class will be selected as Pylint reporter,
@@ -20,6 +40,21 @@ What's New in Pylint 1.8?
     * Added a new Python 3 check for declaring a method ``next`` that would have
       been treated as an iterator in Python 2 but a normal function in Python 3.
 
+    * Added a new key-value pair in json output. The key is ``message-id``
+      and the value is the message id.
+      Close #1512
+		
+    * Added a new Python 3.0 check for raising a StopIteration inside a generator.
+      The check about raising a StopIteration inside a generator is also valid if the exception
+      raised inherit from StopIteration.
+      Close #1385
+
+    * Added a new warning, ``raising-format-tuple``, to detect multi-argument
+      exception construction instead of message string formatting.
+
+    * Added a new check for method of logging module that concatenate string via + operator
+      Close #1479
+
     * Fix a corner-case in ``consider-using-ternary`` checker.
 
       When object ``A`` used in  ``X and A or B`` was falsy in boolean context,
@@ -30,7 +65,7 @@ What's New in Pylint 1.8?
 What's New in Pylint 1.7.1?
 =========================
 
-Release date: |TBA|
+Release date: 2017-04-17
 
     * Fix a false positive which occurred when an exception was reraised
 
@@ -70,6 +105,12 @@ Release date: 2017-04-13
       and 'differing-type-doc' covers the differing part of the old 'missing-type-doc'
 
       Close #1342
+
+    * Disabling 'wrong-import-order', 'wrong-import-position', or
+      'ungrouped-imports' for a single line now prevents that line from
+      triggering violations on subsequent lines.
+
+      Close #1336
 
     * Added a new error, 'used-prior-global-declaration', which is emitted when a name
       is used prior a global declaration in a function. This causes a SyntaxError in
@@ -2159,7 +2200,7 @@ Release date: 2009-12-18
 
     * include James Lingard string format checker
 
-    * include simple message (ids) listing by Vincent Férotin (#9791)
+    * include simple message (ids) listing by Vincent F?rotin (#9791)
 
     * --errors-only does not hide fatal error anymore
 
@@ -2182,7 +2223,7 @@ Release date: 2009-12-18
 
     * fix test/fulltest.sh
 
-    * #5821 added a utility function to run pylint in another process (patch provide by Vincent Férotin)
+    * #5821 added a utility function to run pylint in another process (patch provide by Vincent F?rotin)
 
 
 What's New in Pylint 0.18.0?

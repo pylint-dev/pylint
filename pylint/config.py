@@ -626,22 +626,28 @@ class OptionsManagerMixIn(object):
             config_file = self.config_file
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
-        if config_file and os.path.exists(config_file):
+
+        use_config_file = config_file and os.path.exists(config_file)
+        if use_config_file:
             parser = self.cfgfile_parser
 
             # Use this encoding in order to strip the BOM marker, if any.
             with io.open(config_file, 'r', encoding='utf_8_sig') as fp:
-                # pylint: disable=deprecated-method
-                parser.readfp(fp)
+                parser.read_file(fp)
 
             # normalize sections'title
             for sect, values in list(parser._sections.items()):
                 if not sect.isupper() and values:
                     parser._sections[sect.upper()] = values
-        elif not self.quiet:
-            msg = 'No config file found, using default configuration'
-            print(msg, file=sys.stderr)
+
+        if self.quiet:
             return
+
+        if use_config_file:
+            msg = 'Using config file {0}'.format(os.path.abspath(config_file))
+        else:
+            msg = 'No config file found, using default configuration'
+        print(msg, file=sys.stderr)
 
     def load_config_file(self):
         """dispatch values previously read from a configuration file to each

@@ -26,6 +26,7 @@ from pylint.checkers import utils
 
 _ZERO = re.compile("^0+$")
 
+
 def _is_old_octal(literal):
     if _ZERO.match(literal):
         return False
@@ -35,6 +36,7 @@ def _is_old_octal(literal):
         except ValueError:
             return False
         return True
+
 
 def _check_dict_node(node):
     inferred_types = set()
@@ -47,11 +49,15 @@ def _check_dict_node(node):
     return (not inferred_types
             or any(isinstance(x, astroid.Dict) for x in inferred_types))
 
+
 def _is_builtin(node):
     return getattr(node, 'name', None) in ('__builtin__', 'builtins')
 
+
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
                      'all', 'enumerate', 'dict'}
+DICT_METHODS = {'items', 'keys', 'values'}
+
 
 def _in_iterating_context(node):
     """Check if the node is being used as an iterator.
@@ -95,7 +101,9 @@ def _is_conditional_import(node):
     return isinstance(parent, (astroid.TryExcept, astroid.ExceptHandler,
                                astroid.If, astroid.IfExp))
 
+
 Branch = namedtuple('Branch', ['node', 'is_py2_only'])
+
 
 class Python3Checker(checkers.BaseChecker):
 
@@ -412,6 +420,21 @@ class Python3Checker(checkers.BaseChecker):
                   'Used when a next method is defined that would be an iterator in Python 2 but '
                   'is treated as a normal function in Python 3.',
                   {'maxversion': (3, 0)}),
+        'W1654': ('dict.items referenced when not iterating',
+                  'dict-items-not-iterating',
+                  'Used when dict.items is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1655': ('dict.keys referenced when not iterating',
+                  'dict-keys-not-iterating',
+                  'Used when dict.keys is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1656': ('dict.values referenced when not iterating',
+                  'dict-values-not-iterating',
+                  'Used when dict.values is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
     }
 
     _bad_builtins = frozenset([
@@ -499,8 +522,8 @@ class Python3Checker(checkers.BaseChecker):
             'Bastion', 'bsddb185', 'bsddb3', 'Canvas', 'cfmfile', 'cl', 'commands', 'compiler',
             'dircache', 'dl', 'exception', 'fpformat', 'htmllib', 'ihooks', 'imageop', 'imputil',
             'linuxaudiodev', 'md5', 'mhlib', 'mimetools', 'MimeWriter', 'mimify', 'multifile',
-            'mutex', 'new', 'popen2', 'posixfile', 'pure', 'rexec', 'rfc822', 'sha', 'sgmllib',
-            'sre', 'stat', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
+            'mutex', 'new', 'popen2', 'posixfile', 'pure', 'rexec', 'rfc822', 'sets', 'sha',
+            'sgmllib', 'sre', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
             'toaiff', 'user', 'urllib2', 'urlparse'
         ]),
         'deprecated-string-function': {
@@ -722,6 +745,11 @@ class Python3Checker(checkers.BaseChecker):
                         self._warn_if_deprecated(node, inferred_receiver.name,
                                                  {node.func.attrname},
                                                  report_on_modules=False)
+                    if (isinstance(inferred_receiver, astroid.Dict)
+                            and node.func.attrname in DICT_METHODS):
+                        if not _in_iterating_context(node):
+                            checker = 'dict-{}-not-iterating'.format(node.func.attrname)
+                            self.add_message(checker, node=node)
             except astroid.InferenceError:
                 pass
             if node.args:
@@ -803,12 +831,17 @@ class Python3Checker(checkers.BaseChecker):
 
     @utils.check_messages('exception-message-attribute')
     def visit_attribute(self, node):
-        """ Look for accessing message on exceptions. """
+        """Look for accessing message on exceptions. """
+        message = 'message'
         try:
             for inferred in node.expr.infer():
                 if (isinstance(inferred, astroid.Instance) and
                         utils.inherit_from_std_ex(inferred)):
-                    if node.attrname == 'message':
+                    if node.attrname == message:
+
+                        # Exceptions with .message clearly defined are an exception
+                        if message in inferred.instance_attrs:
+                            continue
                         self.add_message('exception-message-attribute', node=node)
                 if isinstance(inferred, astroid.Module):
                     self._warn_if_deprecated(node, inferred.name, {node.attrname},
@@ -881,6 +914,11 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                   'removed in Python 3. To use the new syntax, '
                   'prepend 0o on the number.',
                   {'maxversion': (3, 0)}),
+        'E1610': ('Non-ascii bytes literals not supported in 3.x',
+                  'non-ascii-bytes-literal',
+                  'Used when non-ascii bytes literals are found in a program. '
+                  'They are no longer supported in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     def process_tokens(self, tokens):
@@ -893,6 +931,9 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                     self.add_message('old-octal-literal', line=start[0])
             if tokens[idx][1] == '<>':
                 self.add_message('old-ne-operator', line=tokens[idx][2][0])
+            if tok_type == tokenize.STRING and token.startswith('b'):
+                if any(elem for elem in token if ord(elem) > 127):
+                    self.add_message('non-ascii-bytes-literal', line=start[0])
 
 
 def register(linter):

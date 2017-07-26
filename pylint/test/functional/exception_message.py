@@ -21,3 +21,21 @@ except Exception as exception:
     del exception.message # [exception-message-attribute]
     exception.message += 'hello world' # [exception-message-attribute]
     exception.message = 'hello world'
+
+
+class CompatException(Exception):
+    """An exception which should work on py2 and py3."""
+
+    def __init__(self, message=''):
+        super(CompatException, self).__init__()
+        self.message = message
+
+    def __repr__(self):
+        result = 'CompatException %s' % self.message
+        return result.encode('utf-8')
+
+
+try:
+    raise CompatException('message here')
+except CompatException as error:
+    _ = error.message

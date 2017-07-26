@@ -9,19 +9,26 @@
 """
 
 import os
-import sys
 import tokenize
-import string
 import re
 
 try:
     import enchant
-    from enchant.tokenize import get_tokenizer, Filter, EmailFilter, URLFilter, WikiWordFilter
+    from enchant.tokenize import (get_tokenizer,
+                                  Chunker,
+                                  Filter,
+                                  EmailFilter,
+                                  URLFilter,
+                                  WikiWordFilter)
 except ImportError:
     enchant = None
     class Filter:
         def _skip(self, word):
             raise NotImplementedError
+
+    class Chunker:
+        pass
+
 
 import six
 
@@ -29,11 +36,6 @@ from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import safe_decode
-
-if sys.version_info[0] >= 3:
-    maketrans = str.maketrans
-else:
-    maketrans = string.maketrans
 
 if enchant is not None:
     br = enchant.Broker()
@@ -46,8 +48,6 @@ else:
     dicts = "none"
     dict_choices = ['']
     instr = " To make it working install python-enchant package."
-
-table = maketrans("", "")
 
 
 class WordsWithDigigtsFilter(Filter):
@@ -68,6 +68,71 @@ class WordsWithUnderscores(Filter):
     """
     def _skip(self, word):
         return '_' in word
+
+
+class CamelCasedWord(Filter):
+    r"""Filter skipping over camelCasedWords.
+    This filter skips any words matching the following regular expression:
+
+           ^([a-z]\w+[A-Z]+\w+)
+
+    That is, any words that are camelCasedWords.
+    """
+    _pattern = re.compile(r"^([a-z]+[A-Z]\w+|[a-z]\w+[A-Z]+)")
+
+    def _skip(self, word):
+        return bool(self._pattern.match(word))
+
+
+class SphinxDirectives(Filter):
+    r"""Filter skipping over Sphinx Directives.
+    This filter skips any words matching the following regular expression:
+
+           ^:([a-z]+):`([^`]+)(`)?
+
+    That is, for example, :class:`BaseQuery`
+    """
+    # The final ` in the pattern is optional because enchant strips it out
+    _pattern = re.compile(r"^:([a-z]+):`([^`]+)(`)?")
+
+    def _skip(self, word):
+        return bool(self._pattern.match(word))
+
+
+class ForwardSlashChunkder(Chunker):
+    '''
+    This chunker allows splitting words like 'before/after' into 'before' and 'after'
+    '''
+    def next(self):
+        while True:
+            if not self._text:
+                raise StopIteration()
+            if '/' not in self._text:
+                text = self._text
+                self._offset = 0
+                self._text = ''
+                return (text, 0)
+            pre_text, post_text = self._text.split('/', 1)
+            self._text = post_text
+            self._offset = 0
+            if not pre_text or not post_text or \
+                    not pre_text[-1].isalpha() or not post_text[0].isalpha():
+                self._text = ''
+                self._offset = 0
+                return (pre_text + '/' + post_text, 0)
+            return (pre_text, 0)
+
+    def _next(self):
+        while True:
+            if '/' not in self._text:
+                return (self._text, 0)
+            pre_text, post_text = self._text.split('/', 1)
+            if not pre_text or not post_text:
+                break
+            if not pre_text[-1].isalpha() or not post_text[0].isalpha():
+                raise StopIteration()
+            self._text = pre_text + ' ' + post_text
+        raise StopIteration()
 
 
 class SpellingChecker(BaseTokenChecker):
@@ -143,15 +208,15 @@ class SpellingChecker(BaseTokenChecker):
         if self.config.spelling_store_unknown_words:
             self.unknown_words = set()
 
-        # Prepare regex for stripping punctuation signs from text.
-        # ' and _ are treated in a special way.
-        puncts = string.punctuation.replace("'", "").replace("_", "")
-        self.punctuation_regex = re.compile('[%s]' % re.escape(puncts))
-        self.tokenizer = get_tokenizer(dict_name, filters=[EmailFilter,
-                                                           URLFilter,
-                                                           WikiWordFilter,
-                                                           WordsWithDigigtsFilter,
-                                                           WordsWithUnderscores])
+        self.tokenizer = get_tokenizer(dict_name,
+                                       chunkers=[ForwardSlashChunkder],
+                                       filters=[EmailFilter,
+                                                URLFilter,
+                                                WikiWordFilter,
+                                                WordsWithDigigtsFilter,
+                                                WordsWithUnderscores,
+                                                CamelCasedWord,
+                                                SphinxDirectives])
         self.initialized = True
 
     def close(self):
@@ -159,51 +224,66 @@ class SpellingChecker(BaseTokenChecker):
             self.private_dict_file.close()
 
     def _check_spelling(self, msgid, line, line_num):
+        original_line = line
+        if line.strip().startswith('#'):
+            line = line.strip()[1:]
+            starts_with_comment = True
+        else:
+            starts_with_comment = False
         for word, _ in self.tokenizer(line.strip()):
+            if six.PY2:
+                lower_cased_word = word.lower()
+            else:
+                lower_cased_word = word.casefold()
+
             # Skip words from ignore list.
-            if word in self.ignore_list:
+            if word in self.ignore_list or lower_cased_word in self.ignore_list:
                 continue
 
-            orig_word = word
-            word = word.lower()
-
             # Strip starting u' from unicode literals and r' from raw strings.
-            if (word.startswith("u'") or
-                    word.startswith('u"') or
-                    word.startswith("r'") or
-                    word.startswith('r"')) and len(word) > 2:
+            if word.startswith(("u'", 'u"', "r'", 'r"')) and len(word) > 2:
                 word = word[2:]
+                lower_cased_word = lower_cased_word[2:]
 
             # If it is a known word, then continue.
             try:
+                if self.spelling_dict.check(lower_cased_word):
+                    # The lower cased version of word passed spell checking
+                    continue
+
+                # If we reached this far, it means there was a spelling mistake.
+                # Let's retry with the original work because 'unicode' is a
+                # spelling mistake but 'Unicode' is not
                 if self.spelling_dict.check(word):
                     continue
             except enchant.errors.Error:
-                # this can only happen in docstrings, not comments
                 self.add_message('invalid-characters-in-docstring',
                                  line=line_num, args=(word,))
                 continue
 
             # Store word to private dict or raise a message.
             if self.config.spelling_store_unknown_words:
-                if word not in self.unknown_words:
-                    self.private_dict_file.write("%s\n" % word)
-                    self.unknown_words.add(word)
+                if lower_cased_word not in self.unknown_words:
+                    self.private_dict_file.write("%s\n" % lower_cased_word)
+                    self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to 4 suggestions.
                 # TODO: add support for customising this.
                 suggestions = self.spelling_dict.suggest(word)[:4]
 
-                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line.lower())
+                m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
                 if m:
                     # Start position of second group in regex.
                     col = m.regs[2][0]
                 else:
-                    col = line.lower().index(word)
+                    col = line.index(word)
+
+                if starts_with_comment:
+                    col += 1
                 indicator = (" " * col) + ("^" * len(word))
 
                 self.add_message(msgid, line=line_num,
-                                 args=(orig_word, line,
+                                 args=(word, original_line,
                                        indicator,
                                        "'{0}'".format("' or '".join(suggestions))))
 

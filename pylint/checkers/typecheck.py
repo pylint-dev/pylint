@@ -681,6 +681,7 @@ accessed. Python regular expressions are accepted.'}
                 # So call this only after the call has been made.
                 if not _emit_no_member(node, owner, name,
                                        self.config.ignore_mixin_members):
+
                     continue
                 missingattr.add((owner, name))
                 continue

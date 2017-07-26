@@ -102,6 +102,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'weird bugs in your code. You should always use parentheses '
                   'explicitly for creating a tuple.',
                   {'minversion': (3, 0)}),
+        'R1708': ('Do not raise StopIteration in generator, use return statement instead',
+                  'stop-iteration-return',
+                  'According to PEP479, the raise of StopIteration to end the loop of '
+                  'a generator may lead to hard to find bugs. This PEP specify that '
+                  'raise StopIteration has to be replaced by a simple return statement',
+                  {'minversion': (3, 0)}),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -118,7 +124,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _init(self):
         self._nested_blocks = []
         self._elifs = []
-        self._if_counter = 0
         self._nested_blocks_msg = None
 
     @decorators.cachedproperty
@@ -144,7 +149,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             orelse = node.parent.orelse
             # current if node must directly follow a "else"
             if orelse and orelse == [node]:
-                if self._elifs[self._if_counter]:
+                if (node.lineno, node.col_offset) in self._elifs:
                     return True
         return False
 
@@ -208,9 +213,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for index, token in enumerate(tokens):
             token_string = token[1]
             if token_string == 'elif':
-                self._elifs.append(True)
-            elif token_string == 'if':
-                self._elifs.append(False)
+                # AST exists by the time process_tokens is called, so
+                # it's safe to assume tokens[index+1]
+                # exists. tokens[index+1][2] is the elif's position as
+                # reported by cPython, Jython and PyPy,
+                # tokens[index][2] is the actual position and also is
+                # reported by IronPython.
+                self._elifs.extend([tokens[index][2], tokens[index+1][2]])
             elif six.PY3 and token.exact_type == tokenize.COMMA:
                 self._check_one_element_trailing_comma_tuple(tokens, token, index)
 
@@ -282,12 +291,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             for name in names.nodes_of_class(astroid.AssignName):
                 self._check_redefined_argument_from_local(name)
 
-    def visit_ifexp(self, _):
-        self._if_counter += 1
-
-    def visit_comprehension(self, node):
-        self._if_counter += len(node.ifs)
-
     def _check_superfluous_else_return(self, node):
         if not node.orelse:
             # Not interested in if statements without else.
@@ -302,7 +305,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_simplifiable_if(node)
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
-        self._if_counter += 1
 
     @utils.check_messages('too-many-nested-blocks')
     def leave_functiondef(self, _):
@@ -310,6 +312,38 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
+
+    def visit_raise(self, node):
+        self._check_stop_iteration_inside_generator(node)
+
+    def _check_stop_iteration_inside_generator(self, node):
+        """Check if an exception of type StopIteration is raised inside a generator"""
+        frame = node.frame()
+        if not isinstance(frame, astroid.FunctionDef) or not frame.is_generator():
+            return
+        if utils.node_ignores_exception(node, StopIteration):
+            return
+        exc = utils.safe_infer(node.exc)
+        if exc is not None and self._check_exception_inherit_from_stopiteration(exc):
+            self.add_message('stop-iteration-return', node=node)
+
+    @staticmethod
+    def _check_exception_inherit_from_stopiteration(exc):
+        """Return True if the exception node in argument inherit from StopIteration"""
+        stopiteration_qname = '{}.StopIteration'.format(utils.EXCEPTIONS_MODULE)
+        return any(_class.qname() == stopiteration_qname for _class in exc.mro())
+
+    def visit_call(self, node):
+        self._check_raising_stopiteration_in_generator_next_call(node)
+
+    def _check_raising_stopiteration_in_generator_next_call(self, node):
+        """Check if a StopIteration exception is raised by the call to next function"""
+        inferred = utils.safe_infer(node.func)
+        if getattr(inferred, 'name', '') == 'next':
+            frame = node.frame()
+            if (isinstance(frame, astroid.FunctionDef) and frame.is_generator()
+                    and not utils.node_ignores_exception(node, StopIteration)):
+                self.add_message('stop-iteration-return', node=node)
 
     def _check_nested_blocks(self, node):
         """Update and check the number of nested blocks
@@ -329,7 +363,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     break
                 self._nested_blocks.pop()
             # if the node is a elif, this should not be another nesting level
-            if isinstance(node, astroid.If) and self._elifs[self._if_counter]:
+            if isinstance(node, astroid.If) and self._is_actual_elif(node):
                 if self._nested_blocks:
                     self._nested_blocks.pop()
             self._nested_blocks.append(node)
@@ -476,7 +510,6 @@ class RecommandationChecker(checkers.BaseChecker):
         inferred = utils.safe_infer(node.func)
         if not inferred:
             return
-
         if not isinstance(inferred, astroid.BoundMethod):
             return
         if not isinstance(inferred.bound, astroid.Dict) or inferred.name != 'keys':
@@ -636,10 +669,12 @@ class LenChecker(checkers.BaseChecker):
 
     # configuration section name
     name = 'len'
-    msgs = {'C1801': ('Do not use `len(SEQUENCE)` as condition value',
+    msgs = {'C1801': ('Do not use `len(SEQUENCE)` to determine if a sequence is empty',
                       'len-as-condition',
-                      'Used when Pylint detects incorrect use of len(sequence) inside '
-                      'conditions.'),
+                      'Used when Pylint detects that len(sequence) is being used inside '
+                      'a condition to determine if a sequence is empty. Instead of '
+                      'comparing the length to 0, rely on the fact that empty sequences '
+                      'are false.'),
            }
 
     priority = -2

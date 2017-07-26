@@ -167,6 +167,38 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.as_argument_to_callable_constructor_test(fxn, func)
 
     @python2_only
+    def test_dict_methods_in_iterating_context(self):
+        iterating_code = [
+            'for x in {}: pass',
+            '(x for x in {})',
+            '[x for x in {}]',
+            'func({})',
+            'a, b = {}'
+        ]
+        non_iterating_code = [
+            'x = __({}())',
+            '__({}())[0]'
+        ]
+
+        for method in ('keys', 'items', 'values'):
+            dict_method = '{{}}.{}'.format(method)
+
+            for code in iterating_code:
+                with_value = code.format(dict_method)
+                module = astroid.parse(with_value)
+                with self.assertNoMessages():
+                    self.walk(module)
+
+            for code in non_iterating_code:
+                with_value = code.format(dict_method)
+                node = astroid.extract_node(with_value)
+
+                checker = 'dict-{}-not-iterating'.format(method)
+                message = testutils.Message(checker, node=node)
+                with self.assertAddsMessages(message):
+                    self.checker.visit_call(node)
+
+    @python2_only
     def test_map_in_iterating_context(self):
         self.iterating_context_tests('map')
 
@@ -856,7 +888,7 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
     CHECKER_CLASS = checker.Python3TokenChecker
 
     def _test_token_message(self, code, symbolic_message):
-        tokens = testutils.tokenize_str(code)
+        tokens = testutils._tokenize_str(code)
         message = testutils.Message(symbolic_message, line=1)
         with self.assertAddsMessages(message):
             self.checker.process_tokens(tokens)
@@ -874,6 +906,14 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
 
         # Make sure we are catching only octals.
         for non_octal in ("45", "00", "085", "08", "1"):
-            tokens = testutils.tokenize_str(non_octal)
+            tokens = testutils._tokenize_str(non_octal)
+            with self.assertNoMessages():
+                self.checker.process_tokens(tokens)
+
+    def test_non_ascii_bytes_literal(self):
+        code = 'b"测试"'
+        self._test_token_message(code, 'non-ascii-bytes-literal')
+        for code in ("测试", u"测试", u'abcdef', b'\x80'):
+            tokens = testutils._tokenize_str(code)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)
