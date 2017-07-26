@@ -65,9 +65,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         'R1701': ("Consider merging these isinstance calls to isinstance(%s, (%s))",
                   "consider-merging-isinstance",
                   "Used when multiple consecutive isinstance calls can be merged into one."),
-        'R1706': ("Consider using ternary (%s if %s else %s)",
-                  "consider-using-ternary",
-                  "Used when one of known pre-python 2.5 ternary syntax is used."),
         'R1702': ('Too many nested blocks (%s/%s)',
                   'too-many-nested-blocks',
                   'Used when a function or a method has too many nested '
@@ -108,6 +105,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'a generator may lead to hard to find bugs. This PEP specify that '
                   'raise StopIteration has to be replaced by a simple return statement',
                   {'minversion': (3, 0)}),
+        'R1709': ("Consider using ternary (%s)",
+                  "consider-using-ternary",
+                  "Used when one of known pre-python 2.5 ternary syntax is used."),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -438,11 +438,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
-        self.add_message(
-            'consider-using-ternary', node=node,
-            args=(truth_value.as_string(),
-                  cond.as_string(),
-                  false_value.as_string()),)
+        if truth_value.bool_value() is False:
+            # TBD: different message? What would be a good name?
+            suggestion = false_value.as_string()
+        else:
+            suggestion = '{truth} if {cond} else {false}'.format(
+                truth=truth_value.as_string(),
+                cond=cond.as_string(),
+                false=false_value.as_string()
+            )
+        self.add_message('consider-using-ternary', node=node,
+                         args=(suggestion,))
 
     visit_return = visit_assign
 
@@ -460,8 +466,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and not isinstance(node.values[1], astroid.BoolOp)
                 and node.values[0].op == 'and'
                 and not isinstance(node.values[0].values[1], astroid.BoolOp)
-                and len(node.values[0].values) == 2
-                and node.values[0].values[1].bool_value() is not False)
+                and len(node.values[0].values) == 2)
 
     @staticmethod
     def _and_or_ternary_arguments(node):
