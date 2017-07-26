@@ -530,15 +530,19 @@ Please report bugs on the project\'s mailing list:
 class OptionsManagerMixIn(object):
     """Handle configuration from both a configuration file and command line options"""
 
-    class NullAction(argparse.Action):
+    class CallbackAction(argparse.Action):
         """Doesn't store the value on the config."""
-        def __init__(self, *args, nargs=0, **kwargs):
-            super(OptionsManagerMixIn.NullAction, self).__init__(
+        def __init__(self, *args, nargs=None, **kwargs):
+            nargs = nargs or int('metavar' in kwargs)
+            super(OptionsManagerMixIn.CallbackAction, self).__init__(
                 *args, nargs=nargs, **kwargs
             )
 
-        def __call__(self, *args, **kwargs):
-            pass
+        def __call__(self, parser, namespace, values, option_string):
+            # If no value was passed, argparse didn't call the callback via
+            # `type`, so we need to do it ourselves.
+            if not self.nargs and callable(self.type):
+                self.type(self, option_string, values, parser)
 
     def __init__(self, usage, config_file=None, version=None, quiet=0):
         self.config_file = config_file
@@ -634,7 +638,7 @@ class OptionsManagerMixIn(object):
             self._nocallback_options[provider] = opt
             if optdict['action'] == 'callback':
                 optdict['type'] = optdict['callback']
-                optdict['action'] = self.NullAction
+                optdict['action'] = self.CallbackAction
                 del optdict['callback']
         else:
             callback = functools.partial(
