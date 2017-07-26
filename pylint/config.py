@@ -584,6 +584,11 @@ class OptionsManagerMixIn:
     class NullAction(argparse.Action):
         """Doesn't store the value on the config."""
 
+        def __init__(self, *args, nargs=0, **kwargs):
+            super(OptionsManagerMixIn.NullAction, self).__init__(
+                *args, nargs=nargs, **kwargs
+            )
+
         def __call__(self, *args, **kwargs):
             pass
 
@@ -687,13 +692,15 @@ class OptionsManagerMixIn:
         if "action" in optdict:
             self._nocallback_options[provider] = opt
             if optdict["action"] == "callback":
-                pass
+                optdict["type"] = optdict["callback"]
+                optdict["action"] = self.NullAction
+                del optdict["callback"]
         else:
             callback = functools.partial(
                 self.cb_set_provider_option, None, "--" + str(opt), parser=None
             )
             optdict["type"] = callback
-            optdict["action"] = self.NullAction
+            optdict.setdefault("action", "store")
         # default is handled here and *must not* be given to optik if you
         # want the whole machinery to work
         if "default" in optdict:
