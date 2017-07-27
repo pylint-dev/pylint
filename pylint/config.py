@@ -19,7 +19,6 @@ import collections
 import copy
 import functools
 import io
-import optparse
 import os
 import pickle
 import re
@@ -201,14 +200,14 @@ def _multiple_choice_validator(choices, name, value):
     for csv_value in values:
         if csv_value not in choices:
             msg = "option %s: invalid value: %r, should be in %s"
-            raise optparse.OptionValueError(msg % (name, csv_value, choices))
+            raise argparse.ArgumentError(msg % (name, csv_value, choices))
     return values
 
 
 def _choice_validator(choices, name, value):
     if value not in choices:
         msg = "option %s: invalid value: %r, should be in %s"
-        raise optparse.OptionValueError(msg % (name, value, choices))
+        raise argparse.ArgumentError(msg % (name, value, choices))
     return value
 
 # pylint: disable=unused-argument
@@ -234,13 +233,13 @@ def _yn_validator(opt, _, value):
     if value in ('n', 'no'):
         return False
     msg = "option %s: invalid yn value %r, should be in (y, yes, n, no)"
-    raise optparse.OptionValueError(msg % (opt, value))
+    raise argparse.ArgumentError(msg % (opt, value))
 
 
 def _non_empty_string_validator(opt, _, value):
     if not value:
         msg = "indent string can't be empty."
-        raise optparse.OptionValueError(msg)
+        raise argparse.ArgumentError(msg)
     return utils._unquote(value)
 
 
@@ -266,7 +265,7 @@ def _call_validator(opttype, optdict, option, value):
         try:
             return VALIDATORS[opttype](value)
         except Exception:
-            raise optparse.OptionValueError('%s value (%r) should be of type %s' %
+            raise argparse.ArgumentError('%s value (%r) should be of type %s' %
                                             (option, value, opttype))
 
 
@@ -286,224 +285,11 @@ def _validate(value, optdict, name=''):
 def _level_options(group, outputlevel):
     return [option for option in group.option_list
             if (getattr(option, 'level', 0) or 0) <= outputlevel
-            and option.help is not optparse.SUPPRESS_HELP]
-
-
-def _expand_default(self, option):
-    """Patch OptionParser.expand_default with custom behaviour
-
-    This will handle defaults to avoid overriding values in the
-    configuration file.
-    """
-    if self.parser is None or not self.default_tag:
-        return option.help
-    optname = option._long_opts[0][2:]
-    try:
-        provider = self.parser.options_manager._all_options[optname]
-    except KeyError:
-        value = None
-    else:
-        optdict = provider.get_option_def(optname)
-        optname = provider.option_attrname(optname, optdict)
-        value = getattr(provider.config, optname, optdict)
-        value = utils._format_option_value(optdict, value)
-    if value is optparse.NO_DEFAULT or not value:
-        value = self.NO_DEFAULT_VALUE
-    return option.help.replace(self.default_tag, str(value))
-
-
-@contextlib.contextmanager
-def _patch_optparse():
-    orig_default = optparse.HelpFormatter
-    try:
-        optparse.HelpFormatter.expand_default = _expand_default
-        yield
-    finally:
-        optparse.HelpFormatter.expand_default = orig_default
+            and option.help is not argparse.SUPPRESS]
 
 
 def _multiple_choices_validating_option(opt, name, value):
     return _multiple_choice_validator(opt.choices, name, value)
-
-
-class Option(optparse.Option):
-    TYPES = optparse.Option.TYPES + ('regexp', 'regexp_csv', 'csv', 'yn',
-                                     'multiple_choice',
-                                     'non_empty_string')
-    ATTRS = optparse.Option.ATTRS + ['hide', 'level']
-    TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
-    TYPE_CHECKER['regexp'] = _regexp_validator
-    TYPE_CHECKER['regexp_csv'] = _regexp_csv_validator
-    TYPE_CHECKER['csv'] = _csv_validator
-    TYPE_CHECKER['yn'] = _yn_validator
-    TYPE_CHECKER['multiple_choice'] = _multiple_choices_validating_option
-    TYPE_CHECKER['non_empty_string'] = _non_empty_string_validator
-
-    def __init__(self, *opts, **attrs):
-        optparse.Option.__init__(self, *opts, **attrs)
-        if hasattr(self, "hide") and self.hide:
-            self.help = optparse.SUPPRESS_HELP
-
-    def _check_choice(self):
-        if self.type in ("choice", "multiple_choice"):
-            if self.choices is None:
-                raise optparse.OptionError(
-                    "must supply a list of choices for type 'choice'", self)
-            elif not isinstance(self.choices, (tuple, list)):
-                raise optparse.OptionError(
-                    "choices must be a list of strings ('%s' supplied)"
-                    % str(type(self.choices)).split("'")[1], self)
-        elif self.choices is not None:
-            raise optparse.OptionError(
-                "must not supply choices for type %r" % self.type, self)
-    optparse.Option.CHECK_METHODS[2] = _check_choice
-
-    def process(self, opt, value, values, parser):
-        # First, convert the value(s) to the right type.  Howl if any
-        # value(s) are bogus.
-        value = self.convert_value(opt, value)
-        if self.type == 'named':
-            existent = getattr(values, self.dest)
-            if existent:
-                existent.update(value)
-                value = existent
-        # And then take whatever action is expected of us.
-        # This is a separate method to make life easier for
-        # subclasses to add new actions.
-        return self.take_action(
-            self.action, self.dest, opt, value, values, parser)
-
-
-class OptionParser(optparse.OptionParser):
-
-    def __init__(self, option_class=Option, *args, **kwargs):
-        optparse.OptionParser.__init__(self, option_class=Option, *args, **kwargs)
-
-    def format_option_help(self, formatter=None):
-        if formatter is None:
-            formatter = self.formatter
-        outputlevel = getattr(formatter, 'output_level', 0)
-        formatter.store_option_strings(self)
-        result = []
-        result.append(formatter.format_heading("Options"))
-        formatter.indent()
-        if self.option_list:
-            result.append(optparse.OptionContainer.format_option_help(self, formatter))
-            result.append("\n")
-        for group in self.option_groups:
-            if group.level <= outputlevel and (
-                    group.description or _level_options(group, outputlevel)):
-                result.append(group.format_help(formatter))
-                result.append("\n")
-        formatter.dedent()
-        # Drop the last "\n", or the header if no options or option groups:
-        return "".join(result[:-1])
-
-    def _match_long_opt(self, opt):
-        """Disable abbreviations."""
-        if opt not in self._long_opt:
-            raise optparse.BadOptionError(opt)
-        return opt
-
-
-# pylint: disable=abstract-method; by design?
-class _ManHelpFormatter(optparse.HelpFormatter):
-
-    def __init__(self, indent_increment=0, max_help_position=24,
-                 width=79, short_first=0):
-        optparse.HelpFormatter.__init__(
-            self, indent_increment, max_help_position, width, short_first)
-
-    def format_heading(self, heading):
-        return '.SH %s\n' % heading.upper()
-
-    def format_description(self, description):
-        return description
-
-    def format_option(self, option):
-        try:
-            optstring = option.option_strings
-        except AttributeError:
-            optstring = self.format_option_strings(option)
-        if option.help:
-            help_text = self.expand_default(option)
-            help = ' '.join([l.strip() for l in help_text.splitlines()])
-        else:
-            help = ''
-        return '''.IP "%s"
-%s
-''' % (optstring, help)
-
-    def format_head(self, optparser, pkginfo, section=1):
-        long_desc = ""
-        try:
-            pgm = optparser._get_prog_name()
-        except AttributeError:
-            # py >= 2.4.X (dunno which X exactly, at least 2)
-            pgm = optparser.get_prog_name()
-        short_desc = self.format_short_description(pgm, pkginfo.description)
-        if hasattr(pkginfo, "long_desc"):
-            long_desc = self.format_long_description(pgm, pkginfo.long_desc)
-        return '%s\n%s\n%s\n%s' % (self.format_title(pgm, section),
-                                   short_desc, self.format_synopsis(pgm),
-                                   long_desc)
-
-    @staticmethod
-    def format_title(pgm, section):
-        date = '-'.join(str(num) for num in time.localtime()[:3])
-        return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
-
-    @staticmethod
-    def format_short_description(pgm, short_desc):
-        return '''.SH NAME
-.B %s
-\\- %s
-''' % (pgm, short_desc.strip())
-
-    @staticmethod
-    def format_synopsis(pgm):
-        return '''.SH SYNOPSIS
-.B  %s
-[
-.I OPTIONS
-] [
-.I <arguments>
-]
-''' % pgm
-
-    @staticmethod
-    def format_long_description(pgm, long_desc):
-        long_desc = '\n'.join(line.lstrip()
-                              for line in long_desc.splitlines())
-        long_desc = long_desc.replace('\n.\n', '\n\n')
-        if long_desc.lower().startswith(pgm):
-            long_desc = long_desc[len(pgm):]
-        return '''.SH DESCRIPTION
-.B %s
-%s
-''' % (pgm, long_desc.strip())
-
-    @staticmethod
-    def format_tail(pkginfo):
-        tail = '''.SH SEE ALSO
-/usr/share/doc/pythonX.Y-%s/
-
-.SH BUGS
-Please report bugs on the project\'s mailing list:
-%s
-
-.SH AUTHOR
-%s <%s>
-''' % (getattr(pkginfo, 'debian_name', pkginfo.modname),
-       pkginfo.mailinglist, pkginfo.author, pkginfo.author_email)
-
-        if hasattr(pkginfo, "copyright"):
-            tail += '''
-.SH COPYRIGHT
-%s
-''' % pkginfo.copyright
-
-        return tail
 
 
 class OptionsManagerMixIn(object):
@@ -608,7 +394,7 @@ class OptionsManagerMixIn(object):
 
     def optik_option(self, provider, opt, optdict):
         """get our personal option definition and return a suitable form for
-        use with optik/optparse
+        use with optik/argparse
         """
         # TODO: Changed to work with argparse but this should call
         # self.cmdline_parser.add_argument_definitions and not use callbacks
@@ -701,10 +487,8 @@ class OptionsManagerMixIn(object):
             printed = True
 
     def generate_manpage(self, pkginfo, section=1, stream=None):
-        with _patch_optparse():
-            _generate_manpage(self.cmdline_parser, pkginfo,
-                              section, stream=stream or sys.stdout,
-                              level=self._maxlevel)
+        # TODO
+        raise NotImplementedError
 
     def load_provider_defaults(self):
         """initialize configuration using default values"""
@@ -714,24 +498,6 @@ class OptionsManagerMixIn(object):
     def read_config_file(self, config_file=None):
         """read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
-        """
-        """
-        helplevel = 1
-        while helplevel <= self._maxlevel:
-            opt = '-'.join(['long'] * helplevel) + '-help'
-            if opt in self._all_options:
-                break # already processed
-            # pylint: disable=unused-argument
-            def helpfunc(option, opt, val, p, level=helplevel):
-                print(self.help(level))
-                sys.exit(0)
-            helpmsg = '%s verbose help.' % ' '.join(['more'] * helplevel)
-            optdict = {'action': 'callback', 'callback': helpfunc,
-                       'help': helpmsg}
-            provider = self.options_providers[0]
-            self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
-            provider.options += ((opt, optdict),)
-            helplevel += 1
         """
         if config_file is None:
             config_file = self.config_file
@@ -759,7 +525,7 @@ class OptionsManagerMixIn(object):
             for option, value in self.cfgfile_parser._parser.items(section):
                 try:
                     self.global_set_option(option, value)
-                except (KeyError, optparse.OptionError):
+                except (KeyError, argparse.ArgumentError):
                     # TODO handle here undeclared options appearing in the config file
                     continue
 
@@ -873,7 +639,7 @@ class OptionsProviderMixIn(object):
         for option in self.options:
             if option[0] == opt:
                 return option[1]
-        raise optparse.OptionError('no such option %s in section %r'
+        raise argparse.ArgumentError('no such option %s in section %r'
                                    % (opt, self.name), opt)
 
     def options_by_section(self):
@@ -917,16 +683,6 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
                 if gdef not in self.option_groups:
                     self.option_groups.append(gdef)
         self.register_options_provider(self, own_group=False)
-
-
-def _generate_manpage(optparser, pkginfo, section=1,
-                      stream=sys.stdout, level=0):
-    formatter = _ManHelpFormatter()
-    formatter.output_level = level
-    formatter.parser = optparser
-    print(formatter.format_head(optparser, pkginfo, section), file=stream)
-    print(optparser.format_option_help(formatter), file=stream)
-    print(formatter.format_tail(pkginfo), file=stream)
 
 
 OptionDefinition = collections.namedtuple(
