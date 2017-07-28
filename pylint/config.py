@@ -317,10 +317,10 @@ class OptionsManagerMixIn(object):
 
     class CallbackAction(argparse.Action):
         """Doesn't store the value on the config."""
-        def __init__(self, *args, nargs=None, **kwargs):
+        def __init__(self, nargs=None, **kwargs):
             nargs = nargs or int('metavar' in kwargs)
             super(OptionsManagerMixIn.CallbackAction, self).__init__(
-                *args, nargs=nargs, **kwargs
+                nargs=nargs, **kwargs
             )
 
         def __call__(self, parser, namespace, values, option_string):
@@ -1073,10 +1073,10 @@ class LongHelpAction(argparse.Action):
 
 
 class LongHelpArgumentParser(argparse.ArgumentParser):
-    def __init__(self, *args, formatter_class=LongHelpFormatter, **kwargs):
+    def __init__(self, formatter_class=LongHelpFormatter, **kwargs):
         self._max_level = 0
         super(LongHelpArgumentParser, self).__init__(
-            *args, formatter_class=formatter_class, **kwargs
+            formatter_class=formatter_class, **kwargs
         )
 
     # Stop ArgumentParser __init__ adding the wrong help formatter
