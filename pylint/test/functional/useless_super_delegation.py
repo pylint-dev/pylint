@@ -10,6 +10,12 @@ class Base(object):
     def something(self):
         pass
 
+    def with_default_argument(self, first, default_arg="default"):
+        pass
+
+    def without_default_argument(self, first, second):
+        pass
+
 
 class NotUselessSuper(Base):
 
@@ -92,6 +98,13 @@ class NotUselessSuper(Base):
         super(NotUselessSuper, self).extraneous_positional_args(
             1, 2, **args)
 
+    def with_default_argument(self, first, default_arg="other"):
+        # Not useless because the default_arg is different from the one in the base class
+        super(NotUselessSuper, self).with_default_argument(first, default_arg)
+
+    def without_default_argument(self, first, second=True):
+        # Not useless because in the base class there is not default value for second argument
+        super(NotUselessSuper, self).without_default_argument(first, second)
 
 class UselessSuper(Base):
 
@@ -115,6 +128,13 @@ class UselessSuper(Base):
 
     def equivalent_params_6(self, first, *args, **kwargs): # [useless-super-delegation]
         return super(UselessSuper, self).equivalent_params_6(first, *args, **kwargs)
+
+    def with_default_argument(self, first, default_arg="default"): # [useless-super-delegation]
+        # useless because the default value here is the same as in the base class
+        return super(UselessSuper, self).with_default_argument(first, default_arg)
+
+    def without_default_argument(self, first, second): # [useless-super-delegation]
+        return super(UselessSuper, self).without_default_argument(first, second)
 
     def __init__(self): # [useless-super-delegation]
         super(UselessSuper, self).__init__()
