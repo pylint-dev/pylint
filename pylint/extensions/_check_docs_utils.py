@@ -396,9 +396,9 @@ class GoogleDocstring(Docstring):
     """.format(type=re_type, xref=re_xref)
 
     re_multiple_type = r"""
-        (?:{container_type}|{type})
-        (?:\s+or\s+(?:{container_type}|{type}))*
-    """.format(type=re_type, container_type=re_container_type)
+        (?:{container_type}|{type}|{xref})
+        (?:\s+or\s+(?:{container_type}|{type}|{xref}))*
+    """.format(type=re_type, xref=re_xref, container_type=re_container_type)
 
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header
