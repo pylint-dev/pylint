@@ -758,6 +758,22 @@ a metaclass class method.'}
         if super_call.type.name != current_scope.name:
             return
 
+        # Detect if the parameters and their default value are the same 
+        # as in the base method
+        klass = function.parent.frame()
+        for overridden in klass.local_attr_ancestors(function.name):
+            # get astroid for the searched method
+            try:
+                meth_node = overridden[function.name]
+            except KeyError:
+                # we have found the method but it's not in the local
+                # dictionary.
+                # This may happen with astroid build from living objects
+                continue
+            if not isinstance(meth_node, astroid.FunctionDef):
+                continue
+            #self._check_signature(function, meth_node, 'overridden', klass)
+            
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
         args = _signature_from_call(call)
@@ -1229,7 +1245,6 @@ a metaclass class method.'}
                 if (isinstance(decorator, astroid.Attribute) and
                         decorator.attrname == 'setter'):
                     return
-
         if _different_parameters(
                 refmethod, method1,
                 dummy_parameter_regex=self._dummy_rgx):
