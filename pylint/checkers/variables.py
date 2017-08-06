@@ -281,7 +281,7 @@ MSGS = {
 
     'W0621': ('Redefining name %r from outer scope (line %s)',
               'redefined-outer-name',
-              'Used when a variable\'s name hide a name defined in the outer \
+              'Used when a variable\'s name hides a name defined in the outer \
               scope.'),
     'W0622': ('Redefining built-in %r',
               'redefined-builtin',

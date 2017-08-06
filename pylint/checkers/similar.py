@@ -15,6 +15,7 @@ from collections import defaultdict
 import six
 from six.moves import zip
 
+from pylint.utils import safe_decode
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
@@ -36,7 +37,7 @@ class Similar(object):
         if encoding is None:
             readlines = stream.readlines
         else:
-            readlines = lambda: [line.decode(encoding) for line in stream]
+            readlines = lambda: [safe_decode(line, encoding) for line in stream]
         try:
             self.linesets.append(LineSet(streamid,
                                          readlines(),

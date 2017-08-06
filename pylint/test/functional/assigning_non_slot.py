@@ -131,3 +131,21 @@ def dont_emit_for_descriptors():
     inst.data_descriptor = 'foo'
     inst.non_data_descriptor = 'lala' # [assigning-non-slot]
     return
+
+
+class ClassWithSlots(object):
+    __slots__ = ['foobar']
+
+
+class ClassReassigningDunderClass(object):
+    __slots__ = ['foobar']
+
+    def release(self):
+        self.__class__ = ClassWithSlots
+
+
+class ClassReassingingInvalidLayoutClass(object):
+    __slots__ = []
+
+    def release(self):
+        self.__class__ = ClassWithSlots # [assigning-non-slot]

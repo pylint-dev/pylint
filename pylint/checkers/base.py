@@ -74,7 +74,7 @@ REVERSED_COMPS = {'<': '>', '<=': '>=', '>': '<', '>=': '<='}
 
 
 def _redefines_import(node):
-    """ Detect that the given node (AssName) is inside an
+    """ Detect that the given node (AssignName) is inside an
     exception handler and redefines an import from the tryexcept body.
     Returns True if the node redefines an import, False otherwise.
     """
@@ -511,19 +511,20 @@ class BasicErrorChecker(_BasicChecker):
             if current_scope.parent is None:
                 break
 
-            if not isinstance(current_scope, astroid.FunctionDef):
+            if not isinstance(current_scope, (astroid.ClassDef, astroid.FunctionDef)):
                 self.add_message('nonlocal-without-binding', args=(name, ),
                                  node=node)
                 return
-            else:
-                if name not in current_scope.locals:
-                    current_scope = current_scope.parent.scope()
-                    continue
-                else:
-                    # Okay, found it.
-                    return
 
-        self.add_message('nonlocal-without-binding', args=(name, ), node=node)
+            if name not in current_scope.locals:
+                current_scope = current_scope.parent.scope()
+                continue
+
+            # Okay, found it.
+            return
+
+        if not isinstance(current_scope, astroid.FunctionDef):
+            self.add_message('nonlocal-without-binding', args=(name, ), node=node)
 
     @utils.check_messages('nonlocal-without-binding')
     def visit_nonlocal(self, node):
@@ -738,7 +739,7 @@ functions, methods
         # These nodes are excepted, since they are not constant
         # values, requiring a computation to happen. The only type
         # of node in this list which doesn't have this property is
-        # Getattr, which is excepted because the conditional statement
+        # Attribute, which is excepted because the conditional statement
         # can be used to verify that the attribute was set inside a class,
         # which is definitely a valid use case.
         except_nodes = (astroid.Attribute, astroid.Call,
@@ -969,7 +970,7 @@ functions, methods
 
     @utils.check_messages('eval-used', 'exec-used', 'bad-reversed-sequence')
     def visit_call(self, node):
-        """visit a CallFunc node -> check if this is not a blacklisted builtin
+        """visit a Call node -> check if this is not a blacklisted builtin
         call and check for * or ** use
         """
         if isinstance(node.func, astroid.Name):
@@ -1240,17 +1241,19 @@ class NameChecker(_BasicChecker):
             for args in warnings:
                 self._raise_name_warning(*args)
 
-    @utils.check_messages('blacklisted-name', 'invalid-name')
+    @utils.check_messages('blacklisted-name', 'invalid-name', 'assign-to-new-keyword')
     def visit_classdef(self, node):
+        self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name('class', node.name, node)
         for attr, anodes in six.iteritems(node.instance_attrs):
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name('attr', attr, anodes[0])
 
-    @utils.check_messages('blacklisted-name', 'invalid-name')
+    @utils.check_messages('blacklisted-name', 'invalid-name', 'assign-to-new-keyword')
     def visit_functiondef(self, node):
         # Do not emit any warnings if the method is just an implementation
         # of a base class method.
+        self._check_assign_to_new_keyword_violation(node.name, node)
         confidence = interfaces.HIGH
         if node.is_method():
             if utils.overrides_a_method(node.parent.frame(), node.name):
@@ -1273,17 +1276,10 @@ class NameChecker(_BasicChecker):
         for name in node.names:
             self._check_name('const', name, node)
 
-    @utils.check_messages('blacklisted-name', 'invalid-name')
+    @utils.check_messages('blacklisted-name', 'invalid-name', 'assign-to-new-keyword')
     def visit_assignname(self, node):
         """check module level assigned names"""
-        keyword_first_version = self._name_became_keyword_in_version(
-            node.name, self.KEYWORD_ONSET
-        )
-        if keyword_first_version is not None:
-            self.add_message('assign-to-new-keyword',
-                             node=node, args=(node.name, keyword_first_version),
-                             confidence=interfaces.HIGH)
-
+        self._check_assign_to_new_keyword_violation(node.name, node)
         frame = node.frame()
         ass_type = node.assign_type()
         if isinstance(ass_type, astroid.Comprehension):
@@ -1351,6 +1347,15 @@ class NameChecker(_BasicChecker):
 
         if match is None:
             self._raise_name_warning(node, node_type, name, confidence)
+
+    def _check_assign_to_new_keyword_violation(self, name, node):
+        keyword_first_version = self._name_became_keyword_in_version(
+            name, self.KEYWORD_ONSET
+        )
+        if keyword_first_version is not None:
+            self.add_message('assign-to-new-keyword',
+                             node=node, args=(name, keyword_first_version),
+                             confidence=interfaces.HIGH)
 
     @staticmethod
     def _name_became_keyword_in_version(name, rules):
@@ -1507,7 +1512,7 @@ class LambdaForComprehensionChecker(_BasicChecker):
 
     @utils.check_messages('deprecated-lambda')
     def visit_call(self, node):
-        """visit a CallFunc node, check if map or filter are called with a
+        """visit a Call node, check if map or filter are called with a
         lambda
         """
         if not node.args:

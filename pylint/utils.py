@@ -118,9 +118,16 @@ def category_id(cid):
         return cid
     return MSG_TYPES_LONG.get(cid)
 
+def safe_decode(line, encoding, *args, **kwargs):
+    '''return decoded line from encoding or decode with default encoding'''
+    try:
+        return line.decode(encoding or sys.getdefaultencoding(), *args, **kwargs)
+    except LookupError:
+        return line.decode(sys.getdefaultencoding(), *args, **kwargs)
 
 def _decoding_readline(stream, encoding):
-    return lambda: stream.readline().decode(encoding, 'replace')
+    '''return lambda function for tokenize with safe decode'''
+    return lambda: safe_decode(stream.readline(), encoding, 'replace')
 
 
 def tokenize_module(module):
@@ -840,6 +847,10 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     result = []
     errors = []
     for something in files_or_modules:
+        if os.path.basename(something) in black_list:
+            continue
+        if _basename_in_blacklist_re(os.path.basename(something), black_list_re):
+            continue
         if exists(something):
             # this is a file or a directory
             try:
@@ -881,7 +892,7 @@ def expand_modules(files_or_modules, black_list, black_list_re):
                            'basepath': filepath, 'basename': modname})
 
         has_init = (not (modname.endswith('.__init__') or modname == '__init__')
-                    and '__init__.py' in filepath)
+                    and basename(filepath) == '__init__.py')
 
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(dirname(filepath), black_list,

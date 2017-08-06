@@ -12,9 +12,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-""" %prog [options] module_or_package
+""" %prog [options] modules_or_packages
 
-  Check that a module satisfies a coding standard (and more !).
+  Check that module(s) satisfy a coding standard (and more !).
 
     %prog --help
 
@@ -205,8 +205,8 @@ if multiprocessing is not None:
 
             # Run linter for received files/modules.
             for file_or_module in iter(tasks_queue.get, 'STOP'):
-                result = self._run_linter(file_or_module[0])
                 try:
+                    result = self._run_linter(file_or_module[0])
                     results_queue.put(result)
                 except Exception as ex:
                     print("internal error with sending report for module %s" %
@@ -803,6 +803,8 @@ class PyLinter(config.OptionsManagerMixIn,
         all_stats = []
         module = None
         for result in self._parallel_task(files_or_modules):
+            if not result:
+                continue
             (
                 _,
                 self.file_state.base_name,

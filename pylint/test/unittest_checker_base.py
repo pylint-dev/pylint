@@ -182,10 +182,16 @@ class TestNameChecker(CheckerTestCase):
 
     @unittest.skipIf(sys.version_info >= (3, 0), reason="Needs Python 2.x")
     @set_config(const_rgx=re.compile(".+"))
+    @set_config(function_rgx=re.compile(".+"))
+    @set_config(class_rgx=re.compile(".+"))
     def test_assign_to_new_keyword_py2(self):
         ast = astroid.extract_node("""
         True = 0  #@
         False = 1 #@
+        def True():  #@
+            pass
+        class True:  #@
+            pass
         """)
         with self.assertAddsMessages(
             Message(msg_id='assign-to-new-keyword', node=ast[0].targets[0], args=('True', '3.0'))
@@ -195,13 +201,27 @@ class TestNameChecker(CheckerTestCase):
             Message(msg_id='assign-to-new-keyword', node=ast[1].targets[0], args=('False', '3.0'))
         ):
             self.checker.visit_assignname(ast[1].targets[0])
+        with self.assertAddsMessages(
+            Message(msg_id='assign-to-new-keyword', node=ast[2], args=('True', '3.0'))
+        ):
+            self.checker.visit_functiondef(ast[2])
+        with self.assertAddsMessages(
+            Message(msg_id='assign-to-new-keyword', node=ast[3], args=('True', '3.0'))
+        ):
+            self.checker.visit_classdef(ast[3])
 
     @unittest.skipIf(sys.version_info >= (3, 7), reason="Needs Python 3.6 or earlier")
     @set_config(const_rgx=re.compile(".+"))
+    @set_config(function_rgx=re.compile(".+"))
+    @set_config(class_rgx=re.compile(".+"))
     def test_assign_to_new_keyword_py3(self):
         ast = astroid.extract_node("""
         async = "foo"  #@
         await = "bar"  #@
+        def async():   #@
+            pass
+        class async:   #@
+            pass
         """)
         with self.assertAddsMessages(
             Message(msg_id='assign-to-new-keyword', node=ast[0].targets[0], args=('async', '3.7'))
@@ -211,6 +231,14 @@ class TestNameChecker(CheckerTestCase):
             Message(msg_id='assign-to-new-keyword', node=ast[1].targets[0], args=('await', '3.7'))
         ):
             self.checker.visit_assignname(ast[1].targets[0])
+        with self.assertAddsMessages(
+            Message(msg_id='assign-to-new-keyword', node=ast[2], args=('async', '3.7'))
+        ):
+            self.checker.visit_functiondef(ast[2])
+        with self.assertAddsMessages(
+            Message(msg_id='assign-to-new-keyword', node=ast[3], args=('async', '3.7'))
+        ):
+            self.checker.visit_classdef(ast[3])
 
 
 class TestMultiNamingStyle(CheckerTestCase):

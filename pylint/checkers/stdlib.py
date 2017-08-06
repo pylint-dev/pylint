@@ -22,6 +22,7 @@ from pylint.checkers import utils
 
 OPEN_FILES = {'open', 'file'}
 UNITTEST_CASE = 'unittest.case'
+THREADING_THREAD = 'threading.Thread'
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
 else:
@@ -99,6 +100,11 @@ class StdlibChecker(BaseChecker):
                   'The method is marked as deprecated and will be removed in '
                   'a future version of Python. Consider looking for an '
                   'alternative in the documentation.'),
+        'W1506': ('threading.Thread needs the target function',
+                  'bad-thread-instantiation',
+                  'The warning is emitted when a threading.Thread class '
+                  'is instantiated without the target function being passed. '
+                  'By default, the first parameter is the group param, not the target param. '),
     }
 
     deprecated = {
@@ -165,7 +171,7 @@ class StdlibChecker(BaseChecker):
             ],
             (3, 5, 0): [
                 'fractions.gcd',
-                'inspect.getfullargspec', 'inspect.getargvalues',
+                'inspect.getargvalues',
                 'inspect.formatargspec', 'inspect.formatargvalues',
                 'inspect.getcallargs',
                 'platform.linux_distribution', 'platform.dist',
@@ -176,10 +182,15 @@ class StdlibChecker(BaseChecker):
         },
     }
 
+    def _check_bad_thread_instantiation(self, node):
+        if not node.kwargs and node.args:
+            self.add_message('bad-thread-instantiation', node=node)
+
     @utils.check_messages('bad-open-mode', 'redundant-unittest-assert',
-                          'deprecated-method')
+                          'deprecated-method',
+                          'bad-thread-instantiation')
     def visit_call(self, node):
-        """Visit a CallFunc node."""
+        """Visit a Call node."""
         try:
             for inferred in node.func.infer():
                 if inferred.root().name == OPEN_MODULE:
@@ -187,6 +198,8 @@ class StdlibChecker(BaseChecker):
                         self._check_open_mode(node)
                 if inferred.root().name == UNITTEST_CASE:
                     self._check_redundant_assert(node, inferred)
+                if isinstance(inferred, astroid.ClassDef) and inferred.qname() == THREADING_THREAD:
+                    self._check_bad_thread_instantiation(node)
                 self._check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return
