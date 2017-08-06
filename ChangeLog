@@ -2200,7 +2200,7 @@ Release date: 2009-12-18
 
     * include James Lingard string format checker
 
-    * include simple message (ids) listing by Vincent F?rotin (#9791)
+    * include simple message (ids) listing by Vincent Férotin (#9791)
 
     * --errors-only does not hide fatal error anymore
 
@@ -2223,7 +2223,7 @@ Release date: 2009-12-18
 
     * fix test/fulltest.sh
 
-    * #5821 added a utility function to run pylint in another process (patch provide by Vincent F?rotin)
+    * #5821 added a utility function to run pylint in another process (patch provide by Vincent Férotin)
 
 
 What's New in Pylint 0.18.0?
