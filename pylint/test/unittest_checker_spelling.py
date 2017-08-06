@@ -67,7 +67,7 @@ class TestSpellingChecker(CheckerTestCase):
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'bad coment',
                           '    ^^^^^^',
-                              self._get_msg_suggestions('coment')))):
+                          self._get_msg_suggestions('coment')))):
             self.checker.visit_functiondef(stmt)
 
         stmt = astroid.extract_node(

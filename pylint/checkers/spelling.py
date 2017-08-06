@@ -178,8 +178,8 @@ class SpellingChecker(BaseTokenChecker):
                ('max-spelling-suggestions',
                 {'default': 4, 'type': 'int', 'metavar': 'N',
                  'help': 'Limits count of emitted suggestions for '
-                 'spelling mistakes'}),
-               )
+                         'spelling mistakes'}),
+              )
 
     def open(self):
         self.initialized = False
@@ -272,7 +272,8 @@ class SpellingChecker(BaseTokenChecker):
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
-                suggestions = self.spelling_dict.suggest(word)[:self.config.max_spelling_suggestions]
+                suggestions = self.spelling_dict.suggest(word)
+                del suggestions[self.config.max_spelling_suggestions:]
 
                 m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
                 if m:
