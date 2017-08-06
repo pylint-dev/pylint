@@ -395,7 +395,7 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help': ('When enabled, pylint would attempt to guess common '
                            'misconfiguration and emit user-friendly hints instead '
                            'of false-positive error messages')}),
-                )
+               )
 
     option_groups = (
         ('Messages control', 'Options controlling analysis messages'),

@@ -190,7 +190,7 @@ MSGS = {
               'Used when a variable is accessed for non-existent member of C '
               'extension. Due to unavailability of source static analysis is impossible, '
               'but it may be performed by introspecting living objects in run-time.'),
-    'I1102': ('%s %r has not %r member, but dynamic constructs we\'re found in module source. Consider '
+    'I1102': ('%s %r has not %r member, but dynamic code constructs we\'re found. Consider '
               'adding this module to extension-package-whitelist if you want '
               'to perform analysis based on run-time introspection of living objects.',
               'dynamic-module-no-member',
@@ -504,6 +504,7 @@ def _is_dynamic_module_heuristics(module_node):
     :param astroid.Module module_node: module to check
     :return: True if any of globals(), locals() or vars() usage is
     encountered in module source code
+    :rtype: bool
     """
     return any(isinstance(n.func, astroid.Name) and n.func.name in {'locals', 'globals', 'vars'}
                and n.scope() == module_node for n in module_node.nodes_of_class(astroid.Call))
