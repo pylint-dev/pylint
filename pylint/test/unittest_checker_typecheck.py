@@ -26,7 +26,7 @@ def c_extension_missing():
         return True
 
 
-needs_c_extension = pytest.mark.skipif(c_extension_missing,
+needs_c_extension = pytest.mark.skipif(c_extension_missing(),
                                        reason='Requires coverage (source of C-extension)')
 
 
