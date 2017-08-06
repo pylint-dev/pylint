@@ -65,6 +65,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         'R1701': ("Consider merging these isinstance calls to isinstance(%s, (%s))",
                   "consider-merging-isinstance",
                   "Used when multiple consecutive isinstance calls can be merged into one."),
+        'R1706': ("Consider using ternary (%s)",
+                  "consider-using-ternary",
+                  "Used when one of known pre-python 2.5 ternary syntax is used."),
         'R1702': ('Too many nested blocks (%s/%s)',
                   'too-many-nested-blocks',
                   'Used when a function or a method has too many nested '
@@ -105,9 +108,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'a generator may lead to hard to find bugs. This PEP specify that '
                   'raise StopIteration has to be replaced by a simple return statement',
                   {'minversion': (3, 0)}),
-        'R1709': ("Consider using ternary (%s)",
-                  "consider-using-ternary",
-                  "Used when one of known pre-python 2.5 ternary syntax is used."),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
