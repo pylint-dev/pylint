@@ -389,9 +389,13 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help': ('A comma-separated list of package or module names'
                            ' from where C extensions may be loaded. Extensions are'
                            ' loading into the active Python interpreter and may run'
-                           ' arbitrary code')}
-                ),
-               )
+                           ' arbitrary code')}),
+                ('suggestion-mode',
+                 {'type': 'yn', 'metavar': '<pkg[,pkg]>', 'default': True,
+                  'help': ('When enabled, pylint would attempt to guess common '
+                           'misconfiguration and emit user-friendly hints instead '
+                           'of false-positive error messages')}),
+                )
 
     option_groups = (
         ('Messages control', 'Options controlling analysis messages'),
@@ -1262,6 +1266,7 @@ group are mutually exclusive.'),
         # read configuration
         linter.disable('I')
         linter.enable('c-extension-no-member')
+        linter.enable('dynamic-module-no-member')
         linter.read_config_file()
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins

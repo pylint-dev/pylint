@@ -31,7 +31,7 @@ import astroid
 import astroid.context
 import astroid.arguments
 import astroid.nodes
-from astroid import exceptions
+from astroid import exceptions, decorators
 from astroid.interpreter import dunder_lookup
 from astroid import objects
 from astroid import bases
@@ -51,7 +51,7 @@ from pylint.checkers.utils import (
     has_known_bases,
     is_builtin_object,
     singledispatch)
-
+from pylint.utils import get_global_option
 
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
@@ -184,11 +184,18 @@ MSGS = {
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
     'I1101': ('%s %r has not %r member, but source is unavailable. Consider '
-              'adding this package to extension-package-whitelist if you want '
-              'to perform analysis based on run-time introspection of package.',
+              'adding this module to extension-package-whitelist if you want '
+              'to perform analysis based on run-time introspection of living objects.',
               'c-extension-no-member',
-              'Used when a variable is accessed for not-existent member of C '
-              'extension. Due to unavailability of source, static analysis is impossible, '
+              'Used when a variable is accessed for non-existent member of C '
+              'extension. Due to unavailability of source static analysis is impossible, '
+              'but it may be performed by introspecting living objects in run-time.'),
+    'I1102': ('%s %r has not %r member, but dynamic constructs we\'re found in module source. Consider '
+              'adding this module to extension-package-whitelist if you want '
+              'to perform analysis based on run-time introspection of living objects.',
+              'dynamic-module-no-member',
+              'Used when a variable is accessed for non-existent member of dynamic '
+              'module. Due to dynamic constructs in source static analysis is impossible, '
               'but it may be performed by introspecting living objects in run-time.'),
     'E1102': ('%s is not callable',
               'not-callable',
@@ -492,6 +499,16 @@ def _is_c_extension(module_node):
     return not modutils.is_standard_module(module_node.name) and not module_node.fully_defined()
 
 
+def _is_dynamic_module_heuristics(module_node):
+    """
+    :param astroid.Module module_node: module to check
+    :return: True if any of globals(), locals() or vars() usage is
+    encountered in module source code
+    """
+    return any(isinstance(n.func, astroid.Name) and n.func.name in {'locals', 'globals', 'vars'}
+               and n.scope() == module_node for n in module_node.nodes_of_class(astroid.Call))
+
+
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
@@ -587,6 +604,10 @@ accessed. Python regular expressions are accepted.'}
                ),
               )
 
+    @decorators.cachedproperty
+    def _suggestion_mode(self):
+        return get_global_option(self, 'suggestion-mode', default=True)
+
     def open(self):
         # do this in open since config not fully initialized in __init__
         # generated_members may contain regular expressions
@@ -633,7 +654,7 @@ accessed. Python regular expressions are accepted.'}
     def visit_delattr(self, node):
         self.visit_attribute(node)
 
-    @check_messages('no-member')
+    @check_messages('no-member', 'c-extension-no-member', 'dynamic-module-no-member')
     def visit_attribute(self, node):
         """check that the accessed attribute exists
 
@@ -719,7 +740,11 @@ accessed. Python regular expressions are accepted.'}
                                  confidence=INFERENCE)
 
     def _get_nomember_msgid_hint(self, node, owner):
-        if isinstance(owner, astroid.Module) and _is_c_extension(owner):
+        suggestions_are_possible = self._suggestion_mode and isinstance(owner, astroid.Module)
+        if suggestions_are_possible and _is_dynamic_module_heuristics(owner):
+            msg = 'dynamic-module-no-member'
+            hint = ""
+        elif suggestions_are_possible and _is_c_extension(owner):
             msg = 'c-extension-no-member'
             hint = ""
         else:

@@ -16,6 +16,20 @@ from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
+def c_extension_missing():
+    """Coverage module has C-extension, which we can reuse for test"""
+    try:
+        import coverage.tracer as _
+        return False
+    except ImportError:
+        _ = None
+        return True
+
+
+needs_c_extension = pytest.mark.skipif(c_extension_missing,
+                                       reason='Requires coverage (source of C-extension)')
+
+
 class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
@@ -99,21 +113,56 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
-    def test_nomember_on_c_extension_informational_message(self):
-        """Coverage happens to have C-extension tracer that we may use for test"""
-        try:
-            import coverage.tracer as _
-        except ImportError:
-            _ = None
-            pytest.skip('Requires coverage (source of C-extension)')
-
+    @set_config(suggestion_mode=False)
+    @needs_c_extension
+    def test_nomember_on_c_extension_error_msg(self):
         node = astroid.extract_node('''
         from coverage import tracer
         tracer.CTracer  #@
         ''')
-        print(node)
+        message = Message('no-member', node=node,
+                          args=('Module', 'coverage.tracer', 'CTracer', ''))
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @set_config(suggestion_mode=True)
+    @needs_c_extension
+    def test_nomember_on_c_extension_info_msg(self):
+        node = astroid.extract_node('''
+        from coverage import tracer
+        tracer.CTracer  #@
+        ''')
         message = Message('c-extension-no-member', node=node,
                           args=('Module', 'coverage.tracer', 'CTracer', ''))
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @set_config(suggestion_mode=False)
+    def test_nomember_on_dynamic_module_error_msg(self):
+        astroid.parse('''
+        globals().update({"m1": None})
+        ''', module_name='module1')
+        node = astroid.extract_node('''
+        import module1
+        module1.m1  #@
+        ''')
+        message = Message('no-member', node=node,
+                          args=('Module', 'module1', 'm1', ''))
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @set_config(suggestion_mode=True)
+    def test_nomember_on_dynamic_module_info_msg(self):
+        module1 = astroid.parse('''
+        globals().update({"m1": None})
+        ''', module_name='module1')
+        module1.file = 'module1.py'
+        node = astroid.extract_node('''
+        import module1
+        module1.m1  #@
+        ''')
+        message = Message('dynamic-module-no-member', node=node,
+                          args=('Module', 'module1', 'm1', ''))
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
