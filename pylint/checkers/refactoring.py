@@ -65,9 +65,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         'R1701': ("Consider merging these isinstance calls to isinstance(%s, (%s))",
                   "consider-merging-isinstance",
                   "Used when multiple consecutive isinstance calls can be merged into one."),
-        'R1706': ("Consider using ternary (%s)",
+        'R1709': ("Consider using ternary (%s)",
                   "consider-using-ternary",
-                  "Used when one of known pre-python 2.5 ternary syntax is used."),
+                  "Used when one of known pre-python 2.5 ternary syntax is used.",),
+        'R1710': ("Boolean expression may be simplified (%s)",
+                  "simplify-boolean-expression",
+                  "Emitted when redundant pre-python 2.5 ternary syntax is used.",),
         'R1702': ('Too many nested blocks (%s/%s)',
                   'too-many-nested-blocks',
                   'Used when a function or a method has too many nested '
@@ -429,7 +432,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                              node=node,
                              args=(duplicated_name, ', '.join(names)))
 
-    @utils.check_messages('consider-using-ternary')
+    @utils.check_messages('simplify-boolean-expression', 'consider-using-ternary')
     def visit_assign(self, node):
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
@@ -439,16 +442,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if truth_value.bool_value() is False:
-            # TBD: different message? What would be a good name?
+            message = 'simplify-boolean-expression'
             suggestion = false_value.as_string()
         else:
+            message = 'consider-using-ternary'
             suggestion = '{truth} if {cond} else {false}'.format(
                 truth=truth_value.as_string(),
                 cond=cond.as_string(),
                 false=false_value.as_string()
             )
-        self.add_message('consider-using-ternary', node=node,
-                         args=(suggestion,))
+        self.add_message(message, node=node, args=(suggestion,))
 
     visit_return = visit_assign
 
@@ -458,7 +461,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns true if node is 'condition and true_value else false_value' form.
 
         All of: condition, true_value and false_value should not be a complex boolean expression
-        true_value should not be false in boolean context
         """
         return (isinstance(node, astroid.BoolOp)
                 and node.op == 'or' and len(node.values) == 2
