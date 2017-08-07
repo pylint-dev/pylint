@@ -68,7 +68,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         'R1709': ("Consider using ternary (%s)",
                   "consider-using-ternary",
                   "Used when one of known pre-python 2.5 ternary syntax is used.",),
-        'R1710': ("Boolean expression may be simplified (%s)",
+        'R1710': ("Boolean expression may be simplified to %s",
                   "simplify-boolean-expression",
                   "Emitted when redundant pre-python 2.5 ternary syntax is used.",),
         'R1702': ('Too many nested blocks (%s/%s)',
