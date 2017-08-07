@@ -34,28 +34,40 @@ class TestSpellingChecker(CheckerTestCase):
         spell_dict is None,
         reason="missing python-enchant package or missing spelling dictionaries")
 
+    def _get_msg_suggestions(self, word, count=4):
+        return "'{0}'".format("' or '".join(self.checker.spelling_dict.suggest(word)[:count]))
+
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_coment(self):
-        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         with self.assertAddsMessages(
             Message('wrong-spelling-in-comment', line=1,
                     args=('coment', '# bad coment',
                           '      ^^^^^^',
-                          "'{0}'".format("' or '".join(suggestions))))):
+                          self._get_msg_suggestions('coment')))):
+            self.checker.process_tokens(_tokenize_str("# bad coment"))
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
+    @set_config(max_spelling_suggestions=2)
+    def test_check_bad_coment_custom_suggestion_count(self):
+        with self.assertAddsMessages(
+            Message('wrong-spelling-in-comment', line=1,
+                    args=('coment', '# bad coment',
+                          '      ^^^^^^',
+                          self._get_msg_suggestions('coment', count=2)))):
             self.checker.process_tokens(_tokenize_str("# bad coment"))
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_check_bad_docstring(self):
-        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         stmt = astroid.extract_node(
             'def fff():\n   """bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'bad coment',
                           '    ^^^^^^',
-                          "'{0}'".format("' or '".join(suggestions))))):
+                          self._get_msg_suggestions('coment')))):
             self.checker.visit_functiondef(stmt)
 
         stmt = astroid.extract_node(
@@ -64,7 +76,7 @@ class TestSpellingChecker(CheckerTestCase):
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'bad coment',
                           '    ^^^^^^',
-                          "'{0}'".format("' or '".join(suggestions))))):
+                          self._get_msg_suggestions('coment')))):
             self.checker.visit_classdef(stmt)
 
     @pytest.mark.skipif(True, reason='pyenchant\'s tokenizer strips these')
@@ -122,27 +134,25 @@ class TestSpellingChecker(CheckerTestCase):
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_wiki_words(self):
-        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """ComentAbc with a bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'ComentAbc with a bad coment',
                           '                     ^^^^^^',
-                          "'{0}'".format("' or '".join(suggestions))))):
+                          self._get_msg_suggestions('coment')))):
             self.checker.visit_classdef(stmt)
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_camel_cased_words(self):
-        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """comentAbc with a bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'comentAbc with a bad coment',
                           '                     ^^^^^^',
-                          "'{0}'".format("' or '".join(suggestions))))):
+                          self._get_msg_suggestions('coment')))):
             self.checker.visit_classdef(stmt)
 
         # With just a single upper case letter in the end
@@ -152,18 +162,17 @@ class TestSpellingChecker(CheckerTestCase):
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'argumentN with a bad coment',
                           '                     ^^^^^^',
-                          "'{0}'".format("' or '".join(suggestions))))):
+                          self._get_msg_suggestions('coment')))):
             self.checker.visit_classdef(stmt)
 
         # With just a single lower and upper case letter is not good
-        suggestions = self.checker.spelling_dict.suggest('zN')[:4]
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """zN with a bad comment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
                     args=('zN', 'zN with a bad comment',
                           '^^',
-                          "'{0}'".format("' or '".join(suggestions))))):
+                          self._get_msg_suggestions('zN')))):
             self.checker.visit_classdef(stmt)
 
     @skip_on_missing_package_or_dict
@@ -189,14 +198,13 @@ class TestSpellingChecker(CheckerTestCase):
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_skip_sphinx_directives(self):
-        suggestions = self.checker.spelling_dict.suggest('coment')[:4]
         stmt = astroid.extract_node(
                 'class ComentAbc(object):\n   """This is :class:`ComentAbc` with a bad coment"""\n   pass')
         with self.assertAddsMessages(
             Message('wrong-spelling-in-docstring', line=2,
                     args=('coment', 'This is :class:`ComentAbc` with a bad coment',
                           '                                      ^^^^^^',
-                          "'{0}'".format("' or '".join(suggestions))))):
+                          self._get_msg_suggestions('coment')))):
             self.checker.visit_classdef(stmt)
 
     @skip_on_missing_package_or_dict
@@ -211,5 +219,5 @@ class TestSpellingChecker(CheckerTestCase):
             Message('wrong-spelling-in-docstring', line=3,
                     args=('Abcz', 'This is Comment/Abcz with a bad comment',
                           '                ^^^^',
-                          "'ABC' or 'Abacus' or 'Aback'"))):
+                          self._get_msg_suggestions('Abcz')))):
             self.checker.visit_classdef(stmt)
