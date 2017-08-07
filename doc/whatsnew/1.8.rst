@@ -14,6 +14,21 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check was added, ``simplify-boolean-expression``.
+
+  This message is emitted when ``consider-using-ternary`` check would emit
+  not equivalent code, due to truthy element being falsy in boolean context.
+
+  .. code-block:: python
+
+     value = condition and False or other_value
+
+  This flawed construct may be simplified to:
+
+  .. code-block:: python
+
+     value = other_value
+
 * A new check was added, ``bad-thread-instantiation``.
 
   This message is emitted when the threading.Thread class does not
