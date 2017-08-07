@@ -584,6 +584,18 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_import(node)
 
     @python2_only
+    def test_bad_import_not_on_relative(self):
+        samples = [
+            'from .commands import titi',
+            'from . import commands',
+        ]
+        for code in samples:
+            node = astroid.extract_node(code)
+            absolute_import_message = testutils.Message('no-absolute-import', node=node)
+            with self.assertAddsMessages(absolute_import_message):
+                self.checker.visit_importfrom(node)
+
+    @python2_only
     def test_bad_import_conditional(self):
         node = astroid.extract_node('''
         import six
