@@ -61,8 +61,16 @@ What's New in Pylint 1.8?
 
     * Added parameter for limiting number of suggestions in spellchecking checkers
 
-    * Added ``suggestion-mode`` configuration flag. When flag is enabled, informational message
-      is emitted instead of cryptic error message for attributes accessed on c-extensions.
+    * Fix a corner-case in ``consider-using-ternary`` checker.
+
+      When object ``A`` used in  ``X and A or B`` was falsy in boolean context,
+      Pylint incorrectly emitted non-equivalent ternary-based suggestion.
+      After a change message is correctly not emitted for this case.
+      Close #1559
+
+    * Added ``suggestion-mode`` configuration flag. When flag is enabled, informational
+      message is emitted instead of cryptic error message for attributes accessed on
+      c-extensions.
       Close #1466
 
 What's New in Pylint 1.7.1?
