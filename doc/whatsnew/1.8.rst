@@ -214,3 +214,6 @@ Other Changes
 
 * In case of ``--output-format=json``, the dictionary returned holds a new key-value pair.
   The key is ``message-id`` and the value the message id.
+
+* Spelling checker has a new configuration parameter ``max-spelling-suggestions``, which
+  affects maximum count of suggestions included in emitted message.
