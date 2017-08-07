@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Fix a false positive with bad-python3-import on relative imports
+
+      Close #1608
+
     * Added a new Python 3 check, ``non-ascii-bytes-literals``
 
       Close #1545
@@ -2200,7 +2204,7 @@ Release date: 2009-12-18
 
     * include James Lingard string format checker
 
-    * include simple message (ids) listing by Vincent Férotin (#9791)
+    * include simple message (ids) listing by Vincent Ferotin (#9791)
 
     * --errors-only does not hide fatal error anymore
 
@@ -2223,7 +2227,7 @@ Release date: 2009-12-18
 
     * fix test/fulltest.sh
 
-    * #5821 added a utility function to run pylint in another process (patch provide by Vincent Férotin)
+    * #5821 added a utility function to run pylint in another process (patch provide by Vincent Ferotin)
 
 
 What's New in Pylint 0.18.0?
