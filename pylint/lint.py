@@ -1266,7 +1266,6 @@ group are mutually exclusive.'),
         # read configuration
         linter.disable('I')
         linter.enable('c-extension-no-member')
-        linter.enable('dynamic-module-no-member')
         linter.read_config_file()
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins

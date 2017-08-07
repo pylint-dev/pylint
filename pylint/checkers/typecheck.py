@@ -190,13 +190,6 @@ MSGS = {
               'Used when a variable is accessed for non-existent member of C '
               'extension. Due to unavailability of source static analysis is impossible, '
               'but it may be performed by introspecting living objects in run-time.'),
-    'I1102': ('%s %r has not %r member, but dynamic code constructs we\'re found. Consider '
-              'adding this module to extension-package-whitelist if you want '
-              'to perform analysis based on run-time introspection of living objects.',
-              'dynamic-module-no-member',
-              'Used when a variable is accessed for non-existent member of dynamic '
-              'module. Due to dynamic constructs in source static analysis is impossible, '
-              'but it may be performed by introspecting living objects in run-time.'),
     'E1102': ('%s is not callable',
               'not-callable',
               'Used when an object being called has been inferred to a non \
@@ -499,17 +492,6 @@ def _is_c_extension(module_node):
     return not modutils.is_standard_module(module_node.name) and not module_node.fully_defined()
 
 
-def _is_dynamic_module_heuristics(module_node):
-    """
-    :param astroid.Module module_node: module to check
-    :return: True if any of globals(), locals() or vars() usage is
-    encountered in module source code
-    :rtype: bool
-    """
-    return any(isinstance(n.func, astroid.Name) and n.func.name in {'locals', 'globals', 'vars'}
-               and n.scope() == module_node for n in module_node.nodes_of_class(astroid.Call))
-
-
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
@@ -655,7 +637,7 @@ accessed. Python regular expressions are accepted.'}
     def visit_delattr(self, node):
         self.visit_attribute(node)
 
-    @check_messages('no-member', 'c-extension-no-member', 'dynamic-module-no-member')
+    @check_messages('no-member', 'c-extension-no-member')
     def visit_attribute(self, node):
         """check that the accessed attribute exists
 
@@ -742,10 +724,7 @@ accessed. Python regular expressions are accepted.'}
 
     def _get_nomember_msgid_hint(self, node, owner):
         suggestions_are_possible = self._suggestion_mode and isinstance(owner, astroid.Module)
-        if suggestions_are_possible and _is_dynamic_module_heuristics(owner):
-            msg = 'dynamic-module-no-member'
-            hint = ""
-        elif suggestions_are_possible and _is_c_extension(owner):
+        if suggestions_are_possible and _is_c_extension(owner):
             msg = 'c-extension-no-member'
             hint = ""
         else:

@@ -137,35 +137,6 @@ class TestTypeChecker(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
-    @set_config(suggestion_mode=False)
-    def test_nomember_on_dynamic_module_error_msg(self):
-        astroid.parse('''
-        globals().update({"m1": None})
-        ''', module_name='module1')
-        node = astroid.extract_node('''
-        import module1
-        module1.m1  #@
-        ''')
-        message = Message('no-member', node=node,
-                          args=('Module', 'module1', 'm1', ''))
-        with self.assertAddsMessages(message):
-            self.checker.visit_attribute(node)
-
-    @set_config(suggestion_mode=True)
-    def test_nomember_on_dynamic_module_info_msg(self):
-        module1 = astroid.parse('''
-        globals().update({"m1": None})
-        ''', module_name='module1')
-        module1.file = 'module1.py'
-        node = astroid.extract_node('''
-        import module1
-        module1.m1  #@
-        ''')
-        message = Message('dynamic-module-no-member', node=node,
-                          args=('Module', 'module1', 'm1', ''))
-        with self.assertAddsMessages(message):
-            self.checker.visit_attribute(node)
-
     @set_config(contextmanager_decorators=('contextlib.contextmanager',
                                            '.custom_contextmanager'))
     def test_custom_context_manager(self):
