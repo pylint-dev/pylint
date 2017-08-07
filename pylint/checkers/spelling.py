@@ -175,6 +175,10 @@ class SpellingChecker(BaseTokenChecker):
                           'indicated private dictionary in '
                           '--spelling-private-dict-file option instead of '
                           'raising a message.'}),
+               ('max-spelling-suggestions',
+                {'default': 4, 'type': 'int', 'metavar': 'N',
+                 'help': 'Limits count of emitted suggestions for '
+                         'spelling mistakes'}),
               )
 
     def open(self):
@@ -267,9 +271,9 @@ class SpellingChecker(BaseTokenChecker):
                     self.private_dict_file.write("%s\n" % lower_cased_word)
                     self.unknown_words.add(lower_cased_word)
             else:
-                # Present up to 4 suggestions.
-                # TODO: add support for customising this.
-                suggestions = self.spelling_dict.suggest(word)[:4]
+                # Present up to N suggestions.
+                suggestions = self.spelling_dict.suggest(word)
+                del suggestions[self.config.max_spelling_suggestions:]
 
                 m = re.search(r"(\W|^)(%s)(\W|$)" % word, line)
                 if m:
