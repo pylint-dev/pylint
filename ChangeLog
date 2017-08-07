@@ -61,6 +61,10 @@ What's New in Pylint 1.8?
 
     * Added parameter for limiting number of suggestions in spellchecking checkers
 
+    * Added ``suggestion-mode`` configuration flag. When flag is enabled, informational message
+      is emitted instead of cryptic error message for attributes accessed on c-extensions.
+      Close #1466
+
 What's New in Pylint 1.7.1?
 =========================
 

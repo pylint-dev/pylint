@@ -217,3 +217,7 @@ Other Changes
 
 * Spelling checker has a new configuration parameter ``max-spelling-suggestions``, which
   affects maximum count of suggestions included in emitted message.
+
+* New configuration flag, ``suggestion-mode`` was introduced. When enabled, pylint would
+  attempt to emit user-friendly suggestions instead of spurious errors for some known
+  false-positive scenarios. Flag is enabled by default.
