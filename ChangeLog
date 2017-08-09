@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Using the -j flag won't start more child linters than needed.
+
+      Contributed by Roman Ivanov in #1614
+
     * Fix a false positive with bad-python3-import on relative imports
 
       Close #1608
