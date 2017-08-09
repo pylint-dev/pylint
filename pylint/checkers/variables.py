@@ -656,6 +656,12 @@ class VariablesChecker(BaseChecker):
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
             return
+        # Ignore names that were added dynamically to the Function scope
+        if (isinstance(node, astroid.FunctionDef)
+                and name == '__class__'
+                and len(node.locals['__class__']) == 1
+                and isinstance(node.locals['__class__'][0], astroid.ClassDef)):
+            return
 
         # Ignore names imported by the global statement.
         # FIXME: should only ignore them if it's assigned latter
@@ -1006,6 +1012,7 @@ class VariablesChecker(BaseChecker):
             # name node from a astroid built from live code, skip
             assert not stmt.root().file.endswith('.py')
             return
+
         name = node.name
         frame = stmt.scope()
         # if the name node is used as a function default argument's value or as
