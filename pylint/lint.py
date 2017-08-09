@@ -761,14 +761,16 @@ class PyLinter(config.OptionsManagerMixIn,
         tasks_queue = manager.Queue()
         results_queue = manager.Queue()
 
-        for _ in range(self.config.jobs):
+        # Send files to child linters.
+        expanded_files = self.expand_files(files_or_modules)
+        
+        # do not start more jobs than needed
+        for _ in range(min(self.config.jobs, len(expanded_files))):
             child_linter = ChildLinter(args=(tasks_queue, results_queue,
                                              child_config))
             child_linter.start()
             children.append(child_linter)
 
-        # Send files to child linters.
-        expanded_files = self.expand_files(files_or_modules)
         for files_or_module in expanded_files:
             path = files_or_module['path']
             tasks_queue.put([path])
