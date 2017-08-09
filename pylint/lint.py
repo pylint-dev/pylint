@@ -763,7 +763,7 @@ class PyLinter(config.OptionsManagerMixIn,
 
         # Send files to child linters.
         expanded_files = self.expand_files(files_or_modules)
-        
+
         # do not start more jobs than needed
         for _ in range(min(self.config.jobs, len(expanded_files))):
             child_linter = ChildLinter(args=(tasks_queue, results_queue,
