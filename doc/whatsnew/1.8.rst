@@ -232,3 +232,18 @@ Other Changes
 
 * Spelling checker has a new configuration parameter ``max-spelling-suggestions``, which
   affects maximum count of suggestions included in emitted message.
+
+* The **invalid-name** check contains the name of the template that caused the failure.
+
+  For the given code, **pylint** used to emit ``invalid-name`` in the form ``Invalid constant name var``,
+  without offering any context why ``var`` is not such a good name.
+
+  With this change, it is now more clear what should be improved for a name to be accepted according to
+  its corresponding template.
+
+  .. code-block:: python
+
+    $ cat a.py
+    var = 24
+    $ pylint a.py
+    C:  1, 0: Constant name "var" doesn't conform to 'const-name-hint' template (invalid-name)

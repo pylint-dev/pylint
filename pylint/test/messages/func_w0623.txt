@@ -1,6 +1,6 @@
-C: 28:some_function: Invalid variable name "FOO"
-C: 41: Invalid constant name "exc3"
-C: 55: Invalid variable name "OOPS"
+C: 28:some_function: Variable name "FOO" doesn't conform to 'variable-name-hint' template
+C: 41: Constant name "exc3" doesn't conform to 'constant-name-hint' template
+C: 55: Variable name "OOPS" doesn't conform to 'variable-name-hint' template
 W: 18:some_function: Redefining name 'RuntimeError' from object 'exceptions' in exception handler
 W: 20:some_function: Redefining name 'OSError' from builtins in exception handler
 W: 20:some_function: Unused variable 'OSError'
