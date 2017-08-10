@@ -133,6 +133,24 @@ def _positional_parameters(method):
         positional = positional[1:]
     return positional
 
+def _has_different_parameters_default_value(original, overridden):
+    """
+    Return True if one of the overridden arguments has a default
+    value different from the default value of the original argument
+    """
+    orig_name = [param.name for param in original.args]
+    for param_name in orig_name:
+        try:
+            orig_default = original.default_value(param_name).value
+        except astroid.exceptions.NoDefault:
+            orig_default = None
+        try:
+            over_default = overridden.default_value(param_name).value
+            if orig_default != over_default:
+                return True
+        except astroid.exceptions.NoDefault:
+            pass
+    return False
 
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
     zipped = six.moves.zip_longest(original, overridden)
@@ -196,7 +214,6 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
         different_vararg,
         different_kwonly
     ))
-
 
 def _is_invalid_base_class(cls):
     return cls.name in INVALID_BASE_CLASSES and is_builtin_object(cls)
@@ -705,7 +722,8 @@ a metaclass class method.'}
         nothing additional whatsoever than not implementing the method at all.
         If the method uses super() to delegate an operation to the rest of the MRO,
         and if the method called is the same as the current one, the arguments
-        passed to super() are the same as the parameters that were passed to
+        passed to super(), including their default value,
+        are the same as the parameters that were passed to
         this method, then the method could be removed altogether, by letting
         other implementation to take precedence.
         '''
@@ -758,8 +776,23 @@ a metaclass class method.'}
         if super_call.type.name != current_scope.name:
             return
 
-        # Detect if the parameters and their default value are the same 
-        # as in the base method
+        # Detect if the method has argument with default value that is
+        # different from the one used in the base method
+        if self._check_different_default_values_in_overridden_method(function):
+            return 
+            
+        # Detect if the parameters are the same as the call's arguments.
+        params = _signature_from_arguments(function.args)
+        args = _signature_from_call(call)
+        if _definition_equivalent_to_call(params, args):
+            self.add_message('useless-super-delegation', node=function,
+                             args=(function.name, ))
+
+    def _check_different_default_values_in_overridden_method(self, function):
+        """
+        Check if the parameters default values in overridden methods are
+        different from those in the base class
+        """
         klass = function.parent.frame()
         for overridden in klass.local_attr_ancestors(function.name):
             # get astroid for the searched method
@@ -772,14 +805,15 @@ a metaclass class method.'}
                 continue
             if not isinstance(meth_node, astroid.FunctionDef):
                 continue
-            #self._check_signature(function, meth_node, 'overridden', klass)
-            
-        # Detect if the parameters are the same as the call's arguments.
-        params = _signature_from_arguments(function.args)
-        args = _signature_from_call(call)
-        if _definition_equivalent_to_call(params, args):
-            self.add_message('useless-super-delegation', node=function,
-                             args=(function.name, ))
+            instance = klass.instantiate_class()
+            method1 = function_to_method(function, instance)
+            refmethod = function_to_method(meth_node, instance)
+            # Don't care about functions with unknown argument (builtins).
+            if method1.args.args is None or refmethod.args.args is None:
+                continue
+            if _has_different_parameters_default_value(refmethod.args, method1.args):
+                return True
+        return False
 
     def _check_slots(self, node):
         if '__slots__' not in node.locals:
