@@ -779,8 +779,8 @@ a metaclass class method.'}
         # Detect if the method has argument with default value that is
         # different from the one used in the base method
         if self._check_different_default_values_in_overridden_method(function):
-            return 
-            
+            return
+
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
         args = _signature_from_call(call)
@@ -788,7 +788,8 @@ a metaclass class method.'}
             self.add_message('useless-super-delegation', node=function,
                              args=(function.name, ))
 
-    def _check_different_default_values_in_overridden_method(self, function):
+    @staticmethod
+    def _check_different_default_values_in_overridden_method(function):
         """
         Check if the parameters default values in overridden methods are
         different from those in the base class
