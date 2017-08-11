@@ -423,8 +423,7 @@ class ImportsChecker(BaseChecker):
             if name != '*':
                 self._add_imported_module(node, '%s.%s' % (imported_module.name, name))
 
-    @check_messages('wrong-import-order', 'ungrouped-imports',
-                    'wrong-import-position')
+    @check_messages(*(MSGS.keys()))
     def leave_module(self, node):
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
@@ -675,7 +674,7 @@ class ImportsChecker(BaseChecker):
 
             # update import graph
             self.import_graph[context_name].add(importedmodname)
-            if not self.linter.is_message_enabled('cyclic-import'):
+            if not self.linter.is_message_enabled('cyclic-import', line=node.lineno):
                 self._excluded_edges[context_name].add(importedmodname)
 
     def _check_deprecated_module(self, node, mod_path):

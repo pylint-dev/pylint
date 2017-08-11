@@ -115,7 +115,7 @@ def gen_tests(filter_rgx):
     ):
         if not is_to_run(module_file) or module_file.endswith(('.pyc', "$py.class")):
             continue
-        base = module_file.replace('func_', '').replace('.py', '')
+        base = module_file.replace('.py', '').split('_')[1]
         dependencies = _get_tests_info(INPUT_DIR, MSG_DIR, base, '.py')
         tests.append((module_file, messages_file, dependencies))
 
@@ -126,8 +126,9 @@ def gen_tests(filter_rgx):
     return tests
 
 
-@pytest.mark.parametrize("module_file,messages_file,dependencies", gen_tests(FILTER_RGX))
-def test_functionality(module_file, messages_file, dependencies):
+@pytest.mark.parametrize("module_file,messages_file,dependencies", gen_tests(FILTER_RGX),
+                         ids=[o[0] for o in gen_tests(FILTER_RGX)])
+def test_functionality(module_file, messages_file, dependencies,):
 
     LT = LintTestUpdate() if UPDATE else LintTestUsingModule()
 
