@@ -775,7 +775,7 @@ a metaclass class method.'}
             return
         if super_call.type.name != current_scope.name:
             return
-
+        
         # Detect if the method has argument with default value that is
         # different from the one used in the base method
         if self._check_different_default_values_in_overridden_method(function):
