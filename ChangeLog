@@ -76,6 +76,10 @@ What's New in Pylint 1.8?
       After a change message is correctly not emitted for this case.
       Close #1559
 
+    * Fix a false positive ``useless-super-delegation`` message when
+      parameters default values are different from those used in the base class.
+      Close #1085
+
 What's New in Pylint 1.7.1?
 =========================
 
