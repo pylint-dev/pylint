@@ -4,7 +4,7 @@ iterating/mapping context.
 """
 # pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-init,no-self-use,import-error,unused-argument,bad-mcs-method-argument,wrong-import-position,no-else-return
 from __future__ import print_function
-
+import enum
 # primitives
 numbers = [1, 2, 3]
 
@@ -190,3 +190,25 @@ class HasDynamicGetattr(object):
 
 for elem in HasDynamicGetattr():
     pass
+
+# Enum and IntEnum, Github issues #1539 and #1546
+class Numbers(enum.IntEnum):
+    One = 0
+    Two = 1
+    Three = 2
+
+
+class Letters(enum.Enum):
+    A = 0
+    B = 1
+    C = 2
+
+
+for let in Letters:
+    print(let)
+for num in Numbers:
+    print(num)
+
+Animal = enum.Enum('Animal', 'ant bee cat dog')
+for animal in Animal:
+    print(animal)
