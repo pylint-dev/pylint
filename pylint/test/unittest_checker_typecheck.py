@@ -16,6 +16,20 @@ from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
+def c_extension_missing():
+    """Coverage module has C-extension, which we can reuse for test"""
+    try:
+        import coverage.tracer as _
+        return False
+    except ImportError:
+        _ = None
+        return True
+
+
+needs_c_extension = pytest.mark.skipif(c_extension_missing(),
+                                       reason='Requires coverage (source of C-extension)')
+
+
 class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
@@ -97,6 +111,30 @@ class TestTypeChecker(CheckerTestCase):
         optparse.Values.lala
         ''')
         with self.assertNoMessages():
+            self.checker.visit_attribute(node)
+
+    @set_config(suggestion_mode=False)
+    @needs_c_extension
+    def test_nomember_on_c_extension_error_msg(self):
+        node = astroid.extract_node('''
+        from coverage import tracer
+        tracer.CTracer  #@
+        ''')
+        message = Message('no-member', node=node,
+                          args=('Module', 'coverage.tracer', 'CTracer', ''))
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @set_config(suggestion_mode=True)
+    @needs_c_extension
+    def test_nomember_on_c_extension_info_msg(self):
+        node = astroid.extract_node('''
+        from coverage import tracer
+        tracer.CTracer  #@
+        ''')
+        message = Message('c-extension-no-member', node=node,
+                          args=('Module', 'coverage.tracer', 'CTracer', ''))
+        with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
     @set_config(contextmanager_decorators=('contextlib.contextmanager',

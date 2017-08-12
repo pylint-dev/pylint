@@ -76,6 +76,11 @@ What's New in Pylint 1.8?
       After a change message is correctly not emitted for this case.
       Close #1559
 
+    * Added ``suggestion-mode`` configuration flag. When flag is enabled, informational
+      message is emitted instead of cryptic error message for attributes accessed on
+      c-extensions.
+      Close #1466
+
 What's New in Pylint 1.7.1?
 =========================
 
