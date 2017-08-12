@@ -91,7 +91,7 @@ _SPECIAL_METHODS_PARAMS = {
         '__setstate__', '__reduce_ex__', '__deepcopy__', '__cmp__',
         '__matmul__', '__rmatmul__', '__div__'),
 
-    2: ('__setattr__', '__get__', '__set__', '__setitem__'),
+    2: ('__setattr__', '__get__', '__set__', '__setitem__', '__set_name__'),
 
     3: ('__exit__', '__aexit__'),
 
