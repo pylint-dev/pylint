@@ -391,7 +391,7 @@ class PyLinter(config.OptionsManagerMixIn,
                            ' loading into the active Python interpreter and may run'
                            ' arbitrary code')}),
                 ('suggestion-mode',
-                 {'type': 'yn', 'metavar': '<pkg[,pkg]>', 'default': True,
+                 {'type': 'yn', 'metavar': '<yn>', 'default': True,
                   'help': ('When enabled, pylint would attempt to guess common '
                            'misconfiguration and emit user-friendly hints instead '
                            'of false-positive error messages')}),
