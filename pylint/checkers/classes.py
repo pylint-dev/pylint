@@ -141,11 +141,13 @@ def _has_different_parameters_default_value(original, overridden):
     orig_name = [param.name for param in original.args]
     for param_name in orig_name:
         try:
-            orig_default = original.default_value(param_name).value
+            orig_default = original.default_value(param_name).as_string()
         except astroid.exceptions.NoDefault:
+            # The case where the default value is really set to None is handled
+            # thanks to as_string method used above which returns the string 'None'
             orig_default = None
         try:
-            over_default = overridden.default_value(param_name).value
+            over_default = overridden.default_value(param_name).as_string()
             if orig_default != over_default:
                 return True
         except astroid.exceptions.NoDefault:
@@ -774,11 +776,6 @@ a metaclass class method.'}
         if not isinstance(super_call.type, astroid.Instance):
             return
         if super_call.type.name != current_scope.name:
-            return
- 
-        # Detect if the method has argument with default value that is
-        # different from the one used in the base method
-        if self._check_different_default_values_in_overridden_method(function):
             return
 
         # Detect if the method has argument with default value that is
