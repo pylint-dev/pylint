@@ -37,20 +37,6 @@ from pylint.checkers import utils
 from pylint import reporters
 from pylint.reporters.ureports import nodes as reporter_nodes
 
-_NAME_TYPES = {
-    'module': 'module',
-    'const': 'constant',
-    'class': 'class',
-    'function': 'function',
-    'method': 'method',
-    'attr': 'attribute',
-    'argument': 'argument',
-    'variable': 'variable',
-    'class_attribute': 'class attribute',
-    'inlinevar': 'inline iteration',
-}
-
-
 class NamingStyle(object):
     """It may seem counterintuitive that single naming style
     has multiple "accepted" forms of regular expressions,
@@ -1242,10 +1228,6 @@ def _create_naming_options():
             {'default': None, 'type': 'regexp', 'metavar': '<regexp>',
              'help': 'Regular expression matching correct %s names. Overrides %s-naming-style'
                      % (human_readable_name, name_type,)}))
-        name_options.append((
-            '%s-name-hint' % (name_type,),
-            {'default': None, 'type': 'string', 'metavar': '<string>',
-             'help': 'Naming hint for %s names' % (human_readable_name,)}))
     return tuple(name_options)
 
 
@@ -1284,10 +1266,6 @@ class NameChecker(_BasicChecker):
                  'help' : ('Colon-delimited sets of names that determine each'
                            ' other\'s naming style when the name regexes'
                            ' allow several styles.')}
-               ),
-               ('include-naming-hint',
-                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                 'help': 'Include a hint for the correct naming format with invalid-name'}
                ),
                ('property-classes',
                 {'default': ('abc.abstractproperty',),
@@ -1344,14 +1322,10 @@ class NameChecker(_BasicChecker):
             if custom_regex is not None:
                 regexps[name_type] = custom_regex
 
-            hint_value_name = "%s_name_hint" % (name_type,)
-            hint_value = getattr(self.config, hint_value_name, None)
-            if hint_value is not None:
-                hints[name_type] = repr(hint_value)
-            elif custom_regex is not None:
-                hints[name_type] = repr(custom_regex.pattern)
+            if custom_regex is not None:
+                hints[name_type] = "%r pattern" % custom_regex.pattern
             else:
-                hints[name_type] = naming_style_name
+                hints[name_type] = "%s naming style" % naming_style_name
 
         return regexps, hints
 
@@ -1453,19 +1427,13 @@ class NameChecker(_BasicChecker):
         return self._name_group.get(node_type, node_type)
 
     def _raise_name_warning(self, node, node_type, name, confidence):
-        type_label = _NAME_TYPES[node_type]
-
-        hint_name = node_type.replace('_', '-') + '-name-hint'
-        hint_part = '%r template' % hint_name
-
-        if self.config.include_naming_hint:
-            hint_name_or_rgx = self._name_hints[node_type]
-            hint_part += ' (hint: %s)' % hint_name_or_rgx
+        type_label = HUMAN_READABLE_TYPES[node_type]
+        hint = self._name_hints[node_type]
 
         args = (
             type_label.capitalize(),
             name,
-            hint_part
+            hint
         )
 
         self.add_message('invalid-name', node=node, args=args,

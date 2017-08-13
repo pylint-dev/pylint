@@ -1,1 +1,1 @@
-invalid-name:22:sayHello:"Function name ""sayHello"" doesn't conform to 'function-name-hint' template (hint: snake_case)"
+invalid-name:22:sayHello:"Function name ""sayHello"" doesn't conform to snake_case naming style"
