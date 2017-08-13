@@ -132,10 +132,10 @@ class UnsupportedAction(Exception):
 
 def _multiple_choice_validator(choices, name, value):
     values = utils._check_csv(value)
-    for value in values:
-        if value not in choices:
+    for csv_value in values:
+        if csv_value not in choices:
             msg = "option %s: invalid value: %r, should be in %s"
-            raise optparse.OptionValueError(msg % (name, value, choices))
+            raise optparse.OptionValueError(msg % (name, csv_value, choices))
     return values
 
 
@@ -172,7 +172,7 @@ def _yn_validator(opt, _, value):
 
 
 def _non_empty_string_validator(opt, _, value):
-    if not len(value):
+    if not value:
         msg = "indent string can't be empty."
         raise optparse.OptionValueError(msg)
     return utils._unquote(value)
@@ -297,10 +297,10 @@ class Option(optparse.Option):
         # value(s) are bogus.
         value = self.convert_value(opt, value)
         if self.type == 'named':
-            existant = getattr(values, self.dest)
-            if existant:
-                existant.update(value)
-                value = existant
+            existent = getattr(values, self.dest)
+            if existent:
+                existent.update(value)
+                value = existent
         # And then take whatever action is expected of us.
         # This is a separate method to make life easier for
         # subclasses to add new actions.
@@ -391,7 +391,7 @@ class _ManHelpFormatter(optparse.HelpFormatter):
     def format_short_description(pgm, short_desc):
         return '''.SH NAME
 .B %s
-\- %s
+\\- %s
 ''' % (pgm, short_desc.strip())
 
     @staticmethod
@@ -500,7 +500,8 @@ class OptionsManagerMixIn(object):
             group.level = provider.level
             self._mygroups[group_name] = group
             # add section to the config file
-            if group_name != "DEFAULT":
+            if group_name != "DEFAULT" and \
+                    group_name not in self.cfgfile_parser._sections:
                 self.cfgfile_parser.add_section(group_name)
         # add provider's specific options
         for opt, optdict in options:
@@ -586,7 +587,7 @@ class OptionsManagerMixIn(object):
             if printed:
                 print('\n', file=stream)
             utils.format_section(stream, section.upper(),
-                                 options_by_section[section],
+                                 sorted(options_by_section[section]),
                                  encoding)
             printed = True
 
@@ -625,22 +626,28 @@ class OptionsManagerMixIn(object):
             config_file = self.config_file
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
-        if config_file and os.path.exists(config_file):
+
+        use_config_file = config_file and os.path.exists(config_file)
+        if use_config_file:
             parser = self.cfgfile_parser
 
             # Use this encoding in order to strip the BOM marker, if any.
             with io.open(config_file, 'r', encoding='utf_8_sig') as fp:
-                # pylint: disable=deprecated-method
-                parser.readfp(fp)
+                parser.read_file(fp)
 
             # normalize sections'title
             for sect, values in list(parser._sections.items()):
                 if not sect.isupper() and values:
                     parser._sections[sect.upper()] = values
-        elif not self.quiet:
-            msg = 'No config file found, using default configuration'
-            print(msg, file=sys.stderr)
+
+        if self.quiet:
             return
+
+        if use_config_file:
+            msg = 'Using config file {0}'.format(os.path.abspath(config_file))
+        else:
+            msg = 'No config file found, using default configuration'
+        print(msg, file=sys.stderr)
 
     def load_config_file(self):
         """dispatch values previously read from a configuration file to each

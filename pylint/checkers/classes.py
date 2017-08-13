@@ -14,7 +14,6 @@
 from __future__ import generators
 
 import collections
-from collections import defaultdict
 import sys
 
 import six
@@ -22,6 +21,7 @@ import six
 import astroid
 from astroid.bases import Generator, BUILTINS
 from astroid.exceptions import InconsistentMroError, DuplicateBasesError
+from astroid import decorators
 from astroid import objects
 from astroid.scoped_nodes import function_to_method
 from pylint.interfaces import IAstroidChecker
@@ -67,6 +67,8 @@ def _signature_from_call(call):
             starred_kws.append(value.name)
         elif isinstance(value, astroid.Name):
             kws[arg] = value.name
+        else:
+            kws[arg] = None
 
     for arg in call.args:
         if isinstance(arg, astroid.Starred) and isinstance(arg.value, astroid.Name):
@@ -75,6 +77,9 @@ def _signature_from_call(call):
             starred_args.append(arg.value.name)
         elif isinstance(arg, astroid.Name):
             args.append(arg.name)
+        else:
+            args.append(None)
+
     return _CallSignature(args, kws, starred_args, starred_kws)
 
 
@@ -99,9 +104,26 @@ def _definition_equivalent_to_call(definition, call):
     same_kwonlyargs = all(kw in call.kws for kw in definition.kwonlyargs)
     same_args = definition.args == call.args
 
-    return all((same_args, same_kwonlyargs, same_args_variadics, same_kw_variadics))
+    no_additional_kwarg_arguments = True
+    if call.kws:
+        for keyword in call.kws:
+            is_arg = keyword in call.args
+            is_kwonly = keyword in definition.kwonlyargs
+            if not is_arg and not is_kwonly:
+                # Maybe this argument goes into **kwargs,
+                # or it is an extraneous argument.
+                # In any case, the signature is different than
+                # the call site, which stops our search.
+                no_additional_kwarg_arguments = False
+                break
 
-
+    return all((
+        same_args,
+        same_kwonlyargs,
+        same_args_variadics,
+        same_kw_variadics,
+        no_additional_kwarg_arguments,
+    ))
 
 # Deal with parameters overridding in two methods.
 
@@ -112,19 +134,22 @@ def _positional_parameters(method):
     return positional
 
 
-def _same_parameter(first, second):
-    return first.name == second.name
+def _has_different_parameters(original, overridden, dummy_parameter_regex):
+    zipped = six.moves.zip_longest(original, overridden)
+    for original_param, overridden_param in zipped:
+        params = (original_param, overridden_param)
+        if not all(params):
+            return True
+
+        names = [param.name for param in params]
+        if any(map(dummy_parameter_regex.match, names)):
+            continue
+        if original_param.name != overridden_param.name:
+            return True
+    return False
 
 
-def _has_different_parameters(original, overridden):
-    same_length = len(original) == len(overridden)
-    if same_length:
-        return any(not _same_parameter(first, second)
-                   for first, second in zip(original, overridden))
-    return True
-
-
-def _different_parameters(original, overridden):
+def _different_parameters(original, overridden, dummy_parameter_regex):
     """Determine if the two methods have different parameters
 
     They are considered to have different parameters if:
@@ -136,24 +161,41 @@ def _different_parameters(original, overridden):
        * they have different keyword only parameters.
 
     """
-
     original_parameters = _positional_parameters(original)
     overridden_parameters = _positional_parameters(overridden)
 
-    different_positional = _has_different_parameters(original_parameters,
-                                                     overridden_parameters)
-    different_kwonly = _has_different_parameters(original.args.kwonlyargs,
-                                                 overridden.args.kwonlyargs)
+    different_positional = _has_different_parameters(
+        original_parameters,
+        overridden_parameters,
+        dummy_parameter_regex)
+    different_kwonly = _has_different_parameters(
+        original.args.kwonlyargs,
+        overridden.args.kwonlyargs,
+        dummy_parameter_regex)
+    if original.name in PYMETHODS:
+        # Ignore the difference for special methods. If the parameter
+        # numbers are different, then that is going to be caught by
+        # unexpected-special-method-signature.
+        # If the names are different, it doesn't matter, since they can't
+        # be used as keyword arguments anyway.
+        different_positional = different_kwonly = False
 
     # Both or none should have extra variadics, otherwise the method
     # loses or gains capabilities that are not reflected into the parent method,
     # leading to potential inconsistencies in the code.
-    different_kwarg = sum(1 for param in (original.args.kwarg, overridden.args.kwarg)
-                          if not param) == 1
-    different_vararg = sum(1 for param in (original.args.vararg, overridden.args.vararg)
-                           if not param) == 1
+    different_kwarg = sum(
+        1 for param in (original.args.kwarg, overridden.args.kwarg)
+        if not param) == 1
+    different_vararg = sum(
+        1 for param in (original.args.vararg, overridden.args.vararg)
+        if not param) == 1
 
-    return different_positional or different_kwarg or different_vararg or different_kwonly
+    return any((
+        different_positional,
+        different_kwarg,
+        different_vararg,
+        different_kwonly
+    ))
 
 
 def _is_invalid_base_class(cls):
@@ -191,9 +233,9 @@ def _called_in_methods(func, klass, methods):
         except astroid.NotFoundError:
             continue
         for infer_method in infered:
-            for callfunc in infer_method.nodes_of_class(astroid.Call):
+            for call in infer_method.nodes_of_class(astroid.Call):
                 try:
-                    bound = next(callfunc.func.infer())
+                    bound = next(call.func.infer())
                 except (astroid.InferenceError, StopIteration):
                     continue
                 if not isinstance(bound, astroid.BoundMethod):
@@ -234,6 +276,7 @@ def _is_attribute_property(name, klass):
             return True
     return False
 
+
 def _has_bare_super_call(fundef_node):
     for call in fundef_node.nodes_of_class(astroid.Call):
         func = call.func
@@ -242,6 +285,7 @@ def _has_bare_super_call(fundef_node):
                 not call.args):
             return True
     return False
+
 
 def _safe_infer_call_result(node, caller, context=None):
     """
@@ -264,6 +308,17 @@ def _safe_infer_call_result(node, caller, context=None):
         return  # there is some kind of ambiguity
     except StopIteration:
         return value
+
+
+def _has_same_layout_slots(slots, assigned_value):
+    inferred = next(assigned_value.infer())
+    if isinstance(inferred, astroid.ClassDef):
+        other_slots = inferred.slots()
+        if all(first_slot and second_slot and first_slot.value == second_slot.value
+               for (first_slot, second_slot) in six.moves.zip_longest(slots, other_slots)):
+            return True
+    return False
+
 
 MSGS = {
     'F0202': ('Unable to check methods signature (%s / %s)',
@@ -331,7 +386,7 @@ MSGS = {
               'Used when a method doesn\'t use its bound instance, and so could '
               'be written as a function.'
              ),
-    'W0221': ('Arguments number differs from %s %r method',
+    'W0221': ('Parameters differ from %s %r method',
               'arguments-differ',
               'Used when a method has a different number of arguments than in '
               'the implemented interface or in an overridden method.'),
@@ -391,7 +446,33 @@ MSGS = {
               'no-staticmethod-decorator',
               'Used when a static method is defined without using the decorator '
               'syntax.'),
+    'C0205': ('Class __slots__ should be a non-string iterable',
+              'single-string-used-for-slots',
+              'Used when a class __slots__ is a simple string, rather '
+              'than an iterable.'),
     }
+
+
+class ScopeAccessMap(object):
+    """Store the accessed variables per scope."""
+
+    def __init__(self):
+        self._scopes = collections.defaultdict(
+            lambda: collections.defaultdict(list)
+        )
+
+    def set_accessed(self, node):
+        """Set the given node as accessed."""
+
+        frame = node_frame_class(node)
+        if frame is None:
+            # The node does not live in a class.
+            return
+        self._scopes[frame][node.attrname].append(node)
+
+    def accessed(self, scope):
+        """Get the accessed variables for the given scope."""
+        return self._scopes.get(scope, {})
 
 
 class ClassChecker(BaseChecker):
@@ -445,14 +526,23 @@ a metaclass class method.'}
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
-        self._accessed = []
+        self._accessed = ScopeAccessMap()
         self._first_attrs = []
         self._meth_could_be_func = None
+
+    @decorators.cachedproperty
+    def _dummy_rgx(self):
+        return get_global_option(
+            self, 'dummy-variables-rgx', default=None)
+
+    @decorators.cachedproperty
+    def _ignore_mixin(self):
+        return get_global_option(
+            self, 'ignore-mixin-members', default=True)
 
     def visit_classdef(self, node):
         """init visit variable _accessed
         """
-        self._accessed.append(defaultdict(list))
         self._check_bases_classes(node)
         # if not an exception or a metaclass
         if node.type == 'class' and has_known_bases(node):
@@ -500,15 +590,13 @@ a metaclass class method.'}
         access to existent members
         """
         # check access to existent members on non metaclass classes
-        ignore_mixins = get_global_option(self, 'ignore-mixin-members',
-                                          default=True)
-        if ignore_mixins and cnode.name[-5:].lower() == 'mixin':
+        if self._ignore_mixin and cnode.name[-5:].lower() == 'mixin':
             # We are in a mixin class. No need to try to figure out if
             # something is missing, since it is most likely that it will
             # miss.
             return
 
-        accessed = self._accessed.pop()
+        accessed = self._accessed.accessed(cnode)
         if cnode.type != 'metaclass':
             self._check_accessed_members(cnode, accessed)
         # checks attributes are defined in an allowed method such as __init__
@@ -546,7 +634,7 @@ a metaclass class method.'}
                 except astroid.NotFoundError:
                     for node in nodes:
                         if node.frame().name not in defining_methods:
-                            # If the attribute was set by a callfunc in any
+                            # If the attribute was set by a call in any
                             # of the defining methods, then don't emit
                             # the warning.
                             if _called_in_methods(node.frame(), cnode,
@@ -690,6 +778,7 @@ a metaclass class method.'}
 
             if isinstance(slots, astroid.Const):
                 # a string, ignore the following checks
+                self.add_message('single-string-used-for-slots', node=node)
                 continue
             if not hasattr(slots, 'itered'):
                 # we can't obtain the values, maybe a .deque?
@@ -749,10 +838,9 @@ a metaclass class method.'}
         class member from outside its class (but ignore __special__
         methods)
         """
-        attrname = node.attrname
         # Check self
-        if self.is_first_attr(node):
-            self._accessed[-1][attrname].append(node)
+        if self._uses_mandatory_method_param(node):
+            self._accessed.set_accessed(node)
             return
         if not self.linter.is_message_enabled('protected-access'):
             return
@@ -760,12 +848,13 @@ a metaclass class method.'}
         self._check_protected_attribute_access(node)
 
     def visit_assignattr(self, node):
-        if isinstance(node.assign_type(), astroid.AugAssign) and self.is_first_attr(node):
-            self._accessed[-1][node.attrname].append(node)
+        if (isinstance(node.assign_type(), astroid.AugAssign) and
+                self._uses_mandatory_method_param(node)):
+            self._accessed.set_accessed(node)
         self._check_in_slots(node)
 
     def _check_in_slots(self, node):
-        """ Check that the given assattr node
+        """ Check that the given AssignAttr node
         is defined in the class slots.
         """
         infered = safe_infer(node.expr)
@@ -796,6 +885,9 @@ a metaclass class method.'}
                             and _has_data_descriptor(klass, node.attrname)):
                         # Descriptors circumvent the slots mechanism as well.
                         return
+                    if (node.attrname == '__class__'
+                            and _has_same_layout_slots(slots, node.parent.value)):
+                        return
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
 
@@ -807,7 +899,7 @@ a metaclass class method.'}
         if not isinstance(node, astroid.AssignAttr):
             return
 
-        if self.is_first_attr(node):
+        if self._uses_mandatory_method_param(node):
             return
         self._check_protected_attribute_access(node)
 
@@ -879,6 +971,10 @@ a metaclass class method.'}
                node.expr.func.name == 'super':
                 return
 
+            # If the expression begins with a call to type(self), that's ok.
+            if self._is_type_self_call(node.expr):
+                return
+
             # We are in a class, one remaining valid cases, Klass._attr inside
             # Klass
             if not (callee == klass.name or callee in klass.basenames):
@@ -897,6 +993,12 @@ a metaclass class method.'}
                         return
 
                 self.add_message('protected-access', node=node, args=attrname)
+
+    def _is_type_self_call(self, expr):
+        return (isinstance(expr, astroid.Call) and
+                isinstance(expr.func, astroid.Name) and
+                expr.func.name == 'type' and len(expr.args) == 1 and
+                self._is_mandatory_method_param(expr.args[0]))
 
     def visit_name(self, node):
         """check if the name handle an access to a class member
@@ -1109,7 +1211,7 @@ a metaclass class method.'}
                              args=(method1, refmethod), node=method1)
             return
 
-        instance = cls.instanciate_class()
+        instance = cls.instantiate_class()
         method1 = function_to_method(method1, instance)
         refmethod = function_to_method(refmethod, instance)
 
@@ -1128,7 +1230,9 @@ a metaclass class method.'}
                         decorator.attrname == 'setter'):
                     return
 
-        if _different_parameters(refmethod, method1):
+        if _different_parameters(
+                refmethod, method1,
+                dummy_parameter_regex=self._dummy_rgx):
             self.add_message('arguments-differ',
                              args=(class_type, method1.name),
                              node=method1)
@@ -1137,12 +1241,20 @@ a metaclass class method.'}
                              args=(class_type, method1.name),
                              node=method1)
 
-    def is_first_attr(self, node):
+    def _uses_mandatory_method_param(self, node):
         """Check that attribute lookup name use first attribute variable name
-        (self for method, cls for classmethod and mcs for metaclass).
+
+        Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
         """
-        return self._first_attrs and isinstance(node.expr, astroid.Name) and \
-                   node.expr.name == self._first_attrs[-1]
+        return self._is_mandatory_method_param(node.expr)
+
+    def _is_mandatory_method_param(self, node):
+        """Check if astroid.Name corresponds to first attribute variable name
+
+        Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
+        """
+        return (self._first_attrs and isinstance(node, astroid.Name)
+                and node.name == self._first_attrs[-1])
 
 
 class SpecialMethodsChecker(BaseChecker):
@@ -1191,8 +1303,8 @@ class SpecialMethodsChecker(BaseChecker):
         if expected_params is None:
             # This can support a variable number of parameters.
             return
-        if not len(node.args.args) and not node.args.vararg:
-            # Method has no parameter, will be catched
+        if not node.args.args and not node.args.vararg:
+            # Method has no parameter, will be caught
             # by no-method-argument.
             return
 

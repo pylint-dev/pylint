@@ -1,12 +1,9 @@
-.. class:: article
 
-================================================================
-A Beginner's Guide to Code Standards in Python - Pylint Tutorial
-================================================================
+========
+Tutorial
+========
 
 :Author: Robert Kirkpatrick
-
-For a detailed description of Pylint, see http://www.pylint.org
 
 
 Intro
@@ -15,15 +12,15 @@ Intro
 Beginner to coding standards?  Pylint can be your guide to reveal what's really
 going on behind the scenes and help you to become a more aware programmer.
 
-Sharing code is a rewarding endeavor.  Putting your code 'out there' can be
-either an act of philanthropy, 'coming of age', or a basic extension of belief
+Sharing code is a rewarding endeavor.  Putting your code ``out there`` can be
+either an act of philanthropy, ``coming of age``, or a basic extension of belief
 in open source.  Whatever the motivation, your good intentions may not have the
 desired outcome if people find your code hard to use or understand.  The Python
 community has formalized some recommended programming styles to help everyone
 write code in a common, agreed-upon style that makes the most sense for shared
 code.  This style is captured in PEP-8_.  Pylint can be a quick and easy way of
 seeing if your code has captured the essence of PEP-8 and is therefore
-'friendly' to other potential users.
+``friendly`` to other potential users.
 
 Perhaps you're not ready to share your code but you'd like to learn a bit more
 about writing better code and don't know where to start.  Pylint can tell you
@@ -72,7 +69,7 @@ A couple of the options that we'll focus on here are: ::
     --output-format=<format>
 
 Also pay attention to the last bit of help output.  This gives you a hint of what
-Pylint is going to 'pick on': ::
+Pylint is going to ``pick on``: ::
 
   Output:
      Using the default text output, the message format is :
@@ -86,9 +83,9 @@ Pylint is going to 'pick on': ::
     further processing.
 
 When Pylint is first run on a fresh piece of code, a common complaint is that it
-is too 'noisy'.  The current default configuration is set to enforce all possible
+is too ``noisy``.  The current default configuration is set to enforce all possible
 warnings.  We'll use some of the options I noted above to make it suit your
-preferences a bit better (and thus make it 'scream only when needed').
+preferences a bit better (and thus make it emit messages only when needed).
 
 
 Your First Pylint'ing
@@ -244,10 +241,10 @@ second part is the 'report' section.  There are two points I want to tackle here
 
 First point is that all the tables of statistics (i.e. the report) are a bit
 overwhelming so I want to silence them.  To do that, I will use the
-"--reports=n" option.
+**--reports=n** option.
 
 .. tip:: Many of Pylint's commonly used command line options have shortcuts.
- for example, "--reports=n" can be abbreviated to "-rn". Pylint's man page lists
+ for example, **--reports=n** can be abbreviated to **-rn**. Pylint's man page lists
  all these shortcuts.
 
 Second, previous experience taught me that the default output for the messages
@@ -255,11 +252,11 @@ needed a bit more info.  We can see the first line is: ::
 
   "C:  1: Missing docstring (missing-docstring)"
 
-This basically means that line 1 violates a convention 'C'.  It's telling me I
+This basically means that line 1 violates a convention ``C``.  It's telling me I
 really should have a docstring.  I agree, but what if I didn't fully understand
 what rule I violated.  Knowing only that I violated a convention isn't much help
 if I'm a newbie. Another information there is the message symbol between parens,
-`missing-docstring` here.
+``missing-docstring`` here.
 
 If I want to read up a bit more about that, I can go back to the
 command line and try this:
@@ -270,7 +267,7 @@ command line and try this:
   No config file found, using default configuration
   :missing-docstring (C0111): *Missing docstring*
     Used when a module, function, class or method has no docstring. Some special
-    methods like __init__ doesn't necessary require a docstring. This message
+    methods like __init__ doesn't necessarily require a docstring. This message
     belongs to the basic checker.
 
 Yeah, ok. That one was a bit of a no-brainer but I have run into error messages
@@ -291,13 +288,13 @@ Now that we got some configuration stuff out of the way, let's see what we can
 do with the remaining warnings.
 
 If we add a docstring to describe what the code is meant to do that will help.
-I'm also going to be a bit cowboy and ignore the `deprecated-module` message
+I'm also going to be a bit cowboy and ignore the ``deprecated-module`` message
 because I like to take risks in life.  A deprecation warning means that future
 versions of Python may not support that code so my code may break in the future.
-There are 5 `invalid-name` messages that we will get to later.  Lastly, I violated the
+There are 5 ``invalid-name`` messages that we will get to later.  Lastly, I violated the
 convention of using spaces around an operator such as "=" so I'll fix that too.
 To sum up, I'll add a docstring to line 2, put spaces around the = sign on line
-16 and use the `--disable=deprecated-module` to ignore the deprecation warning.
+16 and use the ``--disable=deprecated-module`` to ignore the deprecation warning.
 
 Here is the updated code:
 
@@ -331,7 +328,7 @@ Here is the updated code:
   26
   27  print encoded
 
-And here is what happens when we run it with our `--disable=deprecated-module`
+And here is what happens when we run it with our ``--disable=deprecated-module``
 option:
 
 .. sourcecode:: bash
@@ -345,25 +342,24 @@ option:
   C: 10, 0: Invalid constant name "letters" (invalid-name)
   C: 11, 0: Invalid constant name "encoded" (invalid-name)
 
-Nice!  We're down to just the `invalid-name` messages.
+Nice!  We're down to just the ``invalid-name`` messages.
 
 There are fairly well defined conventions around naming things like instance
 variables, functions, classes, etc.  The conventions focus on the use of
 UPPERCASE and lowercase as well as the characters that separate multiple words
 in the name.  This lends itself well to checking via a regular expression, thus
-the "should match (([A-Z\_][A-Z1-9\_]*)|(__.*__))$".
+the **should match (([A-Z\_][A-Z1-9\_]*)|(__.*__))$**.
 
 In this case Pylint is telling me that those variables appear to be constants
-and should be all UPPERCASE.  This rule is in fact a naming convention that is
-specific to the folks at Logilab who created Pylint.  That is the way they have
-chosen to name those variables.  You too can create your own in-house naming
+and should be all UPPERCASE. This is an in-house convention that lives with Pylint
+since its inception. You too can create your own in-house naming
 conventions but for the purpose of this tutorial, we want to stick to the PEP-8
-standard.  In this case, the variables I declared should follow the convention
+standard. In this case, the variables I declared should follow the convention
 of all lowercase.  The appropriate rule would be something like:
 "should match [a-z\_][a-z0-9\_]{2,30}$".  Notice the lowercase letters in the
 regular expression (a-z versus A-Z).
 
-If we run that rule using a `--const-rgx='[a-z\_][a-z0-9\_]{2,30}$'` option, it
+If we run that rule using a ``--const-rgx='[a-z\_][a-z0-9\_]{2,30}$'`` option, it
 will now be quite quiet:
 
 .. sourcecode:: bash
@@ -375,10 +371,10 @@ Regular expressions can be quite a beast so take my word on this particular
 example but go ahead and `read up`_ on them if you want.
 
 .. tip::
- It would really be a pain in the butt to have to use all these options
- on the command line all the time.  That's what the rc file is for.  We can
+ It would really be a pain to have to use all these options
+ on the command line all the time.  That's what the configuration file is for.  We can
  configure our Pylint to store our options for us so we don't have to declare
- them on the command line.  Using the rc file is a nice way of formalizing your
+ them on the command line.  Using the configuration file is a nice way of formalizing your
  rules and quickly sharing them with others. Invoking ``pylint
  --generate-rcfile`` will create a sample rcfile with all the options set and
  explained in comments.

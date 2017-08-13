@@ -44,7 +44,7 @@ powers_of_two()[0] = 42 # [unsupported-assignment-operation]
 powers_of_two[0] = 42  # [unsupported-assignment-operation]
 
 
-# check that primitive non subscriptable types are catched
+# check that primitive non subscriptable types are caught
 True[0] = 24  # [unsupported-assignment-operation]
 None[0] = 42 # [unsupported-assignment-operation]
 8.5[0] = 24 # [unsupported-assignment-operation]

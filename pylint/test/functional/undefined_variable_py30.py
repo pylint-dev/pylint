@@ -76,3 +76,7 @@ class ThirdGood(metaclass=ABCMeta):
 
 class FourthGood(ThirdGood):
     """ This should not trigger anything. """
+
+# The following used to raise used-before-assignment
+# pylint: disable=missing-docstring, multiple-statements
+def used_before_assignment(*, arg): return arg + 1

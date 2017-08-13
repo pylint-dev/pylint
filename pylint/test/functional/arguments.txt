@@ -32,3 +32,5 @@ no-value-for-parameter:163:no_context_but_redefined:No value for argument 'three
 no-value-for-parameter:163:no_context_but_redefined:No value for argument 'two' in function call
 no-value-for-parameter:166:no_context_one_elem:No value for argument 'three' in function call
 no-value-for-parameter:166:no_context_one_elem:No value for argument 'two' in function call
+unexpected-keyword-arg:203:namedtuple_replace_issue_1036:Unexpected keyword argument 'd' in function call
+unexpected-keyword-arg:204:namedtuple_replace_issue_1036:Unexpected keyword argument 'e' in function call

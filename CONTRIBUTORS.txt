@@ -9,13 +9,26 @@ Order doesn't matter (not that much, at least ;)
 
 * Claudiu Popa: maintainer, contributor
 
-* ceridwen: astroid committer.
+* Cara Vinson, astroid committer.
 
-* Dmitry Pribysh: committer, multiple-imports, not-iterable, not-a-mapping, various patches.
+* Dmitry Pribysh: committer
 
-* Ashley Whetter: committer, check_docs extension can find constructor parameters in __init__,
-	          added check_raise_docs extension.
+  multiple-imports, not-iterable, not-a-mapping, various patches.
 
+* Ashley Whetter: committer
+  
+  check_docs extension can find constructor parameters in __init__,
+  added check_raise_docs extension, various patches.
+
+* Roy Williams (Lyft): committer
+
+  added check for implementing __eq__ without implementing __hash__,
+  Added Python 3 check for accessing Exception.message.
+  Added Python 3 check for calling encode/decode with invalid codecs.
+  Added Python 3 check for accessing sys.maxint.
+  Added Python 3 check for bad import statements.
+  Added Python 3 check for accessing deprecated methods on the 'string' module,
+  various patches.
 
 * Daniel Balparda (Google): GPyLint maintainer (Google's pylint variant),
   various patches
@@ -88,13 +101,14 @@ Order doesn't matter (not that much, at least ;)
 
 * Mike Frysinger: contributor.
 
-* Łukasz Rogalski: invalid-length-returned
+* Łukasz Rogalski: contributor.
 
 * Moisés López (Vauxoo): Support for deprecated-modules in modules not installed,
   Refactory wrong-import-order to integrate it with `isort` library
   Add check too-complex with mccabe for cyclomatic complexity
   Refactory wrong-import-position to skip try-import and nested cases
-  Add a new check, consider-merging-isinstance.
+  Add consider-merging-isinstance, superfluous-else-return
+  Fix consider-using-ternary for 'True and True and True or True' case
 
 * Luis Escobar (Vauxoo), Moisés López (Vauxoo): Add bad-docstring-quotes and docstring-first-line-empty
 
@@ -106,3 +120,20 @@ Order doesn't matter (not that much, at least ;)
 * Elias Dorneles: minor adjust to config defaults and docs
 
 * Yuri Bochkarev: Added epytext support to docparams extension.
+
+* Alexander Todorov: added new error conditions to 'bad-super-call',
+  Added new check for incorrect len(SEQUENCE) usage,
+  Added new extension for comparison against empty string constants,
+  Added new extension which detects comparing integers to zero
+
+* Erik Eriksson - Added overlapping-except error check.
+
+* Anthony Foglia (Google): Added simple string slots check.
+
+* Derek Gustafson: contributor
+
+* Petr Pulc: require whitespace around annotations
+
+* John Paraskevopoulos: add 'differing-param-doc' and 'differing-type-doc'
+
+* Martin von Gagern (Google): Added 'raising-format-tuple' warning.

@@ -36,7 +36,7 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
-	-rm -f features.rst
+	-rm -f reference_guide/features.rst
 	-rm -f extensions.rst
 
 html: features.rst extensions.rst

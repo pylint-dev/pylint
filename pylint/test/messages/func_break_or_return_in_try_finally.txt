@@ -1,3 +1,0 @@
-W: 18:insidious_break_and_return: break statement in finally block may swallow exception
-W: 20:insidious_break_and_return: return statement in finally block may swallow exception
-W: 39:break_and_return.strange: Cell variable my_var defined in loop

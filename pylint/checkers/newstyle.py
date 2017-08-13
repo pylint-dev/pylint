@@ -135,6 +135,25 @@ class NewStyleConflictChecker(BaseChecker):
                         self.add_message('missing-super-argument', node=call)
                         continue
 
+                # calling super(type(self), self) can lead to recursion loop
+                # in derived classes
+                arg0 = call.args[0]
+                if isinstance(arg0, astroid.Call) and \
+                   isinstance(arg0.func, astroid.Name) and \
+                   arg0.func.name == 'type':
+                    self.add_message('bad-super-call', node=call, args=('type', ))
+                    continue
+
+                # calling super(self.__class__, self) can lead to recursion loop
+                # in derived classes
+                if len(call.args) >= 2 and \
+                   isinstance(call.args[1], astroid.Name) and \
+                   call.args[1].name == 'self' and \
+                   isinstance(arg0, astroid.Attribute) and \
+                   arg0.attrname == '__class__':
+                    self.add_message('bad-super-call', node=call, args=('self.__class__', ))
+                    continue
+
                 try:
                     supcls = call.args and next(call.args[0].infer(), None)
                 except astroid.InferenceError:

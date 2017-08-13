@@ -3,25 +3,19 @@ Pylint User Manual
 ==================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :titlesonly:
 
    intro
-   contribute
-   whatsnew/index.rst
    tutorial
 
-   installation
-   run
-   output
-   message-control
-   features
-   extensions
-   options
-   ide-integration
-   plugins
+   user_guide/index.rst
+   how_tos/index.rst
+   technical_reference/index.rst
+   development_guide/index.rst
 
    faq
    backlinks
+   whatsnew/index.rst
 
 

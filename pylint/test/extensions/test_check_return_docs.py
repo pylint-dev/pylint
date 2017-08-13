@@ -12,15 +12,13 @@
 """
 from __future__ import division, print_function, absolute_import
 
-import unittest
-
 import astroid
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.docparams import DocstringParameterChecker
 
 
-class DocstringCheckerReturnTest(CheckerTestCase):
+class TestDocstringCheckerReturn(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
     CHECKER_CLASS = DocstringParameterChecker
 
@@ -571,7 +569,3 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         with self.assertAddsMessages(
                 Message(msg_id='redundant-returns-doc', node=node)):
             self.checker.visit_functiondef(node)
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -13,3 +13,6 @@ class UnknownMessageError(Exception):
 
 class EmptyReportError(Exception):
     """raised when a report is empty and so should not be displayed"""
+
+class InvalidReporterError(Exception):
+    """raised when selected reporter is invalid (e.g. not found)"""

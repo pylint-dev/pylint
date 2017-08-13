@@ -14,10 +14,8 @@ import functools
 from glob import glob
 import os
 from os import linesep, getcwd, sep
-from os.path import abspath, basename, dirname, isdir, join, splitext
+from os.path import abspath, basename, dirname, join, splitext
 import sys
-import re
-import unittest
 import tempfile
 import tokenize
 
@@ -31,8 +29,6 @@ from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
 from pylint.lint import PyLinter
 
-
-
 # Utils
 
 SYS_VERS_STR = '%d%d%d' % sys.version_info[:3]
@@ -40,10 +36,8 @@ TITLE_UNDERLINES = ['', '=', '-', '.']
 PREFIX = abspath(dirname(__file__))
 PY3K = sys.version_info[0] == 3
 
-def fix_path():
-    sys.path.insert(0, PREFIX)
 
-def get_tests_info(input_dir, msg_dir, prefix, suffix):
+def _get_tests_info(input_dir, msg_dir, prefix, suffix):
     """get python input examples and output messages
 
     We use following conventions for input files and messages:
@@ -120,16 +114,41 @@ class TestReporter(BaseReporter):
         self.reset()
         return result
 
+    # pylint: disable=unused-argument
+    def on_set_current_module(self, module, filepath):
+        pass
+    # pylint: enable=unused-argument
+
     def display_reports(self, layout):
         """ignore layouts"""
 
     _display = None
 
 
+class MinimalTestReporter(BaseReporter):
+
+    def handle_message(self, msg):
+        self.messages.append(msg)
+
+    def on_set_current_module(self, module, filepath):
+        self.messages = []
+
+    _display = None
+
+
 class Message(collections.namedtuple('Message',
-                                     ['msg_id', 'line', 'node', 'args'])):
-    def __new__(cls, msg_id, line=None, node=None, args=None):
-        return tuple.__new__(cls, (msg_id, line, node, args))
+                                     ['msg_id', 'line', 'node', 'args', 'confidence'])):
+    def __new__(cls, msg_id, line=None, node=None, args=None, confidence=None):
+        return tuple.__new__(cls, (msg_id, line, node, args, confidence))
+
+    def __eq__(self, other):
+        if isinstance(other, Message):
+            if self.confidence and other.confidence:
+                return super(Message, self).__eq__(other)
+            return self[:-1] == other[:-1]
+        return NotImplemented  # pragma: no cover
+
+    __hash__ = None
 
 
 class UnittestLinter(object):
@@ -146,9 +165,8 @@ class UnittestLinter(object):
         finally:
             self._messages = []
 
-    def add_message(self, msg_id, line=None, node=None, args=None,
-                    confidence=None):
-        self._messages.append(Message(msg_id, line, node, args))
+    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None):
+        self._messages.append(Message(msg_id, line, node, args, confidence))
 
     def is_message_enabled(self, *unused_args, **unused_kwargs):
         return True
@@ -178,12 +196,12 @@ def set_config(**kwargs):
     return _wrapper
 
 
-class CheckerTestCase(unittest.TestCase):
-    """A base testcase class for unittesting individual checker classes."""
+class CheckerTestCase(object):
+    """A base testcase class for unit testing individual checker classes."""
     CHECKER_CLASS = None
     CONFIG = {}
 
-    def setUp(self):
+    def setup_method(self):
         self.linter = UnittestLinter()
         self.checker = self.CHECKER_CLASS(self.linter) # pylint: disable=not-callable
         for key, value in six.iteritems(self.CONFIG):
@@ -209,7 +227,7 @@ class CheckerTestCase(unittest.TestCase):
         msg = ('Expected messages did not match actual.\n'
                'Expected:\n%s\nGot:\n%s' % ('\n'.join(repr(m) for m in messages),
                                             '\n'.join(repr(m) for m in got)))
-        self.assertEqual(list(messages), got, msg)
+        assert list(messages) == got, msg
 
     def walk(self, node):
         """recursive walk on the given node"""
@@ -225,159 +243,13 @@ linter.set_reporter(test_reporter)
 linter.config.persistent = 0
 checkers.initialize(linter)
 
-if linesep != '\n':
-    LINE_RGX = re.compile(linesep)
-    def ulines(string):
-        return LINE_RGX.sub('\n', string)
-else:
-    def ulines(string):
-        return string
 
-INFO_TEST_RGX = re.compile(r'^func_i\d\d\d\d$')
-
-def exception_str(self, ex): # pylint: disable=unused-argument
-    """function used to replace default __str__ method of exception instances"""
-    return 'in %s\n:: %s' % (ex.file, ', '.join(ex.args))
-
-# Test classes
-
-class LintTestUsingModule(unittest.TestCase):
-    INPUT_DIR = None
-    DEFAULT_PACKAGE = 'input'
-    package = DEFAULT_PACKAGE
-    linter = linter
-    module = None
-    depends = None
-    output = None
-    _TEST_TYPE = 'module'
-    maxDiff = None
-
-    def shortDescription(self):
-        values = {'mode' : self._TEST_TYPE,
-                  'input': self.module,
-                  'pkg':   self.package,
-                  'cls':   self.__class__.__name__}
-
-        if self.package == self.DEFAULT_PACKAGE:
-            msg = '%(mode)s test of input file "%(input)s" (%(cls)s)'
-        else:
-            msg = '%(mode)s test of input file "%(input)s" in "%(pkg)s" (%(cls)s)'
-        return msg % values
-
-    def test_functionality(self):
-        tocheck = [self.package+'.'+self.module]
-        # pylint: disable=not-an-iterable; can't handle boolean checks for now
-        if self.depends:
-            tocheck += [self.package+'.%s' % name.replace('.py', '')
-                        for name, _ in self.depends]
-        self._test(tocheck)
-
-    def _check_result(self, got):
-        self.assertMultiLineEqual(self._get_expected().strip()+'\n',
-                                  got.strip()+'\n')
-
-    def _test(self, tocheck):
-        if INFO_TEST_RGX.match(self.module):
-            self.linter.enable('I')
-        else:
-            self.linter.disable('I')
-        try:
-            self.linter.check(tocheck)
-        except Exception as ex:
-            # need finalization to restore a correct state
-            self.linter.reporter.finalize()
-            ex.file = tocheck
-            print(ex)
-            ex.__str__ = exception_str
-            raise
-        self._check_result(self.linter.reporter.finalize())
-
-    def _has_output(self):
-        return not self.module.startswith('func_noerror_')
-
-    def _get_expected(self):
-        if self._has_output() and self.output:
-            with open(self.output, 'U') as fobj:
-                return fobj.read().strip() + '\n'
-        else:
-            return ''
-
-class LintTestUsingFile(LintTestUsingModule):
-
-    _TEST_TYPE = 'file'
-
-    def test_functionality(self):
-        importable = join(self.INPUT_DIR, self.module)
-        # python also prefers packages over simple modules.
-        if not isdir(importable):
-            importable += '.py'
-        tocheck = [importable]
-        # pylint: disable=not-an-iterable; can't handle boolean checks for now
-        if self.depends:
-            tocheck += [join(self.INPUT_DIR, name) for name, _ in self.depends]
-        self._test(tocheck)
-
-class LintTestUpdate(LintTestUsingModule):
-
-    _TEST_TYPE = 'update'
-
-    def _check_result(self, got):
-        if self._has_output():
-            try:
-                expected = self._get_expected()
-            except IOError:
-                expected = ''
-            if got != expected:
-                with open(self.output, 'w') as fobj:
-                    fobj.write(got)
-
-# Callback
-
-def cb_test_gen(base_class):
-    def call(input_dir, msg_dir, module_file, messages_file, dependencies):
-        # pylint: disable=no-init
-        class LintTC(base_class):
-            module = module_file.replace('.py', '')
-            output = messages_file
-            depends = dependencies or None
-            INPUT_DIR = input_dir
-            MSG_DIR = msg_dir
-        return LintTC
-    return call
-
-# Main function
-
-def make_tests(input_dir, msg_dir, filter_rgx, callbacks):
-    """generate tests classes from test info
-
-    return the list of generated test classes
-    """
-    if filter_rgx:
-        is_to_run = re.compile(filter_rgx).search
-    else:
-        is_to_run = lambda x: 1
-    tests = []
-    for module_file, messages_file in (
-            get_tests_info(input_dir, msg_dir, 'func_', '')
-    ):
-        if not is_to_run(module_file) or module_file.endswith(('.pyc', "$py.class")):
-            continue
-        base = module_file.replace('func_', '').replace('.py', '')
-
-        dependencies = get_tests_info(input_dir, msg_dir, base, '.py')
-
-        for callback in callbacks:
-            test = callback(input_dir, msg_dir, module_file, messages_file,
-                            dependencies)
-            if test:
-                tests.append(test)
-    return tests
-
-def tokenize_str(code):
+def _tokenize_str(code):
     return list(tokenize.generate_tokens(StringIO(code).readline))
 
+
 @contextlib.contextmanager
-def create_tempfile(content=None):
+def _create_tempfile(content=None):
     """Create a new temporary file.
 
     If *content* parameter is given, then it will be written
@@ -400,10 +272,11 @@ def create_tempfile(content=None):
         os.close(file_handle)
         os.remove(tmp)
 
+
 @contextlib.contextmanager
-def create_file_backed_module(code):
+def _create_file_backed_module(code):
     """Create an astroid module for the given code, backed by a real file."""
-    with create_tempfile() as temp:
+    with _create_tempfile() as temp:
         module = astroid.parse(code)
         module.file = temp
         yield module

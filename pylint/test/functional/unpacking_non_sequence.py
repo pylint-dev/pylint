@@ -1,7 +1,7 @@
 """Check unpacking non-sequences in assignments. """
 
 # pylint: disable=too-few-public-methods, invalid-name, attribute-defined-outside-init, unused-variable, no-absolute-import
-# pylint: disable=using-constant-test, no-init, missing-docstring, wrong-import-order,wrong-import-position
+# pylint: disable=using-constant-test, no-init, missing-docstring, wrong-import-order,wrong-import-position,no-else-return
 from os import rename as nonseq_func
 from six import with_metaclass
 from functional.unpacking import nonseq
@@ -110,7 +110,7 @@ class TestBase(object):
 class Test(TestBase):
     'child class that overrides `test` method'
     def __init__(self):
-        # no error should be emitted here as `test` is overriden in this class
+        # no error should be emitted here as `test` is overridden in this class
         (self.aaa, self.bbb, self.ccc) = self.test(None)
 
     @staticmethod

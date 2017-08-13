@@ -6,12 +6,12 @@
 
 import linecache
 
-from pylint.checkers.base import BaseChecker
+from pylint import checkers
 from pylint.interfaces import IAstroidChecker, HIGH
 from pylint.checkers.utils import check_messages
 
 
-class DocStringStyleChecker(BaseChecker):
+class DocStringStyleChecker(checkers.BaseChecker):
     """Checks format of docstrings based on PEP 0257"""
 
     __implements__ = IAstroidChecker
@@ -34,7 +34,7 @@ class DocStringStyleChecker(BaseChecker):
         self._check_docstring('class', node)
 
     def visit_functiondef(self, node):
-        ftype = node.is_method() and 'method' or 'function'
+        ftype = 'method' if node.is_method() else 'function'
         self._check_docstring(ftype, node)
 
     visit_asyncfunctiondef = visit_functiondef
