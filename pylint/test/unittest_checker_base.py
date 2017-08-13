@@ -86,7 +86,7 @@ class TestNameChecker(CheckerTestCase):
            'invalid-name', node=const.targets[0],
            args=('Constant', 'const',
                  "'const-name-hint' template "
-                 "(hint: '(([A-Z_][A-Z0-9_]*)|(__.*__))$')"))
+                 "(hint: UPPER_CASE)"))
         with self.assertAddsMessages(message):
             self.checker.visit_assignname(const.targets[0])
 

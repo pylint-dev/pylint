@@ -52,6 +52,11 @@ _NAME_TYPES = {
 
 
 class NamingStyle(object):
+    """It may seem counterintuitive that single naming style
+    has multiple "accepted" forms of regular expressions,
+    but we need to special-case stuff like dunder names
+    in method names.
+    """
     CLASS_NAME_RGX = None
     MOD_NAME_RGX = None
     CONST_NAME_RGX = None
@@ -1339,11 +1344,14 @@ class NameChecker(_BasicChecker):
             if custom_regex is not None:
                 regexps[name_type] = custom_regex
 
-            hints[name_type] = regexps[name_type].pattern
             hint_value_name = "%s_name_hint" % (name_type,)
             hint_value = getattr(self.config, hint_value_name, None)
             if hint_value is not None:
-                hints[name_type] = hint_value
+                hints[name_type] = repr(hint_value)
+            elif custom_regex is not None:
+                hints[name_type] = repr(custom_regex.pattern)
+            else:
+                hints[name_type] = naming_style_name
 
         return regexps, hints
 
@@ -1451,8 +1459,8 @@ class NameChecker(_BasicChecker):
         hint_part = '%r template' % hint_name
 
         if self.config.include_naming_hint:
-            hint_name_or_rgx = getattr(self.config, hint_name.replace('-', '_'))
-            hint_part += ' (hint: %r)' % hint_name_or_rgx
+            hint_name_or_rgx = self._name_hints[node_type]
+            hint_part += ' (hint: %s)' % hint_name_or_rgx
 
         args = (
             type_label.capitalize(),
