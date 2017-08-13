@@ -37,6 +37,19 @@ from pylint.checkers import utils
 from pylint import reporters
 from pylint.reporters.ureports import nodes as reporter_nodes
 
+_NAME_TYPES = {
+    'module': 'module',
+    'const': 'constant',
+    'class': 'class',
+    'function': 'function',
+    'method': 'method',
+    'attr': 'attribute',
+    'argument': 'argument',
+    'variable': 'variable',
+    'class_attribute': 'class attribute',
+    'inlinevar': 'inline iteration',
+}
+
 
 class NamingStyle(object):
     CLASS_NAME_RGX = None
@@ -1432,20 +1445,14 @@ class NameChecker(_BasicChecker):
         return self._name_group.get(node_type, node_type)
 
     def _raise_name_warning(self, node, node_type, name, confidence):
-        type_label = HUMAN_READABLE_TYPES[node_type]
-        hint = ''
-        if self.config.include_naming_hint:
-            hint = ' (hint: %s)' % (self._name_hints[node_type],)
-        self.add_message('invalid-name', node=node, args=(type_label, name, hint),
-
-        type_label = _NAME_TYPES[node_type][1]
+        type_label = _NAME_TYPES[node_type]
 
         hint_name = node_type.replace('_', '-') + '-name-hint'
         hint_part = '%r template' % hint_name
 
         if self.config.include_naming_hint:
-            hint_rgx = getattr(self.config, hint_name.replace('-', '_'))
-            hint_part += ' (hint: %r)' % hint_rgx
+            hint_name_or_rgx = getattr(self.config, hint_name.replace('-', '_'))
+            hint_part += ' (hint: %r)' % hint_name_or_rgx
 
         args = (
             type_label.capitalize(),
