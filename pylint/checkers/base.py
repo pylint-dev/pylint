@@ -105,9 +105,6 @@ class UpperCaseStyle(NamingStyle):
 NAMING_STYLES = {'snake_case': SnakeCaseStyle, 'camelCase': CamelCaseStyle,
                  'PascalCase': PascalCaseStyle, 'UPPER_CASE': UpperCaseStyle}
 
-DEFAULT_NAMING_STYLE_NAME = 'snake_case'
-DEFAULT_NAMING_STYLE = NAMING_STYLES[DEFAULT_NAMING_STYLE_NAME]
-
 # do not require a doc string on private/system methods
 NO_REQUIRED_DOC_RGX = re.compile('^_')
 REVERSED_PROTOCOL_METHOD = '__reversed__'
