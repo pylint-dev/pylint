@@ -1,1 +1,1 @@
-invalid-name:22:say_hello:Function name "say_hello" doesn't conform to 'function-name-hint' template (hint\: camelCase)
+invalid-name:22:say_hello:"Function name ""say_hello"" doesn't conform to 'function-name-hint' template (hint: camelCase)"
