@@ -135,21 +135,24 @@ def _positional_parameters(method):
 
 def _has_different_parameters_default_value(original, overridden):
     """
+    Check if original and overridden methods arguments have the same default values
+
     Return True if one of the overridden arguments has a default
     value different from the default value of the original argument
+    If one of the method doesn't have argument (.args is None)
+    return False
     """
     if original.args is not None and overridden.args is not None:
-        orig_name = [param.name for param in original.args]
-        for param_name in orig_name:
+        original_param_names = [param.name for param in original.args]
+        default_missing = object()
+        for param_name in original_param_names:
             try:
-                orig_default = original.default_value(param_name).as_string()
+                original_default = original.default_value(param_name).value
             except astroid.exceptions.NoDefault:
-                # The case where the default value is really set to None is handled
-                # thanks to as_string method used above which returns the string 'None'
-                orig_default = None
+                original_default = default_missing
             try:
-                over_default = overridden.default_value(param_name).as_string()
-                if orig_default != over_default:
+                overridden_default = overridden.default_value(param_name).value
+                if original_default != overridden_default:
                     return True
             except astroid.exceptions.NoDefault:
                 pass
