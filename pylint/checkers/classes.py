@@ -138,20 +138,21 @@ def _has_different_parameters_default_value(original, overridden):
     Return True if one of the overridden arguments has a default
     value different from the default value of the original argument
     """
-    orig_name = [param.name for param in original.args]
-    for param_name in orig_name:
-        try:
-            orig_default = original.default_value(param_name).as_string()
-        except astroid.exceptions.NoDefault:
-            # The case where the default value is really set to None is handled
-            # thanks to as_string method used above which returns the string 'None'
-            orig_default = None
-        try:
-            over_default = overridden.default_value(param_name).as_string()
-            if orig_default != over_default:
-                return True
-        except astroid.exceptions.NoDefault:
-            pass
+    if original.args is not None and overridden.args is not None:
+        orig_name = [param.name for param in original.args]
+        for param_name in orig_name:
+            try:
+                orig_default = original.default_value(param_name).as_string()
+            except astroid.exceptions.NoDefault:
+                # The case where the default value is really set to None is handled
+                # thanks to as_string method used above which returns the string 'None'
+                orig_default = None
+            try:
+                over_default = overridden.default_value(param_name).as_string()
+                if orig_default != over_default:
+                    return True
+            except astroid.exceptions.NoDefault:
+                pass
     return False
 
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
@@ -668,29 +669,40 @@ a metaclass class method.'}
         if not node.is_method():
             return
 
-        self._check_useless_super_delegation(node)
-
         klass = node.parent.frame()
         self._meth_could_be_func = True
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == 'metaclass')
         if node.name == '__init__':
+            self._check_useless_super_delegation(node)
             self._check_init(node)
             return
-        # check signature if the method overloads inherited method
-        for overridden in klass.local_attr_ancestors(node.name):
-            # get astroid for the searched method
-            try:
-                meth_node = overridden[node.name]
-            except KeyError:
-                # we have found the method but it's not in the local
-                # dictionary.
-                # This may happen with astroid build from living objects
-                continue
-            if not isinstance(meth_node, astroid.FunctionDef):
-                continue
-            self._check_signature(node, meth_node, 'overridden', klass)
-            break
+
+        # if the method overloads inherited method then
+        # - check for useless super delegation if the argument default values are
+        #   the same in the base method and in the overridden one
+        # - check signature
+        # otherwise just check for useless super delegation
+        if list(klass.local_attr_ancestors(node.name)):
+            for overridden in klass.local_attr_ancestors(node.name):
+                # get astroid for the searched method
+                try:
+                    meth_node = overridden[node.name]
+                except KeyError:
+                    # we have found the method but it's not in the local
+                    # dictionary.
+                    # This may happen with astroid build from living objects
+                    continue
+                if not isinstance(meth_node, astroid.FunctionDef):
+                    continue
+                # Don't care about functions with unknown argument (builtins).
+                if not _has_different_parameters_default_value(meth_node.args, node.args):
+                    self._check_useless_super_delegation(node)
+                self._check_signature(node, meth_node, 'overridden', klass)
+                break
+        else:
+            self._check_useless_super_delegation(node)
+
         if node.decorators:
             for decorator in node.decorators.nodes:
                 if isinstance(decorator, astroid.Attribute) and \
@@ -724,10 +736,12 @@ a metaclass class method.'}
         nothing additional whatsoever than not implementing the method at all.
         If the method uses super() to delegate an operation to the rest of the MRO,
         and if the method called is the same as the current one, the arguments
-        passed to super(), including their default value,
-        are the same as the parameters that were passed to
+        passed to super() are the same as the parameters that were passed to
         this method, then the method could be removed altogether, by letting
         other implementation to take precedence.
+
+        warning: doesn't take into account the argument default values to determine
+        if the overridden method is useless
         '''
 
         if not function.is_method():
@@ -778,45 +792,12 @@ a metaclass class method.'}
         if super_call.type.name != current_scope.name:
             return
 
-        # Detect if the method has argument with default value that is
-        # different from the one used in the base method
-        if self._check_different_default_values_in_overridden_method(function):
-            return
-
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
         args = _signature_from_call(call)
         if _definition_equivalent_to_call(params, args):
             self.add_message('useless-super-delegation', node=function,
                              args=(function.name, ))
-
-    @staticmethod
-    def _check_different_default_values_in_overridden_method(function):
-        """
-        Check if the parameters default values in overridden methods are
-        different from those in the base class
-        """
-        klass = function.parent.frame()
-        for overridden in klass.local_attr_ancestors(function.name):
-            # get astroid for the searched method
-            try:
-                meth_node = overridden[function.name]
-            except KeyError:
-                # we have found the method but it's not in the local
-                # dictionary.
-                # This may happen with astroid build from living objects
-                continue
-            if not isinstance(meth_node, astroid.FunctionDef):
-                continue
-            instance = klass.instantiate_class()
-            method1 = function_to_method(function, instance)
-            refmethod = function_to_method(meth_node, instance)
-            # Don't care about functions with unknown argument (builtins).
-            if method1.args.args is None or refmethod.args.args is None:
-                continue
-            if _has_different_parameters_default_value(refmethod.args, method1.args):
-                return True
-        return False
 
     def _check_slots(self, node):
         if '__slots__' not in node.locals:

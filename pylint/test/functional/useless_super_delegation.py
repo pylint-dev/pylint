@@ -1,11 +1,13 @@
 # pylint: disable=missing-docstring, no-member, no-self-use, bad-super-call
 # pylint: disable=too-few-public-methods, unused-argument,invalid-name,too-many-public-methods
 
-def not_a_method():
-    return super(None, None).not_a_method()
+def not_a_method(param, param2):
+    return super(None, None).not_a_method(param, param2)
 
 
 class Base(object):
+
+    fake_method = not_a_method
 
     def something(self):
         pass
@@ -24,6 +26,7 @@ class Base(object):
 
     def with_default_argument_int(self, first, default_arg=42):
         pass
+
 
 class NotUselessSuper(Base):
 
@@ -125,6 +128,9 @@ class NotUselessSuper(Base):
     def with_default_argument_int(self, first, default_arg="42"):
         # Not useless because the default_arg is a string whereas in the base class it's an int
         super(NotUselessSuper, self).with_default_argument_int(first, default_arg)
+
+    def fake_method(self, param2="other"):
+        super(NotUselessSuper, self).fake_method(param2)
 
 class UselessSuper(Base):
 
