@@ -460,7 +460,7 @@ class VariablesChecker(BaseChecker):
                 elt_name = next(elt.infer())
             except astroid.InferenceError:
                 continue
-            if elt_name is astroid.YES:
+            if elt_name is astroid.Uninferable:
                 continue
             if not elt_name.parent:
                 continue
@@ -1222,7 +1222,7 @@ class VariablesChecker(BaseChecker):
                 break
             try:
                 module = next(module.getattr(name)[0].infer())
-                if module is astroid.YES:
+                if module is astroid.Uninferable:
                     return None
             except astroid.NotFoundError:
                 if module.name in self._ignored_modules:
