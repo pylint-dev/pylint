@@ -799,7 +799,7 @@ a metaclass class method.'}
 
     def _check_slots_elt(self, elt):
         for infered in elt.infer():
-            if infered is astroid.YES:
+            if infered is astroid.Uninferable:
                 continue
             if (not isinstance(infered, astroid.Const) or
                     not isinstance(infered.value, six.string_types)):
@@ -1172,7 +1172,7 @@ a metaclass class method.'}
                 return
             try:
                 for klass in expr.expr.infer():
-                    if klass is astroid.YES:
+                    if klass is astroid.Uninferable:
                         continue
                     # The infered klass can be super(), which was
                     # assigned to a variable and the `__init__`

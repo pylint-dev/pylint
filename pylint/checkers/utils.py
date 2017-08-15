@@ -820,7 +820,7 @@ def node_type(node):
     types = set()
     try:
         for var_type in node.infer():
-            if var_type == astroid.YES or is_none(var_type):
+            if var_type == astroid.Uninferable or is_none(var_type):
                 continue
             types.add(var_type)
             if len(types) > 1:
