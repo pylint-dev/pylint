@@ -81,6 +81,12 @@ What's New in Pylint 1.8?
       c-extensions.
       Close #1466
 
+    * Disabling 'wrong-import-order', 'wrong-import-position', or
+      'ungrouped-imports' for a single line now prevents that line from
+      triggering violations on subsequent lines.
+
+      Close #1336
+
 What's New in Pylint 1.7.1?
 =========================
 
@@ -124,12 +130,6 @@ Release date: 2017-04-13
       and 'differing-type-doc' covers the differing part of the old 'missing-type-doc'
 
       Close #1342
-
-    * Disabling 'wrong-import-order', 'wrong-import-position', or
-      'ungrouped-imports' for a single line now prevents that line from
-      triggering violations on subsequent lines.
-
-      Close #1336
 
     * Added a new error, 'used-prior-global-declaration', which is emitted when a name
       is used prior a global declaration in a function. This causes a SyntaxError in
