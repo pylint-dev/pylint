@@ -42,8 +42,9 @@ def _check_dict_node(node):
     inferred_types = set()
     try:
         inferred = node.infer()
-        for inferred_node in inferred:
-            inferred_types.add(inferred_node)
+        if inferred is not astroid.Uninferable:
+            for inferred_node in inferred:
+                inferred_types.add(inferred_node)
     except astroid.InferenceError:
         pass
     return (not inferred_types
@@ -740,6 +741,8 @@ class Python3Checker(checkers.BaseChecker):
             inferred_types = set()
             try:
                 for inferred_receiver in node.func.expr.infer():
+                    if inferred_receiver is astroid.Uninferable:
+                        continue
                     inferred_types.add(inferred_receiver)
                     if isinstance(inferred_receiver, astroid.Module):
                         self._warn_if_deprecated(node, inferred_receiver.name,
