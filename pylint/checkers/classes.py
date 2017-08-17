@@ -147,11 +147,19 @@ def _has_different_parameters_default_value(original, overridden):
         default_missing = object()
         for param_name in original_param_names:
             try:
-                original_default = original.default_value(param_name).value
+                original_default = original.default_value(param_name)
             except astroid.exceptions.NoDefault:
                 original_default = default_missing
             try:
-                overridden_default = overridden.default_value(param_name).value
+                original_default = original_default.value
+            except AttributeError:
+                pass
+            try:
+                overridden_default = overridden.default_value(param_name)
+                try:
+                    overridden_default = overridden_default.value
+                except AttributeError:
+                    pass
                 if original_default != overridden_default:
                     return True
             except astroid.exceptions.NoDefault:
