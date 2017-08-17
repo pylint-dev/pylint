@@ -37,12 +37,12 @@ from pylint.checkers import utils
 from pylint import reporters
 from pylint.reporters.ureports import nodes as reporter_nodes
 
+
 class NamingStyle(object):
-    """It may seem counterintuitive that single naming style
-    has multiple "accepted" forms of regular expressions,
-    but we need to special-case stuff like dunder names
-    in method names.
-    """
+    # It may seem counterintuitive that single naming style
+    # has multiple "accepted" forms of regular expressions,
+    # but we need to special-case stuff like dunder names
+    # in method names.
     CLASS_NAME_RGX = None
     MOD_NAME_RGX = None
     CONST_NAME_RGX = None
@@ -51,7 +51,7 @@ class NamingStyle(object):
     CLASS_ATTRIBUTE_RGX = None
 
     @classmethod
-    def get_regex(cls, node_type):
+    def get_regex(cls, name_type):
         return {
             'module': cls.MOD_NAME_RGX,
             'const': cls.CONST_NAME_RGX,
@@ -63,51 +63,54 @@ class NamingStyle(object):
             'variable': cls.DEFAULT_NAME_RGX,
             'class_attribute': cls.CLASS_ATTRIBUTE_RGX,
             'inlinevar': cls.COMP_VAR_RGX,
-        }[node_type]
+        }[name_type]
 
 
 class SnakeCaseStyle(NamingStyle):
-    # TODO: figure out appropriate regular expressions
-    CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-    MOD_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$')
-    CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
-    COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9_]*$')
-    DEFAULT_NAME_RGX = re.compile('(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$')
-    CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
+    CLASS_NAME_RGX = re.compile('[a-z_][a-z0-9_]+$')
+    MOD_NAME_RGX = re.compile('([a-z_][a-z0-9_]*)$')
+    CONST_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[a-z_][a-z0-9_]*$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-z0-9_]{2,30})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'(([a-z_][a-z0-9_]{2,30}|(__.*__)))$')
 
 
 class CamelCaseStyle(NamingStyle):
-    # TODO: figure out appropriate regular expressions
-    CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-    MOD_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]*)|([A-Z][a-zA-Z0-9]+))$')
-    CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
-    COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9]*$')
-    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]{2,30})|(__[a-z][a-zA-Z0-9]+__))$')
-    CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9]{2,30}|(__.*__))$')
+    CLASS_NAME_RGX = re.compile('[a-z_][a-zA-Z0-9]+$')
+    MOD_NAME_RGX = re.compile('([a-z_][a-zA-Z0-9]*)$')
+    CONST_NAME_RGX = re.compile('(([a-z_][A-Za-z0-9]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[a-z_][A-Za-z0-9]*$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]{2,30})|(__[a-z][a-zA-Z0-9_]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'([a-z_][A-Za-z0-9]{2,30}|(__.*__))$')
 
 
 class PascalCaseStyle(NamingStyle):
-    # TODO: figure out appropriate regular expressions
     CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
     MOD_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-    CONST_NAME_RGX = re.compile('(([A-Z_][A-Za-z0-9_]*)|(__.*__))$')
+    CONST_NAME_RGX = re.compile('(([A-Z_][A-Za-z0-9]*)|(__.*__))$')
     COMP_VAR_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-    DEFAULT_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    DEFAULT_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,30}$|(__[a-z][a-zA-Z0-9_]+__)$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,30}$')
 
 
 class UpperCaseStyle(NamingStyle):
-    # TODO: figure out appropriate regular expressions
     CLASS_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
     MOD_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
     CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
-    COMP_VAR_RGX = re.compile('[A-Z_][A-Z0-9]+$')
-    DEFAULT_NAME_RGX = re.compile('[A-Z_][A-Z0-9]+$')
-    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][A-Z0-9]+$')
+    COMP_VAR_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
+    DEFAULT_NAME_RGX = re.compile('([A-Z_][A-Z0-9_]{2,30})|(__[a-z][a-zA-Z0-9_]+__)$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][A-Z0-9_]{2,30}$')
+
+
+class AnyStyle(NamingStyle):
+    @classmethod
+    def get_regex(cls, name_type):
+        return re.compile('.*')
 
 
 NAMING_STYLES = {'snake_case': SnakeCaseStyle, 'camelCase': CamelCaseStyle,
-                 'PascalCase': PascalCaseStyle, 'UPPER_CASE': UpperCaseStyle}
+                 'PascalCase': PascalCaseStyle, 'UPPER_CASE': UpperCaseStyle,
+                 'any': AnyStyle}
 
 # do not require a doc string on private/system methods
 NO_REQUIRED_DOC_RGX = re.compile('^_')
@@ -1179,7 +1182,7 @@ functions, methods
                         self.add_message('confusing-with-statement', node=node)
 
 
-KNOWN_NODE_TYPES = frozenset(
+KNOWN_NAME_TYPES = frozenset(
     ["module", "const", "class", "function", "method", "attr",
      "argument", "variable", "class_attribute", "inlinevar"]
 )
@@ -1195,7 +1198,7 @@ HUMAN_READABLE_TYPES = {
     'argument': 'argument',
     'variable': 'variable',
     'class_attribute': 'class attribute',
-    'inlinevar': 'inline iteration'
+    'inlinevar': 'inline iteration',
 }
 
 DEFAULT_NAMING_STYLES = {
@@ -1207,14 +1210,14 @@ DEFAULT_NAMING_STYLES = {
     "attr": "snake_case",
     "argument": "snake_case",
     "variable": "snake_case",
-    "class_attribute": "snake_case",
-    "inlinevar": "snake_case"
+    "class_attribute": "any",
+    "inlinevar": "any",
 }
 
 
 def _create_naming_options():
     name_options = []
-    for name_type in KNOWN_NODE_TYPES:
+    for name_type in KNOWN_NAME_TYPES:
         human_readable_name = HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace('_', '-')
@@ -1240,7 +1243,7 @@ class NameChecker(_BasicChecker):
                   'names).'),
         'C0103': ('%s name "%s" doesn\'t conform to %s',
                   'invalid-name',
-                  'Used when the name doesn\'t match the regular expression '
+                  'Used when the name doesn\'t conform to naming rules '
                   'associated to its type (constant, variable, class...).'),
         'W0111': ('Name %s will become a keyword in Python %s',
                   'assign-to-new-keyword',
@@ -1266,6 +1269,10 @@ class NameChecker(_BasicChecker):
                  'help' : ('Colon-delimited sets of names that determine each'
                            ' other\'s naming style when the name regexes'
                            ' allow several styles.')}
+               ),
+               ('include-naming-hint',
+                {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'Include a hint for the correct naming format with invalid-name'}
                ),
                ('property-classes',
                 {'default': ('abc.abstractproperty',),
@@ -1311,7 +1318,7 @@ class NameChecker(_BasicChecker):
         regexps = {}
         hints = {}
 
-        for name_type in KNOWN_NODE_TYPES:
+        for name_type in KNOWN_NAME_TYPES:
             naming_style_option_name = "%s_naming_style" % (name_type,)
             naming_style_name = getattr(self.config, naming_style_option_name)
 
@@ -1429,7 +1436,8 @@ class NameChecker(_BasicChecker):
     def _raise_name_warning(self, node, node_type, name, confidence):
         type_label = HUMAN_READABLE_TYPES[node_type]
         hint = self._name_hints[node_type]
-
+        if self.config.include_naming_hint:
+            hint += " (%r pattern)" % self._name_regexps[node_type].pattern
         args = (
             type_label.capitalize(),
             name,

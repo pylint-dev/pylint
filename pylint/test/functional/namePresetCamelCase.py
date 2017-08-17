@@ -1,13 +1,13 @@
 # pylint: disable=old-style-class,missing-docstring,too-few-public-methods
 __version__ = "1.0"
-SOME_CONSTANT = 42
+SOME_CONSTANT = 42  # [invalid-name]
 
 
 def sayHello(someArgument):
     return [someArgument * someValue for someValue in range(10)]
 
 
-class MyClass:
+class MyClass:  # [invalid-name]
     def __init__(self, argX):
         self._mySecretX = argX
 
