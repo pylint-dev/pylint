@@ -147,23 +147,22 @@ def _has_different_parameters_default_value(original, overridden):
         default_missing = object()
         for param_name in original_param_names:
             try:
-                original_default = original.default_value(param_name)
+                original_default = original.default_value(param_name).value
+            except AttributeError:
+                # if value attribute doesn't exist, it may be due to the fact
+                # that the default value is a ClassDef object and then the default
+                # value is taken to be the string representation
+                original_default = original.default_value(param_name).as_string()
             except astroid.exceptions.NoDefault:
                 original_default = default_missing
             try:
-                original_default = original_default.value
+                overridden_default = overridden.default_value(param_name).value
             except AttributeError:
-                pass
-            try:
-                overridden_default = overridden.default_value(param_name)
-                try:
-                    overridden_default = overridden_default.value
-                except AttributeError:
-                    pass
-                if original_default != overridden_default:
-                    return True
+                overridden_default = overridden.default_value(param_name).as_string()
             except astroid.exceptions.NoDefault:
-                pass
+                continue
+            if original_default != overridden_default:
+                return True
     return False
 
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
