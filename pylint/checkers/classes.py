@@ -142,7 +142,7 @@ def _has_different_parameters_default_value(original, overridden):
     If one of the method doesn't have argument (.args is None)
     return False
     """
-    if original.args is not None and overridden.args is not None:
+    if original.args is None or overridden.args is None:
         return False
 
     original_param_names = [param.name for param in original.args]
