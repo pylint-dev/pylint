@@ -143,26 +143,28 @@ def _has_different_parameters_default_value(original, overridden):
     return False
     """
     if original.args is not None and overridden.args is not None:
-        original_param_names = [param.name for param in original.args]
-        default_missing = object()
-        for param_name in original_param_names:
-            try:
-                original_default = original.default_value(param_name).value
-            except AttributeError:
-                # if value attribute doesn't exist, it may be due to the fact
-                # that the default value is a ClassDef object and then the default
-                # value is taken to be the string representation
-                original_default = original.default_value(param_name).as_string()
-            except astroid.exceptions.NoDefault:
-                original_default = default_missing
-            try:
-                overridden_default = overridden.default_value(param_name).value
-            except AttributeError:
-                overridden_default = overridden.default_value(param_name).as_string()
-            except astroid.exceptions.NoDefault:
-                continue
-            if original_default != overridden_default:
-                return True
+        return False
+
+    original_param_names = [param.name for param in original.args]
+    default_missing = object()
+    for param_name in original_param_names:
+        try:
+            original_default = original.default_value(param_name).value
+        except AttributeError:
+            # if value attribute doesn't exist, it may be due to the fact
+            # that the default value is a ClassDef object and then the default
+            # value is taken to be the string representation
+            original_default = original.default_value(param_name).as_string()
+        except astroid.exceptions.NoDefault:
+            original_default = default_missing
+        try:
+            overridden_default = overridden.default_value(param_name).value
+        except AttributeError:
+            overridden_default = overridden.default_value(param_name).as_string()
+        except astroid.exceptions.NoDefault:
+            continue
+        if original_default != overridden_default:
+            return True
     return False
 
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
