@@ -2,7 +2,7 @@
 from __future__ import print_function
 __revision__ = 0
 
-def test_return_for():
+def test_return_for(): # pylint: disable=inconsistent-return-statements
     """else + return is not accetable."""
     for i in range(10):
         if i % 2:
@@ -10,7 +10,7 @@ def test_return_for():
     else:  # [useless-else-on-loop]
         print('math is broken')
 
-def test_return_while():
+def test_return_while(): # pylint: disable=inconsistent-return-statements
     """else + return is not accetable."""
     while True:
         return 1

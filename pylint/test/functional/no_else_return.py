@@ -43,7 +43,7 @@ def bar1(x, y, z):
     return z
 
 
-def bar2(w, x, y, z):
+def bar2(w, x, y, z): # pylint: disable=inconsistent-return-statements
     if x:
         return y
     elif z:
@@ -52,7 +52,7 @@ def bar2(w, x, y, z):
         return w
 
 
-def bar3(x, y, z):
+def bar3(x, y, z): # pylint: disable=inconsistent-return-statements
     if x:
         if z:
             return y

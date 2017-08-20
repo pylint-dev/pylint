@@ -124,7 +124,7 @@ if tuple():
 if [1, 2, 3][:1]:
     pass
 
-def test(*args):
+def test(*args): # pylint: disable=inconsistent-return-statements
     if args:
         return 42
 

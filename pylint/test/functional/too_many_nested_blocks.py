@@ -54,7 +54,7 @@ def more_complex_function():
                 return 'doh'
             return None
 
-def elif_function():
+def elif_function(): # pylint: disable=inconsistent-return-statements
     arg = None
     if arg == 1:
         return 1
@@ -71,7 +71,7 @@ def elif_function():
     elif arg == 7:
         return 7
 
-def else_if_function():
+def else_if_function(): # pylint: disable=inconsistent-return-statements
     arg = None
     if arg == 1:  # [too-many-nested-blocks]
         return 1

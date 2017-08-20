@@ -133,7 +133,7 @@ def flow_control_false_positive():
     return system, node, release, version, machine, processor
 
 
-def flow_control_unpacking(var=None):
+def flow_control_unpacking(var=None): # pylint: disable=inconsistent-return-statements
     if var is not None:
         var0, var1 = var
         return var0, var1

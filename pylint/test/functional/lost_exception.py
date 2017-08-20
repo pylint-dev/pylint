@@ -30,7 +30,7 @@ def break_and_return():
                 if True:
                     break
             else:
-                def strange():
+                def strange(): # pylint: disable=inconsistent-return-statements
                     if True:
                         return my_var
                 strange()
