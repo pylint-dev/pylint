@@ -111,6 +111,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'a generator may lead to hard to find bugs. This PEP specify that '
                   'raise StopIteration has to be replaced by a simple return statement',
                   {'minversion': (3, 0)}),
+        'R1710': ('Either all return statements in a function should return an expression, '
+                  'or none of them should.',
+                  'inconsistent-return-statements',
+                  'According to PEP8, if any return statement returns an expression, '
+                  'any return statements where no value is returned should explicitly '
+                  'state this as return None, and an explicit return statement '
+                  'should be present at the end of the function (if reachable)'
+                 ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -122,6 +130,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def __init__(self, linter=None):
         checkers.BaseTokenChecker.__init__(self, linter)
+        self._return_nodes = {}
         self._init()
 
     def _init(self):
@@ -309,12 +318,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
 
-    @utils.check_messages('too-many-nested-blocks')
-    def leave_functiondef(self, _):
+    @utils.check_messages('too-many-nested-blocks', 'inconsistent-return-statements')
+    def leave_functiondef(self, node):
         # check left-over nested blocks stack
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
         # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
+        # check consistent return statements
+        self._check_consistent_returns(node)
+        self._return_nodes[node.name].clear()
 
     def visit_raise(self, node):
         self._check_stop_iteration_inside_generator(node)
@@ -489,6 +501,40 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         condition = node.slice.value
         return condition, true_value, false_value
 
+    def visit_functiondef(self, node):
+        self._return_nodes[node.name] = []
+        return_nodes = node.nodes_of_class(astroid.Return)
+        for return_node in return_nodes:
+            if return_node.frame() != node.frame(): # case of nested function
+                continue
+            self._return_nodes[node.name].append(return_node)
+
+    def _check_consistent_returns(self, node):
+        """Check that all return statements inside a function are consistent
+
+        Emit message if:
+            - all returns are explicit and if there is no implicit return
+            - all returns are empty and if there is, possibly, an implicit return
+        """
+        import ipdb; ipdb.set_trace()
+        explicit_returns = [_node for _node in self._return_nodes[node.name] if _node.value is not None]
+        if (len(explicit_returns) == len(self._return_nodes[node.name]) and
+                self._has_function_explicit_return_statement(self._return_nodes[node.name])):
+            return
+        elif not explicit_returns:
+            return
+        self.add_message('inconsistent-return-statements', node=node)
+
+    @staticmethod
+    def _has_function_explicit_return_statement(return_nodes):
+        """Return True if none of the return nodes are implicit one"""
+        for return_node in return_nodes:
+            if return_node.parent == return_node.frame():
+                return True
+            elif (isinstance(return_node.parent, astroid.If) and
+                  _if_statement_is_always_returning(return_node.parent)):
+                return True
+        return False
 
 class RecommandationChecker(checkers.BaseChecker):
     __implements__ = (interfaces.IAstroidChecker,)
