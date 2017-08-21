@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+	* Fixing u'' string in superfluous-parens message 
+
+      Close #1420
+
     * The `invalid-name` check contains the name of the template that caused the failure
 
       Close #1176

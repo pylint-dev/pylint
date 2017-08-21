@@ -398,6 +398,8 @@ class MessagesHandlerMixIn(object):
         # expand message ?
         msg = msg_info.msg
         if args:
+            if isinstance(args, six.text_type):
+                args = str(args)
             msg %= args
         # get module and object
         if node is None:
