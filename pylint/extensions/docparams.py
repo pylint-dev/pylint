@@ -1,3 +1,8 @@
+# Copyright (c) 2014-2015 Bruno Daniel <bruno.daniel@blue-yonder.com>
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -9,7 +14,7 @@ import astroid
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import node_frame_class
+from pylint.checkers import utils as checker_utils
 import pylint.extensions._check_docs_utils as utils
 
 
@@ -24,7 +29,7 @@ class DocstringParameterChecker(BaseChecker):
       the documentation, i.e. also report documented parameters that are missing
       in the signature. This is important to find cases where parameters are
       renamed only in the code, not in the documentation.
-    * Check that all explicity raised exceptions in a function are documented
+    * Check that all explicitly raised exceptions in a function are documented
       in the function docstring. Caught exceptions are ignored.
 
     Activate this checker by adding the line::
@@ -40,30 +45,54 @@ class DocstringParameterChecker(BaseChecker):
 
     name = 'parameter_documentation'
     msgs = {
-        'W9003': ('"%s" missing or differing in parameter documentation',
-                  'missing-param-doc',
-                  'Please add parameter declarations for all parameters.'),
-        'W9004': ('"%s" missing or differing in parameter type documentation',
-                  'missing-type-doc',
-                  'Please add parameter type declarations for all parameters.'),
         'W9005': ('"%s" has constructor parameters documented in class and __init__',
                   'multiple-constructor-doc',
                   'Please remove parameter declarations in the class or constructor.'),
         'W9006': ('"%s" not documented as being raised',
                   'missing-raises-doc',
                   'Please document exceptions for all raised exception types.'),
-        'W9007': ('Missing return type documentation',
-                  'missing-returns-doc',
-                  'Please add documentation about what this method returns.'),
         'W9008': ('Redundant returns documentation',
                   'redundant-returns-doc',
-                  'Please remove the return documentation from this method.'),
-        'W9009': ('Missing yield type documentation',
-                  'missing-yields-doc',
-                  'Please add documentation about what this generator yields.'),
+                  'Please remove the return/rtype documentation from this method.'),
         'W9010': ('Redundant yields documentation',
                   'redundant-yields-doc',
                   'Please remove the yields documentation from this method.'),
+        'W9011': ('Missing return documentation',
+                  'missing-return-doc',
+                  'Please add documentation about what this method returns.',
+                  {'old_names': [('W9007', 'missing-returns-doc')]}),
+        'W9012': ('Missing return type documentation',
+                  'missing-return-type-doc',
+                  'Please document the type returned by this method.',
+                  # we can't use the same old_name for two different warnings
+                  # {'old_names': [('W9007', 'missing-returns-doc')]},
+                 ),
+        'W9013': ('Missing yield documentation',
+                  'missing-yield-doc',
+                  'Please add documentation about what this generator yields.',
+                  {'old_names': [('W9009', 'missing-yields-doc')]}),
+        'W9014': ('Missing yield type documentation',
+                  'missing-yield-type-doc',
+                  'Please document the type yielded by this method.',
+                  # we can't use the same old_name for two different warnings
+                  # {'old_names': [('W9009', 'missing-yields-doc')]},
+                 ),
+        'W9015': ('"%s" missing in parameter documentation',
+                  'missing-param-doc',
+                  'Please add parameter declarations for all parameters.',
+                  {'old_names': [('W9003', 'missing-param-doc')]}),
+        'W9016': ('"%s" missing in parameter type documentation',
+                  'missing-type-doc',
+                  'Please add parameter type declarations for all parameters.',
+                  {'old_names': [('W9004', 'missing-type-doc')]}),
+        'W9017': ('"%s" differing in parameter documentation',
+                  'differing-param-doc',
+                  'Please check parameter names in declarations.',
+                 ),
+        'W9018': ('"%s" differing in parameter type documentation',
+                  'differing-type-doc',
+                  'Please check parameter names in type declarations.',
+                 ),
     }
 
     options = (('accept-no-param-doc',
@@ -110,15 +139,23 @@ class DocstringParameterChecker(BaseChecker):
     def check_functiondef_params(self, node, node_doc):
         node_allow_no_param = None
         if node.name in self.constructor_names:
-            class_node = node_frame_class(node)
+            class_node = checker_utils.node_frame_class(node)
             if class_node is not None:
                 class_doc = utils.docstringify(class_node.doc)
                 self.check_single_constructor_params(class_doc, node_doc, class_node)
 
                 # __init__ or class docstrings can have no parameters documented
                 # as long as the other documents them.
-                node_allow_no_param = class_doc.has_params() or None
-                class_allow_no_param = node_doc.has_params() or None
+                node_allow_no_param = (
+                    class_doc.has_params() or
+                    class_doc.params_documented_elsewhere() or
+                    None
+                )
+                class_allow_no_param = (
+                    node_doc.has_params() or
+                    node_doc.params_documented_elsewhere() or
+                    None
+                )
 
                 self.check_arguments_in_docstring(
                     class_doc, node.args, class_node, class_allow_no_param)
@@ -131,7 +168,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         return_nodes = node.nodes_of_class(astroid.Return)
-        if (node_doc.has_returns() and
+        if ((node_doc.has_returns() or node_doc.has_rtype()) and
                 not any(utils.returns_something(ret_node) for ret_node in return_nodes)):
             self.add_message(
                 'redundant-returns-doc',
@@ -141,7 +178,8 @@ class DocstringParameterChecker(BaseChecker):
         if not node_doc.supports_yields:
             return
 
-        if node_doc.has_yields() and not node.is_generator():
+        if ((node_doc.has_yields() or node_doc.has_yields_type()) and
+                not node.is_generator()):
             self.add_message(
                 'redundant-yields-doc',
                 node=node)
@@ -154,6 +192,13 @@ class DocstringParameterChecker(BaseChecker):
         expected_excs = utils.possible_exc_types(node)
         if not expected_excs:
             return
+
+        if not func_node.doc:
+            # If this is a property setter,
+            # the property should have the docstring instead.
+            property_ = utils.get_setters_property(func_node)
+            if property_:
+                func_node = property_
 
         doc = utils.docstringify(func_node.doc)
         if not doc.is_valid():
@@ -177,9 +222,19 @@ class DocstringParameterChecker(BaseChecker):
         if not doc.is_valid() and self.config.accept_no_return_doc:
             return
 
-        if not doc.has_returns():
+        is_property = checker_utils.decorated_with_property(func_node)
+
+        if not (doc.has_returns() or
+                (doc.has_property_returns() and is_property)):
             self.add_message(
-                'missing-returns-doc',
+                'missing-return-doc',
+                node=func_node
+            )
+
+        if not (doc.has_rtype() or
+                (doc.has_property_type() and is_property)):
+            self.add_message(
+                'missing-return-type-doc',
                 node=func_node
             )
 
@@ -194,12 +249,20 @@ class DocstringParameterChecker(BaseChecker):
 
         if doc.supports_yields:
             doc_has_yields = doc.has_yields()
+            doc_has_yields_type = doc.has_yields_type()
         else:
             doc_has_yields = doc.has_returns()
+            doc_has_yields_type = doc.has_rtype()
 
         if not doc_has_yields:
             self.add_message(
-                'missing-yields-doc',
+                'missing-yield-doc',
+                node=func_node
+            )
+
+        if not doc_has_yields_type:
+            self.add_message(
+                'missing-yield-type-doc',
                 node=func_node
             )
 
@@ -269,11 +332,12 @@ class DocstringParameterChecker(BaseChecker):
                 and accept_no_param_doc):
             tolerate_missing_params = True
 
-        def _compare_args(found_argument_names, message_id, not_needed_names):
+        def _compare_missing_args(found_argument_names, message_id,
+                                  not_needed_names):
             """Compare the found argument names with the expected ones and
-            generate a message if there are inconsistencies.
+            generate a message if there are arguments missing.
 
-            :param list found_argument_names: argument names found in the
+            :param set found_argument_names: argument names found in the
                 docstring
 
             :param str message_id: pylint message id
@@ -282,25 +346,49 @@ class DocstringParameterChecker(BaseChecker):
             :type not_needed_names: set of str
             """
             if not tolerate_missing_params:
-                missing_or_differing_argument_names = (
-                    (expected_argument_names ^ found_argument_names)
+                missing_argument_names = (
+                    (expected_argument_names - found_argument_names)
                     - not_needed_names)
-            else:
-                missing_or_differing_argument_names = (
-                    (found_argument_names - expected_argument_names)
-                    - not_needed_names)
+                if missing_argument_names:
+                    self.add_message(
+                        message_id,
+                        args=(', '.join(
+                            sorted(missing_argument_names)),),
+                        node=warning_node)
 
-            if missing_or_differing_argument_names:
+        def _compare_different_args(found_argument_names, message_id,
+                                    not_needed_names):
+            """Compare the found argument names with the expected ones and
+            generate a message if there are extra arguments found.
+
+            :param set found_argument_names: argument names found in the
+                docstring
+
+            :param str message_id: pylint message id
+
+            :param not_needed_names: names that may be omitted
+            :type not_needed_names: set of str
+            """
+            differing_argument_names = (
+                (expected_argument_names ^ found_argument_names)
+                - not_needed_names - expected_argument_names)
+
+            if differing_argument_names:
                 self.add_message(
                     message_id,
                     args=(', '.join(
-                        sorted(missing_or_differing_argument_names)),),
+                        sorted(differing_argument_names)),),
                     node=warning_node)
 
-        _compare_args(params_with_doc, 'missing-param-doc',
-                      self.not_needed_param_in_docstring)
-        _compare_args(params_with_type, 'missing-type-doc',
-                      not_needed_type_in_docstring)
+        _compare_missing_args(params_with_doc, 'missing-param-doc',
+                              self.not_needed_param_in_docstring)
+        _compare_missing_args(params_with_type, 'missing-type-doc',
+                              not_needed_type_in_docstring)
+
+        _compare_different_args(params_with_doc, 'differing-param-doc',
+                                self.not_needed_param_in_docstring)
+        _compare_different_args(params_with_type, 'differing-type-doc',
+                                not_needed_type_in_docstring)
 
     def check_single_constructor_params(self, class_doc, init_doc, class_node):
         if class_doc.has_params() and init_doc.has_params():

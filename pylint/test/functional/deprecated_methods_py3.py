@@ -18,7 +18,7 @@ xml.etree.ElementTree.Element('tag').getchildren()  # [deprecated-method]
 xml.etree.ElementTree.Element('tag').getiterator()  # [deprecated-method]
 xml.etree.ElementTree.XMLParser('tag', None, None).doctype(None, None, None)  # [deprecated-method]
 nntplib.NNTP(None).xpath(None) # [deprecated-method]
-inspect.getmoduleinfo(inspect) # [deprecated-method]
+
 
 inspect.getargspec(None) # [deprecated-method]
 logging.warn("a") # [deprecated-method]

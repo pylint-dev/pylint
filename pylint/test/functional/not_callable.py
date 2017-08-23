@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,no-self-use,too-few-public-methods
+# pylint: disable=missing-docstring,no-self-use,too-few-public-methods,wrong-import-position
 
 REVISION = None
 
@@ -110,3 +110,11 @@ PROP1.other_function(4)
 PROP1.dict_builtin()
 PROP1.range_builtin(4)
 PROP1.instance()
+
+
+import missing # pylint: disable=import-error
+
+class UnknownBaseCallable(missing.Blah):
+    pass
+
+UnknownBaseCallable()()

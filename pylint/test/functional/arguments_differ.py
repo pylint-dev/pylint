@@ -1,5 +1,5 @@
 """Test that we are emitting arguments-differ when the arguments are different."""
-# pylint: disable=missing-docstring, too-few-public-methods, unused-argument
+# pylint: disable=missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation
 
 class Parent(object):
 
@@ -184,3 +184,27 @@ class PositionalChild(Positional):
         Why subclassing in the first case if the behavior is different?
         """
         super(PositionalChild, self).test(args[0], args[1])
+
+
+class HasSpecialMethod(object):
+
+    def __getitem__(self, key):
+        return key
+
+
+class OverridesSpecialMethod(HasSpecialMethod):
+
+    def __getitem__(self, cheie):
+        return cheie + 1
+
+
+class ParentClass(object):
+
+    def meth(self, arg, arg1):
+        raise NotImplementedError
+
+
+class ChildClass(ParentClass):
+
+    def meth(self, _arg, dummy):
+        pass

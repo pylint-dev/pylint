@@ -16,7 +16,7 @@ with one, two as second:
 with one as first, two():
     pass
 
-# nested with statements; make sure no message is emited
+# nested with statements; make sure no message is emitted
 # this could be a false positive on Py2
 with one as first:
     with two:

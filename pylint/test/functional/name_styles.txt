@@ -1,17 +1,18 @@
-invalid-name:8::"Invalid constant name ""bad_const_name"""
-invalid-name:11:BADFUNCTION_name:"Invalid function name ""BADFUNCTION_name"""
-invalid-name:13:BADFUNCTION_name:"Invalid variable name ""BAD_LOCAL_VAR"""
-invalid-name:17:func_bad_argname:"Invalid argument name ""NOT_GOOD"""
-invalid-name:27:bad_class_name:"Invalid class name ""bad_class_name"""
-invalid-name:38:CorrectClassName.__init__:"Invalid attribute name ""_Bad_AtTR_name"""
-invalid-name:39:CorrectClassName.__init__:"Invalid attribute name ""Bad_PUBLIC_name"""
-invalid-name:41:CorrectClassName:"Invalid class attribute name ""zz"""
-invalid-name:44:CorrectClassName.BadMethodName:"Invalid method name ""BadMethodName""":INFERENCE
-invalid-name:50:CorrectClassName.__DunDER_IS_not_free_for_all__:"Invalid method name ""__DunDER_IS_not_free_for_all__""":INFERENCE
-invalid-name:80::"Invalid class name ""BAD_NAME_FOR_CLASS"""
-invalid-name:81::"Invalid class name ""NEXT_BAD_NAME_FOR_CLASS"""
-invalid-name:88::"Invalid class name ""NOT_CORRECT"""
-invalid-name:94:test_globals:"Invalid constant name ""AlsoCorrect"""
-invalid-name:107:FooClass.PROPERTY_NAME:"Invalid attribute name ""PROPERTY_NAME""":INFERENCE
-invalid-name:112:FooClass.ABSTRACT_PROPERTY_NAME:"Invalid attribute name ""ABSTRACT_PROPERTY_NAME""":INFERENCE
-invalid-name:117:FooClass.PROPERTY_NAME_SETTER:"Invalid attribute name ""PROPERTY_NAME_SETTER""":INFERENCE
+invalid-name:8::"Constant name ""bad_const_name"" doesn't conform to 'const-name-hint' template"
+invalid-name:11:BADFUNCTION_name:"Function name ""BADFUNCTION_name"" doesn't conform to 'function-name-hint' template"
+invalid-name:13:BADFUNCTION_name:"Variable name ""BAD_LOCAL_VAR"" doesn't conform to 'variable-name-hint' template"
+invalid-name:17:func_bad_argname:"Argument name ""NOT_GOOD"" doesn't conform to 'argument-name-hint' template"
+invalid-name:27:bad_class_name:"Class name ""bad_class_name"" doesn't conform to 'class-name-hint' template"
+invalid-name:38:CorrectClassName.__init__:"Attribute name ""_Bad_AtTR_name"" doesn't conform to 'attr-name-hint' template"
+invalid-name:39:CorrectClassName.__init__:"Attribute name ""Bad_PUBLIC_name"" doesn't conform to 'attr-name-hint' template"
+invalid-name:41:CorrectClassName:"Class attribute name ""zz"" doesn't conform to 'class-attribute-name-hint' template"
+invalid-name:44:CorrectClassName.BadMethodName:"Method name ""BadMethodName"" doesn't conform to 'method-name-hint' template":INFERENCE
+invalid-name:50:CorrectClassName.__DunDER_IS_not_free_for_all__:"Method name ""__DunDER_IS_not_free_for_all__"" doesn't conform to 'method-name-hint' template":INFERENCE
+invalid-name:80::"Class name ""BAD_NAME_FOR_CLASS"" doesn't conform to 'class-name-hint' template"
+invalid-name:81::"Class name ""NEXT_BAD_NAME_FOR_CLASS"" doesn't conform to 'class-name-hint' template"
+invalid-name:88::"Class name ""NOT_CORRECT"" doesn't conform to 'class-name-hint' template"
+invalid-name:94:test_globals:"Constant name ""AlsoCorrect"" doesn't conform to 'const-name-hint' template"
+invalid-name:107:FooClass.PROPERTY_NAME:"Attribute name ""PROPERTY_NAME"" doesn't conform to 'attr-name-hint' template":INFERENCE
+invalid-name:112:FooClass.ABSTRACT_PROPERTY_NAME:"Attribute name ""ABSTRACT_PROPERTY_NAME"" doesn't conform to 'attr-name-hint' template":INFERENCE
+invalid-name:117:FooClass.PROPERTY_NAME_SETTER:"Attribute name ""PROPERTY_NAME_SETTER"" doesn't conform to 'attr-name-hint' template":INFERENCE
+invalid-name:132:too_long_function_name_in_public_scope:"Function name ""too_long_function_name_in_public_scope"" doesn't conform to 'function-name-hint' template"

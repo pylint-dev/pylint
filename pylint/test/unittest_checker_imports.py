@@ -1,16 +1,20 @@
+# Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
+# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
+# Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unit tests for the imports checker."""
 import os
-import unittest
 
 import astroid
 from pylint.checkers import imports
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
-class ImportsCheckerTC(CheckerTestCase):
+class TestImportsChecker(CheckerTestCase):
 
     CHECKER_CLASS = imports.ImportsChecker
 
@@ -86,12 +90,8 @@ class ImportsCheckerTC(CheckerTestCase):
         msg = Message(msg_id='relative-beyond-top-level',
                       node=import_from)
         with self.assertAddsMessages(msg):
-            self.checker.visit_importfrom(import_from)    
+            self.checker.visit_importfrom(import_from)
         with self.assertNoMessages():
             self.checker.visit_importfrom(module.body[1])
         with self.assertNoMessages():
             self.checker.visit_importfrom(module.body[2].body[0])
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -1,3 +1,6 @@
+# Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -5,22 +8,23 @@
 from __future__ import absolute_import
 
 import sys
-import unittest
 import textwrap
+
+import pytest
 
 import astroid
 
 from pylint import testutils
 from pylint.checkers import python3 as checker
+from pylint.interfaces import INFERENCE_FAILURE, INFERENCE
 
 
-def python2_only(test):
-    """Decorator for any tests that will fail under Python 3."""
-    return unittest.skipIf(sys.version_info[0] > 2, 'Python 2 only')(test)
+# Decorator for any tests that will fail under Python 3
+python2_only = pytest.mark.skipif(sys.version_info[0] > 2, reason='Python 2 only')
 
 # TODO(cpopa): Port these to the functional test framework instead.
 
-class Python3CheckerTest(testutils.CheckerTestCase):
+class TestPython3Checker(testutils.CheckerTestCase):
     CHECKER_CLASS = checker.Python3Checker
 
     def check_bad_builtin(self, builtin_name):
@@ -163,6 +167,38 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.as_argument_to_callable_constructor_test(fxn, func)
 
     @python2_only
+    def test_dict_methods_in_iterating_context(self):
+        iterating_code = [
+            'for x in {}: pass',
+            '(x for x in {})',
+            '[x for x in {}]',
+            'func({})',
+            'a, b = {}'
+        ]
+        non_iterating_code = [
+            'x = __({}())',
+            '__({}())[0]'
+        ]
+
+        for method in ('keys', 'items', 'values'):
+            dict_method = '{{}}.{}'.format(method)
+
+            for code in iterating_code:
+                with_value = code.format(dict_method)
+                module = astroid.parse(with_value)
+                with self.assertNoMessages():
+                    self.walk(module)
+
+            for code in non_iterating_code:
+                with_value = code.format(dict_method)
+                node = astroid.extract_node(with_value)
+
+                checker = 'dict-{}-not-iterating'.format(method)
+                message = testutils.Message(checker, node=node)
+                with self.assertAddsMessages(message):
+                    self.checker.visit_call(node)
+
+    @python2_only
     def test_map_in_iterating_context(self):
         self.iterating_context_tests('map')
 
@@ -212,6 +248,46 @@ class Python3CheckerTest(testutils.CheckerTestCase):
     def test_cmp_method(self):
         self.defined_method_test('cmp', 'cmp-method')
 
+    def test_div_method(self):
+        self.defined_method_test('div', 'div-method')
+
+    def test_idiv_method(self):
+        self.defined_method_test('idiv', 'idiv-method')
+
+    def test_rdiv_method(self):
+        self.defined_method_test('rdiv', 'rdiv-method')
+
+    def test_eq_and_hash_method(self):
+        """Helper for verifying that a certain method is not defined."""
+        node = astroid.extract_node("""
+            class Foo(object):  #@
+                def __eq__(self, other):
+                    pass
+                def __hash__(self):
+                    pass""")
+        with self.assertNoMessages():
+            self.checker.visit_classdef(node)
+
+    def test_eq_and_hash_is_none(self):
+        """Helper for verifying that a certain method is not defined."""
+        node = astroid.extract_node("""
+            class Foo(object):  #@
+                def __eq__(self, other):
+                    pass
+                __hash__ = None""")
+        with self.assertNoMessages():
+            self.checker.visit_classdef(node)
+
+    def test_eq_without_hash_method(self):
+        """Helper for verifying that a certain method is not defined."""
+        node = astroid.extract_node("""
+            class Foo(object):  #@
+                def __eq__(self, other):
+                    pass""")
+        message = testutils.Message('eq-without-hash', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_classdef(node)
+
     @python2_only
     def test_print_statement(self):
         node = astroid.extract_node('print "Hello, World!" #@')
@@ -240,9 +316,9 @@ class Python3CheckerTest(testutils.CheckerTestCase):
 
     def test_absolute_import(self):
         module_import = astroid.parse(
-                'from __future__ import absolute_import; import os')
+            'from __future__ import absolute_import; import os')
         module_from = astroid.parse(
-                'from __future__ import absolute_import; from os import path')
+            'from __future__ import absolute_import; from os import path')
         with self.assertNoMessages():
             for module in (module_import, module_from):
                 self.walk(module)
@@ -366,6 +442,58 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             self.checker.visit_raise(node)
 
     @python2_only
+    def test_exception_message_attribute(self):
+        node = astroid.extract_node("""
+        try:
+            raise Exception("test")
+        except Exception as e:
+            e.message #@
+        """)
+        message = testutils.Message('exception-message-attribute', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_normal_message_attribute(self):
+        node = astroid.extract_node("""
+        e.message #@
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_invalid_codec(self):
+        node = astroid.extract_node('foobar.encode("hex") #@')
+        message = testutils.Message('invalid-str-codec', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_valid_codec(self):
+        node = astroid.extract_node('foobar.encode("ascii", "ignore")  #@')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_visit_call_with_kwarg(self):
+        node = astroid.extract_node('foobar.raz(encoding="hex")  #@')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_invalid_open_codec(self):
+        node = astroid.extract_node('open(foobar, encoding="hex") #@')
+        message = testutils.Message('invalid-str-codec', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_valid_open_codec(self):
+        node = astroid.extract_node('open(foobar, encoding="palmos") #@')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
     def test_raising_string(self):
         node = astroid.extract_node('raise "Test"')
         message = testutils.Message('raising-string', node=node)
@@ -396,14 +524,383 @@ class Python3CheckerTest(testutils.CheckerTestCase):
             with self.assertAddsMessages(message):
                 self.checker.visit_call(node)
 
+    @python2_only
+    def test_sys_maxint(self):
+        node = astroid.extract_node('''
+        import sys
+        sys.maxint #@
+        ''')
+        message = testutils.Message('sys-max-int', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_itertools_izip(self):
+        node = astroid.extract_node('''
+        from itertools import izip #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('deprecated-itertools-function', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_deprecated_types_fiels(self):
+        node = astroid.extract_node('''
+        from types import StringType #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('deprecated-types-field', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_sys_maxint_imort_from(self):
+        node = astroid.extract_node('''
+        from sys import maxint #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('sys-max-int', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_object_maxint(self):
+        node = astroid.extract_node('''
+        sys = object()
+        sys.maxint #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_bad_import(self):
+        node = astroid.extract_node('''
+        import urllib2, sys #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('bad-python3-import', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_not_on_relative(self):
+        samples = [
+            'from .commands import titi',
+            'from . import commands',
+        ]
+        for code in samples:
+            node = astroid.extract_node(code)
+            absolute_import_message = testutils.Message('no-absolute-import', node=node)
+            with self.assertAddsMessages(absolute_import_message):
+                self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_bad_import_conditional(self):
+        node = astroid.extract_node('''
+        import six
+        if six.PY2:
+            import urllib2 #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_try_except_handler(self):
+        node = astroid.extract_node('''
+        try:
+            from hashlib import sha
+        except:
+            import sha #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_try(self):
+        node = astroid.extract_node('''
+        try:
+            import md5  #@
+        except:
+            from hashlib import md5
+        finally:
+            pass
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_try_finally(self):
+        node = astroid.extract_node('''
+        try:
+            import Queue  #@
+        finally:
+            import queue
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('bad-python3-import', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_from(self):
+        node = astroid.extract_node('''
+        from cStringIO import StringIO #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('bad-python3-import', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_bad_string_attribute(self):
+        node = astroid.extract_node('''
+        import string
+        string.maketrans #@
+        ''')
+        message = testutils.Message('deprecated-string-function', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_ok_string_attribute(self):
+        node = astroid.extract_node('''
+        import string
+        string.letters #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_attribute(node)
+
+    @python2_only
+    def test_bad_string_call(self):
+        node = astroid.extract_node('''
+        import string
+        string.upper("hello world") #@
+        ''')
+        message = testutils.Message('deprecated-string-function', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_shadowed_call(self):
+        node = astroid.extract_node('''
+        import six.moves.configparser
+        six.moves.configparser.ConfigParser() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_string_call(self):
+        node = astroid.extract_node('''
+        import string
+        string.Foramtter() #@
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_bad_string_import_from(self):
+        node = astroid.extract_node('''
+         from string import atoi #@
+         ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('deprecated-string-function', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_ok_string_import_from(self):
+        node = astroid.extract_node('''
+         from string import digits #@
+         ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        with self.assertAddsMessages(absolute_import_message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_bad_str_translate_call_string_literal(self):
+        node = astroid.extract_node('''
+         foobar.translate(None, 'abc123') #@
+         ''')
+        message = testutils.Message('deprecated-str-translate-call', node=node,
+                                    confidence=INFERENCE_FAILURE)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_bad_str_translate_call_variable(self):
+        node = astroid.extract_node('''
+         def raz(foobar):
+           foobar.translate(None, 'hello') #@
+         ''')
+        message = testutils.Message('deprecated-str-translate-call', node=node,
+                                    confidence=INFERENCE_FAILURE)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_bad_str_translate_call_infer_str(self):
+        node = astroid.extract_node('''
+         foobar = "hello world"
+         foobar.translate(None, foobar) #@
+         ''')
+        message = testutils.Message('deprecated-str-translate-call', node=node,
+                                    confidence=INFERENCE)
+        with self.assertAddsMessages(message):
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_str_translate_call_integer(self):
+        node = astroid.extract_node('''
+         foobar.translate(None, 33) #@
+         ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_str_translate_call_keyword(self):
+        node = astroid.extract_node('''
+         foobar.translate(None, 'foobar', raz=33) #@
+         ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    @python2_only
+    def test_ok_str_translate_call_not_str(self):
+        node = astroid.extract_node('''
+         foobar = {}
+         foobar.translate(None, 'foobar') #@
+         ''')
+        with self.assertNoMessages():
+            self.checker.visit_call(node)
+
+    def test_non_py2_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.maxsize:
+            x.iterkeys()  #@
+        '''
+        node = astroid.extract_node(code)
+        module = node.parent.parent
+        message = testutils.Message('dict-iter-method', node=node)
+        with self.assertAddsMessages(message):
+            self.walk(module)
+
+    def test_six_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import six
+        x = {}
+        if six.PY2:
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_versioninfo_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.version_info[0] == 2:
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_versioninfo_tuple_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import sys
+        x = {}
+        if sys.version_info == (2, 7):
+            x.iterkeys()
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_six_ifexp_conditional(self):
+        code = '''
+        from __future__ import absolute_import
+        import six
+        import string
+        string.translate if six.PY2 else None
+        '''
+        module = astroid.parse(code)
+        with self.assertNoMessages():
+            self.walk(module)
+
+    @python2_only
+    def test_next_defined(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                def next(self):  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_too_many_args(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                def next(self, foo=None):  #@
+                    pass""")
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_static_method_too_many_args(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @staticmethod
+                def next(self):  #@
+                    pass""")
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_static_method(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @staticmethod
+                def next():  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_class_method(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @classmethod
+                def next(cls):  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
 
 @python2_only
-class Python3TokenCheckerTest(testutils.CheckerTestCase):
+class TestPython3TokenChecker(testutils.CheckerTestCase):
 
     CHECKER_CLASS = checker.Python3TokenChecker
 
     def _test_token_message(self, code, symbolic_message):
-        tokens = testutils.tokenize_str(code)
+        tokens = testutils._tokenize_str(code)
         message = testutils.Message(symbolic_message, line=1)
         with self.assertAddsMessages(message):
             self.checker.process_tokens(tokens)
@@ -421,10 +918,14 @@ class Python3TokenCheckerTest(testutils.CheckerTestCase):
 
         # Make sure we are catching only octals.
         for non_octal in ("45", "00", "085", "08", "1"):
-            tokens = testutils.tokenize_str(non_octal)
+            tokens = testutils._tokenize_str(non_octal)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)
 
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_non_ascii_bytes_literal(self):
+        code = 'b"测试"'
+        self._test_token_message(code, 'non-ascii-bytes-literal')
+        for code in ("测试", u"测试", u'abcdef', b'\x80'):
+            tokens = testutils._tokenize_str(code)
+            with self.assertNoMessages():
+                self.checker.process_tokens(tokens)

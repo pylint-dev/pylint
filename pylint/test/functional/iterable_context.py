@@ -2,7 +2,7 @@
 Checks that primitive values are not used in an
 iterating/mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-init,no-self-use,import-error,unused-argument,bad-mcs-method-argument,wrong-import-position
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,no-init,no-self-use,import-error,unused-argument,bad-mcs-method-argument,wrong-import-position,no-else-return
 from __future__ import print_function
 
 # primitives
@@ -103,7 +103,7 @@ for i in B:  # [not-an-iterable]
 for i in range:  # [not-an-iterable]
     pass
 
-# check that primitive non-iterable types are catched
+# check that primitive non-iterable types are caught
 for i in True:  # [not-an-iterable]
     pass
 
@@ -177,3 +177,16 @@ class UrlMarkManager(object):
 
     def _init_lineparser(self):
         raise NotImplementedError
+
+
+class HasDynamicGetattr(object):
+
+    def __init__(self):
+        self._obj = []
+
+    def __getattr__(self, attr):
+        return getattr(self._obj, attr)
+
+
+for elem in HasDynamicGetattr():
+    pass

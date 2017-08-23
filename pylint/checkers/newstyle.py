@@ -1,3 +1,6 @@
+# Copyright (c) 2006, 2008-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -107,9 +110,11 @@ class NewStyleConflictChecker(BaseChecker):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.
                 continue
+
             expr = stmt.func
             if not isinstance(expr, astroid.Attribute):
                 continue
+
             call = expr.expr
             # skip the test if using super
             if not (isinstance(call, astroid.Call) and
@@ -122,18 +127,36 @@ class NewStyleConflictChecker(BaseChecker):
                 self.add_message('super-on-old-class', node=node)
             else:
                 # super first arg should be the class
-                if not call.args and sys.version_info[0] == 3:
-                    # unless Python 3
+                if not call.args:
+                    if sys.version_info[0] == 3:
+                        # unless Python 3
+                        continue
+                    else:
+                        self.add_message('missing-super-argument', node=call)
+                        continue
+
+                # calling super(type(self), self) can lead to recursion loop
+                # in derived classes
+                arg0 = call.args[0]
+                if isinstance(arg0, astroid.Call) and \
+                   isinstance(arg0.func, astroid.Name) and \
+                   arg0.func.name == 'type':
+                    self.add_message('bad-super-call', node=call, args=('type', ))
+                    continue
+
+                # calling super(self.__class__, self) can lead to recursion loop
+                # in derived classes
+                if len(call.args) >= 2 and \
+                   isinstance(call.args[1], astroid.Name) and \
+                   call.args[1].name == 'self' and \
+                   isinstance(arg0, astroid.Attribute) and \
+                   arg0.attrname == '__class__':
+                    self.add_message('bad-super-call', node=call, args=('self.__class__', ))
                     continue
 
                 try:
-                    supcls = (call.args and next(call.args[0].infer())
-                              or None)
+                    supcls = call.args and next(call.args[0].infer(), None)
                 except astroid.InferenceError:
-                    continue
-
-                if supcls is None:
-                    self.add_message('missing-super-argument', node=call)
                     continue
 
                 if klass is not supcls:
@@ -141,12 +164,11 @@ class NewStyleConflictChecker(BaseChecker):
                     # if supcls is not YES, then supcls was infered
                     # and use its name. Otherwise, try to look
                     # for call.args[0].name
-                    if supcls is not astroid.YES:
+                    if supcls:
                         name = supcls.name
-                    else:
-                        if hasattr(call.args[0], 'name'):
-                            name = call.args[0].name
-                    if name is not None:
+                    elif call.args and hasattr(call.args[0], 'name'):
+                        name = call.args[0].name
+                    if name:
                         self.add_message('bad-super-call', node=call, args=(name, ))
 
     visit_asyncfunctiondef = visit_functiondef

@@ -1,7 +1,11 @@
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Checker for anything related to the async protocol (PEP 492)."""
+
+import sys
 
 import astroid
 from astroid import exceptions
@@ -34,7 +38,8 @@ class AsyncChecker(checkers.BaseChecker):
     @checker_utils.check_messages('yield-inside-async-function')
     def visit_asyncfunctiondef(self, node):
         for child in node.nodes_of_class(astroid.Yield):
-            if child.scope() is node:
+            if child.scope() is node and (sys.version_info[:2] == (3, 5) or
+                                          isinstance(child, astroid.YieldFrom)):
                 self.add_message('yield-inside-async-function', node=child)
 
     @checker_utils.check_messages('not-async-context-manager')

@@ -17,3 +17,5 @@ too-many-function-args:93:InvalidSuperChecks.__init__:Too many positional argume
 no-value-for-parameter:95:InvalidSuperChecks.__init__:No value for argument 'param' in method call
 unexpected-keyword-arg:95:InvalidSuperChecks.__init__:Unexpected keyword argument 'lala' in method call
 no-member:98:InvalidSuperChecks.__init__:Super of 'InvalidSuperChecks' has no 'attribute_error' member:INFERENCE
+bad-super-call:120:SuperWithType.__init__:Bad first argument 'type' given to super()
+bad-super-call:125:SuperWithSelfClass.__init__:Bad first argument 'self.__class__' given to super()

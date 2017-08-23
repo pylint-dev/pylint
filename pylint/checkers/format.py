@@ -1,3 +1,13 @@
+# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2013-2015 Google, Inc.
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2015 Mike Frysinger <vapier@gentoo.org>
+# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
+# Copyright (c) 2015 Fabio Natali <me@fabionatali.com>
+# Copyright (c) 2015 Harut <yes@harutune.name>
+# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -25,6 +35,7 @@ from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 from pylint.utils import WarningScope, OPTION_RGX
 
+_ASYNC_TOKEN = 'async'
 _CONTINUATION_BLOCK_OPENERS = ['elif', 'except', 'for', 'if', 'while', 'def', 'class']
 _KEYWORD_TOKENS = ['assert', 'del', 'elif', 'except', 'for', 'if', 'in', 'not',
                    'raise', 'return', 'while', 'yield']
@@ -292,7 +303,13 @@ class ContinuedLineState(object):
         """Record the first non-junk token at the start of a line."""
         if self._line_start > -1:
             return
-        self._is_block_opener = self._tokens.token(pos) in _CONTINUATION_BLOCK_OPENERS
+
+        check_token_position = pos
+        if self._tokens.token(pos) == _ASYNC_TOKEN:
+            check_token_position += 1
+        self._is_block_opener = self._tokens.token(
+            check_token_position
+        ) in _CONTINUATION_BLOCK_OPENERS
         self._line_start = pos
 
     def next_physical_line(self):
@@ -337,7 +354,7 @@ class ContinuedLineState(object):
                 _Offsets(indentation + self._continuation_size, indentation),
                 _BeforeBlockOffsets(indentation + self._continuation_size,
                                     indentation + self._continuation_size * 2))
-        elif bracket == ':':
+        if bracket == ':':
             # If the dict key was on the same line as the open brace, the new
             # correct indent should be relative to the key instead of the
             # current indent level
@@ -352,13 +369,12 @@ class ContinuedLineState(object):
             # }
             # is handled by the special-casing for hanging continued string indents.
             return _ContinuedIndent(HANGING_DICT_VALUE, bracket, position, paren_align, next_align)
-        else:
-            return _ContinuedIndent(
-                HANGING,
-                bracket,
-                position,
-                _Offsets(indentation, indentation + self._continuation_size),
-                _Offsets(indentation + self._continuation_size))
+        return _ContinuedIndent(
+            HANGING,
+            bracket,
+            position,
+            _Offsets(indentation, indentation + self._continuation_size),
+            _Offsets(indentation + self._continuation_size))
 
     def _continuation_inside_bracket(self, bracket, pos):
         """Extracts indentation information for a continued indent."""
@@ -372,13 +388,12 @@ class ContinuedLineState(object):
                 pos,
                 _Offsets(token_start),
                 _BeforeBlockOffsets(next_token_start, next_token_start + self._continuation_size))
-        else:
-            return _ContinuedIndent(
-                CONTINUED,
-                bracket,
-                pos,
-                _Offsets(token_start),
-                _Offsets(next_token_start))
+        return _ContinuedIndent(
+            CONTINUED,
+            bracket,
+            pos,
+            _Offsets(token_start),
+            _Offsets(next_token_start))
 
     def pop_token(self):
         self._cont_stack.pop()
@@ -432,6 +447,11 @@ class FormatChecker(BaseTokenChecker):
                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
                  'help' : ('Allow the body of an if to be on the same '
                            'line as the test if there is no else.')}),
+               ('single-line-class-stmt',
+                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                 'help' : ('Allow the body of a class to be on the same '
+                           'line as the declaration if body contains '
+                           'single statement.')}),
                ('no-space-check',
                 {'default': ','.join(_DEFAULT_NO_SPACE_CHECK_CHOICES),
                  'metavar': ','.join(_NO_SPACE_CHECK_CHOICES),
@@ -594,9 +614,34 @@ class FormatChecker(BaseTokenChecker):
 
         self._check_space(tokens, i, (policy_before, _IGNORE))
 
+    def _has_valid_type_annotation(self, tokens, i):
+        """Extended check of PEP-484 type hint presence"""
+        if not self._inside_brackets('('):
+            return False
+        bracket_level = 0
+        for token in tokens[i-1::-1]:
+            if token[1] == ':':
+                return True
+            if token[1] == '(':
+                return False
+            if token[1] == ']':
+                bracket_level += 1
+            elif token[1] == '[':
+                bracket_level -= 1
+            elif token[1] == ',':
+                if not bracket_level:
+                    return False
+            elif token[1] == '.':
+                continue
+            elif token[0] not in (tokenize.NAME, tokenize.STRING):
+                return False
+        return False
+
     def _check_equals_spacing(self, tokens, i):
         """Check the spacing of a single equals sign."""
-        if self._inside_brackets('(') or self._inside_brackets('lambda'):
+        if self._has_valid_type_annotation(tokens, i):
+            self._check_space(tokens, i, (_MUST, _MUST))
+        elif self._inside_brackets('(') or self._inside_brackets('lambda'):
             self._check_space(tokens, i, (_MUST_NOT, _MUST_NOT))
         else:
             self._check_space(tokens, i, (_MUST, _MUST))
@@ -638,23 +683,20 @@ class FormatChecker(BaseTokenChecker):
         def _policy_string(policy):
             if policy == _MUST:
                 return 'Exactly one', 'required'
-            else:
-                return 'No', 'allowed'
+            return 'No', 'allowed'
 
         def _name_construct(token):
             if token[1] == ',':
                 return 'comma'
-            elif token[1] == ':':
+            if token[1] == ':':
                 return ':'
-            elif token[1] in '()[]{}':
+            if token[1] in '()[]{}':
                 return 'bracket'
-            elif token[1] in ('<', '>', '<=', '>=', '!=', '=='):
+            if token[1] in ('<', '>', '<=', '>=', '!=', '=='):
                 return 'comparison'
-            else:
-                if self._inside_brackets('('):
-                    return 'keyword argument assignment'
-                else:
-                    return 'assignment'
+            if self._inside_brackets('('):
+                return 'keyword argument assignment'
+            return 'assignment'
 
         good_space = [True, True]
         token = tokens[i]
@@ -830,7 +872,6 @@ class FormatChecker(BaseTokenChecker):
                 self.add_message('unexpected-line-ending-format', args=(line_ending, expected),
                                  line=line_num)
 
-
     def _process_retained_warnings(self, tokens, current_pos):
         single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ':')
 
@@ -867,6 +908,7 @@ class FormatChecker(BaseTokenChecker):
                 and tokens.start_col(next_idx) in valid_offsets):
             self._current_line.add_block_warning(next_idx, state, valid_offsets)
         elif tokens.start_col(next_idx) not in valid_offsets:
+
             self._add_continuation_message(state, valid_offsets, tokens, next_idx)
 
     def _add_continuation_message(self, state, offsets, tokens, position):
@@ -932,6 +974,9 @@ class FormatChecker(BaseTokenChecker):
         if (isinstance(node.parent, nodes.If) and not node.parent.orelse
                 and self.config.single_line_if_stmt):
             return
+        if (isinstance(node.parent, nodes.ClassDef) and len(node.parent.body) == 1
+                and self.config.single_line_class_stmt):
+            return
         self.add_message('multiple-statements', node=node)
         self._visited_lines[line] = 2
 
@@ -941,11 +986,12 @@ class FormatChecker(BaseTokenChecker):
         max_chars = self.config.max_line_length
         ignore_long_line = self.config.ignore_long_lines
 
-        for line in lines.splitlines(True):
+        def check_line(line, i):
             if not line.endswith('\n'):
                 self.add_message('missing-final-newline', line=i)
             else:
-                stripped_line = line.rstrip()
+                # exclude \f (formfeed) from the rstrip
+                stripped_line = line.rstrip('\t\n\r\v ')
                 if not stripped_line and _EMPTY_LINE in self.config.no_space_check:
                     # allow empty lines
                     pass
@@ -959,7 +1005,35 @@ class FormatChecker(BaseTokenChecker):
 
             if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message('line-too-long', line=i, args=(len(line), max_chars))
-            i += 1
+            return i + 1
+
+        unsplit_ends = {
+            u'\v',
+            u'\x0b',
+            u'\f',
+            u'\x0c',
+            u'\x1c',
+            u'\x1d',
+            u'\x1e',
+            u'\x85',
+            u'\u2028',
+            u'\u2029'
+        }
+        unsplit = []
+        for line in lines.splitlines(True):
+            if line[-1] in unsplit_ends:
+                unsplit.append(line)
+                continue
+
+            if unsplit:
+                unsplit.append(line)
+                line = ''.join(unsplit)
+                unsplit = []
+
+            i = check_line(line, i)
+
+        if unsplit:
+            check_line(''.join(unsplit), i)
 
     def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string

@@ -1,1 +1,2 @@
 consider-using-enumerate:7:bad:Consider using enumerate instead of iterating with range and len
+consider-using-enumerate:9:bad:Consider using enumerate instead of iterating with range and len

@@ -17,3 +17,9 @@ def forwarding_conversion(*args, **kwargs):
 
 def not_forwarding_kwargs(*args, **kwargs):
     target(*args) # [missing-kwoa]
+
+
+target(1, keyword=2)
+
+PARAM = 1
+target(2, PARAM) # [too-many-function-args, missing-kwoa]

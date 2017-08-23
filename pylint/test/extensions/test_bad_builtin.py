@@ -1,53 +1,42 @@
+# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Tests for the pylint checker in :mod:`pylint.extensions.bad_builtin
 """
 
-import os
 import os.path as osp
-import unittest
 
-from pylint import checkers
+import pytest
+
 from pylint.extensions.bad_builtin import BadBuiltinChecker
-from pylint.lint import PyLinter, fix_import_path
-from pylint.reporters import BaseReporter
+from pylint.lint import fix_import_path
 
 
-class TestReporter(BaseReporter):
-
-    def handle_message(self, msg):
-        self.messages.append(msg)
-
-    def on_set_current_module(self, module, filepath):
-        self.messages = []
+EXPECTED = [
+    "Used builtin function 'map'. Using a list comprehension can be clearer.",
+    "Used builtin function 'filter'. Using a list comprehension can be clearer.",
+]
 
 
-class BadBuiltinTestCase(unittest.TestCase):
-
-    expected = [
-    ]
-
-
-    @classmethod
-    def setUpClass(cls):
-        cls._linter = PyLinter()
-        cls._linter.set_reporter(TestReporter())
-        checkers.initialize(cls._linter)
-        cls._linter.register_checker(BadBuiltinChecker(cls._linter))
-        cls._linter.disable('I')
-
-    def test_types_redefined(self):
-        elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
-                             'bad_builtin.py')
-        with fix_import_path([elif_test]):
-            self._linter.check([elif_test])
-        msgs = sorted(self._linter.reporter.messages, key=lambda item: item.line)
-        self.assertEqual(len(msgs), 2)
-        for msg, expected in zip(msgs, self.expected):
-            self.assertEqual(msg.symbol, 'bad-builtin')
-            self.assertEqual(msg.msg, expected)
+@pytest.fixture(scope='module')
+def checker(checker):
+    return BadBuiltinChecker
 
 
-if __name__ == '__main__':
-    unittest.main()
+@pytest.fixture(scope='module')
+def disable(disable):
+    return ['I']
+
+
+def test_types_redefined(linter):
+    elif_test = osp.join(osp.dirname(osp.abspath(__file__)), 'data',
+                         'bad_builtin.py')
+    with fix_import_path([elif_test]):
+        linter.check([elif_test])
+    msgs = sorted(linter.reporter.messages, key=lambda item: item.line)
+    assert len(msgs) == 2
+    for msg, expected in zip(msgs, EXPECTED):
+        assert msg.symbol == 'bad-builtin'
+        assert msg.msg == expected

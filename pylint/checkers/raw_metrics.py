@@ -1,3 +1,6 @@
+# Copyright (c) 2007, 2010, 2013, 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -10,7 +13,7 @@ Raw metrics checker
 import tokenize
 
 from pylint.interfaces import ITokenChecker
-from pylint.utils import EmptyReport
+from pylint.exceptions import EmptyReportError
 from pylint.checkers import BaseTokenChecker
 from pylint.reporters import diff_string
 from pylint.reporters.ureports.nodes import Table
@@ -21,7 +24,7 @@ def report_raw_stats(sect, stats, old_stats):
     """
     total_lines = stats['total_lines']
     if not total_lines:
-        raise EmptyReport()
+        raise EmptyReportError()
     sect.description = '%s lines have been analyzed' % total_lines
     lines = ('type', 'number', '%', 'previous', 'difference')
     for node_type in ('code', 'docstring', 'comment', 'empty'):

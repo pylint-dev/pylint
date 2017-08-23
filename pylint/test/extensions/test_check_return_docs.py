@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Moisés López <moylop260@vauxoo.com>
+# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -6,15 +12,13 @@
 """
 from __future__ import division, print_function, absolute_import
 
-import unittest
-
 import astroid
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 from pylint.extensions.docparams import DocstringParameterChecker
 
 
-class DocstringCheckerReturnTest(CheckerTestCase):
+class TestDocstringCheckerReturn(CheckerTestCase):
     """Tests for pylint_plugin.RaiseDocChecker"""
     CHECKER_CLASS = DocstringParameterChecker
 
@@ -34,9 +38,8 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-doc', node=node),
+                Message(msg_id='missing-return-type-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_ignores_unknown_style(self):
@@ -59,9 +62,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-type-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_warn_partial_sphinx_returns_type(self):
@@ -75,9 +76,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_sphinx_returns(self):
@@ -92,9 +91,8 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-doc', node=node),
+                Message(msg_id='missing-return-type-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_warn_partial_google_returns(self):
@@ -109,9 +107,22 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-type-doc', node=node)):
+            self.checker.visit_return(return_node)
+
+    def test_warn_partial_google_returns_type(self):
+        node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns:
+                bool:
+            """
+            return False
+        ''')
+        return_node = node.body[0]
+        with self.assertAddsMessages(
+                Message(msg_id='missing-return-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_google_returns(self):
@@ -126,9 +137,29 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-doc', node=node),
+                Message(msg_id='missing-return-type-doc', node=node)):
+            self.checker.visit_return(return_node)
+
+    def test_warn_partial_numpy_returns_type(self):
+        node = astroid.extract_node('''
+        def my_func(self, doc_type):
+            """This is a docstring.
+
+            Arguments
+            ---------
+            doc_type : str
+                Numpy
+
+            Returns
+            -------
+            bool
+            """
+            return False
+        ''')
+        return_node = node.body[0]
+        with self.assertAddsMessages(
+                Message(msg_id='missing-return-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_warn_missing_numpy_returns(self):
@@ -145,9 +176,8 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-doc', node=node),
+                Message(msg_id='missing-return-type-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_find_sphinx_returns(self):
@@ -325,9 +355,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_warns_google_return_list_of_custom_class_without_description(self):
@@ -336,15 +364,13 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             """This is a docstring.
 
             Returns:
-                list(:class:`mymodule.Class`)
+                list(:class:`mymodule.Class`):
             """
             return [mymodule.Class()]
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_warns_numpy_return_list_of_custom_class_without_description(self):
@@ -360,9 +386,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
         ''')
         return_node = node.body[0]
         with self.assertAddsMessages(
-            Message(
-                msg_id='missing-returns-doc',
-                node=node)):
+                Message(msg_id='missing-return-doc', node=node)):
             self.checker.visit_return(return_node)
 
     def test_warns_sphinx_redundant_return_doc(self):
@@ -371,14 +395,24 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             """This is a docstring.
 
             :returns: One
+            """
+            return None
+        ''')
+        with self.assertAddsMessages(
+                Message(msg_id='redundant-returns-doc', node=node)):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_sphinx_redundant_rtype_doc(self):
+        node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
             :rtype: int
             """
             return None
         ''')
         with self.assertAddsMessages(
-            Message(
-                msg_id='redundant-returns-doc',
-                node=node)):
+                Message(msg_id='redundant-returns-doc', node=node)):
             self.checker.visit_functiondef(node)
 
     def test_warns_google_redundant_return_doc(self):
@@ -387,14 +421,26 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             """This is a docstring.
 
             Returns:
-                int: One
+                One
             """
             return None
         ''')
         with self.assertAddsMessages(
-            Message(
-                msg_id='redundant-returns-doc',
-                node=node)):
+                Message(msg_id='redundant-returns-doc', node=node)):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_google_redundant_rtype_doc(self):
+        node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns:
+                int:
+            """
+            return None
+        ''')
+        with self.assertAddsMessages(
+                Message(msg_id='redundant-returns-doc', node=node)):
             self.checker.visit_functiondef(node)
 
     def test_warns_numpy_redundant_return_doc(self):
@@ -410,9 +456,22 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             return None
         ''')
         with self.assertAddsMessages(
-            Message(
-                msg_id='redundant-returns-doc',
-                node=node)):
+                Message(msg_id='redundant-returns-doc', node=node)):
+            self.checker.visit_functiondef(node)
+
+    def test_warns_numpy_redundant_rtype_doc(self):
+        node = astroid.extract_node('''
+        def my_func(self):
+            """This is a docstring.
+
+            Returns
+            -------
+                int
+            """
+            return None
+        ''')
+        with self.assertAddsMessages(
+                Message(msg_id='redundant-returns-doc', node=node)):
             self.checker.visit_functiondef(node)
 
     def test_ignores_sphinx_redundant_return_doc_multiple_returns(self):
@@ -492,9 +551,7 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             yield 1
         ''')
         with self.assertAddsMessages(
-            Message(
-                msg_id='redundant-returns-doc',
-                node=node)):
+                Message(msg_id='redundant-returns-doc', node=node)):
             self.checker.visit_functiondef(node)
 
     def test_warns_numpy_redundant_return_doc_yield(self):
@@ -510,11 +567,5 @@ class DocstringCheckerReturnTest(CheckerTestCase):
             yield 1
         ''')
         with self.assertAddsMessages(
-            Message(
-                msg_id='redundant-returns-doc',
-                node=node)):
+                Message(msg_id='redundant-returns-doc', node=node)):
             self.checker.visit_functiondef(node)
-
-
-if __name__ == '__main__':
-    unittest.main()

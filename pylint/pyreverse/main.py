@@ -1,3 +1,6 @@
+# Copyright (c) 2008-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -72,7 +75,7 @@ this disables -f values")),
                 'dest' : "black_list", "default" : ('CVS',),
                 'help' : "Add files or directories to the blacklist. They "
                          "should be base names, not paths."}),
-    ("project", {'default': "No Name", 'type' : 'string', 'short': 'p',
+    ("project", {'default': "", 'type' : 'string', 'short': 'p',
                  'metavar': '<project name>', 'help': 'set the project name.'}),
 )
 # FIXME : quiet mode

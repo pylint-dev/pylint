@@ -1,3 +1,7 @@
+# Copyright (c) 2006, 2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2013-2014 Google, Inc.
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -57,8 +61,9 @@ class BaseReporter(object):
         def encode(self, string):
             if not isinstance(string, six.text_type):
                 return string
+
             encoding = (getattr(self.out, 'encoding', None) or
-                        locale.getdefaultlocale()[1] or
+                        locale.getpreferredencoding(do_setlocale=False) or
                         sys.getdefaultencoding())
             # errors=replace, we don't want to crash when attempting to show
             # source code line that can't be encoded with the current locale

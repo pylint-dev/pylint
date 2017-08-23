@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2013-2014, 2016 Google, Inc.
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
+# Copyright (c) 2014 David Shea <dshea@redhat.com>
+# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
+# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2016 Jürgen Hermann <jh@web.de>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -6,6 +18,9 @@
 
 import collections
 import fnmatch
+import heapq
+import itertools
+import operator
 import re
 import shlex
 import sys
@@ -15,11 +30,14 @@ import six
 import astroid
 import astroid.context
 import astroid.arguments
-from astroid import exceptions
+import astroid.nodes
+from astroid import exceptions, decorators
+from astroid.interpreter import dunder_lookup
 from astroid import objects
 from astroid import bases
+from astroid import modutils
 
-from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE
+from pylint.interfaces import IAstroidChecker, INFERENCE
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     is_super, check_messages, decorated_with_property,
@@ -30,8 +48,10 @@ from pylint.checkers.utils import (
     supports_setitem,
     supports_delitem,
     safe_infer,
-    has_known_bases)
-
+    has_known_bases,
+    is_builtin_object,
+    singledispatch)
+from pylint.utils import get_global_option
 
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
@@ -41,8 +61,8 @@ def _unflatten(iterable):
     for index, elem in enumerate(iterable):
         if (isinstance(elem, collections.Sequence) and
                 not isinstance(elem, six.string_types)):
-            for elem in _unflatten(elem):
-                yield elem
+            for single_elem in _unflatten(elem):
+                yield single_elem
         elif elem and not index:
             # We're interested only in the first element.
             yield elem
@@ -76,11 +96,100 @@ def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
     return any(name == ignore or qname == ignore for ignore in ignored_classes)
 
 
+@singledispatch
+def _node_names(node):
+    # TODO: maybe we need an ABC for checking if an object is a scoped node
+    # or not?
+    if not hasattr(node, 'locals'):
+        return []
+    return node.locals.keys()
+
+
+@_node_names.register(astroid.ClassDef)
+@_node_names.register(astroid.Instance)
+def _(node):
+    values = itertools.chain(node.instance_attrs.keys(), node.locals.keys())
+
+    try:
+        mro = node.mro()[1:]
+    except (NotImplementedError, TypeError):
+        mro = node.ancestors()
+
+    other_values = [value for cls in mro for value in _node_names(cls)]
+    return itertools.chain(values, other_values)
+
+
+def _string_distance(seq1, seq2):
+    seq2_length = len(seq2)
+
+    row = list(range(1, seq2_length + 1)) + [0]
+    for seq1_index, seq1_char in enumerate(seq1):
+        last_row = row
+        row = [0] * seq2_length + [seq1_index + 1]
+
+        for seq2_index, seq2_char in enumerate(seq2):
+            row[seq2_index] = min(
+                last_row[seq2_index] + 1,
+                row[seq2_index - 1] + 1,
+                last_row[seq2_index - 1] + (seq1_char != seq2_char)
+
+            )
+
+    return row[seq2_length - 1]
+
+
+def _similar_names(owner, attrname, distance_threshold, max_choices):
+    """Given an owner and a name, try to find similar names
+
+    The similar names are searched given a distance metric and only
+    a given number of choices will be returned.
+    """
+    possible_names = []
+    names = _node_names(owner)
+
+    for name in names:
+        if name == attrname:
+            continue
+
+        distance = _string_distance(attrname, name)
+        if distance <= distance_threshold:
+            possible_names.append((name, distance))
+
+    # Now get back the values with a minimum, up to the given
+    # limit or choices.
+    picked = [name for (name, _) in
+              heapq.nsmallest(max_choices, possible_names,
+                              key=operator.itemgetter(1))]
+    return sorted(picked)
+
+
+def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
+    names = _similar_names(owner, attrname, distance_threshold, max_choices)
+    if not names:
+        # No similar name.
+        return ""
+
+    names = list(map(repr, names))
+    if len(names) == 1:
+        names = ", ".join(names)
+    else:
+        names = "one of {} or {}".format(", ".join(names[:-1]), names[-1])
+
+    return "; maybe {}?".format(names)
+
+
 MSGS = {
-    'E1101': ('%s %r has no %r member',
+    'E1101': ('%s %r has no %r member%s',
               'no-member',
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
+    'I1101': ('%s %r has not %r member, but source is unavailable. Consider '
+              'adding this module to extension-package-whitelist if you want '
+              'to perform analysis based on run-time introspection of living objects.',
+              'c-extension-no-member',
+              'Used when a variable is accessed for non-existent member of C '
+              'extension. Due to unavailability of source static analysis is impossible, '
+              'but it may be performed by introspecting living objects in run-time.'),
     'E1102': ('%s is not callable',
               'not-callable',
               'Used when an object being called has been inferred to a non \
@@ -159,6 +268,11 @@ MSGS = {
               'unsupported-delete-operation',
               "Emitted when an object does not support item deletion "
               "(i.e. doesn't define __delitem__ method)"),
+    'E1139': ('Invalid metaclass %r used',
+              'invalid-metaclass',
+              'Emitted whenever we can detect that a class is using, '
+              'as a metaclass, something which might be invalid for using as '
+              'a metaclass.'),
     }
 
 # builtin sequence types in Python 2 and 3.
@@ -189,7 +303,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
         return False
     if isinstance(owner, astroid.FunctionDef) and owner.decorators:
         return False
-    if isinstance(owner, astroid.Instance):
+    if isinstance(owner, (astroid.Instance, astroid.ClassDef)):
         if owner.has_dynamic_getattr() or not has_known_bases(owner):
             return False
     if isinstance(owner, objects.Super):
@@ -328,6 +442,60 @@ def _no_context_variadic(node, variadic_name, variadic_type, variadics):
     return False
 
 
+def _is_invalid_metaclass(metaclass):
+    try:
+        mro = metaclass.mro()
+    except NotImplementedError:
+        # Cannot have a metaclass which is not a newstyle class.
+        return True
+    else:
+        if not any(is_builtin_object(cls) and cls.name == 'type'
+                   for cls in mro):
+            return True
+    return False
+
+
+def _infer_from_metaclass_constructor(cls, func):
+    """Try to infer what the given *func* constructor is building
+
+    :param astroid.FunctionDef func:
+        A metaclass constructor. Metaclass definitions can be
+        functions, which should accept three arguments, the name of
+        the class, the bases of the class and the attributes.
+        The function could return anything, but usually it should
+        be a proper metaclass.
+    :param astroid.ClassDef cls:
+        The class for which the *func* parameter should generate
+        a metaclass.
+    :returns:
+        The class generated by the function or None,
+        if we couldn't infer it.
+    :rtype: astroid.ClassDef
+    """
+    context = astroid.context.InferenceContext()
+
+    class_bases = astroid.List()
+    class_bases.postinit(elts=cls.bases)
+
+    attrs = astroid.Dict()
+    local_names = [(name, values[-1]) for name, values in cls.locals.items()]
+    attrs.postinit(local_names)
+
+    builder_args = astroid.Tuple()
+    builder_args.postinit([cls.name, class_bases, attrs])
+
+    context.callcontext = astroid.context.CallContext(builder_args)
+    try:
+        inferred = next(func.infer_call_result(func, context), None)
+    except astroid.InferenceError:
+        return None
+    return inferred or None
+
+
+def _is_c_extension(module_node):
+    return not modutils.is_standard_module(module_node.name) and not module_node.fully_defined()
+
+
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
@@ -340,7 +508,17 @@ class TypeChecker(BaseChecker):
     msgs = MSGS
     priority = -1
     # configuration options
-    options = (('ignore-mixin-members',
+    options = (('ignore-on-opaque-inference',
+                {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+                 'help': 'This flag controls whether pylint should warn about '
+                         'no-member and similar checks whenever an opaque object '
+                         'is returned when inferring. The inference can return '
+                         'multiple potential results while evaluating a Python object, '
+                         'but some branches might not be evaluated, which results in '
+                         'partial inference. In that case, it might be useful to still emit '
+                         'no-member and other checks for the rest of the inferred objects.'}
+               ),
+               ('ignore-mixin-members',
                 {'default' : True, 'type' : 'yn', 'metavar': '<y_or_n>',
                  'help' : 'Tells whether missing members accessed in mixin \
 class should be ignored. A mixin class is detected if its name ends with \
@@ -387,7 +565,35 @@ accessed. Python regular expressions are accepted.'}
                          'to register other decorators that produce valid '
                          'context managers.'}
                ),
+               ('missing-member-hint-distance',
+                {'default': 1,
+                 'type': 'int',
+                 'metavar': '<member hint edit distance>',
+                 'help': 'The minimum edit distance a name should have in order '
+                         'to be considered a similar match for a missing member name.'
+                }
+               ),
+               ('missing-member-max-choices',
+                {'default': 1,
+                 'type': "int",
+                 'metavar': '<member hint max choices>',
+                 'help': 'The total number of similar names that should be taken in '
+                         'consideration when showing a hint for a missing member.'
+                }
+               ),
+               ('missing-member-hint',
+                {'default': True,
+                 'type': "yn",
+                 'metavar': '<missing member hint>',
+                 'help': 'Show a hint with possible names when a member name was not '
+                         'found. The aspect of finding the hint is based on edit distance.'
+                }
+               ),
               )
+
+    @decorators.cachedproperty
+    def _suggestion_mode(self):
+        return get_global_option(self, 'suggestion-mode', default=True)
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -398,8 +604,35 @@ accessed. Python regular expressions are accepted.'}
         if isinstance(self.config.generated_members, six.string_types):
             gen = shlex.shlex(self.config.generated_members)
             gen.whitespace += ','
-            gen.wordchars += '[]-+\.*?'
+            gen.wordchars += r'[]-+\.*?()|'
             self.config.generated_members = tuple(tok.strip('"') for tok in gen)
+
+    @check_messages('invalid-metaclass')
+    def visit_classdef(self, node):
+
+        def _metaclass_name(metaclass):
+            if isinstance(metaclass, (astroid.ClassDef, astroid.FunctionDef)):
+                return metaclass.name
+            return metaclass.as_string()
+
+        metaclass = node.declared_metaclass()
+        if not metaclass:
+            return
+
+        if isinstance(metaclass, astroid.FunctionDef):
+            # Try to infer the result.
+            metaclass = _infer_from_metaclass_constructor(node, metaclass)
+            if not metaclass:
+                # Don't do anything if we cannot infer the result.
+                return
+
+        if isinstance(metaclass, astroid.ClassDef):
+            if _is_invalid_metaclass(metaclass):
+                self.add_message('invalid-metaclass', node=node,
+                                 args=(_metaclass_name(metaclass), ))
+        else:
+            self.add_message('invalid-metaclass', node=node,
+                             args=(_metaclass_name(metaclass), ))
 
     def visit_assignattr(self, node):
         if isinstance(node.assign_type(), astroid.AugAssign):
@@ -408,7 +641,7 @@ accessed. Python regular expressions are accepted.'}
     def visit_delattr(self, node):
         self.visit_attribute(node)
 
-    @check_messages('no-member')
+    @check_messages('no-member', 'c-extension-no-member')
     def visit_attribute(self, node):
         """check that the accessed attribute exists
 
@@ -425,18 +658,26 @@ accessed. Python regular expressions are accepted.'}
                 return
 
         try:
-            infered = list(node.expr.infer())
+            inferred = list(node.expr.infer())
         except exceptions.InferenceError:
             return
+
         # list of (node, nodename) which are missing the attribute
         missingattr = set()
-        inference_failure = False
-        for owner in infered:
-            # skip yes object
-            if owner is astroid.YES:
-                inference_failure = True
-                continue
 
+        non_opaque_inference_results = [
+            owner for owner in inferred
+            if owner is not astroid.Uninferable
+            and not isinstance(owner, astroid.nodes.Unknown)
+        ]
+        if (len(non_opaque_inference_results) != len(inferred)
+                and self.config.ignore_on_opaque_inference):
+            # There is an ambiguity in the inference. Since we can't
+            # make sure that we won't emit a false positive, we just stop
+            # whenever the inference returns an opaque inference object.
+            return
+
+        for owner in non_opaque_inference_results:
             name = getattr(owner, 'name', None)
             if _is_owner_ignored(owner, name, self.config.ignored_classes,
                                  self.config.ignored_modules):
@@ -460,6 +701,7 @@ accessed. Python regular expressions are accepted.'}
                 # So call this only after the call has been made.
                 if not _emit_no_member(node, owner, name,
                                        self.config.ignore_mixin_members):
+
                     continue
                 missingattr.add((owner, name))
                 continue
@@ -477,11 +719,27 @@ accessed. Python regular expressions are accepted.'}
                 if actual in done:
                     continue
                 done.add(actual)
-                confidence = INFERENCE if not inference_failure else INFERENCE_FAILURE
-                self.add_message('no-member', node=node,
+
+                msg, hint = self._get_nomember_msgid_hint(node, owner)
+                self.add_message(msg, node=node,
                                  args=(owner.display_type(), name,
-                                       node.attrname),
-                                 confidence=confidence)
+                                       node.attrname, hint),
+                                 confidence=INFERENCE)
+
+    def _get_nomember_msgid_hint(self, node, owner):
+        suggestions_are_possible = self._suggestion_mode and isinstance(owner, astroid.Module)
+        if suggestions_are_possible and _is_c_extension(owner):
+            msg = 'c-extension-no-member'
+            hint = ""
+        else:
+            msg = 'no-member'
+            if self.config.missing_member_hint:
+                hint = _missing_member_hint(owner, node.attrname,
+                                            self.config.missing_member_hint_distance,
+                                            self.config.missing_member_max_choices)
+            else:
+                hint = ""
+        return msg, hint
 
     @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):
@@ -500,7 +758,7 @@ accessed. Python regular expressions are accepted.'}
             return
         returns = list(function_node.nodes_of_class(astroid.Return,
                                                     skip_klass=astroid.FunctionDef))
-        if len(returns) == 0:
+        if not returns:
             self.add_message('assignment-from-no-return', node=node)
         else:
             for rnode in returns:
@@ -511,16 +769,16 @@ accessed. Python regular expressions are accepted.'}
             else:
                 self.add_message('assignment-from-none', node=node)
 
-    def _check_uninferable_callfunc(self, node):
+    def _check_uninferable_call(self, node):
         """
-        Check that the given uninferable CallFunc node does not
+        Check that the given uninferable Call node does not
         call an actual function.
         """
         if not isinstance(node.func, astroid.Attribute):
             return
 
         # Look for properties. First, obtain
-        # the lhs of the Getattr node and search the attribute
+        # the lhs of the Attribute node and search the attribute
         # there. If that attribute is a property or a subclass of properties,
         # then most likely it's not callable.
 
@@ -576,11 +834,15 @@ accessed. Python regular expressions are accepted.'}
 
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
-        if called is not None and not called.callable():
-            self.add_message('not-callable', node=node,
-                             args=node.func.as_string())
+        if called and not called.callable():
+            if isinstance(called, astroid.Instance) and not has_known_bases(called):
+                # Don't emit if we can't make sure this object is callable.
+                pass
+            else:
+                self.add_message('not-callable', node=node,
+                                 args=node.func.as_string())
 
-        self._check_uninferable_callfunc(node)
+        self._check_uninferable_call(node)
 
         try:
             called, implicit_args, callable_name = _determine_callable(called)
@@ -756,11 +1018,13 @@ accessed. Python regular expressions are accepted.'}
         # type. This way we catch subclasses of sequence types but skip classes
         # that override __getitem__ and which may allow non-integer indices.
         try:
-            methods = parent_type.getattr(methodname)
+            methods = dunder_lookup.lookup(parent_type, methodname)
             if methods is astroid.YES:
                 return
             itemmethod = methods[0]
-        except (exceptions.NotFoundError, IndexError):
+        except (exceptions.NotFoundError,
+                exceptions.AttributeInferenceError,
+                IndexError):
             return
         if not isinstance(itemmethod, astroid.FunctionDef):
             return
@@ -930,8 +1194,9 @@ accessed. Python regular expressions are accepted.'}
     def visit_compare(self, node):
         if len(node.ops) != 1:
             return
-        operator, right = node.ops[0]
-        if operator in ['in', 'not in']:
+
+        op, right = node.ops[0]
+        if op in ['in', 'not in']:
             self._check_membership_test(right)
 
     @check_messages('unsubscriptable-object', 'unsupported-assignment-operation',

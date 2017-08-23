@@ -1,5 +1,0 @@
-E: 11: Raising int while only classes or instances are allowed
-E: 20:func: Raising NoneType while only classes or instances are allowed
-E: 30: Raising NoneType while only classes or instances are allowed
-W: 12: Catching too general exception Exception
-

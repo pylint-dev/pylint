@@ -1,8 +1,14 @@
+# Copyright (c) 2014, 2016 Google, Inc.
+# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unittest for the type checker."""
-import unittest
+import sys
+
+import pytest
 
 import astroid
 
@@ -10,7 +16,21 @@ from pylint.checkers import typecheck
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
-class TypeCheckerTest(CheckerTestCase):
+def c_extension_missing():
+    """Coverage module has C-extension, which we can reuse for test"""
+    try:
+        import coverage.tracer as _
+        return False
+    except ImportError:
+        _ = None
+        return True
+
+
+needs_c_extension = pytest.mark.skipif(c_extension_missing(),
+                                       reason='Requires coverage (source of C-extension)')
+
+
+class TestTypeChecker(CheckerTestCase):
     "Tests for pylint.checkers.typecheck"
     CHECKER_CLASS = typecheck.TypeChecker
 
@@ -26,7 +46,7 @@ class TypeCheckerTest(CheckerTestCase):
                 Message(
                     'no-member',
                     node=node,
-                    args=('Module', 'optparse', 'THIS_does_not_EXIST'))):
+                    args=('Module', 'optparse', 'THIS_does_not_EXIST', ''))):
             self.checker.visit_attribute(node)
 
     @set_config(ignored_modules=('argparse',))
@@ -49,7 +69,7 @@ class TypeCheckerTest(CheckerTestCase):
         xml.etree.Lala
         ''')
         message = Message('no-member', node=node,
-                          args=('Module', 'xml.etree', 'Lala'))
+                          args=('Module', 'xml.etree', 'Lala', ''))
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
@@ -69,7 +89,7 @@ class TypeCheckerTest(CheckerTestCase):
         xml.etree.ElementTree.Test
         ''')
         message = Message('no-member', node=node,
-                          args=('Module', 'xml.etree.ElementTree', 'Test'))
+                          args=('Module', 'xml.etree.ElementTree', 'Test', ''))
         with self.assertAddsMessages(message):
             self.checker.visit_attribute(node)
 
@@ -93,6 +113,30 @@ class TypeCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
 
+    @set_config(suggestion_mode=False)
+    @needs_c_extension
+    def test_nomember_on_c_extension_error_msg(self):
+        node = astroid.extract_node('''
+        from coverage import tracer
+        tracer.CTracer  #@
+        ''')
+        message = Message('no-member', node=node,
+                          args=('Module', 'coverage.tracer', 'CTracer', ''))
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
+    @set_config(suggestion_mode=True)
+    @needs_c_extension
+    def test_nomember_on_c_extension_info_msg(self):
+        node = astroid.extract_node('''
+        from coverage import tracer
+        tracer.CTracer  #@
+        ''')
+        message = Message('c-extension-no-member', node=node,
+                          args=('Module', 'coverage.tracer', 'CTracer', ''))
+        with self.assertAddsMessages(message):
+            self.checker.visit_attribute(node)
+
     @set_config(contextmanager_decorators=('contextlib.contextmanager',
                                            '.custom_contextmanager'))
     def test_custom_context_manager(self):
@@ -110,6 +154,71 @@ class TypeCheckerTest(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_with(node)
 
+    def test_invalid_metaclass(self):
+        module = astroid.parse('''
+        import six
 
-if __name__ == '__main__':
-    unittest.main()
+        class InvalidAsMetaclass(object):
+            pass
+
+        @six.add_metaclass(int)
+        class FirstInvalid(object):
+            pass
+
+        @six.add_metaclass(InvalidAsMetaclass)
+        class SecondInvalid(object):
+            pass
+
+        @six.add_metaclass(2)
+        class ThirdInvalid(object):
+            pass
+        ''')
+        for class_obj, metaclass_name in (('ThirdInvalid', '2'),
+                                          ('SecondInvalid', 'InvalidAsMetaclass'),
+                                          ('FirstInvalid', 'int')):
+            classdef = module[class_obj]
+            message = Message('invalid-metaclass', node=classdef, args=(metaclass_name, ))
+            with self.assertAddsMessages(message):
+                self.checker.visit_classdef(classdef)
+
+    @pytest.mark.skipif(sys.version_info[0] < 3, reason='Needs Python 3.')
+    def test_invalid_metaclass_function_metaclasses(self):
+        module = astroid.parse('''
+        def invalid_metaclass_1(name, bases, attrs):
+            return int
+        def invalid_metaclass_2(name, bases, attrs):
+            return 1
+        class Invalid(metaclass=invalid_metaclass_1):
+            pass
+        class InvalidSecond(metaclass=invalid_metaclass_2):
+            pass
+        ''')
+        for class_obj, metaclass_name in (('Invalid', 'int'), ('InvalidSecond', '1')):
+            classdef = module[class_obj]
+            message = Message('invalid-metaclass', node=classdef, args=(metaclass_name, ))
+            with self.assertAddsMessages(message):
+                self.checker.visit_classdef(classdef)
+
+    @pytest.mark.skipif(sys.version_info < (3, 5), reason='Needs Python 3.5.')
+    def test_typing_namedtuple_not_callable_issue1295(self):
+        module = astroid.parse("""
+        import typing
+        Named = typing.NamedTuple('Named', [('foo', int), ('bar', int)])
+        named = Named(1, 2)
+        """)
+        call = module.body[-1].value
+        callables = call.func.infered()
+        assert len(callables) == 1
+        assert callables[0].callable()
+        with self.assertNoMessages():
+            self.checker.visit_call(call)
+
+    @pytest.mark.skipif(sys.version_info < (3, 5), reason='Needs Python 3.5.')
+    def test_typing_namedtuple_unsubscriptable_object_issue1295(self):
+        module = astroid.parse("""
+        import typing
+        MyType = typing.Tuple[str, str]
+        """)
+        subscript = module.body[-1].value
+        with self.assertNoMessages():
+            self.checker.visit_subscript(subscript)

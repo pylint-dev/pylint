@@ -1,10 +1,27 @@
+# Copyright (c) 2006-2007, 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2012-2014 Google, Inc.
+# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
+# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 # pylint: disable=W0611
 """some functions that may be useful for various checkers
 """
+import collections
 import functools
+try:
+    from functools import singledispatch as singledispatch
+except ImportError:
+    # pylint: disable=import-error
+    from singledispatch import singledispatch as singledispatch
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 import itertools
 import re
 import sys
@@ -17,6 +34,7 @@ from six.moves import map, builtins # pylint: disable=redefined-builtin
 import astroid
 from astroid import bases as _bases
 from astroid import scoped_nodes
+
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (astroid.ListComp, astroid.SetComp,
@@ -56,7 +74,8 @@ _SPECIAL_METHODS_PARAMS = {
         '__float__', '__neg__', '__pos__', '__abs__', '__complex__', '__int__',
         '__float__', '__index__', '__enter__', '__aenter__', '__getnewargs_ex__',
         '__getnewargs__', '__getstate__', '__reduce__', '__copy__',
-        '__unicode__', '__nonzero__', '__await__', '__aiter__', '__anext__'),
+        '__unicode__', '__nonzero__', '__await__', '__aiter__', '__anext__',
+        '__fspath__'),
 
     1: ('__format__', '__lt__', '__le__', '__eq__', '__ne__', '__gt__',
         '__ge__', '__getattr__', '__getattribute__', '__delattr__',
@@ -72,7 +91,7 @@ _SPECIAL_METHODS_PARAMS = {
         '__setstate__', '__reduce_ex__', '__deepcopy__', '__cmp__',
         '__matmul__', '__rmatmul__', '__div__'),
 
-    2: ('__setattr__', '__get__', '__set__', '__setitem__'),
+    2: ('__setattr__', '__get__', '__set__', '__setitem__', '__set_name__'),
 
     3: ('__exit__', '__aexit__'),
 
@@ -244,8 +263,8 @@ def is_func_decorator(node):
         if isinstance(parent, astroid.Decorators):
             return True
         if (parent.is_statement or
-                isinstance(parent, astroid.Lambda) or
-                isinstance(parent, (scoped_nodes.ComprehensionScope,
+                isinstance(parent, (astroid.Lambda,
+                                    scoped_nodes.ComprehensionScope,
                                     scoped_nodes.ListComp))):
             break
         parent = parent.parent
@@ -265,7 +284,7 @@ def is_ancestor_name(frame, node):
     return False
 
 def assign_parent(node):
-    """return the higher parent which is not an AssName, Tuple or List node
+    """return the higher parent which is not an AssignName, Tuple or List node
     """
     while node and isinstance(node, (astroid.AssignName,
                                      astroid.Tuple,
@@ -399,10 +418,10 @@ def is_attr_private(attrname):
     regex = re.compile('^_{2,}.*[^_]+_?$')
     return regex.match(attrname)
 
-def get_argument_from_call(callfunc_node, position=None, keyword=None):
+def get_argument_from_call(call_node, position=None, keyword=None):
     """Returns the specified argument from a function call.
 
-    :param astroid.Call callfunc_node: Node representing a function call to check.
+    :param astroid.Call call_node: Node representing a function call to check.
     :param int position: position of the argument.
     :param str keyword: the keyword of the argument.
 
@@ -416,11 +435,11 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
         raise ValueError('Must specify at least one of: position or keyword.')
     if position is not None:
         try:
-            return callfunc_node.args[position]
+            return call_node.args[position]
         except IndexError:
             pass
-    if keyword and callfunc_node.keywords:
-        for arg in callfunc_node.keywords:
+    if keyword and call_node.keywords:
+        for arg in call_node.keywords:
             if arg.arg == keyword:
                 return arg.value
 
@@ -435,7 +454,7 @@ def inherit_from_std_ex(node):
             and node.root().name == EXCEPTIONS_MODULE:
         return True
     return any(inherit_from_std_ex(parent)
-               for parent in node.ancestors(recurs=False))
+               for parent in node.ancestors(recurs=True))
 
 def error_of_type(handler, error_type):
     """
@@ -471,28 +490,36 @@ def decorated_with_property(node):
         if not isinstance(decorator, astroid.Name):
             continue
         try:
-            for infered in decorator.infer():
-                if isinstance(infered, astroid.ClassDef):
-                    if (infered.root().name == BUILTINS_NAME and
-                            infered.name == 'property'):
-                        return True
-                    for ancestor in infered.ancestors():
-                        if (ancestor.name == 'property' and
-                                ancestor.root().name == BUILTINS_NAME):
-                            return True
+            if _is_property_decorator(decorator):
+                return True
         except astroid.InferenceError:
             pass
+    return False
+
+
+def _is_property_decorator(decorator):
+    for infered in decorator.infer():
+        if isinstance(infered, astroid.ClassDef):
+            if infered.root().name == BUILTINS_NAME and infered.name == 'property':
+                return True
+            for ancestor in infered.ancestors():
+                if ancestor.name == 'property' and ancestor.root().name == BUILTINS_NAME:
+                    return True
 
 
 def decorated_with(func, qnames):
     """Determine if the `func` node has a decorator with the qualified name `qname`."""
     decorators = func.decorators.nodes if func.decorators else []
     for decorator_node in decorators:
-        dec = safe_infer(decorator_node)
-        if dec and dec.qname() in qnames:
-            return True
+        try:
+            if any(i is not None and i.qname() in qnames for i in decorator_node.infer()):
+                return True
+        except astroid.InferenceError:
+            continue
+    return False
 
 
+@lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(node, is_abstract_cb=None):
     """
     Get the unimplemented abstract methods for the given *node*.
@@ -611,12 +638,17 @@ def class_is_abstract(node):
     return False
 
 
-def _hasattr(value, attr):
+def _supports_protocol_method(value, attr):
     try:
-        value.getattr(attr)
-        return True
+        attributes = value.getattr(attr)
     except astroid.NotFoundError:
         return False
+
+    first = attributes[0]
+    if isinstance(first, astroid.AssignName):
+        if isinstance(first.parent.value, astroid.Const):
+            return False
+    return True
 
 
 def is_comprehension(node):
@@ -628,27 +660,33 @@ def is_comprehension(node):
 
 
 def _supports_mapping_protocol(value):
-    return _hasattr(value, GETITEM_METHOD) and _hasattr(value, KEYS_METHOD)
+    return (
+        _supports_protocol_method(value, GETITEM_METHOD)
+        and _supports_protocol_method(value, KEYS_METHOD)
+    )
 
 
 def _supports_membership_test_protocol(value):
-    return _hasattr(value, CONTAINS_METHOD)
+    return _supports_protocol_method(value, CONTAINS_METHOD)
 
 
 def _supports_iteration_protocol(value):
-    return _hasattr(value, ITER_METHOD) or _hasattr(value, GETITEM_METHOD)
+    return (
+        _supports_protocol_method(value, ITER_METHOD)
+        or _supports_protocol_method(value, GETITEM_METHOD)
+    )
 
 
 def _supports_getitem_protocol(value):
-    return _hasattr(value, GETITEM_METHOD)
+    return _supports_protocol_method(value, GETITEM_METHOD)
 
 
 def _supports_setitem_protocol(value):
-    return _hasattr(value, SETITEM_METHOD)
+    return _supports_protocol_method(value, SETITEM_METHOD)
 
 
 def _supports_delitem_protocol(value):
-    return _hasattr(value, DELITEM_METHOD)
+    return _supports_protocol_method(value, DELITEM_METHOD)
 
 
 def _is_abstract_class_name(name):
@@ -683,9 +721,10 @@ def _supports_protocol(value, protocol_callback):
     if isinstance(value, astroid.BaseInstance):
         if not has_known_bases(value):
             return True
+        if value.has_dynamic_getattr():
+            return True
         if protocol_callback(value):
             return True
-
 
     # TODO: this is not needed in astroid 2.0, where we can
     # check the type using a virtual base class instead.
@@ -724,6 +763,7 @@ def supports_delitem(value):
 
 
 # TODO(cpopa): deprecate these or leave them as aliases?
+@lru_cache(maxsize=1024)
 def safe_infer(node, context=None):
     """Return the inferred value for the given node.
 
@@ -760,3 +800,63 @@ def has_known_bases(klass, context=None):
             return False
     klass._all_bases_known = True
     return True
+
+
+def is_none(node):
+    return (node is None or
+            (isinstance(node, astroid.Const) and node.value is None) or
+            (isinstance(node, astroid.Name)  and node.name == 'None')
+           )
+
+
+def node_type(node):
+    """Return the inferred type for `node`
+
+    If there is more than one possible type, or if inferred type is YES or None,
+    return None
+    """
+    # check there is only one possible type for the assign node. Else we
+    # don't handle it for now
+    types = set()
+    try:
+        for var_type in node.infer():
+            if var_type == astroid.Uninferable or is_none(var_type):
+                continue
+            types.add(var_type)
+            if len(types) > 1:
+                return
+    except astroid.InferenceError:
+        return
+    return types.pop() if types else None
+
+
+def is_registered_in_singledispatch_function(node):
+    """Check if the given function node is a singledispatch function."""
+
+    singledispatch_qnames = (
+        'functools.singledispatch',
+        'singledispatch.singledispatch'
+    )
+
+    if not isinstance(node, astroid.FunctionDef):
+        return False
+
+    decorators = node.decorators.nodes if node.decorators else []
+    for decorator in decorators:
+        # func.register are function calls
+        if not isinstance(decorator, astroid.Call):
+            continue
+
+        func = decorator.func
+        if not isinstance(func, astroid.Attribute) or func.attrname != 'register':
+            continue
+
+        try:
+            func_def = next(func.expr.infer())
+        except astroid.InferenceError:
+            continue
+
+        if isinstance(func_def, astroid.FunctionDef):
+            return decorated_with(func_def, singledispatch_qnames)
+
+    return False

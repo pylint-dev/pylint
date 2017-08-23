@@ -1,15 +1,18 @@
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unit tests for the variables checker."""
-import unittest
 import sys
+
+import pytest
 
 import astroid
 from pylint.checkers import classes
 from pylint.testutils import CheckerTestCase, Message, set_config
 
-class VariablesCheckerTC(CheckerTestCase):
+class TestVariablesChecker(CheckerTestCase):
 
     CHECKER_CLASS = classes.ClassChecker
 
@@ -50,8 +53,8 @@ class VariablesCheckerTC(CheckerTestCase):
                         args='_teta')):
             self.walk(node.root())
 
-    @unittest.skipUnless(sys.version_info[0] == 3,
-                         "The test works on Python 3.")
+    @pytest.mark.skipif(sys.version_info[0] != 3,
+                        reason="The test works on Python 3.")
     def test_regression_non_parent_init_called_tracemalloc(self):
         # This used to raise a non-parent-init-called on Pylint 1.3
         # See issue https://bitbucket.org/logilab/pylint/issue/308/
@@ -80,7 +83,3 @@ class VariablesCheckerTC(CheckerTestCase):
         """)
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
-
-
-if __name__ == '__main__':
-    unittest.main()

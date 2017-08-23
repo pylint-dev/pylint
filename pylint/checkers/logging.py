@@ -1,8 +1,13 @@
+# Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014 Google, Inc.
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """checker for use of Python logging
 """
+import string
 
 import six
 
@@ -45,22 +50,23 @@ MSGS = {
               the end of a conversion specifier.'),
     'E1205': ('Too many arguments for logging format string',
               'logging-too-many-args',
-              'Used when a logging format string is given too few arguments.'),
+              'Used when a logging format string is given too many arguments.'),
     'E1206': ('Not enough arguments for logging format string',
               'logging-too-few-args',
-              'Used when a logging format string is given too many arguments'),
+              'Used when a logging format string is given too few arguments.'),
     }
 
 
-CHECKED_CONVENIENCE_FUNCTIONS = set([
-    'critical', 'debug', 'error', 'exception', 'fatal', 'info', 'warn',
-    'warning'])
+CHECKED_CONVENIENCE_FUNCTIONS = {
+    'critical', 'debug', 'error', 'exception', 'fatal', 'info', 'warn', 'warning'
+}
 
-def is_method_call(callfunc_node, types=(), methods=()):
-    """Determines if a CallFunc node represents a method call.
+
+def is_method_call(func, types=(), methods=()):
+    """Determines if a BoundMethod node represents a method call.
 
     Args:
-      callfunc_node (astroid.CallFunc): The CallFunc AST node to check.
+      func (astroid.BoundMethod): The BoundMethod AST node to check.
       types (Optional[String]): Optional sequence of caller type names to restrict check.
       methods (Optional[String]): Optional sequence of method names to restrict check.
 
@@ -68,14 +74,10 @@ def is_method_call(callfunc_node, types=(), methods=()):
       bool: true if the node represents a method call for the given type and
       method names, False otherwise.
     """
-    if not isinstance(callfunc_node, astroid.Call):
-        return False
-    func = utils.safe_infer(callfunc_node.func)
     return (isinstance(func, astroid.BoundMethod)
             and isinstance(func.bound, astroid.Instance)
             and (func.bound.name in types if types else True)
             and (func.name in methods if methods else True))
-
 
 
 class LoggingChecker(checkers.BaseChecker):
@@ -172,22 +174,36 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], astroid.BinOp) and node.args[format_pos].op == '%':
-            self.add_message('logging-not-lazy', node=node)
+        if isinstance(node.args[format_pos], astroid.BinOp):
+            binop = node.args[format_pos]
+            if (binop.op == '%' or binop.op == '+' and
+                    len([_operand for _operand in (binop.left, binop.right)
+                         if self._is_operand_literal_str(_operand)]) == 1):
+                self.add_message('logging-not-lazy', node=node)
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
 
-    def _check_call_func(self, callfunc_node):
+    @staticmethod
+    def _is_operand_literal_str(operand):
+        """
+        Return True if the operand in argument is a literal string
+        """
+        return isinstance(operand, astroid.Const) and operand.name == 'str'
+
+    def _check_call_func(self, node):
         """Checks that function call is not format_string.format().
 
         Args:
-          callfunc_node (astroid.node_classes.NodeNG):
-            CallFunc AST node to be checked.
+          node (astroid.node_classes.Call):
+            Call AST node to be checked.
         """
-        if is_method_call(callfunc_node, ('str', 'unicode'), ('format',)):
-            self.add_message('logging-format-interpolation', node=callfunc_node)
+        func = utils.safe_infer(node.func)
+        types = ('str', 'unicode')
+        methods = ('format',)
+        if is_method_call(func, types, methods) and not is_complex_format_str(func.bound):
+            self.add_message('logging-format-interpolation', node=node)
 
     def _check_format_string(self, node, format_arg):
         """Checks that format string tokens match the supplied arguments.
@@ -226,6 +242,23 @@ class LoggingChecker(checkers.BaseChecker):
             self.add_message('logging-too-many-args', node=node)
         elif num_args < required_num_args:
             self.add_message('logging-too-few-args', node=node)
+
+
+def is_complex_format_str(node):
+    """Checks if node represents a string with complex formatting specs.
+
+    Args:
+        node (astroid.node_classes.NodeNG): AST node to check
+    Returns:
+        bool: True if inferred string uses complex formatting, False otherwise
+    """
+    inferred = utils.safe_infer(node)
+    if inferred is None or not isinstance(inferred.value, six.string_types):
+        return True
+    for _, _, format_spec, _ in string.Formatter().parse(inferred.value):
+        if format_spec:
+            return True
+    return False
 
 
 def _count_supplied_tokens(args):

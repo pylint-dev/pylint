@@ -1,3 +1,7 @@
+# Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2013-2014 Google, Inc.
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -20,7 +24,8 @@ Base id of standard checkers (used in msg and report ids):
 14: string_constant
 15: stdlib
 16: python3
-17-50: not yet used: reserved for future internal checkers.
+17: refactoring
+18-50: not yet used: reserved for future internal checkers.
 51-99: perhaps used: reserved for external checkers
 
 The raw_metrics checker has no number associated since it doesn't emit any

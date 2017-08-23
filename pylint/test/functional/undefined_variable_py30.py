@@ -1,7 +1,7 @@
 """Test warnings about access to undefined variables
 for various Python 3 constructs. """
 # pylint: disable=too-few-public-methods, no-init, no-self-use
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position, invalid-metaclass
 class Undefined:
     """ test various annotation problems. """
 
@@ -76,3 +76,7 @@ class ThirdGood(metaclass=ABCMeta):
 
 class FourthGood(ThirdGood):
     """ This should not trigger anything. """
+
+# The following used to raise used-before-assignment
+# pylint: disable=missing-docstring, multiple-statements
+def used_before_assignment(*, arg): return arg + 1

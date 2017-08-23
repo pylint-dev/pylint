@@ -1,3 +1,5 @@
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -35,6 +37,7 @@ class JSONReporter(BaseReporter):
             'symbol': msg.symbol,
             # pylint: disable=deprecated-method; deprecated since 3.2.
             'message': cgi.escape(msg.msg or ''),
+            'message-id': msg.msg_id,
         })
 
     def display_messages(self, layout):

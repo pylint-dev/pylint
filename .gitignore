@@ -9,8 +9,8 @@
 /pylint.egg-info/
 .tox
 *.sw[a-z]
-doc/extensions.rst
-doc/features.rst
+doc/technical_reference/extensions.rst
+doc/technical_reference/features.rst
 pyve
 build-stamp
 debian/files

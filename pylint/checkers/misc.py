@@ -1,12 +1,15 @@
-# pylint: disable=W0511
+# Copyright (c) 2006, 2009-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2013-2014 Google, Inc.
+# Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-""" Copyright (c) 2000-2010 LOGILAB S.A. (Paris, FRANCE).
- http://www.logilab.fr/ -- mailto:contact@logilab.fr
 
-Check source code is ascii only or has an encoding declaration (PEP 263)
-"""
+"""Check source code is ascii only or has an encoding declaration (PEP 263)"""
+
+# pylint: disable=W0511
 
 import re
 
@@ -20,7 +23,8 @@ MSGS = {
     'W0511': ('%s',
               'fixme',
               'Used when a warning note as FIXME or XXX is detected.'),
-    'W0512': ('Cannot decode using encoding "%s", unexpected byte at position %d',
+    'W0512': ('Cannot decode using encoding "%s",'
+              ' unexpected byte at position %d',
               'invalid-encoded-data',
               'Used when a source line cannot be decoded using the specified '
               'source file encoding.',
@@ -61,7 +65,8 @@ class EncodingChecker(BaseChecker):
         match = notes.search(line)
         if not match:
             return
-        self.add_message('fixme', args=line[match.start(1):-1], line=lineno)
+        self.add_message('fixme', args=line[match.start(1):].rstrip(),
+                         line=lineno)
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
@@ -69,6 +74,13 @@ class EncodingChecker(BaseChecker):
         except UnicodeDecodeError as ex:
             self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))
+        except LookupError as ex:
+            if (line.startswith('#') and
+                    "coding" in line and file_encoding in line):
+                self.add_message('syntax-error',
+                                 line=lineno,
+                                 args='Cannot decode using encoding "{}",'
+                                      ' bad encoding'.format(file_encoding))
 
     def process_module(self, module):
         """inspect the source file to find encoding problem or fixmes like

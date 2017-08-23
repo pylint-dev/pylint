@@ -1,2 +1,2 @@
-C:  7: Invalid constant name "value"
+C:  7: Constant name "value" doesn't conform to 'const-name-hint' template
 W: 12:clobbering: Redefining name 'value' from outer scope (line 7)

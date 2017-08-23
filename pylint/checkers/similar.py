@@ -1,3 +1,6 @@
+# Copyright (c) 2006, 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
@@ -12,6 +15,7 @@ from collections import defaultdict
 import six
 from six.moves import zip
 
+from pylint.utils import safe_decode
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
@@ -33,7 +37,7 @@ class Similar(object):
         if encoding is None:
             readlines = stream.readlines
         else:
-            readlines = lambda: [line.decode(encoding) for line in stream]
+            readlines = lambda: [safe_decode(line, encoding) for line in stream]
         try:
             self.linesets.append(LineSet(streamid,
                                          readlines(),
