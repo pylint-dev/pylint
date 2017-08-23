@@ -310,7 +310,7 @@ class Option(optparse.Option):
 
 class OptionParser(optparse.OptionParser):
 
-    def __init__(self, option_class, *args, **kwargs):
+    def __init__(self, option_class=Option, *args, **kwargs):
         optparse.OptionParser.__init__(self, option_class=Option, *args, **kwargs)
 
     def format_option_help(self, formatter=None):
@@ -461,7 +461,7 @@ class OptionsManagerMixIn(object):
         # configuration file parser
         self.cfgfile_parser = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
         # command line parser
-        self.cmdline_parser = OptionParser(Option, usage=usage, version=version)
+        self.cmdline_parser = OptionParser(usage=usage, version=version)
         self.cmdline_parser.options_manager = self
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
 
