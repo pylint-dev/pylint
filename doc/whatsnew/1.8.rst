@@ -9,4 +9,246 @@
 Summary -- Release highlights
 =============================
 
-* None yet.
+* None so far
+
+New checkers
+============
+
+* A new check was added, ``simplify-boolean-expression``.
+
+  This message is emitted when ``consider-using-ternary`` check would emit
+  not equivalent code, due to truthy element being falsy in boolean context.
+
+  .. code-block:: python
+
+     value = condition and False or other_value
+
+  This flawed construct may be simplified to:
+
+  .. code-block:: python
+
+     value = other_value
+
+* A new check was added, ``bad-thread-instantiation``.
+
+  This message is emitted when the threading.Thread class does not
+  receive the target argument, but receives just one argument, which
+  is by default the group parameter.
+
+  In the following example, the instantiation will fail, which is definitely
+  not desired:
+
+  .. code-block:: python
+
+     import threading
+     threading.Thread(lambda: print(1)) # Oups, this is the group parameter
+
+* A new Python 3 checker was added to warn about accessing functions that have been
+  removed from the itertools module ``izip``, ``imap``, ``iflter``, ``izip_longest``, and ``ifilterfalse``.
+
+  .. code-block:: python
+
+      from itertools import izip
+      print(list(izip([1, 2], [3])))
+
+  Instead use ``six.moves`` to import a Python 2 and Python 3 compatible function:
+
+  .. code-block:: python
+
+      from six.moves import zip
+      print(list(zip([1, 2], [3])))
+
+* A new Python 3 checker was added to warn about accessing deprecated fields from
+  the types module like ``ListType`` or ``IntType``
+
+  .. code-block:: python
+
+      from types import ListType
+      print(isinstance([], ListType))
+
+  Instead use the declarations in the builtin namespace:
+
+  .. code-block:: python
+
+      print(isinstance([], list))
+
+* A new Python 3 checker was added to warn about declaring a ``next`` method that
+  would have implemented the ``Iterator`` protocol in Python 2 but is now a normal
+  method in Python 3.
+
+  .. code-block:: python
+
+      class Foo(object):
+          def next(self):
+              return 42
+
+  Instead implement a ``__next__`` method and use ``six.Iterator`` as a base class
+  or alias ``next`` to ``__next__``:
+
+  .. code-block:: python
+
+      class Foo(object):
+          def __next__(self):
+              return 42
+          next = __next__
+
+* Three new Python 3 checkers were added to warn about using dictionary methods
+  in non-iterating contexts.
+
+  For example, the following are returning iterators in Python 3::
+
+  .. code-block:: python
+
+     d = {}
+     d.keys()[0]
+     d.items()[0]
+     d.values() + d.keys()
+
+* A new Python 3 porting check was added, ``non-ascii-bytes-literals``
+
+  This message is emitted whenever we detect that a bytes string contain
+  non-ASCII characters, which results in a SyntaxError on Python 3.
+
+* A new warning, ``raising-format-tuple``, will catch situations where the
+  intent was likely raising an exception with a formatted message string,
+  but the actual code did omit the formatting and instead passes template
+  string and value parameters as separate arguments to the exception
+  constructor.  So it detects things like
+
+  .. code-block:: python
+
+      raise SomeError('message about %s', foo)
+      raise SomeError('message about {}', foo)
+
+  which likely were meant instead as
+
+  .. code-block:: python
+
+      raise SomeError('message about %s' % foo)
+      raise SomeError('message about {}'.format(foo))
+
+  This warning can be ignored on projects which deliberately use lazy
+  formatting of messages in all user-facing exception handlers.
+
+* Following the recommendations of PEP479_ ,a new Python 3.0 checker was added to warn about raising a ``StopIteration`` inside
+  a generator. Raising a ``StopIteration`` inside a generator may be due a direct call
+  to ``raise StopIteration``:
+
+  .. code-block:: python
+
+      def gen_stopiter():
+          yield 1
+          yield 2
+          yield 3
+          raise StopIteration
+
+  Instead use a simple ``return`` statement
+
+  .. code-block:: python
+
+      def gen_stopiter():
+          yield 1
+          yield 2
+          yield 3
+          return
+
+  Raising a ``StopIteration`` may also be due to the call to ``next`` function with a generator
+  as argument:
+
+  .. code-block:: python
+
+      def gen_next_raises_stopiter():
+          g = gen_ok()
+          while True:
+              yield next(g)
+
+  In this case, surround the call to ``next`` with a try/except block:
+
+  .. code-block:: python
+
+      def gen_next_raises_stopiter():
+          g = gen_ok()
+          while True:
+              try:
+                  yield next(g)
+              except StopIteration:
+                  return
+
+  The check about raising a StopIteration inside a generator is also valid if the exception
+  raised inherit from StopIteration.
+  Close #1385
+
+ .. _PEP479: https://www.python.org/dev/peps/pep-0479
+
+* A new Python checker was added to warn about using a ``+`` operator inside call of logging methods
+  when one of the operands is a literal string:
+
+  .. code-block:: python
+
+     import logging
+     var = "123"
+     logging.log(logging.INFO, "Var: " + var)
+
+  Instead use formatted string and positional arguments :
+
+  .. code-block:: python
+
+     import logging
+     var = "123"
+     logging.log(logging.INFO, "Var: %s", var)
+
+Other Changes
+=============
+
+* Raise meaningful exception in case of invalid reporter class (output format)
+  being selected.
+
+* The docparams extension now allows a property docstring to document both
+  the property and the setter. Therefore setters can also have no docstring.
+
+* The docparams extension now understands property type syntax.
+
+  .. code-block:: python
+
+      class Foo(object):
+          @property
+          def foo(self):
+              """My Sphinx style docstring description.
+
+              :type: int
+              """
+              return 10
+
+  .. code-block:: python
+
+    class Foo(object):
+        @property
+        def foo(self):
+            """int: My Numpy and Google docstring style description."""
+            return 10
+
+* In case of ``--output-format=json``, the dictionary returned holds a new key-value pair.
+  The key is ``message-id`` and the value the message id.
+
+* Spelling checker has a new configuration parameter ``max-spelling-suggestions``, which
+  affects maximum count of suggestions included in emitted message.
+
+* The **invalid-name** check contains the name of the template that caused the failure.
+
+  For the given code, **pylint** used to emit ``invalid-name`` in the form ``Invalid constant name var``,
+  without offering any context why ``var`` is not such a good name.
+
+  With this change, it is now more clear what should be improved for a name to be accepted according to
+  its corresponding template.
+
+  .. code-block:: python
+
+    $ cat a.py
+    var = 24
+    $ pylint a.py
+    C:  1, 0: Constant name "var" doesn't conform to 'const-name-hint' template (invalid-name)
+
+
+* New configuration flag, ``suggestion-mode`` was introduced. When enabled, pylint would
+  attempt to emit user-friendly suggestions instead of spurious errors for some known
+  false-positive scenarios. Flag is enabled by default.

@@ -233,9 +233,9 @@ def _called_in_methods(func, klass, methods):
         except astroid.NotFoundError:
             continue
         for infer_method in infered:
-            for callfunc in infer_method.nodes_of_class(astroid.Call):
+            for call in infer_method.nodes_of_class(astroid.Call):
                 try:
-                    bound = next(callfunc.func.infer())
+                    bound = next(call.func.infer())
                 except (astroid.InferenceError, StopIteration):
                     continue
                 if not isinstance(bound, astroid.BoundMethod):
@@ -308,6 +308,16 @@ def _safe_infer_call_result(node, caller, context=None):
         return  # there is some kind of ambiguity
     except StopIteration:
         return value
+
+
+def _has_same_layout_slots(slots, assigned_value):
+    inferred = next(assigned_value.infer())
+    if isinstance(inferred, astroid.ClassDef):
+        other_slots = inferred.slots()
+        if all(first_slot and second_slot and first_slot.value == second_slot.value
+               for (first_slot, second_slot) in six.moves.zip_longest(slots, other_slots)):
+            return True
+    return False
 
 
 MSGS = {
@@ -624,7 +634,7 @@ a metaclass class method.'}
                 except astroid.NotFoundError:
                     for node in nodes:
                         if node.frame().name not in defining_methods:
-                            # If the attribute was set by a callfunc in any
+                            # If the attribute was set by a call in any
                             # of the defining methods, then don't emit
                             # the warning.
                             if _called_in_methods(node.frame(), cnode,
@@ -789,7 +799,7 @@ a metaclass class method.'}
 
     def _check_slots_elt(self, elt):
         for infered in elt.infer():
-            if infered is astroid.YES:
+            if infered is astroid.Uninferable:
                 continue
             if (not isinstance(infered, astroid.Const) or
                     not isinstance(infered.value, six.string_types)):
@@ -844,7 +854,7 @@ a metaclass class method.'}
         self._check_in_slots(node)
 
     def _check_in_slots(self, node):
-        """ Check that the given assattr node
+        """ Check that the given AssignAttr node
         is defined in the class slots.
         """
         infered = safe_infer(node.expr)
@@ -874,6 +884,9 @@ a metaclass class method.'}
                     if (node.attrname in klass.locals
                             and _has_data_descriptor(klass, node.attrname)):
                         # Descriptors circumvent the slots mechanism as well.
+                        return
+                    if (node.attrname == '__class__'
+                            and _has_same_layout_slots(slots, node.parent.value)):
                         return
                     self.add_message('assigning-non-slot',
                                      args=(node.attrname, ), node=node)
@@ -1159,7 +1172,7 @@ a metaclass class method.'}
                 return
             try:
                 for klass in expr.expr.infer():
-                    if klass is astroid.YES:
+                    if klass is astroid.Uninferable:
                         continue
                     # The infered klass can be super(), which was
                     # assigned to a variable and the `__init__`

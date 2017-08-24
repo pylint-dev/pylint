@@ -91,7 +91,7 @@ _SPECIAL_METHODS_PARAMS = {
         '__setstate__', '__reduce_ex__', '__deepcopy__', '__cmp__',
         '__matmul__', '__rmatmul__', '__div__'),
 
-    2: ('__setattr__', '__get__', '__set__', '__setitem__'),
+    2: ('__setattr__', '__get__', '__set__', '__setitem__', '__set_name__'),
 
     3: ('__exit__', '__aexit__'),
 
@@ -284,7 +284,7 @@ def is_ancestor_name(frame, node):
     return False
 
 def assign_parent(node):
-    """return the higher parent which is not an AssName, Tuple or List node
+    """return the higher parent which is not an AssignName, Tuple or List node
     """
     while node and isinstance(node, (astroid.AssignName,
                                      astroid.Tuple,
@@ -418,10 +418,10 @@ def is_attr_private(attrname):
     regex = re.compile('^_{2,}.*[^_]+_?$')
     return regex.match(attrname)
 
-def get_argument_from_call(callfunc_node, position=None, keyword=None):
+def get_argument_from_call(call_node, position=None, keyword=None):
     """Returns the specified argument from a function call.
 
-    :param astroid.Call callfunc_node: Node representing a function call to check.
+    :param astroid.Call call_node: Node representing a function call to check.
     :param int position: position of the argument.
     :param str keyword: the keyword of the argument.
 
@@ -435,11 +435,11 @@ def get_argument_from_call(callfunc_node, position=None, keyword=None):
         raise ValueError('Must specify at least one of: position or keyword.')
     if position is not None:
         try:
-            return callfunc_node.args[position]
+            return call_node.args[position]
         except IndexError:
             pass
-    if keyword and callfunc_node.keywords:
-        for arg in callfunc_node.keywords:
+    if keyword and call_node.keywords:
+        for arg in call_node.keywords:
             if arg.arg == keyword:
                 return arg.value
 
@@ -721,6 +721,8 @@ def _supports_protocol(value, protocol_callback):
     if isinstance(value, astroid.BaseInstance):
         if not has_known_bases(value):
             return True
+        if value.has_dynamic_getattr():
+            return True
         if protocol_callback(value):
             return True
 
@@ -818,7 +820,7 @@ def node_type(node):
     types = set()
     try:
         for var_type in node.infer():
-            if var_type == astroid.YES or is_none(var_type):
+            if var_type == astroid.Uninferable or is_none(var_type):
                 continue
             types.add(var_type)
             if len(types) > 1:

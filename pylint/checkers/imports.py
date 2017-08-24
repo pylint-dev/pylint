@@ -372,8 +372,7 @@ class ImportsChecker(BaseChecker):
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message('cyclic-import', args=' -> '.join(cycle))
 
-    @check_messages('wrong-import-position', 'multiple-imports',
-                    'relative-import', 'reimported', 'deprecated-module')
+    @check_messages(*MSGS.keys())
     def visit_import(self, node):
         """triggered when an import statement is seen"""
         self._check_reimport(node)
@@ -424,8 +423,7 @@ class ImportsChecker(BaseChecker):
             if name != '*':
                 self._add_imported_module(node, '%s.%s' % (imported_module.name, name))
 
-    @check_messages('wrong-import-order', 'ungrouped-imports',
-                    'wrong-import-position')
+    @check_messages(*(MSGS.keys()))
     def leave_module(self, node):
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
@@ -434,6 +432,8 @@ class ImportsChecker(BaseChecker):
         met = set()
         current_package = None
         for import_node, import_name in std_imports + ext_imports + loc_imports:
+            if not self.linter.is_message_enabled('ungrouped-imports', import_node.fromlineno):
+                continue
             package, _, _ = import_name.partition('.')
             if current_package and current_package != package and package in met:
                 self.add_message('ungrouped-imports', node=import_node,
@@ -445,6 +445,8 @@ class ImportsChecker(BaseChecker):
         self._first_non_import_node = None
 
     def compute_first_non_import_node(self, node):
+        if not self.linter.is_message_enabled('wrong-import-position', node.fromlineno):
+            return
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
         # of the module will be compared to the position of this first
@@ -475,6 +477,8 @@ class ImportsChecker(BaseChecker):
         compute_first_non_import_node
 
     def visit_functiondef(self, node):
+        if not self.linter.is_message_enabled('wrong-import-position', node.fromlineno):
+            return
         # If it is the first non import instruction of the module, record it.
         if self._first_non_import_node:
             return
@@ -561,8 +565,8 @@ class ImportsChecker(BaseChecker):
         extern_imports = []
         local_imports = []
         std_imports = []
-        extern_not_nested = []
-        local_not_nested = []
+        extern_not_ignored = []
+        local_not_ignored = []
         isort_obj = isort.SortImports(
             file_contents='', known_third_party=self.config.known_third_party,
             known_standard_library=self.config.known_standard_library,
@@ -573,10 +577,12 @@ class ImportsChecker(BaseChecker):
             else:
                 package = modname.split('.')[0]
             nested = not isinstance(node.parent, astroid.Module)
+            ignore_for_import_order = not self.linter.is_message_enabled('wrong-import-order',
+                                                                         node.fromlineno)
             import_category = isort_obj.place_module(package)
             if import_category in ('FUTURE', 'STDLIB'):
                 std_imports.append((node, package))
-                wrong_import = extern_not_nested or local_not_nested
+                wrong_import = extern_not_ignored or local_not_ignored
                 if self._is_fallback_import(node, wrong_import):
                     continue
                 if wrong_import and not nested:
@@ -585,17 +591,17 @@ class ImportsChecker(BaseChecker):
                                            '"%s"' % wrong_import[0][0].as_string()))
             elif import_category in ('FIRSTPARTY', 'THIRDPARTY'):
                 extern_imports.append((node, package))
-                if not nested:
-                    extern_not_nested.append((node, package))
-                wrong_import = local_not_nested
+                if not nested and not ignore_for_import_order:
+                    extern_not_ignored.append((node, package))
+                wrong_import = local_not_ignored
                 if wrong_import and not nested:
                     self.add_message('wrong-import-order', node=node,
                                      args=('external import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
             elif import_category == 'LOCALFOLDER':
                 local_imports.append((node, package))
-                if not nested:
-                    local_not_nested.append((node, package))
+                if not nested and not ignore_for_import_order:
+                    local_not_ignored.append((node, package))
         return std_imports, extern_imports, local_imports
 
     def _get_imported_module(self, importnode, modname):
@@ -668,7 +674,7 @@ class ImportsChecker(BaseChecker):
 
             # update import graph
             self.import_graph[context_name].add(importedmodname)
-            if not self.linter.is_message_enabled('cyclic-import'):
+            if not self.linter.is_message_enabled('cyclic-import', line=node.lineno):
                 self._excluded_edges[context_name].add(importedmodname)
 
     def _check_deprecated_module(self, node, mod_path):

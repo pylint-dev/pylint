@@ -631,6 +631,8 @@ class FormatChecker(BaseTokenChecker):
             elif token[1] == ',':
                 if not bracket_level:
                     return False
+            elif token[1] == '.':
+                continue
             elif token[0] not in (tokenize.NAME, tokenize.STRING):
                 return False
         return False
@@ -1006,7 +1008,17 @@ class FormatChecker(BaseTokenChecker):
             return i + 1
 
         unsplit_ends = {
-            '\v', '\x0b', '\f', '\x0c', '\x1c', '\x1d', '\x1e', '\x85', '\u2028', '\u2029'}
+            u'\v',
+            u'\x0b',
+            u'\f',
+            u'\x0c',
+            u'\x1c',
+            u'\x1d',
+            u'\x1e',
+            u'\x85',
+            u'\u2028',
+            u'\u2029'
+        }
         unsplit = []
         for line in lines.splitlines(True):
             if line[-1] in unsplit_ends:

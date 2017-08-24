@@ -165,9 +165,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             baseobj.specializations = specializations
         # resolve instance attributes
         node.instance_attrs_type = collections.defaultdict(list)
-        for assattrs in node.instance_attrs.values():
-            for assattr in assattrs:
-                self.handle_assattr_type(assattr, node)
+        for assignattrs in node.instance_attrs.values():
+            for assignattr in assignattrs:
+                self.handle_assignattr_type(assignattr, node)
         # resolve implemented interface
         try:
             node.implements = list(interfaces(node, self.inherited_interfaces))
@@ -192,7 +192,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     link_function = visit_functiondef
 
     def visit_assignname(self, node):
-        """visit an astroid.AssName node
+        """visit an astroid.AssignName node
 
         handle locals_type
         """
@@ -226,8 +226,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             pass
 
     @staticmethod
-    def handle_assattr_type(node, parent):
-        """handle an astroid.AssAttr node
+    def handle_assignattr_type(node, parent):
+        """handle an astroid.assignattr node
 
         handle instance_attrs_type
         """
@@ -249,7 +249,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             self._imported_module(node, name[0], relative)
 
     def visit_importfrom(self, node):
-        """visit an astroid.From node
+        """visit an astroid.ImportFrom node
 
         resolve module dependencies
         """

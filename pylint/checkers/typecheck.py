@@ -31,10 +31,11 @@ import astroid
 import astroid.context
 import astroid.arguments
 import astroid.nodes
-from astroid import exceptions
+from astroid import exceptions, decorators
 from astroid.interpreter import dunder_lookup
 from astroid import objects
 from astroid import bases
+from astroid import modutils
 
 from pylint.interfaces import IAstroidChecker, INFERENCE
 from pylint.checkers import BaseChecker
@@ -50,7 +51,7 @@ from pylint.checkers.utils import (
     has_known_bases,
     is_builtin_object,
     singledispatch)
-
+from pylint.utils import get_global_option
 
 BUILTINS = six.moves.builtins.__name__
 STR_FORMAT = "%s.str.format" % BUILTINS
@@ -182,6 +183,13 @@ MSGS = {
               'no-member',
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
+    'I1101': ('%s %r has not %r member, but source is unavailable. Consider '
+              'adding this module to extension-package-whitelist if you want '
+              'to perform analysis based on run-time introspection of living objects.',
+              'c-extension-no-member',
+              'Used when a variable is accessed for non-existent member of C '
+              'extension. Due to unavailability of source static analysis is impossible, '
+              'but it may be performed by introspecting living objects in run-time.'),
     'E1102': ('%s is not callable',
               'not-callable',
               'Used when an object being called has been inferred to a non \
@@ -480,6 +488,10 @@ def _infer_from_metaclass_constructor(cls, func):
     return inferred or None
 
 
+def _is_c_extension(module_node):
+    return not modutils.is_standard_module(module_node.name) and not module_node.fully_defined()
+
+
 class TypeChecker(BaseChecker):
     """try to find bugs in the code using type inference
     """
@@ -575,6 +587,10 @@ accessed. Python regular expressions are accepted.'}
                ),
               )
 
+    @decorators.cachedproperty
+    def _suggestion_mode(self):
+        return get_global_option(self, 'suggestion-mode', default=True)
+
     def open(self):
         # do this in open since config not fully initialized in __init__
         # generated_members may contain regular expressions
@@ -621,7 +637,7 @@ accessed. Python regular expressions are accepted.'}
     def visit_delattr(self, node):
         self.visit_attribute(node)
 
-    @check_messages('no-member')
+    @check_messages('no-member', 'c-extension-no-member')
     def visit_attribute(self, node):
         """check that the accessed attribute exists
 
@@ -681,6 +697,7 @@ accessed. Python regular expressions are accepted.'}
                 # So call this only after the call has been made.
                 if not _emit_no_member(node, owner, name,
                                        self.config.ignore_mixin_members):
+
                     continue
                 missingattr.add((owner, name))
                 continue
@@ -699,17 +716,26 @@ accessed. Python regular expressions are accepted.'}
                     continue
                 done.add(actual)
 
-                if self.config.missing_member_hint:
-                    hint = _missing_member_hint(owner, node.attrname,
-                                                self.config.missing_member_hint_distance,
-                                                self.config.missing_member_max_choices)
-                else:
-                    hint = ""
-
-                self.add_message('no-member', node=node,
+                msg, hint = self._get_nomember_msgid_hint(node, owner)
+                self.add_message(msg, node=node,
                                  args=(owner.display_type(), name,
                                        node.attrname, hint),
                                  confidence=INFERENCE)
+
+    def _get_nomember_msgid_hint(self, node, owner):
+        suggestions_are_possible = self._suggestion_mode and isinstance(owner, astroid.Module)
+        if suggestions_are_possible and _is_c_extension(owner):
+            msg = 'c-extension-no-member'
+            hint = ""
+        else:
+            msg = 'no-member'
+            if self.config.missing_member_hint:
+                hint = _missing_member_hint(owner, node.attrname,
+                                            self.config.missing_member_hint_distance,
+                                            self.config.missing_member_max_choices)
+            else:
+                hint = ""
+        return msg, hint
 
     @check_messages('assignment-from-no-return', 'assignment-from-none')
     def visit_assign(self, node):
@@ -739,16 +765,16 @@ accessed. Python regular expressions are accepted.'}
             else:
                 self.add_message('assignment-from-none', node=node)
 
-    def _check_uninferable_callfunc(self, node):
+    def _check_uninferable_call(self, node):
         """
-        Check that the given uninferable CallFunc node does not
+        Check that the given uninferable Call node does not
         call an actual function.
         """
         if not isinstance(node.func, astroid.Attribute):
             return
 
         # Look for properties. First, obtain
-        # the lhs of the Getattr node and search the attribute
+        # the lhs of the Attribute node and search the attribute
         # there. If that attribute is a property or a subclass of properties,
         # then most likely it's not callable.
 
@@ -812,7 +838,7 @@ accessed. Python regular expressions are accepted.'}
                 self.add_message('not-callable', node=node,
                                  args=node.func.as_string())
 
-        self._check_uninferable_callfunc(node)
+        self._check_uninferable_call(node)
 
         try:
             called, implicit_args, callable_name = _determine_callable(called)

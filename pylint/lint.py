@@ -12,9 +12,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
-""" %prog [options] module_or_package
+""" %prog [options] modules_or_packages
 
-  Check that a module satisfies a coding standard (and more !).
+  Check that module(s) satisfy a coding standard (and more !).
 
     %prog --help
 
@@ -205,8 +205,8 @@ if multiprocessing is not None:
 
             # Run linter for received files/modules.
             for file_or_module in iter(tasks_queue.get, 'STOP'):
-                result = self._run_linter(file_or_module[0])
                 try:
+                    result = self._run_linter(file_or_module[0])
                     results_queue.put(result)
                 except Exception as ex:
                     print("internal error with sending report for module %s" %
@@ -389,8 +389,12 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help': ('A comma-separated list of package or module names'
                            ' from where C extensions may be loaded. Extensions are'
                            ' loading into the active Python interpreter and may run'
-                           ' arbitrary code')}
-                ),
+                           ' arbitrary code')}),
+                ('suggestion-mode',
+                 {'type': 'yn', 'metavar': '<yn>', 'default': True,
+                  'help': ('When enabled, pylint would attempt to guess common '
+                           'misconfiguration and emit user-friendly hints instead '
+                           'of false-positive error messages')}),
                )
 
     option_groups = (
@@ -473,12 +477,20 @@ class PyLinter(config.OptionsManagerMixIn,
         if name in self._reporters:
             self.set_reporter(self._reporters[name]())
         else:
-            qname = self._reporter_name
-            module = modutils.load_module_from_name(
-                modutils.get_module_part(qname))
-            class_name = qname.split('.')[-1]
-            reporter_class = getattr(module, class_name)
-            self.set_reporter(reporter_class())
+            try:
+                reporter_class = self._load_reporter_class()
+            except (ImportError, AttributeError):
+                raise exceptions.InvalidReporterError(name)
+            else:
+                self.set_reporter(reporter_class())
+
+    def _load_reporter_class(self):
+        qname = self._reporter_name
+        module = modutils.load_module_from_name(
+            modutils.get_module_part(qname))
+        class_name = qname.split('.')[-1]
+        reporter_class = getattr(module, class_name)
+        return reporter_class
 
     def set_reporter(self, reporter):
         """set the reporter used to display messages and reports"""
@@ -753,14 +765,16 @@ class PyLinter(config.OptionsManagerMixIn,
         tasks_queue = manager.Queue()
         results_queue = manager.Queue()
 
-        for _ in range(self.config.jobs):
+        # Send files to child linters.
+        expanded_files = self.expand_files(files_or_modules)
+
+        # do not start more jobs than needed
+        for _ in range(min(self.config.jobs, len(expanded_files))):
             child_linter = ChildLinter(args=(tasks_queue, results_queue,
                                              child_config))
             child_linter.start()
             children.append(child_linter)
 
-        # Send files to child linters.
-        expanded_files = self.expand_files(files_or_modules)
         for files_or_module in expanded_files:
             path = files_or_module['path']
             tasks_queue.put([path])
@@ -795,6 +809,8 @@ class PyLinter(config.OptionsManagerMixIn,
         all_stats = []
         module = None
         for result in self._parallel_task(files_or_modules):
+            if not result:
+                continue
             (
                 _,
                 self.file_state.base_name,
@@ -1251,6 +1267,7 @@ group are mutually exclusive.'),
                                 level=1)
         # read configuration
         linter.disable('I')
+        linter.enable('c-extension-no-member')
         linter.read_config_file()
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins

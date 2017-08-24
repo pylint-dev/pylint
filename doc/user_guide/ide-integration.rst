@@ -1,3 +1,4 @@
+.. _ide-integration:
 
 ###########################
  Editor and IDE integration

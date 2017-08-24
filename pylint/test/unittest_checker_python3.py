@@ -167,6 +167,38 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.as_argument_to_callable_constructor_test(fxn, func)
 
     @python2_only
+    def test_dict_methods_in_iterating_context(self):
+        iterating_code = [
+            'for x in {}: pass',
+            '(x for x in {})',
+            '[x for x in {}]',
+            'func({})',
+            'a, b = {}'
+        ]
+        non_iterating_code = [
+            'x = __({}())',
+            '__({}())[0]'
+        ]
+
+        for method in ('keys', 'items', 'values'):
+            dict_method = '{{}}.{}'.format(method)
+
+            for code in iterating_code:
+                with_value = code.format(dict_method)
+                module = astroid.parse(with_value)
+                with self.assertNoMessages():
+                    self.walk(module)
+
+            for code in non_iterating_code:
+                with_value = code.format(dict_method)
+                node = astroid.extract_node(with_value)
+
+                checker = 'dict-{}-not-iterating'.format(method)
+                message = testutils.Message(checker, node=node)
+                with self.assertAddsMessages(message):
+                    self.checker.visit_call(node)
+
+    @python2_only
     def test_map_in_iterating_context(self):
         self.iterating_context_tests('map')
 
@@ -503,6 +535,26 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @python2_only
+    def test_itertools_izip(self):
+        node = astroid.extract_node('''
+        from itertools import izip #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('deprecated-itertools-function', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
+    def test_deprecated_types_fiels(self):
+        node = astroid.extract_node('''
+        from types import StringType #@
+        ''')
+        absolute_import_message = testutils.Message('no-absolute-import', node=node)
+        message = testutils.Message('deprecated-types-field', node=node)
+        with self.assertAddsMessages(absolute_import_message, message):
+            self.checker.visit_importfrom(node)
+
+    @python2_only
     def test_sys_maxint_imort_from(self):
         node = astroid.extract_node('''
         from sys import maxint #@
@@ -530,6 +582,18 @@ class TestPython3Checker(testutils.CheckerTestCase):
         message = testutils.Message('bad-python3-import', node=node)
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_not_on_relative(self):
+        samples = [
+            'from .commands import titi',
+            'from . import commands',
+        ]
+        for code in samples:
+            node = astroid.extract_node(code)
+            absolute_import_message = testutils.Message('no-absolute-import', node=node)
+            with self.assertAddsMessages(absolute_import_message):
+                self.checker.visit_importfrom(node)
 
     @python2_only
     def test_bad_import_conditional(self):
@@ -778,13 +842,65 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    @python2_only
+    def test_next_defined(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                def next(self):  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_too_many_args(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                def next(self, foo=None):  #@
+                    pass""")
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_static_method_too_many_args(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @staticmethod
+                def next(self):  #@
+                    pass""")
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_static_method(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @staticmethod
+                def next():  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+    @python2_only
+    def test_next_defined_class_method(self):
+        node = astroid.extract_node("""
+            class Foo(object):
+                @classmethod
+                def next(cls):  #@
+                    pass""")
+        message = testutils.Message('next-method-defined', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(node)
+
+
 @python2_only
 class TestPython3TokenChecker(testutils.CheckerTestCase):
 
     CHECKER_CLASS = checker.Python3TokenChecker
 
     def _test_token_message(self, code, symbolic_message):
-        tokens = testutils.tokenize_str(code)
+        tokens = testutils._tokenize_str(code)
         message = testutils.Message(symbolic_message, line=1)
         with self.assertAddsMessages(message):
             self.checker.process_tokens(tokens)
@@ -802,6 +918,14 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
 
         # Make sure we are catching only octals.
         for non_octal in ("45", "00", "085", "08", "1"):
-            tokens = testutils.tokenize_str(non_octal)
+            tokens = testutils._tokenize_str(non_octal)
+            with self.assertNoMessages():
+                self.checker.process_tokens(tokens)
+
+    def test_non_ascii_bytes_literal(self):
+        code = 'b"测试"'
+        self._test_token_message(code, 'non-ascii-bytes-literal')
+        for code in ("测试", u"测试", u'abcdef', b'\x80'):
+            tokens = testutils._tokenize_str(code)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)

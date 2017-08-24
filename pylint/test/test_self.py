@@ -21,6 +21,7 @@ from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.json import JSONReporter
 import pytest
+from pylint import utils
 
 HERE = abspath(dirname(__file__))
 
@@ -159,7 +160,7 @@ class TestRunTC(object):
         out = six.StringIO(output[master.start():])
         parser = six.moves.configparser.RawConfigParser()
         parser.readfp(out)
-        messages = parser.get('MESSAGES CONTROL', 'disable').split(",")
+        messages = utils._splitstrip(parser.get('MESSAGES CONTROL', 'disable'))
         assert 'suppressed-message' in messages
 
     def test_generate_rcfile_no_obsolete_methods(self):
