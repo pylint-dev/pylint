@@ -10,6 +10,7 @@
 
 import collections
 import itertools
+import functools
 import tokenize
 
 import astroid
@@ -25,6 +26,52 @@ from pylint.checkers import utils
 def _all_elements_are_true(gen):
     values = list(gen)
     return values and all(values)
+
+
+def _get_exception_handlers(node, exception):
+    """Return the collections of handlers handling the exception in arguments"""
+    current = node
+    ignores = (astroid.ExceptHandler, astroid.TryExcept)
+    while current and not isinstance(current.parent, ignores):
+        current = current.parent
+
+    if current and isinstance(current.parent, astroid.TryExcept):
+        return [_handler for _handler in current.parent.handlers if _handler.catch(exception)]
+
+
+def _is_node_return_ended(node):
+    """Return True if the node ends with an explicit return statement"""
+    # Recursion base case
+    if isinstance(node, astroid.Return):
+        return True
+    if isinstance(node, astroid.Raise):
+        # a Raise statement doesn't need to end with a return statement
+        # but if the exception raised is handled, then the handler has to
+        # ends with a return statement
+        exc = utils.safe_infer(node.exc)
+        exc_name = exc.pytype().split('.')[-1]
+        if exc is None:
+            return False
+        handlers = _get_exception_handlers(node, exc_name)
+        if handlers:
+            # among all the handlers handling the exception at least one
+            # must end with a return statement
+            return any(_is_node_return_ended(_handler) for _handler in handlers)
+        else:
+            # if no handlers handle the exception then it's ok
+            return True
+    if isinstance(node, astroid.If):
+        # if statement is returning if there are exactly two return statements in its
+        # children : one for the body part, the other for the orelse part
+        return_stmts = [_is_node_return_ended(_child) for _child in node.get_children()]
+        return_stmts = [_rs for _rs in return_stmts if _rs]
+        if len(return_stmts) == 2:
+            return True
+        return False
+    # recurses on the children of the node except for those which are except handler
+    # because one cannot be sure that the handler will really be used
+    return any(_is_node_return_ended(_child) for _child in node.get_children()
+               if not isinstance(_child, astroid.ExceptHandler))
 
 
 def _if_statement_is_always_returning(if_node):
@@ -504,37 +551,28 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_functiondef(self, node):
         self._return_nodes[node.name] = []
         return_nodes = node.nodes_of_class(astroid.Return)
-        for return_node in return_nodes:
-            if return_node.frame() != node.frame(): # case of nested function
-                continue
-            self._return_nodes[node.name].append(return_node)
+        self._return_nodes[node.name] = [_rnode for _rnode in return_nodes if _rnode.frame() == node.frame()]
 
     def _check_consistent_returns(self, node):
         """Check that all return statements inside a function are consistent
 
-        Emit message if:
+        Return statements are consistent if:
             - all returns are explicit and if there is no implicit return
             - all returns are empty and if there is, possibly, an implicit return
         """
-        import ipdb; ipdb.set_trace()
         explicit_returns = [_node for _node in self._return_nodes[node.name] if _node.value is not None]
-        if (len(explicit_returns) == len(self._return_nodes[node.name]) and
-                self._has_function_explicit_return_statement(self._return_nodes[node.name])):
+        if not explicit_returns:
             return
+        if len(explicit_returns) == len(self._return_nodes[node.name]):
+            try:
+                if _is_node_return_ended(node):
+                    return
+            except AttributeError:
+                return
         elif not explicit_returns:
             return
         self.add_message('inconsistent-return-statements', node=node)
 
-    @staticmethod
-    def _has_function_explicit_return_statement(return_nodes):
-        """Return True if none of the return nodes are implicit one"""
-        for return_node in return_nodes:
-            if return_node.parent == return_node.frame():
-                return True
-            elif (isinstance(return_node.parent, astroid.If) and
-                  _if_statement_is_always_returning(return_node.parent)):
-                return True
-        return False
 
 class RecommandationChecker(checkers.BaseChecker):
     __implements__ = (interfaces.IAstroidChecker,)
