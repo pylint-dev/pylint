@@ -532,7 +532,7 @@ class FormatChecker(BaseTokenChecker):
 
         found_and_or = False
         depth = 0
-        keyword_token = tokens[start][1]
+        keyword_token = str(tokens[start][1])
         line_num = tokens[start][2][0]
 
         for i in range(start, len(tokens) - 1):

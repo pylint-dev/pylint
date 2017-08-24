@@ -138,6 +138,16 @@ class TestSuperfluousParentheses(CheckerTestCase):
             with self.assertAddsMessages(msg):
                 self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
 
+    def testCheckIfArgsAreNotUnicode(self):
+        self.checker._keywords_with_parens = set()
+        cases = [(u'if (foo):', 0), (u'assert (1 == 1)', 0)]
+
+        for code, offset in cases:
+            self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
+            got = self.linter.release_messages()
+            assert isinstance(got[-1].args, str)
+
+
     def testFuturePrintStatementWithoutParensWarning(self):
         code = """from __future__ import print_function
 print('Hello world!')

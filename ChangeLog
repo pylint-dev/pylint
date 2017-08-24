@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Fixing u'' string in superfluous-parens message 
+
+      Close #1420
+
     * `abstract-class-instantiated` is now emitted for all inference paths.
 
        Close #1673
