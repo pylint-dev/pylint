@@ -119,7 +119,7 @@ def in_nested_list(nested_list, obj):
 
 
 def _loop_exits_early(loop):
-    """Returns true if a loop has a break statement in its body."""
+    """Returns true if a loop has a break or return statement in its body."""
     loop_nodes = (astroid.For, astroid.While)
     # Loop over body explicitly to avoid matching break statements
     # in orelse.
@@ -128,10 +128,12 @@ def _loop_exits_early(loop):
             # break statement may be in orelse of child loop.
             # pylint: disable=superfluous-parens
             for orelse in (child.orelse or ()):
-                for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
+                for _ in orelse.nodes_of_class((astroid.Break, astroid.Return),
+                                               skip_klass=loop_nodes):
                     return True
             continue
-        for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
+        for _ in child.nodes_of_class((astroid.Break, astroid.Return),
+                                      skip_klass=loop_nodes):
             return True
     return False
 
@@ -317,8 +319,8 @@ class BasicErrorChecker(_BasicChecker):
         'W0120': ('Else clause on loop without a break statement',
                   'useless-else-on-loop',
                   'Loops should only have an else clause if they can exit early '
-                  'with a break statement, otherwise the statements under else '
-                  'should be on the same scope as the loop itself.'),
+                  'with a break or return statement, otherwise the statements '
+                  'under else should be on the same scope as the loop itself.'),
         'E0112': ('More than one starred expression in assignment',
                   'too-many-star-expressions',
                   'Emitted when there are more than one starred '

@@ -383,3 +383,94 @@ class TestComparison(CheckerTestCase):
                             args=(None, "'expr is None'")))
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
+
+
+class TestBasicError(CheckerTestCase):
+    CHECKER_CLASS = base.BasicErrorChecker
+
+    def test_not_useless_else_on_loop_1(self):
+        node = astroid.extract_node("""
+        for x in [1, 2, 3]:  #@
+            if x == 2:
+                break
+        else:
+            x = 4
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_for(node)
+
+    def test_not_useless_else_on_loop_2(self):
+        node = astroid.extract_node("""
+        x = 1
+        while x:  #@
+            x += 1
+            if x == 2:
+                break
+        else:
+            x = 4
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_while(node)
+
+    def test_useless_else_on_loop_1(self):
+        node = astroid.extract_node("""
+        for x in [1, 2, 3]:
+            print(x)
+        else:
+            x = 4
+        """)
+        with self.assertAddsMessages(Message('useless-else-on-loop', 4, node)):
+            self.checker.visit_for(node)
+
+    def test_useless_else_on_loop_2(self):
+        node = astroid.extract_node("""
+        x = 1
+        while x:  #@
+            x += 1
+            if x == 2:
+                pass
+        else:
+            x = 4
+        """)
+        with self.assertAddsMessages(Message('useless-else-on-loop', 7, node)):
+            self.checker.visit_for(node)
+
+    def test_not_useless_else_on_loop_via_return(self):
+        node = astroid.extract_node("""
+        def f():
+            for _ in range(times):  #@
+                time.sleep(sleep)
+                try:
+                    value = function(*args, **kws)
+                except exception as error:
+                    print(error)
+                    value = None
+                if condition(value):
+                    return value
+            else:
+                 value = -1
+        """)
+        print(base._loop_exits_early(node))
+        with self.assertNoMessages():
+            self.checker.visit_for(node)
+
+    def test_useless_else_on_loop_return_in_other_scope(self):
+        node = astroid.extract_node("""
+        def f():
+            def g():
+                return 3
+            for _ in range(times):  #@
+                time.sleep(sleep)
+                try:
+                    value = function(*args, **kws)
+                except exception as error:
+                    print(error)
+                    value = None
+                if condition(value):
+                    pass
+            else:
+                 value = -1
+        """)
+        print(base._loop_exits_early(node))
+        with self.assertAddsMessages(Message('useless-else-on-loop', 14, node)):
+            self.checker.visit_for(node)
