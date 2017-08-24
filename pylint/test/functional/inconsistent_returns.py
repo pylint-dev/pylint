@@ -1,4 +1,4 @@
-#pylint: disable=missing-docstring, no-else-return
+#pylint: disable=missing-docstring, no-else-return, invalid-name, unused-variable
 """Testing inconsistent returns"""
 import math
 
@@ -40,10 +40,49 @@ def explicit_returns3(arg):
             print('arg < 3')
         return True
 
+def explicit_returns4(arg):
+    if arg:
+        if arg > 2:
+            print('arg > 2')
+        return False
+    else:
+        if arg < 3:
+            print('arg < 3')
+        return True
+
+def explicit_returns5(arg):
+    if arg:
+        if arg > 2:
+            print('arg > 2')
+        return False
+    else:
+        return True
+
 def nested_function():
     def dummy_return():
         return
     return dummy_return
+
+def explicit_returns6(x, y, z):
+    if x:  # pylint: disable=no-else-return
+        a = 1
+        if y:  # pylint: disable=no-else-return
+            b = 2
+            return y
+        else:
+            c = 3
+            return x
+    else:
+        d = 4
+        return z
+
+def explicit_returns7(arg):
+    if arg < 0:
+        return 'below 0'
+    elif arg == 0:
+        return '0'
+    else:
+        return 'above 0'
 
 # Next ones are not consistent
 def explicit_implicit_returns(var): # [inconsistent-return-statements]
@@ -54,3 +93,34 @@ def empty_explicit_returns(var): # [inconsistent-return-statements]
     if var < 0:
         return
     return math.sqrt(var)
+
+def explicit_implicit_returns2(arg): # [inconsistent-return-statements]
+    if arg:
+        if arg > 2:
+            print('arg > 2')
+            return False
+    else:
+        return True
+
+def explicit_implicit_returns3(arg): # [inconsistent-return-statements]
+    if arg:
+        if arg > 2:
+            print('arg > 2')
+            return False
+        else:
+            return True
+
+def returns_in_not_catched_exceptions(): # [inconsistent-return-statements]
+    try:
+        raise ValueError('test')
+    except ValueError:
+        print('ValueError')
+    except (OSError, TypeError):
+        return 2
+
+def complex_func(arg): # [inconsistent-return-statements]
+    for i in range(arg):
+        if i > arg / 2:
+            break
+        else:
+            return arg
