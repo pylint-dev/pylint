@@ -10,7 +10,6 @@
 
 import collections
 import itertools
-import functools
 import tokenize
 
 import astroid
@@ -37,6 +36,7 @@ def _get_exception_handlers(node, exception):
 
     if current and isinstance(current.parent, astroid.TryExcept):
         return [_handler for _handler in current.parent.handlers if _handler.catch(exception)]
+    return None
 
 
 def _is_node_return_ended(node):
@@ -57,9 +57,8 @@ def _is_node_return_ended(node):
             # among all the handlers handling the exception at least one
             # must end with a return statement
             return any(_is_node_return_ended(_handler) for _handler in handlers)
-        else:
-            # if no handlers handle the exception then it's ok
-            return True
+        # if no handlers handle the exception then it's ok
+        return True
     if isinstance(node, astroid.If):
         # if statement is returning if there are exactly two return statements in its
         # children : one for the body part, the other for the orelse part
@@ -551,7 +550,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def visit_functiondef(self, node):
         self._return_nodes[node.name] = []
         return_nodes = node.nodes_of_class(astroid.Return)
-        self._return_nodes[node.name] = [_rnode for _rnode in return_nodes if _rnode.frame() == node.frame()]
+        self._return_nodes[node.name] = [_rnode for _rnode in return_nodes
+                                         if _rnode.frame() == node.frame()]
 
     def _check_consistent_returns(self, node):
         """Check that all return statements inside a function are consistent
@@ -560,16 +560,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             - all returns are explicit and if there is no implicit return
             - all returns are empty and if there is, possibly, an implicit return
         """
-        explicit_returns = [_node for _node in self._return_nodes[node.name] if _node.value is not None]
+        # explicit return statements are those with a not None value
+        explicit_returns = [_node for _node in self._return_nodes[node.name]
+                            if _node.value is not None]
         if not explicit_returns:
             return
-        if len(explicit_returns) == len(self._return_nodes[node.name]):
-            try:
-                if _is_node_return_ended(node):
-                    return
-            except AttributeError:
-                return
-        elif not explicit_returns:
+        if (len(explicit_returns) == len(self._return_nodes[node.name])
+                and _is_node_return_ended(node)):
             return
         self.add_message('inconsistent-return-statements', node=node)
 
