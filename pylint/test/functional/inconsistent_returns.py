@@ -78,10 +78,13 @@ def explicit_returns6(x, y, z):
 
 def explicit_returns7(arg):
     if arg < 0:
+        arg = 2 * arg
         return 'below 0'
     elif arg == 0:
+        print("Null arg")
         return '0'
     else:
+        arg = 3 * arg
         return 'above 0'
 
 # Next ones are not consistent
@@ -110,11 +113,13 @@ def explicit_implicit_returns3(arg): # [inconsistent-return-statements]
         else:
             return True
 
-def returns_in_not_catched_exceptions(): # [inconsistent-return-statements]
+def returns_missing_in_catched_exceptions(arg): # [inconsistent-return-statements]
     try:
+        arg = arg**2
         raise ValueError('test')
     except ValueError:
         print('ValueError')
+        arg = 0
     except (OSError, TypeError):
         return 2
 
@@ -124,3 +129,12 @@ def complex_func(arg): # [inconsistent-return-statements]
             break
         else:
             return arg
+
+def inconsistent_returns_in_nested_function():
+    def not_consistent_returns_inner(arg): # [inconsistent-return-statements]
+        for i in range(arg):
+            if i > arg / 2:
+                break
+            else:
+                return arg
+    return not_consistent_returns_inner
