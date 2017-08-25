@@ -287,7 +287,7 @@ def _has_bare_super_call(fundef_node):
     return False
 
 
-def _safe_infer_call_result(node, caller, context=None):
+def _safe_infer_call_result(node, caller, context=None): # pylint: disable=inconsistent-return-statements
     """
     Safely infer the return value of a function.
 

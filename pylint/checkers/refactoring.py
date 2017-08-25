@@ -372,7 +372,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._nested_blocks = []
         # check consistent return statements
         self._check_consistent_returns(node)
-        self._return_nodes[node.name].clear()
+        self._return_nodes[node.name] = []
 
     def visit_raise(self, node):
         self._check_stop_iteration_inside_generator(node)

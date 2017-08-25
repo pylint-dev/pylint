@@ -73,7 +73,7 @@ def _get_new_args(message):
         message.confidence,
     )
 
-def _get_python_path(filepath):
+def _get_python_path(filepath): # pylint: disable=inconsistent-return-statements
     dirname = os.path.realpath(os.path.expanduser(filepath))
     if not os.path.isdir(dirname):
         dirname = os.path.dirname(dirname)
@@ -921,7 +921,7 @@ class PyLinter(config.OptionsManagerMixIn,
             traceback.print_exc()
             self.add_message('astroid-error', args=(ex.__class__, ex))
 
-    def check_astroid_module(self, ast_node, walker,
+    def check_astroid_module(self, ast_node, walker, # pylint: disable=inconsistent-return-statements
                              rawcheckers, tokencheckers):
         """Check a module from its astroid representation."""
         try:

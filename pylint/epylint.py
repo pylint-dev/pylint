@@ -108,7 +108,7 @@ def lint(filename, options=None):
     return process.returncode
 
 
-def py_run(command_options='', return_std=False, stdout=None, stderr=None):
+def py_run(command_options='', return_std=False, stdout=None, stderr=None): # pylint: disable=inconsistent-return-statements
     """Run pylint from python
 
     ``command_options`` is a string containing ``pylint`` command line options;

@@ -981,7 +981,7 @@ accessed. Python regular expressions are accepted.'}
         return self.visit_index(node)
 
     @check_messages('invalid-sequence-index')
-    def visit_index(self, node):
+    def visit_index(self, node): # pylint: disable=inconsistent-return-statements
         if not node.parent or not hasattr(node.parent, "value"):
             return
         # Look for index operations where the parent is a sequence type.

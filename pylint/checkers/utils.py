@@ -497,7 +497,7 @@ def decorated_with_property(node):
     return False
 
 
-def _is_property_decorator(decorator):
+def _is_property_decorator(decorator): # pylint: disable=inconsistent-return-statements
     for infered in decorator.infer():
         if isinstance(infered, astroid.ClassDef):
             if infered.root().name == BUILTINS_NAME and infered.name == 'property':
@@ -764,7 +764,7 @@ def supports_delitem(value):
 
 # TODO(cpopa): deprecate these or leave them as aliases?
 @lru_cache(maxsize=1024)
-def safe_infer(node, context=None):
+def safe_infer(node, context=None): # pylint: disable=inconsistent-return-statements
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
@@ -809,7 +809,7 @@ def is_none(node):
            )
 
 
-def node_type(node):
+def node_type(node): # pylint: disable=inconsistent-return-statements
     """Return the inferred type for `node`
 
     If there is more than one possible type, or if inferred type is YES or None,

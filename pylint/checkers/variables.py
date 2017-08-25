@@ -39,7 +39,7 @@ IGNORED_ARGUMENT_NAMES = re.compile('_.*|^ignored_|^unused_')
 PY3K = sys.version_info >= (3, 0)
 
 
-def _is_from_future_import(stmt, name):
+def _is_from_future_import(stmt, name): # pylint: disable=inconsistent-return-statements
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
@@ -187,7 +187,7 @@ def _fix_dot_imports(not_consumed):
                     names[second_name] = stmt
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
-def _find_frame_imports(name, frame):
+def _find_frame_imports(name, frame): # pylint: disable=inconsistent-return-statements
     """
     Detect imports in the frame, with the required
     *name*. Such imports can be considered assignments.

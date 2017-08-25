@@ -186,7 +186,7 @@ class LocalsVisitor(ASTWalker):
         ASTWalker.__init__(self, self)
         self._visited = {}
 
-    def visit(self, node):
+    def visit(self, node): # pylint: disable=inconsistent-return-statements
         """launch the visit starting from the given node"""
         if node in self._visited:
             return

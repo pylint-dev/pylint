@@ -68,7 +68,7 @@ def _get_import_name(importnode, modname):
     return modname
 
 
-def _get_first_import(node, context, name, base, level, alias):
+def _get_first_import(node, context, name, base, level, alias): # pylint: disable=inconsistent-return-statements
     """return the node where [base.]<name> is imported or None if not found
     """
     fullname = '%s.%s' % (base, name) if base else name
@@ -623,7 +623,7 @@ class ImportsChecker(BaseChecker):
             self.add_message('import-error', args=repr(dotted_modname),
                              node=importnode)
 
-    def _check_relative_import(self, modnode, importnode, importedmodnode,
+    def _check_relative_import(self, modnode, importnode, importedmodnode, # pylint: disable=inconsistent-return-statements
                                importedasname):
         """check relative import. node is either an Import or From node, modname
         the imported module name.

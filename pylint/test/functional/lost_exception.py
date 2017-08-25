@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, using-constant-test,cell-var-from-loop
+# pylint: disable=missing-docstring, using-constant-test,cell-var-from-loop, inconsistent-return-statements
 
 def insidious_break_and_return():
     for i in range(0, -5, -1):
@@ -30,7 +30,7 @@ def break_and_return():
                 if True:
                     break
             else:
-                def strange(): # pylint: disable=inconsistent-return-statements
+                def strange():
                     if True:
                         return my_var
                 strange()

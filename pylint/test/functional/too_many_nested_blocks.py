@@ -1,6 +1,6 @@
 """Checks the maximum block level is smaller than 6 in function definitions"""
 
-#pylint: disable=using-constant-test, missing-docstring, too-many-return-statements,no-else-return
+#pylint: disable=using-constant-test, missing-docstring, too-many-return-statements,no-else-return, inconsistent-return-statements
 
 def my_function():
     if 1:  # [too-many-nested-blocks]
@@ -54,7 +54,7 @@ def more_complex_function():
                 return 'doh'
             return None
 
-def elif_function(): # pylint: disable=inconsistent-return-statements
+def elif_function():
     arg = None
     if arg == 1:
         return 1
@@ -71,7 +71,7 @@ def elif_function(): # pylint: disable=inconsistent-return-statements
     elif arg == 7:
         return 7
 
-def else_if_function(): # pylint: disable=inconsistent-return-statements
+def else_if_function():
     arg = None
     if arg == 1:  # [too-many-nested-blocks]
         return 1

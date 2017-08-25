@@ -73,7 +73,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
 
     visitAsyncWith = visitWith
 
-    def _append_node(self, node):
+    def _append_node(self, node): # pylint: disable=inconsistent-return-statements
         if not self.tail:
             return
         self.graph.connect(self.tail, node)
