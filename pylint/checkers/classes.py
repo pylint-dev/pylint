@@ -230,6 +230,7 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
         different_kwonly
     ))
 
+
 def _is_invalid_base_class(cls):
     return cls.name in INVALID_BASE_CLASSES and is_builtin_object(cls)
 
@@ -695,8 +696,9 @@ a metaclass class method.'}
         #   the same in the base method and in the overridden one
         # - check signature
         # otherwise just check for useless super delegation
-        if list(klass.local_attr_ancestors(node.name)):
-            for overridden in klass.local_attr_ancestors(node.name):
+        overriddens_methods = list(klass.local_attr_ancestors(node.name))
+        if overriddens_methods:
+            for overridden in overriddens_methods:
                 # get astroid for the searched method
                 try:
                     meth_node = overridden[node.name]
@@ -1275,6 +1277,7 @@ a metaclass class method.'}
                 if (isinstance(decorator, astroid.Attribute) and
                         decorator.attrname == 'setter'):
                     return
+
         if _different_parameters(
                 refmethod, method1,
                 dummy_parameter_regex=self._dummy_rgx):
