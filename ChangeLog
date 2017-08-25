@@ -87,6 +87,9 @@ What's New in Pylint 1.8?
 
       Close #1336
 
+    * Added a new Python check for inconsistent return statements inside method or function.
+      Close #1267
+
 What's New in Pylint 1.7.1?
 =========================
 
