@@ -1,11 +1,13 @@
 # pylint: disable=missing-docstring, no-member, no-self-use, bad-super-call
 # pylint: disable=too-few-public-methods, unused-argument,invalid-name,too-many-public-methods
 
-def not_a_method():
-    return super(None, None).not_a_method()
+def not_a_method(param, param2):
+    return super(None, None).not_a_method(param, param2)
 
 
 class Base(object):
+
+    fake_method = not_a_method
 
     def something(self):
         pass
@@ -16,6 +18,17 @@ class Base(object):
     def without_default_argument(self, first, second):
         pass
 
+    def with_default_argument_none(self, first, default_arg=None):
+        pass
+
+    def without_default_argument2(self, first, second):
+        pass
+
+    def with_default_argument_int(self, first, default_arg=42):
+        pass
+
+    def with_default_argument_class(self, first, default_arg=()):
+        pass
 
 class NotUselessSuper(Base):
 
@@ -106,6 +119,26 @@ class NotUselessSuper(Base):
         # Not useless because in the base class there is not default value for second argument
         super(NotUselessSuper, self).without_default_argument(first, second)
 
+    def with_default_argument_none(self, first, default_arg='NotNone'):
+        # Not useless because the default_arg is different from the one in the base class
+        super(NotUselessSuper, self).with_default_argument_none(first, default_arg)
+
+    def without_default_argument2(self, first, second=None):
+        # Not useless because in the base class there is not default value for second argument
+        super(NotUselessSuper, self).without_default_argument2(first, second)
+
+    def with_default_argument_int(self, first, default_arg="42"):
+        # Not useless because the default_arg is a string whereas in the base class it's an int
+        super(NotUselessSuper, self).with_default_argument_int(first, default_arg)
+
+    def with_default_argument_class(self, first, default_arg=("42", "a")):
+        # Not useless because the default_arg is different from the one in the base class
+        super(NotUselessSuper, self).with_default_argument_class(first, default_arg)
+
+    def fake_method(self, param2="other"):
+        super(NotUselessSuper, self).fake_method(param2)
+
+
 class UselessSuper(Base):
 
     def equivalent_params(self): # [useless-super-delegation]
@@ -135,6 +168,16 @@ class UselessSuper(Base):
 
     def without_default_argument(self, first, second): # [useless-super-delegation]
         return super(UselessSuper, self).without_default_argument(first, second)
+
+    def with_default_argument_none(self, first, default_arg=None): # [useless-super-delegation]
+        # useless because the default value here is the same as in the base class
+        super(UselessSuper, self).with_default_argument_none(first, default_arg)
+
+    def with_default_argument_int(self, first, default_arg=42): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_argument_int(first, default_arg)
+
+    def with_default_argument_class(self, first, default_arg=()): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_argument_class(first, default_arg)
 
     def __init__(self): # [useless-super-delegation]
         super(UselessSuper, self).__init__()

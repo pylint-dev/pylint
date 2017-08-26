@@ -133,6 +133,39 @@ def _positional_parameters(method):
         positional = positional[1:]
     return positional
 
+def _has_different_parameters_default_value(original, overridden):
+    """
+    Check if original and overridden methods arguments have the same default values
+
+    Return True if one of the overridden arguments has a default
+    value different from the default value of the original argument
+    If one of the method doesn't have argument (.args is None)
+    return False
+    """
+    if original.args is None or overridden.args is None:
+        return False
+
+    original_param_names = [param.name for param in original.args]
+    default_missing = object()
+    for param_name in original_param_names:
+        try:
+            original_default = original.default_value(param_name).value
+        except AttributeError:
+            # if value attribute doesn't exist, it may be due to the fact
+            # that the default value is a ClassDef object and then the default
+            # value is taken to be the string representation
+            original_default = original.default_value(param_name).as_string()
+        except astroid.exceptions.NoDefault:
+            original_default = default_missing
+        try:
+            overridden_default = overridden.default_value(param_name).value
+        except AttributeError:
+            overridden_default = overridden.default_value(param_name).as_string()
+        except astroid.exceptions.NoDefault:
+            continue
+        if original_default != overridden_default:
+            return True
+    return False
 
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
     zipped = six.moves.zip_longest(original, overridden)
@@ -649,29 +682,41 @@ a metaclass class method.'}
         if not node.is_method():
             return
 
-        self._check_useless_super_delegation(node)
-
         klass = node.parent.frame()
         self._meth_could_be_func = True
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == 'metaclass')
         if node.name == '__init__':
+            self._check_useless_super_delegation(node)
             self._check_init(node)
             return
-        # check signature if the method overloads inherited method
-        for overridden in klass.local_attr_ancestors(node.name):
-            # get astroid for the searched method
-            try:
-                meth_node = overridden[node.name]
-            except KeyError:
-                # we have found the method but it's not in the local
-                # dictionary.
-                # This may happen with astroid build from living objects
-                continue
-            if not isinstance(meth_node, astroid.FunctionDef):
-                continue
-            self._check_signature(node, meth_node, 'overridden', klass)
-            break
+
+        # if the method overloads inherited method then
+        # - check for useless super delegation if the argument default values are
+        #   the same in the base method and in the overridden one
+        # - check signature
+        # otherwise just check for useless super delegation
+        overriddens_methods = list(klass.local_attr_ancestors(node.name))
+        if overriddens_methods:
+            for overridden in overriddens_methods:
+                # get astroid for the searched method
+                try:
+                    meth_node = overridden[node.name]
+                except KeyError:
+                    # we have found the method but it's not in the local
+                    # dictionary.
+                    # This may happen with astroid build from living objects
+                    continue
+                if not isinstance(meth_node, astroid.FunctionDef):
+                    continue
+                # Don't care about functions with unknown argument (builtins).
+                if not _has_different_parameters_default_value(meth_node.args, node.args):
+                    self._check_useless_super_delegation(node)
+                self._check_signature(node, meth_node, 'overridden', klass)
+                break
+        else:
+            self._check_useless_super_delegation(node)
+
         if node.decorators:
             for decorator in node.decorators.nodes:
                 if isinstance(decorator, astroid.Attribute) and \
@@ -708,6 +753,9 @@ a metaclass class method.'}
         passed to super() are the same as the parameters that were passed to
         this method, then the method could be removed altogether, by letting
         other implementation to take precedence.
+
+        warning: doesn't take into account the argument default values to determine
+        if the overridden method is useless
         '''
 
         if not function.is_method():
@@ -758,22 +806,6 @@ a metaclass class method.'}
         if super_call.type.name != current_scope.name:
             return
 
-        # Detect if the parameters and their default value are the same 
-        # as in the base method
-        klass = function.parent.frame()
-        for overridden in klass.local_attr_ancestors(function.name):
-            # get astroid for the searched method
-            try:
-                meth_node = overridden[function.name]
-            except KeyError:
-                # we have found the method but it's not in the local
-                # dictionary.
-                # This may happen with astroid build from living objects
-                continue
-            if not isinstance(meth_node, astroid.FunctionDef):
-                continue
-            #self._check_signature(function, meth_node, 'overridden', klass)
-            
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
         args = _signature_from_call(call)
@@ -1245,6 +1277,7 @@ a metaclass class method.'}
                 if (isinstance(decorator, astroid.Attribute) and
                         decorator.attrname == 'setter'):
                     return
+
         if _different_parameters(
                 refmethod, method1,
                 dummy_parameter_regex=self._dummy_rgx):
