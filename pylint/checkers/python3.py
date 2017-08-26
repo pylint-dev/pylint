@@ -42,8 +42,9 @@ def _check_dict_node(node):
     inferred_types = set()
     try:
         inferred = node.infer()
-        for inferred_node in inferred:
-            inferred_types.add(inferred_node)
+        if inferred is not astroid.Uninferable:
+            for inferred_node in inferred:
+                inferred_types.add(inferred_node)
     except astroid.InferenceError:
         pass
     return (not inferred_types
@@ -512,7 +513,7 @@ class Python3Checker(checkers.BaseChecker):
         },
         'bad-python3-import': frozenset([
             'anydbm', 'BaseHTTPServer', '__builtin__', 'CGIHTTPServer', 'ConfigParser', 'copy_reg',
-            'cPickle', 'cProfile', 'cStringIO', 'Cookie', 'cookielib', 'dbhash', 'dbm', 'dumbdbm',
+            'cPickle', 'cStringIO', 'Cookie', 'cookielib', 'dbhash', 'dbm', 'dumbdbm',
             'dumbdb', 'Dialog', 'DocXMLRPCServer', 'FileDialog', 'FixTk', 'gdbm', 'htmlentitydefs',
             'HTMLParser', 'httplib', 'markupbase', 'Queue', 'repr', 'robotparser', 'ScrolledText',
             'SimpleDialog', 'SimpleHTTPServer', 'SimpleXMLRPCServer', 'StringIO', 'dummy_thread',
@@ -647,7 +648,7 @@ class Python3Checker(checkers.BaseChecker):
             if not self._future_absolute_import:
                 if self.linter.is_message_enabled('no-absolute-import'):
                     self.add_message('no-absolute-import', node=node)
-            if not _is_conditional_import(node):
+            if not _is_conditional_import(node) and not node.level:
                 self._warn_if_deprecated(node, node.modname, {x[0] for x in node.names})
 
         if node.names[0][0] == '*':
@@ -740,6 +741,8 @@ class Python3Checker(checkers.BaseChecker):
             inferred_types = set()
             try:
                 for inferred_receiver in node.func.expr.infer():
+                    if inferred_receiver is astroid.Uninferable:
+                        continue
                     inferred_types.add(inferred_receiver)
                     if isinstance(inferred_receiver, astroid.Module):
                         self._warn_if_deprecated(node, inferred_receiver.name,

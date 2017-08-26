@@ -450,7 +450,7 @@ class StringFormatChecker(BaseChecker):
                 argument = next(argname.infer())
             except astroid.InferenceError:
                 continue
-            if not specifiers or argument is astroid.YES:
+            if not specifiers or argument is astroid.Uninferable:
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
@@ -461,7 +461,7 @@ class StringFormatChecker(BaseChecker):
             previous = argument
             parsed = []
             for is_attribute, specifier in specifiers:
-                if previous is astroid.YES:
+                if previous is astroid.Uninferable:
                     break
                 parsed.append((is_attribute, specifier))
                 if is_attribute:

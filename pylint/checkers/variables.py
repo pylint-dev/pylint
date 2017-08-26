@@ -460,7 +460,7 @@ class VariablesChecker(BaseChecker):
                 elt_name = next(elt.infer())
             except astroid.InferenceError:
                 continue
-            if elt_name is astroid.YES:
+            if elt_name is astroid.Uninferable:
                 continue
             if not elt_name.parent:
                 continue
@@ -655,6 +655,12 @@ class VariablesChecker(BaseChecker):
     def _check_is_unused(self, name, node, stmt, global_names, nonlocal_names):
         # Ignore some special names specified by user configuration.
         if self._is_name_ignored(stmt, name):
+            return
+        # Ignore names that were added dynamically to the Function scope
+        if (isinstance(node, astroid.FunctionDef)
+                and name == '__class__'
+                and len(node.locals['__class__']) == 1
+                and isinstance(node.locals['__class__'][0], astroid.ClassDef)):
             return
 
         # Ignore names imported by the global statement.
@@ -1006,6 +1012,7 @@ class VariablesChecker(BaseChecker):
             # name node from a astroid built from live code, skip
             assert not stmt.root().file.endswith('.py')
             return
+
         name = node.name
         frame = stmt.scope()
         # if the name node is used as a function default argument's value or as
@@ -1215,7 +1222,7 @@ class VariablesChecker(BaseChecker):
                 break
             try:
                 module = next(module.getattr(name)[0].infer())
-                if module is astroid.YES:
+                if module is astroid.Uninferable:
                     return None
             except astroid.NotFoundError:
                 if module.name in self._ignored_modules:

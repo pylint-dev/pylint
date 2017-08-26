@@ -1060,7 +1060,8 @@ def _splitstrip(string, sep=','):
     ['a', 'b', 'c', '4']
     >>> _splitstrip('a')
     ['a']
-    >>>
+    >>> _splitstrip('a,\nb,\nc,')
+    ['a', 'b', 'c']
 
     :type string: str or unicode
     :param string: a csv line
@@ -1168,6 +1169,12 @@ def _ini_format(stream, options, encoding):
             print('#%s=' % optname, file=stream)
         else:
             value = _encode(value, encoding).strip()
+            if re.match(r'^([\w-]+,)+[\w-]+$', str(value)):
+                separator = '\n ' + ' ' * len(optname)
+                value = separator.join(
+                    x + ',' for x in str(value).split(','))
+                # remove trailing ',' from last element of the list
+                value = value[:-1]
             print('%s=%s' % (optname, value), file=stream)
 
 format_section = _ini_format_section

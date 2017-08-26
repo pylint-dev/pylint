@@ -193,6 +193,8 @@ class StdlibChecker(BaseChecker):
         """Visit a Call node."""
         try:
             for inferred in node.func.infer():
+                if inferred is astroid.Uninferable:
+                    continue
                 if inferred.root().name == OPEN_MODULE:
                     if getattr(node.func, 'name', None) in OPEN_FILES:
                         self._check_open_mode(node)

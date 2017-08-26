@@ -1151,7 +1151,7 @@ class NameChecker(_BasicChecker):
                   'blacklisted-name',
                   'Used when the name is listed in the black list (unauthorized '
                   'names).'),
-        'C0103': ('Invalid %s name "%s"%s',
+        'C0103': ('%s name "%s" doesn\'t conform to %s',
                   'invalid-name',
                   'Used when the name doesn\'t match the regular expression '
                   'associated to its type (constant, variable, class...).'),
@@ -1317,10 +1317,21 @@ class NameChecker(_BasicChecker):
 
     def _raise_name_warning(self, node, node_type, name, confidence):
         type_label = _NAME_TYPES[node_type][1]
-        hint = ''
+
+        hint_name = node_type.replace('_', '-') + '-name-hint'
+        hint_part = '%r template' % hint_name
+
         if self.config.include_naming_hint:
-            hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
-        self.add_message('invalid-name', node=node, args=(type_label, name, hint),
+            hint_rgx = getattr(self.config, hint_name.replace('-', '_'))
+            hint_part += ' (hint: %r)' % hint_rgx
+
+        args = (
+            type_label.capitalize(),
+            name,
+            hint_part
+        )
+
+        self.add_message('invalid-name', node=node, args=args,
                          confidence=confidence)
         self.stats['badname_' + node_type] += 1
 

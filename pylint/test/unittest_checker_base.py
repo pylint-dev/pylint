@@ -84,8 +84,9 @@ class TestNameChecker(CheckerTestCase):
         """)
         message = Message(
            'invalid-name', node=const.targets[0],
-           args=('constant', 'const',
-                 ' (hint: (([A-Z_][A-Z0-9_]*)|(__.*__))$)'))
+           args=('Constant', 'const',
+                 "'const-name-hint' template "
+                 "(hint: '(([A-Z_][A-Z0-9_]*)|(__.*__))$')"))
         with self.assertAddsMessages(message):
             self.checker.visit_assignname(const.targets[0])
 
@@ -96,7 +97,8 @@ class TestNameChecker(CheckerTestCase):
         """)
         with self.assertAddsMessages(
             Message('invalid-name', node=const.targets[0],
-                    args=('constant', 'const', ' (hint: CONSTANT)'))):
+                    args=('Constant', 'const',
+                          "'const-name-hint' template (hint: 'CONSTANT')"))):
             self.checker.visit_assignname(const.targets[0])
 
     @set_config(attr_rgx=re.compile('[A-Z]+'),
@@ -133,7 +135,8 @@ class TestNameChecker(CheckerTestCase):
             self.checker.visit_functiondef(methods[2])
             self.checker.visit_functiondef(methods[3])
         with self.assertAddsMessages(Message('invalid-name', node=methods[1],
-                                             args=('attribute', 'bar', ''))):
+                                             args=('Attribute', 'bar',
+                                                   "'attr-name-hint' template"))):
             self.checker.visit_functiondef(methods[1])
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
@@ -258,7 +261,8 @@ class TestMultiNamingStyle(CheckerTestCase):
         """)
         message = Message('invalid-name',
                           node=classes[0],
-                          args=('class', 'classb', ''))
+                          args=('Class', 'classb',
+                                "'class-name-hint' template"))
         with self.assertAddsMessages(message):
             for cls in classes:
                 self.checker.visit_classdef(cls)
@@ -276,9 +280,9 @@ class TestMultiNamingStyle(CheckerTestCase):
         """)
         messages = [
             Message('invalid-name', node=classes[0],
-                    args=('class', 'class_a', '')),
+                    args=('Class', 'class_a', "'class-name-hint' template")),
             Message('invalid-name', node=classes[2],
-                    args=('class', 'CLASSC', ''))
+                    args=('Class', 'CLASSC', "'class-name-hint' template"))
         ]
         with self.assertAddsMessages(*messages):
             for cls in classes:
@@ -298,7 +302,8 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         """, module_name='test')
         message = Message('invalid-name', node=function_defs[1],
-                          args=('function', 'FUNC', ''))
+                          args=('Function', 'FUNC',
+                                "'function-name-hint' template"))
         with self.assertAddsMessages(message):
             for func in function_defs:
                 self.checker.visit_functiondef(func)
@@ -317,7 +322,8 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         """)
         message = Message('invalid-name', node=function_defs[3],
-                          args=('function', 'UPPER', ''))
+                          args=('Function', 'UPPER',
+                                "'function-name-hint' template"))
         with self.assertAddsMessages(message):
             for func in function_defs:
                 self.checker.visit_functiondef(func)

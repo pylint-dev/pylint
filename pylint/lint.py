@@ -389,8 +389,12 @@ class PyLinter(config.OptionsManagerMixIn,
                   'help': ('A comma-separated list of package or module names'
                            ' from where C extensions may be loaded. Extensions are'
                            ' loading into the active Python interpreter and may run'
-                           ' arbitrary code')}
-                ),
+                           ' arbitrary code')}),
+                ('suggestion-mode',
+                 {'type': 'yn', 'metavar': '<yn>', 'default': True,
+                  'help': ('When enabled, pylint would attempt to guess common '
+                           'misconfiguration and emit user-friendly hints instead '
+                           'of false-positive error messages')}),
                )
 
     option_groups = (
@@ -761,14 +765,16 @@ class PyLinter(config.OptionsManagerMixIn,
         tasks_queue = manager.Queue()
         results_queue = manager.Queue()
 
-        for _ in range(self.config.jobs):
+        # Send files to child linters.
+        expanded_files = self.expand_files(files_or_modules)
+
+        # do not start more jobs than needed
+        for _ in range(min(self.config.jobs, len(expanded_files))):
             child_linter = ChildLinter(args=(tasks_queue, results_queue,
                                              child_config))
             child_linter.start()
             children.append(child_linter)
 
-        # Send files to child linters.
-        expanded_files = self.expand_files(files_or_modules)
         for files_or_module in expanded_files:
             path = files_or_module['path']
             tasks_queue.put([path])
@@ -1261,6 +1267,7 @@ group are mutually exclusive.'),
                                 level=1)
         # read configuration
         linter.disable('I')
+        linter.enable('c-extension-no-member')
         linter.read_config_file()
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins

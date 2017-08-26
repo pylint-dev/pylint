@@ -91,7 +91,7 @@ _SPECIAL_METHODS_PARAMS = {
         '__setstate__', '__reduce_ex__', '__deepcopy__', '__cmp__',
         '__matmul__', '__rmatmul__', '__div__'),
 
-    2: ('__setattr__', '__get__', '__set__', '__setitem__'),
+    2: ('__setattr__', '__get__', '__set__', '__setitem__', '__set_name__'),
 
     3: ('__exit__', '__aexit__'),
 
@@ -820,7 +820,7 @@ def node_type(node):
     types = set()
     try:
         for var_type in node.infer():
-            if var_type == astroid.YES or is_none(var_type):
+            if var_type == astroid.Uninferable or is_none(var_type):
                 continue
             types.add(var_type)
             if len(types) > 1:
