@@ -610,21 +610,28 @@ def is_from_fallback_block(node):
 
 
 def _except_handlers_ignores_exception(handlers, exception):
-    func = functools.partial(error_of_type,
-                             error_type=(exception, ))
+    func = functools.partial(error_of_type, error_type=(exception, ))
     return any(map(func, handlers))
 
 
-def node_ignores_exception(node, exception):
-    """Check if the node is in a TryExcept which handles the given exception."""
+def get_exception_handlers(node, exception):
+    """Return the collections of handlers handling the exception in arguments"""
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)
     while current and not isinstance(current.parent, ignores):
         current = current.parent
 
     if current and isinstance(current.parent, astroid.TryExcept):
-        return _except_handlers_ignores_exception(current.parent.handlers, exception)
-    return False
+        return (_handler for _handler in current.parent.handlers if error_of_type(_handler, exception))
+    return None
+
+
+def node_ignores_exception(node, exception):
+    """Check if the node is in a TryExcept which handles the given exception."""
+    managing_handlers = get_exception_handlers(node, exception)
+    if not managing_handlers:
+        return False
+    return any(managing_handlers)
 
 
 def class_is_abstract(node):
