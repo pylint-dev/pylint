@@ -28,7 +28,15 @@ def _all_elements_are_true(gen):
 
 
 def _is_node_return_ended(node):
-    """Return True if the node ends with an explicit return statement"""
+    """Check if the node ends with an explicit return statement.
+    
+    Args:
+        node (astroid.NodeNG): node to be checked.
+
+    Returns:
+        bool: True if the node ends with an explicit statement, False otherwise.
+
+    """
     # Recursion base case
     if isinstance(node, astroid.Return):
         return True
@@ -539,11 +547,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                                          if _rnode.frame() == node.frame()]
 
     def _check_consistent_returns(self, node):
-        """Check that all return statements inside a function are consistent
+        """Check that all return statements inside a function are consistent.
 
         Return statements are consistent if:
-            - all returns are explicit and if there is no implicit return
-            - all returns are empty and if there is, possibly, an implicit return
+            - all returns are explicit and if there is no implicit return;
+            - all returns are empty and if there is, possibly, an implicit return.
+
+        Args:
+            node (astroid.FunctionDef): the function holding the return statements.
+
+        Returns:
+            None.
+
         """
         # explicit return statements are those with a not None value
         explicit_returns = [_node for _node in self._return_nodes[node.name]
