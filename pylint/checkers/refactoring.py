@@ -27,18 +27,6 @@ def _all_elements_are_true(gen):
     return values and all(values)
 
 
-def _get_exception_handlers(node, exception):
-    """Return the collections of handlers handling the exception in arguments"""
-    current = node
-    ignores = (astroid.ExceptHandler, astroid.TryExcept)
-    while current and not isinstance(current.parent, ignores):
-        current = current.parent
-
-    if current and isinstance(current.parent, astroid.TryExcept):
-        return [_handler for _handler in current.parent.handlers if _handler.catch(exception)]
-    return None
-
-
 def _is_node_return_ended(node):
     """Return True if the node ends with an explicit return statement"""
     # Recursion base case
@@ -52,7 +40,7 @@ def _is_node_return_ended(node):
         exc_name = exc.pytype().split('.')[-1]
         if exc is None:
             return False
-        handlers = _get_exception_handlers(node, exc_name)
+        handlers = utils.get_exception_handlers(node, exc_name)
         if handlers:
             # among all the handlers handling the exception at least one
             # must end with a return statement
@@ -63,10 +51,7 @@ def _is_node_return_ended(node):
         # if statement is returning if there are exactly two return statements in its
         # children : one for the body part, the other for the orelse part
         return_stmts = [_is_node_return_ended(_child) for _child in node.get_children()]
-        return_stmts = [_rs for _rs in return_stmts if _rs]
-        if len(return_stmts) == 2:
-            return True
-        return False
+        return sum(return_stmts) == 2
     # recurses on the children of the node except for those which are except handler
     # because one cannot be sure that the handler will really be used
     return any(_is_node_return_ended(_child) for _child in node.get_children()
