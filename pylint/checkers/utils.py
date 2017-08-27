@@ -616,10 +616,10 @@ def _except_handlers_ignores_exception(handlers, exception):
 
 def get_exception_handlers(node, exception):
     """Return the collections of handlers handling the exception in arguments.
-    
+
     Args:
         node (astroid.Raise): the node raising the exception.
-        exception (builtin.Exception, str): exception or name of the exception.
+        exception (builtin.Exception or str): exception or name of the exception.
 
     Returns:
         generator: the collection of handlers that are handling the exception or None.
@@ -631,7 +631,8 @@ def get_exception_handlers(node, exception):
         current = current.parent
 
     if current and isinstance(current.parent, astroid.TryExcept):
-        return (_handler for _handler in current.parent.handlers if error_of_type(_handler, exception))
+        return (_handler for _handler in current.parent.handlers
+                if error_of_type(_handler, exception))
     return None
 
 

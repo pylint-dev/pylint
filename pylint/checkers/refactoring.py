@@ -29,7 +29,7 @@ def _all_elements_are_true(gen):
 
 def _is_node_return_ended(node):
     """Check if the node ends with an explicit return statement.
-    
+
     Args:
         node (astroid.NodeNG): node to be checked.
 
@@ -546,7 +546,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._return_nodes[node.name] = [_rnode for _rnode in return_nodes
                                          if _rnode.frame() == node.frame()]
 
-    def _check_consistent_returns(self, node):
+    def _check_consistent_returns(self, node): # pylint: disable=redundant-returns-doc
         """Check that all return statements inside a function are consistent.
 
         Return statements are consistent if:
