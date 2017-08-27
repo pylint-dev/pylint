@@ -696,9 +696,9 @@ a metaclass class method.'}
         #   the same in the base method and in the overridden one
         # - check signature
         # otherwise just check for useless super delegation
-        overriddens_methods = list(klass.local_attr_ancestors(node.name))
-        if overriddens_methods:
-            for overridden in overriddens_methods:
+        overridden_methods = list(klass.local_attr_ancestors(node.name))
+        if overridden_methods:
+            for overridden in overridden_methods:
                 # get astroid for the searched method
                 try:
                     meth_node = overridden[node.name]
