@@ -546,7 +546,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._return_nodes[node.name] = [_rnode for _rnode in return_nodes
                                          if _rnode.frame() == node.frame()]
 
-    def _check_consistent_returns(self, node): # pylint: disable=redundant-returns-doc
+    def _check_consistent_returns(self, node):
         """Check that all return statements inside a function are consistent.
 
         Return statements are consistent if:
@@ -555,9 +555,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Args:
             node (astroid.FunctionDef): the function holding the return statements.
-
-        Returns:
-            None.
 
         """
         # explicit return statements are those with a not None value
