@@ -1540,3 +1540,25 @@ def _rest_format_section(stream, section, options, doc=None):
             value = str(_format_option_value(optdict, value))
             print(file=stream)
             print("  Default: ``%s``" % value.replace("`` ", "```` ``"), file=stream)
+
+
+def walk_up(from_dir):
+    """Walk up a directory tree
+
+    :param from_dir: The directory to walk up from.
+        This directory is included in the output.
+    :type from_dir: str
+
+    :returns: Each parent directory
+    :rtype: generator(str)
+    """
+    cur_dir = None
+    new_dir = os.path.expanduser(from_dir)
+    new_dir = os.path.abspath(new_dir)
+
+    # The parent of the root directory is the root directory.
+    # Once we have reached it, we are done.
+    while cur_dir != new_dir:
+        cur_dir = new_dir
+        yield cur_dir
+        new_dir = os.path.abspath(os.path.join(cur_dir, os.pardir))
