@@ -16,3 +16,6 @@ class EmptyReportError(Exception):
 
 class InvalidReporterError(Exception):
     """raised when selected reporter is invalid (e.g. not found)"""
+
+class ConfigurationError(Exception):
+    """Raised when the configuration is invalid."""
