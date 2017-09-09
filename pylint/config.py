@@ -96,27 +96,6 @@ def save_results(results, base):
         print('Unable to create file %s: %s' % (data_file, ex), file=sys.stderr)
 
 
-# TODO: Put into utils
-def walk_up(from_dir):
-    """Walk up a directory tree
-    :param from_dir: The directory to walk up from.
-        This directory is included in the output.
-    :type from_dir: str
-    :returns: Each parent directory
-    :rtype: generator(str)
-    """
-    cur_dir = None
-    new_dir = os.path.expanduser(from_dir)
-    new_dir = os.path.abspath(new_dir)
-
-    # The parent of the root directory is the root directory.
-    # Once we have reached it, we are done.
-    while cur_dir != new_dir:
-        cur_dir = new_dir
-        yield cur_dir
-        new_dir = os.path.abspath(os.path.join(cur_dir, os.pardir))
-
-
 def find_pylintrc_in(search_dir):
     """Find a pylintrc file in the given directory.
     :param search_dir: The directory to search.
@@ -148,7 +127,7 @@ def find_nearby_pylintrc(search_dir=''):
     path = find_pylintrc_in(search_dir)
 
     if not path:
-        for search_dir in walk_up(search_dir):
+        for search_dir in utils.walk_up(search_dir):
             if not os.path.isfile(os.path.join(search_dir, '__init__.py')):
                 break
             path = find_pylintrc_in(search_dir)
@@ -788,7 +767,7 @@ class ConfigurationStore(object):
         :returns: The config objects for all parent directories.
         :rtype: generator(Configuration)
         """
-        for cfg_dir in walk_up(path):
+        for cfg_dir in utils.walk_up(path):
             if cfg_dir in self._cache:
                 yield self._cache[cfg_dir]
                 break
