@@ -45,7 +45,7 @@ import configparser
 import six
 from six.moves import range
 
-from pylint import utils
+from pylint import exceptions, utils
 
 
 USER_HOME = os.path.expanduser('~')
@@ -695,8 +695,7 @@ class Configuration(object):
     def add_option(self, option_definition):
         name, definition = option_definition
         if name in self._option_definitions:
-            # TODO: Raise something more sensible
-            raise Exception('Option "{0}" already exists.')
+            raise exceptions.ConfigurationError('Option "{0}" already exists.')
         self._option_definitions[name] = definition
 
 
@@ -897,8 +896,7 @@ class CLIParser(ConfigParser):
                 if 'choices' not in definition:
                     msg = 'No choice list given for option "{0}" of type "choice".'
                     msg = msg.format(option)
-                    # TODO: Raise something more sensible
-                    raise Exception(msg)
+                    raise ConfigurationError(msg)
 
                 if definition['type'] == 'multiple_choice':
                     kwargs['type'] = VALIDATORS['csv']
@@ -906,8 +904,7 @@ class CLIParser(ConfigParser):
                 kwargs['choices'] = definition['choices']
             else:
                 msg = 'Unsupported type "{0}"'.format(definition['type'])
-                # TODO: Raise something more sensible
-                raise Exception(msg)
+                raise ConfigurationError(msg)
 
         if definition.get('hide'):
             kwargs['help'] = argparse.SUPPRESS
@@ -969,7 +966,6 @@ class IniFileParser(FileParser):
             else:
                 self._option_groups.add(group)
 
-            # TODO: Do we need to do this?
             self._parser['DEFAULT'].update(default)
 
     @staticmethod
