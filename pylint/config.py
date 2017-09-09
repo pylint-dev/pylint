@@ -126,11 +126,13 @@ def find_nearby_pylintrc(search_dir=''):
     search_dir = os.path.expanduser(search_dir)
     path = find_pylintrc_in(search_dir)
 
-    for search_dir in walk_up(search_dir):
-        if path or not os.path.isfile(os.path.join(search_dir, '__init__.py')):
-            break
-
-        path = find_pylintrc_in(search_dir)
+    if not path:
+        for search_dir in walk_up(search_dir):
+            if not os.path.isfile(os.path.join(search_dir, '__init__.py')):
+                break
+            path = find_pylintrc_in(search_dir)
+            if path:
+                break
 
     if path:
         path = os.path.abspath(path)
