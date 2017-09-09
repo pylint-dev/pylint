@@ -93,10 +93,11 @@ def save_results(results, base):
 
 def find_pylintrc_in(search_dir):
     """Find a pylintrc file in the given directory.
+
     :param search_dir: The directory to search.
     :type search_dir: str
-    :returns: The path to the pylintrc file, if found.
-        Otherwise None.
+
+    :returns: The path to the pylintrc file, if found. Otherwise None.
     :rtype: str or None
     """
     path = None
@@ -112,8 +113,10 @@ def find_pylintrc_in(search_dir):
 
 def find_nearby_pylintrc(search_dir=''):
     """Search for the nearest pylint rc file.
+
     :param search_dir: The directory to search.
     :type search_dir: str
+
     :returns: The absolute path to the pylintrc file, if found.
         Otherwise None
     :rtype: str or None
@@ -137,8 +140,8 @@ def find_nearby_pylintrc(search_dir=''):
 
 def find_global_pylintrc():
     """Search for the global pylintrc file.
-    :returns: The absolute path to the pylintrc file, if found.
-        Otherwise None.
+
+    :returns: The absolute path to the pylintrc file, if found. Otherwise None.
     :rtype: str or None
     """
     pylintrc = None
@@ -167,8 +170,8 @@ def find_pylintrc():
     - The current user's home directory
     - The `.config` folder in the current user's home directory
     - /etc/pylintrc
-    :returns: The path to the pylintrc file,
-        or None if one was not found.
+
+    :returns: The path to the pylintrc file, or None if one was not found.
     :rtype: str or None
     """
     # TODO: Find nearby pylintrc files as well
@@ -735,6 +738,7 @@ class Configuration(object):
 class ConfigurationStore(object):
     def __init__(self, global_config):
         """A class to store configuration objects for many paths.
+
         :param global_config: The global configuration object.
         :type global_config: Configuration
         """
@@ -745,6 +749,7 @@ class ConfigurationStore(object):
 
     def add_config_for(self, path, config):
         """Add a configuration object to the store.
+
         :param path: The path to add the config for.
         :type path: str
         :param config: The config object for the given path.
@@ -758,8 +763,10 @@ class ConfigurationStore(object):
 
     def _get_parent_configs(self, path):
         """Get the config objects for all parent directories.
+
         :param path: The absolute path to get the parent configs for.
         :type path: str
+
         :returns: The config objects for all parent directories.
         :rtype: generator(Configuration)
         """
@@ -774,8 +781,10 @@ class ConfigurationStore(object):
         """Get the configuration object for a file or directory.
         This will merge the global config with all of the config objects from
         the root directory to the given path.
+
         :param path: The file or directory to the get configuration object for.
         :type path: str
+
         :returns: The configuration object for the given file or directory.
         :rtype: Configuration
         """
@@ -829,9 +838,11 @@ class ConfigParser(object):
     @abc.abstractmethod
     def parse(self, to_parse, config):
         """Parse the given object into the config object.
-        Args:
-            to_parse (object): The object to parse.
-            config (Configuration): The config object to parse into.
+
+        :param to_parse: The object to parse.
+        :type to_parse: object
+        :param config: The config object to parse into.
+        :type config: Configuration
         """
 
 
@@ -869,16 +880,16 @@ class CLIParser(ConfigParser):
     def _convert_definition(option, definition):
         """Convert an option definition to a set of arguments for add_argument.
 
-        Args:
-            option (str): The name of the option
-            definition (dict): The argument definition to convert.
+        :param option: The name of the option
+        :type option: str
+        :param definition: The argument definition to convert.
+        :type definition: dict
 
-        Returns:
-            tuple(str, list, dict): A tuple of the group to add the argument to,
+        :returns: A tuple of the group to add the argument to,
             plus the args and kwargs for :func:`ArgumentParser.add_argument`.
+        :rtype: tuple(str, list, dict)
 
-        Raises:
-            Exception: When the definition is invalid.
+        :raises ConfigurationError: When the definition is invalid.
         """
         args = []
 
@@ -915,20 +926,24 @@ class CLIParser(ConfigParser):
 
     def parse(self, argv, config):
         """Parse the command line arguments into the given config object.
-        Args:
-            argv (list(str)): The command line arguments to parse.
-            config (Configuration): The config object to parse
-                the command line into.
+
+        :param argv: The command line arguments to parse.
+        :type argv: list(str)
+        :param config: The config object to parse the command line into.
+        :type config: Configuration
         """
         self._parser.parse_args(argv, config)
 
     def preprocess(self, argv, *options):
         """Do some guess work to get a value for the specified option.
-        Args:
-            argv (list(str)): The command line arguments to parse.
-            *options (str): The names of the options to look for.
-        Returns:
-            Configuration: A config with the processed options.
+
+        :param argv: The command line arguments to parse.
+        :type argv: list(str)
+        :param options: The names of the options to look for.
+        :type options: str
+
+        :returns: A config with the processed options.
+        :rtype: Configuration
         """
         config = Config()
         config.add_options(self._option_definitions)
@@ -973,9 +988,13 @@ class IniFileParser(FileParser):
     def _convert_definition(option, definition):
         """Convert an option definition to a set of arguments for the parser.
 
-        Args:
-            option (str): The name of the option.
-            definition (dict): The argument definition to convert.
+        :param option: The name of the option.
+        :type option: str
+        :param definition: The argument definition to convert.
+        :type definition: dict
+
+        :returns: The converted definition.
+        :rtype: tuple(str, dict)
         """
         default = {option: definition.get('default')}
 
@@ -1090,8 +1109,8 @@ class LongHelpArgumentParser(argparse.ArgumentParser):
 
         Patches in the level to each created action instance.
 
-        Returns:
-            argparse.Action: The created action.
+        :returns: The created action.
+        :rtype: argparse.Action
         """
         level = kwargs.pop('level', 0)
         action = super(LongHelpArgumentParser, self).add_argument(*args, **kwargs)
