@@ -558,6 +558,7 @@ class Python3Checker(checkers.BaseChecker):
         self._branch_stack = []
         super(Python3Checker, self).__init__(*args, **kwargs)
 
+    # pylint: disable=keyword-arg-before-vararg
     def add_message(self, msg_id, always_warn=False,  # pylint: disable=arguments-differ
                     *args, **kwargs):
         if always_warn or not (self._branch_stack and self._branch_stack[-1].is_py2_only):

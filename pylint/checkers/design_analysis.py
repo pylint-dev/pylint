@@ -57,6 +57,12 @@ MSGS = {
               'too-many-boolean-expressions',
               'Used when a if statement contains too many boolean '
               'expressions'),
+    'W0917': ('Keyword argument before variable positional arguments list '
+              'in the definition of %s function',
+              'keyword-arg-before-vararg',
+              'When defining a keyword argument before variable positional arguments, one can '
+              'end up in having multiple values passed for the aforementioned parameter in '
+              'case the method is called with keyword arguments.'),
     }
 
 
@@ -211,7 +217,7 @@ class MisdesignChecker(BaseChecker):
 
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
-                    'too-many-statements')
+                    'too-many-statements', 'keyword-arg-before-vararg')
     def visit_functiondef(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
@@ -237,6 +243,10 @@ class MisdesignChecker(BaseChecker):
         if locnum > self.config.max_locals:
             self.add_message('too-many-locals', node=node,
                              args=(locnum, self.config.max_locals))
+        # check for keyword arg before varargs
+        if node.args.vararg and node.args.defaults:
+            self.add_message('keyword-arg-before-vararg', node=node,
+                             args=(node.name))
         # init statements counter
         self._stmts = 1
 
