@@ -241,14 +241,15 @@ Other Changes
   With this change, it is now more clear what should be improved for a name to be accepted according to
   its corresponding template.
 
-  .. code-block:: python
-
-    $ cat a.py
-    var = 24
-    $ pylint a.py
-    C:  1, 0: Constant name "var" doesn't conform to 'const-name-hint' template (invalid-name)
-
-
 * New configuration flag, ``suggestion-mode`` was introduced. When enabled, pylint would
   attempt to emit user-friendly suggestions instead of spurious errors for some known
   false-positive scenarios. Flag is enabled by default.
+
+* ``superfluous-parens`` is no longer wrongly emitted for logical statements involving ``in`` operator
+  (see example below for what used to be false-postive).
+
+  .. code-block:: python
+
+    foo = None
+    if 'bar' in (foo or {}):
+      pass

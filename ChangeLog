@@ -87,6 +87,11 @@ What's New in Pylint 1.8?
 
       Close #1336
 
+    * Fix ``superfluous-parens`` false positive related to handling logical statements
+      involving ``in`` operator.
+
+      Close #574
+
 What's New in Pylint 1.7.1?
 =========================
 
