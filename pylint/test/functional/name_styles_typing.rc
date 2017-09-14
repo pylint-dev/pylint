@@ -1,0 +1,5 @@
+[testoptions]
+min_pyver=3.6
+
+[Messages Control]
+disable=missing-docstring
