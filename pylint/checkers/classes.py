@@ -416,6 +416,10 @@ MSGS = {
               'Used whenever we can detect that an overridden method is useless, '
               'relying on super() delegation to do the same thing as another method '
               'from the MRO.'),
+    'W0236': ('Class defines only one of __eq__ and __ne__',
+              'both-equality-methods',
+              'Used when a class defines only of __eq__ and __ne__, which can '
+              'result in asymmetric equality/inequality comparisons.'),
     'E0236': ('Invalid object %r in __slots__, must contain '
               'only non empty strings',
               'invalid-slots-object',
@@ -553,6 +557,7 @@ a metaclass class method.'}
         self._check_slots(node)
         self._check_proper_bases(node)
         self._check_consistent_mro(node)
+        self._check_equality_methods(node)
 
     def _check_consistent_mro(self, node):
         """Detect that a class has a consistent mro or duplicate bases."""
@@ -565,6 +570,12 @@ a metaclass class method.'}
         except NotImplementedError:
             # Old style class, there's no mro so don't do anything.
             pass
+
+    def _check_equality_methods(self, node):
+        """ Check that a class defines both or neither of __eq__ and __ne__. """
+        method_names = set(m.name for m in node.mymethods())
+        if ('__eq__' in method_names) != ('__ne__' in method_names):
+            self.add_message('both-equality-methods', node=node)
 
     def _check_proper_bases(self, node):
         """
