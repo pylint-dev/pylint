@@ -14,6 +14,28 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check was added, ``keyword-arg-before-vararg``.
+
+  This warning message is emmitted when a function is defined with a keyword
+  argument appearing before variable-length positional arguments (*args).
+  This may lead to args list getting modified if keyword argument's value is
+  not provided in the function call assuming it will take default value provided
+  in the definition.
+
+  .. code-block:: python
+
+     def foo(a, b=3, *args):
+     	 print(a, b, args)
+
+     # Case1: a=0, b=2, args=(4,5)
+     foo(0,2,4,5) # 0 2 (4,5) ==> Observed values are same as expected values
+     
+     # Case2: a=0, b=<default_value>, args=(4,5)
+     foo(0,4,5) # 0 4 (5,) ==> args list got modified as well as the observed value of b
+
+     # Case3: Syntax Error if tried as follows
+     foo(0,b=2,4,5) # syntax error
+
 * A new check was added, ``simplify-boolean-expression``.
 
   This message is emitted when ``consider-using-ternary`` check would emit
