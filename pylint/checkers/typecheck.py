@@ -278,8 +278,10 @@ MSGS = {
     }
 
 # builtin sequence types in Python 2 and 3.
-SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
-                      'xrange', 'range', 'bytes', 'memoryview'])
+SEQUENCE_TYPES = {
+    'str', 'unicode', 'list', 'tuple', 'bytearray',
+    'xrange', 'range', 'bytes', 'memoryview'
+}
 
 
 def _emit_no_member(node, owner, owner_name, ignored_mixins):
