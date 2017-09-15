@@ -16,7 +16,7 @@ New checkers
 
 * A new check was added, ``keyword-arg-before-vararg``.
 
-  This warning message is emmitted when a function is defined with a keyword
+  This warning message is emitted when a function is defined with a keyword
   argument appearing before variable-length positional arguments (*args).
   This may lead to args list getting modified if keyword argument's value is
   not provided in the function call assuming it will take default value provided
@@ -25,7 +25,7 @@ New checkers
   .. code-block:: python
 
      def foo(a, b=3, *args):
-     	 print(a, b, args)
+         print(a, b, args)
 
      # Case1: a=0, b=2, args=(4,5)
      foo(0,2,4,5) # 0 2 (4,5) ==> Observed values are same as expected values

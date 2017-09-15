@@ -4,11 +4,15 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
-    * Added a new check, ``keyword-arg-before-vararg``, to raise warning for function definitions
-      in which keyword arguments are placed before variable positional arguments (*args).
+    * Added a new check, ``keyword-arg-before-vararg``
 
-      This may lead to args list getting modified if keyword argument's value is not provided in
-      the function call assuming it will take default value provided in the definition.
+      This is emitted for function definitions
+      in which keyword arguments are placed before variable
+      positional arguments (*args).
+
+      This may lead to args list getting modified if keyword argument's value
+      is not provided in the function call assuming it will take default value
+      provided in the definition.
 	
     * The `invalid-name` check contains the name of the template that caused the failure
 
