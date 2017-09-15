@@ -1,0 +1,2 @@
+both-equality-methods:7:MissingNe:Class defines only one of __eq__ and __ne__
+both-equality-methods:12:MissingEq:Class defines only one of __eq__ and __ne__
