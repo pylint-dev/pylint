@@ -275,3 +275,6 @@ Other Changes
     foo = None
     if 'bar' in (foo or {}):
       pass
+
+* ``missing-param-doc`` and ``missing-type-doc`` are no longer emitted when
+  ``Args`` and ``Keyword Args`` are mixed in Google docstring.
