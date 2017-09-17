@@ -102,6 +102,10 @@ What's New in Pylint 1.8?
 
       Close #574
 
+    * Fix ``missing-param-doc`` and ``missing-type-doc`` false positives when
+      mixing ``Args`` and ``Keyword Args`` in Google docstring.
+      Close #1409
+
 What's New in Pylint 1.7.1?
 =========================
 
