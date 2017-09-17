@@ -610,9 +610,10 @@ class BasicErrorChecker(_BasicChecker):
             # correspond to dummy names.
             dummy_variables_rgx = lint_utils.get_global_option(
                 self, 'dummy-variables-rgx', default=None)
-            if dummy_variables_rgx.match(defined_self.name) is None:
-                self.add_message('function-redefined', node=node,
-                                 args=(redeftype, defined_self.fromlineno))
+            if dummy_variables_rgx and dummy_variables_rgx.match(defined_self.name):
+                return
+            self.add_message('function-redefined', node=node,
+                             args=(redeftype, defined_self.fromlineno))
 
 
 class BasicChecker(_BasicChecker):

@@ -102,8 +102,8 @@ What's New in Pylint 1.8?
 
       Close #574
 
-    * Disabling ``function-redefined```message for function or method with
-      dummy names.
+    * ``function-redefined`` message is no longer emitted for functions and
+      methods wich names matches dummy variable name regular expression.
       Close #1369
 
 What's New in Pylint 1.7.1?
