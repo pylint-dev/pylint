@@ -278,3 +278,6 @@ Other Changes
 
 * Redefinition of dummy function is now possible. No ``function-redefined`` message will be emitted anymore if
   dummy functions are redefined.
+
+* ``missing-param-doc`` and ``missing-type-doc`` are no longer emitted when
+  ``Args`` and ``Keyword Args`` are mixed in Google docstring.
