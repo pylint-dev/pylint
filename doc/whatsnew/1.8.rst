@@ -275,3 +275,6 @@ Other Changes
     foo = None
     if 'bar' in (foo or {}):
       pass
+
+* Redefinition of dummy function is now possible. No ``function-redefined`` message will be emitted anymore if
+  dummy functions are redefined.

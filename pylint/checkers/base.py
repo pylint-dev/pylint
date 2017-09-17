@@ -36,6 +36,7 @@ from pylint import interfaces
 from pylint.checkers import utils
 from pylint import reporters
 from pylint.reporters.ureports import nodes as reporter_nodes
+import pylint.utils as lint_utils
 
 
 # regex for class/function/variable/constant name
@@ -605,8 +606,13 @@ class BasicErrorChecker(_BasicChecker):
         """check for redefinition of a function / method / class name"""
         defined_self = node.parent.frame()[node.name]
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
-            self.add_message('function-redefined', node=node,
-                             args=(redeftype, defined_self.fromlineno))
+            # before emitting a message check that function/method name doesn't not
+            # correspond to dummy names.
+            dummy_variables_rgx = lint_utils.get_global_option(
+                self, 'dummy-variables-rgx', default=None)
+            if dummy_variables_rgx.match(defined_self.name) is None:
+                self.add_message('function-redefined', node=node,
+                                 args=(redeftype, defined_self.fromlineno))
 
 
 class BasicChecker(_BasicChecker):
