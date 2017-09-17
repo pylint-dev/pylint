@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
@@ -6,6 +7,7 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
+import io
 import re
 import warnings
 
@@ -169,3 +171,39 @@ def test_create_invalid_message_type(msgid, expected):
         utils.MessageDefinition('checker', msgid,
                                 'msg', 'descr', 'symbol', 'scope')
     assert str(cm.value) == expected
+
+
+def test__decoding_readline():
+    """_decoding_readline should yield line at a time even if the binary
+    representation of the text is not splittable line-by-line.
+
+    For convenience this test uses a codec that is easy to understand, though
+    this *specific* codec is unlikely to be seen in the wild for files.
+    """
+    binary_io = io.BytesIO(b'foo\\nbaz\\n')
+    readline = utils._decoding_readline(binary_io, 'unicode_escape')
+
+    ret = []
+    s = readline()
+    while s != '':
+        ret.append(s)
+        s = readline()
+
+    assert ret == ['foo\n', 'baz\n']
+
+
+def test_decoding_stream_unknown_encoding():
+    """decoding_stream should fall back to *some* decoding when given an
+    unknown encoding.
+    """
+    binary_io = io.BytesIO(b'foo\nbar')
+    stream = utils.decoding_stream(binary_io, 'garbage-encoding')
+    # should still act like a StreamReader
+    ret = stream.readlines()
+    assert ret == ['foo\n', 'bar']
+
+
+def test_decoding_stream_known_encoding():
+    binary_io = io.BytesIO(u'€'.encode('cp1252'))
+    stream = utils.decoding_stream(binary_io, 'cp1252')
+    assert stream.read() == u'€'
