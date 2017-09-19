@@ -56,7 +56,7 @@ def _is_builtin(node):
 
 
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
-                     'all', 'enumerate', 'dict'}
+                     'all', 'enumerate', 'dict', 'filter'}
 DICT_METHODS = {'items', 'keys', 'values'}
 
 
