@@ -368,11 +368,11 @@ class TestNamePresets(unittest.TestCase):
     PASCAL_CASE_NAMES = {'TestPascalCase', 'TestPascalCase11', 'TestHTTP200'}
     ALL_NAMES = SNAKE_CASE_NAMES | CAMEL_CASE_NAMES | UPPER_CASE_NAMES | PASCAL_CASE_NAMES
 
-    def _test_name_is_correct_for_all_types(self, naming_style, name):
+    def _test_name_is_correct_for_all_name_types(self, naming_style, name):
         for name_type in base.KNOWN_NAME_TYPES:
             self._test_is_correct(naming_style, name, name_type)
 
-    def _test_name_is_incorrect_for_all_types(self, naming_style, name):
+    def _test_name_is_incorrect_for_all_name_types(self, naming_style, name):
         for name_type in base.KNOWN_NAME_TYPES:
             self._test_is_incorrect(naming_style, name, name_type)
 
@@ -400,36 +400,40 @@ class TestNamePresets(unittest.TestCase):
 
     def test_snake_case(self):
         naming_style = base.SnakeCaseStyle
+
         for name in self.SNAKE_CASE_NAMES:
-            self._test_name_is_correct_for_all_types(naming_style, name)
+            self._test_name_is_correct_for_all_name_types(naming_style, name)
         for name in self.ALL_NAMES - self.SNAKE_CASE_NAMES:
-            self._test_name_is_incorrect_for_all_types(naming_style, name)
-        # TODO: come up with testcases
+            self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+
         self._test_should_always_pass(naming_style)
 
     def test_camel_case(self):
         naming_style = base.CamelCaseStyle
-        # TODO: come up with testcases
+
         for name in self.CAMEL_CASE_NAMES:
-            self._test_name_is_correct_for_all_types(naming_style, name)
+            self._test_name_is_correct_for_all_name_types(naming_style, name)
         for name in self.ALL_NAMES - self.CAMEL_CASE_NAMES:
-            self._test_name_is_incorrect_for_all_types(naming_style, name)
+            self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+
         self._test_should_always_pass(naming_style)
 
     def test_upper_case(self):
         naming_style = base.UpperCaseStyle
-        # TODO: come up with testcases
+
         for name in self.UPPER_CASE_NAMES:
-            self._test_name_is_correct_for_all_types(naming_style, name)
+            self._test_name_is_correct_for_all_name_types(naming_style, name)
         for name in self.ALL_NAMES - self.UPPER_CASE_NAMES:
-            self._test_name_is_incorrect_for_all_types(naming_style, name)
+            self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+
         self._test_should_always_pass(naming_style)
 
     def test_pascal_case(self):
         naming_style = base.PascalCaseStyle
-        # TODO: come up with testcases
+
         for name in self.PASCAL_CASE_NAMES:
-            self._test_name_is_correct_for_all_types(naming_style, name)
+            self._test_name_is_correct_for_all_name_types(naming_style, name)
         for name in self.ALL_NAMES - self.PASCAL_CASE_NAMES:
-            self._test_name_is_incorrect_for_all_types(naming_style, name)
+            self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+
         self._test_should_always_pass(naming_style)

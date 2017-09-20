@@ -1182,10 +1182,10 @@ functions, methods
                         self.add_message('confusing-with-statement', node=node)
 
 
-KNOWN_NAME_TYPES = frozenset(
-    ["module", "const", "class", "function", "method", "attr",
-     "argument", "variable", "class_attribute", "inlinevar"]
-)
+KNOWN_NAME_TYPES = {
+    "module", "const", "class", "function", "method", "attr",
+    "argument", "variable", "class_attribute", "inlinevar"
+}
 
 
 HUMAN_READABLE_TYPES = {

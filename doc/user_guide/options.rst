@@ -54,7 +54,7 @@ Following predefined naming styles are available:
 * ``camelCase``
 * ``PascalCase``
 * ``UPPER_CASE``
-* ``any`` - fake style does not enforce any limitations
+* ``any`` - fake style which does not enforce any limitations
 
 Following options are exposed:
 
