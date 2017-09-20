@@ -7,34 +7,85 @@
 Naming Styles
 -------------
 
+Introduction
+~~~~~~~~~~~~
+
 Pylint recognizes a number of different name types internally. With a few
 exceptions, the type of the name is governed by the location the assignment to a
 name is found in, and not the type of object assigned.
 
-``module``
-   Module and package names, same as the file names.
-``const``
-   Module-level constants, any variable defined at module level that is not bound to a class object.
-``class``
-   Names in ``class`` statements, as well as names bound to class objects at module level.
-``function``
-   Functions, toplevel or nested in functions or methods.
-``method``
-   Methods, functions defined in class bodies. Includes static and class methods.
-``attr``
-   Attributes created on class instances inside methods.
-``argument``
-   Arguments to any function type, including lambdas.
-``variable``
-   Local variables in function scopes.
-``class-attribute``
-   Attributes defined in class bodies.
-``inlinevar``
-   Loop variables in list comprehensions and generator expressions.
++--------------------+---------------------------------------------------------------------------------------------------+
+| Name Type          | Description                                                                                       |
++====================+===================================================================================================+
+| ``module``         | Module and package names, same as the file names.                                                 |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``const``          | Module-level constants, any variable defined at module level that is not bound to a class object. |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``class``          | Names in ``class`` statements, as well as names bound to class objects at module level.           |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``function``       | Functions, toplevel or nested in functions or methods.                                            |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``method``         | Methods, functions defined in class bodies. Includes static and class methods.                    |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``attr``           | Attributes created on class instances inside methods.                                             |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``argument``       | Arguments to any function type, including lambdas.                                                |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``variable``       | Local variables in function scopes.                                                               |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``class-attribute``| Attributes defined in class bodies.                                                               |
++--------------------+---------------------------------------------------------------------------------------------------+
+| ``inlinevar``      | Loop variables in list comprehensions and generator expressions.                                  |
++--------------------+---------------------------------------------------------------------------------------------------+
 
-For each naming style, a separate regular expression matching valid names of
-this type can be defined. By default, the regular expressions will enforce PEP8
-names.
+Default behavior
+~~~~~~~~~~~~~~~~
+By default, Pylint will enforce PEP8_-suggested names.
+
+Predefined Naming Styles
+~~~~~~~~~~~~~~~~~~~~~~~~
+Pylint provides set of predefined naming styles. Those predefined
+naming styles may be used to adjust Pylint configuration to coding
+style used in linted project.
+
+Following predefined naming styles are available:
+
+* ``snake_case``
+* ``camelCase``
+* ``PascalCase``
+* ``UPPER_CASE``
+* ``any`` - fake style which does not enforce any limitations
+
+Following options are exposed:
+
+.. option:: --module-naming-style=<style>
+
+.. option:: --const-naming-style=<style>
+
+.. option:: --class-naming-style=<style>
+
+.. option:: --function-naming-style=<style>
+
+.. option:: --method-naming-style=<style>
+
+.. option:: --attr-naming-style=<style>
+
+.. option:: --argument-naming-style=<style>
+
+.. option:: --variable-naming-style=<style>
+
+.. option:: --class-attribute-naming-style=<style>
+
+.. option:: --inlinevar-naming-style=<style>
+
+
+Custom regular expressions
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If predefined naming styles are too limited, checker behavior may be further
+customized. For each name type, a separate regular expression matching valid
+names of this type can be defined. If any of custom regular expressions are
+defined, it overrides ``*-naming-style`` option value.
 
 Regular expressions for the names are anchored at the beginning, any anchor for
 the end must be supplied explicitly. Any name not matching the regular
@@ -43,46 +94,26 @@ expression will lead to an instance of ``invalid-name``.
 
 .. option:: --module-rgx=<regex>
 
-   Default value: ``(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$``
-
 .. option:: --const-rgx=<regex>
-
-   Default value: ``(([A-Z_][A-Z0-9_]*)|(__.*__))$``
 
 .. option:: --class-rgx=<regex>
 
-   Default value: ``[A-Z_][a-zA-Z0-9]+$``
-
 .. option:: --function-rgx=<regex>
-
-   Default value: ``[a-z_][a-z0-9_]{2,30}$``
 
 .. option:: --method-rgx=<regex>
 
-   Default value: ``[a-z_][a-z0-9_]{2,30}$``
-
 .. option:: --attr-rgx=<regex>
-
-   Default value: ``[a-z_][a-z0-9_]{2,30}$``
 
 .. option:: --argument-rgx=<regex>
 
-   Default value: ``[a-z_][a-z0-9_]{2,30}$``
-
 .. option:: --variable-rgx=<regex>
-
-   Default value: ``[a-z_][a-z0-9_]{2,30}$``
 
 .. option:: --class-attribute-rgx=<regex>
 
-   Default value: ``([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$``
-
 .. option:: --inlinevar-rgx=<regex>
 
-   Default value: ``[A-Za-z_][A-Za-z0-9_]*$``
-
-Multiple Naming Styles
-^^^^^^^^^^^^^^^^^^^^^^
+Multiple naming styles for custom regular expressions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
 
 Large code bases that have been worked on for multiple years often exhibit an
 evolution in style as well. In some cases, modules can be in the same package,
@@ -129,12 +160,12 @@ prevent built-in or interface-dictated names to trigger certain naming styles.
    This option can be used to combine name styles. For example, ``function:method`` enforces that functions and methods use the same style, and a style triggered by either name type carries over to the other. This requires that the regular expression for the combined name types use the same group names.
 
 Name Hints
-^^^^^^^^^^
+~~~~~~~~~~
 
 .. option:: --include-naming-hint=y|n
 
    Default: off
 
-   Include a hint for the correct name format with every ``invalid-name`` warning.
+   Include a hint (regular expression used) for the correct name format with every ``invalid-name`` warning.
 
-   Name hints default to the regular expression, but can be separately configured with the ``--<name-type>-hint`` options.
+.. _PEP8: https://www.python.org/dev/peps/pep-0008

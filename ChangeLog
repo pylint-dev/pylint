@@ -4,6 +4,11 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Add set of predefined naming style to ease configuration of checking
+      naming conventions.
+
+      Closes #1013
+
     * Added a new check, ``keyword-arg-before-vararg``
 
       This is emitted for function definitions
