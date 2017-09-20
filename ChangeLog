@@ -4,6 +4,11 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Add set of predefined naming style to ease configuration of checking
+      naming conventions.
+
+      Closes #1013
+
     * Added a new check, ``keyword-arg-before-vararg``
 
       This is emitted for function definitions
@@ -205,10 +210,6 @@ Release date: 2017-04-13
     * Add a new warning, 'redefined-argument-from-local'
 
       Closes #649
-
-    * Add basic.naming_style option to add presets for checking naming conventions
-
-      Closes #1013
 
     * Support inline comments for comma separated values in the config file
 

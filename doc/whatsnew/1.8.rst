@@ -222,6 +222,12 @@ New checkers
 Other Changes
 =============
 
+* Configuration options of invalid name checker are significantly redesigned.
+  Predefined rules for common naming styles were introduced. For typical
+  setups, user friendly options like ``--function-naming-style=camelCase`` may
+  be used in place of hand-written regular expressions. Default linter config
+  enforce PEP8-compatible naming style. See documentation for details.
+
 * Raise meaningful exception in case of invalid reporter class (output format)
   being selected.
 
