@@ -564,7 +564,7 @@ class FormatChecker(BaseTokenChecker):
                         self.add_message('superfluous-parens', line=line_num,
                                          args=keyword_token)
                     elif keyword_token not in self._keywords_with_parens:
-                        if not (tokens[i+1][1] == 'in' and found_and_or):
+                        if not found_and_or:
                             self.add_message('superfluous-parens', line=line_num,
                                              args=keyword_token)
                 return

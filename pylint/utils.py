@@ -15,6 +15,7 @@ main pylint class
 """
 from __future__ import print_function
 
+import codecs
 import collections
 from inspect import cleandoc
 import os
@@ -125,9 +126,17 @@ def safe_decode(line, encoding, *args, **kwargs):
     except LookupError:
         return line.decode(sys.getdefaultencoding(), *args, **kwargs)
 
+def decoding_stream(stream, encoding, errors='strict'):
+    try:
+        reader_cls = codecs.getreader(encoding or sys.getdefaultencoding())
+    except LookupError:
+        reader_cls = codecs.getreader(sys.getdefaultencoding())
+    return reader_cls(stream, errors)
+
+
 def _decoding_readline(stream, encoding):
     '''return lambda function for tokenize with safe decode'''
-    return lambda: safe_decode(stream.readline(), encoding, 'replace')
+    return decoding_stream(stream, encoding, errors='replace').readline
 
 
 def tokenize_module(module):
