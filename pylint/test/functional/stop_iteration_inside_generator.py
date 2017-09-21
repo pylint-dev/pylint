@@ -79,3 +79,12 @@ def gen_in_for():
 
 def gen_yield_from():
     yield from gen_ok()
+
+
+def gen_dont_crash_on_no_exception():
+    g = gen_ok()
+    while True:
+        try:
+            yield next(g) # [stop-iteration-return]
+        except ValueError:
+            raise
