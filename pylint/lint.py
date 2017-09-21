@@ -1268,21 +1268,38 @@ group are mutually exclusive.'),
         # read configuration
         linter.disable('I')
         linter.enable('c-extension-no-member')
-        linter.read_config_file()
-        config_parser = linter.cfgfile_parser
-        # run init hook, if present, before loading plugins
-        if config_parser.has_option('MASTER', 'init-hook'):
-            cb_init_hook('init-hook',
-                         utils._unquote(config_parser.get('MASTER',
-                                                          'init-hook')))
-        # is there some additional plugins in the file configuration, in
-        if config_parser.has_option('MASTER', 'load-plugins'):
-            plugins = utils._splitstrip(
-                config_parser.get('MASTER', 'load-plugins'))
-            linter.load_plugin_modules(plugins)
-        # now we can load file config and command line, plugins (which can
-        # provide options) have been registered
-        linter.load_config_file()
+        config_file = None
+        while True:
+            config_file = linter.read_config_file(config_file=config_file)
+            config_parser = linter.cfgfile_parser
+            # run init hook, if present, before loading plugins
+            if config_parser.has_option('MASTER', 'init-hook'):
+                cb_init_hook('init-hook',
+                             utils._unquote(config_parser.get('MASTER',
+                                                              'init-hook')))
+            # is there some additional plugins in the file configuration, in
+            if config_parser.has_option('MASTER', 'load-plugins'):
+                plugins = utils._splitstrip(
+                    config_parser.get('MASTER', 'load-plugins'))
+                linter.load_plugin_modules(plugins)
+            # now we can load file config and command line, plugins (which can
+            # provide options) have been registered
+            linter.load_config_file()
+
+            # If rcfile option exists, continue loading that file as well
+            if config_parser.has_option('MASTER', 'rcfile'):
+                next_config_file = config_parser.get('MASTER', 'rcfile')
+                # If relative, it is relative to the current config
+                if not os.path.isabs(next_config_file):
+                    config_file = os.path.normpath(
+                        os.path.join(os.path.basename(config_file), next_config_file))
+                else:
+                    config_file = next_config_file
+                # Remove option to prevent infinite loop
+                config_parser.remove_option('MASTER', 'rcfile')
+            else:
+                break
+
         if reporter:
             # if a custom reporter is provided as argument, it may be overridden
             # by file parameters, so re-set it here, but before command line
