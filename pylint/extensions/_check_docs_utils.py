@@ -396,9 +396,9 @@ class GoogleDocstring(Docstring):
     """.format(type=re_type, xref=re_xref)
 
     re_multiple_type = r"""
-        (?:{container_type}|{type})
-        (?:\s+or\s+(?:{container_type}|{type}))*
-    """.format(type=re_type, container_type=re_container_type)
+        (?:{container_type}|{type}|{xref})
+        (?:\s+or\s+(?:{container_type}|{type}|{xref}))*
+    """.format(type=re_type, xref=re_xref, container_type=re_container_type)
 
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header
@@ -407,6 +407,11 @@ class GoogleDocstring(Docstring):
 
     re_param_section = re.compile(
         _re_section_template.format(r"(?:Args|Arguments|Parameters)"),
+        re.X | re.S | re.M
+    )
+
+    re_keyword_param_section = re.compile(
+        _re_section_template.format(r"Keyword\s(?:Args|Arguments|Parameters)"),
         re.X | re.S | re.M
     )
 
@@ -571,6 +576,7 @@ class GoogleDocstring(Docstring):
         params_with_type = set()
 
         entries = self._parse_section(self.re_param_section)
+        entries.extend(self._parse_section(self.re_keyword_param_section))
         for entry in entries:
             match = self.re_param_line.match(entry)
             if not match:
