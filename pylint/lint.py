@@ -1292,7 +1292,7 @@ group are mutually exclusive.'),
                 # If relative, it is relative to the current config
                 if not os.path.isabs(next_config_file):
                     config_file = os.path.normpath(
-                        os.path.join(os.path.basename(config_file), next_config_file))
+                        os.path.join(os.path.dirname(config_file), next_config_file))
                 else:
                     config_file = next_config_file
                 # Remove option to prevent infinite loop
