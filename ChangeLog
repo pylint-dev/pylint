@@ -111,6 +111,10 @@ What's New in Pylint 1.8?
       mixing ``Args`` and ``Keyword Args`` in Google docstring.
       Close #1409
 
+     * Fix ``missing-docstring`` false negatives when modules, classes, or methods
+     consist of compound statements that exceed the ``docstring-min-length``
+
+
 What's New in Pylint 1.7.1?
 =========================
 
