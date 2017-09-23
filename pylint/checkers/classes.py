@@ -133,6 +133,39 @@ def _positional_parameters(method):
         positional = positional[1:]
     return positional
 
+
+def _get_node_type(node, potential_types):
+    """
+    Return the astroid type of the node if it exists in astroid_types.
+
+    Args:
+        node (astroid.node): node to get the type of.
+        potential_types (tuple): potential types of the node.
+
+    Returns:
+        type: type of the node or None.
+    """
+    for potential_type in potential_types:
+        if isinstance(node, potential_type):
+            return potential_type
+    return None
+
+
+def _check_arg_equality(node_a, node_b, attr_name):
+    """
+    Check equality of nodes based on the comparison of their attributes named attr_name.
+
+    Args:
+        node_a (astroid.node): first node to compare.
+        node_b (astroid.node): second node to compare.
+        attr_name (str): name of the nodes attribute to use for comparison.
+
+    Returns:
+        bool: True if node_a.attr_name == node_b.attr_name, False otherwise.
+    """
+    return getattr(node_a, attr_name) == getattr(node_b, attr_name)
+
+
 def _has_different_parameters_default_value(original, overridden):
     """
     Check if original and overridden methods arguments have the same default values
@@ -149,22 +182,32 @@ def _has_different_parameters_default_value(original, overridden):
     default_missing = object()
     for param_name in original_param_names:
         try:
-            original_default = original.default_value(param_name).value
-        except AttributeError:
-            # if value attribute doesn't exist, it may be due to the fact
-            # that the default value is a ClassDef object and then the default
-            # value is taken to be the string representation
-            original_default = original.default_value(param_name).as_string()
+            original_default = original.default_value(param_name)
         except astroid.exceptions.NoDefault:
             original_default = default_missing
         try:
-            overridden_default = overridden.default_value(param_name).value
-        except AttributeError:
-            overridden_default = overridden.default_value(param_name).as_string()
+            overridden_default = overridden.default_value(param_name)
         except astroid.exceptions.NoDefault:
-            continue
-        if original_default != overridden_default:
+            overridden_default = default_missing
+
+        default_list = [arg == default_missing for arg in (original_default, overridden_default)]
+        if any(default_list) and not all(default_list):
+            # Only one arg has no default value
             return True
+
+        astroid_type_compared_attr = {astroid.Const: "value", astroid.ClassDef: "name",
+                                      astroid.Tuple: "elts", astroid.List: "elts"}
+        handled_types = tuple(astroid_type for astroid_type in astroid_type_compared_attr)
+        original_type = _get_node_type(original_default, handled_types)
+        if original_type:
+            # We handle only astroid types that are inside the dict astroid_type_compared_attr
+            if not isinstance(overridden_default, original_type):
+                # Two args with same name but different types
+                return True
+            if not _check_arg_equality(original_default, overridden_default,
+                                       astroid_type_compared_attr[original_type]):
+                # Two args with same type but different values
+                return True
     return False
 
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
@@ -709,7 +752,6 @@ a metaclass class method.'}
                     continue
                 if not isinstance(meth_node, astroid.FunctionDef):
                     continue
-                # Don't care about functions with unknown argument (builtins).
                 if not _has_different_parameters_default_value(meth_node.args, node.args):
                     self._check_useless_super_delegation(node)
                 self._check_signature(node, meth_node, 'overridden', klass)
