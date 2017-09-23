@@ -27,7 +27,7 @@ class Base(object):
     def with_default_argument_int(self, first, default_arg=42):
         pass
 
-    def with_default_argument_class(self, first, default_arg=()):
+    def with_default_argument_tuple(self, first, default_arg=()):
         pass
 
 class NotUselessSuper(Base):
@@ -131,9 +131,9 @@ class NotUselessSuper(Base):
         # Not useless because the default_arg is a string whereas in the base class it's an int
         super(NotUselessSuper, self).with_default_argument_int(first, default_arg)
 
-    def with_default_argument_class(self, first, default_arg=("42", "a")):
+    def with_default_argument_tuple(self, first, default_arg=("42", "a")):
         # Not useless because the default_arg is different from the one in the base class
-        super(NotUselessSuper, self).with_default_argument_class(first, default_arg)
+        super(NotUselessSuper, self).with_default_argument_tuple(first, default_arg)
 
     def fake_method(self, param2="other"):
         super(NotUselessSuper, self).fake_method(param2)
@@ -176,8 +176,8 @@ class UselessSuper(Base):
     def with_default_argument_int(self, first, default_arg=42): # [useless-super-delegation]
         super(UselessSuper, self).with_default_argument_int(first, default_arg)
 
-    def with_default_argument_class(self, first, default_arg=()): # [useless-super-delegation]
-        super(UselessSuper, self).with_default_argument_class(first, default_arg)
+    def with_default_argument_tuple(self, first, default_arg=()): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_argument_tuple(first, default_arg)
 
     def __init__(self): # [useless-super-delegation]
         super(UselessSuper, self).__init__()

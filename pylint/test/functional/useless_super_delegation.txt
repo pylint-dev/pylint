@@ -9,5 +9,5 @@ useless-super-delegation:165:UselessSuper.with_default_argument:Useless super de
 useless-super-delegation:169:UselessSuper.without_default_argument:Useless super delegation in method 'without_default_argument'
 useless-super-delegation:172:UselessSuper.with_default_argument_none:Useless super delegation in method 'with_default_argument_none'
 useless-super-delegation:176:UselessSuper.with_default_argument_int:Useless super delegation in method 'with_default_argument_int'
-useless-super-delegation:179:UselessSuper.with_default_argument_class:Useless super delegation in method 'with_default_argument_class'
+useless-super-delegation:179:UselessSuper.with_default_argument_tuple:Useless super delegation in method 'with_default_argument_tuple'
 useless-super-delegation:182:UselessSuper.__init__:Useless super delegation in method '__init__'
