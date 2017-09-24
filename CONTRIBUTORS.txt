@@ -139,3 +139,5 @@ Order doesn't matter (not that much, at least ;)
 * Martin von Gagern (Google): Added 'raising-format-tuple' warning.
 
 * Ahirnish Pareek, 'keyword-arg-before-var-arg' check
+
+* Guillaume Peillex: contributor.
