@@ -115,6 +115,11 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def as_argument_to_materialized_filter(self, callable_fn):
+        module = astroid.parse("list(filter(None, {}()))".format(callable_fn))
+        with self.assertNoMessages():
+            self.walk(module)
+
     def as_argument_to_random_fxn_test(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
         node = astroid.extract_node("""
@@ -160,6 +165,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
         self.as_argument_to_str_join_test(fxn)
         self.as_iterable_in_unpacking(fxn)
         self.as_assignment(fxn)
+        self.as_argument_to_materialized_filter(fxn)
 
         for func in ('iter', 'list', 'tuple', 'sorted',
                      'set', 'sum', 'any', 'all',

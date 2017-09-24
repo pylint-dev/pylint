@@ -211,7 +211,7 @@ class MisdesignChecker(BaseChecker):
 
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
-                    'too-many-statements')
+                    'too-many-statements', 'keyword-arg-before-vararg')
     def visit_functiondef(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals

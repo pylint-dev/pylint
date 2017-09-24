@@ -4,6 +4,21 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Add set of predefined naming style to ease configuration of checking
+      naming conventions.
+
+      Closes #1013
+
+    * Added a new check, ``keyword-arg-before-vararg``
+
+      This is emitted for function definitions
+      in which keyword arguments are placed before variable
+      positional arguments (*args).
+
+      This may lead to args list getting modified if keyword argument's value
+      is not provided in the function call assuming it will take default value
+      provided in the definition.
+	
     * The `invalid-name` check contains the name of the template that caused the failure
 
       Close #1176
@@ -89,6 +104,15 @@ What's New in Pylint 1.8?
 
     * Added a new Python check for inconsistent return statements inside method or function.
       Close #1267
+
+    * Fix ``superfluous-parens`` false positive related to handling logical statements
+      involving ``in`` operator.
+
+      Close #574
+
+    * Fix ``missing-param-doc`` and ``missing-type-doc`` false positives when
+      mixing ``Args`` and ``Keyword Args`` in Google docstring.
+      Close #1409
 
 What's New in Pylint 1.7.1?
 =========================

@@ -129,6 +129,10 @@ class TestSuperfluousParentheses(CheckerTestCase):
              'if (not (foo)):', 0),
             (Message('superfluous-parens', line=1, args='not'),
              'if (not (foo)):', 2),
+            (Message('superfluous-parens', line=1, args='for'),
+             'for (x) in (1, 2, 3):', 0),
+            (Message('superfluous-parens', line=1, args='if'),
+             'if (1) in (1, 2, 3):', 0),
             ]
         for msg, code, offset in cases:
             with self.assertAddsMessages(msg):
@@ -142,6 +146,12 @@ print('Hello world!')
         with self.assertNoMessages():
             self.checker.process_module(tree)
             self.checker.process_tokens(_tokenize_str(code))
+
+    def testKeywordParensFalsePositive(self):
+        self.checker._keywords_with_parens = set()
+        code = "if 'bar' in (DICT or {}):"
+        with self.assertNoMessages():
+            self.checker._check_keyword_parentheses(_tokenize_str(code), start=2)
 
 
 class TestCheckSpace(CheckerTestCase):

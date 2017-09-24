@@ -269,11 +269,19 @@ MSGS = {
               'Emitted whenever we can detect that a class is using, '
               'as a metaclass, something which might be invalid for using as '
               'a metaclass.'),
+    'W1113': ('Keyword argument before variable positional arguments list '
+              'in the definition of %s function',
+              'keyword-arg-before-vararg',
+              'When defining a keyword argument before variable positional arguments, one can '
+              'end up in having multiple values passed for the aforementioned parameter in '
+              'case the method is called with keyword arguments.'),
     }
 
 # builtin sequence types in Python 2 and 3.
-SEQUENCE_TYPES = set(['str', 'unicode', 'list', 'tuple', 'bytearray',
-                      'xrange', 'range', 'bytes', 'memoryview'])
+SEQUENCE_TYPES = {
+    'str', 'unicode', 'list', 'tuple', 'bytearray',
+    'xrange', 'range', 'bytes', 'memoryview'
+}
 
 
 def _emit_no_member(node, owner, owner_name, ignored_mixins):
@@ -602,6 +610,15 @@ accessed. Python regular expressions are accepted.'}
             gen.whitespace += ','
             gen.wordchars += r'[]-+\.*?()|'
             self.config.generated_members = tuple(tok.strip('"') for tok in gen)
+
+    @check_messages('keyword-arg-before-vararg')
+    def visit_functiondef(self, node):
+        # check for keyword arg before varargs
+        if node.args.vararg and node.args.defaults:
+            self.add_message('keyword-arg-before-vararg', node=node,
+                             args=(node.name))
+
+    visit_asyncfunctiondef = visit_functiondef
 
     @check_messages('invalid-metaclass')
     def visit_classdef(self, node):
