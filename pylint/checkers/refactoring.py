@@ -45,9 +45,9 @@ def _is_node_return_ended(node):
         # but if the exception raised is handled, then the handler has to
         # ends with a return statement
         exc = utils.safe_infer(node.exc)
-        exc_name = exc.pytype().split('.')[-1]
-        if exc is None:
+        if exc is None or exc is astroid.Uninferable:
             return False
+        exc_name = exc.pytype().split('.')[-1]
         handlers = utils.get_exception_handlers(node, exc_name)
         if handlers:
             # among all the handlers handling the exception at least one
