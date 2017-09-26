@@ -54,7 +54,9 @@ from pylint.checkers.utils import (
 from pylint.utils import get_global_option
 
 BUILTINS = six.moves.builtins.__name__
-STR_FORMAT = "%s.str.format" % BUILTINS
+STR_FORMAT = {"%s.str.format" % BUILTINS}
+if six.PY2:
+    STR_FORMAT.add("%s.unicode.format" % BUILTINS)
 
 
 def _unflatten(iterable):
@@ -941,7 +943,7 @@ accessed. Python regular expressions are accepted.'}
                     # by keyword argument, as in `.format(self=self)`.
                     # It's perfectly valid to so, so we're just skipping
                     # it if that's the case.
-                    if not (keyword == 'self' and called.qname() == STR_FORMAT):
+                    if not (keyword == 'self' and called.qname() in STR_FORMAT):
                         self.add_message('redundant-keyword-arg',
                                          node=node, args=(keyword, callable_name))
                 else:
