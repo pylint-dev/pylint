@@ -849,11 +849,8 @@ a metaclass class method.'}
                 # If the method have an ancestor which is not a function
                 # then it is legitimate to redefine it
                 return
-            if not _has_different_parameters_default_value(meth_node.args, function.args):
-                self.add_message('useless-super-delegation', node=function, args=(function.name,))
-            # For each method that have an ancestor, the previous check is enough
-            # and we don't have to check if its definition is equivalent to its call.
-            return
+            if _has_different_parameters_default_value(meth_node.args, function.args):
+                return
 
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
