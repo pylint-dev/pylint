@@ -188,16 +188,21 @@ def in_nested_list(nested_list, obj):
 def _loop_exits_early(loop):
     """Returns true if a loop has a break statement in its body."""
     loop_nodes = (astroid.For, astroid.While)
+    definition_nodes = (astroid.FunctionDef, astroid.ClassDef)
     # Loop over body explicitly to avoid matching break statements
     # in orelse.
     for child in loop.body:
+        if isinstance(child, definition_nodes):
+            # Break statement inside definitions are not to be
+            # looked for
+            continue
         if isinstance(child, loop_nodes):
             # break statement may be in orelse of child loop.
             for orelse in (child.orelse or ()):
                 for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
                     return True
             continue
-        for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
+        for _ in child.nodes_of_class(astroid.Break):
             return True
     return False
 
