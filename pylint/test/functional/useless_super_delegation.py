@@ -15,6 +15,9 @@ class Base(object):
     def with_default_argument(self, first, default_arg="default"):
         pass
 
+    def with_default_argument_bis(self, first, default_arg="default"):
+        pass
+
     def without_default_argument(self, first, second):
         pass
 
@@ -134,6 +137,11 @@ class NotUselessSuper(Base):
     def with_default_argument_tuple(self, first, default_arg=("42", "a")):
         # Not useless because the default_arg is different from the one in the base class
         super(NotUselessSuper, self).with_default_argument_tuple(first, default_arg)
+
+    def with_default_argument_bis(self, first, default_arg="default"):
+        # Although the default_arg is the same as in the base class, the call signature
+        # differs. Thus it is not useless.
+        super(NotUselessSuper, self).with_default_argument_bis(default_arg + "_argument")
 
     def fake_method(self, param2="other"):
         super(NotUselessSuper, self).fake_method(param2)
