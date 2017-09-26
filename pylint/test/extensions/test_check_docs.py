@@ -79,6 +79,63 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
+    def test_func_params_and_keyword_params_in_google_docstring(self):
+        """Example of a function with Google style parameter splitted
+        in Args and Keyword Args in the docstring
+        """
+        node = astroid.extract_node("""
+        def my_func(this, other, that=True):
+            '''Prints this, other and that
+
+                Args:
+                    this (str): Printed first
+                    other (int): Other args
+
+                Keyword Args:
+                    that (bool): Printed second
+            '''
+            print(this, that, other)
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_func_params_and_wrong_keyword_params_in_google_docstring(self):
+        """Example of a function with Google style parameter splitted
+        in Args and Keyword Args in the docstring but with wrong keyword args
+        """
+        node = astroid.extract_node("""
+        def my_func(this, other, that=True):
+            '''Prints this, other and that
+
+                Args:
+                    this (str): Printed first
+                    other (int): Other args
+
+                Keyword Args:
+                    these (bool): Printed second
+            '''
+            print(this, that, other)
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('that',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=node,
+                args=('that',)),
+            Message(
+                msg_id='differing-param-doc',
+                node=node,
+                args=('these',)),
+            Message(
+                msg_id='differing-type-doc',
+                node=node,
+                args=('these',))
+            ):
+            self.checker.visit_functiondef(node)
+
     def test_missing_func_params_in_numpy_docstring(self):
         """Example of a function with missing NumPy style parameter
         documentation in the docstring

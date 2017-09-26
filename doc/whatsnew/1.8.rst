@@ -222,6 +222,12 @@ New checkers
 Other Changes
 =============
 
+* Configuration options of invalid name checker are significantly redesigned.
+  Predefined rules for common naming styles were introduced. For typical
+  setups, user friendly options like ``--function-naming-style=camelCase`` may
+  be used in place of hand-written regular expressions. Default linter config
+  enforce PEP8-compatible naming style. See documentation for details.
+
 * Raise meaningful exception in case of invalid reporter class (output format)
   being selected.
 
@@ -278,3 +284,6 @@ Other Changes
 
 * Redefinition of dummy function is now possible. No ``function-redefined`` message will be emitted anymore if
   dummy functions are redefined.
+
+* ``missing-param-doc`` and ``missing-type-doc`` are no longer emitted when
+  ``Args`` and ``Keyword Args`` are mixed in Google docstring.

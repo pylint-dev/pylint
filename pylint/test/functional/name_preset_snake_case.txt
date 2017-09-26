@@ -1,0 +1,3 @@
+invalid-name:3::"Constant name ""SOME_CONSTANT"" doesn't conform to snake_case naming style ('(([a-z_][a-z0-9_]*)|(__.*__))$' pattern)"
+invalid-name:10:MyClass:"Class name ""MyClass"" doesn't conform to snake_case naming style ('[a-z_][a-z0-9_]+$' pattern)"
+invalid-name:22:sayHello:"Function name ""sayHello"" doesn't conform to snake_case naming style ('(([a-z_][a-z0-9_]{2,30})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$' pattern)"

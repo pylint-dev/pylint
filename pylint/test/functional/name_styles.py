@@ -38,7 +38,7 @@ class CorrectClassName(object):
         self._Bad_AtTR_name = None  # [invalid-name]
         self.Bad_PUBLIC_name = None  # [invalid-name]
 
-    zz = 'Bad Class Attribute'  # [invalid-name]
+    zz = 'Why Was It Bad Class Attribute?'
     GOOD_CLASS_ATTR = 'Good Class Attribute'
 
     def BadMethodName(self):  # [invalid-name]

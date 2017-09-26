@@ -326,6 +326,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         if utils.node_ignores_exception(node, StopIteration):
             return
+        if not node.exc:
+            return
         exc = utils.safe_infer(node.exc)
         if exc is not None and self._check_exception_inherit_from_stopiteration(exc):
             self.add_message('stop-iteration-return', node=node)
