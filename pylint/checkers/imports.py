@@ -68,7 +68,7 @@ def _get_import_name(importnode, modname):
     return modname
 
 
-def _get_first_import(node, context, name, base, level, alias): # pylint: disable=inconsistent-return-statements
+def _get_first_import(node, context, name, base, level, alias):
     """return the node where [base.]<name> is imported or None if not found
     """
     fullname = '%s.%s' % (base, name) if base else name
@@ -97,6 +97,7 @@ def _get_first_import(node, context, name, base, level, alias): # pylint: disabl
                     break
     if found and not are_exclusive(first, node):
         return first
+    return None
 
 
 def _ignore_import_failure(node, modname, ignored_modules):
@@ -623,13 +624,13 @@ class ImportsChecker(BaseChecker):
             self.add_message('import-error', args=repr(dotted_modname),
                              node=importnode)
 
-    def _check_relative_import(self, modnode, importnode, importedmodnode, # pylint: disable=inconsistent-return-statements
+    def _check_relative_import(self, modnode, importnode, importedmodnode,
                                importedasname):
         """check relative import. node is either an Import or From node, modname
         the imported module name.
         """
         if not self.linter.is_message_enabled('relative-import'):
-            return
+            return None
         if importedmodnode.file is None:
             return False # built-in module
         if modnode is importedmodnode:
@@ -641,6 +642,8 @@ class ImportsChecker(BaseChecker):
             self.add_message('relative-import',
                              args=(importedasname, importedmodnode.name),
                              node=importnode)
+            return None
+        return None
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""

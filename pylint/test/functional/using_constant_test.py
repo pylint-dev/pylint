@@ -124,9 +124,10 @@ if tuple():
 if [1, 2, 3][:1]:
     pass
 
-def test(*args): # pylint: disable=inconsistent-return-statements
+def test(*args):
     if args:
         return 42
+    return None
 
 def test_good_comprehension_checks():
     [data for data in range(100)]

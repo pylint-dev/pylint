@@ -27,7 +27,7 @@ from pylint.checkers import utils
 _ZERO = re.compile("^0+$")
 
 
-def _is_old_octal(literal): # pylint: disable=inconsistent-return-statements
+def _is_old_octal(literal):
     if _ZERO.match(literal):
         return False
     if re.match(r'0\d+', literal):
@@ -36,6 +36,7 @@ def _is_old_octal(literal): # pylint: disable=inconsistent-return-statements
         except ValueError:
             return False
         return True
+    return None
 
 
 def _check_dict_node(node):
@@ -886,12 +887,13 @@ class Python3Checker(checkers.BaseChecker):
                 return
             self._check_raise_value(node, value)
 
-    def _check_raise_value(self, node, expr): # pylint: disable=inconsistent-return-statements
+    def _check_raise_value(self, node, expr):
         if isinstance(expr, astroid.Const):
             value = expr.value
             if isinstance(value, str):
                 self.add_message('raising-string', node=node)
                 return True
+        return None
 
 
 class Python3TokenChecker(checkers.BaseTokenChecker):

@@ -39,17 +39,18 @@ IGNORED_ARGUMENT_NAMES = re.compile('_.*|^ignored_|^unused_')
 PY3K = sys.version_info >= (3, 0)
 
 
-def _is_from_future_import(stmt, name): # pylint: disable=inconsistent-return-statements
+def _is_from_future_import(stmt, name):
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
     except astroid.AstroidBuildingException:
-        return
+        return None
 
     for local_node in module.locals.get(name, []):
         if (isinstance(local_node, astroid.ImportFrom)
                 and local_node.modname == FUTURE):
             return True
+    return None
 
 
 def in_for_else_branch(parent, stmt):
@@ -187,7 +188,7 @@ def _fix_dot_imports(not_consumed):
                     names[second_name] = stmt
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
-def _find_frame_imports(name, frame): # pylint: disable=inconsistent-return-statements
+def _find_frame_imports(name, frame):
     """
     Detect imports in the frame, with the required
     *name*. Such imports can be considered assignments.
@@ -203,6 +204,7 @@ def _find_frame_imports(name, frame): # pylint: disable=inconsistent-return-stat
                     return True
             elif import_name and import_name == name:
                 return True
+    return None
 
 
 def _import_name_is_global(stmt, global_names):

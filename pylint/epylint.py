@@ -108,7 +108,7 @@ def lint(filename, options=None):
     return process.returncode
 
 
-def py_run(command_options='', return_std=False, stdout=None, stderr=None): # pylint: disable=inconsistent-return-statements
+def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     """Run pylint from python
 
     ``command_options`` is a string containing ``pylint`` command line options;
@@ -158,6 +158,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None): # py
     # Return standard output and error
     if return_std:
         return six.moves.StringIO(proc_stdout), six.moves.StringIO(proc_stderr)
+    return None
 
 
 def Run():

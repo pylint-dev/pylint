@@ -29,7 +29,7 @@ def space_indentation(s):
     return len(s) - len(s.lstrip(' '))
 
 
-def get_setters_property_name(node): # pylint: disable=inconsistent-return-statements
+def get_setters_property_name(node):
     """Get the name of the property that the given node is a setter for.
 
     :param node: The node to get the property name for.
@@ -45,6 +45,7 @@ def get_setters_property_name(node): # pylint: disable=inconsistent-return-state
                 decorator.attrname == "setter" and
                 isinstance(decorator.expr, astroid.Name)):
             return decorator.expr.name
+    return None
 
 
 def get_setters_property(node):

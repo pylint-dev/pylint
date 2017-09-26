@@ -1035,7 +1035,7 @@ class FormatChecker(BaseTokenChecker):
         if unsplit:
             check_line(''.join(unsplit), i)
 
-    def check_indent_level(self, string, expected, line_num): # pylint: disable=inconsistent-return-statements
+    def check_indent_level(self, string, expected, line_num):
         """return the indent level of the string
         """
         indent = self.config.indent_string
@@ -1064,6 +1064,7 @@ class FormatChecker(BaseTokenChecker):
             self.add_message('bad-indentation', line=line_num,
                              args=(level * unit_size + len(suppl), i_type,
                                    expected * unit_size))
+        return None
 
 
 def register(linter):

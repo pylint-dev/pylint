@@ -186,10 +186,10 @@ class LocalsVisitor(ASTWalker):
         ASTWalker.__init__(self, self)
         self._visited = {}
 
-    def visit(self, node): # pylint: disable=inconsistent-return-statements
+    def visit(self, node):
         """launch the visit starting from the given node"""
         if node in self._visited:
-            return
+            return None
         self._visited[node] = 1 # FIXME: use set ?
         methods = self.get_callbacks(node)
         if methods[0] is not None:
@@ -199,3 +199,4 @@ class LocalsVisitor(ASTWalker):
                 self.visit(local_node)
         if methods[1] is not None:
             return methods[1](node)
+        return None

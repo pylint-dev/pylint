@@ -320,7 +320,7 @@ class MessagesHandlerMixIn(object):
         except UnknownMessageError:
             return msgid
 
-    def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED): # pylint: disable=inconsistent-return-statements
+    def get_message_state_scope(self, msgid, line=None, confidence=UNDEFINED):
         """Returns the scope at which a message was enabled/disabled."""
         if self.config.confidence and confidence.name not in self.config.confidence:
             return MSG_STATE_CONFIDENCE
@@ -329,6 +329,7 @@ class MessagesHandlerMixIn(object):
                 return MSG_STATE_SCOPE_MODULE
         except (KeyError, TypeError):
             return MSG_STATE_SCOPE_CONFIG
+        return None
 
     def is_message_enabled(self, msg_descr, line=None, confidence=None):
         """return true if the message associated to the given message id is

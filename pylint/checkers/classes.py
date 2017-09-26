@@ -287,7 +287,7 @@ def _has_bare_super_call(fundef_node):
     return False
 
 
-def _safe_infer_call_result(node, caller, context=None): # pylint: disable=inconsistent-return-statements
+def _safe_infer_call_result(node, caller, context=None):
     """
     Safely infer the return value of a function.
 
@@ -298,14 +298,14 @@ def _safe_infer_call_result(node, caller, context=None): # pylint: disable=incon
         inferit = node.infer_call_result(caller, context=context)
         value = next(inferit)
     except astroid.InferenceError:
-        return  # inference failed
+        return None  # inference failed
     except StopIteration:
-        return  # no values infered
+        return None  # no values infered
     try:
         next(inferit)
-        return  # there is ambiguity on the inferred node
+        return None  # there is ambiguity on the inferred node
     except astroid.InferenceError:
-        return  # there is some kind of ambiguity
+        return None  # there is some kind of ambiguity
     except StopIteration:
         return value
 

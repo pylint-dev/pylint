@@ -497,7 +497,7 @@ def decorated_with_property(node):
     return False
 
 
-def _is_property_decorator(decorator): # pylint: disable=inconsistent-return-statements
+def _is_property_decorator(decorator):
     for infered in decorator.infer():
         if isinstance(infered, astroid.ClassDef):
             if infered.root().name == BUILTINS_NAME and infered.name == 'property':
@@ -505,6 +505,7 @@ def _is_property_decorator(decorator): # pylint: disable=inconsistent-return-sta
             for ancestor in infered.ancestors():
                 if ancestor.name == 'property' and ancestor.root().name == BUILTINS_NAME:
                     return True
+    return None
 
 
 def decorated_with(func, qnames):
@@ -781,7 +782,7 @@ def supports_delitem(value):
 
 # TODO(cpopa): deprecate these or leave them as aliases?
 @lru_cache(maxsize=1024)
-def safe_infer(node, context=None): # pylint: disable=inconsistent-return-statements
+def safe_infer(node, context=None):
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
@@ -791,12 +792,12 @@ def safe_infer(node, context=None): # pylint: disable=inconsistent-return-statem
         inferit = node.infer(context=context)
         value = next(inferit)
     except astroid.InferenceError:
-        return
+        return None
     try:
         next(inferit)
-        return # None if there is ambiguity on the inferred node
+        return None # None if there is ambiguity on the inferred node
     except astroid.InferenceError:
-        return # there is some kind of ambiguity
+        return None # there is some kind of ambiguity
     except StopIteration:
         return value
 
@@ -826,7 +827,7 @@ def is_none(node):
            )
 
 
-def node_type(node): # pylint: disable=inconsistent-return-statements
+def node_type(node):
     """Return the inferred type for `node`
 
     If there is more than one possible type, or if inferred type is YES or None,
@@ -841,9 +842,9 @@ def node_type(node): # pylint: disable=inconsistent-return-statements
                 continue
             types.add(var_type)
             if len(types) > 1:
-                return
+                return None
     except astroid.InferenceError:
-        return
+        return None
     return types.pop() if types else None
 
 
