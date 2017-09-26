@@ -1,4 +1,4 @@
-"""pylint should detect yield and return mix inside genrators"""
+"""pylint should detect yield and return mix inside generators"""
 # pylint: disable=using-constant-test, inconsistent-return-statements
 def somegen():
     """this is a bad generator"""
