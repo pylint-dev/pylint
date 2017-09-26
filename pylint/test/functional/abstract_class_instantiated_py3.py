@@ -109,3 +109,20 @@ def main():
     BadClass() # [abstract-class-instantiated]
     SecondBadClass() # [abstract-class-instantiated]
     ThirdBadClass() # [abstract-class-instantiated]
+
+
+if 1: # pylint: disable=using-constant-test
+    class FourthBadClass(object, metaclass=abc.ABCMeta):
+
+        def test(self):
+            pass
+else:
+    class FourthBadClass(object, metaclass=abc.ABCMeta):
+
+        @abc.abstractmethod
+        def test(self):
+            pass
+
+
+def main2():
+    FourthBadClass() # [abstract-class-instantiated]

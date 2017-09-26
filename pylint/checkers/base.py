@@ -603,10 +603,12 @@ class BasicErrorChecker(_BasicChecker):
         abc.ABCMeta as metaclass.
         """
         try:
-            infered = next(node.func.infer())
+            for inferred in node.func.infer():
+                self._check_inferred_class_is_abstract(inferred, node)
         except astroid.InferenceError:
             return
 
+    def _check_inferred_class_is_abstract(self, infered, node):
         if not isinstance(infered, astroid.ClassDef):
             return
 
