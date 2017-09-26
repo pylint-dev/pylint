@@ -1064,6 +1064,7 @@ class FormatChecker(BaseTokenChecker):
             self.add_message('bad-indentation', line=line_num,
                              args=(level * unit_size + len(suppl), i_type,
                                    expected * unit_size))
+        return None
 
 
 def register(linter):

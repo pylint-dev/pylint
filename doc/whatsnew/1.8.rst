@@ -219,6 +219,34 @@ New checkers
      var = "123"
      logging.log(logging.INFO, "Var: %s", var)
 
+* A new Python checker was added to warn about ``inconsistent-return-statements``. A function or a method
+  has inconsistent return statements if it returns both explicit and implicit values :
+
+  .. code-block:: python
+
+    def mix_implicit_explicit_returns(arg):
+        if arg < 10:
+            return True
+        elif arg < 20:
+            return
+
+  According to PEP8_, if any return statement returns an expression, 
+  any return statements where no value is returned should explicitly state this as return None,
+  and an explicit return statement should be present at the end of the function (if reachable).
+  Thus, the previous function should be written:
+
+  .. code-block:: python
+
+    def mix_implicit_explicit_returns(arg):
+        if arg < 10:
+            return True
+        elif arg < 20:
+            return None
+
+  Close #1267
+
+ .. _PEP8: https://www.python.org/dev/peps/pep-0008
+
 Other Changes
 =============
 

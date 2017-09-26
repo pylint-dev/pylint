@@ -97,6 +97,7 @@ def _get_first_import(node, context, name, base, level, alias):
                     break
     if found and not are_exclusive(first, node):
         return first
+    return None
 
 
 def _ignore_import_failure(node, modname, ignored_modules):
@@ -629,7 +630,7 @@ class ImportsChecker(BaseChecker):
         the imported module name.
         """
         if not self.linter.is_message_enabled('relative-import'):
-            return
+            return None
         if importedmodnode.file is None:
             return False # built-in module
         if modnode is importedmodnode:
@@ -641,6 +642,8 @@ class ImportsChecker(BaseChecker):
             self.add_message('relative-import',
                              args=(importedasname, importedmodnode.name),
                              node=importnode)
+            return None
+        return None
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""

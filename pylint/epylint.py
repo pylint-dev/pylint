@@ -158,6 +158,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     # Return standard output and error
     if return_std:
         return six.moves.StringIO(proc_stdout), six.moves.StringIO(proc_stderr)
+    return None
 
 
 def Run():

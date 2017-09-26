@@ -70,6 +70,7 @@ def elif_function():
         return 6
     elif arg == 7:
         return 7
+    return None
 
 def else_if_function():
     arg = None
@@ -93,3 +94,4 @@ def else_if_function():
                         else:
                             if arg == 7:
                                 return 7
+        return None

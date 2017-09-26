@@ -75,7 +75,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
 
     def _append_node(self, node):
         if not self.tail:
-            return
+            return None
         self.graph.connect(self.tail, node)
         self.tail = node
         return node

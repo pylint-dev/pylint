@@ -50,6 +50,7 @@ def bar2(w, x, y, z):
         a = 1
     else:
         return w
+    return None
 
 
 def bar3(x, y, z):
@@ -58,3 +59,4 @@ def bar3(x, y, z):
             return y
     else:
         return z
+    return None
