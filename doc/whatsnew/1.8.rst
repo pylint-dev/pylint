@@ -250,6 +250,8 @@ New checkers
 Other Changes
 =============
 
+* Fixing u'' string in superfluous-parens message.
+
 * Configuration options of invalid name checker are significantly redesigned.
   Predefined rules for common naming styles were introduced. For typical
   setups, user friendly options like ``--function-naming-style=camelCase`` may
