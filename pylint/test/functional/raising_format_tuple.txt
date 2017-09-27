@@ -1,6 +1,7 @@
-raising-format-tuple:10:bad_percent:Arguments to KeyError suggest string formatting might be intended
-raising-format-tuple:18:bad_multiarg:Arguments to ValueError suggest string formatting might be intended
-raising-format-tuple:26:bad_braces:Arguments to KeyError suggest string formatting might be intended
-raising-format-tuple:34:bad_multistring:Arguments to AssertionError suggest string formatting might be intended
-raising-format-tuple:40:bad_triplequote:Arguments to AssertionError suggest string formatting might be intended
-raising-format-tuple:46:bad_unicode:Arguments to ValueError suggest string formatting might be intended
+raising-format-tuple:10:bad_percent:Exception arguments suggest string formatting might be intended
+raising-format-tuple:18:bad_multiarg:Exception arguments suggest string formatting might be intended
+raising-format-tuple:26:bad_braces:Exception arguments suggest string formatting might be intended
+raising-format-tuple:34:bad_multistring:Exception arguments suggest string formatting might be intended
+raising-format-tuple:40:bad_triplequote:Exception arguments suggest string formatting might be intended
+raising-format-tuple:46:bad_unicode:Exception arguments suggest string formatting might be intended
+raising-format-tuple:51:raise_something_without_name:Exception arguments suggest string formatting might be intended
