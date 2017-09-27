@@ -1,0 +1,5 @@
+import os
+
+os.environ.get('TEST', [])  # [invalid-envvar-value]
+os.getenv('TEST', [])  # [invalid-envvar-value]
+os.putenv('TEST', [])  # [invalid-envvar-value]
