@@ -1,11 +1,27 @@
 # pylint: disable=missing-docstring, no-member, no-self-use, bad-super-call
-# pylint: disable=too-few-public-methods, unused-argument,invalid-name,too-many-public-methods
+# pylint: disable=too-few-public-methods, unused-argument, invalid-name, too-many-public-methods
+# pylint: disable=line-too-long
+
 
 def not_a_method(param, param2):
     return super(None, None).not_a_method(param, param2)
 
 
-class Base(object):
+class SuperBase(object):
+    def with_default_arg(self, first, default_arg="only_in_super_base"):
+        pass
+
+    def with_default_arg_bis(self, first, default_arg="only_in_super_base"):
+        pass
+
+    def with_default_arg_ter(self, first, default_arg="will_be_changed"):
+        pass
+
+    def with_default_arg_quad(self, first, default_arg="will_be_changed"):
+        pass
+
+
+class Base(SuperBase):
 
     fake_method = not_a_method
 
@@ -32,6 +48,12 @@ class Base(object):
 
     def with_default_argument_tuple(self, first, default_arg=()):
         pass
+
+    def with_default_arg_ter(self, first, default_arg="has_been_changed"):
+        super(Base, self).with_default_arg_ter(first, default_arg)
+
+    def with_default_arg_quad(self, first, default_arg="has_been_changed"):
+        super(Base, self).with_default_arg_quad(first, default_arg)
 
 class NotUselessSuper(Base):
 
@@ -146,6 +168,23 @@ class NotUselessSuper(Base):
     def fake_method(self, param2="other"):
         super(NotUselessSuper, self).fake_method(param2)
 
+    def with_default_arg(self, first, default_arg="only_in_super_base"):
+        # Not useless because the call of this method is different from the function signature
+        super(NotUselessSuper, self).with_default_arg(first, default_arg + "_and_here")
+
+    def with_default_arg_bis(self, first, default_arg="default_changed"):
+        # Not useless because the default value is different from the SuperBase one
+        super(NotUselessSuper, self).with_default_arg_bis(first, default_arg)
+
+    def with_default_arg_ter(self, first, default_arg="has_been_changed_again"):
+        # Not useless because the default value is different from the Base one
+        super(NotUselessSuper, self).with_default_arg_ter(first, default_arg)
+
+    def with_default_arg_quad(self, first, default_arg="has_been_changed"):
+        # Not useless because the default value is the same as in the base but the
+        # call is different from the signature
+        super(NotUselessSuper, self).with_default_arg_quad(first, default_arg + "_and_modified")
+
 
 class UselessSuper(Base):
 
@@ -189,6 +228,18 @@ class UselessSuper(Base):
 
     def __init__(self): # [useless-super-delegation]
         super(UselessSuper, self).__init__()
+
+    def with_default_arg(self, first, default_arg="only_in_super_base"): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_arg(first, default_arg)
+
+    def with_default_arg_bis(self, first, default_arg="only_in_super_base"): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_arg_bis(first, default_arg)
+
+    def with_default_arg_ter(self, first, default_arg="has_been_changed"): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_arg_ter(first, default_arg)
+
+    def with_default_arg_quad(self, first, default_arg="has_been_changed"): # [useless-super-delegation]
+        super(UselessSuper, self).with_default_arg_quad(first, default_arg)
 
 
 def trigger_something(value_to_trigger):
