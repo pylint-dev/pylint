@@ -851,6 +851,8 @@ a metaclass class method.'}
                 return
             if _has_different_parameters_default_value(meth_node.args, function.args):
                 return
+            else:
+                break
 
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
