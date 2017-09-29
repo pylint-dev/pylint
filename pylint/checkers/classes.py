@@ -1375,7 +1375,14 @@ class SpecialMethodsChecker(BaseChecker):
 
     def _check_len(self, node):
         inferred = _safe_infer_call_result(node, node)
-        if not inferred:
+        if not inferred or inferred is astroid.Uninferable:
+            return
+
+        if (isinstance(inferred, astroid.Instance)
+                and inferred.name == 'int'
+                and not isinstance(inferred, astroid.Const)):
+            # Assume it's good enough, since the int() call might wrap
+            # something that's uninferable for us
             return
 
         if not isinstance(inferred, astroid.Const):
