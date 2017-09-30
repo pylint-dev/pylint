@@ -622,8 +622,10 @@ class OptionsManagerMixIn(object):
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
             helplevel += 1
+        is_initial_config = False
         if config_file is None:
             config_file = self.config_file
+            is_initial_config = True
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
 
@@ -641,13 +643,16 @@ class OptionsManagerMixIn(object):
                     parser._sections[sect.upper()] = values
 
         if self.quiet:
-            return
+            return config_file
 
         if use_config_file:
             msg = 'Using config file {0}'.format(os.path.abspath(config_file))
-        else:
+        elif is_initial_config:
             msg = 'No config file found, using default configuration'
+        else:
+            msg = 'Config file {0} not found'.format(os.path.abspath(config_file))
         print(msg, file=sys.stderr)
+        return config_file
 
     def load_config_file(self):
         """dispatch values previously read from a configuration file to each
