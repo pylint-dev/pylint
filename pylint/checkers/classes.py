@@ -134,6 +134,82 @@ def _positional_parameters(method):
     return positional
 
 
+def _get_node_type(node, potential_types):
+    """
+    Return the type of the node if it exists in potential_types.
+
+    Args:
+        node (astroid.node): node to get the type of.
+        potential_types (tuple): potential types of the node.
+
+    Returns:
+        type: type of the node or None.
+    """
+    for potential_type in potential_types:
+        if isinstance(node, potential_type):
+            return potential_type
+    return None
+
+
+def _check_arg_equality(node_a, node_b, attr_name):
+    """
+    Check equality of nodes based on the comparison of their attributes named attr_name.
+
+    Args:
+        node_a (astroid.node): first node to compare.
+        node_b (astroid.node): second node to compare.
+        attr_name (str): name of the nodes attribute to use for comparison.
+
+    Returns:
+        bool: True if node_a.attr_name == node_b.attr_name, False otherwise.
+    """
+    return getattr(node_a, attr_name) == getattr(node_b, attr_name)
+
+
+def _has_different_parameters_default_value(original, overridden):
+    """
+    Check if original and overridden methods arguments have different default values
+
+    Return True if one of the overridden arguments has a default
+    value different from the default value of the original argument
+    If one of the method doesn't have argument (.args is None)
+    return False
+    """
+    if original.args is None or overridden.args is None:
+        return False
+
+    original_param_names = [param.name for param in original.args]
+    default_missing = object()
+    for param_name in original_param_names:
+        try:
+            original_default = original.default_value(param_name)
+        except astroid.exceptions.NoDefault:
+            original_default = default_missing
+        try:
+            overridden_default = overridden.default_value(param_name)
+        except astroid.exceptions.NoDefault:
+            overridden_default = default_missing
+
+        default_list = [arg == default_missing for arg in (original_default, overridden_default)]
+        if any(default_list) and not all(default_list):
+            # Only one arg has no default value
+            return True
+
+        astroid_type_compared_attr = {astroid.Const: "value", astroid.ClassDef: "name",
+                                      astroid.Tuple: "elts", astroid.List: "elts"}
+        handled_types = tuple(astroid_type for astroid_type in astroid_type_compared_attr)
+        original_type = _get_node_type(original_default, handled_types)
+        if original_type:
+            # We handle only astroid types that are inside the dict astroid_type_compared_attr
+            if not isinstance(overridden_default, original_type):
+                # Two args with same name but different types
+                return True
+            if not _check_arg_equality(original_default, overridden_default,
+                                       astroid_type_compared_attr[original_type]):
+                # Two args with same type but different values
+                return True
+    return False
+
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
     zipped = six.moves.zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
@@ -757,6 +833,26 @@ a metaclass class method.'}
             return
         if super_call.type.name != current_scope.name:
             return
+
+        # Check values of default args
+        klass = function.parent.frame()
+        for overridden in klass.local_attr_ancestors(function.name):
+            # get astroid for the searched method
+            try:
+                meth_node = overridden[function.name]
+            except KeyError:
+                # we have found the method but it's not in the local
+                # dictionary.
+                # This may happen with astroid build from living objects
+                continue
+            if not isinstance(meth_node, astroid.FunctionDef):
+                # If the method have an ancestor which is not a function
+                # then it is legitimate to redefine it
+                return
+            if _has_different_parameters_default_value(meth_node.args, function.args):
+                return
+            else:
+                break
 
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)

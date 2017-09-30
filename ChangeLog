@@ -104,6 +104,10 @@ What's New in Pylint 1.8?
       c-extensions.
       Close #1466
 
+    * Fix a false positive ``useless-super-delegation`` message when
+      parameters default values are different from those used in the base class.
+      Close #1085
+
     * Disabling 'wrong-import-order', 'wrong-import-position', or
       'ungrouped-imports' for a single line now prevents that line from
       triggering violations on subsequent lines.

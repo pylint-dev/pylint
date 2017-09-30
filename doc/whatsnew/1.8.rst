@@ -314,3 +314,6 @@ Other Changes
 
 * ``missing-param-doc`` and ``missing-type-doc`` are no longer emitted when
   ``Args`` and ``Keyword Args`` are mixed in Google docstring.
+    
+* Fix of false positive ``useless-super-delegation`` message when
+  parameters default values are different from those used in the base class.
