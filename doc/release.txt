@@ -57,9 +57,10 @@ Pre-release
    https://github.com/PyCQA/pylint
 
 
-Release by running:
+Release by running the following:
    
-   $ python setup.py register sdist --formats=gztar bdist_wheel upload
-
-   to release a new version to PyPI.
+   $ git clean -fd && find . -name '*.pyc' -delete
+   $ python setup.py sdist --formats=gztar bdist_wheel
+   $ twine upload dist/*
+   
   
