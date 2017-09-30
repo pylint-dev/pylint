@@ -72,3 +72,12 @@ def some_func():
     """
     division = 2
     return division
+
+def dummy_func():
+    """First dummy function"""
+    pass
+
+def dummy_func():
+    """Second dummy function, don't emit function-redefined message
+    because of the dummy name"""
+    pass
