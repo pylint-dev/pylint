@@ -54,7 +54,9 @@ from pylint.checkers.utils import (
 from pylint.utils import get_global_option
 
 BUILTINS = six.moves.builtins.__name__
-STR_FORMAT = "%s.str.format" % BUILTINS
+STR_FORMAT = {"%s.str.format" % BUILTINS}
+if six.PY2:
+    STR_FORMAT.add("%s.unicode.format" % BUILTINS)
 
 
 def _unflatten(iterable):
@@ -183,7 +185,7 @@ MSGS = {
               'no-member',
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
-    'I1101': ('%s %r has not %r member, but source is unavailable. Consider '
+    'I1101': ('%s %r has not %r member%s, but source is unavailable. Consider '
               'adding this module to extension-package-whitelist if you want '
               'to perform analysis based on run-time introspection of living objects.',
               'c-extension-no-member',
@@ -941,7 +943,7 @@ accessed. Python regular expressions are accepted.'}
                     # by keyword argument, as in `.format(self=self)`.
                     # It's perfectly valid to so, so we're just skipping
                     # it if that's the case.
-                    if not (keyword == 'self' and called.qname() == STR_FORMAT):
+                    if not (keyword == 'self' and called.qname() in STR_FORMAT):
                         self.add_message('redundant-keyword-arg',
                                          node=node, args=(keyword, callable_name))
                 else:
@@ -1000,15 +1002,15 @@ accessed. Python regular expressions are accepted.'}
     @check_messages('invalid-sequence-index')
     def visit_index(self, node):
         if not node.parent or not hasattr(node.parent, "value"):
-            return
+            return None
         # Look for index operations where the parent is a sequence type.
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
         parent_type = safe_infer(node.parent.value)
         if not isinstance(parent_type, (astroid.ClassDef, astroid.Instance)):
-            return
+            return None
         if not has_known_bases(parent_type):
-            return
+            return None
 
         # Determine what method on the parent this index will use
         # The parent of this node will be a Subscript, and the parent of that
@@ -1027,20 +1029,20 @@ accessed. Python regular expressions are accepted.'}
         try:
             methods = dunder_lookup.lookup(parent_type, methodname)
             if methods is astroid.YES:
-                return
+                return None
             itemmethod = methods[0]
         except (exceptions.NotFoundError,
                 exceptions.AttributeInferenceError,
                 IndexError):
-            return
+            return None
         if not isinstance(itemmethod, astroid.FunctionDef):
-            return
+            return None
         if itemmethod.root().name != BUILTINS:
-            return
+            return None
         if not itemmethod.parent:
-            return
+            return None
         if itemmethod.parent.name not in SEQUENCE_TYPES:
-            return
+            return None
 
         # For ExtSlice objects coming from visit_extslice, no further
         # inference is necessary, since if we got this far the ExtSlice
@@ -1050,18 +1052,18 @@ accessed. Python regular expressions are accepted.'}
         else:
             index_type = safe_infer(node)
         if index_type is None or index_type is astroid.YES:
-            return
+            return None
         # Constants must be of type int
         if isinstance(index_type, astroid.Const):
             if isinstance(index_type.value, int):
-                return
+                return None
         # Instance values must be int, slice, or have an __index__ method
         elif isinstance(index_type, astroid.Instance):
             if index_type.pytype() in (BUILTINS + '.int', BUILTINS + '.slice'):
-                return
+                return None
             try:
                 index_type.getattr('__index__')
-                return
+                return None
             except exceptions.NotFoundError:
                 pass
         elif isinstance(index_type, astroid.Slice):
@@ -1072,6 +1074,7 @@ accessed. Python regular expressions are accepted.'}
 
         # Anything else is an error
         self.add_message('invalid-sequence-index', node=node)
+        return None
 
     @check_messages('invalid-slice-index')
     def visit_slice(self, node):

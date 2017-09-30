@@ -36,6 +36,7 @@ def _is_old_octal(literal):
         except ValueError:
             return False
         return True
+    return None
 
 
 def _check_dict_node(node):
@@ -892,6 +893,7 @@ class Python3Checker(checkers.BaseChecker):
             if isinstance(value, str):
                 self.add_message('raising-string', node=node)
                 return True
+        return None
 
 
 class Python3TokenChecker(checkers.BaseTokenChecker):

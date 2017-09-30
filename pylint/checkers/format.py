@@ -532,7 +532,7 @@ class FormatChecker(BaseTokenChecker):
 
         found_and_or = False
         depth = 0
-        keyword_token = tokens[start][1]
+        keyword_token = str(tokens[start][1])
         line_num = tokens[start][2][0]
 
         for i in range(start, len(tokens) - 1):
@@ -1064,6 +1064,7 @@ class FormatChecker(BaseTokenChecker):
             self.add_message('bad-indentation', line=line_num,
                              args=(level * unit_size + len(suppl), i_type,
                                    expected * unit_size))
+        return None
 
 
 def register(linter):

@@ -1,0 +1,7 @@
+inconsistent-return-statements:91:explicit_implicit_returns:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:95:empty_explicit_returns:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:100:explicit_implicit_returns2:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:108:explicit_implicit_returns3:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:116:returns_missing_in_catched_exceptions:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:126:complex_func:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:134:inconsistent_returns_in_nested_function.not_consistent_returns_inner:Either all return statements in a function should return an expression, or none of them should.

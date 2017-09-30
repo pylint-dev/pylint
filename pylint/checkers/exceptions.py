@@ -110,7 +110,7 @@ MSGS = {
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),
-    'W0715': ('Arguments to %s suggest string formatting might be intended',
+    'W0715': ('Exception arguments suggest string formatting might be intended',
               'raising-format-tuple',
               'Used when passing multiple arguments to an exception \
               constructor, the first of them a string literal containing what \
@@ -157,8 +157,7 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
                     ('{' in msg and '}' in msg)):
                 self._checker.add_message(
                     'raising-format-tuple',
-                    node=self._node,
-                    args=call.func.name)
+                    node=self._node)
 
 
 class ExceptionRaiseLeafVisitor(BaseVisitor):

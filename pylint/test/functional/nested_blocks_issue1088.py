@@ -7,6 +7,7 @@ def had_bug(num):
                     if num > 5:
                         if num > 6:
                             return True
+    return None
 
 
 def was_correct(num):
@@ -19,3 +20,4 @@ def was_correct(num):
                             return True
     if num == 0:
         return False
+    return None

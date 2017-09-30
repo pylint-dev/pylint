@@ -45,6 +45,7 @@ def get_setters_property_name(node):
                 decorator.attrname == "setter" and
                 isinstance(decorator.expr, astroid.Name)):
             return decorator.expr.name
+    return None
 
 
 def get_setters_property(node):

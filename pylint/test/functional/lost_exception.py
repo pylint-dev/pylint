@@ -33,6 +33,7 @@ def break_and_return():
                 def strange():
                     if True:
                         return my_var
+                    return None
                 strange()
         if i:
             break
