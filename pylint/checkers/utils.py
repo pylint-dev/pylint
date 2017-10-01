@@ -505,6 +505,7 @@ def _is_property_decorator(decorator):
             for ancestor in infered.ancestors():
                 if ancestor.name == 'property' and ancestor.root().name == BUILTINS_NAME:
                     return True
+    return None
 
 
 def decorated_with(func, qnames):
@@ -610,21 +611,38 @@ def is_from_fallback_block(node):
 
 
 def _except_handlers_ignores_exception(handlers, exception):
-    func = functools.partial(error_of_type,
-                             error_type=(exception, ))
+    func = functools.partial(error_of_type, error_type=(exception, ))
     return any(map(func, handlers))
 
 
-def node_ignores_exception(node, exception):
-    """Check if the node is in a TryExcept which handles the given exception."""
+def get_exception_handlers(node, exception):
+    """Return the collections of handlers handling the exception in arguments.
+
+    Args:
+        node (astroid.Raise): the node raising the exception.
+        exception (builtin.Exception or str): exception or name of the exception.
+
+    Returns:
+        generator: the collection of handlers that are handling the exception or None.
+
+    """
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)
     while current and not isinstance(current.parent, ignores):
         current = current.parent
 
     if current and isinstance(current.parent, astroid.TryExcept):
-        return _except_handlers_ignores_exception(current.parent.handlers, exception)
-    return False
+        return (_handler for _handler in current.parent.handlers
+                if error_of_type(_handler, exception))
+    return None
+
+
+def node_ignores_exception(node, exception):
+    """Check if the node is in a TryExcept which handles the given exception."""
+    managing_handlers = get_exception_handlers(node, exception)
+    if not managing_handlers:
+        return False
+    return any(managing_handlers)
 
 
 def class_is_abstract(node):
@@ -774,12 +792,12 @@ def safe_infer(node, context=None):
         inferit = node.infer(context=context)
         value = next(inferit)
     except astroid.InferenceError:
-        return
+        return None
     try:
         next(inferit)
-        return # None if there is ambiguity on the inferred node
+        return None # None if there is ambiguity on the inferred node
     except astroid.InferenceError:
-        return # there is some kind of ambiguity
+        return None # there is some kind of ambiguity
     except StopIteration:
         return value
 
@@ -824,9 +842,9 @@ def node_type(node):
                 continue
             types.add(var_type)
             if len(types) > 1:
-                return
+                return None
     except astroid.InferenceError:
-        return
+        return None
     return types.pop() if types else None
 
 

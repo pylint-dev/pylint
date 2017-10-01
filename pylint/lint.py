@@ -84,6 +84,7 @@ def _get_python_path(filepath):
         dirname = os.path.dirname(dirname)
         if old_dirname == dirname:
             return os.getcwd()
+    return None
 
 
 def _merge_stats(stats):
@@ -928,7 +929,7 @@ class PyLinter(config.OptionsManagerMixIn,
             tokens = utils.tokenize_module(ast_node)
         except tokenize.TokenError as ex:
             self.add_message('syntax-error', line=ex.args[1][0], args=ex.args[0])
-            return
+            return None
 
         if not ast_node.pure_python:
             self.add_message('raw-checker-failed', args=ast_node.name)

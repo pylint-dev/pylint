@@ -329,6 +329,7 @@ class MessagesHandlerMixIn(object):
                 return MSG_STATE_SCOPE_MODULE
         except (KeyError, TypeError):
             return MSG_STATE_SCOPE_CONFIG
+        return None
 
     def is_message_enabled(self, msg_descr, line=None, confidence=None):
         """return true if the message associated to the given message id is

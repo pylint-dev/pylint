@@ -44,3 +44,8 @@ def bad_triplequote(arg):
 def bad_unicode(arg):
     '''Unicode string literal'''
     raise ValueError(u'Bad %s', arg)  # [raising-format-tuple]
+
+def raise_something_without_name(arg):
+    '''Regression test for nodes without .node attribute'''
+    import standard_exceptions  # pylint: disable=import-error
+    raise standard_exceptions.MyException(u'An %s', arg)  # [raising-format-tuple]

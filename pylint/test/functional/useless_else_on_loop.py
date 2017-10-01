@@ -9,6 +9,7 @@ def test_return_for():
             return i
     else:  # [useless-else-on-loop]
         print('math is broken')
+    return None
 
 def test_return_while():
     """else + return is not accetable."""
@@ -16,6 +17,7 @@ def test_return_while():
         return 1
     else:  # [useless-else-on-loop]
         print('math is broken')
+    return None
 
 
 while True:

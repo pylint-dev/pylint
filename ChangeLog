@@ -4,6 +4,14 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Fixing u'' string in superfluous-parens message 
+
+      Close #1420
+
+    * `abstract-class-instantiated` is now emitted for all inference paths.
+
+       Close #1673
+
     * Add set of predefined naming style to ease configuration of checking
       naming conventions.
 
@@ -96,16 +104,27 @@ What's New in Pylint 1.8?
       c-extensions.
       Close #1466
 
+    * Fix a false positive ``useless-super-delegation`` message when
+      parameters default values are different from those used in the base class.
+      Close #1085
+
     * Disabling 'wrong-import-order', 'wrong-import-position', or
       'ungrouped-imports' for a single line now prevents that line from
       triggering violations on subsequent lines.
 
       Close #1336
 
+    * Added a new Python check for inconsistent return statements inside method or function.
+      Close #1267
+
     * Fix ``superfluous-parens`` false positive related to handling logical statements
       involving ``in`` operator.
 
       Close #574
+
+    * ``function-redefined`` message is no longer emitted for functions and
+      methods which names matches dummy variable name regular expression.
+      Close #1369
 
     * Fix ``missing-param-doc`` and ``missing-type-doc`` false positives when
       mixing ``Args`` and ``Keyword Args`` in Google docstring.

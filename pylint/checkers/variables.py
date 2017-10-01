@@ -44,12 +44,13 @@ def _is_from_future_import(stmt, name):
     try:
         module = stmt.do_import_module(stmt.modname)
     except astroid.AstroidBuildingException:
-        return
+        return None
 
     for local_node in module.locals.get(name, []):
         if (isinstance(local_node, astroid.ImportFrom)
                 and local_node.modname == FUTURE):
             return True
+    return None
 
 
 def in_for_else_branch(parent, stmt):
@@ -203,6 +204,7 @@ def _find_frame_imports(name, frame):
                     return True
             elif import_name and import_name == name:
                 return True
+    return None
 
 
 def _import_name_is_global(stmt, global_names):
