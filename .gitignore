@@ -20,8 +20,3 @@ debian/pylint.substvars
 debian/pylint
 .coverage
 .coverage.*
-tmp/*
-.cache
-.eggs
-.idea
-.gitignore
