@@ -140,6 +140,7 @@ which is called with a :class:`.astroid.node_classes.Return` node.
 
 .. _astroid_extract_node:
 .. TODO We can shorten/remove this bit once astroid has API docs.
+
 We'll need to be able to figure out what attributes a
 :class:`.astroid.node_classes.Return` node has available.
 We can use :func:`astroid.extract_node` for this::
