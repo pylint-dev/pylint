@@ -228,6 +228,14 @@ we can run pylint with only our checker::
 
 Now we can debug our checker!
 
+.. Note::
+
+    ``my_plugin`` refers to a module called ``my_plugin.py``.
+    This module can be made available to pylint by putting this
+    module's parent directory in your ``PYTHONPATH``
+    environment variable or by adding the ``my_plugin.py``
+    file to the ``pylint/checkers`` directory if running from source.
+
 Testing a Checker
 -----------------
 Pylint is very well suited to test driven development.
