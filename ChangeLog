@@ -2,6 +2,24 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 1.7.4?
+===========================
+
+   * *Nothing*. Released because 1.7.3 contained `.pyc` files and there
+     is no way to make a new release with the same version.
+
+What's New in Pylint 1.7.3?
+===========================
+
+Release date: 2017-09-29
+
+   * Log and crash correctly a child process when an error occurs.
+     Close #1445
+
+   * bad-whitespace checking around dotted type hint
+
+     Close #1430 and #1679
+
 What's New in Pylint 1.7.2?
 ===========================
 
