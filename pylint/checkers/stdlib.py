@@ -24,7 +24,9 @@ from pylint.checkers import utils
 OPEN_FILES = {'open', 'file'}
 UNITTEST_CASE = 'unittest.case'
 THREADING_THREAD = 'threading.Thread'
-ENV_SETTERS = {'os.getenv'}
+ENV_SETTERS = {'posix.putenv', 'os.putenv'}
+ENV_GETTERS = {'os.getenv'}
+ENV_FUNCTIONS = ENV_SETTERS.union(ENV_GETTERS)
 
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
@@ -206,7 +208,6 @@ class StdlibChecker(BaseChecker):
         """Visit a Call node."""
         try:
             for inferred in node.func.infer():
-
                 if inferred is astroid.Uninferable:
                     continue
                 elif inferred.root().name == OPEN_MODULE:
@@ -216,22 +217,8 @@ class StdlibChecker(BaseChecker):
                     self._check_redundant_assert(node, inferred)
                 elif isinstance(inferred, astroid.ClassDef) and inferred.qname() == THREADING_THREAD:
                     self._check_bad_thread_instantiation(node)
-                elif inferred.qname() in ENV_SETTERS:
-                    if node.keywords:
-                        kwargs = {keyword.arg: keyword.value for keyword in node.keywords}
-                    else:
-                        kwargs = None
-
-                    if len(node.args) > 0:
-                        self._check_invalid_envvar_value(node.args[0], inferred)
-                    elif kwargs and 'key' in kwargs:
-                        self._check_invalid_envvar_value(kwargs['key'], inferred)
-
-                    if len(node.args) == 2:
-                        self._check_invalid_envvar_default(node.args[1], inferred)
-                    elif kwargs and 'default' in kwargs:
-                        self._check_invalid_envvar_default(kwargs['default'], inferred)
-
+                elif inferred.qname() in ENV_FUNCTIONS:
+                    self._check_env_function(node, inferred)
                 self._check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return
@@ -317,41 +304,63 @@ class StdlibChecker(BaseChecker):
                 self.add_message('bad-open-mode', node=node,
                                  args=mode_arg.value)
 
-    def _check_invalid_envvar_value(self, call_arg, infer):
-        if isinstance(call_arg, Call):
-            call_arg = call_arg.inferred()
+    def _check_env_function(self, node, infer):
+        if node.keywords:
+            kwargs = {keyword.arg: keyword.value for keyword in node.keywords}
+        else:
+            kwargs = None
 
-            if not call_arg:
-                return
+        if infer.qname() in ENV_SETTERS:
+            env_name_kwarg = 'name'
+            env_value_kwarg = 'value'
+            value_is_default = False
+        else:
+            env_name_kwarg = 'key'
+            env_value_kwarg = 'default'
+            value_is_default = True
 
-            call_arg = call_arg[0]
+        if len(node.args) > 0:
+            env_name_arg = node.args[0]
+        elif kwargs and env_name_kwarg in kwargs:
+            env_name_arg = kwargs[env_name_kwarg]
+        else:
+            env_name_arg = None
+
+        if env_name_arg:
+            self._check_invalid_envvar_value(
+                node=node,
+                message='invalid-envvar-value',
+                call_arg=utils.safe_infer(env_name_arg),
+                infer=infer,
+                allow_none=False
+            )
+
+        if len(node.args) == 2:
+            env_value_arg = node.args[1]
+        elif kwargs and env_value_kwarg in kwargs:
+            env_value_arg = kwargs[env_value_kwarg]
+        else:
+            env_value_arg = None
+
+        if env_value_arg:
+            self._check_invalid_envvar_value(
+                node=node,
+                infer=infer,
+                message='invalid-envvar-default' if value_is_default else 'invalid-envvar-value',
+                call_arg=utils.safe_infer(env_value_arg),
+                allow_none=value_is_default
+            )
+
+    def _check_invalid_envvar_value(self, node, infer, message, call_arg, allow_none):
 
         if call_arg is astroid.Uninferable:
             return
 
         if isinstance(call_arg, Const):
-            if not isinstance(call_arg.value, (six.string_types, six.text_type)):
-                self.add_message('invalid-envvar-value', node=call_arg, args=(infer.qname(), call_arg.pytype()))
+            if not (isinstance(call_arg.value, six.text_type) or (not allow_none and call_arg.value is None)):
+                self.add_message(message, node=node, args=(infer.qname(), call_arg.pytype()))
         else:
-            self.add_message('invalid-envvar-value', node=call_arg, args=(infer.qname(), call_arg.pytype()))
-
-    def _check_invalid_envvar_default(self, call_arg, infer):
-        if isinstance(call_arg, Call):
-            call_arg = call_arg.inferred()
-
-            if not call_arg:
-                return
-
-            call_arg = call_arg[0]
-
-        if call_arg is astroid.Uninferable:
-            return
-
-        if isinstance(call_arg, Const):
-            if not (isinstance(call_arg.value, (six.string_types, six.text_type)) or call_arg.value is None):
-                self.add_message('invalid-envvar-default', node=call_arg, args=(infer.qname(), call_arg.pytype()))
-        else:
-            self.add_message('invalid-envvar-default', node=call_arg, args=(infer.qname(), call_arg.pytype()))
+            self.add_message(message, node=node, args=(infer.qname(), call_arg.pytype()))
 
 
 def register(linter):

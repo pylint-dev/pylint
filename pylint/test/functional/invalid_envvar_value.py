@@ -14,6 +14,13 @@ def function_returning_string():
 def function_returning_bytes():
     return b"Result"
 
+def deep_function_returning_string():
+    return function_returning_string()
+
+def deep_function_returning_bytes():
+    return function_returning_bytes()
+
+
 # --------------------------------------------------------------------------- #
 #                               Testing getenv                                #
 # --------------------------------------------------------------------------- #
@@ -25,9 +32,11 @@ getenv("TEST")
 getenv(None)
 getenv(["Crap"])
 getenv(function_returning_bytes())
+getenv(deep_function_returning_bytes())
 getenv(function_returning_list())
 getenv(function_returning_none())
 getenv(function_returning_string())
+getenv(deep_function_returning_string())
 
 getenv(b"TEST", "default")
 getenv("TEST", "default")
@@ -73,3 +82,64 @@ getenv(key='TEST', default=function_returning_list())
 getenv(key='TEST', default=function_returning_none())
 getenv(key='TEST', default=function_returning_string())
 getenv(key='TEST', default=function_returning_bytes())
+
+
+# --------------------------------------------------------------------------- #
+#                                 Test putenv                                 #
+# --------------------------------------------------------------------------- #
+
+putenv()
+
+putenv(b"TEST")
+putenv("TEST")
+putenv(None)
+putenv(["Crap"])
+putenv(function_returning_bytes())
+putenv(function_returning_list())
+putenv(function_returning_none())
+putenv(function_returning_string())
+
+putenv(b"TEST", "default")
+putenv("TEST", "default")
+putenv(None, "default")
+putenv(["Crap"], "default")
+putenv(function_returning_bytes(), "default")
+putenv(function_returning_list(), "default")
+putenv(function_returning_none(), "default")
+putenv(function_returning_string(), "default")
+
+putenv(key=b"TEST")
+putenv(key="TEST")
+putenv(key=None)
+putenv(key=["Crap"])
+putenv(key=function_returning_bytes())
+putenv(key=function_returning_list())
+putenv(key=function_returning_none())
+putenv(key=function_returning_string())
+
+putenv('TEST', "value")
+putenv('TEST', [])
+putenv('TEST', None)
+putenv('TEST', b"123")
+putenv('TEST', function_returning_list())
+putenv('TEST', function_returning_none())
+putenv('TEST', function_returning_string())
+putenv('TEST', function_returning_bytes())
+
+putenv('TEST', default="value")
+putenv('TEST', default=[])
+putenv('TEST', default=None)
+putenv('TEST', default=b"123")
+putenv('TEST', default=function_returning_list())
+putenv('TEST', default=function_returning_none())
+putenv('TEST', default=function_returning_string())
+putenv('TEST', default=function_returning_bytes())
+
+putenv(key='TEST')
+putenv(key='TEST', default="value")
+putenv(key='TEST', default=b"value")
+putenv(key='TEST', default=["Crap"])
+putenv(key='TEST', default=function_returning_list())
+putenv(key='TEST', default=function_returning_none())
+putenv(key='TEST', default=function_returning_string())
+putenv(key='TEST', default=function_returning_bytes())
