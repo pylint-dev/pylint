@@ -27,7 +27,8 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y enchant
 install:
-  - pip install tox==2.8.2 coverage coveralls
+  - pip install -U setuptools
+  - pip install tox coverage coveralls
   - virtualenv --version
   - easy_install --version
   - pip --version
@@ -36,8 +37,6 @@ install:
 script:
     # Test install with current version of setuptools
   - pip install .
-    # Run the tests with newest version of setuptools
-  - pip install -U setuptools
   - tox -e coverage-erase,$TOXENV
 after_success:
   - tox -e coveralls
