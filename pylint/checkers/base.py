@@ -204,6 +204,7 @@ def _get_break_loop_node(break_node):
             break
     return parent
 
+
 def _loop_exits_early(loop):
     """
     Returns true if a loop may ends up in a break statement.
@@ -216,15 +217,16 @@ def _loop_exits_early(loop):
     """
     loop_nodes = (astroid.For, astroid.While)
     definition_nodes = (astroid.FunctionDef, astroid.ClassDef)
-    inner_loop_nodes = [_node for _node in loop.nodes_of_class(loop_nodes,
-                                                               skip_klass=definition_nodes)
-                        if _node != loop]
-    inner_break_nodes = [_node for _node in loop.nodes_of_class(astroid.Break,
-                                                                skip_klass=definition_nodes)
-                         if _get_break_loop_node(_node) not in inner_loop_nodes]
-    if inner_break_nodes:
-        return True
-    return False
+    inner_loop_nodes = [
+        _node for _node in loop.nodes_of_class(loop_nodes,
+                                               skip_klass=definition_nodes)
+        if _node != loop
+    ]
+    return any(
+        _node for _node in loop.nodes_of_class(astroid.Break,
+                                               skip_klass=definition_nodes)
+        if _get_break_loop_node(_node) not in inner_loop_nodes
+    )
 
 
 def _is_multi_naming_match(match, node_type, confidence):
