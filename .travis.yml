@@ -27,7 +27,7 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y enchant
 install:
-  - pip install tox coverage coveralls
+  - pip install tox==2.8.2 coverage coveralls
   - virtualenv --version
   - easy_install --version
   - pip --version
