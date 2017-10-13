@@ -133,6 +133,10 @@ What's New in Pylint 1.8?
      * Fix ``missing-docstring`` false negatives when modules, classes, or methods
      consist of compound statements that exceed the ``docstring-min-length``
 
+    * Fix ``useless-else-on-loop`` false positives when break statements are
+      deeply nested inside loop.
+      Close #1661
+
 
 What's New in Pylint 1.7.1?
 =========================

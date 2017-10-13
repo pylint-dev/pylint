@@ -42,6 +42,7 @@ else:  # [useless-else-on-loop]
     for j in range(10):
         break
 
+
 def test_return_for2():
     """no false positive for break in else
 
@@ -55,3 +56,34 @@ def test_return_for2():
             break
     else:
         print('great math')
+
+
+def test_break_in_orelse_deep():
+    """no false positive for break in else deeply nested
+    """
+    for _ in range(10):
+        if 1 < 2:
+            for _ in range(3):
+                if 3 < 2:
+                    break
+            else:
+                break
+    else:
+        return True
+    return False
+
+
+def test_break_in_orelse_deep2():
+    """should rise a useless-else-on-loop message, as the break statement is only
+    for the inner for loop
+    """
+    for _ in range(10):
+        if 1 < 2:
+            for _ in range(3):
+                if 3 < 2:
+                    break
+            else:
+                print("all right")
+    else:  # [useless-else-on-loop]
+        return True
+    return False

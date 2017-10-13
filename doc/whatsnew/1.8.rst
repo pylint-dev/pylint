@@ -320,3 +320,6 @@ Other Changes
     
 * Fix of false positive ``useless-super-delegation`` message when
   parameters default values are different from those used in the base class.
+
+* Fix of false positive ``useless-else-on-loop`` message when break statements
+  are deeply nested inside loop.

@@ -187,21 +187,47 @@ def in_nested_list(nested_list, obj):
     return False
 
 
-def _loop_exits_early(loop):
-    """Returns true if a loop has a break statement in its body."""
+def _get_break_loop_node(break_node):
+    """
+    Returns the loop node that holds the break node in arguments.
+
+    Args:
+        break_node (astroid.Break): the break node of interest.
+
+    Returns:
+        astroid.For or astroid.While: the loop node holding the break node.
+    """
     loop_nodes = (astroid.For, astroid.While)
-    # Loop over body explicitly to avoid matching break statements
-    # in orelse.
-    for child in loop.body:
-        if isinstance(child, loop_nodes):
-            # break statement may be in orelse of child loop.
-            for orelse in (child.orelse or ()):
-                for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
-                    return True
-            continue
-        for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
-            return True
-    return False
+    parent = break_node.parent
+    while not isinstance(parent, loop_nodes) or break_node in getattr(parent, 'orelse', []):
+        parent = parent.parent
+        if parent is None:
+            break
+    return parent
+
+
+def _loop_exits_early(loop):
+    """
+    Returns true if a loop may ends up in a break statement.
+
+    Args:
+        loop (astroid.For, astroid.While): the loop node inspected.
+
+    Returns:
+        bool: True if the loop may ends up in a break statement, False otherwise.
+    """
+    loop_nodes = (astroid.For, astroid.While)
+    definition_nodes = (astroid.FunctionDef, astroid.ClassDef)
+    inner_loop_nodes = [
+        _node for _node in loop.nodes_of_class(loop_nodes,
+                                               skip_klass=definition_nodes)
+        if _node != loop
+    ]
+    return any(
+        _node for _node in loop.nodes_of_class(astroid.Break,
+                                               skip_klass=definition_nodes)
+        if _get_break_loop_node(_node) not in inner_loop_nodes
+    )
 
 
 def _is_multi_naming_match(match, node_type, confidence):

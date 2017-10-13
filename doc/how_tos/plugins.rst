@@ -37,4 +37,4 @@ object, by calling the following inside the ``register`` function::
 
     linter.register_checker(OurChecker(linter))
 
-For more information on writing a checker see _`write_a_checker`.
+For more information on writing a checker see :ref:`write_a_checker`.

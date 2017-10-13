@@ -140,6 +140,7 @@ which is called with a :class:`.astroid.node_classes.Return` node.
 
 .. _astroid_extract_node:
 .. TODO We can shorten/remove this bit once astroid has API docs.
+
 We'll need to be able to figure out what attributes a
 :class:`.astroid.node_classes.Return` node has available.
 We can use :func:`astroid.extract_node` for this::
@@ -165,6 +166,8 @@ We could also construct a more complete example::
   5
   >>> node_a.value.value == node_b.value.value
   True
+
+For :func:`astroid.extract_node`, you can use ``#@`` at the end of a line to choose which statements will be extracted into nodes.
 
 For more information on :func:`astroid.extract_node`,
 see the `astroid documentation <http://astroid.readthedocs.io/en/latest/>`_.
@@ -224,6 +227,14 @@ we can run pylint with only our checker::
   (Pdb)
 
 Now we can debug our checker!
+
+.. Note::
+
+    ``my_plugin`` refers to a module called ``my_plugin.py``.
+    This module can be made available to pylint by putting this
+    module's parent directory in your ``PYTHONPATH``
+    environment variable or by adding the ``my_plugin.py``
+    file to the ``pylint/checkers`` directory if running from source.
 
 Testing a Checker
 -----------------

@@ -117,4 +117,12 @@ current run.
     previous run
   * a list of external dependencies found in the code, and where they appear
 
-Also, a global evaluation for the code is computed.
+Score section
+'''''''''''''
+
+Finally, Pylint displays a global evaluation score for the code, rated out of a
+maximum score of 10.0. This output can be suppressed through the ``--score=n``
+option, or its shorthand version ``-sn``.
+
+The evaluation formula can be overridden with the
+``--evaluation=<python_expression>`` option.
