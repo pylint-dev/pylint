@@ -899,5 +899,5 @@ def get_node_last_lineno(node):
     # All compound statements have a 'body'
     if getattr(node, 'body', False):
         return get_node_last_lineno(node.body[-1])
-    # Not a compaind statement
+    # Not a compound statement
     return node.lineno
