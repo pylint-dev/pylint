@@ -139,6 +139,7 @@ class TextReporter(BaseReporter):
         if msg.module not in self._modules:
             if msg.module:
                 self.writeln('************* Module %s' % msg.module)
+                self.writeln(self._template)
                 self._modules.add(msg.module)
             else:
                 self.writeln('************* ')
@@ -218,6 +219,7 @@ class ColorizedTextReporter(TextReporter):
                 modsep = colorize_ansi('************* %s' % msg.module,
                                        color, style)
             self.writeln(modsep)
+            self.writeln(self._template)
             self._modules.add(msg.module)
         color, style = self._get_decoration(msg.C)
 
