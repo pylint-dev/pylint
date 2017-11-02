@@ -141,3 +141,5 @@ Order doesn't matter (not that much, at least ;)
 * Ahirnish Pareek, 'keyword-arg-before-var-arg' check
 
 * Guillaume Peillex: contributor.
+
+* Daniel Miller: contributor.
