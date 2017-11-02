@@ -79,7 +79,11 @@ your patch gets accepted.
         python -m tox -e py27 -- -k  \*func\*
 
 - Add a short entry to the ChangeLog describing the change, except for internal
-  implementation only changes
+  implementation only changes. Not usually required, but for changes other than small
+  bugs we also add a couple of sentences in the release document for that release,
+  (`What's New` section)
+
+- Add yourself to the `CONTRIBUTORS` file, if you are not already there.
 
 - Write a comprehensive commit message
 
