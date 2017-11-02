@@ -269,6 +269,10 @@ class TestRunTC(object):
         to_remove = "No config file found, using default configuration"
         if to_remove in actual_output:
             actual_output = actual_output[len(to_remove):]
+        if actual_output.startswith("Using config file "):
+            # If ~/.pylintrc is present remove the
+            # Using config file...  line
+            actual_output = actual_output[actual_output.find("\n"):]
         assert expected_output.strip() == actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self):
