@@ -4,6 +4,14 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Fix py3k checks related to absolute imports.
+
+      Do not display no-absolute-import warning multiple times per file.
+
+      Respect disabled no-absolute-import.
+
+      Respect disable=... in config file when running with --py3k.
+
     * Fixing u'' string in superfluous-parens message 
 
       Close #1420
