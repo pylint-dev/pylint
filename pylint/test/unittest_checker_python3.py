@@ -606,6 +606,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
             absolute_import_message = testutils.Message('no-absolute-import', node=node)
             with self.assertAddsMessages(absolute_import_message):
                 self.checker.visit_importfrom(node)
+            self.checker._future_absolute_import = False
 
     @python2_only
     def test_bad_import_conditional(self):
