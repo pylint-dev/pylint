@@ -1,3 +1,4 @@
+# encoding: utf-8
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
 
@@ -313,12 +314,18 @@ class TestPython3Checker(testutils.CheckerTestCase):
         message = testutils.Message('no-absolute-import', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_import(node)
+        with self.assertNoMessages():
+            # message should only be added once
+            self.checker.visit_import(node)
 
     def test_relative_from_import(self):
         node = astroid.extract_node('from os import path  #@')
         message = testutils.Message('no-absolute-import', node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_import(node)
+            self.checker.visit_importfrom(node)
+        with self.assertNoMessages():
+            # message should only be added once
+            self.checker.visit_importfrom(node)
 
     def test_absolute_import(self):
         module_import = astroid.parse(
@@ -600,6 +607,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
             absolute_import_message = testutils.Message('no-absolute-import', node=node)
             with self.assertAddsMessages(absolute_import_message):
                 self.checker.visit_importfrom(node)
+            self.checker._future_absolute_import = False
 
     @python2_only
     def test_bad_import_conditional(self):
