@@ -595,9 +595,9 @@ class PyLinter(config.OptionsManagerMixIn,
             for msg_id in self._checker_messages('python3'):
                 if msg_id.startswith('E'):
                     self.enable(msg_id)
-            config = self.cfgfile_parser
-            if config.has_option('MESSAGES CONTROL', 'disable'):
-                value = config.get('MESSAGES CONTROL', 'disable')
+            config_parser = self.cfgfile_parser
+            if config_parser.has_option('MESSAGES CONTROL', 'disable'):
+                value = config_parser.get('MESSAGES CONTROL', 'disable')
                 self.global_set_option('disable', value)
         else:
             self.disable('python3')
@@ -618,9 +618,9 @@ class PyLinter(config.OptionsManagerMixIn,
                     self.enable(msg_id)
                 else:
                     self.disable(msg_id)
-        config = self.cfgfile_parser
-        if config.has_option('MESSAGES CONTROL', 'disable'):
-            value = config.get('MESSAGES CONTROL', 'disable')
+        config_parser = self.cfgfile_parser
+        if config_parser.has_option('MESSAGES CONTROL', 'disable'):
+            value = config_parser.get('MESSAGES CONTROL', 'disable')
             self.global_set_option('disable', value)
         self._python3_porting_mode = True
 
