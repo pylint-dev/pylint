@@ -661,8 +661,9 @@ class Python3Checker(checkers.BaseChecker):
 
     def visit_import(self, node):
         if not self._future_absolute_import:
-            self.add_message('no-absolute-import', node=node)
-            self._future_absolute_import = True
+            if self.linter.is_message_enabled('no-absolute-import'):
+                self.add_message('no-absolute-import', node=node)
+                self._future_absolute_import = True
         if not _is_conditional_import(node):
             for name, _ in node.names:
                 self._warn_if_deprecated(node, name, None)
