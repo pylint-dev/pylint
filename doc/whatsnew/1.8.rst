@@ -323,3 +323,7 @@ Other Changes
 
 * Fix of false positive ``useless-else-on-loop`` message when break statements
   are deeply nested inside loop.
+
+* Fix no ``wrong-import-order`` message emitted on ordering of first and third party libraries.
+  With this fix, pylint distinguishes first and third party modules when checking
+  import order.
