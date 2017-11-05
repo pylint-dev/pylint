@@ -206,6 +206,11 @@ class Docstring(object):
 class SphinxDocstring(Docstring):
     re_type = r"[\w\.]+"
 
+    re_simple_container_type = r"""
+        {type}                        # a container type
+        [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
+    """.format(type=re_type)
+
     re_xref = r"""
         (?::\w+:)?                    # optional tag
         `{0}`                         # what to reference
@@ -221,14 +226,14 @@ class SphinxDocstring(Docstring):
         \s+                     # whitespace
 
         (?:                     # optional type declaration
-        ({type})
+        ({type}|{container_type})
         \s+
         )?
 
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type)
+        """.format(type=re_type, container_type=re_simple_container_type)
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
     re_type_raw = r"""
