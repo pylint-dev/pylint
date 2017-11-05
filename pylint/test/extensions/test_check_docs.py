@@ -1349,11 +1349,17 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    COMPLEX_TYPES = [
-        'int or str',
+    CONTAINER_TYPES = [
+        'dict(str,str)',
+        'dict[str,str]',
+        'tuple(int)',
+        'list[tokenize.TokenInfo]',
+    ]
+
+    COMPLEX_TYPES = CONTAINER_TYPES + [
         'dict(str, str)',
         'dict[str, str]',
-        'tuple(int)',
+        'int or str',
         'tuple(int or str)',
         'tuple(int) or list(int)',
         'tuple(int or str) or list(int or str)',
@@ -1411,6 +1417,22 @@ class TestParamDocChecker(CheckerTestCase):
             """
             return named_arg
         '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('container_type', CONTAINER_TYPES)
+    def test_finds_compact_container_types_sphinx(self, container_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            :param {0} named_arg: Returned
+
+            :returns: named_arg
+            :rtype: {0}
+            """
+            return named_arg
+        '''.format(container_type))
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
