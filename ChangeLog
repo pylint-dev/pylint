@@ -6,6 +6,11 @@ What's New in Pylint 1.8?
 
     * Do not display no-absolute-import warning multiple times per file.
 
+    * `trailing-comma-tuple` refactor check now extends to assignment with
+       more than one element (such as lists)
+
+      Close #1713
+
     * Fixing u'' string in superfluous-parens message 
 
       Close #1420
