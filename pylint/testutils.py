@@ -176,7 +176,9 @@ class UnittestLinter(object):
         finally:
             self._messages = []
 
-    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None):
+    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None,
+                    col_offset=None):
+        # Do not test col_offset for now since changing Message breaks everything
         self._messages.append(Message(msg_id, line, node, args, confidence))
 
     def is_message_enabled(self, *unused_args, **unused_kwargs):
