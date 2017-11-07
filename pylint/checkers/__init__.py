@@ -88,9 +88,10 @@ class BaseChecker(OptionsProviderMixIn):
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
 
-    def add_message(self, msg_id, line=None, node=None, args=None, confidence=UNDEFINED):
+    def add_message(self, msg_id, line=None, node=None, args=None, confidence=UNDEFINED,
+                    col_offset=None):
         """add a message of a given type"""
-        self.linter.add_message(msg_id, line, node, args, confidence)
+        self.linter.add_message(msg_id, line, node, args, confidence, col_offset)
 
     # dummy methods implementing the IChecker interface
 

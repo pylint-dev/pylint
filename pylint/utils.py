@@ -354,7 +354,8 @@ class MessagesHandlerMixIn(object):
         except KeyError:
             return self._msgs_state.get(msgid, True)
 
-    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED):
+    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
+                    col_offset=None):
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args
@@ -386,10 +387,9 @@ class MessagesHandlerMixIn(object):
 
         if line is None and node is not None:
             line = node.fromlineno
-        if hasattr(node, 'col_offset'):
+        if col_offset is None and hasattr(node, 'col_offset'):
             col_offset = node.col_offset # XXX measured in bytes for utf-8, divide by two for chars?
-        else:
-            col_offset = None
+
         # should this message be displayed
         if not self.is_message_enabled(msgid, line, confidence):
             self.file_state.handle_ignored_message(
