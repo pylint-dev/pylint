@@ -202,8 +202,9 @@ output buffer, to go to the lines where pylint found matches.
 
   (save-some-buffers (not pylint-ask-about-save) nil)
   (let* ((filename (buffer-file-name))
-         (filename (or (and (tramp-tramp-file-p filename)
-                         (aref (tramp-dissect-file-name filename) 3))
+         (filename (or  (and (fboundp 'tramp-tramp-file-p)
+                             (and (tramp-tramp-file-p filename)
+                                  (aref (tramp-dissect-file-name filename) 3)))
                       filename))
          (filename (shell-quote-argument filename))
          (pylint-command (if arg
