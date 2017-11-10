@@ -145,3 +145,6 @@ Order doesn't matter (not that much, at least ;)
 * Daniel Miller: contributor.
 
 * Bryce Guinta: contributor
+
+* Martin Bašti: contributor
+  Added new check for shallow copy of os.environ
