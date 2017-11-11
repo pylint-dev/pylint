@@ -237,6 +237,41 @@ class TestRunTC(object):
         self._test_output([module, "--py3k", "-E", "--msg-template='{msg}'"],
                           expected_output=expected)
 
+    @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
+    def test_py3k_commutative_with_config_disable(self):
+        module = join(HERE, 'regrtest_data', 'py3k_errors_and_warnings.py')
+        rcfile = join(HERE, 'regrtest_data', 'py3k-disabled.rc')
+        cmd = [module, "--msg-template='{msg}'", "--reports=n"]
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        import missing `from __future__ import absolute_import`
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        Calling a dict.iter*() method
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k"], expected_output=expected)
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        Calling a dict.iter*() method
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k", "--rcfile", rcfile],
+                          expected_output=expected)
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k", "-E", "--rcfile", rcfile],
+                          expected_output=expected)
+
+        self._test_output(cmd + ["-E", "--py3k", "--rcfile", rcfile],
+                          expected_output=expected)
+
     def test_abbreviations_are_not_supported(self):
         expected = "no such option: --load-plugin"
         self._test_output([".", "--load-plugin"], expected_output=expected)

@@ -4,18 +4,7 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
-    * New warning `shallow-copy-environ` added
-
-      Shallow copy of os.environ doesn't work as people may expect. os.environ
-      is not a dict object but rather a proxy object, so any changes made
-      on copy may have unexpected effects on os.environ
-
-      Instead of copy.copy(os.environ) method os.environ.copy() should be
-      used.
-
-      See https://bugs.python.org/issue15373 for details.
-
-      Close #1301
+    * Respect disable=... in config file when running with --py3k.
 
     * Do not display no-absolute-import warning multiple times per file.
 
