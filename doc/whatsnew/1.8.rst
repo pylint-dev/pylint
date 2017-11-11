@@ -350,3 +350,6 @@ Other Changes
 * The Python 3 porting checker no longer emits multiple `no-absolute-import` per file.
 
 * The Python 3 porting checker respects disabled checkers found in the config file.
+
+ * Modules, classes, or methods consist of compound statements that exceed the ``docstring-min-length``
+   are now correctly emitting `missing-docstring`
