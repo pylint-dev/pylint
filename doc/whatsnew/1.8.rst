@@ -323,3 +323,5 @@ Other Changes
 
 * Fix of false positive ``useless-else-on-loop`` message when break statements
   are deeply nested inside loop.
+
+* The Python 3 porting checker no longer emits multiple `no-absolute-import` per file.
