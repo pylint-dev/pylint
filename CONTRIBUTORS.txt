@@ -142,4 +142,6 @@ Order doesn't matter (not that much, at least ;)
 
 * Guillaume Peillex: contributor.
 
+* Daniel Miller: contributor.
+
 * Bryce Guinta: contributor
