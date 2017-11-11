@@ -1,4 +1,3 @@
-# encoding: utf-8
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
 
