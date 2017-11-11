@@ -6,6 +6,8 @@ What's New in Pylint 1.8?
 
     * Respect disable=... in config file when running with --py3k.
 
+    * Do not display no-absolute-import warning multiple times per file.
+
     * `trailing-comma-tuple` refactor check now extends to assignment with
        more than one element (such as lists)
 
