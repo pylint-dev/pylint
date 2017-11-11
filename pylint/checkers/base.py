@@ -35,6 +35,7 @@ from pylint import exceptions
 from pylint import interfaces
 from pylint.checkers import utils
 from pylint import reporters
+from pylint.checkers.utils import get_node_last_lineno
 from pylint.reporters.ureports import nodes as reporter_nodes
 import pylint.utils as lint_utils
 
@@ -1604,10 +1605,7 @@ class DocStringChecker(_BasicChecker):
         if docstring is None:
             if not report_missing:
                 return
-            if node.body:
-                lines = node.body[-1].lineno - node.body[0].lineno + 1
-            else:
-                lines = 0
+            lines = get_node_last_lineno(node) - node.lineno
 
             if node_type == 'module' and not lines:
                 # If the module has no body, there's no reason

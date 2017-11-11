@@ -55,6 +55,30 @@ class TestDocstring(CheckerTestCase):
             self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
+    def test_long_function_no_docstring(self):
+        func = astroid.extract_node("""
+        def func(tion):
+            pass
+            pass
+           """)
+        message = Message('missing-docstring', node=func, args=('function',))
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(func)
+
+    @set_config(docstring_min_length=2)
+    def test_long_function_nested_statements_no_docstring(self):
+        func = astroid.extract_node("""
+        def func(tion):
+            try:
+                pass
+            except:
+                pass
+           """)
+        message = Message('missing-docstring', node=func, args=('function',))
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(func)
+
+    @set_config(docstring_min_length=2)
     def test_function_no_docstring_by_name(self):
         func = astroid.extract_node("""
         def __fun__(tion):
