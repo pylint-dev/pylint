@@ -61,6 +61,11 @@ Release date: 2017-12-15
 
     * Do not display no-absolute-import warning multiple times per file.
 
+	* Correct column number for whitespace conventions. Previously the column
+	was stuck at 0
+
+	Close #1649
+
     * `trailing-comma-tuple` refactor check now extends to assignment with
        more than one element (such as lists)
 
