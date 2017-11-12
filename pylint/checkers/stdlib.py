@@ -23,6 +23,8 @@ from pylint.checkers import utils
 OPEN_FILES = {'open', 'file'}
 UNITTEST_CASE = 'unittest.case'
 THREADING_THREAD = 'threading.Thread'
+COPY_COPY = 'copy.copy'
+OS_ENVIRON = 'os._Environ'
 if sys.version_info >= (3, 0):
     OPEN_MODULE = '_io'
 else:
@@ -105,6 +107,12 @@ class StdlibChecker(BaseChecker):
                   'The warning is emitted when a threading.Thread class '
                   'is instantiated without the target function being passed. '
                   'By default, the first parameter is the group param, not the target param. '),
+        'W1507': ('Using copy.copy(os.environ). Use os.environ.copy() '  # TODO: number
+                  'instead. ',
+                  'shallow-copy-environ',
+                  'os.environ is not a dict object but proxy object, so '
+                  'shallow copy has still effects on original object. '
+                  'See https://bugs.python.org/issue15373 for reference. '),
     }
 
     deprecated = {
@@ -186,9 +194,17 @@ class StdlibChecker(BaseChecker):
         if not node.kwargs and node.args:
             self.add_message('bad-thread-instantiation', node=node)
 
+    def _check_shallow_copy_environ(self, node):
+        arg = utils.get_argument_from_call(node, position=0)
+        for inferred in arg.inferred():
+            if inferred.qname() == OS_ENVIRON:
+                self.add_message('shallow-copy-environ', node=node)
+                break
+
     @utils.check_messages('bad-open-mode', 'redundant-unittest-assert',
                           'deprecated-method',
-                          'bad-thread-instantiation')
+                          'bad-thread-instantiation',
+                          'shallow-copy-environ')
     def visit_call(self, node):
         """Visit a Call node."""
         try:
@@ -202,6 +218,8 @@ class StdlibChecker(BaseChecker):
                     self._check_redundant_assert(node, inferred)
                 if isinstance(inferred, astroid.ClassDef) and inferred.qname() == THREADING_THREAD:
                     self._check_bad_thread_instantiation(node)
+                if isinstance(inferred, astroid.FunctionDef) and inferred.qname() == COPY_COPY:
+                    self._check_shallow_copy_environ(node)
                 self._check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return

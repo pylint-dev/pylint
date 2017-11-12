@@ -4,6 +4,15 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+    * Respect disable=... in config file when running with --py3k.
+
+    * Do not display no-absolute-import warning multiple times per file.
+
+    * `trailing-comma-tuple` refactor check now extends to assignment with
+       more than one element (such as lists)
+
+      Close #1713
+
     * Fixing u'' string in superfluous-parens message 
 
       Close #1420
@@ -129,6 +138,9 @@ What's New in Pylint 1.8?
     * Fix ``missing-param-doc`` and ``missing-type-doc`` false positives when
       mixing ``Args`` and ``Keyword Args`` in Google docstring.
       Close #1409
+
+     * Fix ``missing-docstring`` false negatives when modules, classes, or methods
+     consist of compound statements that exceed the ``docstring-min-length``
 
     * Fix ``useless-else-on-loop`` false positives when break statements are
       deeply nested inside loop.

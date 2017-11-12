@@ -14,6 +14,29 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check was added, ``shallow-copy-environ``.
+
+  This warning message is emitted when shallow copy of os.environ is created.
+  Shallow copy of os.environ doesn't work as people may expect. os.environ
+  is not a dict object but rather a proxy object, so any changes made
+  on copy may have unexpected effects on os.environ
+
+  Instead of copy.copy(os.environ) method os.environ.copy() should be used.
+
+  See https://bugs.python.org/issue15373 for details.
+
+  .. code-block:: python
+
+     import copy
+     import os
+     wrong_env_copy = copy.copy(os.environ)  # will emit pylint warning
+     wrong_env_copy['ENV_VAR'] = 'new_value'  # changes os.environ
+     assert os.environ['ENV_VAR'] == 'new_value'
+
+     good_env_copy = os.environ.copy()  # the right way
+     good_env_copy['ENV_VAR'] = 'different_value'  # doesn't change os.environ
+     assert os.environ['ENV_VAR'] == 'new_value'
+
 * A new check was added, ``keyword-arg-before-vararg``.
 
   This warning message is emitted when a function is defined with a keyword
@@ -323,6 +346,13 @@ Other Changes
 
 * Fix of false positive ``useless-else-on-loop`` message when break statements
   are deeply nested inside loop.
+
+* The Python 3 porting checker no longer emits multiple `no-absolute-import` per file.
+
+* The Python 3 porting checker respects disabled checkers found in the config file.
+
+* Modules, classes, or methods consist of compound statements that exceed the ``docstring-min-length``
+  are now correctly emitting `missing-docstring`
 
 * Fix no ``wrong-import-order`` message emitted on ordering of first and third party libraries.
   With this fix, pylint distinguishes first and third party modules when checking
