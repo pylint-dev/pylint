@@ -146,6 +146,10 @@ What's New in Pylint 1.8?
       deeply nested inside loop.
       Close #1661
 
+    * Fix no ``wrong-import-order`` message emitted on ordering of first and third party
+      libraries. With this fix, pylint distinguishes third and first party
+      modules when checking import order.
+      Close #1702
 
 What's New in Pylint 1.7.1?
 =========================
