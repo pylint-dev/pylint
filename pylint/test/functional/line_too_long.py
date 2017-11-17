@@ -14,8 +14,7 @@ var = 'This line has a disable pragma and whitespace trailing beyond 80 chars. '
 # +1: [line-too-long]
 badname = 'This line is already longer than 100 characters even without the pragma. Trust me. Please.'  # pylint:disable=invalid-name
 
-# http://example.com/this/is/a/very/long/url?but=splitting&urls=is&a=pain&so=they&can=be&long
-
+# http://example.com/this/is/a/very/long/url?but=splitting&urls=is&a=pain&so=they&can=be&long # pylint: disable=line-too-long
 
 def function():
     # +3: [line-too-long]
