@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2014 Google, Inc.
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
@@ -563,10 +564,14 @@ class ImportsChecker(BaseChecker):
 
         Imports must follow this order: standard, 3rd party, local
         """
-        extern_imports = []
-        local_imports = []
         std_imports = []
-        extern_not_ignored = []
+        third_party_imports = []
+        first_party_imports = []
+        # need of a list that holds third or first party ordered import
+        external_imports = []
+        local_imports = []
+        third_party_not_ignored = []
+        first_party_not_ignored = []
         local_not_ignored = []
         isort_obj = isort.SortImports(
             file_contents='', known_third_party=self.config.known_third_party,
@@ -581,29 +586,42 @@ class ImportsChecker(BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled('wrong-import-order',
                                                                          node.fromlineno)
             import_category = isort_obj.place_module(package)
+            node_and_package_import = (node, package)
             if import_category in ('FUTURE', 'STDLIB'):
-                std_imports.append((node, package))
-                wrong_import = extern_not_ignored or local_not_ignored
+                std_imports.append(node_and_package_import)
+                wrong_import = (third_party_not_ignored or first_party_not_ignored
+                                or local_not_ignored)
                 if self._is_fallback_import(node, wrong_import):
                     continue
                 if wrong_import and not nested:
                     self.add_message('wrong-import-order', node=node,
                                      args=('standard import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
-            elif import_category in ('FIRSTPARTY', 'THIRDPARTY'):
-                extern_imports.append((node, package))
+            elif import_category == 'THIRDPARTY':
+                third_party_imports.append(node_and_package_import)
+                external_imports.append(node_and_package_import)
                 if not nested and not ignore_for_import_order:
-                    extern_not_ignored.append((node, package))
+                    third_party_not_ignored.append(node_and_package_import)
+                wrong_import = first_party_not_ignored or local_not_ignored
+                if wrong_import and not nested:
+                    self.add_message('wrong-import-order', node=node,
+                                     args=('third party import "%s"' % node.as_string(),
+                                           '"%s"' % wrong_import[0][0].as_string()))
+            elif import_category == 'FIRSTPARTY':
+                first_party_imports.append(node_and_package_import)
+                external_imports.append(node_and_package_import)
+                if not nested and not ignore_for_import_order:
+                    first_party_not_ignored.append(node_and_package_import)
                 wrong_import = local_not_ignored
                 if wrong_import and not nested:
                     self.add_message('wrong-import-order', node=node,
-                                     args=('external import "%s"' % node.as_string(),
+                                     args=('first party import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
             elif import_category == 'LOCALFOLDER':
                 local_imports.append((node, package))
                 if not nested and not ignore_for_import_order:
                     local_not_ignored.append((node, package))
-        return std_imports, extern_imports, local_imports
+        return std_imports, external_imports, local_imports
 
     def _get_imported_module(self, importnode, modname):
         try:

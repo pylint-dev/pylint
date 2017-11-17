@@ -351,8 +351,12 @@ Other Changes
 
 * The Python 3 porting checker respects disabled checkers found in the config file.
 
- * Modules, classes, or methods consist of compound statements that exceed the ``docstring-min-length``
-   are now correctly emitting `missing-docstring`
+* Modules, classes, or methods consist of compound statements that exceed the ``docstring-min-length``
+  are now correctly emitting `missing-docstring`
 
- * Fix the ignored ``pylint disable=fixme`` directives for comments following
+* Fix no ``wrong-import-order`` message emitted on ordering of first and third party libraries.
+  With this fix, pylint distinguishes first and third party modules when checking
+  import order.
+
+* Fix the ignored ``pylint disable=fixme`` directives for comments following
    the last statement in a file
