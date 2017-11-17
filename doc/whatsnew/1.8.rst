@@ -353,3 +353,6 @@ Other Changes
 
  * Modules, classes, or methods consist of compound statements that exceed the ``docstring-min-length``
    are now correctly emitting `missing-docstring`
+
+ * Fix the ignored ``pylint disable=fixme`` directives for comments following
+   the last statement in a file

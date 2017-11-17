@@ -146,6 +146,10 @@ What's New in Pylint 1.8?
       deeply nested inside loop.
       Close #1661
 
+    * Fix ``pylint disable=fixme`` directives ignored for comments following the
+      last statement in a file.
+      Close #1681
+
 
 What's New in Pylint 1.7.1?
 =========================
