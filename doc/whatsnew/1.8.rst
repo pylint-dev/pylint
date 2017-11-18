@@ -357,3 +357,8 @@ Other Changes
 * Fix no ``wrong-import-order`` message emitted on ordering of first and third party libraries.
   With this fix, pylint distinguishes first and third party modules when checking
   import order.
+
+* Fix the wrong scope of ``disable=`` directive after a commented line.
+  For example when a ``disable=line-too-long`` directive is at the end of a
+  long commented line, it no longer disables the emission of ``line-too-long``
+  message for lines that follow. 

@@ -164,6 +164,12 @@ What's New in Pylint 1.8?
       modules when checking import order.
       Close #1702
 
+    * Fix the wrong scope of the ``disable=`` directive after a commented line.
+      For example when a ``disable=line-too-long`` directive is at the end of
+      a long commented line, it no longer disables the emission of ``line-too-long``
+      message for lines that follow. 
+      Close #1742
+
 What's New in Pylint 1.7.1?
 =========================
 
