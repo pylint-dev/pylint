@@ -605,7 +605,7 @@ class FileState(object):
                     continue
                 # Set state for all lines for this block, if the
                 # warning is applied to nodes.
-                if  msgs_store.check_message_id(msgid).scope == WarningScope.NODE:
+                if msgs_store.check_message_id(msgid).scope == WarningScope.NODE:
                     if lineno > firstchildlineno:
                         state = True
                     first_, last_ = node.block_range(lineno)
