@@ -699,9 +699,9 @@ class PyLinter(config.OptionsManagerMixIn,
                             self._ignore_file = True
                             return
                         sharp_list = content.split('#')
-                        if len(sharp_list) > 2 and utils.OPTION_RGX.search("#" + sharp_list[-1]):
-                            return
-                        meth(msgid, 'module', start[0])
+                        if not (len(sharp_list) > 2 and
+                                utils.OPTION_RGX.search("#" + sharp_list[-1])):
+                            meth(msgid, 'module', start[0])
                     except exceptions.UnknownMessageError:
                         self.add_message('bad-option-value', args=msgid, line=start[0])
             else:
