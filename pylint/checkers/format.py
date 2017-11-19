@@ -1000,11 +1000,11 @@ class FormatChecker(BaseTokenChecker):
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
-            if mobj:
+            if mobj and '=' in line:
                 front_of_equal, back_of_equal = mobj.group(1).split('=', 1)
                 if front_of_equal.strip() == 'disable':
                     if 'line-too-long' in [_msg_id.strip() for _msg_id in back_of_equal.split(',')]:
-                        return
+                        return None
                     line = line.rsplit('#', 1)[0].rstrip()
 
             if len(line) > max_chars and not ignore_long_line.search(line):
