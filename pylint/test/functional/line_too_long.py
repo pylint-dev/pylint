@@ -16,8 +16,10 @@ badname = 'This line is already longer than 100 characters even without the prag
 
 # http://example.com/this/is/a/very/long/url?but=splitting&urls=is&a=pain&so=they&can=be&long
 
+# +1: [line-too-long]
 # This line is toooooooooooooooooooooooooooooooooooooooooooooooo looooooooooooooooooooooooooooooooooooooooong #pylint: disable=fixme
 
+# +1: [line-too-long]
 #TODO: This line is toooooooooooooooooooooooooooooooooooooooooooooooo looooooooooooooooooooooooooooooooooooooooong #pylint: disable=fixme
 
 def function():
