@@ -13,6 +13,7 @@
 """
 import copy
 import itertools
+import collections
 import os
 import sys
 import re
@@ -320,6 +321,61 @@ MSGS = {
 
     }
 
+NamesConsumerAtomic = collections.namedtuple("NamesConsumerAtomic",
+                                             "to_consume consumed scope_type")
+
+
+class NamesConsumer(object):
+    """
+    A simple class to handle consumed, to consume and scope type info of node locals
+    """
+    def __init__(self, node, scope_type):
+        self._atomic = NamesConsumerAtomic(copy.copy(node.locals), {}, scope_type)
+
+    def __repr__(self):
+        msg = "\nto_consume : {:s}\n".format(
+            ",".join(["{}->{}".format(key, val)
+                      for key, val in self._atomic.to_consume.items()]))
+        msg += "consumed : {:s}\n".format(
+            ",".join(["{}->{}".format(key, val)
+                      for key, val in self._atomic.consumed.items()]))
+        msg += "scope_type : {:s}\n".format(self._atomic.scope_type)
+        return msg
+
+    def __iter__(self):
+        return iter(self._atomic)
+
+    @property
+    def to_consume(self):
+        return self._atomic.to_consume
+
+    @property
+    def consumed(self):
+        return self._atomic.consumed
+
+    @property
+    def scope_type(self):
+        return self._atomic.scope_type
+
+    def mark_as_consumed(self, name, new_node):
+        """
+        Mark the name as consumed and delete it from
+        the to_consume dictionnary
+        """
+        self.consumed[name] = new_node
+        del self.to_consume[name]
+
+    def get_next_to_consume(self, name, parent_node):
+        # mark the name as consumed if it's defined in this scope
+        found_node = self.to_consume.get(name)
+        if (found_node and isinstance(parent_node, astroid.Assign)
+                and parent_node == found_node[0].parent):
+            lhs = found_node[0].parent.targets[0]
+            if lhs.name == name: # this name is defined in this very statement
+                found_node = None
+        return found_node
+
+
 class VariablesChecker(BaseChecker):
     """checks for
     * unused variables / imports
@@ -424,7 +480,7 @@ class VariablesChecker(BaseChecker):
         """visit module : update consumption analysis variable
         checks globals doesn't overrides builtins
         """
-        self._to_consume = [(copy.copy(node.locals), {}, 'module')]
+        self._to_consume = [NamesConsumer(node, 'module')]
         for name, stmts in six.iteritems(node.locals):
             if utils.is_builtin(name) and not utils.is_inside_except(stmts[0]):
                 if self._should_ignore_redefined_builtin(stmts[0]):
@@ -438,7 +494,7 @@ class VariablesChecker(BaseChecker):
         """leave module: check globals
         """
         assert len(self._to_consume) == 1
-        not_consumed = self._to_consume.pop()[0]
+        not_consumed = self._to_consume.pop().to_consume
         # attempt to check for __all__ if defined
         if '__all__' in node.locals:
             self._check_all(node, not_consumed)
@@ -565,7 +621,7 @@ class VariablesChecker(BaseChecker):
     def visit_classdef(self, node):
         """visit class: update consumption analysis variable
         """
-        self._to_consume.append((copy.copy(node.locals), {}, 'class'))
+        self._to_consume.append(NamesConsumer(node, 'class'))
 
     def leave_classdef(self, _):
         """leave class: update consumption analysis variable
@@ -576,7 +632,7 @@ class VariablesChecker(BaseChecker):
     def visit_lambda(self, node):
         """visit lambda: update consumption analysis variable
         """
-        self._to_consume.append((copy.copy(node.locals), {}, 'lambda'))
+        self._to_consume.append(NamesConsumer(node, 'lambda'))
 
     def leave_lambda(self, _):
         """leave lambda: update consumption analysis variable
@@ -587,7 +643,7 @@ class VariablesChecker(BaseChecker):
     def visit_generatorexp(self, node):
         """visit genexpr: update consumption analysis variable
         """
-        self._to_consume.append((copy.copy(node.locals), {}, 'comprehension'))
+        self._to_consume.append(NamesConsumer(node, 'comprehension'))
 
     def leave_generatorexp(self, _):
         """leave genexpr: update consumption analysis variable
@@ -598,7 +654,7 @@ class VariablesChecker(BaseChecker):
     def visit_dictcomp(self, node):
         """visit dictcomp: update consumption analysis variable
         """
-        self._to_consume.append((copy.copy(node.locals), {}, 'comprehension'))
+        self._to_consume.append(NamesConsumer(node, 'comprehension'))
 
     def leave_dictcomp(self, _):
         """leave dictcomp: update consumption analysis variable
@@ -609,7 +665,7 @@ class VariablesChecker(BaseChecker):
     def visit_setcomp(self, node):
         """visit setcomp: update consumption analysis variable
         """
-        self._to_consume.append((copy.copy(node.locals), {}, 'comprehension'))
+        self._to_consume.append(NamesConsumer(node, 'comprehension'))
 
     def leave_setcomp(self, _):
         """leave setcomp: update consumption analysis variable
@@ -620,7 +676,7 @@ class VariablesChecker(BaseChecker):
     def visit_functiondef(self, node):
         """visit function: update consumption analysis variable and check locals
         """
-        self._to_consume.append((copy.copy(node.locals), {}, 'function'))
+        self._to_consume.append(NamesConsumer(node, 'function'))
         if not (self.linter.is_message_enabled('redefined-outer-name') or
                 self.linter.is_message_enabled('redefined-builtin')):
             return
@@ -720,7 +776,7 @@ class VariablesChecker(BaseChecker):
 
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
-        not_consumed = self._to_consume.pop()[0]
+        not_consumed = self._to_consume.pop().to_consume
         if not (self.linter.is_message_enabled('unused-variable') or
                 self.linter.is_message_enabled('unused-argument')):
             return
@@ -884,18 +940,6 @@ class VariablesChecker(BaseChecker):
         return in_annotation_or_default
 
     @staticmethod
-    def _next_to_consume(node, name, to_consume):
-        # mark the name as consumed if it's defined in this scope
-        found_node = to_consume.get(name)
-        if (found_node
-                and isinstance(node.parent, astroid.Assign)
-                and node.parent == found_node[0].parent):
-            lhs = found_node[0].parent.targets[0]
-            if lhs.name == name: # this name is defined in this very statement
-                found_node = None
-        return found_node
-
-    @staticmethod
     def _is_variable_violation(node, name, defnode, stmt, defstmt,
                                frame, defframe, base_scope_type,
                                recursive_klass):
@@ -1026,32 +1070,33 @@ class VariablesChecker(BaseChecker):
         else:
             start_index = len(self._to_consume) - 1
         # iterates through parent scopes, from the inner to the outer
-        base_scope_type = self._to_consume[start_index][-1]
+        base_scope_type = self._to_consume[start_index].scope_type
         # pylint: disable=too-many-nested-blocks; refactoring this block is a pain.
         for i in range(start_index, -1, -1):
-            to_consume, consumed, scope_type = self._to_consume[i]
+            names_consumer = self._to_consume[i]
             # if the current scope is a class scope but it's not the inner
             # scope, ignore it. This prevents to access this scope instead of
             # the globals one in function members when there are some common
             # names. The only exception is when the starting scope is a
             # comprehension and its direct outer scope is a class
-            if scope_type == 'class' and i != start_index and not (
+            if names_consumer.scope_type == 'class' and i != start_index and not (
                     base_scope_type == 'comprehension' and i == start_index-1):
                 if self._ignore_class_scope(node, name, frame):
                     continue
 
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
-            if name in consumed:
-                defnode = utils.assign_parent(consumed[name][0])
+            if name in names_consumer.consumed:
+                defnode = utils.assign_parent(names_consumer.consumed[name][0])
                 self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
-                break
-            found_node = self._next_to_consume(node, name, to_consume)
+                if not self._check_name_identical_to_args(node, i):
+                    break
+            found_node = names_consumer.get_next_to_consume(name, node.parent)
             if found_node is None:
                 continue
             # checks for use before assignment
-            defnode = utils.assign_parent(to_consume[name][0])
+            defnode = utils.assign_parent(names_consumer.to_consume[name][0])
             if defnode is not None:
                 self._check_late_binding_closure(node, defnode)
                 defstmt = defnode.statement()
@@ -1107,12 +1152,11 @@ class VariablesChecker(BaseChecker):
                             else:
                                 self.add_message('undefined-variable',
                                                  args=name, node=node)
-                        elif scope_type == 'lambda':
+                        elif names_consumer.scope_type == 'lambda':
                             self.add_message('undefined-variable',
                                              node=node, args=name)
 
-            consumed[name] = found_node
-            del to_consume[name]
+            names_consumer.mark_as_consumed(name, found_node)
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
             break
@@ -1123,6 +1167,16 @@ class VariablesChecker(BaseChecker):
                     or name in self.config.additional_builtins):
                 if not utils.node_ignores_exception(node, NameError):
                     self.add_message('undefined-variable', args=name, node=node)
+
+    def _check_name_identical_to_args(self, node, index):
+        name = node.name
+        if self._to_consume[index].scope_type != 'comprehension':
+            return False
+        for names_consumer in self._to_consume[index-1::-1]:
+            if name in names_consumer.to_consume.keys():
+                return True
+        return False
+
 
     @utils.check_messages('no-name-in-module')
     def visit_import(self, node):
@@ -1253,7 +1307,7 @@ class VariablesChecker3k(VariablesChecker):
     def visit_listcomp(self, node):
         """visit dictcomp: update consumption analysis variable
         """
-        self._to_consume.append((copy.copy(node.locals), {}, 'comprehension'))
+        self._to_consume.append(NamesConsumer(node, 'comprehension'))
 
     def leave_listcomp(self, _):
         """leave dictcomp: update consumption analysis variable
