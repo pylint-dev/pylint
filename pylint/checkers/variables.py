@@ -366,8 +366,10 @@ class NamesConsumer(object):
         self.consumed[name] = new_node
         del self.to_consume[name]
 
-    def get_next_to_consume(self, name, parent_node):
+    def get_next_to_consume(self, node):
         # mark the name as consumed if it's defined in this scope
+        name = node.name
+        parent_node = node.parent
         found_node = self.to_consume.get(name)
         if (found_node and isinstance(parent_node, astroid.Assign)
                 and parent_node == found_node[0].parent):
@@ -1082,30 +1084,32 @@ class VariablesChecker(BaseChecker):
         base_scope_type = self._to_consume[start_index].scope_type
         # pylint: disable=too-many-nested-blocks; refactoring this block is a pain.
         for i in range(start_index, -1, -1):
-            names_consumer = self._to_consume[i]
+            current_consumer = self._to_consume[i]
             # if the current scope is a class scope but it's not the inner
             # scope, ignore it. This prevents to access this scope instead of
             # the globals one in function members when there are some common
             # names. The only exception is when the starting scope is a
             # comprehension and its direct outer scope is a class
-            if names_consumer.scope_type == 'class' and i != start_index and not (
+            if current_consumer.scope_type == 'class' and i != start_index and not (
                     base_scope_type == 'comprehension' and i == start_index-1):
                 if self._ignore_class_scope(node):
                     continue
 
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
-            if name in names_consumer.consumed:
-                defnode = utils.assign_parent(names_consumer.consumed[name][0])
+            if name in current_consumer.consumed:
+                defnode = utils.assign_parent(current_consumer.consumed[name][0])
                 self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
 #                if not self._check_name_identical_to_args(node, i):
                 break
-            found_node = names_consumer.get_next_to_consume(name, node.parent)
+
+            found_node = current_consumer.get_next_to_consume(node)
             if found_node is None:
                 continue
+
             # checks for use before assignment
-            defnode = utils.assign_parent(names_consumer.to_consume[name][0])
+            defnode = utils.assign_parent(current_consumer.to_consume[name][0])
             if defnode is not None:
                 self._check_late_binding_closure(node, defnode)
                 defstmt = defnode.statement()
@@ -1161,11 +1165,11 @@ class VariablesChecker(BaseChecker):
                             else:
                                 self.add_message('undefined-variable',
                                                  args=name, node=node)
-                        elif names_consumer.scope_type == 'lambda':
+                        elif current_consumer.scope_type == 'lambda':
                             self.add_message('undefined-variable',
                                              node=node, args=name)
 
-            names_consumer.mark_as_consumed(name, found_node)
+            current_consumer.mark_as_consumed(name, found_node)
             # check it's not a loop variable used outside the loop
             self._loopvar_name(node, name)
             break
