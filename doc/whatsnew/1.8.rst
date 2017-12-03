@@ -357,3 +357,5 @@ Other Changes
 * Fix no ``wrong-import-order`` message emitted on ordering of first and third party libraries.
   With this fix, pylint distinguishes first and third party modules when checking
   import order.
+
+* Fix ``unused-argument`` false positives with overshadowed variable in dictionary comprehension.

@@ -164,6 +164,10 @@ What's New in Pylint 1.8?
       modules when checking import order.
       Close #1702
 
+    * Fix ``unused-argument`` false positives with overshadowed variable in
+      dictionary comprehension.
+      Close #1731
+
 What's New in Pylint 1.7.1?
 =========================
 
