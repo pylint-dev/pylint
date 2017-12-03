@@ -335,11 +335,11 @@ class NamesConsumer(object):
 
     def __repr__(self):
         msg = "\nto_consume : {:s}\n".format(
-            ",".join(["{}->{}".format(key, val)
-                      for key, val in self._atomic.to_consume.items()]))
+            ", ".join(["{}->{}".format(key, val)
+                       for key, val in self._atomic.to_consume.items()]))
         msg += "consumed : {:s}\n".format(
-            ",".join(["{}->{}".format(key, val)
-                      for key, val in self._atomic.consumed.items()]))
+            ", ".join(["{}->{}".format(key, val)
+                       for key, val in self._atomic.consumed.items()]))
         msg += "scope_type : {:s}\n".format(self._atomic.scope_type)
         return msg
 
@@ -1097,11 +1097,14 @@ class VariablesChecker(BaseChecker):
 
             # the name has already been consumed, only check it's not a loop
             # variable used outside the loop
-            if name in current_consumer.consumed:
+            # avoid the case where there are homonyms inside function scope and
+            # comprehension current scope (avoid bug #1731)
+            if name in current_consumer.consumed and not (
+                    current_consumer.scope_type == 'comprehension'
+                    and self._has_homonym_in_upper_function_scope(node, i)):
                 defnode = utils.assign_parent(current_consumer.consumed[name][0])
                 self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
-#                if not self._check_name_identical_to_args(node, i):
                 break
 
             found_node = current_consumer.get_next_to_consume(node)
@@ -1181,15 +1184,23 @@ class VariablesChecker(BaseChecker):
                 if not utils.node_ignores_exception(node, NameError):
                     self.add_message('undefined-variable', args=name, node=node)
 
-    def _check_name_identical_to_args(self, node, index):
-        name = node.name
-        if self._to_consume[index].scope_type != 'comprehension':
-            return False
-        for names_consumer in self._to_consume[index-1::-1]:
-            if name in names_consumer.to_consume.keys():
+    def _has_homonym_in_upper_function_scope(self, node, index):
+        """
+        Return True if there is a node with the same name in the to_consume dict of an upper scope
+        and if that scope is a function
+
+        :param node: node to check for
+        :type node: astroid.Node
+        :param index: index of the current consumer inside self._to_consume
+        :type index: int
+        :return: True if there is a node with the same name in the to_consume dict of a upper scope
+                 and if that scope is a function
+        :rtype: bool
+        """
+        for _consumer in self._to_consume[index-1::-1]:
+            if _consumer.scope_type == 'function' and node.name in _consumer.to_consume:
                 return True
         return False
-
 
     @utils.check_messages('no-name-in-module')
     def visit_import(self, node):
