@@ -321,6 +321,7 @@ MSGS = {
 
     }
 
+
 NamesConsumerAtomic = collections.namedtuple("NamesConsumerAtomic",
                                              "to_consume consumed scope_type")
 
@@ -1021,7 +1022,15 @@ class VariablesChecker(BaseChecker):
 
         return maybee0601, annotation_return, use_outer_definition
 
-    def _ignore_class_scope(self, node, name, frame):
+    def _ignore_class_scope(self, node):
+        """
+        Return True if the node is in a local class scope, as an assignment.
+
+        :param node: Node considered
+        :type node: astroid.Node
+        :return: True if the node is in a local class scope, as an assignment. False otherwise.
+        :rtype: bool
+        """
         # Detect if we are in a local class scope, as an assignment.
         # For example, the following is fair game.
         #
@@ -1038,14 +1047,14 @@ class VariablesChecker(BaseChecker):
         #    def func(self, arg=tp):
         #        ...
 
-        in_annotation_or_default = self._defined_in_function_definition(
-            node, frame)
+        name = node.name
+        frame = node.statement().scope()
+        in_annotation_or_default = self._defined_in_function_definition(node, frame)
         if in_annotation_or_default:
             frame_locals = frame.parent.scope().locals
         else:
             frame_locals = frame.locals
-        return not ((isinstance(frame, astroid.ClassDef) or
-                     in_annotation_or_default) and
+        return not ((isinstance(frame, astroid.ClassDef) or in_annotation_or_default) and
                     name in frame_locals)
 
     @utils.check_messages(*(MSGS.keys()))
@@ -1081,7 +1090,7 @@ class VariablesChecker(BaseChecker):
             # comprehension and its direct outer scope is a class
             if names_consumer.scope_type == 'class' and i != start_index and not (
                     base_scope_type == 'comprehension' and i == start_index-1):
-                if self._ignore_class_scope(node, name, frame):
+                if self._ignore_class_scope(node):
                     continue
 
             # the name has already been consumed, only check it's not a loop
@@ -1090,8 +1099,8 @@ class VariablesChecker(BaseChecker):
                 defnode = utils.assign_parent(names_consumer.consumed[name][0])
                 self._check_late_binding_closure(node, defnode)
                 self._loopvar_name(node, name)
-                if not self._check_name_identical_to_args(node, i):
-                    break
+#                if not self._check_name_identical_to_args(node, i):
+                break
             found_node = names_consumer.get_next_to_consume(name, node.parent)
             if found_node is None:
                 continue
