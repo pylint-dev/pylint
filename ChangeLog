@@ -2,6 +2,15 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 1.7.5?
+===========================
+
+* Backported `trailing-comma-tuple`
+
+  Previously this check was only emitted on Python 3. Now it is
+  also emitted on Python 2.
+
+
 What's New in Pylint 1.7.4?
 ===========================
 
@@ -2169,7 +2178,7 @@ Release date: 2009-12-18
 
     * include James Lingard string format checker
 
-    * include simple message (ids) listing by Vincent Férotin (#9791)
+    * include simple message (ids) listing by Vincent F??rotin (#9791)
 
     * --errors-only does not hide fatal error anymore
 
@@ -2192,7 +2201,7 @@ Release date: 2009-12-18
 
     * fix test/fulltest.sh
 
-    * #5821 added a utility function to run pylint in another process (patch provide by Vincent Férotin)
+    * #5821 added a utility function to run pylint in another process (patch provide by Vincent F??rotin)
 
 
 What's New in Pylint 0.18.0?

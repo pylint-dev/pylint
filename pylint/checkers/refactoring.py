@@ -100,8 +100,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'not by the parentheses. Unfortunately, one can actually create a '
                   'tuple by misplacing a trailing comma, which can lead to potential '
                   'weird bugs in your code. You should always use parentheses '
-                  'explicitly for creating a tuple.',
-                  {'minversion': (3, 0)}),
+                  'explicitly for creating a tuple.'),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -211,28 +210,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self._elifs.append(True)
             elif token_string == 'if':
                 self._elifs.append(False)
-            elif six.PY3 and token.exact_type == tokenize.COMMA:
-                self._check_one_element_trailing_comma_tuple(tokens, token, index)
-
-    def _check_one_element_trailing_comma_tuple(self, tokens, token, index):
-        left_tokens = itertools.islice(tokens, index + 1, None)
-        same_line_remaining_tokens = list(
-            other_token for other_token in left_tokens
-            if other_token.start[0] == token.start[0]
-        )
-        is_last_element = all(
-            other_token.type in (tokenize.NEWLINE, tokenize.COMMENT)
-            for other_token in same_line_remaining_tokens
-        )
-
-        if not same_line_remaining_tokens or not is_last_element:
-            return
-
-        assign_token = tokens[index-2:index-1]
-        if assign_token and '=' in assign_token[0].string:
-            if self.linter.is_message_enabled('trailing-comma-tuple'):
-                self.add_message('trailing-comma-tuple',
-                                 line=token.start[0])
+            elif token_string == ',':
+                if not self.linter.is_message_enabled('trailing-comma-tuple'):
+                    continue
+                if is_trailing_comma(tokens, index):
+                    self.add_message('trailing-comma-tuple', line=token[2][0])
 
     def leave_module(self, _):
         self._init()
@@ -705,6 +687,46 @@ class LenChecker(checkers.BaseChecker):
                 # for example: return len() > 0 should not report anything
                 if _node_is_test_condition(parent):
                     self.add_message('len-as-condition', node=node)
+
+
+def is_trailing_comma(tokens, index):
+    """Check if the given token is a trailing comma
+
+    :param tokens: Sequence of modules tokens
+    :type tokens: list[tokenize.TokenInfo]
+    :param int index: Index of token under check in tokens
+    :returns: True if the token is a comma which trails an expression
+    :rtype: bool
+    """
+    token = tokens[index]
+    if token[1] != ',':
+        return False
+    # Must have remaining tokens on the same line such as NEWLINE
+    left_tokens = itertools.islice(tokens, index + 1, None)
+    same_line_remaining_tokens = list(itertools.takewhile(
+        lambda other_token, _token=token: other_token[2][0] == _token[2][0],
+        left_tokens
+    ))
+    # Note: If the newline is tokenize.NEWLINE and not tokenize.NL
+    # then the newline denotes the end of expression
+    is_last_element = all(
+        other_token[0] in (tokenize.NEWLINE, tokenize.COMMENT)
+        for other_token in same_line_remaining_tokens
+    )
+    if not same_line_remaining_tokens or not is_last_element:
+        return False
+    def get_curline_index_start():
+        """Get the index denoting the start of the current line"""
+        for subindex, token in enumerate(reversed(tokens[:index])):
+            # See Lib/tokenize.py and Lib/token.py in cpython for more info
+            if token[0] in (tokenize.NEWLINE, tokenize.NL):
+                return index - subindex
+        return 0
+    curline_start = get_curline_index_start()
+    for prevtoken in tokens[curline_start:index]:
+        if '=' in prevtoken[1]:
+            return True
+    return False
 
 
 def register(linter):
