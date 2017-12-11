@@ -5,6 +5,8 @@ Pylint's ChangeLog
 What's New in Pylint 1.7.5?
 ===========================
 
+Release date: 2017-12-11
+
 * Removed `stat` from the list of moved Python 3 modules.
 
 * Backported `trailing-comma-tuple`
