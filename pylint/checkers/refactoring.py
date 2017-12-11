@@ -267,7 +267,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # AST exists by the time process_tokens is called, so
                 # it's safe to assume tokens[index+1]
                 # exists. tokens[index+1][2] is the elif's position as
-                # reported by cPython, Jython and PyPy,
+                # reported by CPython and PyPy,
                 # tokens[index][2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([tokens[index][2], tokens[index+1][2]])
