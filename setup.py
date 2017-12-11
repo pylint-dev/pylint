@@ -166,7 +166,7 @@ def install(**kwargs):
                  extras_require=extras_require,
                  test_suite='test',
                  setup_requires=['pytest-runner'],
-                 tests_require=['pytest'],
+                 tests_require=['pytest<3.3'],
                  **kwargs)
 
 if __name__ == '__main__':
