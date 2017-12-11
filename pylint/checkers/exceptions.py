@@ -305,7 +305,8 @@ class ExceptionsChecker(checkers.BaseChecker):
             if any(node is astroid.YES for node in inferred):
                 # Don't emit if we don't know every component.
                 return
-            if all(node and utils.inherit_from_std_ex(node)
+            if all(node and (utils.inherit_from_std_ex(node) or
+                             not utils.has_known_bases(node))
                    for node in inferred):
                 return
 
