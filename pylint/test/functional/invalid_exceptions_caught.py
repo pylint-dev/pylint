@@ -121,3 +121,15 @@ try:
     raise Second
 except Second:
     pass
+
+
+class SomeBase(UnknownError):
+    pass
+
+
+EXCEPTIONS = (SomeBase, ValueError)
+
+try:
+    raise ValueError
+except EXCEPTIONS:
+    pass

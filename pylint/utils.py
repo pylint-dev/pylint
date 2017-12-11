@@ -471,7 +471,7 @@ class MessagesHandlerMixIn(object):
         print("Below is a list of all checkers and their features.", file=stream)
         print("", file=stream)
 
-        for checker, info in six.iteritems(by_checker):
+        for checker, info in sorted(six.iteritems(by_checker)):
             self._print_checker_doc(checker, info, stream=stream)
 
     @staticmethod
