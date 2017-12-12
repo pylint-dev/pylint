@@ -84,7 +84,7 @@ class EncodingChecker(BaseChecker):
         # In case the module ends with commented lines, the astroid parser
         # don't take into account those lines, then:
         # - the line number of those lines is greater than the
-        #   module last line number (module.tolineno)
+        #   module last line number (module.tolineno)
         # - astroid module object can't inform pylint
         #   of disabled messages in those extra lines.
         if lineno > module_last_lineno:
