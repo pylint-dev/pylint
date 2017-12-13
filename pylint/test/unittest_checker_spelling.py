@@ -165,15 +165,12 @@ class TestSpellingChecker(CheckerTestCase):
                           self._get_msg_suggestions('coment')))):
             self.checker.visit_classdef(stmt)
 
-        # With just a single lower and upper case letter is not good
-        stmt = astroid.extract_node(
-            'class ComentAbc(object):\n   """zN with a bad comment"""\n   pass')
-        with self.assertAddsMessages(
-            Message('wrong-spelling-in-docstring', line=2,
-                    args=('zN', 'zN with a bad comment',
-                          '^^',
-                          self._get_msg_suggestions('zN')))):
+        for ccn in ('xmlHttpRequest', 'newCustomer', 'newCustomerId',
+                    'innerStopwatch', 'supportsIpv6OnIos', 'affine3D'):
+            stmt = astroid.extract_node(
+                'class TestClass(object):\n   """{0} comment"""\n   pass'.format(ccn))
             self.checker.visit_classdef(stmt)
+            assert self.linter.release_messages() == []
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)

@@ -79,7 +79,7 @@ class CamelCasedWord(Filter):
 
     That is, any words that are camelCasedWords.
     """
-    _pattern = re.compile(r"^([a-z]+[A-Z]\w+|[a-z]\w+[A-Z]+)")
+    _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
 
     def _skip(self, word):
         return bool(self._pattern.match(word))
