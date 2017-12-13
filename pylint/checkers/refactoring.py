@@ -267,7 +267,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # AST exists by the time process_tokens is called, so
                 # it's safe to assume tokens[index+1]
                 # exists. tokens[index+1][2] is the elif's position as
-                # reported by cPython, Jython and PyPy,
+                # reported by CPython and PyPy,
                 # tokens[index][2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([tokens[index][2], tokens[index+1][2]])
@@ -349,6 +349,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consistent_returns(node)
         self._return_nodes[node.name] = []
 
+    @utils.check_messages('stop-iteration-return')
     def visit_raise(self, node):
         self._check_stop_iteration_inside_generator(node)
 
@@ -371,6 +372,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         stopiteration_qname = '{}.StopIteration'.format(utils.EXCEPTIONS_MODULE)
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
 
+    @utils.check_messages('stop-iteration-return')
     def visit_call(self, node):
         self._check_raising_stopiteration_in_generator_next_call(node)
 

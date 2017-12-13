@@ -129,9 +129,6 @@ def install(**kwargs):
     if USE_SETUPTOOLS:
         if '--force-manifest' in sys.argv:
             sys.argv.remove('--force-manifest')
-    # install-layout option was introduced in 2.5.3-1~exp1
-    elif sys.version_info < (2, 5, 4) and '--install-layout=deb' in sys.argv:
-        sys.argv.remove('--install-layout=deb')
     packages = [modname] + get_packages(join(base_dir, 'pylint'), modname)
     if USE_SETUPTOOLS:
         if install_requires:
@@ -163,6 +160,7 @@ def install(**kwargs):
                  cmdclass=cmdclass,
                  extras_require=extras_require,
                  test_suite='test',
+                 python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
                  setup_requires=['pytest-runner'],
                  tests_require=['pytest'],
                  **kwargs)
