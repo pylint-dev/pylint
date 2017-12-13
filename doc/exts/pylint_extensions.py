@@ -42,6 +42,7 @@ def builder_inited(app):
         elif ext == '.rst':
             doc_files['pylint.extensions.' + name] = os.path.join(ext_path,
                                                                   filename)
+    modules.sort()
     if not modules:
         sys.exit("No Pylint extensions found?")
 

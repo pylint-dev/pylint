@@ -186,7 +186,7 @@ MSGS = {
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
     'I1101': ('%s %r has not %r member%s, but source is unavailable. Consider '
-              'adding this module to extension-package-whitelist if you want '
+              'adding this module to extension-pkg-whitelist if you want '
               'to perform analysis based on run-time introspection of living objects.',
               'c-extension-no-member',
               'Used when a variable is accessed for non-existent member of C '
