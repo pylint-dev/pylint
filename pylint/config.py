@@ -645,9 +645,10 @@ class OptionsManagerMixIn(object):
 
         if use_config_file:
             msg = 'Using config file {0}'.format(os.path.abspath(config_file))
+            print(msg, file=sys.stderr)
         else:
-            msg = 'No config file found, using default configuration'
-        print(msg, file=sys.stderr)
+            msg = 'Config file {0} not found!'.format(os.path.abspath(config_file))
+            raise IOError(msg)
 
     def load_config_file(self):
         """dispatch values previously read from a configuration file to each
