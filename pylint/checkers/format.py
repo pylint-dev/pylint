@@ -1,12 +1,26 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2015 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2012-2015 Google, Inc.
+# Copyright (c) 2013 moxian <aleftmail@inbox.ru>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 frost-nzcr4 <frost.nzcr4@jagmort.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Mike Frysinger <vapier@gentoo.org>
-# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
 # Copyright (c) 2015 Fabio Natali <me@fabionatali.com>
 # Copyright (c) 2015 Harut <yes@harutune.name>
+# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
+# Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Petr Pulc <petrpulc@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Krzysztof Czapla <k.czapla68@gmail.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
+# Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

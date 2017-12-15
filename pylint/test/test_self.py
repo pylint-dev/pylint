@@ -1,6 +1,17 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
 # Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

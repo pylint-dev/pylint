@@ -1,5 +1,7 @@
-# Copyright (c) 2016 Luis Escobar <lescobar@vauxoo.com>
+# -*- coding: utf-8 -*-
+# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Luis Escobar <lescobar@vauxoo.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

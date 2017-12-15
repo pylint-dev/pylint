@@ -1,13 +1,34 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2008 Fabrice Douchant <Fabrice.Douchant@logilab.fr>
+# Copyright (c) 2009 Vincent
+# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2011-2014 Google, Inc.
+# Copyright (c) 2012 David Pursehouse <david.pursehouse@sonymobile.com>
+# Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2012 JT Olds <jtolds@xnet5.com>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
-# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
-# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
+# Copyright (c) 2014 Daniel Harding <dharding@living180.net>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2014 Dan Goldsmith <djgoldsmith@googlemail.com>
 # Copyright (c) 2015-2016 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2015 Steven Myint <hg@stevenmyint.com>
+# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
+# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Alan Evangelista <alanoe@linux.vnet.ibm.com>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Roman Ivanov <me@roivanov.com>
+# Copyright (c) 2017 Ned Batchelder <ned@nedbatchelder.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

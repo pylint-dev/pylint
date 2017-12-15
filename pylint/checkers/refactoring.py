@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 Moisés López <moylop260@vauxoo.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Alexander Todorov <atodorov@MrSenko.com>
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
+# Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Łukasz Sznuk <ls@rdprojekt.pl>
+# Copyright (c) 2017 Alex Hearn <alex.d.hearn@gmail.com>
+# Copyright (c) 2017 Antonio Ossa <aaossa@uc.cl>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
