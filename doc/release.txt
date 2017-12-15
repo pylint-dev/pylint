@@ -62,7 +62,7 @@ Release by running the following:
    For generating the new copyright notices for this release
    $ copyrite --contribution-threshold 1 --change-threshold 3 --backend-type git --aliases=.copyrite_aliases . --jobs=8  
 
-   $ git clean -fd && find . -name '*.pyc' -delete
+   $ git clean -fdx && find . -name '*.pyc' -delete
    $ python setup.py sdist --formats=gztar bdist_wheel
    $ twine upload dist/*
    
