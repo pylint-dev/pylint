@@ -4,6 +4,8 @@ Pylint's ChangeLog
 What's New in Pylint 1.8?
 =========================
 
+Release date: 2017-12-15
+
     * Respect disable=... in config file when running with --py3k.
 
     * New warning `shallow-copy-environ` added

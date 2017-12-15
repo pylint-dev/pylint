@@ -2,8 +2,8 @@
   What's New In Pylint 1.8
 **************************
 
-:Release: |release|
-:Date: |TBA|
+:Release: 1.8
+:Date: 2017-12-15
 
 
 Summary -- Release highlights
