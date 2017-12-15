@@ -169,6 +169,12 @@ class TestRunTC(object):
         output = out.getvalue()
         assert "profile" not in output
 
+    def test_inexisting_rcfile(self):
+        out = six.StringIO()
+        with pytest.raises(IOError) as excinfo:
+            self._run_pylint(["--rcfile=/tmp/norcfile.txt"], out=out)
+        assert "The config file /tmp/norcfile.txt doesn't exist!" == str(excinfo.value)
+
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
 
