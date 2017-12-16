@@ -34,6 +34,19 @@ def _all_elements_are_true(gen):
     values = list(gen)
     return values and all(values)
 
+def _is_function_def_never_returning(node):
+    """Return True if the function never returns. False otherwise.
+
+    Args:
+        node (astroid.FunctionDef): function definition node to be analyzed.
+
+    Returns:
+        bool: True if the function never returns, False otherwise.
+    """
+    if node.name == 'exit' and node.root().name == 'sys':
+        # sys.exit method never returns
+        return True
+    return False
 
 def _is_node_return_ended(node):
     """Check if the node ends with an explicit return statement.
@@ -48,6 +61,13 @@ def _is_node_return_ended(node):
     # Recursion base case
     if isinstance(node, astroid.Return):
         return True
+    if isinstance(node, astroid.Call):
+        try:
+            funcdef_node = node.func.infered()[0]
+            if _is_function_def_never_returning(funcdef_node):
+                return True
+        except astroid.InferenceError:
+            pass
     if isinstance(node, astroid.Raise):
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to
