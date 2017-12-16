@@ -1,0 +1,21 @@
+**************************
+  What's New In Pylint 2.0
+**************************
+
+:Release: 2.0
+:Date: ????
+
+
+Summary -- Release highlights
+=============================
+
+* None so far
+
+New checkers
+============
+
+Other Changes
+=============
+
+* Fix a false positive ``inconsistent-return-statements`` message when if
+  statement is inside try/except.
