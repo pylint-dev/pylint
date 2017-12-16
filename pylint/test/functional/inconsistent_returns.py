@@ -1,6 +1,7 @@
 #pylint: disable=missing-docstring, no-else-return, invalid-name, unused-variable, superfluous-parens
 """Testing inconsistent returns"""
 import math
+import sys
 
 # These ones are consistent
 def explicit_returns(var):
@@ -87,6 +88,12 @@ def explicit_returns7(arg):
         arg = 3 * arg
         return 'above 0'
 
+def bug_1771(var):
+    if var == 1:
+        sys.exit(1)
+    else:
+        return var * 2
+
 # Next ones are not consistent
 def explicit_implicit_returns(var): # [inconsistent-return-statements]
     if var >= 0:
@@ -138,3 +145,9 @@ def inconsistent_returns_in_nested_function():
             else:
                 return arg
     return not_consistent_returns_inner
+
+def bug_1771_counter_example(var): # [inconsistent-return-statements]
+    if var == 1:
+        inconsistent_returns_in_nested_function()
+    else:
+        return var * 2
