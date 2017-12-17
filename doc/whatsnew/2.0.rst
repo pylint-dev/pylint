@@ -1,0 +1,21 @@
+**************************
+  What's New In Pylint 2.0
+**************************
+
+:Release: 2.0
+:Date: ????
+
+
+Summary -- Release highlights
+=============================
+
+* None so far
+
+New checkers
+============
+
+Other Changes
+=============
+
+* Fix emission of false positive ``no-member`` message for class with 
+  "private" attributes whose name is mangled.
