@@ -1,0 +1,20 @@
+**************************
+  What's New In Pylint 2.0
+**************************
+
+:Release: 2.0
+:Date: ????
+
+Summary -- Release highlights
+=============================
+
+* None so far
+
+New checkers
+============
+
+Other Changes
+=============
+
+* Fixing false positive ``inconsistent-return-statements`` when never
+  never returning functions are used (i.e such as sys.exit).
