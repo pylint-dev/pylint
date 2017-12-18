@@ -52,6 +52,15 @@ def _is_node_return_ended(node):
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to
         # ends with a return statement
+        # a Raise statement doesn't need exception when it appears in `except` block
+        # in this case we are re-throwing currently handled exception
+        if node.exc is None:
+            parent = node.parent
+            frame = node.frame()
+            while parent is not None and parent != frame:
+                if isinstance(parent, astroid.ExceptHandler):
+                    return True
+            return False
         exc = utils.safe_infer(node.exc)
         if exc is None or exc is astroid.Uninferable:
             return False
