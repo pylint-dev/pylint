@@ -802,6 +802,8 @@ def safe_infer(node, context=None):
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred).
     """
+    if not node:
+        return None
     try:
         inferit = node.infer(context=context)
         value = next(inferit)
