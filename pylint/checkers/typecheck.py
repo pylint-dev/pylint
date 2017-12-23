@@ -338,8 +338,11 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
     if node.attrname.startswith('_' + owner_name):
         # Test if an attribute has been mangled ('private' attribute)
         unmangled_name = node.attrname.split('_' + owner_name)[-1]
-        if owner.getattr(unmangled_name, None) is not None:
-            return False
+        try:
+            if owner.getattr(unmangled_name, context=None) is not None:
+                return False
+        except astroid.NotFoundError:
+            return True
     return True
 
 
