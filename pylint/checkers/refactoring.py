@@ -52,6 +52,9 @@ def _is_node_return_ended(node):
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to
         # ends with a return statement
+        if not node.exc:
+            # Ignore bare raises
+            return True
         exc = utils.safe_infer(node.exc)
         if exc is None or exc is astroid.Uninferable:
             return False
