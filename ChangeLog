@@ -14,6 +14,10 @@ Release date: |TBA|
 
      Close #1774
 
+    * Don't crash when encountering bare raises while checking inconsistent returns
+
+      Close #1773
+
 
 What's New in Pylint 1.8.1?
 =========================

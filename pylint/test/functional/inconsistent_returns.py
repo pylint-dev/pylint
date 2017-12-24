@@ -138,3 +138,16 @@ def inconsistent_returns_in_nested_function():
             else:
                 return arg
     return not_consistent_returns_inner
+
+
+class BlargException(Exception):
+    pass
+
+
+def blarg(someval):
+    try:
+        if someval:
+            raise BlargException()
+        return 5
+    except BlargException:
+        raise
