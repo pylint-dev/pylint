@@ -1,0 +1,20 @@
+**************************
+  What's New In Pylint 2.0
+**************************
+
+:Release: 2.0
+:Date: |TBA|
+
+
+Summary -- Release highlights
+=============================
+
+* None so far
+
+New checkers
+============
+
+* None so far
+
+Other Changes
+=============
