@@ -9,7 +9,12 @@ Release data: |TBA|
 
     * Fixed a crash which occurred when `Uninferable` wasn't properly handled in `stop-iteration-return`
 
-      Close #1779
+     Close #1779
+
+    * Use the proper node to get the name for redefined functions (#1792)
+
+    Close #1774
+
 
 
 What's New in Pylint 1.8.1?
