@@ -1,6 +1,16 @@
 ------------------
 Pylint's ChangeLog
 ------------------
+What's New in Pylint 2.0?
+=========================
+
+Release date: |TBA|
+
+    * Fixed a crash which occurred when `Uninferable` wasn't properly handled in `stop-iteration-return`
+
+      Close #1779
+
+
 What's New in Pylint 1.8.1?
 =========================
 
