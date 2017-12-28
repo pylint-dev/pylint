@@ -19,6 +19,11 @@ Release data: |TBA|
 
       Close #1773
 
+    * Fix a false positive ``inconsistent-return-statements`` message when if
+      statement is inside try/except.
+
+      Close #1770
+
 
 What's New in Pylint 1.8.1?
 ===========================

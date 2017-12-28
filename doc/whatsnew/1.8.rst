@@ -367,3 +367,6 @@ Other Changes
 
 * If the rcfile specified on the command line doesn't exist, then an
   IOError exception is raised.
+
+* Fix a false positive inconsistent-return-statements message when if statement is inside try/except.
+  (backport from 2.0)
