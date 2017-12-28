@@ -41,7 +41,7 @@ def _is_function_def_never_returning(node, never_returning_functions=None):
 
     Args:
         node (astroid.FunctionDef): function definition node to be analyzed.
-        never_returning_functions (iterable of strings): complete names of the functions
+        never_returning_functions (tuple): complete names of the functions
                                                          that never returns
 
     Returns:
