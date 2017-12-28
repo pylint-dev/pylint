@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.0
-:Date: ????
+:Date: |TBA|
 
 
 Summary -- Release highlights
@@ -13,6 +13,8 @@ Summary -- Release highlights
 
 New checkers
 ============
+
+* None so far
 
 Other Changes
 =============

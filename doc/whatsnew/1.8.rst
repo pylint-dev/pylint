@@ -33,7 +33,7 @@ New checkers
      wrong_env_copy['ENV_VAR'] = 'new_value'  # changes os.environ
      assert os.environ['ENV_VAR'] == 'new_value'
 
-     good_env_copy = os.environ.copy()  # the right way
+     good_env_copy = dict(os.environ)  # the right way
      good_env_copy['ENV_VAR'] = 'different_value'  # doesn't change os.environ
      assert os.environ['ENV_VAR'] == 'new_value'
 
