@@ -29,23 +29,32 @@ from pylint import checkers
 from pylint import utils as lint_utils
 from pylint.checkers import utils
 
+# sys.exit method never returns
+NEVER_RETURNING_FUNCTIONS = ('sys.exit',)
 
 def _all_elements_are_true(gen):
     values = list(gen)
     return values and all(values)
 
-def _is_function_def_never_returning(node):
+def _is_function_def_never_returning(node, never_returning_functions=None):
     """Return True if the function never returns. False otherwise.
 
     Args:
         node (astroid.FunctionDef): function definition node to be analyzed.
+        never_returning_functions (iterable of strings): complete names of the functions
+                                                         that never returns
 
     Returns:
         bool: True if the function never returns, False otherwise.
     """
-    if node.name == 'exit' and node.root().name == 'sys':
-        # sys.exit method never returns
-        return True
+    if never_returning_functions is None:
+        never_returning_functions = NEVER_RETURNING_FUNCTIONS
+    try:
+        complete_func_name = ".".join((node.root().name, node.name))
+        if complete_func_name in never_returning_functions:
+            return True
+    except TypeError:
+        return False
     return False
 
 def _is_node_return_ended(node):
