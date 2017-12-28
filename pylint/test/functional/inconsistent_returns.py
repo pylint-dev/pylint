@@ -32,6 +32,17 @@ def returns_and_exceptions(var):
     else:
         raise ValueError("Incorrect value")
 
+def returns_and_exceptions_issue1770(var):
+    try:
+        if var == 1:
+            return 'a'
+        elif var == 2:
+            return 'b'
+        else:
+            raise ValueError
+    except AssertionError:
+        return None
+
 def explicit_returns3(arg):
     if arg:
         return False

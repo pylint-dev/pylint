@@ -60,6 +60,7 @@ def _is_node_return_ended(node):
             return False
         exc_name = exc.pytype().split('.')[-1]
         handlers = utils.get_exception_handlers(node, exc_name)
+        handlers = list(handlers) if handlers is not None else []
         if handlers:
             # among all the handlers handling the exception at least one
             # must end with a return statement
