@@ -72,6 +72,9 @@ def _is_node_return_ended(node):
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to
         # ends with a return statement
+        if not node.exc:
+            # Ignore bare raises
+            return True
         exc = utils.safe_infer(node.exc)
         if exc is None or exc is astroid.Uninferable:
             return False
@@ -391,7 +394,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not node.exc:
             return
         exc = utils.safe_infer(node.exc)
-        if exc is not None and self._check_exception_inherit_from_stopiteration(exc):
+        if exc is None or exc is astroid.Uninferable:
+            return
+        if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message('stop-iteration-return', node=node)
 
     @staticmethod

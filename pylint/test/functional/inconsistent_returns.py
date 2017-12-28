@@ -151,3 +151,15 @@ def bug_1771_counter_example(var): # [inconsistent-return-statements]
         inconsistent_returns_in_nested_function()
     else:
         return var * 2
+
+class BlargException(Exception):
+    pass
+
+
+def blarg(someval):
+    try:
+        if someval:
+            raise BlargException()
+        return 5
+    except BlargException:
+        raise
