@@ -18,6 +18,11 @@ Release date: |TBA|
 
       Close #1773
 
+    * Fix a false positive ``inconsistent-return-statements`` message when if
+      statement is inside try/except.
+
+      Close #1770
+
     * Fix false positive ``inconsistent-return-statements`` message when never
       returning functions are used (i.e sys.exit for example).
 
