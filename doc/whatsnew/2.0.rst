@@ -21,3 +21,6 @@ Other Changes
 
 * Fix a false positive ``inconsistent-return-statements`` message when if
   statement is inside try/except.
+
+* Fix a false positive ``inconsistent-return-statements`` message when
+  while loop are used.
