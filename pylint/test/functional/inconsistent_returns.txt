@@ -1,7 +1,7 @@
-inconsistent-return-statements:102:explicit_implicit_returns:Either all return statements in a function should return an expression, or none of them should.
-inconsistent-return-statements:106:empty_explicit_returns:Either all return statements in a function should return an expression, or none of them should.
-inconsistent-return-statements:111:explicit_implicit_returns2:Either all return statements in a function should return an expression, or none of them should.
-inconsistent-return-statements:119:explicit_implicit_returns3:Either all return statements in a function should return an expression, or none of them should.
-inconsistent-return-statements:127:returns_missing_in_catched_exceptions:Either all return statements in a function should return an expression, or none of them should.
-inconsistent-return-statements:137:complex_func:Either all return statements in a function should return an expression, or none of them should.
-inconsistent-return-statements:145:inconsistent_returns_in_nested_function.not_consistent_returns_inner:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:110:explicit_implicit_returns:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:114:empty_explicit_returns:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:119:explicit_implicit_returns2:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:127:explicit_implicit_returns3:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:135:returns_missing_in_catched_exceptions:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:145:complex_func:Either all return statements in a function should return an expression, or none of them should.
+inconsistent-return-statements:153:inconsistent_returns_in_nested_function.not_consistent_returns_inner:Either all return statements in a function should return an expression, or none of them should.
