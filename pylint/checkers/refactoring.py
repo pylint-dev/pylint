@@ -48,6 +48,10 @@ def _is_node_return_ended(node):
     # Recursion base case
     if isinstance(node, astroid.Return):
         return True
+    # Avoid the check inside while loop as we don't know
+    # if they will be completed
+    if isinstance(node, astroid.While):
+        return True
     if isinstance(node, astroid.Raise):
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to
