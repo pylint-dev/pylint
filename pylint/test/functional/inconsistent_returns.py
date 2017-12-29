@@ -170,3 +170,11 @@ def blarg(someval):
         return 5
     except BlargException:
         raise
+
+def bug_1772_counter_example(): # [inconsistent-return-statements]
+    counter = 1
+    if counter == 1:
+        while True:
+            counter += 1
+            if counter == 100:
+                return 7
