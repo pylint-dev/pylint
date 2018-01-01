@@ -23,6 +23,11 @@ Release date: |TBA|
 
       Close #1770
 
+    * Fix a false positive ``inconsistent-return-statements`` message when
+      while loop are used.
+
+      Close #1772
+
 What's New in Pylint 1.8.1?
 =========================
 
