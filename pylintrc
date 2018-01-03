@@ -65,7 +65,6 @@ disable=
     too-many-arguments,
     too-many-statements,
     too-few-public-methods,
-    too-many-instance-attributes,
 
 
 [REPORTS]
@@ -327,7 +326,7 @@ max-statements=50
 max-parents=7
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=11
 
 # Minimum number of public methods for a class (see R0903).
 min-public-methods=2

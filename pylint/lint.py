@@ -265,6 +265,7 @@ if multiprocessing is not None:
                     msgs, linter.stats, linter.msg_status)
 
 
+# pylint: disable=too-many-instance-attributes
 class PyLinter(config.OptionsManagerMixIn,
                utils.MessagesHandlerMixIn,
                utils.ReportsHandlerMixIn,
