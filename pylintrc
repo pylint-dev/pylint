@@ -56,7 +56,6 @@ disable=
     attribute-defined-outside-init,
     duplicate-code,
     fixme,
-    import-error,
     invalid-name,
     missing-docstring,
     no-member,
