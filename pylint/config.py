@@ -276,6 +276,7 @@ def _multiple_choices_validating_option(opt, name, value):
     return _multiple_choice_validator(opt.choices, name, value)
 
 
+# pylint: disable=no-member
 class Option(optparse.Option):
     TYPES = optparse.Option.TYPES + ('regexp', 'regexp_csv', 'csv', 'yn',
                                      'multiple_choice',

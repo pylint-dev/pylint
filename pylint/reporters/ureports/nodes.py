@@ -39,6 +39,7 @@ class VNode(object):
         visitor
         """
         try:
+            # pylint: disable=no-member
             return self.TYPE.replace('-', '_')
         # pylint: disable=broad-except
         except Exception:
