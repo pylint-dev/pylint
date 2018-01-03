@@ -4,29 +4,27 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
-    * Fix emission of false positive ``no-member`` message for class with 
-      "private" attributes whose name is mangled.
+    * Fix emission of false positive ``no-member`` message for class with  "private" attributes whose name is mangled.
+
       Close #1643
 
     * Fixed a crash which occurred when `Uninferable` wasn't properly handled in `stop-iteration-return`
 
-     Close #1779
+      Close #1779
 
     * Use the proper node to get the name for redefined functions (#1792)
 
-     Close #1774
+      Close #1774
 
     * Don't crash when encountering bare raises while checking inconsistent returns
 
       Close #1773
 
-    * Fix a false positive ``inconsistent-return-statements`` message when if
-      statement is inside try/except.
+    * Fix a false positive ``inconsistent-return-statements`` message when if statement is inside try/except.
 
       Close #1770
 
-    * Fix a false positive ``inconsistent-return-statements`` message when
-      while loop are used.
+    * Fix a false positive ``inconsistent-return-statements`` message when while loop are used.
 
       Close #1772
 
