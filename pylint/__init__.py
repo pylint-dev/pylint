@@ -10,11 +10,14 @@ import sys
 
 from .__pkginfo__ import version as __version__
 
+
 def run_pylint():
     """run pylint"""
     from pylint.lint import Run
-    Run(sys.argv[1:])
-
+    try:
+        Run(sys.argv[1:])
+    except KeyboardInterrupt:
+        sys.exit(1)
 
 def run_epylint():
     """run pylint"""
