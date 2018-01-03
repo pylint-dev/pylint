@@ -48,15 +48,23 @@ def _is_node_return_ended(node):
     # Recursion base case
     if isinstance(node, astroid.Return):
         return True
+    # Avoid the check inside while loop as we don't know
+    # if they will be completed
+    if isinstance(node, astroid.While):
+        return True
     if isinstance(node, astroid.Raise):
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to
         # ends with a return statement
+        if not node.exc:
+            # Ignore bare raises
+            return True
         exc = utils.safe_infer(node.exc)
         if exc is None or exc is astroid.Uninferable:
             return False
         exc_name = exc.pytype().split('.')[-1]
         handlers = utils.get_exception_handlers(node, exc_name)
+        handlers = list(handlers) if handlers is not None else []
         if handlers:
             # among all the handlers handling the exception at least one
             # must end with a return statement
@@ -371,7 +379,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not node.exc:
             return
         exc = utils.safe_infer(node.exc)
-        if exc is not None and self._check_exception_inherit_from_stopiteration(exc):
+        if exc is None or exc is astroid.Uninferable:
+            return
+        if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message('stop-iteration-return', node=node)
 
     @staticmethod

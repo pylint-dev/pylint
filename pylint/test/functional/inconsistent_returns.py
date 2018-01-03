@@ -32,6 +32,17 @@ def returns_and_exceptions(var):
     else:
         raise ValueError("Incorrect value")
 
+def returns_and_exceptions_issue1770(var):
+    try:
+        if var == 1:
+            return 'a'
+        elif var == 2:
+            return 'b'
+        else:
+            raise ValueError
+    except AssertionError:
+        return None
+
 def explicit_returns3(arg):
     if arg:
         return False
@@ -87,6 +98,14 @@ def explicit_returns7(arg):
         arg = 3 * arg
         return 'above 0'
 
+def bug_1772():
+    """Don't check inconsistent return statements inside while loop"""
+    counter = 1
+    while True:
+        counter += 1
+        if counter == 100:
+            return 7
+
 # Next ones are not consistent
 def explicit_implicit_returns(var): # [inconsistent-return-statements]
     if var >= 0:
@@ -138,3 +157,24 @@ def inconsistent_returns_in_nested_function():
             else:
                 return arg
     return not_consistent_returns_inner
+
+
+class BlargException(Exception):
+    pass
+
+
+def blarg(someval):
+    try:
+        if someval:
+            raise BlargException()
+        return 5
+    except BlargException:
+        raise
+
+def bug_1772_counter_example(): # [inconsistent-return-statements]
+    counter = 1
+    if counter == 1:
+        while True:
+            counter += 1
+            if counter == 100:
+                return 7

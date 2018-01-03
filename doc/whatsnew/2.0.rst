@@ -3,7 +3,7 @@
 **************************
 
 :Release: 2.0
-:Date: ????
+:Date: |TBA|
 
 
 Summary -- Release highlights
@@ -14,8 +14,16 @@ Summary -- Release highlights
 New checkers
 ============
 
+* None so far
+
 Other Changes
 =============
+
+* Fix a false positive ``inconsistent-return-statements`` message when if
+  statement is inside try/except.
+
+* Fix a false positive ``inconsistent-return-statements`` message when
+  `while` loop are used.
 
 * Fix emission of false positive ``no-member`` message for class with 
   "private" attributes whose name is mangled.
