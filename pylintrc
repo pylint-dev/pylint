@@ -69,7 +69,6 @@ disable=
     too-many-arguments,
     too-many-statements,
     too-few-public-methods,
-    too-many-public-methods,
     too-many-instance-attributes,
 
 
@@ -338,7 +337,7 @@ max-attributes=7
 min-public-methods=2
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=25
 
 
 [CLASSES]
