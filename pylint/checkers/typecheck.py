@@ -1027,9 +1027,8 @@ accessed. Python regular expressions are accepted.'}
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
         parent_type = safe_infer(node.parent.value)
-        if not isinstance(parent_type, (astroid.ClassDef, astroid.Instance)):
-            return None
-        if not has_known_bases(parent_type):
+        if (not isinstance(parent_type, (astroid.ClassDef, astroid.Instance))
+                or not has_known_bases(parent_type)):
             return None
 
         # Determine what method on the parent this index will use
@@ -1055,13 +1054,11 @@ accessed. Python regular expressions are accepted.'}
                 exceptions.AttributeInferenceError,
                 IndexError):
             return None
-        if not isinstance(itemmethod, astroid.FunctionDef):
-            return None
-        if itemmethod.root().name != BUILTINS:
-            return None
-        if not itemmethod.parent:
-            return None
-        if itemmethod.parent.name not in SEQUENCE_TYPES:
+
+        if (not isinstance(itemmethod, astroid.FunctionDef)
+                or itemmethod.root().name != BUILTINS
+                or not itemmethod.parent
+                or itemmethod.parent.name not in SEQUENCE_TYPES):
             return None
 
         # For ExtSlice objects coming from visit_extslice, no further
