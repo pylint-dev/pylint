@@ -1188,11 +1188,11 @@ def _ini_format(stream, options, encoding):
     """format options using the INI format"""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
-        help = optdict.get('help')
-        if help:
-            help = _normalize_text(help, line_len=79, indent='# ')
+        help_opt = optdict.get('help')
+        if help_opt:
+            help_opt = _normalize_text(help_opt, line_len=79, indent='# ')
             print(file=stream)
-            print(_encode(help, encoding), file=stream)
+            print(_encode(help_opt, encoding), file=stream)
         else:
             print(file=stream)
         if value is None:
@@ -1219,11 +1219,11 @@ def _rest_format_section(stream, section, options, encoding=None, doc=None):
         print(_encode(_normalize_text(doc, line_len=79, indent=''), encoding), file=stream)
         print(file=stream)
     for optname, optdict, value in options:
-        help = optdict.get('help')
+        help_opt = optdict.get('help')
         print(':%s:' % optname, file=stream)
-        if help:
-            help = _normalize_text(help, line_len=79, indent='  ')
-            print(_encode(help, encoding), file=stream)
+        if help_opt:
+            help_opt = _normalize_text(help_opt, line_len=79, indent='  ')
+            print(_encode(help_opt, encoding), file=stream)
         if value:
             value = _encode(_format_option_value(optdict, value), encoding)
             print(file=stream)

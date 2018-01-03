@@ -1186,7 +1186,7 @@ class Run(object):
 group are mutually exclusive.'),
         )
 
-    def __init__(self, args, reporter=None, exit=True):
+    def __init__(self, args, reporter=None, do_exit=True):
         self._rcfile = None
         self._plugins = []
         try:
@@ -1349,7 +1349,7 @@ group are mutually exclusive.'),
         with fix_import_path(args):
             linter.check(args)
             linter.generate_reports()
-        if exit:
+        if do_exit:
             sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):

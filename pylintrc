@@ -59,7 +59,6 @@ disable=
     invalid-name,
     missing-docstring,
     no-member,
-    redefined-builtin,
     protected-access,
     too-many-arguments,
     too-many-statements,
