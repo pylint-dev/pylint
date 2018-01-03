@@ -848,6 +848,7 @@ accessed. Python regular expressions are accepted.'}
                                      args=node.func.as_string())
                     break
 
+    # pylint: disable=too-many-branches
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node):
         """check that called functions/methods are inferred to callable objects,
