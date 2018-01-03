@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 Moisés López <moylop260@vauxoo.com>
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Alexander Todorov <atodorov@MrSenko.com>
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
+# Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Łukasz Sznuk <ls@rdprojekt.pl>
+# Copyright (c) 2017 Alex Hearn <alex.d.hearn@gmail.com>
+# Copyright (c) 2017 Antonio Ossa <aaossa@uc.cl>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -40,15 +48,23 @@ def _is_node_return_ended(node):
     # Recursion base case
     if isinstance(node, astroid.Return):
         return True
+    # Avoid the check inside while loop as we don't know
+    # if they will be completed
+    if isinstance(node, astroid.While):
+        return True
     if isinstance(node, astroid.Raise):
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to
         # ends with a return statement
+        if not node.exc:
+            # Ignore bare raises
+            return True
         exc = utils.safe_infer(node.exc)
         if exc is None or exc is astroid.Uninferable:
             return False
         exc_name = exc.pytype().split('.')[-1]
         handlers = utils.get_exception_handlers(node, exc_name)
+        handlers = list(handlers) if handlers is not None else []
         if handlers:
             # among all the handlers handling the exception at least one
             # must end with a return statement
@@ -363,7 +379,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not node.exc:
             return
         exc = utils.safe_infer(node.exc)
-        if exc is not None and self._check_exception_inherit_from_stopiteration(exc):
+        if exc is None or exc is astroid.Uninferable:
+            return
+        if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message('stop-iteration-return', node=node)
 
     @staticmethod

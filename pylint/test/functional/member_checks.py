@@ -189,3 +189,11 @@ class SomeClass(object):
 
 
 SomeClass.does_not_exist
+
+class ClassWithMangledAttribute(object):
+    def __init__(self):
+        self.name = 'Bug1643'
+    def __bar(self):
+        print(self.name + "xD")
+
+ClassWithMangledAttribute()._ClassWithMangledAttribute__bar()  # pylint: disable=protected-access

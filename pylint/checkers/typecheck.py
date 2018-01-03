@@ -1,14 +1,26 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014, 2016 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
+# Copyright (c) 2009 James Lingard <jchl@aristanetworks.com>
+# Copyright (c) 2012-2014 Google, Inc.
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 David Shea <dshea@redhat.com>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
+# Copyright (c) 2014 Steven Myint <hg@stevenmyint.com>
+# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Anentropic <ego@anentropic.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
+# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Jürgen Hermann <jh@web.de>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -323,6 +335,14 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
             return False
         if not all(map(has_known_bases, owner.type.mro())):
             return False
+    if node.attrname.startswith('_' + owner_name):
+        # Test if an attribute has been mangled ('private' attribute)
+        unmangled_name = node.attrname.split('_' + owner_name)[-1]
+        try:
+            if owner.getattr(unmangled_name, context=None) is not None:
+                return False
+        except astroid.NotFoundError:
+            return True
     return True
 
 

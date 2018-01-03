@@ -1,0 +1,61 @@
+[
+  {
+    "mails": [
+      "cpopa@cloudbasesolutions.com",
+      "pcmanticore@gmail.com"
+    ],
+    "authoritative_mail": "pcmanticore@gmail.com",
+    "name": "Claudiu Popa"
+  },
+  {
+    "mails": [
+        "alexandre.fayolle@logilab.fr",
+        "emile.anclin@logilab.fr",
+        "david.douard@logilab.fr",
+        "laura.medioni@logilab.fr",
+        "anthony.truchet@logilab.fr",
+        "alain.leufroy@logilab.fr",
+        "julien.cristau@logilab.fr",
+        "Adrien.DiMascio@logilab.fr",
+        "emile@crater.logilab.fr",
+        "sylvain.thenault@logilab.fr",
+        "pierre-yves.david@logilab.fr",
+        "nicolas.chauvat@logilab.fr",
+        "afayolle.ml@free.fr",
+        "aurelien.campeas@logilab.fr",
+        "lmedioni@logilab.fr"
+        
+    ],
+    "authoritative_mail": "contact@logilab.fr",
+    "name": "LOGILAB S.A. (Paris, FRANCE)"
+  },
+  {
+    "mails": [
+      "moylop260@vauxoo.com"
+    ],
+    "name": "Moises Lopez",
+    "authoritative_mail": "moylop260@vauxoo.com"
+  },
+  {
+    "mails": [
+       "nathaniel@google.com",
+       "mbp@google.com",
+       "tmarek@google.com",
+       "shlomme@gmail.com",
+       "balparda@google.com",
+       "dlindquist@google.com"
+    ],
+    "name": "Google, Inc." 
+  },
+  {
+   "mails": [
+      "ashley@awhetter.co.uk",
+      "awhetter.2011@my.bristol.ac.uk",
+      "asw@dneg.com",
+      "AWhetter@users.noreply.github.com"
+   ],
+   "name": "Ashley Whetter",
+   "authoritative_mail": "ashley@awhetter.co.uk"
+  }
+
+]

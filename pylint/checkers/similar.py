@@ -1,5 +1,13 @@
 # Copyright (c) 2006, 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2012 Ry4an Brase <ry4an-hg@ry4an.org>
+# Copyright (c) 2012 Google, Inc.
+# Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2017 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

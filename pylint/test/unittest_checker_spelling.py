@@ -1,4 +1,10 @@
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2017 Pedro Algarvio <pedro@algarvio.me>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -165,15 +171,12 @@ class TestSpellingChecker(CheckerTestCase):
                           self._get_msg_suggestions('coment')))):
             self.checker.visit_classdef(stmt)
 
-        # With just a single lower and upper case letter is not good
-        stmt = astroid.extract_node(
-            'class ComentAbc(object):\n   """zN with a bad comment"""\n   pass')
-        with self.assertAddsMessages(
-            Message('wrong-spelling-in-docstring', line=2,
-                    args=('zN', 'zN with a bad comment',
-                          '^^',
-                          self._get_msg_suggestions('zN')))):
+        for ccn in ('xmlHttpRequest', 'newCustomer', 'newCustomerId',
+                    'innerStopwatch', 'supportsIpv6OnIos', 'affine3D'):
+            stmt = astroid.extract_node(
+                'class TestClass(object):\n   """{0} comment"""\n   pass'.format(ccn))
             self.checker.visit_classdef(stmt)
+            assert self.linter.release_messages() == []
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
