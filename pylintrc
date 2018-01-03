@@ -52,13 +52,26 @@ confidence=
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 
-disable=invalid-name,protected-access,fixme,too-many-branches,
-        attribute-defined-outside-init,too-many-locals,
-        too-many-arguments,too-many-statements,
-        too-many-return-statements,too-few-public-methods,
-        import-error,too-many-lines,too-many-instance-attributes,
-        too-many-public-methods,duplicate-code,broad-except,
-        redefined-builtin,missing-docstring,no-member,
+disable=
+    attribute-defined-outside-init,
+    broad-except,
+    duplicate-code,
+    fixme,
+    import-error,
+    invalid-name,
+    missing-docstring,
+    no-member,
+    redefined-builtin,
+    protected-access,
+    too-many-lines,
+    too-many-locals,
+    too-many-branches,
+    too-many-arguments,
+    too-many-statements,
+    too-few-public-methods,
+    too-many-public-methods,
+    too-many-return-statements,
+    too-many-instance-attributes,
 
 
 [REPORTS]
