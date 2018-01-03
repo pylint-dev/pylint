@@ -40,6 +40,7 @@ class VNode(object):
         """
         try:
             return self.TYPE.replace('-', '_')
+        # pylint: disable=broad-except
         except Exception:
             return self.__class__.__name__.lower()
 

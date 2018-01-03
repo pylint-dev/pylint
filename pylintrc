@@ -54,7 +54,6 @@ confidence=
 
 disable=
     attribute-defined-outside-init,
-    broad-except,
     duplicate-code,
     fixme,
     import-error,

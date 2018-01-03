@@ -33,6 +33,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
+# pylint: disable=broad-except
+
 """ %prog [options] modules_or_packages
 
   Check that module(s) satisfy a coding standard (and more !).
@@ -946,7 +948,7 @@ class PyLinter(config.OptionsManagerMixIn,
                              args=str(ex.error))
         except astroid.AstroidBuildingException as ex:
             self.add_message('parse-error', args=ex)
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:
             import traceback
             traceback.print_exc()
             self.add_message('astroid-error', args=(ex.__class__, ex))
@@ -1032,7 +1034,7 @@ class PyLinter(config.OptionsManagerMixIn,
         evaluation = self.config.evaluation
         try:
             note = eval(evaluation, {}, self.stats) # pylint: disable=eval-used
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:
             msg = 'An exception occurred while rating: %s' % ex
         else:
             self.stats['global_note'] = note
