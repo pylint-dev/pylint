@@ -944,6 +944,7 @@ class PyLinter(config.OptionsManagerMixIn,
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except astroid.AstroidSyntaxError as ex:
+            # pylint: disable=no-member
             self.add_message('syntax-error',
                              line=getattr(ex.error, 'lineno', 0),
                              args=str(ex.error))
