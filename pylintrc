@@ -63,7 +63,6 @@ disable=
     no-member,
     redefined-builtin,
     protected-access,
-    too-many-lines,
     too-many-locals,
     too-many-branches,
     too-many-arguments,
@@ -161,7 +160,7 @@ single-line-if-stmt=no
 no-space-check=trailing-comma,dict-separator
 
 # Maximum number of lines in a module
-max-module-lines=1000
+max-module-lines=2000
 
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
 # tab).
