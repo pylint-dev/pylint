@@ -60,7 +60,6 @@ disable=
     missing-docstring,
     no-member,
     protected-access,
-    too-many-statements,
     too-few-public-methods,
 
 
@@ -317,7 +316,7 @@ max-returns=11
 max-branches=26
 
 # Maximum number of statements in function / method body
-max-statements=50
+max-statements=100
 
 # Maximum number of parents for a class (see R0901).
 max-parents=7
