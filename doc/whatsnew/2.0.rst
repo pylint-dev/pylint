@@ -23,4 +23,7 @@ Other Changes
   statement is inside try/except.
 
 * Fix a false positive ``inconsistent-return-statements`` message when
-  while loop are used.
+  `while` loop are used.
+
+* Fix emission of false positive ``no-member`` message for class with 
+  "private" attributes whose name is mangled.
