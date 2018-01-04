@@ -27,3 +27,5 @@ Other Changes
 
 * Fix emission of false positive ``no-member`` message for class with 
   "private" attributes whose name is mangled.
+
+* Fix ``unused-argument`` false positives with overshadowed variable in dictionary comprehension.

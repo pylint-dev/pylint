@@ -34,6 +34,10 @@ What's New in Pylint 2.0?
 
       Close #1649
 
+    * Fix ``unused-argument`` false positives with overshadowed variable in
+      dictionary comprehension.
+
+      Close #1731
 
 What's New in Pylint 1.8.1?
 =========================
