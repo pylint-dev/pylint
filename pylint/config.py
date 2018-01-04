@@ -276,6 +276,7 @@ def _multiple_choices_validating_option(opt, name, value):
     return _multiple_choice_validator(opt.choices, name, value)
 
 
+# pylint: disable=no-member
 class Option(optparse.Option):
     TYPES = optparse.Option.TYPES + ('regexp', 'regexp_csv', 'csv', 'yn',
                                      'multiple_choice',
@@ -377,12 +378,12 @@ class _ManHelpFormatter(optparse.HelpFormatter):
             optstring = self.format_option_strings(option)
         if option.help:
             help_text = self.expand_default(option)
-            help = ' '.join([l.strip() for l in help_text.splitlines()])
+            help_string = ' '.join([l.strip() for l in help_text.splitlines()])
         else:
-            help = ''
+            help_string = ''
         return '''.IP "%s"
 %s
-''' % (optstring, help)
+''' % (optstring, help_string)
 
     def format_head(self, optparser, pkginfo, section=1):
         long_desc = ""

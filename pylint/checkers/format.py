@@ -739,7 +739,7 @@ class FormatChecker(BaseTokenChecker):
             count, state = _policy_string(policy)
             self.add_message('bad-whitespace', line=token[2][0],
                              args=(count, state, position, construct,
-                                   _underline_token(token)))
+                                   _underline_token(token)), col_offset=token[2][1]+1)
 
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left

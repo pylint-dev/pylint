@@ -374,7 +374,8 @@ class MessagesHandlerMixIn(object):
         except KeyError:
             return self._msgs_state.get(msgid, True)
 
-    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED):
+    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
+                    col_offset=None):
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args
@@ -406,10 +407,9 @@ class MessagesHandlerMixIn(object):
 
         if line is None and node is not None:
             line = node.fromlineno
-        if hasattr(node, 'col_offset'):
+        if col_offset is None and hasattr(node, 'col_offset'):
             col_offset = node.col_offset # XXX measured in bytes for utf-8, divide by two for chars?
-        else:
-            col_offset = None
+
         # should this message be displayed
         if not self.is_message_enabled(msgid, line, confidence):
             self.file_state.handle_ignored_message(
@@ -1188,11 +1188,11 @@ def _ini_format(stream, options, encoding):
     """format options using the INI format"""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
-        help = optdict.get('help')
-        if help:
-            help = _normalize_text(help, line_len=79, indent='# ')
+        help_opt = optdict.get('help')
+        if help_opt:
+            help_opt = _normalize_text(help_opt, line_len=79, indent='# ')
             print(file=stream)
-            print(_encode(help, encoding), file=stream)
+            print(_encode(help_opt, encoding), file=stream)
         else:
             print(file=stream)
         if value is None:
@@ -1219,11 +1219,11 @@ def _rest_format_section(stream, section, options, encoding=None, doc=None):
         print(_encode(_normalize_text(doc, line_len=79, indent=''), encoding), file=stream)
         print(file=stream)
     for optname, optdict, value in options:
-        help = optdict.get('help')
+        help_opt = optdict.get('help')
         print(':%s:' % optname, file=stream)
-        if help:
-            help = _normalize_text(help, line_len=79, indent='  ')
-            print(_encode(help, encoding), file=stream)
+        if help_opt:
+            help_opt = _normalize_text(help_opt, line_len=79, indent='  ')
+            print(_encode(help_opt, encoding), file=stream)
         if value:
             value = _encode(_format_option_value(optdict, value), encoding)
             print(file=stream)

@@ -77,6 +77,10 @@ def _is_node_return_ended(node):
                 return True
         except astroid.InferenceError:
             pass
+    # Avoid the check inside while loop as we don't know
+    # if they will be completed
+    if isinstance(node, astroid.While):
+        return True
     if isinstance(node, astroid.Raise):
         # a Raise statement doesn't need to end with a return statement
         # but if the exception raised is handled, then the handler has to

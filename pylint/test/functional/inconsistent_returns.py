@@ -99,6 +99,14 @@ def explicit_returns7(arg):
         arg = 3 * arg
         return 'above 0'
 
+def bug_1772():
+    """Don't check inconsistent return statements inside while loop"""
+    counter = 1
+    while True:
+        counter += 1
+        if counter == 100:
+            return 7
+
 def bug_1771(var):
     if var == 1:
         sys.exit(1)
@@ -174,3 +182,11 @@ def blarg(someval):
         return 5
     except BlargException:
         raise
+
+def bug_1772_counter_example(): # [inconsistent-return-statements]
+    counter = 1
+    if counter == 1:
+        while True:
+            counter += 1
+            if counter == 100:
+                return 7
