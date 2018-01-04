@@ -372,3 +372,6 @@ Other Changes
   (backport from 2.0)
 
 * Fix a false positive inconsistent-return-statements message when while loop are used. (backport from 2.0)
+
+* Fix unused-argument false positives with overshadowed variable in dictionary comprehension.
+  (backport from 2.0)
