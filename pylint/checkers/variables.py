@@ -338,8 +338,7 @@ MSGS = {
     }
 
 
-NamesConsumerAtomic = collections.namedtuple("NamesConsumerAtomic",
-                                             "to_consume consumed scope_type")
+ScopeConsumer = collections.namedtuple("ScopeConsumer", "to_consume consumed scope_type")
 
 
 class NamesConsumer(object):
@@ -347,7 +346,7 @@ class NamesConsumer(object):
     A simple class to handle consumed, to consume and scope type info of node locals
     """
     def __init__(self, node, scope_type):
-        self._atomic = NamesConsumerAtomic(copy.copy(node.locals), {}, scope_type)
+        self._atomic = ScopeConsumer(copy.copy(node.locals), {}, scope_type)
 
     def __repr__(self):
         msg = "\nto_consume : {:s}\n".format(
