@@ -370,3 +370,5 @@ Other Changes
 
 * Fix a false positive inconsistent-return-statements message when if statement is inside try/except.
   (backport from 2.0)
+
+* Fix a false positive inconsistent-return-statements message when while loop are used. (backport from 2.0)
