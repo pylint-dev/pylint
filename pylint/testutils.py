@@ -1,6 +1,17 @@
 # Copyright (c) 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
+# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
+# Copyright (c) 2014 LCD 47 <lcd047@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2016 Roy Williams <roy.williams.iii@gmail.com>
+# Copyright (c) 2016 xmo-odoo <xmo-odoo@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -165,7 +176,9 @@ class UnittestLinter(object):
         finally:
             self._messages = []
 
-    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None):
+    def add_message(self, msg_id, line=None, node=None, args=None, confidence=None,
+                    col_offset=None):
+        # Do not test col_offset for now since changing Message breaks everything
         self._messages.append(Message(msg_id, line, node, args, confidence))
 
     def is_message_enabled(self, *unused_args, **unused_kwargs):

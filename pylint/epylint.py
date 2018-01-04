@@ -3,8 +3,16 @@
 # -*- vim:fenc=utf-8:ft=python:et:sw=4:ts=4:sts=4
 
 # Copyright (c) 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014 Jakob Normark <jakobnormark@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Manuel Vázquez Acosta <mva.led@gmail.com>
+# Copyright (c) 2014 Derek Harland <derek.harland@finq.co.nz>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Daniela Plascencia <daplascen@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

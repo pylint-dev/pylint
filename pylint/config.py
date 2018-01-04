@@ -1,6 +1,22 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2008 pyves@crater.logilab.fr <pyves@crater.logilab.fr>
+# Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
+# Copyright (c) 2013 Google, Inc.
+# Copyright (c) 2013 John McGehee <jmcgehee@altera.com>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2015 John Kirkham <jakirkham@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -260,6 +276,7 @@ def _multiple_choices_validating_option(opt, name, value):
     return _multiple_choice_validator(opt.choices, name, value)
 
 
+# pylint: disable=no-member
 class Option(optparse.Option):
     TYPES = optparse.Option.TYPES + ('regexp', 'regexp_csv', 'csv', 'yn',
                                      'multiple_choice',
@@ -361,12 +378,12 @@ class _ManHelpFormatter(optparse.HelpFormatter):
             optstring = self.format_option_strings(option)
         if option.help:
             help_text = self.expand_default(option)
-            help = ' '.join([l.strip() for l in help_text.splitlines()])
+            help_string = ' '.join([l.strip() for l in help_text.splitlines()])
         else:
-            help = ''
+            help_string = ''
         return '''.IP "%s"
 %s
-''' % (optstring, help)
+''' % (optstring, help_string)
 
     def format_head(self, optparser, pkginfo, section=1):
         long_desc = ""
@@ -626,6 +643,8 @@ class OptionsManagerMixIn(object):
             config_file = self.config_file
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
+            if not os.path.exists(config_file):
+                raise IOError("The config file {:s} doesn't exist!".format(config_file))
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:

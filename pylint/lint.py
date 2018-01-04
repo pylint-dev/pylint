@@ -1,16 +1,39 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2008 Fabrice Douchant <Fabrice.Douchant@logilab.fr>
+# Copyright (c) 2009 Vincent
+# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2011-2014 Google, Inc.
+# Copyright (c) 2012 David Pursehouse <david.pursehouse@sonymobile.com>
+# Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2012 JT Olds <jtolds@xnet5.com>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
-# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
-# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
+# Copyright (c) 2014 Daniel Harding <dharding@living180.net>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2014 Dan Goldsmith <djgoldsmith@googlemail.com>
 # Copyright (c) 2015-2016 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2015 Steven Myint <hg@stevenmyint.com>
+# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
+# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Alan Evangelista <alanoe@linux.vnet.ibm.com>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Roman Ivanov <me@roivanov.com>
+# Copyright (c) 2017 Ned Batchelder <ned@nedbatchelder.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+
+# pylint: disable=broad-except
 
 """ %prog [options] modules_or_packages
 
@@ -242,6 +265,7 @@ if multiprocessing is not None:
                     msgs, linter.stats, linter.msg_status)
 
 
+# pylint: disable=too-many-instance-attributes
 class PyLinter(config.OptionsManagerMixIn,
                utils.MessagesHandlerMixIn,
                utils.ReportsHandlerMixIn,
@@ -920,12 +944,13 @@ class PyLinter(config.OptionsManagerMixIn,
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except astroid.AstroidSyntaxError as ex:
+            # pylint: disable=no-member
             self.add_message('syntax-error',
                              line=getattr(ex.error, 'lineno', 0),
                              args=str(ex.error))
         except astroid.AstroidBuildingException as ex:
             self.add_message('parse-error', args=ex)
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:
             import traceback
             traceback.print_exc()
             self.add_message('astroid-error', args=(ex.__class__, ex))
@@ -1011,7 +1036,7 @@ class PyLinter(config.OptionsManagerMixIn,
         evaluation = self.config.evaluation
         try:
             note = eval(evaluation, {}, self.stats) # pylint: disable=eval-used
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:
             msg = 'An exception occurred while rating: %s' % ex
         else:
             self.stats['global_note'] = note
@@ -1162,7 +1187,7 @@ class Run(object):
 group are mutually exclusive.'),
         )
 
-    def __init__(self, args, reporter=None, exit=True):
+    def __init__(self, args, reporter=None, do_exit=True):
         self._rcfile = None
         self._plugins = []
         try:
@@ -1325,7 +1350,7 @@ group are mutually exclusive.'),
         with fix_import_path(args):
             linter.check(args)
             linter.generate_reports()
-        if exit:
+        if do_exit:
             sys.exit(self.linter.msg_status)
 
     def cb_set_rcfile(self, name, value):

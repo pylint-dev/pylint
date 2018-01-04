@@ -1,0 +1,31 @@
+**************************
+  What's New In Pylint 2.0
+**************************
+
+:Release: 2.0
+:Date: |TBA|
+
+
+Summary -- Release highlights
+=============================
+
+* None so far
+
+New checkers
+============
+
+* None so far
+
+Other Changes
+=============
+
+* Fix a false positive ``inconsistent-return-statements`` message when if
+  statement is inside try/except.
+
+* Fix a false positive ``inconsistent-return-statements`` message when
+  `while` loop are used.
+
+* Fix emission of false positive ``no-member`` message for class with 
+  "private" attributes whose name is mangled.
+
+* Fix ``unused-argument`` false positives with overshadowed variable in dictionary comprehension.

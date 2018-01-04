@@ -1,10 +1,22 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012, 2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2010 Maarten ter Huurne <maarten@treewalker.org>
+# Copyright (c) 2012-2014 Google, Inc.
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
+# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2014 David Pursehouse <david.pursehouse@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2016 Moises Lopez - https://www.vauxoo.com/ <moylop260@vauxoo.com>
-# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2016 Anthony Foglia <afoglia@users.noreply.github.com>
+# Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -786,11 +798,9 @@ a metaclass class method.'}
         other implementation to take precedence.
         '''
 
-        if not function.is_method():
-            return
-
-        if function.decorators:
-            # With decorators is a change of use
+        if (not function.is_method()
+                # With decorators is a change of use
+                or function.decorators):
             return
 
         body = function.body
@@ -805,10 +815,9 @@ a metaclass class method.'}
             return
 
         call = statement.value
-        if not isinstance(call, astroid.Call):
-            return
-        if not isinstance(call.func, astroid.Attribute):
-            # Not a super() attribute access.
+        if (not isinstance(call, astroid.Call)
+                # Not a super() attribute access.
+                or not isinstance(call.func, astroid.Attribute)):
             return
 
         # Should be a super call.
@@ -824,14 +833,12 @@ a metaclass class method.'}
         if call.func.attrname != function.name:
             return
 
-        # Should be a super call with the MRO pointer being the current class
-        # and the type being the current instance.
+        # Should be a super call with the MRO pointer being the
+        # current class and the type being the current instance.
         current_scope = function.parent.scope()
-        if super_call.mro_pointer != current_scope:
-            return
-        if not isinstance(super_call.type, astroid.Instance):
-            return
-        if super_call.type.name != current_scope.name:
+        if (super_call.mro_pointer != current_scope
+                or not isinstance(super_call.type, astroid.Instance)
+                or super_call.type.name != current_scope.name):
             return
 
         # Check values of default args
@@ -845,11 +852,11 @@ a metaclass class method.'}
                 # dictionary.
                 # This may happen with astroid build from living objects
                 continue
-            if not isinstance(meth_node, astroid.FunctionDef):
-                # If the method have an ancestor which is not a function
-                # then it is legitimate to redefine it
-                return
-            if _has_different_parameters_default_value(meth_node.args, function.args):
+            if (not isinstance(meth_node, astroid.FunctionDef)
+                    # If the method have an ancestor which is not a
+                    # function then it is legitimate to redefine it
+                    or _has_different_parameters_default_value(
+                        meth_node.args, function.args)):
                 return
             else:
                 break
