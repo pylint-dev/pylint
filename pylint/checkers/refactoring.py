@@ -591,8 +591,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             bool: True if the function never returns, False otherwise.
         """
         try:
-            complete_func_name = ".".join((node.root().name, node.name))
-            if complete_func_name in self.config.never_returning_functions:
+            if node.qname() in self.config.never_returning_functions:
                 return True
         except TypeError:
             return False
