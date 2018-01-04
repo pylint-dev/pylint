@@ -149,6 +149,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._nested_blocks = []
         self._elifs = []
         self._nested_blocks_msg = None
+        self._never_returning_functions = set(self.config.never_returning_functions)
 
     @decorators.cachedproperty
     def _dummy_rgx(self):
@@ -591,7 +592,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             bool: True if the function never returns, False otherwise.
         """
         try:
-            if node.qname() in self.config.never_returning_functions:
+            if node.qname() in self._never_returning_functions:
                 return True
         except TypeError:
             return False
