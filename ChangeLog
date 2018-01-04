@@ -33,6 +33,10 @@ What's New in Pylint 2.0?
       Previously the column was stuck at 0
 
       Close #1649
+      
+    * Fix ``unused-argument`` false positives with overshadowed variable in dictionary comprehension.
+    
+      Close #1731
 
     * Fix ``unused-argument`` false positives with overshadowed variable in
       dictionary comprehension.
