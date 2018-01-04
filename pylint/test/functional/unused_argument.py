@@ -39,3 +39,10 @@ class Sub2(Base):
     def inherited(self, aaa, aab, aac):
         "overridden method, use every argument"
         return aaa + aab + aac
+
+def metadata_from_dict(key):
+    """
+    Should not raise unused-argument message because key is
+    used inside comprehension dict
+    """
+    return {key: str(value) for key, value in key.items()}
