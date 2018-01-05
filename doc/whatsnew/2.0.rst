@@ -13,7 +13,8 @@ Summary -- Release highlights
 New checkers
 ============
 
-* None so far
+* New ``useless-return`` message when function or method ends with a "return" or
+  "return None" statement and this is the only return statement in the body.
 
 Other Changes
 =============

@@ -127,6 +127,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'state this as return None, and an explicit return statement '
                   'should be present at the end of the function (if reachable)'
                  ),
+        'R1711': ("Useless return at end of function or method",
+                  'useless-return',
+                  'Emitted when a single "return" or "return None" statement is found '
+                  'at the end of function or method definition. This statement can safely be '
+                  'removed because Python will implicitly return None'
+                 ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -321,7 +327,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_nested_blocks(node)
         self._check_superfluous_else_return(node)
 
-    @utils.check_messages('too-many-nested-blocks', 'inconsistent-return-statements')
+    @utils.check_messages('too-many-nested-blocks', 'inconsistent-return-statements',
+                          'useless-return')
     def leave_functiondef(self, node):
         # check left-over nested blocks stack
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
@@ -329,6 +336,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._nested_blocks = []
         # check consistent return statements
         self._check_consistent_returns(node)
+        # check for single return or return None at the end
+        self._check_return_at_the_end(node)
         self._return_nodes[node.name] = []
 
     @utils.check_messages('stop-iteration-return')
@@ -616,6 +625,31 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return node.qname() in self._never_returning_functions
         except TypeError:
             return False
+
+    def _check_return_at_the_end(self, node):
+        """Check for presence of a *single* return statement at the end of a
+        function. "return" or "return None" are useless because None is the
+        default return type if they are missing.
+
+        NOTE: produces a message only if there is a single return statement
+        in the function body. Otherwise _check_consistent_returns() is called!
+        Per its implementation and PEP8 we can have a "return None" at the end
+        of the function body if there are other return statements before that!
+        """
+        if len(self._return_nodes[node.name]) > 1:
+            return
+
+        if not node.body:
+            return
+
+        last = node.body[-1]
+        if isinstance(last, astroid.Return):
+            # e.g. "return"
+            if last.value is None:
+                self.add_message('useless-return', node=node)
+            # return None"
+            elif isinstance(last.value, astroid.Const) and (last.value.value is None):
+                self.add_message('useless-return', node=node)
 
 
 class RecommandationChecker(checkers.BaseChecker):
