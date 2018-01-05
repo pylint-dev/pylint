@@ -24,6 +24,30 @@ from pylint.checkers import base
 from pylint.testutils import CheckerTestCase, Message, set_config
 
 
+class TestBasicErrorChecker(CheckerTestCase):
+    CHECKER_CLASS = base.BasicErrorChecker
+
+    def test_useless_return(self):
+        func = astroid.extract_node("""
+        def myfunc():
+            print('---- testing ---')
+            return
+        """)
+        message = Message('useless-return', node=func)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(func)
+
+    def test_useless_return_none(self):
+        func = astroid.extract_node("""
+        def myfunc():
+            print('---- testing ---')
+            return None
+        """)
+        message = Message('useless-return', node=func)
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(func)
+
+
 class TestDocstring(CheckerTestCase):
     CHECKER_CLASS = base.DocStringChecker
 
