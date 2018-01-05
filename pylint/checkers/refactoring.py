@@ -34,7 +34,6 @@ def _all_elements_are_true(gen):
     values = list(gen)
     return values and all(values)
 
-
 def _if_statement_is_always_returning(if_node):
     def _has_return_node(elems, scope):
         for node in elems:
