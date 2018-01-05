@@ -456,6 +456,11 @@ class BasicErrorChecker(_BasicChecker):
                   'Emitted when a name is used prior a global declaration, '
                   'which results in an error since Python 3.6.',
                   {'minversion': (3, 6)}),
+        'W0119': ("Useless return at end of function or method",
+                  'useless-return',
+                  'Emitted when a bare return statement is found at the end of '
+                  'function or method definition'
+                  ),
         }
 
     @utils.check_messages('function-redefined')
@@ -496,7 +501,7 @@ class BasicErrorChecker(_BasicChecker):
     @utils.check_messages('init-is-generator', 'return-in-init',
                           'function-redefined', 'return-arg-in-generator',
                           'duplicate-argument-name', 'nonlocal-and-global',
-                          'used-prior-global-declaration')
+                          'used-prior-global-declaration', 'useless-return')
     def visit_functiondef(self, node):
         self._check_nonlocal_and_global(node)
         self._check_name_used_prior_global(node)
@@ -530,6 +535,19 @@ class BasicErrorChecker(_BasicChecker):
                 self.add_message('duplicate-argument-name', node=node, args=(name,))
             else:
                 args.add(name)
+
+        # check for presence of return statement at the end of a function
+        # "return" or "return None" are useless because None is the default
+        # return type if they are missing
+        if node.body:
+            last = node.body[-1]
+            if isinstance(last, astroid.Return):
+                # e.g. "return"
+                if not last.value:
+                    self.add_message('useless-return', node=node)
+                # return None"
+                elif isinstance(last.value, astroid.Const) and not last.value.value:
+                    self.add_message('useless-return', node=node)
 
     visit_asyncfunctiondef = visit_functiondef
 
