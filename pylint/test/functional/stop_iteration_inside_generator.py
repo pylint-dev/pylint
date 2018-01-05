@@ -14,7 +14,6 @@ def gen_ok():
     yield 1
     yield 2
     yield 3
-    return
 
 # pylint should warn about this one
 # because of a direct raising of StopIteration inside generator

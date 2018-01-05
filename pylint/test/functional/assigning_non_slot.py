@@ -130,7 +130,6 @@ def dont_emit_for_descriptors():
     # a data descriptor
     inst.data_descriptor = 'foo'
     inst.non_data_descriptor = 'lala' # [assigning-non-slot]
-    return
 
 
 class ClassWithSlots(object):
