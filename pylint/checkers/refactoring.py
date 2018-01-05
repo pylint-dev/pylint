@@ -135,7 +135,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                ),
                ('never-returning-functions',
                 {'default': ('optparse.Values', 'sys.exit',),
-                 'help': 'Complete name of functions that never returns'}
+                 'type': 'csv',
+                 'help': 'Complete name of functions that never returns. When checking '
+                         'for inconsistent-return-statements if a never returning function is '
+                         'called then it will be considered as an explicit return statement '
+                         'and no message will be printed.'}
                ),)
 
     priority = 0
