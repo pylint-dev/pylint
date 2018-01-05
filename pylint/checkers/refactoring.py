@@ -592,11 +592,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             bool: True if the function never returns, False otherwise.
         """
         try:
-            if node.qname() in self._never_returning_functions:
-                return True
+            return node.qname() in self._never_returning_functions
         except TypeError:
             return False
-        return False
 
 
 class RecommandationChecker(checkers.BaseChecker):
