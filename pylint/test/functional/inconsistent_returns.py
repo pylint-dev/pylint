@@ -113,6 +113,14 @@ def bug_1771(var):
     else:
         return var * 2
 
+def bug_1771_with_user_config(var):
+    # sys.getdefaultencoding is considered as a never
+    # returning function in the inconsistent_returns.rc file.
+    if var == 1:
+        sys.getdefaultencoding()
+    else:
+        return var * 2
+
 # Next ones are not consistent
 def explicit_implicit_returns(var): # [inconsistent-return-statements]
     if var >= 0:
