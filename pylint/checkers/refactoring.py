@@ -148,11 +148,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         checkers.BaseTokenChecker.__init__(self, linter)
         self._return_nodes = {}
         self._init()
+        self._never_returning_functions = None
 
     def _init(self):
         self._nested_blocks = []
         self._elifs = []
         self._nested_blocks_msg = None
+
+    def open(self):
+        # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(self.config.never_returning_functions)
 
     @decorators.cachedproperty
