@@ -5,7 +5,6 @@
 :Release: 2.0
 :Date: |TBA|
 
-
 Summary -- Release highlights
 =============================
 
@@ -29,3 +28,6 @@ Other Changes
   "private" attributes whose name is mangled.
 
 * Fix ``unused-argument`` false positives with overshadowed variable in dictionary comprehension.
+
+* Fixing false positive ``inconsistent-return-statements`` when
+  never returning functions are used (i.e such as sys.exit).
