@@ -134,7 +134,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                          'method body'}
                ),
                ('never-returning-functions',
-                {'default': ('optparse.Values', 'sys.exit',),
+                {'default': ('sys.exit',),
                  'type': 'csv',
                  'help': 'Complete name of functions that never returns. When checking '
                          'for inconsistent-return-statements if a never returning function is '
