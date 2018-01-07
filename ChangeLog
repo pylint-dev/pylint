@@ -34,6 +34,11 @@ Release data: |TBA|
 
       Close #1731
 
+    * Fix false positive ``inconsistent-return-statements`` message when never
+      returning functions are used (i.e sys.exit for example).
+
+      Close #1771
+
 What's New in Pylint 1.8.1?
 ===========================
 

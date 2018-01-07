@@ -375,3 +375,6 @@ Other Changes
 
 * Fix unused-argument false positives with overshadowed variable in dictionary comprehension.
   (backport from 2.0)
+
+* Fixing false positive ``inconsistent-return-statements`` when
+  never returning functions are used (i.e such as sys.exit). (backport from 2.0)

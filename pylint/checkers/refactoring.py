@@ -35,53 +35,6 @@ def _all_elements_are_true(gen):
     return values and all(values)
 
 
-def _is_node_return_ended(node):
-    """Check if the node ends with an explicit return statement.
-
-    Args:
-        node (astroid.NodeNG): node to be checked.
-
-    Returns:
-        bool: True if the node ends with an explicit statement, False otherwise.
-
-    """
-    # Recursion base case
-    if isinstance(node, astroid.Return):
-        return True
-    # Avoid the check inside while loop as we don't know
-    # if they will be completed
-    if isinstance(node, astroid.While):
-        return True
-    if isinstance(node, astroid.Raise):
-        # a Raise statement doesn't need to end with a return statement
-        # but if the exception raised is handled, then the handler has to
-        # ends with a return statement
-        if not node.exc:
-            # Ignore bare raises
-            return True
-        exc = utils.safe_infer(node.exc)
-        if exc is None or exc is astroid.Uninferable:
-            return False
-        exc_name = exc.pytype().split('.')[-1]
-        handlers = utils.get_exception_handlers(node, exc_name)
-        handlers = list(handlers) if handlers is not None else []
-        if handlers:
-            # among all the handlers handling the exception at least one
-            # must end with a return statement
-            return any(_is_node_return_ended(_handler) for _handler in handlers)
-        # if no handlers handle the exception then it's ok
-        return True
-    if isinstance(node, astroid.If):
-        # if statement is returning if there are exactly two return statements in its
-        # children : one for the body part, the other for the orelse part
-        return_stmts = [_is_node_return_ended(_child) for _child in node.get_children()]
-        return sum(return_stmts) == 2
-    # recurses on the children of the node except for those which are except handler
-    # because one cannot be sure that the handler will really be used
-    return any(_is_node_return_ended(_child) for _child in node.get_children()
-               if not isinstance(_child, astroid.ExceptHandler))
-
-
 def _if_statement_is_always_returning(if_node):
     def _has_return_node(elems, scope):
         for node in elems:
@@ -179,6 +132,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
                  'help': 'Maximum number of nested blocks for function / '
                          'method body'}
+               ),
+               ('never-returning-functions',
+                {'default': ('optparse.Values', 'sys.exit',),
+                 'type': 'csv',
+                 'help': 'Complete name of functions that never returns. When checking '
+                         'for inconsistent-return-statements if a never returning function is '
+                         'called then it will be considered as an explicit return statement '
+                         'and no message will be printed.'}
                ),)
 
     priority = 0
@@ -187,11 +148,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         checkers.BaseTokenChecker.__init__(self, linter)
         self._return_nodes = {}
         self._init()
+        self._never_returning_functions = None
 
     def _init(self):
         self._nested_blocks = []
         self._elifs = []
         self._nested_blocks_msg = None
+
+    def open(self):
+        # do this in open since config not fully initialized in __init__
+        self._never_returning_functions = set(self.config.never_returning_functions)
 
     @decorators.cachedproperty
     def _dummy_rgx(self):
@@ -567,9 +533,76 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not explicit_returns:
             return
         if (len(explicit_returns) == len(self._return_nodes[node.name])
-                and _is_node_return_ended(node)):
+                and self._is_node_return_ended(node)):
             return
         self.add_message('inconsistent-return-statements', node=node)
+
+    def _is_node_return_ended(self, node):
+        """Check if the node ends with an explicit return statement.
+
+        Args:
+            node (astroid.NodeNG): node to be checked.
+
+        Returns:
+            bool: True if the node ends with an explicit statement, False otherwise.
+
+        """
+        # Recursion base case
+        if isinstance(node, astroid.Return):
+            return True
+        if isinstance(node, astroid.Call):
+            try:
+                funcdef_node = node.func.infered()[0]
+                if self._is_function_def_never_returning(funcdef_node):
+                    return True
+            except astroid.InferenceError:
+                pass
+        # Avoid the check inside while loop as we don't know
+        # if they will be completed
+        if isinstance(node, astroid.While):
+            return True
+        if isinstance(node, astroid.Raise):
+            # a Raise statement doesn't need to end with a return statement
+            # but if the exception raised is handled, then the handler has to
+            # ends with a return statement
+            if not node.exc:
+                # Ignore bare raises
+                return True
+            exc = utils.safe_infer(node.exc)
+            if exc is None or exc is astroid.Uninferable:
+                return False
+            exc_name = exc.pytype().split('.')[-1]
+            handlers = utils.get_exception_handlers(node, exc_name)
+            handlers = list(handlers) if handlers is not None else []
+            if handlers:
+                # among all the handlers handling the exception at least one
+                # must end with a return statement
+                return any(self._is_node_return_ended(_handler) for _handler in handlers)
+            # if no handlers handle the exception then it's ok
+            return True
+        if isinstance(node, astroid.If):
+            # if statement is returning if there are exactly two return statements in its
+            # children : one for the body part, the other for the orelse part
+            return_stmts = [self._is_node_return_ended(_child) for _child in node.get_children()]
+            return sum(return_stmts) == 2
+        # recurses on the children of the node except for those which are except handler
+        # because one cannot be sure that the handler will really be used
+        return any(self._is_node_return_ended(_child) for _child in node.get_children()
+                   if not isinstance(_child, astroid.ExceptHandler))
+
+    def _is_function_def_never_returning(self, node):
+        """Return True if the function never returns. False otherwise.
+
+        Args:
+            node (astroid.FunctionDef): function definition node to be analyzed.
+
+        Returns:
+            bool: True if the function never returns, False otherwise.
+        """
+        try:
+            return node.qname() in self._never_returning_functions
+        except TypeError:
+            return False
 
 
 class RecommandationChecker(checkers.BaseChecker):
