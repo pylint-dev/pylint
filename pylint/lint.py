@@ -453,7 +453,7 @@ class PyLinter(config.OptionsManagerMixIn,
             'disable': self.disable}
         self._bw_options_methods = {'disable-msg': self.disable,
                                     'enable-msg': self.enable}
-        full_version = '%%prog %s, \nastroid %s\nPython %s' % (
+        full_version = '%%prog %s\nastroid %s\nPython %s' % (
             version, astroid_version, sys.version)
         utils.MessagesHandlerMixIn.__init__(self)
         utils.ReportsHandlerMixIn.__init__(self)
