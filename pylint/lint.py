@@ -1231,7 +1231,7 @@ group are mutually exclusive.'),
              {'action' : 'callback',
               'callback' : cb_list_confidence_levels,
               'group': 'Commands', 'level': 1,
-              'help' : "Generate pylint's messages."}),
+              'help' : "Generate pylint's confidence levels."}),
 
             ('full-documentation',
              {'action' : 'callback', 'metavar': '<msg-id>',
