@@ -632,6 +632,9 @@ class FormatChecker(BaseTokenChecker):
         """Extended check of PEP-484 type hint presence"""
         if not self._inside_brackets('('):
             return False
+        # token_info
+        # type string start end line
+        #  0      1     2    3    4
         bracket_level = 0
         for token in tokens[i-1::-1]:
             if token[1] == ':':
@@ -647,7 +650,7 @@ class FormatChecker(BaseTokenChecker):
                     return False
             elif token[1] == '.':
                 continue
-            elif token[0] not in (tokenize.NAME, tokenize.STRING):
+            elif token[0] not in (tokenize.NAME, tokenize.STRING, tokenize.NL):
                 return False
         return False
 
