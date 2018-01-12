@@ -296,6 +296,9 @@ class TestCheckSpace(CheckerTestCase):
                     args=('Exactly one', 'required', 'around', 'keyword argument assignment',
                           '(foo: List[int]=bar)\n               ^'))):
             self.checker.process_tokens(_tokenize_str('(foo: List[int]=bar)\n'))
+        # Regression test for #1831
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str("(arg: Tuple[\n    int, str] = None):\n"))
 
     def testOperatorSpacingGood(self):
         good_cases = [
