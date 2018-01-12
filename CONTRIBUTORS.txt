@@ -150,3 +150,5 @@ Order doesn't matter (not that much, at least ;)
   Added new check for shallow copy of os.environ
 
 * Jacques Kvam: contributor
+
+* Brian Shaginaw: prevent error on exception check for functions
