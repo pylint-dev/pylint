@@ -60,3 +60,19 @@ class TestExceptionsChecker(CheckerTestCase):
         message = Message('raising-bad-type', node=nodes[3], args='tuple')
         with self.assertAddsMessages(message):
             self.checker.visit_raise(nodes[3])
+
+    @pytest.mark.skipif(sys.version_info[0] != 3,
+                        reason="The test is valid only on Python 3.")
+    def test_bad_exception_context_function(self):
+        node = astroid.extract_node("""
+        def function():
+            pass
+
+        try:
+            pass
+        except function as exc:
+            raise Exception from exc  #@
+        """)
+        message = Message('bad-exception-context', node=node)
+        with self.assertAddsMessages(message):
+            self.checker.visit_raise(node)
