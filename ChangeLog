@@ -39,6 +39,8 @@ Release data: |TBA|
 
       Close #1771
 
+    * Fix error when checking if function is exception, as in ``bad-exception-context``.
+
 What's New in Pylint 1.8.1?
 ===========================
 
