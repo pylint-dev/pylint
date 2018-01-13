@@ -94,3 +94,8 @@ def gen_dont_crash_on_uninferable():
     # https://github.com/PyCQA/pylint/issues/1779
     yield from iter()
     raise asyncio.TimeoutError()
+
+
+# https://github.com/PyCQA/pylint/issues/1830
+def gen_next_with_sentinel():
+    yield next([], 42) # No bad return
