@@ -361,11 +361,22 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_raising_stopiteration_in_generator_next_call(node)
 
     def _check_raising_stopiteration_in_generator_next_call(self, node):
-        """Check if a StopIteration exception is raised by the call to next function"""
+        """Check if a StopIteration exception is raised by the call to next function
+
+        If the next value has a default value, then do not add message.
+
+        :param node: Check to see if this Call node is a next function
+        :type node: :class:`astroid.node_classes.Call`
+        """
         inferred = utils.safe_infer(node.func)
         if getattr(inferred, 'name', '') == 'next':
             frame = node.frame()
-            if (isinstance(frame, astroid.FunctionDef) and frame.is_generator()
+            # The next builtin can only have up to two
+            # positional arguments and no keyword arguments
+            has_sentinel_value = len(node.args) > 1
+            if (isinstance(frame, astroid.FunctionDef)
+                    and frame.is_generator()
+                    and not has_sentinel_value
                     and not utils.node_ignores_exception(node, StopIteration)):
                 self.add_message('stop-iteration-return', node=node)
 
