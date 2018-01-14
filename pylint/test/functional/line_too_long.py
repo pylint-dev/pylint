@@ -31,3 +31,10 @@ def function():
     That contains a very, very long line that exceeds the 100 characters limit by a good margin. So good?
     """
     pass
+
+STRING_ONE = "Just another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and not so stupid line" # pylint: disable=line-too-long
+
+STRING_TWO = "Yet another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and a bit stupid line"
+
+# pylint: disable=line-too-long
+STRING_THREE = "Yet another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and stupid line"
