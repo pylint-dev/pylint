@@ -22,8 +22,6 @@ badname = 'This line is already longer than 100 characters even without the prag
 # +1: [line-too-long]
 #TODO: This line is toooooooooooooooooooooooooooooooooooooooooooooooo looooooooooooooooooooooooooooooooooooooooong #pylint: disable=fixme
 
-# This a very very very ver very very long commented line whith a disable directive at the end but it should not deactivate emission of messages of the same kind for lines that follow #pylint: disable=line-too-long
-
 def function():
     # +3: [line-too-long]
     """This is a docstring.
