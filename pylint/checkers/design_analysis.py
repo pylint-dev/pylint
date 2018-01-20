@@ -61,7 +61,7 @@ MSGS = {
               should then split it in smaller functions / methods.'),
     'R0916': ('Too many boolean expressions in if statement (%s/%s)',
               'too-many-boolean-expressions',
-              'Used when a if statement contains too many boolean '
+              'Used when an if statement contains too many boolean '
               'expressions'),
     }
 

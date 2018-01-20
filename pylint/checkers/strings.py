@@ -40,7 +40,7 @@ _PY27 = sys.version_info[:2] == (2, 7)
 MSGS = {
     'E1300': ("Unsupported format character %r (%#02x) at index %d",
               "bad-format-character",
-              "Used when a unsupported format character is used in a format\
+              "Used when an unsupported format character is used in a format\
               string."),
     'E1301': ("Format string ends in middle of conversion specifier",
               "truncated-format-string",

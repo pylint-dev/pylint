@@ -312,7 +312,7 @@ MSGS = {
 
     'W0631': ('Using possibly undefined loop variable %r',
               'undefined-loop-variable',
-              'Used when an loop variable (i.e. defined by a for loop or \
+              'Used when a loop variable (i.e. defined by a for loop or \
               a list comprehension or a generator expression) is used outside \
               the loop.'),
 
