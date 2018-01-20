@@ -420,7 +420,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1650': ('Using str.translate with deprecated deletechars parameters',
                   'deprecated-str-translate-call',
-                  'Used when using the deprecated deletechars parameters from str.translate.  Use'
+                  'Used when using the deprecated deletechars parameters from str.translate.  Use '
                   're.sub to remove the desired characters ',
                   {'maxversion': (3, 0)}),
         'W1651': ('Accessing a deprecated function on the itertools module',
