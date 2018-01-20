@@ -408,7 +408,7 @@ class BasicErrorChecker(_BasicChecker):
                   {'maxversion': (3, 3)}),
         'E0107': ("Use of the non-existent %s operator",
                   'nonexistent-operator',
-                  "Used when you attempt to use the C-style pre-increment or"
+                  "Used when you attempt to use the C-style pre-increment or "
                   "pre-decrement operator -- and ++, which doesn't exist in Python."),
         'E0108': ('Duplicate argument name %s in function definition',
                   'duplicate-argument-name',
