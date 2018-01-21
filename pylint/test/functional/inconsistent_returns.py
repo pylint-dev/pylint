@@ -121,6 +121,15 @@ def bug_1771_with_user_config(var):
     else:
         return var * 2
 
+def bug_1794_inner_func_in_if(var):
+    # pylint: disable = no-else-return
+    if var:
+        def _inner():
+            return None
+        return None
+    else:
+        return None
+
 # Next ones are not consistent
 def explicit_implicit_returns(var): # [inconsistent-return-statements]
     if var >= 0:
@@ -198,3 +207,33 @@ def bug_1772_counter_example(): # [inconsistent-return-statements]
             counter += 1
             if counter == 100:
                 return 7
+
+def bug_1794_inner_func_in_if_counter_example_1(var): # [inconsistent-return-statements]
+    # pylint: disable = no-else-return
+    if var:
+        def _inner():
+            return None
+        return None
+    else:
+        return
+
+def bug_1794_inner_func_in_if_counter_example_2(var): # [inconsistent-return-statements]
+    # pylint: disable = no-else-return
+    if var:
+        def _inner():
+            return
+        return None
+    else:
+        return
+
+def bug_1794_inner_func_in_if_counter_example_3(var): # [inconsistent-return-statements]
+    # pylint: disable = no-else-return
+    if var:
+        def _inner():
+            return None
+        return None
+    else:
+        def _inner2(var_bis): # [inconsistent-return-statements]
+            if var_bis:
+                return True
+            return
