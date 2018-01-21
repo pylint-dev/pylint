@@ -16,6 +16,8 @@ badname = 'This line is already longer than 100 characters even without the prag
 
 # http://example.com/this/is/a/very/long/url?but=splitting&urls=is&a=pain&so=they&can=be&long
 
+# This a very very very ver very very long commented line with a disable directive at the end but it should not deactivate emission of messages of the same kind for lines that follow #pylint: disable=line-too-long
+
 # +1: [line-too-long]
 # This line is toooooooooooooooooooooooooooooooooooooooooooooooo looooooooooooooooooooooooooooooooooooooooong #pylint: disable=fixme
 
