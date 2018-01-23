@@ -11,4 +11,3 @@ inconsistent-return-statements:212:bug_1794_inner_func_in_if_counter_example_1:E
 inconsistent-return-statements:221:bug_1794_inner_func_in_if_counter_example_2:Either all return statements in a function should return an expression, or none of them should.
 inconsistent-return-statements:230:bug_1794_inner_func_in_if_counter_example_3:Either all return statements in a function should return an expression, or none of them should.
 inconsistent-return-statements:237:bug_1794_inner_func_in_if_counter_example_3._inner2:Either all return statements in a function should return an expression, or none of them should.
-
