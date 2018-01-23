@@ -2,10 +2,20 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 1.8.3?
+==========================
+
+Release date: -
+
+    * Fix false positive ``inconsistent-return-statements`` message when a
+      function is defined under an if statement.
+
+      Close #1794
+
 What's New in Pylint 1.8.2?
 ==========================
 
-Release data: 2018-01-23
+Release date: 2018-01-23
 
     * Fixed a crash which occurred when `Uninferable` wasn't properly handled in `stop-iteration-return`
 
