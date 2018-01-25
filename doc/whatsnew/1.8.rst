@@ -378,3 +378,6 @@ Other Changes
 
 * Fixing false positive ``inconsistent-return-statements`` when
   never returning functions are used (i.e such as sys.exit). (backport from 2.0)
+
+* Fix false positive ``inconsistent-return-statements`` message when a function
+  is defined under an if statement. (backport from 2.0)
