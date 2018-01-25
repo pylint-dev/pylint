@@ -228,8 +228,7 @@ MSGS = {
     'E1125': ('Missing mandatory keyword argument %r in %s call',
               'missing-kwoa',
               ('Used when a function call does not pass a mandatory'
-               ' keyword-only argument.'),
-              {'minversion': (3, 0)}),
+               ' keyword-only argument.')),
     'E1126': ('Sequence index is not an int, slice, or instance with __index__',
               'invalid-sequence-index',
               'Used when a sequence type is indexed with an invalid type. '

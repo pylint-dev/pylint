@@ -75,8 +75,7 @@ MSGS = {
               'bad-exception-context',
               'Used when using the syntax "raise ... from ...", '
               'where the exception context is not an exception, '
-              'nor None.',
-              {'minversion': (3, 0)}),
+              'nor None.'),
     'E0704': ('The raise statement is not inside an except clause',
               'misplaced-bare-raise',
               'Used when a bare raise is not used inside an except clause. '

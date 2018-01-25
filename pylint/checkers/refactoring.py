@@ -110,14 +110,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'not by the parentheses. Unfortunately, one can actually create a '
                   'tuple by misplacing a trailing comma, which can lead to potential '
                   'weird bugs in your code. You should always use parentheses '
-                  'explicitly for creating a tuple.',
-                  {'minversion': (3, 0)}),
+                  'explicitly for creating a tuple.'),
         'R1708': ('Do not raise StopIteration in generator, use return statement instead',
                   'stop-iteration-return',
                   'According to PEP479, the raise of StopIteration to end the loop of '
                   'a generator may lead to hard to find bugs. This PEP specify that '
-                  'raise StopIteration has to be replaced by a simple return statement',
-                  {'minversion': (3, 0)}),
+                  'raise StopIteration has to be replaced by a simple return statement'),
         'R1710': ('Either all return statements in a function should return an expression, '
                   'or none of them should.',
                   'inconsistent-return-statements',

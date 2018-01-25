@@ -424,22 +424,18 @@ class BasicErrorChecker(_BasicChecker):
         'E0112': ('More than one starred expression in assignment',
                   'too-many-star-expressions',
                   'Emitted when there are more than one starred '
-                  'expressions (`*x`) in an assignment. This is a SyntaxError.',
-                  {'minversion': (3, 0)}),
+                  'expressions (`*x`) in an assignment. This is a SyntaxError.'),
         'E0113': ('Starred assignment target must be in a list or tuple',
                   'invalid-star-assignment-target',
                   'Emitted when a star expression is used as a starred '
-                  'assignment target.',
-                  {'minversion': (3, 0)}),
+                  'assignment target.'),
         'E0114': ('Can use starred expression only in assignment target',
                   'star-needs-assignment-target',
                   'Emitted when a star expression is not used in an '
-                  'assignment target.',
-                  {'minversion': (3, 0)}),
+                  'assignment target.'),
         'E0115': ('Name %r is nonlocal and global',
                   'nonlocal-and-global',
-                  'Emitted when a name is both nonlocal and global.',
-                  {'minversion': (3, 0)}),
+                  'Emitted when a name is both nonlocal and global.'),
         'E0116': ("'continue' not supported inside 'finally' clause",
                   'continue-in-finally',
                   'Emitted when the `continue` keyword is found '
@@ -447,8 +443,7 @@ class BasicErrorChecker(_BasicChecker):
         'E0117': ("nonlocal name %s found without binding",
                   'nonlocal-without-binding',
                   'Emitted when a nonlocal variable does not have an attached '
-                  'name somewhere in the parent scopes',
-                  {'minversion': (3, 0)}),
+                  'name somewhere in the parent scopes'),
         'E0118': ("Name %r is used prior to global declaration",
                   'used-prior-global-declaration',
                   'Emitted when a name is used prior a global declaration, '
