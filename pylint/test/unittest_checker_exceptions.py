@@ -9,11 +9,6 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Tests for pylint.checkers.exceptions."""
-
-import sys
-
-import pytest
-
 import astroid
 
 from pylint.checkers import exceptions
@@ -30,39 +25,12 @@ class TestExceptionsChecker(CheckerTestCase):
     # and `raise (Error, ...)` will be converted to
     # `raise Error(...)`, so it beats the purpose of the test.
 
-    @pytest.mark.skipif(sys.version_info[0] != 3,
-                        reason="The test should emit an error on Python 3.")
     def test_raising_bad_type_python3(self):
         node = astroid.extract_node('raise (ZeroDivisionError, None)  #@')
         message = Message('raising-bad-type', node=node, args='tuple')
         with self.assertAddsMessages(message):
             self.checker.visit_raise(node)
 
-    @pytest.mark.skipif(sys.version_info[0] != 2,
-                        reason="The test is valid only on Python 2.")
-    def test_raising_bad_type_python2(self):
-        nodes = astroid.extract_node('''
-        raise (ZeroDivisionError, None)  #@
-        from something import something
-        raise (something, None) #@
-
-        raise (4, None) #@
-        raise () #@
-        ''')
-        with self.assertNoMessages():
-            self.checker.visit_raise(nodes[0])
-        with self.assertNoMessages():
-            self.checker.visit_raise(nodes[1])
-
-        message = Message('raising-bad-type', node=nodes[2], args='tuple')
-        with self.assertAddsMessages(message):
-            self.checker.visit_raise(nodes[2])
-        message = Message('raising-bad-type', node=nodes[3], args='tuple')
-        with self.assertAddsMessages(message):
-            self.checker.visit_raise(nodes[3])
-
-    @pytest.mark.skipif(sys.version_info[0] != 3,
-                        reason="The test is valid only on Python 3.")
     def test_bad_exception_context_function(self):
         node = astroid.extract_node("""
         def function():

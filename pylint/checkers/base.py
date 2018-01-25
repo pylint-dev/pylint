@@ -1325,7 +1325,6 @@ class NameChecker(_BasicChecker):
               ) + _create_naming_options()
 
     KEYWORD_ONSET = {
-        (3, 0): {'True', 'False'},
         (3, 7): {'async', 'await'}
     }
 
