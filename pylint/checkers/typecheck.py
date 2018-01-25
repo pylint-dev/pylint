@@ -28,6 +28,7 @@
 """try to find more bugs in the code using astroid inference capabilities
 """
 
+import builtins
 import collections
 import fnmatch
 import heapq
@@ -36,8 +37,6 @@ import operator
 import re
 import shlex
 import sys
-
-import six
 
 import astroid
 import astroid.context
@@ -65,16 +64,14 @@ from pylint.checkers.utils import (
     singledispatch)
 from pylint.utils import get_global_option
 
-BUILTINS = six.moves.builtins.__name__
+BUILTINS = builtins.__name__
 STR_FORMAT = {"%s.str.format" % BUILTINS}
-if six.PY2:
-    STR_FORMAT.add("%s.unicode.format" % BUILTINS)
 
 
 def _unflatten(iterable):
     for index, elem in enumerate(iterable):
         if (isinstance(elem, collections.Sequence) and
-                not isinstance(elem, six.string_types)):
+                not isinstance(elem, str)):
             for single_elem in _unflatten(elem):
                 yield single_elem
         elif elem and not index:
@@ -627,7 +624,7 @@ accessed. Python regular expressions are accepted.'}
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
-        if isinstance(self.config.generated_members, six.string_types):
+        if isinstance(self.config.generated_members, str):
             gen = shlex.shlex(self.config.generated_members)
             gen.whitespace += ','
             gen.wordchars += r'[]-+\.*?()|'
@@ -1149,7 +1146,7 @@ accessed. Python regular expressions are accepted.'}
                 # manager and give up, otherwise emit not-context-manager.
                 # See the test file for not_context_manager for a couple
                 # of self explaining tests.
-                for path in six.moves.filter(None, _unflatten(context.path)):
+                for path in filter(None, _unflatten(context.path)):
                     scope = path.scope()
                     if not isinstance(scope, astroid.FunctionDef):
                         continue

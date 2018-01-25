@@ -15,14 +15,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Looks for code which can be refactored."""
-
+import builtins
 import collections
 import itertools
 import tokenize
 
 import astroid
 from astroid import decorators
-import six
 
 from pylint import interfaces
 from pylint import checkers
@@ -253,7 +252,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # tokens[index][2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([tokens[index][2], tokens[index+1][2]])
-            elif six.PY3 and is_trailing_comma(tokens, index):
+            elif is_trailing_comma(tokens, index):
                 if self.linter.is_message_enabled('trailing-comma-tuple'):
                     self.add_message('trailing-comma-tuple',
                                      line=token.start[0])
@@ -728,7 +727,7 @@ class NotChecker(checkers.BaseChecker):
     # not equivalent to "set(LEFT_VALS) > set(RIGHT_VALS)"
     skipped_nodes = (astroid.Set,)
     # 'builtins' py3, '__builtin__' py2
-    skipped_classnames = ['%s.%s' % (six.moves.builtins.__name__, qname)
+    skipped_classnames = ['%s.%s' % (builtins.__name__, qname)
                           for qname in ('set', 'frozenset')]
 
     @utils.check_messages('unneeded-not')

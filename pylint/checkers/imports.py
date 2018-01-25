@@ -32,8 +32,6 @@ import os
 import sys
 import copy
 
-import six
-
 import astroid
 from astroid import are_exclusive
 from astroid.modutils import (get_module_part, is_standard_module)
@@ -164,14 +162,14 @@ def _dependencies_graph(filename, dep_info):
     done = {}
     printer = DotBackend(filename[:-4], rankdir='LR')
     printer.emit('URL="." node[shape="box"]')
-    for modname, dependencies in sorted(six.iteritems(dep_info)):
+    for modname, dependencies in sorted(dep_info.items()):
         done[modname] = 1
         printer.emit_node(modname)
         for depmodname in dependencies:
             if depmodname not in done:
                 done[depmodname] = 1
                 printer.emit_node(depmodname)
-    for depmodname, dependencies in sorted(six.iteritems(dep_info)):
+    for depmodname, dependencies in sorted(dep_info.items()):
         for modname in dependencies:
             printer.emit_edge(modname, depmodname)
     printer.generate(filename)
@@ -261,9 +259,7 @@ class ImportsChecker(BaseChecker):
     msgs = MSGS
     priority = -2
 
-    if six.PY2:
-        deprecated_modules = ('regsub', 'TERMIOS', 'Bastion', 'rexec')
-    elif sys.version_info < (3, 5):
+    if sys.version_info < (3, 5):
         deprecated_modules = ('optparse', )
     else:
         deprecated_modules = ('optparse', 'tkinter.tix')
@@ -739,7 +735,7 @@ class ImportsChecker(BaseChecker):
 
     def _report_external_dependencies(self, sect, _, _dummy):
         """return a verbatim layout for displaying dependencies"""
-        dep_info = _make_tree_defs(six.iteritems(self._external_dependencies_info()))
+        dep_info = _make_tree_defs(self._external_dependencies_info().items())
         if not dep_info:
             raise EmptyReportError()
         tree_str = _repr_tree_defs(dep_info)
@@ -771,7 +767,7 @@ class ImportsChecker(BaseChecker):
         if self.__ext_dep_info is None:
             package = self.linter.current_name
             self.__ext_dep_info = result = {}
-            for importee, importers in six.iteritems(self.stats['dependencies']):
+            for importee, importers in self.stats['dependencies'].items():
                 if not importee.startswith(package):
                     result[importee] = importers
         return self.__ext_dep_info
@@ -783,7 +779,7 @@ class ImportsChecker(BaseChecker):
         if self.__int_dep_info is None:
             package = self.linter.current_name
             self.__int_dep_info = result = {}
-            for importee, importers in six.iteritems(self.stats['dependencies']):
+            for importee, importers in self.stats['dependencies'].items():
                 if importee.startswith(package):
                     result[importee] = importers
         return self.__int_dep_info

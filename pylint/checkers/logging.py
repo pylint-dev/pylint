@@ -17,8 +17,6 @@
 """
 import string
 
-import six
-
 import astroid
 
 from pylint import checkers
@@ -226,7 +224,7 @@ class LoggingChecker(checkers.BaseChecker):
             # don't check any further.
             return
         format_string = node.args[format_arg].value
-        if not isinstance(format_string, six.string_types):
+        if not isinstance(format_string, str):
             # If the log format is constant non-string (e.g. logging.debug(5)),
             # ensure there are no arguments.
             required_num_args = 0
@@ -261,7 +259,7 @@ def is_complex_format_str(node):
         bool: True if inferred string uses complex formatting, False otherwise
     """
     inferred = utils.safe_infer(node)
-    if inferred is None or not isinstance(inferred.value, six.string_types):
+    if inferred is None or not isinstance(inferred.value, str):
         return True
     for _, _, format_spec, _ in string.Formatter().parse(inferred.value):
         if format_spec:

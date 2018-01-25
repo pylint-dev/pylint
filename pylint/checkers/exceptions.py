@@ -18,12 +18,10 @@
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Checks for various exception related errors."""
-
+import builtins
 import inspect
 import sys
 
-import six
-from six.moves import builtins
 
 import astroid
 from pylint import checkers
@@ -35,7 +33,7 @@ def _builtin_exceptions():
     def predicate(obj):
         return isinstance(obj, type) and issubclass(obj, BaseException)
 
-    members = inspect.getmembers(six.moves.builtins, predicate)
+    members = inspect.getmembers(builtins, predicate)
     return {exc.__name__ for (_, exc) in members}
 
 
@@ -162,7 +160,7 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
             self.visit_name(call.func)
         if (len(call.args) > 1 and
                 isinstance(call.args[0], astroid.Const) and
-                isinstance(call.args[0].value, six.string_types)):
+                isinstance(call.args[0].value, str)):
             msg = call.args[0].value
             if ('%' in msg or
                     ('{' in msg and '}' in msg)):

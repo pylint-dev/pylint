@@ -28,13 +28,11 @@
 
 """basic checker for Python code"""
 
+import builtins
 import collections
 import itertools
 import sys
 import re
-
-import six
-from six.moves import zip  # pylint: disable=redefined-builtin
 
 import astroid
 import astroid.bases
@@ -134,7 +132,7 @@ TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
                                             '!=', 'in', 'not in'))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 UNITTEST_CASE = 'unittest.case'
-BUILTINS = six.moves.builtins.__name__
+BUILTINS = builtins.__name__
 TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
@@ -879,8 +877,7 @@ functions, methods
     def visit_expr(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
-        if isinstance(expr, astroid.Const) and isinstance(expr.value,
-                                                          six.string_types):
+        if isinstance(expr, astroid.Const) and isinstance(expr.value, str):
             # treat string statement in a separated message
             # Handle PEP-257 attribute docstrings.
             # An attribute docstring is defined as being a string right after
@@ -1385,12 +1382,12 @@ class NameChecker(_BasicChecker):
         self._bad_names = {}
 
     def leave_module(self, node): # pylint: disable=unused-argument
-        for all_groups in six.itervalues(self._bad_names):
+        for all_groups in self._bad_names.values():
             if len(all_groups) < 2:
                 continue
             groups = collections.defaultdict(list)
             min_warnings = sys.maxsize
-            for group in six.itervalues(all_groups):
+            for group in all_groups.values():
                 groups[len(group)].append(group)
                 min_warnings = min(len(group), min_warnings)
             if len(groups[min_warnings]) > 1:
@@ -1406,7 +1403,7 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name('class', node.name, node)
-        for attr, anodes in six.iteritems(node.instance_attrs):
+        for attr, anodes in node.instance_attrs.items():
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name('attr', attr, anodes[0])
 

@@ -21,13 +21,10 @@
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 from __future__ import absolute_import, print_function
 
+from collections import namedtuple
 import re
 import sys
 import tokenize
-
-from collections import namedtuple
-
-import six
 
 import astroid
 from astroid import bases
@@ -644,7 +641,7 @@ class Python3Checker(checkers.BaseChecker):
         self.add_message('print-statement', node=node, always_warn=True)
 
     def _warn_if_deprecated(self, node, module, attributes, report_on_modules=True):
-        for message, module_map in six.iteritems(self._bad_python3_module_map):
+        for message, module_map in self._bad_python3_module_map.items():
             if module in module_map and module not in self._modules_warned_about:
                 if isinstance(module_map, frozenset):
                     if report_on_modules:
@@ -731,7 +728,7 @@ class Python3Checker(checkers.BaseChecker):
     @staticmethod
     def _is_constant_string_or_name(node):
         if isinstance(node, astroid.Const):
-            return isinstance(node.value, six.string_types)
+            return isinstance(node.value, str)
         return isinstance(node, astroid.Name)
 
     @staticmethod
@@ -749,7 +746,7 @@ class Python3Checker(checkers.BaseChecker):
             if inferred_type is astroid.Uninferable:
                 confidence = INFERENCE_FAILURE
             elif not (isinstance(inferred_type, astroid.Const) and
-                      isinstance(inferred_type.value, six.string_types)):
+                      isinstance(inferred_type.value, str)):
                 return None
         return confidence
 

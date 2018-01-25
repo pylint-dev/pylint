@@ -20,8 +20,6 @@
 
 import sys
 
-import six
-
 import astroid
 from astroid.bases import Instance
 from pylint.interfaces import IAstroidChecker
@@ -42,15 +40,12 @@ else:
 
 def _check_mode_str(mode):
     # check type
-    if not isinstance(mode, six.string_types):
+    if not isinstance(mode, str):
         return False
     # check syntax
     modes = set(mode)
-    _mode = "rwatb+U"
-    creating = False
-    if six.PY3:
-        _mode += "x"
-        creating = "x" in modes
+    _mode = "rwatb+Ux"
+    creating = "x" in modes
     if modes - set(_mode) or len(mode) > len(modes):
         return False
     # check logic
@@ -60,25 +55,16 @@ def _check_mode_str(mode):
     text = "t" in modes
     binary = "b" in modes
     if "U" in modes:
-        if writing or appending or creating and six.PY3:
+        if writing or appending or creating:
             return False
         reading = True
-        if not six.PY3:
-            binary = True
     if text and binary:
         return False
-    total = reading + writing + appending + (creating if six.PY3 else 0)
+    total = reading + writing + appending + creating
     if total > 1:
         return False
-    if not (reading or writing or appending or creating and six.PY3):
+    if not (reading or writing or appending or creating):
         return False
-    # other 2.x constraints
-    if not six.PY3:
-        if "U" in mode:
-            mode = mode.replace("U", "")
-            if "r" not in mode:
-                mode = "r" + mode
-        return mode[0] in ("r", "w", "a", "U")
     return True
 
 

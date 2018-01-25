@@ -25,8 +25,6 @@ import tokenize
 import string
 import numbers
 
-import six
-
 import astroid
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
 from pylint.checkers import BaseChecker, BaseTokenChecker
@@ -252,7 +250,7 @@ class StringFormatChecker(BaseChecker):
         args = node.right
 
         if not (isinstance(left, astroid.Const)
-                and isinstance(left.value, six.string_types)):
+                and isinstance(left.value, str)):
             return
         format_string = left.value
         try:
@@ -281,7 +279,7 @@ class StringFormatChecker(BaseChecker):
                 for k, _ in args.items:
                     if isinstance(k, astroid.Const):
                         key = k.value
-                        if isinstance(key, six.string_types):
+                        if isinstance(key, str):
                             keys.add(key)
                         else:
                             self.add_message('bad-format-string-key',
@@ -372,7 +370,7 @@ class StringFormatChecker(BaseChecker):
             return
         if not isinstance(strnode, astroid.Const):
             return
-        if not isinstance(strnode.value, six.string_types):
+        if not isinstance(strnode.value, str):
             return
 
         if node.starargs or node.kwargs:
@@ -388,7 +386,7 @@ class StringFormatChecker(BaseChecker):
             return
 
         named_fields = set(field[0] for field in fields
-                           if isinstance(field[0], six.string_types))
+                           if isinstance(field[0], str))
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)

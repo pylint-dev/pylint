@@ -26,9 +26,8 @@
 from __future__ import generators
 
 import collections
+from itertools import zip_longest
 import sys
-
-import six
 
 import astroid
 from astroid.bases import Generator, BUILTINS
@@ -223,7 +222,7 @@ def _has_different_parameters_default_value(original, overridden):
     return False
 
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
-    zipped = six.moves.zip_longest(original, overridden)
+    zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         params = (original_param, overridden_param)
         if not all(params):
@@ -403,7 +402,7 @@ def _has_same_layout_slots(slots, assigned_value):
     if isinstance(inferred, astroid.ClassDef):
         other_slots = inferred.slots()
         if all(first_slot and second_slot and first_slot.value == second_slot.value
-               for (first_slot, second_slot) in six.moves.zip_longest(slots, other_slots)):
+               for (first_slot, second_slot) in zip_longest(slots, other_slots)):
             return True
     return False
 
@@ -692,7 +691,7 @@ a metaclass class method.'}
             return
         defining_methods = self.config.defining_attr_methods
         current_module = cnode.root()
-        for attr, nodes in six.iteritems(cnode.instance_attrs):
+        for attr, nodes in cnode.instance_attrs.items():
             # skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
             nodes = [n for n in nodes if not
@@ -905,7 +904,7 @@ a metaclass class method.'}
             if infered is astroid.Uninferable:
                 continue
             if (not isinstance(infered, astroid.Const) or
-                    not isinstance(infered.value, six.string_types)):
+                    not isinstance(infered.value, str)):
                 self.add_message('invalid-slots-object',
                                  args=infered.as_string(),
                                  node=elt)
@@ -932,7 +931,7 @@ a metaclass class method.'}
                     and not (node.is_abstract() or
                              overrides_a_method(class_node, node.name) or
                              decorated_with_property(node) or
-                             (six.PY3 and _has_bare_super_call(node)))):
+                             _has_bare_super_call(node))):
                 self.add_message('no-self-use', node=node)
 
     def visit_attribute(self, node):
@@ -1115,7 +1114,7 @@ a metaclass class method.'}
         """check that accessed members are defined"""
         # XXX refactor, probably much simpler now that E0201 is in type checker
         excs = ('AttributeError', 'Exception', 'BaseException')
-        for attr, nodes in six.iteritems(accessed):
+        for attr, nodes in accessed.items():
             try:
                 # is it a class attribute ?
                 node.local_attr(attr)
@@ -1299,7 +1298,7 @@ a metaclass class method.'}
                                              node=expr, args=klass.name)
             except astroid.InferenceError:
                 continue
-        for klass, method in six.iteritems(not_called_yet):
+        for klass, method in not_called_yet.items():
             cls = node_frame_class(method)
             if klass.name == 'object' or (cls and cls.name == 'object'):
                 continue
@@ -1493,7 +1492,7 @@ class SpecialMethodsChecker(BaseChecker):
             return
 
         value = inferred.value
-        if not isinstance(value, six.integer_types) or value < 0:
+        if not isinstance(value, int) or value < 0:
             self.add_message('invalid-length-returned', node=node)
 
 

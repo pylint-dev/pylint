@@ -20,9 +20,6 @@ from __future__ import print_function
 import sys
 from collections import defaultdict
 
-import six
-from six.moves import zip
-
 from pylint.utils import decoding_stream
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
@@ -72,7 +69,7 @@ class Similar(object):
             else:
                 duplicate.append(set([(lineset1, idx1), (lineset2, idx2)]))
         sims = []
-        for num, ensembles in six.iteritems(no_duplicates):
+        for num, ensembles in no_duplicates.items():
             for couples in ensembles:
                 sims.append((num, couples))
         sims.sort()

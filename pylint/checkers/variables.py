@@ -38,8 +38,6 @@ try:
 except ImportError:
     from backports.functools_lru_cache import lru_cache
 
-import six
-
 import astroid
 from astroid import decorators
 from astroid import modutils
@@ -181,7 +179,7 @@ def _fix_dot_imports(not_consumed):
     """
     # TODO: this should be improved in issue astroid #46
     names = {}
-    for name, stmts in six.iteritems(not_consumed):
+    for name, stmts in not_consumed.items():
         if any(isinstance(stmt, astroid.AssignName)
                and isinstance(stmt.assign_type(), astroid.AugAssign)
                for stmt in stmts):
@@ -499,7 +497,7 @@ class VariablesChecker(BaseChecker):
         checks globals doesn't overrides builtins
         """
         self._to_consume = [NamesConsumer(node, 'module')]
-        for name, stmts in six.iteritems(node.locals):
+        for name, stmts in node.locals.items():
             if utils.is_builtin(name) and not utils.is_inside_except(stmts[0]):
                 if self._should_ignore_redefined_builtin(stmts[0]):
                     continue
@@ -542,7 +540,7 @@ class VariablesChecker(BaseChecker):
                 continue
 
             if (not isinstance(elt_name, astroid.Const)
-                    or not isinstance(elt_name.value, six.string_types)):
+                    or not isinstance(elt_name.value, str)):
                 self.add_message('invalid-all-object',
                                  args=elt.as_string(), node=elt)
                 continue
@@ -577,7 +575,7 @@ class VariablesChecker(BaseChecker):
     def _check_globals(self, not_consumed):
         if self._allow_global_unused_variables:
             return
-        for name, nodes in six.iteritems(not_consumed):
+        for name, nodes in not_consumed.items():
             for node in nodes:
                 self.add_message('unused-variable', args=(name,), node=node)
 
@@ -810,7 +808,7 @@ class VariablesChecker(BaseChecker):
 
         global_names = _flattened_scope_names(node.nodes_of_class(astroid.Global))
         nonlocal_names = _flattened_scope_names(node.nodes_of_class(astroid.Nonlocal))
-        for name, stmts in six.iteritems(not_consumed):
+        for name, stmts in not_consumed.items():
             self._check_is_unused(name, node, stmts[0], global_names, nonlocal_names)
 
     visit_asyncfunctiondef = visit_functiondef

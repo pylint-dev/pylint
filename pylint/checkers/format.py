@@ -39,9 +39,6 @@ import sys
 import tokenize
 from functools import reduce # pylint: disable=redefined-builtin
 
-import six
-from six.moves import zip, map, filter # pylint: disable=redefined-builtin
-
 from astroid import nodes
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
@@ -894,8 +891,7 @@ class FormatChecker(BaseTokenChecker):
 
         for indent_pos, state, offsets in self._current_line.retained_warnings:
             block_type = offsets[tokens.start_col(indent_pos)]
-            hints = dict((k, v) for k, v in six.iteritems(offsets)
-                         if v != block_type)
+            hints = {k: v for k, v in offsets.items() if v != block_type}
             if single_line_block_stmt and block_type == WITH_BODY:
                 self._add_continuation_message(state, hints, tokens, indent_pos)
             elif not single_line_block_stmt and block_type == SINGLE_LINE:

@@ -21,8 +21,6 @@
 
 import re
 
-import six
-
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
 from pylint.utils import OPTION_RGX
@@ -111,7 +109,7 @@ class EncodingChecker(BaseChecker):
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
-            return six.text_type(line, file_encoding)
+            line.decode(file_encoding)
         except UnicodeDecodeError as ex:
             self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))

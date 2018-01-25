@@ -40,7 +40,6 @@ import itertools
 import re
 import sys
 import string
-import warnings
 
 import six
 from six.moves import map, builtins # pylint: disable=redefined-builtin
