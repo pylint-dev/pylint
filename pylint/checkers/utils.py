@@ -25,13 +25,12 @@
 # pylint: disable=W0611
 """some functions that may be useful for various checkers
 """
+import builtins
 from functools import lru_cache, partial, singledispatch
 import itertools
 import re
 import sys
 import string
-
-import six
 
 import astroid
 from astroid import bases as _bases

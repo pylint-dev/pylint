@@ -109,7 +109,7 @@ class EncodingChecker(BaseChecker):
 
     def _check_encoding(self, lineno, line, file_encoding):
         try:
-            line.decode(file_encoding)
+            return line.decode(file_encoding)
         except UnicodeDecodeError as ex:
             self.add_message('invalid-encoded-data', line=lineno,
                              args=(file_encoding, ex.args[2]))
