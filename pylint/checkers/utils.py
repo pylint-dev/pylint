@@ -25,24 +25,13 @@
 # pylint: disable=W0611
 """some functions that may be useful for various checkers
 """
-import collections
-import functools
-try:
-    from functools import singledispatch as singledispatch
-except ImportError:
-    # pylint: disable=import-error
-    from singledispatch import singledispatch as singledispatch
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
+from functools import lru_cache, partial, singledispatch
 import itertools
 import re
 import sys
 import string
 
 import six
-from six.moves import map, builtins # pylint: disable=redefined-builtin
 
 import astroid
 from astroid import bases as _bases
@@ -61,7 +50,7 @@ else:
 ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
                    'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
 ITER_METHOD = '__iter__'
-NEXT_METHOD = 'next' if six.PY2 else '__next__'
+NEXT_METHOD = '__next__'
 GETITEM_METHOD = '__getitem__'
 SETITEM_METHOD = '__setitem__'
 DELITEM_METHOD = '__delitem__'
@@ -483,7 +472,7 @@ def error_of_type(handler, error_type):
     given errors.
     """
     def stringify_error(error):
-        if not isinstance(error, six.string_types):
+        if not isinstance(error, str):
             return error.__name__
         return error
 
@@ -549,8 +538,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     names and their inferred objects.
     """
     if is_abstract_cb is None:
-        is_abstract_cb = functools.partial(
-            decorated_with, qnames=ABC_METHODS)
+        is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
     visited = {}
     try:
         mro = reversed(node.mro())
@@ -626,7 +614,7 @@ def is_from_fallback_block(node):
 
 
 def _except_handlers_ignores_exception(handlers, exception):
-    func = functools.partial(error_of_type, error_type=(exception, ))
+    func = partial(error_of_type, error_type=(exception, ))
     return any(map(func, handlers))
 
 

@@ -28,15 +28,12 @@
 """variables checkers for Python code
 """
 import copy
+from functools import lru_cache
 import itertools
 import collections
 import os
 import sys
 import re
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
 
 import astroid
 from astroid import decorators
