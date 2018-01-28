@@ -647,9 +647,7 @@ def is_node_inside_try_except(node):
         bool: True if the node is inside a try/except statement, False otherwise.
     """
     context = _import_node_context(node)
-    if isinstance(context, astroid.TryExcept):
-        return True
-    return False
+    return isinstance(context, astroid.TryExcept)
 
 
 def node_ignores_exception(node, exception):
