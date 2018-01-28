@@ -12,6 +12,11 @@ Release date: -
 
       Close #1794
 
+    * Fix false positive ``inconsistent-return-statements`` message by
+      avoiding useless exception inference if the exception is not handled.
+
+      Close #1794 (second part)
+
 What's New in Pylint 1.8.2?
 ==========================
 
