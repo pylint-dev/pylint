@@ -585,6 +585,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not node.exc:
                 # Ignore bare raises
                 return True
+            if not utils.is_node_inside_try_except(node):
+                # If the raise statement is not inside a try/except statement
+                # then the exception is raised and cannot be caught. No need
+                # to infer it.
+                return True
             exc = utils.safe_infer(node.exc)
             if exc is None or exc is astroid.Uninferable:
                 return False
