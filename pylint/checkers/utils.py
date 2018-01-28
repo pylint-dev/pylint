@@ -582,6 +582,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
 
 
 def _import_node_context(node):
+    """Return the ExceptHandler or the TryExcept node in which the node is."""
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)
     while current and not isinstance(current.parent, ignores):
@@ -628,15 +629,27 @@ def get_exception_handlers(node, exception):
         generator: the collection of handlers that are handling the exception or None.
 
     """
-    current = node
-    ignores = (astroid.ExceptHandler, astroid.TryExcept)
-    while current and not isinstance(current.parent, ignores):
-        current = current.parent
-
-    if current and isinstance(current.parent, astroid.TryExcept):
-        return (_handler for _handler in current.parent.handlers
+    context = _import_node_context(node)
+    if isinstance(context, astroid.TryExcept):
+        return (_handler for _handler in context.handlers
                 if error_of_type(_handler, exception))
     return None
+
+
+def is_node_inside_try_except(node):
+    """Check if the node is directly under a Try/Except statement.
+    (but not under an ExceptHandler!)
+    
+    Args:
+        node (astroid.Raise): the node raising the exception.
+        
+    Returns:
+        bool: True if the node is inside a try/except statement, False otherwise.
+    """
+    context = _import_node_context(node)
+    if isinstance(context, astroid.TryExcept):
+        return True
+    return False
 
 
 def node_ignores_exception(node, exception):
