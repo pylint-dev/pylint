@@ -64,6 +64,11 @@ What's New in Pylint 2.0?
     * New ``useless-return`` message when function or method ends with a "return" or
       "return None" statement and this is the only return statement in the body.
 
+    * Fix false positive ``inconsistent-return-statements`` message by
+      avoiding useless exception inference if the exception is not handled.
+
+      Close #1794 (second part)
+
 What's New in Pylint 1.8.1?
 =========================
 
