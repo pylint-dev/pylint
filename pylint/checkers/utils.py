@@ -639,10 +639,10 @@ def get_exception_handlers(node, exception):
 def is_node_inside_try_except(node):
     """Check if the node is directly under a Try/Except statement.
     (but not under an ExceptHandler!)
-    
+
     Args:
         node (astroid.Raise): the node raising the exception.
-        
+
     Returns:
         bool: True if the node is inside a try/except statement, False otherwise.
     """
