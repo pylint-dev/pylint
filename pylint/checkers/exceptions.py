@@ -358,7 +358,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             if handler.type is None:
                 if not utils.is_raising(handler.body):
                     self.add_message('bare-except', node=handler)
-                # check if a "except:" is followed by some other
+                # check if an "except:" is followed by some other
                 # except
                 if index < (nb_handlers - 1):
                     msg = 'empty except clause should always appear last'

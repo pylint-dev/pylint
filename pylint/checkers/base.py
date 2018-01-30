@@ -1125,7 +1125,7 @@ functions, methods
         try...finally statement.
         If we found before a try...finally bloc a parent which its type is
         in breaker_classes, we skip the whole check."""
-        # if self._tryfinallys is empty, we're not a in try...finally bloc
+        # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
         # the node could be a grand-grand...-children of the try...finally

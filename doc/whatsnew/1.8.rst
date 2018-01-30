@@ -327,7 +327,7 @@ Other Changes
   false-positive scenarios. Flag is enabled by default.
 
 * ``superfluous-parens`` is no longer wrongly emitted for logical statements involving ``in`` operator
-  (see example below for what used to be false-postive).
+  (see example below for what used to be false-positive).
 
   .. code-block:: python
 

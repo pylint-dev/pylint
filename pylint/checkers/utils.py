@@ -272,7 +272,7 @@ def is_func_decorator(node):
     return False
 
 def is_ancestor_name(frame, node):
-    """return True if `frame` is a astroid.Class node with `node` in the
+    """return True if `frame` is an astroid.Class node with `node` in the
     subtree of its bases attribute
     """
     try:

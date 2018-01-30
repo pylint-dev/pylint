@@ -529,7 +529,7 @@ logilab-pylint (0.1.2-1) unstable; urgency=low
 
 logilab-pylint (0.1.1-2) unstable; urgency=low
 
-  * fix dependencie to logilab.common
+  * fix dependencies to logilab.common
 
  -- Sylvain Thénault <sylvain.thenault@logilab.fr>  Wed,  4 Jun 2003 18:07:45 +0200
 

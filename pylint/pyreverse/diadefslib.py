@@ -129,7 +129,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         LocalsVisitor.__init__(self)
 
     def visit_project(self, node):
-        """visit an pyreverse.utils.Project node
+        """visit a pyreverse.utils.Project node
 
         create a diagram definition for packages
         """

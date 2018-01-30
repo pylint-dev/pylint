@@ -45,5 +45,5 @@ class Klass(object):
         print(inner)
 
     class InnerKlass(object):
-        """A inner klass"""
+        """An inner klass"""
         pass

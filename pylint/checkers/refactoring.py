@@ -60,8 +60,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     """Looks for code which can be refactored
 
     This checker also mixes the astroid and the token approaches
-    in order to create knowledge about whether a "else if" node
-    is a true "else if" node, or a "elif" node.
+    in order to create knowledge about whether an "else if" node
+    is a true "else if" node, or an "elif" node.
     """
 
     __implements__ = (interfaces.ITokenChecker, interfaces.IAstroidChecker)
@@ -183,7 +183,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if isinstance(node.parent, astroid.If):
             orelse = node.parent.orelse
-            # current if node must directly follow a "else"
+            # current if node must directly follow an "else"
             if orelse and orelse == [node]:
                 if (node.lineno, node.col_offset) in self._elifs:
                     return True
@@ -403,7 +403,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if ancestor_node == node.parent:
                     break
                 self._nested_blocks.pop()
-            # if the node is a elif, this should not be another nesting level
+            # if the node is an elif, this should not be another nesting level
             if isinstance(node, astroid.If) and self._is_actual_elif(node):
                 if self._nested_blocks:
                     self._nested_blocks.pop()

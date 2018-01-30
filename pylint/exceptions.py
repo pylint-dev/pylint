@@ -12,7 +12,7 @@ class InvalidMessageError(Exception):
     """raised when a message creation, registration or addition is rejected"""
 
 class UnknownMessageError(Exception):
-    """raised when a unregistered message id is encountered"""
+    """raised when an unregistered message id is encountered"""
 
 class EmptyReportError(Exception):
     """raised when a report is empty and so should not be displayed"""
