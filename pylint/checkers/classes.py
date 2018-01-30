@@ -277,6 +277,9 @@ def _different_parameters(original, overridden, dummy_parameter_regex):
         1 for param in (original.args.vararg, overridden.args.vararg)
         if not param) == 1
 
+    if len(overridden.args.args) == 1 and overridden.args.kwarg and overridden.args.vararg:
+        return False
+
     return any((
         different_positional,
         different_kwarg,
@@ -1331,7 +1334,6 @@ a metaclass class method.'}
                 if (isinstance(decorator, astroid.Attribute) and
                         decorator.attrname == 'setter'):
                     return
-
         if _different_parameters(
                 refmethod, method1,
                 dummy_parameter_regex=self._dummy_rgx):
