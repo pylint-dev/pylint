@@ -115,7 +115,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         self.project = project
 
     def visit_project(self, node):
-        """visit an pyreverse.utils.Project node
+        """visit a pyreverse.utils.Project node
 
          * optionally tag the node with a unique id
         """

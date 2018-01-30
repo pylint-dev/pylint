@@ -45,7 +45,7 @@ def implements(obj, interface):
 
 
 class IChecker(Interface):
-    """This is an base interface, not designed to be used elsewhere than for
+    """This is a base interface, not designed to be used elsewhere than for
     sub interfaces definition.
     """
 

@@ -940,7 +940,7 @@ class PyLinter(config.OptionsManagerMixIn,
             self.stats['by_module'][modname][msg_cat] = 0
 
     def get_ast(self, filepath, modname):
-        """return a ast(roid) representation for a module"""
+        """return an ast(roid) representation for a module"""
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except astroid.AstroidSyntaxError as ex:

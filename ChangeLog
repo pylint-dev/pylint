@@ -1507,7 +1507,7 @@ Release date: 2014-11-23
     * Add a new warning, 'boolean-datetime', emitted when an instance
       of 'datetime.time' is used in a boolean context. Closes issue #239.
 
-    * Fix a crash which ocurred while checking for 'method-hidden',
+    * Fix a crash which occurred while checking for 'method-hidden',
       when the parent frame was something different than a function.
 
     * Generate html output for missing files. Closes issue #320.
@@ -1824,7 +1824,7 @@ Release date: 2013-12-22
 
     * Add new check for use of deprecated pragma directives "pylint:disable-msg"
       or "pylint:enable-msg" (I0022, deprecated-pragma) which was previously
-      emmited as a regular warn().
+      emitted as a regular warn().
 
     * Avoid false used-before-assignment for except handler defined
       identifier used on the same line (#111).
@@ -1859,7 +1859,7 @@ Release date: 2013-12-22
       (unpacking-non-sequence) as well as unbalanced tuple unpacking
       (unbalanced-tuple-unpacking).
 
-    * useless-else-on-loop not emited if there is a break in the
+    * useless-else-on-loop not emitted if there is a break in the
       else clause of inner loop (#117).
 
     * don't mark `input` as a bad function when using python3 (#110).
@@ -2083,7 +2083,7 @@ Release date: 2013-02-26
       (patch by Torsten Marek)
 
     * Changed the regular expression for inline options so that it must be
-      preceeded by a # (patch by Torsten Marek)
+      preceded by a # (patch by Torsten Marek)
 
     * Make dot output for import graph predictable and not depend
       on ordering of strings in hashes. (patch by Torsten Marek)
@@ -2143,7 +2143,7 @@ Release date: 2012-07-17
       except handler contains a tuple of names instead of a single name.
       (patch by tmarek@google.com)
 
-    * #7394: W0212 (access to protected member) not emited on assigments
+    * #7394: W0212 (access to protected member) not emitted on assigments
       (patch by lothiraldan@gmail.com)
 
     * #18772; no prototype consistency check for mangled methods (patch by
@@ -3189,7 +3189,7 @@ Release date: 2003-11-20
       __init__ files, and provides a new option ignore-interface-methods,
       useful when you're using zope Interface implementation in your project
 
-    * base checker checks for black listed builtins call (controled by the
+    * base checker checks for black listed builtins call (controlled by the
       bad-functions option) and for use of * and **
 
     * format checker checks for use of <> and "l" as long int marker

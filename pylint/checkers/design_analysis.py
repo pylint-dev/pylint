@@ -147,7 +147,7 @@ class MisdesignChecker(BaseChecker):
                 {'default': 5,
                  'type': 'int',
                  'metavar': '<num>',
-                 'help': 'Maximum number of boolean expressions in a if '
+                 'help': 'Maximum number of boolean expressions in an if '
                          'statement'}
                ),
               )

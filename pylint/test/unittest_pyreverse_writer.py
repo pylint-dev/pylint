@@ -51,7 +51,7 @@ def _file_lines(path):
 
 
 def get_project(module, name="No Name"):
-    """return a astroid project representation"""
+    """return an astroid project representation"""
     def _astroid_wrapper(func, modname):
         return func(modname)
     return project_from_files([module], _astroid_wrapper,

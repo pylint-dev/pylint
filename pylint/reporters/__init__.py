@@ -31,7 +31,7 @@ if sys.version_info >= (3, 0):
         return (a > b) - (a < b)
 
 def diff_string(old, new):
-    """given a old and new int value, return a string representing the
+    """given an old and new int value, return a string representing the
     difference
     """
     diff = abs(old - new)

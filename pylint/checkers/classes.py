@@ -1380,7 +1380,7 @@ class SpecialMethodsChecker(BaseChecker):
                   {'old_names': [('E0235', 'bad-context-manager')]}),
         'E0303': ('__len__ does not return non-negative integer',
                   'invalid-length-returned',
-                  'Used when an __len__ method returns something which is not a '
+                  'Used when a __len__ method returns something which is not a '
                   'non-negative integer', {}),
     }
     priority = -2

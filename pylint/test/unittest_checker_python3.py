@@ -565,7 +565,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_importfrom(node)
 
     @python2_only
-    def test_deprecated_types_fiels(self):
+    def test_deprecated_types_fields(self):
         node = astroid.extract_node('''
         from types import StringType #@
         ''')

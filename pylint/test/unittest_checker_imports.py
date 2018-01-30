@@ -24,7 +24,7 @@ class TestImportsChecker(CheckerTestCase):
                                  'foo',
                                  'bar'))
     def test_import_error_skipped(self):
-        """Make sure that imports do not emit a 'import-error' when the
+        """Make sure that imports do not emit an 'import-error' when the
         module is configured to be ignored."""
 
         node = astroid.extract_node("""
