@@ -53,10 +53,6 @@ import collections
 import contextlib
 import operator
 import os
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None
 import sys
 import tokenize
 import warnings
@@ -216,58 +212,8 @@ MSGS = {
     }
 
 
-if multiprocessing is not None:
-    class ChildRunner(multiprocessing.Process):
-        def run(self):
-            # pylint: disable=no-member, unbalanced-tuple-unpacking
-            tasks_queue, results_queue, self._config = self._args
-
-            self._config["jobs"] = 1  # Child does not parallelize any further.
-            self._python3_porting_mode = self._config.pop(
-                'python3_porting_mode', None)
-            self._plugins = self._config.pop('plugins', None)
-
-            # Run linter for received files/modules.
-            for file_or_module in iter(tasks_queue.get, 'STOP'):
-                try:
-                    result = self._run_linter(file_or_module[0])
-                    results_queue.put(result)
-                except Exception as ex:
-                    print("internal error with sending report for module %s" %
-                          file_or_module, file=sys.stderr)
-                    print(ex, file=sys.stderr)
-                    results_queue.put({})
-
-        def _run_linter(self, file_or_module):
-            linter = PyLinter()
-
-            # Register standard checkers.
-            linter.load_default_plugins()
-            # Load command line plugins.
-            if self._plugins:
-                linter.load_plugin_modules(self._plugins)
-
-            linter.load_configuration_from_config(self._config)
-            linter.set_reporter(reporters.CollectingReporter())
-
-            # Enable the Python 3 checker mode. This option is
-            # passed down from the parent linter up to here, since
-            # the Python 3 porting flag belongs to the Run class,
-            # instead of the Linter class.
-            if self._python3_porting_mode:
-                linter.python3_porting_mode()
-
-            # Run the checks.
-            linter.check(file_or_module)
-
-            msgs = [_get_new_args(m) for m in linter.reporter.messages]
-            return (file_or_module, linter.file_state.base_name, linter.current_name,
-                    msgs, linter.stats, linter.msg_status)
-
-
 # pylint: disable=too-many-instance-attributes
-class PyLinter(config.OptionsManagerMixIn,
-               utils.MessagesHandlerMixIn,
+class PyLinter(utils.MessagesHandlerMixIn,
                utils.ReportsHandlerMixIn,
                checkers.BaseTokenChecker):
     """lint Python modules using external checkers.
@@ -290,151 +236,149 @@ class PyLinter(config.OptionsManagerMixIn,
     level = 0
     msgs = MSGS
 
-    @staticmethod
-    def make_options():
-        return (('ignore',
-                 {'type' : 'csv', 'metavar' : '<file>,...',
-                  'dest' : 'black_list', 'default' : ('CVS',),
-                  'help' : 'Add files or directories to the blacklist. '
-                           'They should be base names, not paths.'}),
+    options = (
+        ('ignore',
+         {'type' : 'csv', 'metavar' : '<file>,...',
+          'dest' : 'black_list', 'default' : ('CVS',),
+          'help' : 'Add files or directories to the blacklist. '
+          'They should be base names, not paths.'}),
 
-                ('ignore-patterns',
-                 {'type' : 'regexp_csv', 'metavar' : '<pattern>,...',
-                  'dest' : 'black_list_re', 'default' : (),
-                  'help' : 'Add files or directories matching the regex patterns to the'
-                           ' blacklist. The regex matches against base names, not paths.'}),
+        ('ignore-patterns',
+         {'type' : 'regexp_csv', 'metavar' : '<pattern>,...',
+          'dest' : 'black_list_re', 'default' : (),
+          'help' : 'Add files or directories matching the regex patterns to the'
+          ' blacklist. The regex matches against base names, not paths.'}),
 
-                ('persistent',
-                 {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                  'level': 1,
-                  'help' : 'Pickle collected data for later comparisons.'}),
+        ('persistent',
+         {'default': True, 'type' : 'yn', 'metavar' : '<y_or_n>',
+          'level': 1,
+          'help' : 'Pickle collected data for later comparisons.'}),
 
-                ('load-plugins',
-                 {'type' : 'csv', 'metavar' : '<modules>', 'default' : (),
-                  'level': 1,
-                  'help' : 'List of plugins (as comma separated values of '
-                           'python modules names) to load, usually to register '
-                           'additional checkers.'}),
+        ('load-plugins',
+         {'type' : 'csv', 'metavar' : '<modules>', 'default' : (),
+          'level': 1,
+          'help' : 'List of plugins (as comma separated values of '
+          'python modules names) to load, usually to register '
+          'additional checkers.'}),
 
-                ('output-format',
-                 {'default': 'text', 'type': 'string', 'metavar' : '<format>',
-                  'short': 'f',
-                  'group': 'Reports',
-                  'help' : 'Set the output format. Available formats are text,'
-                           ' parseable, colorized, json and msvs (visual studio).'
-                           ' You can also give a reporter class, e.g. mypackage.mymodule.'
-                           'MyReporterClass.'}),
+        ('output-format',
+         {'default': 'text', 'type': 'string', 'metavar' : '<format>',
+          'short': 'f',
+          'group': 'Reports',
+          'help' : 'Set the output format. Available formats are text,'
+          ' parseable, colorized, json and msvs (visual studio).'
+          ' You can also give a reporter class, e.g. mypackage.mymodule.'
+          'MyReporterClass.'}),
 
-                ('reports',
-                 {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
-                  'short': 'r',
-                  'group': 'Reports',
-                  'help' : 'Tells whether to display a full report or only the '
-                           'messages'}),
+        ('reports',
+         {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+          'short': 'r',
+          'group': 'Reports',
+          'help' : 'Tells whether to display a full report or only the '
+          'messages'}),
 
-                ('evaluation',
-                 {'type' : 'string', 'metavar' : '<python_expression>',
-                  'group': 'Reports', 'level': 1,
-                  'default': '10.0 - ((float(5 * error + warning + refactor + '
-                             'convention) / statement) * 10)',
-                  'help' : 'Python expression which should return a note less '
-                           'than 10 (10 is the highest note). You have access '
-                           'to the variables errors warning, statement which '
-                           'respectively contain the number of errors / '
-                           'warnings messages and the total number of '
-                           'statements analyzed. This is used by the global '
-                           'evaluation report (RP0004).'}),
-                ('score',
-                 {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
-                  'short': 's',
-                  'group': 'Reports',
-                  'help': 'Activate the evaluation score.'}),
+        ('evaluation',
+         {'type' : 'string', 'metavar' : '<python_expression>',
+          'group': 'Reports', 'level': 1,
+          'default': '10.0 - ((float(5 * error + warning + refactor + '
+          'convention) / statement) * 10)',
+          'help' : 'Python expression which should return a note less '
+          'than 10 (10 is the highest note). You have access '
+          'to the variables errors warning, statement which '
+          'respectively contain the number of errors / '
+          'warnings messages and the total number of '
+          'statements analyzed. This is used by the global '
+          'evaluation report (RP0004).'}),
+    ('score',
+     {'default': True, 'type': 'yn', 'metavar': '<y_or_n>',
+      'short': 's',
+      'group': 'Reports',
+      'help': 'Activate the evaluation score.'}),
 
-                ('confidence',
-                 {'type' : 'multiple_choice', 'metavar': '<levels>',
-                  'default': '',
-                  'choices': [c.name for c in interfaces.CONFIDENCE_LEVELS],
-                  'group': 'Messages control',
-                  'help' : 'Only show warnings with the listed confidence levels.'
-                           ' Leave empty to show all. Valid levels: %s' % (
-                               ', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS),)}),
+    ('confidence',
+     {'type' : 'multiple_choice', 'metavar': '<levels>',
+      'default': '',
+      'choices': [c.name for c in interfaces.CONFIDENCE_LEVELS],
+      'group': 'Messages control',
+      'help' : 'Only show warnings with the listed confidence levels.'
+      ' Leave empty to show all. Valid levels: %s' % (
+          ', '.join(c.name for c in interfaces.CONFIDENCE_LEVELS),)}),
 
-                ('enable',
-                 {'type' : 'csv', 'metavar': '<msg ids>',
-                  'short': 'e',
-                  'group': 'Messages control',
-                  'help' : 'Enable the message, report, category or checker with the '
-                           'given id(s). You can either give multiple identifier '
-                           'separated by comma (,) or put this option multiple time '
-                           '(only on the command line, not in the configuration file '
-                           'where it should appear only once). '
-                           'See also the "--disable" option for examples. '}),
+    ('enable',
+     {'type' : 'csv', 'metavar': '<msg ids>',
+      'short': 'e',
+      'group': 'Messages control',
+      'help' : 'Enable the message, report, category or checker with the '
+      'given id(s). You can either give multiple identifier '
+      'separated by comma (,) or put this option multiple time '
+      '(only on the command line, not in the configuration file '
+      'where it should appear only once). '
+      'See also the "--disable" option for examples. '}),
 
-                ('disable',
-                 {'type' : 'csv', 'metavar': '<msg ids>',
-                  'short': 'd',
-                  'group': 'Messages control',
-                  'help' : 'Disable the message, report, category or checker '
-                           'with the given id(s). You can either give multiple identifiers'
-                           ' separated by comma (,) or put this option multiple times '
-                           '(only on the command line, not in the configuration file '
-                           'where it should appear only once).'
-                           'You can also use "--disable=all" to disable everything first '
-                           'and then reenable specific checks. For example, if you want '
-                           'to run only the similarities checker, you can use '
-                           '"--disable=all --enable=similarities". '
-                           'If you want to run only the classes checker, but have no '
-                           'Warning level messages displayed, use'
-                           '"--disable=all --enable=classes --disable=W"'}),
+    ('disable',
+     {'type' : 'csv', 'metavar': '<msg ids>',
+      'short': 'd',
+      'group': 'Messages control',
+      'help' : 'Disable the message, report, category or checker '
+      'with the given id(s). You can either give multiple identifiers'
+      ' separated by comma (,) or put this option multiple times '
+      '(only on the command line, not in the configuration file '
+      'where it should appear only once).'
+      'You can also use "--disable=all" to disable everything first '
+      'and then reenable specific checks. For example, if you want '
+      'to run only the similarities checker, you can use '
+      '"--disable=all --enable=similarities". '
+      'If you want to run only the classes checker, but have no '
+      'Warning level messages displayed, use'
+      '"--disable=all --enable=classes --disable=W"'}),
 
-                ('msg-template',
-                 {'type' : 'string', 'metavar': '<template>',
-                  'group': 'Reports',
-                  'help' : ('Template used to display messages. '
-                            'This is a python new-style format string '
-                            'used to format the message information. '
-                            'See doc for all details')
-                 }),
+    ('msg-template',
+     {'type' : 'string', 'metavar': '<template>', 'default': '',
+      'group': 'Reports',
+      'help' : ('Template used to display messages. '
+                'This is a python new-style format string '
+                'used to format the message information. '
+                'See doc for all details')
+      }),
 
-                ('jobs',
-                 {'type' : 'int', 'metavar': '<n-processes>',
-                  'short': 'j',
-                  'default': 1,
-                  'help' : '''Use multiple processes to speed up Pylint.''',
-                 }),
+    ('jobs',
+     {'type' : 'int', 'metavar': '<n-processes>',
+      'short': 'j',
+      'default': 1,
+      'help' : '''Use multiple processes to speed up Pylint.''',
+      }),
 
-                ('unsafe-load-any-extension',
-                 {'type': 'yn', 'metavar': '<yn>', 'default': False, 'hide': True,
-                  'help': ('Allow loading of arbitrary C extensions. Extensions'
-                           ' are imported into the active Python interpreter and'
-                           ' may run arbitrary code.')}),
+    ('unsafe-load-any-extension',
+     {'type': 'yn', 'metavar': '<yn>', 'default': False, 'hide': True,
+      'help': ('Allow loading of arbitrary C extensions. Extensions'
+               ' are imported into the active Python interpreter and'
+               ' may run arbitrary code.')}),
 
-                ('extension-pkg-whitelist',
-                 {'type': 'csv', 'metavar': '<pkg>,...', 'default': [],
-                  'help': ('A comma-separated list of package or module names'
-                           ' from where C extensions may be loaded. Extensions are'
-                           ' loading into the active Python interpreter and may run'
-                           ' arbitrary code')}),
-                ('suggestion-mode',
-                 {'type': 'yn', 'metavar': '<yn>', 'default': True,
-                  'help': ('When enabled, pylint would attempt to guess common '
-                           'misconfiguration and emit user-friendly hints instead '
-                           'of false-positive error messages')}),
-               )
+    ('extension-pkg-whitelist',
+     {'type': 'csv', 'metavar': '<pkg>,...', 'default': [],
+      'help': ('A comma-separated list of package or module names'
+               ' from where C extensions may be loaded. Extensions are'
+               ' loading into the active Python interpreter and may run'
+               ' arbitrary code')}),
+    ('suggestion-mode',
+     {'type': 'yn', 'metavar': '<yn>', 'default': True,
+      'help': ('When enabled, pylint would attempt to guess common '
+               'misconfiguration and emit user-friendly hints instead '
+               'of false-positive error messages')}),
+    )
 
     option_groups = (
         ('Messages control', 'Options controlling analysis messages'),
         ('Reports', 'Options related to output formatting and reporting'),
         )
 
-    def __init__(self, options=(), reporter=None, option_groups=(),
-                 pylintrc=None):
+    def __init__(self, config=None):
         # some stuff has to be done before ancestors initialization...
         #
         # messages store / checkers / reporter / astroid manager
+        self.config = config
         self.msgs_store = utils.MessagesStore()
         self.reporter = None
-        self._reporter_name = None
         self._reporters = {}
         self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
@@ -444,23 +388,12 @@ class PyLinter(config.OptionsManagerMixIn,
         self.current_name = None
         self.current_file = None
         self.stats = None
-        # init options
-        self._external_opts = options
-        self.options = options + PyLinter.make_options()
-        self.option_groups = option_groups + PyLinter.option_groups
-        self._options_methods = {
-            'enable': self.enable,
-            'disable': self.disable}
-        self._bw_options_methods = {'disable-msg': self.disable,
-                                    'enable-msg': self.enable}
+
+        # TODO: Runner needs to give this to parser?
         full_version = '%%prog %s\nastroid %s\nPython %s' % (
             version, astroid_version, sys.version)
         utils.MessagesHandlerMixIn.__init__(self)
         utils.ReportsHandlerMixIn.__init__(self)
-        super(PyLinter, self).__init__(
-            usage=__doc__,
-            version=full_version,
-            config_file=pylintrc or config.PYLINTRC)
         checkers.BaseTokenChecker.__init__(self)
         # provided reports
         self.reports = (('RP0001', 'Messages by category',
@@ -470,35 +403,12 @@ class PyLinter(config.OptionsManagerMixIn,
                         ('RP0003', 'Messages',
                          report_messages_stats),
                        )
-        self.register_checker(self)
         self._dynamic_plugins = set()
         self._python3_porting_mode = False
         self._error_mode = False
-        self.load_provider_defaults()
-        if reporter:
-            self.set_reporter(reporter)
 
-    def load_default_plugins(self):
-        checkers.initialize(self)
-        reporters.initialize(self)
-        # Make sure to load the default reporter, because
-        # the option has been set before the plugins had been loaded.
-        if not self.reporter:
-            self._load_reporter()
-
-    def load_plugin_modules(self, modnames):
-        """take a list of module names which are pylint plugins and load
-        and register them
-        """
-        for modname in modnames:
-            if modname in self._dynamic_plugins:
-                continue
-            self._dynamic_plugins.add(modname)
-            module = modutils.load_module_from_name(modname)
-            module.register(self)
-
-    def _load_reporter(self):
-        name = self._reporter_name.lower()
+    def load_reporter(self):
+        name = self.config.output_format.lower()
         if name in self._reporters:
             self.set_reporter(self._reporters[name]())
         else:
@@ -510,7 +420,7 @@ class PyLinter(config.OptionsManagerMixIn,
                 self.set_reporter(reporter_class())
 
     def _load_reporter_class(self):
-        qname = self._reporter_name
+        qname = self.config.output_format
         module = modutils.load_module_from_name(
             modutils.get_module_part(qname))
         class_name = qname.split('.')[-1]
@@ -522,43 +432,10 @@ class PyLinter(config.OptionsManagerMixIn,
         self.reporter = reporter
         reporter.linter = self
 
-    def set_option(self, optname, value, action=None, optdict=None):
-        """overridden from config.OptionsProviderMixin to handle some
-        special options
-        """
-        if optname in self._options_methods or \
-                optname in self._bw_options_methods:
-            if value:
-                try:
-                    meth = self._options_methods[optname]
-                except KeyError:
-                    meth = self._bw_options_methods[optname]
-                    warnings.warn('%s is deprecated, replace it by %s' % (optname,
-                                                                          optname.split('-')[0]),
-                                  DeprecationWarning)
-                value = utils._check_csv(value)
-                if isinstance(value, (list, tuple)):
-                    for _id in value:
-                        meth(_id, ignore_unknown=True)
-                else:
-                    meth(value)
-                return # no need to call set_option, disable/enable methods do it
-        elif optname == 'output-format':
-            self._reporter_name = value
-            # If the reporters are already available, load
-            # the reporter class.
-            if self._reporters:
-                self._load_reporter()
-
-        try:
-            checkers.BaseTokenChecker.set_option(self, optname,
-                                                 value, action, optdict)
-        except config.UnsupportedAction:
-            print('option %s can\'t be read from config file' % \
-                  optname, file=sys.stderr)
-
     def register_reporter(self, reporter_class):
         self._reporters[reporter_class.name] = reporter_class
+        if reporter_class.name == self.config.output_format.lower():
+            self.load_reporter()
 
     def report_order(self):
         reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
@@ -573,25 +450,6 @@ class PyLinter(config.OptionsManagerMixIn,
         return reports
 
     # checkers manipulation methods ############################################
-
-    def register_checker(self, checker):
-        """register a new checker
-
-        checker is an object implementing IRawChecker or / and IAstroidChecker
-        """
-        assert checker.priority <= 0, 'checker priority can\'t be >= 0'
-        self._checkers[checker.name].append(checker)
-        for r_id, r_title, r_cb in checker.reports:
-            self.register_report(r_id, r_title, r_cb, checker)
-        self.register_options_provider(checker)
-        if hasattr(checker, 'msgs'):
-            self.msgs_store.register_messages(checker)
-        checker.load_defaults()
-
-        # Register the checker, but disable all of its messages.
-        # TODO(cpopa): we should have a better API for this.
-        if not getattr(checker, 'enabled', True):
-            self.disable(checker.name)
 
     def disable_noerror_messages(self):
         for msgcat, msgids in six.iteritems(self.msgs_store._msgs_by_category):
@@ -656,6 +514,10 @@ class PyLinter(config.OptionsManagerMixIn,
         """process tokens from the current module to search for module/block
         level options
         """
+        options_methods = {
+            'enable': self.enable,
+            'disable': self.disable,
+        }
         control_pragmas = {'disable', 'enable'}
         for (tok_type, content, start, _, _) in tokens:
             if tok_type != tokenize.COMMENT:
@@ -678,14 +540,8 @@ class PyLinter(config.OptionsManagerMixIn,
                                  line=start[0])
                 continue
             opt = opt.strip()
-            if opt in self._options_methods or opt in self._bw_options_methods:
-                try:
-                    meth = self._options_methods[opt]
-                except KeyError:
-                    meth = self._bw_options_methods[opt]
-                    # found a "(dis|en)able-msg" pragma deprecated suppression
-                    self.add_message('deprecated-pragma', line=start[0],
-                                     args=(opt, opt.replace('-msg', '')))
+            if opt in options_methods:
+                meth = options_methods[opt]
                 for msgid in utils._splitstrip(value):
                     # Add the line where a control pragma was encountered.
                     if opt in control_pragmas:
@@ -771,6 +627,7 @@ class PyLinter(config.OptionsManagerMixIn,
         """main checking entry: check a list of files or modules from their
         name.
         """
+        assert self.reporter, "A reporter has not been loaded"
         # initialize msgs_state now that all messages have been registered into
         # the store
         self._init_msg_states()
@@ -1059,7 +916,6 @@ def preprocess_options(args, search_for):
 @contextlib.contextmanager
 def fix_import_path(args):
     """Prepare sys.path for running the linter checks.
-
     Within this context, each of the given arguments is importable.
     Paths are added to sys.path in corresponding order to the arguments.
     We avoid adding duplicate directories to sys.path.
@@ -1080,112 +936,190 @@ def fix_import_path(args):
         sys.path[:] = orig
 
 
-class Run(object):
-    """helper class to use as main for pylint :
+def guess_lint_path(args):
+    """Attempt to determine the file being linted from a list of arguments.
 
-    run(*sys.argv[1:])
+    :param args: The list of command line arguments to guess from.
+    :type args: list(str)
+
+    :returns: The path to file being linted if it can be guessed.
+        None otherwise.
+    :rtype: str or None
     """
-    LinterClass = PyLinter
+    value = None
+
+    # We only care if it's a path. If it's a module,
+    # we can't get a config from it
+    if args and os.path.exists(args[-1]):
+        value = args[-1]
+
+    return value
+
+
+class CheckerRegistry(object):
+    """A class to register checkers to."""
+
+    def __init__(self, linter):
+        super(CheckerRegistry, self).__init__()
+        self.register_options = lambda options: None
+        self._checkers = collections.defaultdict(list)
+        # TODO: Remove. This is needed for the MessagesHandlerMixIn for now.
+        linter._checkers = self._checkers
+        self._linter = linter
+        self.register_checker(linter)
+
+    def for_all_checkers(self):
+        """Loop through all registered checkers.
+
+        :returns: Each registered checker.
+        :rtype: iterable(BaseChecker)
+        """
+        for checkers in self._checkers.values():
+            yield from checkers
+
+    def register_checker(self, checker):
+        """Register a checker.
+
+        :param checker: The checker to register.
+        :type checker: BaseChecker
+
+        :raises ValueError: If the priority of the checker is invalid.
+        """
+        if checker.name in self._checkers:
+            # TODO: Raise if classes are the same
+            for duplicate in self._checkers[checker.name]:
+                msg = 'A checker called {} has already been registered ({}).'
+                msg = msg.format(checker.name, duplicate.__class__)
+                warnings.warn(msg)
+
+        if checker.priority > 0:
+            # TODO: Use a custom exception
+             msg = '{}.priority must be <= 0'.format(checker.__class__)
+             raise ValueError(msg)
+
+        self._checkers[checker.name].append(checker)
+
+        # TODO: Move elsewhere
+        for r_id, r_title, r_cb in checker.reports:
+            self._linter.register_report(r_id, r_title, r_cb, checker)
+
+        self.register_options(checker.options)
+
+        # TODO: Move elsewhere
+        if hasattr(checker, 'msgs'):
+            self._linter.msgs_store.register_messages(checker)
+
+        # Register the checker, but disable all of its messages.
+        # TODO(cpopa): we should have a better API for this.
+        if not getattr(checker, 'enabled', True):
+            self._linter.disable(checker.name)
+
+    # For now simply defer missing attributs to the linter,
+    # until we know what API we want.
+    def __getattr__(self, attribute):
+        return getattr(self._linter, attribute)
+
+
+class Runner(object):
+    """A class to manager how the linter runs."""
+
+    option_definitions = ()
+    """The runner specific configuration options.
+
+    :type: set(OptionDefinition)
+    """
+
+
+class CLIRunner(Runner):
+    option_definitions = (
+        ('rcfile',
+         {'type': 'string', 'metavar': '<file>',
+          'help' : 'Specify a configuration file.'}),
+
+        ('init-hook',
+         {'type' : 'string', 'metavar': '<code>',
+          'level': 1,
+          'help' : 'Python code to execute, usually for sys.path '
+          'manipulation such as pygtk.require().'}),
+
+        ('help-msg',
+         {'type' : 'string', 'metavar': '<msg-id>',
+          'group': 'Commands', 'default': None,
+          'help' : 'Display a help message for the given message id and '
+          'exit. The value may be a comma separated list of message ids.'}),
+
+        ('list-msgs',
+         {'metavar': '<msg-id>',
+          'group': 'Commands', 'level': 1, 'default': None,
+          'help' : "Generate pylint's messages."}),
+
+        ('list-conf-levels',
+         {'group': 'Commands', 'level': 1,
+          'action': 'store_true', 'default': False,
+          'help' : "Generate pylint's confidence levels."}),
+
+        ('full-documentation',
+         {'metavar': '<msg-id>', 'default': None,
+          'group': 'Commands', 'level': 1,
+          'help' : "Generate pylint's full documentation."}),
+
+        ('generate-rcfile',
+         {'group': 'Commands', 'action': 'store_true', 'default': False,
+          'help' : 'Generate a sample configuration file according to '
+          'the current configuration. You can put other options '
+          'before this one to get them in the generated '
+          'configuration.'}),
+
+        ('generate-man',
+         {'group': 'Commands', 'action': 'store_true', 'default': False,
+          'help' : "Generate pylint's man page.", 'hide': True}),
+
+        ('errors-only',
+         {'short': 'E', 'action': 'store_true', 'default': False,
+          'help' : 'In error mode, checkers without error messages are '
+          'disabled and for others, only the ERROR messages are '
+          'displayed, and no reports are done by default'''}),
+
+        ('py3k',
+         {'action': 'store_true', 'default': False,
+          'help' : 'In Python 3 porting mode, all checkers will be '
+          'disabled and only messages emitted by the porting '
+          'checker will be displayed'}),
+    )
+
     option_groups = (
         ('Commands', 'Options which are actually commands. Options in this \
 group are mutually exclusive.'),
         )
 
-    def __init__(self, args, reporter=None, do_exit=True):
-        self._rcfile = None
-        self._plugins = []
-        self.verbose = None
-        try:
-            preprocess_options(args, {
-                # option: (callback, takearg)
-                'init-hook':   (cb_init_hook, True),
-                'rcfile':       (self.cb_set_rcfile, True),
-                'load-plugins': (self.cb_add_plugins, True),
-                'verbose': (self.cb_verbose_mode, False),
-                })
-        except ArgumentPreprocessingError as ex:
-            print(ex, file=sys.stderr)
-            sys.exit(32)
+    description = (
+        'pylint [options] module_or_package\n'
+        '\n'
+        '  Check that a module satisfies a coding standard (and more !).\n'
+        '\n'
+        '    pylint --help\n'
+        '\n'
+        '  Display this help message and exit.\n'
+        '\n'
+        '    pylint --help-msg <msg-id>[,<msg-id>]\n'
+        '\n'
+        '  Display help messages about given message identifiers and exit.\n'
+    )
 
-        self.linter = linter = self.LinterClass((
-            ('rcfile',
-             {'action' : 'callback', 'callback' : lambda *args: 1,
-              'type': 'string', 'metavar': '<file>',
-              'help' : 'Specify a configuration file.'}),
+    def __init__(self):
+        super(CLIRunner, self).__init__()
+        self._linter = PyLinter()
+        self._checker_registry = CheckerRegistry(self._linter)
+        self._loaded_plugins = set()
 
-            ('init-hook',
-             {'action' : 'callback', 'callback' : lambda *args: 1,
-              'type' : 'string', 'metavar': '<code>',
-              'level': 1,
-              'help' : 'Python code to execute, usually for sys.path '
-                       'manipulation such as pygtk.require().'}),
-
-            ('help-msg',
-             {'action' : 'callback', 'type' : 'string', 'metavar': '<msg-id>',
-              'callback' : self.cb_help_message,
-              'group': 'Commands',
-              'help' : 'Display a help message for the given message id and '
-                       'exit. The value may be a comma separated list of message ids.'}),
-
-            ('list-msgs',
-             {'action' : 'callback', 'metavar': '<msg-id>',
-              'callback' : self.cb_list_messages,
-              'group': 'Commands', 'level': 1,
-              'help' : "Generate pylint's messages."}),
-
-            ('list-conf-levels',
-             {'action' : 'callback',
-              'callback' : cb_list_confidence_levels,
-              'group': 'Commands', 'level': 1,
-              'help' : "Generate pylint's confidence levels."}),
-
-            ('full-documentation',
-             {'action' : 'callback', 'metavar': '<msg-id>',
-              'callback' : self.cb_full_documentation,
-              'group': 'Commands', 'level': 1,
-              'help' : "Generate pylint's full documentation."}),
-
-            ('generate-rcfile',
-             {'action' : 'callback', 'callback' : self.cb_generate_config,
-              'group': 'Commands',
-              'help' : 'Generate a sample configuration file according to '
-                       'the current configuration. You can put other options '
-                       'before this one to get them in the generated '
-                       'configuration.'}),
-
-            ('generate-man',
-             {'action' : 'callback', 'callback' : self.cb_generate_manpage,
-              'group': 'Commands',
-              'help' : "Generate pylint's man page.", 'hide': True}),
-
-            ('errors-only',
-             {'action' : 'callback', 'callback' : self.cb_error_mode,
-              'short': 'E',
-              'help' : 'In error mode, checkers without error messages are '
-                       'disabled and for others, only the ERROR messages are '
-                       'displayed, and no reports are done by default'''}),
-
-            ('py3k',
-             {'action' : 'callback', 'callback' : self.cb_python3_porting_mode,
-              'help' : 'In Python 3 porting mode, all checkers will be '
-                       'disabled and only messages emitted by the porting '
-                       'checker will be displayed'}),
-
-            ('verbose',
-             {'action' : 'callback', 'callback' : self.cb_verbose_mode,
-              'short': 'v',
-              'help' : 'In verbose mode, extra non-checker-related info '
-                       'will be displayed' })
-
-            ), option_groups=self.option_groups, pylintrc=self._rcfile)
-        # register standard checkers
-        linter.load_default_plugins()
-        # load command line plugins
-        linter.load_plugin_modules(self._plugins)
-        # add some help section
-        linter.add_help_section('Environment variables', config.ENV_HELP, level=1)
+    def run(self, args):
+        # Phase 1: Preprocessing
+        option_definitions = self.option_definitions + self._linter.options
+        parser = config.CLIParser(self.description)
+        parser.add_option_definitions(option_definitions)
+        parser.add_help_section('Environment variables', config.ENV_HELP, level=1)
         # pylint: disable=bad-continuation
-        linter.add_help_section('Output',
+        parser.add_help_section('Output',
 'Using the default text output, the message format is :                          \n'
 '                                                                                \n'
 '        MESSAGE_TYPE: LINE_NUM:[OBJECT:] MESSAGE                                \n'
@@ -1198,7 +1132,7 @@ group are mutually exclusive.'),
 '    * (F) fatal, if an error occurred which prevented pylint from doing further\n'
 'processing.\n'
                                 , level=1)
-        linter.add_help_section('Output status code',
+        parser.add_help_section('Output status code',
 'Pylint should leave with following status code:                                 \n'
 '    * 0 if everything went fine                                                 \n'
 '    * 1 if a fatal message was issued                                           \n'
@@ -1211,226 +1145,128 @@ group are mutually exclusive.'),
 'status 1 to 16 will be bit-ORed so you can know which different categories has\n'
 'been issued by analysing pylint output status code\n',
                                 level=1)
-        # read configuration
-        linter.disable('I')
-        linter.enable('c-extension-no-member')
-        linter.read_config_file(verbose=self.verbose)
-        config_parser = linter.cfgfile_parser
-        # run init hook, if present, before loading plugins
-        if config_parser._parser.has_option('MASTER', 'init-hook'):
-            cb_init_hook('init-hook',
-                         utils._unquote(config_parser._parser.get('MASTER',
-                                                          'init-hook')))
-        # is there some additional plugins in the file configuration, in
-        if config_parser._parser.has_option('MASTER', 'load-plugins'):
-            plugins = utils._splitstrip(
-                config_parser._parser.get('MASTER', 'load-plugins'))
-            linter.load_plugin_modules(plugins)
-        # now we can load file config and command line, plugins (which can
-        # provide options) have been registered
-        linter.load_config_file()
-        if reporter:
-            # if a custom reporter is provided as argument, it may be overridden
-            # by file parameters, so re-set it here, but before command line
-            # parsing so it's still overrideable by command line option
-            linter.set_reporter(reporter)
-        try:
-            args = linter.load_command_line_configuration(args)
-        except SystemExit as exc:
-            if exc.code == 2: # bad options
-                exc.code = 32
-            raise
-        if not args:
-            print(linter.help())
-            sys.exit(32)
 
-        if linter.config.jobs < 0:
-            print("Jobs number (%d) should be greater than 0"
-                  % linter.config.jobs, file=sys.stderr)
-            sys.exit(32)
-        if linter.config.jobs > 1 or linter.config.jobs == 0:
-            if multiprocessing is None:
-                print("Multiprocessing library is missing, "
-                      "fallback to single process", file=sys.stderr)
-                linter.set_option("jobs", 1)
-            elif linter.config.jobs == 0:
-                linter.config.jobs = multiprocessing.cpu_count()
+        global_config = config.Configuration()
+        global_config.add_options(option_definitions)
+        self._linter.config = global_config
 
-        # insert current working directory to the python path to have a correct
-        # behaviour
-        with fix_import_path(args):
-            if linter.config.jobs == 1:
-                linter.check(args)
-            else:
-                self._parallel_run(args)
-
-            linter.generate_reports()
-        if do_exit:
-            sys.exit(self.linter.msg_status)
-
-    def _parallel_run(self, files_or_modules):
-        with _patch_sysmodules():
-            self.linter._init_msg_states()
-            self._parallel_check(files_or_modules)
-
-    def _parallel_task(self, files_or_modules):
-        # Prepare configuration for child linters.
-        child_config = self._get_jobs_config()
-
-        children = []
-        manager = multiprocessing.Manager()
-        tasks_queue = manager.Queue()
-        results_queue = manager.Queue()
-
-        for _ in range(self.linter.config.jobs):
-            child_linter = ChildRunner(args=(tasks_queue, results_queue,
-                                             child_config))
-            child_linter.start()
-            children.append(child_linter)
-
-        # Send files to child linters.
-        expanded_files = utils.expand_files(
-            files_or_modules,
-            self.linter,
-            self.linter.config.black_list,
-            self.linter.config.black_list_re
+        parsed = parser.preprocess(
+            args,
+            'init_hook',
+            'rcfile',
+            'load_plugins',
+            'ignore',
+            'ignore_patterns',
         )
-        for module_desc in expanded_files:
-            tasks_queue.put([module_desc.path])
 
-        # collect results from child linters
-        failed = False
-        for _ in expanded_files:
-            try:
-                result = results_queue.get()
-            except Exception as ex:
-                print("internal error while receiving results from child linter",
-                      file=sys.stderr)
-                print(ex, file=sys.stderr)
-                failed = True
-                break
-            yield result
+        # Call init-hook
+        if parsed.init_hook:
+            exec(parsed.init_hook)
 
-        # Stop child linters and wait for their completion.
-        for _ in range(self.linter.config.jobs):
-            tasks_queue.put('STOP')
-        for child in children:
-            child.join()
+        # Load rcfile, else system rcfile
+        file_parser = config.IniFileParser()
+        file_parser.add_option_definitions(self._linter.options)
+        rcfile = parsed.rcfile or config.PYLINTRC
+        if rcfile:
+            file_parser.parse(rcfile, global_config)
 
-        if failed:
-            print("Error occured, stopping the linter.", file=sys.stderr)
-            sys.exit(32)
+        def register_options(options):
+            global_config.add_options(options)
+            parser.add_option_definitions(options)
+            file_parser.add_option_definitions(options)
+        self._checker_registry.register_options = register_options
 
-    def _parallel_check(self, files_or_modules):
-        # Reset stats.
-        self.linter.open()
+        checkers.initialize(self._checker_registry)
 
-        all_stats = []
-        module = None
-        for result in self._parallel_task(files_or_modules):
-            if not result:
-                continue
-            (
-                _,
-                self.linter.file_state.base_name,
-                module,
-                messages,
-                stats,
-                msg_status
-            ) = result
+        # Load plugins from CLI
+        plugins = parsed.load_plugins or []
+        for plugin in plugins:
+            self.load_plugin(plugin)
 
-            for msg in messages:
-                msg = utils.Message(*msg)
-                self.linter.set_current_module(module)
-                self.linter.reporter.handle_message(msg)
+        # TODO: This is for per directory config support (#618)
+        # Phase 2: Discover more plugins found in config files
+        # Walk and discover config files, watching for blacklists as we go
 
-            all_stats.append(stats)
-            self.linter.msg_status |= msg_status
+        # Load plugins from config files
 
-        self.linter.stats = _merge_stats(all_stats)
-        self.linter.current_name = module
+        # Phase 3: Full load
+        # Fully load config files
+        if rcfile:
+            file_parser.parse(rcfile, global_config)
+        # Fully load CLI into global config
+        parser.parse(args, global_config)
 
-        # Insert stats data to local checkers.
-        for checker in self.linter.get_checkers():
-            if checker is not self.linter:
-                checker.stats = self.linter.stats
+        if global_config.generate_rcfile:
+            file_parser.write()
+            sys.exit(0)
 
-    def _get_jobs_config(self):
-        child_config = collections.OrderedDict()
-        filter_options = {'long-help'}
-        filter_options.update((opt_name for opt_name, _ in self.linter._external_opts))
-        for opt_providers in six.itervalues(self.linter._all_options):
-            for optname, optdict, val in opt_providers.options_and_values():
-                if optdict.get('deprecated'):
-                    continue
+        # TODO: if global_config.generate_man
 
-                if optname not in filter_options:
-                    child_config[optname] = utils._format_option_value(
-                        optdict, val)
-        child_config['python3_porting_mode'] = self.linter._python3_porting_mode
-        child_config['plugins'] = self.linter._dynamic_plugins
-        return child_config
+        if global_config.errors_only:
+            self._linter.errors_mode()
 
-    def cb_set_rcfile(self, name, value):
-        """callback for option preprocessing (i.e. before option parsing)"""
-        self._rcfile = value
+        if global_config.py3k:
+            self._linter.python3_porting_mode()
 
-    def cb_add_plugins(self, name, value):
-        """callback for option preprocessing (i.e. before option parsing)"""
-        self._plugins.extend(utils._splitstrip(value))
+        if global_config.full_documentation:
+            self._linter.print_full_documentation()
+            sys.exit(0)
 
-    def cb_error_mode(self, *args, **kwargs):
-        """error mode:
-        * disable all but error messages
-        * disable the 'miscellaneous' checker which can be safely deactivated in
-          debug
-        * disable reports
-        * do not save execution information
+        if global_config.list_conf_levels:
+            for level in interfaces.CONFIDENCE_LEVELS:
+                print('%-18s: %s' % level)
+            sys.exit(0)
+
+        if global_config.list_msgs:
+            self._linter.msgs_store.list_messages()
+            sys.exit(0)
+
+        if global_config.help_msg:
+            msg = utils._splitstrip(global_config.help_msg)
+            self._linter.msgs_store.help_message(msg)
+            sys.exit(0)
+
+        self.load_default_plugins()
+
+        self._linter.disable('I')
+        self._linter.enable('c-extension-no-member')
+
+        for checker in self._checker_registry.for_all_checkers():
+            checker.config = global_config
+
+        with fix_import_path(global_config.module_or_package):
+            assert self._linter.config.jobs == 1
+            self._linter.check(global_config.module_or_package)
+
+            self._linter.generate_reports()
+
+        sys.exit(self._linter.msg_status)
+
+    def load_plugin(self, module_name):
+        if module_name in self._loaded_plugins:
+            msg = 'Already loaded plugin {0}. Ignoring'.format(module_name)
+            warnings.warn(msg)
+        else:
+            module = astroid.modutils.load_module_from_name(module_name)
+            module.register(self._checker_registry)
+
+    def load_plugins(self, module_names):
+        """Load a plugin.
+
+        Args:
+            module_names (list(str)): The name of plugin modules to load.
         """
-        self.linter.error_mode()
+        for module_name in module_names:
+            self.load_plugin(module_name)
 
-    def cb_generate_config(self, *args, **kwargs):
-        """optik callback for sample config file generation"""
-        self.linter.generate_config(skipsections=('COMMANDS',))
-        sys.exit(0)
-
-    def cb_generate_manpage(self, *args, **kwargs):
-        """optik callback for sample config file generation"""
-        from pylint import __pkginfo__
-        self.linter.generate_manpage(__pkginfo__)
-        sys.exit(0)
-
-    def cb_help_message(self, option, optname, value, parser):
-        """optik callback for printing some help about a particular message"""
-        self.linter.msgs_store.help_message(utils._splitstrip(value))
-        sys.exit(0)
-
-    def cb_full_documentation(self, option, optname, value, parser):
-        """optik callback for printing full documentation"""
-        self.linter.print_full_documentation()
-        sys.exit(0)
-
-    def cb_list_messages(self, option, optname, value, parser): # FIXME
-        """optik callback for printing available messages"""
-        self.linter.msgs_store.list_messages()
-        sys.exit(0)
-
-    def cb_python3_porting_mode(self, *args, **kwargs):
-        """Activate only the python3 porting checker."""
-        self.linter.python3_porting_mode()
-
-    def cb_verbose_mode(self, *args, **kwargs):
-        self.verbose = True
-
-def cb_list_confidence_levels(option, optname, value, parser):
-    for level in interfaces.CONFIDENCE_LEVELS:
-        print('%-18s: %s' % level)
-    sys.exit(0)
-
-def cb_init_hook(optname, value):
-    """exec arbitrary code to set sys.path for instance"""
-    exec(value) # pylint: disable=exec-used
+    def load_default_plugins(self):
+        """Load all of the default plugins."""
+        reporters.initialize(self._linter)
+        # Make sure to load the default reporter, because
+        # the option has been set before the plugins had been loaded.
+        if not self._linter.reporter:
+            self._linter.load_reporter()
 
 
 if __name__ == '__main__':
-    Run(sys.argv[1:])
+     CLIRunner().run(sys.argv[1:])

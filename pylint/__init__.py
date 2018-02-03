@@ -13,9 +13,9 @@ from .__pkginfo__ import version as __version__
 
 def run_pylint():
     """run pylint"""
-    from pylint.lint import Run
+    from pylint.lint import CLIRunner
     try:
-        Run(sys.argv[1:])
+        CLIRunner().run(sys.argv[1:])
     except KeyboardInterrupt:
         sys.exit(1)
 
