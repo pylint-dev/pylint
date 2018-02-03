@@ -1,4 +1,4 @@
-abstract-method:28:Concret:"Method 'bbbb' is abstract in class 'Abstract' but is not overridden"
+abstract-method:28:Concrete:"Method 'bbbb' is abstract in class 'Abstract' but is not overridden"
 abstract-method:51:Container:"Method '__hash__' is abstract in class 'Structure' but is not overridden"
 abstract-method:51:Container:"Method '__iter__' is abstract in class 'Structure' but is not overridden"
 abstract-method:51:Container:"Method '__len__' is abstract in class 'Structure' but is not overridden"

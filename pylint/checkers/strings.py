@@ -124,7 +124,11 @@ if _PY3K:
     import _string # pylint: disable=wrong-import-position, wrong-import-order
 
     def split_format_field_names(format_string):
-        return _string.formatter_field_name_split(format_string)
+        try:
+            return _string.formatter_field_name_split(format_string)
+        except ValueError:
+            raise utils.IncompleteFormatString()
+
 else:
     def _field_iterator_convertor(iterator):
         for is_attr, key in iterator:

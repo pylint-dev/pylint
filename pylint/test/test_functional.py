@@ -80,7 +80,7 @@ class OutputLine(collections.namedtuple('OutputLine',
 _MESSAGE = {'msg': r'[a-z][a-z\-]+'}
 # Matches a #,
 #  - followed by a comparison operator and a Python version (optional),
-#  - followed by an line number with a +/- (optional),
+#  - followed by a line number with a +/- (optional),
 #  - followed by a list of bracketed message symbols.
 # Used to extract expected messages from testdata files.
 _EXPECTED_RE = re.compile(

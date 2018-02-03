@@ -130,6 +130,22 @@ def bug_1794_inner_func_in_if(var):
     else:
         return None
 
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
+
+# Due to the try/except import above, astroid cannot safely
+# infer the exception type. It doesn't matter here, because
+# as the raise statement is not inside a try/except one, there
+# is no need to infer the exception type. It is just an exception
+# that is raised.
+def bug_1794(a):
+    for x in range(a):
+        if x == 100:
+            return a
+    raise configparser.NoSectionError('toto')
+
 # Next ones are not consistent
 def explicit_implicit_returns(var): # [inconsistent-return-statements]
     if var >= 0:

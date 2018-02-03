@@ -9,8 +9,8 @@ README for Pylint - http://www.pylint.org/
     :alt: AppVeyor Build Status
     :target: https://ci.appveyor.com/project/PCManticore/pylint
 
-.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=master
-    :target: https://coveralls.io/github/PyCQA/pylint?branch=master
+.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=master&service=github
+    :target: https://coveralls.io/github/PyCQA/pylint?branch=master&service=github
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
     :alt: Pypi Package version

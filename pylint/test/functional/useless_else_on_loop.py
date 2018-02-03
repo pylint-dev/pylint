@@ -1,4 +1,4 @@
-"""Check for else branches on loops with break an return only."""
+"""Check for else branches on loops with break and return only."""
 from __future__ import print_function
 __revision__ = 0
 

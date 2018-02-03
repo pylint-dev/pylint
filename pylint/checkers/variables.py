@@ -371,7 +371,7 @@ class NamesConsumer(object):
     def mark_as_consumed(self, name, new_node):
         """
         Mark the name as consumed and delete it from
-        the to_consume dictionnary
+        the to_consume dictionary
         """
         self.consumed[name] = new_node
         del self.to_consume[name]
@@ -564,7 +564,7 @@ class VariablesChecker(BaseChecker):
                                              args=(elt_name, ),
                                              node=elt)
                         except SyntaxError:
-                            # don't yield an syntax-error warning,
+                            # don't yield a syntax-error warning,
                             # because it will be later yielded
                             # when the file will be checked
                             pass
@@ -1076,7 +1076,7 @@ class VariablesChecker(BaseChecker):
         """
         stmt = node.statement()
         if stmt.fromlineno is None:
-            # name node from a astroid built from live code, skip
+            # name node from an astroid built from live code, skip
             assert not stmt.root().file.endswith('.py')
             return
 
@@ -1203,7 +1203,7 @@ class VariablesChecker(BaseChecker):
         :type node: astroid.Node
         :param index: index of the current consumer inside self._to_consume
         :type index: int
-        :return: True if there is a node with the same name in the to_consume dict of a upper scope
+        :return: True if there is a node with the same name in the to_consume dict of an upper scope
                  and if that scope is a function
         :rtype: bool
         """

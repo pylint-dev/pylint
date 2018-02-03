@@ -108,7 +108,7 @@ def _in_iterating_context(node):
 
 
 def _is_conditional_import(node):
-    """Checks if a import node is in the context of a conditional.
+    """Checks if an import node is in the context of a conditional.
     """
     parent = node.parent
     return isinstance(parent, (astroid.TryExcept, astroid.ExceptHandler,
@@ -302,7 +302,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1627': ('__oct__ method defined',
                   'oct-method',
-                  'Used when a __oct__ method is defined '
+                  'Used when an __oct__ method is defined '
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
         'W1628': ('__hex__ method defined',
@@ -383,7 +383,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1643': ('__idiv__ method defined',
                   'idiv-method',
-                  'Used when a __idiv__ method is defined.  Using `__itruediv__` and setting'
+                  'Used when an __idiv__ method is defined.  Using `__itruediv__` and setting'
                   '__idiv__ = __itruediv__ should be preferred.'
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
@@ -612,7 +612,7 @@ class Python3Checker(checkers.BaseChecker):
             elif node.name == 'next':
                 # If there is a method named `next` declared, if it is invokable
                 # with zero arguments then it implements the Iterator protocol.
-                # This means if the method is a instance method or a
+                # This means if the method is an instance method or a
                 # classmethod 1 argument should cause a failure, if it is a
                 # staticmethod 0 arguments should cause a failure.
                 failing_arg_count = 1
