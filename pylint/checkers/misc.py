@@ -23,20 +23,32 @@ import re
 
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
-from pylint.utils import OPTION_RGX
+from pylint.utils import OPTION_RGX, MessagesHandlerMixIn 
 
 
-MSGS = {
-    'W0511': ('%s',
-              'fixme',
-              'Used when a warning note as FIXME or XXX is detected.'),
-    'W0512': ('Cannot decode using encoding "%s",'
-              ' unexpected byte at position %d',
-              'invalid-encoded-data',
-              'Used when a source line cannot be decoded using the specified '
-              'source file encoding.',
-              {'maxversion': (3, 0)}),
-}
+class ByIdDisabledMessagesChecker(BaseChecker):
+
+    """checks for messages that are disabled by id instead of symbol."""
+
+    __implements__ = IRawChecker
+
+    # configuration section name
+    name = 'miscellaneous'
+    msgs = {'I0023': ('%s',
+                      'by-id-disabled-message',
+                      'Used when a message is disabled by id.'),}
+
+    options = ()
+    
+    def process_module(self, module):
+        """inspect the source file to find messages deactivated by id."""
+        for (msg_id, msg_symbol, lineno) in MessagesHandlerMixIn.get_by_id_disabled_msgs():
+            txt = ("Id '{ident:}' is used to disable '{symbol}' message emission."
+                   .format(ident=msg_id, symbol=msg_symbol))
+            self.add_message('by-id-disabled-message',
+                             line=lineno,
+                             args=txt)
+        MessagesHandlerMixIn.clear_by_id_disabled_msgs()
 
 
 class EncodingChecker(BaseChecker):
@@ -49,7 +61,15 @@ class EncodingChecker(BaseChecker):
 
     # configuration section name
     name = 'miscellaneous'
-    msgs = MSGS
+    msgs = {'W0511': ('%s',
+                      'fixme',
+                      'Used when a warning note as FIXME or XXX is detected.'),
+            'W0512': ('Cannot decode using encoding "%s",'
+                      ' unexpected byte at position %d',
+                      'invalid-encoded-data',
+                      'Used when a source line cannot be decoded using the specified '
+                      'source file encoding.',
+                      {'maxversion': (3, 0)}),}
 
     options = (('notes',
                 {'type': 'csv', 'metavar': '<comma separated values>',
@@ -145,3 +165,4 @@ class EncodingChecker(BaseChecker):
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(EncodingChecker(linter))
+    linter.register_checker(ByIdDisabledMessagesChecker(linter))
