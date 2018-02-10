@@ -27,16 +27,13 @@ numversion = (2, 0, 0)
 version = '.'.join([str(num) for num in numversion])
 
 install_requires = [
-    'astroid',
+    'astroid<2.0',
     'six',
     'isort >= 4.2.5',
     'mccabe',
 ]
 
-dependency_links = [
-    'https://github.com/PyCQA/astroid/tarball/master#egg=astroid-master-2.0'
-
-]
+dependency_links = []
 
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ['colorama']
