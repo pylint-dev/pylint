@@ -37,6 +37,7 @@ import operator
 import re
 import shlex
 import sys
+import types
 
 import astroid
 import astroid.context
@@ -77,6 +78,14 @@ def _unflatten(iterable):
         elif elem and not index:
             # We're interested only in the first element.
             yield elem
+
+def _flatten_container(iterable):
+    # Flatten nested containers into a single iterable
+    for item in iterable:
+        if isinstance(item, (list, tuple, types.GeneratorType)):
+            yield from _flatten_container(item)
+        else:
+            yield item
 
 
 def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
@@ -1145,8 +1154,12 @@ accessed. Python regular expressions are accepted.'}
                 # manager and give up, otherwise emit not-context-manager.
                 # See the test file for not_context_manager for a couple
                 # of self explaining tests.
-                for path in filter(None, _unflatten(context.path)):
-                    scope = path.scope()
+
+                # Retrieve node from all previusly visited nodes in the the inference history
+                context_path_names = filter(None, _unflatten(context.path))
+                inferred_paths = _flatten_container(path.infer() for path in context_path_names)
+                for inf_path in inferred_paths:
+                    scope = inf_path.scope()
                     if not isinstance(scope, astroid.FunctionDef):
                         continue
                     if decorated_with(scope,
