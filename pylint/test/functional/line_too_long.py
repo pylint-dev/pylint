@@ -34,6 +34,7 @@ def function():
 
 STRING_ONE = "Just another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and not so stupid line" # pylint: disable=line-too-long
 
+# +1: [line-too-long]
 STRING_TWO = "Yet another verrrrrrrrrrrrrrrryyyyyyyyyyyyy looooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnng and a bit stupid line"
 
 # pylint: disable=line-too-long
