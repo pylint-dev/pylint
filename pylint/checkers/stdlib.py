@@ -186,7 +186,7 @@ class StdlibChecker(BaseChecker):
     }
 
     def _check_bad_thread_instantiation(self, node):
-        if not node.kwargs and node.args:
+        if not node.kwargs and not node.keywords and len(node.args) <= 1:
             self.add_message('bad-thread-instantiation', node=node)
 
     def _check_shallow_copy_environ(self, node):
