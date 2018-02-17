@@ -27,7 +27,7 @@ import textwrap
 
 import six
 
-from pylint.lint import Run
+from pylint.lint import CLIRunner
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.json import JSONReporter
@@ -115,7 +115,8 @@ class TestRunTC(object):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    Run(args, reporter=reporter)
+                    runner = CLIRunner()
+                    runner.run(args)
             return cm.value.code
 
     def _test_output(self, args, expected_output):
@@ -210,10 +211,12 @@ class TestRunTC(object):
                        '--enable=all'],
                       out=strio, code=28)
 
+    @pytest.mark.xfail(reason='Removed parallel execution for now')
     def test_parallel_execution(self):
         self._runtest(['-j 2', 'pylint/test/functional/arguments.py',
                        'pylint/test/functional/bad_continuation.py'], code=1)
 
+    @pytest.mark.xfail(reason='Removed parallel execution for now')
     def test_parallel_execution_missing_arguments(self):
         self._runtest(['-j 2', 'not_here', 'not_here_too'], code=1)
 
