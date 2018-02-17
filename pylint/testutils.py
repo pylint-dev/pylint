@@ -37,10 +37,11 @@ from io import StringIO
 
 import astroid
 from pylint import checkers
+import pylint.config
 from pylint.utils import PyLintASTWalker
 from pylint.reporters import BaseReporter
 from pylint.interfaces import IReporter
-from pylint.lint import PyLinter
+from pylint.lint import PluginRegistry, PyLinter
 
 # Utils
 
@@ -173,6 +174,7 @@ class UnittestLinter:
     def __init__(self):
         self._messages = []
         self.stats = {}
+        self.config = pylint.config.Configuration()
 
     def release_messages(self):
         try:
@@ -225,8 +227,10 @@ class CheckerTestCase:
 
     def setup_method(self):
         self.linter = UnittestLinter()
-        self.checker = self.CHECKER_CLASS(self.linter)  # pylint: disable=not-callable
-        for key, value in self.CONFIG.items():
+        registry = pylint.config.PluginRegistry(self.linter)
+        registry.register_options = self.linter.config.add_options
+        self.checker = self.CHECKER_CLASS(registry)  # pylint: disable=not-callable
+        for key, value in six.iteritems(self.CONFIG):
             setattr(self.checker.config, key, value)
         self.checker.open()
 
@@ -261,10 +265,10 @@ class CheckerTestCase:
 
 # Init
 test_reporter = TestReporter()
-linter = PyLinter()
+linter = PyLinter(pylint.config.Configuration())
 linter.set_reporter(test_reporter)
 linter.config.persistent = 0
-checkers.initialize(linter)
+checkers.initialize(PluginRegistry(linter))
 
 
 def _tokenize_str(code):

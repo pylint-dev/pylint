@@ -31,7 +31,7 @@ import textwrap
 import configparser
 from io import StringIO
 
-from pylint.lint import Run
+from pylint.lint import CLIRunner
 from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.json import JSONReporter
@@ -117,7 +117,8 @@ class TestRunTC(object):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    Run(args, reporter=reporter)
+                    runner = CLIRunner()
+                    runner.run(args)
             return cm.value.code
 
     def _clean_paths(self, output):
@@ -227,6 +228,7 @@ class TestRunTC(object):
             code=28,
         )
 
+    @pytest.mark.xfail(reason="Removed parallel execution for now")
     def test_parallel_execution(self):
         self._runtest(
             [
@@ -237,6 +239,7 @@ class TestRunTC(object):
             code=2,
         )
 
+    @pytest.mark.xfail(reason="Removed parallel execution for now")
     def test_parallel_execution_missing_arguments(self):
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
