@@ -458,3 +458,22 @@ class TestRunTC(object):
         module = join(HERE, 'regrtest_data', 'application_crash.py')
         with _configure_lc_ctype('UTF-8'):
             self._test_output([module, '-E'], expected_output=expected_output)
+
+    def test_parseable_file_path(self):
+        file_name = 'test_target.py'
+        fake_path = HERE + os.getcwd()
+        module = join(fake_path, file_name)
+
+        try:
+            # create module under directories which have the same name as reporter.path_strip_prefix
+            # e.g. /src/some/path/src/test_target.py when reporter.path_strip_prefix = /src/
+            os.makedirs(fake_path)
+            with open(module, 'w') as test_target:
+                test_target.write('a = object()')
+
+            self._test_output(
+                [module, '--output-format=parseable'],
+                expected_output=join(os.getcwd(), file_name))
+        finally:
+            os.remove(module)
+            os.removedirs(fake_path)
