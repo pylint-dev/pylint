@@ -2,6 +2,17 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 1.9.4?
+===========================
+
+Release date: |TBA|
+
+    * Fixed false positive when a numpy Attributes section follows a Parameters
+      section
+
+      Close #1867
+
+
 What's New in Pylint 1.9.3?
 ===========================
 
