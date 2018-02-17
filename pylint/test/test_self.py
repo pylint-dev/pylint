@@ -459,6 +459,7 @@ class TestRunTC(object):
         with _configure_lc_ctype('UTF-8'):
             self._test_output([module, '-E'], expected_output=expected_output)
 
+    @pytest.mark.skipif(sys.platform == 'win32', reason='only occurs on *nix')
     def test_parseable_file_path(self):
         file_name = 'test_target.py'
         fake_path = HERE + os.getcwd()
