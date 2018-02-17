@@ -866,45 +866,6 @@ def report_messages_by_module_stats(sect, stats, _):
 # utilities ###################################################################
 
 
-class ArgumentPreprocessingError(Exception):
-    """Raised if an error occurs during argument preprocessing."""
-
-
-def preprocess_options(args, search_for):
-    """look for some options (keys of <search_for>) which have to be processed
-    before others
-
-    values of <search_for> are callback functions to call when the option is
-    found
-    """
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg.startswith('--'):
-            try:
-                option, val = arg[2:].split('=', 1)
-            except ValueError:
-                option, val = arg[2:], None
-            try:
-                cb, takearg = search_for[option]
-            except KeyError:
-                i += 1
-            else:
-                del args[i]
-                if takearg and val is None:
-                    if i >= len(args) or args[i].startswith('-'):
-                        msg = 'Option %s expects a value' % option
-                        raise ArgumentPreprocessingError(msg)
-                    val = args[i]
-                    del args[i]
-                elif not takearg and val is not None:
-                    msg = "Option %s doesn't expects a value" % option
-                    raise ArgumentPreprocessingError(msg)
-                cb(option, val)
-        else:
-            i += 1
-
-
 @contextlib.contextmanager
 def fix_import_path(args):
     """Prepare sys.path for running the linter checks.
@@ -948,12 +909,12 @@ def guess_lint_path(args):
     return value
 
 
-class CheckerRegistry(object):
+class PluginRegistry(object):
     """A class to register checkers to."""
 
-    def __init__(self, linter):
-        super(CheckerRegistry, self).__init__()
-        self.register_options = lambda options: None
+    def __init__(self, linter, register_options=(lambda options: None)):
+        super(PluginRegistry, self).__init__()
+        self.register_options = register_options
         self._checkers = collections.defaultdict(list)
         # TODO: Remove. This is needed for the MessagesHandlerMixIn for now.
         linter._checkers = self._checkers
@@ -1101,7 +1062,7 @@ group are mutually exclusive.'),
     def __init__(self):
         super(CLIRunner, self).__init__()
         self._linter = PyLinter()
-        self._checker_registry = CheckerRegistry(self._linter)
+        self._plugin_registry = PluginRegistry(self._linter)
         self._loaded_plugins = set()
 
     def run(self, args):
@@ -1166,9 +1127,9 @@ group are mutually exclusive.'),
             global_config.add_options(options)
             parser.add_option_definitions(options)
             file_parser.add_option_definitions(options)
-        self._checker_registry.register_options = register_options
+        self._plugin_registry.register_options = register_options
 
-        checkers.initialize(self._checker_registry)
+        checkers.initialize(self._plugin_registry)
 
         # Load plugins from CLI
         plugins = parsed.load_plugins or []
@@ -1223,7 +1184,7 @@ group are mutually exclusive.'),
         self._linter.disable('I')
         self._linter.enable('c-extension-no-member')
 
-        for checker in self._checker_registry.for_all_checkers():
+        for checker in self._plugin_registry.for_all_checkers():
             checker.config = global_config
 
         with fix_import_path(global_config.module_or_package):
@@ -1240,7 +1201,7 @@ group are mutually exclusive.'),
             warnings.warn(msg)
         else:
             module = astroid.modutils.load_module_from_name(module_name)
-            module.register(self._checker_registry)
+            module.register(self._plugin_registry)
 
     def load_plugins(self, module_names):
         """Load a plugin.

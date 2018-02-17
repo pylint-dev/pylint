@@ -13,7 +13,8 @@ import warnings
 
 import six
 
-from pylint.lint import PyLinter
+import pylint.config
+from pylint.lint import PluginRegistry, PyLinter
 from pylint import checkers
 from pylint.reporters.text import TextReporter, ParseableTextReporter
 import pytest
@@ -55,12 +56,15 @@ def test_parseable_output_deprecated():
 def test_parseable_output_regression():
     output = six.StringIO()
     with warnings.catch_warnings(record=True):
-        linter = PyLinter(reporter=ParseableTextReporter())
+        global_config = pylint.config.Configuration()
+        linter = PyLinter(global_config)
+        registry = PluginRegistry(linter, register_options=global_config.add_options)
+        linter.set_reporter(ParseableTextReporter())
 
-    checkers.initialize(linter)
+    checkers.initialize(registry)
     linter.config.persistent = 0
     linter.reporter.set_output(output)
-    linter.set_option('output-format', 'parseable')
+    linter.config.output_format = 'parseable'
     linter.open()
     linter.set_current_module('0123')
     linter.add_message('line-too-long', line=1, args=(1, 2))
