@@ -114,7 +114,7 @@ def initialize(registry):
     """Register the checkers in this package.
 
     :param registry: The registry to register checkers with.
-    :type registry: CheckerRegistry
+    :type registry: PluginRegistry
     """
     register_plugins(registry, __path__[0])
 

@@ -29,6 +29,7 @@ from pylint import checkers
 from pylint import interfaces
 from pylint import lint
 from pylint import reporters
+import pylint.config
 
 class test_dialect(csv.excel):
     if sys.version_info[0] < 3:
@@ -231,15 +232,17 @@ class LintModuleTest(object):
     def __init__(self, test_file):
         test_reporter = FunctionalTestReporter()
         self._linter = lint.PyLinter()
+        global_config = pylint.config.Configuration()
+        self._linter.config = global_config
+        global_config.add_options(self._linter.options)
+        registry = lint.PluginRegistry(self._linter)
+        file_parser = pylint.config.IniFileParser()
+        file_parser.add_option_definitions(self._linter.options)
         self._linter.set_reporter(test_reporter)
         self._linter.config.persistent = 0
-        checkers.initialize(self._linter)
+        checkers.initialize(registry)
         self._linter.disable('I')
-        try:
-            self._linter.read_config_file(test_file.option_file)
-            self._linter.load_config_file()
-        except NoFileError:
-            pass
+        file_parser.parse(test_file.option_file, global_config)
         self._test_file = test_file
 
     def setUp(self):

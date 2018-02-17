@@ -245,6 +245,9 @@ class Configuration(object):
             raise exceptions.ConfigurationError('Option "{0}" already exists.')
 
         self._option_definitions[name] = definition
+        if 'default' in definition:
+            dest = definition.get('dest', name)
+            self.set_option(dest, definition['default'])
 
     def add_options(self, option_definitions):
         for option_definition in option_definitions:
