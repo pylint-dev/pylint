@@ -1225,7 +1225,7 @@ def register_plugins(registry, directory):
     """Load plugins from all modules and packages in the given directory.
 
     Args:
-        registry (CheckerRegistry): The registry to register the checkers with.
+        registry (PluginRegistry): The registry to register the checkers with.
         directory (str): The directory to search for plugins.
     """
     imported = {'__init__', '__pycache__'}

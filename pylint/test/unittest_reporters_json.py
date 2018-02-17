@@ -14,7 +14,8 @@ import json
 
 from io import StringIO
 
-from pylint.lint import PyLinter
+import pylint.config
+from pylint.lint import PluginRegistry, PyLinter
 from pylint import checkers
 from pylint.reporters.json import JSONReporter
 
@@ -23,8 +24,11 @@ def test_simple_json_output():
     output = StringIO()
 
     reporter = JSONReporter()
-    linter = PyLinter(reporter=reporter)
-    checkers.initialize(linter)
+    global_config = pylint.config.Configuration()
+    linter = PyLinter(global_config)
+    registry = PluginRegistry(linter, register_options=global_config.add_options)
+    checkers.initialize(registry)
+    linter.set_reporter(reporter)
 
     linter.config.persistent = 0
     linter.reporter.set_output(output)
