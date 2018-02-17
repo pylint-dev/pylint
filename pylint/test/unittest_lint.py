@@ -532,7 +532,7 @@ def pop_pylintrc():
     os.environ.pop('PYLINTRC', None)
 
 
-@pytest.mark.usefixture("pop_pylintrc")
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylint_home():
     uhome = os.path.expanduser('~')
     if uhome == '~':
@@ -559,7 +559,7 @@ def test_pylint_home():
 @pytest.mark.skipif(PYPY_VERSION_INFO,
                     reason="TOX runs this test from within the repo and finds "
                     "the project's pylintrc.")
-@pytest.mark.usefixture("pop_pylintrc")
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc():
     with fake_home():
         current_dir = getcwd()
@@ -576,7 +576,7 @@ def test_pylintrc():
             reload_module(config)
 
 
-@pytest.mark.usefixture("pop_pylintrc")
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc_parentdir():
     with tempdir() as chroot:
 
@@ -596,7 +596,7 @@ def test_pylintrc_parentdir():
             assert config.find_pylintrc() == expected
 
 
-@pytest.mark.usefixture("pop_pylintrc")
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc_parentdir_no_package():
     with tempdir() as chroot:
         with fake_home():
