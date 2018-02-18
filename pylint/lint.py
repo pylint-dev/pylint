@@ -1,16 +1,39 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2008 Fabrice Douchant <Fabrice.Douchant@logilab.fr>
+# Copyright (c) 2009 Vincent
+# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2011-2014 Google, Inc.
+# Copyright (c) 2012 David Pursehouse <david.pursehouse@sonymobile.com>
+# Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2012 JT Olds <jtolds@xnet5.com>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
-# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
-# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Alexandru Coman <fcoman@bitdefender.com>
+# Copyright (c) 2014 Daniel Harding <dharding@living180.net>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2014 Dan Goldsmith <djgoldsmith@googlemail.com>
 # Copyright (c) 2015-2016 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2015 Steven Myint <hg@stevenmyint.com>
+# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
+# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Alan Evangelista <alanoe@linux.vnet.ibm.com>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Roman Ivanov <me@roivanov.com>
+# Copyright (c) 2017 Ned Batchelder <ned@nedbatchelder.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+
+# pylint: disable=broad-except
 
 """ %prog [options] modules_or_packages
 
@@ -84,6 +107,7 @@ def _get_python_path(filepath):
         dirname = os.path.dirname(dirname)
         if old_dirname == dirname:
             return os.getcwd()
+    return None
 
 
 def _merge_stats(stats):
@@ -205,8 +229,8 @@ if multiprocessing is not None:
 
             # Run linter for received files/modules.
             for file_or_module in iter(tasks_queue.get, 'STOP'):
-                result = self._run_linter(file_or_module[0])
                 try:
+                    result = self._run_linter(file_or_module[0])
                     results_queue.put(result)
                 except Exception as ex:
                     print("internal error with sending report for module %s" %
@@ -241,6 +265,7 @@ if multiprocessing is not None:
                     msgs, linter.stats, linter.msg_status)
 
 
+# pylint: disable=too-many-instance-attributes
 class PyLinter(config.OptionsManagerMixIn,
                utils.MessagesHandlerMixIn,
                utils.ReportsHandlerMixIn,
@@ -268,13 +293,13 @@ class PyLinter(config.OptionsManagerMixIn,
     @staticmethod
     def make_options():
         return (('ignore',
-                 {'type' : 'csv', 'metavar' : '<file>[,<file>...]',
+                 {'type' : 'csv', 'metavar' : '<file>,...',
                   'dest' : 'black_list', 'default' : ('CVS',),
                   'help' : 'Add files or directories to the blacklist. '
                            'They should be base names, not paths.'}),
 
                 ('ignore-patterns',
-                 {'type' : 'regexp_csv', 'metavar' : '<pattern>[,<pattern>...]',
+                 {'type' : 'regexp_csv', 'metavar' : '<pattern>,...',
                   'dest' : 'black_list_re', 'default' : (),
                   'help' : 'Add files or directories matching the regex patterns to the'
                            ' blacklist. The regex matches against base names, not paths.'}),
@@ -385,12 +410,16 @@ class PyLinter(config.OptionsManagerMixIn,
                            ' may run arbitrary code.')}),
 
                 ('extension-pkg-whitelist',
-                 {'type': 'csv', 'metavar': '<pkg[,pkg]>', 'default': [],
+                 {'type': 'csv', 'metavar': '<pkg>,...', 'default': [],
                   'help': ('A comma-separated list of package or module names'
                            ' from where C extensions may be loaded. Extensions are'
                            ' loading into the active Python interpreter and may run'
-                           ' arbitrary code')}
-                ),
+                           ' arbitrary code')}),
+                ('suggestion-mode',
+                 {'type': 'yn', 'metavar': '<yn>', 'default': True,
+                  'help': ('When enabled, pylint would attempt to guess common '
+                           'misconfiguration and emit user-friendly hints instead '
+                           'of false-positive error messages')}),
                )
 
     option_groups = (
@@ -424,7 +453,7 @@ class PyLinter(config.OptionsManagerMixIn,
             'disable': self.disable}
         self._bw_options_methods = {'disable-msg': self.disable,
                                     'enable-msg': self.enable}
-        full_version = '%%prog %s, \nastroid %s\nPython %s' % (
+        full_version = '%%prog %s\nastroid %s\nPython %s' % (
             version, astroid_version, sys.version)
         utils.MessagesHandlerMixIn.__init__(self)
         utils.ReportsHandlerMixIn.__init__(self)
@@ -590,6 +619,10 @@ class PyLinter(config.OptionsManagerMixIn,
             for msg_id in self._checker_messages('python3'):
                 if msg_id.startswith('E'):
                     self.enable(msg_id)
+            config_parser = self.cfgfile_parser
+            if config_parser.has_option('MESSAGES CONTROL', 'disable'):
+                value = config_parser.get('MESSAGES CONTROL', 'disable')
+                self.global_set_option('disable', value)
         else:
             self.disable('python3')
         self.set_option('reports', False)
@@ -609,6 +642,10 @@ class PyLinter(config.OptionsManagerMixIn,
                     self.enable(msg_id)
                 else:
                     self.disable(msg_id)
+        config_parser = self.cfgfile_parser
+        if config_parser.has_option('MESSAGES CONTROL', 'disable'):
+            value = config_parser.get('MESSAGES CONTROL', 'disable')
+            self.global_set_option('disable', value)
         self._python3_porting_mode = True
 
     # block level option handling #############################################
@@ -799,16 +836,17 @@ class PyLinter(config.OptionsManagerMixIn,
             self.stats['by_module'][modname][msg_cat] = 0
 
     def get_ast(self, filepath, modname):
-        """return a ast(roid) representation for a module"""
+        """return an ast(roid) representation for a module"""
         try:
             return MANAGER.ast_from_file(filepath, modname, source=True)
         except astroid.AstroidSyntaxError as ex:
+            # pylint: disable=no-member
             self.add_message('syntax-error',
                              line=getattr(ex.error, 'lineno', 0),
                              args=str(ex.error))
         except astroid.AstroidBuildingException as ex:
             self.add_message('parse-error', args=ex)
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:
             import traceback
             traceback.print_exc()
             self.add_message('astroid-error', args=(ex.__class__, ex))
@@ -820,7 +858,7 @@ class PyLinter(config.OptionsManagerMixIn,
             tokens = utils.tokenize_module(ast_node)
         except tokenize.TokenError as ex:
             self.add_message('syntax-error', line=ex.args[1][0], args=ex.args[0])
-            return
+            return None
 
         if not ast_node.pure_python:
             self.add_message('raw-checker-failed', args=ast_node.name)
@@ -894,7 +932,7 @@ class PyLinter(config.OptionsManagerMixIn,
         evaluation = self.config.evaluation
         try:
             note = eval(evaluation, {}, self.stats) # pylint: disable=eval-used
-        except Exception as ex: # pylint: disable=broad-except
+        except Exception as ex:
             msg = 'An exception occurred while rating: %s' % ex
         else:
             self.stats['global_note'] = note
@@ -1045,7 +1083,7 @@ class Run(object):
 group are mutually exclusive.'),
         )
 
-    def __init__(self, args, reporter=None, exit=True):
+    def __init__(self, args, reporter=None, do_exit=True):
         self._rcfile = None
         self._plugins = []
         try:
@@ -1089,7 +1127,7 @@ group are mutually exclusive.'),
              {'action' : 'callback',
               'callback' : cb_list_confidence_levels,
               'group': 'Commands', 'level': 1,
-              'help' : "Generate pylint's messages."}),
+              'help' : "Generate pylint's confidence levels."}),
 
             ('full-documentation',
              {'action' : 'callback', 'metavar': '<msg-id>',
@@ -1159,17 +1197,18 @@ group are mutually exclusive.'),
                                 level=1)
         # read configuration
         linter.disable('I')
+        linter.enable('c-extension-no-member')
         linter.read_config_file()
         config_parser = linter.cfgfile_parser
         # run init hook, if present, before loading plugins
-        if config_parser.has_option('MASTER', 'init-hook'):
+        if config_parser._parser.has_option('MASTER', 'init-hook'):
             cb_init_hook('init-hook',
-                         utils._unquote(config_parser.get('MASTER',
+                         utils._unquote(config_parser._parser.get('MASTER',
                                                           'init-hook')))
         # is there some additional plugins in the file configuration, in
-        if config_parser.has_option('MASTER', 'load-plugins'):
+        if config_parser._parser.has_option('MASTER', 'load-plugins'):
             plugins = utils._splitstrip(
-                config_parser.get('MASTER', 'load-plugins'))
+                config_parser._parser.get('MASTER', 'load-plugins'))
             linter.load_plugin_modules(plugins)
         # now we can load file config and command line, plugins (which can
         # provide options) have been registered
@@ -1210,8 +1249,7 @@ group are mutually exclusive.'),
                 self._parallel_run(args)
 
             linter.generate_reports()
-
-        if exit:
+        if do_exit:
             sys.exit(self.linter.msg_status)
 
     def _parallel_run(self, files_or_modules):
@@ -1274,6 +1312,8 @@ group are mutually exclusive.'),
         all_stats = []
         module = None
         for result in self._parallel_task(files_or_modules):
+            if not result:
+                continue
             (
                 _,
                 self.linter.file_state.base_name,

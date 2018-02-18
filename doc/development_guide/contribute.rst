@@ -39,6 +39,8 @@ Archives before April 2013 are available at
 http://lists.logilab.org/pipermail/python-projects/
 
 
+.. _repository:
+
 Repository
 ----------
 
@@ -77,7 +79,11 @@ your patch gets accepted.
         python -m tox -e py27 -- -k  \*func\*
 
 - Add a short entry to the ChangeLog describing the change, except for internal
-  implementation only changes
+  implementation only changes. Not usually required, but for changes other than small
+  bugs we also add a couple of sentences in the release document for that release,
+  (`What's New` section)
+
+- Add yourself to the `CONTRIBUTORS` file, if you are not already there.
 
 - Write a comprehensive commit message
 
@@ -91,7 +97,9 @@ your patch gets accepted.
   about this topic)
 
 
-Functional tests
+.. _functional_tests:
+
+Functional Tests
 ----------------
 
 These are residing under '/test/functional' and they are formed of multiple
@@ -128,3 +136,40 @@ current environment in order to have faster feedback. Run with::
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
 .. _tox: http://tox.readthedocs.io/en/latest/
+
+
+Tips for Getting Started with Pylint Development
+------------------------------------------------
+* Read the :ref:`technical-reference`. It gives a short walkthrough of the pylint
+  codebase and will help you identify where you will need to make changes
+  for what you are trying to implement.
+* :func:`astroid.extract_node` is your friend. Most checkers are AST based,
+  so you will likely need to interact with :mod:`astroid`.
+  A short example of how to use :func:`astroid.extract_node` is given
+  :ref:`here <astroid_extract_node>`.
+* When fixing a bug for a specific check, search the code for the warning
+  message to find where the warning is raised,
+  and therefore where the logic for that code exists.
+
+A Typical Development Workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#. Create a virtualenv in which to work::
+
+     $ tox
+
+#. Write the tests. See :ref:`functional_tests`.
+#. Check that the tests fail::
+
+     $ tox
+
+#. Fix pylint!
+#. Make sure your tests pass::
+
+     $ tox
+
+   It is also possible to give tox a `pytest specifier <https://docs.pytest.org/en/latest/usage.html#specifying-tests-selecting-tests>`_
+   to run only your test::
+
+     $ tox pylint/test/test_functional.py::test_functional
+
+#. Package up and submit your changes as outlined in `repository`_.

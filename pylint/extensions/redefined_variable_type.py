@@ -1,4 +1,5 @@
 # Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -61,7 +62,7 @@ class MultipleTypesChecker(BaseChecker):
             for redef_node, redef_type in args[1:]:
                 if redef_type == orig_type:
                     continue
-                # if a variable is defined to several types in a if node,
+                # if a variable is defined to several types in an if node,
                 # this is not actually redefining.
                 orig_parent = orig_node.parent
                 redef_parent = redef_node.parent

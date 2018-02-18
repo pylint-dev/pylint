@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods, no-absolute-import,missing-docstring,import-error,wrong-import-position
-"""Test function argument checker"""
+# pylint: disable=wrong-import-order
 
 def decorator(fun):
     """Decorator"""
@@ -186,3 +186,18 @@ def compare_prices(arg):
 def find_problems2(prob_dates):
     for fff in range(10):
         prob_dates |= compare_prices(fff)
+
+
+from collections import namedtuple
+
+
+def namedtuple_replace_issue_1036():
+    cls = namedtuple('cls', 'a b c')
+    new_instance = cls(1, 2, 3)._replace(
+        a=24,
+        b=24,
+        c=42
+    )
+    # +1:[unexpected-keyword-arg,unexpected-keyword-arg]
+    new_bad_instance = cls(1, 2, 3)._replace(d=24, e=32)
+    return new_instance, new_bad_instance

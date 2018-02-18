@@ -42,13 +42,14 @@ def builder_inited(app):
         elif ext == '.rst':
             doc_files['pylint.extensions.' + name] = os.path.join(ext_path,
                                                                   filename)
+    modules.sort()
     if not modules:
         sys.exit("No Pylint extensions found?")
 
     linter = PyLinter()
     linter.load_plugin_modules(modules)
 
-    extensions_doc = os.path.join(base_path, 'doc', 'reference_guide', 'extensions.rst')
+    extensions_doc = os.path.join(base_path, 'doc', 'technical_reference', 'extensions.rst')
     with open(extensions_doc, 'w') as stream:
         stream.write("Optional Pylint checkers in the extensions module\n")
         stream.write("=================================================\n\n")

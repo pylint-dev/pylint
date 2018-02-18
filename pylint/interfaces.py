@@ -1,7 +1,10 @@
 # Copyright (c) 2009-2010, 2012-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -42,7 +45,7 @@ def implements(obj, interface):
 
 
 class IChecker(Interface):
-    """This is an base interface, not designed to be used elsewhere than for
+    """This is a base interface, not designed to be used elsewhere than for
     sub interfaces definition.
     """
 

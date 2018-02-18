@@ -7,7 +7,7 @@ import os
 from sys import argv
 
 # external imports
-import lxml
+import isort
 
 from six import moves
 

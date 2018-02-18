@@ -1,6 +1,17 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
 # Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -21,6 +32,7 @@ from pylint.reporters import BaseReporter
 from pylint.reporters.text import *
 from pylint.reporters.json import JSONReporter
 import pytest
+from pylint import utils
 
 HERE = abspath(dirname(__file__))
 
@@ -159,7 +171,7 @@ class TestRunTC(object):
         out = six.StringIO(output[master.start():])
         parser = six.moves.configparser.RawConfigParser()
         parser.readfp(out)
-        messages = parser.get('MESSAGES CONTROL', 'disable').split(",")
+        messages = utils._splitstrip(parser.get('MESSAGES CONTROL', 'disable'))
         assert 'suppressed-message' in messages
 
     def test_generate_rcfile_no_obsolete_methods(self):
@@ -167,6 +179,12 @@ class TestRunTC(object):
         self._run_pylint(["--generate-rcfile"], out=out)
         output = out.getvalue()
         assert "profile" not in output
+
+    def test_inexisting_rcfile(self):
+        out = six.StringIO()
+        with pytest.raises(IOError) as excinfo:
+            self._run_pylint(["--rcfile=/tmp/norcfile.txt"], out=out)
+        assert "The config file /tmp/norcfile.txt doesn't exist!" == str(excinfo.value)
 
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
@@ -236,6 +254,41 @@ class TestRunTC(object):
         self._test_output([module, "--py3k", "-E", "--msg-template='{msg}'"],
                           expected_output=expected)
 
+    @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
+    def test_py3k_commutative_with_config_disable(self):
+        module = join(HERE, 'regrtest_data', 'py3k_errors_and_warnings.py')
+        rcfile = join(HERE, 'regrtest_data', 'py3k-disabled.rc')
+        cmd = [module, "--msg-template='{msg}'", "--reports=n"]
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        import missing `from __future__ import absolute_import`
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        Calling a dict.iter*() method
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k"], expected_output=expected)
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        Calling a dict.iter*() method
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k", "--rcfile", rcfile],
+                          expected_output=expected)
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k", "-E", "--rcfile", rcfile],
+                          expected_output=expected)
+
+        self._test_output(cmd + ["-E", "--py3k", "--rcfile", rcfile],
+                          expected_output=expected)
+
     def test_abbreviations_are_not_supported(self):
         expected = "no such option: --load-plugin"
         self._test_output([".", "--load-plugin"], expected_output=expected)
@@ -268,6 +321,10 @@ class TestRunTC(object):
         to_remove = "No config file found, using default configuration"
         if to_remove in actual_output:
             actual_output = actual_output[len(to_remove):]
+        if actual_output.startswith("Using config file "):
+            # If ~/.pylintrc is present remove the
+            # Using config file...  line
+            actual_output = actual_output[actual_output.find("\n"):]
         assert expected_output.strip() == actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self):

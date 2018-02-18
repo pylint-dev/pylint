@@ -15,6 +15,7 @@ To use Pylint with:
  - WingIDE_, see http://www.wingware.com/doc/edit/pylint,
  - PyCharm_, see :ref:`the section below <pylint_in_pycharm>`,
  - TextMate_, see :ref:`the section below <pylint_in_textmate>`
+ - `Visual Studio Code`_, see https://code.visualstudio.com/docs/python/linting#_pylint,
 
 Pylint is integrated in:
 
@@ -22,7 +23,8 @@ Pylint is integrated in:
  - Eric_ IDE, see the `Project > Check` menu,
  - Spyder_, see http://packages.python.org/spyder/pylint.html,
  - pyscripter_, see the `Tool -> Tools` menu.
-
+ - `Visual Studio Code`_, see the `Preferences -> Settings` menu.
+ 
 .. _Emacs: http://www.gnu.org/software/emacs/
 .. _Vim: http://www.vim.org/
 .. _Visual Studio: https://www.visualstudio.com/
@@ -36,6 +38,7 @@ Pylint is integrated in:
 .. _spyder: http://code.google.com/p/spyderlib/
 .. _PyCharm: http://www.jetbrains.com/pycharm/
 .. _TextMate: http://macromates.com
+.. _Visual Studio Code: https://code.visualstudio.com/
 
 Using Pylint thru flymake in Emacs
 ==================================
@@ -193,3 +196,67 @@ The output will tell you where Pylint can be found; in this case, in ``/usr/loca
    ``$PATH:/opt/local/bin:/usr/local/bin:/usr/texbin``, which includes other paths.
 
 ... and try running Pylint again.
+
+Integrate Pylint with Visual Studio Code
+========================================
+
+Command-line arguments and configuration files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See `Pylint command line arguments`_ for general switches. Command line
+arguments can be used to load Pylint plugins, such as that for Django:
+
+.. code:: json
+
+    "python.linting.pylintArgs": ["--load-plugins", "pylint_django"]
+
+Options can also be specified in a ``pylintrc`` or ``.pylintrc`` file in
+the workspace folder, as described on `Pylint command line arguments`_.
+
+To control which Pylint messages are shown, add the following contents
+to an options file:
+
+.. code:: ini
+
+    [MESSAGES CONTROL]
+
+    # Enable the message, report, category or checker with the given id(s). You can
+    # either give multiple identifier separated by comma (,) or put this option
+    # multiple time.
+    #enable=
+
+    # Disable the message, report, category or checker with the given id(s). You
+    # can either give multiple identifier separated by comma (,) or put this option
+    # multiple time (only on the command line, not in the configuration file where
+    # it should appear only once).
+    #disable=
+
+Message category mapping
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Python extension maps Pylint message categories to VS Code
+categories through the following settings. If desired, change the
+setting to change the mapping.
+
++-----------------------+-----------------------+-----------------------+
+| Pylint category       | Applicable            | VS Code category      |
+|                       | setting(python.lintin | mapping               |
+|                       | g.)                   |                       |
++=======================+=======================+=======================+
+| convention            | pylintCategorySeverit | Information           |
+|                       | y.convention          |                       |
++-----------------------+-----------------------+-----------------------+
+| refactor              | pylintCategorySeverit | Hint                  |
+|                       | y.refactor            |                       |
++-----------------------+-----------------------+-----------------------+
+| warning               | pylintCategorySeverit | Warning               |
+|                       | y.warning             |                       |
++-----------------------+-----------------------+-----------------------+
+| error                 | pylintCategorySeverit | Error                 |
+|                       | y.error               |                       |
++-----------------------+-----------------------+-----------------------+
+| fatal                 | pylintCategorySeverit | Error                 |
+|                       | y.fatal               |                       |
++-----------------------+-----------------------+-----------------------+
+
+.. _Pylint command line arguments: https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options

@@ -1,10 +1,22 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2012, 2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2010 Maarten ter Huurne <maarten@treewalker.org>
+# Copyright (c) 2012-2014 Google, Inc.
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
+# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2014 David Pursehouse <david.pursehouse@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2016 Moises Lopez - https://www.vauxoo.com/ <moylop260@vauxoo.com>
-# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2016 Anthony Foglia <afoglia@users.noreply.github.com>
+# Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -14,9 +26,8 @@
 from __future__ import generators
 
 import collections
+from itertools import zip_longest
 import sys
-
-import six
 
 import astroid
 from astroid.bases import Generator, BUILTINS
@@ -134,8 +145,84 @@ def _positional_parameters(method):
     return positional
 
 
+def _get_node_type(node, potential_types):
+    """
+    Return the type of the node if it exists in potential_types.
+
+    Args:
+        node (astroid.node): node to get the type of.
+        potential_types (tuple): potential types of the node.
+
+    Returns:
+        type: type of the node or None.
+    """
+    for potential_type in potential_types:
+        if isinstance(node, potential_type):
+            return potential_type
+    return None
+
+
+def _check_arg_equality(node_a, node_b, attr_name):
+    """
+    Check equality of nodes based on the comparison of their attributes named attr_name.
+
+    Args:
+        node_a (astroid.node): first node to compare.
+        node_b (astroid.node): second node to compare.
+        attr_name (str): name of the nodes attribute to use for comparison.
+
+    Returns:
+        bool: True if node_a.attr_name == node_b.attr_name, False otherwise.
+    """
+    return getattr(node_a, attr_name) == getattr(node_b, attr_name)
+
+
+def _has_different_parameters_default_value(original, overridden):
+    """
+    Check if original and overridden methods arguments have different default values
+
+    Return True if one of the overridden arguments has a default
+    value different from the default value of the original argument
+    If one of the method doesn't have argument (.args is None)
+    return False
+    """
+    if original.args is None or overridden.args is None:
+        return False
+
+    original_param_names = [param.name for param in original.args]
+    default_missing = object()
+    for param_name in original_param_names:
+        try:
+            original_default = original.default_value(param_name)
+        except astroid.exceptions.NoDefault:
+            original_default = default_missing
+        try:
+            overridden_default = overridden.default_value(param_name)
+        except astroid.exceptions.NoDefault:
+            overridden_default = default_missing
+
+        default_list = [arg == default_missing for arg in (original_default, overridden_default)]
+        if any(default_list) and not all(default_list):
+            # Only one arg has no default value
+            return True
+
+        astroid_type_compared_attr = {astroid.Const: "value", astroid.ClassDef: "name",
+                                      astroid.Tuple: "elts", astroid.List: "elts"}
+        handled_types = tuple(astroid_type for astroid_type in astroid_type_compared_attr)
+        original_type = _get_node_type(original_default, handled_types)
+        if original_type:
+            # We handle only astroid types that are inside the dict astroid_type_compared_attr
+            if not isinstance(overridden_default, original_type):
+                # Two args with same name but different types
+                return True
+            if not _check_arg_equality(original_default, overridden_default,
+                                       astroid_type_compared_attr[original_type]):
+                # Two args with same type but different values
+                return True
+    return False
+
 def _has_different_parameters(original, overridden, dummy_parameter_regex):
-    zipped = six.moves.zip_longest(original, overridden)
+    zipped = zip_longest(original, overridden)
     for original_param, overridden_param in zipped:
         params = (original_param, overridden_param)
         if not all(params):
@@ -298,14 +385,14 @@ def _safe_infer_call_result(node, caller, context=None):
         inferit = node.infer_call_result(caller, context=context)
         value = next(inferit)
     except astroid.InferenceError:
-        return  # inference failed
+        return None  # inference failed
     except StopIteration:
-        return  # no values infered
+        return None  # no values infered
     try:
         next(inferit)
-        return  # there is ambiguity on the inferred node
+        return None  # there is ambiguity on the inferred node
     except astroid.InferenceError:
-        return  # there is some kind of ambiguity
+        return None  # there is some kind of ambiguity
     except StopIteration:
         return value
 
@@ -315,7 +402,7 @@ def _has_same_layout_slots(slots, assigned_value):
     if isinstance(inferred, astroid.ClassDef):
         other_slots = inferred.slots()
         if all(first_slot and second_slot and first_slot.value == second_slot.value
-               for (first_slot, second_slot) in six.moves.zip_longest(slots, other_slots)):
+               for (first_slot, second_slot) in zip_longest(slots, other_slots)):
             return True
     return False
 
@@ -604,7 +691,7 @@ a metaclass class method.'}
             return
         defining_methods = self.config.defining_attr_methods
         current_module = cnode.root()
-        for attr, nodes in six.iteritems(cnode.instance_attrs):
+        for attr, nodes in cnode.instance_attrs.items():
             # skip nodes which are not in the current module and it may screw up
             # the output, while it's not worth it
             nodes = [n for n in nodes if not
@@ -710,11 +797,9 @@ a metaclass class method.'}
         other implementation to take precedence.
         '''
 
-        if not function.is_method():
-            return
-
-        if function.decorators:
-            # With decorators is a change of use
+        if (not function.is_method()
+                # With decorators is a change of use
+                or function.decorators):
             return
 
         body = function.body
@@ -729,10 +814,9 @@ a metaclass class method.'}
             return
 
         call = statement.value
-        if not isinstance(call, astroid.Call):
-            return
-        if not isinstance(call.func, astroid.Attribute):
-            # Not a super() attribute access.
+        if (not isinstance(call, astroid.Call)
+                # Not a super() attribute access.
+                or not isinstance(call.func, astroid.Attribute)):
             return
 
         # Should be a super call.
@@ -748,15 +832,33 @@ a metaclass class method.'}
         if call.func.attrname != function.name:
             return
 
-        # Should be a super call with the MRO pointer being the current class
-        # and the type being the current instance.
+        # Should be a super call with the MRO pointer being the
+        # current class and the type being the current instance.
         current_scope = function.parent.scope()
-        if super_call.mro_pointer != current_scope:
+        if (super_call.mro_pointer != current_scope
+                or not isinstance(super_call.type, astroid.Instance)
+                or super_call.type.name != current_scope.name):
             return
-        if not isinstance(super_call.type, astroid.Instance):
-            return
-        if super_call.type.name != current_scope.name:
-            return
+
+        # Check values of default args
+        klass = function.parent.frame()
+        for overridden in klass.local_attr_ancestors(function.name):
+            # get astroid for the searched method
+            try:
+                meth_node = overridden[function.name]
+            except KeyError:
+                # we have found the method but it's not in the local
+                # dictionary.
+                # This may happen with astroid build from living objects
+                continue
+            if (not isinstance(meth_node, astroid.FunctionDef)
+                    # If the method have an ancestor which is not a
+                    # function then it is legitimate to redefine it
+                    or _has_different_parameters_default_value(
+                        meth_node.args, function.args)):
+                return
+            else:
+                break
 
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
@@ -799,10 +901,10 @@ a metaclass class method.'}
 
     def _check_slots_elt(self, elt):
         for infered in elt.infer():
-            if infered is astroid.YES:
+            if infered is astroid.Uninferable:
                 continue
             if (not isinstance(infered, astroid.Const) or
-                    not isinstance(infered.value, six.string_types)):
+                    not isinstance(infered.value, str)):
                 self.add_message('invalid-slots-object',
                                  args=infered.as_string(),
                                  node=elt)
@@ -829,7 +931,7 @@ a metaclass class method.'}
                     and not (node.is_abstract() or
                              overrides_a_method(class_node, node.name) or
                              decorated_with_property(node) or
-                             (six.PY3 and _has_bare_super_call(node)))):
+                             _has_bare_super_call(node))):
                 self.add_message('no-self-use', node=node)
 
     def visit_attribute(self, node):
@@ -1012,7 +1114,7 @@ a metaclass class method.'}
         """check that accessed members are defined"""
         # XXX refactor, probably much simpler now that E0201 is in type checker
         excs = ('AttributeError', 'Exception', 'BaseException')
-        for attr, nodes in six.iteritems(accessed):
+        for attr, nodes in accessed.items():
             try:
                 # is it a class attribute ?
                 node.local_attr(attr)
@@ -1172,7 +1274,7 @@ a metaclass class method.'}
                 return
             try:
                 for klass in expr.expr.infer():
-                    if klass is astroid.YES:
+                    if klass is astroid.Uninferable:
                         continue
                     # The infered klass can be super(), which was
                     # assigned to a variable and the `__init__`
@@ -1196,7 +1298,7 @@ a metaclass class method.'}
                                              node=expr, args=klass.name)
             except astroid.InferenceError:
                 continue
-        for klass, method in six.iteritems(not_called_yet):
+        for klass, method in not_called_yet.items():
             cls = node_frame_class(method)
             if klass.name == 'object' or (cls and cls.name == 'object'):
                 continue
@@ -1278,7 +1380,7 @@ class SpecialMethodsChecker(BaseChecker):
                   {'old_names': [('E0235', 'bad-context-manager')]}),
         'E0303': ('__len__ does not return non-negative integer',
                   'invalid-length-returned',
-                  'Used when an __len__ method returns something which is not a '
+                  'Used when a __len__ method returns something which is not a '
                   'non-negative integer', {}),
     }
     priority = -2
@@ -1375,7 +1477,14 @@ class SpecialMethodsChecker(BaseChecker):
 
     def _check_len(self, node):
         inferred = _safe_infer_call_result(node, node)
-        if not inferred:
+        if not inferred or inferred is astroid.Uninferable:
+            return
+
+        if (isinstance(inferred, astroid.Instance)
+                and inferred.name == 'int'
+                and not isinstance(inferred, astroid.Const)):
+            # Assume it's good enough, since the int() call might wrap
+            # something that's uninferable for us
             return
 
         if not isinstance(inferred, astroid.Const):
@@ -1383,7 +1492,7 @@ class SpecialMethodsChecker(BaseChecker):
             return
 
         value = inferred.value
-        if not isinstance(value, six.integer_types) or value < 0:
+        if not isinstance(value, int) or value < 0:
             self.add_message('invalid-length-returned', node=node)
 
 

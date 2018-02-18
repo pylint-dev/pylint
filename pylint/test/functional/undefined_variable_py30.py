@@ -17,7 +17,7 @@ class Undefined:
         """ This should not emit. """
         def func()->Undefined:
             """ empty """
-            return
+            return 2
         return func
 
 

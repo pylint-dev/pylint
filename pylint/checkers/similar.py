@@ -1,5 +1,13 @@
 # Copyright (c) 2006, 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2012 Ry4an Brase <ry4an-hg@ry4an.org>
+# Copyright (c) 2012 Google, Inc.
+# Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2017 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -12,10 +20,7 @@ from __future__ import print_function
 import sys
 from collections import defaultdict
 
-import six
-from six.moves import zip
-
-from pylint.utils import safe_decode
+from pylint.utils import decoding_stream
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Table
@@ -37,7 +42,7 @@ class Similar(object):
         if encoding is None:
             readlines = stream.readlines
         else:
-            readlines = lambda: [safe_decode(line, encoding) for line in stream]
+            readlines = decoding_stream(stream, encoding).readlines
         try:
             self.linesets.append(LineSet(streamid,
                                          readlines(),
@@ -64,7 +69,7 @@ class Similar(object):
             else:
                 duplicate.append(set([(lineset1, idx1), (lineset2, idx2)]))
         sims = []
-        for num, ensembles in six.iteritems(no_duplicates):
+        for num, ensembles in no_duplicates.items():
             for couples in ensembles:
                 sims.append((num, couples))
         sims.sort()

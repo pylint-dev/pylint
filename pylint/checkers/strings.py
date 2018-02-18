@@ -1,6 +1,17 @@
-# Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# -*- coding: utf-8 -*-
+# Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
+# Copyright (c) 2010-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
+# Copyright (c) 2012-2014 Google, Inc.
+# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Peter Dawyndt <Peter.Dawyndt@UGent.be>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -13,8 +24,6 @@ import sys
 import tokenize
 import string
 import numbers
-
-import six
 
 import astroid
 from pylint.interfaces import ITokenChecker, IAstroidChecker, IRawChecker
@@ -29,7 +38,7 @@ _PY27 = sys.version_info[:2] == (2, 7)
 MSGS = {
     'E1300': ("Unsupported format character %r (%#02x) at index %d",
               "bad-format-character",
-              "Used when a unsupported format character is used in a format\
+              "Used when an unsupported format character is used in a format\
               string."),
     'E1301': ("Format string ends in middle of conversion specifier",
               "truncated-format-string",
@@ -115,7 +124,11 @@ if _PY3K:
     import _string # pylint: disable=wrong-import-position, wrong-import-order
 
     def split_format_field_names(format_string):
-        return _string.formatter_field_name_split(format_string)
+        try:
+            return _string.formatter_field_name_split(format_string)
+        except ValueError:
+            raise utils.IncompleteFormatString()
+
 else:
     def _field_iterator_convertor(iterator):
         for is_attr, key in iterator:
@@ -241,7 +254,7 @@ class StringFormatChecker(BaseChecker):
         args = node.right
 
         if not (isinstance(left, astroid.Const)
-                and isinstance(left.value, six.string_types)):
+                and isinstance(left.value, str)):
             return
         format_string = left.value
         try:
@@ -270,7 +283,7 @@ class StringFormatChecker(BaseChecker):
                 for k, _ in args.items:
                     if isinstance(k, astroid.Const):
                         key = k.value
-                        if isinstance(key, six.string_types):
+                        if isinstance(key, str):
                             keys.add(key)
                         else:
                             self.add_message('bad-format-string-key',
@@ -361,7 +374,7 @@ class StringFormatChecker(BaseChecker):
             return
         if not isinstance(strnode, astroid.Const):
             return
-        if not isinstance(strnode.value, six.string_types):
+        if not isinstance(strnode.value, str):
             return
 
         if node.starargs or node.kwargs:
@@ -377,7 +390,7 @@ class StringFormatChecker(BaseChecker):
             return
 
         named_fields = set(field[0] for field in fields
-                           if isinstance(field[0], six.string_types))
+                           if isinstance(field[0], str))
         if num_args and manual_pos:
             self.add_message('format-combined-specification',
                              node=node)
@@ -450,7 +463,7 @@ class StringFormatChecker(BaseChecker):
                 argument = next(argname.infer())
             except astroid.InferenceError:
                 continue
-            if not specifiers or argument is astroid.YES:
+            if not specifiers or argument is astroid.Uninferable:
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
@@ -461,7 +474,7 @@ class StringFormatChecker(BaseChecker):
             previous = argument
             parsed = []
             for is_attribute, specifier in specifiers:
-                if previous is astroid.YES:
+                if previous is astroid.Uninferable:
                     break
                 parsed.append((is_attribute, specifier))
                 if is_attribute:

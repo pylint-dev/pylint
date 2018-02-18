@@ -1,7 +1,12 @@
 # Copyright (c) 2014-2015 Bruno Daniel <bruno.daniel@blue-yonder.com>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016-2017 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Mitar <mitar.github@tnode.com>
+# Copyright (c) 2017 John Paraskevopoulos <io.paraskev@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -24,6 +29,9 @@ from pylint.extensions.docparams import DocstringParameterChecker
 class TestParamDocChecker(CheckerTestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
     CHECKER_CLASS = DocstringParameterChecker
+    CONFIG = {
+        'accept_no_param_doc': False,
+    }
 
     def test_missing_func_params_in_sphinx_docstring(self):
         """Example of a function with missing Sphinx parameter documentation in
@@ -79,6 +87,63 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
+    def test_func_params_and_keyword_params_in_google_docstring(self):
+        """Example of a function with Google style parameter splitted
+        in Args and Keyword Args in the docstring
+        """
+        node = astroid.extract_node("""
+        def my_func(this, other, that=True):
+            '''Prints this, other and that
+
+                Args:
+                    this (str): Printed first
+                    other (int): Other args
+
+                Keyword Args:
+                    that (bool): Printed second
+            '''
+            print(this, that, other)
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_func_params_and_wrong_keyword_params_in_google_docstring(self):
+        """Example of a function with Google style parameter splitted
+        in Args and Keyword Args in the docstring but with wrong keyword args
+        """
+        node = astroid.extract_node("""
+        def my_func(this, other, that=True):
+            '''Prints this, other and that
+
+                Args:
+                    this (str): Printed first
+                    other (int): Other args
+
+                Keyword Args:
+                    these (bool): Printed second
+            '''
+            print(this, that, other)
+        """)
+        with self.assertAddsMessages(
+            Message(
+                msg_id='missing-param-doc',
+                node=node,
+                args=('that',)),
+            Message(
+                msg_id='missing-type-doc',
+                node=node,
+                args=('that',)),
+            Message(
+                msg_id='differing-param-doc',
+                node=node,
+                args=('these',)),
+            Message(
+                msg_id='differing-type-doc',
+                node=node,
+                args=('these',))
+            ):
+            self.checker.visit_functiondef(node)
+
     def test_missing_func_params_in_numpy_docstring(self):
         """Example of a function with missing NumPy style parameter
         documentation in the docstring
@@ -110,6 +175,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
+    @set_config(accept_no_param_doc=True)
     def test_tolerate_no_param_documentation_at_all(self):
         """Example of a function with no parameter documentation at all
 
@@ -125,7 +191,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @set_config(accept_no_param_doc=False)
     def test_don_t_tolerate_no_param_documentation_at_all(self):
         """Example of a function with no parameter documentation at all
 
@@ -150,7 +215,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    @set_config(accept_no_param_doc=False)
     def test_see_tolerate_no_param_documentation_at_all(self):
         """Example for the usage of "For the parameters, see"
         to suppress missing-param warnings.
@@ -784,7 +848,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self._visit_methods_of_class(node)
 
-    @set_config(accept_no_param_doc=False)
     def test_see_sentence_for_constr_params_in_class(self):
         """Example usage of "For the parameters, see" in class docstring"""
         node = astroid.extract_node("""
@@ -802,7 +865,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self._visit_methods_of_class(node)
 
-    @set_config(accept_no_param_doc=False)
     def test_see_sentence_for_constr_params_in_init(self):
         """Example usage of "For the parameters, see" in init docstring"""
         node = astroid.extract_node("""
@@ -1228,6 +1290,47 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
+    def test_finds_args_with_xref_type_google(self):
+        node = astroid.extract_node('''
+        def my_func(named_arg, **kwargs):
+            """The docstring
+
+            Args:
+                named_arg (`example.value`): Returned
+                **kwargs: Keyword arguments
+
+            Returns:
+                `example.value`: Maybe named_arg
+            """
+            if kwargs:
+                return named_arg
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    def test_finds_args_with_xref_type_numpy(self):
+        node = astroid.extract_node('''
+        def my_func(named_arg, *args):
+            """The docstring
+
+            Args
+            ----
+            named_arg : `example.value`
+                Returned
+            args :
+                Optional Arguments
+
+            Returns
+            -------
+                `example.value`
+                    Maybe named_arg
+            """
+            if args:
+                return named_arg
+        ''')
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
     def test_finds_kwargs_without_type_numpy(self):
         node = astroid.extract_node('''
         def my_func(named_arg, **kwargs):
@@ -1251,11 +1354,17 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    COMPLEX_TYPES = [
-        'int or str',
+    CONTAINER_TYPES = [
+        'dict(str,str)',
+        'dict[str,str]',
+        'tuple(int)',
+        'list[tokenize.TokenInfo]',
+    ]
+
+    COMPLEX_TYPES = CONTAINER_TYPES + [
         'dict(str, str)',
         'dict[str, str]',
-        'tuple(int)',
+        'int or str',
         'tuple(int or str)',
         'tuple(int) or list(int)',
         'tuple(int or str) or list(int or str)',
@@ -1313,6 +1422,22 @@ class TestParamDocChecker(CheckerTestCase):
             """
             return named_arg
         '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('container_type', CONTAINER_TYPES)
+    def test_finds_compact_container_types_sphinx(self, container_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            :param {0} named_arg: Returned
+
+            :returns: named_arg
+            :rtype: {0}
+            """
+            return named_arg
+        '''.format(container_type))
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 

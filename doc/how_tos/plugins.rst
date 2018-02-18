@@ -1,13 +1,14 @@
 .. -*- coding: utf-8 -*-
 
-================
-Extending Pylint
-================
+How To Write a Pylint Plugin
+============================
 
-Pylint provides support for writing two types of extensions. First, there
-is the concept of **checkers**, which can be used for finding problems in your
-code. Secondly, there is also the concept of **transform plugin**, which represents a
-way through which the inference and the capabilities of Pylint can be enhanced
+Pylint provides support for writing two types of extensions.
+First, there is the concept of **checkers**,
+which can be used for finding problems in your code.
+Secondly, there is also the concept of **transform plugin**,
+which represents a way through which the inference and
+the capabilities of Pylint can be enhanced
 and tailored to a particular module, library of framework.
 
 In general, a plugin is a module which should have a function ``register``,
@@ -36,10 +37,4 @@ object, by calling the following inside the ``register`` function::
 
     linter.register_checker(OurChecker(linter))
 
-
-.. toctree::
-   :maxdepth: 2
-   :titlesonly:
-
-   custom_checkers
-   transform_plugins
+For more information on writing a checker see :ref:`write_a_checker`.

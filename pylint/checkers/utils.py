@@ -1,9 +1,23 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2007, 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
+# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
+# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
+# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016-2017 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Brian C. Lane <bcl@redhat.com>
+# Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -11,25 +25,12 @@
 # pylint: disable=W0611
 """some functions that may be useful for various checkers
 """
-import collections
-import functools
-try:
-    from functools import singledispatch as singledispatch
-except ImportError:
-    # pylint: disable=import-error
-    from singledispatch import singledispatch as singledispatch
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
+import builtins
+from functools import lru_cache, partial, singledispatch
 import itertools
 import re
 import sys
 import string
-import warnings
-
-import six
-from six.moves import map, builtins # pylint: disable=redefined-builtin
 
 import astroid
 from astroid import bases as _bases
@@ -48,7 +49,7 @@ else:
 ABC_METHODS = set(('abc.abstractproperty', 'abc.abstractmethod',
                    'abc.abstractclassmethod', 'abc.abstractstaticmethod'))
 ITER_METHOD = '__iter__'
-NEXT_METHOD = 'next' if six.PY2 else '__next__'
+NEXT_METHOD = '__next__'
 GETITEM_METHOD = '__getitem__'
 SETITEM_METHOD = '__setitem__'
 DELITEM_METHOD = '__delitem__'
@@ -91,7 +92,7 @@ _SPECIAL_METHODS_PARAMS = {
         '__setstate__', '__reduce_ex__', '__deepcopy__', '__cmp__',
         '__matmul__', '__rmatmul__', '__div__'),
 
-    2: ('__setattr__', '__get__', '__set__', '__setitem__'),
+    2: ('__setattr__', '__get__', '__set__', '__setitem__', '__set_name__'),
 
     3: ('__exit__', '__aexit__'),
 
@@ -271,7 +272,7 @@ def is_func_decorator(node):
     return False
 
 def is_ancestor_name(frame, node):
-    """return True if `frame` is a astroid.Class node with `node` in the
+    """return True if `frame` is an astroid.Class node with `node` in the
     subtree of its bases attribute
     """
     try:
@@ -453,6 +454,8 @@ def inherit_from_std_ex(node):
     if node.name in ('Exception', 'BaseException') \
             and node.root().name == EXCEPTIONS_MODULE:
         return True
+    if not hasattr(node, 'ancestors'):
+        return False
     return any(inherit_from_std_ex(parent)
                for parent in node.ancestors(recurs=True))
 
@@ -468,7 +471,7 @@ def error_of_type(handler, error_type):
     given errors.
     """
     def stringify_error(error):
-        if not isinstance(error, six.string_types):
+        if not isinstance(error, str):
             return error.__name__
         return error
 
@@ -505,6 +508,7 @@ def _is_property_decorator(decorator):
             for ancestor in infered.ancestors():
                 if ancestor.name == 'property' and ancestor.root().name == BUILTINS_NAME:
                     return True
+    return None
 
 
 def decorated_with(func, qnames):
@@ -533,8 +537,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
     names and their inferred objects.
     """
     if is_abstract_cb is None:
-        is_abstract_cb = functools.partial(
-            decorated_with, qnames=ABC_METHODS)
+        is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
     visited = {}
     try:
         mro = reversed(node.mro())
@@ -579,6 +582,7 @@ def unimplemented_abstract_methods(node, is_abstract_cb=None):
 
 
 def _import_node_context(node):
+    """Return the ExceptHandler or the TryExcept node in which the node is."""
     current = node
     ignores = (astroid.ExceptHandler, astroid.TryExcept)
     while current and not isinstance(current.parent, ignores):
@@ -610,21 +614,48 @@ def is_from_fallback_block(node):
 
 
 def _except_handlers_ignores_exception(handlers, exception):
-    func = functools.partial(error_of_type,
-                             error_type=(exception, ))
+    func = partial(error_of_type, error_type=(exception, ))
     return any(map(func, handlers))
+
+
+def get_exception_handlers(node, exception):
+    """Return the collections of handlers handling the exception in arguments.
+
+    Args:
+        node (astroid.Raise): the node raising the exception.
+        exception (builtin.Exception or str): exception or name of the exception.
+
+    Returns:
+        generator: the collection of handlers that are handling the exception or None.
+
+    """
+    context = _import_node_context(node)
+    if isinstance(context, astroid.TryExcept):
+        return (_handler for _handler in context.handlers
+                if error_of_type(_handler, exception))
+    return None
+
+
+def is_node_inside_try_except(node):
+    """Check if the node is directly under a Try/Except statement.
+    (but not under an ExceptHandler!)
+
+    Args:
+        node (astroid.Raise): the node raising the exception.
+
+    Returns:
+        bool: True if the node is inside a try/except statement, False otherwise.
+    """
+    context = _import_node_context(node)
+    return isinstance(context, astroid.TryExcept)
 
 
 def node_ignores_exception(node, exception):
     """Check if the node is in a TryExcept which handles the given exception."""
-    current = node
-    ignores = (astroid.ExceptHandler, astroid.TryExcept)
-    while current and not isinstance(current.parent, ignores):
-        current = current.parent
-
-    if current and isinstance(current.parent, astroid.TryExcept):
-        return _except_handlers_ignores_exception(current.parent.handlers, exception)
-    return False
+    managing_handlers = get_exception_handlers(node, exception)
+    if not managing_handlers:
+        return False
+    return any(managing_handlers)
 
 
 def class_is_abstract(node):
@@ -721,6 +752,8 @@ def _supports_protocol(value, protocol_callback):
     if isinstance(value, astroid.BaseInstance):
         if not has_known_bases(value):
             return True
+        if value.has_dynamic_getattr():
+            return True
         if protocol_callback(value):
             return True
 
@@ -772,12 +805,12 @@ def safe_infer(node, context=None):
         inferit = node.infer(context=context)
         value = next(inferit)
     except astroid.InferenceError:
-        return
+        return None
     try:
         next(inferit)
-        return # None if there is ambiguity on the inferred node
+        return None # None if there is ambiguity on the inferred node
     except astroid.InferenceError:
-        return # there is some kind of ambiguity
+        return None # there is some kind of ambiguity
     except StopIteration:
         return value
 
@@ -818,13 +851,13 @@ def node_type(node):
     types = set()
     try:
         for var_type in node.infer():
-            if var_type == astroid.YES or is_none(var_type):
+            if var_type == astroid.Uninferable or is_none(var_type):
                 continue
             types.add(var_type)
             if len(types) > 1:
-                return
+                return None
     except astroid.InferenceError:
-        return
+        return None
     return types.pop() if types else None
 
 
@@ -858,3 +891,26 @@ def is_registered_in_singledispatch_function(node):
             return decorated_with(func_def, singledispatch_qnames)
 
     return False
+
+
+def get_node_last_lineno(node):
+    """
+    Get the last lineno of the given node. For a simple statement this will just be node.lineno,
+    but for a node that has child statements (e.g. a method) this will be the lineno of the last
+    child statement recursively.
+    """
+    # 'finalbody' is always the last clause in a try statement, if present
+    if getattr(node, 'finalbody', False):
+        return get_node_last_lineno(node.finalbody[-1])
+    # For if, while, and for statements 'orelse' is always the last clause.
+    # For try statements 'orelse' is the last in the absence of a 'finalbody'
+    if getattr(node, 'orelse', False):
+        return get_node_last_lineno(node.orelse[-1])
+    # try statements have the 'handlers' last if there is no 'orelse' or 'finalbody'
+    if getattr(node, 'handlers', False):
+        return get_node_last_lineno(node.handlers[-1])
+    # All compound statements have a 'body'
+    if getattr(node, 'body', False):
+        return get_node_last_lineno(node.body[-1])
+    # Not a compound statement
+    return node.lineno

@@ -1,0 +1,40 @@
+**************************
+  What's New In Pylint 2.0
+**************************
+
+:Release: 2.0
+:Date: |TBA|
+
+Summary -- Release highlights
+=============================
+
+* None so far
+
+New checkers
+============
+
+* New ``useless-return`` message when function or method ends with a "return" or
+  "return None" statement and this is the only return statement in the body.
+
+Other Changes
+=============
+
+* Fix a false positive ``inconsistent-return-statements`` message when if
+  statement is inside try/except.
+
+* Fix a false positive ``inconsistent-return-statements`` message when
+  `while` loop are used.
+
+* Fix emission of false positive ``no-member`` message for class with 
+  "private" attributes whose name is mangled.
+
+* Fix ``unused-argument`` false positives with overshadowed variable in dictionary comprehension.
+
+* Fixing false positive ``inconsistent-return-statements`` when
+  never returning functions are used (i.e such as sys.exit).
+
+* Fix false positive ``inconsistent-return-statements`` message when a 
+  function is defined under an if statement.
+
+* Fix false positive ``inconsistent-return-statements`` message by
+  avoiding useless exception inference if the exception is not handled.

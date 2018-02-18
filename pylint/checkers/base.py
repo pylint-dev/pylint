@@ -1,30 +1,38 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Nick Bastin <nick.bastin@gmail.com>
 # Copyright (c) 2015 Michael Kefeder <oss@multiwave.ch>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Stephane Wirtel <stephane@wirtel.be>
-# Copyright (c) 2015 Nick Bastin <nick.bastin@gmail.com>
-# Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
-# Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
-# Copyright (c) 2016 Laura Médioni <lmedioni@logilab.fr>
+# Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
+# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Elias Dorneles <eliasdorneles@gmail.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
+# Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """basic checker for Python code"""
 
+import builtins
 import collections
 import itertools
 import sys
 import re
-
-import six
-from six.moves import zip  # pylint: disable=redefined-builtin
 
 import astroid
 import astroid.bases
@@ -35,16 +43,85 @@ from pylint import exceptions
 from pylint import interfaces
 from pylint.checkers import utils
 from pylint import reporters
+from pylint.checkers.utils import get_node_last_lineno
 from pylint.reporters.ureports import nodes as reporter_nodes
+import pylint.utils as lint_utils
 
 
-# regex for class/function/variable/constant name
-CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
-MOD_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$')
-CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
-COMP_VAR_RGX = re.compile('[A-Za-z_][A-Za-z0-9_]*$')
-DEFAULT_NAME_RGX = re.compile('(([a-z][a-z0-9_]{2,30})|(_[a-z0-9_]*))$')
-CLASS_ATTRIBUTE_RGX = re.compile(r'([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$')
+class NamingStyle(object):
+    # It may seem counterintuitive that single naming style
+    # has multiple "accepted" forms of regular expressions,
+    # but we need to special-case stuff like dunder names
+    # in method names.
+    CLASS_NAME_RGX = None
+    MOD_NAME_RGX = None
+    CONST_NAME_RGX = None
+    COMP_VAR_RGX = None
+    DEFAULT_NAME_RGX = None
+    CLASS_ATTRIBUTE_RGX = None
+
+    @classmethod
+    def get_regex(cls, name_type):
+        return {
+            'module': cls.MOD_NAME_RGX,
+            'const': cls.CONST_NAME_RGX,
+            'class': cls.CLASS_NAME_RGX,
+            'function': cls.DEFAULT_NAME_RGX,
+            'method': cls.DEFAULT_NAME_RGX,
+            'attr': cls.DEFAULT_NAME_RGX,
+            'argument': cls.DEFAULT_NAME_RGX,
+            'variable': cls.DEFAULT_NAME_RGX,
+            'class_attribute': cls.CLASS_ATTRIBUTE_RGX,
+            'inlinevar': cls.COMP_VAR_RGX,
+        }[name_type]
+
+
+class SnakeCaseStyle(NamingStyle):
+    CLASS_NAME_RGX = re.compile('[a-z_][a-z0-9_]+$')
+    MOD_NAME_RGX = re.compile('([a-z_][a-z0-9_]*)$')
+    CONST_NAME_RGX = re.compile('(([a-z_][a-z0-9_]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[a-z_][a-z0-9_]*$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-z0-9_]{2,30})|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'(([a-z_][a-z0-9_]{2,30}|(__.*__)))$')
+
+
+class CamelCaseStyle(NamingStyle):
+    CLASS_NAME_RGX = re.compile('[a-z_][a-zA-Z0-9]+$')
+    MOD_NAME_RGX = re.compile('([a-z_][a-zA-Z0-9]*)$')
+    CONST_NAME_RGX = re.compile('(([a-z_][A-Za-z0-9]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[a-z_][A-Za-z0-9]*$')
+    DEFAULT_NAME_RGX = re.compile('(([a-z_][a-zA-Z0-9]{2,30})|(__[a-z][a-zA-Z0-9_]+__))$')
+    CLASS_ATTRIBUTE_RGX = re.compile(r'([a-z_][A-Za-z0-9]{2,30}|(__.*__))$')
+
+
+class PascalCaseStyle(NamingStyle):
+    CLASS_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    MOD_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    CONST_NAME_RGX = re.compile('(([A-Z_][A-Za-z0-9]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[A-Z_][a-zA-Z0-9]+$')
+    DEFAULT_NAME_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,30}$|(__[a-z][a-zA-Z0-9_]+__)$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][a-zA-Z0-9]{2,30}$')
+
+
+class UpperCaseStyle(NamingStyle):
+    CLASS_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
+    MOD_NAME_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
+    CONST_NAME_RGX = re.compile('(([A-Z_][A-Z0-9_]*)|(__.*__))$')
+    COMP_VAR_RGX = re.compile('[A-Z_][A-Z0-9_]+$')
+    DEFAULT_NAME_RGX = re.compile('([A-Z_][A-Z0-9_]{2,30})|(__[a-z][a-zA-Z0-9_]+__)$')
+    CLASS_ATTRIBUTE_RGX = re.compile('[A-Z_][A-Z0-9_]{2,30}$')
+
+
+class AnyStyle(NamingStyle):
+    @classmethod
+    def get_regex(cls, name_type):
+        return re.compile('.*')
+
+
+NAMING_STYLES = {'snake_case': SnakeCaseStyle, 'camelCase': CamelCaseStyle,
+                 'PascalCase': PascalCaseStyle, 'UPPER_CASE': UpperCaseStyle,
+                 'any': AnyStyle}
+
 # do not require a doc string on private/system methods
 NO_REQUIRED_DOC_RGX = re.compile('^_')
 REVERSED_PROTOCOL_METHOD = '__reversed__'
@@ -55,7 +132,7 @@ TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
                                             '!=', 'in', 'not in'))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 UNITTEST_CASE = 'unittest.case'
-BUILTINS = six.moves.builtins.__name__
+BUILTINS = builtins.__name__
 TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
@@ -118,22 +195,47 @@ def in_nested_list(nested_list, obj):
     return False
 
 
-def _loop_exits_early(loop):
-    """Returns true if a loop has a break statement in its body."""
+def _get_break_loop_node(break_node):
+    """
+    Returns the loop node that holds the break node in arguments.
+
+    Args:
+        break_node (astroid.Break): the break node of interest.
+
+    Returns:
+        astroid.For or astroid.While: the loop node holding the break node.
+    """
     loop_nodes = (astroid.For, astroid.While)
-    # Loop over body explicitly to avoid matching break statements
-    # in orelse.
-    for child in loop.body:
-        if isinstance(child, loop_nodes):
-            # break statement may be in orelse of child loop.
-            # pylint: disable=superfluous-parens
-            for orelse in (child.orelse or ()):
-                for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
-                    return True
-            continue
-        for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
-            return True
-    return False
+    parent = break_node.parent
+    while not isinstance(parent, loop_nodes) or break_node in getattr(parent, 'orelse', []):
+        parent = parent.parent
+        if parent is None:
+            break
+    return parent
+
+
+def _loop_exits_early(loop):
+    """
+    Returns true if a loop may ends up in a break statement.
+
+    Args:
+        loop (astroid.For, astroid.While): the loop node inspected.
+
+    Returns:
+        bool: True if the loop may ends up in a break statement, False otherwise.
+    """
+    loop_nodes = (astroid.For, astroid.While)
+    definition_nodes = (astroid.FunctionDef, astroid.ClassDef)
+    inner_loop_nodes = [
+        _node for _node in loop.nodes_of_class(loop_nodes,
+                                               skip_klass=definition_nodes)
+        if _node != loop
+    ]
+    return any(
+        _node for _node in loop.nodes_of_class(astroid.Break,
+                                               skip_klass=definition_nodes)
+        if _get_break_loop_node(_node) not in inner_loop_nodes
+    )
 
 
 def _is_multi_naming_match(match, node_type, confidence):
@@ -304,7 +406,7 @@ class BasicErrorChecker(_BasicChecker):
                   {'maxversion': (3, 3)}),
         'E0107': ("Use of the non-existent %s operator",
                   'nonexistent-operator',
-                  "Used when you attempt to use the C-style pre-increment or"
+                  "Used when you attempt to use the C-style pre-increment or "
                   "pre-decrement operator -- and ++, which doesn't exist in Python."),
         'E0108': ('Duplicate argument name %s in function definition',
                   'duplicate-argument-name',
@@ -322,22 +424,18 @@ class BasicErrorChecker(_BasicChecker):
         'E0112': ('More than one starred expression in assignment',
                   'too-many-star-expressions',
                   'Emitted when there are more than one starred '
-                  'expressions (`*x`) in an assignment. This is a SyntaxError.',
-                  {'minversion': (3, 0)}),
+                  'expressions (`*x`) in an assignment. This is a SyntaxError.'),
         'E0113': ('Starred assignment target must be in a list or tuple',
                   'invalid-star-assignment-target',
                   'Emitted when a star expression is used as a starred '
-                  'assignment target.',
-                  {'minversion': (3, 0)}),
+                  'assignment target.'),
         'E0114': ('Can use starred expression only in assignment target',
                   'star-needs-assignment-target',
                   'Emitted when a star expression is not used in an '
-                  'assignment target.',
-                  {'minversion': (3, 0)}),
+                  'assignment target.'),
         'E0115': ('Name %r is nonlocal and global',
                   'nonlocal-and-global',
-                  'Emitted when a name is both nonlocal and global.',
-                  {'minversion': (3, 0)}),
+                  'Emitted when a name is both nonlocal and global.'),
         'E0116': ("'continue' not supported inside 'finally' clause",
                   'continue-in-finally',
                   'Emitted when the `continue` keyword is found '
@@ -345,8 +443,7 @@ class BasicErrorChecker(_BasicChecker):
         'E0117': ("nonlocal name %s found without binding",
                   'nonlocal-without-binding',
                   'Emitted when a nonlocal variable does not have an attached '
-                  'name somewhere in the parent scopes',
-                  {'minversion': (3, 0)}),
+                  'name somewhere in the parent scopes'),
         'E0118': ("Name %r is used prior to global declaration",
                   'used-prior-global-declaration',
                   'Emitted when a name is used prior a global declaration, '
@@ -511,19 +608,20 @@ class BasicErrorChecker(_BasicChecker):
             if current_scope.parent is None:
                 break
 
-            if not isinstance(current_scope, astroid.FunctionDef):
+            if not isinstance(current_scope, (astroid.ClassDef, astroid.FunctionDef)):
                 self.add_message('nonlocal-without-binding', args=(name, ),
                                  node=node)
                 return
-            else:
-                if name not in current_scope.locals:
-                    current_scope = current_scope.parent.scope()
-                    continue
-                else:
-                    # Okay, found it.
-                    return
 
-        self.add_message('nonlocal-without-binding', args=(name, ), node=node)
+            if name not in current_scope.locals:
+                current_scope = current_scope.parent.scope()
+                continue
+
+            # Okay, found it.
+            return
+
+        if not isinstance(current_scope, astroid.FunctionDef):
+            self.add_message('nonlocal-without-binding', args=(name, ), node=node)
 
     @utils.check_messages('nonlocal-without-binding')
     def visit_nonlocal(self, node):
@@ -536,10 +634,12 @@ class BasicErrorChecker(_BasicChecker):
         abc.ABCMeta as metaclass.
         """
         try:
-            infered = next(node.func.infer())
+            for inferred in node.func.infer():
+                self._check_inferred_class_is_abstract(inferred, node)
         except astroid.InferenceError:
             return
 
+    def _check_inferred_class_is_abstract(self, infered, node):
         if not isinstance(infered, astroid.ClassDef):
             return
 
@@ -605,6 +705,10 @@ class BasicErrorChecker(_BasicChecker):
         """check for redefinition of a function / method / class name"""
         defined_self = node.parent.frame()[node.name]
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
+            dummy_variables_rgx = lint_utils.get_global_option(
+                self, 'dummy-variables-rgx', default=None)
+            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
+                return
             self.add_message('function-redefined', node=node,
                              args=(redeftype, defined_self.fromlineno))
 
@@ -768,8 +872,7 @@ functions, methods
     def visit_expr(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
-        if isinstance(expr, astroid.Const) and isinstance(expr.value,
-                                                          six.string_types):
+        if isinstance(expr, astroid.Const) and isinstance(expr.value, str):
             # treat string statement in a separated message
             # Handle PEP-257 attribute docstrings.
             # An attribute docstring is defined as being a string right after
@@ -1022,7 +1125,7 @@ functions, methods
         try...finally statement.
         If we found before a try...finally bloc a parent which its type is
         in breaker_classes, we skip the whole check."""
-        # if self._tryfinallys is empty, we're not a in try...finally bloc
+        # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
         # the node could be a grand-grand...-children of the try...finally
@@ -1114,32 +1217,55 @@ functions, methods
                         self.add_message('confusing-with-statement', node=node)
 
 
-_NAME_TYPES = {
-    'module': (MOD_NAME_RGX, 'module'),
-    'const': (CONST_NAME_RGX, 'constant'),
-    'class': (CLASS_NAME_RGX, 'class'),
-    'function': (DEFAULT_NAME_RGX, 'function'),
-    'method': (DEFAULT_NAME_RGX, 'method'),
-    'attr': (DEFAULT_NAME_RGX, 'attribute'),
-    'argument': (DEFAULT_NAME_RGX, 'argument'),
-    'variable': (DEFAULT_NAME_RGX, 'variable'),
-    'class_attribute': (CLASS_ATTRIBUTE_RGX, 'class attribute'),
-    'inlinevar': (COMP_VAR_RGX, 'inline iteration'),
+KNOWN_NAME_TYPES = {
+    "module", "const", "class", "function", "method", "attr",
+    "argument", "variable", "class_attribute", "inlinevar"
+}
+
+
+HUMAN_READABLE_TYPES = {
+    'module': 'module',
+    'const': 'constant',
+    'class': 'class',
+    'function': 'function',
+    'method':  'method',
+    'attr': 'attribute',
+    'argument': 'argument',
+    'variable': 'variable',
+    'class_attribute': 'class attribute',
+    'inlinevar': 'inline iteration',
+}
+
+DEFAULT_NAMING_STYLES = {
+    "module": "snake_case",
+    "const": "UPPER_CASE",
+    "class": "PascalCase",
+    "function": "snake_case",
+    "method": "snake_case",
+    "attr": "snake_case",
+    "argument": "snake_case",
+    "variable": "snake_case",
+    "class_attribute": "any",
+    "inlinevar": "any",
 }
 
 
 def _create_naming_options():
     name_options = []
-    for name_type, (rgx, human_readable_name) in six.iteritems(_NAME_TYPES):
+    for name_type in KNOWN_NAME_TYPES:
+        human_readable_name = HUMAN_READABLE_TYPES[name_type]
+        default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace('_', '-')
         name_options.append((
-            '%s-rgx' % (name_type,),
-            {'default': rgx, 'type': 'regexp', 'metavar': '<regexp>',
-             'help': 'Regular expression matching correct %s names' % (human_readable_name,)}))
+            '%s-naming-style' % (name_type,),
+            {'default': default_style,
+             'type': 'choice', 'choices': list(NAMING_STYLES.keys()), 'metavar': '<style>',
+             'help': 'Naming style matching correct %s names' % (human_readable_name,)}),)
         name_options.append((
-            '%s-name-hint' % (name_type,),
-            {'default': rgx.pattern, 'type': 'string', 'metavar': '<string>',
-             'help': 'Naming hint for %s names' % (human_readable_name,)}))
+            '%s-rgx' % (name_type,),
+            {'default': None, 'type': 'regexp', 'metavar': '<regexp>',
+             'help': 'Regular expression matching correct %s names. Overrides %s-naming-style'
+                     % (human_readable_name, name_type,)}))
     return tuple(name_options)
 
 
@@ -1150,9 +1276,9 @@ class NameChecker(_BasicChecker):
                   'blacklisted-name',
                   'Used when the name is listed in the black list (unauthorized '
                   'names).'),
-        'C0103': ('Invalid %s name "%s"%s',
+        'C0103': ('%s name "%s" doesn\'t conform to %s',
                   'invalid-name',
-                  'Used when the name doesn\'t match the regular expression '
+                  'Used when the name doesn\'t conform to naming rules '
                   'associated to its type (constant, variable, class...).'),
         'W0111': ('Name %s will become a keyword in Python %s',
                   'assign-to-new-keyword',
@@ -1180,7 +1306,7 @@ class NameChecker(_BasicChecker):
                            ' allow several styles.')}
                ),
                ('include-naming-hint',
-                {'default': False, 'type' : 'yn', 'metavar' : '<y_or_n>',
+                {'default': False, 'type': 'yn', 'metavar': '<y_or_n>',
                  'help': 'Include a hint for the correct naming format with invalid-name'}
                ),
                ('property-classes',
@@ -1194,7 +1320,6 @@ class NameChecker(_BasicChecker):
               ) + _create_naming_options()
 
     KEYWORD_ONSET = {
-        (3, 0): {'True', 'False'},
         (3, 7): {'async', 'await'}
     }
 
@@ -1203,6 +1328,8 @@ class NameChecker(_BasicChecker):
         self._name_category = {}
         self._name_group = {}
         self._bad_names = {}
+        self._name_regexps = {}
+        self._name_hints = {}
 
     def open(self):
         self.stats = self.linter.add_stats(badname_module=0,
@@ -1217,18 +1344,44 @@ class NameChecker(_BasicChecker):
             for name_type in group.split(':'):
                 self._name_group[name_type] = 'group_%s' % (group,)
 
+        regexps, hints = self._create_naming_rules()
+        self._name_regexps = regexps
+        self._name_hints = hints
+
+    def _create_naming_rules(self):
+        regexps = {}
+        hints = {}
+
+        for name_type in KNOWN_NAME_TYPES:
+            naming_style_option_name = "%s_naming_style" % (name_type,)
+            naming_style_name = getattr(self.config, naming_style_option_name)
+
+            regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(name_type)
+
+            custom_regex_setting_name = "%s_rgx" % (name_type, )
+            custom_regex = getattr(self.config, custom_regex_setting_name, None)
+            if custom_regex is not None:
+                regexps[name_type] = custom_regex
+
+            if custom_regex is not None:
+                hints[name_type] = "%r pattern" % custom_regex.pattern
+            else:
+                hints[name_type] = "%s naming style" % naming_style_name
+
+        return regexps, hints
+
     @utils.check_messages('blacklisted-name', 'invalid-name')
     def visit_module(self, node):
         self._check_name('module', node.name.split('.')[-1], node)
         self._bad_names = {}
 
     def leave_module(self, node): # pylint: disable=unused-argument
-        for all_groups in six.itervalues(self._bad_names):
+        for all_groups in self._bad_names.values():
             if len(all_groups) < 2:
                 continue
             groups = collections.defaultdict(list)
             min_warnings = sys.maxsize
-            for group in six.itervalues(all_groups):
+            for group in all_groups.values():
                 groups[len(group)].append(group)
                 min_warnings = min(len(group), min_warnings)
             if len(groups[min_warnings]) > 1:
@@ -1244,7 +1397,7 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name('class', node.name, node)
-        for attr, anodes in six.iteritems(node.instance_attrs):
+        for attr, anodes in node.instance_attrs.items():
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name('attr', attr, anodes[0])
 
@@ -1315,11 +1468,17 @@ class NameChecker(_BasicChecker):
         return self._name_group.get(node_type, node_type)
 
     def _raise_name_warning(self, node, node_type, name, confidence):
-        type_label = _NAME_TYPES[node_type][1]
-        hint = ''
+        type_label = HUMAN_READABLE_TYPES[node_type]
+        hint = self._name_hints[node_type]
         if self.config.include_naming_hint:
-            hint = ' (hint: %s)' % (getattr(self.config, node_type + '_name_hint'))
-        self.add_message('invalid-name', node=node, args=(type_label, name, hint),
+            hint += " (%r pattern)" % self._name_regexps[node_type].pattern
+        args = (
+            type_label.capitalize(),
+            name,
+            hint
+        )
+
+        self.add_message('invalid-name', node=node, args=args,
                          confidence=confidence)
         self.stats['badname_' + node_type] += 1
 
@@ -1335,7 +1494,7 @@ class NameChecker(_BasicChecker):
             self.stats['badname_' + node_type] += 1
             self.add_message('blacklisted-name', node=node, args=name)
             return
-        regexp = getattr(self.config, node_type + '_rgx')
+        regexp = self._name_regexps[node_type]
         match = regexp.match(name)
 
         if _is_multi_naming_match(match, node_type, confidence):
@@ -1447,10 +1606,7 @@ class DocStringChecker(_BasicChecker):
         if docstring is None:
             if not report_missing:
                 return
-            if node.body:
-                lines = node.body[-1].lineno - node.body[0].lineno + 1
-            else:
-                lines = 0
+            lines = get_node_last_lineno(node) - node.lineno
 
             if node_type == 'module' and not lines:
                 # If the module has no body, there's no reason

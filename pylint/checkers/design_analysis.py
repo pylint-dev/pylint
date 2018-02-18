@@ -1,5 +1,11 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2009-2010, 2012-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2012, 2014 Google, Inc.
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -55,7 +61,7 @@ MSGS = {
               should then split it in smaller functions / methods.'),
     'R0916': ('Too many boolean expressions in if statement (%s/%s)',
               'too-many-boolean-expressions',
-              'Used when a if statement contains too many boolean '
+              'Used when an if statement contains too many boolean '
               'expressions'),
     }
 
@@ -141,7 +147,7 @@ class MisdesignChecker(BaseChecker):
                 {'default': 5,
                  'type': 'int',
                  'metavar': '<num>',
-                 'help': 'Maximum number of boolean expressions in a if '
+                 'help': 'Maximum number of boolean expressions in an if '
                          'statement'}
                ),
               )
@@ -211,7 +217,7 @@ class MisdesignChecker(BaseChecker):
 
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
-                    'too-many-statements')
+                    'too-many-statements', 'keyword-arg-before-vararg')
     def visit_functiondef(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals

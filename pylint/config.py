@@ -1,6 +1,22 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2008 pyves@crater.logilab.fr <pyves@crater.logilab.fr>
+# Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
+# Copyright (c) 2013 Google, Inc.
+# Copyright (c) 2013 John McGehee <jmcgehee@altera.com>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2015 John Kirkham <jakirkham@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -12,18 +28,13 @@
 """
 from __future__ import print_function
 
-# TODO(cpopa): this module contains the logic for the
-# configuration parser and for the command line parser,
-# but it's really coupled to optparse's internals.
-# The code was copied almost verbatim from logilab.common,
-# in order to not depend on it anymore and it will definitely
-# need a cleanup. It could be completely reengineered as well.
-
+import abc
+import argparse
 import contextlib
 import collections
 import copy
+import functools
 import io
-import optparse
 import os
 import pickle
 import re
@@ -31,9 +42,10 @@ import sys
 import time
 
 import configparser
+import six
 from six.moves import range
 
-from pylint import utils
+from pylint import exceptions, utils
 
 
 USER_HOME = os.path.expanduser('~')
@@ -79,38 +91,91 @@ def save_results(results, base):
         print('Unable to create file %s: %s' % (data_file, ex), file=sys.stderr)
 
 
-def find_pylintrc():
-    """search the pylint rc file and return its path if it find it, else None
+def find_pylintrc_in(search_dir):
+    """Find a pylintrc file in the given directory.
+
+    :param search_dir: The directory to search.
+    :type search_dir: str
+
+    :returns: The path to the pylintrc file, if found. Otherwise None.
+    :rtype: str or None
     """
-    # is there a pylint rc file in the current directory ?
-    if os.path.exists('pylintrc'):
-        return os.path.abspath('pylintrc')
-    if os.path.exists('.pylintrc'):
-        return os.path.abspath('.pylintrc')
-    if os.path.isfile('__init__.py'):
-        curdir = os.path.abspath(os.getcwd())
-        while os.path.isfile(os.path.join(curdir, '__init__.py')):
-            curdir = os.path.abspath(os.path.join(curdir, '..'))
-            if os.path.isfile(os.path.join(curdir, 'pylintrc')):
-                return os.path.join(curdir, 'pylintrc')
-            if os.path.isfile(os.path.join(curdir, '.pylintrc')):
-                return os.path.join(curdir, '.pylintrc')
-    if 'PYLINTRC' in os.environ and os.path.exists(os.environ['PYLINTRC']):
+    path = None
+
+    search_dir = os.path.expanduser(search_dir)
+    if os.path.isfile(os.path.join(search_dir, 'pylintrc')):
+        path = os.path.join(search_dir, 'pylintrc')
+    elif os.path.isfile(os.path.join(search_dir, '.pylintrc')):
+        path = os.path.join(search_dir, '.pylintrc')
+
+    return path
+
+
+def find_nearby_pylintrc(search_dir=''):
+    """Search for the nearest pylint rc file.
+
+    :param search_dir: The directory to search.
+    :type search_dir: str
+
+    :returns: The absolute path to the pylintrc file, if found.
+        Otherwise None
+    :rtype: str or None
+    """
+    search_dir = os.path.expanduser(search_dir)
+    path = find_pylintrc_in(search_dir)
+
+    if not path:
+        for search_dir in utils.walk_up(search_dir):
+            if not os.path.isfile(os.path.join(search_dir, '__init__.py')):
+                break
+            path = find_pylintrc_in(search_dir)
+            if path:
+                break
+
+    if path:
+        path = os.path.abspath(path)
+
+    return path
+
+
+def find_global_pylintrc():
+    """Search for the global pylintrc file.
+
+    :returns: The absolute path to the pylintrc file, if found. Otherwise None.
+    :rtype: str or None
+    """
+    pylintrc = None
+
+    if 'PYLINTRC' in os.environ and os.path.isfile(os.environ['PYLINTRC']):
         pylintrc = os.environ['PYLINTRC']
     else:
-        user_home = os.path.expanduser('~')
-        if user_home == '~' or user_home == '/root':
-            pylintrc = ".pylintrc"
-        else:
-            pylintrc = os.path.join(user_home, '.pylintrc')
-            if not os.path.isfile(pylintrc):
-                pylintrc = os.path.join(user_home, '.config', 'pylintrc')
-    if not os.path.isfile(pylintrc):
-        if os.path.isfile('/etc/pylintrc'):
-            pylintrc = '/etc/pylintrc'
-        else:
-            pylintrc = None
+        search_dirs = ('~', os.path.join('~', '.config'), '/etc/pylintrc')
+        for search_dir in search_dirs:
+            path = find_pylintrc_in(search_dir)
+            if path:
+                pylintrc = path
+                break
+
     return pylintrc
+
+
+def find_pylintrc():
+    """Search for a pylintrc file.
+    The locations searched are, in order:
+    - The current directory
+    - Each parent directory that contains a __init__.py file
+    - The value of the `PYLINTRC` environment variable
+    - The current user's home directory
+    - The `.config` folder in the current user's home directory
+    - /etc/pylintrc
+
+    :returns: The path to the pylintrc file, or None if one was not found.
+    :rtype: str or None
+    """
+    # TODO: Find nearby pylintrc files as well
+    #return find_nearby_pylintrc() or find_global_pylintrc()
+    return find_global_pylintrc()
+
 
 PYLINTRC = find_pylintrc()
 
@@ -135,14 +200,14 @@ def _multiple_choice_validator(choices, name, value):
     for csv_value in values:
         if csv_value not in choices:
             msg = "option %s: invalid value: %r, should be in %s"
-            raise optparse.OptionValueError(msg % (name, csv_value, choices))
+            raise argparse.ArgumentError(msg % (name, csv_value, choices))
     return values
 
 
 def _choice_validator(choices, name, value):
     if value not in choices:
         msg = "option %s: invalid value: %r, should be in %s"
-        raise optparse.OptionValueError(msg % (name, value, choices))
+        raise argparse.ArgumentError(msg % (name, value, choices))
     return value
 
 # pylint: disable=unused-argument
@@ -168,13 +233,13 @@ def _yn_validator(opt, _, value):
     if value in ('n', 'no'):
         return False
     msg = "option %s: invalid yn value %r, should be in (y, yes, n, no)"
-    raise optparse.OptionValueError(msg % (opt, value))
+    raise argparse.ArgumentError(msg % (opt, value))
 
 
 def _non_empty_string_validator(opt, _, value):
     if not value:
         msg = "indent string can't be empty."
-        raise optparse.OptionValueError(msg)
+        raise argparse.ArgumentError(msg)
     return utils._unquote(value)
 
 
@@ -200,7 +265,7 @@ def _call_validator(opttype, optdict, option, value):
         try:
             return VALIDATORS[opttype](value)
         except Exception:
-            raise optparse.OptionValueError('%s value (%r) should be of type %s' %
+            raise argparse.ArgumentError('%s value (%r) should be of type %s' %
                                             (option, value, opttype))
 
 
@@ -220,228 +285,29 @@ def _validate(value, optdict, name=''):
 def _level_options(group, outputlevel):
     return [option for option in group.option_list
             if (getattr(option, 'level', 0) or 0) <= outputlevel
-            and option.help is not optparse.SUPPRESS_HELP]
-
-
-def _expand_default(self, option):
-    """Patch OptionParser.expand_default with custom behaviour
-
-    This will handle defaults to avoid overriding values in the
-    configuration file.
-    """
-    if self.parser is None or not self.default_tag:
-        return option.help
-    optname = option._long_opts[0][2:]
-    try:
-        provider = self.parser.options_manager._all_options[optname]
-    except KeyError:
-        value = None
-    else:
-        optdict = provider.get_option_def(optname)
-        optname = provider.option_attrname(optname, optdict)
-        value = getattr(provider.config, optname, optdict)
-        value = utils._format_option_value(optdict, value)
-    if value is optparse.NO_DEFAULT or not value:
-        value = self.NO_DEFAULT_VALUE
-    return option.help.replace(self.default_tag, str(value))
-
-
-@contextlib.contextmanager
-def _patch_optparse():
-    orig_default = optparse.HelpFormatter
-    try:
-        optparse.HelpFormatter.expand_default = _expand_default
-        yield
-    finally:
-        optparse.HelpFormatter.expand_default = orig_default
+            and option.help is not argparse.SUPPRESS]
 
 
 def _multiple_choices_validating_option(opt, name, value):
     return _multiple_choice_validator(opt.choices, name, value)
 
 
-class Option(optparse.Option):
-    TYPES = optparse.Option.TYPES + ('regexp', 'regexp_csv', 'csv', 'yn',
-                                     'multiple_choice',
-                                     'non_empty_string')
-    ATTRS = optparse.Option.ATTRS + ['hide', 'level']
-    TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
-    TYPE_CHECKER['regexp'] = _regexp_validator
-    TYPE_CHECKER['regexp_csv'] = _regexp_csv_validator
-    TYPE_CHECKER['csv'] = _csv_validator
-    TYPE_CHECKER['yn'] = _yn_validator
-    TYPE_CHECKER['multiple_choice'] = _multiple_choices_validating_option
-    TYPE_CHECKER['non_empty_string'] = _non_empty_string_validator
-
-    def __init__(self, *opts, **attrs):
-        optparse.Option.__init__(self, *opts, **attrs)
-        if hasattr(self, "hide") and self.hide:
-            self.help = optparse.SUPPRESS_HELP
-
-    def _check_choice(self):
-        if self.type in ("choice", "multiple_choice"):
-            if self.choices is None:
-                raise optparse.OptionError(
-                    "must supply a list of choices for type 'choice'", self)
-            elif not isinstance(self.choices, (tuple, list)):
-                raise optparse.OptionError(
-                    "choices must be a list of strings ('%s' supplied)"
-                    % str(type(self.choices)).split("'")[1], self)
-        elif self.choices is not None:
-            raise optparse.OptionError(
-                "must not supply choices for type %r" % self.type, self)
-    optparse.Option.CHECK_METHODS[2] = _check_choice
-
-    def process(self, opt, value, values, parser):
-        # First, convert the value(s) to the right type.  Howl if any
-        # value(s) are bogus.
-        value = self.convert_value(opt, value)
-        if self.type == 'named':
-            existent = getattr(values, self.dest)
-            if existent:
-                existent.update(value)
-                value = existent
-        # And then take whatever action is expected of us.
-        # This is a separate method to make life easier for
-        # subclasses to add new actions.
-        return self.take_action(
-            self.action, self.dest, opt, value, values, parser)
-
-
-class OptionParser(optparse.OptionParser):
-
-    def __init__(self, option_class=Option, *args, **kwargs):
-        optparse.OptionParser.__init__(self, option_class=Option, *args, **kwargs)
-
-    def format_option_help(self, formatter=None):
-        if formatter is None:
-            formatter = self.formatter
-        outputlevel = getattr(formatter, 'output_level', 0)
-        formatter.store_option_strings(self)
-        result = []
-        result.append(formatter.format_heading("Options"))
-        formatter.indent()
-        if self.option_list:
-            result.append(optparse.OptionContainer.format_option_help(self, formatter))
-            result.append("\n")
-        for group in self.option_groups:
-            if group.level <= outputlevel and (
-                    group.description or _level_options(group, outputlevel)):
-                result.append(group.format_help(formatter))
-                result.append("\n")
-        formatter.dedent()
-        # Drop the last "\n", or the header if no options or option groups:
-        return "".join(result[:-1])
-
-    def _match_long_opt(self, opt):
-        """Disable abbreviations."""
-        if opt not in self._long_opt:
-            raise optparse.BadOptionError(opt)
-        return opt
-
-
-# pylint: disable=abstract-method; by design?
-class _ManHelpFormatter(optparse.HelpFormatter):
-
-    def __init__(self, indent_increment=0, max_help_position=24,
-                 width=79, short_first=0):
-        optparse.HelpFormatter.__init__(
-            self, indent_increment, max_help_position, width, short_first)
-
-    def format_heading(self, heading):
-        return '.SH %s\n' % heading.upper()
-
-    def format_description(self, description):
-        return description
-
-    def format_option(self, option):
-        try:
-            optstring = option.option_strings
-        except AttributeError:
-            optstring = self.format_option_strings(option)
-        if option.help:
-            help_text = self.expand_default(option)
-            help = ' '.join([l.strip() for l in help_text.splitlines()])
-        else:
-            help = ''
-        return '''.IP "%s"
-%s
-''' % (optstring, help)
-
-    def format_head(self, optparser, pkginfo, section=1):
-        long_desc = ""
-        try:
-            pgm = optparser._get_prog_name()
-        except AttributeError:
-            # py >= 2.4.X (dunno which X exactly, at least 2)
-            pgm = optparser.get_prog_name()
-        short_desc = self.format_short_description(pgm, pkginfo.description)
-        if hasattr(pkginfo, "long_desc"):
-            long_desc = self.format_long_description(pgm, pkginfo.long_desc)
-        return '%s\n%s\n%s\n%s' % (self.format_title(pgm, section),
-                                   short_desc, self.format_synopsis(pgm),
-                                   long_desc)
-
-    @staticmethod
-    def format_title(pgm, section):
-        date = '-'.join(str(num) for num in time.localtime()[:3])
-        return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
-
-    @staticmethod
-    def format_short_description(pgm, short_desc):
-        return '''.SH NAME
-.B %s
-\\- %s
-''' % (pgm, short_desc.strip())
-
-    @staticmethod
-    def format_synopsis(pgm):
-        return '''.SH SYNOPSIS
-.B  %s
-[
-.I OPTIONS
-] [
-.I <arguments>
-]
-''' % pgm
-
-    @staticmethod
-    def format_long_description(pgm, long_desc):
-        long_desc = '\n'.join(line.lstrip()
-                              for line in long_desc.splitlines())
-        long_desc = long_desc.replace('\n.\n', '\n\n')
-        if long_desc.lower().startswith(pgm):
-            long_desc = long_desc[len(pgm):]
-        return '''.SH DESCRIPTION
-.B %s
-%s
-''' % (pgm, long_desc.strip())
-
-    @staticmethod
-    def format_tail(pkginfo):
-        tail = '''.SH SEE ALSO
-/usr/share/doc/pythonX.Y-%s/
-
-.SH BUGS
-Please report bugs on the project\'s mailing list:
-%s
-
-.SH AUTHOR
-%s <%s>
-''' % (getattr(pkginfo, 'debian_name', pkginfo.modname),
-       pkginfo.mailinglist, pkginfo.author, pkginfo.author_email)
-
-        if hasattr(pkginfo, "copyright"):
-            tail += '''
-.SH COPYRIGHT
-%s
-''' % pkginfo.copyright
-
-        return tail
-
-
 class OptionsManagerMixIn(object):
     """Handle configuration from both a configuration file and command line options"""
+
+    class CallbackAction(argparse.Action):
+        """Doesn't store the value on the config."""
+        def __init__(self, nargs=None, **kwargs):
+            nargs = nargs or int('metavar' in kwargs)
+            super(OptionsManagerMixIn.CallbackAction, self).__init__(
+                nargs=nargs, **kwargs
+            )
+
+        def __call__(self, parser, namespace, values, option_string):
+            # If no value was passed, argparse didn't call the callback via
+            # `type`, so we need to do it ourselves.
+            if not self.nargs and callable(self.type):
+                self.type(self, option_string, values, parser)
 
     def __init__(self, usage, config_file=None, version=None, quiet=0):
         self.config_file = config_file
@@ -459,11 +325,9 @@ class OptionsManagerMixIn(object):
 
     def reset_parsers(self, usage='', version=None):
         # configuration file parser
-        self.cfgfile_parser = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
+        self.cfgfile_parser = IniFileParser()
         # command line parser
-        self.cmdline_parser = OptionParser(usage=usage, version=version)
-        self.cmdline_parser.options_manager = self
-        self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
+        self.cmdline_parser = CLIParser(usage)
 
     def register_options_provider(self, provider, own_group=True):
         """register an options provider"""
@@ -494,52 +358,82 @@ class OptionsManagerMixIn(object):
         if group_name in self._mygroups:
             group = self._mygroups[group_name]
         else:
-            group = optparse.OptionGroup(self.cmdline_parser,
-                                         title=group_name.capitalize())
-            self.cmdline_parser.add_option_group(group)
-            group.level = provider.level
+            group = self.cmdline_parser._parser.add_argument_group(
+                group_name.capitalize(), level=provider.level,
+            )
             self._mygroups[group_name] = group
             # add section to the config file
-            if group_name != "DEFAULT" and \
-                    group_name not in self.cfgfile_parser._sections:
-                self.cfgfile_parser.add_section(group_name)
+            if group_name != "DEFAULT":
+                try:
+                    self.cfgfile_parser._parser.add_section(group_name)
+                except configparser.DuplicateSectionError:
+                    pass
+
         # add provider's specific options
         for opt, optdict in options:
             self.add_optik_option(provider, group, opt, optdict)
 
     def add_optik_option(self, provider, optikcontainer, opt, optdict):
         args, optdict = self.optik_option(provider, opt, optdict)
-        option = optikcontainer.add_option(*args, **optdict)
+        if hasattr(optikcontainer, '_parser'):
+            optikcontainer = optikcontainer._parser
+        if 'group' in optdict:
+            optikcontainer = self._mygroups[optdict['group'].upper()]
+            del optdict['group']
+
+        # Some sanity checks for things that trip up argparse
+        assert not any(' ' in arg for arg in args)
+        assert all(optdict.values())
+        assert not ('metavar' in optdict and '[' in optdict['metavar'])
+
+        level = optdict.pop('level', 0)
+        option = optikcontainer.add_argument(*args, **optdict)
+        option.level = level
         self._all_options[opt] = provider
-        self._maxlevel = max(self._maxlevel, option.level or 0)
+        self._maxlevel = max(self._maxlevel, optdict.get('level', 0))
 
     def optik_option(self, provider, opt, optdict):
         """get our personal option definition and return a suitable form for
-        use with optik/optparse
+        use with optik/argparse
         """
+        # TODO: Changed to work with argparse but this should call
+        # self.cmdline_parser.add_argument_definitions and not use callbacks
         optdict = copy.copy(optdict)
         if 'action' in optdict:
             self._nocallback_options[provider] = opt
+            if optdict['action'] == 'callback':
+                optdict['type'] = optdict['callback']
+                optdict['action'] = self.CallbackAction
+                del optdict['callback']
         else:
-            optdict['action'] = 'callback'
-            optdict['callback'] = self.cb_set_provider_option
+            callback = functools.partial(
+                self.cb_set_provider_option, None, '--' + str(opt), parser=None,
+            )
+            optdict['type'] = callback
+            optdict.setdefault('action', 'store')
         # default is handled here and *must not* be given to optik if you
         # want the whole machinery to work
         if 'default' in optdict:
             if ('help' in optdict
                     and optdict.get('default') is not None
                     and optdict['action'] not in ('store_true', 'store_false')):
-                optdict['help'] += ' [current: %default]'
+                default = optdict['default']
+                if isinstance(default, (tuple, list)):
+                    default = ','.join(str(x) for x in default)
+                optdict['help'] += ' [current: {0}]'.format(default)
             del optdict['default']
         args = ['--' + str(opt)]
         if 'short' in optdict:
             self._short_options[optdict['short']] = opt
             args.append('-' + optdict['short'])
             del optdict['short']
-        # cleanup option definition dict before giving it to optik
-        for key in list(optdict.keys()):
-            if key not in self._optik_option_attrs:
-                optdict.pop(key)
+        if optdict.get('action') == 'callback':
+            optdict['type'] = optdict['callback']
+            del optdict['action']
+            del optdict['callback']
+        if optdict.get('hide'):
+            optdict['help'] = argparse.SUPPRESS
+            del optdict['hide']
         return args, optdict
 
     def cb_set_provider_option(self, option, opt, value, parser):
@@ -554,6 +448,7 @@ class OptionsManagerMixIn(object):
         if value is None:
             value = 1
         self.global_set_option(opt, value)
+        return value
 
     def global_set_option(self, opt, value):
         """set option on the correct option provider"""
@@ -592,10 +487,8 @@ class OptionsManagerMixIn(object):
             printed = True
 
     def generate_manpage(self, pkginfo, section=1, stream=None):
-        with _patch_optparse():
-            _generate_manpage(self.cmdline_parser, pkginfo,
-                              section, stream=stream or sys.stdout,
-                              level=self._maxlevel)
+        # TODO
+        raise NotImplementedError
 
     def load_provider_defaults(self):
         """initialize configuration using default values"""
@@ -606,39 +499,16 @@ class OptionsManagerMixIn(object):
         """read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
-        helplevel = 1
-        while helplevel <= self._maxlevel:
-            opt = '-'.join(['long'] * helplevel) + '-help'
-            if opt in self._all_options:
-                break # already processed
-            # pylint: disable=unused-argument
-            def helpfunc(option, opt, val, p, level=helplevel):
-                print(self.help(level))
-                sys.exit(0)
-            helpmsg = '%s verbose help.' % ' '.join(['more'] * helplevel)
-            optdict = {'action': 'callback', 'callback': helpfunc,
-                       'help': helpmsg}
-            provider = self.options_providers[0]
-            self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
-            provider.options += ((opt, optdict),)
-            helplevel += 1
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
+            if not os.path.exists(config_file):
+                raise IOError("The config file {:s} doesn't exist!".format(config_file))
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:
-            parser = self.cfgfile_parser
-
-            # Use this encoding in order to strip the BOM marker, if any.
-            with io.open(config_file, 'r', encoding='utf_8_sig') as fp:
-                parser.read_file(fp)
-
-            # normalize sections'title
-            for sect, values in list(parser._sections.items()):
-                if not sect.isupper() and values:
-                    parser._sections[sect.upper()] = values
+            self.cfgfile_parser.parse(config_file, Configuration())
 
         if self.quiet:
             return
@@ -653,12 +523,11 @@ class OptionsManagerMixIn(object):
         """dispatch values previously read from a configuration file to each
         options provider)
         """
-        parser = self.cfgfile_parser
-        for section in parser.sections():
-            for option, value in parser.items(section):
+        for section in self.cfgfile_parser._parser.sections():
+            for option, value in self.cfgfile_parser._parser.items(section):
                 try:
                     self.global_set_option(option, value)
-                except (KeyError, optparse.OptionError):
+                except (KeyError, argparse.ArgumentError):
                     # TODO handle here undeclared options appearing in the config file
                     continue
 
@@ -677,35 +546,26 @@ class OptionsManagerMixIn(object):
 
         return additional arguments
         """
-        with _patch_optparse():
-            if args is None:
-                args = sys.argv[1:]
-            else:
-                args = list(args)
-            (options, args) = self.cmdline_parser.parse_args(args=args)
-            for provider in self._nocallback_options:
-                config = provider.config
-                for attr in config.__dict__.keys():
-                    value = getattr(options, attr, None)
-                    if value is None:
-                        continue
-                    setattr(config, attr, value)
-            return args
+        if args is None:
+            args = sys.argv[1:]
+        else:
+            args = list(args)
+        for provider in self._nocallback_options:
+            self.cmdline_parser.parse(args, provider.config)
+        config = Configuration()
+        self.cmdline_parser.parse(args, config)
+        return config.module_or_package
 
     def add_help_section(self, title, description, level=0):
         """add a dummy option section for help purpose """
-        group = optparse.OptionGroup(self.cmdline_parser,
-                                     title=title.capitalize(),
-                                     description=description)
-        group.level = level
+        group = self.cmdline_parser._parser.add_argument_group(
+            title.capitalize(), description, level=level
+        )
         self._maxlevel = max(self._maxlevel, level)
-        self.cmdline_parser.add_option_group(group)
 
     def help(self, level=0):
         """return the usage string for available options """
-        self.cmdline_parser.formatter.output_level = level
-        with _patch_optparse():
-            return self.cmdline_parser.format_help()
+        return self.cmdline_parser._parser.format_help(level)
 
 
 class OptionsProviderMixIn(object):
@@ -718,7 +578,7 @@ class OptionsProviderMixIn(object):
     level = 0
 
     def __init__(self):
-        self.config = optparse.Values()
+        self.config = Configuration()
         self.load_defaults()
 
     def load_defaults(self):
@@ -781,7 +641,7 @@ class OptionsProviderMixIn(object):
         for option in self.options:
             if option[0] == opt:
                 return option[1]
-        raise optparse.OptionError('no such option %s in section %r'
+        raise argparse.ArgumentError('no such option %s in section %r'
                                    % (opt, self.name), opt)
 
     def options_by_section(self):
@@ -827,11 +687,477 @@ class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):
         self.register_options_provider(self, own_group=False)
 
 
-def _generate_manpage(optparser, pkginfo, section=1,
-                      stream=sys.stdout, level=0):
-    formatter = _ManHelpFormatter()
-    formatter.output_level = level
-    formatter.parser = optparser
-    print(formatter.format_head(optparser, pkginfo, section), file=stream)
-    print(optparser.format_option_help(formatter), file=stream)
-    print(formatter.format_tail(pkginfo), file=stream)
+OptionDefinition = collections.namedtuple(
+    'OptionDefinition', ['name', 'definition']
+)
+
+
+class Configuration(object):
+    def __init__(self):
+        self._option_definitions = {}
+
+    def add_option(self, option_definition):
+        name, definition = option_definition
+        if name in self._option_definitions:
+            raise exceptions.ConfigurationError('Option "{0}" already exists.')
+        self._option_definitions[name] = definition
+
+
+    def add_options(self, option_definitions):
+        for option_definition in option_definitions:
+            self.add_option(option_definition)
+
+    def set_option(self, option, value):
+        setattr(self, option, value)
+
+    def copy(self):
+        result = self.__class__()
+        result.add_options(six.iteritems(self._option_definitions))
+
+        for option in self._option_definitions:
+            value = getattr(self, option)
+            setattr(result, option, value)
+
+        return result
+
+    def __add__(self, other):
+        result = self.copy()
+        result += other
+        return result
+
+    def __iadd__(self, other):
+        self._option_definitions.update(other._option_definitions)
+
+        for option in other._option_definitions:
+            value = getattr(other, option)
+            setattr(result, option, value)
+
+        return self
+
+
+class ConfigurationStore(object):
+    def __init__(self, global_config):
+        """A class to store configuration objects for many paths.
+
+        :param global_config: The global configuration object.
+        :type global_config: Configuration
+        """
+        self.global_config = global_config
+
+        self._store = {}
+        self._cache = {}
+
+    def add_config_for(self, path, config):
+        """Add a configuration object to the store.
+
+        :param path: The path to add the config for.
+        :type path: str
+        :param config: The config object for the given path.
+        :type config: Configuration
+        """
+        path = os.path.expanduser(path)
+        path = os.path.abspath(path)
+
+        self._store[path] = config
+        self._cache = {}
+
+    def _get_parent_configs(self, path):
+        """Get the config objects for all parent directories.
+
+        :param path: The absolute path to get the parent configs for.
+        :type path: str
+
+        :returns: The config objects for all parent directories.
+        :rtype: generator(Configuration)
+        """
+        for cfg_dir in utils.walk_up(path):
+            if cfg_dir in self._cache:
+                yield self._cache[cfg_dir]
+                break
+            elif cfg_dir in self._store:
+                yield self._store[cfg_dir]
+
+    def get_config_for(self, path):
+        """Get the configuration object for a file or directory.
+        This will merge the global config with all of the config objects from
+        the root directory to the given path.
+
+        :param path: The file or directory to the get configuration object for.
+        :type path: str
+
+        :returns: The configuration object for the given file or directory.
+        :rtype: Configuration
+        """
+        # TODO: Until we turn on local pylintrc searching,
+        # this is always going to be the global config
+        return self.global_config
+
+        path = os.path.expanduser(path)
+        path = os.path.abspath(path)
+
+        config = self._cache.get(path)
+
+        if not config:
+            config = self.global_config.copy()
+
+            parent_configs = self._get_parent_configs(path)
+            for parent_config in reversed(parent_configs):
+                config += parent_config
+
+            self._cache['path'] = config
+
+        return config
+
+    def __getitem__(self, path):
+        return self.get_config_for(path)
+
+    def __setitem__(self, path, config):
+        return self.add_config_for(path, config)
+
+
+@six.add_metaclass(abc.ABCMeta)
+class ConfigParser(object):
+    def __init__(self):
+        self._option_definitions = {}
+        self._option_groups = set()
+
+    def add_option_definitions(self, option_definitions):
+        self._option_definitions.update(option_definitions)
+
+        for _, definition_dict in option_definitions:
+            try:
+                group = optdict['group'].upper()
+            except KeyError:
+                continue
+            else:
+                self._option_groups.add(group)
+
+    def add_option_definition(self, option_definition):
+        self.add_option_definitions([option_definition])
+
+    @abc.abstractmethod
+    def parse(self, to_parse, config):
+        """Parse the given object into the config object.
+
+        :param to_parse: The object to parse.
+        :type to_parse: object
+        :param config: The config object to parse into.
+        :type config: Configuration
+        """
+
+
+class CLIParser(ConfigParser):
+    def __init__(self, usage=''):
+        super(CLIParser, self).__init__()
+
+        self._parser = LongHelpArgumentParser(
+            usage=usage.replace("%prog", "%(prog)s"),
+            # Only set the arguments that are specified.
+            argument_default=argparse.SUPPRESS
+        )
+        # TODO: Let this be definable elsewhere
+        self._parser.add_argument('module_or_package', nargs=argparse.REMAINDER)
+
+    def add_option_definitions(self, option_definitions):
+        option_groups = collections.defaultdict(list)
+
+        for option, definition in option_definitions:
+            group, args, kwargs = self._convert_definition(option, definition)
+            option_groups[group].append(args, kwargs)
+
+        for args, kwargs in option_groups['DEFAULT']:
+            self._parser.add_argument(*args, **kwargs)
+
+        del option_groups['DEFAULT']
+
+        for group, arguments in six.iteritems(option_groups):
+            self._option_groups.add(group)
+            self._parser.add_argument_group(group.title())
+            for args, kwargs in arguments:
+                self._parser.add_argument(*args, **kwargs)
+
+    @staticmethod
+    def _convert_definition(option, definition):
+        """Convert an option definition to a set of arguments for add_argument.
+
+        :param option: The name of the option
+        :type option: str
+        :param definition: The argument definition to convert.
+        :type definition: dict
+
+        :returns: A tuple of the group to add the argument to,
+            plus the args and kwargs for :func:`ArgumentParser.add_argument`.
+        :rtype: tuple(str, list, dict)
+
+        :raises ConfigurationError: When the definition is invalid.
+        """
+        args = []
+
+        if 'short' in definition:
+            args.append('-{0}'.format(definition['short']))
+
+        args.append('--{0}'.format(option))
+
+        copy_keys = ('action', 'default', 'dest', 'help', 'metavar', 'level')
+        kwargs = {k: definition[k] for k in copy_keys if k in definition}
+
+        if 'type' in definition:
+            if definition['type'] in VALIDATORS:
+                kwargs['type'] = VALIDATORS[definition['type']]
+            elif definition['type'] in ('choice', 'multiple_choice'):
+                if 'choices' not in definition:
+                    msg = 'No choice list given for option "{0}" of type "choice".'
+                    msg = msg.format(option)
+                    raise ConfigurationError(msg)
+
+                if definition['type'] == 'multiple_choice':
+                    kwargs['type'] = VALIDATORS['csv']
+
+                kwargs['choices'] = definition['choices']
+            else:
+                msg = 'Unsupported type "{0}"'.format(definition['type'])
+                raise ConfigurationError(msg)
+
+        if definition.get('hide'):
+            kwargs['help'] = argparse.SUPPRESS
+
+        group = definition.get('group', 'DEFAULT').upper()
+        return group, args, kwargs
+
+    def parse(self, argv, config):
+        """Parse the command line arguments into the given config object.
+
+        :param argv: The command line arguments to parse.
+        :type argv: list(str)
+        :param config: The config object to parse the command line into.
+        :type config: Configuration
+        """
+        self._parser.parse_args(argv, config)
+
+    def preprocess(self, argv, *options):
+        """Do some guess work to get a value for the specified option.
+
+        :param argv: The command line arguments to parse.
+        :type argv: list(str)
+        :param options: The names of the options to look for.
+        :type options: str
+
+        :returns: A config with the processed options.
+        :rtype: Configuration
+        """
+        config = Config()
+        config.add_options(self._option_definitions)
+
+        args = self._parser.parse_known_args(argv)[0]
+        for option in options:
+            config.set_option(option, getattr(args, option, None))
+
+        return config
+
+
+@six.add_metaclass(abc.ABCMeta)
+class FileParser(ConfigParser):
+    @abc.abstractmethod
+    def parse(self, file_path, config):
+        pass
+
+
+class IniFileParser(FileParser):
+    """Parses a config files into config objects."""
+
+    def __init__(self):
+        super(IniFileParser, self).__init__()
+        self._parser = configparser.ConfigParser(
+            inline_comment_prefixes=('#', ';'),
+        )
+
+    def add_option_definitions(self, option_definitions):
+        for option, definition in option_definitions:
+            group, default = self._convert_definition(option, definition)
+
+            try:
+                self._parser.add_section(group)
+            except configparser.DuplicateSectionError:
+                pass
+            else:
+                self._option_groups.add(group)
+
+            self._parser['DEFAULT'].update(default)
+
+    @staticmethod
+    def _convert_definition(option, definition):
+        """Convert an option definition to a set of arguments for the parser.
+
+        :param option: The name of the option.
+        :type option: str
+        :param definition: The argument definition to convert.
+        :type definition: dict
+
+        :returns: The converted definition.
+        :rtype: tuple(str, dict)
+        """
+        default = {option: definition.get('default')}
+
+        group = definition.get('group', 'DEFAULT').upper()
+        return group, default
+
+    def parse(self, file_path, config):
+        self._parser.read(file_path)
+
+        for section in self._parser.sections():
+            # Normalise the section titles
+            if not section.isupper():
+                new_section = section.upper()
+                for option, value in self._parser.items(section):
+                    self._parser.set(new_section, option, value)
+                self._parser.remove_section(section)
+                section = section.upper()
+
+            for option, value in self._parser.items(section):
+                config.set_option(option, value)
+
+
+class LongHelpFormatter(argparse.HelpFormatter):
+    output_level = None
+
+    def add_argument(self, action):
+        if action.level <= self.output_level:
+            super(LongHelpFormatter, self).add_argument(action)
+
+    def add_usage(self, usage, actions, groups, prefix=None):
+        actions = [action for action in actions if action.level <= self.output_level]
+        super(LongHelpFormatter, self).add_usage(
+            usage, actions, groups, prefix,
+        )
+
+
+class LongHelpAction(argparse.Action):
+    def __init__(self,
+                 option_strings,
+                 dest=argparse.SUPPRESS,
+                 default=argparse.SUPPRESS,
+                 help=None):
+        super(LongHelpAction, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            default=default,
+            nargs=0,
+            help=help,
+        )
+        self.level = 0
+
+    @staticmethod
+    def _parse_option_string(option_string):
+        level = 0
+        if option_string:
+            level = option_string.count('l-') or option_string.count('long-')
+        return level
+
+    @staticmethod
+    def build_add_args(level, prefix_chars='-'):
+        default_prefix = '-' if '-' in prefix_chars else prefix_chars[0]
+        return (
+            default_prefix + '-'.join(['l'] * level) + '-h',
+            default_prefix * 2 + '-'.join(['long'] * level) + '-help',
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        level = self._parse_option_string(option_string)
+        parser.print_help(level=level)
+        parser.exit()
+
+
+class LongHelpArgumentParser(argparse.ArgumentParser):
+    def __init__(self, formatter_class=LongHelpFormatter, **kwargs):
+        self._max_level = 0
+        super(LongHelpArgumentParser, self).__init__(
+            formatter_class=formatter_class, **kwargs
+        )
+
+    # Stop ArgumentParser __init__ adding the wrong help formatter
+    def register(self, registry_name, value, object):
+        if registry_name == 'action' and value == 'help':
+            object = LongHelpAction
+
+        super(LongHelpArgumentParser, self).register(
+            registry_name, value, object
+        )
+
+    def _add_help_levels(self):
+        level = max(action.level for action in self._actions)
+        if level > self._max_level and self.add_help:
+            for new_level in range(self._max_level + 1, level + 1):
+                action = super(LongHelpArgumentParser, self).add_argument(
+                    *LongHelpAction.build_add_args(new_level, self.prefix_chars),
+                    action='help',
+                    default=argparse.SUPPRESS,
+                    help=('show this {0} verbose help message and exit'.format(
+                        ' '.join(['really'] * (new_level - 1))
+                    ))
+                )
+                action.level = 0
+            self._max_level = level
+
+    def parse_known_args(self, *args, **kwargs):
+        self._add_help_levels()
+        return super(LongHelpArgumentParser, self).parse_known_args(
+            *args, **kwargs
+        )
+
+    def add_argument(self, *args, **kwargs):
+        """See :func:`argparse.ArgumentParser.add_argument`.
+
+        Patches in the level to each created action instance.
+
+        :returns: The created action.
+        :rtype: argparse.Action
+        """
+        level = kwargs.pop('level', 0)
+        action = super(LongHelpArgumentParser, self).add_argument(*args, **kwargs)
+        action.level = level
+        return action
+
+    def add_argument_group(self, *args, level=0, **kwargs):
+        group = super(LongHelpArgumentParser, self).add_argument_group(
+            *args, **kwargs
+        )
+        group.level = level
+        return group
+
+    # These methods use yucky way of passing the level to the formatter class
+    # without having to rely on argparse implementation details.
+    def format_usage(self, level=0):
+        if hasattr(self.formatter_class, 'output_level'):
+            if self.formatter_class.output_level is None:
+                self.formatter_class.output_level = level
+        return super(LongHelpArgumentParser, self).format_usage()
+
+    def format_help(self, level=0):
+        if hasattr(self.formatter_class, 'output_level'):
+            if self.formatter_class.output_level is None:
+                self.formatter_class.output_level = level
+            else:
+                level = self.formatter_class.output_level
+
+        # Unfortunately there's no way of publicly accessing the groups or
+        # an easy way of overriding format_help without using protected methods.
+        old_action_groups = self._action_groups
+        try:
+            self._action_groups = [group for group in self._action_groups if group.level <= level]
+            result = super(LongHelpArgumentParser, self).format_help()
+        finally:
+            self._action_groups = old_action_groups
+
+        return result
+
+    def print_usage(self, file=None, level=0):
+        if hasattr(self.formatter_class, 'output_level'):
+            if self.formatter_class.output_level is None:
+                self.formatter_class.output_level = level
+        super(LongHelpArgumentParser, self).print_usage(file)
+
+    def print_help(self, file=None, level=0):
+        if hasattr(self.formatter_class, 'output_level'):
+            if self.formatter_class.output_level is None:
+                self.formatter_class.output_level = level
+        super(LongHelpArgumentParser, self).print_help(file)

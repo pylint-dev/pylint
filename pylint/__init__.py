@@ -1,4 +1,7 @@
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2008, 2012 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014, 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -7,11 +10,14 @@ import sys
 
 from .__pkginfo__ import version as __version__
 
+
 def run_pylint():
     """run pylint"""
     from pylint.lint import Run
-    Run(sys.argv[1:])
-
+    try:
+        Run(sys.argv[1:])
+    except KeyboardInterrupt:
+        sys.exit(1)
 
 def run_epylint():
     """run pylint"""

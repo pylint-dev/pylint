@@ -95,3 +95,15 @@ class MyClass(Mapping):
     pass
 
 test(**MyClass())
+
+
+class HasDynamicGetattr(object):
+
+    def __init__(self):
+        self._obj = {}
+
+    def __getattr__(self, attr):
+        return getattr(self._obj, attr)
+
+
+test(**HasDynamicGetattr())

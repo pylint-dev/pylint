@@ -1,5 +1,13 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
+# Copyright (c) 2015 Viorel Stirbu <viorels@gmail.com>
+# Copyright (c) 2016-2017 Roy Williams <roy.williams.iii@gmail.com>
+# Copyright (c) 2016 Roy Williams <rwilliams@lyft.com>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -115,6 +123,11 @@ class TestPython3Checker(testutils.CheckerTestCase):
         with self.assertNoMessages():
             self.walk(module)
 
+    def as_argument_to_materialized_filter(self, callable_fn):
+        module = astroid.parse("list(filter(None, {}()))".format(callable_fn))
+        with self.assertNoMessages():
+            self.walk(module)
+
     def as_argument_to_random_fxn_test(self, fxn):
         checker = '{}-builtin-not-iterating'.format(fxn)
         node = astroid.extract_node("""
@@ -160,11 +173,44 @@ class TestPython3Checker(testutils.CheckerTestCase):
         self.as_argument_to_str_join_test(fxn)
         self.as_iterable_in_unpacking(fxn)
         self.as_assignment(fxn)
+        self.as_argument_to_materialized_filter(fxn)
 
         for func in ('iter', 'list', 'tuple', 'sorted',
                      'set', 'sum', 'any', 'all',
                      'enumerate', 'dict'):
             self.as_argument_to_callable_constructor_test(fxn, func)
+
+    @python2_only
+    def test_dict_methods_in_iterating_context(self):
+        iterating_code = [
+            'for x in {}: pass',
+            '(x for x in {})',
+            '[x for x in {}]',
+            'func({})',
+            'a, b = {}'
+        ]
+        non_iterating_code = [
+            'x = __({}())',
+            '__({}())[0]'
+        ]
+
+        for method in ('keys', 'items', 'values'):
+            dict_method = '{{}}.{}'.format(method)
+
+            for code in iterating_code:
+                with_value = code.format(dict_method)
+                module = astroid.parse(with_value)
+                with self.assertNoMessages():
+                    self.walk(module)
+
+            for code in non_iterating_code:
+                with_value = code.format(dict_method)
+                node = astroid.extract_node(with_value)
+
+                checker = 'dict-{}-not-iterating'.format(method)
+                message = testutils.Message(checker, node=node)
+                with self.assertAddsMessages(message):
+                    self.checker.visit_call(node)
 
     @python2_only
     def test_map_in_iterating_context(self):
@@ -275,12 +321,18 @@ class TestPython3Checker(testutils.CheckerTestCase):
         message = testutils.Message('no-absolute-import', node=node)
         with self.assertAddsMessages(message):
             self.checker.visit_import(node)
+        with self.assertNoMessages():
+            # message should only be added once
+            self.checker.visit_import(node)
 
     def test_relative_from_import(self):
         node = astroid.extract_node('from os import path  #@')
         message = testutils.Message('no-absolute-import', node=node)
         with self.assertAddsMessages(message):
-            self.checker.visit_import(node)
+            self.checker.visit_importfrom(node)
+        with self.assertNoMessages():
+            # message should only be added once
+            self.checker.visit_importfrom(node)
 
     def test_absolute_import(self):
         module_import = astroid.parse(
@@ -513,7 +565,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_importfrom(node)
 
     @python2_only
-    def test_deprecated_types_fiels(self):
+    def test_deprecated_types_fields(self):
         node = astroid.extract_node('''
         from types import StringType #@
         ''')
@@ -550,6 +602,19 @@ class TestPython3Checker(testutils.CheckerTestCase):
         message = testutils.Message('bad-python3-import', node=node)
         with self.assertAddsMessages(absolute_import_message, message):
             self.checker.visit_import(node)
+
+    @python2_only
+    def test_bad_import_not_on_relative(self):
+        samples = [
+            'from .commands import titi',
+            'from . import commands',
+        ]
+        for code in samples:
+            node = astroid.extract_node(code)
+            absolute_import_message = testutils.Message('no-absolute-import', node=node)
+            with self.assertAddsMessages(absolute_import_message):
+                self.checker.visit_importfrom(node)
+            self.checker._future_absolute_import = False
 
     @python2_only
     def test_bad_import_conditional(self):
@@ -875,5 +940,13 @@ class TestPython3TokenChecker(testutils.CheckerTestCase):
         # Make sure we are catching only octals.
         for non_octal in ("45", "00", "085", "08", "1"):
             tokens = testutils._tokenize_str(non_octal)
+            with self.assertNoMessages():
+                self.checker.process_tokens(tokens)
+
+    def test_non_ascii_bytes_literal(self):
+        code = 'b"测试"'
+        self._test_token_message(code, 'non-ascii-bytes-literal')
+        for code in ("测试", u"测试", u'abcdef', b'\x80'):
+            tokens = testutils._tokenize_str(code)
             with self.assertNoMessages():
                 self.checker.process_tokens(tokens)

@@ -1,15 +1,21 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Google, Inc.
+# Copyright (c) 2009, 2012, 2014 Google, Inc.
+# Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Chris Murray <chris@chrismurray.scot>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2017 guillaume2 <guillaume.peillex@gmail.col>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """checker for use of Python logging
 """
 import string
-
-import six
 
 import astroid
 
@@ -174,12 +180,23 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], astroid.BinOp) and node.args[format_pos].op == '%':
-            self.add_message('logging-not-lazy', node=node)
+        if isinstance(node.args[format_pos], astroid.BinOp):
+            binop = node.args[format_pos]
+            if (binop.op == '%' or binop.op == '+' and
+                    len([_operand for _operand in (binop.left, binop.right)
+                         if self._is_operand_literal_str(_operand)]) == 1):
+                self.add_message('logging-not-lazy', node=node)
         elif isinstance(node.args[format_pos], astroid.Call):
             self._check_call_func(node.args[format_pos])
         elif isinstance(node.args[format_pos], astroid.Const):
             self._check_format_string(node, format_pos)
+
+    @staticmethod
+    def _is_operand_literal_str(operand):
+        """
+        Return True if the operand in argument is a literal string
+        """
+        return isinstance(operand, astroid.Const) and operand.name == 'str'
 
     def _check_call_func(self, node):
         """Checks that function call is not format_string.format().
@@ -207,7 +224,7 @@ class LoggingChecker(checkers.BaseChecker):
             # don't check any further.
             return
         format_string = node.args[format_arg].value
-        if not isinstance(format_string, six.string_types):
+        if not isinstance(format_string, str):
             # If the log format is constant non-string (e.g. logging.debug(5)),
             # ensure there are no arguments.
             required_num_args = 0
@@ -242,7 +259,7 @@ def is_complex_format_str(node):
         bool: True if inferred string uses complex formatting, False otherwise
     """
     inferred = utils.safe_infer(node)
-    if inferred is None or not isinstance(inferred.value, six.string_types):
+    if inferred is None or not isinstance(inferred.value, str):
         return True
     for _, _, format_spec, _ in string.Formatter().parse(inferred.value):
         if format_spec:

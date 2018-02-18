@@ -1,4 +1,5 @@
 """ module doc """
+# pylint: disable=useless-return
 __revision__ = None
 
 def somegen():

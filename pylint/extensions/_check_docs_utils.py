@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016 Moisés López <moylop260@vauxoo.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016-2017 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Yuri Bochkarev <baltazar.bz@gmail.com>
 # Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Mitar <mitar.github@tnode.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -45,6 +48,7 @@ def get_setters_property_name(node):
                 decorator.attrname == "setter" and
                 isinstance(decorator.expr, astroid.Name)):
             return decorator.expr.name
+    return None
 
 
 def get_setters_property(node):
@@ -205,6 +209,11 @@ class Docstring(object):
 class SphinxDocstring(Docstring):
     re_type = r"[\w\.]+"
 
+    re_simple_container_type = r"""
+        {type}                        # a container type
+        [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
+    """.format(type=re_type)
+
     re_xref = r"""
         (?::\w+:)?                    # optional tag
         `{0}`                         # what to reference
@@ -220,14 +229,14 @@ class SphinxDocstring(Docstring):
         \s+                     # whitespace
 
         (?:                     # optional type declaration
-        ({type})
+        ({type}|{container_type})
         \s+
         )?
 
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type)
+        """.format(type=re_type, container_type=re_simple_container_type)
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
     re_type_raw = r"""
@@ -396,9 +405,9 @@ class GoogleDocstring(Docstring):
     """.format(type=re_type, xref=re_xref)
 
     re_multiple_type = r"""
-        (?:{container_type}|{type})
-        (?:\s+or\s+(?:{container_type}|{type}))*
-    """.format(type=re_type, container_type=re_container_type)
+        (?:{container_type}|{type}|{xref})
+        (?:\s+or\s+(?:{container_type}|{type}|{xref}))*
+    """.format(type=re_type, xref=re_xref, container_type=re_container_type)
 
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header
@@ -407,6 +416,11 @@ class GoogleDocstring(Docstring):
 
     re_param_section = re.compile(
         _re_section_template.format(r"(?:Args|Arguments|Parameters)"),
+        re.X | re.S | re.M
+    )
+
+    re_keyword_param_section = re.compile(
+        _re_section_template.format(r"Keyword\s(?:Args|Arguments|Parameters)"),
         re.X | re.S | re.M
     )
 
@@ -571,6 +585,7 @@ class GoogleDocstring(Docstring):
         params_with_type = set()
 
         entries = self._parse_section(self.re_param_section)
+        entries.extend(self._parse_section(self.re_keyword_param_section))
         for entry in entries:
             match = self.re_param_line.match(entry)
             if not match:

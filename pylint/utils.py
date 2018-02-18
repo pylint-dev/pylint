@@ -1,11 +1,31 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2009 Vincent
+# Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2012-2014 Google, Inc.
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2015 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014 LCD 47 <lcd047@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2014 Damien Nozay <damien.nozay@gmail.com>
 # Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
+# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 xmo-odoo <xmo-odoo@users.noreply.github.com>
+# Copyright (c) 2017 Chris Lamb <chris@chris-lamb.co.uk>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
+# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
+# Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -15,6 +35,7 @@ main pylint class
 """
 from __future__ import print_function
 
+import codecs
 import collections
 from inspect import cleandoc
 import os
@@ -125,9 +146,17 @@ def safe_decode(line, encoding, *args, **kwargs):
     except LookupError:
         return line.decode(sys.getdefaultencoding(), *args, **kwargs)
 
+def decoding_stream(stream, encoding, errors='strict'):
+    try:
+        reader_cls = codecs.getreader(encoding or sys.getdefaultencoding())
+    except LookupError:
+        reader_cls = codecs.getreader(sys.getdefaultencoding())
+    return reader_cls(stream, errors)
+
+
 def _decoding_readline(stream, encoding):
     '''return lambda function for tokenize with safe decode'''
-    return lambda: safe_decode(stream.readline(), encoding, 'replace')
+    return decoding_stream(stream, encoding, errors='replace').readline
 
 
 def tokenize_module(module):
@@ -320,6 +349,7 @@ class MessagesHandlerMixIn(object):
                 return MSG_STATE_SCOPE_MODULE
         except (KeyError, TypeError):
             return MSG_STATE_SCOPE_CONFIG
+        return None
 
     def is_message_enabled(self, msg_descr, line=None, confidence=None):
         """return true if the message associated to the given message id is
@@ -344,7 +374,8 @@ class MessagesHandlerMixIn(object):
         except KeyError:
             return self._msgs_state.get(msgid, True)
 
-    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED):
+    def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
+                    col_offset=None):
         """Adds a message given by ID or name.
 
         If provided, the message string is expanded using args
@@ -376,10 +407,9 @@ class MessagesHandlerMixIn(object):
 
         if line is None and node is not None:
             line = node.fromlineno
-        if hasattr(node, 'col_offset'):
+        if col_offset is None and hasattr(node, 'col_offset'):
             col_offset = node.col_offset # XXX measured in bytes for utf-8, divide by two for chars?
-        else:
-            col_offset = None
+
         # should this message be displayed
         if not self.is_message_enabled(msgid, line, confidence):
             self.file_state.handle_ignored_message(
@@ -461,7 +491,7 @@ class MessagesHandlerMixIn(object):
         print("Below is a list of all checkers and their features.", file=stream)
         print("", file=stream)
 
-        for checker, info in six.iteritems(by_checker):
+        for checker, info in sorted(six.iteritems(by_checker)):
             self._print_checker_doc(checker, info, stream=stream)
 
     @staticmethod
@@ -893,6 +923,10 @@ def expand_modules(files_or_modules, black_list, black_list_re):
     result = []
     errors = []
     for something in files_or_modules:
+        if os.path.basename(something) in black_list:
+            continue
+        if _basename_in_blacklist_re(os.path.basename(something), black_list_re):
+            continue
         if exists(something):
             # this is a file or a directory
             try:
@@ -1113,7 +1147,8 @@ def _splitstrip(string, sep=','):
     ['a', 'b', 'c', '4']
     >>> _splitstrip('a')
     ['a']
-    >>>
+    >>> _splitstrip('a,\nb,\nc,')
+    ['a', 'b', 'c']
 
     :type string: str or unicode
     :param string: a csv line
@@ -1210,17 +1245,23 @@ def _ini_format(stream, options, encoding):
     """format options using the INI format"""
     for optname, optdict, value in options:
         value = _format_option_value(optdict, value)
-        help = optdict.get('help')
-        if help:
-            help = _normalize_text(help, line_len=79, indent='# ')
+        help_opt = optdict.get('help')
+        if help_opt:
+            help_opt = _normalize_text(help_opt, line_len=79, indent='# ')
             print(file=stream)
-            print(_encode(help, encoding), file=stream)
+            print(_encode(help_opt, encoding), file=stream)
         else:
             print(file=stream)
         if value is None:
             print('#%s=' % optname, file=stream)
         else:
             value = _encode(value, encoding).strip()
+            if re.match(r'^([\w-]+,)+[\w-]+$', str(value)):
+                separator = '\n ' + ' ' * len(optname)
+                value = separator.join(
+                    x + ',' for x in str(value).split(','))
+                # remove trailing ',' from last element of the list
+                value = value[:-1]
             print('%s=%s' % (optname, value), file=stream)
 
 format_section = _ini_format_section
@@ -1235,12 +1276,34 @@ def _rest_format_section(stream, section, options, encoding=None, doc=None):
         print(_encode(_normalize_text(doc, line_len=79, indent=''), encoding), file=stream)
         print(file=stream)
     for optname, optdict, value in options:
-        help = optdict.get('help')
+        help_opt = optdict.get('help')
         print(':%s:' % optname, file=stream)
-        if help:
-            help = _normalize_text(help, line_len=79, indent='  ')
-            print(_encode(help, encoding), file=stream)
+        if help_opt:
+            help_opt = _normalize_text(help_opt, line_len=79, indent='  ')
+            print(_encode(help_opt, encoding), file=stream)
         if value:
             value = _encode(_format_option_value(optdict, value), encoding)
             print(file=stream)
             print('  Default: ``%s``' % value.replace("`` ", "```` ``"), file=stream)
+
+
+def walk_up(from_dir):
+    """Walk up a directory tree
+
+    :param from_dir: The directory to walk up from.
+        This directory is included in the output.
+    :type from_dir: str
+
+    :returns: Each parent directory
+    :rtype: generator(str)
+    """
+    cur_dir = None
+    new_dir = os.path.expanduser(from_dir)
+    new_dir = os.path.abspath(new_dir)
+
+    # The parent of the root directory is the root directory.
+    # Once we have reached it, we are done.
+    while cur_dir != new_dir:
+        cur_dir = new_dir
+        yield cur_dir
+        new_dir = os.path.abspath(os.path.join(cur_dir, os.pardir))

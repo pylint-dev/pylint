@@ -1,19 +1,30 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
+# Copyright (c) 2015 Viorel Stirbu <viorels@gmail.com>
+# Copyright (c) 2016-2017 Roy Williams <roy.williams.iii@gmail.com>
+# Copyright (c) 2016 Roy Williams <rwilliams@lyft.com>
+# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 from __future__ import absolute_import, print_function
 
+from collections import namedtuple
 import re
 import sys
 import tokenize
-
-from collections import namedtuple
-
-import six
 
 import astroid
 from astroid import bases
@@ -26,6 +37,7 @@ from pylint.checkers import utils
 
 _ZERO = re.compile("^0+$")
 
+
 def _is_old_octal(literal):
     if _ZERO.match(literal):
         return False
@@ -35,23 +47,30 @@ def _is_old_octal(literal):
         except ValueError:
             return False
         return True
+    return None
+
 
 def _check_dict_node(node):
     inferred_types = set()
     try:
         inferred = node.infer()
-        for inferred_node in inferred:
-            inferred_types.add(inferred_node)
+        if inferred is not astroid.Uninferable:
+            for inferred_node in inferred:
+                inferred_types.add(inferred_node)
     except astroid.InferenceError:
         pass
     return (not inferred_types
             or any(isinstance(x, astroid.Dict) for x in inferred_types))
 
+
 def _is_builtin(node):
     return getattr(node, 'name', None) in ('__builtin__', 'builtins')
 
+
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
-                     'all', 'enumerate', 'dict'}
+                     'all', 'enumerate', 'dict', 'filter', 'reversed'}
+DICT_METHODS = {'items', 'keys', 'values'}
+
 
 def _in_iterating_context(node):
     """Check if the node is being used as an iterator.
@@ -89,13 +108,15 @@ def _in_iterating_context(node):
 
 
 def _is_conditional_import(node):
-    """Checks if a import node is in the context of a conditional.
+    """Checks if an import node is in the context of a conditional.
     """
     parent = node.parent
     return isinstance(parent, (astroid.TryExcept, astroid.ExceptHandler,
                                astroid.If, astroid.IfExp))
 
+
 Branch = namedtuple('Branch', ['node', 'is_py2_only'])
+
 
 class Python3Checker(checkers.BaseChecker):
 
@@ -281,7 +302,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1627': ('__oct__ method defined',
                   'oct-method',
-                  'Used when a __oct__ method is defined '
+                  'Used when an __oct__ method is defined '
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
         'W1628': ('__hex__ method defined',
@@ -362,7 +383,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1643': ('__idiv__ method defined',
                   'idiv-method',
-                  'Used when a __idiv__ method is defined.  Using `__itruediv__` and setting'
+                  'Used when an __idiv__ method is defined.  Using `__itruediv__` and setting'
                   '__idiv__ = __itruediv__ should be preferred.'
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
@@ -396,7 +417,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1650': ('Using str.translate with deprecated deletechars parameters',
                   'deprecated-str-translate-call',
-                  'Used when using the deprecated deletechars parameters from str.translate.  Use'
+                  'Used when using the deprecated deletechars parameters from str.translate.  Use '
                   're.sub to remove the desired characters ',
                   {'maxversion': (3, 0)}),
         'W1651': ('Accessing a deprecated function on the itertools module',
@@ -411,6 +432,21 @@ class Python3Checker(checkers.BaseChecker):
                   'next-method-defined',
                   'Used when a next method is defined that would be an iterator in Python 2 but '
                   'is treated as a normal function in Python 3.',
+                  {'maxversion': (3, 0)}),
+        'W1654': ('dict.items referenced when not iterating',
+                  'dict-items-not-iterating',
+                  'Used when dict.items is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1655': ('dict.keys referenced when not iterating',
+                  'dict-keys-not-iterating',
+                  'Used when dict.keys is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
+                  {'maxversion': (3, 0)}),
+        'W1656': ('dict.values referenced when not iterating',
+                  'dict-values-not-iterating',
+                  'Used when dict.values is referenced in a non-iterating '
+                  'context (returns an iterator in Python 3)',
                   {'maxversion': (3, 0)}),
     }
 
@@ -489,7 +525,7 @@ class Python3Checker(checkers.BaseChecker):
         },
         'bad-python3-import': frozenset([
             'anydbm', 'BaseHTTPServer', '__builtin__', 'CGIHTTPServer', 'ConfigParser', 'copy_reg',
-            'cPickle', 'cProfile', 'cStringIO', 'Cookie', 'cookielib', 'dbhash', 'dbm', 'dumbdbm',
+            'cPickle', 'cStringIO', 'Cookie', 'cookielib', 'dbhash', 'dbm', 'dumbdbm',
             'dumbdb', 'Dialog', 'DocXMLRPCServer', 'FileDialog', 'FixTk', 'gdbm', 'htmlentitydefs',
             'HTMLParser', 'httplib', 'markupbase', 'Queue', 'repr', 'robotparser', 'ScrolledText',
             'SimpleDialog', 'SimpleHTTPServer', 'SimpleXMLRPCServer', 'StringIO', 'dummy_thread',
@@ -499,8 +535,8 @@ class Python3Checker(checkers.BaseChecker):
             'Bastion', 'bsddb185', 'bsddb3', 'Canvas', 'cfmfile', 'cl', 'commands', 'compiler',
             'dircache', 'dl', 'exception', 'fpformat', 'htmllib', 'ihooks', 'imageop', 'imputil',
             'linuxaudiodev', 'md5', 'mhlib', 'mimetools', 'MimeWriter', 'mimify', 'multifile',
-            'mutex', 'new', 'popen2', 'posixfile', 'pure', 'rexec', 'rfc822', 'sha', 'sgmllib',
-            'sre', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
+            'mutex', 'new', 'popen2', 'posixfile', 'pure', 'rexec', 'rfc822', 'sets', 'sha',
+            'sgmllib', 'sre', 'stringold', 'sunaudio', 'sv', 'test.testall', 'thread', 'timing',
             'toaiff', 'user', 'urllib2', 'urlparse'
         ]),
         'deprecated-string-function': {
@@ -534,6 +570,7 @@ class Python3Checker(checkers.BaseChecker):
         self._branch_stack = []
         super(Python3Checker, self).__init__(*args, **kwargs)
 
+    # pylint: disable=keyword-arg-before-vararg
     def add_message(self, msg_id, always_warn=False,  # pylint: disable=arguments-differ
                     *args, **kwargs):
         if always_warn or not (self._branch_stack and self._branch_stack[-1].is_py2_only):
@@ -575,7 +612,7 @@ class Python3Checker(checkers.BaseChecker):
             elif node.name == 'next':
                 # If there is a method named `next` declared, if it is invokable
                 # with zero arguments then it implements the Iterator protocol.
-                # This means if the method is a instance method or a
+                # This means if the method is an instance method or a
                 # classmethod 1 argument should cause a failure, if it is a
                 # staticmethod 0 arguments should cause a failure.
                 failing_arg_count = 1
@@ -604,7 +641,7 @@ class Python3Checker(checkers.BaseChecker):
         self.add_message('print-statement', node=node, always_warn=True)
 
     def _warn_if_deprecated(self, node, module, attributes, report_on_modules=True):
-        for message, module_map in six.iteritems(self._bad_python3_module_map):
+        for message, module_map in self._bad_python3_module_map.items():
             if module in module_map and module not in self._modules_warned_about:
                 if isinstance(module_map, frozenset):
                     if report_on_modules:
@@ -624,7 +661,8 @@ class Python3Checker(checkers.BaseChecker):
             if not self._future_absolute_import:
                 if self.linter.is_message_enabled('no-absolute-import'):
                     self.add_message('no-absolute-import', node=node)
-            if not _is_conditional_import(node):
+                    self._future_absolute_import = True
+            if not _is_conditional_import(node) and not node.level:
                 self._warn_if_deprecated(node, node.modname, {x[0] for x in node.names})
 
         if node.names[0][0] == '*':
@@ -634,7 +672,9 @@ class Python3Checker(checkers.BaseChecker):
 
     def visit_import(self, node):
         if not self._future_absolute_import:
-            self.add_message('no-absolute-import', node=node)
+            if self.linter.is_message_enabled('no-absolute-import'):
+                self.add_message('no-absolute-import', node=node)
+                self._future_absolute_import = True
         if not _is_conditional_import(node):
             for name, _ in node.names:
                 self._warn_if_deprecated(node, name, None)
@@ -688,7 +728,7 @@ class Python3Checker(checkers.BaseChecker):
     @staticmethod
     def _is_constant_string_or_name(node):
         if isinstance(node, astroid.Const):
-            return isinstance(node.value, six.string_types)
+            return isinstance(node.value, str)
         return isinstance(node, astroid.Name)
 
     @staticmethod
@@ -706,7 +746,7 @@ class Python3Checker(checkers.BaseChecker):
             if inferred_type is astroid.Uninferable:
                 confidence = INFERENCE_FAILURE
             elif not (isinstance(inferred_type, astroid.Const) and
-                      isinstance(inferred_type.value, six.string_types)):
+                      isinstance(inferred_type.value, str)):
                 return None
         return confidence
 
@@ -717,11 +757,18 @@ class Python3Checker(checkers.BaseChecker):
             inferred_types = set()
             try:
                 for inferred_receiver in node.func.expr.infer():
+                    if inferred_receiver is astroid.Uninferable:
+                        continue
                     inferred_types.add(inferred_receiver)
                     if isinstance(inferred_receiver, astroid.Module):
                         self._warn_if_deprecated(node, inferred_receiver.name,
                                                  {node.func.attrname},
                                                  report_on_modules=False)
+                    if (isinstance(inferred_receiver, astroid.Dict)
+                            and node.func.attrname in DICT_METHODS):
+                        if not _in_iterating_context(node):
+                            checker = 'dict-{}-not-iterating'.format(node.func.attrname)
+                            self.add_message(checker, node=node)
             except astroid.InferenceError:
                 pass
             if node.args:
@@ -860,6 +907,7 @@ class Python3Checker(checkers.BaseChecker):
             if isinstance(value, str):
                 self.add_message('raising-string', node=node)
                 return True
+        return None
 
 
 class Python3TokenChecker(checkers.BaseTokenChecker):
@@ -886,6 +934,11 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                   'removed in Python 3. To use the new syntax, '
                   'prepend 0o on the number.',
                   {'maxversion': (3, 0)}),
+        'E1610': ('Non-ascii bytes literals not supported in 3.x',
+                  'non-ascii-bytes-literal',
+                  'Used when non-ascii bytes literals are found in a program. '
+                  'They are no longer supported in Python 3.',
+                  {'maxversion': (3, 0)}),
     }
 
     def process_tokens(self, tokens):
@@ -898,6 +951,9 @@ class Python3TokenChecker(checkers.BaseTokenChecker):
                     self.add_message('old-octal-literal', line=start[0])
             if tokens[idx][1] == '<>':
                 self.add_message('old-ne-operator', line=tokens[idx][2][0])
+            if tok_type == tokenize.STRING and token.startswith('b'):
+                if any(elem for elem in token if ord(elem) > 127):
+                    self.add_message('non-ascii-bytes-literal', line=start[0])
 
 
 def register(linter):

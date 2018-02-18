@@ -1,7 +1,18 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 buck <buck.2019@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Harut <yes@harutune.name>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Petr Pulc <petrpulc@gmail.com>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2017 Krzysztof Czapla <k.czapla68@gmail.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
+# Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -129,10 +140,24 @@ class TestSuperfluousParentheses(CheckerTestCase):
              'if (not (foo)):', 0),
             (Message('superfluous-parens', line=1, args='not'),
              'if (not (foo)):', 2),
+            (Message('superfluous-parens', line=1, args='for'),
+             'for (x) in (1, 2, 3):', 0),
+            (Message('superfluous-parens', line=1, args='if'),
+             'if (1) in (1, 2, 3):', 0),
             ]
         for msg, code, offset in cases:
             with self.assertAddsMessages(msg):
                 self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
+
+    def testCheckIfArgsAreNotUnicode(self):
+        self.checker._keywords_with_parens = set()
+        cases = [(u'if (foo):', 0), (u'assert (1 == 1)', 0)]
+
+        for code, offset in cases:
+            self.checker._check_keyword_parentheses(_tokenize_str(code), offset)
+            got = self.linter.release_messages()
+            assert isinstance(got[-1].args, str)
+
 
     def testFuturePrintStatementWithoutParensWarning(self):
         code = """from __future__ import print_function
@@ -142,6 +167,12 @@ print('Hello world!')
         with self.assertNoMessages():
             self.checker.process_module(tree)
             self.checker.process_tokens(_tokenize_str(code))
+
+    def testKeywordParensFalsePositive(self):
+        self.checker._keywords_with_parens = set()
+        code = "if 'bar' in (DICT or {}):"
+        with self.assertNoMessages():
+            self.checker._check_keyword_parentheses(_tokenize_str(code), start=2)
 
 
 class TestCheckSpace(CheckerTestCase):
@@ -265,6 +296,9 @@ class TestCheckSpace(CheckerTestCase):
                     args=('Exactly one', 'required', 'around', 'keyword argument assignment',
                           '(foo: List[int]=bar)\n               ^'))):
             self.checker.process_tokens(_tokenize_str('(foo: List[int]=bar)\n'))
+        # Regression test for #1831
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str("(arg: Tuple[\n    int, str] = None):\n"))
 
     def testOperatorSpacingGood(self):
         good_cases = [

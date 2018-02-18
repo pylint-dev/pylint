@@ -1,7 +1,12 @@
 # Copyright (c) 2006-2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013-2014 Google, Inc.
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -115,7 +120,7 @@ def gen_tests(filter_rgx):
     ):
         if not is_to_run(module_file) or module_file.endswith(('.pyc', "$py.class")):
             continue
-        base = module_file.replace('func_', '').replace('.py', '')
+        base = module_file.replace('.py', '').split('_')[1]
         dependencies = _get_tests_info(INPUT_DIR, MSG_DIR, base, '.py')
         tests.append((module_file, messages_file, dependencies))
 
@@ -126,8 +131,9 @@ def gen_tests(filter_rgx):
     return tests
 
 
-@pytest.mark.parametrize("module_file,messages_file,dependencies", gen_tests(FILTER_RGX))
-def test_functionality(module_file, messages_file, dependencies):
+@pytest.mark.parametrize("module_file,messages_file,dependencies", gen_tests(FILTER_RGX),
+                         ids=[o[0] for o in gen_tests(FILTER_RGX)])
+def test_functionality(module_file, messages_file, dependencies,):
 
     LT = LintTestUpdate() if UPDATE else LintTestUsingModule()
 

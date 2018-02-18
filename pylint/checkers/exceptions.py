@@ -1,18 +1,27 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2011, 2013-2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2011-2014 Google, Inc.
+# Copyright (c) 2012 Tim Hatch <tim@timhatch.com>
+# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
+# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Steven Myint <hg@stevenmyint.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Martin von Gagern <gagern@google.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Checks for various exception related errors."""
-
+import builtins
 import inspect
 import sys
 
-import six
-from six.moves import builtins
 
 import astroid
 from pylint import checkers
@@ -24,7 +33,7 @@ def _builtin_exceptions():
     def predicate(obj):
         return isinstance(obj, type) and issubclass(obj, BaseException)
 
-    members = inspect.getmembers(six.moves.builtins, predicate)
+    members = inspect.getmembers(builtins, predicate)
     return {exc.__name__ for (_, exc) in members}
 
 
@@ -66,8 +75,7 @@ MSGS = {
               'bad-exception-context',
               'Used when using the syntax "raise ... from ...", '
               'where the exception context is not an exception, '
-              'nor None.',
-              {'minversion': (3, 0)}),
+              'nor None.'),
     'E0704': ('The raise statement is not inside an except clause',
               'misplaced-bare-raise',
               'Used when a bare raise is not used inside an except clause. '
@@ -110,6 +118,11 @@ MSGS = {
               'Used when the exception to catch is of the form \
               "except A or B:".  If intending to catch multiple, \
               rewrite as "except (A, B):"'),
+    'W0715': ('Exception arguments suggest string formatting might be intended',
+              'raising-format-tuple',
+              'Used when passing multiple arguments to an exception \
+              constructor, the first of them a string literal containing what \
+              appears to be placeholders intended for formatting'),
     }
 
 
@@ -144,6 +157,15 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
     def visit_call(self, call):
         if isinstance(call.func, astroid.Name):
             self.visit_name(call.func)
+        if (len(call.args) > 1 and
+                isinstance(call.args[0], astroid.Const) and
+                isinstance(call.args[0].value, str)):
+            msg = call.args[0].value
+            if ('%' in msg or
+                    ('{' in msg and '}' in msg)):
+                self._checker.add_message(
+                    'raising-format-tuple',
+                    node=self._node)
 
 
 class ExceptionRaiseLeafVisitor(BaseVisitor):
@@ -226,7 +248,8 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.check_messages('nonstandard-exception', 'misplaced-bare-raise',
                           'raising-bad-type', 'raising-non-exception',
-                          'notimplemented-raised', 'bad-exception-context')
+                          'notimplemented-raised', 'bad-exception-context',
+                          'raising-format-tuple')
     def visit_raise(self, node):
         if node.exc is None:
             self._check_misplaced_bare_raise(node)
@@ -290,7 +313,8 @@ class ExceptionsChecker(checkers.BaseChecker):
             if any(node is astroid.YES for node in inferred):
                 # Don't emit if we don't know every component.
                 return
-            if all(node and utils.inherit_from_std_ex(node)
+            if all(node and (utils.inherit_from_std_ex(node) or
+                             not utils.has_known_bases(node))
                    for node in inferred):
                 return
 
@@ -334,7 +358,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             if handler.type is None:
                 if not utils.is_raising(handler.body):
                     self.add_message('bare-except', node=handler)
-                # check if a "except:" is followed by some other
+                # check if an "except:" is followed by some other
                 # except
                 if index < (nb_handlers - 1):
                     msg = 'empty except clause should always appear last'

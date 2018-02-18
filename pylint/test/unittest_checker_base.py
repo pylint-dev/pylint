@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
+# Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -55,6 +61,30 @@ class TestDocstring(CheckerTestCase):
             self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
+    def test_long_function_no_docstring(self):
+        func = astroid.extract_node("""
+        def func(tion):
+            pass
+            pass
+           """)
+        message = Message('missing-docstring', node=func, args=('function',))
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(func)
+
+    @set_config(docstring_min_length=2)
+    def test_long_function_nested_statements_no_docstring(self):
+        func = astroid.extract_node("""
+        def func(tion):
+            try:
+                pass
+            except:
+                pass
+           """)
+        message = Message('missing-docstring', node=func, args=('function',))
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(func)
+
+    @set_config(docstring_min_length=2)
     def test_function_no_docstring_by_name(self):
         func = astroid.extract_node("""
         def __fun__(tion):
@@ -76,28 +106,6 @@ class TestNameChecker(CheckerTestCase):
     CONFIG = {
         'bad_names': set(),
         }
-
-    @set_config(include_naming_hint=True)
-    def test_naming_hint(self):
-        const = astroid.extract_node("""
-        const = "CONSTANT" #@
-        """)
-        message = Message(
-           'invalid-name', node=const.targets[0],
-           args=('constant', 'const',
-                 ' (hint: (([A-Z_][A-Z0-9_]*)|(__.*__))$)'))
-        with self.assertAddsMessages(message):
-            self.checker.visit_assignname(const.targets[0])
-
-    @set_config(include_naming_hint=True, const_name_hint='CONSTANT')
-    def test_naming_hint_configured_hint(self):
-        const = astroid.extract_node("""
-        const = "CONSTANT" #@
-        """)
-        with self.assertAddsMessages(
-            Message('invalid-name', node=const.targets[0],
-                    args=('constant', 'const', ' (hint: CONSTANT)'))):
-            self.checker.visit_assignname(const.targets[0])
 
     @set_config(attr_rgx=re.compile('[A-Z]+'),
                 property_classes=('abc.abstractproperty', '.custom_prop'))
@@ -133,7 +141,8 @@ class TestNameChecker(CheckerTestCase):
             self.checker.visit_functiondef(methods[2])
             self.checker.visit_functiondef(methods[3])
         with self.assertAddsMessages(Message('invalid-name', node=methods[1],
-                                             args=('attribute', 'bar', ''))):
+                                             args=('Attribute', 'bar',
+                                                   "'[A-Z]+' pattern"))):
             self.checker.visit_functiondef(methods[1])
 
     @set_config(attr_rgx=re.compile('[A-Z]+'))
@@ -179,36 +188,6 @@ class TestNameChecker(CheckerTestCase):
         CONST = "12 34 ".rstrip().split()""")
         with self.assertNoMessages():
             self.checker.visit_assignname(assign.targets[0])
-
-    @unittest.skipIf(sys.version_info >= (3, 0), reason="Needs Python 2.x")
-    @set_config(const_rgx=re.compile(".+"))
-    @set_config(function_rgx=re.compile(".+"))
-    @set_config(class_rgx=re.compile(".+"))
-    def test_assign_to_new_keyword_py2(self):
-        ast = astroid.extract_node("""
-        True = 0  #@
-        False = 1 #@
-        def True():  #@
-            pass
-        class True:  #@
-            pass
-        """)
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[0].targets[0], args=('True', '3.0'))
-        ):
-            self.checker.visit_assignname(ast[0].targets[0])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[1].targets[0], args=('False', '3.0'))
-        ):
-            self.checker.visit_assignname(ast[1].targets[0])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[2], args=('True', '3.0'))
-        ):
-            self.checker.visit_functiondef(ast[2])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[3], args=('True', '3.0'))
-        ):
-            self.checker.visit_classdef(ast[3])
 
     @unittest.skipIf(sys.version_info >= (3, 7), reason="Needs Python 3.6 or earlier")
     @set_config(const_rgx=re.compile(".+"))
@@ -258,7 +237,8 @@ class TestMultiNamingStyle(CheckerTestCase):
         """)
         message = Message('invalid-name',
                           node=classes[0],
-                          args=('class', 'classb', ''))
+                          args=('Class', 'classb',
+                                "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"))
         with self.assertAddsMessages(message):
             for cls in classes:
                 self.checker.visit_classdef(cls)
@@ -276,9 +256,9 @@ class TestMultiNamingStyle(CheckerTestCase):
         """)
         messages = [
             Message('invalid-name', node=classes[0],
-                    args=('class', 'class_a', '')),
+                    args=('Class', 'class_a', "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern")),
             Message('invalid-name', node=classes[2],
-                    args=('class', 'CLASSC', ''))
+                    args=('Class', 'CLASSC', "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"))
         ]
         with self.assertAddsMessages(*messages):
             for cls in classes:
@@ -298,7 +278,8 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         """, module_name='test')
         message = Message('invalid-name', node=function_defs[1],
-                          args=('function', 'FUNC', ''))
+                          args=('Function', 'FUNC',
+                                "'(?:(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"))
         with self.assertAddsMessages(message):
             for func in function_defs:
                 self.checker.visit_functiondef(func)
@@ -317,7 +298,8 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         """)
         message = Message('invalid-name', node=function_defs[3],
-                          args=('function', 'UPPER', ''))
+                          args=('Function', 'UPPER',
+                                "'(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern"))
         with self.assertAddsMessages(message):
             for func in function_defs:
                 self.checker.visit_functiondef(func)
@@ -377,3 +359,81 @@ class TestComparison(CheckerTestCase):
                             args=(None, "'expr is None'")))
         with self.assertAddsMessages(*messages):
             self.checker.visit_compare(node)
+
+
+class TestNamePresets(unittest.TestCase):
+    SNAKE_CASE_NAMES = {'test_snake_case', 'test_snake_case11', 'test_https_200'}
+    CAMEL_CASE_NAMES = {'testCamelCase', 'testCamelCase11', 'testHTTP200'}
+    UPPER_CASE_NAMES = {'TEST_UPPER_CASE', 'TEST_UPPER_CASE11', 'TEST_HTTP_200'}
+    PASCAL_CASE_NAMES = {'TestPascalCase', 'TestPascalCase11', 'TestHTTP200'}
+    ALL_NAMES = SNAKE_CASE_NAMES | CAMEL_CASE_NAMES | UPPER_CASE_NAMES | PASCAL_CASE_NAMES
+
+    def _test_name_is_correct_for_all_name_types(self, naming_style, name):
+        for name_type in base.KNOWN_NAME_TYPES:
+            self._test_is_correct(naming_style, name, name_type)
+
+    def _test_name_is_incorrect_for_all_name_types(self, naming_style, name):
+        for name_type in base.KNOWN_NAME_TYPES:
+            self._test_is_incorrect(naming_style, name, name_type)
+
+    def _test_should_always_pass(self, naming_style):
+        always_pass_data = [
+            ('__add__', 'method'),
+            ('__set_name__', 'method'),
+            ('__version__', 'const'),
+            ('__author__', 'const')
+        ]
+        for name, name_type in always_pass_data:
+            self._test_is_correct(naming_style, name, name_type)
+
+    def _test_is_correct(self, naming_style, name, name_type):
+        rgx = naming_style.get_regex(name_type)
+        self.assertTrue(rgx.match(name),
+                        "{!r} does not match pattern {!r} (style: {}, type: {})".
+                        format(name, rgx, naming_style, name_type))
+
+    def _test_is_incorrect(self, naming_style, name, name_type):
+        rgx = naming_style.get_regex(name_type)
+        self.assertFalse(rgx.match(name),
+                         "{!r} match pattern {!r} but shouldn't (style: {}, type: {})".
+                         format(name, rgx, naming_style, name_type))
+
+    def test_snake_case(self):
+        naming_style = base.SnakeCaseStyle
+
+        for name in self.SNAKE_CASE_NAMES:
+            self._test_name_is_correct_for_all_name_types(naming_style, name)
+        for name in self.ALL_NAMES - self.SNAKE_CASE_NAMES:
+            self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+
+        self._test_should_always_pass(naming_style)
+
+    def test_camel_case(self):
+        naming_style = base.CamelCaseStyle
+
+        for name in self.CAMEL_CASE_NAMES:
+            self._test_name_is_correct_for_all_name_types(naming_style, name)
+        for name in self.ALL_NAMES - self.CAMEL_CASE_NAMES:
+            self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+
+        self._test_should_always_pass(naming_style)
+
+    def test_upper_case(self):
+        naming_style = base.UpperCaseStyle
+
+        for name in self.UPPER_CASE_NAMES:
+            self._test_name_is_correct_for_all_name_types(naming_style, name)
+        for name in self.ALL_NAMES - self.UPPER_CASE_NAMES:
+            self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+
+        self._test_should_always_pass(naming_style)
+
+    def test_pascal_case(self):
+        naming_style = base.PascalCaseStyle
+
+        for name in self.PASCAL_CASE_NAMES:
+            self._test_name_is_correct_for_all_name_types(naming_style, name)
+        for name in self.ALL_NAMES - self.PASCAL_CASE_NAMES:
+            self._test_name_is_incorrect_for_all_name_types(naming_style, name)
+
+        self._test_should_always_pass(naming_style)

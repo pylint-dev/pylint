@@ -177,3 +177,16 @@ class UrlMarkManager(object):
 
     def _init_lineparser(self):
         raise NotImplementedError
+
+
+class HasDynamicGetattr(object):
+
+    def __init__(self):
+        self._obj = []
+
+    def __getattr__(self, attr):
+        return getattr(self._obj, attr)
+
+
+for elem in HasDynamicGetattr():
+    pass

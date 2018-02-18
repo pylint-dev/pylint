@@ -1,5 +1,11 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -74,7 +80,7 @@ class OutputLine(collections.namedtuple('OutputLine',
 _MESSAGE = {'msg': r'[a-z][a-z\-]+'}
 # Matches a #,
 #  - followed by a comparison operator and a Python version (optional),
-#  - followed by an line number with a +/- (optional),
+#  - followed by a line number with a +/- (optional),
 #  - followed by a list of bracketed message symbols.
 # Used to extract expected messages from testdata files.
 _EXPECTED_RE = re.compile(
@@ -327,7 +333,7 @@ class LintModuleTest(object):
     def _check_output_text(self, expected_messages, expected_lines,
                            received_lines):
         assert self._split_lines(expected_messages, expected_lines)[0] == \
-            received_lines
+            received_lines, self._test_file.base
 
 
 class LintModuleOutputUpdate(LintModuleTest):
