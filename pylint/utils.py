@@ -277,7 +277,7 @@ class MessagesHandlerMixIn(object):
         try:
             msg = self.msgs_store.check_message_id(msgid)
             if msgid == msg.msgid:
-                MessagesHandlerMixIn.__by_id_disabled_msgs.append((msg.msgid, msg.symbol, line))
+                MessagesHandlerMixIn.__by_id_disabled_msgs.append((self.current_name, msg.msgid, msg.symbol, line))
         except UnknownMessageError:
             pass
 
