@@ -367,3 +367,8 @@ Other Changes
 
 * If the rcfile specified on the command line doesn't exist, then an
   IOError exception is raised.
+
+* Fix the wrong scope of ``disable=`` directive after a commented line.
+  For example when a ``disable=line-too-long`` directive is at the end of a
+  long commented line, it no longer disables the emission of ``line-too-long``
+  message for lines that follow. 

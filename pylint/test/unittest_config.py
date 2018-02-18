@@ -15,9 +15,13 @@ import sre_constants
 from pylint import config
 import pytest
 
+
+RE_PATTERN_TYPE = getattr(re, 'Pattern', getattr(re, '_pattern_type', None))
+
+
 def test__regexp_validator_valid():
     result = config._regexp_validator(None, None, "test_.*")
-    assert isinstance(result, re._pattern_type)
+    assert isinstance(result, RE_PATTERN_TYPE)
     assert result.pattern == "test_.*"
 
 def test__regexp_validator_invalid():
@@ -44,7 +48,7 @@ def test__regexp_csv_validator_valid():
     pattern_strings = ["test_.*", "foo\\.bar", "^baz$"]
     result = config._regexp_csv_validator(None, None, ",".join(pattern_strings))
     for i, regex in enumerate(result):
-        assert isinstance(regex, re._pattern_type)
+        assert isinstance(regex, RE_PATTERN_TYPE)
         assert regex.pattern == pattern_strings[i]
 
 def test__regexp_csv_validator_invalid():
