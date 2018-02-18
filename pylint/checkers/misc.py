@@ -23,7 +23,7 @@ import re
 
 from pylint.interfaces import IRawChecker
 from pylint.checkers import BaseChecker
-from pylint.utils import OPTION_RGX, MessagesHandlerMixIn 
+from pylint.utils import OPTION_RGX, MessagesHandlerMixIn
 
 
 class ByIdDisabledMessagesChecker(BaseChecker):
@@ -39,10 +39,11 @@ class ByIdDisabledMessagesChecker(BaseChecker):
                       'Used when a message is disabled by id.'),}
 
     options = ()
-    
+
     def process_module(self, module):
         """inspect the source file to find messages deactivated by id."""
-        for (mod_name, msg_id, msg_symbol, lineno) in MessagesHandlerMixIn.get_by_id_disabled_msgs():
+        for (mod_name, msg_id, msg_symbol, lineno) in (
+                MessagesHandlerMixIn.get_by_id_disabled_msgs()):
             if mod_name == module.name:
                 txt = ("Id '{ident:}' is used to disable '{symbol}' message emission"
                        .format(ident=msg_id, symbol=msg_symbol))

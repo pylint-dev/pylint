@@ -249,7 +249,7 @@ class MessagesHandlerMixIn(object):
     """a mix-in class containing all the messages related methods for the main
     lint class
     """
-    __by_id_disabled_msgs = [];
+    __by_id_disabled_msgs = []
 
     def __init__(self):
         self._msgs_state = {}
@@ -277,7 +277,8 @@ class MessagesHandlerMixIn(object):
         try:
             msg = self.msgs_store.check_message_id(msgid)
             if msgid == msg.msgid:
-                MessagesHandlerMixIn.__by_id_disabled_msgs.append((self.current_name, msg.msgid, msg.symbol, line))
+                MessagesHandlerMixIn.__by_id_disabled_msgs.append(
+                    (self.current_name, msg.msgid, msg.symbol, line))
         except UnknownMessageError:
             pass
 
