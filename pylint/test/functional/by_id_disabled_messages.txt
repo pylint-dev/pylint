@@ -1,4 +1,4 @@
-by-id-disabled-message:2::"Id 'C0111' is used to disable 'missing-docstring' message emission."
-by-id-disabled-message:3::"Id 'C0102' is used to disable 'blacklisted-name' message emission."
-by-id-disabled-message:6::"Id 'C0102' is used to disable 'blacklisted-name' message emission."
-by-id-disabled-message:6::"Id 'R1711' is used to disable 'useless-return' message emission."
+by-id-disabled-message:2::"Id 'C0111' is used to disable 'missing-docstring' message emission"
+by-id-disabled-message:3::"Id 'C0102' is used to disable 'blacklisted-name' message emission"
+by-id-disabled-message:6::"Id 'C0102' is used to disable 'blacklisted-name' message emission"
+by-id-disabled-message:6::"Id 'R1711' is used to disable 'useless-return' message emission"
