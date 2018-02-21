@@ -609,6 +609,12 @@ class GoogleDocstring(Docstring):
     def min_section_indent(section_match):
         return len(section_match.group(1)) + 1
 
+    @staticmethod
+    def _is_section_header(_):
+        # Google parsing does not need to detect section headers,
+        # because it works off of indentation level only
+        return False
+
     def _parse_section(self, section_re):
         section_match = section_re.search(self.doc)
         if section_match is None:
@@ -633,6 +639,8 @@ class GoogleDocstring(Docstring):
                 is_first = False
 
             if indentation == min_indentation:
+                if self._is_section_header(line):
+                    break
                 # Lines with minimum indentation must contain the beginning
                 # of a new parameter documentation.
                 if entry:
@@ -703,3 +711,7 @@ class NumpyDocstring(GoogleDocstring):
     @staticmethod
     def min_section_indent(section_match):
         return len(section_match.group(1))
+
+    @staticmethod
+    def _is_section_header(line):
+        return bool(re.match(r'\s*-+$', line))
