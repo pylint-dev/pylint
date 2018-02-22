@@ -16,8 +16,8 @@ New checkers
 * New ``useless-return`` message when function or method ends with a "return" or
   "return None" statement and this is the only return statement in the body.
 
-* New ``by-id-disabled-message`` message when a message is deactivated by id instead
-  of symbol.
+* New ``message-disabled-by-id`` message when a message is deactivated by id instead
+  of symbol. The use of symbol is more explicit and easier to remind.
 
 Other Changes
 =============

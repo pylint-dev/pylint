@@ -35,19 +35,19 @@ class ByIdDisabledMessagesChecker(BaseChecker):
     # configuration section name
     name = 'miscellaneous'
     msgs = {'I0023': ('%s',
-                      'by-id-disabled-message',
+                      'message-disabled-by-id',
                       'Used when a message is disabled by id.'),}
 
     options = ()
 
     def process_module(self, module):
         """inspect the source file to find messages deactivated by id."""
-        for (mod_name, msg_id, msg_symbol, lineno) in (
-                MessagesHandlerMixIn.get_by_id_disabled_msgs()):
+        disabled_msgs = MessagesHandlerMixIn.get_by_id_disabled_msgs()
+        for (mod_name, msg_id, msg_symbol, lineno) in disabled_msgs:
             if mod_name == module.name:
-                txt = ("Id '{ident:}' is used to disable '{symbol}' message emission"
+                txt = ("Id '{ident}' is used to disable '{symbol}' message emission"
                        .format(ident=msg_id, symbol=msg_symbol))
-                self.add_message('by-id-disabled-message', line=lineno, args=txt)
+                self.add_message('message-disabled-by-id', line=lineno, args=txt)
         MessagesHandlerMixIn.clear_by_id_disabled_msgs()
 
 
