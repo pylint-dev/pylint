@@ -245,8 +245,12 @@ class MessagesHandlerMixIn(object):
     __by_id_managed_msgs = []
 
     def __init__(self):
+        self.file_state = FileState()
         self._msgs_state = {}
         self.msg_status = 0
+        self.msgs_store = MessagesStore()
+        self.reporter = None
+        super().__init__()
 
     def _checker_messages(self, checker):
         for known_checker in self._checkers[checker.lower()]:
@@ -918,6 +922,7 @@ class ReportsHandlerMixIn(object):
     def __init__(self):
         self._reports = collections.defaultdict(list)
         self._reports_state = {}
+        super().__init__()
 
     def report_order(self):
         """ Return a list of reports, sorted in the order
