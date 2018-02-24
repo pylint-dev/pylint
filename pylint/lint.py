@@ -604,9 +604,6 @@ class PyLinter(
                 self.global_set_option("disable", value)
         else:
             self.disable("python3")
-        self.set_option("reports", False)
-        self.set_option("persistent", False)
-        self.set_option("score", False)
 
     def python3_porting_mode(self):
         """Disable all other checkers and enable Python 3 warnings."""
@@ -1250,7 +1247,10 @@ group are mutually exclusive.",
         # TODO: if global_config.generate_man
 
         if self._global_config.errors_only:
-            self._linter.errors_mode()
+            self._linter.error_mode()
+            self._global_config.reports = False
+            self._global_config.persistent = False
+            self._global_config.score = False
 
         if self._global_config.py3k:
             self._linter.python3_porting_mode()
