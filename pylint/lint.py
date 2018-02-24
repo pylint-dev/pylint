@@ -427,48 +427,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
         self._python3_porting_mode = False
         self._error_mode = False
 
-    def load_reporter(self):
-        name = self.config.output_format.lower()
-        if name in self._reporters:
-            self.set_reporter(self._reporters[name]())
-        else:
-            try:
-                reporter_class = self._load_reporter_class()
-            except (ImportError, AttributeError):
-                raise exceptions.InvalidReporterError(name)
-            else:
-                self.set_reporter(reporter_class())
-
-    def _load_reporter_class(self):
-        qname = self.config.output_format
-        module = modutils.load_module_from_name(
-            modutils.get_module_part(qname))
-        class_name = qname.split('.')[-1]
-        reporter_class = getattr(module, class_name)
-        return reporter_class
-
-    def set_reporter(self, reporter):
-        """set the reporter used to display messages and reports"""
-        self.reporter = reporter
-        reporter.linter = self
-
-    def register_reporter(self, reporter_class):
-        self._reporters[reporter_class.name] = reporter_class
-        if reporter_class.name == self.config.output_format.lower():
-            self.load_reporter()
-
-    def report_order(self):
-        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
-        try:
-            # Remove the current reporter and add it
-            # at the end of the list.
-            reports.pop(reports.index(self))
-        except ValueError:
-            pass
-        else:
-            reports.append(self)
-        return reports
-
     # checkers manipulation methods ############################################
 
     def disable_noerror_messages(self):
@@ -647,7 +605,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
         """main checking entry: check a list of files or modules from their
         name.
         """
-        assert self.reporter, "A reporter has not been loaded"
         # initialize msgs_state now that all messages have been registered into
         # the store
         self._init_msg_states()
@@ -778,57 +735,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
         for msg_cat in six.itervalues(utils.MSG_TYPES):
             self.stats[msg_cat] = 0
 
-    def generate_reports(self):
-        """close the whole package /module, it's time to make reports !
-
-        if persistent run, pickle results for later comparison
-        """
-        # Display whatever messages are left on the reporter.
-        self.reporter.display_messages(report_nodes.Section())
-
-        if self.file_state.base_name is not None:
-            # load previous results if any
-            previous_stats = config.load_results(self.file_state.base_name)
-            # XXX code below needs refactoring to be more reporter agnostic
-            self.reporter.on_close(self.stats, previous_stats)
-            if self.config.reports:
-                sect = self.make_reports(self.stats, previous_stats)
-            else:
-                sect = report_nodes.Section()
-
-            if self.config.reports:
-                self.reporter.display_reports(sect)
-            self._report_evaluation()
-            # save results if persistent run
-            if self.config.persistent:
-                config.save_results(self.stats, self.file_state.base_name)
-        else:
-            self.reporter.on_close(self.stats, {})
-
-    def _report_evaluation(self):
-        """make the global evaluation report"""
-        # check with at least check 1 statements (usually 0 when there is a
-        # syntax error preventing pylint from further processing)
-        previous_stats = config.load_results(self.file_state.base_name)
-        if self.stats['statement'] == 0:
-            return
-
-        # get a global note for the code
-        evaluation = self.config.evaluation
-        try:
-            note = eval(evaluation, {}, self.stats) # pylint: disable=eval-used
-        except Exception as ex:
-            msg = 'An exception occurred while rating: %s' % ex
-        else:
-            self.stats['global_note'] = note
-            msg = 'Your code has been rated at %.2f/10' % note
-            pnote = previous_stats.get('global_note')
-            if pnote is not None:
-                msg += ' (previous run: %.2f/10, %+.2f)' % (pnote, note - pnote)
-
-        if self.config.score:
-            sect = report_nodes.EvaluationSection(msg)
-            self.reporter.display_reports(sect)
 
 # utilities ###################################################################
 
@@ -885,8 +791,18 @@ class PluginRegistry(object):
         self._checkers = collections.defaultdict(list)
         # TODO: Remove. This is needed for the MessagesHandlerMixIn for now.
         linter._checkers = self._checkers
+        self._reporters = {}
+        linter._reporters = self._reporters
         self._linter = linter
-        self.register_checker(linter)
+
+        # TODO: Move elsewhere
+        for r_id, r_title, r_cb in linter.reports:
+            self._linter.register_post_report(r_id, r_title, r_cb)
+
+        self.register_options(linter.options)
+
+        # TODO: Move elsewhere
+        linter.msgs_store.register_messages(linter)
 
     def for_all_checkers(self):
         """Loop through all registered checkers.
@@ -933,6 +849,16 @@ class PluginRegistry(object):
         # TODO(cpopa): we should have a better API for this.
         if not getattr(checker, 'enabled', True):
             self._linter.disable(checker.name)
+
+    def register_reporter(self, reporter_class):
+        if reporter_class.name in self._reporters:
+            # TODO: Raise if classes are the same
+            duplicate = self._reporters[reporter_class.name]
+            msg = 'A reporter called {} has already been registered ({}).'
+            msg = msg.format(reporter.name, duplicate.__class__)
+            warnings.warn(msg)
+
+        self._reporters[reporter_class.name] = reporter_class
 
     # For now simply defer missing attributs to the linter,
     # until we know what API we want.
@@ -1031,10 +957,12 @@ group are mutually exclusive.'),
         self._linter = PyLinter()
         self._plugin_registry = PluginRegistry(self._linter)
         self._loaded_plugins = set()
+        self._global_config = config.Configuration()
+        self._reporter = None
 
     def run(self, args):
         # Phase 1: Preprocessing
-        option_definitions = self.option_definitions + self._linter.options
+        option_definitions = self.option_definitions + PyLinter.options
         parser = config.CLIParser(self.description)
         parser.add_option_definitions(option_definitions)
         parser.add_help_section('Environment variables', config.ENV_HELP, level=1)
@@ -1066,9 +994,8 @@ group are mutually exclusive.'),
 'been issued by analysing pylint output status code\n',
                                 level=1)
 
-        global_config = config.Configuration()
-        global_config.add_options(option_definitions)
-        self._linter.config = global_config
+        self._global_config.add_options(option_definitions)
+        self._linter.config = self._global_config
 
         parsed = parser.preprocess(
             args,
@@ -1085,13 +1012,13 @@ group are mutually exclusive.'),
 
         # Load rcfile, else system rcfile
         file_parser = config.IniFileParser()
-        file_parser.add_option_definitions(self._linter.options)
+        file_parser.add_option_definitions(PyLinter.options)
         rcfile = parsed.rcfile or config.PYLINTRC
         if rcfile:
-            file_parser.parse(rcfile, global_config)
+            file_parser.parse(rcfile, self._global_config)
 
         def register_options(options):
-            global_config.add_options(options)
+            self._global_config.add_options(options)
             parser.add_option_definitions(options)
             file_parser.add_option_definitions(options)
         self._plugin_registry.register_options = register_options
@@ -1112,37 +1039,37 @@ group are mutually exclusive.'),
         # Phase 3: Full load
         # Fully load config files
         if rcfile:
-            file_parser.parse(rcfile, global_config)
+            file_parser.parse(rcfile, self._global_config)
         # Fully load CLI into global config
-        parser.parse(args, global_config)
+        parser.parse(args, self._global_config)
 
-        if global_config.generate_rcfile:
+        if self._global_config.generate_rcfile:
             file_parser.write()
             sys.exit(0)
 
         # TODO: if global_config.generate_man
 
-        if global_config.errors_only:
+        if self._global_config.errors_only:
             self._linter.errors_mode()
 
-        if global_config.py3k:
+        if self._global_config.py3k:
             self._linter.python3_porting_mode()
 
-        if global_config.full_documentation:
+        if self._global_config.full_documentation:
             self._linter.print_full_documentation()
             sys.exit(0)
 
-        if global_config.list_conf_levels:
+        if self._global_config.list_conf_levels:
             for level in interfaces.CONFIDENCE_LEVELS:
                 print('%-18s: %s' % level)
             sys.exit(0)
 
-        if global_config.list_msgs:
+        if self._global_config.list_msgs:
             self._linter.msgs_store.list_messages()
             sys.exit(0)
 
-        if global_config.help_msg:
-            msg = utils._splitstrip(global_config.help_msg)
+        if self._global_config.help_msg:
+            msg = utils._splitstrip(self._global_config.help_msg)
             self._linter.msgs_store.help_message(msg)
             sys.exit(0)
 
@@ -1152,13 +1079,13 @@ group are mutually exclusive.'),
         self._linter.enable('c-extension-no-member')
 
         for checker in self._plugin_registry.for_all_checkers():
-            checker.config = global_config
+            checker.config = self._global_config
 
-        with fix_import_path(global_config.module_or_package):
-            assert self._linter.config.jobs == 1
-            self._linter.check(global_config.module_or_package)
+        with fix_import_path(self._global_config.module_or_package):
+            assert self._global_config.jobs == 1
+            self._linter.check(self._global_config.module_or_package)
 
-            self._linter.generate_reports()
+            self.generate_reports()
 
         sys.exit(self._linter.msg_status)
 
@@ -1181,11 +1108,89 @@ group are mutually exclusive.'),
 
     def load_default_plugins(self):
         """Load all of the default plugins."""
-        reporters.initialize(self._linter)
+        reporters.initialize(self._plugin_registry)
         # Make sure to load the default reporter, because
         # the option has been set before the plugins had been loaded.
-        if not self._linter.reporter:
-            self._linter.load_reporter()
+        if not self._reporter:
+            self.load_reporter()
+
+    def load_reporter(self):
+        name = self._global_config.output_format.lower()
+        if name in self._plugin_registry._reporters:
+            self._reporter = self._plugin_registry._reporters[name]()
+            self._linter.reporter = self._reporter
+            # TODO: Remove the need to do this
+            self._reporter.linter = self._linter
+        else:
+            try:
+                reporter_class = self._load_reporter_class()
+            except (ImportError, AttributeError):
+                raise exceptions.InvalidReporterError(name)
+            else:
+                self._reporter = reporter_class()
+                self._linter.reporter = self._reporter
+                self._reporter.linter = self._linter
+
+    def _load_reporter_class(self):
+        qname = self._global_config.output_format
+        module = modutils.load_module_from_name(
+            modutils.get_module_part(qname)
+        )
+        class_name = qname.split('.')[-1]
+        reporter_class = getattr(module, class_name)
+        return reporter_class
+
+    def generate_reports(self):
+        """close the whole package /module, it's time to make reports !
+
+        if persistent run, pickle results for later comparison
+        """
+        # Display whatever messages are left on the reporter.
+        self._reporter.display_messages(report_nodes.Section())
+
+        if self._linter.file_state.base_name is not None:
+            # load previous results if any
+            previous_stats = config.load_results(self._linter.file_state.base_name)
+            # XXX code below needs refactoring to be more reporter agnostic
+            self._reporter.on_close(self._linter.stats, previous_stats)
+            if self._global_config.reports:
+                sect = self._linter.make_reports(self._linter.stats, previous_stats)
+            else:
+                sect = report_nodes.Section()
+
+            if self._global_config.reports:
+                self._reporter.display_reports(sect)
+            self._report_evaluation()
+            # save results if persistent run
+            if self._global_config.persistent:
+                config.save_results(self._linter.stats, self._linter.file_state.base_name)
+        else:
+            self._reporter.on_close(self._linter.stats, {})
+
+    def _report_evaluation(self):
+        """make the global evaluation report"""
+        # check with at least check 1 statements (usually 0 when there is a
+        # syntax error preventing pylint from further processing)
+        previous_stats = config.load_results(self._linter.file_state.base_name)
+        if self._linter.stats['statement'] == 0:
+            return
+
+        # get a global note for the code
+        evaluation = self._global_config.evaluation
+        try:
+            note = eval(evaluation, {}, self._linter.stats) # pylint: disable=eval-used
+        except Exception as ex:
+            msg = 'An exception occurred while rating: %s' % ex
+        else:
+            self._linter.stats['global_note'] = note
+            msg = 'Your code has been rated at %.2f/10' % note
+            pnote = previous_stats.get('global_note')
+            if pnote is not None:
+                msg += ' (previous run: %.2f/10, %+.2f)' % (pnote, note - pnote)
+
+        if self._global_config.score:
+            sect = report_nodes.EvaluationSection(msg)
+            self._reporter.display_reports(sect)
 
 
 if __name__ == '__main__':
