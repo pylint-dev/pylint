@@ -919,27 +919,55 @@ class ReportsHandlerMixIn(object):
     """a mix-in class containing all the reports and stats manipulation
     related methods for the main lint class
     """
+
+    _POST_CHECKER = object()
+
     def __init__(self):
         self._reports = collections.defaultdict(list)
         self._reports_state = {}
         super().__init__()
 
     def report_order(self):
-        """ Return a list of reports, sorted in the order
-        in which they must be called.
+        """A list of reports, sorted in the order in which they must be called.
+
+        :returns: The list of reports.
+        :rtype: list(BaseChecker or object)
         """
-        return list(self._reports)
+        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
+        try:
+            reports.remove(self._POST_CHECKER)
+        except ValueError:
+            pass
+        else:
+            reports.append(self._POST_CHECKER)
+        return reports
 
     def register_report(self, reportid, r_title, r_cb, checker):
         """register a report
 
-        reportid is the unique identifier for the report
-        r_title the report's title
-        r_cb the method to call to make the report
-        checker is the checker defining the report
+        :param reportid: The unique identifier for the report.
+        :type reportid: str
+        :param r_title: The report's title.
+        :type r_title: str
+        :param r_cb: The method to call to make the report.
+        :type r_cb: callable
+        :param checker: The checker defining the report.
+        :type checker: BaseChecker
         """
         reportid = reportid.upper()
         self._reports[checker].append((reportid, r_title, r_cb))
+
+    def register_post_report(self, reportid, r_title, r_cb):
+        """Register a report to run last.
+
+        :param reportid: The unique identifier for the report.
+        :type reportid: str
+        :param r_title: The report's title.
+        :type r_title: str
+        :param r_cb: The method to call to make the report.
+        :type r_cb: callable
+        """
+        self.register_report(reportid, r_title, r_cb, self._POST_CHECKER)
 
     def enable_report(self, reportid):
         """disable the report of the given id"""
