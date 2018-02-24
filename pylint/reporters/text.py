@@ -129,7 +129,7 @@ class TextReporter(BaseReporter):
     def __init__(self, output=None):
         BaseReporter.__init__(self, output)
         self._modules = set()
-        self._template = None
+        self._template = self.line_format
 
     def on_set_current_module(self, module, filepath):
         self._template = six.text_type(self.linter.config.msg_template or self.line_format)
