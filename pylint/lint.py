@@ -84,18 +84,6 @@ from pylint.reporters.ureports import nodes as report_nodes
 MANAGER = astroid.MANAGER
 
 
-def _get_new_args(message):
-    location = (
-        message.abspath,
-        message.path,
-        message.module,
-        message.obj,
-        message.line,
-        message.column,
-    )
-    return (message.msg_id, message.symbol, location, message.msg, message.confidence)
-
-
 def _get_python_path(filepath):
     dirname = os.path.realpath(os.path.expanduser(filepath))
     if not os.path.isdir(dirname):
@@ -128,6 +116,78 @@ def _merge_stats(stats):
 
     merged["by_msg"] = by_msg
     return merged
+
+
+# some reporting functions ####################################################
+
+
+def report_total_messages_stats(sect, stats, previous_stats):
+    """make total errors / warnings report"""
+    lines = ["type", "number", "previous", "difference"]
+    lines += checkers.table_lines_from_stats(
+        stats, previous_stats, ("convention", "refactor", "warning", "error")
+    )
+    sect.append(report_nodes.Table(children=lines, cols=4, rheaders=1))
+
+
+def report_messages_stats(sect, stats, _):
+    """make messages type report"""
+    if not stats["by_msg"]:
+        # don't print this report when we didn't detected any errors
+        raise exceptions.EmptyReportError()
+    in_order = sorted(
+        [
+            (value, msg_id)
+            for msg_id, value in six.iteritems(stats["by_msg"])
+            if not msg_id.startswith("I")
+        ]
+    )
+    in_order.reverse()
+    lines = ("message id", "occurrences")
+    for value, msg_id in in_order:
+        lines += (msg_id, str(value))
+    sect.append(report_nodes.Table(children=lines, cols=2, rheaders=1))
+
+
+def report_messages_by_module_stats(sect, stats, _):
+    """make errors / warnings by modules report"""
+    if len(stats["by_module"]) == 1:
+        # don't print this report when we are analysing a single module
+        raise exceptions.EmptyReportError()
+    by_mod = collections.defaultdict(dict)
+    for m_type in ("fatal", "error", "warning", "refactor", "convention"):
+        total = stats[m_type]
+        for module in six.iterkeys(stats["by_module"]):
+            mod_total = stats["by_module"][module][m_type]
+            if total == 0:
+                percent = 0
+            else:
+                percent = float((mod_total) * 100) / total
+            by_mod[module][m_type] = percent
+    sorted_result = []
+    for module, mod_info in six.iteritems(by_mod):
+        sorted_result.append(
+            (
+                mod_info["error"],
+                mod_info["warning"],
+                mod_info["refactor"],
+                mod_info["convention"],
+                module,
+            )
+        )
+    sorted_result.sort()
+    sorted_result.reverse()
+    lines = ["module", "error", "warning", "refactor", "convention"]
+    for line in sorted_result:
+        # Don't report clean modules.
+        if all(entry == 0 for entry in line[:-1]):
+            continue
+        lines.append(line[-1])
+        for val in line[:-1]:
+            lines.append("%.2f" % val)
+    if len(lines) == 5:
+        raise exceptions.EmptyReportError()
+    sect.append(report_nodes.Table(children=lines, cols=5, rheaders=1))
 
 
 # Python Linter class #########################################################
@@ -467,19 +527,21 @@ class PyLinter(
         ("Reports", "Options related to output formatting and reporting"),
     )
 
+    reports = (
+        ("RP0001", "Messages by category", report_total_messages_stats),
+        ("RP0002", "% errors / warnings by module", report_messages_by_module_stats),
+        ("RP0003", "Messages", report_messages_stats),
+    )
+
     def __init__(self, config=None):
         # some stuff has to be done before ancestors initialization...
         #
         # messages store / checkers / reporter / astroid manager
         self.config = config
-        self.msgs_store = utils.MessagesStore()
-        self.reporter = None
-        self._reporters = {}
         self._checkers = collections.defaultdict(list)
         self._pragma_lineno = {}
         self._ignore_file = False
         # visit variables
-        self.file_state = utils.FileState()
         self.current_name = None
         self.current_file = None
         self.stats = None
@@ -490,19 +552,8 @@ class PyLinter(
             astroid_version,
             sys.version,
         )
-        utils.MessagesHandlerMixIn.__init__(self)
-        utils.ReportsHandlerMixIn.__init__(self)
-        checkers.BaseTokenChecker.__init__(self)
+        super().__init__()
         # provided reports
-        self.reports = (
-            ("RP0001", "Messages by category", report_total_messages_stats),
-            (
-                "RP0002",
-                "% errors / warnings by module",
-                report_messages_by_module_stats,
-            ),
-            ("RP0003", "Messages", report_messages_stats),
-        )
         self._dynamic_plugins = set()
         self._python3_porting_mode = False
         self._error_mode = False
@@ -924,78 +975,6 @@ class PyLinter(
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
-
-
-# some reporting functions ####################################################
-
-
-def report_total_messages_stats(sect, stats, previous_stats):
-    """make total errors / warnings report"""
-    lines = ["type", "number", "previous", "difference"]
-    lines += checkers.table_lines_from_stats(
-        stats, previous_stats, ("convention", "refactor", "warning", "error")
-    )
-    sect.append(report_nodes.Table(children=lines, cols=4, rheaders=1))
-
-
-def report_messages_stats(sect, stats, _):
-    """make messages type report"""
-    if not stats["by_msg"]:
-        # don't print this report when we didn't detected any errors
-        raise exceptions.EmptyReportError()
-    in_order = sorted(
-        [
-            (value, msg_id)
-            for msg_id, value in stats["by_msg"].items()
-            if not msg_id.startswith("I")
-        ]
-    )
-    in_order.reverse()
-    lines = ("message id", "occurrences")
-    for value, msg_id in in_order:
-        lines += (msg_id, str(value))
-    sect.append(report_nodes.Table(children=lines, cols=2, rheaders=1))
-
-
-def report_messages_by_module_stats(sect, stats, _):
-    """make errors / warnings by modules report"""
-    if len(stats["by_module"]) == 1:
-        # don't print this report when we are analysing a single module
-        raise exceptions.EmptyReportError()
-    by_mod = collections.defaultdict(dict)
-    for m_type in ("fatal", "error", "warning", "refactor", "convention"):
-        total = stats[m_type]
-        for module in stats["by_module"].keys():
-            mod_total = stats["by_module"][module][m_type]
-            if total == 0:
-                percent = 0
-            else:
-                percent = float((mod_total) * 100) / total
-            by_mod[module][m_type] = percent
-    sorted_result = []
-    for module, mod_info in by_mod.items():
-        sorted_result.append(
-            (
-                mod_info["error"],
-                mod_info["warning"],
-                mod_info["refactor"],
-                mod_info["convention"],
-                module,
-            )
-        )
-    sorted_result.sort()
-    sorted_result.reverse()
-    lines = ["module", "error", "warning", "refactor", "convention"]
-    for line in sorted_result:
-        # Don't report clean modules.
-        if all(entry == 0 for entry in line[:-1]):
-            continue
-        lines.append(line[-1])
-        for val in line[:-1]:
-            lines.append("%.2f" % val)
-    if len(lines) == 5:
-        raise exceptions.EmptyReportError()
-    sect.append(report_nodes.Table(children=lines, cols=5, rheaders=1))
 
 
 # utilities ###################################################################
