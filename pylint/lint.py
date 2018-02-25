@@ -965,13 +965,6 @@ class PluginRegistry(object):
 
         :raises ValueError: If the priority of the checker is invalid.
         """
-        if checker.name in self._checkers:
-            # TODO: Raise if classes are the same
-            for duplicate in self._checkers[checker.name]:
-                msg = "A checker called {} has already been registered ({})."
-                msg = msg.format(checker.name, duplicate.__class__)
-                warnings.warn(msg)
-
         if checker.priority > 0:
             # TODO: Use a custom exception
             msg = "{}.priority must be <= 0".format(checker.__class__)
