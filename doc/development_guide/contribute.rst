@@ -61,7 +61,7 @@ your patch gets accepted.
     - Pylint is very well tested, with a high good code coverage.
       It has two types of tests, usual unittests and functional tests.
 
-      The usual unittests can be found under `/test` directory and they can
+      The usual unittests can be found under `/pylint/test` directory and they can
       be used for testing almost anything Pylint related. But for the ease
       of testing Pylint's messages, we also have the concept of functional tests.             
 
@@ -102,7 +102,7 @@ your patch gets accepted.
 Functional Tests
 ----------------
 
-These are residing under '/test/functional' and they are formed of multiple
+These are residing under 'pylint/test/functional' and they are formed of multiple
 components. First, each Python file is considered to be a test case and it
 should be accompanied by a .txt file, having the same name, with the messages
 that are supposed to be emitted by the given test file.

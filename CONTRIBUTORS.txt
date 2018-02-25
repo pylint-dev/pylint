@@ -155,3 +155,5 @@ Order doesn't matter (not that much, at least ;)
 * Brian Shaginaw: prevent error on exception check for functions
 
 * Ioana Tagirta: fix bad thread instantiation check
+
+* Tobias Hernstig: contributor
