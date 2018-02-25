@@ -238,7 +238,6 @@ MSGS = {
 
 # pylint: disable=too-many-instance-attributes
 class PyLinter(utils.MessagesHandlerMixIn,
-               utils.ReportsHandlerMixIn,
                checkers.BaseTokenChecker):
     """lint Python modules using external checkers.
 
@@ -416,7 +415,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
         # visit variables
         self.current_name = None
         self.current_file = None
-        self.stats = None
 
         # TODO: Runner needs to give this to parser?
         full_version = '%%prog %s\nastroid %s\nPython %s' % (
@@ -438,12 +436,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
             else:
                 for msgid in msgids:
                     self.disable(msgid)
-
-    def disable_reporters(self):
-        """disable all reporters"""
-        for _reporters in six.itervalues(self._reports):
-            for report_id, _, _ in _reporters:
-                self.disable_report(report_id)
 
     def error_mode(self):
         """error mode: enable only errors; no reports, no persistent"""
@@ -546,29 +538,6 @@ class PyLinter(utils.MessagesHandlerMixIn,
 
     # code checking methods ###################################################
 
-    def get_checkers(self):
-        """return all available checkers as a list"""
-        return [self] + [c for _checkers in six.itervalues(self._checkers)
-                         for c in _checkers if c is not self]
-
-    def prepare_checkers(self):
-        """return checkers needed for activated messages and reports"""
-        if not self.config.reports:
-            self.disable_reporters()
-        # get needed checkers
-        neededcheckers = [self]
-        for checker in self.get_checkers()[1:]:
-            messages = set(msg for msg in checker.msgs
-                           if self.is_message_enabled(msg))
-            if (messages or
-                    any(self.report_is_enabled(r[0]) for r in checker.reports)):
-                neededcheckers.append(checker)
-        # Sort checkers by priority
-        neededcheckers = sorted(neededcheckers,
-                                key=operator.attrgetter('priority'),
-                                reverse=True)
-        return neededcheckers
-
     # pylint: disable=unused-argument
     @staticmethod
     def should_analyze_file(modname, path, is_argument=False):
@@ -598,7 +567,7 @@ class PyLinter(utils.MessagesHandlerMixIn,
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    def check(self, files_or_modules):
+    def check(self, files_or_modules, checkers_):
         """main checking entry: check a list of files or modules from their
         name.
         """
@@ -609,18 +578,17 @@ class PyLinter(utils.MessagesHandlerMixIn,
         if not isinstance(files_or_modules, (list, tuple)):
             files_or_modules = (files_or_modules,)
 
-        self._do_check(files_or_modules)
+        self._do_check(files_or_modules, checkers_)
 
-    def _do_check(self, files_or_modules):
+    def _do_check(self, files_or_modules, checkers_):
         walker = utils.PyLintASTWalker(self)
-        _checkers = self.prepare_checkers()
-        tokencheckers = [c for c in _checkers
+        tokencheckers = [c for c in checkers_
                          if interfaces.implements(c, interfaces.ITokenChecker)
                          and c is not self]
-        rawcheckers = [c for c in _checkers
+        rawcheckers = [c for c in checkers_
                        if interfaces.implements(c, interfaces.IRawChecker)]
         # notify global begin
-        for checker in _checkers:
+        for checker in checkers_:
             checker.open()
             if interfaces.implements(checker, interfaces.IAstroidChecker):
                 walker.add_checker(checker)
@@ -657,7 +625,7 @@ class PyLinter(utils.MessagesHandlerMixIn,
                 self.add_message(msgid, line, None, args)
         # notify global end
         self.stats['statement'] = walker.nbstatements
-        for checker in reversed(_checkers):
+        for checker in reversed(checkers_):
             checker.close()
 
     def set_current_module(self, modname, filepath=None):
@@ -723,9 +691,10 @@ class PyLinter(utils.MessagesHandlerMixIn,
 
     def open(self):
         """initialize counters"""
-        self.stats = {'by_module' : {},
-                      'by_msg' : {},
-                     }
+        self.stats = {
+            'by_module': {},
+            'by_msg': {},
+        }
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.extension_package_whitelist.update(
             self.config.extension_pkg_whitelist)
@@ -778,8 +747,9 @@ def guess_lint_path(args):
 
     return value
 
-
-class PluginRegistry(object):
+# TODO: Split the ReportsHandlerMixIn, keeping register methods here,
+# and moving report_order and make_reports to the runner.
+class PluginRegistry(utils.ReportsHandlerMixIn):
     """A class to register checkers to."""
 
     def __init__(self, linter, register_options=(lambda options: None)):
@@ -789,12 +759,10 @@ class PluginRegistry(object):
         # TODO: Remove. This is needed for the MessagesHandlerMixIn for now.
         linter._checkers = self._checkers
         self._reporters = {}
-        linter._reporters = self._reporters
         self._linter = linter
 
-        # TODO: Move elsewhere
         for r_id, r_title, r_cb in linter.reports:
-            self._linter.register_post_report(r_id, r_title, r_cb)
+            self.register_post_report(r_id, r_title, r_cb)
 
         self.register_options(linter.options)
 
@@ -825,9 +793,8 @@ class PluginRegistry(object):
 
         self._checkers[checker.name].append(checker)
 
-        # TODO: Move elsewhere
         for r_id, r_title, r_cb in checker.reports:
-            self._linter.register_report(r_id, r_title, r_cb, checker)
+            self.register_report(r_id, r_title, r_cb, checker)
 
         self.register_options(checker.options)
 
@@ -850,7 +817,7 @@ class PluginRegistry(object):
 
         self._reporters[reporter_class.name] = reporter_class
 
-    # For now simply defer missing attributs to the linter,
+    # For now simply defer missing attributes to the linter,
     # until we know what API we want.
     def __getattr__(self, attribute):
         return getattr(self._linter, attribute)
@@ -943,7 +910,7 @@ group are mutually exclusive.'),
     )
 
     def __init__(self):
-        super(CLIRunner, self).__init__()
+        super().__init__()
         self._linter = PyLinter()
         self._plugin_registry = PluginRegistry(self._linter)
         self._loaded_plugins = set()
@@ -1074,9 +1041,14 @@ group are mutually exclusive.'),
         for checker in self._plugin_registry.for_all_checkers():
             checker.config = self._global_config
 
+        if not self._global_config.reports:
+            self._plugin_registry.disable_reporters()
+
         with fix_import_path(self._global_config.module_or_package):
             assert self._global_config.jobs == 1
-            self._linter.check(self._global_config.module_or_package)
+            self._linter.check(
+                self._global_config.module_or_package, self.prepare_checkers(),
+            )
 
             self.generate_reports()
 
@@ -1147,7 +1119,8 @@ group are mutually exclusive.'),
             # XXX code below needs refactoring to be more reporter agnostic
             self._reporter.on_close(self._linter.stats, previous_stats)
             if self._global_config.reports:
-                sect = self._linter.make_reports(self._linter.stats, previous_stats)
+                # TODO: The Runner should make reports, not the registry.
+                sect = self._plugin_registry.make_reports(self._linter.stats, previous_stats)
             else:
                 sect = report_nodes.Section()
 
@@ -1184,6 +1157,28 @@ group are mutually exclusive.'),
         if self._global_config.score:
             sect = report_nodes.EvaluationSection(msg)
             self._reporter.display_reports(sect)
+
+    def get_checkers(self):
+        """return all available checkers as a list"""
+        return [self._linter] + [
+            c for c in self._plugin_registry.for_all_checkers() if c is not self._linter
+        ]
+
+    def prepare_checkers(self):
+        """return checkers needed for activated messages and reports"""
+        # get needed checkers
+        neededcheckers = [self._linter]
+        for checker in self.get_checkers()[1:]:
+            messages = set(msg for msg in checker.msgs
+                           if self._linter.is_message_enabled(msg))
+            if (messages or
+                    any(self._plugin_registry.report_is_enabled(r[0]) for r in checker.reports)):
+                neededcheckers.append(checker)
+        # Sort checkers by priority
+        neededcheckers = sorted(neededcheckers,
+                                key=operator.attrgetter('priority'),
+                                reverse=True)
+        return neededcheckers
 
 
 if __name__ == '__main__':
