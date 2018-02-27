@@ -22,6 +22,11 @@ Release date: -
 
       Close #1794 (second part)
 
+    * Fix false positive undefined-variable for lambda argument in
+        class definitions
+
+      Close #1824
+
 What's New in Pylint 1.8.2?
 ==========================
 
