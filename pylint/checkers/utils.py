@@ -928,3 +928,13 @@ def get_node_last_lineno(node):
         return get_node_last_lineno(node.body[-1])
     # Not a compound statement
     return node.lineno
+
+
+def in_comprehension(node):
+    """Return True if the given node is in a comprehension"""
+    curnode = node
+    while curnode.parent:
+        curnode = curnode.parent
+        if is_comprehension(curnode):
+            return True
+    return False
