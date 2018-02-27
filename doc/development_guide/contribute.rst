@@ -102,7 +102,7 @@ your patch gets accepted.
 Functional Tests
 ----------------
 
-These are residing under 'pylint/test/functional' and they are formed of multiple
+These are residing under '/pylint/test/functional' and they are formed of multiple
 components. First, each Python file is considered to be a test case and it
 should be accompanied by a .txt file, having the same name, with the messages
 that are supposed to be emitted by the given test file.
