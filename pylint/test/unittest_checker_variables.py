@@ -165,6 +165,19 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node)
 
+    def test_lambda_in_classdef(self):
+        # Make sure lambda doesn't raises
+        # Undefined-method in class function
+
+        # Issue 1824
+        # https://github.com/PyCQA/pylint/issues/1824
+        node = astroid.parse('''
+        class MyObject(object):
+            method1 = lambda func: func()
+            method2 = lambda function: function()
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
 
 class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
