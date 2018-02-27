@@ -179,6 +179,28 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node)
 
+    def test_scope_in_defaults(self):
+        # Should not emit undefined variable
+        node = astroid.extract_node('''
+        def foof(x=[i for i in [1, 2]]):
+            return x
+        ''')
+        # Trickier to detect
+        node = astroid.extract_node('''
+        def foof(x=[(i, 1) for i in [1, 2]]):
+            return x
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+        # Lambdas have their own scope
+        node = astroid.extract_node('''
+        def foof(x=lambda zoo: zoo):
+            return x
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
+
+
 class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker
 
