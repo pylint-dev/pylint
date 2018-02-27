@@ -27,6 +27,11 @@ Release date: -
 
       Close #1824
 
+    * Fix false-positive ``undefined-variable`` for generated
+      comprehension variables in function default arguments
+
+      Close #1897
+
 What's New in Pylint 1.8.2?
 ==========================
 

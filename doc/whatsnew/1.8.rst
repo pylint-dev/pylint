@@ -388,3 +388,6 @@ Other Changes
 
 * Fix false positive ``undefined-variable`` for lambda arguments in
     class definitions
+
+* Fix false-positive ``undefined-variable`` for generated
+  comprehension variables in function default arguments
