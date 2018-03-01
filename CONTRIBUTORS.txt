@@ -157,3 +157,6 @@ Order doesn't matter (not that much, at least ;)
 * Ioana Tagirta: fix bad thread instantiation check
 
 * Reverb Chu: contributor
+
+* Tobias Hernstig: contributor
+
