@@ -501,7 +501,7 @@ class VariablesChecker(BaseChecker):
         self._to_consume = [NamesConsumer(node, 'module')]
         for name, stmts in six.iteritems(node.locals):
             if utils.is_builtin(name) and not utils.is_inside_except(stmts[0]):
-                if self._should_ignore_redefined_builtin(stmts[0]):
+                if self._should_ignore_redefined_builtin(stmts[0]) or name == '__doc__':
                     continue
                 self.add_message('redefined-builtin', args=name, node=stmts[0])
 

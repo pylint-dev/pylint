@@ -12,6 +12,11 @@ Release date: -
 
       Close #1794
 
+     * Exempt `__doc__` from triggering a `redefined-builtin`
+
+      `__doc__` can be used to specify a docstring for a module without
+      passing it as a first-statement string.
+
     * Fix false positive ``inconsistent-return-statements`` message by
       avoiding useless exception inference if the exception is not handled.
 
