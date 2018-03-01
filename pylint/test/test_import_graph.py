@@ -62,7 +62,7 @@ def remove_files():
             pass
 
 
-@pytest.mark.usefixture("remove_files")
+@pytest.mark.usefixtures("remove_files")
 def test_checker_dep_graphs(linter):
     l = linter
     l.global_set_option('persistent', False)

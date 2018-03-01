@@ -8,6 +8,11 @@ What's New in Pylint 1.9.3?
 
 Release date: |TBA|
 
+    * Fix incorrect file path when file absolute path contains multiple ``path_strip_prefix`` strings.
+
+      Close #1120 and #2280
+
+
     * `in` is considered iterating context for some of the Python 3 porting checkers
 
       Close #2186
