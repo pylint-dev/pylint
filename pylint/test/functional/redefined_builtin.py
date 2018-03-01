@@ -8,3 +8,4 @@ def function():
 
 # pylint:disable=invalid-name
 map = {}  # [redefined-builtin]
+__doc__ = 'reset the doc'
