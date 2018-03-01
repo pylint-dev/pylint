@@ -83,6 +83,10 @@ What's New in Pylint 2.0?
 
       Close #1867
 
+    * Fix incorrect file path when file absolute path contains multiple ``path_strip_prefix`` strings.
+
+      Close #1120
+
 What's New in Pylint 1.8.1?
 =========================
 

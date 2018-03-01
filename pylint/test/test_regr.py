@@ -100,7 +100,7 @@ def modify_path():
     os.chdir(cwd)
 
 
-@pytest.mark.usefixture("modify_path")
+@pytest.mark.usefixtures("modify_path")
 def test_check_package___init__(finalize_linter):
     filename = 'package.__init__'
     finalize_linter.check(filename)
