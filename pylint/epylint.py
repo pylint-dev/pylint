@@ -134,12 +134,6 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     containing standard output and error related to created process,
     as follows: ``(stdout, stderr)``.
 
-    A trivial usage could be as follows:
-        >>> py_run( '--version')
-        No config file found, using default configuration
-        pylint 0.18.1,
-            ...
-
     To silently run Pylint on a module, and get its standard output and error:
         >>> (pylint_stdout, pylint_stderr) = py_run( 'module_name.py', True)
     """
