@@ -1161,7 +1161,15 @@ group are mutually exclusive.'),
             file_parser.write()
             sys.exit(0)
 
-        # TODO: if global_config.generate_man
+        # if global_config.generate_man:
+#def generate_manpage(self, pkginfo, section=1, stream=None):
+#stream = stream or sys.stdout
+#optparser = self.cmdline_parser
+#formatter = _ManHelpFormatter()
+#formatter.parser = optparser
+#print(formatter.format_head(pkginfo, section), file=stream)
+#print(optparser._parser.format_help(self._maxlevel), file=stream)
+#print(formatter.format_tail(pkginfo), file=stream)
 
         if global_config.errors_only:
             self._linter.errors_mode()
