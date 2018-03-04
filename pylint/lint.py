@@ -944,7 +944,8 @@ class PluginRegistry(object):
         :param checker: The checker to register.
         :type checker: BaseChecker
 
-        :raises ValueError: If the priority of the checker is invalid.
+        :raises InvalidCheckerError: If the priority of the checker is
+            invalid.
         """
         if checker.name in self._checkers:
             # TODO: Raise if classes are the same
@@ -954,9 +955,8 @@ class PluginRegistry(object):
                 warnings.warn(msg)
 
         if checker.priority > 0:
-            # TODO: Use a custom exception
              msg = '{}.priority must be <= 0'.format(checker.__class__)
-             raise ValueError(msg)
+             raise exceptions.InvalidCheckerError(msg)
 
         self._checkers[checker.name].append(checker)
 
