@@ -25,5 +25,9 @@ class InvalidReporterError(Exception):
     """raised when selected reporter is invalid (e.g. not found)"""
 
 
+class InvalidCheckerError(Exception):
+    """raised when registering an invalid checker (e.g. invalid priority)"""
+
+
 class ConfigurationError(Exception):
     """Raised when the configuration is invalid."""
