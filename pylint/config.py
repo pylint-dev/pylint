@@ -758,3 +758,73 @@ class LongHelpArgumentParser(argparse.ArgumentParser):
             if self.formatter_class.output_level is None:
                 self.formatter_class.output_level = level
         super(LongHelpArgumentParser, self).print_help(file)
+
+
+class _ManHelpFormatter(argparse.HelpFormatter):
+    def __init__(self, indent_increment=0, max_help_position=24, width=79):
+        super().__init__("pylint", indent_increment, max_help_position, width=width)
+
+    def format_head(self, pkginfo, section=1):
+        long_desc = ""
+        pgm = "pylint"
+        short_desc = self.format_short_description(pgm, pkginfo.description)
+        if hasattr(pkginfo, "long_desc"):
+            long_desc = self.format_long_description(pgm, pkginfo.long_desc)
+        return '%s\n%s\n%s\n%s' % (self.format_title(pgm, section), short_desc,
+                self.format_synopsis(pgm), long_desc)
+
+    @staticmethod
+    def format_title(pgm, section):
+        date = '-'.join(str(num) for num in time.localtime()[:3])
+        return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
+
+    @staticmethod
+    def format_short_description(pgm, short_desc):
+        return '''.SH NAME
+        .B %s
+        \\- %s
+        ''' % (pgm, short_desc.strip())
+
+    @staticmethod
+    def format_synopsis(pgm):
+        return '''.SH SYNOPSIS
+        .B  %s
+        [
+        .I OPTIONS
+        ] [
+        .I <arguments>
+        ]
+        ''' % pgm
+
+    @staticmethod
+    def format_long_description(pgm, long_desc):
+        long_desc = '\n'.join(line.lstrip() for line in long_desc.splitlines())
+        long_desc = long_desc.replace('\n.\n', '\n\n')
+        if long_desc.lower().startswith(pgm):
+            long_desc = long_desc[len(pgm):]
+        return '''.SH DESCRIPTION
+        .B %s
+        %s
+        ''' % (pgm, long_desc.strip())
+
+    @staticmethod
+    def format_tail(pkginfo):
+        tail = '''.SH SEE ALSO
+        /usr/share/doc/pythonX.Y-%s/
+
+        .SH BUGS
+        Please report bugs on the project\'s mailing list:
+        %s
+
+        .SH AUTHOR
+        %s <%s>
+        ''' % (getattr(pkginfo, 'debian_name', pkginfo.modname),
+        pkginfo.mailinglist, pkginfo.author, pkginfo.author_email)
+
+        if hasattr(pkginfo, "copyright"):
+            tail += '''
+            .SH COPYRIGHT
+            %s
+            ''' % pkginfo.copyright
+
+        return tail
