@@ -48,8 +48,9 @@ class ByIdManagedMessagesChecker(BaseChecker):
                 if is_disabled:
                     txt = ("Id '{ident}' is used to disable '{symbol}' message emission"
                            .format(ident=msg_id, symbol=msg_symbol))
-                txt = ("Id '{ident}' is used to enable '{symbol}' message emission"
-                       .format(ident=msg_id, symbol=msg_symbol))
+                else:
+                    txt = ("Id '{ident}' is used to enable '{symbol}' message emission"
+                           .format(ident=msg_id, symbol=msg_symbol))
                 self.add_message('use-symbolic-message-instead', line=lineno, args=txt)
         MessagesHandlerMixIn.clear_by_id_managed_msgs()
 
