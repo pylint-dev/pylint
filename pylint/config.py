@@ -550,7 +550,6 @@ class IniFileParser(FileParser):
 
             if default is not None:
                 self._parser['DEFAULT'].update(default)
->>>>>>> ef30d555b126d9fc9c493ff2b571c06096d7b201
 
     @staticmethod
     def _convert_definition(option, definition):
