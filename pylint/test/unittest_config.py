@@ -15,18 +15,22 @@ import sre_constants
 from pylint import config
 import pytest
 
+
+RE_PATTERN_TYPE = getattr(re, 'Pattern', getattr(re, '_pattern_type', None))
+
+
 def test__regexp_validator_valid():
-    result = config._regexp_validator(None, None, "test_.*")
-    assert isinstance(result, re._pattern_type)
+    result = config.VALIDATORS['regex']("test_.*")
+    assert isinstance(result, RE_PATTERN_TYPE)
     assert result.pattern == "test_.*"
 
 def test__regexp_validator_invalid():
     with pytest.raises(sre_constants.error):
-        config._regexp_validator(None, None, "test_)")
+        config.VALIDATORS['regex']("test_)")
 
 def test__csv_validator_no_spaces():
     values = ["One", "Two", "Three"]
-    result = config._csv_validator(None, None, ",".join(values))
+    result = config.VALIDATORS['csv'](",".join(values))
     assert isinstance(result, list)
     assert len(result) == 3
     for i, value in enumerate(values):
@@ -34,7 +38,7 @@ def test__csv_validator_no_spaces():
 
 def test__csv_validator_spaces():
     values = ["One", "Two", "Three"]
-    result = config._csv_validator(None, None, ", ".join(values))
+    result = config.VALIDATORS['csv'](", ".join(values))
     assert isinstance(result, list)
     assert len(result) == 3
     for i, value in enumerate(values):
@@ -42,12 +46,12 @@ def test__csv_validator_spaces():
 
 def test__regexp_csv_validator_valid():
     pattern_strings = ["test_.*", "foo\\.bar", "^baz$"]
-    result = config._regexp_csv_validator(None, None, ",".join(pattern_strings))
+    result = config.VALIDATORS['regexp_csv'](",".join(pattern_strings))
     for i, regex in enumerate(result):
-        assert isinstance(regex, re._pattern_type)
+        assert isinstance(regex, RE_PATTERN_TYPE)
         assert regex.pattern == pattern_strings[i]
 
 def test__regexp_csv_validator_invalid():
     pattern_strings = ["test_.*", "foo\\.bar", "^baz)$"]
     with pytest.raises(sre_constants.error):
-        config._regexp_csv_validator(None, None, ",".join(pattern_strings))
+        config.VALIDATORS['regexp_csv'](",".join(pattern_strings))

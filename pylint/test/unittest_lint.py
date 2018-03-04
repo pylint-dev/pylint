@@ -33,7 +33,7 @@ import six
 from six.moves import reload_module
 
 from pylint import config, lint
-from pylint.lint import PyLinter, Run, preprocess_options, ArgumentPreprocessingError
+from pylint.lint import CLIRunner, PluginRegistry, PyLinter
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
     MessagesStore, MessageDefinition, FileState, tokenize_module
 from pylint.exceptions import InvalidMessageError, UnknownMessageError
@@ -488,10 +488,11 @@ def test_addmessage_invalid(linter):
 
 
 def test_init_hooks_called_before_load_plugins():
+    runner = CLIRunner()
     with pytest.raises(RuntimeError):
-        Run(['--load-plugins', 'unexistant', '--init-hook', 'raise RuntimeError'])
+        runner.run(['--load-plugins', 'unexistant', '--init-hook', 'raise RuntimeError'])
     with pytest.raises(RuntimeError):
-        Run(['--init-hook', 'raise RuntimeError', '--load-plugins', 'unexistant'])
+        runner.run(['--init-hook', 'raise RuntimeError', '--load-plugins', 'unexistant'])
 
 
 def test_analyze_explicit_script(linter):
@@ -612,37 +613,6 @@ def test_pylintrc_parentdir_no_package():
                 assert config.find_pylintrc() == expected
 
 
-class TestPreprocessOptions(object):
-    def _callback(self, name, value):
-        self.args.append((name, value))
-
-    def test_value_equal(self):
-        self.args = []
-        preprocess_options(['--foo', '--bar=baz', '--qu=ux'],
-                           {'foo': (self._callback, False),
-                            'qu': (self._callback, True)})
-        assert [('foo', None), ('qu', 'ux')] == self.args
-
-    def test_value_space(self):
-        self.args = []
-        preprocess_options(['--qu', 'ux'],
-                           {'qu': (self._callback, True)})
-        assert [('qu', 'ux')] == self.args
-
-    def test_error_missing_expected_value(self):
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(['--foo', '--bar', '--qu=ux'],
-                               {'bar': (None, True)})
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(['--foo', '--bar'],
-                               {'bar': (None, True)})
-
-    def test_error_unexpected_value(self):
-        with pytest.raises(ArgumentPreprocessingError):
-            preprocess_options(['--foo', '--bar=spam', '--qu=ux'],
-                               {'bar': (None, False)})
-
-
 @pytest.fixture
 def store():
     store = MessagesStore()
@@ -744,7 +714,9 @@ def test_custom_should_analyze_file():
     package_dir = os.path.join(HERE, 'regrtest_data', 'bad_package')
     wrong_file = os.path.join(package_dir, 'wrong.py')
     reporter = testutils.TestReporter()
-    linter = CustomPyLinter()
+    global_config = config.Configuration()
+    linter = CustomPyLinter(global_config)
+    registry = PluginRegistry(linter, register_options=global_config.add_options)
     linter.config.persistent = 0
     linter.open()
     linter.set_reporter(reporter)

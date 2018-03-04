@@ -50,13 +50,11 @@ it is also working on PyPy.
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
 
-Since Pylint 1.8, we support only Python 2.7 and Python 3.4+. If code
-uses new Python 3.6 syntax, minimal required version is Pylint 1.7.
-
-Using this strategy really helps in maintaining a code base compatible
-with both versions and from this benefits not only the maintainers,
-but the end users as well, because it's easier to add and test
-new features.
+Since Pylint 2.0, we support only Python 3.4+.
+If you need Python 2 support, then Pylint 1.8 is for you. We will still
+do backports of bug fixes, and possibly for various Python 3 compatibility
+checks, at least until 2020, after which we'll stop support Python 2 altogether.
+If needed, we would also release another minor 1.9 release.
 
 
 3. Running Pylint

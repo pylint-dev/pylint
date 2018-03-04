@@ -4,15 +4,15 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
-	* Fix false positive bad-whitespace from function arguments with default
-	values and annotations
+    * Fix false positive bad-whitespace from function arguments with default
+      values and annotations
 
-	  Close #1831
+      Close #1831
 
-	* Fix stop-iteration-return false positive when next builtin has a
-	default value in a generator
+    * Fix stop-iteration-return false positive when next builtin has a
+      default value in a generator
 
-	  Close #1830
+      Close #1830
 
     * Fix emission of false positive ``no-member`` message for class with  "private" attributes whose name is mangled.
 
@@ -68,6 +68,15 @@ What's New in Pylint 2.0?
       avoiding useless exception inference if the exception is not handled.
 
       Close #1794 (second part)
+
+    * Fix bad thread instantiation check when target function is provided in args.
+
+      Close #1840
+
+    * Fixed false positive when a numpy Attributes section follows a Parameters
+      section
+
+      Close #1867
 
 What's New in Pylint 1.8.1?
 =========================
@@ -254,6 +263,12 @@ Release date: 2017-12-15
     * If the rcfile specified on the command line doesn't exist, then an
       IOError exception is raised.
       Close #1747
+
+    * Fix the wrong scope of the ``disable=`` directive after a commented line.
+      For example when a ``disable=line-too-long`` directive is at the end of
+      a long commented line, it no longer disables the emission of ``line-too-long``
+      message for lines that follow. 
+      Close #1742
 
 What's New in Pylint 1.7.1?
 =========================

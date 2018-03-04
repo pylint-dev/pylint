@@ -1,8 +1,9 @@
 # pylint: disable=missing-docstring, import-error, invalid-name
-# pylint: disable=too-few-public-methods, blacklisted-name
+# pylint: disable=too-few-public-methods, blacklisted-name, no-member
 
 import uuid
 
+# Note this import doesn't actually exist
 import foo
 
 from .a import x
