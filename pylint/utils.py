@@ -454,7 +454,7 @@ class MessagesHandlerMixIn(object):
         else:
             module, obj = get_module_and_frameid(node)
             abspath = node.root().file
-        path = abspath.replace(self.reporter.path_strip_prefix, '')
+        path = abspath.replace(self.reporter.path_strip_prefix, '', 1)
         # add the message
         self.reporter.handle_message(
             Message(msgid, symbol,

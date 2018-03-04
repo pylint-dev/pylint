@@ -41,3 +41,6 @@ Other Changes
 
 * Fix false positive ``inconsistent-return-statements`` message by
   avoiding useless exception inference if the exception is not handled.
+
+* Fix false positive ``undefined-variable`` for lambda argument in
+    class definitions

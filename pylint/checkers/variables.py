@@ -496,7 +496,7 @@ class VariablesChecker(BaseChecker):
         self._to_consume = [NamesConsumer(node, 'module')]
         for name, stmts in node.locals.items():
             if utils.is_builtin(name) and not utils.is_inside_except(stmts[0]):
-                if self._should_ignore_redefined_builtin(stmts[0]):
+                if self._should_ignore_redefined_builtin(stmts[0]) or name == '__doc__':
                     continue
                 self.add_message('redefined-builtin', args=name, node=stmts[0])
 
@@ -956,6 +956,10 @@ class VariablesChecker(BaseChecker):
     def _is_variable_violation(node, name, defnode, stmt, defstmt,
                                frame, defframe, base_scope_type,
                                recursive_klass):
+        # node: Node to check for violation
+        # name: name of node to check violation for
+        # frame: Scope of statement of node
+        # base_scope_type: local scope type
         maybee0601 = True
         annotation_return = False
         use_outer_definition = False
@@ -969,8 +973,12 @@ class VariablesChecker(BaseChecker):
         else:
             # we are in a local scope, check the name is not
             # defined in global or builtin scope
-            # skip this lookup if name is assigned later in function scope
-            forbid_lookup = isinstance(frame, astroid.FunctionDef) and _assigned_locally(node)
+            # skip this lookup if name is assigned later in function scope/lambda
+            # Note: the node.frame() is not the same as the `frame` argument which is
+            # equivalent to frame.statement().scope()
+            forbid_lookup = ((isinstance(frame, astroid.FunctionDef) or
+                              isinstance(node.frame(), astroid.Lambda)) and
+                             _assigned_locally(node))
             if not forbid_lookup and defframe.root().lookup(name)[1]:
                 maybee0601 = False
                 use_outer_definition = (
