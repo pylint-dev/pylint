@@ -269,7 +269,7 @@ class MessagesHandlerMixIn(object):
         return cls.__by_id_managed_msgs
 
     def _register_by_id_managed_msg(self, msgid, line, is_disabled=True):
-        """If the msgid is a numeric one, then register it to inform the user 
+        """If the msgid is a numeric one, then register it to inform the user
         it could furnish instead a symbolic msgid."""
         try:
             msg = self.msgs_store.check_message_id(msgid)
