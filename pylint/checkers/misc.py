@@ -26,29 +26,32 @@ from pylint.checkers import BaseChecker
 from pylint.utils import OPTION_RGX, MessagesHandlerMixIn
 
 
-class ByIdDisabledMessagesChecker(BaseChecker):
+class ByIdManagedMessagesChecker(BaseChecker):
 
-    """checks for messages that are disabled by id instead of symbol."""
+    """checks for messages that are enabled or disabled by id instead of symbol."""
 
     __implements__ = IRawChecker
 
     # configuration section name
     name = 'miscellaneous'
     msgs = {'I0023': ('%s',
-                      'message-disabled-by-id',
-                      'Used when a message is disabled by id.'),}
+                      'use-symbolic-message-instead',
+                      'Used when a message is enabled or disabled by id.'),}
 
     options = ()
 
     def process_module(self, module):
-        """inspect the source file to find messages deactivated by id."""
-        disabled_msgs = MessagesHandlerMixIn.get_by_id_disabled_msgs()
-        for (mod_name, msg_id, msg_symbol, lineno) in disabled_msgs:
+        """inspect the source file to find messages activated or deactivated by id."""
+        managed_msgs = MessagesHandlerMixIn.get_by_id_managed_msgs()
+        for (mod_name, msg_id, msg_symbol, lineno, is_disabled) in managed_msgs:
             if mod_name == module.name:
-                txt = ("Id '{ident}' is used to disable '{symbol}' message emission"
+                if is_disabled:
+                    txt = ("Id '{ident}' is used to disable '{symbol}' message emission"
+                           .format(ident=msg_id, symbol=msg_symbol))
+                txt = ("Id '{ident}' is used to enable '{symbol}' message emission"
                        .format(ident=msg_id, symbol=msg_symbol))
-                self.add_message('message-disabled-by-id', line=lineno, args=txt)
-        MessagesHandlerMixIn.clear_by_id_disabled_msgs()
+                self.add_message('use-symbolic-message-instead', line=lineno, args=txt)
+        MessagesHandlerMixIn.clear_by_id_managed_msgs()
 
 
 class EncodingChecker(BaseChecker):
@@ -165,4 +168,4 @@ class EncodingChecker(BaseChecker):
 def register(linter):
     """required method to auto register this checker"""
     linter.register_checker(EncodingChecker(linter))
-    linter.register_checker(ByIdDisabledMessagesChecker(linter))
+    linter.register_checker(ByIdManagedMessagesChecker(linter))
