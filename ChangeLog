@@ -92,6 +92,11 @@ What's New in Pylint 2.0?
 
       Close #1824
 
+    * Add of a new checker that warns the user if some messages are enabled or disabled
+      by id instead of symbol.
+
+      Close #1599
+
 What's New in Pylint 1.8.1?
 =========================
 

@@ -249,6 +249,7 @@ class MessagesHandlerMixIn(object):
     """a mix-in class containing all the messages related methods for the main
     lint class
     """
+    __by_id_managed_msgs = []
 
     def __init__(self):
         self._msgs_state = {}
@@ -259,15 +260,36 @@ class MessagesHandlerMixIn(object):
             for msgid in known_checker.msgs:
                 yield msgid
 
+    @classmethod
+    def clear_by_id_managed_msgs(cls):
+        cls.__by_id_managed_msgs.clear()
+
+    @classmethod
+    def get_by_id_managed_msgs(cls):
+        return cls.__by_id_managed_msgs
+
+    def _register_by_id_managed_msg(self, msgid, line, is_disabled=True):
+        """If the msgid is a numeric one, then register it to inform the user
+        it could furnish instead a symbolic msgid."""
+        try:
+            msg = self.msgs_store.check_message_id(msgid)
+            if msgid == msg.msgid:
+                MessagesHandlerMixIn.__by_id_managed_msgs.append(
+                    (self.current_name, msg.msgid, msg.symbol, line, is_disabled))
+        except UnknownMessageError:
+            pass
+
     def disable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """don't output message of the given id"""
         self._set_msg_status(msgid, enable=False, scope=scope,
                              line=line, ignore_unknown=ignore_unknown)
+        self._register_by_id_managed_msg(msgid, line)
 
     def enable(self, msgid, scope='package', line=None, ignore_unknown=False):
         """reenable message of the given id"""
         self._set_msg_status(msgid, enable=True, scope=scope,
                              line=line, ignore_unknown=ignore_unknown)
+        self._register_by_id_managed_msg(msgid, line, is_disabled=False)
 
     def _set_msg_status(self, msgid, enable, scope='package', line=None, ignore_unknown=False):
         assert scope in ('package', 'module')

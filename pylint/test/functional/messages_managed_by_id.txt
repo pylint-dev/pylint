@@ -1,0 +1,6 @@
+use-symbolic-message-instead:2::"Id 'C0111' is used to disable 'missing-docstring' message emission"
+use-symbolic-message-instead:3::"Id 'C0102' is used to disable 'blacklisted-name' message emission"
+use-symbolic-message-instead:6::"Id 'C0102' is used to disable 'blacklisted-name' message emission"
+use-symbolic-message-instead:6::"Id 'R1711' is used to disable 'useless-return' message emission"
+use-symbolic-message-instead:10::"Id 'C0111' is used to enable 'missing-docstring' message emission"
+missing-docstring:10:test_enabled_by_id_msg:"Missing function docstring"

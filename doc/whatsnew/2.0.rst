@@ -16,6 +16,10 @@ New checkers
 * New ``useless-return`` message when function or method ends with a "return" or
   "return None" statement and this is the only return statement in the body.
 
+* New ``use-symbolic-message-instead`` message when a message is activated or
+  deactivated by id instead of symbol.
+  The use of symbol is more explicit and easier to remind.
+
 Other Changes
 =============
 
