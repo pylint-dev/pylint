@@ -97,6 +97,11 @@ What's New in Pylint 2.0?
 
       Close #1599
 
+    * Suppress false-positive ``not-callable`` messages from certain
+        staticmethod descriptors
+
+      Close #1699
+
 What's New in Pylint 1.8.1?
 =========================
 
