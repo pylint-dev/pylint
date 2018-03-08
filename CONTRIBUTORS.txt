@@ -160,3 +160,4 @@ Order doesn't matter (not that much, at least ;)
 
 * Tobias Hernstig: contributor
 
+* Konstantin Manna: contributor

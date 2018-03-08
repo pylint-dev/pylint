@@ -130,6 +130,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'at the end of function or method definition. This statement can safely be '
                   'removed because Python will implicitly return None'
                  ),
+        'R1712': ('Consider using tuple unpacking for swapping variables',
+                  'consider-swap-variables',
+                  'You do not have to use a temporary variable in order to '
+                  'swap variables. Using "tuple unpacking" to directly swap '
+                  'variables makes the intention more clear.'
+                 ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -157,6 +163,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._nested_blocks = []
         self._elifs = []
         self._nested_blocks_msg = None
+        self._reported_swap_nodes = set()
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -470,8 +477,35 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                              node=node,
                              args=(duplicated_name, ', '.join(names)))
 
-    @utils.check_messages('simplify-boolean-expression', 'consider-using-ternary')
+    @staticmethod
+    def _is_simple_assignment(node):
+        return (isinstance(node, astroid.Assign)
+                and len(node.targets) == 1
+                and isinstance(node.targets[0], astroid.node_classes.AssignName)
+                and isinstance(node.value, astroid.node_classes.Name))
+
+    def _check_swap_variables(self, node):
+        if not node.next_sibling() or not node.next_sibling().next_sibling():
+            return
+        assignments = [
+            node, node.next_sibling(), node.next_sibling().next_sibling()
+        ]
+        if not all(self._is_simple_assignment(node) for node in assignments):
+            return
+        if any(node in self._reported_swap_nodes for node in assignments):
+            return
+        left = [node.targets[0].name for node in assignments]
+        right = [node.value.name for node in assignments]
+        if left[0] == right[-1] and left[1:] == right[:-1]:
+            self._reported_swap_nodes.update(assignments)
+            message = 'consider-swap-variables'
+            self.add_message(message, node=node)
+
+    @utils.check_messages('simplify-boolean-expression',
+                          'consider-using-ternary',
+                          'consider-swap-variables')
     def visit_assign(self, node):
+        self._check_swap_variables(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
         elif self._is_seq_based_ternary(node.value):
