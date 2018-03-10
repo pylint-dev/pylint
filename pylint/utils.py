@@ -57,7 +57,6 @@ from astroid import nodes, Module
 from astroid import modutils
 
 from pylint.interfaces import IRawChecker, ITokenChecker, UNDEFINED, implements
-from pylint.reporters.ureports.nodes import Section
 from pylint.exceptions import InvalidMessageError, UnknownMessageError, EmptyReportError
 
 
@@ -928,98 +927,6 @@ class MessagesStore:
                 continue
             print(message.format_help(checkerref=False))
         print("")
-
-
-class ReportsHandlerMixIn:
-    """A report handlers organises and calls report methods."""
-
-    _POST_CHECKER = object()
-
-    def __init__(self):
-        self._reports = collections.defaultdict(list)
-        self._reports_state = {}
-        super().__init__()
-
-    def report_order(self):
-        """A list of reports, sorted in the order in which they must be called.
-
-        :returns: The list of reports.
-        :rtype: list(BaseChecker or object)
-        """
-        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
-        try:
-            reports.remove(self._POST_CHECKER)
-        except ValueError:
-            pass
-        else:
-            reports.append(self._POST_CHECKER)
-        return reports
-
-    def register_report(self, reportid, r_title, r_cb, checker):
-        """register a report
-
-        :param reportid: The unique identifier for the report.
-        :type reportid: str
-        :param r_title: The report's title.
-        :type r_title: str
-        :param r_cb: The method to call to make the report.
-        :type r_cb: callable
-        :param checker: The checker defining the report.
-        :type checker: BaseChecker
-        """
-        reportid = reportid.upper()
-        self._reports[checker].append((reportid, r_title, r_cb))
-
-    def register_post_report(self, reportid, r_title, r_cb):
-        """Register a report to run last.
-
-        :param reportid: The unique identifier for the report.
-        :type reportid: str
-        :param r_title: The report's title.
-        :type r_title: str
-        :param r_cb: The method to call to make the report.
-        :type r_cb: callable
-        """
-        self.register_report(reportid, r_title, r_cb, self._POST_CHECKER)
-
-    def enable_report(self, reportid):
-        """disable the report of the given id"""
-        reportid = reportid.upper()
-        self._reports_state[reportid] = True
-
-    def disable_report(self, reportid):
-        """disable the report of the given id"""
-        reportid = reportid.upper()
-        self._reports_state[reportid] = False
-
-    def disable_reporters(self):
-        """Disable all reporters."""
-        for _reporters in self._reports.values():
-            for report_id, _, _ in _reporters:
-                self.disable_report(report_id)
-
-    def report_is_enabled(self, reportid):
-        """return true if the report associated to the given identifier is
-        enabled
-        """
-        return self._reports_state.get(reportid, True)
-
-    def make_reports(self, stats, old_stats):
-        """render registered reports"""
-        sect = Section('Report',
-                       '%s statements analysed.'% (stats['statement']))
-        for checker in self.report_order():
-            for reportid, r_title, r_cb in self._reports[checker]:
-                if not self.report_is_enabled(reportid):
-                    continue
-                report_sect = Section(r_title)
-                try:
-                    r_cb(report_sect, stats, old_stats)
-                except EmptyReportError:
-                    continue
-                report_sect.report_id = reportid
-                sect.append(report_sect)
-        return sect
 
 
 def _basename_in_blacklist_re(base_name, black_list_re):

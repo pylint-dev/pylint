@@ -782,9 +782,66 @@ def guess_lint_path(args):
 
     return value
 
-# TODO: Split the ReportsHandlerMixIn, keeping register methods here,
-# and moving report_order and make_reports to the runner.
-class PluginRegistry(utils.ReportsHandlerMixIn):
+
+class ReportRegistry:
+
+    def __init__(self):
+        self.reports = collections.defaultdict(list)
+        self._reports_state = {}
+        super().__init__()
+
+    def register_report(self, reportid, r_title, r_cb, checker):
+        """Register a report
+
+        :param reportid: The unique identifier for the report.
+        :type reportid: str
+        :param r_title: The report's title.
+        :type r_title: str
+        :param r_cb: The method to call to make the report.
+        :type r_cb: callable
+        :param checker: The checker defining the report.
+        :type checker: BaseChecker
+        """
+        reportid = reportid.upper()
+        self.reports[checker].append((reportid, r_title, r_cb))
+
+    def enable_report(self, reportid):
+        """Enable the report of the given id.
+
+        :param reportid: The unique identifier of the report to enable.
+        :type reportid: str
+        """
+        reportid = reportid.upper()
+        self._reports_state[reportid] = True
+
+    def disable_report(self, reportid):
+        """Disable the report of the given id.
+
+        :param reportid: The unique identifier of the report to disable.
+        :type reportid: str
+        """
+        reportid = reportid.upper()
+        self._reports_state[reportid] = False
+
+    def disable_reporters(self):
+        """Disable all reporters."""
+        for _reporters in self.reports.values():
+            for report_id, _, _ in _reporters:
+                self.disable_report(report_id)
+
+    def report_is_enabled(self, reportid):
+        """Check if the report with the given id is enabled.
+
+        :param reportid: The unique identifier of the report to check.
+        :type reportid: str
+
+        :returns: True if the report is enabled, False otherwise.
+        :rtype: bool
+        """
+        return self._reports_state.get(reportid, True)
+
+
+class PluginRegistry(ReportRegistry):
     """A class to register checkers to."""
 
     def __init__(self, linter, register_options=(lambda options: None)):
@@ -797,7 +854,7 @@ class PluginRegistry(utils.ReportsHandlerMixIn):
         self._linter = linter
 
         for r_id, r_title, r_cb in linter.reports:
-            self.register_post_report(r_id, r_title, r_cb)
+            self.register_report(r_id, r_title, r_cb, linter)
 
         self.register_options(linter.options)
 
@@ -1191,6 +1248,48 @@ group are mutually exclusive.'),
                 config.save_results(self._linter.stats, self._linter.file_state.base_name)
         else:
             self._reporter.on_close(self._linter.stats, {})
+
+    def report_order(self):
+        """A list of reports, sorted in the order in which they must be called.
+
+        :returns: The list of reports.
+        :rtype: list(BaseChecker or object)
+        """
+        reports = self._plugin_registry.reports
+        reports = sorted(reports, key=lambda x: getattr(x, 'name', ''))
+        try:
+            reports.remove(self._linter)
+        except ValueError:
+            pass
+        else:
+            reports.append(self._linter)
+        return reports
+
+    def make_reports(self, stats, old_stats):
+        """Render the registered reports.
+
+        :param stats: The statistics dictionary for this run.
+        :type stats: dict
+        :param old_stats: The statistics dictionary for the previous run.
+        :type old_stats: dict
+
+        :returns: The complete report.
+        :rtype: pylint.reporters.ureports.nodes.Section
+        """
+        sect = report_nodes.Section('Report',
+                       '%s statements analysed.'% (stats['statement']))
+        for checker in self.report_order():
+            for reportid, r_title, r_cb in self.reports[checker]:
+                if not self.report_is_enabled(reportid):
+                    continue
+                report_sect = report_nodes.Section(r_title)
+                try:
+                    r_cb(report_sect, stats, old_stats)
+                except EmptyReportError:
+                    continue
+                report_sect.report_id = reportid
+                sect.append(report_sect)
+        return sect
 
     def _report_evaluation(self):
         """make the global evaluation report"""
