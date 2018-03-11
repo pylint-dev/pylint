@@ -48,7 +48,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pylint'
-copyright = f'2003-{datetime.utcnow().year}, Logilab, PyCQA and contributors'
+current_year = datetime.utcnow().year
+copyright = '2003-{year}, Logilab, PyCQA and contributors'.format(year=current_year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
