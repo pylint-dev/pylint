@@ -11,7 +11,9 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
+from datetime import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -46,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pylint'
-copyright = u'2003-2017, Logilab, PyCQA and contributors'
+copyright = f'2003-{datetime.utcnow().year}, Logilab, PyCQA and contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
