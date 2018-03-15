@@ -14,6 +14,11 @@ What's New in Pylint 2.0?
 
       Close #1922
 
+    * Add new checker `try-except-raise` that warns the user if an except handler block
+      has a ``raise`` statement as its first operator. The warning is shown when there is
+      a bare raise statement, effectively re-raising the exception that was caught or the
+      type of the exception being raised is the same as the one being handled.
+
     * Don't crash on invalid strings when checking for `logging-format-interpolation`
 
       Close #1944
@@ -123,6 +128,7 @@ What's New in Pylint 2.0?
     * Fix false-positive ``bad-continuation`` error
 
       Close #638
+
 
 What's New in Pylint 1.8.1?
 =========================

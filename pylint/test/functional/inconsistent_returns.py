@@ -1,4 +1,4 @@
-#pylint: disable=missing-docstring, no-else-return, invalid-name, unused-variable, superfluous-parens
+#pylint: disable=missing-docstring, no-else-return, invalid-name, unused-variable, superfluous-parens, try-except-raise
 """Testing inconsistent returns"""
 import math
 import sys
