@@ -266,7 +266,6 @@ class CheckerTestCase:
 # Init
 test_reporter = TestReporter()
 linter = PyLinter(pylint.config.Configuration())
-linter.set_reporter(test_reporter)
 linter.config.persistent = 0
 checkers.initialize(PluginRegistry(linter))
 
