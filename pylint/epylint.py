@@ -139,7 +139,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     """
     # Create command line to call pylint
     epylint_part = [sys.executable, "-c", "from pylint import epylint;epylint.Run()"]
-    options = shlex.split(command_options)
+    options = shlex.split(command_options, posix=not sys.platform.startswith('win'))
     cli = epylint_part + options
 
     # Providing standard output and/or error if not set
