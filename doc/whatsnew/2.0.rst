@@ -20,6 +20,26 @@ New checkers
   deactivated by id instead of symbol.
   The use of symbol is more explicit and easier to remind.
 
+* A new check was added, ``consider-swap-variables``.
+
+  This refactoring message is emitted when using a temporary variable in order
+  to swap the values of two variables instead of the shorter, more idiomatic
+  approach with tuple-unpacking.
+
+  Instead of a temporary variable, the one-line syntax with commas should be used.
+
+  See http://docs.python-guide.org/en/latest/writing/style/ or
+  http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#swap-values
+  for details.
+
+  .. code-block:: python
+
+     temp = a  # the wrong way
+     a = b
+     b = temp
+
+     a, b = b, a  # the right way
+
 Other Changes
 =============
 
@@ -29,7 +49,7 @@ Other Changes
 * Fix a false positive ``inconsistent-return-statements`` message when
   `while` loop are used.
 
-* Fix emission of false positive ``no-member`` message for class with 
+* Fix emission of false positive ``no-member`` message for class with
   "private" attributes whose name is mangled.
 
 * Fix ``unused-argument`` false positives with overshadowed variable in dictionary comprehension.
@@ -37,7 +57,7 @@ Other Changes
 * Fixing false positive ``inconsistent-return-statements`` when
   never returning functions are used (i.e such as sys.exit).
 
-* Fix false positive ``inconsistent-return-statements`` message when a 
+* Fix false positive ``inconsistent-return-statements`` message when a
   function is defined under an if statement.
 
 * Fix false positive ``inconsistent-return-statements`` message by
