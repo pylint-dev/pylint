@@ -822,6 +822,21 @@ class PluginRegistry(utils.ReportsHandlerMixIn):
         :raises InvalidCheckerError: If the priority of the checker is
             invalid.
         """
+        existing_checker_types = set(
+            type(existing_checker)
+            for name_checkers in self._checkers.values()
+            for existing_checker in name_checkers
+        )
+        checker_type = type(checker)
+        if checker_type in existing_checker_types:
+            msg_fmt = (
+                'Not registering checker {}. A checker of type {} has '
+                'already been registered.'
+            )
+            msg = msg_fmt.format(checker.name, checker_type.__name__)
+            warnings.warn(msg)
+            return
+
         if checker.priority > 0:
              msg = '{}.priority must be <= 0'.format(checker.__class__)
              raise exceptions.InvalidCheckerError(msg)
