@@ -6,7 +6,7 @@ Pylint's ChangeLog
 What's New in Pylint 1.8.3?
 ==========================
 
-Release date: -
+Release date: 2018-03-16
 
     * Fix false positive ``inconsistent-return-statements`` message when a
       function is defined under an if statement.

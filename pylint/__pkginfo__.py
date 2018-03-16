@@ -27,7 +27,7 @@ from setuptools import __version__ as setuptools_version
 
 modname = distname = 'pylint'
 
-numversion = (1, 8, 2)
+numversion = (1, 8, 3)
 version = '.'.join([str(num) for num in numversion])
 
 install_requires = [
