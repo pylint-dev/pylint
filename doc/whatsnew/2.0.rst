@@ -45,3 +45,6 @@ Other Changes
 
 * Fix false positive ``undefined-variable`` for lambda argument in
     class definitions
+
+* Suppress false-positive ``not-callable`` messages from certain
+    staticmethod descriptors

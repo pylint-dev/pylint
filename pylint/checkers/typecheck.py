@@ -875,8 +875,13 @@ accessed. Python regular expressions are accepted.'}
 
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
+        # Ignore instances of descriptors since astroid cannot properly handle them
+        # yet
         if called and not called.callable():
-            if isinstance(called, astroid.Instance) and not has_known_bases(called):
+            if isinstance(called, astroid.Instance) and (
+                    not has_known_bases(called)
+                    or (isinstance(called.scope(), astroid.ClassDef)
+                        and '__get__' in called.locals)):
                 # Don't emit if we can't make sure this object is callable.
                 pass
             else:
