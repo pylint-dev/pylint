@@ -263,7 +263,12 @@ def is_complex_format_str(node):
     inferred = utils.safe_infer(node)
     if inferred is None or not isinstance(inferred.value, six.string_types):
         return True
-    for _, _, format_spec, _ in string.Formatter().parse(inferred.value):
+    try:
+        parsed = list(string.Formatter().parse(inferred.value))
+    except ValueError:
+        # This format string is invalid
+        return False
+    for _, _, format_spec, _ in parsed:
         if format_spec:
             return True
     return False

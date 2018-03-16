@@ -2,6 +2,7 @@
 Pylint's ChangeLog
 ------------------
 
+<<<<<<< HEAD
 What's New in Pylint 1.8.3?
 ==========================
 
@@ -16,6 +17,10 @@ Release date: -
 
       `__doc__` can be used to specify a docstring for a module without
       passing it as a first-statement string.
+
+    * Don't crash on invalid strings when checking for `logging-format-interpolation`
+
+      Close #1944
 
     * Fix false positive ``inconsistent-return-statements`` message by
       avoiding useless exception inference if the exception is not handled.
