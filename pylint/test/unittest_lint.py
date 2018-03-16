@@ -247,6 +247,20 @@ def test_register_checker_invalid_priority():
         plugin_registry.register_checker(CustomChecker(linter))
 
 
+def test_register_checker_type_once():
+    class CustomChecker(checkers.BaseChecker):
+        name = 'custom'
+
+    linter = PyLinter()
+    plugin_registry = PluginRegistry(linter)
+    checker1 = CustomChecker()
+    checker2 = CustomChecker()
+    plugin_registry.register_checker(checker1)
+    plugin_registry.register_checker(checker2)
+
+    assert list(plugin_registry.for_all_checkers()) == [checker1]
+
+
 def test_pylint_visit_method_taken_in_account(linter):
     class CustomChecker(checkers.BaseChecker):
         __implements__ = interfaces.IAstroidChecker
