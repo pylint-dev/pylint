@@ -1,30 +1,38 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Nick Bastin <nick.bastin@gmail.com>
 # Copyright (c) 2015 Michael Kefeder <oss@multiwave.ch>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Stephane Wirtel <stephane@wirtel.be>
-# Copyright (c) 2015 Nick Bastin <nick.bastin@gmail.com>
-# Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
-# Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
-# Copyright (c) 2016 Laura Médioni <lmedioni@logilab.fr>
+# Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
+# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Elias Dorneles <eliasdorneles@gmail.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
+# Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """basic checker for Python code"""
 
+import builtins
 import collections
 import itertools
 import sys
 import re
-
-import six
-from six.moves import zip  # pylint: disable=redefined-builtin
 
 import astroid
 import astroid.bases
@@ -35,7 +43,9 @@ from pylint import exceptions
 from pylint import interfaces
 from pylint.checkers import utils
 from pylint import reporters
+from pylint.checkers.utils import get_node_last_lineno
 from pylint.reporters.ureports import nodes as reporter_nodes
+import pylint.utils as lint_utils
 
 
 class NamingStyle(object):
@@ -122,7 +132,7 @@ TYPECHECK_COMPARISON_OPERATORS = frozenset(('is', 'is not', '==',
                                             '!=', 'in', 'not in'))
 LITERAL_NODE_TYPES = (astroid.Const, astroid.Dict, astroid.List, astroid.Set)
 UNITTEST_CASE = 'unittest.case'
-BUILTINS = six.moves.builtins.__name__
+BUILTINS = builtins.__name__
 TYPE_QNAME = "%s.type" % BUILTINS
 PY33 = sys.version_info >= (3, 3)
 PY3K = sys.version_info >= (3, 0)
@@ -185,21 +195,47 @@ def in_nested_list(nested_list, obj):
     return False
 
 
-def _loop_exits_early(loop):
-    """Returns true if a loop has a break statement in its body."""
+def _get_break_loop_node(break_node):
+    """
+    Returns the loop node that holds the break node in arguments.
+
+    Args:
+        break_node (astroid.Break): the break node of interest.
+
+    Returns:
+        astroid.For or astroid.While: the loop node holding the break node.
+    """
     loop_nodes = (astroid.For, astroid.While)
-    # Loop over body explicitly to avoid matching break statements
-    # in orelse.
-    for child in loop.body:
-        if isinstance(child, loop_nodes):
-            # break statement may be in orelse of child loop.
-            for orelse in (child.orelse or ()):
-                for _ in orelse.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
-                    return True
-            continue
-        for _ in child.nodes_of_class(astroid.Break, skip_klass=loop_nodes):
-            return True
-    return False
+    parent = break_node.parent
+    while not isinstance(parent, loop_nodes) or break_node in getattr(parent, 'orelse', []):
+        parent = parent.parent
+        if parent is None:
+            break
+    return parent
+
+
+def _loop_exits_early(loop):
+    """
+    Returns true if a loop may ends up in a break statement.
+
+    Args:
+        loop (astroid.For, astroid.While): the loop node inspected.
+
+    Returns:
+        bool: True if the loop may ends up in a break statement, False otherwise.
+    """
+    loop_nodes = (astroid.For, astroid.While)
+    definition_nodes = (astroid.FunctionDef, astroid.ClassDef)
+    inner_loop_nodes = [
+        _node for _node in loop.nodes_of_class(loop_nodes,
+                                               skip_klass=definition_nodes)
+        if _node != loop
+    ]
+    return any(
+        _node for _node in loop.nodes_of_class(astroid.Break,
+                                               skip_klass=definition_nodes)
+        if _get_break_loop_node(_node) not in inner_loop_nodes
+    )
 
 
 def _is_multi_naming_match(match, node_type, confidence):
@@ -370,7 +406,7 @@ class BasicErrorChecker(_BasicChecker):
                   {'maxversion': (3, 3)}),
         'E0107': ("Use of the non-existent %s operator",
                   'nonexistent-operator',
-                  "Used when you attempt to use the C-style pre-increment or"
+                  "Used when you attempt to use the C-style pre-increment or "
                   "pre-decrement operator -- and ++, which doesn't exist in Python."),
         'E0108': ('Duplicate argument name %s in function definition',
                   'duplicate-argument-name',
@@ -388,22 +424,18 @@ class BasicErrorChecker(_BasicChecker):
         'E0112': ('More than one starred expression in assignment',
                   'too-many-star-expressions',
                   'Emitted when there are more than one starred '
-                  'expressions (`*x`) in an assignment. This is a SyntaxError.',
-                  {'minversion': (3, 0)}),
+                  'expressions (`*x`) in an assignment. This is a SyntaxError.'),
         'E0113': ('Starred assignment target must be in a list or tuple',
                   'invalid-star-assignment-target',
                   'Emitted when a star expression is used as a starred '
-                  'assignment target.',
-                  {'minversion': (3, 0)}),
+                  'assignment target.'),
         'E0114': ('Can use starred expression only in assignment target',
                   'star-needs-assignment-target',
                   'Emitted when a star expression is not used in an '
-                  'assignment target.',
-                  {'minversion': (3, 0)}),
+                  'assignment target.'),
         'E0115': ('Name %r is nonlocal and global',
                   'nonlocal-and-global',
-                  'Emitted when a name is both nonlocal and global.',
-                  {'minversion': (3, 0)}),
+                  'Emitted when a name is both nonlocal and global.'),
         'E0116': ("'continue' not supported inside 'finally' clause",
                   'continue-in-finally',
                   'Emitted when the `continue` keyword is found '
@@ -411,8 +443,7 @@ class BasicErrorChecker(_BasicChecker):
         'E0117': ("nonlocal name %s found without binding",
                   'nonlocal-without-binding',
                   'Emitted when a nonlocal variable does not have an attached '
-                  'name somewhere in the parent scopes',
-                  {'minversion': (3, 0)}),
+                  'name somewhere in the parent scopes'),
         'E0118': ("Name %r is used prior to global declaration",
                   'used-prior-global-declaration',
                   'Emitted when a name is used prior a global declaration, '
@@ -603,10 +634,12 @@ class BasicErrorChecker(_BasicChecker):
         abc.ABCMeta as metaclass.
         """
         try:
-            infered = next(node.func.infer())
+            for inferred in node.func.infer():
+                self._check_inferred_class_is_abstract(inferred, node)
         except astroid.InferenceError:
             return
 
+    def _check_inferred_class_is_abstract(self, infered, node):
         if not isinstance(infered, astroid.ClassDef):
             return
 
@@ -672,6 +705,10 @@ class BasicErrorChecker(_BasicChecker):
         """check for redefinition of a function / method / class name"""
         defined_self = node.parent.frame()[node.name]
         if defined_self is not node and not astroid.are_exclusive(node, defined_self):
+            dummy_variables_rgx = lint_utils.get_global_option(
+                self, 'dummy-variables-rgx', default=None)
+            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
+                return
             self.add_message('function-redefined', node=node,
                              args=(redeftype, defined_self.fromlineno))
 
@@ -835,8 +872,7 @@ functions, methods
     def visit_expr(self, node):
         """check for various kind of statements without effect"""
         expr = node.value
-        if isinstance(expr, astroid.Const) and isinstance(expr.value,
-                                                          six.string_types):
+        if isinstance(expr, astroid.Const) and isinstance(expr.value, str):
             # treat string statement in a separated message
             # Handle PEP-257 attribute docstrings.
             # An attribute docstring is defined as being a string right after
@@ -1089,7 +1125,7 @@ functions, methods
         try...finally statement.
         If we found before a try...finally bloc a parent which its type is
         in breaker_classes, we skip the whole check."""
-        # if self._tryfinallys is empty, we're not a in try...finally bloc
+        # if self._tryfinallys is empty, we're not an in try...finally block
         if not self._tryfinallys:
             return
         # the node could be a grand-grand...-children of the try...finally
@@ -1284,7 +1320,6 @@ class NameChecker(_BasicChecker):
               ) + _create_naming_options()
 
     KEYWORD_ONSET = {
-        (3, 0): {'True', 'False'},
         (3, 7): {'async', 'await'}
     }
 
@@ -1341,12 +1376,12 @@ class NameChecker(_BasicChecker):
         self._bad_names = {}
 
     def leave_module(self, node): # pylint: disable=unused-argument
-        for all_groups in six.itervalues(self._bad_names):
+        for all_groups in self._bad_names.values():
             if len(all_groups) < 2:
                 continue
             groups = collections.defaultdict(list)
             min_warnings = sys.maxsize
-            for group in six.itervalues(all_groups):
+            for group in all_groups.values():
                 groups[len(group)].append(group)
                 min_warnings = min(len(group), min_warnings)
             if len(groups[min_warnings]) > 1:
@@ -1362,7 +1397,7 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
         self._check_name('class', node.name, node)
-        for attr, anodes in six.iteritems(node.instance_attrs):
+        for attr, anodes in node.instance_attrs.items():
             if not any(node.instance_attr_ancestors(attr)):
                 self._check_name('attr', attr, anodes[0])
 
@@ -1571,10 +1606,7 @@ class DocStringChecker(_BasicChecker):
         if docstring is None:
             if not report_missing:
                 return
-            if node.body:
-                lines = node.body[-1].lineno - node.body[0].lineno + 1
-            else:
-                lines = 0
+            lines = get_node_last_lineno(node) - node.lineno
 
             if node_type == 'module' and not lines:
                 # If the module has no body, there's no reason

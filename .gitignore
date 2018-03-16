@@ -20,3 +20,4 @@ debian/pylint.substvars
 debian/pylint
 .coverage
 .coverage.*
+.idea

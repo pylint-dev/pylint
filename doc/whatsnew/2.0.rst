@@ -1,0 +1,69 @@
+**************************
+  What's New In Pylint 2.0
+**************************
+
+:Release: 2.0
+:Date: |TBA|
+
+Summary -- Release highlights
+=============================
+
+* None so far
+
+New checkers
+============
+
+* New ``useless-return`` message when function or method ends with a "return" or
+  "return None" statement and this is the only return statement in the body.
+
+* New ``use-symbolic-message-instead`` message when a message is activated or
+  deactivated by id instead of symbol.
+  The use of symbol is more explicit and easier to remind.
+
+* A new check was added, ``consider-swap-variables``.
+
+  This refactoring message is emitted when using a temporary variable in order
+  to swap the values of two variables instead of the shorter, more idiomatic
+  approach with tuple-unpacking.
+
+  Instead of a temporary variable, the one-line syntax with commas should be used.
+
+  See http://docs.python-guide.org/en/latest/writing/style/ or
+  http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#swap-values
+  for details.
+
+  .. code-block:: python
+
+     temp = a  # the wrong way
+     a = b
+     b = temp
+
+     a, b = b, a  # the right way
+
+Other Changes
+=============
+
+* Fix a false positive ``inconsistent-return-statements`` message when if
+  statement is inside try/except.
+
+* Fix a false positive ``inconsistent-return-statements`` message when
+  `while` loop are used.
+
+* Fix emission of false positive ``no-member`` message for class with
+  "private" attributes whose name is mangled.
+
+* Fix ``unused-argument`` false positives with overshadowed variable in dictionary comprehension.
+
+* Fixing false positive ``inconsistent-return-statements`` when
+  never returning functions are used (i.e such as sys.exit).
+
+* Fix false positive ``inconsistent-return-statements`` message when a
+  function is defined under an if statement.
+
+* Fix false positive ``inconsistent-return-statements`` message by
+  avoiding useless exception inference if the exception is not handled.
+
+* Fix false positive ``undefined-variable`` for lambda argument in
+    class definitions
+
+* Suppress false-positive ``not-callable`` messages from certain staticmethod descriptors

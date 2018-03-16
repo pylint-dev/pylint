@@ -2,9 +2,18 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=W0404,W0622,W0704,W0613
 # Copyright (c) 2006, 2009-2010, 2012-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2010 Julien Jehannet <julien.jehannet@logilab.fr>
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
+# Copyright (c) 2013 Benedikt Morbach <benedikt.morbach@googlemail.com>
 # Copyright (c) 2013 T.Rzepka <Tobias.Rzepka@gmail.com>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Pedro Algarvio <pedro@algarvio.me>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Ricardo Gemignani <ricardo.gemignani@gmail.com>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2017 Hugo <hugovk@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -129,9 +138,6 @@ def install(**kwargs):
     if USE_SETUPTOOLS:
         if '--force-manifest' in sys.argv:
             sys.argv.remove('--force-manifest')
-    # install-layout option was introduced in 2.5.3-1~exp1
-    elif sys.version_info < (2, 5, 4) and '--install-layout=deb' in sys.argv:
-        sys.argv.remove('--install-layout=deb')
     packages = [modname] + get_packages(join(base_dir, 'pylint'), modname)
     if USE_SETUPTOOLS:
         if install_requires:
@@ -163,6 +169,7 @@ def install(**kwargs):
                  cmdclass=cmdclass,
                  extras_require=extras_require,
                  test_suite='test',
+                 python_requires='>=3.4.*',
                  setup_requires=['pytest-runner'],
                  tests_require=['pytest'],
                  **kwargs)

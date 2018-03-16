@@ -14,7 +14,7 @@ assert map(double, [1, 2, 3]) == [2, 4, 6]
 # It's also ok to pass lambdas to other functions.
 assert functools.reduce(lambda x, y: x * y, [1, 2, 3, 4]) == 24
 
-# Or to a undefined function or one with varargs
+# Or to an undefined function or one with varargs
 def f(*a):
     return len(a)
 

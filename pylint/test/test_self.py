@@ -1,6 +1,17 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
 # Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2017 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2017 Thomas Hisch <t.hisch@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -169,6 +180,12 @@ class TestRunTC(object):
         output = out.getvalue()
         assert "profile" not in output
 
+    def test_inexisting_rcfile(self):
+        out = six.StringIO()
+        with pytest.raises(IOError) as excinfo:
+            self._run_pylint(["--rcfile=/tmp/norcfile.txt"], out=out)
+        assert "The config file /tmp/norcfile.txt doesn't exist!" == str(excinfo.value)
+
     def test_help_message_option(self):
         self._runtest(['--help-msg', 'W0101'], code=0)
 
@@ -237,6 +254,41 @@ class TestRunTC(object):
         self._test_output([module, "--py3k", "-E", "--msg-template='{msg}'"],
                           expected_output=expected)
 
+    @pytest.mark.skipif(sys.version_info[0] > 2, reason="Requires the --py3k flag.")
+    def test_py3k_commutative_with_config_disable(self):
+        module = join(HERE, 'regrtest_data', 'py3k_errors_and_warnings.py')
+        rcfile = join(HERE, 'regrtest_data', 'py3k-disabled.rc')
+        cmd = [module, "--msg-template='{msg}'", "--reports=n"]
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        import missing `from __future__ import absolute_import`
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        Calling a dict.iter*() method
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k"], expected_output=expected)
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        Calling a dict.iter*() method
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k", "--rcfile", rcfile],
+                          expected_output=expected)
+
+        expected = textwrap.dedent("""
+        ************* Module py3k_errors_and_warnings
+        Use raise ErrorClass(args) instead of raise ErrorClass, args.
+        print statement used
+        """)
+        self._test_output(cmd + ["--py3k", "-E", "--rcfile", rcfile],
+                          expected_output=expected)
+
+        self._test_output(cmd + ["-E", "--py3k", "--rcfile", rcfile],
+                          expected_output=expected)
+
     def test_abbreviations_are_not_supported(self):
         expected = "no such option: --load-plugin"
         self._test_output([".", "--load-plugin"], expected_output=expected)
@@ -269,6 +321,10 @@ class TestRunTC(object):
         to_remove = "No config file found, using default configuration"
         if to_remove in actual_output:
             actual_output = actual_output[len(to_remove):]
+        if actual_output.startswith("Using config file "):
+            # If ~/.pylintrc is present remove the
+            # Using config file...  line
+            actual_output = actual_output[actual_output.find("\n"):]
         assert expected_output.strip() == actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self):
@@ -402,3 +458,23 @@ class TestRunTC(object):
         module = join(HERE, 'regrtest_data', 'application_crash.py')
         with _configure_lc_ctype('UTF-8'):
             self._test_output([module, '-E'], expected_output=expected_output)
+
+    @pytest.mark.skipif(sys.platform == 'win32', reason='only occurs on *nix')
+    def test_parseable_file_path(self):
+        file_name = 'test_target.py'
+        fake_path = HERE + os.getcwd()
+        module = join(fake_path, file_name)
+
+        try:
+            # create module under directories which have the same name as reporter.path_strip_prefix
+            # e.g. /src/some/path/src/test_target.py when reporter.path_strip_prefix = /src/
+            os.makedirs(fake_path)
+            with open(module, 'w') as test_target:
+                test_target.write('a = object()')
+
+            self._test_output(
+                [module, '--output-format=parseable'],
+                expected_output=join(os.getcwd(), file_name))
+        finally:
+            os.remove(module)
+            os.removedirs(fake_path)

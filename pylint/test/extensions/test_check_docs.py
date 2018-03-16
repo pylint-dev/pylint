@@ -1,7 +1,12 @@
 # Copyright (c) 2014-2015 Bruno Daniel <bruno.daniel@blue-yonder.com>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016-2017 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Mitar <mitar.github@tnode.com>
+# Copyright (c) 2017 John Paraskevopoulos <io.paraskev@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -24,6 +29,9 @@ from pylint.extensions.docparams import DocstringParameterChecker
 class TestParamDocChecker(CheckerTestCase):
     """Tests for pylint_plugin.ParamDocChecker"""
     CHECKER_CLASS = DocstringParameterChecker
+    CONFIG = {
+        'accept_no_param_doc': False,
+    }
 
     def test_missing_func_params_in_sphinx_docstring(self):
         """Example of a function with missing Sphinx parameter documentation in
@@ -167,6 +175,7 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
+    @set_config(accept_no_param_doc=True)
     def test_tolerate_no_param_documentation_at_all(self):
         """Example of a function with no parameter documentation at all
 
@@ -182,7 +191,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    @set_config(accept_no_param_doc=False)
     def test_don_t_tolerate_no_param_documentation_at_all(self):
         """Example of a function with no parameter documentation at all
 
@@ -207,7 +215,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self.checker.visit_functiondef(node)
 
-    @set_config(accept_no_param_doc=False)
     def test_see_tolerate_no_param_documentation_at_all(self):
         """Example for the usage of "For the parameters, see"
         to suppress missing-param warnings.
@@ -743,6 +750,29 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self._visit_methods_of_class(node)
 
+    def test_constr_params_and_attributes_in_class_numpy(self):
+        """Example of a class with correct constructor parameter documentation
+        and an attributes section (Numpy style)
+        """
+        node = astroid.extract_node("""
+        class ClassFoo(object):
+            '''
+            Parameters
+            ----------
+            foo : str
+                Something.
+
+            Attributes
+            ----------
+            bar : str
+                Something.
+            '''
+            def __init__(self, foo):
+                self.bar = None
+        """)
+        with self.assertNoMessages():
+            self._visit_methods_of_class(node)
+
     def test_constr_params_in_init_sphinx(self):
         """Example of a class with missing constructor parameter documentation
         (Sphinx style)
@@ -841,7 +871,6 @@ class TestParamDocChecker(CheckerTestCase):
         ):
             self._visit_methods_of_class(node)
 
-    @set_config(accept_no_param_doc=False)
     def test_see_sentence_for_constr_params_in_class(self):
         """Example usage of "For the parameters, see" in class docstring"""
         node = astroid.extract_node("""
@@ -859,7 +888,6 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self._visit_methods_of_class(node)
 
-    @set_config(accept_no_param_doc=False)
     def test_see_sentence_for_constr_params_in_init(self):
         """Example usage of "For the parameters, see" in init docstring"""
         node = astroid.extract_node("""
@@ -1349,11 +1377,17 @@ class TestParamDocChecker(CheckerTestCase):
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 
-    COMPLEX_TYPES = [
-        'int or str',
+    CONTAINER_TYPES = [
+        'dict(str,str)',
+        'dict[str,str]',
+        'tuple(int)',
+        'list[tokenize.TokenInfo]',
+    ]
+
+    COMPLEX_TYPES = CONTAINER_TYPES + [
         'dict(str, str)',
         'dict[str, str]',
-        'tuple(int)',
+        'int or str',
         'tuple(int or str)',
         'tuple(int) or list(int)',
         'tuple(int or str) or list(int or str)',
@@ -1411,6 +1445,22 @@ class TestParamDocChecker(CheckerTestCase):
             """
             return named_arg
         '''.format(complex_type))
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(node)
+
+    @pytest.mark.parametrize('container_type', CONTAINER_TYPES)
+    def test_finds_compact_container_types_sphinx(self, container_type):
+        node = astroid.extract_node('''
+        def my_func(named_arg):
+            """The docstring
+
+            :param {0} named_arg: Returned
+
+            :returns: named_arg
+            :rtype: {0}
+            """
+            return named_arg
+        '''.format(container_type))
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
 

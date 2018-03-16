@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2016 Moisés López <moylop260@vauxoo.com>
-# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016-2017 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2016 Yuri Bochkarev <baltazar.bz@gmail.com>
 # Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Mitar <mitar.github@tnode.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -45,6 +48,7 @@ def get_setters_property_name(node):
                 decorator.attrname == "setter" and
                 isinstance(decorator.expr, astroid.Name)):
             return decorator.expr.name
+    return None
 
 
 def get_setters_property(node):
@@ -205,6 +209,11 @@ class Docstring(object):
 class SphinxDocstring(Docstring):
     re_type = r"[\w\.]+"
 
+    re_simple_container_type = r"""
+        {type}                        # a container type
+        [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
+    """.format(type=re_type)
+
     re_xref = r"""
         (?::\w+:)?                    # optional tag
         `{0}`                         # what to reference
@@ -220,14 +229,14 @@ class SphinxDocstring(Docstring):
         \s+                     # whitespace
 
         (?:                     # optional type declaration
-        ({type})
+        ({type}|{container_type})
         \s+
         )?
 
         (\w+)                   # Parameter name
         \s*                     # whitespace
         :                       # final colon
-        """.format(type=re_type)
+        """.format(type=re_type, container_type=re_simple_container_type)
     re_param_in_docstring = re.compile(re_param_raw, re.X | re.S)
 
     re_type_raw = r"""
@@ -600,6 +609,12 @@ class GoogleDocstring(Docstring):
     def min_section_indent(section_match):
         return len(section_match.group(1)) + 1
 
+    @staticmethod
+    def _is_section_header(_):
+        # Google parsing does not need to detect section headers,
+        # because it works off of indentation level only
+        return False
+
     def _parse_section(self, section_re):
         section_match = section_re.search(self.doc)
         if section_match is None:
@@ -624,6 +639,8 @@ class GoogleDocstring(Docstring):
                 is_first = False
 
             if indentation == min_indentation:
+                if self._is_section_header(line):
+                    break
                 # Lines with minimum indentation must contain the beginning
                 # of a new parameter documentation.
                 if entry:
@@ -694,3 +711,7 @@ class NumpyDocstring(GoogleDocstring):
     @staticmethod
     def min_section_indent(section_match):
         return len(section_match.group(1))
+
+    @staticmethod
+    def _is_section_header(line):
+        return bool(re.match(r'\s*-+$', line))

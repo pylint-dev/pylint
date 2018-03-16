@@ -52,15 +52,14 @@ confidence=
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 
-disable=invalid-name,protected-access,fixme,too-many-branches,
-        attribute-defined-outside-init,too-many-locals,
-        too-many-arguments,too-many-statements,
-        too-many-return-statements,too-few-public-methods,
-        import-error,too-many-lines,too-many-instance-attributes,
-        too-many-public-methods,duplicate-code,broad-except,
-        redefined-builtin,missing-docstring,no-member,
-        # Crashes, see #743.
-        redefined-variable-type
+disable=
+    attribute-defined-outside-init,
+    duplicate-code,
+    fixme,
+    invalid-name,
+    missing-docstring,
+    protected-access,
+    too-few-public-methods,
 
 
 [REPORTS]
@@ -152,7 +151,7 @@ single-line-if-stmt=no
 no-space-check=trailing-comma,dict-separator
 
 # Maximum number of lines in a module
-max-module-lines=1000
+max-module-lines=2000
 
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
 # tab).
@@ -300,35 +299,35 @@ spelling-store-unknown-words=no
 [DESIGN]
 
 # Maximum number of arguments for function / method
-max-args=5
+max-args=10
 
 # Argument names that match this expression will be ignored. Default to name
 # with leading underscore
 ignored-argument-names=_.*
 
 # Maximum number of locals for function / method body
-max-locals=15
+max-locals=25
 
 # Maximum number of return / yield for function / method body
-max-returns=6
+max-returns=11
 
 # Maximum number of branch for function / method body
-max-branches=12
+max-branches=26
 
 # Maximum number of statements in function / method body
-max-statements=50
+max-statements=100
 
 # Maximum number of parents for a class (see R0901).
 max-parents=7
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=11
 
 # Minimum number of public methods for a class (see R0903).
 min-public-methods=2
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=25
 
 
 [CLASSES]

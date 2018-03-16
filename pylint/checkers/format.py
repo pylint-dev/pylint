@@ -1,12 +1,26 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2015 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2012-2015 Google, Inc.
+# Copyright (c) 2013 moxian <aleftmail@inbox.ru>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 frost-nzcr4 <frost.nzcr4@jagmort.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Mike Frysinger <vapier@gentoo.org>
-# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
 # Copyright (c) 2015 Fabio Natali <me@fabionatali.com>
 # Copyright (c) 2015 Harut <yes@harutune.name>
+# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
+# Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Petr Pulc <petrpulc@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Krzysztof Czapla <k.czapla68@gmail.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 James M. Allen <james.m.allen@gmail.com>
+# Copyright (c) 2017 vinnyrose <vinnyrose@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -24,9 +38,6 @@ import keyword
 import sys
 import tokenize
 from functools import reduce # pylint: disable=redefined-builtin
-
-import six
-from six.moves import zip, map, filter # pylint: disable=redefined-builtin
 
 from astroid import nodes
 
@@ -114,7 +125,7 @@ MSGS = {
     'W0332': ('Use of "l" as long integer identifier',
               'lowercase-l-suffix',
               'Used when a lower case "l" is used to mark a long integer. You '
-              'should use a upper case "L" since the letter "l" looks too much '
+              'should use an upper case "L" since the letter "l" looks too much '
               'like the digit "1"',
               {'maxversion': (3, 0)}),
     'C0327': ('Mixed line endings LF and CRLF',
@@ -532,7 +543,7 @@ class FormatChecker(BaseTokenChecker):
 
         found_and_or = False
         depth = 0
-        keyword_token = tokens[start][1]
+        keyword_token = str(tokens[start][1])
         line_num = tokens[start][2][0]
 
         for i in range(start, len(tokens) - 1):
@@ -618,6 +629,9 @@ class FormatChecker(BaseTokenChecker):
         """Extended check of PEP-484 type hint presence"""
         if not self._inside_brackets('('):
             return False
+        # token_info
+        # type string start end line
+        #  0      1     2    3    4
         bracket_level = 0
         for token in tokens[i-1::-1]:
             if token[1] == ':':
@@ -633,7 +647,7 @@ class FormatChecker(BaseTokenChecker):
                     return False
             elif token[1] == '.':
                 continue
-            elif token[0] not in (tokenize.NAME, tokenize.STRING):
+            elif token[0] not in (tokenize.NAME, tokenize.STRING, tokenize.NL):
                 return False
         return False
 
@@ -725,7 +739,7 @@ class FormatChecker(BaseTokenChecker):
             count, state = _policy_string(policy)
             self.add_message('bad-whitespace', line=token[2][0],
                              args=(count, state, position, construct,
-                                   _underline_token(token)))
+                                   _underline_token(token)), col_offset=token[2][1]+1)
 
     def _inside_brackets(self, left):
         return self._bracket_stack[-1] == left
@@ -877,8 +891,7 @@ class FormatChecker(BaseTokenChecker):
 
         for indent_pos, state, offsets in self._current_line.retained_warnings:
             block_type = offsets[tokens.start_col(indent_pos)]
-            hints = dict((k, v) for k, v in six.iteritems(offsets)
-                         if v != block_type)
+            hints = {k: v for k, v in offsets.items() if v != block_type}
             if single_line_block_stmt and block_type == WITH_BODY:
                 self._add_continuation_message(state, hints, tokens, indent_pos)
             elif not single_line_block_stmt and block_type == SINGLE_LINE:
@@ -1000,8 +1013,12 @@ class FormatChecker(BaseTokenChecker):
                 # Don't count excess whitespace in the line length.
                 line = stripped_line
             mobj = OPTION_RGX.search(line)
-            if mobj and mobj.group(1).split('=', 1)[0].strip() == 'disable':
-                line = line.split('#')[0].rstrip()
+            if mobj and '=' in line:
+                front_of_equal, back_of_equal = mobj.group(1).split('=', 1)
+                if front_of_equal.strip() == 'disable':
+                    if 'line-too-long' in [_msg_id.strip() for _msg_id in back_of_equal.split(',')]:
+                        return None
+                    line = line.rsplit('#', 1)[0].rstrip()
 
             if len(line) > max_chars and not ignore_long_line.search(line):
                 self.add_message('line-too-long', line=i, args=(len(line), max_chars))
@@ -1064,6 +1081,7 @@ class FormatChecker(BaseTokenChecker):
             self.add_message('bad-indentation', line=line_num,
                              args=(level * unit_size + len(suppl), i_type,
                                    expected * unit_size))
+        return None
 
 
 def register(linter):

@@ -1,4 +1,4 @@
-# pylint: disable=R0201,missing-docstring,using-constant-test
+# pylint: disable=R0201,missing-docstring,using-constant-test,unused-import,wrong-import-position,reimported
 from __future__ import division
 __revision__ = ''
 
@@ -72,3 +72,24 @@ def some_func():
     """
     division = 2
     return division
+
+def dummy_func():
+    """First dummy function"""
+    pass
+
+def dummy_func():
+    """Second dummy function, don't emit function-redefined message
+    because of the dummy name"""
+    pass
+
+from math import ceil
+def ceil(): # [function-redefined]
+    pass
+
+import math
+def math(): # [function-redefined]
+    pass
+
+import math as _
+def _():
+    pass

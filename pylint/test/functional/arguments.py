@@ -198,9 +198,6 @@ def namedtuple_replace_issue_1036():
         b=24,
         c=42
     )
-    # +1: [unexpected-keyword-arg, unexpected_keyword-arg]
-    new_bad_instance = cls(1, 2, 3)._replace(
-        d=24,
-        e=32,
-    )
+    # +1:[unexpected-keyword-arg,unexpected-keyword-arg]
+    new_bad_instance = cls(1, 2, 3)._replace(d=24, e=32)
     return new_instance, new_bad_instance

@@ -1,7 +1,8 @@
-# Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
-# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
+# Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
+# Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -23,7 +24,7 @@ class TestImportsChecker(CheckerTestCase):
                                  'foo',
                                  'bar'))
     def test_import_error_skipped(self):
-        """Make sure that imports do not emit a 'import-error' when the
+        """Make sure that imports do not emit an 'import-error' when the
         module is configured to be ignored."""
 
         node = astroid.extract_node("""

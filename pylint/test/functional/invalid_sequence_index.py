@@ -53,7 +53,7 @@ def function9():
     return TESTLIST[0]  # no error
 
 def function10():
-    """list index is a integer expression"""
+    """list index is an integer expression"""
     return TESTLIST[int(0.0)] # no error
 
 def function11():

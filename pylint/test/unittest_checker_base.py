@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
+# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
+# Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -52,6 +58,30 @@ class TestDocstring(CheckerTestCase):
         def func(tion):
            pass""")
         with self.assertNoMessages():
+            self.checker.visit_functiondef(func)
+
+    @set_config(docstring_min_length=2)
+    def test_long_function_no_docstring(self):
+        func = astroid.extract_node("""
+        def func(tion):
+            pass
+            pass
+           """)
+        message = Message('missing-docstring', node=func, args=('function',))
+        with self.assertAddsMessages(message):
+            self.checker.visit_functiondef(func)
+
+    @set_config(docstring_min_length=2)
+    def test_long_function_nested_statements_no_docstring(self):
+        func = astroid.extract_node("""
+        def func(tion):
+            try:
+                pass
+            except:
+                pass
+           """)
+        message = Message('missing-docstring', node=func, args=('function',))
+        with self.assertAddsMessages(message):
             self.checker.visit_functiondef(func)
 
     @set_config(docstring_min_length=2)
@@ -158,36 +188,6 @@ class TestNameChecker(CheckerTestCase):
         CONST = "12 34 ".rstrip().split()""")
         with self.assertNoMessages():
             self.checker.visit_assignname(assign.targets[0])
-
-    @unittest.skipIf(sys.version_info >= (3, 0), reason="Needs Python 2.x")
-    @set_config(const_rgx=re.compile(".+"))
-    @set_config(function_rgx=re.compile(".+"))
-    @set_config(class_rgx=re.compile(".+"))
-    def test_assign_to_new_keyword_py2(self):
-        ast = astroid.extract_node("""
-        True = 0  #@
-        False = 1 #@
-        def True():  #@
-            pass
-        class True:  #@
-            pass
-        """)
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[0].targets[0], args=('True', '3.0'))
-        ):
-            self.checker.visit_assignname(ast[0].targets[0])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[1].targets[0], args=('False', '3.0'))
-        ):
-            self.checker.visit_assignname(ast[1].targets[0])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[2], args=('True', '3.0'))
-        ):
-            self.checker.visit_functiondef(ast[2])
-        with self.assertAddsMessages(
-            Message(msg_id='assign-to-new-keyword', node=ast[3], args=('True', '3.0'))
-        ):
-            self.checker.visit_classdef(ast[3])
 
     @unittest.skipIf(sys.version_info >= (3, 7), reason="Needs Python 3.6 or earlier")
     @set_config(const_rgx=re.compile(".+"))

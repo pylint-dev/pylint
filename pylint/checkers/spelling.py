@@ -1,6 +1,13 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Pedro Algarvio <pedro@algarvio.me>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -79,7 +86,7 @@ class CamelCasedWord(Filter):
 
     That is, any words that are camelCasedWords.
     """
-    _pattern = re.compile(r"^([a-z]+[A-Z]\w+|[a-z]\w+[A-Z]+)")
+    _pattern = re.compile(r"^([a-z]+([\d]|[A-Z])(?:\w+)?)")
 
     def _skip(self, word):
         return bool(self._pattern.match(word))

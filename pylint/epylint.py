@@ -3,8 +3,16 @@
 # -*- vim:fenc=utf-8:ft=python:et:sw=4:ts=4:sts=4
 
 # Copyright (c) 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014 Jakob Normark <jakobnormark@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Manuel Vázquez Acosta <mva.led@gmail.com>
+# Copyright (c) 2014 Derek Harland <derek.harland@finq.co.nz>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Mihai Balint <balint.mihai@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Daniela Plascencia <daplascen@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -126,18 +134,12 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     containing standard output and error related to created process,
     as follows: ``(stdout, stderr)``.
 
-    A trivial usage could be as follows:
-        >>> py_run( '--version')
-        No config file found, using default configuration
-        pylint 0.18.1,
-            ...
-
     To silently run Pylint on a module, and get its standard output and error:
         >>> (pylint_stdout, pylint_stderr) = py_run( 'module_name.py', True)
     """
     # Create command line to call pylint
     epylint_part = [sys.executable, "-c", "from pylint import epylint;epylint.Run()"]
-    options = shlex.split(command_options)
+    options = shlex.split(command_options, posix=not sys.platform.startswith('win'))
     cli = epylint_part + options
 
     # Providing standard output and/or error if not set
@@ -158,6 +160,7 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     # Return standard output and error
     if return_std:
         return six.moves.StringIO(proc_stdout), six.moves.StringIO(proc_stderr)
+    return None
 
 
 def Run():

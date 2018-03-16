@@ -1,13 +1,13 @@
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Google, Inc.
+# Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Unit tests for the variables checker."""
-import sys
-
-import pytest
-
 import astroid
 from pylint.checkers import classes
 from pylint.testutils import CheckerTestCase, Message, set_config
@@ -53,8 +53,6 @@ class TestVariablesChecker(CheckerTestCase):
                         args='_teta')):
             self.walk(node.root())
 
-    @pytest.mark.skipif(sys.version_info[0] != 3,
-                        reason="The test works on Python 3.")
     def test_regression_non_parent_init_called_tracemalloc(self):
         # This used to raise a non-parent-init-called on Pylint 1.3
         # See issue https://bitbucket.org/logilab/pylint/issue/308/

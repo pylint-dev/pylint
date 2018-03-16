@@ -1,6 +1,11 @@
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
+# Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -88,9 +93,10 @@ class BaseChecker(OptionsProviderMixIn):
         OptionsProviderMixIn.__init__(self)
         self.linter = linter
 
-    def add_message(self, msg_id, line=None, node=None, args=None, confidence=UNDEFINED):
+    def add_message(self, msg_id, line=None, node=None, args=None, confidence=UNDEFINED,
+                    col_offset=None):
         """add a message of a given type"""
-        self.linter.add_message(msg_id, line, node, args, confidence)
+        self.linter.add_message(msg_id, line, node, args, confidence, col_offset)
 
     # dummy methods implementing the IChecker interface
 

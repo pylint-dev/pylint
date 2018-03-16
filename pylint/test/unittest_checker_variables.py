@@ -1,4 +1,10 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Google, Inc.
+# Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -159,6 +165,19 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         with self.assertNoMessages():
             self.walk(node)
 
+    def test_lambda_in_classdef(self):
+        # Make sure lambda doesn't raises
+        # Undefined-method in class def
+
+        # Issue 1824
+        # https://github.com/PyCQA/pylint/issues/1824
+        node = astroid.parse('''
+        class MyObject(object):
+            method1 = lambda func: func()
+            method2 = lambda function: function()
+        ''')
+        with self.assertNoMessages():
+            self.walk(node)
 
 class TestMissingSubmodule(CheckerTestCase):
     CHECKER_CLASS = variables.VariablesChecker

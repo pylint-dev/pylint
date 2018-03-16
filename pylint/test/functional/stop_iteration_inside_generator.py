@@ -1,8 +1,8 @@
 """
 Test that no StopIteration is raised inside a generator
 """
-# pylint: disable=missing-docstring,invalid-name
-
+# pylint: disable=missing-docstring,invalid-name,import-error
+import asyncio
 
 class RebornStopIteration(StopIteration):
     """
@@ -14,7 +14,6 @@ def gen_ok():
     yield 1
     yield 2
     yield 3
-    return
 
 # pylint should warn about this one
 # because of a direct raising of StopIteration inside generator
@@ -88,3 +87,14 @@ def gen_dont_crash_on_no_exception():
             yield next(g) # [stop-iteration-return]
         except ValueError:
             raise
+
+
+def gen_dont_crash_on_uninferable():
+    # https://github.com/PyCQA/pylint/issues/1779
+    yield from iter()
+    raise asyncio.TimeoutError()
+
+
+# https://github.com/PyCQA/pylint/issues/1830
+def gen_next_with_sentinel():
+    yield next([], 42) # No bad return

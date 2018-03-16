@@ -5,20 +5,20 @@ Order doesn't matter (not that much, at least ;)
 
 * Sylvain Thenault (Logilab): main author / maintainer
 
-* Torsten Marek (Google): maintainer, contributor
+* Torsten Marek (Google): comitter / contributor
 
 * Claudiu Popa: maintainer, contributor
-
-* Cara Vinson, astroid committer.
-
-* Dmitry Pribysh: committer
-
-  multiple-imports, not-iterable, not-a-mapping, various patches.
 
 * Ashley Whetter: committer
   
   check_docs extension can find constructor parameters in __init__,
   added check_raise_docs extension, various patches.
+
+* Cara Vinson, astroid committer.
+
+* Guillaume Peillex: committer
+
+* Łukasz Rogalski: comitter.
 
 * Roy Williams (Lyft): committer
 
@@ -29,6 +29,10 @@ Order doesn't matter (not that much, at least ;)
   Added Python 3 check for bad import statements.
   Added Python 3 check for accessing deprecated methods on the 'string' module,
   various patches.
+
+* Dmitry Pribysh: committer
+
+  multiple-imports, not-iterable, not-a-mapping, various patches.
 
 * Daniel Balparda (Google): GPyLint maintainer (Google's pylint variant),
   various patches
@@ -101,8 +105,6 @@ Order doesn't matter (not that much, at least ;)
 
 * Mike Frysinger: contributor.
 
-* Łukasz Rogalski: contributor.
-
 * Moisés López (Vauxoo): Support for deprecated-modules in modules not installed,
   Refactory wrong-import-order to integrate it with `isort` library
   Add check too-complex with mccabe for cyclomatic complexity
@@ -124,7 +126,8 @@ Order doesn't matter (not that much, at least ;)
 * Alexander Todorov: added new error conditions to 'bad-super-call',
   Added new check for incorrect len(SEQUENCE) usage,
   Added new extension for comparison against empty string constants,
-  Added new extension which detects comparing integers to zero
+  Added new extension which detects comparing integers to zero,
+  Added new useless-return checker
 
 * Erik Eriksson - Added overlapping-except error check.
 
@@ -139,3 +142,22 @@ Order doesn't matter (not that much, at least ;)
 * Martin von Gagern (Google): Added 'raising-format-tuple' warning.
 
 * Ahirnish Pareek, 'keyword-arg-before-var-arg' check
+
+* Daniel Miller: contributor.
+
+* Bryce Guinta: contributor
+
+* Martin Bašti: contributor
+  Added new check for shallow copy of os.environ
+
+* Jacques Kvam: contributor
+
+* Brian Shaginaw: prevent error on exception check for functions
+
+* Ioana Tagirta: fix bad thread instantiation check
+
+* Reverb Chu: contributor
+
+* Tobias Hernstig: contributor
+
+* Konstantin Manna: contributor

@@ -103,4 +103,7 @@ Lets run Pylint with this plugin and see:
 All the false positives associated with ``WarningMessage`` are now gone. This is just
 an example, any code transformation can be done by plugins. 
 
+See `astroid/brain`_ for real life examples of transform plugins.
+
 .. _`warnings.py`: http://hg.python.org/cpython/file/2.7/Lib/warnings.py
+.. _`astroid/brain`: https://github.com/PyCQA/astroid/tree/master/astroid/brain

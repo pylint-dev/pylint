@@ -1,4 +1,7 @@
+# Copyright (c) 2014 Vlad Temian <vladtemian@gmail.com>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2017 guillaume2 <guillaume.peillex@gmail.col>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING

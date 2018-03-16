@@ -1,4 +1,6 @@
 # Copyright (c) 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -10,7 +12,7 @@ from pylint.interfaces import ITokenChecker, IAstroidChecker
 
 
 class ElseifUsedChecker(BaseTokenChecker):
-    """Checks for use of "else if" when a "elif" could be used
+    """Checks for use of "else if" when an "elif" could be used
     """
 
     __implements__ = (ITokenChecker, IAstroidChecker)
@@ -51,7 +53,7 @@ class ElseifUsedChecker(BaseTokenChecker):
     def visit_if(self, node):
         if isinstance(node.parent, astroid.If):
             orelse = node.parent.orelse
-            # current if node must directly follow a "else"
+            # current if node must directly follow an "else"
             if orelse and orelse == [node]:
                 if not self._elifs[self._if_counter]:
                     self.add_message('else-if-used', node=node)

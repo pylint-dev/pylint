@@ -1,12 +1,25 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012-2014 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013 buck@yelp.com <buck@yelp.com>
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015-2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
 # Copyright (c) 2015 Cezar <celnazli@bitdefender.com>
+# Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
 # Copyright (c) 2015 James Morgensen <james.morgensen@gmail.com>
-# Copyright (c) 2016 Moises Lopez - https://www.vauxoo.com/ <moylop260@vauxoo.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Jared Garst <cultofjared@gmail.com>
+# Copyright (c) 2016 Maik Röder <maikroeder@gmail.com>
+# Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Michka Popoff <michkapopoff@gmail.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Erik Wright <erik.wright@shopify.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -18,8 +31,6 @@ from distutils import sysconfig
 import os
 import sys
 import copy
-
-import six
 
 import astroid
 from astroid import are_exclusive
@@ -97,6 +108,7 @@ def _get_first_import(node, context, name, base, level, alias):
                     break
     if found and not are_exclusive(first, node):
         return first
+    return None
 
 
 def _ignore_import_failure(node, modname, ignored_modules):
@@ -150,14 +162,14 @@ def _dependencies_graph(filename, dep_info):
     done = {}
     printer = DotBackend(filename[:-4], rankdir='LR')
     printer.emit('URL="." node[shape="box"]')
-    for modname, dependencies in sorted(six.iteritems(dep_info)):
+    for modname, dependencies in sorted(dep_info.items()):
         done[modname] = 1
         printer.emit_node(modname)
         for depmodname in dependencies:
             if depmodname not in done:
                 done[depmodname] = 1
                 printer.emit_node(depmodname)
-    for depmodname, dependencies in sorted(six.iteritems(dep_info)):
+    for depmodname, dependencies in sorted(dep_info.items()):
         for modname in dependencies:
             printer.emit_edge(modname, depmodname)
     printer.generate(filename)
@@ -247,9 +259,7 @@ class ImportsChecker(BaseChecker):
     msgs = MSGS
     priority = -2
 
-    if six.PY2:
-        deprecated_modules = ('regsub', 'TERMIOS', 'Bastion', 'rexec')
-    elif sys.version_info < (3, 5):
+    if sys.version_info < (3, 5):
         deprecated_modules = ('optparse', )
     else:
         deprecated_modules = ('optparse', 'tkinter.tix')
@@ -562,10 +572,14 @@ class ImportsChecker(BaseChecker):
 
         Imports must follow this order: standard, 3rd party, local
         """
-        extern_imports = []
-        local_imports = []
         std_imports = []
-        extern_not_ignored = []
+        third_party_imports = []
+        first_party_imports = []
+        # need of a list that holds third or first party ordered import
+        external_imports = []
+        local_imports = []
+        third_party_not_ignored = []
+        first_party_not_ignored = []
         local_not_ignored = []
         isort_obj = isort.SortImports(
             file_contents='', known_third_party=self.config.known_third_party,
@@ -580,29 +594,42 @@ class ImportsChecker(BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled('wrong-import-order',
                                                                          node.fromlineno)
             import_category = isort_obj.place_module(package)
+            node_and_package_import = (node, package)
             if import_category in ('FUTURE', 'STDLIB'):
-                std_imports.append((node, package))
-                wrong_import = extern_not_ignored or local_not_ignored
+                std_imports.append(node_and_package_import)
+                wrong_import = (third_party_not_ignored or first_party_not_ignored
+                                or local_not_ignored)
                 if self._is_fallback_import(node, wrong_import):
                     continue
                 if wrong_import and not nested:
                     self.add_message('wrong-import-order', node=node,
                                      args=('standard import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
-            elif import_category in ('FIRSTPARTY', 'THIRDPARTY'):
-                extern_imports.append((node, package))
+            elif import_category == 'THIRDPARTY':
+                third_party_imports.append(node_and_package_import)
+                external_imports.append(node_and_package_import)
                 if not nested and not ignore_for_import_order:
-                    extern_not_ignored.append((node, package))
+                    third_party_not_ignored.append(node_and_package_import)
+                wrong_import = first_party_not_ignored or local_not_ignored
+                if wrong_import and not nested:
+                    self.add_message('wrong-import-order', node=node,
+                                     args=('third party import "%s"' % node.as_string(),
+                                           '"%s"' % wrong_import[0][0].as_string()))
+            elif import_category == 'FIRSTPARTY':
+                first_party_imports.append(node_and_package_import)
+                external_imports.append(node_and_package_import)
+                if not nested and not ignore_for_import_order:
+                    first_party_not_ignored.append(node_and_package_import)
                 wrong_import = local_not_ignored
                 if wrong_import and not nested:
                     self.add_message('wrong-import-order', node=node,
-                                     args=('external import "%s"' % node.as_string(),
+                                     args=('first party import "%s"' % node.as_string(),
                                            '"%s"' % wrong_import[0][0].as_string()))
             elif import_category == 'LOCALFOLDER':
                 local_imports.append((node, package))
                 if not nested and not ignore_for_import_order:
                     local_not_ignored.append((node, package))
-        return std_imports, extern_imports, local_imports
+        return std_imports, external_imports, local_imports
 
     def _get_imported_module(self, importnode, modname):
         try:
@@ -629,7 +656,7 @@ class ImportsChecker(BaseChecker):
         the imported module name.
         """
         if not self.linter.is_message_enabled('relative-import'):
-            return
+            return None
         if importedmodnode.file is None:
             return False # built-in module
         if modnode is importedmodnode:
@@ -641,6 +668,8 @@ class ImportsChecker(BaseChecker):
             self.add_message('relative-import',
                              args=(importedasname, importedmodnode.name),
                              node=importnode)
+            return None
+        return None
 
     def _add_imported_module(self, node, importedmodname):
         """notify an imported module, used to analyze dependencies"""
@@ -706,7 +735,7 @@ class ImportsChecker(BaseChecker):
 
     def _report_external_dependencies(self, sect, _, _dummy):
         """return a verbatim layout for displaying dependencies"""
-        dep_info = _make_tree_defs(six.iteritems(self._external_dependencies_info()))
+        dep_info = _make_tree_defs(self._external_dependencies_info().items())
         if not dep_info:
             raise EmptyReportError()
         tree_str = _repr_tree_defs(dep_info)
@@ -738,7 +767,7 @@ class ImportsChecker(BaseChecker):
         if self.__ext_dep_info is None:
             package = self.linter.current_name
             self.__ext_dep_info = result = {}
-            for importee, importers in six.iteritems(self.stats['dependencies']):
+            for importee, importers in self.stats['dependencies'].items():
                 if not importee.startswith(package):
                     result[importee] = importers
         return self.__ext_dep_info
@@ -750,7 +779,7 @@ class ImportsChecker(BaseChecker):
         if self.__int_dep_info is None:
             package = self.linter.current_name
             self.__int_dep_info = result = {}
-            for importee, importers in six.iteritems(self.stats['dependencies']):
+            for importee, importers in self.stats['dependencies'].items():
                 if importee.startswith(package):
                     result[importee] = importers
         return self.__int_dep_info

@@ -1,8 +1,21 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2009 Charles Hebert <charles.hebert@logilab.fr>
 # Copyright (c) 2011-2014 Google, Inc.
+# Copyright (c) 2012 Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
+# Copyright (c) 2012 Anthony VEREZ <anthony.verez.external@cassidian.com>
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
+# Copyright (c) 2015 Noam Yorav-Raphael <noamraph@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
+# Copyright (c) 2017 Craig Citro <craigcitro@gmail.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -519,7 +532,7 @@ def pop_pylintrc():
     os.environ.pop('PYLINTRC', None)
 
 
-@pytest.mark.usefixture("pop_pylintrc")
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylint_home():
     uhome = os.path.expanduser('~')
     if uhome == '~':
@@ -546,7 +559,7 @@ def test_pylint_home():
 @pytest.mark.skipif(PYPY_VERSION_INFO,
                     reason="TOX runs this test from within the repo and finds "
                     "the project's pylintrc.")
-@pytest.mark.usefixture("pop_pylintrc")
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc():
     with fake_home():
         current_dir = getcwd()
@@ -563,7 +576,7 @@ def test_pylintrc():
             reload_module(config)
 
 
-@pytest.mark.usefixture("pop_pylintrc")
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc_parentdir():
     with tempdir() as chroot:
 
@@ -583,7 +596,7 @@ def test_pylintrc_parentdir():
             assert config.find_pylintrc() == expected
 
 
-@pytest.mark.usefixture("pop_pylintrc")
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc_parentdir_no_package():
     with tempdir() as chroot:
         with fake_home():

@@ -1,5 +1,10 @@
 # Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
+# Copyright (c) 2014 Google, Inc.
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016-2017 Derek Gustafson <degustaf@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -95,7 +100,7 @@ def modify_path():
     os.chdir(cwd)
 
 
-@pytest.mark.usefixture("modify_path")
+@pytest.mark.usefixtures("modify_path")
 def test_check_package___init__(finalize_linter):
     filename = 'package.__init__'
     finalize_linter.check(filename)

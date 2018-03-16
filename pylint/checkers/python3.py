@@ -1,19 +1,30 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Brett Cannon <brett@python.org>
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Simu Toni <simutoni@gmail.com>
 # Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2015 Cosmin Poieana <cmin@ropython.org>
+# Copyright (c) 2015 Viorel Stirbu <viorels@gmail.com>
+# Copyright (c) 2016-2017 Roy Williams <roy.williams.iii@gmail.com>
+# Copyright (c) 2016 Roy Williams <rwilliams@lyft.com>
+# Copyright (c) 2016 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2016 Erik <erik.eriksson@yahoo.com>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2017 Daniel Miller <millerdev@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 ahirnish <ahirnish@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Check Python 2 code for Python 2/3 source-compatible issues."""
 from __future__ import absolute_import, print_function
 
+from collections import namedtuple
 import re
 import sys
 import tokenize
-
-from collections import namedtuple
-
-import six
 
 import astroid
 from astroid import bases
@@ -36,6 +47,7 @@ def _is_old_octal(literal):
         except ValueError:
             return False
         return True
+    return None
 
 
 def _check_dict_node(node):
@@ -56,7 +68,7 @@ def _is_builtin(node):
 
 
 _ACCEPTS_ITERATOR = {'iter', 'list', 'tuple', 'sorted', 'set', 'sum', 'any',
-                     'all', 'enumerate', 'dict', 'filter'}
+                     'all', 'enumerate', 'dict', 'filter', 'reversed'}
 DICT_METHODS = {'items', 'keys', 'values'}
 
 
@@ -96,7 +108,7 @@ def _in_iterating_context(node):
 
 
 def _is_conditional_import(node):
-    """Checks if a import node is in the context of a conditional.
+    """Checks if an import node is in the context of a conditional.
     """
     parent = node.parent
     return isinstance(parent, (astroid.TryExcept, astroid.ExceptHandler,
@@ -290,7 +302,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1627': ('__oct__ method defined',
                   'oct-method',
-                  'Used when a __oct__ method is defined '
+                  'Used when an __oct__ method is defined '
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
         'W1628': ('__hex__ method defined',
@@ -371,7 +383,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1643': ('__idiv__ method defined',
                   'idiv-method',
-                  'Used when a __idiv__ method is defined.  Using `__itruediv__` and setting'
+                  'Used when an __idiv__ method is defined.  Using `__itruediv__` and setting'
                   '__idiv__ = __itruediv__ should be preferred.'
                   '(method is not used by Python 3)',
                   {'maxversion': (3, 0)}),
@@ -405,7 +417,7 @@ class Python3Checker(checkers.BaseChecker):
                   {'maxversion': (3, 0)}),
         'W1650': ('Using str.translate with deprecated deletechars parameters',
                   'deprecated-str-translate-call',
-                  'Used when using the deprecated deletechars parameters from str.translate.  Use'
+                  'Used when using the deprecated deletechars parameters from str.translate.  Use '
                   're.sub to remove the desired characters ',
                   {'maxversion': (3, 0)}),
         'W1651': ('Accessing a deprecated function on the itertools module',
@@ -600,7 +612,7 @@ class Python3Checker(checkers.BaseChecker):
             elif node.name == 'next':
                 # If there is a method named `next` declared, if it is invokable
                 # with zero arguments then it implements the Iterator protocol.
-                # This means if the method is a instance method or a
+                # This means if the method is an instance method or a
                 # classmethod 1 argument should cause a failure, if it is a
                 # staticmethod 0 arguments should cause a failure.
                 failing_arg_count = 1
@@ -629,7 +641,7 @@ class Python3Checker(checkers.BaseChecker):
         self.add_message('print-statement', node=node, always_warn=True)
 
     def _warn_if_deprecated(self, node, module, attributes, report_on_modules=True):
-        for message, module_map in six.iteritems(self._bad_python3_module_map):
+        for message, module_map in self._bad_python3_module_map.items():
             if module in module_map and module not in self._modules_warned_about:
                 if isinstance(module_map, frozenset):
                     if report_on_modules:
@@ -649,6 +661,7 @@ class Python3Checker(checkers.BaseChecker):
             if not self._future_absolute_import:
                 if self.linter.is_message_enabled('no-absolute-import'):
                     self.add_message('no-absolute-import', node=node)
+                    self._future_absolute_import = True
             if not _is_conditional_import(node) and not node.level:
                 self._warn_if_deprecated(node, node.modname, {x[0] for x in node.names})
 
@@ -659,7 +672,9 @@ class Python3Checker(checkers.BaseChecker):
 
     def visit_import(self, node):
         if not self._future_absolute_import:
-            self.add_message('no-absolute-import', node=node)
+            if self.linter.is_message_enabled('no-absolute-import'):
+                self.add_message('no-absolute-import', node=node)
+                self._future_absolute_import = True
         if not _is_conditional_import(node):
             for name, _ in node.names:
                 self._warn_if_deprecated(node, name, None)
@@ -713,7 +728,7 @@ class Python3Checker(checkers.BaseChecker):
     @staticmethod
     def _is_constant_string_or_name(node):
         if isinstance(node, astroid.Const):
-            return isinstance(node.value, six.string_types)
+            return isinstance(node.value, str)
         return isinstance(node, astroid.Name)
 
     @staticmethod
@@ -731,7 +746,7 @@ class Python3Checker(checkers.BaseChecker):
             if inferred_type is astroid.Uninferable:
                 confidence = INFERENCE_FAILURE
             elif not (isinstance(inferred_type, astroid.Const) and
-                      isinstance(inferred_type.value, six.string_types)):
+                      isinstance(inferred_type.value, str)):
                 return None
         return confidence
 
@@ -892,6 +907,7 @@ class Python3Checker(checkers.BaseChecker):
             if isinstance(value, str):
                 self.add_message('raising-string', node=node)
                 return True
+        return None
 
 
 class Python3TokenChecker(checkers.BaseTokenChecker):

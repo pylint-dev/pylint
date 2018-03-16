@@ -1,15 +1,21 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2014 Google, Inc.
+# Copyright (c) 2009, 2012, 2014 Google, Inc.
+# Copyright (c) 2012 Mike Bryant <leachim@leachim.info>
+# Copyright (c) 2014 Brett Cannon <brett@python.org>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Chris Murray <chris@chrismurray.scot>
 # Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2017 guillaume2 <guillaume.peillex@gmail.col>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """checker for use of Python logging
 """
 import string
-
-import six
 
 import astroid
 
@@ -218,7 +224,7 @@ class LoggingChecker(checkers.BaseChecker):
             # don't check any further.
             return
         format_string = node.args[format_arg].value
-        if not isinstance(format_string, six.string_types):
+        if not isinstance(format_string, str):
             # If the log format is constant non-string (e.g. logging.debug(5)),
             # ensure there are no arguments.
             required_num_args = 0
@@ -253,9 +259,14 @@ def is_complex_format_str(node):
         bool: True if inferred string uses complex formatting, False otherwise
     """
     inferred = utils.safe_infer(node)
-    if inferred is None or not isinstance(inferred.value, six.string_types):
+    if inferred is None or not isinstance(inferred.value, str):
         return True
-    for _, _, format_spec, _ in string.Formatter().parse(inferred.value):
+    try:
+        parsed = list(string.Formatter().parse(inferred.value))
+    except ValueError:
+        # This format string is invalid
+        return False
+    for _, _, format_spec, _ in parsed:
         if format_spec:
             return True
     return False

@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Aru Sahni <arusahni@gmail.com>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glenn@e-dad.net>
+# Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
+# Copyright (c) 2017 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -14,7 +21,7 @@ import warnings
 import astroid
 
 from pylint import utils
-from pylint.checkers.utils import check_messages
+from pylint.checkers.utils import check_messages, get_node_last_lineno
 from pylint.exceptions import InvalidMessageError
 import pytest
 
@@ -207,3 +214,177 @@ def test_decoding_stream_known_encoding():
     binary_io = io.BytesIO(u'€'.encode('cp1252'))
     stream = utils.decoding_stream(binary_io, 'cp1252')
     assert stream.read() == u'€'
+
+class TestGetNodeLastLineno:
+
+    def test_get_node_last_lineno_simple(self):
+        node = astroid.extract_node("""
+            pass
+        """)
+        assert get_node_last_lineno(node) == 2
+
+
+    def test_get_node_last_lineno_if_simple(self):
+        node = astroid.extract_node("""
+            if True:
+                print(1)
+                pass
+            """)
+        assert get_node_last_lineno(node) == 4
+
+
+    def test_get_node_last_lineno_if_elseif_else(self):
+        node = astroid.extract_node("""
+            if True:
+                print(1)
+            elif False:
+                print(2)
+            else:
+                print(3)
+            """)
+        assert get_node_last_lineno(node) == 7
+
+
+    def test_get_node_last_lineno_while(self):
+        node = astroid.extract_node("""
+            while True:
+                print(1)
+            """)
+        assert get_node_last_lineno(node) == 3
+
+
+    def test_get_node_last_lineno_while_else(self):
+        node = astroid.extract_node("""
+            while True:
+                print(1)
+            else:
+                print(2)
+            """)
+        assert get_node_last_lineno(node) == 5
+
+
+    def test_get_node_last_lineno_for(self):
+        node = astroid.extract_node("""
+            for x in range(0, 5):
+                print(1)
+            """)
+        assert get_node_last_lineno(node) == 3
+
+
+    def test_get_node_last_lineno_for_else(self):
+        node = astroid.extract_node("""
+            for x in range(0, 5):
+                print(1)
+            else:
+                print(2)
+            """)
+        assert get_node_last_lineno(node) == 5
+
+
+    def test_get_node_last_lineno_try(self):
+        node = astroid.extract_node("""
+            try:
+                print(1)
+            except ValueError:
+                print(2)
+            except Exception:
+                print(3)
+            """)
+        assert get_node_last_lineno(node) == 7
+
+
+    def test_get_node_last_lineno_try_except_else(self):
+        node = astroid.extract_node("""
+            try:
+                print(1)
+            except Exception:
+                print(2)
+                print(3)
+            else:
+                print(4)
+            """)
+        assert get_node_last_lineno(node) == 8
+
+
+    def test_get_node_last_lineno_try_except_finally(self):
+        node = astroid.extract_node("""
+            try:
+                print(1)
+            except Exception:
+                print(2)
+            finally:
+                print(4)
+            """)
+        assert get_node_last_lineno(node) == 7
+
+
+    def test_get_node_last_lineno_try_except_else_finally(self):
+        node = astroid.extract_node("""
+            try:
+                print(1)
+            except Exception:
+                print(2)
+            else:
+                print(3)
+            finally:
+                print(4)
+            """)
+        assert get_node_last_lineno(node) == 9
+
+
+    def test_get_node_last_lineno_with(self):
+        node = astroid.extract_node("""
+            with x as y:
+                print(1)
+                pass
+            """)
+        assert get_node_last_lineno(node) == 4
+
+
+    def test_get_node_last_lineno_method(self):
+        node = astroid.extract_node("""
+            def x(a, b):
+                print(a, b)
+                pass
+            """)
+        assert get_node_last_lineno(node) == 4
+
+
+    def test_get_node_last_lineno_decorator(self):
+        node = astroid.extract_node("""
+            @decor()
+            def x(a, b):
+                print(a, b)
+                pass
+            """)
+        assert get_node_last_lineno(node) == 5
+
+    def test_get_node_last_lineno_class(self):
+        node = astroid.extract_node("""
+            class C(object):
+                CONST = True
+
+                def x(self, b):
+                    print(b)
+
+                def y(self):
+                    pass
+                    pass
+            """)
+        assert get_node_last_lineno(node) == 10
+
+
+    def test_get_node_last_lineno_combined(self):
+        node = astroid.extract_node("""
+            class C(object):
+                CONST = True
+
+                def y(self):
+                    try:
+                        pass
+                    except:
+                        pass
+                    finally:
+                        pass
+            """)
+        assert get_node_last_lineno(node) == 11

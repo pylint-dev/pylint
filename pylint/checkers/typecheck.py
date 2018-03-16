@@ -1,14 +1,26 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
-# Copyright (c) 2013-2014, 2016 Google, Inc.
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
-# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
+# Copyright (c) 2009 James Lingard <jchl@aristanetworks.com>
+# Copyright (c) 2012-2014 Google, Inc.
+# Copyright (c) 2014-2017 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 David Shea <dshea@redhat.com>
-# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
-# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
+# Copyright (c) 2014 Steven Myint <hg@stevenmyint.com>
+# Copyright (c) 2014 Holger Peters <email@holger-peters.de>
+# Copyright (c) 2014 Arun Persaud <arun@nubati.net>
+# Copyright (c) 2015 Anentropic <ego@anentropic.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
-# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
+# Copyright (c) 2015 Radu Ciorba <radu@devrandom.ro>
+# Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
+# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2016 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2016 Jürgen Hermann <jh@web.de>
+# Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
+# Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
+# Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -16,6 +28,7 @@
 """try to find more bugs in the code using astroid inference capabilities
 """
 
+import builtins
 import collections
 import fnmatch
 import heapq
@@ -24,8 +37,7 @@ import operator
 import re
 import shlex
 import sys
-
-import six
+import types
 
 import astroid
 import astroid.context
@@ -53,19 +65,27 @@ from pylint.checkers.utils import (
     singledispatch)
 from pylint.utils import get_global_option
 
-BUILTINS = six.moves.builtins.__name__
-STR_FORMAT = "%s.str.format" % BUILTINS
+BUILTINS = builtins.__name__
+STR_FORMAT = {"%s.str.format" % BUILTINS}
 
 
 def _unflatten(iterable):
     for index, elem in enumerate(iterable):
         if (isinstance(elem, collections.Sequence) and
-                not isinstance(elem, six.string_types)):
+                not isinstance(elem, str)):
             for single_elem in _unflatten(elem):
                 yield single_elem
         elif elem and not index:
             # We're interested only in the first element.
             yield elem
+
+def _flatten_container(iterable):
+    # Flatten nested containers into a single iterable
+    for item in iterable:
+        if isinstance(item, (list, tuple, types.GeneratorType)):
+            yield from _flatten_container(item)
+        else:
+            yield item
 
 
 def _is_owner_ignored(owner, name, ignored_classes, ignored_modules):
@@ -183,8 +203,8 @@ MSGS = {
               'no-member',
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
-    'I1101': ('%s %r has not %r member, but source is unavailable. Consider '
-              'adding this module to extension-package-whitelist if you want '
+    'I1101': ('%s %r has not %r member%s, but source is unavailable. Consider '
+              'adding this module to extension-pkg-whitelist if you want '
               'to perform analysis based on run-time introspection of living objects.',
               'c-extension-no-member',
               'Used when a variable is accessed for non-existent member of C '
@@ -217,8 +237,7 @@ MSGS = {
     'E1125': ('Missing mandatory keyword argument %r in %s call',
               'missing-kwoa',
               ('Used when a function call does not pass a mandatory'
-               ' keyword-only argument.'),
-              {'minversion': (3, 0)}),
+               ' keyword-only argument.')),
     'E1126': ('Sequence index is not an int, slice, or instance with __index__',
               'invalid-sequence-index',
               'Used when a sequence type is indexed with an invalid type. '
@@ -321,6 +340,14 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins):
             return False
         if not all(map(has_known_bases, owner.type.mro())):
             return False
+    if node.attrname.startswith('_' + owner_name):
+        # Test if an attribute has been mangled ('private' attribute)
+        unmangled_name = node.attrname.split('_' + owner_name)[-1]
+        try:
+            if owner.getattr(unmangled_name, context=None) is not None:
+                return False
+        except astroid.NotFoundError:
+            return True
     return True
 
 
@@ -605,7 +632,7 @@ accessed. Python regular expressions are accepted.'}
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
-        if isinstance(self.config.generated_members, six.string_types):
+        if isinstance(self.config.generated_members, str):
             gen = shlex.shlex(self.config.generated_members)
             gen.whitespace += ','
             gen.wordchars += r'[]-+\.*?()|'
@@ -826,6 +853,7 @@ accessed. Python regular expressions are accepted.'}
                                      args=node.func.as_string())
                     break
 
+    # pylint: disable=too-many-branches
     @check_messages(*(list(MSGS.keys())))
     def visit_call(self, node):
         """check that called functions/methods are inferred to callable objects,
@@ -847,8 +875,13 @@ accessed. Python regular expressions are accepted.'}
 
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
+        # Ignore instances of descriptors since astroid cannot properly handle them
+        # yet
         if called and not called.callable():
-            if isinstance(called, astroid.Instance) and not has_known_bases(called):
+            if isinstance(called, astroid.Instance) and (
+                    not has_known_bases(called)
+                    or (isinstance(called.scope(), astroid.ClassDef)
+                        and '__get__' in called.locals)):
                 # Don't emit if we can't make sure this object is callable.
                 pass
             else:
@@ -941,7 +974,7 @@ accessed. Python regular expressions are accepted.'}
                     # by keyword argument, as in `.format(self=self)`.
                     # It's perfectly valid to so, so we're just skipping
                     # it if that's the case.
-                    if not (keyword == 'self' and called.qname() == STR_FORMAT):
+                    if not (keyword == 'self' and called.qname() in STR_FORMAT):
                         self.add_message('redundant-keyword-arg',
                                          node=node, args=(keyword, callable_name))
                 else:
@@ -1000,15 +1033,14 @@ accessed. Python regular expressions are accepted.'}
     @check_messages('invalid-sequence-index')
     def visit_index(self, node):
         if not node.parent or not hasattr(node.parent, "value"):
-            return
+            return None
         # Look for index operations where the parent is a sequence type.
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
         parent_type = safe_infer(node.parent.value)
-        if not isinstance(parent_type, (astroid.ClassDef, astroid.Instance)):
-            return
-        if not has_known_bases(parent_type):
-            return
+        if (not isinstance(parent_type, (astroid.ClassDef, astroid.Instance))
+                or not has_known_bases(parent_type)):
+            return None
 
         # Determine what method on the parent this index will use
         # The parent of this node will be a Subscript, and the parent of that
@@ -1027,20 +1059,18 @@ accessed. Python regular expressions are accepted.'}
         try:
             methods = dunder_lookup.lookup(parent_type, methodname)
             if methods is astroid.YES:
-                return
+                return None
             itemmethod = methods[0]
         except (exceptions.NotFoundError,
                 exceptions.AttributeInferenceError,
                 IndexError):
-            return
-        if not isinstance(itemmethod, astroid.FunctionDef):
-            return
-        if itemmethod.root().name != BUILTINS:
-            return
-        if not itemmethod.parent:
-            return
-        if itemmethod.parent.name not in SEQUENCE_TYPES:
-            return
+            return None
+
+        if (not isinstance(itemmethod, astroid.FunctionDef)
+                or itemmethod.root().name != BUILTINS
+                or not itemmethod.parent
+                or itemmethod.parent.name not in SEQUENCE_TYPES):
+            return None
 
         # For ExtSlice objects coming from visit_extslice, no further
         # inference is necessary, since if we got this far the ExtSlice
@@ -1050,18 +1080,18 @@ accessed. Python regular expressions are accepted.'}
         else:
             index_type = safe_infer(node)
         if index_type is None or index_type is astroid.YES:
-            return
+            return None
         # Constants must be of type int
         if isinstance(index_type, astroid.Const):
             if isinstance(index_type.value, int):
-                return
+                return None
         # Instance values must be int, slice, or have an __index__ method
         elif isinstance(index_type, astroid.Instance):
             if index_type.pytype() in (BUILTINS + '.int', BUILTINS + '.slice'):
-                return
+                return None
             try:
                 index_type.getattr('__index__')
-                return
+                return None
             except exceptions.NotFoundError:
                 pass
         elif isinstance(index_type, astroid.Slice):
@@ -1072,6 +1102,7 @@ accessed. Python regular expressions are accepted.'}
 
         # Anything else is an error
         self.add_message('invalid-sequence-index', node=node)
+        return None
 
     @check_messages('invalid-slice-index')
     def visit_slice(self, node):
@@ -1128,8 +1159,12 @@ accessed. Python regular expressions are accepted.'}
                 # manager and give up, otherwise emit not-context-manager.
                 # See the test file for not_context_manager for a couple
                 # of self explaining tests.
-                for path in six.moves.filter(None, _unflatten(context.path)):
-                    scope = path.scope()
+
+                # Retrieve node from all previusly visited nodes in the the inference history
+                context_path_names = filter(None, _unflatten(context.path))
+                inferred_paths = _flatten_container(path.infer() for path in context_path_names)
+                for inf_path in inferred_paths:
+                    scope = inf_path.scope()
                     if not isinstance(scope, astroid.FunctionDef):
                         continue
                     if decorated_with(scope,

@@ -1,4 +1,6 @@
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
+# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -75,7 +77,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
 
     def _append_node(self, node):
         if not self.tail:
-            return
+            return None
         self.graph.connect(self.tail, node)
         self.tail = node
         return node
