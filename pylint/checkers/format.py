@@ -168,6 +168,17 @@ def _token_followed_by_eol(tokens, position):
             tokens.type(position+2) == tokenize.NL)
 
 
+def _get_indent_string(line):
+    """Return the indention string of the given line."""
+    result = ''
+    for char in line:
+        if char == ' ' or char == '\t':
+            result += char
+        else:
+            break
+    return result
+
+
 def _get_indent_length(line):
     """Return the length of the indentation on the given token's line."""
     result = 0
@@ -185,6 +196,9 @@ def _get_indent_hint_line(bar_positions, bad_position):
     """Return a line with |s for each of the positions in the given lists."""
     if not bar_positions:
         return ('', '')
+    # TODO tabs should not be replaced by some random (8) numebr of spaces
+    bar_positions = [_get_indent_length(indent) for indent in bar_positions]
+    bad_position = _get_indent_length(bad_position)
     delta_message = ''
     markers = [(pos, '|') for pos in bar_positions]
     if len(markers) == 1:
@@ -203,8 +217,8 @@ def _get_indent_hint_line(bar_positions, bad_position):
 
 
 class _ContinuedIndent(object):
-    __slots__ = ('valid_outdent_offsets',
-                 'valid_continuation_offsets',
+    __slots__ = ('valid_outdent_strings',
+                 'valid_continuation_strings',
                  'context_type',
                  'token',
                  'position')
@@ -213,10 +227,10 @@ class _ContinuedIndent(object):
                  context_type,
                  token,
                  position,
-                 valid_outdent_offsets,
-                 valid_continuation_offsets):
-        self.valid_outdent_offsets = valid_outdent_offsets
-        self.valid_continuation_offsets = valid_continuation_offsets
+                 valid_outdent_strings,
+                 valid_continuation_strings):
+        self.valid_outdent_strings = valid_outdent_strings
+        self.valid_continuation_strings = valid_continuation_strings
         self.context_type = context_type
         self.position = position
         self.token = token
@@ -247,16 +261,16 @@ _CONTINUATION_MSG_PARTS = {
 
 _CONTINUATION_HINT_MESSAGE = ' (%s %d space%s)'  # Ex: (remove 2 spaces)
 
-def _Offsets(*args):
-    """Valid indentation offsets for a continued line."""
+def _Indentations(*args):
+    """Valid indentation strings for a continued line."""
     return dict((a, None) for a in args)
 
 
-def _BeforeBlockOffsets(single, with_body):
-    """Valid alternative indent offsets for continued lines before blocks.
+def _BeforeBlockIndentations(single, with_body):
+    """Valid alternative indentation strings for continued lines before blocks.
 
-    :param int single: Valid offset for statements on a single logical line.
-    :param int with_body: Valid offset for statements on several lines.
+    :param int single: Valid indentation string for statements on a single logical line.
+    :param int with_body: Valid indentation string for statements on several lines.
 
     :returns: A dictionary mapping indent offsets to a string representing
         whether the indent if for a line or block.
@@ -286,6 +300,13 @@ class TokenWrapper(object):
     def line(self, idx):
         return self._tokens[idx][4]
 
+    def line_indent(self, idx):
+        return _get_indent_string(self.line(idx))
+
+    def token_indent(self, idx):
+        line_indent = self.line_indent(idx)
+        return line_indent + ' ' * (self.start_col(idx) - len(line_indent))
+
 
 class ContinuedLineState(object):
     """Tracker for continued indentation inside a logical line."""
@@ -303,8 +324,12 @@ class ContinuedLineState(object):
         return bool(self._cont_stack)
 
     @property
-    def _block_indent_size(self):
-        return len(self._config.indent_string.replace('\t', ' ' * _TAB_LENGTH))
+    def _block_indent_string(self):
+        return self._config.indent_string.replace('\\t', '\t')
+
+    @property
+    def _continuation_string(self):
+        return self._block_indent_string[0] * self._config.indent_after_paren
 
     @property
     def _continuation_size(self):
@@ -337,10 +362,10 @@ class ContinuedLineState(object):
         self.retained_warnings = []
         self._cont_stack = []
 
-    def add_block_warning(self, token_position, state, valid_offsets):
-        self.retained_warnings.append((token_position, state, valid_offsets))
+    def add_block_warning(self, token_position, state, valid_indentations):
+        self.retained_warnings.append((token_position, state, valid_indentations))
 
-    def get_valid_offsets(self, idx):
+    def get_valid_indentations(self, idx):
         """Returns the valid offsets for the token at the given position."""
         # The closing brace on a dict or the 'for' in a dict comprehension may
         # reset two indent levels because the dict value is ended implicitly
@@ -349,30 +374,30 @@ class ContinuedLineState(object):
             stack_top = -2
         indent = self._cont_stack[stack_top]
         if self._tokens.token(idx) in _CLOSING_BRACKETS:
-            valid_offsets = indent.valid_outdent_offsets
+            valid_indentations = indent.valid_outdent_strings
         else:
-            valid_offsets = indent.valid_continuation_offsets
-        return indent, valid_offsets.copy()
+            valid_indentations = indent.valid_continuation_strings
+        return indent, valid_indentations.copy()
 
     def _hanging_indent_after_bracket(self, bracket, position):
         """Extracts indentation information for a hanging indent."""
-        indentation = _get_indent_length(self._tokens.line(position))
-        if self._is_block_opener and self._continuation_size == self._block_indent_size:
+        indentation = self._tokens.line_indent(position)
+        if self._is_block_opener and self._continuation_string == self._block_indent_string:
             return _ContinuedIndent(
                 HANGING_BLOCK,
                 bracket,
                 position,
-                _Offsets(indentation + self._continuation_size, indentation),
-                _BeforeBlockOffsets(indentation + self._continuation_size,
-                                    indentation + self._continuation_size * 2))
+                _Indentations(indentation + self._continuation_string, indentation),
+                _BeforeBlockIndentations(indentation + self._continuation_string,
+                                         indentation + self._continuation_string * 2))
         if bracket == ':':
             # If the dict key was on the same line as the open brace, the new
             # correct indent should be relative to the key instead of the
             # current indent level
-            paren_align = self._cont_stack[-1].valid_outdent_offsets
-            next_align = self._cont_stack[-1].valid_continuation_offsets.copy()
+            paren_align = self._cont_stack[-1].valid_outdent_strings
+            next_align = self._cont_stack[-1].valid_continuation_strings.copy()
             next_align_keys = list(next_align.keys())
-            next_align[next_align_keys[0] + self._continuation_size] = True
+            next_align[next_align_keys[0] + self._continuation_string] = True
             # Note that the continuation of
             # d = {
             #       'a': 'b'
@@ -384,27 +409,29 @@ class ContinuedLineState(object):
             HANGING,
             bracket,
             position,
-            _Offsets(indentation, indentation + self._continuation_size),
-            _Offsets(indentation + self._continuation_size))
+            _Indentations(indentation, indentation + self._continuation_string),
+            _Indentations(indentation + self._continuation_string))
 
     def _continuation_inside_bracket(self, bracket, pos):
         """Extracts indentation information for a continued indent."""
-        indentation = _get_indent_length(self._tokens.line(pos))
-        token_start = self._tokens.start_col(pos)
-        next_token_start = self._tokens.start_col(pos + 1)
-        if self._is_block_opener and next_token_start - indentation == self._block_indent_size:
+        indentation = self._tokens.line_indent(pos)
+        token_indent = self._tokens.token_indent(pos)
+        next_token_indent = self._tokens.token_indent(pos + 1)
+        if self._is_block_opener and next_token_indent == indentation + self._block_indent_string:
             return _ContinuedIndent(
                 CONTINUED_BLOCK,
                 bracket,
                 pos,
-                _Offsets(token_start),
-                _BeforeBlockOffsets(next_token_start, next_token_start + self._continuation_size))
+                _Indentations(token_indent),
+                _BeforeBlockIndentations(
+                    next_token_indent,
+                    next_token_indent + self._continuation_string))
         return _ContinuedIndent(
             CONTINUED,
             bracket,
             pos,
-            _Offsets(token_start),
-            _Offsets(next_token_start))
+            _Indentations(token_indent),
+            _Indentations(next_token_indent))
 
     def pop_token(self):
         self._cont_stack.pop()
@@ -889,9 +916,9 @@ class FormatChecker(BaseTokenChecker):
     def _process_retained_warnings(self, tokens, current_pos):
         single_line_block_stmt = not _last_token_on_line_is(tokens, current_pos, ':')
 
-        for indent_pos, state, offsets in self._current_line.retained_warnings:
-            block_type = offsets[tokens.start_col(indent_pos)]
-            hints = {k: v for k, v in offsets.items() if v != block_type}
+        for indent_pos, state, indentations in self._current_line.retained_warnings:
+            block_type = indentations[tokens.token_indent(indent_pos)]
+            hints = {k: v for k, v in indentations.items() if v != block_type}
             if single_line_block_stmt and block_type == WITH_BODY:
                 self._add_continuation_message(state, hints, tokens, indent_pos)
             elif not single_line_block_stmt and block_type == SINGLE_LINE:
@@ -906,27 +933,27 @@ class FormatChecker(BaseTokenChecker):
         if not self._current_line.has_content or tokens.type(next_idx) == tokenize.NL:
             return
 
-        state, valid_offsets = self._current_line.get_valid_offsets(next_idx)
+        state, valid_indentations = self._current_line.get_valid_indentations(next_idx)
         # Special handling for hanging comments and strings. If the last line ended
         # with a comment (string) and the new line contains only a comment, the line
         # may also be indented to the start of the previous token.
         if same_token_around_nl(tokenize.COMMENT) or same_token_around_nl(tokenize.STRING):
-            valid_offsets[tokens.start_col(next_idx-2)] = True
+            valid_indentations[tokens.token_indent(next_idx-2)] = True
 
         # We can only decide if the indentation of a continued line before opening
         # a new block is valid once we know of the body of the block is on the
         # same line as the block opener. Since the token processing is single-pass,
         # emitting those warnings is delayed until the block opener is processed.
         if (state.context_type in (HANGING_BLOCK, CONTINUED_BLOCK)
-                and tokens.start_col(next_idx) in valid_offsets):
-            self._current_line.add_block_warning(next_idx, state, valid_offsets)
-        elif tokens.start_col(next_idx) not in valid_offsets:
+                and tokens.token_indent(next_idx) in valid_indentations):
+            self._current_line.add_block_warning(next_idx, state, valid_indentations)
+        elif tokens.token_indent(next_idx) not in valid_indentations:
+            self._add_continuation_message(state, valid_indentations, tokens, next_idx)
 
-            self._add_continuation_message(state, valid_offsets, tokens, next_idx)
-
-    def _add_continuation_message(self, state, offsets, tokens, position):
+    def _add_continuation_message(self, state, indentations, tokens, position):
         readable_type, readable_position = _CONTINUATION_MSG_PARTS[state.context_type]
-        hint_line, delta_message = _get_indent_hint_line(offsets, tokens.start_col(position))
+        hint_line, delta_message = _get_indent_hint_line(indentations,
+                                                         tokens.token_indent(position))
         self.add_message(
             'bad-continuation',
             line=tokens.start_line(position),
