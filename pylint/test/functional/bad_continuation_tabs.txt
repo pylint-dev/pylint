@@ -1,0 +1,6 @@
+bad-continuation:24::"Wrong hanging indentation (add 1 space).
+		       e)  # [bad-continuation]
+                       ^|"
+bad-continuation:35::"Wrong continued indentation.
+		]  # [bad-continuation]
+                ^      ||"
