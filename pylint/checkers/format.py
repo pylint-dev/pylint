@@ -430,7 +430,7 @@ class ContinuedLineState(object):
             CONTINUED,
             bracket,
             pos,
-            _Indentations(token_indent),
+            _Indentations(token_indent, next_token_indent),
             _Indentations(next_token_indent))
 
     def pop_token(self):
