@@ -251,8 +251,16 @@ class MessagesHandlerMixIn(object):
     """
 
     def __init__(self):
+        self.file_state = FileState()
         self._msgs_state = {}
         self.msg_status = 0
+        self.msgs_store = MessagesStore()
+        self.reporter = None
+        self.stats = {
+            'by_module': {},
+            'by_msg': {},
+        }
+        super().__init__()
 
     def _checker_messages(self, checker):
         for known_checker in self._checkers[checker.lower()]:
@@ -296,13 +304,7 @@ class MessagesHandlerMixIn(object):
                         self._set_msg_status(_msgid, enable, scope, line)
             return
 
-        # msgid is report id?
-        if msgid.lower().startswith('rp'):
-            if enable:
-                self.enable_report(msgid)
-            else:
-                self.disable_report(msgid)
-            return
+        # TODO: Need to add enable/disable report back?
 
         try:
             # msgid is a symbolic or numeric msgid.
@@ -551,6 +553,24 @@ class MessagesHandlerMixIn(object):
             print("", file=stream)
         print("", file=stream)
 
+    def add_stats(self, **kwargs):
+        """Add some stats entries to the statistic dictionary.
+
+        :param kwargs: The stats to add to the statistic dictionary.
+
+        :returns: The new statistic dictionary.
+        :rtype: dict
+
+        :raises AssertionError: If there is a key conflict.
+        """
+        for key, value in six.iteritems(kwargs):
+            if key[-1] == '_':
+                key = key[:-1]
+            assert key not in self.stats
+            self.stats[key] = value
+        return self.stats
+
+
 class FileState(object):
     """Hold internal state specific to the currently analyzed file"""
 
@@ -780,29 +800,56 @@ class MessagesStore(object):
 
 
 class ReportsHandlerMixIn(object):
-    """a mix-in class containing all the reports and stats manipulation
-    related methods for the main lint class
-    """
+    """A report handlers organises and calls report methods."""
+
+    _POST_CHECKER = object()
+
     def __init__(self):
         self._reports = collections.defaultdict(list)
         self._reports_state = {}
+        super().__init__()
 
     def report_order(self):
-        """ Return a list of reports, sorted in the order
-        in which they must be called.
+        """A list of reports, sorted in the order in which they must be called.
+
+        :returns: The list of reports.
+        :rtype: list(BaseChecker or object)
         """
-        return list(self._reports)
+        reports = sorted(self._reports, key=lambda x: getattr(x, 'name', ''))
+        try:
+            reports.remove(self._POST_CHECKER)
+        except ValueError:
+            pass
+        else:
+            reports.append(self._POST_CHECKER)
+        return reports
 
     def register_report(self, reportid, r_title, r_cb, checker):
         """register a report
 
-        reportid is the unique identifier for the report
-        r_title the report's title
-        r_cb the method to call to make the report
-        checker is the checker defining the report
+        :param reportid: The unique identifier for the report.
+        :type reportid: str
+        :param r_title: The report's title.
+        :type r_title: str
+        :param r_cb: The method to call to make the report.
+        :type r_cb: callable
+        :param checker: The checker defining the report.
+        :type checker: BaseChecker
         """
         reportid = reportid.upper()
         self._reports[checker].append((reportid, r_title, r_cb))
+
+    def register_post_report(self, reportid, r_title, r_cb):
+        """Register a report to run last.
+
+        :param reportid: The unique identifier for the report.
+        :type reportid: str
+        :param r_title: The report's title.
+        :type r_title: str
+        :param r_cb: The method to call to make the report.
+        :type r_cb: callable
+        """
+        self.register_report(reportid, r_title, r_cb, self._POST_CHECKER)
 
     def enable_report(self, reportid):
         """disable the report of the given id"""
@@ -814,6 +861,12 @@ class ReportsHandlerMixIn(object):
         reportid = reportid.upper()
         self._reports_state[reportid] = False
 
+    def disable_reporters(self):
+        """Disable all reporters."""
+        for _reporters in self._reports.values():
+            for report_id, _, _ in _reporters:
+                self.disable_report(report_id)
+
     def report_is_enabled(self, reportid):
         """return true if the report associated to the given identifier is
         enabled
@@ -823,7 +876,7 @@ class ReportsHandlerMixIn(object):
     def make_reports(self, stats, old_stats):
         """render registered reports"""
         sect = Section('Report',
-                       '%s statements analysed.'% (self.stats['statement']))
+                       '%s statements analysed.'% (stats['statement']))
         for checker in self.report_order():
             for reportid, r_title, r_cb in self._reports[checker]:
                 if not self.report_is_enabled(reportid):
@@ -837,16 +890,6 @@ class ReportsHandlerMixIn(object):
                 sect.append(report_sect)
         return sect
 
-    def add_stats(self, **kwargs):
-        """add some stats entries to the statistic dictionary
-        raise an AssertionError if there is a key conflict
-        """
-        for key, value in six.iteritems(kwargs):
-            if key[-1] == '_':
-                key = key[:-1]
-            assert key not in self.stats
-            self.stats[key] = value
-        return self.stats
 
 def _basename_in_blacklist_re(base_name, black_list_re):
     """Determines if the basename is matched in a regex blacklist

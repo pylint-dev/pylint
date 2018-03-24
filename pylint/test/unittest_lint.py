@@ -36,7 +36,11 @@ from pylint import config, lint
 from pylint.lint import CLIRunner, PluginRegistry, PyLinter
 from pylint.utils import MSG_STATE_SCOPE_CONFIG, MSG_STATE_SCOPE_MODULE, MSG_STATE_CONFIDENCE, \
     MessagesStore, MessageDefinition, FileState, tokenize_module
-from pylint.exceptions import InvalidMessageError, UnknownMessageError
+from pylint.exceptions import (
+    InvalidCheckerError,
+    InvalidMessageError,
+    UnknownMessageError,
+)
 import pylint.testutils as testutils
 from pylint.reporters import text
 from pylint import checkers
@@ -230,6 +234,31 @@ def init_linter(linter):
     linter.set_current_module('toto')
     linter.file_state = FileState('toto')
     return linter
+
+
+def test_register_checker_invalid_priority():
+    class CustomChecker(checkers.BaseChecker):
+        priority = 10
+
+    linter = PyLinter()
+    plugin_registry = PluginRegistry(linter)
+
+    with pytest.raises(exceptions.InvalidCheckerError):
+        plugin_registry.register_checker(CustomChecker(linter))
+
+
+def test_register_checker_type_once():
+    class CustomChecker(checkers.BaseChecker):
+        name = 'custom'
+
+    linter = PyLinter()
+    plugin_registry = PluginRegistry(linter)
+    checker1 = CustomChecker()
+    checker2 = CustomChecker()
+    plugin_registry.register_checker(checker1)
+    plugin_registry.register_checker(checker2)
+
+    assert list(plugin_registry.for_all_checkers()) == [checker1]
 
 
 def test_pylint_visit_method_taken_in_account(linter):
