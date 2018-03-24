@@ -196,6 +196,17 @@ class TestRunTC(object):
         output = out.getvalue()
         assert "profile" not in output
 
+    def test_version(self):
+        """Test version printing."""
+        out = six.StringIO()
+        self._run_pylint(["--version"], out=out)
+        output = out.getvalue()
+        # The name of pylint in version output is dependant on
+        # invokation (argparse %(prog)s). Python version could be
+        # something like PyPy. astroid is the most contant name, and we
+        # just want to test the version flag is wired up to print.
+        assert "astroid " in output
+
     def test_inexisting_rcfile(self):
         out = StringIO()
         with pytest.raises(IOError) as excinfo:

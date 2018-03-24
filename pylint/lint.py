@@ -81,6 +81,12 @@ from pylint.__pkginfo__ import version
 from pylint.reporters.ureports import nodes as report_nodes
 
 
+FULL_VERSION = "%%(prog)s %s\nastroid %s\nPython %s" % (
+    version,
+    astroid_version,
+    sys.version,
+)
+
 MANAGER = astroid.MANAGER
 
 
@@ -543,12 +549,6 @@ class PyLinter(utils.MessagesHandlerMixIn, checkers.BaseTokenChecker):
         self.current_name = None
         self.current_file = None
 
-        # TODO: Runner needs to give this to parser?
-        full_version = "%%prog %s\nastroid %s\nPython %s" % (
-            version,
-            astroid_version,
-            sys.version,
-        )
         super().__init__()
         # provided reports
         self._dynamic_plugins = set()
@@ -1097,6 +1097,15 @@ class CLIRunner(Runner):
                 "checker will be displayed",
             },
         ),
+        (
+            "version",
+            {
+                "group": "Commands",
+                "action": "version",
+                "version": FULL_VERSION,
+                "help": "Print the version of pylint and important " "dependencies",
+            },
+        ),
     )
 
     option_groups = (
@@ -1171,7 +1180,13 @@ group are mutually exclusive.",
         self._linter.config = self._global_config
 
         parsed = parser.preprocess(
-            args, "init_hook", "rcfile", "load_plugins", "ignore", "ignore_patterns"
+            args,
+            "init_hook",
+            "rcfile",
+            "load_plugins",
+            "ignore",
+            "ignore_patterns",
+            "version",
         )
 
         # Call init-hook
