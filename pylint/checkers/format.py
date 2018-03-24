@@ -172,7 +172,7 @@ def _get_indent_string(line):
     """Return the indention string of the given line."""
     result = ''
     for char in line:
-        if char == ' ' or char == '\t':
+        if char in ' \t':
             result += char
         else:
             break
@@ -196,7 +196,7 @@ def _get_indent_hint_line(bar_positions, bad_position):
     """Return a line with |s for each of the positions in the given lists."""
     if not bar_positions:
         return ('', '')
-    # TODO tabs should not be replaced by some random (8) numebr of spaces
+    # TODO tabs should not be replaced by some random (8) number of spaces
     bar_positions = [_get_indent_length(indent) for indent in bar_positions]
     bad_position = _get_indent_length(bad_position)
     delta_message = ''
@@ -301,9 +301,17 @@ class TokenWrapper(object):
         return self._tokens[idx][4]
 
     def line_indent(self, idx):
+        """Get the string of TABs and Spaces used for indentation of the line of this token"""
         return _get_indent_string(self.line(idx))
 
     def token_indent(self, idx):
+        """Get an indentation string for hanging indentation, consisting of the line-indent plus
+        a number of spaces to fill up to the column of this token.
+
+        e.g. the token indent for foo
+        in "<TAB><TAB>print(foo)"
+        is "<TAB><TAB>      "
+        """
         line_indent = self.line_indent(idx)
         return line_indent + ' ' * (self.start_col(idx) - len(line_indent))
 
