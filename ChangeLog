@@ -110,6 +110,14 @@ What's New in Pylint 2.0?
 
       Close #1699
 
+    * Fix indentation handling with tabs
+
+      Close #1148
+
+    * Fix false-positive ``bad-continuation`` error
+
+      Close #638
+
 What's New in Pylint 1.8.1?
 =========================
 

@@ -10,7 +10,7 @@ Order doesn't matter (not that much, at least ;)
 * Claudiu Popa: maintainer, contributor
 
 * Ashley Whetter: committer
-  
+
   check_docs extension can find constructor parameters in __init__,
   added check_raise_docs extension, various patches.
 
@@ -161,3 +161,5 @@ Order doesn't matter (not that much, at least ;)
 * Tobias Hernstig: contributor
 
 * Konstantin Manna: contributor
+
+* Andreas Freimuth: fix indentation checking with tabs
