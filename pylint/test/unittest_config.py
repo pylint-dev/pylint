@@ -12,8 +12,9 @@
 import re
 import sre_constants
 
-from pylint import config
 import pytest
+
+from pylint import config
 
 
 RE_PATTERN_TYPE = getattr(re, 'Pattern', getattr(re, '_pattern_type', None))
@@ -55,3 +56,63 @@ def test__regexp_csv_validator_invalid():
     pattern_strings = ["test_.*", "foo\\.bar", "^baz)$"]
     with pytest.raises(sre_constants.error):
         config.VALIDATORS['regexp_csv'](",".join(pattern_strings))
+
+
+@pytest.mark.comments
+def test_make_commenter():
+    """Test make_commenter."""
+    commenter = config.make_commenter(
+        (
+            'This is a long description, I am trying to test wrapping '
+            'works OK. I hope this test passes.'
+        )
+    )
+    match = re.match('^check ', 'check = hey')
+    assert (
+        commenter(match) ==
+        (
+            '# This is a long description, I am trying to test '
+            'wrapping works OK. I\n'
+            '# hope this test passes.\n'
+            'check '
+        )
+    )
+
+
+@pytest.mark.comments
+def test_make_commented_config_text():
+    """Test make_commented_config_text."""
+    assert (
+        config.make_commented_config_text(
+            {
+                'check': {'help': 'Check something.'},
+                'validate': {'help': 'Validate a thing.'},
+            },
+            'check = 1\nvalidate=2\nother = 3'
+        ) ==
+        (
+            '# Check something.\n'
+            'check = 1\n'
+            '# Validate a thing.\n'
+            'validate=2\n'
+            'other = 3'
+        )
+    )
+
+
+@pytest.mark.comments
+def test_write(tmpdir):
+    """Test IniFileParser.write."""
+    parser = config.IniFileParser()
+    parser.add_option_definitions(
+        (
+            ('check', {'help': 'Check something.', 'group': 'checks'}),
+        )
+    )
+    config_path = tmpdir.join('config.cfg')
+    config_path.write('[checks]\ncheck = 1')
+    parser.parse(str(config_path), config.Configuration())
+    output_path = tmpdir.join('output.cfg')
+    with output_path.open('w') as output:
+        parser.write(stream=output)
+    assert output_path.read() == '[CHECKS]\n# Check something.\ncheck = 1\n\n'

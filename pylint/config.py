@@ -42,6 +42,7 @@ import os
 import pickle
 import re
 import sys
+import textwrap
 
 import configparser
 
@@ -533,6 +534,28 @@ class FileParser(ConfigParser, metaclass=abc.ABCMeta):
         pass
 
 
+def make_commenter(description):
+    """Make a function to add comments from re.sub."""
+    def make_comment(match):
+        """Make the replacement string including commented desciption."""
+        comment = '\n'.join(
+            '# {}'.format(line) for line in textwrap.wrap(description))
+        return match.expand(r'{}\n\g<0>'.format(comment))
+    return make_comment
+
+
+def make_commented_config_text(option_definitions, config_text):
+    """Make config ini text with descriptions added as comments."""
+    for name, definition in option_definitions.items():
+        config_text = re.sub(
+            r'^{}[ =]'.format(re.escape(name)),
+            make_commenter(definition['help']),
+            config_text,
+            flags=re.MULTILINE
+        )
+    return config_text
+
+
 class IniFileParser(FileParser):
     """Parses a config files into config objects."""
 
@@ -600,8 +623,12 @@ class IniFileParser(FileParser):
                 config.set_option(option, value)
 
     def write(self, stream=sys.stdout):
-        # TODO: Check if option descriptions are written out
-        self._parser.write(stream)
+        with six.StringIO() as temp_stream:
+            self._parser.write(temp_stream)
+            config_text = temp_stream.getvalue()
+        config_text = make_commented_config_text(
+            self._option_definitions, config_text)
+        stream.write(config_text)
 
 
 class LongHelpFormatter(argparse.HelpFormatter):

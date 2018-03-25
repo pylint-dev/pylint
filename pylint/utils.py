@@ -1298,62 +1298,6 @@ def _check_csv(value):
     return _splitstrip(value)
 
 
-def _comment(string):
-    """return string as a comment"""
-    lines = [line.strip() for line in string.splitlines()]
-    return '# ' + ('%s# ' % os.linesep).join(lines)
-
-
-def _format_option_value(optdict, value):
-    """return the user input's value from a 'compiled' value"""
-    if isinstance(value, (list, tuple)):
-        value = ','.join(_format_option_value(optdict, item) for item in value)
-    elif isinstance(value, dict):
-        value = ','.join('%s:%s' % (k, v) for k, v in value.items())
-    elif hasattr(value, 'match'): # optdict.get('type') == 'regexp'
-        # compiled regexp
-        value = value.pattern
-    elif optdict.get('type') == 'yn':
-        value = 'yes' if value else 'no'
-    elif isinstance(value, str) and value.isspace():
-        value = "'%s'" % value
-    return value
-
-
-def _ini_format_section(stream, section, options, doc=None):
-    """format an options section using the INI format"""
-    if doc:
-        print(_comment(doc), file=stream)
-    print('[%s]' % section, file=stream)
-    _ini_format(stream, options)
-
-
-def _ini_format(stream, options):
-    """format options using the INI format"""
-    for optname, optdict, value in options:
-        value = _format_option_value(optdict, value)
-        help_opt = optdict.get('help')
-        if help_opt:
-            help_opt = _normalize_text(help_opt, line_len=79, indent='# ')
-            print(file=stream)
-            print(help_opt, file=stream)
-        else:
-            print(file=stream)
-        if value is None:
-            print('#%s=' % optname, file=stream)
-        else:
-            value = str(value).strip()
-            if re.match(r'^([\w-]+,)+[\w-]+$', str(value)):
-                separator = '\n ' + ' ' * len(optname)
-                value = separator.join(
-                    x + ',' for x in str(value).split(','))
-                # remove trailing ',' from last element of the list
-                value = value[:-1]
-            print('%s=%s' % (optname, value), file=stream)
-
-format_section = _ini_format_section
-
-
 def _rest_format_section(stream, section, options, doc=None):
     """format an options section using as ReST formatted output"""
     if section:
