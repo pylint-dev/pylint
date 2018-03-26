@@ -29,7 +29,7 @@ version = '.'.join([str(num) for num in numversion])
 install_requires = [
     'astroid<2.0',
     'six',
-    'isort >= 4.2.5',
+    'isort == 4.2.15',
     'mccabe',
 ]
 
