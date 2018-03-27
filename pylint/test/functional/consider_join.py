@@ -1,110 +1,121 @@
 # pylint: disable=missing-docstring,invalid-name,undefined-variable,multiple-statements
 
 # Variations of 'result'
-result = ''
+result1 = ''
 for number in ['1', '2', '3']:
-    result += number  # [consider-using-join]
+    result1 += number  # [consider-using-join]
 
-result = 'header'
+result2 = 'header'
 for number in ['1', '2', '3']:
-    result += number  # [consider-using-join]
+    result2 += number  # [consider-using-join]
 
-result = another_result = ''
+result3 = another_result3 = ''
 for number in ['1', '2', '3']:
-    result += number  # [consider-using-join]
+    result3 += number  # [consider-using-join]
 
-another_result = result = ''
+another_result4 = result4 = ''
 for number in ['1', '2', '3']:
-    result += number  # [consider-using-join]
+    result4 += number  # [consider-using-join]
 
-result = 0  # result is not a string
+result5 = 0
 for number in ['1', '2', '3']:
-    result += number
+    result5 += number  # result is not a string
 
-RESULT = ''  # wrong name / initial variable missing
+RESULT6 = ''
 for number in ['1', '2', '3']:
-    result += [number]
+    result6 += number  # wrong name / initial variable missing
 
-string_variable = ''
-result = string_variable  # type of 'result' not obviously a string
+string_variable7 = ''
+result7 = string_variable7
 for number in ['1', '2', '3']:
-    result += number
+    result7 += number  # [consider-using-join]
 
-result = ''
-another_result = ''  # result defined too early
+result8 = ''
+another_result8 = ''
 for number in ['1', '2', '3']:
-    result += [number]
+    result8 += number  # [consider-using-join]
 
-for number in ['1', '2', '3']:  # 'result'-definition missing
-    result += number
+for number in ['1', '2', '3']:
+    result9 += number  # 'result'-definition missing
 
 
-# Variations of 'number'
-result = ''  # no concatenation (iterator-name differs)
+# Variations of 'loop-variable'
+result10 = ''
 for name in ['1', '2', '3']:
-    result += number
+    result10 += number  # no concatenation (iterator-name differs)
 
-result = ''  # no concatenation (iterator-name differs)
+result11 = ''
 for _ in ['1', '2', '3']:
-    result += number
-# 'exprlist' is not a single name
+    result11 += number  # no concatenation (iterator-name differs)
+
+result12 = ''
 for index, number in ['1', '2', '3']:
-    result += number
+    result12 += number  # 'exprlist' is not a single name
 
 
 # Variations of 'iterable'
-result = ''
+result13 = ''
 for number in []:
-    result += number  # [consider-using-join]
+    result13 += number  # iterable does not contain strings
 
-result = ''
+result14 = ''
 for number in "a text":
-    result += number  # [consider-using-join]
+    result14 += number  # would be a [consider-using-join], but type str was uninferrable
 
-result = ''
+result15 = ''
 for number in [1, 2, 3]:
-    result += number  # [consider-using-join]
+    result15 += number  # iterable does not contain strings
 
 a_list = [1, 2, 3]
-result = ''
+result16 = ''
 for number in a_list:
-    result += number  # [consider-using-join]
+    result16 += number  # iterable does not contain strings
 
-result = ''
+result17 = ''
 for number in ['1', '2', '3']:
-    result += number  # [consider-using-join]
+    result17 += number  # [consider-using-join]
 
-result = ''
+result18 = ''
 for number in undefined_iterable:
-    result += number  # [consider-using-join]
+    result18 += number  # iterable does not contain strings
 
 
 # Variations of loop-body
-result = ''  # addition is not the only part of the body
+result19 = ''
 for number in ['1', '2', '3']:
     print(number)
-    result += number
+    result19 += number  # addition is not the only part of the body
 
-result = ''  # addition is not the only part of the body
+result20 = ''
 for number in ['1', '2', '3']:
-    result += number
+    result20 += number  # addition is not the only part of the body
     print(number)
 
-result = ''  # augmented addition is not a simple one
+result21 = ''
 for number in ['1', '2', '3']:
-    result += '4' + number
+    result21 += '4' + number  # augmented addition is not a simple one
 
-result = ''  # assignment is not augmented
+result22 = ''
 for number in ['1', '2', '3']:
-    result = number
+    result22 = number  # assignment is not augmented
 
-result = ''  # augmented assignment is not an addition
+result23 = ''
 for number in ['1', '2', '3']:
-    result -= number
+    result23 -= number  # augmented assignment is not an addition
 
-result = ''  # addition is not the 'number'-iterable
+result24 = ''
 for number in ['1', '2', '3']:
-    result += another_number
+    result24 += another_number  # addition is not the 'number'-iterable
 
-result = ''
-for number in ['1', '2', '3']: result += number  # [consider-using-join]
+result26 = ''
+for number in ['1', '2', '3']: result26 += number  # [consider-using-join]
+
+
+# Combinations of variations
+result25 = ''
+for number in [1, 2, 3]:
+    result25 += str(number)  # generator expression would be necessary => ignored
+
+result26 = 0
+for number in "a text":
+    result26 += number  # plus is not a string concatenation
