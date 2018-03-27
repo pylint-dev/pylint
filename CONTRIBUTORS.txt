@@ -163,3 +163,6 @@ Order doesn't matter (not that much, at least ;)
 * Konstantin Manna: contributor
 
 * Andreas Freimuth: fix indentation checking with tabs
+
+* Renat Galimov: contributor
+
