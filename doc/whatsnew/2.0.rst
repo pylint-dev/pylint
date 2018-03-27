@@ -8,7 +8,10 @@
 Summary -- Release highlights
 =============================
 
-* None so far
+* Dropped support for Python 2. This release will work only on Python 3.4+.
+
+  If you need to use `pylint` on Python 2, you can use Pylint 1.8. We'll continue
+  to do bug releases until 2020, when Python 2 goes officially EOL.
 
 New checkers
 ============
