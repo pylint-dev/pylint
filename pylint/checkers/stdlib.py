@@ -229,10 +229,12 @@ class StdlibChecker(BaseChecker):
                     self._check_redundant_assert(node, inferred)
                 elif isinstance(inferred, astroid.ClassDef) and inferred.qname() == THREADING_THREAD:
                     self._check_bad_thread_instantiation(node)
-                elif isinstance(inferred, astroid.FunctionDef) and inferred.qname() == COPY_COPY:
-                    self._check_shallow_copy_environ(node)
-                elif inferred.qname() in ENV_GETTERS:
-                    self._check_env_function(node, inferred)
+                elif isinstance(inferred, astroid.FunctionDef):
+                    name = inferred.qname()
+                    if name == COPY_COPY:
+                        self._check_shallow_copy_environ(node)
+                    elif name in ENV_GETTERS:
+                        self._check_env_function(node, inferred)
                 self._check_deprecated_method(node, inferred)
         except astroid.InferenceError:
             return
