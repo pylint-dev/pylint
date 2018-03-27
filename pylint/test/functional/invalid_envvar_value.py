@@ -1,5 +1,5 @@
-import os
-from os import environ, getenv, putenv
+# pylint: disable=useless-return,missing-docstring
+from os import getenv
 
 
 def function_returning_list():
@@ -25,121 +25,60 @@ def deep_function_returning_bytes():
 #                               Testing getenv                                #
 # --------------------------------------------------------------------------- #
 
-getenv()
+getenv()   # pylint: disable=no-value-for-parameter
 
-getenv(b"TEST")
+getenv(b"TEST")  # [invalid-envvar-value]
 getenv("TEST")
-getenv(None)
-getenv(["Crap"])
-getenv(function_returning_bytes())
-getenv(deep_function_returning_bytes())
-getenv(function_returning_list())
-getenv(function_returning_none())
+getenv(None)   # [invalid-envvar-value]
+getenv(["Crap"])   # [invalid-envvar-value]
+getenv(function_returning_bytes())   # [invalid-envvar-value]
+getenv(deep_function_returning_bytes())   # [invalid-envvar-value]
+getenv(function_returning_list())   # [invalid-envvar-value]
+getenv(function_returning_none())   # [invalid-envvar-value]
 getenv(function_returning_string())
 getenv(deep_function_returning_string())
 
-getenv(b"TEST", "default")
+getenv(b"TEST", "default")   # [invalid-envvar-value]
 getenv("TEST", "default")
-getenv(None, "default")
-getenv(["Crap"], "default")
-getenv(function_returning_bytes(), "default")
-getenv(function_returning_list(), "default")
-getenv(function_returning_none(), "default")
+getenv(None, "default")  # [invalid-envvar-value]
+getenv(["Crap"], "default")   # [invalid-envvar-value]
+getenv(function_returning_bytes(), "default")   # [invalid-envvar-value]
+getenv(function_returning_list(), "default")   # [invalid-envvar-value]
+getenv(function_returning_none(), "default")   # [invalid-envvar-value]
 getenv(function_returning_string(), "default")
 
-getenv(key=b"TEST")
+getenv(key=b"TEST")   # [invalid-envvar-value]
 getenv(key="TEST")
-getenv(key=None)
-getenv(key=["Crap"])
-getenv(key=function_returning_bytes())
-getenv(key=function_returning_list())
-getenv(key=function_returning_none())
+getenv(key=None)    # [invalid-envvar-value]
+getenv(key=["Crap"])   # [invalid-envvar-value]
+getenv(key=function_returning_bytes())   # [invalid-envvar-value]
+getenv(key=function_returning_list())   # [invalid-envvar-value]
+getenv(key=function_returning_none())   # [invalid-envvar-value]
 getenv(key=function_returning_string())
 
 getenv('TEST', "value")
-getenv('TEST', [])
+getenv('TEST', [])  # [invalid-envvar-default]
 getenv('TEST', None)
-getenv('TEST', b"123")
-getenv('TEST', function_returning_list())
+getenv('TEST', b"123")  # [invalid-envvar-default]
+getenv('TEST', function_returning_list()) # [invalid-envvar-default]
 getenv('TEST', function_returning_none())
 getenv('TEST', function_returning_string())
-getenv('TEST', function_returning_bytes())
+getenv('TEST', function_returning_bytes())   # [invalid-envvar-default]
 
 getenv('TEST', default="value")
-getenv('TEST', default=[])
+getenv('TEST', default=[])  # [invalid-envvar-default]
 getenv('TEST', default=None)
-getenv('TEST', default=b"123")
-getenv('TEST', default=function_returning_list())
+getenv('TEST', default=b"123")  # [invalid-envvar-default]
+getenv('TEST', default=function_returning_list())  # [invalid-envvar-default]
 getenv('TEST', default=function_returning_none())
 getenv('TEST', default=function_returning_string())
-getenv('TEST', default=function_returning_bytes())
+getenv('TEST', default=function_returning_bytes())  # [invalid-envvar-default]
 
 getenv(key='TEST')
 getenv(key='TEST', default="value")
-getenv(key='TEST', default=b"value")
-getenv(key='TEST', default=["Crap"])
-getenv(key='TEST', default=function_returning_list())
+getenv(key='TEST', default=b"value")  # [invalid-envvar-default]
+getenv(key='TEST', default=["Crap"])  # [invalid-envvar-default]
+getenv(key='TEST', default=function_returning_list())  # [invalid-envvar-default]
 getenv(key='TEST', default=function_returning_none())
 getenv(key='TEST', default=function_returning_string())
-getenv(key='TEST', default=function_returning_bytes())
-
-
-# --------------------------------------------------------------------------- #
-#                                 Test putenv                                 #
-# --------------------------------------------------------------------------- #
-
-putenv()
-
-putenv(b"TEST")
-putenv("TEST")
-putenv(None)
-putenv(["Crap"])
-putenv(function_returning_bytes())
-putenv(function_returning_list())
-putenv(function_returning_none())
-putenv(function_returning_string())
-
-putenv(b"TEST", "default")
-putenv("TEST", "default")
-putenv(None, "default")
-putenv(["Crap"], "default")
-putenv(function_returning_bytes(), "default")
-putenv(function_returning_list(), "default")
-putenv(function_returning_none(), "default")
-putenv(function_returning_string(), "default")
-
-putenv(key=b"TEST")
-putenv(key="TEST")
-putenv(key=None)
-putenv(key=["Crap"])
-putenv(key=function_returning_bytes())
-putenv(key=function_returning_list())
-putenv(key=function_returning_none())
-putenv(key=function_returning_string())
-
-putenv('TEST', "value")
-putenv('TEST', [])
-putenv('TEST', None)
-putenv('TEST', b"123")
-putenv('TEST', function_returning_list())
-putenv('TEST', function_returning_none())
-putenv('TEST', function_returning_string())
-putenv('TEST', function_returning_bytes())
-
-putenv('TEST', default="value")
-putenv('TEST', default=[])
-putenv('TEST', default=None)
-putenv('TEST', default=b"123")
-putenv('TEST', default=function_returning_list())
-putenv('TEST', default=function_returning_none())
-putenv('TEST', default=function_returning_string())
-putenv('TEST', default=function_returning_bytes())
-
-putenv(key='TEST')
-putenv(key='TEST', default="value")
-putenv(key='TEST', default=b"value")
-putenv(key='TEST', default=["Crap"])
-putenv(key='TEST', default=function_returning_list())
-putenv(key='TEST', default=function_returning_none())
-putenv(key='TEST', default=function_returning_string())
-putenv(key='TEST', default=function_returning_bytes())
+getenv(key='TEST', default=function_returning_bytes())  # [invalid-envvar-default]

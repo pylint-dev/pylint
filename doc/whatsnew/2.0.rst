@@ -40,6 +40,12 @@ New checkers
 
      a, b = b, a  # the right way
 
+* Two new checks, `invalid-envvar-value` and `invalid-envvar-default`, were added.
+
+  The former is trigger whenever pylint detects that environment variable manipulation
+  functions uses a different type than strings, while the latter is emitted whenever
+  the said functions are using a default variable of different type than expected.
+
 Other Changes
 =============
 
