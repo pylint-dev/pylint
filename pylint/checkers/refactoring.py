@@ -537,16 +537,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """
         We start with the augmented assignment and work our way upwards.
         Names of variables for nodes if match successful:
+        result = ''  # assign
         for number in ['1', '2', '3']  # for_loop
             result += number  # aug_assign
         """
         for_loop = aug_assign.parent
         if not isinstance(for_loop, astroid.node_classes.For):
             return
+        assign = for_loop.previous_sibling()
+        if not isinstance(assign, astroid.node_classes.Assign):
+            return
+        result_assign_names = {target.name for target in assign.targets}
 
         is_concat_loop = (aug_assign.op == '+='
                           and len(for_loop.body) == 1
-                          and astroid.helpers.object_type(aug_assign).name == 'str'
+                          and aug_assign.target.name in result_assign_names
+                          and isinstance(assign.value, astroid.node_classes.Const)
+                          and isinstance(assign.value.value, str)
                           and isinstance(aug_assign.value, astroid.node_classes.Name)
                           and aug_assign.value.name == for_loop.target.name)
         if is_concat_loop:
