@@ -22,7 +22,7 @@ import sys
 
 import astroid
 from astroid.bases import Instance
-from astroid.node_classes import Const, Call
+from astroid.node_classes import Const
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils
@@ -227,7 +227,8 @@ class StdlibChecker(BaseChecker):
                         self._check_open_mode(node)
                 elif inferred.root().name == UNITTEST_CASE:
                     self._check_redundant_assert(node, inferred)
-                elif isinstance(inferred, astroid.ClassDef) and inferred.qname() == THREADING_THREAD:
+                elif (isinstance(inferred, astroid.ClassDef)
+                      and inferred.qname() == THREADING_THREAD):
                     self._check_bad_thread_instantiation(node)
                 elif isinstance(inferred, astroid.FunctionDef):
                     name = inferred.qname()
@@ -327,7 +328,7 @@ class StdlibChecker(BaseChecker):
             kwargs = {keyword.arg: keyword.value for keyword in node.keywords}
         else:
             kwargs = None
-        if len(node.args) > 0:
+        if node.args:
             env_name_arg = node.args[0]
         elif kwargs and env_name_kwarg in kwargs:
             env_name_arg = kwargs[env_name_kwarg]
