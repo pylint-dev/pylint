@@ -49,6 +49,10 @@ New checkers
   functions uses a different type than strings, while the latter is emitted whenever
   the said functions are using a default variable of different type than expected.
 
+* New ``try-except-raise`` message when an except handler block has a bare
+  `raise` statement as its first operator or the exception type being raised
+  is the same as the one being handled.
+
 Other Changes
 =============
 

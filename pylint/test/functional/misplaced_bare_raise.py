@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, broad-except, unreachable
+# pylint: disable=missing-docstring, broad-except, unreachable, try-except-raise
 # pylint: disable=unused-variable, too-few-public-methods, invalid-name
 
 try:
