@@ -157,13 +157,18 @@ class MisdesignChecker(BaseChecker):
         self.stats = None
         self._returns = None
         self._branches = None
-        self._stmts = 0
+        self._stmts = None
 
     def open(self):
         """initialize visit variables"""
         self.stats = self.linter.add_stats()
         self._returns = []
         self._branches = defaultdict(int)
+        self._stmts = []
+
+    def _inc_all_stmts(self, amount):
+        for i in range(len(self._stmts)):
+            self._stmts[i] += amount
 
     @decorators.cachedproperty
     def _ignored_argument_names(self):
@@ -243,8 +248,8 @@ class MisdesignChecker(BaseChecker):
         if locnum > self.config.max_locals:
             self.add_message('too-many-locals', node=node,
                              args=(locnum, self.config.max_locals))
-        # init statements counter
-        self._stmts = 1
+        # init new statements counter
+        self._stmts.append(1)
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -264,9 +269,10 @@ class MisdesignChecker(BaseChecker):
             self.add_message('too-many-branches', node=node,
                              args=(branches, self.config.max_branches))
         # check number of statements
-        if self._stmts > self.config.max_statements:
+        stmts = self._stmts.pop()
+        if stmts > self.config.max_statements:
             self.add_message('too-many-statements', node=node,
-                             args=(self._stmts, self.config.max_statements))
+                             args=(stmts, self.config.max_statements))
 
     leave_asyncfunctiondef = leave_functiondef
 
@@ -281,7 +287,7 @@ class MisdesignChecker(BaseChecker):
         necessary
         """
         if node.is_statement:
-            self._stmts += 1
+            self._inc_all_stmts(1)
 
     def visit_tryexcept(self, node):
         """increments the branches counter"""
@@ -289,12 +295,12 @@ class MisdesignChecker(BaseChecker):
         if node.orelse:
             branches += 1
         self._inc_branch(node, branches)
-        self._stmts += branches
+        self._inc_all_stmts(branches)
 
     def visit_tryfinally(self, node):
         """increments the branches counter"""
         self._inc_branch(node, 2)
-        self._stmts += 2
+        self._inc_all_stmts(2)
 
     @check_messages('too-many-boolean-expressions')
     def visit_if(self, node):
@@ -306,7 +312,7 @@ class MisdesignChecker(BaseChecker):
                             not isinstance(node.orelse[0], If)):
             branches += 1
         self._inc_branch(node, branches)
-        self._stmts += branches
+        self._inc_all_stmts(branches)
 
     def _check_boolean_expressions(self, node):
         """Go through "if" node `node` and counts its boolean expressions
