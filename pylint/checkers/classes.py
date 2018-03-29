@@ -11,7 +11,7 @@
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
-# Copyright (c) 2016 Alexander Todorov <atodorov@otb.bg>
+# Copyright (c) 2016,2018 Alexander Todorov <atodorov@otb.bg>
 # Copyright (c) 2016 Anthony Foglia <afoglia@users.noreply.github.com>
 # Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
@@ -537,6 +537,10 @@ MSGS = {
               'single-string-used-for-slots',
               'Used when a class __slots__ is a simple string, rather '
               'than an iterable.'),
+    'C0206': ('Class attributes should not contain double underscores',
+              'dunder-class-attribute',
+              'Dunders, e.g. "__some_name__", are reserved for Python. '
+              'Do not name your class attributes this way!'),
     }
 
 
@@ -640,6 +644,25 @@ a metaclass class method.'}
         self._check_slots(node)
         self._check_proper_bases(node)
         self._check_consistent_mro(node)
+        self._check_for_dunder_attributes(node)
+
+    def _check_for_dunder_attributes(self, node):
+        """Detect when class attributes use double underscores."""
+        # we can redefine special methods (e.g. __iter__) and some attributes,
+        # e.g. __doc__, by declaring them as class attributes. Excude them from the
+        # test below.
+        allowed_attributes = dir([]) + ['__metaclass__', '__slots__']
+        # __interface__ appears to be used internally, not sure what it is
+        allowed_attributes.append('__implements__')
+
+        for child in node.body:
+            if isinstance(child, astroid.Assign):
+                for target in child.targets:
+                    if (isinstance(target, astroid.AssignName)
+                            and target.name not in allowed_attributes
+                            and target.name.startswith('__')
+                            and target.name.endswith('__')):
+                        self.add_message('dunder-class-attribute', node=child)
 
     def _check_consistent_mro(self, node):
         """Detect that a class has a consistent mro or duplicate bases."""
