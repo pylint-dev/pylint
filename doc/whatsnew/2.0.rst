@@ -16,6 +16,19 @@ Summary -- Release highlights
 New checkers
 ============
 
+* A new check was added, ``consider-using-join``.
+
+  This refactoring message is emitted when using a for loop over a iterable to join strings
+  instead of the faster, less memory consuming and more idiomatic str.join(sequence).
+
+  .. code-block:: python
+
+    result = ''  # bad
+    for number in ['1', '2', '3']:
+        result += number
+
+    result = ''.join(['1', '2', '3'])  # good
+
 * New ``useless-return`` message when function or method ends with a "return" or
   "return None" statement and this is the only return statement in the body.
 

@@ -136,6 +136,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'swap variables. Using "tuple unpacking" to directly swap '
                   'variables makes the intention more clear.'
                  ),
+        'R1713': ('Consider using str.join(sequence) for concatenating '
+                  'strings from an iterable',
+                  'consider-using-join',
+                  'Using str.join(sequence) is faster, uses less memory '
+                  'and increases readability compared to for-loop iteration.'
+                 ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -526,6 +532,36 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message(message, node=node, args=(suggestion,))
 
     visit_return = visit_assign
+
+    def _check_consider_using_join(self, aug_assign):
+        """
+        We start with the augmented assignment and work our way upwards.
+        Names of variables for nodes if match successful:
+        result = ''  # assign
+        for number in ['1', '2', '3']  # for_loop
+            result += number  # aug_assign
+        """
+        for_loop = aug_assign.parent
+        if not isinstance(for_loop, astroid.node_classes.For):
+            return
+        assign = for_loop.previous_sibling()
+        if not isinstance(assign, astroid.node_classes.Assign):
+            return
+        result_assign_names = {target.name for target in assign.targets}
+
+        is_concat_loop = (aug_assign.op == '+='
+                          and len(for_loop.body) == 1
+                          and aug_assign.target.name in result_assign_names
+                          and isinstance(assign.value, astroid.node_classes.Const)
+                          and isinstance(assign.value.value, str)
+                          and isinstance(aug_assign.value, astroid.node_classes.Name)
+                          and aug_assign.value.name == for_loop.target.name)
+        if is_concat_loop:
+            self.add_message('consider-using-join', node=aug_assign)
+
+    @utils.check_messages('consider-using-join')
+    def visit_augassign(self, node):
+        self._check_consider_using_join(node)
 
     @staticmethod
     def _is_and_or_ternary(node):

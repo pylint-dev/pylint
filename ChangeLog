@@ -10,6 +10,10 @@ What's New in Pylint 2.0?
       functions uses a different type than strings, while the latter is emitted whenever
       the said functions are using a default variable of different type than expected.
 
+    * Add a check `consider-using-join` for concatenation of strings using str.join(sequence)
+
+      Close #1952
+
     * Add a check `consider-swap-variables` for swapping variables with tuple unpacking
 
       Close #1922
