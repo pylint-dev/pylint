@@ -37,23 +37,15 @@ def _all_elements_are_true(gen):
 def _if_statement_is_always_returning(if_node):
     def _has_return_node(elems, scope):
         for node in elems:
-            if isinstance(node, astroid.If):
+            if isinstance(node, astroid.If) and node.orelse:
                 yield _if_statement_is_always_returning(node)
-            elif isinstance(node, astroid.Return):
+            if isinstance(node, astroid.Return):
                 yield node.scope() is scope
 
     scope = if_node.scope()
-    body_returns = _all_elements_are_true(
+    return _all_elements_are_true(
         _has_return_node(if_node.body, scope=scope)
     )
-    if if_node.orelse:
-        orelse_returns = _all_elements_are_true(
-            _has_return_node(if_node.orelse, scope=scope)
-        )
-    else:
-        orelse_returns = False
-
-    return body_returns and orelse_returns
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
