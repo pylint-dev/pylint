@@ -29,3 +29,12 @@ def function():
     That contains a very, very long line that exceeds the 100 characters limit by a good margin. So good?
     """
     pass
+
+
+# Don't crash when the line is in a docstring
+def func_with_long(parameter):
+    """
+    # pylint: disable=line-too-long
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccccccccccccccccccccccccccccccccc
+    """
+    return parameter
