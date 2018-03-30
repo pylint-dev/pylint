@@ -4,6 +4,17 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * Add a new check, `possibly-unused-variable`.
+
+      This is similar to `unused-variable`, the only difference is that it is
+      emitted when we detect a locals() call in the scope of the unused variable.
+      The `locals()` call could potentially use the said variable, by consuming
+      all values that are present up to the point of the call. This new check
+      allows to disable this error when the user intentionally uses `locals()`
+      to consume everything.
+
+      Close #1909.
+
     * `no-else-return` accounts for multiple cases
 
        The check was a bit overrestrictive because we were checking for

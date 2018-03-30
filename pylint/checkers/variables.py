@@ -244,6 +244,16 @@ def _assigned_locally(name_node):
     return any(a.name == name_node.name for a in assign_stmts)
 
 
+def _has_locals_call_after_node(stmt, scope):
+    skip_nodes = (astroid.FunctionDef, astroid.ClassDef)
+    for call in scope.nodes_of_class(astroid.Call, skip_klass=skip_nodes):
+        inferred = utils.safe_infer(call.func)
+        if utils.is_builtin_object(inferred) and getattr(inferred, 'name', None) == 'locals':
+            if stmt.lineno < call.lineno:
+                return True
+    return False
+
+
 MSGS = {
     'E0601': ('Using variable %r before assignment',
               'used-before-assignment',
@@ -330,6 +340,11 @@ MSGS = {
               'This will result in all closures using the same value for '
               'the closed-over variable.'),
 
+    'W0641': ('Possibly unused variable %r',
+              'possibly-unused-variable',
+              'Used when a variable is defined but might not be used. '
+              'The possibility comes from the fact that locals() might be used, '
+              'which could consume or not the said variable'),
     }
 
 
@@ -785,12 +800,17 @@ class VariablesChecker(BaseChecker):
                 qname, asname = stmt.names[0]
                 name = asname or qname
 
-            self.add_message('unused-variable', args=name, node=stmt)
+            if _has_locals_call_after_node(stmt, node.scope()):
+                message_name = 'possibly-unused-variable'
+            else:
+                message_name = 'unused-variable'
+            self.add_message(message_name, args=name, node=stmt)
 
     def leave_functiondef(self, node):
         """leave function: check function's locals are consumed"""
         not_consumed = self._to_consume.pop().to_consume
         if not (self.linter.is_message_enabled('unused-variable') or
+                self.linter.is_message_enabled('possibly-unused-variable') or
                 self.linter.is_message_enabled('unused-argument')):
             return
 

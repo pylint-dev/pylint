@@ -66,6 +66,23 @@ New checkers
   `raise` statement as its first operator or the exception type being raised
   is the same as the one being handled.
 
+*  New `possibly-unused-variable` check added.
+
+  This is similar to `unused-variable`, the only difference is that it is
+  emitted when we detect a locals() call in the scope of the unused variable.
+  The `locals()` call could potentially use the said variable, by consuming
+  all values that are present up to the point of the call. This new check
+  allows to disable this error when the user intentionally uses `locals()`
+  to consume everything.
+
+  For instance, the following code will now trigger this new error:
+
+  .. code-block:: python
+
+     def func():
+         some_value = some_call()
+         return locals()
+
 Other Changes
 =============
 
