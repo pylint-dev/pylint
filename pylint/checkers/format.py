@@ -1083,6 +1083,8 @@ class FormatChecker(BaseTokenChecker):
                 unsplit = []
 
             i = check_line(line, i)
+            if i is None:
+                break
 
         if unsplit:
             check_line(''.join(unsplit), i)
