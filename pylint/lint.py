@@ -1031,7 +1031,7 @@ group are mutually exclusive.'),
             formatter = config._ManHelpFormatter()
             formatter.parser = parser
             print(formatter.format_head(__pkginfo__, section))
-            print(parser._parser.format_option_help(formatter))
+            #print(parser._parser.format_option_help(formatter))
             print(formatter.format_tail(__pkginfo__))
 #def generate_manpage(self, pkginfo, section=1, stream=None):
 #stream = stream or sys.stdout

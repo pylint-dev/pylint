@@ -800,7 +800,7 @@ class _ManHelpFormatter(argparse.HelpFormatter):
         super().__init__("pylint", indent_increment, max_help_position, width=width)
 
     def format_heading(self, heading):
-        return '.SH %s\n' % heading.upper()
+        return '.SH {:s}{lsep:s}'.format(heading.upper(), lsep=os.linesep)
 
     def format_head(self, pkginfo, section=1):
         long_desc = ""
@@ -808,31 +808,31 @@ class _ManHelpFormatter(argparse.HelpFormatter):
         short_desc = self.format_short_description(pgm, pkginfo.description)
         if hasattr(pkginfo, "long_desc"):
             long_desc = self.format_long_description(pgm, pkginfo.long_desc)
-        return '%s\n%s\n%s\n%s' % (self.format_title(pgm, section), short_desc,
-                self.format_synopsis(pgm), long_desc)
+        return '{:s}{lsep:s}{:s}{lsep:s}{:s}{lsep:s}{:s}'.format(self.format_title(pgm, section),
+                                                                 short_desc,
+                                                                 self.format_synopsis(pgm),
+                                                                 long_desc, lsep=os.linesep)
 
     @staticmethod
     def format_title(pgm, section):
         date = '-'.join(str(num) for num in time.localtime()[:3])
-        return '.TH %s %s "%s" %s' % (pgm, section, date, pgm)
+        return '.TH {:s} {:d} "{:s}" {:s}'.format(pgm, section, date, pgm)
 
     @staticmethod
     def format_short_description(pgm, short_desc):
-        return '''.SH NAME
-        .B %s
-        \\- %s
-        ''' % (pgm, short_desc.strip())
+        return (".SH NAME{lsep:s}"
+                ".B {:s}{lsep:s}"
+                "\\- {:s}").format(pgm, short_desc.strip(), lsep=os.linesep)
 
     @staticmethod
     def format_synopsis(pgm):
-        return '''.SH SYNOPSIS
-        .B  %s
-        [
-        .I OPTIONS
-        ] [
-        .I <arguments>
-        ]
-        ''' % pgm
+        return (".SH SYNOPSIS{lsep:s}"
+                ".B  {:s}{lsep:s}"
+                "[{lsep:s}"
+                ".I OPTIONS{lsep:s}"
+                "] [{lsep:s}"
+                ".I <arguments>{lsep:s}"
+                "]{lsep:s}").format(pgm, lsep=os.linesep)
 
     @staticmethod
     def format_long_description(pgm, long_desc):
@@ -840,29 +840,27 @@ class _ManHelpFormatter(argparse.HelpFormatter):
         long_desc = long_desc.replace('\n.\n', '\n\n')
         if long_desc.lower().startswith(pgm):
             long_desc = long_desc[len(pgm):]
-        return '''.SH DESCRIPTION
-        .B %s
-        %s
-        ''' % (pgm, long_desc.strip())
+        return (".SH DESCRIPTION{lsep:s}"
+                ".B {:s}{lsep:s}"
+                "{:s}{lsep:s}").format(pgm, long_desc.strip(), lsep=os.linesep)
 
     @staticmethod
     def format_tail(pkginfo):
-        tail = '''.SH SEE ALSO
-        /usr/share/doc/pythonX.Y-%s/
-
-        .SH BUGS
-        Please report bugs on the project\'s mailing list:
-        %s
-
-        .SH AUTHOR
-        %s <%s>
-        ''' % (getattr(pkginfo, 'debian_name', pkginfo.modname),
-        pkginfo.mailinglist, pkginfo.author, pkginfo.author_email)
+        tail = (".SH SEE ALSO{lsep:s}"
+                "/usr/share/doc/pythonX.Y-{:s}/{lsep:s}"
+                "{lsep:s}"
+                ".SH BUGS{lsep:s}"
+                "Please report bugs on the project\'s mailing list:{lsep:s}"
+                "{:s}{lsep:s}"
+                "{lsep:s}"
+                ".SH AUTHOR{lsep:s}"
+                "{:s} <{:s}>{lsep:s}").format(getattr(pkginfo, 'debian_name', pkginfo.modname),
+                                          pkginfo.mailinglist, pkginfo.author,
+                                          pkginfo.author_email, lsep=os.linesep)
 
         if hasattr(pkginfo, "copyright"):
-            tail += '''
-            .SH COPYRIGHT
-            %s
-            ''' % pkginfo.copyright
+            tail += ("{lsep:s}"
+                     ".SH COPYRIGHT{lsep:s}"
+                     "%s{lsep:s}").format(pkginfo.copyright, lsep=os.linesep)
 
         return tail
