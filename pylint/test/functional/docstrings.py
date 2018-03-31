@@ -1,4 +1,4 @@
-# Hi!!
+# pylint: disable=R0201
 # -1: [missing-docstring]
 from __future__ import print_function
 
