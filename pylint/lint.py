@@ -1019,15 +1019,14 @@ group are mutually exclusive.'),
             file_parser.write()
             sys.exit(0)
 
-        if global_config.generate_man:
+        if self._global_config.generate_man:
             from pylint import __pkginfo__
             section=1
             formatter = config._ManHelpFormatter()
             formatter.parser = parser
             print(formatter.format_head(__pkginfo__, section))
-            print(parser._parser.format_option_help())
-            print(formatter.format_tail(__pkginfo__, section))
-            import ipdb; ipdb.set_trace()
+            print(parser._parser.format_option_help(formatter))
+            print(formatter.format_tail(__pkginfo__))
 #def generate_manpage(self, pkginfo, section=1, stream=None):
 #stream = stream or sys.stdout
 #optparser = self.cmdline_parser
