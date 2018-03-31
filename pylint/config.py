@@ -35,6 +35,7 @@ import os
 import pickle
 import re
 import sys
+import time
 
 import configparser
 import six
@@ -665,6 +666,13 @@ class LongHelpArgumentGroup(argparse._ArgumentGroup):
         action.level = level
         return action
 
+    def format_help(self, formatter):
+        """
+        Return a string containing the help message of the argument group
+        """
+        for group_action in self._group_actions:
+            pass
+
 
 class LongHelpArgumentParser(argparse.ArgumentParser):
     def __init__(self, formatter_class=LongHelpFormatter, **kwargs):
@@ -759,10 +767,39 @@ class LongHelpArgumentParser(argparse.ArgumentParser):
                 self.formatter_class.output_level = level
         super(LongHelpArgumentParser, self).print_help(file)
 
+    def format_option_help(self, formatter=None):
+        if formatter is None:
+            formatter = self.formatter
+        outputlevel = getattr(formatter, 'output_level', 0)
+#        formatter.store_option_strings(self)
+        result = []
+        result.append(formatter.format_heading("Options"))
+#        formatter.indent()
+#        if self.option_list:
+#            result.append(optparse.OptionContainer.format_option_help(self, formatter))
+#            result.append("\n")
+        self.formatter_class = _ManHelpFormatter
+        for group in self._action_groups:
+#            if group.level <= outputlevel and (
+#                    group.description or _level_options(group, outputlevel)):
+            if group.level <= outputlevel:
+                import ipdb; ipdb.set_trace()
+                result.append(super(LongHelpArgumentParser, self).format_help())
+                result.append("\n")
+        self._action_groups = old_action_groups
+        self.formatter_class = old_formatter
+#        formatter.dedent()
+        # Drop the last "\n", or the header if no options or option groups:
+        return "".join(result[:-1])
+        
+
 
 class _ManHelpFormatter(argparse.HelpFormatter):
     def __init__(self, indent_increment=0, max_help_position=24, width=79):
         super().__init__("pylint", indent_increment, max_help_position, width=width)
+
+    def format_heading(self, heading):
+        return '.SH %s\n' % heading.upper()
 
     def format_head(self, pkginfo, section=1):
         long_desc = ""
