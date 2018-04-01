@@ -1216,26 +1216,6 @@ group are mutually exclusive.'),
                                 reverse=True)
         return neededcheckers
 
-    def format_option_help(self, formatter=None):
-        if formatter is None:
-            formatter = self.formatter
-        outputlevel = getattr(formatter, 'output_level', 0)
-        formatter.store_option_strings(self)
-        result = []
-        result.append(formatter.format_heading("Options"))
-        formatter.indent()
-        if self.option_list:
-            result.append(optparse.OptionContainer.format_option_help(self, formatter))
-            result.append("\n")
-        for group in self.option_groups:
-            if group.level <= outputlevel and (
-                    group.description or _level_options(group, outputlevel)):
-                result.append(group.format_help(formatter))
-                result.append("\n")
-        formatter.dedent()
-        # Drop the last "\n", or the header if no options or option groups:
-        return "".join(result[:-1])
-
 
 if __name__ == '__main__':
      CLIRunner().run(sys.argv[1:])
