@@ -671,12 +671,12 @@ class LongHelpArgumentGroup(argparse._ArgumentGroup):
         """
         Return a string containing the help message of the argument group
         """
-        result = formatter.format_heading(self.title)
-        actions_help = []
-        for action in self._group_actions:
-            actions_help.append(formatter.format_option(action))
-        result += "".join(actions_help)
-        return result
+        result = [formatter.format_heading(self.title)]
+        result += [opt_fmt for opt_fmt in map(formatter.format_option, self._group_actions)
+                   if opt_fmt]
+        if len(result) > 1:
+            return "".join(result)
+        return ""
 
 
 class LongHelpArgumentParser(argparse.ArgumentParser):
@@ -773,8 +773,6 @@ class LongHelpArgumentParser(argparse.ArgumentParser):
         super(LongHelpArgumentParser, self).print_help(file)
 
     def format_option_help(self, formatter=None):
-        if formatter is None:
-            formatter = self.formatter
         outputlevel = getattr(formatter, 'output_level', 0)
         result = []
         for group in self._action_groups:
@@ -834,16 +832,23 @@ class _ManHelpFormatter(argparse.HelpFormatter):
                 ".B {:s}{lsep:s}"
                 "{:s}{lsep:s}").format(pgm, long_desc.strip(), lsep=os.linesep)
 
+    def __get_optstring(self, option):
+        if option.metavar:
+            return ", ".join(
+                    [optstr + "={:s}".format(option.metavar)
+                        for optstr in sorted(option.option_strings)])
+        return ", ".join(sorted(option.option_strings))
+
     def format_option(self, option):
-        optstring = ", ".join(sorted(option.option_strings))
+        optstring = self.__get_optstring(option)
         if option.help:
             help_text = option.help
             help_string = ' '.join([l.strip() for l in help_text.splitlines()])
         else:
             help_string = ''
-        return '''.IP "%s"
-%s
-''' % (optstring, help_string)
+        if optstring and option.help and option.help != argparse.SUPPRESS:
+            return ('.IP "{:s}"{lsep:s}'
+                    '{:s}{lsep:s}').format(optstring, help_string, lsep=os.linesep)
 
     @staticmethod
     def format_tail(pkginfo):
