@@ -1252,7 +1252,7 @@ DEFAULT_NAMING_STYLES = {
 
 def _create_naming_options():
     name_options = []
-    for name_type in KNOWN_NAME_TYPES:
+    for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace('_', '-')
