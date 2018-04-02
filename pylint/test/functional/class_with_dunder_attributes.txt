@@ -1,0 +1,2 @@
+dunder-class-attribute:5:MyClass:Class attributes should not contain double underscores
+dunder-class-attribute:7:MyClass:Class attributes should not contain double underscores
