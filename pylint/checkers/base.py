@@ -717,7 +717,7 @@ class BasicChecker(_BasicChecker):
     """checks for :
     * doc strings
     * number of arguments, local variables, branches, returns and statements in
-functions, methods
+    functions, methods
     * required module attributes
     * dangerous default values as arguments
     * redefinition of function / method / class
@@ -1594,8 +1594,10 @@ class DocStringChecker(_BasicChecker):
                 self._check_docstring(ftype, node,
                                       report_missing=not overridden,
                                       confidence=confidence)
-            else:
+            elif isinstance(node.parent.frame(), astroid.Module):
                 self._check_docstring(ftype, node)
+            else:
+                return
 
     visit_asyncfunctiondef = visit_functiondef
 
