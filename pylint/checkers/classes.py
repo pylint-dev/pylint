@@ -857,8 +857,7 @@ a metaclass class method.'}
                     or _has_different_parameters_default_value(
                         meth_node.args, function.args)):
                 return
-            else:
-                break
+            break
 
         # Detect if the parameters are the same as the call's arguments.
         params = _signature_from_arguments(function.args)
@@ -1288,7 +1287,7 @@ a metaclass class method.'}
                             is_builtin_object(klass._proxied) and
                             klass._proxied.name == 'super'):
                         return
-                    elif isinstance(klass, objects.Super):
+                    if isinstance(klass, objects.Super):
                         return
                     try:
                         del not_called_yet[klass]

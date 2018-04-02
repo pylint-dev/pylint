@@ -85,7 +85,7 @@ def _in_iterating_context(node):
         return True
     # Need to make sure the use of the node is in the iterator part of the
     # comprehension.
-    elif isinstance(parent, astroid.Comprehension):
+    if isinstance(parent, astroid.Comprehension):
         if parent.iter == node:
             return True
     # Various built-ins can take in an iterable or list and lead to the same
@@ -894,12 +894,11 @@ class Python3Checker(checkers.BaseChecker):
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
-        else:
-            try:
-                value = next(astroid.unpack_infer(expr))
-            except astroid.InferenceError:
-                return
-            self._check_raise_value(node, value)
+        try:
+            value = next(astroid.unpack_infer(expr))
+        except astroid.InferenceError:
+            return
+        self._check_raise_value(node, value)
 
     def _check_raise_value(self, node, expr):
         if isinstance(expr, astroid.Const):

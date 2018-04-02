@@ -1165,8 +1165,8 @@ functions, methods
                         utils.is_builtin_object(argument._proxied)):
                     self.add_message('bad-reversed-sequence', node=node)
                     return
-                elif any(ancestor.name == 'dict' and utils.is_builtin_object(ancestor)
-                         for ancestor in argument._proxied.ancestors()):
+                if any(ancestor.name == 'dict' and utils.is_builtin_object(ancestor)
+                       for ancestor in argument._proxied.ancestors()):
                     # Mappings aren't accepted by reversed(), unless
                     # they provide explicitly a __reversed__ method.
                     try:
@@ -1626,7 +1626,7 @@ class DocStringChecker(_BasicChecker):
                     # Strings in Python 3, others in Python 2.
                     if PY3K and func.bound.name == 'str':
                         return
-                    elif func.bound.name in ('str', 'unicode', 'bytes'):
+                    if func.bound.name in ('str', 'unicode', 'bytes'):
                         return
             self.add_message('missing-docstring', node=node, args=(node_type,),
                              confidence=confidence)

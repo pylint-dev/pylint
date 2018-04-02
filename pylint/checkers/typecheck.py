@@ -357,13 +357,13 @@ def _determine_callable(callable_obj):
     if isinstance(callable_obj, astroid.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
         return callable_obj, 1, callable_obj.type
-    elif isinstance(callable_obj, astroid.UnboundMethod):
+    if isinstance(callable_obj, astroid.UnboundMethod):
         return callable_obj, 0, 'unbound method'
-    elif isinstance(callable_obj, astroid.FunctionDef):
+    if isinstance(callable_obj, astroid.FunctionDef):
         return callable_obj, 0, callable_obj.type
-    elif isinstance(callable_obj, astroid.Lambda):
+    if isinstance(callable_obj, astroid.Lambda):
         return callable_obj, 0, 'lambda'
-    elif isinstance(callable_obj, astroid.ClassDef):
+    if isinstance(callable_obj, astroid.ClassDef):
         # Class instantiation, lookup __new__ instead.
         # If we only find object.__new__, we can safely check __init__
         # instead. If __new__ belongs to builtins, then we look

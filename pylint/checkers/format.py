@@ -620,7 +620,7 @@ class FormatChecker(BaseTokenChecker):
                     return
                 # 'and' and 'or' are the only boolean operators with lower precedence
                 # than 'not', so parens are only required when they are found.
-                elif token[1] in ('and', 'or'):
+                if token[1] in ('and', 'or'):
                     found_and_or = True
                 # A yield inside an expression must always be in parentheses,
                 # quit early without error.
@@ -1051,7 +1051,8 @@ class FormatChecker(BaseTokenChecker):
             if mobj and '=' in line:
                 front_of_equal, back_of_equal = mobj.group(1).split('=', 1)
                 if front_of_equal.strip() == 'disable':
-                    if 'line-too-long' in set(_msg_id.strip() for _msg_id in back_of_equal.split(',')):
+                    if 'line-too-long' in set(_msg_id.strip()
+                                              for _msg_id in back_of_equal.split(',')):
                         return None
                     line = line.rsplit('#', 1)[0].rstrip()
 
