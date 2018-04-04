@@ -18,7 +18,6 @@ def is_package(filename, location):
 
 LIB_DIRS = [
     os.path.dirname(os.__file__),
-    os.path.dirname(zipfile.__file__)
 ]
 MODULES_TO_CHECK = [(location, module) for location in LIB_DIRS for module in os.listdir(location)
                     if is_module(module) or is_package(module, location)]
