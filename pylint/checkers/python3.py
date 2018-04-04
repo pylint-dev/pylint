@@ -547,7 +547,9 @@ class Python3Checker(checkers.BaseChecker):
                 'maketrans', 'atof', 'atoi', 'atol', 'capitalize', 'expandtabs', 'find', 'rfind',
                 'index', 'rindex', 'count', 'lower', 'split', 'rsplit', 'splitfields', 'join',
                 'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate', 'upper',
-                'ljust', 'rjust', 'center', 'zfill', 'replace'
+                'ljust', 'rjust', 'center', 'zfill', 'replace',
+                'lowercase', 'letters', 'uppercase', 'atol_error',
+                'atof_error', 'atoi_error', 'index_error'
             ])
         }
     }
