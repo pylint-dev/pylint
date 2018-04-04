@@ -1,8 +1,10 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
+import contextlib
+import io
 import os
-import zipfile
+import sys
 
 import pytest
 
@@ -15,6 +17,16 @@ def is_module(filename):
 
 def is_package(filename, location):
     return os.path.exists(os.path.join(location, filename, '__init__.py'))
+
+
+@contextlib.contextmanager
+def _patch_stdout(out):
+    sys.stdout = out
+    try:
+        yield
+    finally:
+        sys.stdout = sys.__stdout__
+
 
 LIB_DIRS = [
     os.path.dirname(os.__file__),
@@ -29,10 +41,11 @@ MODULES_NAMES = [m[1] for m in MODULES_TO_CHECK]
                          MODULES_TO_CHECK, ids=MODULES_NAMES)
 def test_libmodule(test_module_location, test_module_name):
     os.chdir(test_module_location)
-    try:
-        pylint.lint.Run([test_module_name, '--enable=all'])
-    except SystemExit as ex:
-        assert ex.code != 32
-        return
+    with _patch_stdout(io.StringIO()):
+        try:
+            pylint.lint.Run([test_module_name, '--enable=all'])
+        except SystemExit as ex:
+            assert ex.code != 32
+            return
 
-    assert False, "shouldn't get there"
+        assert False, "shouldn't get there"
