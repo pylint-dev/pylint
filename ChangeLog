@@ -2,6 +2,21 @@
 Pylint's ChangeLog
 ------------------
 
+What's New in Pylint 1.8.4?
+===========================
+
+Release date: 2018-04-05
+
+    * Stop early when we already detected a disable for a line too long
+
+    Close #1974
+
+    * Add missing string functions to the Python 3 porting checker
+
+    * Require no-context-manager to infer paths before walking the tree
+
+    Fixes #1874
+
 
 What's New in Pylint 1.8.3?
 ==========================
