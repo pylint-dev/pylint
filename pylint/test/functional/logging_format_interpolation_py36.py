@@ -1,3 +1,4 @@
+"""Test logging-format-interpolation for Python 3.6"""
 import logging as renamed_logging
 
 
