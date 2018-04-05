@@ -134,6 +134,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'Using str.join(sequence) is faster, uses less memory '
                   'and increases readability compared to for-loop iteration.'
                  ),
+        'R1714': ('Consider using "in" to compare a variable with multiple values',
+                  'consider-using-in',
+                  'To check if a variable is equal to one of many values,'
+                  'combine the values into a tuple and check if the variable is contained "in" it '
+                  'instead of checking for equality against each of the values.'
+                  'This is faster and less verbose.'
+                 ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -462,9 +469,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return {key: value for key, value in all_types.items()
                 if key in duplicated_objects}
 
-    @utils.check_messages('consider-merging-isinstance')
-    def visit_boolop(self, node):
-        '''Check isinstance calls which can be merged together.'''
+    def _check_consider_merging_isinstance(self, node):
+        """Check isinstance calls which can be merged together."""
         if node.op != 'or':
             return
 
@@ -474,6 +480,25 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message('consider-merging-isinstance',
                              node=node,
                              args=(duplicated_name, ', '.join(names)))
+
+    def _check_consider_using_in(self, node):
+        # idea: all checks have to meet the following criteria:
+        #   * Are compares
+        #   * contain the same variable name (and are of type Name)
+        #   * and Eiter:
+        #       * "in"-case:
+        #           * all checks are concatenated with 'or'
+        #           * 'ops[0]' is '==' or 'in'
+        #           * len(ops) == 1
+        #       * "not in"-case:
+        #           * all checks are concatenated with 'and'
+        #           * 'ops[0]' is '!=' or 'not in'
+        #           * len(ops) == 1
+
+    @utils.check_messages('consider-merging-isinstance', 'consider-using-in')
+    def visit_boolop(self, node):
+        self._check_consider_merging_isinstance(node)
+        self._check_consider_using_in(node)
 
     @staticmethod
     def _is_simple_assignment(node):

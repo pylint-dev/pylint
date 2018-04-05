@@ -1,0 +1,15 @@
+consider-using-in:10::Consider using "in" to compare a variable with multiple values
+consider-using-in:11::Consider using "in" to compare a variable with multiple values
+consider-using-in:12::Consider using "in" to compare a variable with multiple values
+consider-using-in:13::Consider using "in" to compare a variable with multiple values
+consider-using-in:14::Consider using "in" to compare a variable with multiple values
+consider-using-in:15::Consider using "in" to compare a variable with multiple values
+consider-using-in:16::Consider using "in" to compare a variable with multiple values
+consider-using-in:17::Consider using "in" to compare a variable with multiple values
+consider-using-in:18::Consider using "in" to compare a variable with multiple values
+consider-using-in:19::Consider using "in" to compare a variable with multiple values
+consider-using-in:20::Consider using "in" to compare a variable with multiple values
+consider-using-in:21::Consider using "in" to compare a variable with multiple values
+consider-using-in:22::Consider using "in" to compare a variable with multiple values
+consider-using-in:23::Consider using "in" to compare a variable with multiple values
+consider-using-in:24::Consider using "in" to compare a variable with multiple values
