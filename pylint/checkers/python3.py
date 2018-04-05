@@ -414,7 +414,7 @@ class Python3Checker(checkers.BaseChecker):
                   'bad-python3-import',
                   'Used when importing a module that no longer exists in Python 3.',
                   {'maxversion': (3, 0)}),
-        'W1649': ('Accessing a function method on the string module',
+        'W1649': ('Accessing a deprecated function on the string module',
                   'deprecated-string-function',
                   'Used when accessing a string function that has been deprecated in Python 3.',
                   {'maxversion': (3, 0)}),
@@ -545,7 +545,7 @@ class Python3Checker(checkers.BaseChecker):
         'deprecated-string-function': {
             'string': frozenset([
                 'maketrans', 'atof', 'atoi', 'atol', 'capitalize', 'expandtabs', 'find', 'rfind',
-                'index', 'rindex', 'count', 'lower', 'split', 'rsplit', 'splitfields', 'join',
+                'index', 'rindex', 'count', 'lower', 'letters', 'split', 'rsplit', 'splitfields', 'join',
                 'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate', 'upper',
                 'ljust', 'rjust', 'center', 'zfill', 'replace',
                 'lowercase', 'letters', 'uppercase', 'atol_error',
