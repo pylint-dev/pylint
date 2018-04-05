@@ -4,6 +4,10 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
+
+       Close #1788
+
     * Add a new check, `possibly-unused-variable`.
 
       This is similar to `unused-variable`, the only difference is that it is
