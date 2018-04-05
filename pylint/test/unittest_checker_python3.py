@@ -690,7 +690,7 @@ class TestPython3Checker(testutils.CheckerTestCase):
     def test_ok_string_attribute(self):
         node = astroid.extract_node('''
         import string
-        string.letters #@
+        string.ascii_letters #@
         ''')
         with self.assertNoMessages():
             self.checker.visit_attribute(node)
