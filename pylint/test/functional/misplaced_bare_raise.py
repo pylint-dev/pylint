@@ -73,3 +73,13 @@ class ContextManager(object):
         return self
     def __exit__(self, *args):
         raise
+
+
+def test_dont_trigger_in_finally_clause_found_in_exception_handler():
+    try:
+        raise ValueError('bad value')
+    except ValueError:
+        try:
+            raise IOError('failed')
+        finally:
+            raise

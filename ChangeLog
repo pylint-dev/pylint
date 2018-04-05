@@ -8,6 +8,10 @@ What's New in Pylint 2.0?
 
        Close #1788
 
+    * Don't trigger misplaced-bare-raise when the raise is in a finally clause
+
+      Close #1924
+
     * Add a new check, `possibly-unused-variable`.
 
       This is similar to `unused-variable`, the only difference is that it is
