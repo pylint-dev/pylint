@@ -542,9 +542,9 @@ class Python3Checker(checkers.BaseChecker):
         'deprecated-string-function': {
             'string': frozenset([
                 'maketrans', 'atof', 'atoi', 'atol', 'capitalize', 'expandtabs', 'find', 'rfind',
-                'index', 'rindex', 'count', 'lower', 'letters', 'split', 'rsplit', 'splitfields', 'join',
-                'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate', 'upper',
-                'ljust', 'rjust', 'center', 'zfill', 'replace',
+                'index', 'rindex', 'count', 'lower', 'letters', 'split', 'rsplit', 'splitfields',
+                'join', 'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate',
+                'upper', 'ljust', 'rjust', 'center', 'zfill', 'replace',
                 'lowercase', 'letters', 'uppercase', 'atol_error',
                 'atof_error', 'atoi_error', 'index_error'
             ])
