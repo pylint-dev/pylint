@@ -486,24 +486,29 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_consider_using_in(self, node):
         allowed_ops = {'or': ('==', 'in'),
                        'and': ('!=', 'not in')}
-        if node.op in allowed_ops:
-            if not len(node.values) > 1:
+
+        if node.op not in allowed_ops or len(node.values) < 2:
+            return
+
+        for value in node.values:
+            if (not isinstance(value, astroid.Compare)
+                    or len(value.ops) != 1
+                    or value.ops[0][0] not in allowed_ops[node.op]):
                 return
-            for value in node.values:
-                if (not isinstance(value, astroid.Compare)
-                        or not len(value.ops) == 1
-                        or value.ops[0][0] not in allowed_ops[node.op]):
-                    return
-            occuring_variable_names = []
-            for value in node.values:
-                variable_names = set()
-                for comparable in value.left, value.ops[0][1]:
-                    if isinstance(comparable, astroid.Name):
-                        variable_names.add(comparable.name)
-                occuring_variable_names.append(variable_names)
-            shared_names = reduce(lambda a, b: a.intersection(b), occuring_variable_names)
-            if shared_names:
-                self.add_message('consider-using-in', line=node.lineno, col_offset=node.col_offset, node=node)
+
+        # Check if there exists at least one variable in all the comparisons
+        # which can be used for the "variable in (...)"-check
+        variables = []
+        for value in node.values:
+            names = set()
+            for comparable in value.left, value.ops[0][1]:
+                if isinstance(comparable, astroid.Name):
+                    names.add(comparable.name)
+            variables.append(names)
+        shared_names = reduce(lambda a, b: a.intersection(b), variables)
+
+        if shared_names:
+            self.add_message('consider-using-in', node=node)
 
     @utils.check_messages('consider-merging-isinstance', 'consider-using-in')
     def visit_boolop(self, node):
