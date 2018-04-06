@@ -66,7 +66,7 @@ def _get_env():
     env['PYTHONPATH'] = os.pathsep.join(sys.path)
     return env
 
-def lint(filename, options=None):
+def lint(filename, options=()):
     """Pylint the given file.
 
     When run from emacs we will be in the directory of a file, and passed its
@@ -94,10 +94,9 @@ def lint(filename, options=None):
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
     run_cmd = "import sys; from pylint.lint import Run; Run(sys.argv[1:])"
-    options = options or ['--disable=C,R,I']
     cmd = [sys.executable, "-c", run_cmd] + [
         '--msg-template', '{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}',
-        '-r', 'n', child_path] + options
+        '-r', 'n', child_path] + list(options)
     process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=_get_env(),
                     universal_newlines=True)
 
