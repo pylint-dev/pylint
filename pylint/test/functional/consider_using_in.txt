@@ -12,4 +12,3 @@ consider-using-in:20::Consider using "in" to compare a variable with multiple va
 consider-using-in:21::Consider using "in" to compare a variable with multiple values
 consider-using-in:22::Consider using "in" to compare a variable with multiple values
 consider-using-in:23::Consider using "in" to compare a variable with multiple values
-consider-using-in:24::Consider using "in" to compare a variable with multiple values

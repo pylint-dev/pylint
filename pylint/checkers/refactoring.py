@@ -16,6 +16,8 @@
 
 """Looks for code which can be refactored."""
 import builtins
+from functools import reduce
+
 import collections
 import itertools
 import tokenize
@@ -482,18 +484,26 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                              args=(duplicated_name, ', '.join(names)))
 
     def _check_consider_using_in(self, node):
-        # idea: all checks have to meet the following criteria:
-        #   * Are compares
-        #   * contain the same variable name (and are of type Name)
-        #   * and Eiter:
-        #       * "in"-case:
-        #           * all checks are concatenated with 'or'
-        #           * 'ops[0]' is '==' or 'in'
-        #           * len(ops) == 1
-        #       * "not in"-case:
-        #           * all checks are concatenated with 'and'
-        #           * 'ops[0]' is '!=' or 'not in'
-        #           * len(ops) == 1
+        allowed_ops = {'or': ('==', 'in'),
+                       'and': ('!=', 'not in')}
+        if node.op in allowed_ops:
+            if not len(node.values) > 1:
+                return
+            for value in node.values:
+                if (not isinstance(value, astroid.Compare)
+                        or not len(value.ops) == 1
+                        or value.ops[0][0] not in allowed_ops[node.op]):
+                    return
+            occuring_variable_names = []
+            for value in node.values:
+                variable_names = set()
+                for comparable in value.left, value.ops[0][1]:
+                    if isinstance(comparable, astroid.Name):
+                        variable_names.add(comparable.name)
+                occuring_variable_names.append(variable_names)
+            shared_names = reduce(lambda a, b: a.intersection(b), occuring_variable_names)
+            if shared_names:
+                self.add_message('consider-using-in', line=node.lineno, col_offset=node.col_offset, node=node)
 
     @utils.check_messages('consider-merging-isinstance', 'consider-using-in')
     def visit_boolop(self, node):
