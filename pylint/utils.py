@@ -372,6 +372,9 @@ class MessagesHandlerMixIn(object):
         try:
             return self.file_state._module_msgs_state[msgid][line]
         except KeyError:
+            if (self.file_state.get_effective_max_line_number() and 
+                line > self.file_state.get_effective_max_line_number()):
+                return False
             return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
@@ -661,6 +664,12 @@ class FileState(object):
             for line in lines:
                 yield 'suppressed-message', line, \
                     (msgs_store.get_msg_display_string(warning), from_)
+
+    def get_effective_max_line_number(self):
+        """Return the maximum line number present in _module_msgs_state."""
+        if self._module_msgs_state:
+            return max([max(d.keys()) for d in self._module_msgs_state.values()])
+        return None
 
 
 class MessagesStore(object):
