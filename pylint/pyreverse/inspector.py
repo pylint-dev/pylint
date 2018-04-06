@@ -282,7 +282,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         package_dir = os.path.dirname(self.project.path)
         if context_name == mod_path:
             return 0
-        elif modutils.is_standard_module(mod_path, (package_dir,)):
+        if modutils.is_standard_module(mod_path, (package_dir,)):
             return 1
         return 0
 

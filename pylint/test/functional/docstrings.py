@@ -81,3 +81,10 @@ def function5():
 
 def function6():
     """ I am a {} docstring.""".format("good")
+
+def function7():
+    """docstring"""
+    def inner():
+        # Not documented
+        return 42
+    return inner()

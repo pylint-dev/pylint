@@ -100,6 +100,17 @@ class TestDocstring(CheckerTestCase):
         with self.assertAddsMessages(message):
             self.checker.visit_classdef(klass)
 
+    def test_inner_function_no_docstring(self):
+        func = astroid.extract_node("""
+        def func(tion):
+            \"""Documented\"""
+            def inner(fun):
+                # Not documented
+                pass
+        """)
+        with self.assertNoMessages():
+            self.checker.visit_functiondef(func)
+
 
 class TestNameChecker(CheckerTestCase):
     CHECKER_CLASS = base.NameChecker

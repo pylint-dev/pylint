@@ -85,7 +85,7 @@ def _in_iterating_context(node):
         return True
     # Need to make sure the use of the node is in the iterator part of the
     # comprehension.
-    elif isinstance(parent, astroid.Comprehension):
+    if isinstance(parent, astroid.Comprehension):
         if parent.iter == node:
             return True
     # Various built-ins can take in an iterable or list and lead to the same
@@ -411,7 +411,7 @@ class Python3Checker(checkers.BaseChecker):
                   'bad-python3-import',
                   'Used when importing a module that no longer exists in Python 3.',
                   {'maxversion': (3, 0)}),
-        'W1649': ('Accessing a function method on the string module',
+        'W1649': ('Accessing a deprecated function on the string module',
                   'deprecated-string-function',
                   'Used when accessing a string function that has been deprecated in Python 3.',
                   {'maxversion': (3, 0)}),
@@ -542,9 +542,11 @@ class Python3Checker(checkers.BaseChecker):
         'deprecated-string-function': {
             'string': frozenset([
                 'maketrans', 'atof', 'atoi', 'atol', 'capitalize', 'expandtabs', 'find', 'rfind',
-                'index', 'rindex', 'count', 'lower', 'split', 'rsplit', 'splitfields', 'join',
-                'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate', 'upper',
-                'ljust', 'rjust', 'center', 'zfill', 'replace'
+                'index', 'rindex', 'count', 'lower', 'letters', 'split', 'rsplit', 'splitfields',
+                'join', 'joinfields', 'lstrip', 'rstrip', 'strip', 'swapcase', 'translate',
+                'upper', 'ljust', 'rjust', 'center', 'zfill', 'replace',
+                'lowercase', 'letters', 'uppercase', 'atol_error',
+                'atof_error', 'atoi_error', 'index_error'
             ])
         }
     }
@@ -894,12 +896,11 @@ class Python3Checker(checkers.BaseChecker):
         expr = node.exc
         if self._check_raise_value(node, expr):
             return
-        else:
-            try:
-                value = next(astroid.unpack_infer(expr))
-            except astroid.InferenceError:
-                return
-            self._check_raise_value(node, value)
+        try:
+            value = next(astroid.unpack_infer(expr))
+        except astroid.InferenceError:
+            return
+        self._check_raise_value(node, value)
 
     def _check_raise_value(self, node, expr):
         if isinstance(expr, astroid.Const):

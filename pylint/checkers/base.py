@@ -717,7 +717,7 @@ class BasicChecker(_BasicChecker):
     """checks for :
     * doc strings
     * number of arguments, local variables, branches, returns and statements in
-functions, methods
+    functions, methods
     * required module attributes
     * dangerous default values as arguments
     * redefinition of function / method / class
@@ -1165,8 +1165,8 @@ functions, methods
                         utils.is_builtin_object(argument._proxied)):
                     self.add_message('bad-reversed-sequence', node=node)
                     return
-                elif any(ancestor.name == 'dict' and utils.is_builtin_object(ancestor)
-                         for ancestor in argument._proxied.ancestors()):
+                if any(ancestor.name == 'dict' and utils.is_builtin_object(ancestor)
+                       for ancestor in argument._proxied.ancestors()):
                     # Mappings aren't accepted by reversed(), unless
                     # they provide explicitly a __reversed__ method.
                     try:
@@ -1252,7 +1252,7 @@ DEFAULT_NAMING_STYLES = {
 
 def _create_naming_options():
     name_options = []
-    for name_type in KNOWN_NAME_TYPES:
+    for name_type in sorted(KNOWN_NAME_TYPES):
         human_readable_name = HUMAN_READABLE_TYPES[name_type]
         default_style = DEFAULT_NAMING_STYLES[name_type]
         name_type = name_type.replace('_', '-')
@@ -1594,8 +1594,10 @@ class DocStringChecker(_BasicChecker):
                 self._check_docstring(ftype, node,
                                       report_missing=not overridden,
                                       confidence=confidence)
-            else:
+            elif isinstance(node.parent.frame(), astroid.Module):
                 self._check_docstring(ftype, node)
+            else:
+                return
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -1626,7 +1628,7 @@ class DocStringChecker(_BasicChecker):
                     # Strings in Python 3, others in Python 2.
                     if PY3K and func.bound.name == 'str':
                         return
-                    elif func.bound.name in ('str', 'unicode', 'bytes'):
+                    if func.bound.name in ('str', 'unicode', 'bytes'):
                         return
             self.add_message('missing-docstring', node=node, args=(node_type,),
                              confidence=confidence)

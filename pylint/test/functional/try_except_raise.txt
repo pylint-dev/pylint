@@ -1,0 +1,2 @@
+try-except-raise:5::The except handler raises immediately
+try-except-raise:15::The except handler raises immediately

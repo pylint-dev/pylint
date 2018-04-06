@@ -4,6 +4,58 @@ Pylint's ChangeLog
 What's New in Pylint 2.0?
 =========================
 
+    * `logging-format-interpolation` also emits when f-strings are used instead of % syntax.
+
+       Close #1788
+
+    * Don't trigger misplaced-bare-raise when the raise is in a finally clause
+
+      Close #1924
+
+    * Add a new check, `possibly-unused-variable`.
+
+      This is similar to `unused-variable`, the only difference is that it is
+      emitted when we detect a locals() call in the scope of the unused variable.
+      The `locals()` call could potentially use the said variable, by consuming
+      all values that are present up to the point of the call. This new check
+      allows to disable this error when the user intentionally uses `locals()`
+      to consume everything.
+
+      Close #1909.
+
+    * `no-else-return` accounts for multiple cases
+
+       The check was a bit overrestrictive because we were checking for
+       return nodes in the .orelse node. At that point though the if statement
+       can be refactored to not have the orelse. This improves the detection of
+       other cases, for instance it now detects TryExcept nodes that are part of
+       the .else branch.
+
+       Close #1852
+
+    * Added two new checks, `invalid-envvar-value` and `invalid-envvar-default`.
+
+      The former is trigger whenever pylint detects that environment variable manipulation
+      functions uses a different type than strings, while the latter is emitted whenever
+      the said functions are using a default variable of different type than expected.
+
+    * Add a check `consider-using-join` for concatenation of strings using str.join(sequence)
+
+      Close #1952
+
+    * Add a check `consider-swap-variables` for swapping variables with tuple unpacking
+
+      Close #1922
+
+    * Add new checker `try-except-raise` that warns the user if an except handler block
+      has a ``raise`` statement as its first operator. The warning is shown when there is
+      a bare raise statement, effectively re-raising the exception that was caught or the
+      type of the exception being raised is the same as the one being handled.
+
+    * Don't crash on invalid strings when checking for `logging-format-interpolation`
+
+      Close #1944
+
     * Exempt `__doc__` from triggering a `redefined-builtin`
 
       `__doc__` can be used to specify a docstring for a module without
@@ -92,6 +144,25 @@ What's New in Pylint 2.0?
 
       Close #1824
 
+    * Add of a new checker that warns the user if some messages are enabled or disabled
+      by id instead of symbol.
+
+      Close #1599
+
+    * Suppress false-positive ``not-callable`` messages from certain
+      staticmethod descriptors
+
+      Close #1699
+
+    * Fix indentation handling with tabs
+
+      Close #1148
+
+    * Fix false-positive ``bad-continuation`` error
+
+      Close #638
+
+
 What's New in Pylint 1.8.1?
 =========================
 
@@ -127,7 +198,7 @@ Release date: 2017-12-15
 
       Close #1713
 
-    * Fixing u'' string in superfluous-parens message 
+    * Fixing u'' string in superfluous-parens message
 
       Close #1420
 
@@ -149,7 +220,7 @@ Release date: 2017-12-15
       This may lead to args list getting modified if keyword argument's value
       is not provided in the function call assuming it will take default value
       provided in the definition.
-	
+
     * The `invalid-name` check contains the name of the template that caused the failure
 
       Close #1176
@@ -201,7 +272,7 @@ Release date: 2017-12-15
     * Added a new key-value pair in json output. The key is ``message-id``
       and the value is the message id.
       Close #1512
-		
+
     * Added a new Python 3.0 check for raising a StopIteration inside a generator.
       The check about raising a StopIteration inside a generator is also valid if the exception
       raised inherit from StopIteration.
@@ -270,7 +341,7 @@ Release date: 2017-12-15
       Close #1681
 
     * Fix ``line-too-long`` message deactivated by wrong disable directive.
-      The directive ``disable=fixme`` doesn't deactivate anymore the emission 
+      The directive ``disable=fixme`` doesn't deactivate anymore the emission
       of ``line-too-long`` message for long commented lines.
       Close #1741
 
@@ -281,7 +352,7 @@ Release date: 2017-12-15
     * Fix the wrong scope of the ``disable=`` directive after a commented line.
       For example when a ``disable=line-too-long`` directive is at the end of
       a long commented line, it no longer disables the emission of ``line-too-long``
-      message for lines that follow. 
+      message for lines that follow.
       Close #1742
 
 What's New in Pylint 1.7.1?

@@ -137,18 +137,18 @@ def clobber_in_except(node):
     (False, None) otherwise.
     """
     if isinstance(node, astroid.AssignAttr):
-        return (True, (node.attrname, 'object %r' % (node.expr.as_string(),)))
-    elif isinstance(node, astroid.AssignName):
+        return True, (node.attrname, 'object %r' % (node.expr.as_string(),))
+    if isinstance(node, astroid.AssignName):
         name = node.name
         if is_builtin(name):
             return (True, (name, 'builtins'))
-        else:
-            stmts = node.lookup(name)[1]
-            if (stmts and not isinstance(stmts[0].assign_type(),
-                                         (astroid.Assign, astroid.AugAssign,
-                                          astroid.ExceptHandler))):
-                return (True, (name, 'outer scope (line %s)' % stmts[0].fromlineno))
-    return (False, None)
+
+        stmts = node.lookup(name)[1]
+        if (stmts and not isinstance(stmts[0].assign_type(),
+                                     (astroid.Assign, astroid.AugAssign,
+                                      astroid.ExceptHandler))):
+            return True, (name, 'outer scope (line %s)' % stmts[0].fromlineno)
+    return False, None
 
 
 def is_super(node):

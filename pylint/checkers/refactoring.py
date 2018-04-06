@@ -37,23 +37,15 @@ def _all_elements_are_true(gen):
 def _if_statement_is_always_returning(if_node):
     def _has_return_node(elems, scope):
         for node in elems:
-            if isinstance(node, astroid.If):
+            if isinstance(node, astroid.If) and node.orelse:
                 yield _if_statement_is_always_returning(node)
-            elif isinstance(node, astroid.Return):
+            if isinstance(node, astroid.Return):
                 yield node.scope() is scope
 
     scope = if_node.scope()
-    body_returns = _all_elements_are_true(
+    return _all_elements_are_true(
         _has_return_node(if_node.body, scope=scope)
     )
-    if if_node.orelse:
-        orelse_returns = _all_elements_are_true(
-            _has_return_node(if_node.orelse, scope=scope)
-        )
-    else:
-        orelse_returns = False
-
-    return body_returns and orelse_returns
 
 
 class RefactoringChecker(checkers.BaseTokenChecker):
@@ -130,6 +122,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'at the end of function or method definition. This statement can safely be '
                   'removed because Python will implicitly return None'
                  ),
+        'R1712': ('Consider using tuple unpacking for swapping variables',
+                  'consider-swap-variables',
+                  'You do not have to use a temporary variable in order to '
+                  'swap variables. Using "tuple unpacking" to directly swap '
+                  'variables makes the intention more clear.'
+                 ),
+        'R1713': ('Consider using str.join(sequence) for concatenating '
+                  'strings from an iterable',
+                  'consider-using-join',
+                  'Using str.join(sequence) is faster, uses less memory '
+                  'and increases readability compared to for-loop iteration.'
+                 ),
     }
     options = (('max-nested-blocks',
                 {'default': 5, 'type': 'int', 'metavar': '<int>',
@@ -157,6 +161,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._nested_blocks = []
         self._elifs = []
         self._nested_blocks_msg = None
+        self._reported_swap_nodes = set()
 
     def open(self):
         # do this in open since config not fully initialized in __init__
@@ -470,8 +475,35 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                              node=node,
                              args=(duplicated_name, ', '.join(names)))
 
-    @utils.check_messages('simplify-boolean-expression', 'consider-using-ternary')
+    @staticmethod
+    def _is_simple_assignment(node):
+        return (isinstance(node, astroid.Assign)
+                and len(node.targets) == 1
+                and isinstance(node.targets[0], astroid.node_classes.AssignName)
+                and isinstance(node.value, astroid.node_classes.Name))
+
+    def _check_swap_variables(self, node):
+        if not node.next_sibling() or not node.next_sibling().next_sibling():
+            return
+        assignments = [
+            node, node.next_sibling(), node.next_sibling().next_sibling()
+        ]
+        if not all(self._is_simple_assignment(node) for node in assignments):
+            return
+        if any(node in self._reported_swap_nodes for node in assignments):
+            return
+        left = [node.targets[0].name for node in assignments]
+        right = [node.value.name for node in assignments]
+        if left[0] == right[-1] and left[1:] == right[:-1]:
+            self._reported_swap_nodes.update(assignments)
+            message = 'consider-swap-variables'
+            self.add_message(message, node=node)
+
+    @utils.check_messages('simplify-boolean-expression',
+                          'consider-using-ternary',
+                          'consider-swap-variables')
     def visit_assign(self, node):
+        self._check_swap_variables(node)
         if self._is_and_or_ternary(node.value):
             cond, truth_value, false_value = self._and_or_ternary_arguments(node.value)
         elif self._is_seq_based_ternary(node.value):
@@ -492,6 +524,37 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message(message, node=node, args=(suggestion,))
 
     visit_return = visit_assign
+
+    def _check_consider_using_join(self, aug_assign):
+        """
+        We start with the augmented assignment and work our way upwards.
+        Names of variables for nodes if match successful:
+        result = ''  # assign
+        for number in ['1', '2', '3']  # for_loop
+            result += number  # aug_assign
+        """
+        for_loop = aug_assign.parent
+        if not isinstance(for_loop, astroid.node_classes.For):
+            return
+        assign = for_loop.previous_sibling()
+        if not isinstance(assign, astroid.node_classes.Assign):
+            return
+        result_assign_names = {target.name for target in assign.targets}
+
+        is_concat_loop = (aug_assign.op == '+='
+                          and isinstance(aug_assign.target, astroid.AssignName)
+                          and len(for_loop.body) == 1
+                          and aug_assign.target.name in result_assign_names
+                          and isinstance(assign.value, astroid.node_classes.Const)
+                          and isinstance(assign.value.value, str)
+                          and isinstance(aug_assign.value, astroid.node_classes.Name)
+                          and aug_assign.value.name == for_loop.target.name)
+        if is_concat_loop:
+            self.add_message('consider-using-join', node=aug_assign)
+
+    @utils.check_messages('consider-using-join')
+    def visit_augassign(self, node):
+        self._check_consider_using_join(node)
 
     @staticmethod
     def _is_and_or_ternary(node):

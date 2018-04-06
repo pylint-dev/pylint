@@ -203,7 +203,7 @@ MSGS = {
               'no-member',
               'Used when a variable is accessed for an unexistent member.',
               {'old_names': [('E1103', 'maybe-no-member')]}),
-    'I1101': ('%s %r has not %r member%s, but source is unavailable. Consider '
+    'I1101': ('%s %r has no %r member%s, but source is unavailable. Consider '
               'adding this module to extension-pkg-whitelist if you want '
               'to perform analysis based on run-time introspection of living objects.',
               'c-extension-no-member',
@@ -357,13 +357,13 @@ def _determine_callable(callable_obj):
     if isinstance(callable_obj, astroid.BoundMethod):
         # Bound methods have an extra implicit 'self' argument.
         return callable_obj, 1, callable_obj.type
-    elif isinstance(callable_obj, astroid.UnboundMethod):
+    if isinstance(callable_obj, astroid.UnboundMethod):
         return callable_obj, 0, 'unbound method'
-    elif isinstance(callable_obj, astroid.FunctionDef):
+    if isinstance(callable_obj, astroid.FunctionDef):
         return callable_obj, 0, callable_obj.type
-    elif isinstance(callable_obj, astroid.Lambda):
+    if isinstance(callable_obj, astroid.Lambda):
         return callable_obj, 0, 'lambda'
-    elif isinstance(callable_obj, astroid.ClassDef):
+    if isinstance(callable_obj, astroid.ClassDef):
         # Class instantiation, lookup __new__ instead.
         # If we only find object.__new__, we can safely check __init__
         # instead. If __new__ belongs to builtins, then we look
@@ -875,8 +875,13 @@ accessed. Python regular expressions are accepted.'}
 
         called = safe_infer(node.func)
         # only function, generator and object defining __call__ are allowed
+        # Ignore instances of descriptors since astroid cannot properly handle them
+        # yet
         if called and not called.callable():
-            if isinstance(called, astroid.Instance) and not has_known_bases(called):
+            if isinstance(called, astroid.Instance) and (
+                    not has_known_bases(called)
+                    or (isinstance(called.scope(), astroid.ClassDef)
+                        and '__get__' in called.locals)):
                 # Don't emit if we can't make sure this object is callable.
                 pass
             else:

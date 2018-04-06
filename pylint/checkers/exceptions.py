@@ -84,6 +84,12 @@ MSGS = {
               'a bare raise inside a finally clause, which might work, as long '
               'as an exception is raised inside the try block, but it is '
               'nevertheless a code smell that must not be relied upon.'),
+    'E0705': ('The except handler raises immediately',
+              'try-except-raise',
+              'Used when an except handler uses raise as its first or only '
+              'operator. This is useless because it raises back the exception '
+              'immediately. Remove the raise operator or the entire '
+              'try-except-raise block!'),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
               'Used when a new style class which doesn\'t inherit from \
@@ -280,7 +286,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         current = node
         # Stop when a new scope is generated or when the raise
         # statement is found inside a TryFinally.
-        ignores = (astroid.ExceptHandler, astroid.FunctionDef, astroid.TryFinally)
+        ignores = (astroid.ExceptHandler, astroid.FunctionDef,)
         while current and not isinstance(current.parent, ignores):
             current = current.parent
 
@@ -347,7 +353,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                                  node=handler.type,
                                  args=(exc.name, ))
 
-    @utils.check_messages('bare-except', 'broad-except',
+    @utils.check_messages('bare-except', 'broad-except', 'try-except-raise',
                           'binary-op-exception', 'bad-except-order',
                           'catching-non-exception', 'duplicate-except')
     def visit_tryexcept(self, node):
@@ -355,9 +361,32 @@ class ExceptionsChecker(checkers.BaseChecker):
         exceptions_classes = []
         nb_handlers = len(node.handlers)
         for index, handler in enumerate(node.handlers):
+            # `raise` as the first operator inside the except handler
+            if utils.is_raising([handler.body[0]]):
+                # flags when there is a bare raise
+                if handler.body[0].exc is None:
+                    self.add_message('try-except-raise', node=handler)
+                else:
+                    # not a bare raise
+                    raise_type = None
+                    if isinstance(handler.body[0].exc, astroid.Call):
+                        raise_type = handler.body[0].exc.func
+
+                    # flags only when the exception types of the handler
+                    # and the raise statement match b/c we're raising the same
+                    # type of exception that we're trying to handle. Example:
+                    #
+                    # except ValueError:
+                    #   raise ValueError('some user friendly message')
+                    if (isinstance(handler.type, astroid.Name)
+                            and isinstance(raise_type, astroid.Name)
+                            and raise_type.name == handler.type.name):
+                        self.add_message('try-except-raise', node=handler)
+
             if handler.type is None:
                 if not utils.is_raising(handler.body):
                     self.add_message('bare-except', node=handler)
+
                 # check if an "except:" is followed by some other
                 # except
                 if index < (nb_handlers - 1):
