@@ -402,8 +402,7 @@ class BasicErrorChecker(_BasicChecker):
                   'return-arg-in-generator',
                   'Used when a "return" statement with an argument is found '
                   'outside in a generator function or method (e.g. with some '
-                  '"yield" statements).',
-                  {'maxversion': (3, 3)}),
+                  '"yield" statements).'),
         'E0107': ("Use of the non-existent %s operator",
                   'nonexistent-operator',
                   "Used when you attempt to use the C-style pre-increment or "
@@ -447,9 +446,8 @@ class BasicErrorChecker(_BasicChecker):
         'E0118': ("Name %r is used prior to global declaration",
                   'used-prior-global-declaration',
                   'Emitted when a name is used prior a global declaration, '
-                  'which results in an error since Python 3.6.',
-                  {'minversion': (3, 6)}),
-        }
+                  'which results in an error since Python 3.6.')
+    }
 
     @utils.check_messages('function-redefined')
     def visit_classdef(self, node):
@@ -1663,9 +1661,8 @@ class LambdaForComprehensionChecker(_BasicChecker):
                       'deprecated-lambda',
                       'Used when a lambda is the first argument to "map" or '
                       '"filter". It could be clearer as a list '
-                      'comprehension or generator expression.',
-                      {'maxversion': (3, 0)}),
-           }
+                      'comprehension or generator expression.')
+            }
 
     @utils.check_messages('deprecated-lambda')
     def visit_call(self, node):
