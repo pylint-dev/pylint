@@ -395,12 +395,12 @@ class MessagesHandlerMixIn(object):
             return self.file_state._module_msgs_state[msgid][line]
         except KeyError:
             # Check if the message's line is after the maximum line existing in ast tree.
-            # This line won't appear in the ast tree and won't be referred in 
+            # This line won't appear in the ast tree and won't be referred in
             # self.file_state._module_msgs_state
             # This happens for example with a commented line at the end of a module.
-            if (self.file_state.get_effective_max_line_number() and 
-                line > self.file_state.get_effective_max_line_number()):
-                return not msgid in self.file_state._raw_module_msgs_state 
+            if (self.file_state.get_effective_max_line_number() and
+                    line > self.file_state.get_effective_max_line_number()):
+                return not msgid in self.file_state._raw_module_msgs_state
             return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
