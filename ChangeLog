@@ -162,6 +162,11 @@ What's New in Pylint 2.0?
 
       Close #638
 
+    * Fix false-positive ``line-too-long`` message emission for
+      commented line at the end of a module
+
+      Close #1950
+
 
 What's New in Pylint 1.8.1?
 =========================
