@@ -136,7 +136,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                   'Using str.join(sequence) is faster, uses less memory '
                   'and increases readability compared to for-loop iteration.'
                  ),
-        'R1714': ('Consider using "in" to compare a variable with multiple values',
+        'R1714': ('Consider merging these comparisons with "in" to %s %s (%s)',
                   'consider-using-in',
                   'To check if a variable is equal to one of many values,'
                   'combine the values into a tuple and check if the variable is contained "in" it '
@@ -484,8 +484,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                              args=(duplicated_name, ', '.join(names)))
 
     def _check_consider_using_in(self, node):
-        allowed_ops = {'or': ('==', 'in'),
-                       'and': ('!=', 'not in')}
+        allowed_ops = {'or': '==',
+                       'and': '!='}
 
         if node.op not in allowed_ops or len(node.values) < 2:
             return
@@ -496,19 +496,32 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     or value.ops[0][0] not in allowed_ops[node.op]):
                 return
 
-        # Check if there exists at least one variable in all the comparisons
-        # which can be used for the "variable in (...)"-check
-        variables = []
+        variable_sets = []
+        values = []
         for value in node.values:
-            names = set()
+            variables = set()
             for comparable in value.left, value.ops[0][1]:
                 if isinstance(comparable, astroid.Name):
-                    names.add(comparable.name)
-            variables.append(names)
-        shared_names = reduce(lambda a, b: a.intersection(b), variables)
+                    variables.add(comparable.as_string())
+                values.append(comparable.as_string())
+            variable_sets.append(variables)
+        # Check if there exists at least one variable in all the comparisons
+        # which can be used for the "variable in (...)"-check
+        common_variables = reduce(lambda a, b: a.intersection(b), variable_sets)
 
-        if shared_names:
-            self.add_message('consider-using-in', node=node)
+        if not common_variables:
+            return
+
+        # Gather information for the suggestion
+        variable = sorted(list(common_variables))[0]
+        comprehension = 'in' if node.op == 'or' else 'not in'
+        values = list(collections.OrderedDict.fromkeys(values))
+        values.remove(variable)
+        values_string = ', '.join(values) if len(values) != 1 else values[0] + ','
+
+        self.add_message('consider-using-in',
+                         node=node,
+                         args=(variable, comprehension, values_string))
 
     @utils.check_messages('consider-merging-isinstance', 'consider-using-in')
     def visit_boolop(self, node):
