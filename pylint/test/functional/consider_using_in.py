@@ -19,6 +19,7 @@ value == 1 or value == a_list  # [consider-using-in]
 value == a_set or value == a_list or value == a_str  # [consider-using-in]
 value != 1 and value != 2  # [consider-using-in]
 value1 == value2 or value2 == value1  # [consider-using-in]
+a_list == [1, 2, 3] or a_list == []  # [consider-using-in]
 
 # Undecided
 'value' == 1 or 'value' == 2  # no variables

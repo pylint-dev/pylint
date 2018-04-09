@@ -10,3 +10,4 @@ consider-using-in:18::Consider merging these comparisons with "in" to value in (
 consider-using-in:19::Consider merging these comparisons with "in" to value in (a_set, a_list, a_str)
 consider-using-in:20::Consider merging these comparisons with "in" to value not in (1, 2)
 consider-using-in:21::Consider merging these comparisons with "in" to value1 in (value2,)
+consider-using-in:22::Consider merging these comparisons with "in" to a_list in ([1, 2, 3], [])
