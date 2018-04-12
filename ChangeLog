@@ -11,6 +11,11 @@ Release date:
 
      Close #1936
 
+   * Added a new Python 2/3 check for accessing removed urllib functions
+
+     Close #1997
+
+
 
 What's New in Pylint 1.8.4?
 ===========================

@@ -697,6 +697,21 @@ class TestPython3Checker(testutils.CheckerTestCase):
             self.checker.visit_attribute(node)
 
     @python2_only
+    def test_bad_urllib_attribute(self):
+        nodes = astroid.extract_node('''
+        import urllib
+        urllib.addbase #@
+        urllib.splithost #@
+        urllib.urlretrieve #@
+        urllib.urlopen #@
+        urllib.urlencode #@
+        ''')
+        for node in nodes:
+            message = testutils.Message('deprecated-urllib-function', node=node)
+            with self.assertAddsMessages(message):
+                self.checker.visit_attribute(node)
+
+    @python2_only
     def test_ok_string_attribute(self):
         node = astroid.extract_node('''
         import string
